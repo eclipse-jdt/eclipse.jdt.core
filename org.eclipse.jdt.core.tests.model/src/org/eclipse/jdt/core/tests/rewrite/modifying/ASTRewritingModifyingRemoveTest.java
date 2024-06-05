@@ -50,11 +50,12 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 
 	public void test0001() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0001", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test0001;\n");
-		buf.append("public class X {\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test0001;
+			public class X {
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createCU(cu, false);
 
@@ -64,23 +65,25 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuilder();
-		buf.append("\n");
-		buf.append("public class X {\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			
+			public class X {
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void test0002() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0002", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test0002;\n");
-		buf.append("import java.util.*;\n");
-		buf.append("import java.lang.*;\n");
-		buf.append("import java.awt.*;\n");
-		buf.append("public class X {\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test0002;
+			import java.util.*;
+			import java.lang.*;
+			import java.awt.*;
+			public class X {
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createCU(cu, false);
 
@@ -91,30 +94,32 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuilder();
-		buf.append("package test0002;\n");
-		buf.append("import java.lang.*;\n");
-		buf.append("import java.awt.*;\n");
-		buf.append("public class X {\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test0002;
+			import java.lang.*;
+			import java.awt.*;
+			public class X {
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void test0003() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0003", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test0003;\n");
-		buf.append("\n");
-		buf.append("public class X {\n");
-		buf.append("\n");
-		buf.append("}\n");
-		buf.append("class Y {\n");
-		buf.append("\n");
-		buf.append("}\n");
-		buf.append("class Z {\n");
-		buf.append("\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test0003;
+			
+			public class X {
+			
+			}
+			class Y {
+			
+			}
+			class Z {
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createCU(cu, false);
 
@@ -125,33 +130,35 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuilder();
-		buf.append("package test0003;\n");
-		buf.append("\n");
-		buf.append("public class X {\n");
-		buf.append("\n");
-		buf.append("}\n");
-		buf.append("class Z {\n");
-		buf.append("\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test0003;
+			
+			public class X {
+			
+			}
+			class Z {
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void test0004() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0004", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test0004;\n");
-		buf.append("\n");
-		buf.append("public class X {\n");
-		buf.append("\n");
-		buf.append("}\n");
-		buf.append("class Y {\n");
-		buf.append("\n");
-		buf.append("}\n");
-		buf.append("class Z {\n");
-		buf.append("\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test0004;
+			
+			public class X {
+			
+			}
+			class Y {
+			
+			}
+			class Z {
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createCU(cu, false);
 
@@ -167,19 +174,20 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuilder();
-		buf.append("package test0004;\n");
-		buf.append("\n");
-		buf.append("public class X {\n");
-		buf.append("\n");
-		buf.append("}\n");
-		buf.append("class Y {\n");
-		buf.append("\n");
-		buf.append("}\n");
-		buf.append("class Z {\n");
-		buf.append("\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test0004;
+			
+			public class X {
+			
+			}
+			class Y {
+			
+			}
+			class Z {
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 //	public void test0005() throws Exception {
@@ -218,20 +226,21 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 
 	public void test0006() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0006", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test0006;\n");
-		buf.append("\n");
-		buf.append("public class X {\n");
-		buf.append("    void foo() {\n");
-		buf.append("        bar1();\n");
-		buf.append("        \n");
-		buf.append("        //comment1\n");
-		buf.append("        bar2();//comment2\n");
-		buf.append("        //comment3\n");
-		buf.append("        bar3();\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test0006;
+			
+			public class X {
+			    void foo() {
+			        bar1();
+			       \s
+			        //comment1
+			        bar2();//comment2
+			        //comment3
+			        bar3();
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createCU(cu, false);
 
@@ -246,18 +255,19 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuilder();
-		buf.append("package test0006;\n");
-		buf.append("\n");
-		buf.append("public class X {\n");
-		buf.append("    void foo() {\n");
-		buf.append("        bar1();\n");
-		buf.append("        \n");
-		buf.append("        //comment3\n");
-		buf.append("        bar3();\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test0006;
+			
+			public class X {
+			    void foo() {
+			        bar1();
+			       \s
+			        //comment3
+			        bar3();
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 //	public void test0007() throws Exception {
@@ -347,21 +357,22 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 //	}
 	public void test0009() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0009", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test0009;\n");
-		buf.append("\n");
-		buf.append("public class X {\n");
-		buf.append("    // comment1\n");
-		buf.append("\n");
-		buf.append("    // comment2\n");
-		buf.append("    // comment3\n");
-		buf.append("    void foo() {\n");
-		buf.append("    }\n");
-		buf.append("    // comment4\n");
-		buf.append("    void foo2() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test0009;
+			
+			public class X {
+			    // comment1
+			
+			    // comment2
+			    // comment3
+			    void foo() {
+			    }
+			    // comment4
+			    void foo2() {
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createCU(cu, false);
 
@@ -374,36 +385,38 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuilder();
-		buf.append("package test0009;\n");
-		buf.append("\n");
-		buf.append("public class X {\n");
-		buf.append("    // comment1\n");
-		buf.append("\n");
-		buf.append("    // comment4\n");
-		buf.append("    void foo2() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test0009;
+			
+			public class X {
+			    // comment1
+			
+			    // comment4
+			    void foo2() {
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void test0010() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0010", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test0010;\n");
-		buf.append("\n");
-		buf.append("public class X {\n");
-		buf.append("    // comment1\n");
-		buf.append("\n");
-		buf.append("    // comment2\n");
-		buf.append("    // comment3\n");
-		buf.append("    void foo() {\n");
-		buf.append("    }\n");
-		buf.append("    // comment4\n");
-		buf.append("\n");
-		buf.append("    // comment5\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test0010;
+			
+			public class X {
+			    // comment1
+			
+			    // comment2
+			    // comment3
+			    void foo() {
+			    }
+			    // comment4
+			
+			    // comment5
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createCU(cu, false);
 
@@ -416,38 +429,40 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuilder();
-		buf.append("package test0010;\n");
-		buf.append("\n");
-		buf.append("public class X {\n");
-		buf.append("    // comment1\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("    // comment5\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test0010;
+			
+			public class X {
+			    // comment1
+			
+			   \s
+			
+			    // comment5
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void test0011() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0011", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test0011;\n");
-		buf.append("public class X {\n");
-		buf.append("    // one line comment\n");
-		buf.append("    private void foo(){\n");
-		buf.append("    }\n");
-		buf.append("\n");
-		buf.append("    /**\n");
-		buf.append("     *\n");
-		buf.append("     */\n");
-		buf.append("    private void foo1(){\n");
-		buf.append("    }\n");
-		buf.append("\n");
-		buf.append("    private void foo2(){\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test0011;
+			public class X {
+			    // one line comment
+			    private void foo(){
+			    }
+			
+			    /**
+			     *
+			     */
+			    private void foo1(){
+			    }
+			
+			    private void foo2(){
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createCU(cu, false);
 
@@ -460,19 +475,20 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuilder();
-		buf.append("package test0011;\n");
-		buf.append("public class X {\n");
-		buf.append("    /**\n");
-		buf.append("     *\n");
-		buf.append("     */\n");
-		buf.append("    private void foo1(){\n");
-		buf.append("    }\n");
-		buf.append("\n");
-		buf.append("    private void foo2(){\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test0011;
+			public class X {
+			    /**
+			     *
+			     */
+			    private void foo1(){
+			    }
+			
+			    private void foo2(){
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	/*
@@ -482,45 +498,46 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 	 */
 	public void test0012() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0012", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test0012;\n");
-		buf.append("public class X {\n");
-		buf.append("\n");
-		buf.append("    // one line comment1\n");
-		buf.append("\n");
-		buf.append("    /*\n");
-		buf.append("     * comment2\n");
-		buf.append("     */\n");
-		buf.append("\n");
-		buf.append("    // one line comment3\n");
-		buf.append("    class X1{\n");
-		buf.append("    }\n");
-		buf.append("    // one line comment4\n");
-		buf.append("\n");
-		buf.append("\n");
-		buf.append("    // one line comment5\n");
-		buf.append("\n");
-		buf.append("    /*\n");
-		buf.append("     * comment6\n");
-		buf.append("     */\n");
-		buf.append("\n");
-		buf.append("\n");
-		buf.append("    /*\n");
-		buf.append("     * comment7\n");
-		buf.append("     */\n");
-		buf.append("\n");
-		buf.append("    // one line comment8\n");
-		buf.append("    // one line comment9\n");
-		buf.append("    class X2{\n");
-		buf.append("    }\n");
-		buf.append("    /*\n");
-		buf.append("     * comment10\n");
-		buf.append("     */\n");
-		buf.append("\n");
-		buf.append("    // one line comment11\n");
-		buf.append("    // one line comment12\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test0012;
+			public class X {
+			
+			    // one line comment1
+			
+			    /*
+			     * comment2
+			     */
+			
+			    // one line comment3
+			    class X1{
+			    }
+			    // one line comment4
+			
+			
+			    // one line comment5
+			
+			    /*
+			     * comment6
+			     */
+			
+			
+			    /*
+			     * comment7
+			     */
+			
+			    // one line comment8
+			    // one line comment9
+			    class X2{
+			    }
+			    /*
+			     * comment10
+			     */
+			
+			    // one line comment11
+			    // one line comment12
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createCU(cu, false);
 
@@ -534,36 +551,37 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuilder();
-		buf.append("package test0012;\n");
-		buf.append("public class X {\n");
-		buf.append("\n");
-		buf.append("    // one line comment1\n");
-		buf.append("\n");
-		buf.append("    /*\n");
-		buf.append("     * comment2\n");
-		buf.append("     */\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("\n");
-		buf.append("    // one line comment5\n");
-		buf.append("\n");
-		buf.append("    /*\n");
-		buf.append("     * comment6\n");
-		buf.append("     */\n");
-		buf.append("\n");
-		buf.append("\n");
-		buf.append("    /*\n");
-		buf.append("     * comment7\n");
-		buf.append("     */\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("    // one line comment11\n");
-		buf.append("    // one line comment12\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test0012;
+			public class X {
+			
+			    // one line comment1
+			
+			    /*
+			     * comment2
+			     */
+			
+			   \s
+			
+			
+			    // one line comment5
+			
+			    /*
+			     * comment6
+			     */
+			
+			
+			    /*
+			     * comment7
+			     */
+			
+			   \s
+			
+			    // one line comment11
+			    // one line comment12
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	/*
@@ -575,36 +593,37 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 	 */
 	public void test0013() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0013", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test0013;\n");
-		buf.append("public class X {\n");
-		buf.append("\n");
-		buf.append("    // one line comment1a\n");
-		buf.append("\n");
-		buf.append("    /*\n");
-		buf.append("     * comment2\n");
-		buf.append("     */\n");
-		buf.append("\n");
-		buf.append("    // one line comment1b\n");
-		buf.append("\n");
-		buf.append("    // one line comment3\n");
-		buf.append("    class X1{\n");
-		buf.append("    }\n");
-		buf.append("    // one line comment4\n");
-		buf.append("\n");
-		buf.append("\n");
-		buf.append("    // one line comment5\n");
-		buf.append("\n");
-		buf.append("    /*\n");
-		buf.append("     * comment6\n");
-		buf.append("     */\n");
-		buf.append("\n");
-		buf.append("\n");
-		buf.append("    /*\n");
-		buf.append("     * comment7\n");
-		buf.append("     */\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test0013;
+			public class X {
+			
+			    // one line comment1a
+			
+			    /*
+			     * comment2
+			     */
+			
+			    // one line comment1b
+			
+			    // one line comment3
+			    class X1{
+			    }
+			    // one line comment4
+			
+			
+			    // one line comment5
+			
+			    /*
+			     * comment6
+			     */
+			
+			
+			    /*
+			     * comment7
+			     */
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createCU(cu, false);
 
@@ -616,33 +635,34 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 		typeDeclaration.bodyDeclarations().remove(members[0]);
 
 		String preview = evaluateRewrite(cu, astRoot);
-		buf= new StringBuilder();
-		buf.append("package test0013;\n");
-		buf.append("public class X {\n");
-		buf.append("\n");
-		buf.append("    // one line comment1a\n");
-		buf.append("\n");
-		buf.append("    /*\n");
-		buf.append("     * comment2\n");
-		buf.append("     */\n");
-		buf.append("\n");
-		buf.append("    // one line comment1b\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("\n");
-		buf.append("    // one line comment5\n");
-		buf.append("\n");
-		buf.append("    /*\n");
-		buf.append("     * comment6\n");
-		buf.append("     */\n");
-		buf.append("\n");
-		buf.append("\n");
-		buf.append("    /*\n");
-		buf.append("     * comment7\n");
-		buf.append("     */\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test0013;
+			public class X {
+			
+			    // one line comment1a
+			
+			    /*
+			     * comment2
+			     */
+			
+			    // one line comment1b
+			
+			   \s
+			
+			
+			    // one line comment5
+			
+			    /*
+			     * comment6
+			     */
+			
+			
+			    /*
+			     * comment7
+			     */
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=446446
@@ -650,17 +670,20 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 	public void testBug446446_001() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("testBug446446_001", false, null);
 		String contents =
-				"package testBug446446_001;\n"+
-				"public class X {\n " +
-				"    public static void main(String[] args) {\n" +
-				"        X bug = new X(\n" +
-				"                1.0e-3  // some comment\n" +
-				"                , null);\n" +
-				"    }\n" +
-				"\n" +
-				"    X(double d) {\n" +
-				"    }\n" +
-				"}\n";
+				"""
+			package testBug446446_001;
+			public class X {
+			 \
+			    public static void main(String[] args) {
+			        X bug = new X(
+			                1.0e-3  // some comment
+			                , null);
+			    }
+			
+			    X(double d) {
+			    }
+			}
+			""";
 
 		StringBuilder buf= new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
@@ -679,17 +702,20 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 		String expected =
-				"package testBug446446_001;\n"+
-				"public class X {\n " +
-				"    public static void main(String[] args) {\n" +
-				"        X bug = new X(\n" +
-				"                1.0e-3  // some comment\n" +
-				");\n" +
-				"    }\n" +
-				"\n" +
-				"    X(double d) {\n" +
-				"    }\n" +
-				"}\n";
+				"""
+			package testBug446446_001;
+			public class X {
+			 \
+			    public static void main(String[] args) {
+			        X bug = new X(
+			                1.0e-3  // some comment
+			);
+			    }
+			
+			    X(double d) {
+			    }
+			}
+			""";
 		assertEqualString(preview, expected);
 	}
 	/*
@@ -698,15 +724,17 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 	public void testBug446446_002() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("testBug446446_002", false, null);
 		String contents =
-				"package testBug446446_002;\n"+
-				"public class X {\n"+
-				"    public void foo() {\n"+
-				"        if (i == 0) {\n"+
-				"            foo();\n"+
-				"            i++; // comment\n"+
-				"            i++;}"+
-				"    }\n"+
-				"}\n";
+				"""
+			package testBug446446_002;
+			public class X {
+			    public void foo() {
+			        if (i == 0) {
+			            foo();
+			            i++; // comment
+			            i++;}\
+			    }
+			}
+			""";
 
 		StringBuilder buf= new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
@@ -724,14 +752,16 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 		thenBlock.statements().remove(2);
 		String preview = evaluateRewrite(cu, astRoot);
 		String expected =
-				"package testBug446446_002;\n"+
-				"public class X {\n"+
-				"    public void foo() {\n"+
-				"        if (i == 0) {\n"+
-				"            foo();\n"+
-				"            i++; // comment\n"+
-				"}    }\n"+
-				"}\n";
+				"""
+			package testBug446446_002;
+			public class X {
+			    public void foo() {
+			        if (i == 0) {
+			            foo();
+			            i++; // comment
+			}    }
+			}
+			""";
 		assertEqualString(preview, expected);
 	}
 	/*
@@ -740,16 +770,18 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 	public void testBug446446_003() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("testBug446446_003", false, null);
 		String contents =
-				"package testBug446446_003;\n"+
-				"public class X {\n"+
-				"    public void foo() {\n"+
-				"        if (i == 0) {\n"+
-				"            foo();\n"+
-				"            i++; // comment\n"+
-				"            i++;\n"+
-				"        }\n"+
-				"    }\n"+
-				"}\n";
+				"""
+			package testBug446446_003;
+			public class X {
+			    public void foo() {
+			        if (i == 0) {
+			            foo();
+			            i++; // comment
+			            i++;
+			        }
+			    }
+			}
+			""";
 
 		StringBuilder buf= new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
@@ -767,15 +799,17 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 		thenBlock.statements().remove(2);
 		String preview = evaluateRewrite(cu, astRoot);
 		String expected =
-				"package testBug446446_003;\n"+
-				"public class X {\n"+
-				"    public void foo() {\n"+
-				"        if (i == 0) {\n"+
-				"            foo();\n"+
-				"            i++; // comment\n"+
-				"        }\n"+
-				"    }\n"+
-				"}\n";
+				"""
+			package testBug446446_003;
+			public class X {
+			    public void foo() {
+			        if (i == 0) {
+			            foo();
+			            i++; // comment
+			        }
+			    }
+			}
+			""";
 		assertEqualString(preview, expected);
 	}
 	/*
@@ -784,16 +818,18 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 	public void testBug446446_004() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("testBug446446_004", false, null);
 		String contents =
-				"package testBug446446_004;\n"+
-				"public class X {\n"+
-				"    public void foo() {\n"+
-				"        if (i == 0) {\n"+
-				"            foo();\n"+
-				"            i++; // comment\n"+
-				"            i++;\n"+
-				"            i++;}\n"+
-				"    }\n"+
-				"}\n";
+				"""
+			package testBug446446_004;
+			public class X {
+			    public void foo() {
+			        if (i == 0) {
+			            foo();
+			            i++; // comment
+			            i++;
+			            i++;}
+			    }
+			}
+			""";
 
 		StringBuilder buf= new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
@@ -812,15 +848,17 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 		thenBlock.statements().remove(2);
 		String preview = evaluateRewrite(cu, astRoot);
 		String expected =
-				"package testBug446446_004;\n"+
-				"public class X {\n"+
-				"    public void foo() {\n"+
-				"        if (i == 0) {\n"+
-				"            foo();\n"+
-				"            i++; // comment\n"+
-				"}\n"+
-				"    }\n"+
-				"}\n";
+				"""
+			package testBug446446_004;
+			public class X {
+			    public void foo() {
+			        if (i == 0) {
+			            foo();
+			            i++; // comment
+			}
+			    }
+			}
+			""";
 		assertEqualString(preview, expected);
 	}
 	/*
@@ -829,15 +867,17 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 	public void testBug446446_005() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("testBug446446_005", false, null);
 		String contents =
-				"package testBug446446_005;\n"+
-				"public class X {\n"+
-				"    public void foo() {\n"+
-				"        if (i == 0) {\n"+
-				"            foo();\n"+
-				"            i++; // comment\n"+
-				"            i++;}"+
-				"    }\n"+
-				"}\n";
+				"""
+			package testBug446446_005;
+			public class X {
+			    public void foo() {
+			        if (i == 0) {
+			            foo();
+			            i++; // comment
+			            i++;}\
+			    }
+			}
+			""";
 
 		StringBuilder buf= new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
@@ -863,14 +903,16 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 		String expected =
-				"package testBug446446_005;\n"+
-				"public class X {\n"+
-				"    public void foo() {\n"+
-				"        if (i == 0) {\n"+
-				"            foo();\n"+
-				"            i++; // comment\n"+
-				"            --i;}    }\n"+
-				"}\n";
+				"""
+			package testBug446446_005;
+			public class X {
+			    public void foo() {
+			        if (i == 0) {
+			            foo();
+			            i++; // comment
+			            --i;}    }
+			}
+			""";
 		assertEqualString(preview, expected);
 	}
 }

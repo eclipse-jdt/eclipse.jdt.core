@@ -27,45 +27,85 @@ public class MirrorUtilTestCodeExample {
 	public static final String CODE_FULL_NAME = CODE_PACKAGE + "." + CODE_CLASS_NAME;
 
 	public static final String CODE =
-		"package testpackage;" + "\n" +
-	    "import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorUtilTestAnnotation;" + "\n" +
-	    "@MirrorUtilTestAnnotation" + "\n" +
-	    "public class DeclarationsTestClass" + "\n" +
-	    "{" + "\n" +
-		"    public class A" + "\n" +
-		"    {" + "\n" +
-		"        public int field; " + "\n" +
-		"        public void method(){}" + "\n" +
-		"    }" + "\n" +
-		"    public class B extends A" + "\n" +
-		"    {" + "\n" +
-		"        public int field; " + "\n" +
-		"        public void method(){}" + "\n" +
-		"    }" + "\n" +
-		"    public class C" + "\n" +
-		"    {" + "\n" +
-		"        public int field; " + "\n" +
-		"        public void method(){}" + "\n" +
-		"    }" + "\n" +
-		"    public class D extends A" + "\n" +
-		"    {" + "\n" +
-		"    	public Object field;" + "\n" +
-		"    	public void method(String s){}" + "\n" +
-		"    }" + "\n" +
-		"    public interface I" + "\n" +
-		"    {" + "\n" +
-		"    	public int field = 1;" + "\n" +
-		"       public void method();" + "\n" +
-		"    }" + "\n" +
-		"    public interface J" + "\n" +
-		"    {" + "\n" +
-		"    	public int field = 2;" + "\n" +
-		"    }" + "\n" +
-		"    public class K implements I, J" + "\n" +
-		"    {" + "\n" +
-		"    	public int field;" + "\n" +
-		"       public void method(){}" + "\n" +
-		"    }" + "\n" +
-	    "}";
+		"""
+		package testpackage;\
+		
+		import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorUtilTestAnnotation;\
+		
+		@MirrorUtilTestAnnotation\
+		
+		public class DeclarationsTestClass\
+		
+		{\
+		
+		    public class A\
+		
+		    {\
+		
+		        public int field; \
+		
+		        public void method(){}\
+		
+		    }\
+		
+		    public class B extends A\
+		
+		    {\
+		
+		        public int field; \
+		
+		        public void method(){}\
+		
+		    }\
+		
+		    public class C\
+		
+		    {\
+		
+		        public int field; \
+		
+		        public void method(){}\
+		
+		    }\
+		
+		    public class D extends A\
+		
+		    {\
+		
+		    	public Object field;\
+		
+		    	public void method(String s){}\
+		
+		    }\
+		
+		    public interface I\
+		
+		    {\
+		
+		    	public int field = 1;\
+		
+		       public void method();\
+		
+		    }\
+		
+		    public interface J\
+		
+		    {\
+		
+		    	public int field = 2;\
+		
+		    }\
+		
+		    public class K implements I, J\
+		
+		    {\
+		
+		    	public int field;\
+		
+		       public void method(){}\
+		
+		    }\
+		
+		}""";
 
 }

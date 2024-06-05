@@ -103,52 +103,56 @@ public void runConformTest(String fileName, String fileContents,
 public void test0001_regular_binary_expression() {
 	runConformTest(
 		"X.java",
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    String s1 = \"s1\";\n" +
-		"    String s2 = \"s2\";\n" +
-		"    String s3 = \"s3\";\n" +
-		"    String s4 = \"s4\";\n" +
-		"    System.out.println(s1 + \"l1\" + s2 + \"l2\" +\n" +
-		"      s3 + \"l3\" + s4);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			public class X {
+			  void foo() {
+			    String s1 = "s1";
+			    String s2 = "s2";
+			    String s3 = "s3";
+			    String s4 = "s4";
+			    System.out.println(s1 + "l1" + s2 + "l2" +
+			      s3 + "l3" + s4);
+			  }
+			}
+			""",
 		defaultParser,
 		new ASTBinaryExpressionCollector(),
-		"[v SL \"s1\"]\n" +
-		"[ev SL \"s1\"]\n" +
-		"[v SL \"s2\"]\n" +
-		"[ev SL \"s2\"]\n" +
-		"[v SL \"s3\"]\n" +
-		"[ev SL \"s3\"]\n" +
-		"[v SL \"s4\"]\n" +
-		"[ev SL \"s4\"]\n" +
-		"[v BE ((((((s1 + \"l1\") + s...) + s4)]\n" +
-		"[v BE (((((s1 + \"l1\") + s2...+ \"l3\")]\n" +
-		"[v BE ((((s1 + \"l1\") + s2)...) + s3)]\n" +
-		"[v BE (((s1 + \"l1\") + s2) + \"l2\")]\n" +
-		"[v BE ((s1 + \"l1\") + s2)]\n" +
-		"[v BE (s1 + \"l1\")]\n" +
-		"[v SNR s1]\n" +
-		"[ev SNR s1]\n" +
-		"[v SL \"l1\"]\n" +
-		"[ev SL \"l1\"]\n" +
-		"[ev BE (s1 + \"l1\")]\n" +
-		"[v SNR s2]\n" +
-		"[ev SNR s2]\n" +
-		"[ev BE ((s1 + \"l1\") + s2)]\n" +
-		"[v SL \"l2\"]\n" +
-		"[ev SL \"l2\"]\n" +
-		"[ev BE (((s1 + \"l1\") + s2) + \"l2\")]\n" +
-		"[v SNR s3]\n" +
-		"[ev SNR s3]\n" +
-		"[ev BE ((((s1 + \"l1\") + s2)...) + s3)]\n" +
-		"[v SL \"l3\"]\n" +
-		"[ev SL \"l3\"]\n" +
-		"[ev BE (((((s1 + \"l1\") + s2...+ \"l3\")]\n" +
-		"[v SNR s4]\n" +
-		"[ev SNR s4]\n" +
-		"[ev BE ((((((s1 + \"l1\") + s...) + s4)]\n");
+		"""
+			[v SL "s1"]
+			[ev SL "s1"]
+			[v SL "s2"]
+			[ev SL "s2"]
+			[v SL "s3"]
+			[ev SL "s3"]
+			[v SL "s4"]
+			[ev SL "s4"]
+			[v BE ((((((s1 + "l1") + s...) + s4)]
+			[v BE (((((s1 + "l1") + s2...+ "l3")]
+			[v BE ((((s1 + "l1") + s2)...) + s3)]
+			[v BE (((s1 + "l1") + s2) + "l2")]
+			[v BE ((s1 + "l1") + s2)]
+			[v BE (s1 + "l1")]
+			[v SNR s1]
+			[ev SNR s1]
+			[v SL "l1"]
+			[ev SL "l1"]
+			[ev BE (s1 + "l1")]
+			[v SNR s2]
+			[ev SNR s2]
+			[ev BE ((s1 + "l1") + s2)]
+			[v SL "l2"]
+			[ev SL "l2"]
+			[ev BE (((s1 + "l1") + s2) + "l2")]
+			[v SNR s3]
+			[ev SNR s3]
+			[ev BE ((((s1 + "l1") + s2)...) + s3)]
+			[v SL "l3"]
+			[ev SL "l3"]
+			[ev BE (((((s1 + "l1") + s2...+ "l3")]
+			[v SNR s4]
+			[ev SNR s4]
+			[ev BE ((((((s1 + "l1") + s...) + s4)]
+			""");
 }
 
 // AST implementation - visiting binary expressions
@@ -159,16 +163,18 @@ public void test0002_combined_binary_expression() {
 	// one CBE each fourth BE
 	runConformTest(
 		"X.java",
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    String s1 = \"s1\";\n" +
-		"    String s2 = \"s2\";\n" +
-		"    String s3 = \"s3\";\n" +
-		"    String s4 = \"s4\";\n" +
-		"    System.out.println(s1 + \"l1\" + s2 + \"l2\" +\n" +
-		"      s3 + \"l3\" + s4);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			public class X {
+			  void foo() {
+			    String s1 = "s1";
+			    String s2 = "s2";
+			    String s3 = "s3";
+			    String s4 = "s4";
+			    System.out.println(s1 + "l1" + s2 + "l2" +
+			      s3 + "l3" + s4);
+			  }
+			}
+			""",
 		defaultParser,
 		new ASTBinaryExpressionCollector() {
 			@Override
@@ -183,40 +189,42 @@ public void test0002_combined_binary_expression() {
 				}
 			}
 		},
-		"[v SL \"s1\"]\n" +
-		"[ev SL \"s1\"]\n" +
-		"[v SL \"s2\"]\n" +
-		"[ev SL \"s2\"]\n" +
-		"[v SL \"s3\"]\n" +
-		"[ev SL \"s3\"]\n" +
-		"[v SL \"s4\"]\n" +
-		"[ev SL \"s4\"]\n" +
-		"[v BE ((((((s1 + \"l1\") + s...) + s4)]\n" +
-		"[v BE (((((s1 + \"l1\") + s2...+ \"l3\")]\n" +
-		"[v BE ((((s1 + \"l1\") + s2)...) + s3)]\n" +
-		"[v BE (((s1 + \"l1\") + s2) + \"l2\")]\n" +
-		"[v BE ((s1 + \"l1\") + s2)]\n" +
-		"[v BE (s1 + \"l1\")]\n" +
-		"[v SNR s1]\n" +
-		"[ev SNR s1]\n" +
-		"[v SL \"l1\"]\n" +
-		"[ev SL \"l1\"]\n" +
-		"[ev BE (s1 + \"l1\")]\n" +
-		"[v SNR s2]\n" +
-		"[ev SNR s2]\n" +
-		"[ev BE ((s1 + \"l1\") + s2)]\n" +
-		"[v SL \"l2\"]\n" +
-		"[ev SL \"l2\"]\n" +
-		"[ev BE (((s1 + \"l1\") + s2) + \"l2\")]\n" +
-		"[v SNR s3]\n" +
-		"[ev SNR s3]\n" +
-		"[ev CBE ((((s1 + \"l1\") + s2)...) + s3)]\n" +
-		"[v SL \"l3\"]\n" +
-		"[ev SL \"l3\"]\n" +
-		"[ev BE (((((s1 + \"l1\") + s2...+ \"l3\")]\n" +
-		"[v SNR s4]\n" +
-		"[ev SNR s4]\n" +
-		"[ev BE ((((((s1 + \"l1\") + s...) + s4)]\n");
+		"""
+			[v SL "s1"]
+			[ev SL "s1"]
+			[v SL "s2"]
+			[ev SL "s2"]
+			[v SL "s3"]
+			[ev SL "s3"]
+			[v SL "s4"]
+			[ev SL "s4"]
+			[v BE ((((((s1 + "l1") + s...) + s4)]
+			[v BE (((((s1 + "l1") + s2...+ "l3")]
+			[v BE ((((s1 + "l1") + s2)...) + s3)]
+			[v BE (((s1 + "l1") + s2) + "l2")]
+			[v BE ((s1 + "l1") + s2)]
+			[v BE (s1 + "l1")]
+			[v SNR s1]
+			[ev SNR s1]
+			[v SL "l1"]
+			[ev SL "l1"]
+			[ev BE (s1 + "l1")]
+			[v SNR s2]
+			[ev SNR s2]
+			[ev BE ((s1 + "l1") + s2)]
+			[v SL "l2"]
+			[ev SL "l2"]
+			[ev BE (((s1 + "l1") + s2) + "l2")]
+			[v SNR s3]
+			[ev SNR s3]
+			[ev CBE ((((s1 + "l1") + s2)...) + s3)]
+			[v SL "l3"]
+			[ev SL "l3"]
+			[ev BE (((((s1 + "l1") + s2...+ "l3")]
+			[v SNR s4]
+			[ev SNR s4]
+			[ev BE ((((((s1 + "l1") + s...) + s4)]
+			""");
 	CombinedBinaryExpression.defaultArityMaxStartingValue =
 		CombinedBinaryExpression.ARITY_MAX_MIN;
 }
@@ -234,16 +242,18 @@ public void test0003_combined_binary_expression() {
 		// references table)
 	runConformTest(
 		"X.java",
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    String s1 = \"s1\";\n" +
-		"    String s2 = \"s2\";\n" +
-		"    String s3 = \"s3\";\n" +
-		"    String s4 = \"s4\";\n" +
-		"    System.out.println(s1 + \"l1\" + s2 + \"l2\" +\n" +
-		"      s3 + \"l3\" + s4);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			public class X {
+			  void foo() {
+			    String s1 = "s1";
+			    String s2 = "s2";
+			    String s3 = "s3";
+			    String s4 = "s4";
+			    System.out.println(s1 + "l1" + s2 + "l2" +
+			      s3 + "l3" + s4);
+			  }
+			}
+			""",
 		parser,
 		new ASTBinaryExpressionCollector() {
 			@Override
@@ -258,40 +268,42 @@ public void test0003_combined_binary_expression() {
 				}
 			}
 		},
-		"[v SL \"s1\"]\n" +
-		"[ev SL \"s1\"]\n" +
-		"[v SL \"s2\"]\n" +
-		"[ev SL \"s2\"]\n" +
-		"[v SL \"s3\"]\n" +
-		"[ev SL \"s3\"]\n" +
-		"[v SL \"s4\"]\n" +
-		"[ev SL \"s4\"]\n" +
-		"[v BE ((((((s1 + \"l1\") + s...) + s4)]\n" +
-		"[v BE (((((s1 + \"l1\") + s2...+ \"l3\")]\n" +
-		"[v BE ((((s1 + \"l1\") + s2)...) + s3)]\n" +
-		"[v BE (((s1 + \"l1\") + s2) + \"l2\")]\n" +
-		"[v BE ((s1 + \"l1\") + s2)]\n" +
-		"[v BE (s1 + \"l1\")]\n" +
-		"[v SNR s1]\n" +
-		"[ev SNR s1]\n" +
-		"[v SL \"l1\"]\n" +
-		"[ev SL \"l1\"]\n" +
-		"[ev BE (s1 + \"l1\")]\n" +
-		"[v SNR s2]\n" +
-		"[ev SNR s2]\n" +
-		"[ev BE ((s1 + \"l1\") + s2)]\n" +
-		"[v SL \"l2\"]\n" +
-		"[ev SL \"l2\"]\n" +
-		"[ev CBE (((s1 + \"l1\") + s2) + \"l2\")]\n" +
-		"[v SNR s3]\n" +
-		"[ev SNR s3]\n" +
-		"[ev BE ((((s1 + \"l1\") + s2)...) + s3)]\n" +
-		"[v SL \"l3\"]\n" +
-		"[ev SL \"l3\"]\n" +
-		"[ev BE (((((s1 + \"l1\") + s2...+ \"l3\")]\n" +
-		"[v SNR s4]\n" +
-		"[ev SNR s4]\n" +
-		"[ev BE ((((((s1 + \"l1\") + s...) + s4)]\n");
+		"""
+			[v SL "s1"]
+			[ev SL "s1"]
+			[v SL "s2"]
+			[ev SL "s2"]
+			[v SL "s3"]
+			[ev SL "s3"]
+			[v SL "s4"]
+			[ev SL "s4"]
+			[v BE ((((((s1 + "l1") + s...) + s4)]
+			[v BE (((((s1 + "l1") + s2...+ "l3")]
+			[v BE ((((s1 + "l1") + s2)...) + s3)]
+			[v BE (((s1 + "l1") + s2) + "l2")]
+			[v BE ((s1 + "l1") + s2)]
+			[v BE (s1 + "l1")]
+			[v SNR s1]
+			[ev SNR s1]
+			[v SL "l1"]
+			[ev SL "l1"]
+			[ev BE (s1 + "l1")]
+			[v SNR s2]
+			[ev SNR s2]
+			[ev BE ((s1 + "l1") + s2)]
+			[v SL "l2"]
+			[ev SL "l2"]
+			[ev CBE (((s1 + "l1") + s2) + "l2")]
+			[v SNR s3]
+			[ev SNR s3]
+			[ev BE ((((s1 + "l1") + s2)...) + s3)]
+			[v SL "l3"]
+			[ev SL "l3"]
+			[ev BE (((((s1 + "l1") + s2...+ "l3")]
+			[v SNR s4]
+			[ev SNR s4]
+			[ev BE ((((((s1 + "l1") + s...) + s4)]
+			""");
 	CombinedBinaryExpression.defaultArityMaxStartingValue =
 		CombinedBinaryExpression.ARITY_MAX_MIN;
 }
@@ -317,14 +329,16 @@ public void test0004_combined_binary_expression() {
 		"}\n",
 		parser,
 		new ASTBinaryExpressionCollector(),
-		"[v SL \"s1\"]\n" +
-		"[ev SL \"s1\"]\n" +
-		"[v BE (ExtendedStringLiter...} + s1)]\n" +
-		"[v ESL ExtendedStringLiteral{l1}]\n" +
-		"[ev ESL ExtendedStringLiteral{l1}]\n" +
-		"[v SNR s1]\n" +
-		"[ev SNR s1]\n" +
-		"[ev BE (ExtendedStringLiter...} + s1)]\n");
+		"""
+			[v SL "s1"]
+			[ev SL "s1"]
+			[v BE (ExtendedStringLiter...} + s1)]
+			[v ESL ExtendedStringLiteral{l1}]
+			[ev ESL ExtendedStringLiteral{l1}]
+			[v SNR s1]
+			[ev SNR s1]
+			[ev BE (ExtendedStringLiter...} + s1)]
+			""");
 }
 
 // AST implementation - visiting binary expressions
@@ -344,22 +358,24 @@ public void test0005_combined_binary_expression() {
 		"}\n",
 		defaultParser,
 		new ASTBinaryExpressionCollector(),
-		"[v SL \"s1\"]\n" +
-		"[ev SL \"s1\"]\n" +
-		"[v BE (StringLiteralConcat...} + s1)]\n" +
-		"[v SLC StringLiteralConcate...\n" +
-		"\"1\"+\n" +
-		"}]\n" +
-		"[v SL \"l\"]\n" +
-		"[ev SL \"l\"]\n" +
-		"[v SL \"1\"]\n" +
-		"[ev SL \"1\"]\n" +
-		"[ev SLC StringLiteralConcate...\n" +
-		"\"1\"+\n" +
-		"}]\n" +
-		"[v SNR s1]\n" +
-		"[ev SNR s1]\n" +
-		"[ev BE (StringLiteralConcat...} + s1)]\n");
+		"""
+			[v SL "s1"]
+			[ev SL "s1"]
+			[v BE (StringLiteralConcat...} + s1)]
+			[v SLC StringLiteralConcate...
+			"1"+
+			}]
+			[v SL "l"]
+			[ev SL "l"]
+			[v SL "1"]
+			[ev SL "1"]
+			[ev SLC StringLiteralConcate...
+			"1"+
+			}]
+			[v SNR s1]
+			[ev SNR s1]
+			[ev BE (StringLiteralConcat...} + s1)]
+			""");
 }
 
 // AST implementation - visiting binary expressions
@@ -369,16 +385,18 @@ public void test0006_combined_binary_expression() {
 	CombinedBinaryExpression.defaultArityMaxStartingValue = 1;
 	runConformTest(
 		"X.java",
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    String s1 = \"s1\";\n" +
-		"    String s2 = \"s2\";\n" +
-		"    String s3 = \"s3\";\n" +
-		"    String s4 = \"s4\";\n" +
-		"    System.out.println(s1 + \"l1\" + s2 + \"l2\" +\n" +
-		"      s3 + s1 + s4);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			public class X {
+			  void foo() {
+			    String s1 = "s1";
+			    String s2 = "s2";
+			    String s3 = "s3";
+			    String s4 = "s4";
+			    System.out.println(s1 + "l1" + s2 + "l2" +
+			      s3 + s1 + s4);
+			  }
+			}
+			""",
 		defaultParser,
 		new ASTBinaryExpressionCollector() {
 			@Override
@@ -390,28 +408,30 @@ public void test0006_combined_binary_expression() {
 				return true;
 			}
 		},
-		"[v SL \"s1\"]\n" +
-		"[ev SL \"s1\"]\n" +
-		"[v SL \"s2\"]\n" +
-		"[ev SL \"s2\"]\n" +
-		"[v SL \"s3\"]\n" +
-		"[ev SL \"s3\"]\n" +
-		"[v SL \"s4\"]\n" +
-		"[ev SL \"s4\"]\n" +
-		"[v BE ((((((s1 + \"l1\") + s...) + s4)]\n" +
-		"[v BE (((((s1 + \"l1\") + s2...) + s1)]\n" +
-		"[v BE ((((s1 + \"l1\") + s2)...) + s3)]\n" +
-		"[v BE (((s1 + \"l1\") + s2) + \"l2\")]\n" +
-		"[ev BE (((s1 + \"l1\") + s2) + \"l2\")]\n" +
-		"[v SNR s3]\n" +
-		"[ev SNR s3]\n" +
-		"[ev BE ((((s1 + \"l1\") + s2)...) + s3)]\n" +
-		"[v SNR s1]\n" +
-		"[ev SNR s1]\n" +
-		"[ev BE (((((s1 + \"l1\") + s2...) + s1)]\n" +
-		"[v SNR s4]\n" +
-		"[ev SNR s4]\n" +
-		"[ev BE ((((((s1 + \"l1\") + s...) + s4)]\n");
+		"""
+			[v SL "s1"]
+			[ev SL "s1"]
+			[v SL "s2"]
+			[ev SL "s2"]
+			[v SL "s3"]
+			[ev SL "s3"]
+			[v SL "s4"]
+			[ev SL "s4"]
+			[v BE ((((((s1 + "l1") + s...) + s4)]
+			[v BE (((((s1 + "l1") + s2...) + s1)]
+			[v BE ((((s1 + "l1") + s2)...) + s3)]
+			[v BE (((s1 + "l1") + s2) + "l2")]
+			[ev BE (((s1 + "l1") + s2) + "l2")]
+			[v SNR s3]
+			[ev SNR s3]
+			[ev BE ((((s1 + "l1") + s2)...) + s3)]
+			[v SNR s1]
+			[ev SNR s1]
+			[ev BE (((((s1 + "l1") + s2...) + s1)]
+			[v SNR s4]
+			[ev SNR s4]
+			[ev BE ((((((s1 + "l1") + s...) + s4)]
+			""");
 	CombinedBinaryExpression.defaultArityMaxStartingValue =
 		CombinedBinaryExpression.ARITY_MAX_MIN;
 }
@@ -423,16 +443,18 @@ public void test0007_combined_binary_expression() {
 	CombinedBinaryExpression.defaultArityMaxStartingValue = 4;
 	runConformTest(
 		"X.java",
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    String s1 = \"s1\";\n" +
-		"    String s2 = \"s2\";\n" +
-		"    String s3 = \"s3\";\n" +
-		"    String s4 = \"s4\";\n" +
-		"    System.out.println(s1 + \"l1\" + s2 + \"l2\" +\n" +
-		"      s3 + \"l3\" + s4);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			public class X {
+			  void foo() {
+			    String s1 = "s1";
+			    String s2 = "s2";
+			    String s3 = "s3";
+			    String s4 = "s4";
+			    System.out.println(s1 + "l1" + s2 + "l2" +
+			      s3 + "l3" + s4);
+			  }
+			}
+			""",
 		defaultParser,
 		new ASTBinaryExpressionCollector() {
 			@Override
@@ -441,16 +463,18 @@ public void test0007_combined_binary_expression() {
 				return false;
 			}
 		},
-		"[v SL \"s1\"]\n" +
-		"[ev SL \"s1\"]\n" +
-		"[v SL \"s2\"]\n" +
-		"[ev SL \"s2\"]\n" +
-		"[v SL \"s3\"]\n" +
-		"[ev SL \"s3\"]\n" +
-		"[v SL \"s4\"]\n" +
-		"[ev SL \"s4\"]\n" +
-		"[v BE ((((((s1 + \"l1\") + s...) + s4)]\n" +
-		"[ev BE ((((((s1 + \"l1\") + s...) + s4)]\n");
+		"""
+			[v SL "s1"]
+			[ev SL "s1"]
+			[v SL "s2"]
+			[ev SL "s2"]
+			[v SL "s3"]
+			[ev SL "s3"]
+			[v SL "s4"]
+			[ev SL "s4"]
+			[v BE ((((((s1 + "l1") + s...) + s4)]
+			[ev BE ((((((s1 + "l1") + s...) + s4)]
+			""");
 	CombinedBinaryExpression.defaultArityMaxStartingValue =
 		CombinedBinaryExpression.ARITY_MAX_MIN;
 }
@@ -461,14 +485,16 @@ public void test0007_combined_binary_expression() {
 public void test0008_combined_binary_expression() {
 	runConformTest(
 		"X.java",
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    String s1 = \"s1\";\n" +
-		"    String s2 = \"s2\";\n" +
-		"    System.out.println(s1 + \"l1\" + s2 + \"l2\");\n" +
-		"    System.out.println(s1 + s2);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			public class X {
+			  void foo() {
+			    String s1 = "s1";
+			    String s2 = "s2";
+			    System.out.println(s1 + "l1" + s2 + "l2");
+			    System.out.println(s1 + s2);
+			  }
+			}
+			""",
 		defaultParser,
 		new ASTBinaryExpressionCollector() {
 			@Override
@@ -481,30 +507,32 @@ public void test0008_combined_binary_expression() {
 				}
 			}
 		},
-		"[v SL \"s1\"]\n" +
-		"[ev SL \"s1\"]\n" +
-		"[v SL \"s2\"]\n" +
-		"[ev SL \"s2\"]\n" +
-		"[v BE (((s1 + \"l1\") + s2) + \"l2\")]\n" +
-		"[v BE ((s1 + \"l1\") + s2)]\n" +
-		"[v BE (s1 + \"l1\")]\n" +
-		"[v SNR s1]\n" +
-		"[ev SNR s1]\n" +
-		"[v SL \"l1\"]\n" +
-		"[ev SL \"l1\"]\n" +
-		"[ev BE (s1 + \"l1\")]\n" +
-		"[v SNR s2]\n" +
-		"[ev SNR s2]\n" +
-		"[ev BE ((s1 + \"l1\") + s2)]\n" +
-		"[v SL \"l2\"]\n" +
-		"[ev SL \"l2\"]\n" +
-		"[ev CBE (((s1 + \"l1\") + s2) + \"l2\")]\n" +
-		"[v BE (s1 + s2)]\n" +
-		"[v SNR s1]\n" +
-		"[ev SNR s1]\n" +
-		"[v SNR s2]\n" +
-		"[ev SNR s2]\n" +
-		"[ev BE (s1 + s2)]\n");
+		"""
+			[v SL "s1"]
+			[ev SL "s1"]
+			[v SL "s2"]
+			[ev SL "s2"]
+			[v BE (((s1 + "l1") + s2) + "l2")]
+			[v BE ((s1 + "l1") + s2)]
+			[v BE (s1 + "l1")]
+			[v SNR s1]
+			[ev SNR s1]
+			[v SL "l1"]
+			[ev SL "l1"]
+			[ev BE (s1 + "l1")]
+			[v SNR s2]
+			[ev SNR s2]
+			[ev BE ((s1 + "l1") + s2)]
+			[v SL "l2"]
+			[ev SL "l2"]
+			[ev CBE (((s1 + "l1") + s2) + "l2")]
+			[v BE (s1 + s2)]
+			[v SNR s1]
+			[ev SNR s1]
+			[v SNR s2]
+			[ev SNR s2]
+			[ev BE (s1 + s2)]
+			""");
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
@@ -514,25 +542,26 @@ public void test0009_combined_binary_expression() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"public static void main(String args[]) {\n" +
-			"    final int max = 30; \n" +
-			"    String s[] = new String[max];\n" +
-			"    for (int i = 0; i < max; i++) {\n" +
-			"        s[i] = \"a\";\n" +
-			"    }\n" +
-			"    foo(s);\n" +
-			"}\n" +
-			"static void foo (String s[]) {\n" +
-			"    System.out.println(\n" +
-			"        s[0] + s[1] + s[2] + s[3] + s[4] + s[5] + s[6] + \n" +
-			"        s[7] + s[8] + s[9] + s[10] + s[11] + s[12] + s[13] +\n" +
-			"        s[14] + s[15] + s[16] + s[17] + s[18] + s[19] + \n" +
-			"        s[20] + s[21] + s[22] + s[23] + s[24] + s[25] + \n" +
-			"        s[26] + s[27] + s[28] + s[29]\n" +
-			"        );\n" +
-			"}\n" +
-			"}"},
+			"""
+				public class X {
+				public static void main(String args[]) {
+				    final int max = 30;\s
+				    String s[] = new String[max];
+				    for (int i = 0; i < max; i++) {
+				        s[i] = "a";
+				    }
+				    foo(s);
+				}
+				static void foo (String s[]) {
+				    System.out.println(
+				        s[0] + s[1] + s[2] + s[3] + s[4] + s[5] + s[6] +\s
+				        s[7] + s[8] + s[9] + s[10] + s[11] + s[12] + s[13] +
+				        s[14] + s[15] + s[16] + s[17] + s[18] + s[19] +\s
+				        s[20] + s[21] + s[22] + s[23] + s[24] + s[25] +\s
+				        s[26] + s[27] + s[28] + s[29]
+				        );
+				}
+				}"""},
 		"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 }
 
@@ -544,26 +573,27 @@ public void test0010_combined_binary_expression() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"public static void main(String args[]) {\n" +
-			"    final int max = 30; \n" +
-			"    String s[] = new String[max];\n" +
-			"    for (int i = 0; i < max; i++) {\n" +
-			"        s[i] = \"a\";\n" +
-			"    }\n" +
-			"    foo(s);\n" +
-			"}\n" +
-			"static void foo (String s[]) {\n" +
-			"    final String c = \"a\";" +
-			"    System.out.println(\n" +
-			"        c + c + c + c + s[4] + s[5] + s[6] + s[7] + s[8] + \n" +
-			"        s[9] + s[10] + s[11] + s[12] + s[13] + s[14] + \n" +
-			"        s[15] + s[16] + s[17] + s[18] + s[19] + s[20] + \n" +
-			"        s[21] + s[22] + s[23] + s[24] + s[25] + s[26] + \n" +
-			"        s[27] + s[28] + s[29]\n" +
-			"        );\n" +
-			"}\n" +
-			"}"
+			"""
+				public class X {
+				public static void main(String args[]) {
+				    final int max = 30;\s
+				    String s[] = new String[max];
+				    for (int i = 0; i < max; i++) {
+				        s[i] = "a";
+				    }
+				    foo(s);
+				}
+				static void foo (String s[]) {
+				    final String c = "a";\
+				    System.out.println(
+				        c + c + c + c + s[4] + s[5] + s[6] + s[7] + s[8] +\s
+				        s[9] + s[10] + s[11] + s[12] + s[13] + s[14] +\s
+				        s[15] + s[16] + s[17] + s[18] + s[19] + s[20] +\s
+				        s[21] + s[22] + s[23] + s[24] + s[25] + s[26] +\s
+				        s[27] + s[28] + s[29]
+				        );
+				}
+				}"""
 		},
 		"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 }
@@ -576,25 +606,26 @@ public void test0011_combined_binary_expression() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"public static void main(String args[]) {\n" +
-			"    final int max = 30; \n" +
-			"    String s[] = new String[max];\n" +
-			"    for (int i = 0; i < max; i++) {\n" +
-			"        s[i] = \"a\";\n" +
-			"    }\n" +
-			"    foo(s);\n" +
-			"}\n" +
-			"static void foo (String s[]) {\n" +
-			"    final String c = \"a\";" +
-			"    System.out.println(\n" +
-			"        c + c + c + c + c + c + c + c + c + c + \n" +
-			"        c + c + c + c + c + c + c + c + c + c + \n" +
-			"        c + c + s[22] + s[23] + s[24] + s[25] + s[26] + \n" +
-			"        s[27] + s[28] + s[29]\n" +
-			"        );\n" +
-			"}\n" +
-			"}"
+			"""
+				public class X {
+				public static void main(String args[]) {
+				    final int max = 30;\s
+				    String s[] = new String[max];
+				    for (int i = 0; i < max; i++) {
+				        s[i] = "a";
+				    }
+				    foo(s);
+				}
+				static void foo (String s[]) {
+				    final String c = "a";\
+				    System.out.println(
+				        c + c + c + c + c + c + c + c + c + c +\s
+				        c + c + c + c + c + c + c + c + c + c +\s
+				        c + c + s[22] + s[23] + s[24] + s[25] + s[26] +\s
+				        s[27] + s[28] + s[29]
+				        );
+				}
+				}"""
 		},
 		"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 }
@@ -606,16 +637,18 @@ public void test0012_combined_binary_expression() {
 	CombinedBinaryExpression.defaultArityMaxStartingValue = 2;
 	runConformTest(
 		"X.java",
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    String s1 = \"s1\";\n" +
-		"    String s2 = \"s2\";\n" +
-		"    String s3 = \"s3\";\n" +
-		"    String s4 = \"s4\";\n" +
-		"    System.out.println(s1 + \"l1\" + s2 + \"l2\" +\n" +
-		"      s3 + s1 + s4);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			public class X {
+			  void foo() {
+			    String s1 = "s1";
+			    String s2 = "s2";
+			    String s3 = "s3";
+			    String s4 = "s4";
+			    System.out.println(s1 + "l1" + s2 + "l2" +
+			      s3 + s1 + s4);
+			  }
+			}
+			""",
 		defaultParser,
 		new ASTCollector() {
 			public boolean visit(BinaryExpression binaryExpression,
@@ -625,9 +658,10 @@ public void test0012_combined_binary_expression() {
 				return true;
 			}
 		},
-		"((((((s1 + \"l1\") + s2) + \"l2\") + s3) + s1) + s4)(((((s1 + \"l1\")" +
-		" + s2) + \"l2\") + s3) + s1)((((s1 + \"l1\") + s2) + \"l2\") + s3)" +
-		"(((s1 + \"l1\") + s2) + \"l2\")((s1 + \"l1\") + s2)(s1 + \"l1\")");
+		"""
+			((((((s1 + "l1") + s2) + "l2") + s3) + s1) + s4)(((((s1 + "l1")\
+			 + s2) + "l2") + s3) + s1)((((s1 + "l1") + s2) + "l2") + s3)\
+			(((s1 + "l1") + s2) + "l2")((s1 + "l1") + s2)(s1 + "l1")""");
 	CombinedBinaryExpression.defaultArityMaxStartingValue =
 		CombinedBinaryExpression.ARITY_MAX_MIN;
 }
@@ -640,25 +674,26 @@ public void test0013_combined_binary_expression() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"public static void main(String args[]) {\n" +
-			"    final int max = 30; \n" +
-			"    String s[] = new String[max];\n" +
-			"    for (int i = 0; i < max; i++) {\n" +
-			"        s[i] = \"a\";\n" +
-			"    }\n" +
-			"    foo(s);\n" +
-			"}\n" +
-			"static void foo (String s[]) {\n" +
-			"    System.out.println(\n" +
-			"        \"b\" + (s[0] + s[1] + s[2] + s[3] + s[4] + s[5] + s[6] + \n" +
-			"        s[7] + s[8] + s[9] + s[10] + s[11] + s[12] + s[13] +\n" +
-			"        s[14] + s[15] + s[16] + s[17] + s[18] + s[19] + \n" +
-			"        s[20] + s[21] + s[22] + s[23] + s[24] + s[25] + \n" +
-			"        s[26] + s[27] + s[28] + s[29])\n" +
-			"        );\n" +
-			"}\n" +
-			"}"
+			"""
+				public class X {
+				public static void main(String args[]) {
+				    final int max = 30;\s
+				    String s[] = new String[max];
+				    for (int i = 0; i < max; i++) {
+				        s[i] = "a";
+				    }
+				    foo(s);
+				}
+				static void foo (String s[]) {
+				    System.out.println(
+				        "b" + (s[0] + s[1] + s[2] + s[3] + s[4] + s[5] + s[6] +\s
+				        s[7] + s[8] + s[9] + s[10] + s[11] + s[12] + s[13] +
+				        s[14] + s[15] + s[16] + s[17] + s[18] + s[19] +\s
+				        s[20] + s[21] + s[22] + s[23] + s[24] + s[25] +\s
+				        s[26] + s[27] + s[28] + s[29])
+				        );
+				}
+				}"""
 		},
 		"baaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 }
@@ -672,25 +707,26 @@ public void test0014_combined_binary_expression() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"public static void main(String args[]) {\n" +
-			"    final int max = 30; \n" +
-			"    String s[] = new String[max];\n" +
-			"    for (int i = 0; i < max; i++) {\n" +
-			"        s[i] = \"a\";\n" +
-			"    }\n" +
-			"    foo(s);\n" +
-			"}\n" +
-			"static void foo (String s[]) {\n" +
-			"    final String c = \"c\";\n" +
-			"    System.out.println(\n" +
-			"        \"b\" + \n" +
-			"         (c + c + c + c + c + c + c + c + c + c + \n" +
-			"          c + c + c + c + c + c + c + c + c + c + \n" +
-			"          c + c + s[0])\n" +
-			"        );\n" +
-			"}\n" +
-			"}"
+			"""
+				public class X {
+				public static void main(String args[]) {
+				    final int max = 30;\s
+				    String s[] = new String[max];
+				    for (int i = 0; i < max; i++) {
+				        s[i] = "a";
+				    }
+				    foo(s);
+				}
+				static void foo (String s[]) {
+				    final String c = "c";
+				    System.out.println(
+				        "b" +\s
+				         (c + c + c + c + c + c + c + c + c + c +\s
+				          c + c + c + c + c + c + c + c + c + c +\s
+				          c + c + s[0])
+				        );
+				}
+				}"""
 		},
 		"bcccccccccccccccccccccca");
 }
@@ -704,25 +740,26 @@ public void test0015_combined_binary_expression() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"public static void main(String args[]) {\n" +
-			"    final int max = 30; \n" +
-			"    String s[] = new String[max];\n" +
-			"    for (int i = 0; i < max; i++) {\n" +
-			"        s[i] = \"a\";\n" +
-			"    }\n" +
-			"    foo(s);\n" +
-			"}\n" +
-			"static void foo (String s[]) {\n" +
-			"    final String c = \"c\";\n" +
-			"    System.out.println(\n" +
-			"        \"b\" + \n" +
-			"         (c + c + c + c + c + c + c + c + c + c + \n" +
-			"          c + c + c + c + c + c + c + c + c + c + \n" +
-			"          s[0] + s[1] + s[2])\n" +
-			"        );\n" +
-			"}\n" +
-			"}"
+			"""
+				public class X {
+				public static void main(String args[]) {
+				    final int max = 30;\s
+				    String s[] = new String[max];
+				    for (int i = 0; i < max; i++) {
+				        s[i] = "a";
+				    }
+				    foo(s);
+				}
+				static void foo (String s[]) {
+				    final String c = "c";
+				    System.out.println(
+				        "b" +\s
+				         (c + c + c + c + c + c + c + c + c + c +\s
+				          c + c + c + c + c + c + c + c + c + c +\s
+				          s[0] + s[1] + s[2])
+				        );
+				}
+				}"""
 		},
 		"bccccccccccccccccccccaaa");
 }
@@ -734,11 +771,13 @@ public void test0016_combined_binary_expression() {
 	CombinedBinaryExpression.defaultArityMaxStartingValue = 2;
 	this.runConformTest(
 		"X.java",
-		"public class X {\n" +
-		"void foo(int i1, int i2, int i3, int i4) {\n" +
-		"  System.out.println(i1 - i2 + 0 + i3 + 0 + i4);\n" +
-		"}\n" +
-		"}\n",
+		"""
+			public class X {
+			void foo(int i1, int i2, int i3, int i4) {
+			  System.out.println(i1 - i2 + 0 + i3 + 0 + i4);
+			}
+			}
+			""",
 		defaultParser,
 		new ASTCollector() {
 			public boolean visit(BinaryExpression binaryExpression,
@@ -761,29 +800,33 @@ public void test0017() {
 	options.targetJDK = ClassFileConstants.JDK1_5;
 	this.runConformTest(
 		"X.java",
-		"@interface Annot {\n" +
-		"	int value() default 0;\n" +
-		"}\n" +
-		"@Annot\n" +
-		"@Annot(3)\n" +
-		"@Annot(value=4)\n" +
-		"public class X {\n" +
-		"}\n",
+		"""
+			@interface Annot {
+				int value() default 0;
+			}
+			@Annot
+			@Annot(3)
+			@Annot(value=4)
+			public class X {
+			}
+			""",
 		new Parser(
 				new ProblemReporter(DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 				options,
 				new DefaultProblemFactory()), false),
 		new AnnotationCollector(),
-		"marker annotation start visit\n" +
-		"marker annotation end visit\n" +
-		"single member annotation start visit\n" +
-		"3\n" +
-		"single member annotation end visit\n" +
-		"normal annotation start visit\n" +
-		"member value pair start visit\n" +
-		"value, 4\n" +
-		"member value pair end visit\n" +
-		"normal annotation end visit\n");
+		"""
+			marker annotation start visit
+			marker annotation end visit
+			single member annotation start visit
+			3
+			single member annotation end visit
+			normal annotation start visit
+			member value pair start visit
+			value, 4
+			member value pair end visit
+			normal annotation end visit
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=157170
 public void test0018() {
@@ -794,40 +837,44 @@ public void test0018() {
 	options.docCommentSupport = true;
 	this.runConformTest(
 		"X.java",
-		"@interface Annot {\n" +
-		"	int value() default 0;\n" +
-		"}\n" +
-		"/**\n" +
-		" * @see Annot\n" +
-		" */\n" +
-		"@Annot\n" +
-		"@Annot(3)\n" +
-		"@Annot(value=4)\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * @see Annot\n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n",
+		"""
+			@interface Annot {
+				int value() default 0;
+			}
+			/**
+			 * @see Annot
+			 */
+			@Annot
+			@Annot(3)
+			@Annot(value=4)
+			public class X {
+				/**
+				 * @see Annot
+				 */
+				public void foo() {}
+			}
+			""",
 		new Parser(
 				new ProblemReporter(DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 				options,
 				new DefaultProblemFactory()), false),
 		new AnnotationCollector(),
-		"java doc single type reference start visit\n" +
-		"java doc single type reference end visit\n" +
-		"marker annotation start visit\n" +
-		"marker annotation end visit\n" +
-		"single member annotation start visit\n" +
-		"3\n" +
-		"single member annotation end visit\n" +
-		"normal annotation start visit\n" +
-		"member value pair start visit\n" +
-		"value, 4\n" +
-		"member value pair end visit\n" +
-		"normal annotation end visit\n" +
-		"java doc single type reference start visit\n" +
-		"java doc single type reference end visit\n");
+		"""
+			java doc single type reference start visit
+			java doc single type reference end visit
+			marker annotation start visit
+			marker annotation end visit
+			single member annotation start visit
+			3
+			single member annotation end visit
+			normal annotation start visit
+			member value pair start visit
+			value, 4
+			member value pair end visit
+			normal annotation end visit
+			java doc single type reference start visit
+			java doc single type reference end visit
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=157170
 public void test0019() {
@@ -838,50 +885,54 @@ public void test0019() {
 	options.docCommentSupport = true;
 	this.runConformTest(
 		"X.java",
-		"@interface Annot {\n" +
-		"	int value() default 0;\n" +
-		"}\n" +
-		"/**\n" +
-		" * @see Annot\n" +
-		" */\n" +
-		"@Annot\n" +
-		"@Annot(3)\n" +
-		"@Annot(value=4)\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * @see Annot\n" +
-		"	 */\n" +
-		"	public void foo(@Annot int i) {\n" +
-		"		@Annot int j = 0;" +
-		"	}\n" +
-		"}\n",
+		"""
+			@interface Annot {
+				int value() default 0;
+			}
+			/**
+			 * @see Annot
+			 */
+			@Annot
+			@Annot(3)
+			@Annot(value=4)
+			public class X {
+				/**
+				 * @see Annot
+				 */
+				public void foo(@Annot int i) {
+					@Annot int j = 0;\
+				}
+			}
+			""",
 		new Parser(
 				new ProblemReporter(DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 				options,
 				new DefaultProblemFactory()), false),
 		new AnnotationCollector(),
-		"java doc single type reference start visit\n" +
-		"java doc single type reference end visit\n" +
-		"marker annotation start visit\n" +
-		"marker annotation end visit\n" +
-		"single member annotation start visit\n" +
-		"3\n" +
-		"single member annotation end visit\n" +
-		"normal annotation start visit\n" +
-		"member value pair start visit\n" +
-		"value, 4\n" +
-		"member value pair end visit\n" +
-		"normal annotation end visit\n" +
-		"java doc single type reference start visit\n" +
-		"java doc single type reference end visit\n" +
-		"start argument\n" +
-		"marker annotation start visit\n" +
-		"marker annotation end visit\n" +
-		"exit argument\n" +
-		"start local declaration\n" +
-		"marker annotation start visit\n" +
-		"marker annotation end visit\n" +
-		"exit local declaration\n");
+		"""
+			java doc single type reference start visit
+			java doc single type reference end visit
+			marker annotation start visit
+			marker annotation end visit
+			single member annotation start visit
+			3
+			single member annotation end visit
+			normal annotation start visit
+			member value pair start visit
+			value, 4
+			member value pair end visit
+			normal annotation end visit
+			java doc single type reference start visit
+			java doc single type reference end visit
+			start argument
+			marker annotation start visit
+			marker annotation end visit
+			exit argument
+			start local declaration
+			marker annotation start visit
+			marker annotation end visit
+			exit local declaration
+			""");
 }
 }
 

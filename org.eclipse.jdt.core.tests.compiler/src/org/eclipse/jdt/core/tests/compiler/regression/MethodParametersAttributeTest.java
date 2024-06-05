@@ -106,71 +106,72 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 					ClassFileBytesDisassembler.DETAILED);
 
 			String expectedOutput =
-					"// Compiled from ParameterNames.java (version 1.8 : 52.0, super bit)\n" +
-					"public class ParameterNames {\n" +
-					"  \n" +
-					"  // Method descriptor #12 ()V\n" +
-					"  // Stack: 1, Locals: 1\n" +
-					"  public ParameterNames();\n" +
-					"    0  aload_0 [this]\n" +
-					"    1  invokespecial java.lang.Object() [1]\n" +
-					"    4  return\n" +
-					"      Line numbers:\n" +
-					"        [pc: 0, line: 3]\n" +
-					"  \n" +
-					"  // Method descriptor #16 (ID)V\n" +
-					"  // Stack: 0, Locals: 4\n" +
-					"  public void someMethod(int simple, double complex);\n" +
-					"    0  return\n" +
-					"      Line numbers:\n" +
-					"        [pc: 0, line: 6]\n" +
-					"      Method Parameters:\n" +
-					"        simple\n" +
-					"        final complex\n" +
-					"  \n" +
-					"  // Method descriptor #21 (Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/Callable;\n" +
-					"  // Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/Callable<Ljava/lang/String;>;\n" +
-					"  // Stack: 4, Locals: 3\n" +
-					"  public java.util.concurrent.Callable makeInnerWithCapture(java.lang.String finalMessage, java.lang.String mutableMessage);\n" +
-					"     0  new ParameterNames$1 [2]\n" +
-					"     3  dup\n" +
-					"     4  aload_0 [this]\n" +
-					"     5  aload_1 [finalMessage]\n" +
-					"     6  invokespecial ParameterNames$1(ParameterNames, java.lang.String) [3]\n" +
-					"     9  areturn\n" +
-					"      Line numbers:\n" +
-					"        [pc: 0, line: 9]\n" +
-					"      Method Parameters:\n" +
-					"        final finalMessage\n" +
-					"        mutableMessage\n" +
-					"  \n" +
-					"  // Method descriptor #27 (Ljava/lang/String;Ljava/lang/String;)I\n" +
-					"  // Stack: 5, Locals: 4\n" +
-					"  public int localMath(java.lang.String finalMessage, java.lang.String mutableMessage);\n" +
-					"     0  bipush 42\n" +
-					"     2  istore_3\n" +
-					"     3  new ParameterNames$1Local [4]\n" +
-					"     6  dup\n" +
-					"     7  aload_0 [this]\n" +
-					"     8  iconst_2\n" +
-					"     9  iload_3\n" +
-					"    10  invokespecial ParameterNames$1Local(ParameterNames, int, int) [5]\n" +
-					"    13  iconst_3\n" +
-					"    14  invokevirtual ParameterNames$1Local.calculate(int) : int [6]\n" +
-					"    17  ireturn\n" +
-					"      Line numbers:\n" +
-					"        [pc: 0, line: 17]\n" +
-					"        [pc: 3, line: 29]\n" +
-					"      Method Parameters:\n" +
-					"        final finalMessage\n" +
-					"        mutableMessage\n" +
-					"\n" +
-					"  Inner classes:\n" +
-					"    [inner class info: #4 ParameterNames$1Local, outer class info: #0\n" +
-					"     inner name: #9 Local, accessflags: 0 default],\n" +
-					"    [inner class info: #2 ParameterNames$1, outer class info: #0\n" +
-					"     inner name: #0, accessflags: 0 default]\n" +
-					"}";
+					"""
+				// Compiled from ParameterNames.java (version 1.8 : 52.0, super bit)
+				public class ParameterNames {
+				 \s
+				  // Method descriptor #12 ()V
+				  // Stack: 1, Locals: 1
+				  public ParameterNames();
+				    0  aload_0 [this]
+				    1  invokespecial java.lang.Object() [1]
+				    4  return
+				      Line numbers:
+				        [pc: 0, line: 3]
+				 \s
+				  // Method descriptor #16 (ID)V
+				  // Stack: 0, Locals: 4
+				  public void someMethod(int simple, double complex);
+				    0  return
+				      Line numbers:
+				        [pc: 0, line: 6]
+				      Method Parameters:
+				        simple
+				        final complex
+				 \s
+				  // Method descriptor #21 (Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/Callable;
+				  // Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/Callable<Ljava/lang/String;>;
+				  // Stack: 4, Locals: 3
+				  public java.util.concurrent.Callable makeInnerWithCapture(java.lang.String finalMessage, java.lang.String mutableMessage);
+				     0  new ParameterNames$1 [2]
+				     3  dup
+				     4  aload_0 [this]
+				     5  aload_1 [finalMessage]
+				     6  invokespecial ParameterNames$1(ParameterNames, java.lang.String) [3]
+				     9  areturn
+				      Line numbers:
+				        [pc: 0, line: 9]
+				      Method Parameters:
+				        final finalMessage
+				        mutableMessage
+				 \s
+				  // Method descriptor #27 (Ljava/lang/String;Ljava/lang/String;)I
+				  // Stack: 5, Locals: 4
+				  public int localMath(java.lang.String finalMessage, java.lang.String mutableMessage);
+				     0  bipush 42
+				     2  istore_3
+				     3  new ParameterNames$1Local [4]
+				     6  dup
+				     7  aload_0 [this]
+				     8  iconst_2
+				     9  iload_3
+				    10  invokespecial ParameterNames$1Local(ParameterNames, int, int) [5]
+				    13  iconst_3
+				    14  invokevirtual ParameterNames$1Local.calculate(int) : int [6]
+				    17  ireturn
+				      Line numbers:
+				        [pc: 0, line: 17]
+				        [pc: 3, line: 29]
+				      Method Parameters:
+				        final finalMessage
+				        mutableMessage
+				
+				  Inner classes:
+				    [inner class info: #4 ParameterNames$1Local, outer class info: #0
+				     inner name: #9 Local, accessflags: 0 default],
+				    [inner class info: #2 ParameterNames$1, outer class info: #0
+				     inner name: #0, accessflags: 0 default]
+				}""";
 
 
 			assertSubstring(actualOutput, expectedOutput);
@@ -187,57 +188,58 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				ClassFileBytesDisassembler.DETAILED);
 
 		String expectedOutput =
-			"// Compiled from ParameterNames.java (version 1.8 : 52.0, super bit)\n" +
-			"// Signature: Ljava/lang/Object;Ljava/util/concurrent/Callable<Ljava/lang/String;>;\n" +
-			"class ParameterNames$1 implements java.util.concurrent.Callable {\n" +
-			"  \n" +
-			"  // Field descriptor #9 Ljava/lang/String;\n" +
-			"  final synthetic java.lang.String val$finalMessage;\n" +
-			"  \n" +
-			"  // Field descriptor #11 LParameterNames;\n" +
-			"  final synthetic ParameterNames this$0;\n" +
-			"  \n" +
-			"  // Method descriptor #13 (LParameterNames;Ljava/lang/String;)V\n" +
-			"  // Stack: 2, Locals: 3\n" +
-			"  ParameterNames$1(ParameterNames this$0, java.lang.String val$finalMessage);\n" +
-			"     0  aload_0 [this]\n" +
-			"     1  aload_1 [this$0]\n" +
-			"     2  putfield ParameterNames$1.this$0 : ParameterNames [1]\n" +
-			"     5  aload_0 [this]\n" +
-			"     6  aload_2 [val$finalMessage]\n" +
-			"     7  putfield ParameterNames$1.val$finalMessage : java.lang.String [2]\n" +
-			"    10  aload_0 [this]\n" +
-			"    11  invokespecial java.lang.Object() [3]\n" +
-			"    14  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 9]\n" +
-			"      Method Parameters:\n" +
-			"        final mandated this$0\n" +
-			"        final synthetic val$finalMessage\n" +
-			"  \n" +
-			"  // Method descriptor #18 ()Ljava/lang/String;\n" +
-			"  // Stack: 1, Locals: 1\n" +
-			"  public java.lang.String call() throws java.lang.Exception;\n" +
-			"    0  aload_0 [this]\n" +
-			"    1  getfield ParameterNames$1.val$finalMessage : java.lang.String [2]\n" +
-			"    4  areturn\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 11]\n" +
-			"  \n" +
-			"  // Method descriptor #21 ()Ljava/lang/Object;\n" +
-			"  // Stack: 1, Locals: 1\n" +
-			"  public bridge synthetic java.lang.Object call() throws java.lang.Exception;\n" +
-			"    0  aload_0 [this]\n" +
-			"    1  invokevirtual ParameterNames$1.call() : java.lang.String [4]\n" +
-			"    4  areturn\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 9]\n" +
-			"\n" +
-			"  Inner classes:\n" +
-			"    [inner class info: #5 ParameterNames$1, outer class info: #0\n" +
-			"     inner name: #0, accessflags: 0 default]\n" +
-			"  Enclosing Method: #27  #28 ParameterNames.makeInnerWithCapture(Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/Callable;\n" +
-			"}";
+			"""
+			// Compiled from ParameterNames.java (version 1.8 : 52.0, super bit)
+			// Signature: Ljava/lang/Object;Ljava/util/concurrent/Callable<Ljava/lang/String;>;
+			class ParameterNames$1 implements java.util.concurrent.Callable {
+			 \s
+			  // Field descriptor #9 Ljava/lang/String;
+			  final synthetic java.lang.String val$finalMessage;
+			 \s
+			  // Field descriptor #11 LParameterNames;
+			  final synthetic ParameterNames this$0;
+			 \s
+			  // Method descriptor #13 (LParameterNames;Ljava/lang/String;)V
+			  // Stack: 2, Locals: 3
+			  ParameterNames$1(ParameterNames this$0, java.lang.String val$finalMessage);
+			     0  aload_0 [this]
+			     1  aload_1 [this$0]
+			     2  putfield ParameterNames$1.this$0 : ParameterNames [1]
+			     5  aload_0 [this]
+			     6  aload_2 [val$finalMessage]
+			     7  putfield ParameterNames$1.val$finalMessage : java.lang.String [2]
+			    10  aload_0 [this]
+			    11  invokespecial java.lang.Object() [3]
+			    14  return
+			      Line numbers:
+			        [pc: 0, line: 9]
+			      Method Parameters:
+			        final mandated this$0
+			        final synthetic val$finalMessage
+			 \s
+			  // Method descriptor #18 ()Ljava/lang/String;
+			  // Stack: 1, Locals: 1
+			  public java.lang.String call() throws java.lang.Exception;
+			    0  aload_0 [this]
+			    1  getfield ParameterNames$1.val$finalMessage : java.lang.String [2]
+			    4  areturn
+			      Line numbers:
+			        [pc: 0, line: 11]
+			 \s
+			  // Method descriptor #21 ()Ljava/lang/Object;
+			  // Stack: 1, Locals: 1
+			  public bridge synthetic java.lang.Object call() throws java.lang.Exception;
+			    0  aload_0 [this]
+			    1  invokevirtual ParameterNames$1.call() : java.lang.String [4]
+			    4  areturn
+			      Line numbers:
+			        [pc: 0, line: 9]
+			
+			  Inner classes:
+			    [inner class info: #5 ParameterNames$1, outer class info: #0
+			     inner name: #0, accessflags: 0 default]
+			  Enclosing Method: #27  #28 ParameterNames.makeInnerWithCapture(Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/Callable;
+			}""";
 
 		assertSubstring(actualOutput, expectedOutput);
 	}
@@ -254,64 +256,65 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				ClassFileBytesDisassembler.DETAILED);
 
 		String expectedOutput =
-			"// Compiled from ParameterNames.java (version 1.8 : 52.0, super bit)\n" +
-			"class ParameterNames$1Local {\n" +
-			"  \n" +
-			"  // Field descriptor #8 I\n" +
-			"  int fieldA;\n" +
-			"  \n" +
-			"  // Field descriptor #8 I\n" +
-			"  final synthetic int val$capturedB;\n" +
-			"  \n" +
-			"  // Field descriptor #11 LParameterNames;\n" +
-			"  final synthetic ParameterNames this$0;\n" +
-			"  \n" +
-			"  // Method descriptor #13 (LParameterNames;II)V\n" +
-			"  // Signature: (I)V\n" +
-			"  // Stack: 2, Locals: 4\n" +
-			"  ParameterNames$1Local(ParameterNames this$0, int val$capturedB, int a);\n" +
-			"     0  aload_0 [this]\n" +
-			"     1  aload_1 [this$0]\n" +
-			"     2  putfield ParameterNames$1Local.this$0 : ParameterNames [1]\n" +
-			"     5  aload_0 [this]\n" +
-			"     6  iload_3 [a]\n" +
-			"     7  putfield ParameterNames$1Local.val$capturedB : int [2]\n" +
-			"    10  aload_0 [this]\n" +
-			"    11  invokespecial java.lang.Object() [3]\n" +
-			"    14  aload_0 [this]\n" +
-			"    15  iload_2 [val$capturedB]\n" +
-			"    16  putfield ParameterNames$1Local.fieldA : int [4]\n" +
-			"    19  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 21]\n" +
-			"        [pc: 14, line: 22]\n" +
-			"        [pc: 19, line: 23]\n" +
-			"      Method Parameters:\n" +
-			"        final mandated this$0\n" +
-			"        final synthetic val$capturedB\n" +
-			"        a\n" +
-			"  \n" +
-			"  // Method descriptor #21 (I)I\n" +
-			"  // Stack: 2, Locals: 2\n" +
-			"  int calculate(int parameterC);\n" +
-			"     0  aload_0 [this]\n" +
-			"     1  getfield ParameterNames$1Local.fieldA : int [4]\n" +
-			"     4  aload_0 [this]\n" +
-			"     5  getfield ParameterNames$1Local.val$capturedB : int [2]\n" +
-			"     8  iadd\n" +
-			"     9  iload_1 [parameterC]\n" +
-			"    10  iadd\n" +
-			"    11  ireturn\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 25]\n" +
-			"      Method Parameters:\n" +
-			"        final parameterC\n" +
-			"\n" +
-			"  Inner classes:\n" +
-			"    [inner class info: #5 ParameterNames$1Local, outer class info: #0\n" +
-			"     inner name: #33 Local, accessflags: 0 default]\n" +
-			"  Enclosing Method: #26  #27 ParameterNames.localMath(Ljava/lang/String;Ljava/lang/String;)I\n" +
-			"}";
+			"""
+			// Compiled from ParameterNames.java (version 1.8 : 52.0, super bit)
+			class ParameterNames$1Local {
+			 \s
+			  // Field descriptor #8 I
+			  int fieldA;
+			 \s
+			  // Field descriptor #8 I
+			  final synthetic int val$capturedB;
+			 \s
+			  // Field descriptor #11 LParameterNames;
+			  final synthetic ParameterNames this$0;
+			 \s
+			  // Method descriptor #13 (LParameterNames;II)V
+			  // Signature: (I)V
+			  // Stack: 2, Locals: 4
+			  ParameterNames$1Local(ParameterNames this$0, int val$capturedB, int a);
+			     0  aload_0 [this]
+			     1  aload_1 [this$0]
+			     2  putfield ParameterNames$1Local.this$0 : ParameterNames [1]
+			     5  aload_0 [this]
+			     6  iload_3 [a]
+			     7  putfield ParameterNames$1Local.val$capturedB : int [2]
+			    10  aload_0 [this]
+			    11  invokespecial java.lang.Object() [3]
+			    14  aload_0 [this]
+			    15  iload_2 [val$capturedB]
+			    16  putfield ParameterNames$1Local.fieldA : int [4]
+			    19  return
+			      Line numbers:
+			        [pc: 0, line: 21]
+			        [pc: 14, line: 22]
+			        [pc: 19, line: 23]
+			      Method Parameters:
+			        final mandated this$0
+			        final synthetic val$capturedB
+			        a
+			 \s
+			  // Method descriptor #21 (I)I
+			  // Stack: 2, Locals: 2
+			  int calculate(int parameterC);
+			     0  aload_0 [this]
+			     1  getfield ParameterNames$1Local.fieldA : int [4]
+			     4  aload_0 [this]
+			     5  getfield ParameterNames$1Local.val$capturedB : int [2]
+			     8  iadd
+			     9  iload_1 [parameterC]
+			    10  iadd
+			    11  ireturn
+			      Line numbers:
+			        [pc: 0, line: 25]
+			      Method Parameters:
+			        final parameterC
+			
+			  Inner classes:
+			    [inner class info: #5 ParameterNames$1Local, outer class info: #0
+			     inner name: #33 Local, accessflags: 0 default]
+			  Enclosing Method: #26  #27 ParameterNames.localMath(Ljava/lang/String;Ljava/lang/String;)I
+			}""";
 
 		assertSubstring(actualOutput, expectedOutput);
 	}
@@ -347,12 +350,13 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 
 		this.runParameterNameTest(
 			"X.java",
-			"public class X {\n" +
-			"    X(int wholeNumber) {\n" +
-			"    }\n" +
-			"    void foo(final float pluggedTheHoles, boolean yesItFloats) {\n" +
-			"    }\n" +
-			"}");
+			"""
+				public class X {
+				    X(int wholeNumber) {
+				    }
+				    void foo(final float pluggedTheHoles, boolean yesItFloats) {
+				    }
+				}""");
 
 		try {
 			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
@@ -392,10 +396,12 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		String nestMembers = "";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		if (options.complianceLevel >= ClassFileConstants.JDK11) {
-			nestMembers = "\n" +
-					"Nest Members:\n" +
-					"   #20 ParameterNames$1,\n" +
-					"   #29 ParameterNames$1Local\n";
+			nestMembers = """
+				
+				Nest Members:
+				   #20 ParameterNames$1,
+				   #29 ParameterNames$1Local
+				""";
 		}
 		String expectedOutput =
 				"// Compiled from ParameterNames.java (" + this.versionString + ", super bit)\n" +
@@ -682,9 +688,11 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 
 		this.runParameterNameTest(
 			"X.java",
-			"public class X {\n" +
-			"    class Y {}\n" +
-			"}\n"
+			"""
+				public class X {
+				    class Y {}
+				}
+				"""
 		);
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
@@ -697,18 +705,20 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				ClassFileBytesDisassembler.DETAILED);
 
 		String expectedOutput =
-				"  X$Y(X this$0);\n" +
-				"     0  aload_0 [this]\n" +
-				"     1  aload_1 [this$0]\n" +
-				"     2  putfield X$Y.this$0 : X [10]\n" +
-				"     5  aload_0 [this]\n" +
-				"     6  invokespecial java.lang.Object() [12]\n" +
-				"     9  return\n" +
-				"      Line numbers:\n" +
-				"        [pc: 0, line: 2]\n" +
-				"      Method Parameters:\n" +
-				"        final mandated this$0\n" +
-				"\n";
+				"""
+			  X$Y(X this$0);
+			     0  aload_0 [this]
+			     1  aload_1 [this$0]
+			     2  putfield X$Y.this$0 : X [10]
+			     5  aload_0 [this]
+			     6  invokespecial java.lang.Object() [12]
+			     9  return
+			      Line numbers:
+			        [pc: 0, line: 2]
+			      Method Parameters:
+			        final mandated this$0
+			
+			""";
 
 		assertSubstring(actualOutput, expectedOutput);
 	}
@@ -718,9 +728,11 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 
 		this.runParameterNameTest(
 			"X.java",
-			"public class X {\n" +
-			"    private class Y {}\n" +
-			"}\n"
+			"""
+				public class X {
+				    private class Y {}
+				}
+				"""
 		);
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
@@ -733,18 +745,20 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				ClassFileBytesDisassembler.DETAILED);
 
 		String expectedOutput =
-				"  private X$Y(X this$0);\n" +
-				"     0  aload_0 [this]\n" +
-				"     1  aload_1 [this$0]\n" +
-				"     2  putfield X$Y.this$0 : X [10]\n" +
-				"     5  aload_0 [this]\n" +
-				"     6  invokespecial java.lang.Object() [12]\n" +
-				"     9  return\n" +
-				"      Line numbers:\n" +
-				"        [pc: 0, line: 2]\n" +
-				"      Method Parameters:\n" +
-				"        final synthetic this$0\n" +
-				"\n";
+				"""
+			  private X$Y(X this$0);
+			     0  aload_0 [this]
+			     1  aload_1 [this$0]
+			     2  putfield X$Y.this$0 : X [10]
+			     5  aload_0 [this]
+			     6  invokespecial java.lang.Object() [12]
+			     9  return
+			      Line numbers:
+			        [pc: 0, line: 2]
+			      Method Parameters:
+			        final synthetic this$0
+			
+			""";
 
 		assertSubstring(actualOutput, expectedOutput);
 	}
@@ -753,15 +767,17 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 
 		this.runParameterNameTest(
 			"X.java",
-			"public class X {\n" +
-			"    void foo() {\n" +
-			"        new Y().new Z() {\n" +
-			"        };\n" +
-			"    }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"    class Z {}\n" +
-			"}\n"
+			"""
+				public class X {
+				    void foo() {
+				        new Y().new Z() {
+				        };
+				    }
+				}
+				class Y {
+				    class Z {}
+				}
+				"""
 		);
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
@@ -774,20 +790,22 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				ClassFileBytesDisassembler.DETAILED);
 
 		String expectedOutput =
-				"  X$1(X this$0, Y this$1);\n" +
-				"     0  aload_0 [this]\n" +
-				"     1  aload_1 [this$0]\n" +
-				"     2  putfield X$1.this$0 : X [10]\n" +
-				"     5  aload_0 [this]\n" +
-				"     6  aload_2 [this$1]\n" +
-				"     7  invokespecial Y$Z(Y) [12]\n" +
-				"    10  return\n" +
-				"      Line numbers:\n" +
-				"        [pc: 0, line: 3]\n" +
-				"      Method Parameters:\n" +
-				"        final synthetic this$0\n" +
-				"        final mandated this$1\n" +
-				"\n";
+				"""
+			  X$1(X this$0, Y this$1);
+			     0  aload_0 [this]
+			     1  aload_1 [this$0]
+			     2  putfield X$1.this$0 : X [10]
+			     5  aload_0 [this]
+			     6  aload_2 [this$1]
+			     7  invokespecial Y$Z(Y) [12]
+			    10  return
+			      Line numbers:
+			        [pc: 0, line: 3]
+			      Method Parameters:
+			        final synthetic this$0
+			        final mandated this$1
+			
+			""";
 
 		assertSubstring(actualOutput, expectedOutput);
 	}
@@ -813,18 +831,20 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				ClassFileBytesDisassembler.DETAILED);
 
 		String expectedOutput =
-				"  private FancyEnum(java.lang.String $enum$name, int $enum$ordinal);\n" +
-				"    0  aload_0 [this]\n" +
-				"    1  aload_1 [$enum$name]\n" +
-				"    2  iload_2 [$enum$ordinal]\n" +
-				"    3  invokespecial java.lang.Enum(java.lang.String, int) [26]\n" +
-				"    6  return\n" +
-				"      Line numbers:\n" +
-				"        [pc: 0, line: 2]\n" +
-				"      Method Parameters:\n" +
-				"        synthetic $enum$name\n" +
-				"        synthetic $enum$ordinal\n" +
-				"  \n";
+				"""
+			  private FancyEnum(java.lang.String $enum$name, int $enum$ordinal);
+			    0  aload_0 [this]
+			    1  aload_1 [$enum$name]
+			    2  iload_2 [$enum$ordinal]
+			    3  invokespecial java.lang.Enum(java.lang.String, int) [26]
+			    6  return
+			      Line numbers:
+			        [pc: 0, line: 2]
+			      Method Parameters:
+			        synthetic $enum$name
+			        synthetic $enum$ordinal
+			 \s
+			""";
 
 		assertSubstring(actualOutput, expectedOutput);
 	}
@@ -850,16 +870,18 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				ClassFileBytesDisassembler.DETAILED);
 
 		String expectedOutput =
-				"  public static FancyEnum valueOf(java.lang.String name);\n" +
-						"     0  ldc <Class FancyEnum> [1]\n" +
-						"     2  aload_0 [name]\n" +
-						"     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [40]\n" +
-						"     6  checkcast FancyEnum [1]\n" +
-						"     9  areturn\n" +
-						"      Line numbers:\n" +
-						"        [pc: 0, line: 1]\n" +
-						"      Method Parameters:\n" +
-						"        mandated name\n";
+				"""
+			  public static FancyEnum valueOf(java.lang.String name);
+			     0  ldc <Class FancyEnum> [1]
+			     2  aload_0 [name]
+			     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [40]
+			     6  checkcast FancyEnum [1]
+			     9  areturn
+			      Line numbers:
+			        [pc: 0, line: 1]
+			      Method Parameters:
+			        mandated name
+			""";
 		assertSubstring(actualOutput, expectedOutput);
 	}
 
@@ -868,12 +890,14 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 
 		this.runParameterNameTest(
 			"InnerLocalClassTest.java",
-			"public class InnerLocalClassTest {\n" +
-			"   void test() {\n" +
-			"     class Local { }\n" +
-			"     new Local() { };\n" +
-			"   } \n" +
-			"}\n");
+			"""
+				public class InnerLocalClassTest {
+				   void test() {
+				     class Local { }
+				     new Local() { };
+				   }\s
+				}
+				""");
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 		String path = OUTPUT_DIR + File.separator + "InnerLocalClassTest$1.class";
@@ -885,19 +909,21 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				ClassFileBytesDisassembler.DETAILED);
 
 		String expectedOutput =
-			"  InnerLocalClassTest$1(InnerLocalClassTest this$0, InnerLocalClassTest this$1);\n" +
-			"     0  aload_0 [this]\n" +
-			"     1  aload_2 [this$1]\n" +
-			"     2  putfield InnerLocalClassTest$1.this$0 : InnerLocalClassTest [10]\n" +
-			"     5  aload_0 [this]\n" +
-			"     6  aload_1 [this$0]\n" +
-			"     7  invokespecial InnerLocalClassTest$1Local(InnerLocalClassTest) [12]\n" +
-			"    10  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 4]\n" +
-			"      Method Parameters:\n" +
-			"        final synthetic this$0\n" +
-			"        final synthetic this$1\n";
+			"""
+			  InnerLocalClassTest$1(InnerLocalClassTest this$0, InnerLocalClassTest this$1);
+			     0  aload_0 [this]
+			     1  aload_2 [this$1]
+			     2  putfield InnerLocalClassTest$1.this$0 : InnerLocalClassTest [10]
+			     5  aload_0 [this]
+			     6  aload_1 [this$0]
+			     7  invokespecial InnerLocalClassTest$1Local(InnerLocalClassTest) [12]
+			    10  return
+			      Line numbers:
+			        [pc: 0, line: 4]
+			      Method Parameters:
+			        final synthetic this$0
+			        final synthetic this$1
+			""";
 		assertSubstring(actualOutput, expectedOutput);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=476528
@@ -906,15 +932,17 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 
 		this.runParameterNameTest(
 			"Foo.java",
-			"public enum Foo {\n" +
-			"	BAR;\n" +
-			"   public static Foo valueOf(int intParameter) {\n" +
-			"		return BAR;\n" +
-			"   }\n" +
-			"   public static Foo valueOf2(int intParameter) {\n" +
-			"		return BAR;\n" +
-			"   } \n" +
-			"}\n");
+			"""
+				public enum Foo {
+					BAR;
+				   public static Foo valueOf(int intParameter) {
+						return BAR;
+				   }
+				   public static Foo valueOf2(int intParameter) {
+						return BAR;
+				   }\s
+				}
+				""");
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 		String path = OUTPUT_DIR + File.separator + "Foo.class";
@@ -926,37 +954,41 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				ClassFileBytesDisassembler.DETAILED);
 
 		String expectedOutput =
-			"  // Stack: 1, Locals: 1\n" +
-			"  public static Foo valueOf(int intParameter);\n" +
-			"    0  getstatic Foo.BAR : Foo [17]\n" +
-			"    3  areturn\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 4]\n" +
-			"      Method Parameters:\n" +
-			"        intParameter\n" +
-			"  \n" +
-			"  // Method descriptor #27 (I)LFoo;\n" +
-			"  // Stack: 1, Locals: 1\n" +
-			"  public static Foo valueOf2(int intParameter);\n" +
-			"    0  getstatic Foo.BAR : Foo [17]\n" +
-			"    3  areturn\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 7]\n" +
-			"      Method Parameters:\n" +
-			"        intParameter\n";
+			"""
+			  // Stack: 1, Locals: 1
+			  public static Foo valueOf(int intParameter);
+			    0  getstatic Foo.BAR : Foo [17]
+			    3  areturn
+			      Line numbers:
+			        [pc: 0, line: 4]
+			      Method Parameters:
+			        intParameter
+			 \s
+			  // Method descriptor #27 (I)LFoo;
+			  // Stack: 1, Locals: 1
+			  public static Foo valueOf2(int intParameter);
+			    0  getstatic Foo.BAR : Foo [17]
+			    3  areturn
+			      Line numbers:
+			        [pc: 0, line: 7]
+			      Method Parameters:
+			        intParameter
+			""";
 		assertSubstring(actualOutput, expectedOutput);
 		// Test that synthetic method gets the right parameter names
 		expectedOutput =
-				"  public static Foo valueOf(java.lang.String name);\n" +
-				"     0  ldc <Class Foo> [1]\n" +
-				"     2  aload_0 [name]\n" +
-				"     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [39]\n" +
-				"     6  checkcast Foo [1]\n" +
-				"     9  areturn\n" +
-				"      Line numbers:\n" +
-				"        [pc: 0, line: 1]\n" +
-				"      Method Parameters:\n" +
-				"        mandated name\n";
+				"""
+					  public static Foo valueOf(java.lang.String name);
+					     0  ldc <Class Foo> [1]
+					     2  aload_0 [name]
+					     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [39]
+					     6  checkcast Foo [1]
+					     9  areturn
+					      Line numbers:
+					        [pc: 0, line: 1]
+					      Method Parameters:
+					        mandated name
+					""";
 			assertSubstring(actualOutput, expectedOutput);
 	}
 

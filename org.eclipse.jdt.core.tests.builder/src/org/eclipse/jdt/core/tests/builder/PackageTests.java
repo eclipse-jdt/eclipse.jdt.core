@@ -51,28 +51,36 @@ public class PackageTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(src, "pack", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package pack;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package pack;
+			public class X {
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(src2, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(src2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"public class Y extends p1.X {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			public class Y extends p1.X {
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(src2, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p3;\n"+ //$NON-NLS-1$
-			"public class Z extends p2.Y {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p3;
+			public class Z extends p2.Y {
+			}
+			""" //$NON-NLS-1$
+					);
 
 
 		fullBuild();
@@ -163,11 +171,13 @@ public class PackageTests extends BuilderTests {
 		env.addRequiredProject(project2Path, projectPath, false);
 
 		env.addClass(srcP2, "q", "Main",
-			"package q;\n" +
-			"import p.A;\n" +
-			"public class Main {\n" +
-			"	A field;\n" +
-			"}\n");
+			"""
+				package q;
+				import p.A;
+				public class Main {
+					A field;
+				}
+				""");
 
 		fullBuild();
 		expectingNoProblems();
@@ -206,9 +216,11 @@ public void test001() throws CoreException {
 		IPath src = env.addPackageFragmentRoot(projectPath, "src");
 		IPath bin = env.setOutputFolder(projectPath, "bin");
 		env.addClass(src, "p", "X",
-			"package p;\n" +
-			"public class X {\n" +
-			"}\n"
+			"""
+				package p;
+				public class X {
+				}
+				"""
 			);
 		File tmpDir = env.getTmpDirectory();
 		File externalPackageDir = new File(tmpDir.getAbsolutePath() + File.separator + "q");
@@ -216,14 +228,18 @@ public void test001() throws CoreException {
 		IFolder folder = env.getWorkspace().getRoot().getFolder(src.append("p/q"));
 		folder.createLink(externalPackageDir.toURI(), 0, null);
 		env.addClass(src, "p.q", "Y",
-			"package p.q;\n" +
-			"public class Y extends p.X {\n" +
-			"}\n"
+			"""
+				package p.q;
+				public class Y extends p.X {
+				}
+				"""
 			);
 		env.addClass(src, "p.q.r", "Z",
-				"package p.q.r;\n" +
-				"public class Z extends p.q.Y {\n" +
-				"}\n"
+				"""
+					package p.q.r;
+					public class Z extends p.q.Y {
+					}
+					"""
 				);
 		assertTrue(new File(externalPackageDir.getAbsolutePath() +
 				File.separator + "r" + File.separator + "Z.java").exists());
@@ -252,9 +268,11 @@ public void test002() throws CoreException {
 		IPath src = env.addPackageFragmentRoot(projectPath, "src");
 		IPath bin = env.setOutputFolder(projectPath, "bin");
 		env.addClass(src, "p", "X",
-			"package p;\n" +
-			"public class X {\n" +
-			"}\n"
+			"""
+				package p;
+				public class X {
+				}
+				"""
 			);
 		IProject externalProject = env.getProject(externalProjectPath);
 		IFolder externalFolder = externalProject.getFolder("q");
@@ -263,14 +281,18 @@ public void test002() throws CoreException {
 		IFolder folder = env.getWorkspace().getRoot().getFolder(src.append("p/q"));
 		folder.createLink(externalFolder.getLocationURI(), 0, null);
 		env.addClass(src, "p.q", "Y",
-			"package p.q;\n" +
-			"public class Y extends p.X {\n" +
-			"}\n"
+			"""
+				package p.q;
+				public class Y extends p.X {
+				}
+				"""
 			);
 		env.addClass(src, "p.q.r", "Z",
-				"package p.q.r;\n" +
-				"public class Z extends p.q.Y {\n" +
-				"}\n"
+				"""
+					package p.q.r;
+					public class Z extends p.q.Y {
+					}
+					"""
 				);
 		assertTrue(new File(externalFolder.getLocation() +
 				File.separator + "r" + File.separator + "Z.java").exists());

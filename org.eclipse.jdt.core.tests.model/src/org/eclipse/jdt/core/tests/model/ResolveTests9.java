@@ -140,9 +140,11 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 
 			this.wc = getWorkingCopy(
 					"/Resolve/src/module-info.java",
-					"module com.test {\n" +
-					"  provides p1.Y with ResolveInterface;\n" +
-					"}\n");
+					"""
+						module com.test {
+						  provides p1.Y with ResolveInterface;
+						}
+						""");
 
 			String str = this.wc.getSource();
 			String selection = "ResolveInterface";
@@ -175,9 +177,11 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 
 			this.wc = getWorkingCopy(
 					"/Resolve/src/module-info.java",
-					"module com.test {\n" +
-					"  provides test.ITest with test.TestClass;\n" +
-					"}\n");
+					"""
+						module com.test {
+						  provides test.ITest with test.TestClass;
+						}
+						""");
 
 			String str = this.wc.getSource();
 			String selection = "ITest";
@@ -223,9 +227,11 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 
 			this.wc = getWorkingCopy(
 					"/Resolve/src/module-info.java",
-					"module com.test {\n" +
-					"  provides test.ITest with test.TestClass;\n" +
-					"}\n");
+					"""
+						module com.test {
+						  provides test.ITest with test.TestClass;
+						}
+						""");
 
 			String str = this.wc.getSource();
 			String selection = "ITest";
@@ -263,9 +269,11 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 
 			this.wc = getWorkingCopy(
 					"/Resolve/src/module-info.java",
-					"module com.test {\n" +
-					"  provides test.ITest with test.TestClass;\n" +
-					"}\n");
+					"""
+						module com.test {
+						  provides test.ITest with test.TestClass;
+						}
+						""");
 
 			String str = this.wc.getSource();
 			String selection = "ITest";
@@ -300,9 +308,11 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 
 			this.wc = getWorkingCopy(
 					"/Resolve/src/module-info.java",
-					"module com.test {\n" +
-					"  provides p1.Y with ResolveInterface;\n" +
-					"}\n");
+					"""
+						module com.test {
+						  provides p1.Y with ResolveInterface;
+						}
+						""");
 
 			String str = this.wc.getSource();
 			String selection = "provides";
@@ -334,9 +344,11 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 
 			this.wc = getWorkingCopy(
 					"/Resolve/src/module-info.java",
-					"module com.test {\n" +
-					"  provides p1.Y with provides;\n" +
-					"}\n");
+					"""
+						module com.test {
+						  provides p1.Y with provides;
+						}
+						""");
 
 			String str = this.wc.getSource();
 			String selection = "provides";
@@ -389,9 +401,11 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 			createFolder("mod/src/p1/p2");
 			createFile("mod/src/p1/p2/C.java", "package p1.p2;\n public class C {}\n");
 			createFile("mod/src/module-info.java",
-					"module mod {\n" +
-					"	exports p1.p2;\n" +
-					"}\n");
+					"""
+						module mod {
+							exports p1.p2;
+						}
+						""");
 			mod.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 
 			test = createJava9Project("Test");
@@ -400,20 +414,23 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 			createFolder("Test/src/p1/p2");
 			createFile("Test/src/p1/p2/C1.java", "package p1.p2;\n public class C1 {}\n");
 			String source =
-					"package q;\n" +
-					"public class Main {\n" +
-					"	p1.p2.C c;\n" +
-					"	p1.p2.C1 c1;\n" +
-					"}\n";
+					"""
+				package q;
+				public class Main {
+					p1.p2.C c;
+					p1.p2.C1 c1;
+				}
+				""";
 			createFolder("Test/src/q");
 			createFile("Test/src/q/Main.java", source);
 			test.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = test.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers",
-					"The package p1.p2 conflicts with a package accessible from another module: mod\n" +
-					"The package p1.p2 is accessible from more than one module: <unnamed>, mod\n" +
-					"The package p1.p2 is accessible from more than one module: <unnamed>, mod",
+					"""
+						The package p1.p2 conflicts with a package accessible from another module: mod
+						The package p1.p2 is accessible from more than one module: <unnamed>, mod
+						The package p1.p2 is accessible from more than one module: <unnamed>, mod""",
 					markers);
 
 			ICompilationUnit unit = getCompilationUnit("Test/src/q/Main.java");
@@ -463,10 +480,12 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 			createFile("com.igorion.log/src/com/igorion/log/ILog.java",
 					"package com.igorion.log;\n public interface ILog {}\n");
 			createFile("com.igorion.log/src/module-info.java",
-					"module com.igorion.log {\n" +
-					"	requires log4j;\n" +
-					"	exports com.igorion.log;\n" +
-					"}\n");
+					"""
+						module com.igorion.log {
+							requires log4j;
+							exports com.igorion.log;
+						}
+						""");
 			logg.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = logg.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("markers in com.igorion.log",
@@ -480,9 +499,11 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 			createFile("com.igorion.type/src/com/igorion/type/IOther.java",
 					"package com.igorion.type;\n public interface IOther {}\n");
 			createFile("com.igorion.type/src/module-info.java",
-					"module com.igorion.type {\n" +
-					"	exports com.igorion.type;\n" +
-					"}\n");
+					"""
+						module com.igorion.type {
+							exports com.igorion.type;
+						}
+						""");
 			addTestSrc(type);
 			type.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			markers = type.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -497,18 +518,22 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 			createFile("com.igorion.model/src/com/igorion/model/IModel.java",
 					"package com.igorion.model;\n public interface IModel {}\n");
 			createFile("com.igorion.model/src/com/igorion/model/define/Model.java",
-					"package com.igorion.model.define;\n" +
-					"import com.igorion.model.IModel;\n" +
-					"import java.util.Optional;\n" +
-					"public class Model {\n" +
-					"	public static synchronized Optional<IModel> instance() { return Optional.empty(); }\n" +
-					"}\n");
+					"""
+						package com.igorion.model.define;
+						import com.igorion.model.IModel;
+						import java.util.Optional;
+						public class Model {
+							public static synchronized Optional<IModel> instance() { return Optional.empty(); }
+						}
+						""");
 			createFile("com.igorion.model/src/module-info.java",
-					"module com.igorion.model {\n" +
-					"	requires com.igorion.log;\n" +
-					"	exports com.igorion.model;\n" +
-					"	exports com.igorion.model.define;\n" +
-					"}\n");
+					"""
+						module com.igorion.model {
+							requires com.igorion.log;
+							exports com.igorion.model;
+							exports com.igorion.model.define;
+						}
+						""");
 			addTestSrc(model);
 			addLibraryEntry(model, new Path(jarAbsPath), null, null, null, null, attributes(MODULE), false);
 			addProjectEntry(model, logg, MODULE|WITHOUT_TEST);
@@ -524,23 +549,27 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 			addTestSrc(gui);
 			createFolder("com.igorion.gui/src/com/igorion/gui");
 			String source =
-					"package com.igorion.gui;\n" +
-					"import com.igorion.model.IModel;\n" +
-					"import com.igorion.model.define.Model;\n" +
-					"import java.util.Optional;\n" +
-					"public class Reproduce {\n" +
-					"	static void meth() {\n" +
-					"		Optional<IModel> oModel = Model.instance();\n" +
-					"		if (oModel.isPresent())\n" +
-					"			oModel.get();\n" +
-					"	}\n" +
-					"}\n";
+					"""
+				package com.igorion.gui;
+				import com.igorion.model.IModel;
+				import com.igorion.model.define.Model;
+				import java.util.Optional;
+				public class Reproduce {
+					static void meth() {
+						Optional<IModel> oModel = Model.instance();
+						if (oModel.isPresent())
+							oModel.get();
+					}
+				}
+				""";
 			createFile("com.igorion.gui/src/com/igorion/gui/Reproduce.java", source);
 			createFile("com.igorion.gui/src/module-info.java",
-					"module com.igorion.gui {\n" +
-					"	requires com.igorion.type;\n" +
-					"	requires com.igorion.model;\n" +
-					"}\n");
+					"""
+						module com.igorion.gui {
+							requires com.igorion.type;
+							requires com.igorion.model;
+						}
+						""");
 			addLibraryEntry(gui, new Path(jarAbsPath), null, null, null, null, attributes(MODULE|TEST), false);
 			addProjectEntry(gui, type, MODULE|WITHOUT_TEST);
 			addProjectEntry(gui, model, MODULE|WITHOUT_TEST);
@@ -572,14 +601,18 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 		IJavaProject prj = createJava9Project("caching");
 		try {
 			IFile file = createFile("caching/src/module-info.java",
-					"module caching {\n" +
-					"	requires java.xml.bind;\n" +
-					"}\n");
+					"""
+						module caching {
+							requires java.xml.bind;
+						}
+						""");
 			createFolder("caching/src/p");
 			createFile("caching/src/p/X.java",
-					"package p;\n" +
-					"@javax.xml.bind.annotation.XmlRootElement\n" +
-					"public class X {}\n");
+					"""
+						package p;
+						@javax.xml.bind.annotation.XmlRootElement
+						public class X {}
+						""");
 			prj.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = prj.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("unexpected markers",

@@ -98,10 +98,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object())] ERASURE_RAW_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(new Object())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(new Exception())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(new RuntimeException())] ERASURE_MATCH"
+			"""
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object())] ERASURE_RAW_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(new Object())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(new Exception())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(new RuntimeException())] ERASURE_MATCH"""
 		);
 	}
 	public void testConstructorReferencesElementPatternSingleTypeParameter02() throws CoreException {
@@ -111,10 +112,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), new Throwable())] ERASURE_RAW_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Throwable>Single<Object>(new Object(), new Throwable())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), new Exception())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), new RuntimeException())] ERASURE_MATCH"
+			"""
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), new Throwable())] ERASURE_RAW_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Throwable>Single<Object>(new Object(), new Throwable())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), new Exception())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), new RuntimeException())] ERASURE_MATCH"""
 		);
 	}
 	public void testConstructorReferencesElementPatternSingleTypeParameter03() throws CoreException {
@@ -124,10 +126,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(gs)] ERASURE_RAW_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(gs)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(gs)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(gs)] ERASURE_MATCH"
+			"""
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(gs)] ERASURE_RAW_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(gs)] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(gs)] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(gs)] ERASURE_MATCH"""
 		);
 	}
 	public void testConstructorReferencesElementPatternSingleTypeParameter04() throws CoreException {
@@ -137,10 +140,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), gs)] ERASURE_RAW_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Exception>Single<Object>(new Exception(), gs)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), gs)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), gs)] ERASURE_MATCH"
+			"""
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), gs)] ERASURE_RAW_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Exception>Single<Object>(new Exception(), gs)] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), gs)] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), gs)] ERASURE_MATCH"""
 		);
 	}
 
@@ -151,10 +155,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(new Object(), new Object(), new Object())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(new Exception(), new Exception(), new Exception())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(), new RuntimeException(), new RuntimeException())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Object(), new Object())] ERASURE_RAW_MATCH"
+			"""
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(new Object(), new Object(), new Object())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(new Exception(), new Exception(), new Exception())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(), new RuntimeException(), new RuntimeException())] ERASURE_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Object(), new Object())] ERASURE_RAW_MATCH"""
 		);
 	}
 	public void testConstructorReferencesElementPatternMultipleTypeParameter02() throws CoreException {
@@ -163,10 +168,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(gm, new Object(), new Throwable(), new Exception())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(gm, new Exception(),new Exception(),new Exception())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(gm, new RuntimeException(),new RuntimeException(),new RuntimeException())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm, new Object(), new Throwable(), new Exception())] ERASURE_RAW_MATCH"
+			"""
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(gm, new Object(), new Throwable(), new Exception())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(gm, new Exception(),new Exception(),new Exception())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(gm, new RuntimeException(),new RuntimeException(),new RuntimeException())] ERASURE_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm, new Object(), new Throwable(), new Exception())] ERASURE_RAW_MATCH"""
 		);
 	}
 	public void testConstructorReferencesElementPatternMultipleTypeParameter03() throws CoreException {
@@ -175,10 +181,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm)] ERASURE_RAW_MATCH"
+			"""
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(gm)] ERASURE_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm)] ERASURE_RAW_MATCH"""
 		);
 	}
 	public void testConstructorReferencesElementPatternMultipleTypeParameter04() throws CoreException {
@@ -187,10 +194,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(new Object(), new Throwable(), new Exception(), gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(new Exception(),new Exception(),new Exception(), gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(),new RuntimeException(),new RuntimeException(), gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Throwable(), new Exception(), gm)] ERASURE_RAW_MATCH"
+			"""
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(new Object(), new Throwable(), new Exception(), gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(new Exception(),new Exception(),new Exception(), gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(),new RuntimeException(),new RuntimeException(), gm)] ERASURE_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Throwable(), new Exception(), gm)] ERASURE_RAW_MATCH"""
 		);
 	}
 
@@ -201,10 +209,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(new Object())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(new Exception())] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(new RuntimeException())] ERASURE_MATCH"
+			"""
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(new Object())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(new Exception())] EXACT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(new RuntimeException())] ERASURE_MATCH"""
 		);
 	}
 	public void testConstructorReferencesElementPatternSingleParamArguments02() throws CoreException {
@@ -213,10 +222,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), new Throwable())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Throwable>Single<Object>(new Object(), new Throwable())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), new Exception())] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), new RuntimeException())] ERASURE_MATCH"
+			"""
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), new Throwable())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Throwable>Single<Object>(new Object(), new Throwable())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), new Exception())] EXACT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), new RuntimeException())] ERASURE_MATCH"""
 		);
 	}
 	public void testConstructorReferencesElementPatternSingleParamArguments03() throws CoreException {
@@ -225,10 +235,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(gs)] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(gs)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(gs)] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(gs)] ERASURE_MATCH"
+			"""
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(gs)] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(gs)] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(gs)] EXACT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(gs)] ERASURE_MATCH"""
 		);
 	}
 	public void testConstructorReferencesElementPatternSingleParamArguments04() throws CoreException {
@@ -237,10 +248,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), gs)] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Exception>Single<Object>(new Exception(), gs)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), gs)] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), gs)] ERASURE_MATCH"
+			"""
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), gs)] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Exception>Single<Object>(new Exception(), gs)] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), gs)] EXACT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), gs)] ERASURE_MATCH"""
 		);
 	}
 	public void testConstructorReferencesElementPatternSingleParamArguments05() throws CoreException {
@@ -249,10 +261,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), new Throwable())] EXACT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Throwable>Single<Object>(new Object(), new Throwable())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), new Exception())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), new RuntimeException())] EQUIVALENT_MATCH"
+			"""
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), new Throwable())] EXACT_RAW_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Throwable>Single<Object>(new Object(), new Throwable())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), new Exception())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), new RuntimeException())] EQUIVALENT_MATCH"""
 		);
 	}
 	public void testConstructorReferencesElementPatternSingleParamArguments06() throws CoreException {
@@ -261,10 +274,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), gs)] EXACT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Exception>Single<Object>(new Exception(), gs)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), gs)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), gs)] EQUIVALENT_MATCH"
+			"""
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), gs)] EXACT_RAW_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Exception>Single<Object>(new Exception(), gs)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), gs)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), gs)] EQUIVALENT_MATCH"""
 		);
 	}
 
@@ -275,10 +289,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(new Object(), new Object(), new Object())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(new Exception(), new Exception(), new Exception())] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(), new RuntimeException(), new RuntimeException())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Object(), new Object())] EQUIVALENT_RAW_MATCH"
+			"""
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(new Object(), new Object(), new Object())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(new Exception(), new Exception(), new Exception())] EXACT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(), new RuntimeException(), new RuntimeException())] ERASURE_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Object(), new Object())] EQUIVALENT_RAW_MATCH"""
 		);
 	}
 	public void testConstructorReferencesElementPatternMultipleParamArguments02() throws CoreException {
@@ -287,10 +302,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(gm, new Object(), new Throwable(), new Exception())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(gm, new Exception(),new Exception(),new Exception())] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(gm, new RuntimeException(),new RuntimeException(),new RuntimeException())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm, new Object(), new Throwable(), new Exception())] EQUIVALENT_RAW_MATCH"
+			"""
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(gm, new Object(), new Throwable(), new Exception())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(gm, new Exception(),new Exception(),new Exception())] EXACT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(gm, new RuntimeException(),new RuntimeException(),new RuntimeException())] ERASURE_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm, new Object(), new Throwable(), new Exception())] EQUIVALENT_RAW_MATCH"""
 		);
 	}
 	public void testConstructorReferencesElementPatternMultipleParamArguments03() throws CoreException {
@@ -299,10 +315,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(gm)] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm)] EQUIVALENT_RAW_MATCH"
+			"""
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(gm)] EXACT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(gm)] ERASURE_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm)] EQUIVALENT_RAW_MATCH"""
 		);
 	}
 	public void testConstructorReferencesElementPatternMultipleParamArguments04() throws CoreException {
@@ -311,10 +328,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(new Object(), new Throwable(), new Exception(), gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(new Exception(),new Exception(),new Exception(), gm)] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(),new RuntimeException(),new RuntimeException(), gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Throwable(), new Exception(), gm)] EQUIVALENT_RAW_MATCH"
+			"""
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(new Object(), new Throwable(), new Exception(), gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(new Exception(),new Exception(),new Exception(), gm)] EXACT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(),new RuntimeException(),new RuntimeException(), gm)] ERASURE_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Throwable(), new Exception(), gm)] EQUIVALENT_RAW_MATCH"""
 		);
 	}
 	public void testConstructorReferencesElementPatternMultipleParamArguments05() throws CoreException {
@@ -323,10 +341,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(gm, new Object(), new Throwable(), new Exception())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(gm, new Exception(),new Exception(),new Exception())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(gm, new RuntimeException(),new RuntimeException(),new RuntimeException())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm, new Object(), new Throwable(), new Exception())] EXACT_RAW_MATCH"
+			"""
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(gm, new Object(), new Throwable(), new Exception())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(gm, new Exception(),new Exception(),new Exception())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(gm, new RuntimeException(),new RuntimeException(),new RuntimeException())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm, new Object(), new Throwable(), new Exception())] EXACT_RAW_MATCH"""
 		);
 	}
 	public void testConstructorReferencesElementPatternMultipleParamArguments06() throws CoreException {
@@ -335,10 +354,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(new Object(), new Throwable(), new Exception(), gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(new Exception(),new Exception(),new Exception(), gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(),new RuntimeException(),new RuntimeException(), gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Throwable(), new Exception(), gm)] EXACT_RAW_MATCH"
+			"""
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(new Object(), new Throwable(), new Exception(), gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(new Exception(),new Exception(),new Exception(), gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(),new RuntimeException(),new RuntimeException(), gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Throwable(), new Exception(), gm)] EXACT_RAW_MATCH"""
 		);
 	}
 
@@ -347,88 +367,92 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15("g5.c.ref", false);
 		search("<Exception>Single", CONSTRUCTOR, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), new Throwable())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(gs)] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), gs)] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(new Object())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Throwable>Single<Object>(new Object(), new Throwable())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(gs)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Exception>Single<Object>(new Exception(), gs)] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(new Exception())] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), new Exception())] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(gs)] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), gs)] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(new RuntimeException())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), new RuntimeException())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(gs)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), gs)] ERASURE_MATCH"
+			"""
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), new Throwable())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(gs)] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), gs)] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(new Object())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Throwable>Single<Object>(new Object(), new Throwable())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(gs)] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Exception>Single<Object>(new Exception(), gs)] EXACT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(new Exception())] EXACT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), new Exception())] EXACT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(gs)] EXACT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), gs)] EXACT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(new RuntimeException())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), new RuntimeException())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(gs)] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), gs)] ERASURE_MATCH"""
 		);
 	}
 	public void testConstructorReferencesStringPatternSingleParamArguments02() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g5.c.ref", false);
 		search("<? extends Exception> Single", CONSTRUCTOR, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), new Throwable())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(gs)] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), gs)] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(new Object())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Throwable>Single<Object>(new Object(), new Throwable())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(gs)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Exception>Single<Object>(new Exception(), gs)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(new Exception())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), new Exception())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(gs)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), gs)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(new RuntimeException())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), new RuntimeException())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(gs)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), gs)] EQUIVALENT_MATCH"
+			"""
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), new Throwable())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(gs)] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), gs)] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(new Object())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Throwable>Single<Object>(new Object(), new Throwable())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(gs)] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Exception>Single<Object>(new Exception(), gs)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(new Exception())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), new Exception())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(gs)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), gs)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(new RuntimeException())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), new RuntimeException())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(gs)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), gs)] EQUIVALENT_MATCH"""
 		);
 	}
 	public void testConstructorReferencesStringPatternSingleParamArguments03() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g5.c.ref", false);
 		search("<? super Exception>S?ng*", CONSTRUCTOR, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), new Throwable())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(gs)] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), gs)] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(new Object())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Throwable>Single<Object>(new Object(), new Throwable())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(gs)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Exception>Single<Object>(new Exception(), gs)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(new Exception())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), new Exception())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(gs)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), gs)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(new RuntimeException())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), new RuntimeException())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(gs)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), gs)] ERASURE_MATCH"
+			"""
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), new Throwable())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(gs)] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), gs)] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(new Object())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Throwable>Single<Object>(new Object(), new Throwable())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(gs)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Exception>Single<Object>(new Exception(), gs)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(new Exception())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), new Exception())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(gs)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), gs)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(new RuntimeException())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), new RuntimeException())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(gs)] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), gs)] ERASURE_MATCH"""
 		);
 	}
 	public void testConstructorReferencesStringPatternSingleParamArguments04() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g5.c.ref", false);
 		search("Single", CONSTRUCTOR, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object())] EXACT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), new Throwable())] EXACT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(gs)] EXACT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), gs)] EXACT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(new Object())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Throwable>Single<Object>(new Object(), new Throwable())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(gs)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Exception>Single<Object>(new Exception(), gs)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(new Exception())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), new Exception())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(gs)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), gs)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(new RuntimeException())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), new RuntimeException())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(gs)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), gs)] EQUIVALENT_MATCH"
+			"""
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object())] EXACT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), new Throwable())] EXACT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(gs)] EXACT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), gs)] EXACT_RAW_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(new Object())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Throwable>Single<Object>(new Object(), new Throwable())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(gs)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Exception>Single<Object>(new Exception(), gs)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(new Exception())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), new Exception())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(gs)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), gs)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(new RuntimeException())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), new RuntimeException())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(gs)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), gs)] EQUIVALENT_MATCH"""
 		);
 	}
 	public void testConstructorReferencesStringPatternSingleParamArguments05() throws CoreException {
@@ -451,22 +475,23 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15("g5.c.ref", false);
 		search("Single<Exception>", CONSTRUCTOR, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), new Throwable())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(gs)] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), gs)] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(new Object())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Throwable>Single<Object>(new Object(), new Throwable())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(gs)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Exception>Single<Object>(new Exception(), gs)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(new Exception())] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), new Exception())] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(gs)] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), gs)] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(new RuntimeException())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), new RuntimeException())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(gs)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), gs)] ERASURE_MATCH"
+			"""
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), new Throwable())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(gs)] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testSingle() [new Single(new Object(), gs)] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(new Object())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Throwable>Single<Object>(new Object(), new Throwable())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new Single<Object>(gs)] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testObject() [new <Exception>Single<Object>(new Exception(), gs)] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(new Exception())] EXACT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), new Exception())] EXACT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new Single<Exception>(gs)] EXACT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testException() [new <Exception>Single<Exception>(new Exception(), gs)] EXACT_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(new RuntimeException())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), new RuntimeException())] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new Single<RuntimeException>(gs)] ERASURE_MATCH
+				src/g5/c/ref/RefSingle.java void g5.c.ref.RefSingle.testRuntimeException() [new <RuntimeException>Single<RuntimeException>(new RuntimeException(), gs)] ERASURE_MATCH"""
 		);
 	}
 	public void testConstructorReferencesStringPatternSingleParamArguments08() throws CoreException {
@@ -511,66 +536,69 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15("g5.c.ref", false);
 		search("<?, ? extends Exception, ? super RuntimeException>Multiple", CONSTRUCTOR, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(new Object(), new Object(), new Object())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(gm, new Object(), new Throwable(), new Exception())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(new Object(), new Throwable(), new Exception(), gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(new Exception(), new Exception(), new Exception())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(gm, new Exception(),new Exception(),new Exception())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(new Exception(),new Exception(),new Exception(), gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(), new RuntimeException(), new RuntimeException())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(gm, new RuntimeException(),new RuntimeException(),new RuntimeException())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(),new RuntimeException(),new RuntimeException(), gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Object(), new Object())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm, new Object(), new Throwable(), new Exception())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm)] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Throwable(), new Exception(), gm)] EQUIVALENT_RAW_MATCH"
+			"""
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(new Object(), new Object(), new Object())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(gm, new Object(), new Throwable(), new Exception())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(new Object(), new Throwable(), new Exception(), gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(new Exception(), new Exception(), new Exception())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(gm, new Exception(),new Exception(),new Exception())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(new Exception(),new Exception(),new Exception(), gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(), new RuntimeException(), new RuntimeException())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(gm, new RuntimeException(),new RuntimeException(),new RuntimeException())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(),new RuntimeException(),new RuntimeException(), gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Object(), new Object())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm, new Object(), new Throwable(), new Exception())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm)] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Throwable(), new Exception(), gm)] EQUIVALENT_RAW_MATCH"""
 		);
 	}
 	public void testConstructorReferencesStringPatternMultipleParamArguments02() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g5.c.ref", false);
 		search("<Object, Exception, RuntimeException>Multiple", CONSTRUCTOR, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(new Object(), new Object(), new Object())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(gm, new Object(), new Throwable(), new Exception())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(new Object(), new Throwable(), new Exception(), gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(new Exception(), new Exception(), new Exception())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(gm, new Exception(),new Exception(),new Exception())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(new Exception(),new Exception(),new Exception(), gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(), new RuntimeException(), new RuntimeException())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(gm, new RuntimeException(),new RuntimeException(),new RuntimeException())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(),new RuntimeException(),new RuntimeException(), gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Object(), new Object())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm, new Object(), new Throwable(), new Exception())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm)] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Throwable(), new Exception(), gm)] EQUIVALENT_RAW_MATCH"
+			"""
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(new Object(), new Object(), new Object())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(gm, new Object(), new Throwable(), new Exception())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(new Object(), new Throwable(), new Exception(), gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(new Exception(), new Exception(), new Exception())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(gm, new Exception(),new Exception(),new Exception())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(new Exception(),new Exception(),new Exception(), gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(), new RuntimeException(), new RuntimeException())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(gm, new RuntimeException(),new RuntimeException(),new RuntimeException())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(),new RuntimeException(),new RuntimeException(), gm)] ERASURE_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Object(), new Object())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm, new Object(), new Throwable(), new Exception())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm)] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Throwable(), new Exception(), gm)] EQUIVALENT_RAW_MATCH"""
 		);
 	}
 	public void testConstructorReferencesStringPatternMultipleParamArguments03() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g5.c.ref", false);
 		search("Multiple", CONSTRUCTOR, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(new Object(), new Object(), new Object())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(gm, new Object(), new Throwable(), new Exception())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(new Object(), new Throwable(), new Exception(), gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(new Exception(), new Exception(), new Exception())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(gm, new Exception(),new Exception(),new Exception())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(new Exception(),new Exception(),new Exception(), gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(), new RuntimeException(), new RuntimeException())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(gm, new RuntimeException(),new RuntimeException(),new RuntimeException())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(),new RuntimeException(),new RuntimeException(), gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Object(), new Object())] EXACT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm, new Object(), new Throwable(), new Exception())] EXACT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm)] EXACT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Throwable(), new Exception(), gm)] EXACT_RAW_MATCH"
+			"""
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(new Object(), new Object(), new Object())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(gm, new Object(), new Throwable(), new Exception())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(new Object(), new Throwable(), new Exception(), gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(new Exception(), new Exception(), new Exception())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(gm, new Exception(),new Exception(),new Exception())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(new Exception(),new Exception(),new Exception(), gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(), new RuntimeException(), new RuntimeException())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(gm, new RuntimeException(),new RuntimeException(),new RuntimeException())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(),new RuntimeException(),new RuntimeException(), gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Object(), new Object())] EXACT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm, new Object(), new Throwable(), new Exception())] EXACT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm)] EXACT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Throwable(), new Exception(), gm)] EXACT_RAW_MATCH"""
 		);
 	}
 	public void testConstructorReferencesStringPatternMultipleParamArguments04() throws CoreException {
@@ -591,64 +619,68 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15("g5.c.ref", false);
 		search("Multiple<RuntimeException, RuntimeException, RuntimeException>", CONSTRUCTOR, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(new Object(), new Object(), new Object())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(gm, new Object(), new Throwable(), new Exception())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(new Object(), new Throwable(), new Exception(), gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(new Exception(), new Exception(), new Exception())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(gm, new Exception(),new Exception(),new Exception())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(new Exception(),new Exception(),new Exception(), gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(), new RuntimeException(), new RuntimeException())] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(gm, new RuntimeException(),new RuntimeException(),new RuntimeException())] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(gm)] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(),new RuntimeException(),new RuntimeException(), gm)] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Object(), new Object())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm, new Object(), new Throwable(), new Exception())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm)] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Throwable(), new Exception(), gm)] EQUIVALENT_RAW_MATCH"
+			"""
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(new Object(), new Object(), new Object())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(gm, new Object(), new Throwable(), new Exception())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(new Object(), new Throwable(), new Exception(), gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(new Exception(), new Exception(), new Exception())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(gm, new Exception(),new Exception(),new Exception())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(new Exception(),new Exception(),new Exception(), gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(), new RuntimeException(), new RuntimeException())] EXACT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(gm, new RuntimeException(),new RuntimeException(),new RuntimeException())] EXACT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(gm)] EXACT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(),new RuntimeException(),new RuntimeException(), gm)] EXACT_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Object(), new Object())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm, new Object(), new Throwable(), new Exception())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm)] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Throwable(), new Exception(), gm)] EQUIVALENT_RAW_MATCH"""
 		);
 	}
 	public void testConstructorReferencesStringPatternMultipleParamArguments07() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g5.c.ref", false);
 		search("Multiple<?,? extends Throwable,? extends Exception>", CONSTRUCTOR, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(new Object(), new Object(), new Object())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(gm, new Object(), new Throwable(), new Exception())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(new Object(), new Throwable(), new Exception(), gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(new Exception(), new Exception(), new Exception())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(gm, new Exception(),new Exception(),new Exception())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(new Exception(),new Exception(),new Exception(), gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(), new RuntimeException(), new RuntimeException())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(gm, new RuntimeException(),new RuntimeException(),new RuntimeException())] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(),new RuntimeException(),new RuntimeException(), gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Object(), new Object())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm, new Object(), new Throwable(), new Exception())] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm)] EQUIVALENT_RAW_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Throwable(), new Exception(), gm)] EQUIVALENT_RAW_MATCH"
+			"""
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(new Object(), new Object(), new Object())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(gm, new Object(), new Throwable(), new Exception())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new <Object, Throwable, Exception>Multiple<Object, Object, Object>(new Object(), new Throwable(), new Exception(), gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(new Exception(), new Exception(), new Exception())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(gm, new Exception(),new Exception(),new Exception())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new <Exception, Exception, Exception>Multiple<Exception, Exception, Exception>(new Exception(),new Exception(),new Exception(), gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(), new RuntimeException(), new RuntimeException())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(gm, new RuntimeException(),new RuntimeException(),new RuntimeException())] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new <RuntimeException, RuntimeException, RuntimeException>Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(),new RuntimeException(),new RuntimeException(), gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Object(), new Object())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm, new Object(), new Throwable(), new Exception())] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm)] EQUIVALENT_RAW_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Throwable(), new Exception(), gm)] EQUIVALENT_RAW_MATCH"""
 		);
 	}
 	public void testConstructorReferencesStringPatternMultipleParamArguments08() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g5.c.ref", false);
 		search("<RuntimeException, RuntimeException, RuntimeException>Multiple(*,*,*)", CONSTRUCTOR, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(new Object(), new Object(), new Object())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(new Exception(), new Exception(), new Exception())] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(), new RuntimeException(), new RuntimeException())] EXACT_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Object(), new Object())] EQUIVALENT_RAW_MATCH"
+			"""
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(new Object(), new Object(), new Object())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(new Exception(), new Exception(), new Exception())] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(new RuntimeException(), new RuntimeException(), new RuntimeException())] EXACT_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(new Object(), new Object(), new Object())] EQUIVALENT_RAW_MATCH"""
 		);
 	}
 	public void testConstructorReferencesStringPatternMultipleParamArguments09() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g5.c.ref", false);
 		search("<?,? extends Throwable,? extends RuntimeException>Multiple(*)", CONSTRUCTOR, REFERENCES, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(gm)] ERASURE_MATCH\n" +
-			"src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(gm)] EQUIVALENT_MATCH\n" +
-			"src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm)] EQUIVALENT_RAW_MATCH"
+			"""
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testObject() [new Multiple<Object, Object, Object>(gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testException() [new Multiple<Exception, Exception, Exception>(gm)] ERASURE_MATCH
+				src/g5/c/ref/RefMultiple.java void g5.c.ref.RefMultiple.testRuntimeException() [new Multiple<RuntimeException, RuntimeException, RuntimeException>(gm)] EQUIVALENT_MATCH
+				src/g5/c/ref/RefRaw.java void g5.c.ref.RefRaw.testMultiple() [new Multiple(gm)] EQUIVALENT_RAW_MATCH"""
 		);
 	}
 	public void testConstructorReferencesStringPatternMultipleParamArguments10() throws CoreException {
@@ -817,10 +849,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search("Single", CONSTRUCTOR, DECLARATIONS, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/def/Single.java g5.c.def.Single(T) [Single] EXACT_MATCH\n" +
-			"src/g5/c/def/Single.java g5.c.def.Single(T, U) [Single] EXACT_MATCH\n" +
-			"src/g5/c/def/Single.java g5.c.def.Single(Single<T>) [Single] EXACT_MATCH\n" +
-			"src/g5/c/def/Single.java g5.c.def.Single(U, Single<T>) [Single] EXACT_MATCH"
+			"""
+				src/g5/c/def/Single.java g5.c.def.Single(T) [Single] EXACT_MATCH
+				src/g5/c/def/Single.java g5.c.def.Single(T, U) [Single] EXACT_MATCH
+				src/g5/c/def/Single.java g5.c.def.Single(Single<T>) [Single] EXACT_MATCH
+				src/g5/c/def/Single.java g5.c.def.Single(U, Single<T>) [Single] EXACT_MATCH"""
 		);
 	}
 	public void testConstructorDeclarationsStringPatternSingleParamArguments05() throws CoreException {
@@ -908,10 +941,11 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search("Multiple", CONSTRUCTOR, DECLARATIONS, scope, this.resultCollector);
 		assertSearchResults(
-			"src/g5/c/def/Multiple.java g5.c.def.Multiple(T1, T2, T3) [Multiple] EXACT_MATCH\n" +
-			"src/g5/c/def/Multiple.java g5.c.def.Multiple(Multiple<T1,T2,T3>, U1, U2, U3) [Multiple] EXACT_MATCH\n" +
-			"src/g5/c/def/Multiple.java g5.c.def.Multiple(Multiple<T1,T2,T3>) [Multiple] EXACT_MATCH\n" +
-			"src/g5/c/def/Multiple.java g5.c.def.Multiple(U1, U2, U3, Multiple<T1,T2,T3>) [Multiple] EXACT_MATCH"
+			"""
+				src/g5/c/def/Multiple.java g5.c.def.Multiple(T1, T2, T3) [Multiple] EXACT_MATCH
+				src/g5/c/def/Multiple.java g5.c.def.Multiple(Multiple<T1,T2,T3>, U1, U2, U3) [Multiple] EXACT_MATCH
+				src/g5/c/def/Multiple.java g5.c.def.Multiple(Multiple<T1,T2,T3>) [Multiple] EXACT_MATCH
+				src/g5/c/def/Multiple.java g5.c.def.Multiple(U1, U2, U3, Multiple<T1,T2,T3>) [Multiple] EXACT_MATCH"""
 		);
 	}
 	public void testConstructorDeclarationsStringPatternMultipleParamArguments04() throws CoreException {

@@ -58,10 +58,11 @@ public void testBug227822a() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/Test.java",
-				"package a;\n"+
-				"public class Test {\n" +
-				"  java.lang.Object var;\n"+
-				"}");
+				"""
+					package a;
+					public class Test {
+					  java.lang.Object var;
+					}""");
 
 		waitUntilIndexesReady();
 
@@ -97,10 +98,11 @@ public void testBug227822b() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/Test.java",
-				"package a;\n"+
-				"public class Test {\n" +
-				"  javaz.lang.Objectz var;\n"+
-				"}");
+				"""
+					package a;
+					public class Test {
+					  javaz.lang.Objectz var;
+					}""");
 
 		waitUntilIndexesReady();
 
@@ -136,10 +138,11 @@ public void testBug227822c() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/Test.java",
-				"package a;\n"+
-				"public class Test {\n" +
-				"  java var;\n"+
-				"}");
+				"""
+					package a;
+					public class Test {
+					  java var;
+					}""");
 
 		waitUntilIndexesReady();
 
@@ -175,10 +178,11 @@ public void testBug227822d() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/Test.java",
-				"package a;\n"+
-				"public class Test {\n" +
-				"  javaz var;\n"+
-				"}");
+				"""
+					package a;
+					public class Test {
+					  javaz var;
+					}""");
 
 		waitUntilIndexesReady();
 
@@ -211,22 +215,24 @@ public void testBug232880a() throws Exception {
 
 		// create external jar 1
 		Util.createJar(
-				new String[] {
-					"test1/IResource.java", //$NON-NLS-1$
-					"package test1;\n" + //$NON-NLS-1$
-					"public class IResource {\n" + //$NON-NLS-1$
-					"}" //$NON-NLS-1$
-				},
-				new HashMap(),
-				externalJar1);
+						new String[] {
+							"test1/IResource.java", //$NON-NLS-1$
+							"""
+			package test1;
+			public class IResource {
+			}""" //$NON-NLS-1$
+						},
+						new HashMap(),
+						externalJar1);
 
 		// create external jar 2
 		String source2 =
-			"package test2;\n" + //$NON-NLS-1$
-			"import test1.IResource;\n" + //$NON-NLS-1$
-			"public class IJavaElement {\n" + //$NON-NLS-1$
-			"	IResource foo() {return null;}\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"""
+			package test2;
+			import test1.IResource;
+			public class IJavaElement {
+				IResource foo() {return null;}
+			}"""; //$NON-NLS-1$
 
 		Util.createJar(
 				new String[] {
@@ -281,22 +287,24 @@ public void testBug232880b() throws Exception {
 
 		// create external jar 1
 		Util.createJar(
-				new String[] {
-					"test1/IResource.java", //$NON-NLS-1$
-					"package test1;\n" + //$NON-NLS-1$
-					"public class IResource {\n" + //$NON-NLS-1$
-					"}" //$NON-NLS-1$
-				},
-				new HashMap(),
-				externalJar1);
+						new String[] {
+							"test1/IResource.java", //$NON-NLS-1$
+							"""
+			package test1;
+			public class IResource {
+			}""" //$NON-NLS-1$
+						},
+						new HashMap(),
+						externalJar1);
 
 		// create external jar 2
 		String source2 =
-			"package test2;\n" + //$NON-NLS-1$
-			"import test1.IResource;\n" + //$NON-NLS-1$
-			"public class IJavaElement {\n" + //$NON-NLS-1$
-			"	IResource foo() {return null;}\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"""
+			package test2;
+			import test1.IResource;
+			public class IJavaElement {
+				IResource foo() {return null;}
+			}"""; //$NON-NLS-1$
 
 		Util.createJar(
 				new String[] {
@@ -351,22 +359,24 @@ public void testBug232880c() throws Exception {
 
 		// create external jar 1
 		Util.createJar(
-				new String[] {
-					"test1/IResource.java", //$NON-NLS-1$
-					"package test1;\n" + //$NON-NLS-1$
-					"public class IResource {\n" + //$NON-NLS-1$
-					"}" //$NON-NLS-1$
-				},
-				new HashMap(),
-				externalJar1);
+						new String[] {
+							"test1/IResource.java", //$NON-NLS-1$
+							"""
+			package test1;
+			public class IResource {
+			}""" //$NON-NLS-1$
+						},
+						new HashMap(),
+						externalJar1);
 
 		// create external jar 2
 		String source2 =
-			"package test2;\n" + //$NON-NLS-1$
-			"import test1.IResource;\n" + //$NON-NLS-1$
-			"public class IJavaElement {\n" + //$NON-NLS-1$
-			"	IResource foo() {return null;}\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"""
+			package test2;
+			import test1.IResource;
+			public class IJavaElement {
+				IResource foo() {return null;}
+			}"""; //$NON-NLS-1$
 
 		Util.createJar(
 				new String[] {
@@ -430,9 +440,10 @@ public void testBug232880d() throws Exception {
 
 		// create external jar 1
 		String source1 =
-			"package test1;\n" + //$NON-NLS-1$
-			"public class IResource {\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"""
+			package test1;
+			public class IResource {
+			}"""; //$NON-NLS-1$
 
 		Util.createJar(
 				new String[] {
@@ -444,11 +455,12 @@ public void testBug232880d() throws Exception {
 
 		// create external jar 2
 		String source2 =
-			"package test2;\n" + //$NON-NLS-1$
-			"import test1.IResource;\n" + //$NON-NLS-1$
-			"public class IJavaElement {\n" + //$NON-NLS-1$
-			"	IResource foo() {return null;}\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"""
+			package test2;
+			import test1.IResource;
+			public class IJavaElement {
+				IResource foo() {return null;}
+			}"""; //$NON-NLS-1$
 
 		Util.createJar(
 				new String[] {
@@ -517,14 +529,16 @@ public void testBug232880e() throws Exception {
 
 		// create external jar 1
 		String source1_1 =
-			"package test1;\n" + //$NON-NLS-1$
-			"public class CoreException extends Exception {\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"""
+			package test1;
+			public class CoreException extends Exception {
+			}"""; //$NON-NLS-1$
 
 		String source1_2 =
-			"package test1;\n" + //$NON-NLS-1$
-			"public class IResource {\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"""
+			package test1;
+			public class IResource {
+			}"""; //$NON-NLS-1$
 
 		Util.createJar(
 				new String[] {
@@ -538,18 +552,20 @@ public void testBug232880e() throws Exception {
 
 		// create external jar 2
 		String source2_1 =
-			"package test2;\n" + //$NON-NLS-1$
-			"import test1.CoreException;\n" + //$NON-NLS-1$
-			"public class JavaModelException extends CoreException {\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"""
+			package test2;
+			import test1.CoreException;
+			public class JavaModelException extends CoreException {
+			}"""; //$NON-NLS-1$
 
 		String source2_2 =
-			"package test2;\n" + //$NON-NLS-1$
-			"import test1.IResource;\n" + //$NON-NLS-1$
-			"public class IJavaElement {\n" + //$NON-NLS-1$
-			"	void foo1() throws JavaModelException {}\n" + //$NON-NLS-1$
-			"	IResource foo2() {return null;}\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"""
+			package test2;
+			import test1.IResource;
+			public class IJavaElement {
+				void foo1() throws JavaModelException {}
+				IResource foo2() {return null;}
+			}"""; //$NON-NLS-1$
 
 		Util.createJar(
 				new String[] {
@@ -620,26 +636,28 @@ public void testBug232880f() throws Exception {
 
 		// create external jar 1
 		Util.createJar(
-				new String[] {
-					"test1/IResource.java", //$NON-NLS-1$
-					"package test1;\n" + //$NON-NLS-1$
-					"public class IResource {\n" + //$NON-NLS-1$
-					"}", //$NON-NLS-1$
-					"test2/IResource.java", //$NON-NLS-1$
-					"package test2;\n" + //$NON-NLS-1$
-					"public class IResource {\n" + //$NON-NLS-1$
-					"}" //$NON-NLS-1$
-				},
-				new HashMap(),
-				externalJar1);
+						new String[] {
+							"test1/IResource.java", //$NON-NLS-1$
+							"package test1;\n" + //$NON-NLS-1$
+							"public class IResource {\n" + //$NON-NLS-1$
+							"}", //$NON-NLS-1$
+							"test2/IResource.java", //$NON-NLS-1$
+							"""
+			package test2;
+			public class IResource {
+			}""" //$NON-NLS-1$
+						},
+						new HashMap(),
+						externalJar1);
 
 		// create external jar 2
 		String source2 =
-			"package test3;\n" + //$NON-NLS-1$
-			"import test2.IResource;\n" + //$NON-NLS-1$
-			"public class IJavaElement {\n" + //$NON-NLS-1$
-			"	IResource foo() {return null;}\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"""
+			package test3;
+			import test2.IResource;
+			public class IJavaElement {
+				IResource foo() {return null;}
+			}"""; //$NON-NLS-1$
 
 		Util.createJar(
 				new String[] {
@@ -703,26 +721,28 @@ public void testBug232880g() throws Exception {
 
 		// create external jar 1
 		Util.createJar(
-				new String[] {
-					"test1/IResource.java", //$NON-NLS-1$
-					"package test1;\n" + //$NON-NLS-1$
-					"public class IResource {\n" + //$NON-NLS-1$
-					"}", //$NON-NLS-1$
-					"test2/IResource.java", //$NON-NLS-1$
-					"package test2;\n" + //$NON-NLS-1$
-					"public class IResource {\n" + //$NON-NLS-1$
-					"}" //$NON-NLS-1$
-				},
-				new HashMap(),
-				externalJar1);
+						new String[] {
+							"test1/IResource.java", //$NON-NLS-1$
+							"package test1;\n" + //$NON-NLS-1$
+							"public class IResource {\n" + //$NON-NLS-1$
+							"}", //$NON-NLS-1$
+							"test2/IResource.java", //$NON-NLS-1$
+							"""
+			package test2;
+			public class IResource {
+			}""" //$NON-NLS-1$
+						},
+						new HashMap(),
+						externalJar1);
 
 		// create external jar 2
 		String source2 =
-			"package test3;\n" + //$NON-NLS-1$
-			"import test2.*;\n" + //$NON-NLS-1$
-			"public class IJavaElement {\n" + //$NON-NLS-1$
-			"	IResource foo() {return null;}\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"""
+			package test3;
+			import test2.*;
+			public class IJavaElement {
+				IResource foo() {return null;}
+			}"""; //$NON-NLS-1$
 
 		Util.createJar(
 				new String[] {
@@ -785,27 +805,29 @@ public void testBug232880h() throws Exception {
 
 		// create external jar 1
 		Util.createJar(
-				new String[] {
-					"test1/IResource.java", //$NON-NLS-1$
-					"package test1;\n" + //$NON-NLS-1$
-					"public class IResource {\n" + //$NON-NLS-1$
-					"}", //$NON-NLS-1$
-					"test2/IResource.java", //$NON-NLS-1$
-					"package test2;\n" + //$NON-NLS-1$
-					"public class IResource {\n" + //$NON-NLS-1$
-					"}" //$NON-NLS-1$
-				},
-				new HashMap(),
-				externalJar1);
+						new String[] {
+							"test1/IResource.java", //$NON-NLS-1$
+							"package test1;\n" + //$NON-NLS-1$
+							"public class IResource {\n" + //$NON-NLS-1$
+							"}", //$NON-NLS-1$
+							"test2/IResource.java", //$NON-NLS-1$
+							"""
+			package test2;
+			public class IResource {
+			}""" //$NON-NLS-1$
+						},
+						new HashMap(),
+						externalJar1);
 
 		// create external jar 2
 		String source2 =
-			"package test3;\n" + //$NON-NLS-1$
-			"import test1.*;\n" + //$NON-NLS-1$
-			"import test2.IResource;\n" + //$NON-NLS-1$
-			"public class IJavaElement {\n" + //$NON-NLS-1$
-			"	IResource foo() {return null;}\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"""
+			package test3;
+			import test1.*;
+			import test2.IResource;
+			public class IJavaElement {
+				IResource foo() {return null;}
+			}"""; //$NON-NLS-1$
 
 		Util.createJar(
 				new String[] {
@@ -868,25 +890,27 @@ public void testBug232880i() throws Exception {
 
 		// create external jar 1
 		Util.createJar(
-				new String[] {
-					"test1/IResource.java", //$NON-NLS-1$
-					"package test1;\n" + //$NON-NLS-1$
-					"public class IResource {\n" + //$NON-NLS-1$
-					"}", //$NON-NLS-1$
-					"test2/IResource.java", //$NON-NLS-1$
-					"package test2;\n" + //$NON-NLS-1$
-					"public class IResource {\n" + //$NON-NLS-1$
-					"}" //$NON-NLS-1$
-				},
-				new HashMap(),
-				externalJar1);
+						new String[] {
+							"test1/IResource.java", //$NON-NLS-1$
+							"package test1;\n" + //$NON-NLS-1$
+							"public class IResource {\n" + //$NON-NLS-1$
+							"}", //$NON-NLS-1$
+							"test2/IResource.java", //$NON-NLS-1$
+							"""
+			package test2;
+			public class IResource {
+			}""" //$NON-NLS-1$
+						},
+						new HashMap(),
+						externalJar1);
 
 		// create external jar 2
 		String source2 =
-			"package test3;\n" + //$NON-NLS-1$
-			"public class IJavaElement {\n" + //$NON-NLS-1$
-			"	test2.IResource foo() {return null;}\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"""
+			package test3;
+			public class IJavaElement {
+				test2.IResource foo() {return null;}
+			}"""; //$NON-NLS-1$
 
 		Util.createJar(
 				new String[] {
@@ -953,23 +977,25 @@ public void testBug232880j() throws Exception {
 
 		// create external jar 1
 		Util.createJar(
-				new String[] {
-					"test1/IResource.java", //$NON-NLS-1$
-					"package test1;\n" + //$NON-NLS-1$
-					"public class IResource {\n" + //$NON-NLS-1$
-					"}" //$NON-NLS-1$
-				},
-				new HashMap(),
-				externalJar1);
+						new String[] {
+							"test1/IResource.java", //$NON-NLS-1$
+							"""
+			package test1;
+			public class IResource {
+			}""" //$NON-NLS-1$
+						},
+						new HashMap(),
+						externalJar1);
 
 		// create external jar 2
 		String source2 =
-			"package test2;\n" + //$NON-NLS-1$
-			"import test1.IResource;\n" + //$NON-NLS-1$
-			"public class IJavaElement {\n" + //$NON-NLS-1$
-			"	// iresource\n" + //$NON-NLS-1$
-			"	IResource foo() {return null;}\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"""
+			package test2;
+			import test1.IResource;
+			public class IJavaElement {
+				// iresource
+				IResource foo() {return null;}
+			}"""; //$NON-NLS-1$
 
 		Util.createJar(
 				new String[] {
@@ -1037,17 +1063,19 @@ public void testBug249027a() throws Exception {
 		this.createFolder("/P1/src/p1");
 		this.createFile(
 				"/P1/src/p1/C1.java",
-				"package p1;\n"+
-				"public class C1 {\n" +
-				"}");
+				"""
+					package p1;
+					public class C1 {
+					}""");
 
 		this.createFolder("/P1/src/p1/C1");
 		this.createFile(
 				"/P1/src/p1/C1/C2.java",
-				"package p1.C1;\n"+
-				"public class C2 {\n" +
-				"  C1 f;\n" +
-				"}");
+				"""
+					package p1.C1;
+					public class C2 {
+					  C1 f;
+					}""");
 
 		waitUntilIndexesReady();
 
@@ -1083,17 +1111,19 @@ public void testBug249027b() throws Exception {
 		this.createFolder("/P1/src/p1");
 		this.createFile(
 				"/P1/src/p1/C1.java",
-				"package p1;\n"+
-				"public class C1 {\n" +
-				"}");
+				"""
+					package p1;
+					public class C1 {
+					}""");
 
 		this.createFolder("/P1/src/p2");
 		this.createFile(
 				"/P1/src/p2/C2.java",
-				"package p3;\n"+
-				"public class C2 {\n" +
-				"  C1 f;\n" +
-				"}");
+				"""
+					package p3;
+					public class C2 {
+					  C1 f;
+					}""");
 
 		waitUntilIndexesReady();
 
@@ -1130,13 +1160,14 @@ public void testBug343693() throws Exception{
 		this.createFolder("/P1/src/p1");
 		this.createFile(
 				"/P1/src/p1/X.java",
-				"package p1;\n"+
-				"public class X<T> {\n" +
-					"public X(T Param){}\n"+
-					"public void foo() {\n"+
-					"  new X<>(\"hello\");\n"+
-					"}\n"+
-				"}");
+				"""
+					package p1;
+					public class X<T> {
+					public X(T Param){}
+					public void foo() {
+					  new X<>("hello");
+					}
+					}""");
 
 		waitUntilIndexesReady();
 
@@ -1171,24 +1202,26 @@ public void testBug349486() throws Exception{
 
 		this.createFolder("/P1/src/p1");
 		this.createFile("/P1/src/p1/X.java",
-				"import java.lang.invoke.MethodHandle;\n" +
-				"import java.lang.invoke.MethodHandles;\n" +
-				"import java.lang.invoke.MethodType;\n" +
-				"\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) throws Throwable {\n" +
-				"		Object x;\n" +
-				"		String s;\n" +
-				"		int i;\n" +
-				"		MethodType mt;\n" +
-				"		MethodHandle mh;\n" +
-				"		MethodHandles.Lookup lookup = MethodHandles.lookup();\n" +
-				"		// mt is (char,char)String\n" +
-				"		mt = MethodType.methodType(String.class, char.class, char.class);\n" +
-				"		mh = lookup.findVirtual(String.class, \"replace\", mt);\n" +
-				"		s = (String) mh.invokeExact(\"daddy\", 'd', 'n');\n" +
-				"     }\n" +
-				"}\n");
+				"""
+					import java.lang.invoke.MethodHandle;
+					import java.lang.invoke.MethodHandles;
+					import java.lang.invoke.MethodType;
+					
+					public class X {
+						public static void main(String[] args) throws Throwable {
+							Object x;
+							String s;
+							int i;
+							MethodType mt;
+							MethodHandle mh;
+							MethodHandles.Lookup lookup = MethodHandles.lookup();
+							// mt is (char,char)String
+							mt = MethodType.methodType(String.class, char.class, char.class);
+							mh = lookup.findVirtual(String.class, "replace", mt);
+							s = (String) mh.invokeExact("daddy", 'd', 'n');
+					     }
+					}
+					""");
 
 		waitUntilIndexesReady();
 
@@ -1223,16 +1256,18 @@ public void testBug356325() throws Exception{
 
 		this.createFolder("/P1/src/p");
 		this.createFile("/P1/src/p/C.java",
-				"package p;" +
-				"\n" +
-				"public class C {\n" +
-				"	public void m() {\n" +
-				"		class Inner<T> {\n" +
-				"			Inner() {\n"+
-				"       }\n"+
-				"		Inner<String> i = new Inner<String>();\n"+
-				"	}\n" +
-				"}\n");
+				"""
+					package p;\
+					
+					public class C {
+						public void m() {
+							class Inner<T> {
+								Inner() {
+					       }
+							Inner<String> i = new Inner<String>();
+						}
+					}
+					""");
 
 		waitUntilIndexesReady();
 

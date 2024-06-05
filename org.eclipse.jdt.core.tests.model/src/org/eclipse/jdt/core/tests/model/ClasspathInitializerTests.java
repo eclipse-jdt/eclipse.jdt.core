@@ -173,9 +173,10 @@ public void testContainerInitializer03() throws CoreException {
 
 		assertDeltas(
 			"Unexpected delta on startup",
-			"P2[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" +
-			"	/P1/lib.jar[*]: {REMOVED FROM CLASSPATH}\n" +
-			"	/P1/lib2.jar[*]: {ADDED TO CLASSPATH}"
+			"""
+				P2[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}
+					/P1/lib.jar[*]: {REMOVED FROM CLASSPATH}
+					/P1/lib2.jar[*]: {ADDED TO CLASSPATH}"""
 		);
 	} finally {
 		stopDeltas();
@@ -208,10 +209,11 @@ public void testContainerInitializer04() throws CoreException {
 
 		assertDeltas(
 			"Unexpected delta on startup",
-			"P2[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[+]: {}"
+			"""
+				P2[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[+]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -241,10 +243,11 @@ public void testContainerInitializer05() throws CoreException {
 		createFile("/P1/X.java", "public class X {}");
 		assertDeltas(
 			"Unexpected delta on startup",
-			"P1[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[+]: {}"
+			"""
+				P1[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[+]: {}"""
 		);
 		assertTrue("initializer did not run", nullInitializer.hasRun);
 
@@ -307,10 +310,11 @@ public void testContainerInitializer06() throws CoreException {
 
 		assertWorkingCopyDeltas(
 			"Unexpected delta on startup",
-			"P2[*]: {CHILDREN}\n" +
-			"	src[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			[Working copy] X.java[+]: {PRIMARY WORKING COPY}"
+			"""
+				P2[*]: {CHILDREN}
+					src[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							[Working copy] X.java[+]: {PRIMARY WORKING COPY}"""
 		);
 	} finally {
 		stopDeltas();
@@ -456,31 +460,33 @@ public void testContainerInitializer09() throws CoreException {
 				createProject("P1");
 				editFile(
 					"/P1/.project",
-					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-					"<projectDescription>\n" +
-					"	<name>P1</name>\n" +
-					"	<comment></comment>\n" +
-					"	<projects>\n" +
-					"	</projects>\n" +
-					"	<buildSpec>\n" +
-					"		<buildCommand>\n" +
-					"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
-					"			<arguments>\n" +
-					"			</arguments>\n" +
-					"		</buildCommand>\n" +
-					"	</buildSpec>\n" +
-					"	<natures>\n" +
-					"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
-					"	</natures>\n" +
-					"</projectDescription>"
+					"""
+						<?xml version="1.0" encoding="UTF-8"?>
+						<projectDescription>
+							<name>P1</name>
+							<comment></comment>
+							<projects>
+							</projects>
+							<buildSpec>
+								<buildCommand>
+									<name>org.eclipse.jdt.core.javabuilder</name>
+									<arguments>
+									</arguments>
+								</buildCommand>
+							</buildSpec>
+							<natures>
+								<nature>org.eclipse.jdt.core.javanature</nature>
+							</natures>
+						</projectDescription>"""
 				);
 				createFile(
 					"/P1/.classpath",
-					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-					"<classpath>\n" +
-					"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +
-					"	<classpathentry kind=\"output\" path=\"\"/>\n" +
-					"</classpath>"
+					"""
+						<?xml version="1.0" encoding="UTF-8"?>
+						<classpath>
+							<classpathentry kind="con" path="org.eclipse.jdt.core.tests.model.TEST_CONTAINER"/>
+							<classpathentry kind="output" path=""/>
+						</classpath>"""
 				);
 			}
 		}, null);
@@ -521,33 +527,36 @@ public void testContainerInitializer10() throws CoreException {
 				createProject("P3");
                 editFile(
                 	"/P3/.project",
-                	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                	"<projectDescription>\n" +
-                	"	<name>P3</name>\n" +
-                	"	<comment></comment>\n" +
-                	"	<projects>\n" +
-                	"	</projects>\n" +
-                	"	<buildSpec>\n" +
-                	"		<buildCommand>\n" +
-                	"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
-                	"			<arguments>\n" +
-                	"			</arguments>\n" +
-                	"		</buildCommand>\n" +
-                	"	</buildSpec>\n" +
-                	"	<natures>\n" +
-                	"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
-                	"	</natures>\n" +
-                	"</projectDescription>\n"
+                	"""
+						<?xml version="1.0" encoding="UTF-8"?>
+						<projectDescription>
+							<name>P3</name>
+							<comment></comment>
+							<projects>
+							</projects>
+							<buildSpec>
+								<buildCommand>
+									<name>org.eclipse.jdt.core.javabuilder</name>
+									<arguments>
+									</arguments>
+								</buildCommand>
+							</buildSpec>
+							<natures>
+								<nature>org.eclipse.jdt.core.javanature</nature>
+							</natures>
+						</projectDescription>
+						"""
                 );
                 createFile(
                 	"/P3/.classpath",
-                	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                	"<classpath>\n" +
-                	"	<classpathentry kind=\"src\" path=\"\"/>\n" +
-                	"	<classpathentry kind=\"var\" path=\"JCL_LIB\"/>\n" +
-                	"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +
-                	"	<classpathentry kind=\"output\" path=\"\"/>\n" +
-                	"</classpath>"
+                	"""
+						<?xml version="1.0" encoding="UTF-8"?>
+						<classpath>
+							<classpathentry kind="src" path=""/>
+							<classpathentry kind="var" path="JCL_LIB"/>
+							<classpathentry kind="con" path="org.eclipse.jdt.core.tests.model.TEST_CONTAINER"/>
+							<classpathentry kind="output" path=""/>
+						</classpath>"""
                 );
              }
         }, null);
@@ -907,9 +916,11 @@ public void testContainerInitializer20() throws CoreException {
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE2"))});
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE1"))});
 		assertStringEquals(
-			"org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE1\n" +
-			"org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE2\n" +
-			"org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE1\n",
+			"""
+				org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE1
+				org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE2
+				org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE1
+				""",
 			paths.toString(),
 			false);
 	} finally {
@@ -1196,10 +1207,12 @@ public void testVariableInitializer05() throws CoreException {
 		});
 		createJavaProject("P", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
 		assertEquals(
-			"Initializing TEST_LIB\n" +
-			"Initializing TEST_SRC\n" +
-			"Setting variable TEST_SRC to test_src\n" +
-			"Setting variable TEST_LIB to test_lib\n",
+			"""
+				Initializing TEST_LIB
+				Initializing TEST_SRC
+				Setting variable TEST_SRC to test_src
+				Setting variable TEST_LIB to test_lib
+				""",
 			buffer.toString());
 	} finally {
 		deleteProject("P");
@@ -1266,9 +1279,10 @@ public void testVariableInitializer07() throws CoreException {
 
 		assertDeltas(
 			"Unexpected delta on startup",
-			"P2[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" +
-			"	/P1/lib.jar[*]: {REMOVED FROM CLASSPATH}\n" +
-			"	/P1/lib2.jar[*]: {ADDED TO CLASSPATH}"
+			"""
+				P2[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}
+					/P1/lib.jar[*]: {REMOVED FROM CLASSPATH}
+					/P1/lib2.jar[*]: {ADDED TO CLASSPATH}"""
 		);
 	} finally {
 		//JavaModelManager.CP_RESOLVE_VERBOSE=false;
@@ -1610,11 +1624,12 @@ public void testUserLibraryInitializer1() throws Exception {
 		// Modify project classpath
 		editFile(
 			"/p61872/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.USER_LIBRARY/SWT\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/SWT"/>
+					<classpathentry kind="output" path=""/>
+				</classpath>"""
 		);
 
 		// Verify
@@ -1663,11 +1678,14 @@ public void testBug346002() throws Exception {
 	preferences.put(propertyName, propertyValue.toString());
 
 	propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX + "INVALID";
-	propertyValue = new StringBuilder(
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"2\">\r\n<archive");
-	propertyValue.append(" path=\"\"/>");
-	propertyValue.append("</userlibrary>\r\n");
-	preferences.put(propertyName, propertyValue.toString());
+	String str = """
+		<?xml version="1.0" encoding="UTF-8"?>\r
+		<userlibrary systemlibrary="false" version="2">\r
+		<archive\
+		 path=""/>\
+		</userlibrary>\r
+		""";
+	preferences.put(propertyName, str);
 	preferences.flush();
 
 	try {

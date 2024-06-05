@@ -36,10 +36,10 @@ public class ASTRewritePropertyTest extends ASTRewritingTest {
 
 	public void testProperties() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {}");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {}""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());

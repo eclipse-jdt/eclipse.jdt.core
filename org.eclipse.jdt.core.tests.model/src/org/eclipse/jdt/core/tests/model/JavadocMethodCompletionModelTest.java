@@ -54,14 +54,16 @@ protected void setUp() throws Exception {
  */
 public void test001() throws JavaModelException {
 	String source =
-		"package javadoc.methods;\n" +
-		"public class Test {\n" +
-		"	/**\n" +
-		"	 * Completion on empty tag name:\n" +
-		"	 * 	@\n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods;
+		public class Test {
+			/**
+			 * Completion on empty tag name:
+			 * 	@
+			 */
+			public void foo() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/Test.java", source, true, "@");
 	assertResults(
 		"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -83,28 +85,32 @@ public void test001() throws JavaModelException {
 
 public void test002() throws JavaModelException {
 	String source =
-		"package javadoc.methods;\n" +
-		"public class Test {\n" +
-		"	/**\n" +
-		"	 * Completion on impossible tag name:\n" +
-		"	 * 	@aut\n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods;
+		public class Test {
+			/**
+			 * Completion on impossible tag name:
+			 * 	@aut
+			 */
+			public void foo() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/Test.java", source, true, "@aut");
 	assertResults("");
 }
 
 public void test003() throws JavaModelException {
 	String source =
-		"package javadoc.methods;\n" +
-		"public class Test {\n" +
-		"	/**\n" +
-		"	 * Completion on one letter:\n" +
-		"	 * 	@r\n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods;
+		public class Test {
+			/**
+			 * Completion on one letter:
+			 * 	@r
+			 */
+			public void foo() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/Test.java", source, true, "@r");
 	assertResults(
 		"return[JAVADOC_BLOCK_TAG]{@return, null, null, return, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -113,14 +119,16 @@ public void test003() throws JavaModelException {
 
 public void test004() throws JavaModelException {
 	String source =
-		"package javadoc.methods;\n" +
-		"public class Test {\n" +
-		"	/**\n" +
-		"	 * Completion with several letters:\n" +
-		"	 * 	@ser\n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods;
+		public class Test {
+			/**
+			 * Completion with several letters:
+			 * 	@ser
+			 */
+			public void foo() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/Test.java", source, true, "@ser");
 	assertResults(
 		"serialData[JAVADOC_BLOCK_TAG]{@serialData, null, null, serialData, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -129,14 +137,16 @@ public void test004() throws JavaModelException {
 
 public void test005() throws JavaModelException {
 	String source =
-		"package javadoc.methods;\n" +
-		"public class Test {\n" +
-		"	/**\n" +
-		"	 * Completion on full tag name:\n" +
-		"	 * 	@inheritDoc\n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods;
+		public class Test {
+			/**
+			 * Completion on full tag name:
+			 * 	@inheritDoc
+			 */
+			public void foo() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/Test.java", source, true, "@inheritDoc");
 	assertResults(
 		"inheritDoc[JAVADOC_INLINE_TAG]{{@inheritDoc}, null, null, inheritDoc, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -146,14 +156,16 @@ public void test005() throws JavaModelException {
 public void test006() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_3);
 	String source =
-		"package javadoc.methods;\n" +
-		"public class Test {\n" +
-		"	/**\n" +
-		"	 * Completion on empty tag name:\n" +
-		"	 * 	@\n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods;
+		public class Test {
+			/**
+			 * Completion on empty tag name:
+			 * 	@
+			 */
+			public void foo() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/Test.java", source, true, "@");
 	assertResults(
 		"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -173,14 +185,16 @@ public void test006() throws JavaModelException {
 public void test007() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods;\n" +
-		"public class Test {\n" +
-		"	/**\n" +
-		"	 * Completion on empty tag name:\n" +
-		"	 * 	@\n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods;
+		public class Test {
+			/**
+			 * Completion on empty tag name:
+			 * 	@
+			 */
+			public void foo() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/Test.java", source, true, "@");
 	assertResults(
 		"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -207,19 +221,21 @@ public void test007() throws JavaModelException {
  */
 public void test010() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see BasicTestMethodsE\n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n" +
-		"class BasicTestMethodsException1 extends Exception{}\n" +
-		"class BasicTestMethodsException2 extends Exception{}\n" +
-		"class BasicTestMethodsExample {\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+		
+			/**
+			 * Completion after:
+			 * 	@see BasicTestMethodsE
+			 */
+			public void foo() {}
+		}
+		class BasicTestMethodsException1 extends Exception{}
+		class BasicTestMethodsException2 extends Exception{}
+		class BasicTestMethodsExample {
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTestMethodsE");
 	assertSortedResults(
 		"BasicTestMethodsExample[TYPE_REF]{BasicTestMethodsExample, javadoc.methods.tags, Ljavadoc.methods.tags.BasicTestMethodsExample;, null, null, "+this.positions+R_DRICUNR+"}\n" +
@@ -230,19 +246,21 @@ public void test010() throws JavaModelException {
 
 public void test011() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see \n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n" +
-		"class BasicTestMethodsException1 extends Exception{}\n" +
-		"class BasicTestMethodsException2 extends Exception{}\n" +
-		"class BasicTestMethodsExample {\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+		
+			/**
+			 * Completion after:
+			 * 	@see\s
+			 */
+			public void foo() {}
+		}
+		class BasicTestMethodsException1 extends Exception{}
+		class BasicTestMethodsException2 extends Exception{}
+		class BasicTestMethodsExample {
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@see ", 0); // completion on empty token
 	if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
 		assertResults("");
@@ -257,19 +275,21 @@ public void test011() throws JavaModelException {
 
 public void test012() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@throws BasicTestMethodsE\n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n" +
-		"class BasicTestMethodsException1 extends Exception{}\n" +
-		"class BasicTestMethodsException2 extends Exception{}\n" +
-		"class BasicTestMethodsExample {\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+		
+			/**
+			 * Completion after:
+			 * 	@throws BasicTestMethodsE
+			 */
+			public void foo() {}
+		}
+		class BasicTestMethodsException1 extends Exception{}
+		class BasicTestMethodsException2 extends Exception{}
+		class BasicTestMethodsExample {
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTestMethodsE");
 	assertSortedResults(
 		"BasicTestMethodsException1[TYPE_REF]{BasicTestMethodsException1, javadoc.methods.tags, Ljavadoc.methods.tags.BasicTestMethodsException1;, null, null, "+this.positions+R_DRICUNRE+"}\n" +
@@ -280,19 +300,21 @@ public void test012() throws JavaModelException {
 
 public void test013() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@throws BasicTestMethodsE\n" +
-		"	 */\n" +
-		"	public void foo() throws BasicTestMethodsException2 {}\n" +
-		"}\n" +
-		"class BasicTestMethodsException1 extends Exception{}\n" +
-		"class BasicTestMethodsException2 extends Exception{}\n" +
-		"class BasicTestMethodsExample {\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+		
+			/**
+			 * Completion after:
+			 * 	@throws BasicTestMethodsE
+			 */
+			public void foo() throws BasicTestMethodsException2 {}
+		}
+		class BasicTestMethodsException1 extends Exception{}
+		class BasicTestMethodsException2 extends Exception{}
+		class BasicTestMethodsExample {
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTestMethodsE");
 	assertSortedResults(
 		"BasicTestMethodsException2[TYPE_REF]{BasicTestMethodsException2, javadoc.methods.tags, Ljavadoc.methods.tags.BasicTestMethodsException2;, null, null, "+this.positions+R_DRICUNREEET+"}\n" +
@@ -303,18 +325,20 @@ public void test013() throws JavaModelException {
 
 public void test014() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@throws \n" +
-		"	 */\n" +
-		"	public void foo() throws BasicTestMethodsException {}\n" +
-		"}\n" +
-		"class BasicTestMethodsException extends Exception{}\n" +
-		"class BasicTestMethodsExample {\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+		
+			/**
+			 * Completion after:
+			 * 	@throws\s
+			 */
+			public void foo() throws BasicTestMethodsException {}
+		}
+		class BasicTestMethodsException extends Exception{}
+		class BasicTestMethodsExample {
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@throws ", 0); // completion on empty token
 	if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
 		assertResults(
@@ -330,17 +354,19 @@ public void test014() throws JavaModelException {
 
 public void test015() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@throws I\n" +
-		"	 * 		Note: there should be NO base types in proposals." +
-		"	 */\n" +
-		"	public void foo() {\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+		
+			/**
+			 * Completion after:
+			 * 	@throws I
+			 * 		Note: there should be NO base types in proposals.\
+			 */
+			public void foo() {
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "I");
 	assertSortedResults(
 		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DRICUNRE+"}\n" +
@@ -350,16 +376,18 @@ public void test015() throws JavaModelException {
 
 public void test016() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@throws java.lang.I\n" +
-		"	 */\n" +
-		"	public void foo() throws InterruptedException {\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+		
+			/**
+			 * Completion after:
+			 * 	@throws java.lang.I
+			 */
+			public void foo() throws InterruptedException {
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "java.lang.I");
 	assertSortedResults(
 		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DRICNREEET+"}\n" +
@@ -372,15 +400,16 @@ public void test016() throws JavaModelException {
  */
 public void test020() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #fo\n" +
-		"	 */\n" +
-		"	int foo;\n" +
-		"	void foo() {}\n" +
-		"}";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see #fo
+			 */
+			int foo;
+			void foo() {}
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "fo");
 	assertResults(
 		"foo[FIELD_REF]{foo, Ljavadoc.methods.tags.BasicTestMethods;, I, foo, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -390,15 +419,16 @@ public void test020() throws JavaModelException {
 
 public void test021() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see BasicTestMethods#fo\n" +
-		"	 */\n" +
-		"	int foo;\n" +
-		"	void foo() {}\n" +
-		"}";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see BasicTestMethods#fo
+			 */
+			int foo;
+			void foo() {}
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "fo");
 	assertResults(
 		"foo[FIELD_REF]{foo, Ljavadoc.methods.tags.BasicTestMethods;, I, foo, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -408,15 +438,16 @@ public void test021() throws JavaModelException {
 
 public void test022() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see javadoc.methods.tags.BasicTestMethods#fo\n" +
-		"	 */\n" +
-		"	int foo;\n" +
-		"	void foo() {}\n" +
-		"}";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see javadoc.methods.tags.BasicTestMethods#fo
+			 */
+			int foo;
+			void foo() {}
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "fo");
 	assertResults(
 		"foo[FIELD_REF]{foo, Ljavadoc.methods.tags.BasicTestMethods;, I, foo, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -427,20 +458,22 @@ public void test022() throws JavaModelException {
 public void test023() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/methods/tags/BasicTestMethods.java",
-			"package javadoc.methods.tags;\n" +
-			"public class BasicTestMethods {\n" +
-			"	/**\n" +
-			"	 * Completion after:\n" +
-			"	 * 	@see OtherFields#fo\n" +
-			"	 */\n" +
-			"	int foo;\n" +
-			"}",
+			"""
+				package javadoc.methods.tags;
+				public class BasicTestMethods {
+					/**
+					 * Completion after:
+					 * 	@see OtherFields#fo
+					 */
+					int foo;
+				}""",
 		"/Completion/src/javadoc/methods/tags/OtherFields.java",
-			"package javadoc.methods.tags;\n" +
-			"public class OtherFields {\n" +
-			"	int foo;\n" +
-			"	void foo() {}\n" +
-			"}"
+			"""
+				package javadoc.methods.tags;
+				public class OtherFields {
+					int foo;
+					void foo() {}
+				}"""
 	};
 	completeInJavadoc(sources, true, "fo");
 	assertResults(
@@ -454,15 +487,17 @@ public void test023() throws JavaModelException {
  */
 public void test030() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see fo\n" +
-		"	 */\n" +
-		"	void foo() {}\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see fo
+			 */
+			void foo() {}
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "fo");
 	assertResults("");
 }
@@ -470,15 +505,17 @@ public void test030() throws JavaModelException {
 public void test031() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #fo\n" +
-		"	 */\n" +
-		"	<T> void foo() {}\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see #fo
+			 */
+			<T> void foo() {}
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "fo");
 	assertResults(
 		"foo[METHOD_REF]{foo(), Ljavadoc.methods.tags.BasicTestMethods;, <T:Ljava.lang.Object;>()V, foo, null, "+this.positions+R_DRICNRNS+"}"
@@ -487,19 +524,21 @@ public void test031() throws JavaModelException {
 
 public void test032() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #ba\n" +
-		"	 * \n" +
-		"	 * Note that argument names are put in proposals although there are not while completing\n" +
-		"	 * in javadoc text {@link javadoc.text.BasicTestMethods }. This is due to the fact that while\n" +
-		"	 * completing in javadoc tags, it\'s JDT-UI which compute arguments, not JDT-CORE.\n" +
-		"	 */\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #ba
+			 *\s
+			 * Note that argument names are put in proposals although there are not while completing
+			 * in javadoc text {@link javadoc.text.BasicTestMethods }. This is due to the fact that while
+			 * completing in javadoc tags, it's JDT-UI which compute arguments, not JDT-CORE.
+			 */
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "ba");
 	assertResults(
 		"bar[METHOD_REF]{bar(String, boolean, Object), Ljavadoc.methods.tags.BasicTestMethods;, (Ljava.lang.String;ZLjava.lang.Object;)V, bar, (str, flag, obj), "+this.positions+R_DRICNRNS+"}"
@@ -509,19 +548,21 @@ public void test032() throws JavaModelException {
 public void test033() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #ba\n" +
-		"	 * \n" +
-		"	 * Note that argument names are put in proposals although there are not while completing\n" +
-		"	 * in javadoc text {@link javadoc.text.BasicTestMethods }. This is due to the fact that while\n" +
-		"	 * completing in javadoc tags, it\'s JDT-UI which compute arguments, not JDT-CORE.\n" +
-		"	 */\n" +
-		"	<T, U> void bar(String str, Class<T> clt, Class<U> clu) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #ba
+			 *\s
+			 * Note that argument names are put in proposals although there are not while completing
+			 * in javadoc text {@link javadoc.text.BasicTestMethods }. This is due to the fact that while
+			 * completing in javadoc tags, it's JDT-UI which compute arguments, not JDT-CORE.
+			 */
+			<T, U> void bar(String str, Class<T> clt, Class<U> clu) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "ba");
 	assertResults(
 		"bar[METHOD_REF]{bar(String, Class, Class), Ljavadoc.methods.tags.BasicTestMethods;, <T:Ljava.lang.Object;U:Ljava.lang.Object;>(Ljava.lang.String;Ljava.lang.Class<TT;>;Ljava.lang.Class<TU;>;)V, bar, (str, clt, clu), "+this.positions+R_DRICNRNS+"}"
@@ -530,19 +571,21 @@ public void test033() throws JavaModelException {
 
 public void test034() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see BasicTestMethods#ba\n" +
-		"	 * \n" +
-		"	 * Note that argument names are put in proposals although there are not while completing\n" +
-		"	 * in javadoc text {@link javadoc.text.BasicTestMethods }. This is due to the fact that while\n" +
-		"	 * completing in javadoc tags, it\'s JDT-UI which compute arguments, not JDT-CORE.\n" +
-		"	 */\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see BasicTestMethods#ba
+			 *\s
+			 * Note that argument names are put in proposals although there are not while completing
+			 * in javadoc text {@link javadoc.text.BasicTestMethods }. This is due to the fact that while
+			 * completing in javadoc tags, it's JDT-UI which compute arguments, not JDT-CORE.
+			 */
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "ba");
 	assertResults(
 		"bar[METHOD_REF]{bar(String, boolean, Object), Ljavadoc.methods.tags.BasicTestMethods;, (Ljava.lang.String;ZLjava.lang.Object;)V, bar, (str, flag, obj), "+this.positions+R_DRICNRNS+"}"
@@ -551,19 +594,21 @@ public void test034() throws JavaModelException {
 
 public void test035() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see javadoc.methods.tags.BasicTestMethods#ba\n" +
-		"	 * \n" +
-		"	 * Note that argument names are put in proposals although there are not while completing\n" +
-		"	 * in javadoc text {@link javadoc.text.BasicTestMethods }. This is due to the fact that while\n" +
-		"	 * completing in javadoc tags, it\'s JDT-UI which compute arguments, not JDT-CORE.\n" +
-		"	 */\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see javadoc.methods.tags.BasicTestMethods#ba
+			 *\s
+			 * Note that argument names are put in proposals although there are not while completing
+			 * in javadoc text {@link javadoc.text.BasicTestMethods }. This is due to the fact that while
+			 * completing in javadoc tags, it's JDT-UI which compute arguments, not JDT-CORE.
+			 */
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "ba");
 	assertResults(
 		"bar[METHOD_REF]{bar(String, boolean, Object), Ljavadoc.methods.tags.BasicTestMethods;, (Ljava.lang.String;ZLjava.lang.Object;)V, bar, (str, flag, obj), "+this.positions+R_DRICNRNS+"}"
@@ -573,19 +618,21 @@ public void test035() throws JavaModelException {
 public void test036() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/methods/tags/BasicTestMethods.java",
-			"package javadoc.methods.tags;\n" +
-			"public class BasicTestMethods {\n" +
-			"	/**\n" +
-			"	 * Completion after:\n" +
-			"	 * 	@see OtherTypes#fo\n" +
-			"	 */\n" +
-			"	void foo() {};\n" +
-			"}",
+			"""
+				package javadoc.methods.tags;
+				public class BasicTestMethods {
+					/**
+					 * Completion after:
+					 * 	@see OtherTypes#fo
+					 */
+					void foo() {};
+				}""",
 		"/Completion/src/javadoc/methods/tags/OtherTypes.java",
-			"package javadoc.methods.tags;\n" +
-			"public class OtherTypes {\n" +
-			"	void foo() {};\n" +
-			"}"
+			"""
+				package javadoc.methods.tags;
+				public class OtherTypes {
+					void foo() {};
+				}"""
 	};
 	completeInJavadoc(sources, true, "fo");
 	assertResults(
@@ -595,15 +642,17 @@ public void test036() throws JavaModelException {
 
 public void test037() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #\n" +
-		"	 */\n" +
-		"	void foo() {}\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see #
+			 */
+			void foo() {}
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "#", 0); // completion on empty token
 	assertResults(
 		"foo[METHOD_REF]{foo(), Ljavadoc.methods.tags.BasicTestMethods;, ()V, foo, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -626,15 +675,17 @@ public void test037() throws JavaModelException {
 public void test038() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #\n" +
-		"	 */\n" +
-		"	<T> void foo() {}\n" +
-		"	<TParam1, TParam2> void bar(TParam1 tp1, TParam2 tp2) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see #
+			 */
+			<T> void foo() {}
+			<TParam1, TParam2> void bar(TParam1 tp1, TParam2 tp2) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "#", 0); // completion on empty token
 	assertResults(
 		"foo[METHOD_REF]{foo(), Ljavadoc.methods.tags.BasicTestMethods;, <T:Ljava.lang.Object;>()V, foo, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -656,15 +707,17 @@ public void test038() throws JavaModelException {
 
 public void test039() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see BasicTestMethods#\n" +
-		"	 */\n" +
-		"	void foo() {}\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see BasicTestMethods#
+			 */
+			void foo() {}
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "#", 0); // completion on empty token
 	assertResults(
 		"foo[METHOD_REF]{foo(), Ljavadoc.methods.tags.BasicTestMethods;, ()V, foo, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -686,15 +739,17 @@ public void test039() throws JavaModelException {
 
 public void test040() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see javadoc.methods.tags.BasicTestMethods#\n" +
-		"	 */\n" +
-		"	void foo() {}\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see javadoc.methods.tags.BasicTestMethods#
+			 */
+			void foo() {}
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "#", 0); // completion on empty token
 	assertResults(
 		"foo[METHOD_REF]{foo(), Ljavadoc.methods.tags.BasicTestMethods;, ()V, foo, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -716,15 +771,17 @@ public void test040() throws JavaModelException {
 
 public void test041() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #bar(\n" +
-		"	 */\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #bar(
+			 */
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "bar(");
 	assertResults(
 		"bar[METHOD_REF]{bar(String, boolean, Object), Ljavadoc.methods.tags.BasicTestMethods;, (Ljava.lang.String;ZLjava.lang.Object;)V, bar, (str, flag, obj), "+this.positions+R_DRICENUNR+"}"
@@ -733,15 +790,17 @@ public void test041() throws JavaModelException {
 
 public void test042() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #bar(Str\n" +
-		"	 */\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #bar(Str
+			 */
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "Str");
 	assertResults(
 		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DRICUNR+"}"
@@ -750,15 +809,17 @@ public void test042() throws JavaModelException {
 
 public void test043() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #bar(java.lang.\n" +
-		"	 */\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #bar(java.lang.
+			 */
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "java.lang.");
 	assertSortedResults(
 		"Class[TYPE_REF]{Class, java.lang, Ljava.lang.Class;, null, null, "+this.positions+R_DRICNR+"}\n" +
@@ -776,15 +837,17 @@ public void test043() throws JavaModelException {
 
 public void test044() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #bar(java.lang.St\n" +
-		"	 */\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #bar(java.lang.St
+			 */
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "java.lang.St");
 	assertResults(
 		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DRICNR+"}"
@@ -793,15 +856,17 @@ public void test044() throws JavaModelException {
 
 public void test045() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #bar(String s\n" +
-		"	 */\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #bar(String s
+			 */
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "bar(String s");
 	assertResults(
 		"bar[METHOD_REF]{bar(String, boolean, Object), Ljavadoc.methods.tags.BasicTestMethods;, (Ljava.lang.String;ZLjava.lang.Object;)V, bar, (str, flag, obj), "+this.positions+R_DRICENUNR+"}"
@@ -810,16 +875,18 @@ public void test045() throws JavaModelException {
 
 public void test046() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #bar(String str, \n" +
-		"	 */\n" +
-		"	// Note: Completion takes place just after trailoing comma (there's a space after)\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #bar(String str,\s
+			 */
+			// Note: Completion takes place just after trailoing comma (there's a space after)
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "bar(String str,");
 	assertResults(
 		"bar[METHOD_REF]{bar(String, boolean, Object), Ljavadoc.methods.tags.BasicTestMethods;, (Ljava.lang.String;ZLjava.lang.Object;)V, bar, (str, flag, obj), "+this.positions+R_DRICENUNR+"}"
@@ -828,15 +895,17 @@ public void test046() throws JavaModelException {
 
 public void test047() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #bar(String str, \n" +
-		"	 */\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #bar(String str,\s
+			 */
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "bar(String str, ");
 	assertResults(
 		"bar[METHOD_REF]{bar(String, boolean, Object), Ljavadoc.methods.tags.BasicTestMethods;, (Ljava.lang.String;ZLjava.lang.Object;)V, bar, (str, flag, obj), "+this.positions+R_DRICENUNR+"}"
@@ -845,15 +914,17 @@ public void test047() throws JavaModelException {
 
 public void test048() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #bar(String,\n" +
-		"	 */\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #bar(String,
+			 */
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "bar(String,");
 	assertResults(
 		"bar[METHOD_REF]{bar(String, boolean, Object), Ljavadoc.methods.tags.BasicTestMethods;, (Ljava.lang.String;ZLjava.lang.Object;)V, bar, (str, flag, obj), "+this.positions+R_DRICENUNR+"}"
@@ -862,15 +933,17 @@ public void test048() throws JavaModelException {
 
 public void test049() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #bar(String str, bool\n" +
-		"	 */\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #bar(String str, bool
+			 */
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "bool");
 	assertResults(
 		"boolean[KEYWORD]{boolean, null, null, boolean, null, "+this.positions+R_DRICNR+"}"
@@ -882,30 +955,34 @@ public void test049() throws JavaModelException {
  */
 public void test050() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #bar(String str, boolean,\n" +
-		"	 */\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #bar(String str, boolean,
+			 */
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "bar(String str, boolean,");
 	assertResults("");
 }
 
 public void test051() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #bar(String str, boolean flag,\n" +
-		"	 */\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #bar(String str, boolean flag,
+			 */
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "bar(String str, boolean flag,");
 	assertResults(
 		"bar[METHOD_REF]{bar(String, boolean, Object), Ljavadoc.methods.tags.BasicTestMethods;, (Ljava.lang.String;ZLjava.lang.Object;)V, bar, (str, flag, obj), "+this.positions+R_DRICENUNR+"}"
@@ -914,15 +991,17 @@ public void test051() throws JavaModelException {
 
 public void test052() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #bar(String,boolean,\n" +
-		"	 */\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #bar(String,boolean,
+			 */
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "bar(String,boolean,");
 	assertResults(
 		"bar[METHOD_REF]{bar(String, boolean, Object), Ljavadoc.methods.tags.BasicTestMethods;, (Ljava.lang.String;ZLjava.lang.Object;)V, bar, (str, flag, obj), "+this.positions+R_DRICENUNR+"}"
@@ -931,15 +1010,17 @@ public void test052() throws JavaModelException {
 
 public void test053() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #bar(String,boolean,Object\n" +
-		"	 */\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #bar(String,boolean,Object
+			 */
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "Object");
 	assertResults(
 		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICENUNR+"}"
@@ -951,30 +1032,34 @@ public void test053() throws JavaModelException {
  */
 public void test054() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #bar(String, boolean, Object o\n" +
-		"	 */\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #bar(String, boolean, Object o
+			 */
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "bar(String, boolean, Object o");
 	assertResults("");
 }
 
 public void test055() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #bar(String str, boolean flag, Object o\n" +
-		"	 */\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #bar(String str, boolean flag, Object o
+			 */
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "bar(String str, boolean flag, Object o");
 	assertResults(
 		"bar[METHOD_REF]{bar(String, boolean, Object), Ljavadoc.methods.tags.BasicTestMethods;, (Ljava.lang.String;ZLjava.lang.Object;)V, bar, (str, flag, obj), "+this.positions+R_DRICENUNR+"}"
@@ -984,19 +1069,21 @@ public void test055() throws JavaModelException {
 public void test056() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/methods/tags/BasicTestMethods.java",
-			"package javadoc.methods.tags;\n" +
-			"public class BasicTestMethods {\n" +
-			"	/**\n" +
-			"	 * Completion after:\n" +
-			"	 * 	@see OtherTypes#foo(\n" +
-			"	 */\n" +
-			"	void foo() {};\n" +
-			"}",
+			"""
+				package javadoc.methods.tags;
+				public class BasicTestMethods {
+					/**
+					 * Completion after:
+					 * 	@see OtherTypes#foo(
+					 */
+					void foo() {};
+				}""",
 		"/Completion/src/javadoc/methods/tags/OtherTypes.java",
-			"package javadoc.methods.tags;\n" +
-			"public class OtherTypes {\n" +
-			"	void foo(String str) {};\n" +
-			"}"
+			"""
+				package javadoc.methods.tags;
+				public class OtherTypes {
+					void foo(String str) {};
+				}"""
 	};
 	completeInJavadoc(sources, true, "foo(");
 	assertResults(
@@ -1007,19 +1094,21 @@ public void test056() throws JavaModelException {
 public void test057() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/methods/tags/BasicTestMethods.java",
-			"package javadoc.methods.tags;\n" +
-			"public class BasicTestMethods {\n" +
-			"	/**\n" +
-			"	 * Completion after:\n" +
-			"	 * 	@see javadoc.methods.tags.OtherTypes#foo(\n" +
-			"	 */\n" +
-			"	void foo() {};\n" +
-			"}",
+			"""
+				package javadoc.methods.tags;
+				public class BasicTestMethods {
+					/**
+					 * Completion after:
+					 * 	@see javadoc.methods.tags.OtherTypes#foo(
+					 */
+					void foo() {};
+				}""",
 		"/Completion/src/javadoc/methods/tags/OtherTypes.java",
-			"package javadoc.methods.tags;\n" +
-			"public class OtherTypes {\n" +
-			"	void foo(String str) {};\n" +
-			"}"
+			"""
+				package javadoc.methods.tags;
+				public class OtherTypes {
+					void foo(String str) {};
+				}"""
 	};
 	completeInJavadoc(sources, true, "foo(");
 	assertResults(
@@ -1029,15 +1118,17 @@ public void test057() throws JavaModelException {
 
 public void test058() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see BasicTestMethods#method()\n" +
-		"	 */\n" +
-		"	void method() {}\n" +
-		"	void bar(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see BasicTestMethods#method()
+			 */
+			void method() {}
+			void bar(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "meth", 2); // 2nd occurrence
 	assertResults(
 		"method[METHOD_REF]{method(), Ljavadoc.methods.tags.BasicTestMethods;, ()V, method, null, "+this.positions+R_DRICNRNS+"}"
@@ -1046,15 +1137,17 @@ public void test058() throws JavaModelException {
 
 public void test059() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see BasicTestMethods#method()\n" +
-		"	 */\n" +
-		"	void method() {}\n" +
-		"	void method(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see BasicTestMethods#method()
+			 */
+			void method() {}
+			void method(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "meth", 2); // 2nd occurrence
 	assertResults(
 		"method[METHOD_REF]{method(String, boolean, Object), Ljavadoc.methods.tags.BasicTestMethods;, (Ljava.lang.String;ZLjava.lang.Object;)V, method, (str, flag, obj), "+this.positions+R_DRICNRNS+"}\n" +
@@ -1064,15 +1157,17 @@ public void test059() throws JavaModelException {
 
 public void test060() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see BasicTestMethods#method(String)\n" +
-		"	 */\n" +
-		"	void method() {}\n" +
-		"	void method(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see BasicTestMethods#method(String)
+			 */
+			void method() {}
+			void method(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "meth", 2); // 2nd occurrence
 	assertResults(
 		"method[METHOD_REF]{method(String, boolean, Object), Ljavadoc.methods.tags.BasicTestMethods;, (Ljava.lang.String;ZLjava.lang.Object;)V, method, (str, flag, obj), "+this.positions+R_DRICNRNS+"}\n" +
@@ -1082,15 +1177,17 @@ public void test060() throws JavaModelException {
 
 public void test061() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see BasicTestMethods#method(String,boolean,Object)\n" +
-		"	 */\n" +
-		"	void method() {}\n" +
-		"	void method(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see BasicTestMethods#method(String,boolean,Object)
+			 */
+			void method() {}
+			void method(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "meth", 2); // 2nd occurrence
 	assertResults(
 		"method[METHOD_REF]{method(String, boolean, Object), Ljavadoc.methods.tags.BasicTestMethods;, (Ljava.lang.String;ZLjava.lang.Object;)V, method, (str, flag, obj), [116, 145], "+R_DRICNRNS+"}\n" +
@@ -1101,15 +1198,17 @@ public void test061() throws JavaModelException {
 // TODO (frederic) See with David what to do on this case...
 public void _test062() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see BasicTestMethods#method(String str,boolean,Object)\n" +
-		"	 */\n" +
-		"	void method() {}\n" +
-		"	void method(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see BasicTestMethods#method(String str,boolean,Object)
+			 */
+			void method() {}
+			void method(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "meth", 2); // 2nd occurrence
 	assertResults(
 		"method[METHOD_REF]{method(String, boolean, Object), Ljavadoc.methods.tags.BasicTestMethods;, (Ljava.lang.String;ZLjava.lang.Object;)V, method, (str, flag, obj), "+this.positions+R_DRICUNR+"}\n" +
@@ -1122,16 +1221,18 @@ public void _test062() throws JavaModelException {
  */
 public void test070() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param \n" +
-		"	 */\n" +
-		"	public String foo(String str) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param\s
+			 */
+			public String foo(String str) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@param ", 0); // empty token
 	assertResults(
 		"str[JAVADOC_PARAM_REF]{str, null, null, str, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING)+"}"
@@ -1140,16 +1241,18 @@ public void test070() throws JavaModelException {
 
 public void test071() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param x\n" +
-		"	 */\n" +
-		"	public String foo(String xstr) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param x
+			 */
+			public String foo(String xstr) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "x");
 	assertResults(
 		"xstr[JAVADOC_PARAM_REF]{xstr, null, null, xstr, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING)+"}"
@@ -1158,16 +1261,18 @@ public void test071() throws JavaModelException {
 
 public void test072() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param xstr\n" +
-		"	 */\n" +
-		"	public String foo(String xstr) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param xstr
+			 */
+			public String foo(String xstr) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "xstr");
 	assertResults(
 		"xstr[JAVADOC_PARAM_REF]{xstr, null, null, xstr, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING)+"}"
@@ -1176,16 +1281,18 @@ public void test072() throws JavaModelException {
 
 public void test073() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param xstr\n" +
-		"	 */\n" +
-		"	public String foo(String xstr) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param xstr
+			 */
+			public String foo(String xstr) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "x");
 	assertResults(
 		"xstr[JAVADOC_PARAM_REF]{xstr, null, null, xstr, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING)+"}"
@@ -1194,84 +1301,94 @@ public void test073() throws JavaModelException {
 
 public void test074() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param xx\n" +
-		"	 */\n" +
-		"	public String foo(String xstr) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param xx
+			 */
+			public String foo(String xstr) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "xx");
 	assertResults("");
 }
 
 public void test075() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param xstr\n" +
-		"	 ** 	@param \n" +
-		"	 */\n" +
-		"	public String foo(String xstr) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param xstr
+			 ** 	@param\s
+			 */
+			public String foo(String xstr) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "** 	@param ", 0); // empty token
 	assertResults(	"");
 }
 
 public void test076() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param xstr\n" +
-		"	 * 	@param xstr\n" +
-		"	 */\n" +
-		"	public String foo(String xstr) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param xstr
+			 * 	@param xstr
+			 */
+			public String foo(String xstr) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "xstr");
 	assertResults("");
 }
 
 public void test077() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param xstr\n" +
-		"	 * 	@param xstr\n" +
-		"	 */\n" +
-		"	public String foo(String xstr) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param xstr
+			 * 	@param xstr
+			 */
+			public String foo(String xstr) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "xstr", 2);
 	assertResults("");
 }
 
 public void test078() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param xstr\n" +
-		"	 * 	@param xstr\n" +
-		"	 */\n" +
-		"	public String foo(String xstr, String xstr2) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param xstr
+			 * 	@param xstr
+			 */
+			public String foo(String xstr, String xstr2) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "xstr");
 	assertResults(
 		"xstr2[JAVADOC_PARAM_REF]{xstr2, null, null, xstr2, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING)+"}"
@@ -1280,17 +1397,19 @@ public void test078() throws JavaModelException {
 
 public void test079() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param xstr\n" +
-		"	 * 	@param xstr\n" +
-		"	 */\n" +
-		"	public String foo(String xstr, String xstr2) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param xstr
+			 * 	@param xstr
+			 */
+			public String foo(String xstr, String xstr2) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "xstr", 2); // 2nd occurence
 	assertResults(
 		"xstr2[JAVADOC_PARAM_REF]{xstr2, null, null, xstr2, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING)+"}"
@@ -1299,17 +1418,19 @@ public void test079() throws JavaModelException {
 
 public void test080() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param xstr\n" +
-		"	 * 	@param xstr2\n" +
-		"	 */\n" +
-		"	public String foo(String xstr, String xstr2) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param xstr
+			 * 	@param xstr2
+			 */
+			public String foo(String xstr, String xstr2) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "xstr");
 	assertResults(
 		"xstr[JAVADOC_PARAM_REF]{xstr, null, null, xstr, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING)+"}"
@@ -1318,17 +1439,19 @@ public void test080() throws JavaModelException {
 
 public void test081() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param xstr\n" +
-		"	 * 	@param xstr2\n" +
-		"	 */\n" +
-		"	public String foo(String xstr, String xstr2) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param xstr
+			 * 	@param xstr2
+			 */
+			public String foo(String xstr, String xstr2) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "xstr", 2); // 2nd occurence
 	assertResults(
 		"xstr2[JAVADOC_PARAM_REF]{xstr2, null, null, xstr2, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING)+"}"
@@ -1337,54 +1460,60 @@ public void test081() throws JavaModelException {
 
 public void test082() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param xstr\n" +
-		"	 * 	@param xstr\n" +
-		"	 * 	@param xstr2\n" +
-		"	 */\n" +
-		"	public String foo(String xstr, String xstr2) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param xstr
+			 * 	@param xstr
+			 * 	@param xstr2
+			 */
+			public String foo(String xstr, String xstr2) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "xstr");
 	assertResults("");
 }
 
 public void test083() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param xstr\n" +
-		"	 * 	@param xstr\n" +
-		"	 * 	@param xstr2\n" +
-		"	 */\n" +
-		"	public String foo(String xstr, String xstr2) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param xstr
+			 * 	@param xstr
+			 * 	@param xstr2
+			 */
+			public String foo(String xstr, String xstr2) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "xstr", 2); // 2nd occurence
 	assertResults("");
 }
 
 public void test084() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param xstr\n" +
-		"	 * 	@param xstr\n" +
-		"	 * 	@param xstr2\n" +
-		"	 */\n" +
-		"	public String foo(String xstr, String xstr2) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param xstr
+			 * 	@param xstr
+			 * 	@param xstr2
+			 */
+			public String foo(String xstr, String xstr2) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "xstr", 3); // 3rd position
 	assertResults(
 		"xstr2[JAVADOC_PARAM_REF]{xstr2, null, null, xstr2, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING)+"}"
@@ -1393,16 +1522,18 @@ public void test084() throws JavaModelException {
 
 public void test085() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param \n" +
-		"	 */\n" +
-		"	public String foo(String xstr, boolean flag, Object obj) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param\s
+			 */
+			public String foo(String xstr, boolean flag, Object obj) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@param ", 0); // empty token
 	assertResults(
 		"xstr[JAVADOC_PARAM_REF]{xstr, null, null, xstr, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING+2)+"}\n" +
@@ -1413,17 +1544,19 @@ public void test085() throws JavaModelException {
 
 public void test086() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param xstr\n" +
-		"	 ** 	@param \n" +
-		"	 */\n" +
-		"	public String methodMultipleParam2(String xstr, boolean flag, Object obj) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param xstr
+			 ** 	@param\s
+			 */
+			public String methodMultipleParam2(String xstr, boolean flag, Object obj) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "** 	@param ", 0); // empty token
 	assertResults(
 		"flag[JAVADOC_PARAM_REF]{flag, null, null, flag, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING+1)+"}\n" +
@@ -1433,17 +1566,19 @@ public void test086() throws JavaModelException {
 
 public void test087() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param \n" +
-		"	 * 	@param flag\n" +
-		"	 */\n" +
-		"	public String methodMultipleParam3(String xstr, boolean flag, Object obj) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param\s
+			 * 	@param flag
+			 */
+			public String methodMultipleParam3(String xstr, boolean flag, Object obj) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@param ", 0); // empty token
 	assertResults(
 		"xstr[JAVADOC_PARAM_REF]{xstr, null, null, xstr, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING+1)+"}\n" +
@@ -1453,18 +1588,20 @@ public void test087() throws JavaModelException {
 
 public void test088() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param obj\n" +
-		"	 * 	@param xstr\n" +
-		"	 ** 	@param \n" +
-		"	 */\n" +
-		"	public String methodMultipleParam4(String xstr, boolean flag, Object obj) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param obj
+			 * 	@param xstr
+			 ** 	@param\s
+			 */
+			public String methodMultipleParam4(String xstr, boolean flag, Object obj) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "** 	@param ", 0); // empty token
 	assertResults(
 		"flag[JAVADOC_PARAM_REF]{flag, null, null, flag, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING)+"}"
@@ -1473,37 +1610,41 @@ public void test088() throws JavaModelException {
 
 public void test089() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param \n" +
-		"	 * 	@param obj\n" +
-		"	 * 	@param xstr\n" +
-		"	 * 	@param flag\n" +
-		"	 */\n" +
-		"	public String methodMultipleParam5(String xstr, boolean flag, Object obj) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param\s
+			 * 	@param obj
+			 * 	@param xstr
+			 * 	@param flag
+			 */
+			public String methodMultipleParam5(String xstr, boolean flag, Object obj) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@param ", 0); // empty token
 	assertResults("");
 }
 
 public void test090() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param obj\n" +
-		"	 * 	@param xstr\n" +
-		"	 * 	@param flag\n" +
-		"	 */\n" +
-		"	public String methodMultipleParam5(String xstr, boolean flag, Object obj) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param obj
+			 * 	@param xstr
+			 * 	@param flag
+			 */
+			public String methodMultipleParam5(String xstr, boolean flag, Object obj) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "ob");
 	assertResults(
 		"obj[JAVADOC_PARAM_REF]{obj, null, null, obj, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING)+"}"
@@ -1516,14 +1657,16 @@ public void test090() throws JavaModelException {
 public void test100() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param \n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param\s
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@param ", 0); // empty token
 	assertSortedResults(
 		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING+1)+"}\n" +
@@ -1535,15 +1678,17 @@ public void test100() throws JavaModelException {
 public void test101() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param <TM>\n" +
-		"	 ** 	@param \n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param <TM>
+			 ** 	@param\s
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "** 	@param ", 0); // empty token
 	assertSortedResults(
 		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING+1)+"}\n" +
@@ -1554,16 +1699,18 @@ public void test101() throws JavaModelException {
 public void test102() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param xtc\n" +
-		"	 * 	@param <TM>\n" +
-		"	 ** 	@param \n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param xtc
+			 * 	@param <TM>
+			 ** 	@param\s
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true,"** 	@param ", 0); // empty token
 	assertSortedResults(
 		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING)+"}"
@@ -1573,16 +1720,18 @@ public void test102() throws JavaModelException {
 public void test103() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param xtc\n" +
-		"	 ** 	@param \n" +
-		"	 * 	@param xtc\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param xtc
+			 ** 	@param\s
+			 * 	@param xtc
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true,"** 	@param ", 0); // empty token
 	assertSortedResults(
 		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING)+"}\n" +
@@ -1593,16 +1742,18 @@ public void test103() throws JavaModelException {
 public void test104() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 ** 	@param \n" +
-		"	 * 	@param xtc\n" +
-		"	 * 	@param xtm\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 ** 	@param\s
+			 * 	@param xtc
+			 * 	@param xtm
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true,"** 	@param ", 0); // empty token
 	assertSortedResults(
 		"TM[JAVADOC_PARAM_REF]{<TM>, null, null, TM, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -1612,17 +1763,19 @@ public void test104() throws JavaModelException {
 public void test105() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param xtc\n" +
-		"	 * 	@param xtm\n" +
-		"	 * 	@param <TM>\n" +
-		"	 ** 	@param \n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param xtc
+			 * 	@param xtm
+			 * 	@param <TM>
+			 ** 	@param\s
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true,"** 	@param ", 0); // empty token
 	assertSortedResults("");
 }
@@ -1630,14 +1783,16 @@ public void test105() throws JavaModelException {
 public void test106() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param <\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param <
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "<", 2); // 2nd occurence
 	assertSortedResults(
 		"TM[JAVADOC_PARAM_REF]{<TM>, null, null, TM, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -1647,14 +1802,16 @@ public void test106() throws JavaModelException {
 public void test107() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param <T\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param <T
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "<T", 2); // 2nd occurence
 	assertSortedResults(
 		"TM[JAVADOC_PARAM_REF]{<TM>, null, null, TM, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -1664,14 +1821,16 @@ public void test107() throws JavaModelException {
 public void test108() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param <TC\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param <TC
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "<TC", 2); // 2nd occurence
 	assertSortedResults("");
 }
@@ -1679,14 +1838,16 @@ public void test108() throws JavaModelException {
 public void test109() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param <TM>\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param <TM>
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "<TM");
 	assertSortedResults(
 		"TM[JAVADOC_PARAM_REF]{<TM>, null, null, TM, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -1696,14 +1857,16 @@ public void test109() throws JavaModelException {
 public void test110() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param <TM>\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param <TM>
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "<TM>");
 	assertSortedResults(
 		"TM[JAVADOC_PARAM_REF]{<TM>, null, null, TM, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -1713,15 +1876,17 @@ public void test110() throws JavaModelException {
 public void test111() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param <TM>\n" +
-		"	 * 	@param <TM>\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param <TM>
+			 * 	@param <TM>
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "<TM");
 	assertSortedResults("");
 }
@@ -1729,29 +1894,33 @@ public void test111() throws JavaModelException {
 public void test112() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param <TM>\n" +
-		"	 * 	@param <TM>\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param <TM>
+			 * 	@param <TM>
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "<TM>", 2); // 2nd occurence
 	assertSortedResults("");
 }
 
 public void test113() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param ab\n" +
-		"	 */\n" +
-		"	void foo(Object ab1, Object ab2) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@param ab
+			 */
+			void foo(Object ab1, Object ab2) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@param ", 0);
 	assertSortedResults(
 		"ab1[JAVADOC_PARAM_REF]{ab1, null, null, ab1, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING+1)+"}\n" +
@@ -1762,14 +1931,16 @@ public void test113() throws JavaModelException {
 public void test114() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param <ZZZ>\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param <ZZZ>
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@param ", 0); // empty token
 	assertSortedResults(
 		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, "+this.positions+(R_DEFAULT + 14)+"}\n" +
@@ -1781,14 +1952,16 @@ public void test114() throws JavaModelException {
 public void test115() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param <ZZZ>\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param <ZZZ>
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "<", 2); // 2nd occurrence
 	assertSortedResults(
 		"TM[JAVADOC_PARAM_REF]{<TM>, null, null, TM, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -1798,14 +1971,16 @@ public void test115() throws JavaModelException {
 public void test116() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param <ZZZ>\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param <ZZZ>
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "Z");
 	assertSortedResults("");
 }
@@ -1813,14 +1988,16 @@ public void test116() throws JavaModelException {
 public void test117() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param <ZZZ>\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param <ZZZ>
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "ZZZ");
 	assertSortedResults("");
 }
@@ -1828,14 +2005,16 @@ public void test117() throws JavaModelException {
 public void test118() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param ZZZ>\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param ZZZ>
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@param ", 0); // empty token
 	assertSortedResults(
 		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, [105, 108], " + (R_DEFAULT + 14) +"}\n" +
@@ -1847,14 +2026,16 @@ public void test118() throws JavaModelException {
 public void test119() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param ZZZ>\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param ZZZ>
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "Z");
 	assertSortedResults("");
 }
@@ -1862,14 +2043,16 @@ public void test119() throws JavaModelException {
 public void test120() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param ZZZ>\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param ZZZ>
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "ZZZ");
 	assertSortedResults("");
 }
@@ -1877,14 +2060,16 @@ public void test120() throws JavaModelException {
 public void test121() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param ZZZ.\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param ZZZ.
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@param ", 0); // empty token
 	assertSortedResults(
 		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, "+this.positions+(R_DEFAULT + 14)+"}\n" +
@@ -1896,14 +2081,16 @@ public void test121() throws JavaModelException {
 public void test122() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param ZZZ#\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param ZZZ#
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@param ", 0); // empty token
 	assertSortedResults(
 		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, "+this.positions+(R_DEFAULT + 14)+"}\n" +
@@ -1915,14 +2102,16 @@ public void test122() throws JavaModelException {
 public void test123() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods<TC> {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@param ZZZ?\n" +
-		"	 */\n" +
-		"	<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods<TC> {
+			/**
+			 * Completion after:
+			 * 	@param ZZZ?
+			 */
+			<TM> void foo(Class<TM> xtm, Class<TC> xtc) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@param ", 0); // empty token
 	assertSortedResults(
 		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, "+this.positions+(R_DEFAULT + 14)+"}\n" +
@@ -1936,15 +2125,17 @@ public void test123() throws JavaModelException {
  */
 public void test130() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTest\n" +
-		"	 */\n" +
-		"	BasicTestMethods() {}\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see #BasicTest
+			 */
+			BasicTestMethods() {}
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTest", 2); // 2nd occurence
 	assertResults(
 		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(int, float, Class), Ljavadoc.methods.tags.BasicTestMethods;, (IFLjava.lang.Class;)V, BasicTestMethods, (xxx, real, clazz), "+this.positions+R_DRINR+"}\n" +
@@ -1954,16 +2145,18 @@ public void test130() throws JavaModelException {
 
 public void test131() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTest\n" +
-		"	 * @since 3.2\n" +
-		"	 */\n" +
-		"	BasicTestMethods() {}\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see #BasicTest
+			 * @since 3.2
+			 */
+			BasicTestMethods() {}
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTest", 2); // 2nd occurence
 	assertResults(
 		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(int, float, Class), Ljavadoc.methods.tags.BasicTestMethods;, (IFLjava.lang.Class;)V, BasicTestMethods, (xxx, real, clazz), "+this.positions+R_DRINR+"}\n" +
@@ -1974,15 +2167,17 @@ public void test131() throws JavaModelException {
 public void test132() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTest\n" +
-		"	 */\n" +
-		"	BasicTestMethods() {}\n" +
-		"	<T> BasicTestMethods(int xxx, float real, Class<T> clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see #BasicTest
+			 */
+			BasicTestMethods() {}
+			<T> BasicTestMethods(int xxx, float real, Class<T> clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTest", 2); // 2nd occurence
 	assertResults(
 		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(int, float, Class), Ljavadoc.methods.tags.BasicTestMethods;, <T:Ljava.lang.Object;>(IFLjava.lang.Class<TT;>;)V, BasicTestMethods, (xxx, real, clazz), "+this.positions+R_DRINR+"}\n" +
@@ -1992,15 +2187,17 @@ public void test132() throws JavaModelException {
 
 public void test133() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see BasicTestMethods#BasicTest\n" +
-		"	 */\n" +
-		"	BasicTestMethods() {}\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see BasicTestMethods#BasicTest
+			 */
+			BasicTestMethods() {}
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTest", 3); // 3rd occurence
 	assertResults(
 		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(int, float, Class), Ljavadoc.methods.tags.BasicTestMethods;, (IFLjava.lang.Class;)V, BasicTestMethods, (xxx, real, clazz), "+this.positions+R_DRINR+"}\n" +
@@ -2010,15 +2207,17 @@ public void test133() throws JavaModelException {
 
 public void test134() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see javadoc.methods.tags.BasicTestMethods#BasicTest\n" +
-		"	 */\n" +
-		"	BasicTestMethods() {}\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see javadoc.methods.tags.BasicTestMethods#BasicTest
+			 */
+			BasicTestMethods() {}
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTest", 3); // 3rd occurence
 	assertResults(
 		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(int, float, Class), Ljavadoc.methods.tags.BasicTestMethods;, (IFLjava.lang.Class;)V, BasicTestMethods, (xxx, real, clazz), "+this.positions+R_DRINR+"}\n" +
@@ -2029,19 +2228,21 @@ public void test134() throws JavaModelException {
 public void test135() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/methods/tags/BasicTestMethods.java",
-			"package javadoc.methods.tags;\n" +
-			"public class BasicTestMethods {\n" +
-			"	/**\n" +
-			"	 * Completion after:\n" +
-			"	 * 	@see OtherTypes#O\n" +
-			"	 */\n" +
-			"	void foo() {};\n" +
-			"}",
+			"""
+				package javadoc.methods.tags;
+				public class BasicTestMethods {
+					/**
+					 * Completion after:
+					 * 	@see OtherTypes#O
+					 */
+					void foo() {};
+				}""",
 		"/Completion/src/javadoc/methods/tags/OtherTypes.java",
-			"package javadoc.methods.tags;\n" +
-			"public class OtherTypes {\n" +
-			"	OtherTypes() {};\n" +
-			"}"
+			"""
+				package javadoc.methods.tags;
+				public class OtherTypes {
+					OtherTypes() {};
+				}"""
 	};
 	completeInJavadoc(sources, true, "O", 2); // 2nd occurence
 	assertResults(
@@ -2052,18 +2253,20 @@ public void test135() throws JavaModelException {
 public void test136() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/methods/tags/BasicTestMethods.java",
-			"package javadoc.methods.tags;\n" +
-			"public class BasicTestMethods {\n" +
-			"	/**\n" +
-			"	 * Completion after:\n" +
-			"	 * 	@see OtherTypes#O implicit default constructor\n" +
-			"	 */\n" +
-			"	void foo() {};\n" +
-			"}",
+			"""
+				package javadoc.methods.tags;
+				public class BasicTestMethods {
+					/**
+					 * Completion after:
+					 * 	@see OtherTypes#O implicit default constructor
+					 */
+					void foo() {};
+				}""",
 		"/Completion/src/javadoc/methods/tags/OtherTypes.java",
-			"package javadoc.methods.tags;\n" +
-			"public class OtherTypes {\n" +
-			"}"
+			"""
+				package javadoc.methods.tags;
+				public class OtherTypes {
+				}"""
 	};
 	completeInJavadoc(sources, true, "O", 2); // 2nd occurence
 	assertResults(
@@ -2073,15 +2276,17 @@ public void test136() throws JavaModelException {
 
 public void test137() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #\n" +
-		"	 */\n" +
-		"	BasicTestMethods() {}\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see #
+			 */
+			BasicTestMethods() {}
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "#", 0); // empty token
 	assertResults(
 		"wait[METHOD_REF]{wait(long, int), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+this.positions+R_DRICNRNS+"}\n" +
@@ -2102,16 +2307,18 @@ public void test137() throws JavaModelException {
 
 public void test138() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #\n" +
-		"	 * @since 3.2\n" +
-		"	 */\n" +
-		"	BasicTestMethods() {}\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see #
+			 * @since 3.2
+			 */
+			BasicTestMethods() {}
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "#", 0); // empty token
 	assertResults(
 		"wait[METHOD_REF]{wait(long, int), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+this.positions+R_DRICNRNS+"}\n" +
@@ -2133,15 +2340,17 @@ public void test138() throws JavaModelException {
 public void test139() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #\n" +
-		"	 */\n" +
-		"	<T> BasicTestMethods() {}\n" +
-		"	<T, U> BasicTestMethods(int xxx, Class<T> cl1, Class<U> cl2) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see #
+			 */
+			<T> BasicTestMethods() {}
+			<T, U> BasicTestMethods(int xxx, Class<T> cl1, Class<U> cl2) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "#", 0); // empty token
 	assertResults(
 		"wait[METHOD_REF]{wait(long, int), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+this.positions+R_DRICNRNS+"}\n" +
@@ -2162,13 +2371,15 @@ public void test139() throws JavaModelException {
 
 public void test140() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"/**\n" +
-		" * Completion after:\n" +
-		" * 	@see #\n" +
-		" */\n" +
-		"public class BasicTestMethods {\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		/**
+		 * Completion after:
+		 * 	@see #
+		 */
+		public class BasicTestMethods {
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "#", 0); // empty token
 	assertResults(
 		"wait[METHOD_REF]{wait(long, int), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+this.positions+R_DRICNRNS+"}\n" +
@@ -2188,15 +2399,17 @@ public void test140() throws JavaModelException {
 
 public void test141() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTestMethods(\n" +
-		"	 */\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #BasicTestMethods(
+			 */
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTestMethods(");
 	assertResults(
 		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(int, float, Class), Ljavadoc.methods.tags.BasicTestMethods;, (IFLjava.lang.Class;)V, BasicTestMethods, (xxx, real, clazz), "+this.positions+R_DRINR+"}"
@@ -2205,16 +2418,18 @@ public void test141() throws JavaModelException {
 
 public void test142() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTestMethods(\n" +
-		"	 * @since 3.2\n" +
-		"	 */\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #BasicTestMethods(
+			 * @since 3.2
+			 */
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTestMethods(");
 	assertResults(
 		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(int, float, Class), Ljavadoc.methods.tags.BasicTestMethods;, (IFLjava.lang.Class;)V, BasicTestMethods, (xxx, real, clazz), "+this.positions+R_DRINR+"}"
@@ -2223,15 +2438,17 @@ public void test142() throws JavaModelException {
 
 public void test143() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTestMethods( trailing text\n" +
-		"	 */\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #BasicTestMethods( trailing text
+			 */
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTestMethods(");
 	assertResults(
 		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(int, float, Class), Ljavadoc.methods.tags.BasicTestMethods;, (IFLjava.lang.Class;)V, BasicTestMethods, (xxx, real, clazz), "+this.positions+R_DRINR+"}"
@@ -2240,15 +2457,17 @@ public void test143() throws JavaModelException {
 
 public void test144() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTestMethods(   ...\n" +
-		"	 */\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #BasicTestMethods(   ...
+			 */
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTestMethods(");
 	assertResults(
 		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(int, float, Class), Ljavadoc.methods.tags.BasicTestMethods;, (IFLjava.lang.Class;)V, BasicTestMethods, (xxx, real, clazz), "+this.positions+R_DRINR+"}"
@@ -2257,15 +2476,17 @@ public void test144() throws JavaModelException {
 
 public void test145() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTestMethods(        \n" +
-		"	 */\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #BasicTestMethods(       \s
+			 */
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTestMethods(");
 	assertResults(
 		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(int, float, Class), Ljavadoc.methods.tags.BasicTestMethods;, (IFLjava.lang.Class;)V, BasicTestMethods, (xxx, real, clazz), "+this.positions+R_DRINR+"}"
@@ -2274,15 +2495,17 @@ public void test145() throws JavaModelException {
 
 public void test146() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTestMethods(     ????\n" +
-		"	 */\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #BasicTestMethods(     ????
+			 */
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTestMethods(");
 	assertResults(
 		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(int, float, Class), Ljavadoc.methods.tags.BasicTestMethods;, (IFLjava.lang.Class;)V, BasicTestMethods, (xxx, real, clazz), "+this.positions+R_DRINR+"}"
@@ -2291,15 +2514,17 @@ public void test146() throws JavaModelException {
 
 public void test147() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTestMethods(  ,,\n" +
-		"	 */\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #BasicTestMethods(  ,,
+			 */
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTestMethods(");
 	assertResults(
 		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(int, float, Class), Ljavadoc.methods.tags.BasicTestMethods;, (IFLjava.lang.Class;)V, BasicTestMethods, (xxx, real, clazz), "+this.positions+R_DRINR+"}"
@@ -2308,16 +2533,18 @@ public void test147() throws JavaModelException {
 
 public void test148() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see BasicTestMethods#BasicTestMethods(\n" +
-		"	 */\n" +
-		"	BasicTestMethods() {}\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see BasicTestMethods#BasicTestMethods(
+			 */
+			BasicTestMethods() {}
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTestMethods(");
 	assertResults(
 		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(int, float, Class), Ljavadoc.methods.tags.BasicTestMethods;, (IFLjava.lang.Class;)V, BasicTestMethods, (xxx, real, clazz), "+this.positions+R_DRINR+"}\n" +
@@ -2327,14 +2554,16 @@ public void test148() throws JavaModelException {
 
 public void test149() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see javadoc.methods.tags.BasicTestMethods#BasicTestMethods(\n" +
-		"	 */\n" +
-		"	void foo() {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			/**
+			 * Completion after:
+			 * 	@see javadoc.methods.tags.BasicTestMethods#BasicTestMethods(
+			 */
+			void foo() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTestMethods(");
 	assertResults(
 		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(), Ljavadoc.methods.tags.BasicTestMethods;, ()V, BasicTestMethods, null, "+this.positions+R_DRINR+"}"
@@ -2344,15 +2573,17 @@ public void test149() throws JavaModelException {
 // TODO (frederic) Reduce proposal as there's only a single valid proposal: int
 public void test150() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTestMethods(in\n" +
-		"	 */\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #BasicTestMethods(in
+			 */
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "in");
 	assertResults(
 		"int[KEYWORD]{int, null, null, int, null, "+this.positions+R_DRICNR+"}\n" +
@@ -2363,15 +2594,17 @@ public void test150() throws JavaModelException {
 // TODO (frederic) Reduce proposal as there's only a single valid proposal: int
 public void test151() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTestMethods(int\n" +
-		"	 */\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #BasicTestMethods(int
+			 */
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "int");
 	assertResults(
 		"int[KEYWORD]{int, null, null, int, null, "+this.positions+R_DRICENNR+"}\n" +
@@ -2381,15 +2614,17 @@ public void test151() throws JavaModelException {
 
 public void test152() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTestMethods(int aaa, fl\n" +
-		"	 */\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #BasicTestMethods(int aaa, fl
+			 */
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "fl");
 	assertResults(
 		"float[KEYWORD]{float, null, null, float, null, "+this.positions+R_DRICNR+"}"
@@ -2398,15 +2633,17 @@ public void test152() throws JavaModelException {
 
 public void test153() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTestMethods(int aaa, float\n" +
-		"	 */\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #BasicTestMethods(int aaa, float
+			 */
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "float");
 	assertResults(
 		"float[KEYWORD]{float, null, null, float, null, "+this.positions+R_DRICENNR+"}"
@@ -2415,15 +2652,17 @@ public void test153() throws JavaModelException {
 
 public void test154() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTestMethods(int, float, Cla\n" +
-		"	 */\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #BasicTestMethods(int, float, Cla
+			 */
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "Cla");
 	assertResults(
 		"Class[TYPE_REF]{Class, java.lang, Ljava.lang.Class;, null, null, "+this.positions+R_DRICUNR+"}"
@@ -2433,15 +2672,17 @@ public void test154() throws JavaModelException {
 // TODO (frederic) Reduce proposal as there's only a single valid proposal: Class
 public void test155() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTestMethods(int, float, java.lang.\n" +
-		"	 */\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #BasicTestMethods(int, float, java.lang.
+			 */
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "java.lang.");
 	assertSortedResults(
 		"Class[TYPE_REF]{Class, java.lang, Ljava.lang.Class;, null, null, "+this.positions+R_DRICNR+"}\n" +
@@ -2459,15 +2700,17 @@ public void test155() throws JavaModelException {
 
 public void test156() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTestMethods(int, float, java.lang.Cla\n" +
-		"	 */\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #BasicTestMethods(int, float, java.lang.Cla
+			 */
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "java.lang.Cla");
 	assertResults(
 		"Class[TYPE_REF]{Class, java.lang, Ljava.lang.Class;, null, null, "+this.positions+R_DRICNR+"}"
@@ -2476,16 +2719,18 @@ public void test156() throws JavaModelException {
 
 public void test157() throws JavaModelException {
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	void foo() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTestMethods(int, float, Class\n" +
-		"	 * \n" +
-		"	 */\n" +
-		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			void foo() {}
+			/**
+			 * Completion after:
+			 * 	@see #BasicTestMethods(int, float, Class
+			 *\s
+			 */
+			BasicTestMethods(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "Class");
 	assertResults(
 		"Class[TYPE_REF]{Class, java.lang, Ljava.lang.Class;, null, null, "+this.positions+R_DRICENUNR+"}"
@@ -2502,16 +2747,18 @@ public void test160() throws JavaModelException {
 		JavaCore.setOptions(options);
 
 		String source =
-			"package javadoc.methods.tags;\n" +
-			"public class BasicTestMethods {\n" +
-			"	void foo() {}\n" +
-			"	/**\n" +
-			"	 * Completion after:\n" +
-			"	 * 	@see #BTM\n" +
-			"	 * \n" +
-			"	 */\n" +
-			"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" +
-			"}\n";
+			"""
+			package javadoc.methods.tags;
+			public class BasicTestMethods {
+				void foo() {}
+				/**
+				 * Completion after:
+				 * 	@see #BTM
+				 *\s
+				 */
+				BasicTestMethods(int xxx, float real, Class clazz) {}
+			}
+			""";
 		completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BTM");
 		assertResults(
 			"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(int, float, Class), Ljavadoc.methods.tags.BasicTestMethods;, (IFLjava.lang.Class;)V, BasicTestMethods, (xxx, real, clazz), "+this.positions+R_DRINR+"}"
@@ -2528,16 +2775,18 @@ public void test161() throws JavaModelException {
 		JavaCore.setOptions(options);
 
 		String source =
-			"package javadoc.methods.tags;\n" +
-			"public class BasicTestMethods {\n" +
-			"	void oneTwoThree(int i) {}\n" +
-			"	/**\n" +
-			"	 * Completion after:\n" +
-			"	 * 	@see #oTT\n" +
-			"	 * \n" +
-			"	 */\n" +
-			"	BasicTestMethods() {}\n" +
-			"}\n";
+			"""
+			package javadoc.methods.tags;
+			public class BasicTestMethods {
+				void oneTwoThree(int i) {}
+				/**
+				 * Completion after:
+				 * 	@see #oTT
+				 *\s
+				 */
+				BasicTestMethods() {}
+			}
+			""";
 		completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "oTT");
 		assertResults(
 			"oneTwoThree[METHOD_REF]{oneTwoThree(int), Ljavadoc.methods.tags.BasicTestMethods;, (I)V, oneTwoThree, (i), "+this.positions+(R_DEFAULT + 25)+"}"
@@ -2551,16 +2800,18 @@ public void test162() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	public void oneTwoThree(Object... o) {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #oneTwoT\n" +
-		"	 * \n" +
-		"	 */\n" +
-		"	BasicTestMethods() {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			public void oneTwoThree(Object... o) {}
+			/**
+			 * Completion after:
+			 * 	@see #oneTwoT
+			 *\s
+			 */
+			BasicTestMethods() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "oneTwoT", 2);
 	assertResults(
 		"oneTwoThree[METHOD_REF]{oneTwoThree(Object...), Ljavadoc.methods.tags.BasicTestMethods;, ([Ljava.lang.Object;)V, oneTwoThree, (o), "+this.positions+R_DRICNRNS+"}"
@@ -2571,16 +2822,18 @@ public void test163() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 
 	String source =
-		"package javadoc.methods.tags;\n" +
-		"public class BasicTestMethods {\n" +
-		"	public BasicTestMethods(Object... o) {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #BasicTestMeth\n" +
-		"	 * \n" +
-		"	 */\n" +
-		"	void foo() {}\n" +
-		"}\n";
+		"""
+		package javadoc.methods.tags;
+		public class BasicTestMethods {
+			public BasicTestMethods(Object... o) {}
+			/**
+			 * Completion after:
+			 * 	@see #BasicTestMeth
+			 *\s
+			 */
+			void foo() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTestMeth", 3);
 	assertResults(
 		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(Object...), Ljavadoc.methods.tags.BasicTestMethods;, ([Ljava.lang.Object;)V, BasicTestMethods, (o), "+this.positions+R_DRINR+"}"
@@ -2589,15 +2842,17 @@ public void test163() throws JavaModelException {
 // https://bugs.eclipse.org/429340 [content assist] No Javadoc proposals anywhere before @deprecated tag
 public void test164() throws JavaModelException {
 	String source =
-		"package javadoc.types;\n" +
-		"/**\n" +
-		" * \n" +
-		" * @see #fo\n" +
-		" * @deprecated\n" +
-		" */\n" +
-		"public class Depr {\n" +
-		"  	public void foo() { }\n" +
-		"}\n";
+		"""
+		package javadoc.types;
+		/**
+		 *\s
+		 * @see #fo
+		 * @deprecated
+		 */
+		public class Depr {
+		  	public void foo() { }
+		}
+		""";
 	completeInJavadoc(
 			"/Completion/src/javadoc/types/Depr.java",
 			source,

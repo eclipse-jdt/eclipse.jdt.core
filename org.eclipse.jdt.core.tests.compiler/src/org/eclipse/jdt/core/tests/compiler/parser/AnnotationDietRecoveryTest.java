@@ -230,14 +230,18 @@ public void checkParse(
 public void test0001() {
 
 	String s =
-		"package a;											\n"
-			+ "public @interface X							\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public @interface X						\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @interface X {\n" +
-		"}\n";
+		"""
+		package a;
+		public @interface X {
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
 		expectedDietUnitToString;
@@ -259,14 +263,18 @@ public void test0001() {
 public void test0002() {
 
 	String s =
-		"package a;											\n"
-			+ "public @interface X <T> {							\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public @interface X <T> {						\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @interface X<T> {\n" +
-		"}\n";
+		"""
+		package a;
+		public @interface X<T> {
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
 		expectedDietUnitToString;
@@ -288,17 +296,21 @@ public void test0002() {
 public void test0003() {
 
 	String s =
-		"package a;											\n"
-			+ "public @interface X {							\n"
-			+ "  String foo()							\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public @interface X {						\t
+		  String foo()						\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @interface X {\n" +
-		"  String foo() {\n" +
-"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @interface X {
+		  String foo() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
 		expectedDietUnitToString;
@@ -320,17 +332,21 @@ public void test0003() {
 public void test0004() {
 
 	String s =
-		"package a;											\n"
-			+ "public @interface X {						\n"
-			+ "  String foo() default \"blabla\"			\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public @interface X {					\t
+		  String foo() default "blabla"		\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @interface X {\n" +
-		"  String foo() default \"blabla\" {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @interface X {
+		  String foo() default "blabla" {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
 		expectedDietUnitToString;
@@ -355,40 +371,46 @@ public void test0004() {
 public void test0005() {
 
 	String s =
-		"@Documented			\n"
-			+ "@Rentention(RententionPolicy.RUNTIME)				\n"
-			+ "@Target(ElementType.TYPE)							\n"
-			+ "@interface MyAnn { 									\n"
-			+ "  String value() default \"Default Message\"			\n"
-			+ "}													\n"
-			+ "public class X {										\n"
-			+ "	public @MyAnn void something() { }					\n"
-			+ "}													\n";
+		"""
+		@Documented		\t
+		@Rentention(RententionPolicy.RUNTIME)			\t
+		@Target(ElementType.TYPE)						\t
+		@interface MyAnn { 								\t
+		  String value() default "Default Message"		\t
+		}												\t
+		public class X {									\t
+			public @MyAnn void something() { }				\t
+		}												\t
+		""";
 
 	String expectedDietUnitToString =
-		"@Documented @Rentention(RententionPolicy.RUNTIME) @Target(ElementType.TYPE) @interface MyAnn {\n" +
-		"  String value() default \"Default Message\" {\n" +
-		"  }\n" +
-		"}\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  public @MyAnn void something() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		@Documented @Rentention(RententionPolicy.RUNTIME) @Target(ElementType.TYPE) @interface MyAnn {
+		  String value() default "Default Message" {
+		  }
+		}
+		public class X {
+		  public X() {
+		  }
+		  public @MyAnn void something() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"@Documented @Rentention(RententionPolicy.RUNTIME) @Target(ElementType.TYPE) @interface MyAnn {\n" +
-		"  String value() default \"Default Message\" {\n" +
-		"  }\n" +
-		"}\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public @MyAnn void something() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		@Documented @Rentention(RententionPolicy.RUNTIME) @Target(ElementType.TYPE) @interface MyAnn {
+		  String value() default "Default Message" {
+		  }
+		}
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  public @MyAnn void something() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -407,17 +429,21 @@ public void test0005() {
 public void test0006() {
 
 	String s =
-		"package a;											\n"
-			+ "public @interface X {						\n"
-			+ "  String foo() {}			\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public @interface X {					\t
+		  String foo() {}		\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @interface X {\n" +
-		"  String foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @interface X {
+		  String foo() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
 		expectedDietUnitToString;
@@ -439,17 +465,21 @@ public void test0006() {
 public void test0007() {
 
 	String s =
-		"package a;											\n"
-			+ "public @interface X {						\n"
-			+ "  String foo(								\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public @interface X {					\t
+		  String foo(							\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @interface X {\n" +
-		"  String foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @interface X {
+		  String foo() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
 		expectedDietUnitToString;
@@ -471,30 +501,36 @@ public void test0007() {
 public void test0008() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X {				        		\n"
-			+ "  void foo(int var1, @Annot(at1=zzz, at2) int var2 {	\n"
-			+ "  }							        		\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X {				        	\t
+		  void foo(int var1, @Annot(at1=zzz, at2) int var2 {\t
+		  }							        	\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo(int var1) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  void foo(int var1) {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo(int var1) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo(int var1) {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -513,38 +549,46 @@ public void test0008() {
 public void test0009() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X {				        		\n"
-			+ "  @SuppressWarnings(\"unchecked\");\n"
-			+ "  List<Test> l;		\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X {				        	\t
+		  @SuppressWarnings("unchecked");
+		  List<Test> l;	\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  @SuppressWarnings(\"unchecked\") List<Test> l;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  @SuppressWarnings("unchecked") List<Test> l;
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  @SuppressWarnings(\"unchecked\") List<Test> l;\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  @SuppressWarnings("unchecked") List<Test> l;
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  List<Test> l;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  List<Test> l;
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -558,34 +602,40 @@ public void test0009() {
 public void test0010() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X {							\n"
-			+ "  String foo() {							\n"
-			+ "       @interface Y {						\n";
+		"""
+		package a;										\t
+		public class X {						\t
+		  String foo() {						\t
+		       @interface Y {					\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  @interface Y {\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  String foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  @interface Y {
+		  }
+		  public X() {
+		  }
+		  String foo() {
+		  }
+		}
+		""";
 
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  @interface Y {\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  String foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  @interface Y {
+		  }
+		  public X() {
+		    super();
+		  }
+		  String foo() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -605,33 +655,39 @@ public void test0010() {
 public void test0011() {
 
 	String s =
-		"package a;										\n"
-			+ "public class X {							\n"
-			+ "  #										\n"
-			+ "  @AnAnnotation({var})					\n"
-			+ "  public void foo() {					\n"
-			+ "  }										\n"
-			+ "}										\n";
+		"""
+		package a;									\t
+		public class X {						\t
+		  #									\t
+		  @AnAnnotation({var})				\t
+		  public void foo() {				\t
+		  }									\t
+		}									\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  public @AnAnnotation({var}) void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  public @AnAnnotation({var}) void foo() {
+		  }
+		}
+		""";
 
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public @AnAnnotation({var}) void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  public @AnAnnotation({var}) void foo() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -651,30 +707,36 @@ public void test0011() {
 public void test0012() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X {				        		\n"
-			+ "  void foo(int var1, @Annot(at1=zzz, at2=@Annot(at3=zzz, at4)) int var2 {	\n"
-			+ "  }							        		\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X {				        	\t
+		  void foo(int var1, @Annot(at1=zzz, at2=@Annot(at3=zzz, at4)) int var2 {\t
+		  }							        	\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo(int var1) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  void foo(int var1) {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo(int var1) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo(int var1) {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -694,27 +756,33 @@ public void test0012() {
 public void test0013() {
 
 	String s =
-		"package a;										\n"
-			+ "@AnAnnotation(name)						\n"
-			+ "@AnAnnotation2(name2)					\n"
-			+ "public class X {							\n"
-			+ "}										\n";
+		"""
+		package a;									\t
+		@AnAnnotation(name)					\t
+		@AnAnnotation2(name2)				\t
+		public class X {						\t
+		}									\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name) @AnAnnotation2(name2) class X {
+		  public X() {
+		  }
+		}
+		""";
 
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name) @AnAnnotation2(name2) class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 
 	String expectedFullUnitToString =
@@ -736,28 +804,34 @@ public void test0013() {
 public void test0014() {
 
 	String s =
-		"package a;										\n"
-			+ "#										\n"
-			+ "@AnAnnotation(name)						\n"
-			+ "@AnAnnotation2(name2)					\n"
-			+ "public class X {							\n"
-			+ "}										\n";
+		"""
+		package a;									\t
+		#									\t
+		@AnAnnotation(name)					\t
+		@AnAnnotation2(name2)				\t
+		public class X {						\t
+		}									\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name) @AnAnnotation2(name2) class X {
+		  public X() {
+		  }
+		}
+		""";
 
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name) @AnAnnotation2(name2) class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 
 	String expectedFullUnitToString =
@@ -779,28 +853,34 @@ public void test0014() {
 public void test0015() {
 
 	String s =
-		"package a;										\n"
-			+ "@AnAnnotation(name)						\n"
-			+ "@AnAnnotation2(name2)					\n"
-			+ "public class X {							\n"
-			+ "#										\n"
-			+ "}										\n";
+		"""
+		package a;									\t
+		@AnAnnotation(name)					\t
+		@AnAnnotation2(name2)				\t
+		public class X {						\t
+		#									\t
+		}									\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name) @AnAnnotation2(name2) class X {
+		  public X() {
+		  }
+		}
+		""";
 
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name) @AnAnnotation2(name2) class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 
 	String expectedFullUnitToString =
@@ -822,39 +902,47 @@ public void test0015() {
 public void test0016() {
 
 	String s =
-		"package a;										\n"
-			+ "@AnAnnotation(name)						\n"
-			+ "@AnAnnotation2(name2)					\n"
-			+ "#										\n"
-			+ "public class X {							\n"
-			+ "}										\n";
+		"""
+		package a;									\t
+		@AnAnnotation(name)					\t
+		@AnAnnotation2(name2)				\t
+		#									\t
+		public class X {						\t
+		}									\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name) @AnAnnotation2(name2) class X {
+		  public X() {
+		  }
+		}
+		""";
 
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name) @AnAnnotation2(name2) class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -869,39 +957,47 @@ public void test0016() {
 public void test0017() {
 
 	String s =
-		"package a;										\n"
-			+ "@AnAnnotation(name)						\n"
-			+ "#										\n"
-			+ "@AnAnnotation2(name2)					\n"
-			+ "public class X {							\n"
-			+ "}										\n";
+		"""
+		package a;									\t
+		@AnAnnotation(name)					\t
+		#									\t
+		@AnAnnotation2(name2)				\t
+		public class X {						\t
+		}									\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name) @AnAnnotation2(name2) class X {
+		  public X() {
+		  }
+		}
+		""";
 
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name) @AnAnnotation2(name2) class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation2(name2) class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation2(name2) class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -916,38 +1012,46 @@ public void test0017() {
 public void test0018() {
 
 	String s =
-		"package a;										\n"
-			+ "@AnAnnotation(name=)						\n"
-			+ "@AnAnnotation2(name2)					\n"
-			+ "public class X {							\n"
-			+ "}										\n";
+		"""
+		package a;									\t
+		@AnAnnotation(name=)					\t
+		@AnAnnotation2(name2)				\t
+		public class X {						\t
+		}									\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name = $missing$) @AnAnnotation2(name2) class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name = $missing$) @AnAnnotation2(name2) class X {
+		  public X() {
+		  }
+		}
+		""";
 
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name = $missing$) @AnAnnotation2(name2) class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name = $missing$) @AnAnnotation2(name2) class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation2(name2) class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation2(name2) class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -962,37 +1066,45 @@ public void test0018() {
 public void test0019() {
 
 	String s =
-		"package a;										\n"
-			+ "@AnAnnotation(name)						\n"
-			+ "@AnAnnotation2(name2=)					\n"
-			+ "public class X {							\n"
-			+ "}										\n";
+		"""
+		package a;									\t
+		@AnAnnotation(name)					\t
+		@AnAnnotation2(name2=)				\t
+		public class X {						\t
+		}									\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name) @AnAnnotation2(name2 = $missing$) class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name) @AnAnnotation2(name2 = $missing$) class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name) @AnAnnotation2(name2 = $missing$) class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name) @AnAnnotation2(name2 = $missing$) class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1007,40 +1119,48 @@ public void test0019() {
 public void test0020() {
 
 	String s =
-		"package a;										\n"
-			+ "public class X {							\n"
-			+ "  @AnAnnotation(name) #					\n"
-			+ "  int field;								\n"
-			+ "}										\n";
+		"""
+		package a;									\t
+		public class X {						\t
+		  @AnAnnotation(name) #				\t
+		  int field;							\t
+		}									\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  @AnAnnotation(name) int field;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  @AnAnnotation(name) int field;
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  @AnAnnotation(name) int field;\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  @AnAnnotation(name) int field;
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  int field;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  int field;
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1055,40 +1175,48 @@ public void test0020() {
 public void test0021() {
 
 	String s =
-		"package a;										\n"
-			+ "public class X {							\n"
-			+ "  @AnAnnotation(name=)					\n"
-			+ "  int field;								\n"
-			+ "}										\n";
+		"""
+		package a;									\t
+		public class X {						\t
+		  @AnAnnotation(name=)				\t
+		  int field;							\t
+		}									\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  @AnAnnotation(name = $missing$) int field;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  @AnAnnotation(name = $missing$) int field;
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  @AnAnnotation(name = $missing$) int field;\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  @AnAnnotation(name = $missing$) int field;
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  int field;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  int field;
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1103,43 +1231,51 @@ public void test0021() {
 public void test0022() {
 
 	String s =
-		"package a;										\n"
-			+ "public class X {							\n"
-			+ "  @AnAnnotation(name) #					\n"
-			+ "  void foo() {}							\n"
-			+ "}										\n";
+		"""
+		package a;									\t
+		public class X {						\t
+		  @AnAnnotation(name) #				\t
+		  void foo() {}						\t
+		}									\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  @AnAnnotation(name) void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  @AnAnnotation(name) void foo() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  @AnAnnotation(name) void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  @AnAnnotation(name) void foo() {
+		  }
+		}
+		""";
 
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1154,42 +1290,50 @@ public void test0022() {
 public void test0023() {
 
 	String s =
-		"package a;										\n"
-			+ "public class X {							\n"
-			+ "  @AnAnnotation(name=)					\n"
-			+ "  void foo() {}							\n"
-			+ "}										\n";
+		"""
+		package a;									\t
+		public class X {						\t
+		  @AnAnnotation(name=)				\t
+		  void foo() {}						\t
+		}									\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  @AnAnnotation(name = $missing$) void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  @AnAnnotation(name = $missing$) void foo() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  @AnAnnotation(name = $missing$) void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  @AnAnnotation(name = $missing$) void foo() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1204,29 +1348,35 @@ public void test0023() {
 public void test0024() {
 
 	String s =
-		"package a;															\n"
-			+ "public class X {												\n"
-			+ "  void foo(int param1, @AnAnnotation(name) # int param2) {}	\n"
-			+ "}															\n";
+		"""
+		package a;														\t
+		public class X {											\t
+		  void foo(int param1, @AnAnnotation(name) # int param2) {}\t
+		}														\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo(int param1) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  void foo(int param1) {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo(int param1) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo(int param1) {
+		  }
+		}
+		""";
 
 
 	String expectedFullUnitToString =
@@ -1248,29 +1398,35 @@ public void test0024() {
 public void test0025() {
 
 	String s =
-		"package a;															\n"
-			+ "public class X {												\n"
-			+ "  void foo(int param1, @AnAnnotation(name=) int param2) {}	\n"
-			+ "}															\n";
+		"""
+		package a;														\t
+		public class X {											\t
+		  void foo(int param1, @AnAnnotation(name=) int param2) {}\t
+		}														\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo(int param1) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  void foo(int param1) {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo(int param1) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo(int param1) {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
@@ -1291,29 +1447,35 @@ public void test0025() {
 public void test0026() {
 
 	String s =
-		"package a;															\n"
-			+ "public class X {												\n"
-			+ "  void foo(int param1, @AnAnnotation(@AnAnnotation1(name1=\"a\", name2=) int param2) {}	\n"
-			+ "}															\n";
+		"""
+		package a;														\t
+		public class X {											\t
+		  void foo(int param1, @AnAnnotation(@AnAnnotation1(name1="a", name2=) int param2) {}\t
+		}														\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo(int param1) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  void foo(int param1) {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo(int param1) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo(int param1) {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
@@ -1334,35 +1496,43 @@ public void test0026() {
 public void test0027() {
 
 	String s =
-		"package a;																					\n"
-			+ "@AnAnnotation1(name1=\"a\", #)														\n"
-			+ "public class X {																		\n"
-			+ "}																					\n";
+		"""
+		package a;																				\t
+		@AnAnnotation1(name1="a", #)													\t
+		public class X {																	\t
+		}																				\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation1(name1 = \"a\") class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation1(name1 = "a") class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation1(name1 = \"a\") class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation1(name1 = "a") class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1377,35 +1547,43 @@ public void test0027() {
 public void test0028() {
 
 	String s =
-		"package a;																					\n"
-			+ "@AnAnnotation1(name1=\"a\", name2=@AnAnnotation2(name3=\"b\"), #)					\n"
-			+ "public class X {																		\n"
-			+ "}																					\n";
+		"""
+		package a;																				\t
+		@AnAnnotation1(name1="a", name2=@AnAnnotation2(name3="b"), #)				\t
+		public class X {																	\t
+		}																				\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation1(name1 = \"a\",name2 = @AnAnnotation2(name3 = \"b\")) class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation1(name1 = "a",name2 = @AnAnnotation2(name3 = "b")) class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation1(name1 = \"a\",name2 = @AnAnnotation2(name3 = \"b\")) class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation1(name1 = "a",name2 = @AnAnnotation2(name3 = "b")) class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1420,35 +1598,43 @@ public void test0028() {
 public void test0030() {
 
 	String s =
-		"package a;																					\n"
-			+ "@AnAnnotation1(\"a\"#)																\n"
-			+ "public class X {																		\n"
-			+ "}																					\n";
+		"""
+		package a;																				\t
+		@AnAnnotation1("a"#)															\t
+		public class X {																	\t
+		}																				\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation1(\"a\") class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation1("a") class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation1(\"a\") class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation1("a") class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1463,35 +1649,43 @@ public void test0030() {
 public void test0031() {
 
 	String s =
-		"package a;																					\n"
-			+ "@AnAnnotation1(\"a\", name2=@AnAnnotation2(name3=\"b\"), #)							\n"
-			+ "public class X {																		\n"
-			+ "}																					\n";
+		"""
+		package a;																				\t
+		@AnAnnotation1("a", name2=@AnAnnotation2(name3="b"), #)						\t
+		public class X {																	\t
+		}																				\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation1(\"a\") @AnAnnotation2(name3 = \"b\") class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation1("a") @AnAnnotation2(name3 = "b") class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation1(\"a\") @AnAnnotation2(name3 = \"b\") class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation1("a") @AnAnnotation2(name3 = "b") class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1506,35 +1700,43 @@ public void test0031() {
 public void test0032() {
 
 	String s =
-		"package a;																					\n"
-			+ "@AnAnnotation1(\"a\", name2=@AnAnnotation2(name3=\"b\"))								\n"
-			+ "public class X {																		\n"
-			+ "}																					\n";
+		"""
+		package a;																				\t
+		@AnAnnotation1("a", name2=@AnAnnotation2(name3="b"))							\t
+		public class X {																	\t
+		}																				\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation1(\"a\") @AnAnnotation2(name3 = \"b\") class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation1("a") @AnAnnotation2(name3 = "b") class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation1(\"a\") @AnAnnotation2(name3 = \"b\") class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation1("a") @AnAnnotation2(name3 = "b") class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1549,37 +1751,45 @@ public void test0032() {
 public void test0033() {
 
 	String s =
-		"package a;																					\n"
-			+ "@AnAnnotation1(name=new Object() {})	#												\n"
-			+ "public class X {																		\n"
-			+ "}																					\n";
+		"""
+		package a;																				\t
+		@AnAnnotation1(name=new Object() {})	#											\t
+		public class X {																	\t
+		}																				\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation1(name = new Object() {\n" +
-		"}) class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation1(name = new Object() {
+		}) class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation1(name = new Object() {\n" +
-		"}) class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation1(name = new Object() {
+		}) class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1594,37 +1804,45 @@ public void test0033() {
 public void test0034() {
 
 	String s =
-		"package a;																					\n"
-			+ "@AnAnnotation1(name=new Object() {},#)												\n"
-			+ "public class X {																		\n"
-			+ "}																					\n";
+		"""
+		package a;																				\t
+		@AnAnnotation1(name=new Object() {},#)											\t
+		public class X {																	\t
+		}																				\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation1(name = new Object() {\n" +
-		"}) class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation1(name = new Object() {
+		}) class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation1(name = new Object() {\n" +
-		"}) class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation1(name = new Object() {
+		}) class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1639,35 +1857,43 @@ public void test0034() {
 public void test0035() {
 
 	String s =
-		"package a;																					\n"
-			+ "@AnAnnotation1(name=new Object() {#})												\n"
-			+ "public class X {																		\n"
-			+ "}																					\n";
+		"""
+		package a;																				\t
+		@AnAnnotation1(name=new Object() {#})											\t
+		public class X {																	\t
+		}																				\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation1(name = $missing$) class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation1(name = $missing$) class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation1(name = $missing$) class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation1(name = $missing$) class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1682,41 +1908,49 @@ public void test0035() {
 public void test0036() {
 
 	String s =
-		"package a;																					\n"
-			+ "#																					\n"
-			+ "public class Test {																	\n"
-			+ "  public Test() {}																	\n"
-			+ "  @SuppressWarnings(value=\"\")														\n"
-			+ "  private int id;																	\n"
-			+ "}																					\n";
+		"""
+		package a;																				\t
+		#																				\t
+		public class Test {																\t
+		  public Test() {}																\t
+		  @SuppressWarnings(value="")													\t
+		  private int id;																\t
+		}																				\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class Test {\n" +
-		"  private @SuppressWarnings(value = \"\") int id;\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class Test {
+		  private @SuppressWarnings(value = "") int id;
+		  public Test() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class Test {\n" +
-		"  private @SuppressWarnings(value = \"\") int id;\n" +
-		"  public Test() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class Test {
+		  private @SuppressWarnings(value = "") int id;
+		  public Test() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class Test {\n" +
-		"  private @SuppressWarnings(value = \"\") int id;\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class Test {
+		  private @SuppressWarnings(value = "") int id;
+		  public Test() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1731,44 +1965,52 @@ public void test0036() {
 public void test0037() {
 
 	String s =
-		"package a;																					\n"
-			+ "#																					\n"
-			+ "public class Test {																	\n"
-			+ "  public int id0;																	\n"
-			+ "  @SuppressWarnings(value=\"\")														\n"
-			+ "  private int id;																	\n"
-			+ "}																					\n";
+		"""
+		package a;																				\t
+		#																				\t
+		public class Test {																\t
+		  public int id0;																\t
+		  @SuppressWarnings(value="")													\t
+		  private int id;																\t
+		}																				\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class Test {\n" +
-		"  public int id0;\n" +
-		"  private @SuppressWarnings(value = \"\") int id;\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class Test {
+		  public int id0;
+		  private @SuppressWarnings(value = "") int id;
+		  public Test() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class Test {\n" +
-		"  public int id0;\n" +
-		"  private @SuppressWarnings(value = \"\") int id;\n" +
-		"  public Test() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class Test {
+		  public int id0;
+		  private @SuppressWarnings(value = "") int id;
+		  public Test() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class Test {\n" +
-		"  public int id0;\n" +
-		"  private @SuppressWarnings(value = \"\") int id;\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class Test {
+		  public int id0;
+		  private @SuppressWarnings(value = "") int id;
+		  public Test() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1783,37 +2025,45 @@ public void test0037() {
 public void test0038() {
 
 	String s =
-		"package a;										\n"
-			+ "@AnAnnotation(name=)						\n"
-			+ "public class X {							\n"
-			+ "}										\n";
+		"""
+		package a;									\t
+		@AnAnnotation(name=)					\t
+		public class X {						\t
+		}									\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name = $missing$) class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name = $missing$) class X {
+		  public X() {
+		  }
+		}
+		""";
 
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name = $missing$) class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name = $missing$) class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1828,37 +2078,45 @@ public void test0038() {
 public void test0039() {
 
 	String s =
-		"package a;										\n"
-			+ "@AnAnnotation(name1=a,name2=)			\n"
-			+ "public class X {							\n"
-			+ "}										\n";
+		"""
+		package a;									\t
+		@AnAnnotation(name1=a,name2=)		\t
+		public class X {						\t
+		}									\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name1 = a,name2 = $missing$) class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name1 = a,name2 = $missing$) class X {
+		  public X() {
+		  }
+		}
+		""";
 
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name1 = a,name2 = $missing$) class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name1 = a,name2 = $missing$) class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1873,37 +2131,45 @@ public void test0039() {
 public void test0040() {
 
 	String s =
-		"package a;										\n"
-			+ "@AnAnnotation(name1=a,name2=,name3=c)	\n"
-			+ "public class X {							\n"
-			+ "}										\n";
+		"""
+		package a;									\t
+		@AnAnnotation(name1=a,name2=,name3=c)\t
+		public class X {						\t
+		}									\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name1 = a,name2 = $missing$) class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name1 = a,name2 = $missing$) class X {
+		  public X() {
+		  }
+		}
+		""";
 
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public @AnAnnotation(name1 = a,name2 = $missing$) class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public @AnAnnotation(name1 = a,name2 = $missing$) class X {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -1918,47 +2184,55 @@ public void test0040() {
 public void test0041() {
 
 	String s =
-			"package snippet;\n" +
-					"public class Bug366003 {\n" +
-					"        void foo(Object o1){}\n" +
-					"        @Blah org.User(@Bla String str){}\n" +
-					"}\n";
+			"""
+		package snippet;
+		public class Bug366003 {
+		        void foo(Object o1){}
+		        @Blah org.User(@Bla String str){}
+		}
+		""";
 
 	String expectedDietUnitToString =
-			"package snippet;\n" +
-					"public class Bug366003 {\n" +
-					"  public Bug366003() {\n" +
-					"  }\n" +
-					"  void foo(Object o1) {\n" +
-					"  }\n" +
-					"  @Blah User(@Bla String str) {\n" +
-					"  }\n" +
-					"}\n";
+			"""
+		package snippet;
+		public class Bug366003 {
+		  public Bug366003() {
+		  }
+		  void foo(Object o1) {
+		  }
+		  @Blah User(@Bla String str) {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-			"package snippet;\n" +
-					"public class Bug366003 {\n" +
-					"  public Bug366003() {\n" +
-					"    super();\n" +
-					"  }\n" +
-					"  void foo(Object o1) {\n" +
-					"  }\n" +
-					"  @Blah User(@Bla String str) {\n" +
-					"  }\n" +
-					"}\n";
+			"""
+		package snippet;
+		public class Bug366003 {
+		  public Bug366003() {
+		    super();
+		  }
+		  void foo(Object o1) {
+		  }
+		  @Blah User(@Bla String str) {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
 	String expectedCompletionDietUnitToString =
-			"package snippet;\n" +
-					"public class Bug366003 {\n" +
-					"  public Bug366003() {\n" +
-					"  }\n" +
-					"  void foo(Object o1) {\n" +
-					"  }\n" +
-					"  User(@Bla String str) {\n" +
-					"  }\n" +
-					"}\n";
+			"""
+		package snippet;
+		public class Bug366003 {
+		  public Bug366003() {
+		  }
+		  void foo(Object o1) {
+		  }
+		  User(@Bla String str) {
+		  }
+		}
+		""";
 
 	String testName = "<annotation recovery>";
 	checkParse(

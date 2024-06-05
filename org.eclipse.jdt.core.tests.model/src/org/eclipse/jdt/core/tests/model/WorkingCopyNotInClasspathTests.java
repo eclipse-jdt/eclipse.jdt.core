@@ -70,10 +70,11 @@ public void testCommitWorkingCopy1() throws CoreException {
 	assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
 
 	String newContents =
-		"public class X {\n" +
-		"  public void foo() {\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  public void foo() {
+		  }
+		}""";
 	workingCopyBuffer.setContents(newContents);
 	this.workingCopy.commitWorkingCopy(false, null);
 
@@ -117,9 +118,10 @@ public void testGetSource() throws CoreException {
 		this.createJavaProject("P1", new String[] {}, "bin");
 		this.createFolder("/P1/src/junit/test");
 		String source =
-			"package junit.test;\n" +
-			"public class X {\n" +
-			"}";
+			"""
+			package junit.test;
+			public class X {
+			}""";
 		IFile file = this.createFile("/P1/src/junit/test/X.java", source);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
 		copy = cu.getWorkingCopy(null);
@@ -256,9 +258,10 @@ public void testIsOnClasspath() throws CoreException {
 		createProject("SimpleProject");
 		this.createFolder("/SimpleProject/src/junit/test");
 		String source =
-			"package junit.test;\n" +
-			"public class X {\n" +
-			"}";
+			"""
+			package junit.test;
+			public class X {
+			}""";
 		IFile file = this.createFile("/SimpleProject/src/junit/test/X.java", source);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
 		copy = cu.getWorkingCopy(null);
@@ -287,10 +290,11 @@ public void testReconcileAndCommit1() throws CoreException {
 		IBuffer workingCopyBuffer = copy.getBuffer();
 		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
 		String newContents =
-			"public class X {\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}";
+			"""
+			public class X {
+			  public void foo() {
+			  }
+			}""";
 
 		workingCopyBuffer.setContents(newContents);
 		copy.reconcile(ICompilationUnit.NO_AST, true, null, null);
@@ -325,10 +329,11 @@ public void testReconcileAndCommit2() throws CoreException {
 		IBuffer workingCopyBuffer = copy.getBuffer();
 		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
 		String newContents =
-			"public class X {\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}";
+			"""
+			public class X {
+			  public void foo() {
+			  }
+			}""";
 
 		workingCopyBuffer.setContents(newContents);
 		copy.reconcile(ICompilationUnit.NO_AST, true, null, null);
@@ -363,10 +368,11 @@ public void testReconcileAndCommit3() throws CoreException {
 		IBuffer workingCopyBuffer = primary.getBuffer();
 		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
 		String newContents =
-			"public class X {\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}";
+			"""
+			public class X {
+			  public void foo() {
+			  }
+			}""";
 
 		workingCopyBuffer.setContents(newContents);
 		primary.reconcile(ICompilationUnit.NO_AST, true, null, null);
@@ -401,10 +407,11 @@ public void testReconcileAndCommit4() throws CoreException {
 		IBuffer workingCopyBuffer = primary.getBuffer();
 		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
 		String newContents =
-			"public class X {\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}";
+			"""
+			public class X {
+			  public void foo() {
+			  }
+			}""";
 
 		workingCopyBuffer.setContents(newContents);
 		primary.reconcile(ICompilationUnit.NO_AST, true, null, null);
@@ -441,10 +448,11 @@ public void testReconcileAndCommit5() throws CoreException {
 		IBuffer workingCopyBuffer = copy.getBuffer();
 		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
 		String newContents =
-			"public class X {\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}";
+			"""
+			public class X {
+			  public void foo() {
+			  }
+			}""";
 
 		workingCopyBuffer.setContents(newContents);
 		copy.reconcile(ICompilationUnit.NO_AST, true, null, null);

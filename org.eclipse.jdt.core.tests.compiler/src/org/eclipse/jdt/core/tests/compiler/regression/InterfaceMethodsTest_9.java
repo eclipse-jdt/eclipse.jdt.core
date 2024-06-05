@@ -54,10 +54,12 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 		runConformTest(
 		new String[] {
 			"I.java",
-			"public interface I {\n" +
-			"@SuppressWarnings(\"unused\")\n" +
-			"    private void foo()  {}\n" +
-			"}\n",
+			"""
+				public interface I {
+				@SuppressWarnings("unused")
+				    private void foo()  {}
+				}
+				""",
 		},
 		"");
 	}
@@ -66,10 +68,12 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 		runConformTest(
 		new String[] {
 			"I.java",
-			"public interface I {\n" +
-			"@SuppressWarnings(\"unused\")\n" +
-			"    private static void foo()  {}\n" +
-			"}\n",
+			"""
+				public interface I {
+				@SuppressWarnings("unused")
+				    private static void foo()  {}
+				}
+				""",
 		},
 		"");
 	}
@@ -78,10 +82,12 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 		runConformTest(
 		new String[] {
 			"I.java",
-			"public interface I {\n" +
-			"@SuppressWarnings(\"unused\")\n" +
-			"    private strictfp void foo()  {}\n" +
-			"}\n",
+			"""
+				public interface I {
+				@SuppressWarnings("unused")
+				    private strictfp void foo()  {}
+				}
+				""",
 		},
 		"");
 	}
@@ -91,17 +97,21 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 		runNegativeTest(
 		new String[] {
 			"I.java",
-			"public interface I {\n" +
-			"@SuppressWarnings(\"unused\")\n" +
-			"    private void foo();\n" +
-			"}\n"
+			"""
+				public interface I {
+				@SuppressWarnings("unused")
+				    private void foo();
+				}
+				"""
 			},
-			"----------\n" +
-			"1. ERROR in I.java (at line 3)\n" +
-			"	private void foo();\n" +
-			"	             ^^^^^\n" +
-			"This method requires a body instead of a semicolon\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in I.java (at line 3)
+					private void foo();
+					             ^^^^^
+				This method requires a body instead of a semicolon
+				----------
+				""");
 	}
 
 	// illegal modifier combination - negative test
@@ -109,38 +119,46 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 		runNegativeTest(
 		new String[] {
 			"I.java",
-			"public interface I {\n" +
-			"@SuppressWarnings(\"unused\")\n" +
-			"    private default void foo();\n" +
-			"}\n"
+			"""
+				public interface I {
+				@SuppressWarnings("unused")
+				    private default void foo();
+				}
+				"""
 			},
-			"----------\n" +
-			"1. ERROR in I.java (at line 3)\n" +
-			"	private default void foo();\n" +
-			"	                     ^^^^^\n" +
-			"Illegal combination of modifiers for the private interface method foo; additionally only one of static and strictfp is permitted\n" +
-			"----------\n" +
-			"2. ERROR in I.java (at line 3)\n" +
-			"	private default void foo();\n" +
-			"	                     ^^^^^\n" +
-			"This method requires a body instead of a semicolon\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in I.java (at line 3)
+					private default void foo();
+					                     ^^^^^
+				Illegal combination of modifiers for the private interface method foo; additionally only one of static and strictfp is permitted
+				----------
+				2. ERROR in I.java (at line 3)
+					private default void foo();
+					                     ^^^^^
+				This method requires a body instead of a semicolon
+				----------
+				""");
 	}
 	// illegal modifier combination - negative test
 	public void testBug488662_006() {
 		runNegativeTest(
 		new String[] {
 			"I.java",
-			"public interface I {\n" +
-			"	private abstract void foo();\n" +
-			"}\n"
+			"""
+				public interface I {
+					private abstract void foo();
+				}
+				"""
 			},
-			"----------\n" +
-			"1. ERROR in I.java (at line 2)\n" +
-			"	private abstract void foo();\n" +
-			"	                      ^^^^^\n" +
-			"Illegal combination of modifiers for the private interface method foo; additionally only one of static and strictfp is permitted\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in I.java (at line 2)
+					private abstract void foo();
+					                      ^^^^^
+				Illegal combination of modifiers for the private interface method foo; additionally only one of static and strictfp is permitted
+				----------
+				""");
 	}
 
 	// illegal modifier combination - negative test
@@ -148,21 +166,25 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 		runNegativeTest(
 		new String[] {
 			"I.java",
-			"public interface I {\n" +
-			"    private synchronized void foo();\n" +
-			"}\n"
+			"""
+				public interface I {
+				    private synchronized void foo();
+				}
+				"""
 			},
-			"----------\n" +
-			"1. ERROR in I.java (at line 2)\n" +
-			"	private synchronized void foo();\n" +
-			"	                          ^^^^^\n" +
-			"Illegal modifier for the interface method foo; only public, private, abstract, default, static and strictfp are permitted\n" +
-			"----------\n" +
-			"2. ERROR in I.java (at line 2)\n" +
-			"	private synchronized void foo();\n" +
-			"	                          ^^^^^\n" +
-			"This method requires a body instead of a semicolon\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in I.java (at line 2)
+					private synchronized void foo();
+					                          ^^^^^
+				Illegal modifier for the interface method foo; only public, private, abstract, default, static and strictfp are permitted
+				----------
+				2. ERROR in I.java (at line 2)
+					private synchronized void foo();
+					                          ^^^^^
+				This method requires a body instead of a semicolon
+				----------
+				""");
 	}
 
 	// reduced visibility modifier - negative test
@@ -170,21 +192,25 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 		runNegativeTest(
 		new String[] {
 			"X.java",
-			"interface I {\n"+
-			"	public default void foo() {}\n"+
-			"}\n"+
-			"public class X implements I{\n"+
-			"@SuppressWarnings(\"unused\")\n" +
-			"@Override\n" +
-			"	private void foo() {}\n"+
-			"}\n"
+			"""
+				interface I {
+					public default void foo() {}
+				}
+				public class X implements I{
+				@SuppressWarnings("unused")
+				@Override
+					private void foo() {}
+				}
+				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	private void foo() {}\n"+
-			"	             ^^^^^\n" +
-			"Cannot reduce the visibility of the inherited method from I\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					private void foo() {}
+					             ^^^^^
+				Cannot reduce the visibility of the inherited method from I
+				----------
+				""");
 	}
 
 
@@ -193,18 +219,20 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 		runConformTest(
 		new String[] {
 			"X.java",
-			"interface I {\n"+
-			"	private  void foo() {\n"+
-			"	}\n"+
-			"	public default void bar() {\n"+
-			"		foo();\n"+
-			"	}\n"+
-			"}\n"+
-			"public class X implements I{\n"+
-			"	public static void main(String[] args) {\n"+
-			"		new X().bar();\n"+
-			"	}\n"+
-			"}\n"
+			"""
+				interface I {
+					private  void foo() {
+					}
+					public default void bar() {
+						foo();
+					}
+				}
+				public class X implements I{
+					public static void main(String[] args) {
+						new X().bar();
+					}
+				}
+				"""
 		},
 		"");
 	}
@@ -213,97 +241,115 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 		runNegativeTest(
 		new String[] {
 			"I.java",
-			"public interface I {\n" +
-			"    private public void foo(){}\n" +
-			"}\n"
+			"""
+				public interface I {
+				    private public void foo(){}
+				}
+				"""
 			},
-			"----------\n" +
-			"1. ERROR in I.java (at line 2)\n" +
-			"	private public void foo(){}\n" +
-			"	                    ^^^^^\n" +
-			"Illegal combination of modifiers for the private interface method foo; additionally only one of static and strictfp is permitted\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in I.java (at line 2)
+					private public void foo(){}
+					                    ^^^^^
+				Illegal combination of modifiers for the private interface method foo; additionally only one of static and strictfp is permitted
+				----------
+				""");
 	}
 	// illegal modifier combination - negative test
 	public void testBug488662_011() {
 		runNegativeTest(
 		new String[] {
 			"I.java",
-			"public interface I {\n" +
-			"    private protected void foo();\n" +
-			"}\n"
+			"""
+				public interface I {
+				    private protected void foo();
+				}
+				"""
 			},
-			"----------\n" +
-			"1. ERROR in I.java (at line 2)\n" +
-			"	private protected void foo();\n" +
-			"	                       ^^^^^\n" +
-			"Illegal modifier for the interface method foo; only public, private, abstract, default, static and strictfp are permitted\n" +
-			"----------\n" +
-			"2. ERROR in I.java (at line 2)\n" +
-			"	private protected void foo();\n" +
-			"	                       ^^^^^\n" +
-			"This method requires a body instead of a semicolon\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in I.java (at line 2)
+					private protected void foo();
+					                       ^^^^^
+				Illegal modifier for the interface method foo; only public, private, abstract, default, static and strictfp are permitted
+				----------
+				2. ERROR in I.java (at line 2)
+					private protected void foo();
+					                       ^^^^^
+				This method requires a body instead of a semicolon
+				----------
+				""");
 	}
 	// illegal modifier combination - multiple errors - negative test
 	public void testBug488662_012() {
 		runNegativeTest(
 		new String[] {
 			"I.java",
-			"public interface I {\n" +
-			"    private private public default protected void foo();\n" +
-			"}\n"
+			"""
+				public interface I {
+				    private private public default protected void foo();
+				}
+				"""
 			},
-			"----------\n" +
-			"1. ERROR in I.java (at line 2)\n" +
-			"	private private public default protected void foo();\n" +
-			"	                                              ^^^^^\n" +
-			"Duplicate modifier for the method foo in type I\n" +
-			"----------\n" +
-			"2. ERROR in I.java (at line 2)\n" +
-			"	private private public default protected void foo();\n" +
-			"	                                              ^^^^^\n" +
-			"Illegal modifier for the interface method foo; only public, private, abstract, default, static and strictfp are permitted\n" +
-			"----------\n" +
-			"3. ERROR in I.java (at line 2)\n" +
-			"	private private public default protected void foo();\n" +
-			"	                                              ^^^^^\n" +
-			"This method requires a body instead of a semicolon\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in I.java (at line 2)
+					private private public default protected void foo();
+					                                              ^^^^^
+				Duplicate modifier for the method foo in type I
+				----------
+				2. ERROR in I.java (at line 2)
+					private private public default protected void foo();
+					                                              ^^^^^
+				Illegal modifier for the interface method foo; only public, private, abstract, default, static and strictfp are permitted
+				----------
+				3. ERROR in I.java (at line 2)
+					private private public default protected void foo();
+					                                              ^^^^^
+				This method requires a body instead of a semicolon
+				----------
+				""");
 	}
 	public void testBug517926() {
 		runNegativeTest(
 			new String[] {
 				"I.java",
-				"public interface I<T> {\n" +
-				"   private String name(T t){return null;}\n" +
-				"	default String getName() { return name(null);}\n" +
-				"}\n",
+				"""
+					public interface I<T> {
+					   private String name(T t){return null;}
+						default String getName() { return name(null);}
+					}
+					""",
 				"A.java",
-				"public class A implements I<String> {\n" +
-				"	@Override\n" +
-				"	public String name(String s) {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class A implements I<String> {
+						@Override
+						public String name(String s) {
+							return null;
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in A.java (at line 3)\n" +
-			"	public String name(String s) {\n" +
-			"	              ^^^^^^^^^^^^^^\n" +
-			"The method name(String) of type A must override or implement a supertype method\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in A.java (at line 3)
+					public String name(String s) {
+					              ^^^^^^^^^^^^^^
+				The method name(String) of type A must override or implement a supertype method
+				----------
+				""");
 	}
 	public void testBug521743() {
 		runConformTest(
 			new String[] {
 				"FI.java",
-				"interface FI {\n" +
-				"    private <T> void foo(Class c){}\n" +
-				"}\n" +
-				"interface FI2 extends FI {\n" +
-				"    default <T> void foo(Class<T> c) {}\n" +
-				"}"
+				"""
+					interface FI {
+					    private <T> void foo(Class c){}
+					}
+					interface FI2 extends FI {
+					    default <T> void foo(Class<T> c) {}
+					}"""
 			},
 			"");
 	}
@@ -311,108 +357,125 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 		runNegativeTest(
 			new String[] {
 				"I.java",
-				"public interface I {\n" +
-				"    private static void foo(){};\n" +
-				"	default void bar() {\n" +
-				"		foo();\n" +
-				"	}" +
-				"}\n",
+				"""
+					public interface I {
+					    private static void foo(){};
+						default void bar() {
+							foo();
+						}\
+					}
+					""",
 				"X.java",
-				"public class X {\n" +
-					"public static void main(String[] args) {\n" +
-					"	I.foo();\n" +
-					"}" +
-				"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+						I.foo();
+					}\
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	I.foo();\n" +
-			"	  ^^^\n" +
-			"The method foo() from the type I is not visible\n" +
-			"----------\n" );
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					I.foo();
+					  ^^^
+				The method foo() from the type I is not visible
+				----------
+				""" );
 	}
 	public void testBug520795a() {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-					"interface I {\n" +
-					"   private static void foo(){};\n" +
-					"	default void bar() {\n" +
-					"		foo();\n" +
-					"	}" +
-					"}\n" +
-					"public static void main(String[] args) {\n" +
-					"	I.foo();\n" +
-					"}" +
-				"}\n"
+				"""
+					public class X {
+					interface I {
+					   private static void foo(){};
+						default void bar() {
+							foo();
+						}\
+					}
+					public static void main(String[] args) {
+						I.foo();
+					}\
+					}
+					"""
 		});
 	}
 	public void testBug520795b() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-					"public interface I {\n" +
-					"   private static void foo(){};\n" +
-					"	void bar();" +
-					"}\n" +
-					"public static void main(String[] args) {\n" +
-					"	I i = () -> {};\n" +
-					"	i.foo();\n" +
-					"}" +
-				"}\n"
+				"""
+					public class X {
+					public interface I {
+					   private static void foo(){};
+						void bar();\
+					}
+					public static void main(String[] args) {
+						I i = () -> {};
+						i.foo();
+					}\
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	i.foo();\n" +
-			"	  ^^^\n" +
-			"This static method of interface X.I can only be accessed as X.I.foo\n" +
-			"----------\n" );
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					i.foo();
+					  ^^^
+				This static method of interface X.I can only be accessed as X.I.foo
+				----------
+				""" );
 	}
 	public void testBug520795c() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-					"public interface I {\n" +
-					"   private static void foo(){};\n" +
-					"}\n" +
-					"public interface J extends I {\n" +
-					"   default void goo(){I.super.foo();};\n" +
-					"	void baz();" +
-					"}\n" +
-					"public static void main(String[] args) {\n" +
-					"	J j = () -> {};\n" +
-					"	j.goo();\n" +
-					"}" +
-				"}\n"
+				"""
+					public class X {
+					public interface I {
+					   private static void foo(){};
+					}
+					public interface J extends I {
+					   default void goo(){I.super.foo();};
+						void baz();\
+					}
+					public static void main(String[] args) {
+						J j = () -> {};
+						j.goo();
+					}\
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	default void goo(){I.super.foo();};\n" +
-			"	                           ^^^\n" +
-			"This static method of interface X.I can only be accessed as X.I.foo\n" +
-			"----------\n" );
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					default void goo(){I.super.foo();};
+					                           ^^^
+				This static method of interface X.I can only be accessed as X.I.foo
+				----------
+				""" );
 	}
 	public void testBug518272() {
 		runConformTest(
 			new String[] {
 				"GeneratedAccessorBug.java",
-				"public interface GeneratedAccessorBug {\n" +
-				"  void hello();\n" +
-				"  private static void foo() {}\n" +
-				"  public static void bar() {\n" +
-				"    new GeneratedAccessorBug() {\n" +
-				"      public void hello() {\n" +
-				"        foo();\n" +
-				"      }\n" +
-				"    }.hello();\n" +
-				"  }\n" +
-				"  public static void main(String[] args) {\n" +
-				"    GeneratedAccessorBug.bar();\n" +
-				"  }\n" +
-				"}"
+				"""
+					public interface GeneratedAccessorBug {
+					  void hello();
+					  private static void foo() {}
+					  public static void bar() {
+					    new GeneratedAccessorBug() {
+					      public void hello() {
+					        foo();
+					      }
+					    }.hello();
+					  }
+					  public static void main(String[] args) {
+					    GeneratedAccessorBug.bar();
+					  }
+					}"""
 		});
 	}
 }

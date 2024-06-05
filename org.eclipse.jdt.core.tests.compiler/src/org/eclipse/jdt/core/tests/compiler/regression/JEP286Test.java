@@ -123,12 +123,14 @@ public void test0001_local_variable_inference() throws IOException {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        var x = \"SUCCESS\";\n" +
-				"        System.out.println(x);\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String [] args) {
+					        var x = "SUCCESS";
+					        System.out.println(x);
+					    }
+					}
+					"""
 			},
 			"SUCCESS");
 }
@@ -136,15 +138,17 @@ public void test0002_inferred_for() throws IOException {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String [] args) {\n" +
-				"		int sum = 0;\n" +
-				"		for(var n = 1; n <= 2; ++n) {\n" +
-				"			sum += n;\n" +
-				"       }\n" +
-				"		System.out.println(\"SUCCESS \" + sum);\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String [] args) {
+							int sum = 0;
+							for(var n = 1; n <= 2; ++n) {
+								sum += n;
+					       }
+							System.out.println("SUCCESS " + sum);
+					    }
+					}
+					"""
 			},
 			"SUCCESS 3");
 }
@@ -152,15 +156,17 @@ public void test0003_inferred_enhanced_for() throws IOException {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String [] args) {\n" +
-				"		int sum = 0;\n" +
-				"		for(var n : java.util.List.of(1, 2)) {\n" +
-				"			sum += n;\n" +
-				"       }\n" +
-				"		System.out.println(\"SUCCESS \" + sum);\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String [] args) {
+							int sum = 0;
+							for(var n : java.util.List.of(1, 2)) {
+								sum += n;
+					       }
+							System.out.println("SUCCESS " + sum);
+					    }
+					}
+					"""
 			},
 			"SUCCESS 3");
 }
@@ -173,14 +179,16 @@ public void test0004_try_with_resources() throws IOException {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String [] args) throws Exception {\n" +
-				"		try(var w = new java.io.StringWriter()) {\n" +
-				"			w.write(\"SUCCESS\\n\");" +
-				"			System.out.println(w.toString());\n" +
-				"       }\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String [] args) throws Exception {
+							try(var w = new java.io.StringWriter()) {
+								w.write("SUCCESS\\n");\
+								System.out.println(w.toString());
+					       }
+					    }
+					}
+					"""
 			},
 			"SUCCESS");
 }
@@ -188,169 +196,201 @@ public void test0005_no_initializer() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] argv) {\n" +
-				"		var a;\n" +
-				"		for(var b;;);\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						public static void main(String[] argv) {
+							var a;
+							for(var b;;);
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	var a;\n" +
-			"	    ^\n" +
-			"Cannot use 'var' on variable without initializer\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	for(var b;;);\n" +
-			"	        ^\n" +
-			"Cannot use 'var' on variable without initializer\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					var a;
+					    ^
+				Cannot use 'var' on variable without initializer
+				----------
+				2. ERROR in X.java (at line 4)
+					for(var b;;);
+					        ^
+				Cannot use 'var' on variable without initializer
+				----------
+				""");
 }
 public void test0006_multiple_declarators() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] argv) {\n" +
-				"		var a = 1, b = 2;\n" +
-				"		for(var c = 1, d = 20; c<d; c++);\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						public static void main(String[] argv) {
+							var a = 1, b = 2;
+							for(var c = 1, d = 20; c<d; c++);
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	var a = 1, b = 2;\n" +
-			"	           ^\n" +
-			"'var' is not allowed in a compound declaration\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	for(var c = 1, d = 20; c<d; c++);\n" +
-			"	               ^\n" +
-			"'var' is not allowed in a compound declaration\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					var a = 1, b = 2;
+					           ^
+				'var' is not allowed in a compound declaration
+				----------
+				2. ERROR in X.java (at line 4)
+					for(var c = 1, d = 20; c<d; c++);
+					               ^
+				'var' is not allowed in a compound declaration
+				----------
+				""");
 }
 public void test0007_var_in_wrong_place() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	private var someField = 0;\n" +
-				"	public var method() {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"	public void main(var arg) {\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						private var someField = 0;
+						public var method() {
+							return null;
+						}
+						public void main(var arg) {
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	private var someField = 0;\n" +
-			"	        ^^^\n" +
-			"'var' is not allowed here\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	public var method() {\n" +
-			"	       ^^^\n" +
-			"'var' is not allowed here\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	public void main(var arg) {\n" +
-			"	                 ^^^\n" +
-			"'var' is not allowed here\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					private var someField = 0;
+					        ^^^
+				'var' is not allowed here
+				----------
+				2. ERROR in X.java (at line 3)
+					public var method() {
+					       ^^^
+				'var' is not allowed here
+				----------
+				3. ERROR in X.java (at line 6)
+					public void main(var arg) {
+					                 ^^^
+				'var' is not allowed here
+				----------
+				""");
 }
 public void test0008_null_initializer() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public void main(String[] arg) {\n" +
-				"		var notMuch = null;\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						public void main(String[] arg) {
+							var notMuch = null;
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	var notMuch = null;\n" +
-			"	    ^^^^^^^\n" +
-			"Cannot infer type for local variable initialized to 'null'\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					var notMuch = null;
+					    ^^^^^^^
+				Cannot infer type for local variable initialized to 'null'
+				----------
+				""");
 }
 public void test0008_void_initializer() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public void foo() {\n" +
-				"	}\n" +
-				"\n" +
-				"	public void baz() {\n" +
-				"		var nothingHere = foo();\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						public void foo() {
+						}
+					
+						public void baz() {
+							var nothingHere = foo();
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	var nothingHere = foo();\n" +
-			"	    ^^^^^^^^^^^\n" +
-			"Variable initializer is 'void' -- cannot infer variable type\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					var nothingHere = foo();
+					    ^^^^^^^^^^^
+				Variable initializer is 'void' -- cannot infer variable type
+				----------
+				""");
 }
 public void test0009_var_as_type_name() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public enum var { V, A, R };\n" +
-				"}\n"
+				"""
+					public class X {
+						public enum var { V, A, R };
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public enum var { V, A, R };\n" +
-			"	            ^^^\n" +
-			"'var' is not a valid type name\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public enum var { V, A, R };
+					            ^^^
+				'var' is not a valid type name
+				----------
+				""");
 }
 public void test0010_array_initializer() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public void main(String [] args) {\n" +
-				"		var myArray = { 1, 2, 3 };\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						public void main(String [] args) {
+							var myArray = { 1, 2, 3 };
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	var myArray = { 1, 2, 3 };\n" +
-			"	    ^^^^^^^\n" +
-			"Array initializer needs an explicit target-type\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					var myArray = { 1, 2, 3 };
+					    ^^^^^^^
+				Array initializer needs an explicit target-type
+				----------
+				""");
 }
 public void test0011_array_type() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public void main(String [] args) {\n" +
-				"		var myArray[] = new int[42];\n" +
-				"		var[] moreArray = new int[1337];\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						public void main(String [] args) {
+							var myArray[] = new int[42];
+							var[] moreArray = new int[1337];
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	var myArray[] = new int[42];\n" +
-			"	    ^^^^^^^\n" +
-			"'var' is not allowed as an element type of an array\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	var[] moreArray = new int[1337];\n" +
-			"	      ^^^^^^^^^\n" +
-			"'var' is not allowed as an element type of an array\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					var myArray[] = new int[42];
+					    ^^^^^^^
+				'var' is not allowed as an element type of an array
+				----------
+				2. ERROR in X.java (at line 4)
+					var[] moreArray = new int[1337];
+					      ^^^^^^^^^
+				'var' is not allowed as an element type of an array
+				----------
+				""");
 }
 public void test0012_self_reference() throws IOException {
 
@@ -360,109 +400,127 @@ public void test0012_self_reference() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public void main(String [] args) {\n" +
-				"		var a = 42 + a;\n" +
-				"		var b = ((java.util.concurrent.Callable<Integer>)(() -> true ? 1 : b)).call();\n" +
-				"       var c = new java.util.concurrent.Callable<Integer>() {\n" +
-				"           public Integer call() {\n" +
-				"               int c = 42; return c;\n" +
-				"           }\n" +
-				"       }.call();" +
-				"       var d = new java.util.concurrent.Callable<Integer>() {\n" +
-				"           int d = 42;\n" +
-				"           public Integer call() {\n" +
-				"               return d;\n" +
-				"           }\n" +
-				"       }.call();" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						public void main(String [] args) {
+							var a = 42 + a;
+							var b = ((java.util.concurrent.Callable<Integer>)(() -> true ? 1 : b)).call();
+					       var c = new java.util.concurrent.Callable<Integer>() {
+					           public Integer call() {
+					               int c = 42; return c;
+					           }
+					       }.call();\
+					       var d = new java.util.concurrent.Callable<Integer>() {
+					           int d = 42;
+					           public Integer call() {
+					               return d;
+					           }
+					       }.call();\
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	var a = 42 + a;\n" +
-			"	    ^\n" +
-			"Declaration using 'var' may not contain references to itself\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	var b = ((java.util.concurrent.Callable<Integer>)(() -> true ? 1 : b)).call();\n" +
-			"	    ^\n" +
-			"Declaration using 'var' may not contain references to itself\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 7)\n" +
-			"	int c = 42; return c;\n" +
-			"	    ^\n" +
-		    "The local variable c is hiding another local variable defined in an enclosing scope\n" +
-		    	"----------\n"+
-			"3. WARNING in X.java (at line 10)\n" +
-			"	int d = 42;\n" +
-			"	    ^\n" +
-		    "The field new Callable<Integer>(){}.d is hiding another local variable defined in an enclosing scope\n" +
-		    	"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					var a = 42 + a;
+					    ^
+				Declaration using 'var' may not contain references to itself
+				----------
+				2. ERROR in X.java (at line 4)
+					var b = ((java.util.concurrent.Callable<Integer>)(() -> true ? 1 : b)).call();
+					    ^
+				Declaration using 'var' may not contain references to itself
+				----------
+				3. WARNING in X.java (at line 7)
+					int c = 42; return c;
+					    ^
+				The local variable c is hiding another local variable defined in an enclosing scope
+				----------
+				3. WARNING in X.java (at line 10)
+					int d = 42;
+					    ^
+				The field new Callable<Integer>(){}.d is hiding another local variable defined in an enclosing scope
+				----------
+				""");
 }
 public void test0013_lambda() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public void main(String [] args) {\n" +
-				"		var a = (int i) -> 42;\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						public void main(String [] args) {
+							var a = (int i) -> 42;
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	var a = (int i) -> 42;\n" +
-			"	    ^\n" +
-			"Lambda expression needs an explicit target-type\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					var a = (int i) -> 42;
+					    ^
+				Lambda expression needs an explicit target-type
+				----------
+				""");
 }
 public void test0014_method_reference() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public void main(String [] args) {\n" +
-				"		var a = X::main;\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						public void main(String [] args) {
+							var a = X::main;
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	var a = X::main;\n" +
-			"	    ^\n" +
-			"Method reference needs an explicit target-type\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					var a = X::main;
+					    ^
+				Method reference needs an explicit target-type
+				----------
+				""");
 }
 public void test0015_complain_over_first_poly_encountered() throws Exception {
 
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public void main(String [] args) {\n" +
-				"		var a = args.length > 1 ? X::main : (int i) -> 42;\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						public void main(String [] args) {
+							var a = args.length > 1 ? X::main : (int i) -> 42;
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	var a = args.length > 1 ? X::main : (int i) -> 42;\n" +
-			"	    ^\n" +
-			"Method reference needs an explicit target-type\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					var a = args.length > 1 ? X::main : (int i) -> 42;
+					    ^
+				Method reference needs an explicit target-type
+				----------
+				""");
 }
 public void test0016_dont_capture_deep_poly_expressions() throws IOException {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String [] args) throws Exception {\n" +
-				"		var z = ((java.util.concurrent.Callable<String>)(() -> \"SUCCESS\"));\n" +
-				"		var x = args.length > 1 ? \"FAILURE\" : z.call();\n" +
-				"		System.out.println(x);\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						public static void main(String [] args) throws Exception {
+							var z = ((java.util.concurrent.Callable<String>)(() -> "SUCCESS"));
+							var x = args.length > 1 ? "FAILURE" : z.call();
+							System.out.println(x);
+						}
+					}
+					"""
 			},
 			"SUCCESS");
 }
@@ -475,27 +533,29 @@ public void test0017_simple_variable_types() throws Exception {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.List;\n" +
-				"\n" +
-				"public class X {\n" +
-				"    void test() {\n" +
-				"        var i_String = \"\";\n" +
-				"        for (var i2_String = \"\" ; ; ) { break; }\n" +
-				"        for (var i2_String : iterableOfString()) { break; }\n" +
-				"        for (var i2_String : arrayOfString()) { break; }\n" +
-				"        try (var i2_Bar = new Bar()) { } finally { }\n" +
-				"        try (var i2_Bar = new Bar(); var i3_Bar = new Bar()) { } finally { }\n" +
-				"    }\n" +
-				"\n" +
-				"    Iterable<String> iterableOfString() { return null; }\n" +
-				"    String[] arrayOfString() { return null; }\n" +
-				"\n" +
-				"    static class Bar implements AutoCloseable {\n" +
-				"        @Override\n" +
-				"        public void close() { }\n" +
-				"    }\n" +
-				"}\n" +
-				"\n"
+				"""
+					import java.util.List;
+					
+					public class X {
+					    void test() {
+					        var i_String = "";
+					        for (var i2_String = "" ; ; ) { break; }
+					        for (var i2_String : iterableOfString()) { break; }
+					        for (var i2_String : arrayOfString()) { break; }
+					        try (var i2_Bar = new Bar()) { } finally { }
+					        try (var i2_Bar = new Bar(); var i3_Bar = new Bar()) { } finally { }
+					    }
+					
+					    Iterable<String> iterableOfString() { return null; }
+					    String[] arrayOfString() { return null; }
+					
+					    static class Bar implements AutoCloseable {
+					        @Override
+					        public void close() { }
+					    }
+					}
+					
+					"""
 			},
 			typeVerifier);
 	Assert.assertEquals(7, typeVerifier.localsChecked);
@@ -505,49 +565,51 @@ public void test0018_primitive_variable_types() throws Exception {
 	this.runConformTest(
 			new String[] {
 				"Y.java",
-				"class Y {\n" +
-				"    boolean[] booleanArray = { true };\n" +
-				"    byte[] byteArray = { 1 };\n" +
-				"    char[] charArray = { 'c' };\n" +
-				"    short[] shortArray = { 42 };\n" +
-				"    int[] intArray = { 42 };\n" +
-				"    long[] longArray = { 42L };\n" +
-				"    float[] floatArray = { 0.1f };\n" +
-				"    double[] doubleArray = { 0.2d };\n" +
-				"\n" +
-				"    void testBuiltins() {\n" +
-				"        var z_boolean = false;\n" +
-				"        var b_byte = (byte)0xff;\n" +
-				"        var c_char = 'c';\n" +
-				"        var s_short = (short)42;\n" +
-				"        var i_int = 42;\n" +
-				"        var l_long = 42L;\n" +
-				"        var f_float = 0.25f;\n" +
-				"        var d_double = 0.35d;\n" +
-				"    }\n" +
-				"\n" +
-				"    void testBuiltinsForEach() {\n" +
-				"        for (var z_boolean : booleanArray) { System.out.print(\".\"); }\n" +
-				"        for (var b_byte : byteArray) { System.out.print(\".\"); }\n" +
-				"        for (var c_char : charArray) { System.out.print(\".\"); }\n" +
-				"        for (var s_short : shortArray) { System.out.print(\".\"); }\n" +
-				"        for (var i_int : intArray) { System.out.print(\".\"); }\n" +
-				"        for (var l_long : longArray) { System.out.print(\".\"); }\n" +
-				"        for (var f_float : floatArray) { System.out.print(\".\"); }\n" +
-				"        for (var d_double : doubleArray) { System.out.print(\".\"); }\n" +
-				"    }\n" +
-				"    void testBuiltinsArray() {\n" +
-				"        var z_booleanARRAY = booleanArray;\n" +
-				"        var b_byteARRAY = byteArray;\n" +
-				"        var c_charARRAY = charArray;\n" +
-				"        var s_shortARRAY = shortArray;\n" +
-				"        var i_intARRAY = intArray;\n" +
-				"        var l_longARRAY = longArray;\n" +
-				"        var f_floatARRAY = floatArray;\n" +
-				"        var d_doubleARRAY = doubleArray;\n" +
-				"    }\n" +
-				"\n" +
-				"}\n"
+				"""
+					class Y {
+					    boolean[] booleanArray = { true };
+					    byte[] byteArray = { 1 };
+					    char[] charArray = { 'c' };
+					    short[] shortArray = { 42 };
+					    int[] intArray = { 42 };
+					    long[] longArray = { 42L };
+					    float[] floatArray = { 0.1f };
+					    double[] doubleArray = { 0.2d };
+					
+					    void testBuiltins() {
+					        var z_boolean = false;
+					        var b_byte = (byte)0xff;
+					        var c_char = 'c';
+					        var s_short = (short)42;
+					        var i_int = 42;
+					        var l_long = 42L;
+					        var f_float = 0.25f;
+					        var d_double = 0.35d;
+					    }
+					
+					    void testBuiltinsForEach() {
+					        for (var z_boolean : booleanArray) { System.out.print("."); }
+					        for (var b_byte : byteArray) { System.out.print("."); }
+					        for (var c_char : charArray) { System.out.print("."); }
+					        for (var s_short : shortArray) { System.out.print("."); }
+					        for (var i_int : intArray) { System.out.print("."); }
+					        for (var l_long : longArray) { System.out.print("."); }
+					        for (var f_float : floatArray) { System.out.print("."); }
+					        for (var d_double : doubleArray) { System.out.print("."); }
+					    }
+					    void testBuiltinsArray() {
+					        var z_booleanARRAY = booleanArray;
+					        var b_byteARRAY = byteArray;
+					        var c_charARRAY = charArray;
+					        var s_shortARRAY = shortArray;
+					        var i_intARRAY = intArray;
+					        var l_longARRAY = longArray;
+					        var f_floatARRAY = floatArray;
+					        var d_doubleARRAY = doubleArray;
+					    }
+					
+					}
+					"""
 			},
 			typeVerifier);
 	Assert.assertEquals(24, typeVerifier.localsChecked);
@@ -557,107 +619,108 @@ public void test0018_project_variable_types() throws Exception {
 	this.runConformTest(
 			new String[] {
 				"Z.java",
-				"import java.util.Collection;\n" +
-				"import java.util.List;\n" +
-				"import java.io.Serializable;\n" +
-				"\n" +
-				"class Z {\n" +
-				"\n" +
-				"    void testExtends() {\n" +
-				"        var l1_CollectionOfExtString = extendsString();\n" +
-				"        for (var l2_CollectionOfExtString = extendsString() ; ; ) { break; }\n" +
-				"        for (var l3_CollectionOfExtString : extendsStringArr()) { break; }\n" +
-				"        for (var l4_CollectionOfExtString : extendsCollectionIterable()) { break; }\n" +
-				"        for (var l5_String : extendsString()) { break; }\n" +
-				"    }\n" +
-				"\n" +
-				"    void testExtendsFbound() { \n" +
-				"        var l1_CollectionExt_ComparableAny = extendsTBound();\n" +
-				"        for (var l2_CollectionExt_ComparableAny = extendsTBound() ; ; ) { break; }\n" +
-				"        for (var l3_CollectionExt_ComparableAny : extendsTBoundArray()) { break; }\n" +
-				"        for (var l3_CollectionExt_ComparableAny : extendsTBoundIter()) { break; }\n" +
-				"        for (var l4_ComparableAny : extendsTBound()) { break; }\n" +
-				"    }\n" +
-				"\n" +
-				"    void testSuperTBound() {\n" +
-				"        var s_CollectionAny = superTBound();\n" +
-				"        for (var s2_CollectionAny = superTBound() ; ; ) { break; }\n" +
-				"        for (var s2_CollectionAny : superTBoundArray()) { break; }\n" +
-				"        for (var s2_CollectionAny : superTBoundIter()) { break; }\n" +
-				"        for (var s2_Object : superTBound()) { break; }\n" +
-				"    }\n" +
-				"\n" +
-				"    void testCollectSuper() {\n" +
-				"        var s_CollectionOfSuperString = superString();\n" +
-				"        for (var s2_CollectionOfSuperString = superString() ; ; ) { break; }\n" +
-				"        for (var s2_CollectionOfSuperString : superStringArray()) { break; }\n" +
-				"        for (var s2_CollectionOfSuperString : superCollectionIterable()) { break; }\n" +
-				"        for (var s2_Object : superString()) { break; }\n" +
-				"    }\n" +
-				"\n" +
-				"    void testUnbound() {\n" +
-				"        var s_CollectionAny = unboundedString();\n" +
-				"        for (var s2_CollectionAny = unboundedString() ; ; ) { break; }\n" +
-				"        for (var s2_CollectionAny : unboundedStringArray()) { break; }\n" +
-				"        for (var s2_CollectionAny : unboundedCollectionIterable()) { break; }\n" +
-				"        for (var s2_Object : unboundedString()) { break; }\n" +
-				"    }\n" +
-				"\n" +
-				"    void testTypeOfAnAnonymousClass() {\n" +
-				"        var o_AnonymousObjectSubclass = new Object() { };\n" +
-				"        for (var s2_AnonymousObjectSubclass = new Object() { } ; ; ) { break; }\n" +
-				"        for (var s2_AnonymousObjectSubclass : arrayOf(new Object() { })) { break; }\n" +
-				"        for (var s2_AnonymousObjectSubclass : listOf(new Object() { })) { break; }\n" +
-				"    }\n" +
-				"\n" +
-				"    void testTypeOfAnAnonymousInterface() {\n" +
-				"        var r_AnonymousRunnableSubclass = new Runnable() { public void run() { } };\n" +
-				"        for (var s2_AnonymousRunnableSubclass = new Runnable() { public void run() { } } ; ; ) { break; }\n" +
-				"        for (var s2_AnonymousRunnableSubclass : arrayOf(new Runnable() { public void run() { } })) { break; }\n" +
-				"        for (var s2_AnonymousRunnableSubclass : listOf(new Runnable() { public void run() { } })) { break; }\n" +
-				"    }\n" +
-				"\n" +
-				"    void testTypeOfIntersectionType() {\n" +
-				"        var c_IntLongFloat = choose(1, 1L);\n" +
-				"        for (var s2_IntLongFloat = choose(1, 1L) ; ;) { break; }\n" +
-				"        for (var s2_IntLongFloat : arrayOf(choose(1, 1L))) { break; }\n" +
-				"        for (var s2_IntLongFloat : listOf(choose(1, 1L))) { break; }\n" +
-				"    }\n" +
-				"\n" +
-				"    public void testProjections() {\n" +
-				"        var inter_ListTestAndSerializable = getIntersections();\n" +
-				"        var r_TestAndSerializable = inter_ListTestAndSerializable.get(0);\n" +
-				"    }\n" +
-				"\n" +
-				"    Collection<? extends String> extendsString() { return null; }\n" +
-				"    Collection<? super String> superString() { return null; }\n" +
-				"    Collection<?> unboundedString() { return null; }\n" +
-				"\n" +
-				"    Collection<? extends String>[] extendsStringArr() { return null; }\n" +
-				"    Collection<? super String>[] superStringArray() { return null; }\n" +
-				"    Collection<?>[] unboundedStringArray() { return null; }\n" +
-				"\n" +
-				"    Iterable<? extends Collection<? extends String>> extendsCollectionIterable() { return null; }\n" +
-				"    Iterable<? extends Collection<? super String>> superCollectionIterable() { return null; }\n" +
-				"    Iterable<? extends Collection<?>> unboundedCollectionIterable() { return null; }\n" +
-				"\n" +
-				"    <TBound extends Comparable<TBound>> Collection<? extends TBound> extendsTBound() { return null; }\n" +
-				"    <TBound extends Comparable<TBound>> Collection<? super TBound> superTBound() { return null; }\n" +
-				"\n" +
-				"    <TBound extends Comparable<TBound>> Collection<? extends TBound>[] extendsTBoundArray() { return null; }\n" +
-				"    <TBound extends Comparable<TBound>> Collection<? super TBound>[] superTBoundArray() { return null; }\n" +
-				"\n" +
-				"    <TBound extends Comparable<TBound>> Iterable<? extends Collection<? extends TBound>> extendsTBoundIter() { return null; }\n" +
-				"    <TBound extends Comparable<TBound>> Iterable<? extends Collection<? super TBound>> superTBoundIter() { return null; }\n" +
-				"\n" +
-				"    <TBound> Collection<TBound> listOf(TBound b) { return null; }\n" +
-				"    <TBound> TBound[] arrayOf(TBound b) { return null; }\n" +
-				"\n" +
-				"    <TBound> TBound choose(TBound b1, TBound b2) { return b1; }\n" +
-				"    <T extends Z & Serializable> List<? extends T> getIntersections() {\n" +
-				"        return null;\n" +
-				"    }\n" +
-				"}"
+				"""
+					import java.util.Collection;
+					import java.util.List;
+					import java.io.Serializable;
+					
+					class Z {
+					
+					    void testExtends() {
+					        var l1_CollectionOfExtString = extendsString();
+					        for (var l2_CollectionOfExtString = extendsString() ; ; ) { break; }
+					        for (var l3_CollectionOfExtString : extendsStringArr()) { break; }
+					        for (var l4_CollectionOfExtString : extendsCollectionIterable()) { break; }
+					        for (var l5_String : extendsString()) { break; }
+					    }
+					
+					    void testExtendsFbound() {\s
+					        var l1_CollectionExt_ComparableAny = extendsTBound();
+					        for (var l2_CollectionExt_ComparableAny = extendsTBound() ; ; ) { break; }
+					        for (var l3_CollectionExt_ComparableAny : extendsTBoundArray()) { break; }
+					        for (var l3_CollectionExt_ComparableAny : extendsTBoundIter()) { break; }
+					        for (var l4_ComparableAny : extendsTBound()) { break; }
+					    }
+					
+					    void testSuperTBound() {
+					        var s_CollectionAny = superTBound();
+					        for (var s2_CollectionAny = superTBound() ; ; ) { break; }
+					        for (var s2_CollectionAny : superTBoundArray()) { break; }
+					        for (var s2_CollectionAny : superTBoundIter()) { break; }
+					        for (var s2_Object : superTBound()) { break; }
+					    }
+					
+					    void testCollectSuper() {
+					        var s_CollectionOfSuperString = superString();
+					        for (var s2_CollectionOfSuperString = superString() ; ; ) { break; }
+					        for (var s2_CollectionOfSuperString : superStringArray()) { break; }
+					        for (var s2_CollectionOfSuperString : superCollectionIterable()) { break; }
+					        for (var s2_Object : superString()) { break; }
+					    }
+					
+					    void testUnbound() {
+					        var s_CollectionAny = unboundedString();
+					        for (var s2_CollectionAny = unboundedString() ; ; ) { break; }
+					        for (var s2_CollectionAny : unboundedStringArray()) { break; }
+					        for (var s2_CollectionAny : unboundedCollectionIterable()) { break; }
+					        for (var s2_Object : unboundedString()) { break; }
+					    }
+					
+					    void testTypeOfAnAnonymousClass() {
+					        var o_AnonymousObjectSubclass = new Object() { };
+					        for (var s2_AnonymousObjectSubclass = new Object() { } ; ; ) { break; }
+					        for (var s2_AnonymousObjectSubclass : arrayOf(new Object() { })) { break; }
+					        for (var s2_AnonymousObjectSubclass : listOf(new Object() { })) { break; }
+					    }
+					
+					    void testTypeOfAnAnonymousInterface() {
+					        var r_AnonymousRunnableSubclass = new Runnable() { public void run() { } };
+					        for (var s2_AnonymousRunnableSubclass = new Runnable() { public void run() { } } ; ; ) { break; }
+					        for (var s2_AnonymousRunnableSubclass : arrayOf(new Runnable() { public void run() { } })) { break; }
+					        for (var s2_AnonymousRunnableSubclass : listOf(new Runnable() { public void run() { } })) { break; }
+					    }
+					
+					    void testTypeOfIntersectionType() {
+					        var c_IntLongFloat = choose(1, 1L);
+					        for (var s2_IntLongFloat = choose(1, 1L) ; ;) { break; }
+					        for (var s2_IntLongFloat : arrayOf(choose(1, 1L))) { break; }
+					        for (var s2_IntLongFloat : listOf(choose(1, 1L))) { break; }
+					    }
+					
+					    public void testProjections() {
+					        var inter_ListTestAndSerializable = getIntersections();
+					        var r_TestAndSerializable = inter_ListTestAndSerializable.get(0);
+					    }
+					
+					    Collection<? extends String> extendsString() { return null; }
+					    Collection<? super String> superString() { return null; }
+					    Collection<?> unboundedString() { return null; }
+					
+					    Collection<? extends String>[] extendsStringArr() { return null; }
+					    Collection<? super String>[] superStringArray() { return null; }
+					    Collection<?>[] unboundedStringArray() { return null; }
+					
+					    Iterable<? extends Collection<? extends String>> extendsCollectionIterable() { return null; }
+					    Iterable<? extends Collection<? super String>> superCollectionIterable() { return null; }
+					    Iterable<? extends Collection<?>> unboundedCollectionIterable() { return null; }
+					
+					    <TBound extends Comparable<TBound>> Collection<? extends TBound> extendsTBound() { return null; }
+					    <TBound extends Comparable<TBound>> Collection<? super TBound> superTBound() { return null; }
+					
+					    <TBound extends Comparable<TBound>> Collection<? extends TBound>[] extendsTBoundArray() { return null; }
+					    <TBound extends Comparable<TBound>> Collection<? super TBound>[] superTBoundArray() { return null; }
+					
+					    <TBound extends Comparable<TBound>> Iterable<? extends Collection<? extends TBound>> extendsTBoundIter() { return null; }
+					    <TBound extends Comparable<TBound>> Iterable<? extends Collection<? super TBound>> superTBoundIter() { return null; }
+					
+					    <TBound> Collection<TBound> listOf(TBound b) { return null; }
+					    <TBound> TBound[] arrayOf(TBound b) { return null; }
+					
+					    <TBound> TBound choose(TBound b1, TBound b2) { return b1; }
+					    <T extends Z & Serializable> List<? extends T> getIntersections() {
+					        return null;
+					    }
+					}"""
 			},
 			typeVerifier);
 	Assert.assertEquals(39, typeVerifier.localsChecked);
@@ -666,135 +729,153 @@ public void testBug531832() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        for (var[] v : args) { }\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String [] args) {
+					        for (var[] v : args) { }
+					    }
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	for (var[] v : args) { }\n" +
-			"	           ^\n" +
-			"'var' is not allowed as an element type of an array\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					for (var[] v : args) { }
+					           ^
+				'var' is not allowed as an element type of an array
+				----------
+				""");
 }
 public void testBug530879() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void foo() { }\n" +
-				"    public static void main(String [] args) {\n" +
-				"        for (var v : foo()) { }\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void foo() { }
+					    public static void main(String [] args) {
+					        for (var v : foo()) { }
+					    }
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	for (var v : foo()) { }\n" +
-			"	         ^\n" +
-			"Variable initializer is 'void' -- cannot infer variable type\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	for (var v : foo()) { }\n" +
-			"	             ^^^^^\n" +
-			"Can only iterate over an array or an instance of java.lang.Iterable\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					for (var v : foo()) { }
+					         ^
+				Variable initializer is 'void' -- cannot infer variable type
+				----------
+				2. ERROR in X.java (at line 4)
+					for (var v : foo()) { }
+					             ^^^^^
+				Can only iterate over an array or an instance of java.lang.Iterable
+				----------
+				""");
 }
 public void testBug530879a() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        for (var v : null) { }\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String [] args) {
+					        for (var v : null) { }
+					    }
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	for (var v : null) { }\n" +
-			"	         ^\n" +
-			"Cannot infer type for local variable initialized to 'null'\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	for (var v : null) { }\n" +
-			"	             ^^^^\n" +
-			"Can only iterate over an array or an instance of java.lang.Iterable\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					for (var v : null) { }
+					         ^
+				Cannot infer type for local variable initialized to 'null'
+				----------
+				2. ERROR in X.java (at line 3)
+					for (var v : null) { }
+					             ^^^^
+				Can only iterate over an array or an instance of java.lang.Iterable
+				----------
+				""");
 }
 public void testBug532349() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void foo(Boolean p) {\n" +
-			"		Y<? super Boolean> y = new Y<>();\n" +
-			"		var v = y;\n" +
-			"		Y<? super Boolean> tmp = v;\n" +
-			"	}\n" +
-			"}\n" +
-			"class Y<T extends Boolean> {\n" +
-			"}"
+			"""
+				public class X {
+					public static void foo(Boolean p) {
+						Y<? super Boolean> y = new Y<>();
+						var v = y;
+						Y<? super Boolean> tmp = v;
+					}
+				}
+				class Y<T extends Boolean> {
+				}"""
 		});
 }
 public void testBug532349a() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.List;\n" +
-			"import java.util.ArrayList;\n" +
-			"public class X {\n" +
-			"	public static void foo(Boolean p) {\n" +
-			"		List<Y<? super Boolean>> l = new ArrayList<>();\n" +
-			"		var dlv = l;\n" +
-			"		for (var iv : dlv) {\n" +
-			"			Y<? super Boolean> id = iv;\n" +
-			"		}" +
-			"	}\n" +
-			"}\n" +
-			"class Y<T extends Boolean> {}"
+			"""
+				import java.util.List;
+				import java.util.ArrayList;
+				public class X {
+					public static void foo(Boolean p) {
+						List<Y<? super Boolean>> l = new ArrayList<>();
+						var dlv = l;
+						for (var iv : dlv) {
+							Y<? super Boolean> id = iv;
+						}\
+					}
+				}
+				class Y<T extends Boolean> {}"""
 		});
 }
 public void testBug532349b() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void foo(Boolean p) {\n" +
-			"		Y<? super Boolean> y = new Y<>();\n" +
-			"		try (var v = y) {\n" +
-			"			Y<? super Boolean> tmp = v;\n" +
-			"		} catch (Exception e) { }\n" +
-			"	}\n" +
-			"}\n" +
-			"class Y<T extends Boolean> implements AutoCloseable {\n" +
-			"	@Override\n" +
-			"	public void close() throws Exception {}\n" +
-			"}"
+			"""
+				public class X {
+					public static void foo(Boolean p) {
+						Y<? super Boolean> y = new Y<>();
+						try (var v = y) {
+							Y<? super Boolean> tmp = v;
+						} catch (Exception e) { }
+					}
+				}
+				class Y<T extends Boolean> implements AutoCloseable {
+					@Override
+					public void close() throws Exception {}
+				}"""
 		});
 }
 public void testBug532351() throws IOException {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public static void foo(Boolean p) {\n" +
-			"    Y<? super Number> y = new Y<Number>(); // Javac reports, ECJ accepts\n" +
-			"    var v = y;\n" +
-			"    Y<? super Number> tmp = v;\n" +
-			"  }\n" +
-			"  class Y<T extends Number> {\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  public static void foo(Boolean p) {
+				    Y<? super Number> y = new Y<Number>(); // Javac reports, ECJ accepts
+				    var v = y;
+				    Y<? super Number> tmp = v;
+				  }
+				  class Y<T extends Number> {
+				  }
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	Y<? super Number> y = new Y<Number>(); // Javac reports, ECJ accepts\n" +
-		"	                      ^^^^^^^^^^^^^^^\n" +
-		"No enclosing instance of type X is accessible. Must qualify the allocation with an enclosing instance of type X (e.g. x.new A() where x is an instance of X).\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				Y<? super Number> y = new Y<Number>(); // Javac reports, ECJ accepts
+				                      ^^^^^^^^^^^^^^^
+			No enclosing instance of type X is accessible. Must qualify the allocation with an enclosing instance of type X (e.g. x.new A() where x is an instance of X).
+			----------
+			""");
 }
 public void testBug531025() {
 	runNegativeTest(
@@ -803,461 +884,506 @@ public void testBug531025() {
 			"package a;\n" +
 			"public @interface Ann {}\n",
 			"a/AnnM.java",
-			"package a;\n" +
-			"import java.lang.annotation.*;\n" +
-			"@Target(ElementType.METHOD)\n" +
-			"public @interface AnnM {}\n",
+			"""
+				package a;
+				import java.lang.annotation.*;
+				@Target(ElementType.METHOD)
+				public @interface AnnM {}
+				""",
 			"a/AnnD.java",
-			"package a;\n" +
-			"import java.lang.annotation.*;\n" +
-			"@Target(ElementType.LOCAL_VARIABLE)\n" +
-			"public @interface AnnD {}\n",
+			"""
+				package a;
+				import java.lang.annotation.*;
+				@Target(ElementType.LOCAL_VARIABLE)
+				public @interface AnnD {}
+				""",
 			"a/AnnT.java",
-			"package a;\n" +
-			"import java.lang.annotation.*;\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"public @interface AnnT {}\n",
+			"""
+				package a;
+				import java.lang.annotation.*;
+				@Target(ElementType.TYPE_USE)
+				public @interface AnnT {}
+				""",
 			"a/AnnDT.java",
-			"package a;\n" +
-			"import java.lang.annotation.*;\n" +
-			"@Target({ElementType.LOCAL_VARIABLE, ElementType.TYPE_USE})\n" +
-			"public @interface AnnDT {}\n",
+			"""
+				package a;
+				import java.lang.annotation.*;
+				@Target({ElementType.LOCAL_VARIABLE, ElementType.TYPE_USE})
+				public @interface AnnDT {}
+				""",
 			"X.java",
-			"import a.*;\n" +
-			"import java.util.*;\n" +
-			"public class X {\n" +
-			"	void test(List<String> strings) {\n" +
-			"		@Ann   var v  = strings;\n" +
-			"		@AnnM  var vm = strings;\n" +
-			"		@AnnD  var vd = strings;\n" +
-			"		@AnnT  var vt = \"\";\n" +
-			"		@AnnDT var vdt = this;\n" +
-			"		for (@AnnD var fvd : strings) {}\n" +
-			"		for (@AnnT var fvt : strings) {}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import a.*;
+				import java.util.*;
+				public class X {
+					void test(List<String> strings) {
+						@Ann   var v  = strings;
+						@AnnM  var vm = strings;
+						@AnnD  var vd = strings;
+						@AnnT  var vt = "";
+						@AnnDT var vdt = this;
+						for (@AnnD var fvd : strings) {}
+						for (@AnnT var fvt : strings) {}
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	@AnnM  var vm = strings;\n" +
-		"	^^^^^\n" +
-		"The annotation @AnnM is disallowed for this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	@AnnT  var vt = \"\";\n" +
-		"	^^^^^\n" +
-		"The annotation @AnnT is disallowed for this location\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 11)\n" +
-		"	for (@AnnT var fvt : strings) {}\n" +
-		"	     ^^^^^\n" +
-		"The annotation @AnnT is disallowed for this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				@AnnM  var vm = strings;
+				^^^^^
+			The annotation @AnnM is disallowed for this location
+			----------
+			2. ERROR in X.java (at line 8)
+				@AnnT  var vt = "";
+				^^^^^
+			The annotation @AnnT is disallowed for this location
+			----------
+			3. ERROR in X.java (at line 11)
+				for (@AnnT var fvt : strings) {}
+				     ^^^^^
+			The annotation @AnnT is disallowed for this location
+			----------
+			""");
 }
 public void testBug532349_001() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	public static void foo() {\n" +
-			"		Y<? extends Number> y = new Y<>();\n" +
-			"		var v = y.t;\n" +
-			"		Integer dsbType0 = v;\n" +
-			"	}\n" +
-			"}\n" +
-			"class Y<T extends Integer> {\n" +
-			"	public T t;\n" +
-			"}"
+			"""
+				class X {
+					public static void foo() {
+						Y<? extends Number> y = new Y<>();
+						var v = y.t;
+						Integer dsbType0 = v;
+					}
+				}
+				class Y<T extends Integer> {
+					public T t;
+				}"""
 		});
 }
 public void testBug532349_002() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	public static void foo() {\n" +
-			"		Y<? extends I> y = new Y<>();\n" +
-			"		var v = y.t;\n" +
-			"		Integer dsbType0 = v;\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I { }\n" +
-			"class Y<T extends Integer> {\n" +
-			"	public T t;\n" +
-			"}"
+			"""
+				class X {
+					public static void foo() {
+						Y<? extends I> y = new Y<>();
+						var v = y.t;
+						Integer dsbType0 = v;
+					}
+				}
+				interface I { }
+				class Y<T extends Integer> {
+					public T t;
+				}"""
 		});
 }
 public void testBug532349_003() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	public static void foo(Y<? extends I> y) {\n" +
-			"		var v = y.t;\n" +
-			"		Integer dsbType0 = v;\n" +
-			"		I i = v;\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I { }\n" +
-			"class Y<T extends Integer> {\n" +
-			"	public T t;\n" +
-			"}"
+			"""
+				class X {
+					public static void foo(Y<? extends I> y) {
+						var v = y.t;
+						Integer dsbType0 = v;
+						I i = v;
+					}
+				}
+				interface I { }
+				class Y<T extends Integer> {
+					public T t;
+				}"""
 		});
 }
 public void testBug532349_004() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.Serializable;\n" +
-			"class X {\n" +
-			"	public static void foo() {\n" +
-			"		Y<? extends Integer> y = new Y<>();\n" +
-			"		var v = y.t;\n" +
-			"		Integer dsbType0 = v;\n" +
-			"		Serializable s = v;\n" +
-			"	}\n" +
-			"}\n" +
-			"class Y<T extends Number&Serializable> {\n" +
-			"	public T t;\n" +
-			"}"
+			"""
+				import java.io.Serializable;
+				class X {
+					public static void foo() {
+						Y<? extends Integer> y = new Y<>();
+						var v = y.t;
+						Integer dsbType0 = v;
+						Serializable s = v;
+					}
+				}
+				class Y<T extends Number&Serializable> {
+					public T t;
+				}"""
 		});
 }
 public void testBug532349_005() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.Serializable;\n" +
-			"class X {\n" +
-			"	public static void foo() {\n" +
-			"		Y<?> y = new Y<>();\n" +
-			"		var v = y.t;\n" +
-			"		I i = v;\n" +
-			"		Serializable s = v;\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I { }\n" +
-			"class Y<T extends I&Serializable> {\n" +
-			"	public T t;\n" +
-			"}"
+			"""
+				import java.io.Serializable;
+				class X {
+					public static void foo() {
+						Y<?> y = new Y<>();
+						var v = y.t;
+						I i = v;
+						Serializable s = v;
+					}
+				}
+				interface I { }
+				class Y<T extends I&Serializable> {
+					public T t;
+				}"""
 		});
 }
 public void testBug532349_006() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.Serializable;\n" +
-			"class X {\n" +
-			"	public static void foo() {\n" +
-			"		Y<? extends I> y = new Y<>();\n" +
-			"		var v = y.t;\n" +
-			"		I i = v;\n" +
-			"		Serializable s = v;\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I { }\n" +
-			"class Y<T extends Serializable> {\n" +
-			"	public T t;\n" +
-			"}",
+			"""
+				import java.io.Serializable;
+				class X {
+					public static void foo() {
+						Y<? extends I> y = new Y<>();
+						var v = y.t;
+						I i = v;
+						Serializable s = v;
+					}
+				}
+				interface I { }
+				class Y<T extends Serializable> {
+					public T t;
+				}""",
 		});
 }
 public void testBug532349_007() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	public static void foo() {\n" +
-			"		Z<? extends I> z = new Z<>();\n" +
-			"		var v = z.t;\n" +
-			"		X x = v.t;\n" +
-			"		v.doSomething();\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I { void doSomething();}\n" +
-			"class Z<T extends Y<?>> {\n" +
-			"	public T t;\n" +
-			"}\n" +
-			"class Y<T extends X> {\n" +
-			"	public T t;\n" +
-			"}",
+			"""
+				class X {
+					public static void foo() {
+						Z<? extends I> z = new Z<>();
+						var v = z.t;
+						X x = v.t;
+						v.doSomething();
+					}
+				}
+				interface I { void doSomething();}
+				class Z<T extends Y<?>> {
+					public T t;
+				}
+				class Y<T extends X> {
+					public T t;
+				}""",
 		});
 }
 public void testBug532349_008() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	public static void foo() {\n" +
-			"		Z<? extends Y<? extends C>> z = new Z<>();\n" +
-			"		var v = z.t;\n" +
-			"		C c = v.t;\n" +
-			"		v.doSomething();\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I { void doSomething();}\n" +
-			"class C extends X{ }\n" +
-			"class Z<T extends I> {\n" +
-			"	public T t;\n" +
-			"}\n" +
-			"class Y<T extends X> {\n" +
-			"	public T t;\n" +
-			"}",
+			"""
+				class X {
+					public static void foo() {
+						Z<? extends Y<? extends C>> z = new Z<>();
+						var v = z.t;
+						C c = v.t;
+						v.doSomething();
+					}
+				}
+				interface I { void doSomething();}
+				class C extends X{ }
+				class Z<T extends I> {
+					public T t;
+				}
+				class Y<T extends X> {
+					public T t;
+				}""",
 		});
 }
 public void testBug532349_009() throws IOException {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.io.Serializable;\n" +
-			"class X {\n" +
-			"	public static void foo() {\n" +
-			"		Y<? super J> y = new Y<>();\n" +
-			"		var v = y.t;\n" +
-			"		I i = v;\n" +
-			"		Serializable s = v;\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I { }\n" +
-			"interface J extends I{}" +
-			"class Y<T extends I> {\n" +
-			"	public T t;\n" +
-			"}",
+			"""
+				import java.io.Serializable;
+				class X {
+					public static void foo() {
+						Y<? super J> y = new Y<>();
+						var v = y.t;
+						I i = v;
+						Serializable s = v;
+					}
+				}
+				interface I { }
+				interface J extends I{}\
+				class Y<T extends I> {
+					public T t;
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	Serializable s = v;\n" +
-		"	                 ^\n" +
-		"Type mismatch: cannot convert from I to Serializable\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				Serializable s = v;
+				                 ^
+			Type mismatch: cannot convert from I to Serializable
+			----------
+			""");
 }
 public void testBug532349_010() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.Serializable;\n" +
-			"class X {\n" +
-			"	public static void foo(C<?> c) {\n" +
-			"		var v = c.t;\n" +
-			"		v = (I&Serializable) new D();\n" +
-			"		v.doSomething();\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I { void doSomething();}\n" +
-			"class C<T extends I&Serializable>{ T t;}\n" +
-			"class D implements I, Serializable { public void doSomething() {} }\n"
+			"""
+				import java.io.Serializable;
+				class X {
+					public static void foo(C<?> c) {
+						var v = c.t;
+						v = (I&Serializable) new D();
+						v.doSomething();
+					}
+				}
+				interface I { void doSomething();}
+				class C<T extends I&Serializable>{ T t;}
+				class D implements I, Serializable { public void doSomething() {} }
+				"""
 		});
 }
 public void testBug532349_11() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	static <R extends D<? extends Y>> W<? extends R> boo() {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	public static void foo() {\n" +
-			"		var v = boo();\n" +
-			"		var var = v.t;\n" +
-			"		Y y = var.r;\n" +
-			"	}\n" +
-			"}\n" +
-			"class Y extends X { }\n" +
-			"class D<R extends X>{ R r;}\n" +
-			"class W<T extends D<?>> { T t; }\n"
+			"""
+				class X {
+					static <R extends D<? extends Y>> W<? extends R> boo() {
+						return null;
+					}
+					public static void foo() {
+						var v = boo();
+						var var = v.t;
+						Y y = var.r;
+					}
+				}
+				class Y extends X { }
+				class D<R extends X>{ R r;}
+				class W<T extends D<?>> { T t; }
+				"""
 		});
 }
 public void testBug532349_12() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	public static void foo(D<?> d) {\n" +
-			"		var v = d;\n" +
-			"		D<? extends Y> dy = v;\n" +
-			"		D<? extends X> dx = v;\n" +
-			"	}\n" +
-			"}\n" +
-			"class Y extends X{ }\n" +
-			"class D<R extends Y>{ R r;}\n"
+			"""
+				class X {
+					public static void foo(D<?> d) {
+						var v = d;
+						D<? extends Y> dy = v;
+						D<? extends X> dx = v;
+					}
+				}
+				class Y extends X{ }
+				class D<R extends Y>{ R r;}
+				"""
 		});
 }
 public void testBug532349_13() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	public static void foo(D<Y<? extends Integer>> d) {\n" +
-			"		var v = d.r;\n" +
-			"		Y<? extends Number> yn = v;\n" +
-			"		Y<? extends Integer> yi = v;\n" +
-			"	}\n" +
-			"}\n" +
-			"class Y<T extends Integer>{ }\n" +
-			"class D<R extends Y<? extends Number>>{ R r;}\n"
+			"""
+				class X {
+					public static void foo(D<Y<? extends Integer>> d) {
+						var v = d.r;
+						Y<? extends Number> yn = v;
+						Y<? extends Integer> yi = v;
+					}
+				}
+				class Y<T extends Integer>{ }
+				class D<R extends Y<? extends Number>>{ R r;}
+				"""
 		});
 }
 public void testBug532349_14() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	public static void foo(A<? super C> ac) {\n" +
-			"		C c = new C(100);\n" +
-			"		var c1 = ac;\n" +
-			"		A<? super C> a1 = c1;\n" +
-			"		A<? super C> a2 = new A<B>(new B());\n" +
-			"		a2 = c1;\n" +
-			"	}\n" +
-			"}\n" +
-			"class C<T> extends B{\n" +
-			"	T t;\n" +
-			"	C(T t) {\n" +
-			"		this.t = t;\n" +
-			"	}\n" +
-			"}\n" +
-			"class B { }\n" +
-			"class A<Q> {\n" +
-			"	A(Q e) {}\n" +
-			"}"
+			"""
+				class X {
+					public static void foo(A<? super C> ac) {
+						C c = new C(100);
+						var c1 = ac;
+						A<? super C> a1 = c1;
+						A<? super C> a2 = new A<B>(new B());
+						a2 = c1;
+					}
+				}
+				class C<T> extends B{
+					T t;
+					C(T t) {
+						this.t = t;
+					}
+				}
+				class B { }
+				class A<Q> {
+					A(Q e) {}
+				}"""
 		});
 }
 public void testBug532349_15() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	    public static <T> A<T> m(T t) {\n" +
-			"        return new A(t);\n" +
-			"    }\n" +
-			"    public static <U extends I1<?>> A<? extends U> m2(A<? super U> u) {\n" +
-			"        return new A(u);\n" +
-			"    }\n" +
-			"    public static void main(String argv[]) {\n" +
-			"        A<?> checkValue1 = new C(10);\n" +
-			"        var varValue = m2(m(checkValue1));\n" +
-			"        if(!varValue.t.t.equals(10)) {\n" +
-			"            System.out.println(\"Error:\");\n" +
-			"        }\n" +
-			"        if(varValue.t.methodOnI1() != true) {\n" +
-			"            System.out.println(\"Error:\");\n" +
-			"        }\n" +
-			"    }" +
-			"}\n" +
-			"class A<E> {\n" +
-			"    E t;\n" +
-			"    A(E t) {\n" +
-			"        this.t = t;\n" +
-			"    }\n" +
-			"    A<E> u;\n" +
-			"    A (A<E> u) {\n" +
-			"        this(u.t);\n" +
-			"        this.u = u;\n" +
-			"    }\n" +
-			"}\n" +
-			"interface I1<E> {\n" +
-			"    default boolean methodOnI1() {\n" +
-			"        return true;\n" +
-			"    }\n" +
-			"}\n" +
-			"class C<T> extends A implements I1 {\n" +
-			"    C(T t) {\n" +
-			"        super(t);\n" +
-			"    }\n" +
-			"}"
+			"""
+				public class X {
+					    public static <T> A<T> m(T t) {
+				        return new A(t);
+				    }
+				    public static <U extends I1<?>> A<? extends U> m2(A<? super U> u) {
+				        return new A(u);
+				    }
+				    public static void main(String argv[]) {
+				        A<?> checkValue1 = new C(10);
+				        var varValue = m2(m(checkValue1));
+				        if(!varValue.t.t.equals(10)) {
+				            System.out.println("Error:");
+				        }
+				        if(varValue.t.methodOnI1() != true) {
+				            System.out.println("Error:");
+				        }
+				    }\
+				}
+				class A<E> {
+				    E t;
+				    A(E t) {
+				        this.t = t;
+				    }
+				    A<E> u;
+				    A (A<E> u) {
+				        this(u.t);
+				        this.u = u;
+				    }
+				}
+				interface I1<E> {
+				    default boolean methodOnI1() {
+				        return true;
+				    }
+				}
+				class C<T> extends A implements I1 {
+				    C(T t) {
+				        super(t);
+				    }
+				}"""
 		}, "");
 }
 public void testBug532349_0016() throws IOException {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	public static void foo() {\n" +
-			"		Y<? extends I> yi = new Y<>();\n" +
-			"		var vi = yi.t;\n" +
-			"		Y<Integer> yj = new Y<>();\n" +
-			"		vi = yj.t;\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I { }\n" +
-			"class Y<T extends Number> {\n" +
-			"	public T t;\n" +
-			"}"
+			"""
+				class X {
+					public static void foo() {
+						Y<? extends I> yi = new Y<>();
+						var vi = yi.t;
+						Y<Integer> yj = new Y<>();
+						vi = yj.t;
+					}
+				}
+				interface I { }
+				class Y<T extends Number> {
+					public T t;
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	vi = yj.t;\n" +
-		"	     ^^^^\n" +
-		"Type mismatch: cannot convert from Integer to Number & I\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				vi = yj.t;
+				     ^^^^
+			Type mismatch: cannot convert from Integer to Number & I
+			----------
+			""");
 }
 public void testBug532349_0017() throws IOException {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	public static <Q extends Number & I> void foo(Y<? super Q> y) {\n" +
-			"		var vy = y;\n" +
-			"		Y<Integer> yi = new Y<>();\n" +
-			"		vy = yi;\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I { }\n" +
-			"class Y<T extends Number> {\n" +
-			"	public T t;\n" +
-			"}"
+			"""
+				class X {
+					public static <Q extends Number & I> void foo(Y<? super Q> y) {
+						var vy = y;
+						Y<Integer> yi = new Y<>();
+						vy = yi;
+					}
+				}
+				interface I { }
+				class Y<T extends Number> {
+					public T t;
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	vy = yi;\n" +
-		"	     ^^\n" +
-		"Type mismatch: cannot convert from Y<Integer> to Y<? super Q>\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				vy = yi;
+				     ^^
+			Type mismatch: cannot convert from Y<Integer> to Y<? super Q>
+			----------
+			""");
 }
 public void testBug532920() throws IOException {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.Iterator;\n" +
-			"public class X {\n" +
-			"  static void foo(Z<?> ef) {  \n" +
-			"    for (var l : ef.t) {\n" +
-			"      l = new Object();\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"class I<T> {// implements Iterable<T> {\n" +
-			" T t;\n" +
-			"}\n" +
-			"class Q {}\n" +
-			"class Y extends Q{ }\n" +
-			"class Z<T extends Iterable<? super Y>> {\n" +
-			"  I<T> t;\n" +
-			"}"
+			"""
+				import java.util.Iterator;
+				public class X {
+				  static void foo(Z<?> ef) { \s
+				    for (var l : ef.t) {
+				      l = new Object();
+				    }
+				  }
+				}
+				class I<T> {// implements Iterable<T> {
+				 T t;
+				}
+				class Q {}
+				class Y extends Q{ }
+				class Z<T extends Iterable<? super Y>> {
+				  I<T> t;
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	for (var l : ef.t) {\n" +
-		"	             ^^^^\n" +
-		"Can only iterate over an array or an instance of java.lang.Iterable\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				for (var l : ef.t) {
+				             ^^^^
+			Can only iterate over an array or an instance of java.lang.Iterable
+			----------
+			""");
 }
 public void testBug567183_1() {
 	this.runNegativeTest(
 			new String[] {
 				"p/Item.java",
-				"package p;\n"
-				+ "class Item {\n"
-				+ "}",
+				"""
+					package p;
+					class Item {
+					}""",
 				"p/Container.java",
-				"package p;\n"
-				+ "import java.util.List;\n"
-				+ "\n"
-				+ "public class Container {\n"
-				+ "  public final List<Item> items = null;\n"
-				+ "}",
+				"""
+					package p;
+					import java.util.List;
+					
+					public class Container {
+					  public final List<Item> items = null;
+					}""",
 				"p/PublicItem.java",
-				"package p;\n"
-				+ "public class PublicItem extends Item {\n"
-				+ "}",
+				"""
+					package p;
+					public class PublicItem extends Item {
+					}""",
 				"p1/X.java",
 				"package p1;\n"
 				+ "import p.Container;\n"
@@ -1275,31 +1401,36 @@ public void testBug567183_1() {
 				+ "}\n"
 				+ ""
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 7)\n" +
-			"	for (var item : container.items) {\n" +
-			"	         ^^^^\n" +
-			"The type Item is not visible\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 7)
+					for (var item : container.items) {
+					         ^^^^
+				The type Item is not visible
+				----------
+				""");
 }
 public void testBug567183_2() {
 	this.runNegativeTest(
 			new String[] {
 				"p/Item.java",
-				"package p;\n"
-				+ "class Item {\n"
-				+ "}",
+				"""
+					package p;
+					class Item {
+					}""",
 				"p/Container.java",
-				"package p;\n"
-				+ "import java.util.List;\n"
-				+ "\n"
-				+ "public class Container {\n"
-				+ "  public final List<List<Item>> items = null;\n"
-				+ "}",
+				"""
+					package p;
+					import java.util.List;
+					
+					public class Container {
+					  public final List<List<Item>> items = null;
+					}""",
 				"p/PublicItem.java",
-				"package p;\n"
-				+ "public class PublicItem extends Item {\n"
-				+ "}",
+				"""
+					package p;
+					public class PublicItem extends Item {
+					}""",
 				"p1/X.java",
 				"package p1;\n"
 				+ "import java.util.List;\n"
@@ -1320,31 +1451,36 @@ public void testBug567183_2() {
 				+ "}\n"
 				+ ""
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 13)\n" +
-			"	for (var item2 : item) {}\n" +
-			"	         ^^^^^\n" +
-			"The type Item is not visible\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 13)
+					for (var item2 : item) {}
+					         ^^^^^
+				The type Item is not visible
+				----------
+				""");
 }
 public void testBug567183_3() {
 	this.runNegativeTest(
 			new String[] {
 				"p/Item.java",
-				"package p;\n"
-				+ "class Item {\n"
-				+ "}",
+				"""
+					package p;
+					class Item {
+					}""",
 				"p/Container.java",
-				"package p;\n"
-				+ "import java.util.List;\n"
-				+ "\n"
-				+ "public class Container {\n"
-				+ "  public final List<List<Item>> items = null;\n"
-				+ "}",
+				"""
+					package p;
+					import java.util.List;
+					
+					public class Container {
+					  public final List<List<Item>> items = null;
+					}""",
 				"p/PublicItem.java",
-				"package p;\n"
-				+ "public class PublicItem extends Item {\n"
-				+ "}",
+				"""
+					package p;
+					public class PublicItem extends Item {
+					}""",
 				"p1/X.java",
 				"package p1;\n"
 				+ "import p.Container;\n"
@@ -1363,20 +1499,23 @@ public void testBug567183_4() {
 	this.runNegativeTest(
 			new String[] {
 				"p/Item.java",
-				"package p;\n"
-				+ "class Item {\n"
-				+ "}",
+				"""
+					package p;
+					class Item {
+					}""",
 				"p/Container.java",
-				"package p;\n"
-				+ "import java.util.List;\n"
-				+ "\n"
-				+ "public class Container {\n"
-				+ "  public final List<List<Item>> items = null;\n"
-				+ "}",
+				"""
+					package p;
+					import java.util.List;
+					
+					public class Container {
+					  public final List<List<Item>> items = null;
+					}""",
 				"p/PublicItem.java",
-				"package p;\n"
-				+ "public class PublicItem extends Item {\n"
-				+ "}",
+				"""
+					package p;
+					public class PublicItem extends Item {
+					}""",
 				"p1/X.java",
 				"package p1;\n"
 				+ "import p.Container;\n"
@@ -1388,88 +1527,106 @@ public void testBug567183_4() {
 				+ "}\n"
 				+ ""
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 6)\n" +
-			"	var item1 = container.items.get(0).get(0);\n" +
-			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The type Item is not visible\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 6)
+					var item1 = container.items.get(0).get(0);
+					            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				The type Item is not visible
+				----------
+				""");
 }
 public void testIssue600_1() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.List;\n" +
-				"public class X {\n" +
-				"	public static void main(String [] args) {\n" +
-				"		var<Integer> x = List.of(42);\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.util.List;
+					public class X {
+						public static void main(String [] args) {
+							var<Integer> x = List.of(42);
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	var<Integer> x = List.of(42);\n" +
-			"	^^^\n" +
-			"\'var\' cannot be used with type arguments\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					var<Integer> x = List.of(42);
+					^^^
+				'var' cannot be used with type arguments
+				----------
+				""");
 }
 public void testIssue600_2() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String [] args) {\n" +
-				"		for (var<Integer> i = 0; i < 5; i++) {\n"
-				+ "			System.out.println(i);\n"
-				+ "		}" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						public static void main(String [] args) {
+							for (var<Integer> i = 0; i < 5; i++) {
+								System.out.println(i);
+							}\
+						}
+					}
+					"""
 			},
-			"----------\n"
-			+ "1. ERROR in X.java (at line 3)\n"
-			+ "	for (var<Integer> i = 0; i < 5; i++) {\n"
-			+ "	     ^^^\n"
-			+ "'var' cannot be used with type arguments\n"
-			+ "----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					for (var<Integer> i = 0; i < 5; i++) {
+					     ^^^
+				'var' cannot be used with type arguments
+				----------
+				""");
 }
 public void testIssue600_3() {
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
-					"import java.util.List;\n" +
-					"public class X {\n" +
-					"	public static void main(String [] args) {\n" +
-					"		for (var<Integer> i : List.of(2, 3, 5)) {\n"
-					+ "			System.out.println(i);\n"
-					+ "		}" +
-					"	}\n" +
-					"}\n"
+					"""
+						import java.util.List;
+						public class X {
+							public static void main(String [] args) {
+								for (var<Integer> i : List.of(2, 3, 5)) {
+									System.out.println(i);
+								}\
+							}
+						}
+						"""
 			},
-			"----------\n"
-			+ "1. ERROR in X.java (at line 4)\n"
-			+ "	for (var<Integer> i : List.of(2, 3, 5)) {\n"
-			+ "	     ^^^\n"
-			+ "'var' cannot be used with type arguments\n"
-			+ "----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					for (var<Integer> i : List.of(2, 3, 5)) {
+					     ^^^
+				'var' cannot be used with type arguments
+				----------
+				""");
 }
 public void testIssue600_4() {
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" +
-					"    public static void main(String [] args) throws Exception {\n" +
-					"		try(var<String> w = new java.io.StringWriter()) {\n" +
-					"			w.write(\"SUCCESS\\n\");" +
-					"			System.out.println(w.toString());\n" +
-					"       }\n" +
-					"    }\n" +
-					"}\n"
+					"""
+						public class X {
+						    public static void main(String [] args) throws Exception {
+								try(var<String> w = new java.io.StringWriter()) {
+									w.write("SUCCESS\\n");\
+									System.out.println(w.toString());
+						       }
+						    }
+						}
+						"""
 			},
-			"----------\n"
-			+ "1. ERROR in X.java (at line 3)\n"
-			+ "	try(var<String> w = new java.io.StringWriter()) {\n"
-			+ "	    ^^^\n"
-			+ "'var' cannot be used with type arguments\n"
-			+ "----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					try(var<String> w = new java.io.StringWriter()) {
+					    ^^^
+				'var' cannot be used with type arguments
+				----------
+				""");
 }
 }

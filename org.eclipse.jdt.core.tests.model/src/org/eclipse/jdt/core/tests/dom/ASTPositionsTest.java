@@ -71,10 +71,11 @@ public class ASTPositionsTest extends ConverterTestSetup {
 	public void test001() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	final String contents =
-			"import java.util.Map;\r\n" +
-			"public class X {\r\n" +
-			"	Map<String, Number> map= null;\r\n" +
-			"}";
+			"""
+			import java.util.Map;\r
+			public class X {\r
+				Map<String, Number> map= null;\r
+			}""";
     	ASTNode node = buildAST(
     			contents,
     			this.workingCopy,
@@ -96,10 +97,12 @@ public class ASTPositionsTest extends ConverterTestSetup {
 	public void test002() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	final String contents =
-			"import java.util.Map;\n" +
-			"public class X {\n" +
-			"	Map<String, Number> map= null;\n" +
-			"}\n";
+			"""
+			import java.util.Map;
+			public class X {
+				Map<String, Number> map= null;
+			}
+			""";
     	ASTNode node = buildAST(
     			contents,
     			this.workingCopy,
@@ -112,10 +115,11 @@ public class ASTPositionsTest extends ConverterTestSetup {
 	public void test003() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	final String contents =
-			"import java.util.Map;\r" +
-			"public class X {\r" +
-			"	Map<String, Number> map= null;\r" +
-			"}\r";
+			"""
+			import java.util.Map;\r\
+			public class X {\r\
+				Map<String, Number> map= null;\r\
+			}\r""";
     	ASTNode node = buildAST(
     			contents,
     			this.workingCopy,

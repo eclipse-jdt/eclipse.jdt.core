@@ -48,13 +48,15 @@ public class EmbeddedExpressionCompletionTests extends AbstractJavaModelCompleti
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-				"		static String name = \"Jay\";\n" +
-				"		public static void main(String[] args) {\n" +
-				"			String s = STR.\"Hello \\{/*here*/na}\";\n" +
-				"			System.out.println(s);\n" +
-				"		}\n" +
-				"}\n"
+				"""
+					public class X {
+							static String name = "Jay";
+							public static void main(String[] args) {
+								String s = STR."Hello \\{/*here*/na}";
+								System.out.println(s);
+							}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -70,13 +72,14 @@ public class EmbeddedExpressionCompletionTests extends AbstractJavaModelCompleti
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    String[] fruit = { \"apples\", \"oranges\", \"peaches\" };\n"
-				+ "    String s = STR.\"\\{fruit[0]}, \\{STR.\"\\{/*here*/fruit[1].has}, \\{fruit[2]}\"}\\u002e\";\n"
-				+ "    System.out.println(s);\n"
-				+ "  }\n"
-				+ "}"
+				"""
+					public class X {
+					  public static void main(String[] args) {
+					    String[] fruit = { "apples", "oranges", "peaches" };
+					    String s = STR."\\{fruit[0]}, \\{STR."\\{/*here*/fruit[1].has}, \\{fruit[2]}"}\\u002e";
+					    System.out.println(s);
+					  }
+					}"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -93,14 +96,15 @@ public class EmbeddedExpressionCompletionTests extends AbstractJavaModelCompleti
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    String[] fruit = { \"apples\", \"oranges\", \"peaches\" };\n"
-				+ "    String s = STR.\"\\{fruit[0]}, \\{STR.\"\\{fruit[1]}, \\{fruit[2]}\"}\\u002e\";\n"
-				+ "    System.out.println(s);\n"
-				+ "    System.out.println(s.has);\n"
-				+ "  }\n"
-				+ "}"
+				"""
+					public class X {
+					  public static void main(String[] args) {
+					    String[] fruit = { "apples", "oranges", "peaches" };
+					    String s = STR."\\{fruit[0]}, \\{STR."\\{fruit[1]}, \\{fruit[2]}"}\\u002e";
+					    System.out.println(s);
+					    System.out.println(s.has);
+					  }
+					}"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -117,14 +121,15 @@ public class EmbeddedExpressionCompletionTests extends AbstractJavaModelCompleti
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    System.out.println(args[0].has);\n"
-				+ "    String[] fruit = { \"apples\", \"oranges\", \"peaches\" };\n"
-				+ "    String s = STR.\"\\{fruit[0]}, \\{STR.\"\\{/*here*/fruit[1].has}, \\{fruit[2]}\"}\\u002e\";\n"
-				+ "    System.out.println(s);\n"
-				+ "  }\n"
-				+ "}"
+				"""
+					public class X {
+					  public static void main(String[] args) {
+					    System.out.println(args[0].has);
+					    String[] fruit = { "apples", "oranges", "peaches" };
+					    String s = STR."\\{fruit[0]}, \\{STR."\\{/*here*/fruit[1].has}, \\{fruit[2]}"}\\u002e";
+					    System.out.println(s);
+					  }
+					}"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();

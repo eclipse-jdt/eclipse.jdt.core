@@ -196,47 +196,53 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"libsrc.zip",
 			new String[] {
 				"p/Y.java",
-				"package p;\n" +
-				"public class Y<T> {\n" +
-				"  public Y(T t) {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p;
+					public class Y<T> {
+					  public Y(T t) {
+					  }
+					}""",
 				"p/Z.java",
-				"package p;\n" +
-				"public class Z {\n" +
-				"  /*start*/class Member {\n" +
-				"  }/*end*/\n" +
-				"  void foo() {\n" +
-				"    new Member() {};\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p;
+					public class Z {
+					  /*start*/class Member {
+					  }/*end*/
+					  void foo() {
+					    new Member() {};
+					  }
+					}""",
 				"p/W.java",
-				"package p;\n" +
-				"public class W {\n" +
-				"  class Member {\n" +
-				"    /*start*/Member(String s) {\n" +
-				"    }/*end*/\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p;
+					public class W {
+					  class Member {
+					    /*start*/Member(String s) {
+					    }/*end*/
+					  }
+					}""",
 				"p/ABC.java",
-				"package p;\n" +
-				"public class ABC {\n" +
-				"}",
+				"""
+					package p;
+					public class ABC {
+					}""",
 				"Z.java",
-				"public class Z {\n" +
-				"  /*start*/class Member {\n" +
-				"  }/*end*/\n" +
-				"  void foo() {\n" +
-				"    new Member() {};\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class Z {
+					  /*start*/class Member {
+					  }/*end*/
+					  void foo() {
+					    new Member() {};
+					  }
+					}""",
 				"p/Q.java",
-				"package p;\n" +
-				"/*start*/@MyAnnot/*end*/\n" +
-				"public class Q {\n" +
-				"}\n" +
-				"@interface MyAnnot {\n" +
-				"}",
+				"""
+					package p;
+					/*start*/@MyAnnot/*end*/
+					public class Q {
+					}
+					@interface MyAnnot {
+					}""",
 			},
 			"1.5");
 		setUpWorkingCopy();
@@ -275,13 +281,14 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testAnnotation1() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  /*start*/@MyAnnot/*end*/\n" +
-			"  void foo() {\n" +
-			"  }\n" +
-			"}\n" +
-			"@interface MyAnnot {\n" +
-			"}"
+			"""
+				public class X {
+				  /*start*/@MyAnnot/*end*/
+				  void foo() {
+				  }
+				}
+				@interface MyAnnot {
+				}"""
 		);
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -297,12 +304,13 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testAnnotation2() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  /*start*/@MyAnnot/*end*/\n" +
-			"  int field;\n" +
-			"}\n" +
-			"@interface MyAnnot {\n" +
-			"}"
+			"""
+				public class X {
+				  /*start*/@MyAnnot/*end*/
+				  int field;
+				}
+				@interface MyAnnot {
+				}"""
 		);
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -318,11 +326,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testAnnotation3() throws JavaModelException {
 		ASTNode node = buildAST(
-			"/*start*/@MyAnnot/*end*/\n" +
-			"public class X {\n" +
-			"}\n" +
-			"@interface MyAnnot {\n" +
-			"}"
+			"""
+				/*start*/@MyAnnot/*end*/
+				public class X {
+				}
+				@interface MyAnnot {
+				}"""
 		);
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -343,9 +352,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			WorkingCopyOwner owner = this.workingCopy.getOwner();
 			myAnnot = getCompilationUnit("/P/src/pkg/MyAnnot.java").getWorkingCopy(owner, null);
 			myAnnot.getBuffer().setContents(
-				"package pkg;\n" +
-				"public @interface MyAnnot {\n" +
-				"}"
+				"""
+					package pkg;
+					public @interface MyAnnot {
+					}"""
 			);
 			myAnnot.makeConsistent(null);
 			packageInfo = getCompilationUnit("/P/src/pkg/package-info.java").getWorkingCopy(owner, null);
@@ -374,14 +384,15 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testAnnotation5() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    /*start*/@MyAnnot/*end*/\n" +
-			"    int var1 = 2;\n" +
-			"  }\n" +
-			"}\n" +
-			"@interface MyAnnot {\n" +
-			"}"
+			"""
+				public class X {
+				  void foo() {
+				    /*start*/@MyAnnot/*end*/
+				    int var1 = 2;
+				  }
+				}
+				@interface MyAnnot {
+				}"""
 		);
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -398,11 +409,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testAnnotation6() throws JavaModelException {
 		ASTNode node = buildAST(
-			"/*start*/@MyAnnot/*end*/\n" +
-			"public @interface X {\n" +
-			"}\n" +
-			"@interface MyAnnot {\n" +
-			"}"
+			"""
+				/*start*/@MyAnnot/*end*/
+				public @interface X {
+				}
+				@interface MyAnnot {
+				}"""
 		);
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -419,11 +431,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testAnnotation7() throws JavaModelException {
 		ASTNode node = buildAST(
-			"/*start*/@MyAnnot/*end*/\n" +
-			"public enum X {\n" +
-			"}\n" +
-			"@interface MyAnnot {\n" +
-			"}"
+			"""
+				/*start*/@MyAnnot/*end*/
+				public enum X {
+				}
+				@interface MyAnnot {
+				}"""
 		);
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -452,11 +465,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328969
 	public void testAnnotation9() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"/*start*/@MyAnnot/*end*/ void foo() throws MissingException {}\n" +
-			"}\n" +
-			"@interface MyAnnot {\n" +
-			"}",
+			"""
+				public class X {
+				/*start*/@MyAnnot/*end*/ void foo() throws MissingException {}
+				}
+				@interface MyAnnot {
+				}""",
 			this.workingCopy,
 			false,
 			true,
@@ -469,11 +483,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328969
 	public void testAnnotation10() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"/*start*/@MyAnnot/*end*/ MissingType foo;\n" +
-			"}\n" +
-			"@interface MyAnnot {\n" +
-			"}",
+			"""
+				public class X {
+				/*start*/@MyAnnot/*end*/ MissingType foo;
+				}
+				@interface MyAnnot {
+				}""",
 			this.workingCopy,
 			false,
 			true,
@@ -485,11 +500,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328969
 	public void testAnnotation11() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"/*start*/@MyAnnot/*end*/ void foo() throws MissingException {}\n" +
-			"}\n" +
-			"@interface MyAnnot {\n" +
-			"}",
+			"""
+				public class X {
+				/*start*/@MyAnnot/*end*/ void foo() throws MissingException {}
+				}
+				@interface MyAnnot {
+				}""",
 			this.workingCopy,
 			false,
 			true,
@@ -506,11 +522,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328969
 	public void testAnnotation12() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"/*start*/@MyAnnot/*end*/ MissingType foo;\n" +
-			"}\n" +
-			"@interface MyAnnot {\n" +
-			"}",
+			"""
+				public class X {
+				/*start*/@MyAnnot/*end*/ MissingType foo;
+				}
+				@interface MyAnnot {
+				}""",
 			this.workingCopy,
 			false,
 			true,
@@ -527,13 +544,14 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328969
 	public void testAnnotation13() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"	void bar() {\n" +
-			"		/*start*/@MyAnnot/*end*/ MissingType foo;\n" +
-			"	}\n" +
-			"}\n" +
-			"@interface MyAnnot {\n" +
-			"}",
+			"""
+				public class X {
+					void bar() {
+						/*start*/@MyAnnot/*end*/ MissingType foo;
+					}
+				}
+				@interface MyAnnot {
+				}""",
 			this.workingCopy,
 			false,
 			true,
@@ -545,13 +563,14 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328969
 	public void testAnnotation14() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"	void bar() {\n" +
-			"		/*start*/@MyAnnot/*end*/ MissingType foo;\n" +
-			"	}\n" +
-			"}\n" +
-			"@interface MyAnnot {\n" +
-			"}",
+			"""
+				public class X {
+					void bar() {
+						/*start*/@MyAnnot/*end*/ MissingType foo;
+					}
+				}
+				@interface MyAnnot {
+				}""",
 			this.workingCopy,
 			false,
 			true,
@@ -573,22 +592,28 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	public void testAnnotation15() throws Exception {
 		createFolder("/P/src/lib");
 		createFile("/P/src/lib/NonNull.java",
-				"package lib;\n" +
-				"import java.lang.annotation.*;\n" +
-				"@Target(ElementType.PARAMETER)\n" +
-				"public @interface NonNull{}\n");
+				"""
+					package lib;
+					import java.lang.annotation.*;
+					@Target(ElementType.PARAMETER)
+					public @interface NonNull{}
+					""");
 		createFile("/P/src/lib/Foo.java",
-				"package lib;\n" +
-				"public class Foo {\n" +
-				"	public <T> void bug1(@NonNull T x) { return; }\n" +
-				"	public static <T> void bug2(@NonNull String x) { return; }\n" +
-				"}\n");
+				"""
+					package lib;
+					public class Foo {
+						public <T> void bug1(@NonNull T x) { return; }
+						public static <T> void bug2(@NonNull String x) { return; }
+					}
+					""");
 
 		String barSource =
-				"import lib.Foo;\n" +
-				"public class Bar {\n" +
-				"	void m() { new Foo().bug1(\"x\"); Foo.bug2(\"x\"); }\n" +
-				"}\n";
+				"""
+			import lib.Foo;
+			public class Bar {
+				void m() { new Foo().bug1("x"); Foo.bug2("x"); }
+			}
+			""";
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[1] = getWorkingCopy("/P/src/Bar.java", barSource, this.wcOwner);
 
@@ -612,12 +637,13 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testAnonymousType() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  Object foo() {\n" +
-			"    return new Object() /*start*/{\n" +
-			"    }/*end*/;\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  Object foo() {
+				    return new Object() /*start*/{
+				    }/*end*/;
+				  }
+				}"""
 		);
 		IBinding binding = ((AnonymousClassDeclaration) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -630,17 +656,18 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 
 	public void testAnonymousType2() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"	public void foo() {\n" +
-			"		new Y(0/*c*/) /*start*/{\n" +
-			"			Object field;\n" +
-			"		}/*end*/;\n" +
-			"	}\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	Y(int i) {\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					public void foo() {
+						new Y(0/*c*/) /*start*/{
+							Object field;
+						}/*end*/;
+					}
+				}
+				class Y {
+					Y(int i) {
+					}
+				}"""
 		);
 		IBinding binding = ((AnonymousClassDeclaration) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -656,9 +683,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testArrayType1() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  /*start*/Object[]/*end*/ field;\n" +
-			"}"
+			"""
+				public class X {
+				  /*start*/Object[]/*end*/ field;
+				}"""
 		);
 		IBinding binding = ((ArrayType) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -676,9 +704,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testArrayType2() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  /*start*/char[][]/*end*/ field;\n" +
-			"}"
+			"""
+				public class X {
+				  /*start*/char[][]/*end*/ field;
+				}"""
 		);
 		IBinding binding = ((ArrayType) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -759,9 +788,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		try {
 			createFile(
 				"/P/src/Test.java",
-				"import p.ABC;\n" +
-				"public class Test extends ABC {\n" +
-				"}"
+				"""
+					import p.ABC;
+					public class Test extends ABC {
+					}"""
 				);
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {getPackageFragmentRoot("/P/src")});
 			search(classFile.getType(), IJavaSearchConstants.REFERENCES, scope, new AbstractJavaSearchTests.JavaSearchResultCollector());
@@ -790,9 +820,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	public void testBinaryType3() throws CoreException, IOException {
 		// force String to be put in the jar cache
 		buildAST(
-			"public class X {\n" +
-			"    /*start*/String/*end*/ field;\n" +
-			"}"
+			"""
+				public class X {
+				    /*start*/String/*end*/ field;
+				}"""
 		);
 		try {
 			tearDownJavaProject();
@@ -800,9 +831,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			createJavaProject("P1", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
 			createFile(
 				"/P1/X.java",
-				"public class X {\n" +
-				"    /*start*/String/*end*/ field;\n" +
-				"}"
+				"""
+					public class X {
+					    /*start*/String/*end*/ field;
+					}"""
 			);
 			ASTNode node = buildAST(getCompilationUnit("/P1/X.java"));
 			IBinding binding = ((Type) node).resolveBinding();
@@ -862,26 +894,29 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"  public void foo(int i, String s) {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  public void foo(int i, String s) {
+				  }
+				}""",
 			owner
 		);
 		this.workingCopies[1] = getWorkingCopy(
 			"/P/src/Y.java",
-			"public class Y extends X {\n" +
-			"  void bar() {\n" +
-			"    new Y() {};\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class Y extends X {
+				  void bar() {
+				    new Y() {};
+				  }
+				}""",
 			owner
 		);
 		this.workingCopies[2] = getWorkingCopy(
 			"/P/src/I.java",
-			"public interface I {\n" +
-			"  int BAR;\n" +
-			"}",
+			"""
+				public interface I {
+				  int BAR;
+				}""",
 			owner
 		);
 		IType typeX = this.workingCopies[0].getType("X");
@@ -894,11 +929,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		};
 		IBinding[] bindings = parser.createBindings(elements, null);
 		assertBindingsEqual(
-			"LX;\n" +
-			"Ljava/lang/Object;\n" +
-			"LX;.foo(ILjava/lang/String;)V\n" +
-			"LI;.BAR)I\n" +
-			"LY$50;",
+			"""
+				LX;
+				Ljava/lang/Object;
+				LX;.foo(ILjava/lang/String;)V
+				LI;.BAR)I
+				LY$50;""",
 			bindings);
 	}
 
@@ -912,33 +948,36 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/p/IScriptRunnable.java",
-			"package p;\n" +
-			"public interface IScriptRunnable<V, E extends Exception> {\n" +
-			"	public V run(Object cx, Object scope) throws E;\n" +
-			"}",
+			"""
+				package p;
+				public interface IScriptRunnable<V, E extends Exception> {
+					public V run(Object cx, Object scope) throws E;
+				}""",
 			owner
 		);
 		this.workingCopies[1] = getWorkingCopy(
 			"/P/src/p/Environment.java",
-			"package p;\n" +
-			"public interface Environment {\n" +
-			"	public <V, E extends Exception> V execute(IScriptRunnable<V, E> code) throws E;\n" +
-			"}",
+			"""
+				package p;
+				public interface Environment {
+					public <V, E extends Exception> V execute(IScriptRunnable<V, E> code) throws E;
+				}""",
 			owner
 		);
 		this.workingCopies[2] = getWorkingCopy(
 			"/P/src/X.java",
-			"import p.*;\n" +
-			"public class X {\n" +
-			"	p.Environment env;\n" +
-			"	private void test() {\n" +
-			"		env.execute(new IScriptRunnable<Object, RuntimeException>() {\n" +
-			"			public Object run(Object cx, Object scope) throws RuntimeException {\n" +
-			"				return null;\n" +
-			"			}\n" +
-			"		});\n" +
-			"	}\n" +
-			"}",
+			"""
+				import p.*;
+				public class X {
+					p.Environment env;
+					private void test() {
+						env.execute(new IScriptRunnable<Object, RuntimeException>() {
+							public Object run(Object cx, Object scope) throws RuntimeException {
+								return null;
+							}
+						});
+					}
+				}""",
 			owner
 		);
 		IJavaElement[] elements = new IJavaElement[] {
@@ -948,9 +987,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		};
 		IBinding[] bindings = parser.createBindings(elements, null);
 		assertBindingsEqual(
-			"Lp/IScriptRunnable<TV;TE;>;\n" +
-			"Lp/Environment;\n" +
-			"LX$90;",
+			"""
+				Lp/IScriptRunnable<TV;TE;>;
+				Lp/Environment;
+				LX$90;""",
 			bindings);
 	}
 
@@ -975,10 +1015,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testCreateBindings03() throws JavaModelException {
 		IBinding[] bindings = createBindings(
-			"public class X {\n" +
-			"  public class Member {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  public class Member {
+				  }
+				}""",
 			this.workingCopy.getType("X").getType("Member")
 		);
 		assertBindingsEqual(
@@ -992,12 +1033,13 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testCreateBindings04() throws JavaModelException {
 		IBinding[] bindings = createBindings(
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    new X() {\n" +
-			"    };\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  void foo() {
+				    new X() {
+				    };
+				  }
+				}""",
 			this.workingCopy.getType("X").getMethod("foo", new String[0]).getType("", 1)
 		);
 		assertBindingsEqual(
@@ -1011,12 +1053,13 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testCreateBindings05() throws JavaModelException {
 		IBinding[] bindings = createBindings(
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    class Y {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  void foo() {
+				    class Y {
+				    }
+				  }
+				}""",
 			this.workingCopy.getType("X").getMethod("foo", new String[0]).getType("Y", 1)
 		);
 		assertBindingsEqual(
@@ -1030,9 +1073,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testCreateBindings06() throws JavaModelException {
 		IBinding[] bindings = createBindings(
-			"public class X {\n" +
-			"  int field;\n" +
-			"}",
+			"""
+				public class X {
+				  int field;
+				}""",
 			this.workingCopy.getType("X").getField("field")
 		);
 		assertBindingsEqual(
@@ -1046,9 +1090,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testCreateBindings07() throws JavaModelException {
 		IBinding[] bindings = createBindings(
-			"public class X {\n" +
-			"  void foo() {}\n" +
-			"}",
+			"""
+				public class X {
+				  void foo() {}
+				}""",
 			this.workingCopy.getType("X").getMethod("foo", new String[0])
 		);
 		assertBindingsEqual(
@@ -1092,9 +1137,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testCreateBindings10() throws JavaModelException {
 		IBinding[] bindings = createBindings(
-			"@interface X {\n" +
-			"  int foo();\n" +
-			"}",
+			"""
+				@interface X {
+				  int foo();
+				}""",
 			this.workingCopy.getType("X").getMethod("foo", new String[0])
 		);
 		assertBindingsEqual(
@@ -1108,9 +1154,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testCreateBindings11() throws JavaModelException {
 		IBinding[] bindings = createBindings(
-			"public enum X {\n" +
-			"  FOO;\n" +
-			"}",
+			"""
+				public enum X {
+				  FOO;
+				}""",
 			this.workingCopy.getType("X").getField("FOO")
 		);
 		assertBindingsEqual(
@@ -1124,10 +1171,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testCreateBindings12() throws JavaModelException {
 		IBinding[] bindings = createBindings(
-			"import java.io.*;\n" +
-			"public class X implements Serializable {\n" +
-			"  static final long serialVersionUID = 0;\n" +
-			"}",
+			"""
+				import java.io.*;
+				public class X implements Serializable {
+				  static final long serialVersionUID = 0;
+				}""",
 			this.workingCopy.getImport("java.io.*")
 		);
 		assertBindingsEqual(
@@ -1141,10 +1189,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testCreateBindings13() throws JavaModelException {
 		IBinding[] bindings = createBindings(
-			"import java.io.Serializable;\n" +
-			"public class X implements Serializable {\n" +
-			"  static final long serialVersionUID = 0;\n" +
-			"}",
+			"""
+				import java.io.Serializable;
+				public class X implements Serializable {
+				  static final long serialVersionUID = 0;
+				}""",
 			this.workingCopy.getImport("java.io.Serializable")
 		);
 		assertBindingsEqual(
@@ -1218,9 +1267,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testCreateBindings16() throws CoreException {
 		IBinding[] bindings = createBinaryBindings(
-			"public class A {\n" +
-			"  int field;\n" +
-			"}",
+			"""
+				public class A {
+				  int field;
+				}""",
 			getClassFile("/P/lib/A.class").getType().getField("field")
 		);
 		assertBindingsEqual(
@@ -1234,11 +1284,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testCreateBindings17() throws CoreException {
 		IBinding[] bindings = createBinaryBindings(
-			"public class A {\n" +
-			"  int foo(String s, boolean b) {\n" +
-			"    return -1;\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class A {
+				  int foo(String s, boolean b) {
+				    return -1;
+				  }
+				}""",
 			getClassFile("/P/lib/A.class").getType().getMethod("foo", new String[] {"Ljava.lang.String;", "Z"})
 		);
 		assertBindingsEqual(
@@ -1253,10 +1304,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testCreateBindings18() throws CoreException {
 		IBinding[] bindings = createBinaryBindings(
-			"public class A {\n" +
-			"  <E> void foo(E e) {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class A {
+				  <E> void foo(E e) {
+				  }
+				}""",
 			getClassFile("/P/lib/A.class").getType().getMethod("foo", new String[] {"TE;"})
 		);
 		assertBindingsEqual(
@@ -1269,11 +1321,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testCreateBindings19() throws CoreException {
 		IBinding[] bindings = createBinaryBindings(
-			"public class A {\n" +
-			"  String foo(String s) {\n" +
-			"		return null;\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class A {
+				  String foo(String s) {
+						return null;
+				  }
+				}""",
 			getClassFile("/P/lib/A.class").getType().getMethod("foo", new String[] {"Ljava.lang.String;"})
 		);
 		assertBindingsEqual(
@@ -1288,9 +1341,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	public void testCreateBindings20() throws CoreException {
 		IField field = getClassFile("/P/lib/A.class").getType().getField("LINE");
 		IBinding[] bindings = createBinaryBindings(
-			"public class A {\n" +
-			"  static int LINE = 0;\n" +
-			"}",
+			"""
+				public class A {
+				  static int LINE = 0;
+				}""",
 			field
 		);
 		assertBindingsEqual(
@@ -1305,9 +1359,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	public void testCreateBindings21() throws CoreException {
 		IField field = getClassFile("/P/lib/A.class").getType().getField("THREE");
 		IBinding[] bindings = createBinaryBindings(
-			"public class A {\n" +
-			"  static int THREE = 0;\n" +
-			"}",
+			"""
+				public class A {
+				  static int THREE = 0;
+				}""",
 			field
 		);
 		assertBindingsEqual(
@@ -1321,11 +1376,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testCreateBindings22() throws JavaModelException {
 		IBinding[] bindings = createBindings(
-			"@MyAnnot\n" +
-			"public class X {\n" +
-			"}\n" +
-			"@interface MyAnnot {\n" +
-			"}",
+			"""
+				@MyAnnot
+				public class X {
+				}
+				@interface MyAnnot {
+				}""",
 			this.workingCopy.getType("X").getAnnotation("MyAnnot")
 		);
 		assertBindingsEqual(
@@ -1364,9 +1420,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testCreateBindings25() throws JavaModelException {
 		this.workingCopy.getBuffer().setContents(
-				"public class X {\n" +
-				"  void foo(String str, int i) {}\n" +
-				"}");
+				"""
+					public class X {
+					  void foo(String str, int i) {}
+					}""");
 		this.workingCopy.makeConsistent(null);
 		IMethod method = this.workingCopy.getType("X").getMethod("foo", new String[]{"QString;", "I"});
 		ASTParser parser = ASTParser.newParser(getJLS8());
@@ -1384,9 +1441,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testCreateBindings26() throws CoreException {
 		createClassFile("/P/lib", "A.class",
-				"public class A {\n" +
-				"  void foo(String str, int i) {}\n" +
-				"}");
+				"""
+					public class A {
+					  void foo(String str, int i) {}
+					}""");
 		IMethod method = getClassFile("/P/lib/A.class").getType().getMethod("foo", new String[] {"Ljava.lang.String;", "I"});
 		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setProject(getJavaProject("P"));
@@ -1403,16 +1461,18 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testCreateBinding27() throws Exception {
 		createClassFile("/P/lib", "p/A.class",
-				"package p;\n" +
-				"public class A {\n" +
-				"  public static <T> T foo(T[] arg) { return arg[0]; }\n" +
-				"}");
+				"""
+					package p;
+					public class A {
+					  public static <T> T foo(T[] arg) { return arg[0]; }
+					}""");
 		this.workingCopies = new ICompilationUnit[1];
-		String xSource = "public class X {\n" +
-						"  public String test(String[] args) {\n" +
-						"    return p.A.foo(args);\n" +
-						"  }\n" +
-						"}";
+		String xSource = """
+			public class X {
+			  public String test(String[] args) {
+			    return p.A.foo(args);
+			  }
+			}""";
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/X.java",
 			xSource,
@@ -1445,10 +1505,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		try {
 			javaProject.setOption(JavaCore.COMPILER_LOCAL_VARIABLE_ATTR, JavaCore.DISABLED);
 			createClassFile("/P/lib", "p/A.class",
-					"package p;\n" +
-					"public class A {\n" +
-					"  public static <T> T foo(int i, boolean f) { return null; }\n" +
-					"}");
+					"""
+						package p;
+						public class A {
+						  public static <T> T foo(int i, boolean f) { return null; }
+						}""");
 			IType typeA = javaProject.findType("p.A");
 
 			IJavaElement[] elems= typeA.getMethod("foo", new String[]{"I", "Z"}).getParameters();
@@ -1477,9 +1538,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testField1() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  Object /*start*/field/*end*/;\n" +
-			"}"
+			"""
+				public class X {
+				  Object /*start*/field/*end*/;
+				}"""
 		);
 		IBinding binding = ((VariableDeclaration) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -1495,13 +1557,14 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testField2() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  Object foo() {\n" +
-			"    return new Object() {\n" +
-			"      Object /*start*/field/*end*/;\n" +
-			"    };\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  Object foo() {
+				    return new Object() {
+				      Object /*start*/field/*end*/;
+				    };
+				  }
+				}"""
 		);
 		IBinding binding = ((VariableDeclaration) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -1531,10 +1594,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testFindElement02() throws JavaModelException {
 		String bindingKey = buildBindingKey(
-			"public class X {\n" +
-			"  /*start*/void foo() {\n" +
-			"  }/*end*/\n" +
-			"}"
+			"""
+				public class X {
+				  /*start*/void foo() {
+				  }/*end*/
+				}"""
 		);
 		assertFindElement(
 			bindingKey,
@@ -1547,9 +1611,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testFindElement03() throws JavaModelException {
 		String bindingKey = buildBindingKey(
-			"public class X {\n" +
-			"  int /*start*/field/*end*/;\n" +
-			"}"
+			"""
+				public class X {
+				  int /*start*/field/*end*/;
+				}"""
 		);
 		assertFindElement(
 			bindingKey,
@@ -1562,10 +1627,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testFindElement04() throws JavaModelException {
 		String bindingKey = buildBindingKey(
-			"public class X {\n" +
-			"  /*start*/class Member {\n" +
-			"  }/*end*/\n" +
-			"}"
+			"""
+				public class X {
+				  /*start*/class Member {
+				  }/*end*/
+				}"""
 		);
 		assertFindElement(
 			bindingKey,
@@ -1578,12 +1644,13 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testFindElement05() throws JavaModelException {
 		String bindingKey = buildBindingKey(
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    /*start*/class Local {\n" +
-			"    }/*end*/\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  void foo() {
+				    /*start*/class Local {
+				    }/*end*/
+				  }
+				}"""
 		);
 		assertFindElement(
 			bindingKey,
@@ -1596,12 +1663,13 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testFindElement06() throws JavaModelException {
 		String bindingKey = buildBindingKey(
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    new X() /*start*/{\n" +
-			"    }/*end*/;\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  void foo() {
+				    new X() /*start*/{
+				    }/*end*/;
+				  }
+				}"""
 		);
 		assertFindElement(
 			bindingKey,
@@ -1614,10 +1682,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testFindElement07() throws JavaModelException {
 		String bindingKey = buildBindingKey(
-			"public class X {\n" +
-			"}\n" +
-			"/*start*/class Secondary {\n" +
-			"}/*end*/"
+			"""
+				public class X {
+				}
+				/*start*/class Secondary {
+				}/*end*/"""
 		);
 		assertFindElement(
 			bindingKey,
@@ -1630,11 +1699,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testFindElement08() throws JavaModelException {
 		String bindingKey = buildBindingKey(
-			"/*start*/@MyAnnot/*end*/\n" +
-			"public class X {\n" +
-			"}\n" +
-			"@interface MyAnnot {\n" +
-			"}"
+			"""
+				/*start*/@MyAnnot/*end*/
+				public class X {
+				}
+				@interface MyAnnot {
+				}"""
 		);
 		assertFindElement(
 			bindingKey,
@@ -1647,9 +1717,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testFindElement09() throws JavaModelException {
 		String bindingKey = buildBindingKey(
-			"public class X {\n" +
-			"  /*start*/java.lang/*end*/.String field;\n" +
-			"}"
+			"""
+				public class X {
+				  /*start*/java.lang/*end*/.String field;
+				}"""
 		);
 		assertFindElement(
 			bindingKey,
@@ -1709,12 +1780,13 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testLocalType() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    /*start*/class Y {\n" +
-			"    }/*end*/\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  void foo() {
+				    /*start*/class Y {
+				    }/*end*/
+				  }
+				}"""
 		);
 		IBinding binding = ((TypeDeclarationStatement) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -1733,12 +1805,13 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		String filePath = "/P/src/Z.java";
 		try {
 			String contents =
-				"public class Z {\n" +
-				"  void foo() {\n" +
-				"    /*start*/class Local {\n" +
-				"    }/*end*/\n" +
-				"  }\n" +
-				"}";
+				"""
+				public class Z {
+				  void foo() {
+				    /*start*/class Local {
+				    }/*end*/
+				  }
+				}""";
 			createFile(filePath, contents);
 
 			// Get the binding key
@@ -1776,11 +1849,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testLocalVariable1() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    int /*start*/local/*end*/;\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  void foo() {
+				    int /*start*/local/*end*/;
+				  }
+				}"""
 		);
 		IBinding binding = ((VariableDeclaration) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -1798,11 +1872,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testLocalVariable2() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object first, /*start*/second/*end*/, third;\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  void foo() {
+				    Object first, /*start*/second/*end*/, third;
+				  }
+				}"""
 		);
 		IBinding binding = ((VariableDeclaration) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -1820,10 +1895,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testLocalVariable3() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  void foo(/*start*/int arg/*end*/) {\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  void foo(/*start*/int arg/*end*/) {
+				  }
+				}"""
 		);
 		IBinding binding = ((VariableDeclaration) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -1843,15 +1919,16 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	public void testLocalVariable4() throws JavaModelException {
 		try {
 			ASTNode node = buildAST(
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    new Object() {\n" +
-				"      void bar() {\n" +
-				"        int /*start*/local/*end*/;\n" +
-				"      }\n" +
-				"    };\n" +
-				"  }\n" +
-				"}"
+				"""
+					public class X {
+					  void foo() {
+					    new Object() {
+					      void bar() {
+					        int /*start*/local/*end*/;
+					      }
+					    };
+					  }
+					}"""
 			);
 			IBinding binding = ((VariableDeclaration) node).resolveBinding();
 			this.workingCopy.discardWorkingCopy();
@@ -1872,11 +1949,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testLocalVariable5() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  {\n" +
-			"    int /*start*/local/*end*/;\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  {
+				    int /*start*/local/*end*/;
+				  }
+				}"""
 		);
 		IBinding binding = ((VariableDeclaration) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -1893,20 +1971,21 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testLocalVariable6() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"	{\n" +
-			"		int local;\n" +
-			"	}\n" +
-			"	public void foo() {\n" +
-			"		int i = 0;\n" +
-			"	}\n" +
-			"	public static void foo(final int n) {\n" +
-			"		int i;\n" +
-			"	}\n" +
-			"	public X(final int j) {\n" +
-			"		int i;\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					{
+						int local;
+					}
+					public void foo() {
+						int i = 0;
+					}
+					public static void foo(final int n) {
+						int i;
+					}
+					public X(final int j) {
+						int i;
+					}
+				}"""
 		);
 		node.accept(new ASTVisitor() {
 			public boolean visit(VariableDeclarationFragment fragment) {
@@ -1948,11 +2027,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=368646
 	 */
 	public void testLocalVariable7() throws JavaModelException {
-		final String source = "public class X {\n" +
-				"	public void m(String strX) {\n" +
-				"		String strB = strX;\n" +
-				"	}\n" +
-				"}";
+		final String source = """
+			public class X {
+				public void m(String strX) {
+					String strB = strX;
+				}
+			}""";
 		ASTNode node = buildAST(source);
 		final boolean[] checked = new boolean[1];
 		node.accept(new ASTVisitor() {
@@ -1983,10 +2063,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testMemberType() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  /*start*/class Y {\n" +
-			"  }/*end*/\n" +
-			"}"
+			"""
+				public class X {
+				  /*start*/class Y {
+				  }/*end*/
+				}"""
 		);
 		IBinding binding = ((TypeDeclaration) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -2003,10 +2084,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testMethod01() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X<K, V> {\n" +
-			"  /*start*/void foo(int i, Object o, java.lang.String s, Class[] c, X<K, V> x) {\n" +
-			"  }/*end*/\n" +
-			"}"
+			"""
+				public class X<K, V> {
+				  /*start*/void foo(int i, Object o, java.lang.String s, Class[] c, X<K, V> x) {
+				  }/*end*/
+				}"""
 		);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -2022,10 +2104,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testMethod02() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X<K, V> {\n" +
-			"  /*start*/void foo() {\n" +
-			"  }/*end*/\n" +
-			"}"
+			"""
+				public class X<K, V> {
+				  /*start*/void foo() {
+				  }/*end*/
+				}"""
 		);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -2045,18 +2128,20 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		try {
 			otherWorkingCopy = getWorkingCopy(
 				"/P/src/Y.java",
-				"public class Y {\n" +
-				"  void foo(int i, String[] args, java.lang.Class clazz) {}\n" +
-				"}",
+				"""
+					public class Y {
+					  void foo(int i, String[] args, java.lang.Class clazz) {}
+					}""",
 				this.workingCopy.getOwner()
 			);
 			ASTNode node = buildAST(
-				"public class X {\n" +
-				"  void bar() {\n" +
-				"    Y y = new Y();\n" +
-				"    /*start*/y.foo(1, new String[0], getClass())/*end*/;\n" +
-				"  }\n" +
-				"}"
+				"""
+					public class X {
+					  void bar() {
+					    Y y = new Y();
+					    /*start*/y.foo(1, new String[0], getClass())/*end*/;
+					  }
+					}"""
 			);
 			IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
 			IJavaElement element = binding.getJavaElement();
@@ -2077,17 +2162,18 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testMethod04() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		/*start*/bar(new B<Object>())/*end*/;\n" +
-			"	}\n" +
-			"	<T extends Object> void bar(A<? extends T> arg) {\n" +
-			"	}\n" +
-			"}\n" +
-			"class A<T> {\n" +
-			"}\n" +
-			"class B<T> extends A<T> {	\n" +
-			"}"
+			"""
+				public class X {
+					void foo() {
+						/*start*/bar(new B<Object>())/*end*/;
+					}
+					<T extends Object> void bar(A<? extends T> arg) {
+					}
+				}
+				class A<T> {
+				}
+				class B<T> extends A<T> {\t
+				}"""
 		);
 		IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -2104,15 +2190,16 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testMethod05() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X<T> {\n" +
-			"    void m(T t) { }\n" +
-			"}\n" +
-			"\n" +
-			"class Y {\n" +
-			"    {\n" +
-			"        /*start*/new X<String>().m(\"s\")/*end*/;\n" +
-			"    }\n" +
-			"}"
+			"""
+				public class X<T> {
+				    void m(T t) { }
+				}
+				
+				class Y {
+				    {
+				        /*start*/new X<String>().m("s")/*end*/;
+				    }
+				}"""
 		);
 		IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -2129,11 +2216,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testMethod06() throws JavaModelException {
 		ASTNode node = buildAST(
-			"@X(/*start*/value/*end*/=\"Hello\", count=-1)\n" +
-			"@interface X {\n" +
-			"    String value();\n" +
-			"    int count();\n" +
-			"}"
+			"""
+				@X(/*start*/value/*end*/="Hello", count=-1)
+				@interface X {
+				    String value();
+				    int count();
+				}"""
 		);
 		IBinding binding = ((SimpleName) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -2150,11 +2238,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testMethod07() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  /*start*/public int[] bar(int a[]) {\n" +
-			"    return a;\n" +
-			"  }/*end*/\n" +
-			"}"
+			"""
+				public class X {
+				  /*start*/public int[] bar(int a[]) {
+				    return a;
+				  }/*end*/
+				}"""
 		);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -2171,11 +2260,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testMethod08() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  /*start*/public Object[] bar2(Object[] o[][]) [][] {\n" +
-			"    return o;\n" +
-			"  }/*end*/\n" +
-			"}"
+			"""
+				public class X {
+				  /*start*/public Object[] bar2(Object[] o[][]) [][] {
+				    return o;
+				  }/*end*/
+				}"""
 		);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -2192,10 +2282,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testMethod09() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  /*start*/public void bar3(Object... objs) {\n" +
-			"  }/*end*/\n" +
-			"}"
+			"""
+				public class X {
+				  /*start*/public void bar3(Object... objs) {
+				  }/*end*/
+				}"""
 		);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -2216,15 +2307,16 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			// use a compilation unit instead of a working copy to use the ASTParser instead of reconcile
 			createFile(
 				"/P/src/Test.java",
-				"public class X {\n" +
-				"        void test() {\n" +
-				"                new Object() {\n" +
-				"                        /*start*/public void yes() {\n" +
-				"                                System.out.println(\"hello world\");\n" +
-				"                        }/*end*/\n" +
-				"                } // missing semicolon;\n" +
-				"        }\n" +
-				"}"
+				"""
+					public class X {
+					        void test() {
+					                new Object() {
+					                        /*start*/public void yes() {
+					                                System.out.println("hello world");
+					                        }/*end*/
+					                } // missing semicolon;
+					        }
+					}"""
 			);
 			ICompilationUnit cu = getCompilationUnit("/P/src/Test.java");
 
@@ -2248,19 +2340,20 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testMethod11() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  public void foo() {\n" +
-			"    new Object() {\n" +
-			"      Object o;\n" +
-			"      {\n"+
-			"        new Object() {\n" +
-			"          /*start*/void bar() {\n" +
-			"          }/*end*/\n" +
-			"		  };\n" +
-			"      }\n" +
-			"    };\n"+
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  public void foo() {
+				    new Object() {
+				      Object o;
+				      {
+				        new Object() {
+				          /*start*/void bar() {
+				          }/*end*/
+						  };
+				      }
+				    };
+				  }
+				}"""
 		);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -2290,12 +2383,13 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"public class X249567 {}"
 			);
 			ASTNode node = buildAST(
-				"public class X {\n" +
-				"  void foo(p1.X249567 x) {\n" +
-				"  }\n" +
-				"  /*start*/void foo(p2.X249567 x) {\n" +
-				"  }/*end*/\n" +
-				"}"
+				"""
+					public class X {
+					  void foo(p1.X249567 x) {
+					  }
+					  /*start*/void foo(p2.X249567 x) {
+					  }/*end*/
+					}"""
 			);
 			IBinding binding = ((MethodDeclaration) node).resolveBinding();
 			IJavaElement element = binding.getJavaElement();
@@ -2319,16 +2413,18 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			createFolder("/P/src/p1");
 			createFile(
 				"/P/src/p1/X249567.java",
-				"package p1;\n" +
-				"public class X249567 {\n" +
-				"  public class Member {}\n" +
-				"}"
+				"""
+					package p1;
+					public class X249567 {
+					  public class Member {}
+					}"""
 			);
 			ASTNode node = buildAST(
-				"public class X {\n" +
-				"  /*start*/void foo(p1.X249567.Member x) {\n" +
-				"  }/*end*/\n" +
-				"}"
+				"""
+					public class X {
+					  /*start*/void foo(p1.X249567.Member x) {
+					  }/*end*/
+					}"""
 			);
 			IBinding binding = ((MethodDeclaration) node).resolveBinding();
 			IJavaElement element = binding.getJavaElement();
@@ -2351,16 +2447,18 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			createFolder("/P/src/p1");
 			createFile(
 				"/P/src/p1/X249567.java",
-				"package p1;\n" +
-				"public class X249567 {\n" +
-				"  public class Member<T> {}\n" +
-				"}"
+				"""
+					package p1;
+					public class X249567 {
+					  public class Member<T> {}
+					}"""
 			);
 			ASTNode node = buildAST(
-				"public class X {\n" +
-				"  /*start*/void foo(p1.X249567.Member<java.lang.String> x) {\n" +
-				"  }/*end*/\n" +
-				"}"
+				"""
+					public class X {
+					  /*start*/void foo(p1.X249567.Member<java.lang.String> x) {
+					  }/*end*/
+					}"""
 			);
 			IBinding binding = ((MethodDeclaration) node).resolveBinding();
 			IJavaElement element = binding.getJavaElement();
@@ -2379,9 +2477,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testPackage1() throws CoreException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  /*start*/java.lang/*end*/.String field;\n" +
-			"}"
+			"""
+				public class X {
+				  /*start*/java.lang/*end*/.String field;
+				}"""
 		);
 		IBinding binding = ((QualifiedName) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -2417,9 +2516,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testParameterizedBinaryType() throws CoreException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  /*start*/Comparable<String>/*end*/ field;\n" +
-			"}"
+			"""
+				public class X {
+				  /*start*/Comparable<String>/*end*/ field;
+				}"""
 		);
 		IBinding binding = ((Type) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -2436,11 +2536,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testParameterizedBinaryMethod() throws CoreException {
 		ASTNode node = buildAST(
-			"public class X extends p.Y<String> {\n" +
-			"  public X(String s) {\n" +
-			"    /*start*/super(s);/*end*/\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X extends p.Y<String> {
+				  public X(String s) {
+				    /*start*/super(s);/*end*/
+				  }
+				}"""
 		);
 		IBinding binding = ((SuperConstructorInvocation) node).resolveConstructorBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -2457,9 +2558,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testRawBinaryType() throws CoreException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  /*start*/Comparable/*end*/ field;\n" +
-			"}"
+			"""
+				public class X {
+				  /*start*/Comparable/*end*/ field;
+				}"""
 		);
 		IBinding binding = ((Type) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -2479,19 +2581,21 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			IJavaProject p = createJavaProject("P15", new String[] {""}, new String[] {"JCL15_LIB", "/P15/util.jar"}, "", "1.5");
 			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 				"java/util/List.java",
-				"package java.util;\n" +
-				"public class List<T> {\n" +
-				"}"
+				"""
+					package java.util;
+					public class List<T> {
+					}"""
 			}, p.getProject().getLocation() + File.separator + "util.jar",
 			"1.5");
 			p.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 			createFile("/P15/X.java", "");
 			ASTNode node = buildAST(
-				"public class X {\n" +
-				"  void m() {\n" +
-				"    /*start*/new java.util.List<URL>()/*end*/;\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class X {
+					  void m() {
+					    /*start*/new java.util.List<URL>()/*end*/;
+					  }
+					}""",
 				getCompilationUnit("/P15/X.java"),
 				false/*don't report errors*/,
 				true/*statement recovery*/,
@@ -2514,11 +2618,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			createJavaProject("P15", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
 			createFile("/P15/X.java", "");
 			ASTNode node = buildAST(
-				"public class X {\n" +
-				"  void m() {\n" +
-				"    new /*start*/java.util.List<URL>/*end*/();\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class X {
+					  void m() {
+					    new /*start*/java.util.List<URL>/*end*/();
+					  }
+					}""",
 				getCompilationUnit("/P15/X.java"),
 				false/*don't report errors*/,
 				true/*statement recovery*/,
@@ -2582,9 +2687,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testTopLevelType3() throws CoreException {
 		ASTNode node = buildAST(
-			"public class X {\n" +
-			"  /*start*/String/*end*/ field;\n" +
-			"}"
+			"""
+				public class X {
+				  /*start*/String/*end*/ field;
+				}"""
 		);
 		IBinding binding = ((Type) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -2630,10 +2736,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			parser.setProject(getJavaProject("P"));
 			createFolder("/P/src/p");
 			createFile("/P/src/p/X.java",
-				"package p;\n" +
-				"public interface X<T> {\n" +
-				"  public T foo(int i, String s);\n" +
-				"}");
+				"""
+					package p;
+					public interface X<T> {
+					  public T foo(int i, String s);
+					}""");
 			cu = (ICompilationUnit) getJavaProject("P").findElement(new Path("p/X.java"));
 			cu.becomeWorkingCopy(null);
 			IJavaElement[] elements = new IJavaElement[] {
@@ -2672,10 +2779,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	public void testTypeParameter3() throws CoreException {
 		try {
 			createClassFile("/P/lib", "A.class",
-				"package lib;\n" +
-				"public interface A<T,Z> {\n" +
-				"  public T foo(int i, String s);\n" +
-				"}");
+				"""
+					package lib;
+					public interface A<T,Z> {
+					  public T foo(int i, String s);
+					}""");
 			IJavaProject javaProject = getJavaProject("P");
 			IJavaElement[] elements = new IJavaElement[] {
 					javaProject.findType("lib.A"),
@@ -2686,9 +2794,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			parser.setProject(javaProject);
 			IBinding[] bindings = parser.createBindings(elements, null);
 			assertBindingsEqual(
-				"Llib/A<TT;TZ;>;\n" +
-				"Llib/A;:TT;\n" +
-				"Llib/A;:TZ;",
+				"""
+					Llib/A<TT;TZ;>;
+					Llib/A;:TT;
+					Llib/A;:TZ;""",
 				bindings);
 		} finally {
 			deleteFile("/P/lib/A.class");
@@ -2704,10 +2813,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		try {
 			createFolder("P/lib");
 			createClassFile("/P/lib", "A.class",
-				"package lib;\n" +
-				"public interface A {\n" +
-				"  public <T,Z> T foo(int i, Z s);\n" +
-				"}");
+				"""
+					package lib;
+					public interface A {
+					  public <T,Z> T foo(int i, Z s);
+					}""");
 			IJavaProject javaProject = getJavaProject("P");
 			IMethod method = javaProject.findType("lib.A").getMethod("foo", new String[] { "I", "TZ;" });
 			IJavaElement[] elements = new IJavaElement[] {
@@ -2719,9 +2829,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			parser.setProject(javaProject);
 			IBinding[] bindings = parser.createBindings(elements, null);
 			assertBindingsEqual(
-				"Llib/A;.foo<T:Ljava/lang/Object;Z:Ljava/lang/Object;>(ITZ;)TT;\n" +
-				"Llib/A;.foo<T:Ljava/lang/Object;Z:Ljava/lang/Object;>(ITZ;)TT;:TT;\n" +
-				"Llib/A;.foo<T:Ljava/lang/Object;Z:Ljava/lang/Object;>(ITZ;)TT;:TZ;",
+				"""
+					Llib/A;.foo<T:Ljava/lang/Object;Z:Ljava/lang/Object;>(ITZ;)TT;
+					Llib/A;.foo<T:Ljava/lang/Object;Z:Ljava/lang/Object;>(ITZ;)TT;:TT;
+					Llib/A;.foo<T:Ljava/lang/Object;Z:Ljava/lang/Object;>(ITZ;)TT;:TZ;""",
 				bindings);
 		} finally {
 			deleteFile("/P/lib/A.class");
@@ -2735,9 +2846,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testWildCard() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X<T> {\n" +
-			"	X</*start*/? extends Exception/*end*/> field;\n" +
-			"}"
+			"""
+				public class X<T> {
+					X</*start*/? extends Exception/*end*/> field;
+				}"""
 		);
 		IBinding binding = ((WildcardType) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
@@ -2755,10 +2867,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		String filePath = "/P/src/Bug157847A.java";
 		try {
 			String contents =
-				"public class Bug157847A<T> {\n" +
-				"	void add(Y<? extends T> l) {}\n" +
-				"}\n"+
-                "interface Y<T> {}\n";
+				"""
+				public class Bug157847A<T> {
+					void add(Y<? extends T> l) {}
+				}
+				interface Y<T> {}
+				""";
 			createFile(filePath, contents);
 
 			BindingRequestor requestor = new BindingRequestor();
@@ -2785,10 +2899,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		String filePath = "/P/src/Bug157847B.java";
 		try {
 			String contents =
-				"public class Bug157847B<T> {\n" +
-				"	void add(Y<? super T> l) {}\n" +
-				"}\n"+
-                "interface Y<T> {}\n";
+				"""
+				public class Bug157847B<T> {
+					void add(Y<? super T> l) {}
+				}
+				interface Y<T> {}
+				""";
 			createFile(filePath, contents);
 
 			BindingRequestor requestor = new BindingRequestor();
@@ -2815,10 +2931,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		String filePath = "/P/src/Bug157847C.java";
 		try {
 			String contents =
-				"public class Bug157847C<T> {\n" +
-				"	void add(Y<? extends T> l) {}\n" +
-				"}\n"+
-                "interface Y<T> {}\n";
+				"""
+				public class Bug157847C<T> {
+					void add(Y<? extends T> l) {}
+				}
+				interface Y<T> {}
+				""";
 			createFile(filePath, contents);
 
 			BindingRequestor requestor = new BindingRequestor();
@@ -2841,13 +2959,14 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		String filePathY = "/P/src/p/Y.java";
 		try {
 			String contents =
-				"import p.Y;\n" +
-				"public class X {\n" +
-				"	Y<MissingType1, MissingType2> y;\n" +
-				"	public X() {\n" +
-				"		this.y = new Y<MissingType1, MissingType2>();\n" +
-				"	}\n" +
-				"}";
+				"""
+				import p.Y;
+				public class X {
+					Y<MissingType1, MissingType2> y;
+					public X() {
+						this.y = new Y<MissingType1, MissingType2>();
+					}
+				}""";
 			createFile(filePath, contents);
 			ICompilationUnit compilationUnit = getCompilationUnit("P", "src", "", "X.java");
 			assertTrue(compilationUnit.exists());
@@ -2876,36 +2995,38 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			assertNotNull("No ast", asts[0]);
 			final IProblem[] problems = asts[0].getProblems();
 			String expectedProblems =
-				"1. ERROR in /P/src/X.java (at line 3)\n" +
-				"	Y<MissingType1, MissingType2> y;\n" +
-				"	  ^^^^^^^^^^^^\n" +
-				"MissingType1 cannot be resolved to a type\n" +
-				"----------\n" +
-				"2. ERROR in /P/src/X.java (at line 3)\n" +
-				"	Y<MissingType1, MissingType2> y;\n" +
-				"	                ^^^^^^^^^^^^\n" +
-				"MissingType2 cannot be resolved to a type\n" +
-				"----------\n" +
-				"3. ERROR in /P/src/X.java (at line 5)\n" +
-				"	this.y = new Y<MissingType1, MissingType2>();\n" +
-				"	^^^^^^\n" +
-				"MissingType1 cannot be resolved to a type\n" +
-				"----------\n" +
-				"4. ERROR in /P/src/X.java (at line 5)\n" +
-				"	this.y = new Y<MissingType1, MissingType2>();\n" +
-				"	^^^^^^\n" +
-				"MissingType2 cannot be resolved to a type\n" +
-				"----------\n" +
-				"5. ERROR in /P/src/X.java (at line 5)\n" +
-				"	this.y = new Y<MissingType1, MissingType2>();\n" +
-				"	               ^^^^^^^^^^^^\n" +
-				"MissingType1 cannot be resolved to a type\n" +
-				"----------\n" +
-				"6. ERROR in /P/src/X.java (at line 5)\n" +
-				"	this.y = new Y<MissingType1, MissingType2>();\n" +
-				"	                             ^^^^^^^^^^^^\n" +
-				"MissingType2 cannot be resolved to a type\n" +
-				"----------\n";
+				"""
+				1. ERROR in /P/src/X.java (at line 3)
+					Y<MissingType1, MissingType2> y;
+					  ^^^^^^^^^^^^
+				MissingType1 cannot be resolved to a type
+				----------
+				2. ERROR in /P/src/X.java (at line 3)
+					Y<MissingType1, MissingType2> y;
+					                ^^^^^^^^^^^^
+				MissingType2 cannot be resolved to a type
+				----------
+				3. ERROR in /P/src/X.java (at line 5)
+					this.y = new Y<MissingType1, MissingType2>();
+					^^^^^^
+				MissingType1 cannot be resolved to a type
+				----------
+				4. ERROR in /P/src/X.java (at line 5)
+					this.y = new Y<MissingType1, MissingType2>();
+					^^^^^^
+				MissingType2 cannot be resolved to a type
+				----------
+				5. ERROR in /P/src/X.java (at line 5)
+					this.y = new Y<MissingType1, MissingType2>();
+					               ^^^^^^^^^^^^
+				MissingType1 cannot be resolved to a type
+				----------
+				6. ERROR in /P/src/X.java (at line 5)
+					this.y = new Y<MissingType1, MissingType2>();
+					                             ^^^^^^^^^^^^
+				MissingType2 cannot be resolved to a type
+				----------
+				""";
 			assertProblems("Wrong problems", expectedProblems, problems, contents.toCharArray());
 		} finally {
 			deleteFile(filePath);

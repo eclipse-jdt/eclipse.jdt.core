@@ -59,13 +59,14 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("    void foo(Object o) {\n");
-		buf.append(" 	}\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			    void foo(Object o) {
+			 	}
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -93,16 +94,16 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("    void foo(Object o) {\n");
-		buf.append("        if (o instanceof String s)\n");
-		buf.append("            ;\n");
-		buf.append(" 	}\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			    void foo(Object o) {
+			        if (o instanceof String s)
+			            ;
+			 	}
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -113,16 +114,16 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("    void foo(Object o) {\n");
-		buf.append("        if (o instanceof String s)\n");
-		buf.append("            ;\n");
-		buf.append(" 	}\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			    void foo(Object o) {
+			        if (o instanceof String s)
+			            ;
+			 	}
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -148,16 +149,16 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("    void foo(Object o) {\n");
-		buf.append("        if (o instanceof String str1)\n");
-		buf.append("            ;\n");
-		buf.append(" 	}\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			    void foo(Object o) {
+			        if (o instanceof String str1)
+			            ;
+			 	}
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -168,16 +169,16 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("    void foo(Object o) {\n");
-		buf.append("        if (o instanceof String s)\n");
-		buf.append("            ;\n");
-		buf.append(" 	}\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			    void foo(Object o) {
+			        if (o instanceof String s)
+			            ;
+			 	}
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -200,16 +201,16 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("    void foo(Object o) {\n");
-		buf.append("        if (x instanceof String s)\n");
-		buf.append("            ;\n");
-		buf.append(" 	}\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			    void foo(Object o) {
+			        if (x instanceof String s)
+			            ;
+			 	}
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 }

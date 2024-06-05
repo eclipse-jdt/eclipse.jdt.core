@@ -144,15 +144,16 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391898
 	public void test0001() throws JavaModelException {
 		String contents =
-			"    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-			"    @interface Marker {\n" +
-			"    }\n" +
-			"public class X {\n" +
-			"	public void foo(int @Marker... args) {\n" +
-			"	}\n" +
-			" 	public void bar(@Marker int @Marker... args) {\n" +
-			" 	}\n" +
-			"}";
+			"""
+			    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			    @interface Marker {
+			    }
+			public class X {
+				public void foo(int @Marker... args) {
+				}
+			 	public void bar(@Marker int @Marker... args) {
+			 	}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
@@ -186,14 +187,15 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=413569
 	public void test413569() throws JavaModelException {
 		String contents =
-			"import java.lang.annotation.*;\n" +
-			"public class X {\n" +
-			"	@Target(ElementType.TYPE_USE) static @interface A {}\n" +
-			"	@Target(ElementType.TYPE_USE) static @interface B {}\n" +
-			"	@Target(ElementType.TYPE_USE) static @interface C { Class<?> value() default Object.class; }\n" +
-			"	@Target(ElementType.TYPE_USE) static @interface D { Class<?> d(); }\n" +
-			"	void foo(@A int @B()[] @C(int[].class) [] @D(d=String[].class)... arg) {}\n" +
-			"}";
+			"""
+			import java.lang.annotation.*;
+			public class X {
+				@Target(ElementType.TYPE_USE) static @interface A {}
+				@Target(ElementType.TYPE_USE) static @interface B {}
+				@Target(ElementType.TYPE_USE) static @interface C { Class<?> value() default Object.class; }
+				@Target(ElementType.TYPE_USE) static @interface D { Class<?> d(); }
+				void foo(@A int @B()[] @C(int[].class) [] @D(d=String[].class)... arg) {}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
@@ -237,27 +239,34 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test0002() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0002/X.java",
 				true/* resolve */);
-		String contents = "package test0002;\n"
-				+ "import java.lang.annotation.Target;\n"
-				+ "public class X {\n"
-				+ "	public static void main(String[] args) {\n"
-				+ "		Outer outer = new Outer();\n"
-				+ "		Object myObject = new Object();\n"
-				+ "		String myString;\n"
-				+ "		myString = (java.lang.@Marker String) myObject;\n"
-				+ "		Outer.Inner first = outer.new Inner();\n"
-				+ "		Outer. @Marker2 Inner second = outer.new Inner() ;\n"
-				+ "		Outer.Inner. @Marker1 Deeper deeper = second.new Deeper();\n"
-				+ "		Outer.@Marker1 Inner.@Marker2 Deeper deeper2 =  second.new Deeper();\n"
-				+ "	}\n" + "}\n" + "class Outer {\n"
-				+ "	public class Inner {\n" + "		public class Deeper {\n"
-				+ "		}\n" + "	}\n" + "}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker {}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker1 {}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker2 {}\n";
+		String contents = """
+			package test0002;
+			import java.lang.annotation.Target;
+			public class X {
+				public static void main(String[] args) {
+					Outer outer = new Outer();
+					Object myObject = new Object();
+					String myString;
+					myString = (java.lang.@Marker String) myObject;
+					Outer.Inner first = outer.new Inner();
+					Outer. @Marker2 Inner second = outer.new Inner() ;
+					Outer.Inner. @Marker1 Deeper deeper = second.new Deeper();
+					Outer.@Marker1 Inner.@Marker2 Deeper deeper2 =  second.new Deeper();
+				}
+			}
+			class Outer {
+				public class Inner {
+					public class Deeper {
+					}
+				}
+			}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker1 {}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			""";
 		CompilationUnit cu = (CompilationUnit) buildAST(contents,
 				this.workingCopy);
 		MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(cu, 0, 0);
@@ -337,15 +346,21 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test0003() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0003/X.java",
 				true/* resolve */);
-		String contents = "package test0003;\n"
-				+ "import java.lang.annotation.Target;\n"
-				+ "public class X {\n"
-				+ "	public static void main(String[] args) {\n"
-				+ "		@Marker Outer.Inner first[] = new Outer.Inner[1];\n"
-				+ "	}\n" + "}\n" + "class Outer {\n"
-				+ "	public class Inner {\n" + "	}\n" + "}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker {}\n";
+		String contents = """
+			package test0003;
+			import java.lang.annotation.Target;
+			public class X {
+				public static void main(String[] args) {
+					@Marker Outer.Inner first[] = new Outer.Inner[1];
+				}
+			}
+			class Outer {
+				public class Inner {
+				}
+			}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 		MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(cu, 0, 0);
 		List statements = methodDeclaration.getBody().statements();
@@ -373,15 +388,20 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test0004() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0004/X.java",
 				true/* resolve */);
-		String contents = "package test0004;"
-				+ "import java.lang.annotation.Target;\n"
-				+ "public class X implements One</*start*/@Marker1 Outer<Integer>. @Marker2 Inner<Double>[]/*end*/> {\n"
-				+ "}\n" + "interface One<T> {}\n" + "class Outer<T> {\n"
-				+ "	public class Inner<S> {}\n" + "}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker1 {}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker2 {}\n";
+		String contents = """
+			package test0004;\
+			import java.lang.annotation.Target;
+			public class X implements One</*start*/@Marker1 Outer<Integer>. @Marker2 Inner<Double>[]/*end*/> {
+			}
+			interface One<T> {}
+			class Outer<T> {
+				public class Inner<S> {}
+			}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker1 {}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			""";
 		ArrayType type = (ArrayType) buildAST(contents, this.workingCopy);
 		assertNotNull("No annotation", type);
 		ITypeBinding binding = type.resolveBinding();
@@ -420,21 +440,26 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test0005() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0005/X.java",
 				true/* resolve */);
-		String contents = "package test0005;"
-				+ "import java.lang.annotation.Target;\n"
-				+ "public class X implements One< Outer.Inner > {\n"
-				+ "}\n"
-				+ "class Y implements One< Outer. @Marker1 Inner > {\n"
-				+ "}\n"
-				+ "class Z implements One< @Marker1 Outer.Inner > {\n"
-				+ "}\n"
-				+ "class W implements One< @Marker1 Outer. @Marker2 Inner > {\n"
-				+ "}\n" + "interface One<T> {}\n" + "class Outer {\n"
-				+ "	public class Inner {}\n" + "}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker1 {}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker2 {}\n";
+		String contents = """
+			package test0005;\
+			import java.lang.annotation.Target;
+			public class X implements One< Outer.Inner > {
+			}
+			class Y implements One< Outer. @Marker1 Inner > {
+			}
+			class Z implements One< @Marker1 Outer.Inner > {
+			}
+			class W implements One< @Marker1 Outer. @Marker2 Inner > {
+			}
+			interface One<T> {}
+			class Outer {
+				public class Inner {}
+			}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker1 {}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			""";
 		CompilationUnit cu = (CompilationUnit) buildAST(contents,
 				this.workingCopy);
 		int tCount = 0;
@@ -518,46 +543,63 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test0006() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0006/X.java",
 				true);
-		String contents = "package test0006;"
-				+ "import java.lang.annotation.Target;\n"
-				+ "public class X implements One<Outer.  Inner.Deeper<Double>> {\n"
-				+ "}\n"
-				+ "class X1 implements One<Outer. @Marker1 Inner.Deeper<Double>> {\n"
-				+ "}\n"
-				+ "class X2 implements One<Outer. @Marker1 Inner.@Marker2 Deeper<Double>> {\n"
-				+ "}\n"
-				+ "class X3 implements One<@Marker1 Outer. @Marker2 Inner. Deeper<Double>> {\n"
-				+ "}\n"
-				+ "class Y implements One<Outer1. Inner<Integer>. Deeper<Double>> {\n"
-				+ "}\n"
-				+ "class Y1 implements One<Outer1. Inner<Integer>. @Marker1 Deeper<Double>> {\n"
-				+ "}\n"
-				+ "class Y2 implements One<Outer1. @Marker1 Inner<Integer>. Deeper<Double>> {\n"
-				+ "}\n"
-				+ "class Y3 implements One<@Marker1 Outer1. Inner<Integer>. Deeper<Double>> {\n"
-				+ "}\n"
-				+ "class Y4 implements One<@Marker1 Outer1. @Marker2 Inner<Integer>. Deeper<Double>> {\n"
-				+ "}\n"
-				+ "class Z implements One<Outer2<Integer>.Inner.Deeper<Double>> {\n"
-				+ "}\n"
-				+ "class Z1 implements One<@Marker1 Outer2<Integer>.Inner.Deeper<Double>> {\n"
-				+ "}\n"
-				+ "class Z2 implements One<Outer2<Integer>. @Marker1 Inner.@Marker2 Deeper<Double>> {\n"
-				+ "}\n"
-				+ "class W implements One<Outer3<Double>. @Marker1 @Marker2 Inner<Integer, Character>. Deeper<Double>> {\n"
-				+ "}\n" + "interface One<T> {}\n" + "class Outer {\n"
-				+ "	public class Inner {\n"
-				+ "       public class Deeper<S> {\n" + "       }\n" + "   }\n"
-				+ "}\n" + "class Outer1 {\n" + "	public class Inner<T> {\n"
-				+ "       public class Deeper<S> {\n" + "       }\n" + "   }\n"
-				+ "}\n" + "class Outer2 <T> {\n" + "	public class Inner {\n"
-				+ "       public class Deeper<S> {}\n" + "   }\n" + "}\n"
-				+ "class Outer3 <T> {\n" + "	public class Inner<K, V> {\n"
-				+ "       public class Deeper<S> {}\n" + "   }\n" + "}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker1 {}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker2 {}\n";
+		String contents = """
+			package test0006;\
+			import java.lang.annotation.Target;
+			public class X implements One<Outer.  Inner.Deeper<Double>> {
+			}
+			class X1 implements One<Outer. @Marker1 Inner.Deeper<Double>> {
+			}
+			class X2 implements One<Outer. @Marker1 Inner.@Marker2 Deeper<Double>> {
+			}
+			class X3 implements One<@Marker1 Outer. @Marker2 Inner. Deeper<Double>> {
+			}
+			class Y implements One<Outer1. Inner<Integer>. Deeper<Double>> {
+			}
+			class Y1 implements One<Outer1. Inner<Integer>. @Marker1 Deeper<Double>> {
+			}
+			class Y2 implements One<Outer1. @Marker1 Inner<Integer>. Deeper<Double>> {
+			}
+			class Y3 implements One<@Marker1 Outer1. Inner<Integer>. Deeper<Double>> {
+			}
+			class Y4 implements One<@Marker1 Outer1. @Marker2 Inner<Integer>. Deeper<Double>> {
+			}
+			class Z implements One<Outer2<Integer>.Inner.Deeper<Double>> {
+			}
+			class Z1 implements One<@Marker1 Outer2<Integer>.Inner.Deeper<Double>> {
+			}
+			class Z2 implements One<Outer2<Integer>. @Marker1 Inner.@Marker2 Deeper<Double>> {
+			}
+			class W implements One<Outer3<Double>. @Marker1 @Marker2 Inner<Integer, Character>. Deeper<Double>> {
+			}
+			interface One<T> {}
+			class Outer {
+				public class Inner {
+			       public class Deeper<S> {
+			       }
+			   }
+			}
+			class Outer1 {
+				public class Inner<T> {
+			       public class Deeper<S> {
+			       }
+			   }
+			}
+			class Outer2 <T> {
+				public class Inner {
+			       public class Deeper<S> {}
+			   }
+			}
+			class Outer3 <T> {
+				public class Inner<K, V> {
+			       public class Deeper<S> {}
+			   }
+			}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker1 {}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			""";
 		CompilationUnit cu = (CompilationUnit) buildAST(contents,
 				this.workingCopy);
 		int tCount = 0;
@@ -1082,13 +1124,14 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391893
 	public void test0007() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-			"	public void foo(@Marker @Marker2 X this, @Marker2 @Marker int i){}\n" +
-			"}\n" +
-			"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-			"@interface Marker {}\n" +
-			"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-			"@interface Marker2 {}";
+			"""
+			public class X {
+				public void foo(@Marker @Marker2 X this, @Marker2 @Marker int i){}
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -1105,15 +1148,16 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391893
 	public void test0008() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-			"	class Y {\n" +
-			"		public Y(@Marker @Marker2 X X.this, @Marker2 @Marker int i){}\n" +
-			"	}\n" +
-			"}\n" +
-			"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-			"@interface Marker {}\n" +
-			"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-			"@interface Marker2 {}";
+			"""
+			public class X {
+				class Y {
+					public Y(@Marker @Marker2 X X.this, @Marker2 @Marker int i){}
+				}
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -1134,25 +1178,26 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391895
 	public void test0009() throws JavaModelException {
 		String contents =
-				"import java.lang.annotation.ElementType;\n" +
-						"public class X {\n" +
-						" 	class Y {\n" +
-						"		@Annot int @Annot1 [] a @Annot2 @Annot3 [] @Annot3 @Annot2 [] @Annot4 [], b @Annot2 @Annot3 [] @Annot4 [], c [][][];\n" +
-						"		public void foo1(@Annot int @Annot1 [] p @Annot2 @Annot3 [] @Annot3 @Annot2 [] @Annot4 @Annot3 []) {}\n" +
-						"		public void foo2(@Annot int p [][]) {}\n" +
-						"		@Annot String @Annot1 [] foo3() @Annot1 @Annot2 [][] { return null; }\n" +
-						"	}\n" +
-						"}\n" +
-						"@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n" +
-						"@interface Annot {}\n" +
-						"@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n" +
-						"@interface Annot1 {}\n" +
-						"@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n" +
-						"@interface Annot2 {}\n" +
-						"@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n" +
-						"@interface Annot3 {}\n" +
-						"@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n" +
-						"@interface Annot4 {}";
+				"""
+			import java.lang.annotation.ElementType;
+			public class X {
+			 	class Y {
+					@Annot int @Annot1 [] a @Annot2 @Annot3 [] @Annot3 @Annot2 [] @Annot4 [], b @Annot2 @Annot3 [] @Annot4 [], c [][][];
+					public void foo1(@Annot int @Annot1 [] p @Annot2 @Annot3 [] @Annot3 @Annot2 [] @Annot4 @Annot3 []) {}
+					public void foo2(@Annot int p [][]) {}
+					@Annot String @Annot1 [] foo3() @Annot1 @Annot2 [][] { return null; }
+				}
+			}
+			@java.lang.annotation.Target(value = {ElementType.TYPE_USE})
+			@interface Annot {}
+			@java.lang.annotation.Target(value = {ElementType.TYPE_USE})
+			@interface Annot1 {}
+			@java.lang.annotation.Target(value = {ElementType.TYPE_USE})
+			@interface Annot2 {}
+			@java.lang.annotation.Target(value = {ElementType.TYPE_USE})
+			@interface Annot3 {}
+			@java.lang.annotation.Target(value = {ElementType.TYPE_USE})
+			@interface Annot4 {}""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -1187,16 +1232,17 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399600
 	public void test0010() throws JavaModelException {
 		String contents =
-				"import java.lang.annotation.ElementType;\n" +
-						"public class X {\n" +
-						"	@Marker int foo(@Marker(\"Blah\") int z) @Marker [] @Marker [] {\n" +
-						"		return null;\n" +
-						"	}\n" +
-						"}\n" +
-						"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-						"@interface Marker {\n" +
-						"	String value() default \"Blah\";\n" +
-						"}";
+				"""
+			import java.lang.annotation.ElementType;
+			public class X {
+				@Marker int foo(@Marker("Blah") int z) @Marker [] @Marker [] {
+					return null;
+				}
+			}
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Marker {
+				String value() default "Blah";
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -1209,25 +1255,26 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391894
 	public void test0011() throws JavaModelException {
 		String contents =
-				"import java.lang.annotation.ElementType;\n" +
-				"public class X {\n" +
-				" 	public void foo() {\n" +
-				"		int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [2] @Marker2 @Marker3 [bar()] @Marker3 @Marker []; \n" +
-				"		int @Marker [][][] j = new @Marker int @Marker3 @Marker [2] @Marker @Marker2 [X.bar2(2)] @Marker2 @Marker3 [];\n" +
-				"	}\n" +
-				"	public int bar() {\n" +
-				"		return 2;\n" +
-				"	}\n" +
-				"	public static int bar2(int k) {\n" +
-				"		return k;\n" +
-				"	}\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker3 {}";
+				"""
+			import java.lang.annotation.ElementType;
+			public class X {
+			 	public void foo() {
+					int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [2] @Marker2 @Marker3 [bar()] @Marker3 @Marker [];\s
+					int @Marker [][][] j = new @Marker int @Marker3 @Marker [2] @Marker @Marker2 [X.bar2(2)] @Marker2 @Marker3 [];
+				}
+				public int bar() {
+					return 2;
+				}
+				public static int bar2(int k) {
+					return k;
+				}
+			}
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Marker2 {}
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Marker3 {}""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -1280,18 +1327,19 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391894
 	public void test0012() throws JavaModelException {
 		String contents =
-				"import java.lang.annotation.ElementType;\n" +
-				"public class X {\n" +
-				" 	public void foo() {\n" +
-				"		int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [] @Marker2 @Marker3 [] @Marker3 @Marker [] {{{1, 2, 3}}}; \n" +
-				"	}\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker3 {}";
+				"""
+			import java.lang.annotation.ElementType;
+			public class X {
+			 	public void foo() {
+					int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [] @Marker2 @Marker3 [] @Marker3 @Marker [] {{{1, 2, 3}}};\s
+				}
+			}
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Marker2 {}
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Marker3 {}""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -1316,18 +1364,19 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// Force to use JLS4 and confirm malformed flags are set.
 	public void test0021() throws JavaModelException {
 		String contents =
-				"import java.lang.annotation.ElementType;\n" +
-				"public class X {\n" +
-				" 	public void foo() {\n" +
-				"		int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [] @Marker2 @Marker3 [] @Marker3 @Marker [] {{{1, 2, 3}}}; \n" +
-				"	}\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker3 {}";
+				"""
+			import java.lang.annotation.ElementType;
+			public class X {
+			 	public void foo() {
+					int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [] @Marker2 @Marker3 [] @Marker3 @Marker [] {{{1, 2, 3}}};\s
+				}
+			}
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Marker2 {}
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Marker3 {}""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		CompilationUnit unit = (CompilationUnit) buildAST(getJLS4(), contents, this.workingCopy, true, true, true);
 
@@ -1351,17 +1400,19 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test0013() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0010/X.java",
 				true/* resolve */);
-		String contents = "package test0010;"
-				+ "import java.lang.annotation.Target;\n"
-				+ "public class X implements One<@Marker1 Integer, @Marker2 Boolean> {\n"
-				+ "}\n"
-				+ "class Y implements One<@Marker1 @Marker2 Integer, @Marker2 @Marker1 Double> {\n"
-				+ "}\n"
-				+ "interface One<T, U> {}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker1 {}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker2 {}\n";
+		String contents = """
+			package test0010;\
+			import java.lang.annotation.Target;
+			public class X implements One<@Marker1 Integer, @Marker2 Boolean> {
+			}
+			class Y implements One<@Marker1 @Marker2 Integer, @Marker2 @Marker1 Double> {
+			}
+			interface One<T, U> {}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker1 {}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			""";
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 		// simple types for generic type arguments to parameterized classes
 		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
@@ -1395,28 +1446,30 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test0014() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0011/X.java",
 				true/* resolve */);
-		String contents = "package test0011;"
-				+ "import java.lang.annotation.Target;\n"
-				+ "public class X {\n"
-				+ "	public void foo() {\n"
-				+ " 	Y y = new <@Marker2 @Marker1 String> Y(new String(\"Hello\"));\n"
-				+ " 	len = y.<@Marker1 @Marker2 String> bar(new String(\"World\"));\n"
-				+ " }\n"
-				+ "	public int len;\n"
-				+ "}\n"
-				+ "class Y {\n"
-				+ "	public <T> Y(T t) {\n"
-				+ "		len = t instanceof String ? ((String)t).length() : 0;\n"
-				+ "	}\n"
-				+ "	public <T> int bar(T t) {\n"
-				+ "		return t instanceof String ? ((String)t).length() : len;\n"
-				+ "	}\n"
-				+ " private int len;\n"
-				+ "}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker1 {}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker2 {}\n";
+		String contents = """
+			package test0011;\
+			import java.lang.annotation.Target;
+			public class X {
+				public void foo() {
+			 	Y y = new <@Marker2 @Marker1 String> Y(new String("Hello"));
+			 	len = y.<@Marker1 @Marker2 String> bar(new String("World"));
+			 }
+				public int len;
+			}
+			class Y {
+				public <T> Y(T t) {
+					len = t instanceof String ? ((String)t).length() : 0;
+				}
+				public <T> int bar(T t) {
+					return t instanceof String ? ((String)t).length() : len;
+				}
+			 private int len;
+			}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker1 {}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			""";
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 		// simple type for generic type arguments in a generic method or constructor invocation
 		MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(cu, 0, 0);
@@ -1449,43 +1502,45 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test0015() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0012/X.java",
 				true/* resolve */);
-		String contents = "package test0012;"
-				+ "import java.lang.annotation.Target;\n"
-				+ "import java.io.File;\n"
-				+ "public class X <@Marker1 @Marker3 F extends @Marker1 @Marker2 File> {\n"
-				+ "	public int foo(F f) {\n"
-				+ " 	Y <@Marker2 @Marker3 ? super @Marker1 @Marker2 File> y = new @Marker2 @Marker1 Y<File>();\n"
-				+ "		Outer o = new @Marker1 @Marker2 Outer();\n"
-				+ "		Outer.Inner inner = o.new @Marker1 @Marker2 Inner();\n"
-				+  " 	ZZ zz = new <String> @Marker1 @Marker2 ZZ();\n"
-				+ " 	return f.getName().length() + y.hashCode() + inner.hashCode();\n"
-				+ " }\n"
-				+ "}\n"
-				+ "class Y<@Marker3 T> {\n"
-				+ "	public int bar(T t) {\n"
-				+ "		return t instanceof @Marker1 @Marker2 File ? t.toString().length() : 0;\n"
-				+ "	}\n"
-				+ "}\n"
-				+ "class Outer {\n"
-				+ "	public class Inner {\n"
-				+ "		public class Deeper {\n"
-				+ "		}\n"
-				+ "	}\n"
-				+ "}\n"
-				+ "class ZZ {\n"
-				+ "public @Marker1 @Marker2 <T> ZZ() {\n"
-				+ "	T t = null;\n"
-				+ "	len =  t instanceof String ? t.hashCode() : 0;\n"
-				+ "}\n"
-				+ "public @Marker1 int  getint(@Marker2 @Marker1 ZZ this) {return len;}\n"
-				+ "public int len;\n"
-				+ "}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker1 {}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker2 {}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker3 {}\n";
+		String contents = """
+			package test0012;\
+			import java.lang.annotation.Target;
+			import java.io.File;
+			public class X <@Marker1 @Marker3 F extends @Marker1 @Marker2 File> {
+				public int foo(F f) {
+			 	Y <@Marker2 @Marker3 ? super @Marker1 @Marker2 File> y = new @Marker2 @Marker1 Y<File>();
+					Outer o = new @Marker1 @Marker2 Outer();
+					Outer.Inner inner = o.new @Marker1 @Marker2 Inner();
+			 	ZZ zz = new <String> @Marker1 @Marker2 ZZ();
+			 	return f.getName().length() + y.hashCode() + inner.hashCode();
+			 }
+			}
+			class Y<@Marker3 T> {
+				public int bar(T t) {
+					return t instanceof @Marker1 @Marker2 File ? t.toString().length() : 0;
+				}
+			}
+			class Outer {
+				public class Inner {
+					public class Deeper {
+					}
+				}
+			}
+			class ZZ {
+			public @Marker1 @Marker2 <T> ZZ() {
+				T t = null;
+				len =  t instanceof String ? t.hashCode() : 0;
+			}
+			public @Marker1 int  getint(@Marker2 @Marker1 ZZ this) {return len;}
+			public int len;
+			}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker1 {}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker3 {}
+			""";
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 
 		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
@@ -1622,13 +1677,15 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test399793a() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399793/X.java",
 				true/* resolve */);
-		String contents = "package test399793;"
-				+ "interface I {\n"
-				+ "	int foo(int x);\n"
-				+ "}\n"
-				+ "public class X {\n"
-				+ " I i =  vlambda -> {return 200;};\n"
-				+"}\n";
+		String contents = """
+			package test399793;\
+			interface I {
+				int foo(int x);
+			}
+			public class X {
+			 I i =  vlambda -> {return 200;};
+			}
+			""";
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(0);
@@ -1657,13 +1714,15 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test399793b() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399793/X.java",
 				true/* resolve */);
-		String contents = "package test399793;"
-				+ "interface I {\n"
-				+ "	int foo(int x);\n"
-				+ "}\n"
-				+ "public class X {\n"
-				+ " I i =  vlambda -> 200;\n"
-				+"}\n";
+		String contents = """
+			package test399793;\
+			interface I {
+				int foo(int x);
+			}
+			public class X {
+			 I i =  vlambda -> 200;
+			}
+			""";
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(0);
@@ -1688,15 +1747,17 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test399793c() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399793/X.java",
 				true/* resolve */);
-		String contents = "package test399793;"
-				+ "interface I {\n"
-				+ "	Object foo(int [] ia);\n"
-				+ "}\n"
-				+ "public class X {\n"
-				+ " I i = (int [] ia) ->{\n"
-				+ "  	return ia.clone();"
-				+ "};\n"
-				+"}\n";
+		String contents = """
+			package test399793;\
+			interface I {
+				Object foo(int [] ia);
+			}
+			public class X {
+			 I i = (int [] ia) ->{
+			  	return ia.clone();\
+			};
+			}
+			""";
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(0);
@@ -1721,21 +1782,23 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test399793d() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399793/X.java",
 				true/* resolve */);
-		String contents = "package test399793;" +
-				"interface I {\n" +
-				"	void doit();\n" +
-				"}\n" +
-				"public class X {\n" +
-				"		I i = () -> {\n" +
-				"			System.out.println(this);\n" +
-				"			I j = () -> {\n" +
-				"				System.out.println(this);\n" +
-				"				I k = () -> {\n" +
-				"					System.out.println(this);\n" +
-				"				};\n" +
-				"			};\n" +
-				"		};\n" +
-				"	}\n";
+		String contents = """
+			package test399793;\
+			interface I {
+				void doit();
+			}
+			public class X {
+					I i = () -> {
+						System.out.println(this);
+						I j = () -> {
+							System.out.println(this);
+							I k = () -> {
+								System.out.println(this);
+							};
+						};
+					};
+				}
+			""";
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(0);
@@ -1759,54 +1822,56 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test399794() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399794/X.java",
 				true/* resolve */);
-		String contents = "package test399794;" +
-				"import java.lang.annotation.*;\n " +
-				"interface I {\n" +
-				"    Object copy(int [] ia);\n" +
-				"}\n" +
-				"interface J {\n" +
-				"	void foo(int x);\n" +
-				"}\n" +
-				"class XX {\n" +
-				"	public  void foo(int x) {}\n" +
-				"}\n" +
-				"\n" +
-				"class Y {\n" +
-				"       static class Z {\n" +
-				"               public static void foo(int x) {\n" +
-				"                       System.out.print(x);\n" +
-				"               }\n" +
-				"       }\n" +
-				"       public void foo(int x) {\n" +
-				"               System.out.print(x);\n" +
-				"       }\n" +
-				"		public <T> void foo(T t){t.hashCode();}\n" +
-				"}\n" +
-				"\n" +
-				"public class X extends XX {\n" +
-				"       @SuppressWarnings(\"unused\")\n" +
-				"       public  void bar(String [] args) {\n" +
-				"                Y y = new Y();\n" +
-				"                I i = @Marker int []::<String>clone;\n" +
-				"                J j = Y.@Marker Z  :: foo;\n" +
-				"                J j1 = Y.@Marker Z  :: <String> foo;\n" +
-				"                J jdash = @Marker W<@Marker Integer> :: <String> new ;\n" +
-				"                J jj = y :: foo;\n" +
-				"                J jx = super ::  foo;\n" +
-				"		 	     class Z {\n" +
-				"					void foo() {\n" +
-				"						J jz = X.super :: foo;\n" +
-		    	"					}\n" +
-				"				}\n" +
-				"       }\n" +
-				"       public static void main (String [] args) {}\n" +
-				"}\n" +
-				"class W<T> extends Y {\n" +
-				"       public W(T x) {}\n" +
-				"}\n" +
-				"\n" +
-				"@Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker {}";
+		String contents = """
+			package test399794;\
+			import java.lang.annotation.*;
+			 \
+			interface I {
+			    Object copy(int [] ia);
+			}
+			interface J {
+				void foo(int x);
+			}
+			class XX {
+				public  void foo(int x) {}
+			}
+			
+			class Y {
+			       static class Z {
+			               public static void foo(int x) {
+			                       System.out.print(x);
+			               }
+			       }
+			       public void foo(int x) {
+			               System.out.print(x);
+			       }
+					public <T> void foo(T t){t.hashCode();}
+			}
+			
+			public class X extends XX {
+			       @SuppressWarnings("unused")
+			       public  void bar(String [] args) {
+			                Y y = new Y();
+			                I i = @Marker int []::<String>clone;
+			                J j = Y.@Marker Z  :: foo;
+			                J j1 = Y.@Marker Z  :: <String> foo;
+			                J jdash = @Marker W<@Marker Integer> :: <String> new ;
+			                J jj = y :: foo;
+			                J jx = super ::  foo;
+					 	     class Z {
+								void foo() {
+									J jz = X.super :: foo;
+								}
+							}
+			       }
+			       public static void main (String [] args) {}
+			}
+			class W<T> extends Y {
+			       public W(T x) {}
+			}
+			
+			@Target (ElementType.TYPE_USE)
+			@interface Marker {}""";
 
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) getASTNode(cu, 4);
@@ -1977,16 +2042,18 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test399793e() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399793/X.java",
 				true/* resolve */);
-		String contents = "package test399793;" +
-				"interface I {\n" +
-				"  J foo();\n" +
-				"}\n" +
-				"interface J {\n" +
-				"  int foo();\n" +
-				"}\n" +
-				"public class X {\n" +
-				"    I I = () -> () -> 10;\n" +
-				"}\n";
+		String contents = """
+			package test399793;\
+			interface I {
+			  J foo();
+			}
+			interface J {
+			  int foo();
+			}
+			public class X {
+			    I I = () -> () -> 10;
+			}
+			""";
 
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 2);
@@ -2008,24 +2075,26 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test402665a() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test402665/X.java",
 				true/* resolve */);
-		String contents = "package test402665;" +
-				"public class X {\n" +
-				"  public static interface StringToInt {\n" +
-				"   	int stoi(String s);\n" +
-				"  }\n" +
-				"  public static interface ReduceInt {\n" +
-				"      int reduce(int a, int b);\n" +
-				"  }\n" +
-				"  void foo(StringToInt s) { }\n" +
-				"  void bar(ReduceInt r) { }\n" +
-				"  void bar() {\n" +
-				"      foo(s -> s.length());\n" +
-				"      foo((s) -> s.length());\n" +
-				"      foo((String s) -> s.length()); //SingleVariableDeclaration is OK\n" +
-				"      bar((x, y) -> x+y);\n" +
-				"      bar((int x, int y) -> x+y); //SingleVariableDeclarations are OK\n" +
-				"  }\n" +
-				"}\n";
+		String contents = """
+			package test402665;\
+			public class X {
+			  public static interface StringToInt {
+			   	int stoi(String s);
+			  }
+			  public static interface ReduceInt {
+			      int reduce(int a, int b);
+			  }
+			  void foo(StringToInt s) { }
+			  void bar(ReduceInt r) { }
+			  void bar() {
+			      foo(s -> s.length());
+			      foo((s) -> s.length());
+			      foo((String s) -> s.length()); //SingleVariableDeclaration is OK
+			      bar((x, y) -> x+y);
+			      bar((int x, int y) -> x+y); //SingleVariableDeclarations are OK
+			  }
+			}
+			""";
 
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
@@ -2069,21 +2138,25 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	}
 	public void testBug403132() throws JavaModelException {
 		String contents =
-			"import java.lang.annotation.*;\n" +
-			"public class X {\n" +
-			"	class Y {\n" +
-			"		class Z {\n" +
-			"			public Z(@A X.@B Y Y.this,String str){\n}" +
-			"    	 	public void foo(@A X.@B Y.@C Z this,String str){\n}\n" +
-			"		}\n" +
-			"    }\n" +
-			"}\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface A {}\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface B {}\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface C {}\n";
+			"""
+			import java.lang.annotation.*;
+			public class X {
+				class Y {
+					class Z {
+						public Z(@A X.@B Y Y.this,String str){
+			}\
+			    	 	public void foo(@A X.@B Y.@C Z this,String str){
+			}
+					}
+			    }
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface A {}
+			@Target(ElementType.TYPE_USE)
+			@interface B {}
+			@Target(ElementType.TYPE_USE)
+			@interface C {}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -2107,23 +2180,25 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	}
 	public void testParameterizedReceiverType() throws JavaModelException {
 		String contents =
-				"import java.lang.annotation.*;\n" +
-						"public class X<T extends Exception> {\n" +
-						"	class Y<K, V> {\n" +
-						"		class Z {\n" +
-						"			public Z(@A X<T>.@B Y<K, V> Y.this, boolean a){ }\n" +
-						"			public void foo(@B Y<K, V>.@C Z this, boolean a){ }\n" +
-						"			public Z(X<T>.@B Y<K, V> Y.this){ }\n" +
-						"			public void foo(Y<K, V>.@C Z this){ }\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n" +
-						"@Target(ElementType.TYPE_USE)\n" +
-						"@interface A {}\n" +
-						"@Target(ElementType.TYPE_USE)\n" +
-						"@interface B {}\n" +
-						"@Target(ElementType.TYPE_USE)\n" +
-						"@interface C {}\n";
+				"""
+			import java.lang.annotation.*;
+			public class X<T extends Exception> {
+				class Y<K, V> {
+					class Z {
+						public Z(@A X<T>.@B Y<K, V> Y.this, boolean a){ }
+						public void foo(@B Y<K, V>.@C Z this, boolean a){ }
+						public Z(X<T>.@B Y<K, V> Y.this){ }
+						public void foo(Y<K, V>.@C Z this){ }
+					}
+				}
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface A {}
+			@Target(ElementType.TYPE_USE)
+			@interface B {}
+			@Target(ElementType.TYPE_USE)
+			@interface C {}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -2160,17 +2235,21 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403410
 	public void testBug403410() throws JavaModelException {
 		String contents =
-			"import java.lang.annotation.*;\n" +
-			"public class X {\n" +
-			"	class Y {\n" +
-			"		class Z {\n" +
-			"			public Z(final Y Y.this){\n}" +
-			"    	 	public void foo(static @A Z this){\n}\n" +
-			"		}\n" +
-			"    }\n" +
-			"}\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface A {}\n";
+			"""
+			import java.lang.annotation.*;
+			public class X {
+				class Y {
+					class Z {
+						public Z(final Y Y.this){
+			}\
+			    	 	public void foo(static @A Z this){
+			}
+					}
+			    }
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface A {}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", false);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -2193,24 +2272,26 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test402674() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test402674/X.java",
 				true/* resolve */);
-		String contents = "package test402674;" +
-				"public class X {\n" +
-				"  public static interface StringToInt {\n" +
-				"   	int stoi(String s);\n" +
-				"  }\n" +
-				"  public static interface ReduceInt {\n" +
-				"      int reduce(int a, int b);\n" +
-				"  }\n" +
-				"  void foo(StringToInt s) { }\n" +
-				"  void bar(ReduceInt r) { }\n" +
-				"  void bar() {\n" +
-				"      foo(s -> s.length());\n" +
-				"      foo((s) -> s.length());\n" +
-				"      foo((String s) -> s.length()); //SingleVariableDeclaration is OK\n" +
-				"      bar((x, y) -> x+y);\n" +
-				"      bar((int x, int y) -> x+y); //SingleVariableDeclarations are OK\n" +
-				"  }\n" +
-				"}\n";
+		String contents = """
+			package test402674;\
+			public class X {
+			  public static interface StringToInt {
+			   	int stoi(String s);
+			  }
+			  public static interface ReduceInt {
+			      int reduce(int a, int b);
+			  }
+			  void foo(StringToInt s) { }
+			  void bar(ReduceInt r) { }
+			  void bar() {
+			      foo(s -> s.length());
+			      foo((s) -> s.length());
+			      foo((String s) -> s.length()); //SingleVariableDeclaration is OK
+			      bar((x, y) -> x+y);
+			      bar((int x, int y) -> x+y); //SingleVariableDeclarations are OK
+			  }
+			}
+			""";
 
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
@@ -2256,12 +2337,14 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399791
 	public void testBug399791() throws JavaModelException {
 		String contents =
-			"public interface X {\n" +
-			"	static void foo(){}\n" +
-			"   public default void foo(int i){}\n" +
-			"   native void foo(float f){}\n" +
-			"   abstract void foo(long l){}\n" +
-			"}\n";
+			"""
+			public interface X {
+				static void foo(){}
+			   public default void foo(int i){}
+			   native void foo(float f){}
+			   abstract void foo(long l){}
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", false);
 		ASTNode node = buildAST(contents, this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -2296,18 +2379,20 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=404489
 	public void testBug404489a() throws JavaModelException {
 		String contents =
-		"package test404489.bug;\n" +
-		"public class X { \n" +
-		"	class Y { \n" +
-		"		class Z {\n" +
-		"			public Z(@A X.@B Y Y.this){}\n" +
-		"			}\n" +
-		"  		}\n" +
-		"  		Object o=(@A X.@B Y.@Marker  Z)null;\n" +
-		"	}\n" +
-		"@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {} \n" +
-		"@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface A {} \n" +
-		"@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface B {} \n";
+		"""
+			package test404489.bug;
+			public class X {\s
+				class Y {\s
+					class Z {
+						public Z(@A X.@B Y Y.this){}
+						}
+			  		}
+			  		Object o=(@A X.@B Y.@Marker  Z)null;
+				}
+			@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}\s
+			@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface A {}\s
+			@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface B {}\s
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/test404489/bug/X.java", true/* resolve */);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -2614,32 +2699,33 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399792
 	public void testBug399792() throws JavaModelException {
 		String content =
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.io.Serializable;\n" +
-				"public class X {\n" +
-				"      Object o = (@Marker1 @Marker2 Serializable & I & @Marker3 @Marker1 J) () -> {};" +
-				"      public Serializable main(Object o) {\n" +
-				"    	  Serializable oo = (Serializable & @Marker3 @Marker1 @Marker2 I & J) o;\n" +
-				"    	  return oo;\n" +
-				"      }\n" +
-				"}\n" +
-				"interface I {\n" +
-				"  public void foo();\n" +
-				"}\n" +
-				"interface J {\n" +
-				"  public void foo();\n" +
-				"  public void bar();\n" +
-				"}\n" +
-				"interface K {\n" +
-				"  public void foo();\n" +
-				"  public void bar();\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker3 {}";
+				"""
+			import java.lang.annotation.ElementType;
+			import java.io.Serializable;
+			public class X {
+			      Object o = (@Marker1 @Marker2 Serializable & I & @Marker3 @Marker1 J) () -> {};\
+			      public Serializable main(Object o) {
+			    	  Serializable oo = (Serializable & @Marker3 @Marker1 @Marker2 I & J) o;
+			    	  return oo;
+			      }
+			}
+			interface I {
+			  public void foo();
+			}
+			interface J {
+			  public void foo();
+			  public void bar();
+			}
+			interface K {
+			  public void foo();
+			  public void bar();
+			}
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Marker2 {}
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Marker3 {}""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", false);
 		ASTNode node = buildAST(content, this.workingCopy, false);
@@ -2726,14 +2812,16 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void testBug406505() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test406505/X.java",
 				true/* resolve */);
-		String contents = "package test406505;"
-				+ "import java.lang.annotation.Target;\n"
-				+ "import java.io.File;\n"
-				+ "public class X {\n"
-				+ "	class Folder<@Marker  F extends File> { }\n"
-				+ "}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
-				+ "@interface Marker {}\n";
+		String contents = """
+			package test406505;\
+			import java.lang.annotation.Target;
+			import java.io.File;
+			public class X {
+				class Folder<@Marker  F extends File> { }
+			}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
 		typedeclaration = (TypeDeclaration)typedeclaration.bodyDeclarations().get(0);
@@ -2745,23 +2833,25 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428526
 	public void testBug412726() throws JavaModelException {
 		String contents =
-			"public interface X {\n" +
-			"	abstract void foo();\n" +
-			"}\n" +
-			"interface Y1 {\n" +
-			"}\n" +
-			"interface Y2 {\n" +
-			"	default void foo() {}\n" +
-			"}\n" +
-			"interface Z1 {\n" +
-			"	default void foo(){}\n" +
-			"	abstract void bar();\n" +
-			"}\n" +
-			"interface Z2 {\n" +
-			"	default void foo(){}\n" +
-			"	abstract void bar1();\n" +
-			"	abstract void bar2();\n" +
-			"}\n";
+			"""
+			public interface X {
+				abstract void foo();
+			}
+			interface Y1 {
+			}
+			interface Y2 {
+				default void foo() {}
+			}
+			interface Z1 {
+				default void foo(){}
+				abstract void bar();
+			}
+			interface Z2 {
+				default void foo(){}
+				abstract void bar1();
+				abstract void bar2();
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -2796,19 +2886,21 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test417017a() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test417017/X.java",
 				true/* resolve */);
-		String contents = "package test417017;"
-				+ "interface I {\n"
-				+ "	int foo(int x);\n"
-				+ "}\n"
-				+ "public class X {\n"
-				+ " void fun(int a) {\n"
-				+"  	I i1 = x1-> x1;\n"
-				+"  	I i2 = xxx-> {\n"
-				+"  		i1.foo(a);\n"
-				+"  		return xxx;\n"
-				+"  	};\n"
-				+"  }\n"
-				+"}\n";
+		String contents = """
+			package test417017;\
+			interface I {
+				int foo(int x);
+			}
+			public class X {
+			 void fun(int a) {
+			  	I i1 = x1-> x1;
+			  	I i2 = xxx-> {
+			  		i1.foo(a);
+			  		return xxx;
+			  	};
+			  }
+			}
+			""";
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
 		MethodDeclaration methodDeclaration = typedeclaration.getMethods()[0];
@@ -2886,15 +2978,17 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test417017d() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399794/X.java",
 				true/* resolve */);
-		String contents = "package test399794;" +
-				"interface I {\n" +
-				"	void foo(X x);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	void foo(X x) {\n" +
-				"	}\n" +
-				"	I i = this::foo;\n" +
-				"}\n";
+		String contents = """
+			package test399794;\
+			interface I {
+				void foo(X x);
+			}
+			public class X {
+				void foo(X x) {
+				}
+				I i = this::foo;
+			}
+			""";
 
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) getASTNode(cu, 1);
@@ -2916,13 +3010,15 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test417017e() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399794/X.java",
 				true/* resolve */);
-		String contents = "package test399794;" +
-				"interface I {\n" +
-				"	int [] foo(int x);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	I i = int []::new;\n" +
-				"}\n";
+		String contents = """
+			package test399794;\
+			interface I {
+				int [] foo(int x);
+			}
+			public class X {
+				I i = int []::new;
+			}
+			""";
 
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) getASTNode(cu, 1);
@@ -2941,17 +3037,19 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public void test417017f() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399794/X.java",
 				true/* resolve */);
-		String contents = "package test399794;" +
-				"interface I {\n" +
-				"	void foo(X x);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	private void foo(X x) {\n" +
-				"	}\n" +
-				"	class Y {\n" +
-				"		I i = X.this::foo;\n" +
-				"	}\n" +
-				"}\n";
+		String contents = """
+			package test399794;\
+			interface I {
+				void foo(X x);
+			}
+			public class X {
+				private void foo(X x) {
+				}
+				class Y {
+					I i = X.this::foo;
+				}
+			}
+			""";
 
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) getASTNode(cu, 1);
@@ -2972,77 +3070,79 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// also refer https://bugs.eclipse.org/bugs/show_bug.cgi?id=413569
 	public void testBug413942() throws JavaModelException {
 		String contents =
-		"public class X extends @NonNull(int[].class) Object {\n" +
-		"    Object field = new ArrayList< @NonEmpty(0) int @NonNull(value1 = 1) [] @NonEmpty(1) [ ]>() ;\n" +
-		"    @Annot int @Annot1 [] a1 @Annot2 @Annot3 @NonNull (value = int[].class, value1 = 0)[/* [] */ ] @Annot3 @Annot2 [] @Annot4 [];\n" +
-		"    int[] xxx[];\n" +
-		"    int [][] ii = new int[2][3];" +
-		"    ArrayList<int[]> [][] yyy; // source ranges already broken in AST.JLS4\n" +
-		"    ArrayList<int[][]> [][][][] zzz;\n" +
-		"    ArrayList<Float> [][][] zzz2;\n" +
-		"    Object a = new ArrayList< @TakeType(int[][].class) int @TakeType(float.class) [] @TakeType(double.class) []>() ;\n" +
-		"    Object b = new @NonNull(value1 = Math.PI) ArrayList< >() ; \n" +
-		"    Object c = new ArrayList<@NonNull(value1= Math.PI ) Object[]>() ;\n" +
-		"\n" +
-		"    int foo(@TakeType(int[].class)int i ) @TakeType(int[].class) [] {\n" +
-		"        int[] arr =  new int[2];\n" +
-		"        for (String tab @TakeType(int[].class) [] = null;; ++i) { break; }\n" +
-		"        for (@Deprecated String tab@TakeType(int[].class) [][]  = null;; ++i) {}\n" +
-		"    }\n" +
-		"    int bar(int [] /*@TakeType(int[].class)*/ [] a ) {\n" +
-		"    	return 0;\n" +
-		"    }\n" +
-		"public int var1(int @TakeType(int[].class)... args) { return 0;}\n" +
-		"public int var2(int @Annot ... args) { return 0;}\n" +
-		"}\n" +
-		"\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@Retention(RetentionPolicy.RUNTIME)\n" +
-		"@Documented\n" +
-		"@interface NonNull {\n" +
-		"	Class value() default int.class;\n" +
-		"	double value1() default 0;\n" +
-		"}\n" +
-		"\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@Retention(RetentionPolicy.RUNTIME)\n" +
-		"@Documented\n" +
-		"@interface NonEmpty {\n" +
-		"	int value() default 0;\n" +
-		"}\n" +
-		"\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@Retention(RetentionPolicy.RUNTIME)\n" +
-		"@Documented\n" +
-		"@interface TakeType {\n" +
-		"	Class value() default int[].class;\n" +
-		"}\n" +
-		"\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@Retention(RetentionPolicy.RUNTIME)\n" +
-		"@Documented\n" +
-		"@interface Annot {}\n" +
-		"\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@Retention(RetentionPolicy.RUNTIME)\n" +
-		"@Documented\n" +
-		"@interface Annot1 {}\n" +
-		"\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@Retention(RetentionPolicy.RUNTIME)\n" +
-		"@Documented\n" +
-		"@interface Annot2 {}\n" +
-		"\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@Retention(RetentionPolicy.RUNTIME)\n" +
-		"@Documented\n" +
-		"@interface Annot3 {}\n" +
-		"\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@Retention(RetentionPolicy.RUNTIME)\n" +
-		"@Documented\n" +
-		"@interface Annot4 {}\n" +
-		"\n";
+		"""
+			public class X extends @NonNull(int[].class) Object {
+			    Object field = new ArrayList< @NonEmpty(0) int @NonNull(value1 = 1) [] @NonEmpty(1) [ ]>() ;
+			    @Annot int @Annot1 [] a1 @Annot2 @Annot3 @NonNull (value = int[].class, value1 = 0)[/* [] */ ] @Annot3 @Annot2 [] @Annot4 [];
+			    int[] xxx[];
+			    int [][] ii = new int[2][3];\
+			    ArrayList<int[]> [][] yyy; // source ranges already broken in AST.JLS4
+			    ArrayList<int[][]> [][][][] zzz;
+			    ArrayList<Float> [][][] zzz2;
+			    Object a = new ArrayList< @TakeType(int[][].class) int @TakeType(float.class) [] @TakeType(double.class) []>() ;
+			    Object b = new @NonNull(value1 = Math.PI) ArrayList< >() ;\s
+			    Object c = new ArrayList<@NonNull(value1= Math.PI ) Object[]>() ;
+			
+			    int foo(@TakeType(int[].class)int i ) @TakeType(int[].class) [] {
+			        int[] arr =  new int[2];
+			        for (String tab @TakeType(int[].class) [] = null;; ++i) { break; }
+			        for (@Deprecated String tab@TakeType(int[].class) [][]  = null;; ++i) {}
+			    }
+			    int bar(int [] /*@TakeType(int[].class)*/ [] a ) {
+			    	return 0;
+			    }
+			public int var1(int @TakeType(int[].class)... args) { return 0;}
+			public int var2(int @Annot ... args) { return 0;}
+			}
+			
+			@Target(ElementType.TYPE_USE)
+			@Retention(RetentionPolicy.RUNTIME)
+			@Documented
+			@interface NonNull {
+				Class value() default int.class;
+				double value1() default 0;
+			}
+			
+			@Target(ElementType.TYPE_USE)
+			@Retention(RetentionPolicy.RUNTIME)
+			@Documented
+			@interface NonEmpty {
+				int value() default 0;
+			}
+			
+			@Target(ElementType.TYPE_USE)
+			@Retention(RetentionPolicy.RUNTIME)
+			@Documented
+			@interface TakeType {
+				Class value() default int[].class;
+			}
+			
+			@Target(ElementType.TYPE_USE)
+			@Retention(RetentionPolicy.RUNTIME)
+			@Documented
+			@interface Annot {}
+			
+			@Target(ElementType.TYPE_USE)
+			@Retention(RetentionPolicy.RUNTIME)
+			@Documented
+			@interface Annot1 {}
+			
+			@Target(ElementType.TYPE_USE)
+			@Retention(RetentionPolicy.RUNTIME)
+			@Documented
+			@interface Annot2 {}
+			
+			@Target(ElementType.TYPE_USE)
+			@Retention(RetentionPolicy.RUNTIME)
+			@Documented
+			@interface Annot3 {}
+			
+			@Target(ElementType.TYPE_USE)
+			@Retention(RetentionPolicy.RUNTIME)
+			@Documented
+			@interface Annot4 {}
+			
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -3198,26 +3298,27 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// 	https://bugs.eclipse.org/bugs/show_bug.cgi?id=409586
 	public void testBug409586() throws JavaModelException {
 		String contents =
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {\n" +
-				" 	String value() default \"\";\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {\n" +
-				" 	String value() default \"22\";\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public @Marker(\"1\") String foo(int @Marker @Marker2 [] args) {\n" +
-				"      return null;\n" +
-				"	}\n" +
-				"	public @Marker(\"3\") String bar() {\n" +
-				"      return null;\n" +
-				"	}\n" +
-				"   public String @Marker(\"i0\") @Marker2 [] [] @Marker(\"i1\") [] str = null;\n" +
-				"   public @Marker String str2 = null;\n" +
-				"   public @Marker String str3 = null;\n" +
-				"   public String str4 = null;\n" +
-				"}";
+				"""
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {
+			 	String value() default "";
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {
+			 	String value() default "22";
+			}
+			public class X {
+				public @Marker("1") String foo(int @Marker @Marker2 [] args) {
+			      return null;
+				}
+				public @Marker("3") String bar() {
+			      return null;
+				}
+			   public String @Marker("i0") @Marker2 [] [] @Marker("i1") [] str = null;
+			   public @Marker String str2 = null;
+			   public @Marker String str3 = null;
+			   public String str4 = null;
+			}""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -3326,24 +3427,26 @@ public class ASTConverter18Test extends ConverterTestSetup {
 
 	public void testExtendedDimensions() throws JavaModelException {
 		String contents =
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {\n" +
-				" 	String value() default \"\";\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {\n" +
-				" 	String value() default \"22\";\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker3 {\n" +
-				" 	String value() default \"22\";\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public @Marker(\"1\") String @Marker(\"2\") [] foo(int @Marker @Marker2 [] args @Marker3 []) @Marker3(\"3\") [] {\n" +
-				"      return null;\n" +
-				"	}\n" +
-				"   public String @Marker(\"i0\") @Marker2 [] [] @Marker(\"i1\") [] str @Marker(\"Extended\") [] = null;\n" +
-				"}\n";
+				"""
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {
+			 	String value() default "";
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {
+			 	String value() default "22";
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker3 {
+			 	String value() default "22";
+			}
+			public class X {
+				public @Marker("1") String @Marker("2") [] foo(int @Marker @Marker2 [] args @Marker3 []) @Marker3("3") [] {
+			      return null;
+				}
+			   public String @Marker("i0") @Marker2 [] [] @Marker("i1") [] str @Marker("Extended") [] = null;
+			}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -3379,14 +3482,15 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417669
 	public void testBug417669() throws JavaModelException {
 		String contents =
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"public class X {\n" +
-				"	public static void main(String [] args) {\n" +
-				"      W<String> w = (@Marker W<String>) null;\n" +
-				"	}\n" +
-				"}\n" +
-				"class W<T> {}";
+				"""
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			public class X {
+				public static void main(String [] args) {
+			      W<String> w = (@Marker W<String>) null;
+				}
+			}
+			class W<T> {}""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -3412,11 +3516,13 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=414113
 	public void testBug414113() throws JavaModelException {
 		String contents =
-			"public interface X {\n" +
-			"	int i = foo();\n" +
-			"	default int foo_default() { return 1;}\n" +
-			"	static int foo_static() { return 1;}\n" +
-			"}\n";
+			"""
+			public interface X {
+				int i = foo();
+				default int foo_default() { return 1;}
+				static int foo_static() { return 1;}
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -3435,26 +3541,31 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 */
 	public void testBug420660() throws JavaModelException {
 		String contents =
-			"package java.lang;\n" +
-			"public class X {\n" +
-			"		public void foo(int p, int q) {\n" +
-			"			final int finalVar = 1; // not effectively final! \n" +
-			"			int effectivelyFinalVar = 2;\n" +
-			"			int nonFinalVar = 3;\n" +
-			"			nonFinalVar = 4; \n" +
-			"			q = 0;\n" +
-			"			try (FIS fis = new FIS()) {\n" +
-			"				if (q == 0) { throw new IOError();	} else { throw new IllegalStateException(); }\n" +
-	        "			} catch (IOError | IllegalStateException implicitlyFinalExc) {\n" +
-	        "    			// implicitlyFinalExc is not effectively final!	\n" +
-	        "			} catch (Exception effectivelyFinalExc) {	\n" +
-	        "			}\n" +
-			"		}\n" +
-			"}\n" +
-			"class IOError extends Exception {private static final long serialVersionUID = 1L;}\n" +
-			"class IllegalStateException extends Exception {private static final long serialVersionUID = 1L;}\n" +
-			"class FIS implements AutoCloseable {\n	public void close() throws Exception {} \n }\n" +
-			"interface AutoCloseable { \n void close() throws Exception; \n}";
+			"""
+			package java.lang;
+			public class X {
+					public void foo(int p, int q) {
+						final int finalVar = 1; // not effectively final!\s
+						int effectivelyFinalVar = 2;
+						int nonFinalVar = 3;
+						nonFinalVar = 4;\s
+						q = 0;
+						try (FIS fis = new FIS()) {
+							if (q == 0) { throw new IOError();	} else { throw new IllegalStateException(); }
+						} catch (IOError | IllegalStateException implicitlyFinalExc) {
+			    			// implicitlyFinalExc is not effectively final!\t
+						} catch (Exception effectivelyFinalExc) {\t
+						}
+					}
+			}
+			class IOError extends Exception {private static final long serialVersionUID = 1L;}
+			class IllegalStateException extends Exception {private static final long serialVersionUID = 1L;}
+			class FIS implements AutoCloseable {
+				public void close() throws Exception {}\s
+			 }
+			interface AutoCloseable {\s
+			 void close() throws Exception;\s
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/java/lang/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -3514,19 +3625,23 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 */
 	public void testBug420660a() throws JavaModelException {
 		String contents =
-			"interface I {\nvoid foo();\n}\n" +
-			"interface J {}\n" +
-			"public class X {\n" +
-			"		void foo(int [] p) {\n" +
-			"			for (int is : p) {\n" +
-			"				I j = new I () {\n" +
-			"					public void foo() {\n" +
-			"						System.out.println(is);\n" +
-			"					}\n" +
-			"				};\n" +
-	        "			}\n" +
-			"		}\n" +
-			"}\n";
+			"""
+			interface I {
+			void foo();
+			}
+			interface J {}
+			public class X {
+					void foo(int [] p) {
+						for (int is : p) {
+							I j = new I () {
+								public void foo() {
+									System.out.println(is);
+								}
+							};
+						}
+					}
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -3548,12 +3663,14 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 */
 	public void testBug423872() throws JavaModelException {
 		String contents =
-			"public interface X {\n" +
-			"	void foo(Y.Z<?>... events);\n" +
-			"}\n" +
-			"interface Y<T> {\n" +
-			"	public static interface Z<T> {}\n" +
-			"}\n";
+			"""
+			public interface X {
+				void foo(Y.Z<?>... events);
+			}
+			interface Y<T> {
+				public static interface Z<T> {}
+			}
+			""";
 		try {
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(contents, this.workingCopy);
@@ -3582,23 +3699,25 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 */
 	public void testBug424138_001() throws JavaModelException {
 		String contents =
-				"package jsr308.myex;\n" +
-				"\n" +
-				"public class X extends @jsr308.myex.X.Anno Object {\n" +
-				"    void foo(@jsr308.myex.X.Anno X this) {}\n" +
-				"    Y<@jsr308.myex.X.Anno Object> l;\n" +
-				"    int o @jsr308.myex.X.Anno[];\n" +
-				"\n" +
-				"	 @jsr308.myex.X.Anno X f;\n" +
-				"    int @jsr308.myex.X.Anno[] ok;\n" +
-				"    @jsr308.myex.X.Anno X g;\n" +
-				"	 void bar(@jsr308.myex.X.Anno X ok) {\n" +
-				"        @jsr308.myex.X.Anno X l;\n" +
-				"    }\n" +
-				"    @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"    public @interface Anno {}\n" +
-				"}\n" +
-				"class Y<T> {}\n";
+				"""
+			package jsr308.myex;
+			
+			public class X extends @jsr308.myex.X.Anno Object {
+			    void foo(@jsr308.myex.X.Anno X this) {}
+			    Y<@jsr308.myex.X.Anno Object> l;
+			    int o @jsr308.myex.X.Anno[];
+			
+				 @jsr308.myex.X.Anno X f;
+			    int @jsr308.myex.X.Anno[] ok;
+			    @jsr308.myex.X.Anno X g;
+				 void bar(@jsr308.myex.X.Anno X ok) {
+			        @jsr308.myex.X.Anno X l;
+			    }
+			    @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE)
+			    public @interface Anno {}
+			}
+			class Y<T> {}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/jsr308/myex/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -3634,15 +3753,17 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 */
 	public void testBug424138_002() throws JavaModelException {
 		String contents =
-				"package jsr308.myex;\n" +
-				"\n" +
-				"public class X{\n" +
-				"    int o2[];\n" +
-				"    int o1 @jsr308.myex.X.Anno[];\n" +
-				"    int @jsr308.myex.X.Anno[][] o3 @jsr308.myex.X.Anno[][];\n" +
-				"    @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"    public @interface Anno {}\n" +
-				"}\n";
+				"""
+			package jsr308.myex;
+			
+			public class X{
+			    int o2[];
+			    int o1 @jsr308.myex.X.Anno[];
+			    int @jsr308.myex.X.Anno[][] o3 @jsr308.myex.X.Anno[][];
+			    @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE)
+			    public @interface Anno {}
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/jsr308/myex/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -3662,17 +3783,19 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 */
 	public void testBug424138_003() throws JavaModelException {
 		String contents =
-				"package jsr308.myex;\n" +
-				"\n" +
-				"public class X{\n" +
-				"	public void foo() {\n" +
-				"		for (int i @jsr308.myex.X.Anno[]: new int[10][12]) {\n" +
-				"			System.out.println(\"hello\");\n" +
-				"		}\n" +
-				"	}\n" +
-				"   @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"   public @interface Anno {}\n" +
-				"}\n";
+				"""
+			package jsr308.myex;
+			
+			public class X{
+				public void foo() {
+					for (int i @jsr308.myex.X.Anno[]: new int[10][12]) {
+						System.out.println("hello");
+					}
+				}
+			   @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE)
+			   public @interface Anno {}
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/jsr308/myex/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -3693,15 +3816,17 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 */
 	public void test423584() throws JavaModelException {
 		String contents =
-				"interface I { }\n" +
-				"public class X {\n" +
-				"    static void goo(I i) {\n" +
-				"        System.out.println(\"goo(I)\");\n" +
-				"    }\n" +
-				"    public static void main(String[] args) {\n" +
-				"        goo(s -> 0);\n" +
-				"    }\n" +
-				"}\n";
+				"""
+			interface I { }
+			public class X {
+			    static void goo(I i) {
+			        System.out.println("goo(I)");
+			    }
+			    public static void main(String[] args) {
+			        goo(s -> 0);
+			    }
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -3723,17 +3848,18 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 */
 	public void testBug418979_001() throws JavaModelException {
 		String contents =
-				"import java.lang.annotation.*;\n" +
-				"public class X {\n" +
-				"    void foo(Y.@A Z<?> events) {}\n" +
-				"    void foo(Y.@A ZZ events) {}\n" +
-				" }\n" +
-				"class Y {\n" +
-				"	class Z<T> {}\n" +
-				"   class ZZ{}\n" +
-				"}\n" +
-				"@Target (ElementType.TYPE_USE)\n" +
-				"@interface A{}";
+				"""
+			import java.lang.annotation.*;
+			public class X {
+			    void foo(Y.@A Z<?> events) {}
+			    void foo(Y.@A ZZ events) {}
+			 }
+			class Y {
+				class Z<T> {}
+			   class ZZ{}
+			}
+			@Target (ElementType.TYPE_USE)
+			@interface A{}""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -3770,17 +3896,18 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 */
 	public void testBug418979_002() throws JavaModelException {
 		String contents =
-				"package test;\n" +
-				"import java.lang.annotation.*;\n" +
-				"public class X {\n" +
-				"    test.@A Outer<C>.@A Inner<C> i;\n" +
-				" }\n" +
-				"class Outer<T> {\n" +
-				"	class Inner<S> {}\n" +
-				"}\n" +
-				"class C {}\n" +
-				"@Target (ElementType.TYPE_USE)\n" +
-				"@interface A{}";
+				"""
+			package test;
+			import java.lang.annotation.*;
+			public class X {
+			    test.@A Outer<C>.@A Inner<C> i;
+			 }
+			class Outer<T> {
+				class Inner<S> {}
+			}
+			class C {}
+			@Target (ElementType.TYPE_USE)
+			@interface A{}""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/test/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -3803,15 +3930,16 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 */
 	public void testBug418979_003() throws JavaModelException {
 		String contents =
-				"package test;\n" +
-				"import java.lang.annotation.*;\n" +
-				"public class X {\n" +
-				"    public void foo() {\n" +
-				"        new java.util.@A HashMap<>();\n" +
-				"    }\n" +
-				" }\n" +
-				"@Target (ElementType.TYPE_USE)\n" +
-				"@interface A{}";
+				"""
+			package test;
+			import java.lang.annotation.*;
+			public class X {
+			    public void foo() {
+			        new java.util.@A HashMap<>();
+			    }
+			 }
+			@Target (ElementType.TYPE_USE)
+			@interface A{}""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/test/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -3834,14 +3962,16 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 */
 	public void test416559() throws JavaModelException {
 		String contents =
-				"interface I {\n" +
-				"	int f (int x);\n" +
-				"}\n" +
-				"\n" +
-				"class X {\n" +
-				"	I i1 = (x) -> 1;\n" +
-				"   I i2 = (x) -> 1;\n" +
-				"}\n" ;
+				"""
+			interface I {
+				int f (int x);
+			}
+			
+			class X {
+				I i1 = (x) -> 1;
+			   I i2 = (x) -> 1;
+			}
+			""" ;
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -3875,11 +4005,13 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 */
 	public void testBug420458() throws JavaModelException {
 		String contents =
-				"/**\n" +
-				" * Hello\n" +
-				" * @see #foo(Object[][][])\n" +
-				" **/\n" +
-				"public class X {}\n";
+				"""
+			/**
+			 * Hello
+			 * @see #foo(Object[][][])
+			 **/
+			public class X {}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/test/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -3900,13 +4032,14 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 */
 	public void testBug425741() throws JavaModelException {
 		String contents =
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Annot { String value(); }\n" +
-				"@Annot(\"decl\") public class X {\n" +
-				"	@Annot(\"field\") X x = null;\n" +
-				"	public void foo(@Annot(\"param\") X i) {\n" +
-				"	}\n" +
-				"}";
+				"""
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Annot { String value(); }
+			@Annot("decl") public class X {
+				@Annot("field") X x = null;
+				public void foo(@Annot("param") X i) {
+				}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/test/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -3941,16 +4074,18 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 */
 	public void testBug416560_001() throws JavaModelException {
 		String contents =
-				"import java.lang.annotation.ElementType;\n" +
-				"@Target (ElementType.FIELD)\n" +
-				"public class X{\n" +
-				"    public FI fi= /*a*/(int n1, int n2) -> n1 * n2;\n" +
-				"}\n" +
-				"public class X\n" +
-				"    public FI fi= /*a*/(int n1, int n2) -> n1 * n2;\n" +
-				"interface FI {\n" +
-				"    int foo(int s1, int s2);\n" +
-				"}\n";
+				"""
+			import java.lang.annotation.ElementType;
+			@Target (ElementType.FIELD)
+			public class X{
+			    public FI fi= /*a*/(int n1, int n2) -> n1 * n2;
+			}
+			public class X
+			    public FI fi= /*a*/(int n1, int n2) -> n1 * n2;
+			interface FI {
+			    int foo(int s1, int s2);
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/test/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
 		CompilationUnit compilationUnit = this.workingCopy.reconcile(getAST8(), ICompilationUnit.FORCE_PROBLEM_DETECTION, null, null);
@@ -3968,16 +4103,18 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 */
 	public void testBug416560_002() throws JavaModelException {
 		String contents =
-				"import java.lang.annotation.ElementType;\n" +
-				"@Target (ElementType.FIELD)\n" +
-				"public class X{\n" +
-				"    public FI fi= /*a*/(int n1, int n2) -> n1 * n2;\n" +
-				"}\n" +
-				"public class X\n" +
-				"    public FI fi= /*a*/(int n1, int n2) -> n1 * n2;\n" +
-				"interface FI {\n" +
-				"    int foo(int s1, int s2);\n" +
-				"}\n";
+				"""
+			import java.lang.annotation.ElementType;
+			@Target (ElementType.FIELD)
+			public class X{
+			    public FI fi= /*a*/(int n1, int n2) -> n1 * n2;
+			}
+			public class X
+			    public FI fi= /*a*/(int n1, int n2) -> n1 * n2;
+			interface FI {
+			    int foo(int s1, int s2);
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/test/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -3996,19 +4133,21 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 */
 	public void testBug416560_003() throws JavaModelException {
 		String contents =
-				"public class X{\n" +
-				"    void f() {\n" +
-				"	    //a\n" +
-				"	    //few\n" +
-				"	    //comments\n" +
-				"	    //here\n" +
-				"       bar((int x) -> 91);\n" +
-				"	 }\n" +
-				"    int bar(FI f){ return 1;}" +
-				"}\n" +
-				"interface FI {\n" +
-				"    int foo(int s1);\n" +
-				"}\n";
+				"""
+			public class X{
+			    void f() {
+				    //a
+				    //few
+				    //comments
+				    //here
+			       bar((int x) -> 91);
+				 }
+			    int bar(FI f){ return 1;}\
+			}
+			interface FI {
+			    int foo(int s1);
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -4029,12 +4168,14 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 */
 	public void testBug425743() throws JavaModelException {
 		String contents =
-				"public class X{\n" +
-				"    FI fi = (x2) -> x2;\n" +
-				"}\n" +
-				"interface FI {\n" +
-				"    int foo(int n);\n" +
-				"}\n";
+				"""
+			public class X{
+			    FI fi = (x2) -> x2;
+			}
+			interface FI {
+			    int foo(int n);
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -4052,18 +4193,19 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427357
 	public void testBug427357() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-			"	public static void foo(X this, int i){}\n" +
-			"	public void foo(Inner this){}\n" +
-			"	I I = new I() {\n" +
-			"		public void bar(I this, int i) {}\n" +
-			"	};\n" +
-			"	static class Inner {\n" +
-			"		public Inner(Test2 Test2.this){}\n" +
-			"		public Inner(Inner Inner.this, int i){}\n" +
-			"	}\n" +
-			"}\n"+
-			"interface I {}";
+			"""
+			public class X {
+				public static void foo(X this, int i){}
+				public void foo(Inner this){}
+				I I = new I() {
+					public void bar(I this, int i) {}
+				};
+				static class Inner {
+					public Inner(Test2 Test2.this){}
+					public Inner(Inner Inner.this, int i){}
+				}
+			}
+			interface I {}""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -4097,15 +4239,16 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426459
 	public void testBug426459() throws JavaModelException {
 		String contents =
-			"import java.lang.annotation.*;\n" +
-			"@Target(ElementType.TYPE_USE) @interface A {}\n" +
-			"@Target(ElementType.TYPE_USE) @interface B {}\n" +
-			"@Target(ElementType.TYPE_USE) @interface C {}\n" +
-			"public class X {\n" +
-			"		@A int @B [] @C [] @A [] is;\n" +
-			"		@C String @A [] @B [] @C [] ss;\n" +
-			"		@C String @A [] [] [] [] sss;\n" +
-			"}";
+			"""
+			import java.lang.annotation.*;
+			@Target(ElementType.TYPE_USE) @interface A {}
+			@Target(ElementType.TYPE_USE) @interface B {}
+			@Target(ElementType.TYPE_USE) @interface C {}
+			public class X {
+					@A int @B [] @C [] @A [] is;
+					@C String @A [] @B [] @C [] ss;
+					@C String @A [] [] [] [] sss;
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -4179,17 +4322,18 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426459
 	public void testBug426459a() throws JavaModelException {
 		String contents =
-			"import java.lang.annotation.*;\n" +
-			"@Target(ElementType.TYPE_USE) @interface A {}\n" +
-			"@Target(ElementType.TYPE_USE) @interface B {}\n" +
-			"@Target(ElementType.TYPE_USE) @interface C {}\n" +
-			"public class X {\n" +
-			"		public void foo() {}\n" +
-			"		public @A X.@B Y foo(@C int i){ return null;}\n" +
-			"		public @A @B X foo(int i, int j){ return null;}\n" +
-			"		public @A X.Y [] @B [] foo(float f){ return null;}\n" +
-			"		class Y {}\n" +
-			"}";
+			"""
+			import java.lang.annotation.*;
+			@Target(ElementType.TYPE_USE) @interface A {}
+			@Target(ElementType.TYPE_USE) @interface B {}
+			@Target(ElementType.TYPE_USE) @interface C {}
+			public class X {
+					public void foo() {}
+					public @A X.@B Y foo(@C int i){ return null;}
+					public @A @B X foo(int i, int j){ return null;}
+					public @A X.Y [] @B [] foo(float f){ return null;}
+					class Y {}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -4253,11 +4397,13 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428526, [1.8] API to get the single abstract method in a functional interface
 	public void test428526() throws JavaModelException {
 		String contents =
-				"interface Foo<T, N extends Number> {\n" +
-				"    void m(T arg);\n" +
-				"    void m(N arg);\n" +
-				"}\n" +
-				"interface Baz extends Foo<Integer, Integer> {}\n";
+				"""
+			interface Foo<T, N extends Number> {
+			    void m(T arg);
+			    void m(N arg);
+			}
+			interface Baz extends Foo<Integer, Integer> {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -4284,11 +4430,13 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428526, [1.8] API to get the single abstract method in a functional interface
 	public void test428526a() throws JavaModelException {
 		String contents =
-				"interface I { X foo(); }\n" +
-				"interface J { Y foo(); }\n" +
-				"interface K extends I, J {}\n" +
-				"class X {}\n" +
-				"class Y extends X {}\n";
+				"""
+			interface I { X foo(); }
+			interface J { Y foo(); }
+			interface K extends I, J {}
+			class X {}
+			class Y extends X {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -4323,19 +4471,21 @@ public class ASTConverter18Test extends ConverterTestSetup {
 // round-trip for binding keys of CaptureBinding18:
 public void testBug425183a() throws JavaModelException {
 	String contents =
-			"interface Comparator<T> {\n" +
-			"    public static <T extends Comparable<? super T>> Comparator<T> naturalOrder() { return null; }\n" +
-			"}\n" +
-			"public class Bug425183a {\n" +
-			"    @SuppressWarnings(\"unchecked\")\n" +
-			"	<T> void test() {\n" +
-			"		Comparator<? super T> comparator = (Comparator<? super T>) Comparator.naturalOrder();\n" +
-			"		System.out.println(\"OK\");\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new Bug425183a().test();\n" +
-			"	}\n" +
-			"}\n";
+			"""
+		interface Comparator<T> {
+		    public static <T extends Comparable<? super T>> Comparator<T> naturalOrder() { return null; }
+		}
+		public class Bug425183a {
+		    @SuppressWarnings("unchecked")
+			<T> void test() {
+				Comparator<? super T> comparator = (Comparator<? super T>) Comparator.naturalOrder();
+				System.out.println("OK");
+			}
+			public static void main(String[] args) {
+				new Bug425183a().test();
+			}
+		}
+		""";
 
 	this.workingCopy = getWorkingCopy("/Converter18/src/Bug425183a.java", true);
 	ASTNode node = buildAST(contents, this.workingCopy);
@@ -4370,16 +4520,18 @@ public void testBug425183a() throws JavaModelException {
  */
 public void testBug432051() throws JavaModelException {
 	String contents =
-			"public class X {\n" +
-			"     * Delete line '/**' above.\n" +
-			"     *\n" +
-			"     * @param a (for example 'QVector')\n" +
-			"     * @param declaringMember the context for resolving (made in)\n" +
-			"     * @return if\n" +
-			"     */\n" +
-			"    void foo() {\n" +
-			"    }\n" +
-			"}\n";
+			"""
+		public class X {
+		     * Delete line '/**' above.
+		     *
+		     * @param a (for example 'QVector')
+		     * @param declaringMember the context for resolving (made in)
+		     * @return if
+		     */
+		    void foo() {
+		    }
+		}
+		""";
 	this.workingCopy = getWorkingCopy("/Converter18/src/test432051/X.java", contents, true/*computeProblems*/);
 	IJavaProject javaProject = this.workingCopy.getJavaProject();
 	class BindingRequestor extends ASTRequestor {
@@ -4404,17 +4556,18 @@ public void testBug432051() throws JavaModelException {
  */
 public void testBug426977() throws JavaModelException {
 	String contents =
-			"package com.test.todo;\r\n"+
-			"import java.lang.annotation.ElementType;\r\n"+
-			"import java.lang.annotation.Target;\r\n"+
-			"public class Test {\r\n"+
-			"	static void m() {}\r\n"+
-			"	new Runnable() {\r\n"+
-			"		public void run(R) {}\r\n"+
-			"	};\r\n"+
-			"}\r\n"+
-			"@Target(ElementType.TYPE_USE)\r\n"+
-			"@interface TU { }";
+			"""
+		package com.test.todo;\r
+		import java.lang.annotation.ElementType;\r
+		import java.lang.annotation.Target;\r
+		public class Test {\r
+			static void m() {}\r
+			new Runnable() {\r
+				public void run(R) {}\r
+			};\r
+		}\r
+		@Target(ElementType.TYPE_USE)\r
+		@interface TU { }""";
 	this.workingCopy = getWorkingCopy("/Converter18/src/com/test/todo/Test.java", true/*computeProblems*/);
 	try {
 		buildAST(getAST8(), contents, this.workingCopy, false, true, true);
@@ -4427,9 +4580,10 @@ public void testBug426977() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406805
 public void test406805() throws CoreException, IOException {
 	String contents1 =
-			"package test406805;\n" +
-			"public class X {\n" +
-			"}";
+			"""
+		package test406805;
+		public class X {
+		}""";
 	createFolder("/Converter18/src/test406805");
 	createFile("/Converter18/src/test406805/X.java", contents1);
 	this.workingCopy = getWorkingCopy(
@@ -4444,20 +4598,21 @@ public void test406805() throws CoreException, IOException {
 	try {
 	String[] contents = new String[] {
 		"TestEnum.java",
-		"package test406805;\n" +
-		"public enum TestEnum {\n" +
-		"	FirstValue(\"Zonk\") {\n" +
-		"		@Override\n" +
-		"		public String toString() {\n" +
-		"			return super.toString();\n" +
-		"		}\n" +
-		"	},\n" +
-		"	SecondValue(\"Bla\");\n" +
-		"	String string;\n" +
-		"	TestEnum(String string) {\n" +
-		"		this.string = string;\n" +
-		"	}\n" +
-		"}"
+		"""
+			package test406805;
+			public enum TestEnum {
+				FirstValue("Zonk") {
+					@Override
+					public String toString() {
+						return super.toString();
+					}
+				},
+				SecondValue("Bla");
+				String string;
+				TestEnum(String string) {
+					this.string = string;
+				}
+			}"""
 	};
 	addLibrary(javaProject, jarName, srcName, contents, JavaCore.VERSION_1_8);
 
@@ -4488,9 +4643,10 @@ public void test406805() throws CoreException, IOException {
 //Nested Enum Constructor
 public void test406805a() throws CoreException, IOException {
 	String contents1 =
-			"package test406805;\n" +
-			"public class X {\n" +
-			"}";
+			"""
+		package test406805;
+		public class X {
+		}""";
 	createFolder("/Converter18/src/test406805a");
 	createFile("/Converter18/src/test406805a/X.java", contents1);
 	this.workingCopy = getWorkingCopy(
@@ -4505,22 +4661,23 @@ public void test406805a() throws CoreException, IOException {
 	try {
 	String[] contents = new String[] {
 		"NestedTestEnum.java",
-		"package test406805a;\n" +
-		"public class NestedTestEnum {\n" +
-		"	public enum TestEnum {\n" +
-		"		FirstValue(\"Zonk\") {\n" +
-		"			@Override\n" +
-		"			public String toString() {\n" +
-		"				return super.toString();\n" +
-		"			}\n" +
-		"		},\n" +
-		"	SecondValue(\"Bla\");\n" +
-		"	String string;\n" +
-		"	TestEnum(String string) {\n" +
-		"		this.string = string;\n" +
-		"	}\n" +
-		"}\n" +
-		"}"
+		"""
+			package test406805a;
+			public class NestedTestEnum {
+				public enum TestEnum {
+					FirstValue("Zonk") {
+						@Override
+						public String toString() {
+							return super.toString();
+						}
+					},
+				SecondValue("Bla");
+				String string;
+				TestEnum(String string) {
+					this.string = string;
+				}
+			}
+			}"""
 	};
 	addLibrary(javaProject, jarName, srcName, contents, JavaCore.VERSION_1_8, null);
 
@@ -4551,9 +4708,10 @@ public void test406805a() throws CoreException, IOException {
 //Parameterized enum constructor.
 public void test406805b() throws CoreException, IOException {
 	String contents1 =
-			"package test406805b;\n" +
-			"public class X {\n" +
-			"}";
+			"""
+		package test406805b;
+		public class X {
+		}""";
 	createFolder("/Converter18/src/test406805b");
 	createFile("/Converter18/src/test406805b/X.java", contents1);
 	this.workingCopy = getWorkingCopy(
@@ -4568,20 +4726,22 @@ public void test406805b() throws CoreException, IOException {
 	try {
 	String[] contents = new String[] {
 		"TestEnum.java",
-		"package test406805b;\n" +
-		"interface A<T> {}\n" +
-		"\n" +
-		"class Y {\n" +
-		"	static A<String> A1;\n" +
-		"}\n" +
-		"public enum TestEnum implements A<String> {\n" +
-		" FirstValue(Y.A1);\n" +
-		"  A<String> xyzabcdef;\n" +
-		"  TestEnum(A<String> abcdefghi) {\n" +
-		"	this.xyzabcdef = abcdefghi;\n" +
-		"  }\n" +
-		" int SecondValue() { return 0;}\n" +
-		"}\n"
+		"""
+			package test406805b;
+			interface A<T> {}
+			
+			class Y {
+				static A<String> A1;
+			}
+			public enum TestEnum implements A<String> {
+			 FirstValue(Y.A1);
+			  A<String> xyzabcdef;
+			  TestEnum(A<String> abcdefghi) {
+				this.xyzabcdef = abcdefghi;
+			  }
+			 int SecondValue() { return 0;}
+			}
+			"""
 	};
 	addLibrary(javaProject, jarName, srcName, contents, JavaCore.VERSION_1_8);
 
@@ -4609,9 +4769,10 @@ public void test406805b() throws CoreException, IOException {
 //Testing types and names of parameters.
 public void test406805d() throws CoreException, IOException {
 	String contents1 =
-			"package test406805;\n" +
-			"public class X {\n" +
-			"}";
+			"""
+		package test406805;
+		public class X {
+		}""";
 	createFolder("/Converter18/src/test406805d");
 	createFile("/Converter18/src/test406805d/X.java", contents1);
 	this.workingCopy = getWorkingCopy(
@@ -4626,24 +4787,25 @@ public void test406805d() throws CoreException, IOException {
 	try {
 	String[] contents = new String[] {
 		"NestedTestEnum.java",
-		"package test406805d;\n" +
-		"public class NestedTestEnum {\n" +
-		"	public enum TestEnum {\n" +
-		"		FirstValue(\"Zonk\", 1) {\n" +
-		"			@Override\n" +
-		"			public String toString() {\n" +
-		"				return super.toString();\n" +
-		"			}\n" +
-		"		},\n" +
-		"	SecondValue(\"Bla\", 2);\n" +
-		"	String string;\n" +
-		"   int xyz;\n" +
-		"	TestEnum(String string, int xyz) {\n" +
-		"		this.string = string;\n" +
-		"       this.xyz = xyz;\n" +
-		"	}\n" +
-		"}\n" +
-		"}"
+		"""
+			package test406805d;
+			public class NestedTestEnum {
+				public enum TestEnum {
+					FirstValue("Zonk", 1) {
+						@Override
+						public String toString() {
+							return super.toString();
+						}
+					},
+				SecondValue("Bla", 2);
+				String string;
+			   int xyz;
+				TestEnum(String string, int xyz) {
+					this.string = string;
+			       this.xyz = xyz;
+				}
+			}
+			}"""
 	};
 	addLibrary(javaProject, jarName, srcName, contents, JavaCore.VERSION_1_8, null);
 
@@ -4680,9 +4842,10 @@ public void test406805d() throws CoreException, IOException {
 //Enum constructor with no parameters.
 public void test436347() throws CoreException, IOException {
 	String contents1 =
-			"package test436347;\n" +
-			"public class X {\n" +
-			"}";
+			"""
+		package test436347;
+		public class X {
+		}""";
 	createFolder("/Converter18/src/test436347");
 	createFile("/Converter18/src/test436347/X.java", contents1);
 	this.workingCopy = getWorkingCopy(
@@ -4697,19 +4860,20 @@ public void test436347() throws CoreException, IOException {
 	try {
 	String[] contents = new String[] {
 		"TestEnum.java",
-		"package test436347;\n" +
-		"public enum TestEnum {\n" +
-		"	FirstValue() {\n" +
-		"		@Override\n" +
-		"		public String toString() {\n" +
-		"			return super.toString();\n" +
-		"		}\n" +
-		"	},\n" +
-		"	SecondValue();\n" +
-		"	TestEnum() {\n" +
-		"		return;\n" +
-		"	}\n" +
-		"}"
+		"""
+			package test436347;
+			public enum TestEnum {
+				FirstValue() {
+					@Override
+					public String toString() {
+						return super.toString();
+					}
+				},
+				SecondValue();
+				TestEnum() {
+					return;
+				}
+			}"""
 	};
 	addLibrary(javaProject, jarName, srcName, contents, JavaCore.VERSION_1_8);
 
@@ -4740,17 +4904,19 @@ public void test436347() throws CoreException, IOException {
 //Array type access in catch block. Test case picked up from the bug.
 public void testBug433879() throws JavaModelException {
 	String contents =
-			"package Bug433879;\r\n"+
-			"public class X {\n" +
-			"Class<? extends Exception>[] exceptions;\n" +
-			"	void foo() {\n" +
-			"	try {\n" +
-			"		// some stuff here\n" +
-			"	} catch (exceptions[0] e) {\n" +
-			"   	// some more stuff here\n" +
-			"	}\n" +
-			"	}\n" +
-			"}\n";
+			"""
+		package Bug433879;\r
+		public class X {
+		Class<? extends Exception>[] exceptions;
+			void foo() {
+			try {
+				// some stuff here
+			} catch (exceptions[0] e) {
+		   	// some more stuff here
+			}
+			}
+		}
+		""";
 	this.workingCopy = getWorkingCopy("/Converter18/src/Bug433879/X.java", true/*computeProblems*/);
 	try {
 		buildAST(getAST8(), contents, this.workingCopy, false, true, true);
@@ -4763,16 +4929,18 @@ public void testBug433879() throws JavaModelException {
 //Simplified version of the test case picked up from the bug report.
 public void testBug433879a() throws JavaModelException {
 	String contents =
-			"package Bug433879a;\n"+
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		try {\n" +
-			"		    // some stuff here\n" +
-			"		} catch (A[0] e) {\n" +
-			"		    // some more stuff here\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n";
+			"""
+		package Bug433879a;
+		public class X {
+			void foo() {
+				try {
+				    // some stuff here
+				} catch (A[0] e) {
+				    // some more stuff here
+				}
+			}
+		}
+		""";
 	this.workingCopy = getWorkingCopy("/Converter18/src/Bug433879a/X.java", true/*computeProblems*/);
 	try {
 		buildAST(getAST8(), contents, this.workingCopy, false, true, true);
@@ -4784,16 +4952,18 @@ public void testBug433879a() throws JavaModelException {
 //Catch parameters Union Type
 public void testBug433879b() throws JavaModelException {
 	String contents =
-			"package Bug433879c;\n"+
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		try {\n" +
-			"		    // some stuff here\n" +
-			"		} catch (A[0] | B[0] e) {\n" +
-			"		    // some more stuff here\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n";
+			"""
+		package Bug433879c;
+		public class X {
+			void foo() {
+				try {
+				    // some stuff here
+				} catch (A[0] | B[0] e) {
+				    // some more stuff here
+				}
+			}
+		}
+		""";
 	this.workingCopy = getWorkingCopy("/Converter18/src/Bug433879c/X.java", true/*computeProblems*/);
 	try {
 		buildAST(getAST8(), contents, this.workingCopy, false, true, true);
@@ -4806,21 +4976,23 @@ public void testBug433879b() throws JavaModelException {
 //Catch parameters union type. Multiple Catch handlers.
 public void testBug433879c() throws JavaModelException {
 	String contents =
-			"package Bug433879d;\n"+
-			"class E1 extends Exception {private static final long serialVersionUID = 1L;}\n" +
-			"class E2 extends Exception { private static final long serialVersionUID = 1L;}\n" +
-			"\n" +
-			"\n" +
-			"public class X {\n" +
-			"	Class<? extends Exception>[] exceptions;\n" +
-			"	void foo() {\n" +
-			"		try {\n" +
-			"			bar();\n" +
-			"		} catch (exceptions[0] e) {\n" +
-			"		} catch (E1 | E2 eU) {}\n" +
-			"	}\n" +
-			"	private void bar() throws E1, E2 {}\n" +
-			"}\n";
+			"""
+		package Bug433879d;
+		class E1 extends Exception {private static final long serialVersionUID = 1L;}
+		class E2 extends Exception { private static final long serialVersionUID = 1L;}
+		
+		
+		public class X {
+			Class<? extends Exception>[] exceptions;
+			void foo() {
+				try {
+					bar();
+				} catch (exceptions[0] e) {
+				} catch (E1 | E2 eU) {}
+			}
+			private void bar() throws E1, E2 {}
+		}
+		""";
 	this.workingCopy = getWorkingCopy("/Converter18/src/Bug433879d/X.java", true/*computeProblems*/);
 	try {
 		buildAST(getAST8(), contents, this.workingCopy, false, true, true);
@@ -4833,23 +5005,25 @@ public void testBug433879c() throws JavaModelException {
 //Multiple Catch handlers.
 public void testBug433879d() throws JavaModelException {
 	String contents =
-			"package Bug433879e;\n"+
-			"class E1 extends Exception {private static final long serialVersionUID = 1L;}\n" +
-			"class E2 extends Exception { private static final long serialVersionUID = 1L;}\n" +
-			"public class X {\n" +
-			"	Class<? extends Exception>[] exceptions;\n" +
-			"	Class<? extends Exception>[] exceptions2;\n" +
-			"	void foo() {\n" +
-			"		try {\n" +
-			"			bar();\n" +
-			"		} catch (E2 e2) {\n" +
-			"		} catch (exceptions[0] e) {\n" +
-			"		} catch (E1 e1) {\n" +
-			"		} catch (exceptions2[0] e) {\n" +
-			"       }\n" +
-			"	}\n" +
-			"	private void bar() throws E1, E2 {}\n" +
-			"}\n";
+			"""
+		package Bug433879e;
+		class E1 extends Exception {private static final long serialVersionUID = 1L;}
+		class E2 extends Exception { private static final long serialVersionUID = 1L;}
+		public class X {
+			Class<? extends Exception>[] exceptions;
+			Class<? extends Exception>[] exceptions2;
+			void foo() {
+				try {
+					bar();
+				} catch (E2 e2) {
+				} catch (exceptions[0] e) {
+				} catch (E1 e1) {
+				} catch (exceptions2[0] e) {
+		       }
+			}
+			private void bar() throws E1, E2 {}
+		}
+		""";
 	this.workingCopy = getWorkingCopy("/Converter18/src/Bug433879e/X.java", true/*computeProblems*/);
 	try {
 		buildAST(getAST8(), contents, this.workingCopy, false, true, true);
@@ -4860,18 +5034,20 @@ public void testBug433879d() throws JavaModelException {
 public void testBug432175() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/testBug432175/X.java",
 			true/* resolve */);
-	String contents = "package testBug432175;\n" +
-			"interface Collection <T> {}\n" +
-			"class Collections {\n" +
-			"    public static final <T> T emptyList() {  return null; }\n" +
-			"}\n" +
-			"public class X {\n" +
-			"    public static <T extends Number & Comparable<?>> void method2(Collection<T> coll) {}\n" +
-			"\n" +
-			"    public static void main(String[] args) {\n" +
-			"        method2(Collections.emptyList());\n" +
-			"    }\n" +
-			"}\n" ;
+	String contents = """
+		package testBug432175;
+		interface Collection <T> {}
+		class Collections {
+		    public static final <T> T emptyList() {  return null; }
+		}
+		public class X {
+		    public static <T extends Number & Comparable<?>> void method2(Collection<T> coll) {}
+		
+		    public static void main(String[] args) {
+		        method2(Collections.emptyList());
+		    }
+		}
+		""" ;
 
 	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 	TypeDeclaration typeDeclaration = (TypeDeclaration) getASTNode(cu, 2);
@@ -4893,32 +5069,35 @@ public void testBug432175() throws JavaModelException {
 public void testBug435348() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/testBug435348/X.java",
 		true/* resolve */);
-	String contents = "package testBug435348;\n" +
-		"class Y {}\n" +
-		"class Z{}\n" +
-		"class X {\n" +
-		"  void bar2(@ Z z) {}\n" +
-		"  //        ^  Illegal @ \n" +
-		"  static  {\n" +
-		"        bar(new Y() {});\n" +
-		"  }\n" +
-		"}\n";
+	String contents = """
+		package testBug435348;
+		class Y {}
+		class Z{}
+		class X {
+		  void bar2(@ Z z) {}
+		  //        ^  Illegal @\s
+		  static  {
+		        bar(new Y() {});
+		  }
+		}
+		""";
 	buildAST(contents, this.workingCopy, false);
 }
 
 public void testBug432614() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/testBug432614/X.java", true);
-	String contents = "package testBug432614;\n" +
-			"import java.lang.annotation.ElementType;\n" +
-			"import java.lang.annotation.Target;\n" +
-			"public class X {\n" +
-			"	FI fi1= (@T2 int i) -> {};\n" +
-			"}\n" +
-			"interface FI {\n" +
-			"	void foo(@T1 int iii);\n" +
-			"}\n" +
-			"@Target(ElementType.TYPE_USE) @interface T1 {}\n" +
-			"@Target(ElementType.TYPE_USE) @interface T2 {}";
+	String contents = """
+		package testBug432614;
+		import java.lang.annotation.ElementType;
+		import java.lang.annotation.Target;
+		public class X {
+			FI fi1= (@T2 int i) -> {};
+		}
+		interface FI {
+			void foo(@T1 int iii);
+		}
+		@Target(ElementType.TYPE_USE) @interface T1 {}
+		@Target(ElementType.TYPE_USE) @interface T2 {}""";
 	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
 	FieldDeclaration fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(0);
@@ -4939,11 +5118,13 @@ public void testBug432614() throws JavaModelException {
  */
 public void testBug447062() throws JavaModelException {
 	String contents =
-			"public class X {\n" +
-			"    Runnable foo = () -> {\n" +
-			"    \n" +
-			"    }\n" +
-			"}\n";
+			"""
+		public class X {
+		    Runnable foo = () -> {
+		   \s
+		    }
+		}
+		""";
 	this.workingCopy = getWorkingCopy("/Converter18/src/test447062/X.java", contents, true/*computeProblems*/);
 	IJavaProject javaProject = this.workingCopy.getJavaProject();
 	class BindingRequestor extends ASTRequestor {
@@ -4970,28 +5151,30 @@ public void testBug447062() throws JavaModelException {
 public void testBug425601_001() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/testBug425601_001/Outer.java",
 			true/* resolve */);
-	String contents = "package testBug425601_001;\n" +
-			"@Deprecated\n"+
-			"public class Outer<O> {\n"+
-			"    @Deprecated\n"+
-			"    public class Middle<X> {\n"+
-			"        @Deprecated\n"+
-			"        public class Inner<E> {\n"+
-			"        }\n"+
-			"    }\n"+
-			"    \n"+
-			"    Outer<String> o;\n"+
-			"    Middle<String> m; // Middle should be deprecated - Middle Case one\n"+
-			"    Outer<String>.Middle<String> m2; // Middle should be deprecated - Middle Case Two \n"+
-			"    @SuppressWarnings(\"rawtypes\")"+
-			"    Outer.Middle m3; \n"+
-			"    Middle<String>.Inner<Object> i; // Inner should be deprecated - Inner Case One\n"+
-			"}\n"+
-			"class Ref {\n"+
-			"    Outer<String> o;\n"+
-			"    Outer<String>.Middle<String> m;\n"+
-			"    Outer<String>.Middle<String>.Inner<Object> i;\n"+
-			"}\n";
+	String contents = """
+		package testBug425601_001;
+		@Deprecated
+		public class Outer<O> {
+		    @Deprecated
+		    public class Middle<X> {
+		        @Deprecated
+		        public class Inner<E> {
+		        }
+		    }
+		   \s
+		    Outer<String> o;
+		    Middle<String> m; // Middle should be deprecated - Middle Case one
+		    Outer<String>.Middle<String> m2; // Middle should be deprecated - Middle Case Two\s
+		    @SuppressWarnings("rawtypes")\
+		    Outer.Middle m3;\s
+		    Middle<String>.Inner<Object> i; // Inner should be deprecated - Inner Case One
+		}
+		class Ref {
+		    Outer<String> o;
+		    Outer<String>.Middle<String> m;
+		    Outer<String>.Middle<String>.Inner<Object> i;
+		}
+		""";
 	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
 	FieldDeclaration[] fields = typedeclaration.getFields();
@@ -5057,12 +5240,14 @@ public void testBug425601_002() throws JavaModelException {
  */
 public void testBug440000_001() throws JavaModelException {
 	String contents =
-			"interface I<T, R> {\n" +
-			"    R apply(T t);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"    I<Integer, int[]> m1 = int[]::new;\n" +
-			"}\n";
+			"""
+		interface I<T, R> {
+		    R apply(T t);
+		}
+		public class X {
+		    I<Integer, int[]> m1 = int[]::new;
+		}
+		""";
 	this.workingCopy = getWorkingCopy("/Converter18/src/X.java", contents, true/*computeProblems*/);
 	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
@@ -5081,15 +5266,17 @@ public void testBug440000_001() throws JavaModelException {
 public void testBug459344_001() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/test459344/X.java",
 			true/* resolve */);
-	String contents = "package test459344;" +
-			"interface I {\n" +
-			"	int foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	private void foo(Object arg) {\n" +
-			"		I i = arg :: hashCode;\n" +
-			"	}\n" +
-			"}\n";
+	String contents = """
+		package test459344;\
+		interface I {
+			int foo();
+		}
+		public class X {
+			private void foo(Object arg) {
+				I i = arg :: hashCode;
+			}
+		}
+		""";
 
 	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 	TypeDeclaration typeDeclaration = (TypeDeclaration) getASTNode(cu, 1);
@@ -5108,11 +5295,13 @@ public void testBug459344_001() throws JavaModelException {
  */
 public void testBug460186() throws JavaModelException {
 	String contents =
-			"class Foo {\n" +
-			"	void foo()\n {" +
-			"		foo();[]\n" +
-			"	}\n" +
-			"}";
+			"""
+		class Foo {
+			void foo()
+		 {\
+				foo();[]
+			}
+		}""";
 	this.workingCopy = getWorkingCopy("/Converter18/src/test460186/NPE.java", contents, false/*computeProblems*/);
 	IJavaProject javaProject = this.workingCopy.getJavaProject();
 
@@ -5130,13 +5319,14 @@ public void testBug460186() throws JavaModelException {
  */
 public void testBug443232() throws JavaModelException {
 	String contents =
-			"package test443232;\n" +
-			"public class E21 {\n" +
-			"	{private int[] nums;\n" +
-			"	void foo() {\n" +
-			"        nums\n" +
-			"	}\n" +
-			"}";
+			"""
+		package test443232;
+		public class E21 {
+			{private int[] nums;
+			void foo() {
+		        nums
+			}
+		}""";
 	this.workingCopy = getWorkingCopy("/Converter18/src/test443232/E21.java", contents, false/*computeProblems*/);
 	IJavaProject javaProject = this.workingCopy.getJavaProject();
 
@@ -5157,13 +5347,15 @@ public void testBug443232() throws JavaModelException {
 public void test429813() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/test429813/Snippet.java",
 			true/* resolve */);
-	String contents = "package test429813;"
-			+ "public class Snippet {\n"
-			+ "		Function<Integer, int[]> m1L = n -> new int[n];\n"
-			+ "}"
-			+ "interface Function<T, R> {\n"
-			+ "   public R apply(T t);\n"
-			+ "}\n";
+	String contents = """
+		package test429813;\
+		public class Snippet {
+				Function<Integer, int[]> m1L = n -> new int[n];
+		}\
+		interface Function<T, R> {
+		   public R apply(T t);
+		}
+		""";
 	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
 	FieldDeclaration fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(0);
@@ -5180,13 +5372,15 @@ public void test429813() throws JavaModelException {
 public void test429813a() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/test429813/Snippet.java",
 			true/* resolve */);
-	String contents = "package test429813;"
-			+ "interface FTest {\n"
-			+ "		Object foo (int[]... ints);\n"
-			+ "};"
-			+ "class TestX {"
-			+ "		FTest fi= ints -> null;\n"
-			+ "}\n";
+	String contents = """
+		package test429813;\
+		interface FTest {
+				Object foo (int[]... ints);
+		};\
+		class TestX {\
+				FTest fi= ints -> null;
+		}
+		""";
 	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
 	FieldDeclaration fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(0);
@@ -5201,24 +5395,26 @@ public void test429813a() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399792
 public void testBug470794_001() throws JavaModelException {
 	String content =
-			"public class X {\n" +
-			"      Object o = (I & J) () -> {};" +
-			"      public K main(Object o) {\n" +
-			"    	  K oo = (I & J & K) o;\n" +
-			"    	  return oo;\n" +
-			"      }\n" +
-			"}\n" +
-			"interface I {\n" +
-			"  public void foo();\n" +
-			"}\n" +
-			"interface J {\n" +
-			"  public void foo();\n" +
-			"  public default void bar() {}\n" +
-			"}\n" +
-			"interface K {\n" +
-			"  public void foo();\n" +
-			"  public void bar();\n" +
-			"}\n";
+			"""
+		public class X {
+		      Object o = (I & J) () -> {};\
+		      public K main(Object o) {
+		    	  K oo = (I & J & K) o;
+		    	  return oo;
+		      }
+		}
+		interface I {
+		  public void foo();
+		}
+		interface J {
+		  public void foo();
+		  public default void bar() {}
+		}
+		interface K {
+		  public void foo();
+		  public void bar();
+		}
+		""";
 
 	this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 	ASTNode node = buildAST(content, this.workingCopy, true);
@@ -5275,20 +5471,22 @@ public void testBug470794_001() throws JavaModelException {
 @SuppressWarnings("deprecation")
 public void testBug500503() throws JavaModelException {
 	String contents =
-			"package test432051;\n" +
-			"public class Colon\n" +
-			"{\n" +
-			"   void foo()\n" +
-			"   {\n" +
-			"   }\n" +
-			"\n" +
-			"   void bar()\n" +
-			"   {\n" +
-			"      run( this:foo );\n" +
-			"   }\n" +
-			"   \n" +
-			"   void run( Runnable r ) { }\n" +
-			"}\n";
+			"""
+		package test432051;
+		public class Colon
+		{
+		   void foo()
+		   {
+		   }
+		
+		   void bar()
+		   {
+		      run( this:foo );
+		   }
+		  \s
+		   void run( Runnable r ) { }
+		}
+		""";
 	this.workingCopy = getWorkingCopy("/Converter18/src/test432051/Colon.java", contents, true/*computeProblems*/);
 	IJavaProject javaProject = this.workingCopy.getJavaProject();
 	class BindingRequestor extends ASTRequestor {
@@ -5309,35 +5507,36 @@ public void testBug500503() throws JavaModelException {
 
 public void testBug497719_0001() throws JavaModelException {
 	String contents =
-			"import java.io.IOException;\n" +
-			"\n" +
-			"class Z {\n" +
-			"	 final Y yz = new Y();\n" +
-			"}\n" +
-			"public class X extends Z {\n" +
-			"	final  Y y2 = new Y();\n" +
-			"	\n" +
-			"	 Y bar() {\n" +
-			"		 return new Y();\n" +
-			"	 }\n" +
-			"	public void foo() {\n" +
-			"		Y y3 = new Y();\n" +
-			"		int a[];\n" +
-			"		try (y3; y3;super.yz;super.yz;this.y2;Y y4 = new Y())  {  \n" +
-			"			System.out.println(\"In Try\");\n" +
-			"		} catch (IOException e) {			  \n" +
-			"		} \n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new X().foo();\n" +
-			"	}\n" +
-			"}\n" +
-			"class Y implements AutoCloseable {\n" +
-			"	@Override\n" +
-			"	public void close() throws IOException {\n" +
-			"		System.out.println(\"Closed\");\n" +
-			"	}  \n" +
-			"}";
+			"""
+		import java.io.IOException;
+		
+		class Z {
+			 final Y yz = new Y();
+		}
+		public class X extends Z {
+			final  Y y2 = new Y();
+		\t
+			 Y bar() {
+				 return new Y();
+			 }
+			public void foo() {
+				Y y3 = new Y();
+				int a[];
+				try (y3; y3;super.yz;super.yz;this.y2;Y y4 = new Y())  { \s
+					System.out.println("In Try");
+				} catch (IOException e) {			 \s
+				}\s
+			}
+			public static void main(String[] args) {
+				new X().foo();
+			}
+		}
+		class Y implements AutoCloseable {
+			@Override
+			public void close() throws IOException {
+				System.out.println("Closed");
+			} \s
+		}""";
 		this.workingCopy = getWorkingCopy("/Converter8/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -5348,38 +5547,42 @@ public void testBug497719_0001() throws JavaModelException {
 }
 public void testBug490698_001() throws JavaModelException {
 	String contents =
-			"package jsr308.myex;\n" +
-			"\n" +
-			"public class X extends @jsr308.myex.X.Anno Object {\n" +
-			"    public class Inner {}\n" +
-			"    void foo(@jsr308.myex.X.Anno X this) {}\n" +
-			"    int o @jsr308.myex.X.Anno[];\n" +
-			"\n" +
-			"	 @jsr308.myex.X.Anno1 X.Inner java;\n" +
-			"    @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE)\n" +
-			"    public @interface Anno {}\n" +
-			"}\n" +
-			"class Y<T> {}\n";
+			"""
+		package jsr308.myex;
+		
+		public class X extends @jsr308.myex.X.Anno Object {
+		    public class Inner {}
+		    void foo(@jsr308.myex.X.Anno X this) {}
+		    int o @jsr308.myex.X.Anno[];
+		
+			 @jsr308.myex.X.Anno1 X.Inner java;
+		    @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE)
+		    public @interface Anno {}
+		}
+		class Y<T> {}
+		""";
 	this.workingCopy = getWorkingCopy("/Converter18/src/jsr308/myex/X.java", true/*resolve*/);
 	ASTNode node = buildAST(contents, this.workingCopy, false);
 	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 }
 public void testBug526449_001() throws JavaModelException {
 	String contents =
-			"class com.google.android.gms.common.X {\n" +
-			"    class zzc {\n" +
-			"        void getBytes() {\n" +
-			"            this;\n" +
-			"        }\n" +
-			"    }\n" +
-			"\n" +
-			"    class zze {\n" +
-			"        zza zzLC[] = {\n" +
-			"            new zzc(){}, \n" +
-			"            new zzc(){}\n" +
-			"        };\n" +
-			"    }\n" +
-			"}\n";
+			"""
+		class com.google.android.gms.common.X {
+		    class zzc {
+		        void getBytes() {
+		            this;
+		        }
+		    }
+		
+		    class zze {
+		        zza zzLC[] = {
+		            new zzc(){},\s
+		            new zzc(){}
+		        };
+		    }
+		}
+		""";
 	this.workingCopy = getWorkingCopy("/Converter18/src/jsr308/myex/X.java", true/*resolve*/);
 	ASTNode node = buildAST(contents, this.workingCopy, false);
 	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -5388,36 +5591,38 @@ public void testLambdaSynthetic() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/xyz/X.java",
 			true/* resolve */);
 	String contents =
-			"package xyz;\n"+
-					"\n"+
-					"interface Function<T, R> {\n"+
-					"    R apply(T t);\n"+
-					" }\n"+
-					"\n"+
-					"public class X {\n"+
-					"\n"+
-					"    private int instanceField = 952;\n"+
-					"\n"+
-					"    static public void main(String[] args) throws Exception {\n"+
-					"        new X().callLambda(\"hello\");\n"+
-					"    }\n"+
-					"\n"+
-					"    void callLambda(String outerArg) throws Exception {\n"+
-					"        double outerLocal = 1.0; // Effectively final\n"+
-					"\n"+
-					"        Function<String, Integer> lambda = lambdaArg -> {\n"+
-					"            int lambdaLocal = 6;\n"+
-					"            System.out.println(instanceField);\n"+
-					"            System.out.println(outerArg);\n"+
-					"            System.out.println(outerLocal);\n"+
-					"            System.out.println(lambdaArg);\n"+
-					"            System.out.println(lambdaLocal);\n"+
-					"            return lambdaArg.length();\n"+
-					"        };\n"+
-					"        int result = lambda.apply(\"degenerate case\");\n"+
-					"        System.out.println(result);\n"+
-					"    }\n"+
-					"}\n";
+			"""
+		package xyz;
+		
+		interface Function<T, R> {
+		    R apply(T t);
+		 }
+		
+		public class X {
+		
+		    private int instanceField = 952;
+		
+		    static public void main(String[] args) throws Exception {
+		        new X().callLambda("hello");
+		    }
+		
+		    void callLambda(String outerArg) throws Exception {
+		        double outerLocal = 1.0; // Effectively final
+		
+		        Function<String, Integer> lambda = lambdaArg -> {
+		            int lambdaLocal = 6;
+		            System.out.println(instanceField);
+		            System.out.println(outerArg);
+		            System.out.println(outerLocal);
+		            System.out.println(lambdaArg);
+		            System.out.println(lambdaLocal);
+		            return lambdaArg.length();
+		        };
+		        int result = lambda.apply("degenerate case");
+		        System.out.println(result);
+		    }
+		}
+		""";
 	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) typedeclaration.bodyDeclarations().get(2);
@@ -5432,23 +5637,22 @@ public void testLambdaSynthetic() throws JavaModelException {
 }
 public void testCaptureBinding18() throws CoreException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/xyz/X.java", true/* resolve */);
-	StringBuilder buf= new StringBuilder();
-	buf.append("package xyz;\n");
-	buf.append("\n");
-	buf.append("import java.util.List;\n");
-	buf.append("\n");
-	buf.append("public class X {\n");
-	buf.append("\n");
-	buf.append("	protected <E extends Comparable<E>> List<E> createEmptySet() {\n");
-	buf.append("		return null;\n");
-	buf.append("	}\n");
-	buf.append("\n");
-	buf.append("	public void emptySet() {\n");
-	buf.append("		s = createEmptySet();\n");
-	buf.append("	}\n");
-	buf.append("\n");
-	buf.append("}");
-	String content= buf.toString();
+	String content= """
+		package xyz;
+		
+		import java.util.List;
+		
+		public class X {
+		
+			protected <E extends Comparable<E>> List<E> createEmptySet() {
+				return null;
+			}
+		
+			public void emptySet() {
+				s = createEmptySet();
+			}
+		
+		}""";
 	CompilationUnit cu = (CompilationUnit) buildAST(content, this.workingCopy, false /*i.e. ignore errors*/);
 	MethodDeclaration method= ((TypeDeclaration)cu.types().get(0)).getMethods()[1];
 	Assignment assignment= (Assignment) ((ExpressionStatement) method.getBody().statements().get(0)).getExpression();

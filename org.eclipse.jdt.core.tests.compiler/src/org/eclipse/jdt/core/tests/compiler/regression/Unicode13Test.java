@@ -32,9 +32,10 @@ public void test1() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"		public int a\\u08BE; // new unicode character in unicode 13 \n" +
-			"}",
+			"""
+				public class X {
+						public int a\\u08BE; // new unicode character in unicode 13\s
+				}""",
 		},
 		"",
 		options);
@@ -45,9 +46,10 @@ public void test2() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"		public int a\\ud880\\udc00; // new unicode character in unicode 13 using high and low surrogate\n" +
-			"}",
+			"""
+				public class X {
+						public int a\\ud880\\udc00; // new unicode character in unicode 13 using high and low surrogate
+				}""",
 		},
 		"",
 		options);

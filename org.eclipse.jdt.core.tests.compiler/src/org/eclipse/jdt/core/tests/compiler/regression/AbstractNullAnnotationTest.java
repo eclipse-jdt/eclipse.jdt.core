@@ -32,36 +32,44 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 	// names and content of custom annotations used in a few tests:
 	static final String CUSTOM_NONNULL_NAME = "org/foo/NonNull.java";
 	static final String CUSTOM_NONNULL_CONTENT =
-			"package org.foo;\n" +
-			"import static java.lang.annotation.ElementType.*;\n" +
-			"import java.lang.annotation.*;\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target({METHOD,PARAMETER,LOCAL_VARIABLE})\n" +
-			"public @interface NonNull {\n" +
-			"}\n";
+			"""
+		package org.foo;
+		import static java.lang.annotation.ElementType.*;
+		import java.lang.annotation.*;
+		@Retention(RetentionPolicy.CLASS)
+		@Target({METHOD,PARAMETER,LOCAL_VARIABLE})
+		public @interface NonNull {
+		}
+		""";
 	static final String CUSTOM_NONNULL_CONTENT_JSR308 =
-			"package org.foo;\n" +
-			"import static java.lang.annotation.ElementType.*;\n" +
-			"import java.lang.annotation.*;\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target({METHOD,PARAMETER,LOCAL_VARIABLE,TYPE_USE})\n" +
-			"public @interface NonNull {\n" +
-			"}\n";
+			"""
+		package org.foo;
+		import static java.lang.annotation.ElementType.*;
+		import java.lang.annotation.*;
+		@Retention(RetentionPolicy.CLASS)
+		@Target({METHOD,PARAMETER,LOCAL_VARIABLE,TYPE_USE})
+		public @interface NonNull {
+		}
+		""";
 	static final String CUSTOM_NULLABLE_NAME = "org/foo/Nullable.java";
-	static final String CUSTOM_NULLABLE_CONTENT = "package org.foo;\n" +
-			"import static java.lang.annotation.ElementType.*;\n" +
-			"import java.lang.annotation.*;\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target({METHOD,PARAMETER,LOCAL_VARIABLE})\n" +
-			"public @interface Nullable {\n" +
-			"}\n";
-	static final String CUSTOM_NULLABLE_CONTENT_JSR308 = "package org.foo;\n" +
-			"import static java.lang.annotation.ElementType.*;\n" +
-			"import java.lang.annotation.*;\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target({METHOD,PARAMETER,LOCAL_VARIABLE,TYPE_USE})\n" +
-			"public @interface Nullable {\n" +
-			"}\n";
+	static final String CUSTOM_NULLABLE_CONTENT = """
+		package org.foo;
+		import static java.lang.annotation.ElementType.*;
+		import java.lang.annotation.*;
+		@Retention(RetentionPolicy.CLASS)
+		@Target({METHOD,PARAMETER,LOCAL_VARIABLE})
+		public @interface Nullable {
+		}
+		""";
+	static final String CUSTOM_NULLABLE_CONTENT_JSR308 = """
+		package org.foo;
+		import static java.lang.annotation.ElementType.*;
+		import java.lang.annotation.*;
+		@Retention(RetentionPolicy.CLASS)
+		@Target({METHOD,PARAMETER,LOCAL_VARIABLE,TYPE_USE})
+		public @interface Nullable {
+		}
+		""";
 	static final String CUSTOM_NNBD_NAME = "org/foo/NonNullByDefault.java";
 	static final String CUSTOM_NNBD_CONTENT = "package org.foo;\n" +
 			"import java.lang.annotation.*;\n" +

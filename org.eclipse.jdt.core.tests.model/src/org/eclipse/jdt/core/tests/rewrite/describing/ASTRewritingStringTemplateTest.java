@@ -60,14 +60,15 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 	@SuppressWarnings({ "rawtypes" })
 	public void test0001() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -109,16 +110,16 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		String preview = evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello \\{name}!\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hello \\{name}!";
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 
 		{
 			VariableDeclarationFragment varFragment = ast.newVariableDeclarationFragment();
@@ -148,31 +149,33 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		preview = evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello \\{name}!\";\n");
-		buf.append("    String s1 = STR.\"\"\"\nHello \\{name}!\"\"\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str2 = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hello \\{name}!";
+			    String s1 = STR.\"""
+			Hello \\{name}!\""";
+			  }
+			}
+			""";
+		assertEqualString(preview, str2);
 	}
 	// Rewrite the first fragment
 	@SuppressWarnings({ "rawtypes" })
 	public void test0002() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello \\{name}!\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hello \\{name}!";
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -197,30 +200,31 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		String preview = evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hey there \\{name}!\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hey there \\{name}!";
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 	// replace the first fragment and remove the only string fragment component
 	@SuppressWarnings({ "rawtypes" })
 	public void test0003() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello \\{name}!\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hello \\{name}!";
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -246,30 +250,31 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		String preview = evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello!\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hello!";
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 	// Replace just the embedded expression in an existing template component
 	@SuppressWarnings({ "rawtypes" })
 	public void test0004() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello \\{name}!\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hello \\{name}!";
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot = createAST(cu);
 		ASTRewrite rewrite = ASTRewrite.create(astRoot.getAST());
@@ -298,30 +303,31 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		String preview = evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello \\{first}!\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hello \\{first}!";
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 	// Replace an existing template component
 	@SuppressWarnings({ "rawtypes" })
 	public void test0005() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello \";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hello ";
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot = createAST(cu);
 		ASTRewrite rewrite = ASTRewrite.create(astRoot.getAST());
@@ -353,30 +359,31 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		String preview = evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello \\{name}!\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hello \\{name}!";
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	@SuppressWarnings({ "rawtypes" })
 	public void test0005_a() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";int tempC = 28;String unit = \"in Faranhiet\";String os = \"macOS\"; \n");
-		buf.append("    String s = STR.\"Hello \\{name}, how are you?. It's \\{tempC}°C today! The unit is in \\{unit}. \";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";int tempC = 28;String unit = "in Faranhiet";String os = "macOS";\s
+			    String s = STR."Hello \\{name}, how are you?. It's \\{tempC}°C today! The unit is in \\{unit}. ";
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot = createAST(cu);
 		ASTRewrite rewrite = ASTRewrite.create(astRoot.getAST());
@@ -408,30 +415,31 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		String preview = evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";int tempC = 28;String unit = \"in Faranhiet\";String os = \"macOS\"; \n");
-		buf.append("    String s = STR.\"Hello \\{name}, how are you?. It's \\{tempC}°C today! The unit is in \\{unit}. \\{os} is your OS.\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";int tempC = 28;String unit = "in Faranhiet";String os = "macOS";\s
+			    String s = STR."Hello \\{name}, how are you?. It's \\{tempC}°C today! The unit is in \\{unit}. \\{os} is your OS.";
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 	//modify the first_fragment with no component
 	@SuppressWarnings({ "rawtypes" })
 	public void test0005_b() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello \";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hello ";
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot = createAST(cu);
 		ASTRewrite rewrite = ASTRewrite.create(astRoot.getAST());
@@ -461,30 +469,31 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		String preview = evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello !\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hello !";
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 	//SINGLE LINE to MULTI LINE with Component
 	@SuppressWarnings({ "rawtypes" })
 	public void test0006_a() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello \\{name}!\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hello \\{name}!";
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -505,31 +514,34 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		String preview = evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"\"\"\nHello \\{name}!\n\"\"\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR.\"""
+			Hello \\{name}!
+			\""";
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	@SuppressWarnings({ "rawtypes" })
 	//SINGLE LINE to MULTI LINE without Component
 	public void test0006_b() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello!\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hello!";
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -550,31 +562,34 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		String preview = evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"\"\"\nHello!\n\"\"\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR.\"""
+			Hello!
+			\""";
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	@SuppressWarnings({ "rawtypes" })
 	//SINGLE LINE to MULTI LINE with Multiple Components
 	public void test0006_c() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello \\{name} \";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hello \\{name} ";
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -613,31 +628,36 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		String preview = evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"\"\"\nHello \\{name} \\{os} is your OS. \\{xyz} is xyz.\n\"\"\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR.\"""
+			Hello \\{name} \\{os} is your OS. \\{xyz} is xyz.
+			\""";
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	@SuppressWarnings({ "rawtypes" })
 	//MULTI LINE to SINGLE LINE -> with Component
 	public void test0007_a() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"\"\"\nHello \\{name}\n\"\"\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR.\"""
+			Hello \\{name}
+			\""";
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -658,30 +678,33 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		String preview = evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello \\{name}\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hello \\{name}";
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 	@SuppressWarnings({ "rawtypes" })
 	//MULTI LINE to SINGLE LINE -> without Component
 	public void test0007_b() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"\"\"\nHello!\n\"\"\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR.\"""
+			Hello!
+			\""";
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -702,31 +725,34 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		String preview = evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello!\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hello!";
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	@SuppressWarnings({ "rawtypes" })
 	//MULTI LINE to SINGLE LINE -> with multiple Component
 	public void test0007_c() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"\"\"\nHello \\{name} \n\"\"\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR.\"""
+			Hello \\{name}\s
+			\""";
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -757,30 +783,31 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		String preview = evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello \\{name} \\{os} is your OS. \";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."Hello \\{name} \\{os} is your OS. ";
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 	@SuppressWarnings({ "rawtypes" })
 	//Modify the FIRST FRAGMENT without a component -> SINGLE LINE
 	public void _test0008() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"hello \\{name}\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."hello \\{name}";
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -803,30 +830,33 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		String preview = evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"world \\{name}\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR."world \\{name}";
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 	@SuppressWarnings({ "rawtypes" })
 	//Modify the FIRST FRAGMENT without a component -> MULTI LINE
 	public void _test0009() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"\"\"\nHello \n\"\"\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR.\"""
+			Hello\s
+			\""";
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -849,29 +879,32 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		String preview = evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"\"\"\nworld \n\"\"\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = STR.\"""
+			world\s
+			\""";
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 	@SuppressWarnings({ "rawtypes" })
 	//Using RAW Template Processor
 	public void test0010() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -913,15 +946,15 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		String preview = evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("  void foo(Object o) {\n");
-		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = RAW.\"Hello \\{name}!\";\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			  void foo(Object o) {
+			    String name = "Jay";
+			    String s = RAW."Hello \\{name}!";
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 }

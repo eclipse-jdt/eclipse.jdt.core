@@ -40,20 +40,21 @@ public void test318020a() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	public void foo() throws Exception{\n" +
-			"		String temp;\n" +
-			"		Object temp2= new String(\"test\");\n" +
-			"		if(temp2 instanceof String) {\n" +
-			"			temp = (String) temp2;\n" +
-			"		} else {\n" +
-			"			if (true) {\n" +
-			"				throw new Exception(\"not a string\");\n" +
-			"			}\n" +
-			"		}\n" +
-			"		temp.trim();\n" +
-			"	}\n" +
-			"}"
+			"""
+				class X {
+					public void foo() throws Exception{
+						String temp;
+						Object temp2= new String("test");
+						if(temp2 instanceof String) {
+							temp = (String) temp2;
+						} else {
+							if (true) {
+								throw new Exception("not a string");
+							}
+						}
+						temp.trim();
+					}
+				}"""
 		},
 		"");
 }
@@ -62,13 +63,14 @@ public void test318020b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	{\n" +
-			"		if (true)\n" +
-			"			throw new NullPointerException();\n" +
-			"	}\n" +
-			"	public X(){}\n" +
-			"}"
+			"""
+				class X {
+					{
+						if (true)
+							throw new NullPointerException();
+					}
+					public X(){}
+				}"""
 		},
 		"");
 }
@@ -79,31 +81,35 @@ public void test318020c() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"   public int a;" +
-				"	public X (int a) {\n" +
-				"		this.a = a;\n" +
-				"	}\n" +
-				"	public int returnA () {\n" +
-				"		return a;\n" +
-				"	}\n" +
-				"	public void foo() {\n" +
-				"		final X abc;" +
-				"		if (true || (abc = new X(2)).returnA() == 2) {\n" +
-				"			System.out.println(\"Hello\");\n" +
-				"       } else { \n" +
-				"			abc = new X(1);\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+					   public int a;\
+						public X (int a) {
+							this.a = a;
+						}
+						public int returnA () {
+							return a;
+						}
+						public void foo() {
+							final X abc;\
+							if (true || (abc = new X(2)).returnA() == 2) {
+								System.out.println("Hello");
+					       } else {\s
+								abc = new X(1);
+							}
+						}
+					}
+					"""
 
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 12)\n" +
-			"	abc = new X(1);\n" +
-			"	^^^\n" +
-			"The final local variable abc may already have been assigned\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 12)
+					abc = new X(1);
+					^^^
+				The final local variable abc may already have been assigned
+				----------
+				""",
 			null, false, options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318020
@@ -113,30 +119,34 @@ public void test318020d() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"   private int a;" +
-				"	public X (int a) {\n" +
-				"		this.a = a;\n" +
-				"	}\n" +
-				"	public int returnA () {\n" +
-				"		return a;\n" +
-				"	}\n" +
-				"	public static boolean comparison (X x, int val) {\n" +
-				"		return (x.returnA() == val);\n" +
-				"	}\n" +
-				"	public void foo() {\n" +
-				"		final X abc;\n" +
-				"		boolean comp = X.comparison((abc = new X(2)), (abc = new X(1)).returnA());\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+					   private int a;\
+						public X (int a) {
+							this.a = a;
+						}
+						public int returnA () {
+							return a;
+						}
+						public static boolean comparison (X x, int val) {
+							return (x.returnA() == val);
+						}
+						public void foo() {
+							final X abc;
+							boolean comp = X.comparison((abc = new X(2)), (abc = new X(1)).returnA());
+						}
+					}
+					"""
 
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 13)\n" +
-			"	boolean comp = X.comparison((abc = new X(2)), (abc = new X(1)).returnA());\n" +
-			"	                                               ^^^\n" +
-			"The final local variable abc may already have been assigned\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 13)
+					boolean comp = X.comparison((abc = new X(2)), (abc = new X(1)).returnA());
+					                                               ^^^
+				The final local variable abc may already have been assigned
+				----------
+				""",
 			null, false, options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318020
@@ -146,27 +156,31 @@ public void test318020e() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"   private int a;" +
-				"	public X (int a) {\n" +
-				"		this.a = a;\n" +
-				"	}\n" +
-				"	public int returnA () {\n" +
-				"		return a;\n" +
-				"	}\n" +
-				"	public void foo() {\n" +
-				"		final X abc;\n" +
-				"		boolean comp = ((abc = new X(2)).returnA() == 1 || (abc = new X(1)).returnA() == 1);\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+					   private int a;\
+						public X (int a) {
+							this.a = a;
+						}
+						public int returnA () {
+							return a;
+						}
+						public void foo() {
+							final X abc;
+							boolean comp = ((abc = new X(2)).returnA() == 1 || (abc = new X(1)).returnA() == 1);
+						}
+					}
+					"""
 
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 10)\n" +
-			"	boolean comp = ((abc = new X(2)).returnA() == 1 || (abc = new X(1)).returnA() == 1);\n" +
-			"	                                                    ^^^\n" +
-			"The final local variable abc may already have been assigned\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 10)
+					boolean comp = ((abc = new X(2)).returnA() == 1 || (abc = new X(1)).returnA() == 1);
+					                                                    ^^^
+				The final local variable abc may already have been assigned
+				----------
+				""",
 			null, false, options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318020
@@ -176,29 +190,33 @@ public void test318020f() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"   private int a;" +
-				"	public X (int a) {\n" +
-				"		this.a = a;\n" +
-				"	}\n" +
-				"	public int returnA () {\n" +
-				"		return a;\n" +
-				"	}\n" +
-				"	public void foo() {\n" +
-				"		final X abc;\n" +
-				"		int val;\n" +
-				"		if (true || (abc = new X(1)).returnA() == 1)\n" +
-				"			val = (abc = new X(2)).returnA();\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+					   private int a;\
+						public X (int a) {
+							this.a = a;
+						}
+						public int returnA () {
+							return a;
+						}
+						public void foo() {
+							final X abc;
+							int val;
+							if (true || (abc = new X(1)).returnA() == 1)
+								val = (abc = new X(2)).returnA();
+						}
+					}
+					"""
 
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 12)\n" +
-			"	val = (abc = new X(2)).returnA();\n" +
-			"	       ^^^\n" +
-			"The final local variable abc may already have been assigned\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 12)
+					val = (abc = new X(2)).returnA();
+					       ^^^
+				The final local variable abc may already have been assigned
+				----------
+				""",
 			null, false, options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318020
@@ -208,33 +226,37 @@ public void test318020g() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"   private int a;" +
-				"	public X (int a) {\n" +
-				"		this.a = a;\n" +
-				"	}\n" +
-				"	public int returnA () {\n" +
-				"		return a;\n" +
-				"	}\n" +
-				"	public void foo() {\n" +
-				"		final X abc;\n" +
-				"		int val;\n" +
-				"		if (true) {\n" +
-				"			val = 0;\n" +
-				"		} else {\n" +
-				"			val = (abc = new X(1)).returnA();\n" +
-				"		}\n" +
-				"		abc = new X(2);\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+					   private int a;\
+						public X (int a) {
+							this.a = a;
+						}
+						public int returnA () {
+							return a;
+						}
+						public void foo() {
+							final X abc;
+							int val;
+							if (true) {
+								val = 0;
+							} else {
+								val = (abc = new X(1)).returnA();
+							}
+							abc = new X(2);
+						}
+					}
+					"""
 
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 16)\n" +
-			"	abc = new X(2);\n" +
-			"	^^^\n" +
-			"The final local variable abc may already have been assigned\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 16)
+					abc = new X(2);
+					^^^
+				The final local variable abc may already have been assigned
+				----------
+				""",
 			null, false, options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318020
@@ -242,15 +264,17 @@ public void test318020h() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	final static X[] abc;\n" +
-				"	static {\n" +
-				"		for (Object[] j = new Object[1]; !(((abc = new X[10]).length) == 10); ){\n" +
-				"			break;\n" +
-				"		}\n" +
-				"	}\n" +
-				"	//Zork z;\n" +
-				"}\n"
+				"""
+					public class X {
+						final static X[] abc;
+						static {
+							for (Object[] j = new Object[1]; !(((abc = new X[10]).length) == 10); ){
+								break;
+							}
+						}
+						//Zork z;
+					}
+					"""
 
 			},
 			"");
@@ -260,28 +284,30 @@ public void test318020i() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"   private int a;" +
-				"	class Inner {\n" +
-				"		public int aInner;\n" +
-				"		public Inner(int a){\n" +
-				"			this.aInner = a;\n" +
-				"		}\n" +
-				"	}\n" +
-				"	public X (int a) {\n" +
-				"		this.a = a;\n" +
-				"	}\n" +
-				"	public int returnA () {\n" +
-				"		return a;\n" +
-				"	}\n" +
-				"	public void foo() {\n" +
-				"		int val;" +
-				"		final int int1;\n" +
-				"		final  int int2;\n" +
-				"		val = new X(int1 = 1).new Inner(int2 = int1).aInner;\n" +
-				"		System.out.println(int1 + int2);\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+					   private int a;\
+						class Inner {
+							public int aInner;
+							public Inner(int a){
+								this.aInner = a;
+							}
+						}
+						public X (int a) {
+							this.a = a;
+						}
+						public int returnA () {
+							return a;
+						}
+						public void foo() {
+							int val;\
+							final int int1;
+							final  int int2;
+							val = new X(int1 = 1).new Inner(int2 = int1).aInner;
+							System.out.println(int1 + int2);
+						}
+					}
+					"""
 
 			},
 			"");
@@ -293,27 +319,31 @@ public void test318020j() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"   private int a;" +
-				"	public X (int a) {\n" +
-				"		this.a = a;\n" +
-				"	}\n" +
-				"	public int returnA () {\n" +
-				"		return a;\n" +
-				"	}\n" +
-				"	public void foo() {\n" +
-				"		final int abc;\n" +
-				"		abc = new X(abc = 2).returnA();\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+					   private int a;\
+						public X (int a) {
+							this.a = a;
+						}
+						public int returnA () {
+							return a;
+						}
+						public void foo() {
+							final int abc;
+							abc = new X(abc = 2).returnA();
+						}
+					}
+					"""
 
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 10)\n" +
-			"	abc = new X(abc = 2).returnA();\n" +
-			"	^^^\n" +
-			"The final local variable abc may already have been assigned\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 10)
+					abc = new X(abc = 2).returnA();
+					^^^
+				The final local variable abc may already have been assigned
+				----------
+				""",
 			null, false, options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318020
@@ -323,27 +353,31 @@ public void test318020k() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"   private int a;\n" +
-				"	final int x;\n" +
-				"	{\n" +
-				"		x = new X(x = 2).returnA();" +
-				"	}\n" +
-				"	public X (int a) {\n" +
-				"		this.a = a;\n" +
-				"	}\n" +
-				"	public int returnA () {\n" +
-				"		return a;\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+					   private int a;
+						final int x;
+						{
+							x = new X(x = 2).returnA();\
+						}
+						public X (int a) {
+							this.a = a;
+						}
+						public int returnA () {
+							return a;
+						}
+					}
+					"""
 
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	x = new X(x = 2).returnA();	}\n" +
-			"	^\n" +
-			"The final field x may already have been assigned\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					x = new X(x = 2).returnA();	}
+					^
+				The final field x may already have been assigned
+				----------
+				""",
 			null, false, options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=325567
@@ -353,52 +387,55 @@ public void test325567() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.io.IOException;\n" +
-				"\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		bar(3);\n" +
-				"	}\n" +
-				"	public static void bar(int i) {\n" +
-				"		final String before;\n" +
-				"		try {\n" +
-				"			before = foo();\n" +
-				"		} catch (IOException e) {\n" +
-				"			// ignore\n" +
-				"		}\n" +
-				"		B b = new B(new I() {\n" +
-				"			public String bar() {\n" +
-				"				return new String(before);\n" +
-				"			}\n" +
-				"		});\n" +
-				"		try {\n" +
-				"			b.i.bar();\n" +
-				"		} catch(Exception e) {\n" +
-				"			// ignore\n" +
-				"		}\n" +
-				"	}\n" +
-				"\n" +
-				"	private static String foo() throws IOException {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"	\n" +
-				"	static class B {\n" +
-				"		I i;\n" +
-				"		B(I i) {\n" +
-				"			this.i = i;\n" +
-				"		}\n" +
-				"	}\n" +
-				"	static interface I {\n" +
-				"		String bar();\n" +
-				"	}\n" +
-				"}"
+				"""
+					import java.io.IOException;
+					
+					public class X {
+						public static void main(String[] args) {
+							bar(3);
+						}
+						public static void bar(int i) {
+							final String before;
+							try {
+								before = foo();
+							} catch (IOException e) {
+								// ignore
+							}
+							B b = new B(new I() {
+								public String bar() {
+									return new String(before);
+								}
+							});
+							try {
+								b.i.bar();
+							} catch(Exception e) {
+								// ignore
+							}
+						}
+					
+						private static String foo() throws IOException {
+							return null;
+						}
+					\t
+						static class B {
+							I i;
+							B(I i) {
+								this.i = i;
+							}
+						}
+						static interface I {
+							String bar();
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 16)\n" +
-			"	return new String(before);\n" +
-			"	                  ^^^^^^\n" +
-			"The local variable before may not have been initialized\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 16)
+					return new String(before);
+					                  ^^^^^^
+				The local variable before may not have been initialized
+				----------
+				""",
 			null, false, options);
 }
 
@@ -429,17 +466,19 @@ public void testBug324178c() {
 	this.runConformTest(
 		new String[] {
 			"Bug324178.java",
-			"public class Bug324178 {\n" +
-			"	 boolean foo() {\n" +
-			"        boolean r=false;" +
-			"        boolean v;\n" +
-			"        if ((true && (v = true)) ? true : true && (v = false)) r = v;\n" +
-			"        return r;\n" +
-			"    }\n" +
-			"    public static void main(String[] args) {\n" +
-			"        System.out.print(new Bug324178().foo());\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class Bug324178 {
+					 boolean foo() {
+				        boolean r=false;\
+				        boolean v;
+				        if ((true && (v = true)) ? true : true && (v = false)) r = v;
+				        return r;
+				    }
+				    public static void main(String[] args) {
+				        System.out.print(new Bug324178().foo());
+				    }
+				}
+				"""
 		},
 		"true");
 }
@@ -451,46 +490,54 @@ public void testBug324178d() {
 	this.runNegativeTest(
 		new String[] {
 			"Bug324178.java",
-			"public class Bug324178 {\n" +
-			"	 boolean foo(boolean b1) {\n" +
-			"  		 Boolean b2;\n" +
-			"        if (b1 ? (b2 = Boolean.TRUE) : null)\n" +
-			"          return b2;\n" +
-			"        return false;\n" +
-			"    }\n" +
-			"    public static void main(String[] args) {\n" +
-			"        System.out.print(new Bug324178().foo(true));\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class Bug324178 {
+					 boolean foo(boolean b1) {
+				  		 Boolean b2;
+				        if (b1 ? (b2 = Boolean.TRUE) : null)
+				          return b2;
+				        return false;
+				    }
+				    public static void main(String[] args) {
+				        System.out.print(new Bug324178().foo(true));
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in Bug324178.java (at line 5)\n" +
-		"	return b2;\n" +
-		"	       ^^\n" +
-		"The local variable b2 may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Bug324178.java (at line 5)
+				return b2;
+				       ^^
+			The local variable b2 may not have been initialized
+			----------
+			""");
 }
 // Bug 383690 - [compiler] location of error re uninitialized final field should be aligned
 public void testBug383690() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	 final Object o; // report here!\n" +
-			"	 final static Object oStatic; // report here!\n" +
-			"}\n"
+			"""
+				public class X {
+					 final Object o; // report here!
+					 final static Object oStatic; // report here!
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	final Object o; // report here!\n" +
-		"	             ^\n" +
-		"The blank final field o may not have been initialized\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	final static Object oStatic; // report here!\n" +
-		"	                    ^^^^^^^\n" +
-		"The blank final field oStatic may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				final Object o; // report here!
+				             ^
+			The blank final field o may not have been initialized
+			----------
+			2. ERROR in X.java (at line 3)
+				final static Object oStatic; // report here!
+				                    ^^^^^^^
+			The blank final field oStatic may not have been initialized
+			----------
+			""");
 }
 public static Class testClass() {
 	return InitializationTests.class;

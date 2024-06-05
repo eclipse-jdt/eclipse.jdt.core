@@ -34,17 +34,19 @@ public class PolymorphicSignatureTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.invoke.*;\n" +
-				"public class X {\n" +
-				"   public static void main(String[] args) throws Throwable{\n" +
-				"      MethodType mt; MethodHandle mh; \n" +
-				"      MethodHandles.Lookup lookup = MethodHandles.lookup();\n" +
-				"      mt = MethodType.methodType(String.class, char.class, char.class);\n"+
-				"      mh = lookup.findVirtual(String.class, \"replace\", mt);\n"+
-				"      String s = (String) mh.invokeExact(\"daddy\",'d','n');\n"+
-				"      System.out.println(s);\n"+
-				"   }\n" +
-				"}\n"
+				"""
+					import java.lang.invoke.*;
+					public class X {
+					   public static void main(String[] args) throws Throwable{
+					      MethodType mt; MethodHandle mh;\s
+					      MethodHandles.Lookup lookup = MethodHandles.lookup();
+					      mt = MethodType.methodType(String.class, char.class, char.class);
+					      mh = lookup.findVirtual(String.class, "replace", mt);
+					      String s = (String) mh.invokeExact("daddy",'d','n');
+					      System.out.println(s);
+					   }
+					}
+					"""
 			},
 			"nanny");
 	}
@@ -52,15 +54,16 @@ public class PolymorphicSignatureTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import static java.lang.invoke.MethodHandles.*; \n" +
-				"import java.lang.invoke.MethodHandle;\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) throws Throwable {\n" +
-				"		MethodHandle mh = dropArguments(insertArguments(identity(int.class), 0, 42), 0, Object[].class);\n" +
-				"		int value = (int)mh.invokeExact(new Object[0]);\n" +
-				"		System.out.println(value);\n"+
-				"	}\n" +
-				"}"
+				"""
+					import static java.lang.invoke.MethodHandles.*;\s
+					import java.lang.invoke.MethodHandle;
+					public class X {
+						public static void main(String[] args) throws Throwable {
+							MethodHandle mh = dropArguments(insertArguments(identity(int.class), 0, 42), 0, Object[].class);
+							int value = (int)mh.invokeExact(new Object[0]);
+							System.out.println(value);
+						}
+					}"""
 			},
 			"42");
 	}
@@ -68,21 +71,23 @@ public class PolymorphicSignatureTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 				"Test.java",
-				"import java.lang.invoke.MethodHandle;\n" +
-				"import java.util.ArrayList;\n" +
-				"import java.util.Collections;\n" +
-				"\n" +
-				"public class Test {\n" +
-				"	\n" +
-				"	public void foo() throws Throwable {\n" +
-				"		\n" +
-				"		MethodHandle mh = null;\n" +
-				"		mh.invoke(null);                           // works, no issues.\n" +
-				"		mh.invoke(null, new ArrayList<>());        // Bug 501457 fixed this\n" +
-				"		mh.invoke(null, Collections.emptyList());  // This triggers UOE\n" +
-				"		\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.lang.invoke.MethodHandle;
+					import java.util.ArrayList;
+					import java.util.Collections;
+					
+					public class Test {
+					\t
+						public void foo() throws Throwable {
+						\t
+							MethodHandle mh = null;
+							mh.invoke(null);                           // works, no issues.
+							mh.invoke(null, new ArrayList<>());        // Bug 501457 fixed this
+							mh.invoke(null, Collections.emptyList());  // This triggers UOE
+						\t
+						}
+					}
+					"""
 			});
 	}
 	public void testBug475996() {

@@ -64,9 +64,11 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("SealedTypes");
 			project.open(null);
-			String fileContent =  "interface I {}\n" +
-									"public class X implements I {}\n" +
-									"interface Y extends I {}\n";
+			String fileContent =  """
+				interface I {}
+				public class X implements I {}
+				interface Y extends I {}
+				""";
 
 			createFile(	"/SealedTypes/src/X.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/SealedTypes/src/X.java");
@@ -84,9 +86,11 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("SealedTypes");
 			project.open(null);
-			String fileContent =  "sealed interface I permits X, Y {}\n" +
-									"public non-sealed class X implements I {}\n" +
-									"non-sealed interface Y extends I {}\n";
+			String fileContent =  """
+				sealed interface I permits X, Y {}
+				public non-sealed class X implements I {}
+				non-sealed interface Y extends I {}
+				""";
 
 			createFile(	"/SealedTypes/src/X.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/SealedTypes/src/X.java");
@@ -110,9 +114,11 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("SealedTypes");
 			project.open(null);
-			String fileContent =  "sealed interface I permits X, Y {}\n" +
-									"public non-sealed class X implements I {}\n" +
-									"non-sealed interface Y extends I {}\n";
+			String fileContent =  """
+				sealed interface I permits X, Y {}
+				public non-sealed class X implements I {}
+				non-sealed interface Y extends I {}
+				""";
 
 			createFile(	"/SealedTypes/src/X.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/SealedTypes/src/X.java");
@@ -139,9 +145,11 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("SealedTypes");
 			project.open(null);
-			String fileContent =  "sealed interface I {}\n" +
-									"public non-sealed class X implements I {}\n" +
-									"non-sealed interface Y extends I {}\n";
+			String fileContent =  """
+				sealed interface I {}
+				public non-sealed class X implements I {}
+				non-sealed interface Y extends I {}
+				""";
 
 			createFile(	"/SealedTypes/src/X.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/SealedTypes/src/X.java");
@@ -168,10 +176,13 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		try {
 			String[] sources = {
 					"p/X.java",
-					"package p;\n;" +
-					"sealed interface I permits X, Y {}\n" +
-					"public non-sealed class X implements I {}\n" +
-					"non-sealed interface Y extends I {}\n"
+					"""
+						package p;
+						;\
+						sealed interface I permits X, Y {}
+						public non-sealed class X implements I {}
+						non-sealed interface Y extends I {}
+						"""
 				};
 			String outputDirectory = Util.getOutputDirectory();
 
@@ -229,10 +240,13 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		try {
 			String[] sources = {
 							"p/X.java",
-							"package p;\n;" +
-							"sealed interface I {}\n" +
-							"public non-sealed class X implements I {}\n" +
-							"non-sealed interface Y extends I {}\n"
+							"""
+								package p;
+								;\
+								sealed interface I {}
+								public non-sealed class X implements I {}
+								non-sealed interface Y extends I {}
+								"""
 			};
 			String outputDirectory = Util.getOutputDirectory();
 
@@ -343,12 +357,14 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 			this.workingCopies[0] = getCompilationUnit("/SealedTypes/src/p/I.java").getWorkingCopy(this.wcOwner, null);
 			assertProblems(
 					"Unexpected problems",
-					"----------\n" +
-					"1. ERROR in /SealedTypes/src/p/I.java (at line 2)\n" +
-					"	sealed interface I permits p.X {}\n" +
-					"	                           ^^^\n" +
-					"p.X cannot be resolved to a type\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in /SealedTypes/src/p/I.java (at line 2)
+							sealed interface I permits p.X {}
+							                           ^^^
+						p.X cannot be resolved to a type
+						----------
+						""",
 					this.problemRequestor);
 		}
 		finally {
@@ -374,12 +390,14 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 			this.workingCopies[0] = getCompilationUnit("/SealedTypes/src/p/X.java").getWorkingCopy(this.wcOwner, null);
 			assertProblems(
 					"Unexpected problems",
-					"----------\n" +
-							"1. ERROR in /SealedTypes/src/p/X.java (at line 2)\n" +
-							"	public non-sealed class X {}\n" +
-							"	                        ^\n" +
-							"A class X declared as non-sealed should have either a sealed direct superclass or a sealed direct superinterface\n" +
-							"----------\n",
+					"""
+						----------
+						1. ERROR in /SealedTypes/src/p/X.java (at line 2)
+							public non-sealed class X {}
+							                        ^
+						A class X declared as non-sealed should have either a sealed direct superclass or a sealed direct superinterface
+						----------
+						""",
 							this.problemRequestor);
 		}
 		finally {

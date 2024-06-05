@@ -60,13 +60,17 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0002() throws IOException {
 		String source =
-				"module com.greetings {\n" +
-				    "requires org.astro;" +
-				"}\n";
+				"""
+			module com.greetings {
+			requires org.astro;\
+			}
+			""";
 		String expectedUnitToString =
-				"module com.greetings {\n" +
-				"  requires org.astro;\n" +
-				"}\n";
+				"""
+			module com.greetings {
+			  requires org.astro;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -75,13 +79,17 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0003() throws IOException {
 		String source =
-				"module org.astro {\n" +
-				"    exports org.astro;\n" +
-				"}\n";
+				"""
+			module org.astro {
+			    exports org.astro;
+			}
+			""";
 		String expectedUnitToString =
-				"module org.astro {\n" +
-				"  exports org.astro;\n" +
-				"}\n";
+				"""
+			module org.astro {
+			  exports org.astro;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -90,13 +98,17 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0004() throws IOException {
 		String source =
-				"module org.astro {\n" +
-				"    exports org.astro to com.greetings, com.example1, com.example2;\n" +
-				"}\n";
+				"""
+			module org.astro {
+			    exports org.astro to com.greetings, com.example1, com.example2;
+			}
+			""";
 		String expectedUnitToString =
-				"module org.astro {\n" +
-				"  exports org.astro to com.greetings, com.example1, com.example2;\n" +
-				"}\n";
+				"""
+			module org.astro {
+			  exports org.astro to com.greetings, com.example1, com.example2;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -105,17 +117,21 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0005() throws IOException {
 		String source =
-				"module com.socket {\n" +
-				"    exports com.socket;\n" +
-				"    exports com.socket.spi;\n" +
-				"    uses com.socket.spi.NetworkSocketProvider;\n" +
-				"}\n";
+				"""
+			module com.socket {
+			    exports com.socket;
+			    exports com.socket.spi;
+			    uses com.socket.spi.NetworkSocketProvider;
+			}
+			""";
 		String expectedUnitToString =
-				"module com.socket {\n" +
-				"  exports com.socket;\n" +
-				"  exports com.socket.spi;\n" +
-				"  uses com.socket.spi.NetworkSocketProvider;\n" +
-				"}\n";
+				"""
+			module com.socket {
+			  exports com.socket;
+			  exports com.socket.spi;
+			  uses com.socket.spi.NetworkSocketProvider;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -124,16 +140,20 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0006() throws IOException {
 		String source =
-				"module org.fastsocket {\n" +
-				"    requires com.socket;\n" +
-				"    provides com.socket.spi.NetworkSocketProvider\n" +
-				"      with org.fastsocket.FastNetworkSocketProvider;\n" +
-				"}\n";
+				"""
+			module org.fastsocket {
+			    requires com.socket;
+			    provides com.socket.spi.NetworkSocketProvider
+			      with org.fastsocket.FastNetworkSocketProvider;
+			}
+			""";
 		String expectedUnitToString =
-				"module org.fastsocket {\n" +
-				"  requires com.socket;\n" +
-				"  provides com.socket.spi.NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider;\n" +
-				"}\n";
+				"""
+			module org.fastsocket {
+			  requires com.socket;
+			  provides com.socket.spi.NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -142,17 +162,21 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0007() throws IOException {
 		String source =
-				"module org.fastsocket {\n" +
-				"    requires com.socket;\n" +
-				"    provides com.socket.spi.NetworkSocketProvider;\n" +
-				"}\n";
+				"""
+			module org.fastsocket {
+			    requires com.socket;
+			    provides com.socket.spi.NetworkSocketProvider;
+			}
+			""";
 		String expectedErrorString =
-				"----------\n" +
-				"1. ERROR in module-info (at line 3)\n" +
-				"	provides com.socket.spi.NetworkSocketProvider;\n" +
-				"	                       ^\n" +
-				"Syntax error on token \".\", with expected\n" +
-				"----------\n";
+				"""
+			----------
+			1. ERROR in module-info (at line 3)
+				provides com.socket.spi.NetworkSocketProvider;
+				                       ^
+			Syntax error on token ".", with expected
+			----------
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -161,9 +185,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0008() throws IOException {
 		String source =
-				"module @Marker com.greetings {\n" +
-				"	requires org.astro;" +
-				"}\n";
+				"""
+			module @Marker com.greetings {
+				requires org.astro;\
+			}
+			""";
 		String errorMsg = """
 				----------
 				1. ERROR in module-info (at line 1)
@@ -186,9 +212,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0009() throws IOException {
 		String source =
-				"module com.greetings {\n" +
-				"	requires @Marker org.astro;\n" +
-				"}\n";
+				"""
+			module com.greetings {
+				requires @Marker org.astro;
+			}
+			""";
 		String errorMsg = """
 				----------
 				1. ERROR in module-info (at line 1)
@@ -216,16 +244,20 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0010() throws IOException {
 		String source =
-				"module com.greetings {\n" +
-				"	requires private org.astro;\n" +
-				"}\n";
+				"""
+			module com.greetings {
+				requires private org.astro;
+			}
+			""";
 		String errorMsg =
-				"----------\n" +
-				"1. ERROR in module-info (at line 2)\n" +
-				"	requires private org.astro;\n"+
-				"	         ^^^^^^^\n"+
-				"Syntax error on token \"private\", delete this token\n" +
-				 "----------\n";
+				"""
+			----------
+			1. ERROR in module-info (at line 2)
+				requires private org.astro;
+				         ^^^^^^^
+			Syntax error on token "private", delete this token
+			----------
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -234,9 +266,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0011() throws IOException {
 		String source =
-				"module com.greetings {\n" +
-				"	exports @Marker com.greetings;\n" +
-				"}\n";
+				"""
+			module com.greetings {
+				exports @Marker com.greetings;
+			}
+			""";
 		String errorMsg = """
 				----------
 				1. ERROR in module-info (at line 1)
@@ -264,16 +298,20 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0012() throws IOException {
 		String source =
-				"module com.greetings {\n" +
-				"	exports com.greetings to @Marker org.astro;\n" +
-				"}\n";
+				"""
+			module com.greetings {
+				exports com.greetings to @Marker org.astro;
+			}
+			""";
 		String errorMsg =
-				"----------\n" +
-				"1. ERROR in module-info (at line 2)\n" +
-				"	exports com.greetings to @Marker org.astro;\n"+
-				"	                         ^^^^^^^\n"+
-				"Syntax error on tokens, delete these tokens\n" +
-				 "----------\n";
+				"""
+			----------
+			1. ERROR in module-info (at line 2)
+				exports com.greetings to @Marker org.astro;
+				                         ^^^^^^^
+			Syntax error on tokens, delete these tokens
+			----------
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -282,16 +320,20 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0013() throws IOException {
 		String source =
-				"module com.greetings {\n" +
-				"	uses @Marker org.astro.World;\n" +
-				"}\n";
+				"""
+			module com.greetings {
+				uses @Marker org.astro.World;
+			}
+			""";
 		String errorMsg =
-				"----------\n" +
-				"1. ERROR in module-info (at line 2)\n" +
-				"	uses @Marker org.astro.World;\n" +
-				"	     ^^^^^^^\n"+
-				"Syntax error, type annotations are illegal here\n" +
-				 "----------\n";
+				"""
+			----------
+			1. ERROR in module-info (at line 2)
+				uses @Marker org.astro.World;
+				     ^^^^^^^
+			Syntax error, type annotations are illegal here
+			----------
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -300,21 +342,25 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0014() throws IOException {
 		String source =
-				"module com.greetings {\n" +
-				"	provides @Marker org.astro.World with @Marker com.greetings.Main;\n" +
-				"}\n";
+				"""
+			module com.greetings {
+				provides @Marker org.astro.World with @Marker com.greetings.Main;
+			}
+			""";
 		String errorMsg =
-				"----------\n" +
-				"1. ERROR in module-info (at line 2)\n" +
-				"	provides @Marker org.astro.World with @Marker com.greetings.Main;\n" +
-				"	         ^^^^^^^\n"+
-				"Syntax error, type annotations are illegal here\n" +
-				"----------\n" +
-				"2. ERROR in module-info (at line 2)\n" +
-				"	provides @Marker org.astro.World with @Marker com.greetings.Main;\n" +
-				"	                                      ^^^^^^^\n"+
-				"Syntax error, type annotations are illegal here\n" +
-				 "----------\n";
+				"""
+			----------
+			1. ERROR in module-info (at line 2)
+				provides @Marker org.astro.World with @Marker com.greetings.Main;
+				         ^^^^^^^
+			Syntax error, type annotations are illegal here
+			----------
+			2. ERROR in module-info (at line 2)
+				provides @Marker org.astro.World with @Marker com.greetings.Main;
+				                                      ^^^^^^^
+			Syntax error, type annotations are illegal here
+			----------
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -323,13 +369,17 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0015() throws IOException {
 		String source =
-				"module com.greetings {\n" +
-				    "requires transitive org.astro;" +
-				"}\n";
+				"""
+			module com.greetings {
+			requires transitive org.astro;\
+			}
+			""";
 		String expectedUnitToString =
-				"module com.greetings {\n" +
-				"  requires transitive org.astro;\n" +
-				"}\n";
+				"""
+			module com.greetings {
+			  requires transitive org.astro;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -338,13 +388,17 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0016() throws IOException {
 		String source =
-				"module com.greetings {\n" +
-				    "requires static org.astro;" +
-				"}\n";
+				"""
+			module com.greetings {
+			requires static org.astro;\
+			}
+			""";
 		String expectedUnitToString =
-				"module com.greetings {\n" +
-				"  requires static org.astro;\n" +
-				"}\n";
+				"""
+			module com.greetings {
+			  requires static org.astro;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -353,13 +407,17 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0017() throws IOException {
 		String source =
-				"module com.greetings {\n" +
-				    "requires transitive static org.astro;" +
-				"}\n";
+				"""
+			module com.greetings {
+			requires transitive static org.astro;\
+			}
+			""";
 		String expectedUnitToString =
-				"module com.greetings {\n" +
-				"  requires transitive static org.astro;\n" +
-				"}\n";
+				"""
+			module com.greetings {
+			  requires transitive static org.astro;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -368,18 +426,22 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0018() throws IOException {
 		String source =
-				"import com.socket.spi.NetworkSocketProvider;\n" +
-				"module org.fastsocket {\n" +
-				"    requires com.socket;\n" +
-				"    provides NetworkSocketProvider\n" +
-				"      with org.fastsocket.FastNetworkSocketProvider;\n" +
-				"}\n";
+				"""
+			import com.socket.spi.NetworkSocketProvider;
+			module org.fastsocket {
+			    requires com.socket;
+			    provides NetworkSocketProvider
+			      with org.fastsocket.FastNetworkSocketProvider;
+			}
+			""";
 		String expectedUnitToString =
-				"import com.socket.spi.NetworkSocketProvider;\n" +
-				"module org.fastsocket {\n" +
-				"  requires com.socket;\n" +
-				"  provides NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider;\n" +
-				"}\n";
+				"""
+			import com.socket.spi.NetworkSocketProvider;
+			module org.fastsocket {
+			  requires com.socket;
+			  provides NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -388,18 +450,22 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0019() throws IOException {
 		String source =
-				"import com.socket.spi.*;\n" +
-				"module org.fastsocket {\n" +
-				"    requires com.socket;\n" +
-				"    provides NetworkSocketProvider\n" +
-				"      with org.fastsocket.FastNetworkSocketProvider;\n" +
-				"}\n";
+				"""
+			import com.socket.spi.*;
+			module org.fastsocket {
+			    requires com.socket;
+			    provides NetworkSocketProvider
+			      with org.fastsocket.FastNetworkSocketProvider;
+			}
+			""";
 		String expectedUnitToString =
-				"import com.socket.spi.*;\n" +
-				"module org.fastsocket {\n" +
-				"  requires com.socket;\n" +
-				"  provides NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider;\n" +
-				"}\n";
+				"""
+			import com.socket.spi.*;
+			module org.fastsocket {
+			  requires com.socket;
+			  provides NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -408,13 +474,17 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0020() throws IOException {
 		String source =
-				"open module com.greetings {\n" +
-				    "requires transitive static org.astro;" +
-				"}\n";
+				"""
+			open module com.greetings {
+			requires transitive static org.astro;\
+			}
+			""";
 		String expectedUnitToString =
-				"open module com.greetings {\n" +
-				"  requires transitive static org.astro;\n" +
-				"}\n";
+				"""
+			open module com.greetings {
+			  requires transitive static org.astro;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -423,16 +493,20 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0021() throws IOException {
 		String source =
-				"module org.fastsocket {\n" +
-				"    requires com.socket;\n" +
-				"    provides com.socket.spi.NetworkSocketProvider\n" +
-				"      with org.fastsocket.FastNetworkSocketProvider, org.fastSocket.SlowNetworkSocketProvider;\n" +
-				"}\n";
+				"""
+			module org.fastsocket {
+			    requires com.socket;
+			    provides com.socket.spi.NetworkSocketProvider
+			      with org.fastsocket.FastNetworkSocketProvider, org.fastSocket.SlowNetworkSocketProvider;
+			}
+			""";
 		String expectedUnitToString =
-				"module org.fastsocket {\n" +
-				"  requires com.socket;\n" +
-				"  provides com.socket.spi.NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider, org.fastSocket.SlowNetworkSocketProvider;\n" +
-				"}\n";
+				"""
+			module org.fastsocket {
+			  requires com.socket;
+			  provides com.socket.spi.NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider, org.fastSocket.SlowNetworkSocketProvider;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -441,13 +515,17 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0022() throws IOException {
 		String source =
-				"module org.astro {\n" +
-				"    opens org.astro;\n" +
-				"}\n";
+				"""
+			module org.astro {
+			    opens org.astro;
+			}
+			""";
 		String expectedUnitToString =
-				"module org.astro {\n" +
-				"  opens org.astro;\n" +
-				"}\n";
+				"""
+			module org.astro {
+			  opens org.astro;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -456,13 +534,17 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0023() throws IOException {
 		String source =
-				"module org.astro {\n" +
-				"    opens org.astro to com.greetings, com.example1, com.example2;\n" +
-				"}\n";
+				"""
+			module org.astro {
+			    opens org.astro to com.greetings, com.example1, com.example2;
+			}
+			""";
 		String expectedUnitToString =
-				"module org.astro {\n" +
-				"  opens org.astro to com.greetings, com.example1, com.example2;\n" +
-				"}\n";
+				"""
+			module org.astro {
+			  opens org.astro to com.greetings, com.example1, com.example2;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -471,17 +553,21 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0024() throws IOException {
 		String source =
-				"module org.astro {\n" +
-				"    exports org.astro to com.greetings, com.example1, com.example2;\n" +
-				"    opens org.astro to com.greetings, com.example1, com.example2;\n" +
-				"    opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
-				"}\n";
+				"""
+			module org.astro {
+			    exports org.astro to com.greetings, com.example1, com.example2;
+			    opens org.astro to com.greetings, com.example1, com.example2;
+			    opens org.astro.galaxy to com.greetings, com.example1, com.example2;
+			}
+			""";
 		String expectedUnitToString =
-				"module org.astro {\n" +
-				"  exports org.astro to com.greetings, com.example1, com.example2;\n" +
-				"  opens org.astro to com.greetings, com.example1, com.example2;\n" +
-				"  opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
-				"}\n";
+				"""
+			module org.astro {
+			  exports org.astro to com.greetings, com.example1, com.example2;
+			  opens org.astro to com.greetings, com.example1, com.example2;
+			  opens org.astro.galaxy to com.greetings, com.example1, com.example2;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -490,19 +576,23 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0025() throws IOException {
 		String source =
-				"@Foo\n" +
-				"module org.astro {\n" +
-				"    exports org.astro to com.greetings, com.example1, com.example2;\n" +
-				"    opens org.astro to com.greetings, com.example1, com.example2;\n" +
-				"    opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
-				"}\n";
+				"""
+			@Foo
+			module org.astro {
+			    exports org.astro to com.greetings, com.example1, com.example2;
+			    opens org.astro to com.greetings, com.example1, com.example2;
+			    opens org.astro.galaxy to com.greetings, com.example1, com.example2;
+			}
+			""";
 		String expectedUnitToString =
-				"@Foo\n" +
-				"module org.astro {\n" +
-				"  exports org.astro to com.greetings, com.example1, com.example2;\n" +
-				"  opens org.astro to com.greetings, com.example1, com.example2;\n" +
-				"  opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
-				"}\n";
+				"""
+			@Foo
+			module org.astro {
+			  exports org.astro to com.greetings, com.example1, com.example2;
+			  opens org.astro to com.greetings, com.example1, com.example2;
+			  opens org.astro.galaxy to com.greetings, com.example1, com.example2;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -511,19 +601,23 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void test0026() throws IOException {
 		String source =
-				"@Foo\n" +
-				"open module org.astro {\n" +
-				"    exports org.astro to com.greetings, com.example1, com.example2;\n" +
-				"    opens org.astro to com.greetings, com.example1, com.example2;\n" +
-				"    opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
-				"}\n";
+				"""
+			@Foo
+			open module org.astro {
+			    exports org.astro to com.greetings, com.example1, com.example2;
+			    opens org.astro to com.greetings, com.example1, com.example2;
+			    opens org.astro.galaxy to com.greetings, com.example1, com.example2;
+			}
+			""";
 		String expectedUnitToString =
-				"@Foo\n" +
-				"open module org.astro {\n" +
-				"  exports org.astro to com.greetings, com.example1, com.example2;\n" +
-				"  opens org.astro to com.greetings, com.example1, com.example2;\n" +
-				"  opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
-				"}\n";
+				"""
+			@Foo
+			open module org.astro {
+			  exports org.astro to com.greetings, com.example1, com.example2;
+			  opens org.astro to com.greetings, com.example1, com.example2;
+			  opens org.astro.galaxy to com.greetings, com.example1, com.example2;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -533,19 +627,23 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 
 	public void test0027() throws IOException {
 		String source =
-				"@Foo @Bar(x = 2) @Baz(\"true\")\n" +
-				"open module org.astro {\n" +
-				"    exports org.astro to com.greetings, com.example1, com.example2;\n" +
-				"    opens org.astro to com.greetings, com.example1, com.example2;\n" +
-				"    opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
-				"}\n";
+				"""
+			@Foo @Bar(x = 2) @Baz("true")
+			open module org.astro {
+			    exports org.astro to com.greetings, com.example1, com.example2;
+			    opens org.astro to com.greetings, com.example1, com.example2;
+			    opens org.astro.galaxy to com.greetings, com.example1, com.example2;
+			}
+			""";
 		String expectedUnitToString =
-				"@Foo @Bar(x = 2) @Baz(\"true\")\n" +
-				"open module org.astro {\n" +
-				"  exports org.astro to com.greetings, com.example1, com.example2;\n" +
-				"  opens org.astro to com.greetings, com.example1, com.example2;\n" +
-				"  opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
-				"}\n";
+				"""
+			@Foo @Bar(x = 2) @Baz("true")
+			open module org.astro {
+			  exports org.astro to com.greetings, com.example1, com.example2;
+			  opens org.astro to com.greetings, com.example1, com.example2;
+			  opens org.astro.galaxy to com.greetings, com.example1, com.example2;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -555,13 +653,17 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 
 	public void testBug518626() throws IOException {
 		String source =
-				"module module.test {\n" +
-				"    provides X with Y;\n" +
-				"}\n";
+				"""
+			module module.test {
+			    provides X with Y;
+			}
+			""";
 		String expectedUnitToString =
-				"module module.test {\n" +
-				"  provides X with Y;\n" +
-				"}\n";
+				"""
+			module module.test {
+			  provides X with Y;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -570,19 +672,23 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void testbug488541() throws IOException {
 		String source =
-				"module module {\n" +
-				"   requires requires;\n" +
-				"   exports to to exports;\n" +
-				"   uses module;\n" +
-				"   provides uses with to;\n" +
-				"}\n";
+				"""
+			module module {
+			   requires requires;
+			   exports to to exports;
+			   uses module;
+			   provides uses with to;
+			}
+			""";
 		String expectedUnitToString =
-				"module module {\n" +
-				"  requires requires;\n" +
-				"  exports to to exports;\n" +
-				"  uses module;\n" +
-				"  provides uses with to;\n" +
-				"}\n";
+				"""
+			module module {
+			  requires requires;
+			  exports to to exports;
+			  uses module;
+			  provides uses with to;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -591,29 +697,33 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void testbug488541a() throws IOException {
 		String source =
-			"import module.pack1.exports.pack2;\n" +
-			"import module.open.pack1.opens.pack2;\n" +
-			"@open @module(true)\n" +
-			"open module module.module.module {\n" +
-			"   requires static transitive requires;\n" +
-			"   requires transitive static transitive;\n" +
-			"   exports to to exports;\n" +
-			"   opens module.to.pack1 to to.exports;\n" +
-			"   uses module;\n" +
-			"   provides uses with to;\n" +
-			"}\n";
+			"""
+			import module.pack1.exports.pack2;
+			import module.open.pack1.opens.pack2;
+			@open @module(true)
+			open module module.module.module {
+			   requires static transitive requires;
+			   requires transitive static transitive;
+			   exports to to exports;
+			   opens module.to.pack1 to to.exports;
+			   uses module;
+			   provides uses with to;
+			}
+			""";
 		String expectedUnitToString =
-			"import module.pack1.exports.pack2;\n" +
-			"import module.open.pack1.opens.pack2;\n" +
-			"@open @module(true)\n" +
-			"open module module.module.module {\n" +
-			"  requires transitive static requires;\n" +
-			"  requires transitive static transitive;\n" +
-			"  exports to to exports;\n" +
-			"  opens module.to.pack1 to to.exports;\n" +
-			"  uses module;\n" +
-			"  provides uses with to;\n" +
-			"}\n";
+			"""
+			import module.pack1.exports.pack2;
+			import module.open.pack1.opens.pack2;
+			@open @module(true)
+			open module module.module.module {
+			  requires transitive static requires;
+			  requires transitive static transitive;
+			  exports to to exports;
+			  opens module.to.pack1 to to.exports;
+			  uses module;
+			  provides uses with to;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -622,19 +732,23 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public void testbug488541b() throws IOException {
 		String source =
-				"module module {\n" +
-				"   requires requires;\n" +
-				"   exports to to exports, module;\n" +
-				"   uses module;\n" +
-				"   provides uses with to, open, module;\n" +
-				"}\n";
+				"""
+			module module {
+			   requires requires;
+			   exports to to exports, module;
+			   uses module;
+			   provides uses with to, open, module;
+			}
+			""";
 		String expectedUnitToString =
-				"module module {\n" +
-				"  requires requires;\n" +
-				"  exports to to exports, module;\n" +
-				"  uses module;\n" +
-				"  provides uses with to, open, module;\n" +
-				"}\n";
+				"""
+			module module {
+			  requires requires;
+			  exports to to exports, module;
+			  uses module;
+			  provides uses with to, open, module;
+			}
+			""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;

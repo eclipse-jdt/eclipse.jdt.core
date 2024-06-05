@@ -158,7 +158,8 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 	}
 
 	static String taskTagsAsCutAndPaste(CategorizedProblem tasks[]) {
-		StringBuilder result = new StringBuilder();
+		String str = """
+			""";
 		String arguments[];
 		for (int i = 0; i < tasks.length - 1; i++) {
 			arguments = tasks[i].getArguments();
@@ -178,7 +179,7 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 		System.out.print(',');
 		System.out.print(arguments[2]);
 		System.out.println("]\\n\"");
-		return result.toString();
+		return str;
 	}
 
 	static String taskTagsAsStrings(CategorizedProblem tasks[]) {
@@ -222,10 +223,18 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 	public void test003_task_tags_options() {
 		runTaskTagsOptionsTest(
 				new String[] { "X.java",
-						"public class X {\n" + "  void foo(X x) {\n" + "    // FIXME TODO XXX message contents\n"
-								+ "  }\n" + "}\n" },
-				null, "[FIXME, message contents,HIGH]\n" + "[TODO, message contents,NORMAL]\n"
-						+ "[XXX, message contents,NORMAL]\n");
+						"""
+							public class X {
+							  void foo(X x) {
+							    // FIXME TODO XXX message contents
+							  }
+							}
+							""" },
+				null, """
+					[FIXME, message contents,HIGH]
+					[TODO, message contents,NORMAL]
+					[XXX, message contents,NORMAL]
+					""");
 	}
 
 // effect of cancelling priorities
@@ -235,10 +244,18 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 		customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "");
 		runTaskTagsOptionsTest(
 				new String[] { "X.java",
-						"public class X {\n" + "  void foo(X x) {\n" + "    // FIXME TODO XXX message contents\n"
-								+ "  }\n" + "}\n" },
-				customOptions, "[FIXME, message contents,NORMAL]\n" + "[TODO, message contents,NORMAL]\n"
-						+ "[XXX, message contents,NORMAL]\n");
+						"""
+							public class X {
+							  void foo(X x) {
+							    // FIXME TODO XXX message contents
+							  }
+							}
+							""" },
+				customOptions, """
+					[FIXME, message contents,NORMAL]
+					[TODO, message contents,NORMAL]
+					[XXX, message contents,NORMAL]
+					""");
 	}
 
 // effect of cancelling priorities
@@ -248,10 +265,18 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 		customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, ",,");
 		runTaskTagsOptionsTest(
 				new String[] { "X.java",
-						"public class X {\n" + "  void foo(X x) {\n" + "    // FIXME TODO XXX message contents\n"
-								+ "  }\n" + "}\n" },
-				customOptions, "[FIXME,message contents,NORMAL]\n" + "[TODO,message contents,NORMAL]\n"
-						+ "[XXX,message contents,NORMAL]\n");
+						"""
+							public class X {
+							  void foo(X x) {
+							    // FIXME TODO XXX message contents
+							  }
+							}
+							""" },
+				customOptions, """
+					[FIXME,message contents,NORMAL]
+					[TODO,message contents,NORMAL]
+					[XXX,message contents,NORMAL]
+					""");
 		// would expect an exception of some sort
 	}
 
@@ -262,10 +287,18 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 		customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "A,B,C,D,E");
 		runTaskTagsOptionsTest(
 				new String[] { "X.java",
-						"public class X {\n" + "  void foo(X x) {\n" + "    // FIXME TODO XXX message contents\n"
-								+ "  }\n" + "}\n" },
-				customOptions, "[FIXME,message contents,NORMAL]\n" + "[TODO,message contents,NORMAL]\n"
-						+ "[XXX,message contents,NORMAL]\n");
+						"""
+							public class X {
+							  void foo(X x) {
+							    // FIXME TODO XXX message contents
+							  }
+							}
+							""" },
+				customOptions, """
+					[FIXME,message contents,NORMAL]
+					[TODO,message contents,NORMAL]
+					[XXX,message contents,NORMAL]
+					""");
 		// would expect an exception of some sort
 	}
 
@@ -275,10 +308,18 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 		customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,NORMAL,NORMAL");
 		runTaskTagsOptionsTest(
 				new String[] { "X.java",
-						"public class X {\n" + "  void foo(X x) {\n" + "    // FIXME TODO XXX message contents\n"
-								+ "  }\n" + "}\n" },
-				customOptions, "[FIXME, message contents,NORMAL]\n" + "[TODO, message contents,NORMAL]\n"
-						+ "[XXX, message contents,NORMAL]\n");
+						"""
+							public class X {
+							  void foo(X x) {
+							    // FIXME TODO XXX message contents
+							  }
+							}
+							""" },
+				customOptions, """
+					[FIXME, message contents,NORMAL]
+					[TODO, message contents,NORMAL]
+					[XXX, message contents,NORMAL]
+					""");
 	}
 
 // effect of changing priorities
@@ -288,10 +329,18 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 		customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,NORMAL"); // one less than the number of tags
 		runTaskTagsOptionsTest(
 				new String[] { "X.java",
-						"public class X {\n" + "  void foo(X x) {\n" + "    // FIXME TODO XXX message contents\n"
-								+ "  }\n" + "}\n" },
-				customOptions, "[FIXME,message contents,NORMAL]\n" + "[TODO,message contents,NORMAL]\n"
-						+ "[XXX,message contents,NORMAL]\n");
+						"""
+							public class X {
+							  void foo(X x) {
+							    // FIXME TODO XXX message contents
+							  }
+							}
+							""" },
+				customOptions, """
+					[FIXME,message contents,NORMAL]
+					[TODO,message contents,NORMAL]
+					[XXX,message contents,NORMAL]
+					""");
 	}
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=206423

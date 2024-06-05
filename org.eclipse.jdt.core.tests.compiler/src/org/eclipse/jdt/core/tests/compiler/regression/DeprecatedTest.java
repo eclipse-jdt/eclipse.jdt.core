@@ -80,117 +80,133 @@ protected INameEnvironment getNameEnvironment(final String[] testFiles, String[]
 public void test001() {
 	this.runNegativeTest(new String[] {
 		"p/B.java",
-		"package p;\n" +
-		"class B extends A {\n" +
-		"    float x = super.x;\n" +
-		"}\n",
+		"""
+			package p;
+			class B extends A {
+			    float x = super.x;
+			}
+			""",
 
 		"p/A.java",
-		"package p;\n" +
-		"class A {\n" +
-		"    /** @deprecated */\n" +
-		"    int x = 1;\n" +
-		"}\n",
+		"""
+			package p;
+			class A {
+			    /** @deprecated */
+			    int x = 1;
+			}
+			""",
 	},
-	"----------\n" +
-	"1. WARNING in p\\B.java (at line 3)\n" +
-	"	float x = super.x;\n" +
-	"	      ^\n" +
-	"The field B.x is hiding a field from type A\n" +
-	"----------\n" +
-	"2. WARNING in p\\B.java (at line 3)\n" +
-	"	float x = super.x;\n" +
-	"	                ^\n" +
-	"The field A.x is deprecated\n" +
-	"----------\n"
+	"""
+		----------
+		1. WARNING in p\\B.java (at line 3)
+			float x = super.x;
+			      ^
+		The field B.x is hiding a field from type A
+		----------
+		2. WARNING in p\\B.java (at line 3)
+			float x = super.x;
+			                ^
+		The field A.x is deprecated
+		----------
+		"""
 	);
 }
 public void test002() {
 	this.runNegativeTest(new String[] {
 		"p/C.java",
-		"package p;\n" +
-		"class C {\n" +
-		"    static int x = new A().x;\n" +
-		"}\n",
+		"""
+			package p;
+			class C {
+			    static int x = new A().x;
+			}
+			""",
 
 		"p/A.java",
-		"package p;\n" +
-		"class A {\n" +
-		"    /** @deprecated */\n" +
-		"    int x = 1;\n" +
-		"}\n",
+		"""
+			package p;
+			class A {
+			    /** @deprecated */
+			    int x = 1;
+			}
+			""",
 
 	},
-		"----------\n" +
-		"1. WARNING in p\\C.java (at line 3)\n" +
-		"	static int x = new A().x;\n" +
-		"	                       ^\n" +
-		"The field A.x is deprecated\n" +
-		"----------\n"
+		"""
+			----------
+			1. WARNING in p\\C.java (at line 3)
+				static int x = new A().x;
+				                       ^
+			The field A.x is deprecated
+			----------
+			"""
 	);
 }
 public void test003() {
 	this.runNegativeTest(new String[] {
 		"p/Top.java",
-		"package p;\n" +
-		"public class Top {\n" +
-		"  \n" +
-		"  class M1 {\n" +
-		"    class M2 {}\n" +
-		"  };\n" +
-		"  \n" +
-		"  static class StaticM1 {\n" +
-		"    static class StaticM2 {\n" +
-		"      class NonStaticM3{}};\n" +
-		"  };\n" +
-		"  \n" +
-		"public static void main(String argv[]){\n" +
-		"  Top tip = new Top();\n" +
-		"  System.out.println(\"Still alive 0\");\n" +
-		"  tip.testStaticMember();\n" +
-		"  System.out.println(\"Still alive 1\");\n" +
-		"  tip.testStaticMember1();\n" +
-		"  System.out.println(\"Still alive 2\");\n" +
-		"  tip.testStaticMember2();\n" +
-		"  System.out.println(\"Still alive 3\");\n" +
-		"  tip.testStaticMember3();\n" +
-		"  System.out.println(\"Still alive 4\");\n" +
-		"  tip.testStaticMember4();\n" +
-		"  System.out.println(\"Completed\");\n" +
-		"}\n" +
-		"  void testMember(){\n" +
-		"    new M1().new M2();}\n" +
-		"  void testStaticMember(){\n" +
-		"    new StaticM1().new StaticM2();}\n" +
-		"  void testStaticMember1(){\n" +
-		"    new StaticM1.StaticM2();}\n" +
-		"  void testStaticMember2(){\n" +
-		"    new StaticM1.StaticM2().new NonStaticM3();}\n" +
-		"  void testStaticMember3(){\n" +
-		"    // define an anonymous subclass of the non-static M3\n" +
-		"    new StaticM1.StaticM2().new NonStaticM3(){};\n" +
-		"  }   \n" +
-		"  void testStaticMember4(){\n" +
-		"    // define an anonymous subclass of the non-static M3\n" +
-		"    new StaticM1.StaticM2().new NonStaticM3(){\n" +
-		"      Object hello(){\n" +
-		"        return new StaticM1.StaticM2().new NonStaticM3();\n" +
-		"      }};\n" +
-		"      \n" +
-		"  }    \n" +
-		"}\n",
+		"""
+			package p;
+			public class Top {
+			 \s
+			  class M1 {
+			    class M2 {}
+			  };
+			 \s
+			  static class StaticM1 {
+			    static class StaticM2 {
+			      class NonStaticM3{}};
+			  };
+			 \s
+			public static void main(String argv[]){
+			  Top tip = new Top();
+			  System.out.println("Still alive 0");
+			  tip.testStaticMember();
+			  System.out.println("Still alive 1");
+			  tip.testStaticMember1();
+			  System.out.println("Still alive 2");
+			  tip.testStaticMember2();
+			  System.out.println("Still alive 3");
+			  tip.testStaticMember3();
+			  System.out.println("Still alive 4");
+			  tip.testStaticMember4();
+			  System.out.println("Completed");
+			}
+			  void testMember(){
+			    new M1().new M2();}
+			  void testStaticMember(){
+			    new StaticM1().new StaticM2();}
+			  void testStaticMember1(){
+			    new StaticM1.StaticM2();}
+			  void testStaticMember2(){
+			    new StaticM1.StaticM2().new NonStaticM3();}
+			  void testStaticMember3(){
+			    // define an anonymous subclass of the non-static M3
+			    new StaticM1.StaticM2().new NonStaticM3(){};
+			  }  \s
+			  void testStaticMember4(){
+			    // define an anonymous subclass of the non-static M3
+			    new StaticM1.StaticM2().new NonStaticM3(){
+			      Object hello(){
+			        return new StaticM1.StaticM2().new NonStaticM3();
+			      }};
+			     \s
+			  }   \s
+			}
+			""",
 		},
-		"----------\n" +
-		"1. ERROR in p\\Top.java (at line 30)\n" +
-		"	new StaticM1().new StaticM2();}\n" +
-		"	^^^^^^^^^^^^^^\n" +
-		"Illegal enclosing instance specification for type Top.StaticM1.StaticM2\n" +
-		"----------\n" +
-		"2. WARNING in p\\Top.java (at line 42)\n" +
-		"	Object hello(){\n" +
-		"	       ^^^^^^^\n" +
-		"The method hello() from the type new Top.StaticM1.StaticM2.NonStaticM3(){} is never used locally\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in p\\Top.java (at line 30)
+				new StaticM1().new StaticM2();}
+				^^^^^^^^^^^^^^
+			Illegal enclosing instance specification for type Top.StaticM1.StaticM2
+			----------
+			2. WARNING in p\\Top.java (at line 42)
+				Object hello(){
+				       ^^^^^^^
+			The method hello() from the type new Top.StaticM1.StaticM2.NonStaticM3(){} is never used locally
+			----------
+			""");
 }
 /**
  * Regression test for PR #1G9ES9B
@@ -198,42 +214,47 @@ public void test003() {
 public void test004() {
 	this.runNegativeTest(new String[] {
 		"p/Warning.java",
-		"package p;\n" +
-		"import java.util.Date;\n" +
-		"public class Warning {\n" +
-		"public Warning() {\n" +
-		"     super();\n" +
-		"     Date dateObj = new Date();\n" +
-		"     dateObj.UTC(1,2,3,4,5,6);\n" +
-		"}\n" +
-		"}\n",
+		"""
+			package p;
+			import java.util.Date;
+			public class Warning {
+			public Warning() {
+			     super();
+			     Date dateObj = new Date();
+			     dateObj.UTC(1,2,3,4,5,6);
+			}
+			}
+			""",
 		},
-		"----------\n" +
-		"1. WARNING in p\\Warning.java (at line 7)\n" +
-		"	dateObj.UTC(1,2,3,4,5,6);\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The static method UTC(int, int, int, int, int, int) from the type Date should be accessed in a static way\n" +
-		"----------\n" +
-		"2. WARNING in p\\Warning.java (at line 7)\n" +
-		"	dateObj.UTC(1,2,3,4,5,6);\n" +
-		"	        ^^^^^^^^^^^^^^^^\n" +
-		"The method UTC(int, int, int, int, int, int) from the type Date is deprecated\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in p\\Warning.java (at line 7)
+				dateObj.UTC(1,2,3,4,5,6);
+				^^^^^^^^^^^^^^^^^^^^^^^^
+			The static method UTC(int, int, int, int, int, int) from the type Date should be accessed in a static way
+			----------
+			2. WARNING in p\\Warning.java (at line 7)
+				dateObj.UTC(1,2,3,4,5,6);
+				        ^^^^^^^^^^^^^^^^
+			The method UTC(int, int, int, int, int, int) from the type Date is deprecated
+			----------
+			""");
 }
 public void test005() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-		  "public class X {\n"
-			+ "/**\n"
-			+ " * @deprecated\n"
-			+ " */\n"
-			+ " 	public static class Y {\n"
-			+ "	}\n" +
-			"   public static void main(String[] args) {	\n" +
-			"        System.out.print(\"SUCCESS\");	\n" +
-			"	}	\n"
-			+ "}"
+		  """
+			public class X {
+			/**
+			 * @deprecated
+			 */
+			 	public static class Y {
+				}
+			   public static void main(String[] args) {\t
+			        System.out.print("SUCCESS");\t
+				}\t
+			}"""
 		},
 		"SUCCESS", // expected output
 		null,
@@ -246,12 +267,14 @@ public void test005() {
 			"A.java",
 			"public class A extends X.Y {}"
 		},
-		"----------\n" +
-		"1. WARNING in A.java (at line 1)\n" +
-		"	public class A extends X.Y {}\n" +
-		"	                         ^\n" +
-		"The type X.Y is deprecated\n" +
-		"----------\n",// expected output
+		"""
+			----------
+			1. WARNING in A.java (at line 1)
+				public class A extends X.Y {}
+				                         ^
+			The type X.Y is deprecated
+			----------
+			""",// expected output
 		null,
 		false, // flush previous output dir content
 		null);  // custom options
@@ -261,16 +284,17 @@ public void test006() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	/**\n" +
-			"	  @deprecated\n" +
-			"	 */\n" +
-			"	; // line comment\n" +
-			"	static int i;\n" +
-			"   public static void main(String[] args) {	\n" +
-			"        System.out.print(\"SUCCESS\");	\n" +
-			"	}	\n" +
-			"}"
+			"""
+				public class X {
+					/**
+					  @deprecated
+					 */
+					; // line comment
+					static int i;
+				   public static void main(String[] args) {\t
+				        System.out.print("SUCCESS");\t
+					}\t
+				}"""
 		},
 		"SUCCESS", // expected output
 		null,
@@ -283,11 +307,12 @@ public void test006() {
 	 		false /* do not flush output directory */,
 			new String[] { /* test files */
 				"A.java",
-				"public class A {\n" +
-				"   public static void main(String[] args) {	\n" +
-				"        System.out.print(X.i);	\n" +
-				"	}	\n" +
-				"}"
+				"""
+					public class A {
+					   public static void main(String[] args) {\t
+					        System.out.print(X.i);\t
+						}\t
+					}"""
 			},
 			// compiler results
 			"" /* expected compiler log */,
@@ -302,67 +327,79 @@ public void test007() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"/**\n" +
-			" * @deprecated\n" +
-			" */\n" +
-			"public class X {\n" +
-			"}\n",
+			"""
+				/**
+				 * @deprecated
+				 */
+				public class X {
+				}
+				""",
 
 			"Y.java",
-			"/**\n" +
-			" * @deprecated\n" +
-			" */\n" +
-			"public class Y {\n" +
-			"  Zork z;\n" +
-			"  X x;\n" +
-			"  X foo() {\n" +
-			"    X x; // unexpected deprecated warning here\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				/**
+				 * @deprecated
+				 */
+				public class Y {
+				  Zork z;
+				  X x;
+				  X foo() {
+				    X x; // unexpected deprecated warning here
+				  }
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in Y.java (at line 5)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. WARNING in Y.java (at line 8)\n" +
-		"	X x; // unexpected deprecated warning here\n" +
-		"	  ^\n" +
-		"The local variable x is hiding a field from type Y\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Y.java (at line 5)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			2. WARNING in Y.java (at line 8)
+				X x; // unexpected deprecated warning here
+				  ^
+			The local variable x is hiding a field from type Y
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=88124 - variation
 public void test008() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/**\n" +
-			" * @deprecated\n" +
-			" */\n" +
-			"public class X {\n" +
-			"}\n",
+			"""
+				/**
+				 * @deprecated
+				 */
+				public class X {
+				}
+				""",
 		},
 		"");
 	this.runNegativeTest(
 		new String[] {
 			"Y.java",
-			"/**\n" +
-			" * @deprecated\n" +
-			" */\n" +
-			"public class Y {\n" +
-			"  Zork z;\n" +
-			"  void foo() {\n" +
-			"    X x; // unexpected deprecated warning here\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				/**
+				 * @deprecated
+				 */
+				public class Y {
+				  Zork z;
+				  void foo() {
+				    X x; // unexpected deprecated warning here
+				  }
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in Y.java (at line 5)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n",// expected output
+		"""
+			----------
+			1. ERROR in Y.java (at line 5)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			""",// expected output
 		null,
 		false, // flush previous output dir content
 		null);  // custom options
@@ -373,10 +410,12 @@ public void test008a() throws IOException {
 	String jarPath = LIB_DIR+File.separator+"p008a"+File.separator+"x.jar";
 	Util.createJar(new String[] {
 			"X.java",
-			"package p008a;\n" +
-			"@Deprecated\n" +
-			"public class X {\n" +
-			"}\n",
+			"""
+				package p008a;
+				@Deprecated
+				public class X {
+				}
+				""",
 		},
 		jarPath,
 		"1.5");
@@ -385,23 +424,27 @@ public void test008a() throws IOException {
 	runner.testFiles =
 		new String[] {
 			"Y.java",
-			"public class Y {\n" +
-			"  void foo() {\n" +
-			"    p008a.X x;\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				public class Y {
+				  void foo() {
+				    p008a.X x;
+				  }
+				}
+				""",
 		};
 	String[] libs = getDefaultClassPaths();
 	libs = Arrays.copyOf(libs, libs.length+1);
 	libs[libs.length-1] = jarPath;
 	runner.classLibraries = libs;
 	runner.expectedCompilerLog =
-		"----------\n" +
-		"1. WARNING in Y.java (at line 3)\n" +
-		"	p008a.X x;\n" +
-		"	      ^\n" +
-		"The type X is deprecated\n" +
-		"----------\n";
+		"""
+			----------
+			1. WARNING in Y.java (at line 3)
+				p008a.X x;
+				      ^
+			The type X is deprecated
+			----------
+			""";
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 		// simulate we were running on a JRE without java.lang.Deprecated
 		this.invisibleType = TypeConstants.JAVA_LANG_DEPRECATED;
@@ -413,29 +456,35 @@ public void test009() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"/**\n" +
-			" * @deprecated\n" +
-			" */\n" +
-			"public class X {\n" +
-			"}\n",
+			"""
+				/**
+				 * @deprecated
+				 */
+				public class X {
+				}
+				""",
 
 			"Y.java",
-			"/**\n" +
-			" * @deprecated\n" +
-			" */\n" +
-			"public class Y {\n" +
-			"  Zork z;\n" +
-			"  void foo() {\n" +
-			"    X x; // unexpected deprecated warning here\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				/**
+				 * @deprecated
+				 */
+				public class Y {
+				  Zork z;
+				  void foo() {
+				    X x; // unexpected deprecated warning here
+				  }
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in Y.java (at line 5)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Y.java (at line 5)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=88187
 public void test010() {
@@ -444,39 +493,47 @@ public void test010() {
 	this.runNegativeTest(
 		new String[] {
             "X.java",
-            "/**\n" +
-            " * @deprecated\n" +
-            " */\n" +
-            "public class X {\n" +
-            "        /**\n" +
-            "         * @see I2#foo()\n" +
-            "         */\n" +
-            "        I1 foo() {\n" +
-            "                return null;\n" +
-            "        }\n" +
-            "       Zork z;\n" +
-            "}\n",
+            """
+				/**
+				 * @deprecated
+				 */
+				public class X {
+				        /**
+				         * @see I2#foo()
+				         */
+				        I1 foo() {
+				                return null;
+				        }
+				       Zork z;
+				}
+				""",
 			"I1.java",
-			"/**\n" +
-			" * @deprecated\n" +
-			" */\n" +
-			"public interface I1 {\n" +
-			"		 // empty block\n" +
-			"}\n",
+			"""
+				/**
+				 * @deprecated
+				 */
+				public interface I1 {
+						 // empty block
+				}
+				""",
 			"I2.java",
-			"/**\n" +
-			" * @deprecated\n" +
-			" */\n" +
-			"public interface I2 {\n" +
-			"		 I1 foo(); // unexpected warning here\n" +
-			"}\n",
+			"""
+				/**
+				 * @deprecated
+				 */
+				public interface I2 {
+						 I1 foo(); // unexpected warning here
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 11)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			""",
 		null,
 		true,
 		customOptions);
@@ -486,24 +543,30 @@ public void test011() {
 	this.runNegativeTest(
 		new String[] {
 				"p1/X.java", // =================
-				"package p1;\n" +
-				"import p2.I;\n" +
-				"/** @deprecated */\n" +
-				"public class X {\n" +
-				"	Zork z;\n" +
-				"}\n", // =================
+				"""
+					package p1;
+					import p2.I;
+					/** @deprecated */
+					public class X {
+						Zork z;
+					}
+					""", // =================
 				"p2/I.java", // =================
-				"package p2;\n" +
-				"/** @deprecated */\n" +
-				"public interface I {\n" +
-				"}\n", // =================
+				"""
+					package p2;
+					/** @deprecated */
+					public interface I {
+					}
+					""", // =================
 		},
-		"----------\n" +
-		"1. ERROR in p1\\X.java (at line 5)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in p1\\X.java (at line 5)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			""");
 }
 
 // @deprecated upon locals do not influence the deprecation diagnostic
@@ -519,21 +582,25 @@ public void test012() {
 		true /* flush output directory */,
 		new String[] { /* test files */
             "X.java",
-			"public class X {\n" +
-			"    void foo() {\n" +
-			"        /** @deprecated */\n" +
-			"        int i1 = Y.m;\n" +
-			"    }\n" +
-			"    /** @deprecated */\n" +
-			"    void bar() {\n" +
-			"        int i1 = Y.m;\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X {
+				    void foo() {
+				        /** @deprecated */
+				        int i1 = Y.m;
+				    }
+				    /** @deprecated */
+				    void bar() {
+				        int i1 = Y.m;
+				    }
+				}
+				""",
             "Y.java",
-			"public class Y {\n" +
-			"    /** @deprecated */\n" +
-			"    static int m;\n" +
-			"}\n",	},
+			"""
+				public class Y {
+				    /** @deprecated */
+				    static int m;
+				}
+				""",	},
 			// compiler options
 			null /* no class libraries */,
 			customOptions /* custom options */,
@@ -563,21 +630,25 @@ public void test013() {
 			true /* flush output directory */,
 			new String[] { /* test files */
 	            "X.java",
-				"public class X {\n" +
-				"    void foo() {\n" +
-				"        @Deprecated\n" +
-				"        int i1 = Y.m;\n" +
-				"    }\n" +
-				"    @Deprecated\n" +
-				"    void bar() {\n" +
-				"        int i1 = Y.m;\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					public class X {
+					    void foo() {
+					        @Deprecated
+					        int i1 = Y.m;
+					    }
+					    @Deprecated
+					    void bar() {
+					        int i1 = Y.m;
+					    }
+					}
+					""",
 	            "Y.java",
-				"public class Y {\n" +
-				"    @Deprecated\n" +
-				"    static int m;\n" +
-				"}\n",
+				"""
+					public class Y {
+					    @Deprecated
+					    static int m;
+					}
+					""",
 			},
 			// compiler options
 			null /* no class libraries */,
@@ -598,57 +669,63 @@ public void test014() {
 	this.runNegativeTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" +
-			"/**\n" +
-			" * @deprecated\n" +
-			" */\n" +
-			"public class X {\n" +
-			"}\n",
+			"""
+				package p;
+				/**
+				 * @deprecated
+				 */
+				public class X {
+				}
+				""",
 			"Y.java",
-			"import p.X;\n" +
-			"public class Y {\n" +
-			"  Zork z;\n" +
-			"  void foo() {\n" +
-			"    X x;\n" +
-			"    X[] xs = { x };\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"    p.X x;\n" +
-			"    p.X[] xs = { x };\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				import p.X;
+				public class Y {
+				  Zork z;
+				  void foo() {
+				    X x;
+				    X[] xs = { x };
+				  }
+				  void bar() {
+				    p.X x;
+				    p.X[] xs = { x };
+				  }
+				}
+				""",
 		},
-		"----------\n" +
-		"1. WARNING in Y.java (at line 1)\n" +
-		"	import p.X;\n" +
-		"	       ^^^\n" +
-		"The type X is deprecated\n" +
-		"----------\n" +
-		"2. ERROR in Y.java (at line 3)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n" +
-		"3. WARNING in Y.java (at line 5)\n" +
-		"	X x;\n" +
-		"	^\n" +
-		"The type X is deprecated\n" +
-		"----------\n" +
-		"4. WARNING in Y.java (at line 6)\n" +
-		"	X[] xs = { x };\n" +
-		"	^\n" +
-		"The type X is deprecated\n" +
-		"----------\n" +
-		"5. WARNING in Y.java (at line 9)\n" +
-		"	p.X x;\n" +
-		"	  ^\n" +
-		"The type X is deprecated\n" +
-		"----------\n" +
-		"6. WARNING in Y.java (at line 10)\n" +
-		"	p.X[] xs = { x };\n" +
-		"	  ^\n" +
-		"The type X is deprecated\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in Y.java (at line 1)
+				import p.X;
+				       ^^^
+			The type X is deprecated
+			----------
+			2. ERROR in Y.java (at line 3)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			3. WARNING in Y.java (at line 5)
+				X x;
+				^
+			The type X is deprecated
+			----------
+			4. WARNING in Y.java (at line 6)
+				X[] xs = { x };
+				^
+			The type X is deprecated
+			----------
+			5. WARNING in Y.java (at line 9)
+				p.X x;
+				  ^
+			The type X is deprecated
+			----------
+			6. WARNING in Y.java (at line 10)
+				p.X[] xs = { x };
+				  ^
+			The type X is deprecated
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
 // the order of the CUs must not modify the behavior, see also test016
@@ -661,23 +738,27 @@ public void test015() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"p/M1.java",
-			"package p;\n" +
-			"public class M1 {\n" +
-			"  void bar() {\n" +
-			"    a.N1.N2.N3 m = null;\n" +
-			"    m.foo();\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package p;
+				public class M1 {
+				  void bar() {
+				    a.N1.N2.N3 m = null;
+				    m.foo();
+				  }
+				}
+				""",
 			"a/N1.java",
-			"package a;\n" +
-			"public class N1 {\n" +
-			"  /** @deprecated */\n" +
-			"  public class N2 {" +
-			"    public class N3 {" +
-			"      public void foo() {}" +
-			"    }" +
-			"  }" +
-			"}\n",
+			"""
+				package a;
+				public class N1 {
+				  /** @deprecated */
+				  public class N2 {\
+				    public class N3 {\
+				      public void foo() {}\
+				    }\
+				  }\
+				}
+				""",
 		},
 		// compiler options
 		null /* no class libraries */,
@@ -713,23 +794,27 @@ public void test016() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"a/N1.java",
-			"package a;\n" +
-			"public class N1 {\n" +
-			"  /** @deprecated */\n" +
-			"  public class N2 {" +
-			"    public class N3 {" +
-			"      public void foo() {}" +
-			"    }" +
-			"  }" +
-			"}\n",
+			"""
+				package a;
+				public class N1 {
+				  /** @deprecated */
+				  public class N2 {\
+				    public class N3 {\
+				      public void foo() {}\
+				    }\
+				  }\
+				}
+				""",
 			"p/M1.java",
-			"package p;\n" +
-			"public class M1 {\n" +
-			"  void bar() {\n" +
-			"    a.N1.N2.N3 m = null;\n" +
-			"    m.foo();\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package p;
+				public class M1 {
+				  void bar() {
+				    a.N1.N2.N3 m = null;
+				    m.foo();
+				  }
+				}
+				""",
 		},
 		// compiler options
 		null /* no class libraries */,
@@ -764,19 +849,21 @@ public void test017() {
 	this.runConformTest(
 		new String[] {
 			"a/N1.java",
-			"package a;\n" +
-			"public class N1 {\n" +
-			"  /** @deprecated */\n" +
-			"  public class N2 {" +
-			"    public class N3 {" +
-			"      public void foo() {}" +
-			"    }" +
-			"  }" +
-			"  void bar() {\n" +
-			"    a.N1.N2.N3 m = null;\n" +
-			"    m.foo();\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				package a;
+				public class N1 {
+				  /** @deprecated */
+				  public class N2 {\
+				    public class N3 {\
+				      public void foo() {}\
+				    }\
+				  }\
+				  void bar() {
+				    a.N1.N2.N3 m = null;
+				    m.foo();
+				  }
+				}
+				"""
 		},
 		"",
 		null,
@@ -797,15 +884,17 @@ public void test018() {
 	this.runConformTest(
 		new String[] {
 			"a/N1.java",
-			"package a;\n" +
-			"public class N1 {\n" +
-			"  /** @deprecated */\n" +
-			"  public class N2 {" +
-			"    public class N3 {" +
-			"      public void foo() {}" +
-			"    }" +
-			"  }" +
-			"}\n"
+			"""
+				package a;
+				public class N1 {
+				  /** @deprecated */
+				  public class N2 {\
+				    public class N3 {\
+				      public void foo() {}\
+				    }\
+				  }\
+				}
+				"""
 		},
 		"",
 		null,
@@ -819,13 +908,15 @@ public void test018() {
 		false /* do not flush output directory */,
 		new String[] { /* test files */
 			"p/M1.java",
-			"package p;\n" +
-			"public class M1 {\n" +
-			"  void bar() {\n" +
-			"    a.N1.N2.N3 m = null;\n" +
-			"    m.foo();\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				package p;
+				public class M1 {
+				  void bar() {
+				    a.N1.N2.N3 m = null;
+				    m.foo();
+				  }
+				}
+				"""
 		},
 		// compiler options
 		null /* no class libraries */,
@@ -859,19 +950,21 @@ public void test019() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"test1/E01.java",
-			"package test1;\n" +
-			"public class E01 {\n" +
-			"	/** @deprecated */\n" +
-			"	public static int x = 5, y= 10;\n" +
-			"}",
+			"""
+				package test1;
+				public class E01 {
+					/** @deprecated */
+					public static int x = 5, y= 10;
+				}""",
 			"test1/E02.java",
-			"package test1;\n" +
-			"public class E02 {\n" +
-			"	public void foo() {\n" +
-			"		System.out.println(E01.x);\n" +
-			"		System.out.println(E01.y);\n" +
-			"	}\n" +
-			"}"
+			"""
+				package test1;
+				public class E02 {
+					public void foo() {
+						System.out.println(E01.x);
+						System.out.println(E01.y);
+					}
+				}"""
 		},
 		// compiler options
 		null /* no class libraries */,
@@ -900,33 +993,36 @@ public void test020() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"a.b.c.d/Deprecated.java",
-			"package a.b.c.d;\n" +
-			"public class Deprecated {\n" +
-			"	/** @deprecated */\n" +
-			"	public class Inner {\n" +
-			"		/** @deprecated */\n" +
-			"		public class Inn {\n" +
-			"		}\n" +
-			"	}\n" +
-			"	/** @deprecated */\n" +
-			"	public Deprecated foo(){ return null;}\n" +
-			"	/** @deprecated */\n" +
-			"	public Deprecated goo(){ return null;}\n" +
-			"	/** @deprecated */\n" +
-			"	public static Deprecated bar(){ return null;}\n" +
-			"}\n",
+			"""
+				package a.b.c.d;
+				public class Deprecated {
+					/** @deprecated */
+					public class Inner {
+						/** @deprecated */
+						public class Inn {
+						}
+					}
+					/** @deprecated */
+					public Deprecated foo(){ return null;}
+					/** @deprecated */
+					public Deprecated goo(){ return null;}
+					/** @deprecated */
+					public static Deprecated bar(){ return null;}
+				}
+				""",
 			"a.b.c.d.e/T.java",
-			"package a.b.c.d.e;\n" +
-			"import a.b.c.d.Deprecated;\n" +
-			"public class T {\n" +
-			"	a.b.c.d.Deprecated f;\n" +
-			"	a.b.c.d.Deprecated.Inner.Inn g;\n" +
-			"	Deprecated.Inner i;\n" +
-			"	public void m() {\n" +
-			"		f.foo().goo();\n" +
-			"		a.b.c.d.Deprecated.bar();\n" +
-			"	}\n" +
-			"}"
+			"""
+				package a.b.c.d.e;
+				import a.b.c.d.Deprecated;
+				public class T {
+					a.b.c.d.Deprecated f;
+					a.b.c.d.Deprecated.Inner.Inn g;
+					Deprecated.Inner i;
+					public void m() {
+						f.foo().goo();
+						a.b.c.d.Deprecated.bar();
+					}
+				}"""
 		},
 		// compiler options
 		null /* no class libraries */,

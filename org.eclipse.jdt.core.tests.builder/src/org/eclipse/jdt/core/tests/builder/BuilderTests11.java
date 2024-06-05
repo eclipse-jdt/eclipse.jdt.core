@@ -77,11 +77,13 @@ public class BuilderTests11 extends BuilderTests {
 		IPath src = env.addPackageFragmentRoot(projectPath, "src");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.addClass(src, "bug", "A1",
-				"package bug;\n" +
-						"\n" +
-						"public class A1 {\n" +
-						"\n" +
-				"}\n");
+				"""
+					package bug;
+					
+					public class A1 {
+					
+					}
+					""");
 		fullBuild();
 		expectingNoProblems();
 	}

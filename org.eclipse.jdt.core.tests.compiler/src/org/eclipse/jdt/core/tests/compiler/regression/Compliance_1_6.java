@@ -47,21 +47,22 @@ public void test1() {
 	this.runConformTest(
 			new String[] {
 					"Test.java",
-					"public class Test {\n" +
-					"	public interface MyInterface {\n" +
-					"		public void hello();\n" +
-					"	}\n" +
-					"	private static class MyClass implements MyInterface {\n" +
-					"		@Override\n" +
-					"		public void hello() {\n" +
-					"			System.out.println(\"Hello\");\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		MyClass m = new MyClass();\n" +
-					"		m.hello();\n" +
-					"	}\n" +
-					"}"
+					"""
+						public class Test {
+							public interface MyInterface {
+								public void hello();
+							}
+							private static class MyClass implements MyInterface {
+								@Override
+								public void hello() {
+									System.out.println("Hello");
+								}
+							}
+							public static void main(String[] args) {
+								MyClass m = new MyClass();
+								m.hello();
+							}
+						}"""
 			},
 			"Hello",
 			null /* no extra class libraries */,

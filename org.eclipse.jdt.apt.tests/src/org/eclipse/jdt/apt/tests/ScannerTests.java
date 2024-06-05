@@ -41,12 +41,18 @@ public class ScannerTests extends APTTestBase {
 		IPath srcRoot = getSourcePath();
 
 		String code =
-				"package test;" + "\n" +
-				"import org.eclipse.jdt.apt.tests.annotations.noop.NoOpAnnotation;" + "\n" +
-				"@NoOpAnnotation" + "\n" +
-				"public class Has" + "\n" +
-				"{" + "\n" +
-				"}";
+				"""
+			package test;\
+			
+			import org.eclipse.jdt.apt.tests.annotations.noop.NoOpAnnotation;\
+			
+			@NoOpAnnotation\
+			
+			public class Has\
+			
+			{\
+			
+			}""";
 
 		env.addClass(srcRoot, "test", "Has", code);
 
@@ -62,10 +68,14 @@ public class ScannerTests extends APTTestBase {
 		IPath srcRoot = getSourcePath();
 
 		String code =
-				"package test;" + "\n" +
-				"public class No" + "\n" +
-				"{" + "\n" +
-				"}";
+				"""
+			package test;\
+			
+			public class No\
+			
+			{\
+			
+			}""";
 
 		env.addClass(srcRoot, "test", "No", code);
 
@@ -81,15 +91,24 @@ public class ScannerTests extends APTTestBase {
 		IPath srcRoot = getSourcePath();
 
 		String code =
-				"package test;" + "\n" +
-				"/**" + "\n" +
-				" * @author Joe Bob" + "\n" +
-				" */" + "\n" +
-				"public class Comments" + "\n" +
-				"{" + "\n" +
-				"    // @Foo" + "\n" +
-				"    /* @Bar */" + "\n" +
-				"}";
+				"""
+			package test;\
+			
+			/**\
+			
+			 * @author Joe Bob\
+			
+			 */\
+			
+			public class Comments\
+			
+			{\
+			
+			    // @Foo\
+			
+			    /* @Bar */\
+			
+			}""";
 
 		env.addClass(srcRoot, "test", "Comments", code);
 
@@ -110,10 +129,14 @@ public class ScannerTests extends APTTestBase {
 		IPath srcRoot = getSourcePath();
 
 		String code =
-				"package test;" + "\n" +
-				"public @interface AnnoDecl" + "\n" +
-				"{" + "\n" +
-				"}";
+				"""
+			package test;\
+			
+			public @interface AnnoDecl\
+			
+			{\
+			
+			}""";
 
 		env.addClass(srcRoot, "test", "AnnoDecl", code);
 

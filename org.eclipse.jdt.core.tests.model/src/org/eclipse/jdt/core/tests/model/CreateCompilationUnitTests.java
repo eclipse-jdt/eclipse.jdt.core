@@ -54,24 +54,27 @@ public void tearDown() throws Exception {
 public void testCUAndImportContainer() throws JavaModelException {
 	IPackageFragment pkg = getPackage("/P/p");
 	ICompilationUnit cu= pkg.createCompilationUnit("HelloImports.java",
-		("package p;\n" +
-		"\n" +
-		"import java.util.Enumeration;\n" +
-		"import java.util.Vector;\n" +
-		"\n" +
-		"public class HelloImports {\n" +
-		"\n" +
-		"	public static main(String[] args) {\n" +
-		"		System.out.println(\"HelloWorld\");\n" +
-		"	}\n" +
-		"}\n"),  false,null);
+		("""
+			package p;
+			
+			import java.util.Enumeration;
+			import java.util.Vector;
+			
+			public class HelloImports {
+			
+				public static main(String[] args) {
+					System.out.println("HelloWorld");
+				}
+			}
+			"""),  false,null);
 	assertCreation(cu);
 	assertDeltas(
 		"Unexpected delta",
-		"P[*]: {CHILDREN}\n" +
-		"	<project root>[*]: {CHILDREN}\n" +
-		"		p[*]: {CHILDREN}\n" +
-		"			HelloImports.java[+]: {}"
+		"""
+			P[*]: {CHILDREN}
+				<project root>[*]: {CHILDREN}
+					p[*]: {CHILDREN}
+						HelloImports.java[+]: {}"""
 	);
 	IImportDeclaration[] imprts= cu.getImports();
 	assertTrue("Import does not exist", imprts.length == 2 && imprts[0].exists());
@@ -91,23 +94,25 @@ public void testDefaultCU() throws CoreException {
 	assertCreation(type);
 	assertDeltas(
 		"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		p[*]: {CHILDREN}\n" +
-			"			Default.java[+]: {}\n" +
-			"\n" +
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		p[*]: {CHILDREN}\n" +
-			"			Default.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				Default[+]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						p[*]: {CHILDREN}
+							Default.java[+]: {}
+				
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						p[*]: {CHILDREN}
+							Default.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+								Default[+]: {}"""
 	);
 	// CU should have a package statement and type
 	assertElementDescendants(
 		"Unexpected children",
-		"Default.java\n" +
-		"  package p\n" +
-		"  class Default",
+		"""
+			Default.java
+			  package p
+			  class Default""",
 		cu);
 
 	// should fail if we try again
@@ -148,18 +153,20 @@ public void testForce() throws JavaModelException, IOException {
 	new File(folder, "X.java").createNewFile();
 	ICompilationUnit cu = pkg.createCompilationUnit(
 		"X.java",
-		"package p;\n" +
-		"public class X {\n" +
-		"}",
+		"""
+			package p;
+			public class X {
+			}""",
 		true, // force,
 		null);
 	assertCreation(cu);
 	assertDeltas(
 		"Unexpected delta",
-		"P[*]: {CHILDREN}\n" +
-		"	<project root>[*]: {CHILDREN}\n" +
-		"		p[*]: {CHILDREN}\n" +
-		"			X.java[+]: {}"
+		"""
+			P[*]: {CHILDREN}
+				<project root>[*]: {CHILDREN}
+					p[*]: {CHILDREN}
+						X.java[+]: {}"""
 	);
 }
 /**
@@ -204,21 +211,24 @@ public void testNullContents() {
 public void testSimpleCreation() throws JavaModelException {
 	IPackageFragment pkg = getPackage("/P/p");
 	ICompilationUnit cu= pkg.createCompilationUnit("HelloWorld.java",
-		("package p;\n" +
-		"\n" +
-		"public class HelloWorld {\n" +
-		"\n" +
-		"	public static main(String[] args) {\n" +
-		"		System.out.println(\"HelloWorld\");\n" +
-		"	}\n" +
-		"}\n"), false, null);
+		("""
+			package p;
+			
+			public class HelloWorld {
+			
+				public static main(String[] args) {
+					System.out.println("HelloWorld");
+				}
+			}
+			"""), false, null);
 	assertCreation(cu);
 	assertDeltas(
 		"Unexpected delta",
-		"P[*]: {CHILDREN}\n" +
-		"	<project root>[*]: {CHILDREN}\n" +
-		"		p[*]: {CHILDREN}\n" +
-		"			HelloWorld.java[+]: {}"
+		"""
+			P[*]: {CHILDREN}
+				<project root>[*]: {CHILDREN}
+					p[*]: {CHILDREN}
+						HelloWorld.java[+]: {}"""
 	);
 }
 /*
@@ -230,10 +240,12 @@ public void testSchedulingRule() throws Exception {
 		public void run(IProgressMonitor monitor) throws CoreException {
 			IPackageFragment pkg = getPackage("/P/p");
 			ICompilationUnit cu= pkg.createCompilationUnit("HelloWorld.java",
-				("package p;\n" +
-				"\n" +
-				"public class HelloWorld {\n" +
-				"}\n"), false, null);
+				("""
+					package p;
+					
+					public class HelloWorld {
+					}
+					"""), false, null);
 			assertCreation(cu);
 		}
 	};

@@ -58,30 +58,34 @@ private boolean checkSwitchAllowedLevel() {
 public void test001() {
 	this.runNegativeTest(new String[] {
 		"X.java", // =================
-		"public class X {\n" +
-		"	public String foo(int i) {\n" +
-		"		if (true) {\n" +
-		"			return null;\n" +
-		"		}\n" +
-		"		if (i > 0) {\n" +
-		"			return null;\n" +
-		"		}\n" +
-		"	}	\n" +
-		"}\n",
+		"""
+			public class X {
+				public String foo(int i) {
+					if (true) {
+						return null;
+					}
+					if (i > 0) {
+						return null;
+					}
+				}\t
+			}
+			""",
 	},
-	"----------\n" +
-	"1. ERROR in X.java (at line 2)\n" +
-	"	public String foo(int i) {\n" +
-	"	              ^^^^^^^^^^\n" +
-	"This method must return a result of type String\n" +
-	"----------\n" +
-	"2. WARNING in X.java (at line 6)\n" +
-	"	if (i > 0) {\n" +
-	"			return null;\n" +
-	"		}\n" +
-	"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-	"Dead code\n" +
-	"----------\n");
+	"""
+		----------
+		1. ERROR in X.java (at line 2)
+			public String foo(int i) {
+			              ^^^^^^^^^^
+		This method must return a result of type String
+		----------
+		2. WARNING in X.java (at line 6)
+			if (i > 0) {
+					return null;
+				}
+			^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		Dead code
+		----------
+		""");
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127255
@@ -92,21 +96,24 @@ public void test002() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public void test() {\n" +
-			"        int c1, c2;\n" +
-			"        while ((char) (c1 = 0) == 1) {}\n" +
-			"        if (c1 == 0) {} // silent\n" +
-			"        if (c2 == 0) {} // complain\n" +
-			"    }\n" +
-			"}"
+			"""
+				public class X {
+				    public void test() {
+				        int c1, c2;
+				        while ((char) (c1 = 0) == 1) {}
+				        if (c1 == 0) {} // silent
+				        if (c2 == 0) {} // complain
+				    }
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (c2 == 0) {} // complain\n" +
-		"	    ^^\n" +
-		"The local variable c2 may not have been initialized\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (c2 == 0) {} // complain
+				    ^^
+			The local variable c2 may not have been initialized
+			----------
+			""",
 		null, true, options);
 }
 
@@ -118,21 +125,24 @@ public void test003() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public void test() {\n" +
-			"        int c1, c2;\n" +
-			"        while ((char) (c1 = 0) == 1) ;\n" +
-			"        if (c1 == 0) {} // silent\n" +
-			"        if (c2 == 0) {} // complain\n" +
-			"    }\n" +
-			"}"
+			"""
+				public class X {
+				    public void test() {
+				        int c1, c2;
+				        while ((char) (c1 = 0) == 1) ;
+				        if (c1 == 0) {} // silent
+				        if (c2 == 0) {} // complain
+				    }
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (c2 == 0) {} // complain\n" +
-		"	    ^^\n" +
-		"The local variable c2 may not have been initialized\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (c2 == 0) {} // complain
+				    ^^
+			The local variable c2 may not have been initialized
+			----------
+			""",
 		null, true, options);
 }
 
@@ -144,21 +154,24 @@ public void test004() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public void test() {\n" +
-			"        int c1, c2;\n" +
-			"        for (;(char) (c1 = 0) == 1;) ;\n" +
-			"        if (c1 == 0) {} // silent\n" +
-			"        if (c2 == 0) {} // complain\n" +
-			"    }\n" +
-			"}"
+			"""
+				public class X {
+				    public void test() {
+				        int c1, c2;
+				        for (;(char) (c1 = 0) == 1;) ;
+				        if (c1 == 0) {} // silent
+				        if (c2 == 0) {} // complain
+				    }
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (c2 == 0) {} // complain\n" +
-		"	    ^^\n" +
-		"The local variable c2 may not have been initialized\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (c2 == 0) {} // complain
+				    ^^
+			The local variable c2 may not have been initialized
+			----------
+			""",
 		null, true, options);
 }
 
@@ -170,21 +183,24 @@ public void test005() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public void test() {\n" +
-			"        int c1, c2;\n" +
-			"        do ; while ((char) (c1 = 0) == 1);\n" +
-			"        if (c1 == 0) {} // silent\n" +
-			"        if (c2 == 0) {} // complain\n" +
-			"    }\n" +
-			"}"
+			"""
+				public class X {
+				    public void test() {
+				        int c1, c2;
+				        do ; while ((char) (c1 = 0) == 1);
+				        if (c1 == 0) {} // silent
+				        if (c2 == 0) {} // complain
+				    }
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (c2 == 0) {} // complain\n" +
-		"	    ^^\n" +
-		"The local variable c2 may not have been initialized\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (c2 == 0) {} // complain
+				    ^^
+			The local variable c2 may not have been initialized
+			----------
+			""",
 		null, true, options);
 }
 
@@ -199,24 +215,25 @@ public void test006() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"    public void test(int p) {\n" +
-			"        switch (p) {\n" +
-			"        case 0:\n" +
-			"            System.out.println(0); // silent because first case\n" +
-			"        case 1:\n" +
-			"            System.out.println(1); // complain: possible fall-through\n" +
-			"            break;\n" +
-			"        case 2:\n" +
-			"            System.out.println(3); // silent because of break\n" +
-			"            return;\n" +
-			"        case 3:                            // silent because of return\n" +
-			"        case 4:                            // silent because grouped cases\n" +
-			"        default:\n" +
-			"            System.out.println(\"default\"); //$NON-NLS-1$\n" +
-			"        }\n" +
-			"    }\n" +
-			"}"
+			"""
+				public class X {
+				    public void test(int p) {
+				        switch (p) {
+				        case 0:
+				            System.out.println(0); // silent because first case
+				        case 1:
+				            System.out.println(1); // complain: possible fall-through
+				            break;
+				        case 2:
+				            System.out.println(3); // silent because of break
+				            return;
+				        case 3:                            // silent because of return
+				        case 4:                            // silent because grouped cases
+				        default:
+				            System.out.println("default"); //$NON-NLS-1$
+				        }
+				    }
+				}"""
 		},
 		// compiler options
 		null /* no class libraries */,
@@ -241,27 +258,31 @@ public void test007() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    @SuppressWarnings(\"fallthrough\")\n" +
-				"    public void test(int p) {\n" +
-				"        switch (p) {\n" +
-				"        case 0:\n" +
-				"            System.out.println(0); // silent because first case\n" +
-				"        case 1:\n" +
-				"            System.out.println(1); // silent because of SuppressWarnings\n" +
-				"        }\n" +
-				"    }\n" +
-				"    void foo() {\n" +
-				"		Zork z;\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					public class X {
+					    @SuppressWarnings("fallthrough")
+					    public void test(int p) {
+					        switch (p) {
+					        case 0:
+					            System.out.println(0); // silent because first case
+					        case 1:
+					            System.out.println(1); // silent because of SuppressWarnings
+					        }
+					    }
+					    void foo() {
+							Zork z;
+					    }
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 12)\n" +
-			"	Zork z;\n" +
-			"	^^^^\n" +
-			"Zork cannot be resolved to a type\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 12)
+					Zork z;
+					^^^^
+				Zork cannot be resolved to a type
+				----------
+				""",
 			null, true, options);
 	}
 }
@@ -277,19 +298,20 @@ public void test008() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"    public void test(int p) {\n" +
-			"        switch (p) {\n" +
-			"        case 0:\n" +
-			"            System.out.println(0);\n" +
-			"            if (true) {\n" +
-			"              return;\n" +
-			"            }\n" +
-			"        case 1:\n" +
-			"            System.out.println(1);\n" +
-			"        }\n" +
-			"    }\n" +
-			"}"
+			"""
+				public class X {
+				    public void test(int p) {
+				        switch (p) {
+				        case 0:
+				            System.out.println(0);
+				            if (true) {
+				              return;
+				            }
+				        case 1:
+				            System.out.println(1);
+				        }
+				    }
+				}"""
 		},
 		// compiler options
 		null /* no class libraries */,
@@ -313,22 +335,23 @@ public void test009() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public void test(int p, boolean b) {\n" +
-			"        switch (p) {\n" +
-			"        case 0:\n" +
-			"            System.out.println(0);\n" +
-			"            if (b) {\n" +
-			"              return;\n" +
-			"            }\n" +
-			"            else {\n" +
-			"              return;\n" +
-			"            }\n" +
-			"        case 1:\n" +
-			"            System.out.println(1);\n" +
-			"        }\n" +
-			"    }\n" +
-			"}"
+			"""
+				public class X {
+				    public void test(int p, boolean b) {
+				        switch (p) {
+				        case 0:
+				            System.out.println(0);
+				            if (b) {
+				              return;
+				            }
+				            else {
+				              return;
+				            }
+				        case 1:
+				            System.out.println(1);
+				        }
+				    }
+				}"""
 		},
 		"",
 		null, true, null, options, null);
@@ -392,12 +415,14 @@ public void test011() {
 				"	Zork z;\n" + // complain on Zork (unknown type)
 				"}"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
-			"	Zork z;\n" +
-			"	^^^^\n" +
-			"Zork cannot be resolved to a type\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 11)
+					Zork z;
+					^^^^
+				Zork cannot be resolved to a type
+				----------
+				""",
 			null, true, options);
 	}
 }
@@ -411,17 +436,18 @@ public void _test012() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public void test(int p) {\n" +
-			"        switch (p) {\n" +
-			"        case 0:\n" +
-			"            System.out.println(0); // silent because first case\n" +
-			"            // on purpose fall-through\n" +
-			"        case 1:\n" +
-			"            System.out.println(1); // silent because of comment alone on its line above \n" +
-			"        }\n" +
-			"    }\n" +
-			"}"
+			"""
+				public class X {
+				    public void test(int p) {
+				        switch (p) {
+				        case 0:
+				            System.out.println(0); // silent because first case
+				            // on purpose fall-through
+				        case 1:
+				            System.out.println(1); // silent because of comment alone on its line above\s
+				        }
+				    }
+				}"""
 		},
 		"",
 		null, true, null, options, null);
@@ -436,17 +462,18 @@ public void _test013() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public void test(int p) {\n" +
-			"        switch (p) {\n" +
-			"        case 0:\n" +
-			"            System.out.println(0); // silent because first case\n" +
-			"            // on purpose fall-through\n" +
-			"        default:\n" +
-			"            System.out.println(1); // silent because of comment alone on its line above \n" +
-			"        }\n" +
-			"    }\n" +
-			"}"
+			"""
+				public class X {
+				    public void test(int p) {
+				        switch (p) {
+				        case 0:
+				            System.out.println(0); // silent because first case
+				            // on purpose fall-through
+				        default:
+				            System.out.println(1); // silent because of comment alone on its line above\s
+				        }
+				    }
+				}"""
 		},
 		"",
 		null, true, null, options, null);
@@ -624,18 +651,19 @@ public void test019() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"    public void test(int p, boolean b) {\n" +
-			"        switch (p) {\n" +
-			"        case 0:\n" +
-			"            if (b) {\n" +
-			"              break;\n" +
-			"            }\n" +
-			"        case 1:\n" +
-			"            System.out.println(1); // silent because of comment alone on its line above \n" +
-			"        }\n" +
-			"    }\n" +
-			"}"
+			"""
+				public class X {
+				    public void test(int p, boolean b) {
+				        switch (p) {
+				        case 0:
+				            if (b) {
+				              break;
+				            }
+				        case 1:
+				            System.out.println(1); // silent because of comment alone on its line above\s
+				        }
+				    }
+				}"""
 		},
 		// compiler options
 		null /* no class libraries */,
@@ -669,12 +697,14 @@ public void test020() {
 			"	Zork z;\n" + // complain on Zork (unknown type)
 			"}"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			""");
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
@@ -696,14 +726,15 @@ public void test022() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		if (true)\n" +
-			"            ;\n" +
-			"        else\n" +
-			"            ;\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					public static void main(String[] args) {
+						if (true)
+				            ;
+				        else
+				            ;
+					}
+				}"""
 		},
 		// compiler options
 		null /* no class libraries */,
@@ -726,32 +757,35 @@ public void test023() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		final X x;\n" +
-			"		while (true) {\n" +
-			"			if (true) {\n" +
-			"				break;\n" +
-			"			}\n" +
-			"			x = new X();\n" +
-			"		}\n" +
-			"		x.foo();\n" +
-			"	}\n" +
-			"	public void foo() {\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					public static void main(String[] args) {
+						final X x;
+						while (true) {
+							if (true) {
+								break;
+							}
+							x = new X();
+						}
+						x.foo();
+					}
+					public void foo() {
+					}
+				}"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 8)\n" +
-		"	x = new X();\n" +
-		"	^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 10)\n" +
-		"	x.foo();\n" +
-		"	^\n" +
-		"The local variable x may not have been initialized\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 8)
+				x = new X();
+				^^^^^^^^^^^
+			Dead code
+			----------
+			2. ERROR in X.java (at line 10)
+				x.foo();
+				^
+			The local variable x may not have been initialized
+			----------
+			""",
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=132974
@@ -759,56 +793,61 @@ public void test024() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo(boolean b) {\n" +
-			"    final Object l;\n" +
-			"    do {\n" +
-			"      if (b) {\n" +
-			"        l = new Object();\n" +
-			"        break;\n" +
-			"      }\n" +
-			"    } while (false);\n" +
-			"    l.toString();\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  public void foo(boolean b) {
+				    final Object l;
+				    do {
+				      if (b) {
+				        l = new Object();
+				        break;
+				      }
+				    } while (false);
+				    l.toString();
+				  }
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	l.toString();\n" +
-		"	^\n" +
-		"The local variable l may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				l.toString();
+				^
+			The local variable l may not have been initialized
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=135602
 public void test025() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.print(\"[starting]\");\n" +
-			"		X l = new X();\n" +
-			"		l.testLoop();\n" +
-			"		System.out.println(\"[finished]\");\n" +
-			"	}\n" +
-			"\n" +
-			"	public void testLoop() {\n" +
-			"		int loops = 0;\n" +
-			"\n" +
-			"		do {\n" +
-			"			System.out.print(\"[Loop \" + loops + \"]\");\n" +
-			"			if (loops > 2) {\n" +
-			"				return;\n" +
-			"			}\n" +
-			"\n" +
-			"			if (loops < 4) {\n" +
-			"				++loops;\n" +
-			"				continue; \n" +
-			"			}\n" +
-			"		} while (false);\n" +
-			"	}\n" +
-			"\n" +
-			"}\n"
+			"""
+				public class X {
+					public static void main(String[] args) {
+						System.out.print("[starting]");
+						X l = new X();
+						l.testLoop();
+						System.out.println("[finished]");
+					}
+				
+					public void testLoop() {
+						int loops = 0;
+				
+						do {
+							System.out.print("[Loop " + loops + "]");
+							if (loops > 2) {
+								return;
+							}
+				
+							if (loops < 4) {
+								++loops;
+								continue;\s
+							}
+						} while (false);
+					}
+				
+				}
+				"""
 		},
 		"[starting][Loop 0][finished]");
 }
@@ -817,30 +856,33 @@ public void test026() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o1) {\n" +
-			"    int a00, a01, a02, a03, a04, a05, a06, a07, a08, a09;\n" +
-			"    int a10, a11, a12, a13, a14, a15, a16, a17, a18, a19;\n" +
-			"    int a20, a21, a22, a23, a24, a25, a26, a27, a28, a29;\n" +
-			"    int a30, a31, a32, a33, a34, a35, a36, a37, a38, a39;\n" +
-			"    int a40, a41, a42, a43, a44, a45, a46, a47, a48, a49;\n" +
-			"    int a50, a51, a52, a53, a54, a55, a56, a57, a58, a59;\n" +
-			"    int a60, a61, a62, a63, a64, a65, a66, a67, a68, a69;\n" +
-			"    String s;\n" +
-			"    Object o2 = o1;\n" +
-			"    if (o2 == null) {\n" +
-			"      s = \"\";\n" +
-			"    }\n" +
-			"    System.out.println(s);\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  void foo(Object o1) {
+				    int a00, a01, a02, a03, a04, a05, a06, a07, a08, a09;
+				    int a10, a11, a12, a13, a14, a15, a16, a17, a18, a19;
+				    int a20, a21, a22, a23, a24, a25, a26, a27, a28, a29;
+				    int a30, a31, a32, a33, a34, a35, a36, a37, a38, a39;
+				    int a40, a41, a42, a43, a44, a45, a46, a47, a48, a49;
+				    int a50, a51, a52, a53, a54, a55, a56, a57, a58, a59;
+				    int a60, a61, a62, a63, a64, a65, a66, a67, a68, a69;
+				    String s;
+				    Object o2 = o1;
+				    if (o2 == null) {
+				      s = "";
+				    }
+				    System.out.println(s);
+				  }
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 15)\n" +
-		"	System.out.println(s);\n" +
-		"	                   ^\n" +
-		"The local variable s may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 15)
+				System.out.println(s);
+				                   ^
+			The local variable s may not have been initialized
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // Non-recursive approach for deep binary expressions. Check that the
@@ -849,21 +891,22 @@ public void test027() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public static void main(String args[]) {\n" +
-			"    String s;\n" +
-			"    if (args.length == 0) {\n" +
-			"      s = \"s\";\n" +
-			"    } else {\n" +
-			"      s = args[0];\n" +
-			"    }\n" +
-			"    System.out.println(s + \"-\" + s + \"-\" + s + \"-\" +\n" +
-			"                       s + \"-\" + s + \"-\" + s + \"-\" +\n" +
-			"                       s + \"-\" + s + \"-\" + s + \"-\" +\n" +
-			"                       s + \"-\" + s + \"-\" + s + \"-\" +\n" +
-			"                       s + \"-\" + s + \"-\" + s + \"-\");\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  public static void main(String args[]) {
+				    String s;
+				    if (args.length == 0) {
+				      s = "s";
+				    } else {
+				      s = args[0];
+				    }
+				    System.out.println(s + "-" + s + "-" + s + "-" +
+				                       s + "-" + s + "-" + s + "-" +
+				                       s + "-" + s + "-" + s + "-" +
+				                       s + "-" + s + "-" + s + "-" +
+				                       s + "-" + s + "-" + s + "-");
+				  }
+				}"""
 		},
 		"s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-");
 }
@@ -872,27 +915,31 @@ public void test028() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"   {\n" +
-			"      if (true) throw new NullPointerException();\n" +
-			"   }\n" +
-			"}\n" // =================
+			"""
+				public class X {
+				   {
+				      if (true) throw new NullPointerException();
+				   }
+				}
+				"""
 		},
 		"");
 	// check no default return opcode is appended
 	String expectedOutput =
-		"  public X();\n" +
-		"     0  aload_0 [this]\n" +
-		"     1  invokespecial java.lang.Object() [8]\n" +
-		"     4  new java.lang.NullPointerException [10]\n" +
-		"     7  dup\n" +
-		"     8  invokespecial java.lang.NullPointerException() [12]\n" +
-		"    11  athrow\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 1]\n" +
-		"        [pc: 4, line: 3]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 12] local: this index: 0 type: X\n";
+		"""
+		  public X();
+		     0  aload_0 [this]
+		     1  invokespecial java.lang.Object() [8]
+		     4  new java.lang.NullPointerException [10]
+		     7  dup
+		     8  invokespecial java.lang.NullPointerException() [12]
+		    11  athrow
+		      Line numbers:
+		        [pc: 0, line: 1]
+		        [pc: 4, line: 3]
+		      Local variable table:
+		        [pc: 0, pc: 12] local: this index: 0 type: X
+		""";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -911,32 +958,36 @@ public void test029() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"   {\n" +
-			"      if (true) throw new NullPointerException();\n" +
-			"   }\n" +
-			"   X() {\n" +
-			"      System.out.println();\n" +
-			"   }\n" +
-			"}\n", // =================
+			"""
+				public class X {
+				   {
+				      if (true) throw new NullPointerException();
+				   }
+				   X() {
+				      System.out.println();
+				   }
+				}
+				""", // =================
 		},
 		"");
 	// check no default return opcode is appended
 	String expectedOutput =
-		"  // Method descriptor #6 ()V\n" +
-		"  // Stack: 2, Locals: 1\n" +
-		"  X();\n" +
-		"     0  aload_0 [this]\n" +
-		"     1  invokespecial java.lang.Object() [8]\n" +
-		"     4  new java.lang.NullPointerException [10]\n" +
-		"     7  dup\n" +
-		"     8  invokespecial java.lang.NullPointerException() [12]\n" +
-		"    11  athrow\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 5]\n" +
-		"        [pc: 4, line: 3]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 12] local: this index: 0 type: X\n";
+		"""
+		  // Method descriptor #6 ()V
+		  // Stack: 2, Locals: 1
+		  X();
+		     0  aload_0 [this]
+		     1  invokespecial java.lang.Object() [8]
+		     4  new java.lang.NullPointerException [10]
+		     7  dup
+		     8  invokespecial java.lang.NullPointerException() [12]
+		    11  athrow
+		      Line numbers:
+		        [pc: 0, line: 5]
+		        [pc: 4, line: 3]
+		      Local variable table:
+		        [pc: 0, pc: 12] local: this index: 0 type: X
+		""";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -955,55 +1006,59 @@ public void test030() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class Y {\n" +
-			"	Y(Object o) {\n" +
-			"		System.out.print(o);\n" +
-			"	}\n" +
-			"}\n" +
-			"\n" +
-			"public class X extends Y {\n" +
-			"	{\n" +
-			"		if (true)\n" +
-			"			throw new NullPointerException();\n" +
-			"	}\n" +
-			"\n" +
-			"	X() {\n" +
-			"		super(new Object() {\n" +
-			"			public String toString() {\n" +
-			"				return \"SUCCESS:\";\n" +
-			"			}\n" +
-			"		});\n" +
-			"		System.out.println();\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			new X();\n" +
-			"		} catch(NullPointerException e) {\n" +
-			"			System.out.println(\"caught:NPE\");\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n", // =================
+			"""
+				class Y {
+					Y(Object o) {
+						System.out.print(o);
+					}
+				}
+				
+				public class X extends Y {
+					{
+						if (true)
+							throw new NullPointerException();
+					}
+				
+					X() {
+						super(new Object() {
+							public String toString() {
+								return "SUCCESS:";
+							}
+						});
+						System.out.println();
+					}
+					public static void main(String[] args) {
+						try {
+							new X();
+						} catch(NullPointerException e) {
+							System.out.println("caught:NPE");
+						}
+					}
+				}
+				""", // =================
 		},
 		"SUCCESS:caught:NPE");
 	// check no default return opcode is appended
 	String expectedOutput =
-		"  // Method descriptor #6 ()V\n" +
-		"  // Stack: 3, Locals: 1\n" +
-		"  X();\n" +
-		"     0  aload_0 [this]\n" +
-		"     1  new X$1 [8]\n" +
-		"     4  dup\n" +
-		"     5  invokespecial X$1() [10]\n" +
-		"     8  invokespecial Y(java.lang.Object) [12]\n" +
-		"    11  new java.lang.NullPointerException [15]\n" +
-		"    14  dup\n" +
-		"    15  invokespecial java.lang.NullPointerException() [17]\n" +
-		"    18  athrow\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 14]\n" +
-		"        [pc: 11, line: 10]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 19] local: this index: 0 type: X\n";
+		"""
+		  // Method descriptor #6 ()V
+		  // Stack: 3, Locals: 1
+		  X();
+		     0  aload_0 [this]
+		     1  new X$1 [8]
+		     4  dup
+		     5  invokespecial X$1() [10]
+		     8  invokespecial Y(java.lang.Object) [12]
+		    11  new java.lang.NullPointerException [15]
+		    14  dup
+		    15  invokespecial java.lang.NullPointerException() [17]
+		    18  athrow
+		      Line numbers:
+		        [pc: 0, line: 14]
+		        [pc: 11, line: 10]
+		      Local variable table:
+		        [pc: 0, pc: 19] local: this index: 0 type: X
+		""";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -1022,22 +1077,24 @@ public void test031() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class Y {\n" +
-			"	Y(Object o) {\n" +
-			"	}\n" +
-			"}\n" +
-			"\n" +
-			"public class X extends Y {\n" +
-			"	final int blank;\n" +
-			"	{\n" +
-			"		if (true)\n" +
-			"			throw new NullPointerException();\n" +
-			"	}\n" +
-			"\n" +
-			"	X() {\n" +
-			"		super(new Object() {});\n" +
-			"	}\n" +
-			"}\n", // =================
+			"""
+				class Y {
+					Y(Object o) {
+					}
+				}
+				
+				public class X extends Y {
+					final int blank;
+					{
+						if (true)
+							throw new NullPointerException();
+					}
+				
+					X() {
+						super(new Object() {});
+					}
+				}
+				""", // =================
 		},
 		"");
 }
@@ -1046,50 +1103,56 @@ public void test032() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class Y {\n" +
-			"	Y(int i) {\n" +
-			"	}\n" +
-			"}\n" +
-			"\n" +
-			"public class X extends Y {\n" +
-			"	final int blank;\n" +
-			"	{\n" +
-			"		if (true)\n" +
-			"			throw new NullPointerException();\n" +
-			"	}\n" +
-			"\n" +
-			"	X() {\n" +
-			"		super(blank = 0);\n" +
-			"	}\n" +
-			"}\n", // =================
+			"""
+				class Y {
+					Y(int i) {
+					}
+				}
+				
+				public class X extends Y {
+					final int blank;
+					{
+						if (true)
+							throw new NullPointerException();
+					}
+				
+					X() {
+						super(blank = 0);
+					}
+				}
+				""", // =================
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 14)\n" +
-		"	super(blank = 0);\n" +
-		"	      ^^^^^\n" +
-		"Cannot refer to an instance field blank while explicitly invoking a constructor\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 14)
+				super(blank = 0);
+				      ^^^^^
+			Cannot refer to an instance field blank while explicitly invoking a constructor
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
 public void test033() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class Y {\n" +
-			"	Y(int i) {\n" +
-			"	}\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"	final int blank;\n" +
-			"	{\n" +
-			"		if (true)\n" +
-			"			throw new NullPointerException();\n" +
-			"	}\n" +
-			"	X() {\n" +
-			"		super(0);\n" +
-			"		blank = 0;\n" +
-			"	}\n" +
-			"}\n", // =================
+			"""
+				class Y {
+					Y(int i) {
+					}
+				}
+				public class X extends Y {
+					final int blank;
+					{
+						if (true)
+							throw new NullPointerException();
+					}
+					X() {
+						super(0);
+						blank = 0;
+					}
+				}
+				""", // =================
 		},
 		"");
 }
@@ -1098,28 +1161,31 @@ public void test034() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo1() {\n" +
-			"    switch (1) {\n" +
-			"    case 0:\n" +
-			"      final int i = 1;\n" +
-			"    case i: // should complain: i not initialized\n" +
-			"      System.out.println(i); // should complain: i not initialized\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  void foo1() {
+				    switch (1) {
+				    case 0:
+				      final int i = 1;
+				    case i: // should complain: i not initialized
+				      System.out.println(i); // should complain: i not initialized
+				    }
+				  }
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	case i: // should complain: i not initialized\n" +
-		"	     ^\n" +
-		"The local variable i may not have been initialized\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	System.out.println(i); // should complain: i not initialized\n" +
-		"	                   ^\n" +
-		"The local variable i may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				case i: // should complain: i not initialized
+				     ^
+			The local variable i may not have been initialized
+			----------
+			2. ERROR in X.java (at line 7)
+				System.out.println(i); // should complain: i not initialized
+				                   ^
+			The local variable i may not have been initialized
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162918
 // variant
@@ -1127,23 +1193,26 @@ public void test035() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo2() {\n" +
-			"    switch (1) {\n" +
-			"    case 0:\n" +
-			"      int j = 0;\n" +
-			"    case 1:\n" +
-			"      System.out.println(j); // should complain: j not initialized\n" +
-			"    }\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  void foo2() {
+				    switch (1) {
+				    case 0:
+				      int j = 0;
+				    case 1:
+				      System.out.println(j); // should complain: j not initialized
+				    }
+				  }
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	System.out.println(j); // should complain: j not initialized\n" +
-		"	                   ^\n" +
-		"The local variable j may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				System.out.println(j); // should complain: j not initialized
+				                   ^
+			The local variable j may not have been initialized
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162918
 // variant - not a flow analysis issue per se, contrast with 34 and 35 above
@@ -1175,12 +1244,14 @@ public void test036() {
 				"X.java",
 				src
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	new Local();\n" +
-			"	    ^^^^^\n" +
-			"Local cannot be resolved to a type\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 9)
+					new Local();
+					    ^^^^^
+				Local cannot be resolved to a type
+				----------
+				""");
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
@@ -1188,29 +1259,32 @@ public void test037() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    if (false) {\n" +
-			"      String s;\n" +
-			"      System.out.println(s);\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  void foo() {
+				    if (false) {
+				      String s;
+				      System.out.println(s);
+				    }
+				  }
+				}"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	if (false) {\n" +
-		"      String s;\n" +
-		"      System.out.println(s);\n" +
-		"    }\n" +
-		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	System.out.println(s);\n" +
-		"	                   ^\n" +
-		"The local variable s may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				if (false) {
+			      String s;
+			      System.out.println(s);
+			    }
+				           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			2. ERROR in X.java (at line 5)
+				System.out.println(s);
+				                   ^
+			The local variable s may not have been initialized
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
 // variant: the declaration is outside of the fake reachable block
@@ -1218,14 +1292,15 @@ public void test038() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    String s;\n" +
-			"    if (false) {\n" +
-			"      System.out.println(s);\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  void foo() {
+				    String s;
+				    if (false) {
+				      System.out.println(s);
+				    }
+				  }
+				}"""
 		},
 		"");
 }
@@ -1235,33 +1310,36 @@ public void test039() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    if (false) {\n" +
-			"      String s;\n" +
-			"      if (System.out != null) {\n" +
-			"        System.out.println(s);\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  void foo() {
+				    if (false) {
+				      String s;
+				      if (System.out != null) {
+				        System.out.println(s);
+				      }
+				    }
+				  }
+				}"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	if (false) {\n" +
-		"      String s;\n" +
-		"      if (System.out != null) {\n" +
-		"        System.out.println(s);\n" +
-		"      }\n" +
-		"    }\n" +
-		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 6)\n" +
-		"	System.out.println(s);\n" +
-		"	                   ^\n" +
-		"The local variable s may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				if (false) {
+			      String s;
+			      if (System.out != null) {
+			        System.out.println(s);
+			      }
+			    }
+				           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			2. ERROR in X.java (at line 6)
+				System.out.println(s);
+				                   ^
+			The local variable s may not have been initialized
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
 // variant - checking duplicate initialization of final variables
@@ -1269,28 +1347,31 @@ public void test040() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    final String s = \"\";\n" +
-			"    if (false) {\n" +
-			"      s = \"\";\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  void foo() {
+				    final String s = "";
+				    if (false) {
+				      s = "";
+				    }
+				  }
+				}"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	if (false) {\n" +
-		"      s = \"\";\n" +
-		"    }\n" +
-		"	           ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	s = \"\";\n" +
-		"	^\n" +
-		"The final local variable s cannot be assigned. It must be blank and not using a compound assignment\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				if (false) {
+			      s = "";
+			    }
+				           ^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			2. ERROR in X.java (at line 5)
+				s = "";
+				^
+			The final local variable s cannot be assigned. It must be blank and not using a compound assignment
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
 // variant - checking duplicate initialization of final variables
@@ -1298,15 +1379,16 @@ public void test041() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    final String s;\n" +
-			"    s = \"\";\n" +
-			"    if (false) {\n" +
-			"      s = \"\";\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  void foo() {
+				    final String s;
+				    s = "";
+				    if (false) {
+				      s = "";
+				    }
+				  }
+				}"""
 		},
 		"");
 }
@@ -1316,52 +1398,57 @@ public void test042() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    final String s;\n" +
-			"    if (false) {\n" +
-			"      s = \"\";\n" +
-			"    }\n" +
-			"    s = \"\";\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  void foo() {
+				    final String s;
+				    if (false) {
+				      s = "";
+				    }
+				    s = "";
+				  }
+				}"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	if (false) {\n" +
-		"      s = \"\";\n" +
-		"    }\n" +
-		"	           ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	s = \"\";\n" +
-		"	^\n" +
-		"The final local variable s may already have been assigned\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				if (false) {
+			      s = "";
+			    }
+				           ^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			2. ERROR in X.java (at line 7)
+				s = "";
+				^
+			The final local variable s may already have been assigned
+			----------
+			""");
 }
 // switch and definite assignment
 public void test043() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public abstract class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"    for (int i = 0; i < 3; i++) {\n" +
-			"      System.out.print(i);\n" +
-			"      switch (i) {\n" +
-			"        case 1:\n" +
-			"          final int j;\n" +
-			"          j = 1;\n" +
-			"          System.out.println(j);\n" +
-			"          break;\n" +
-			"        case 2:\n" +
-			"          j = 2;\n" +
-			"          System.out.println(j);\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				public abstract class X {
+				  public static void main(String[] args) {
+				    for (int i = 0; i < 3; i++) {
+				      System.out.print(i);
+				      switch (i) {
+				        case 1:
+				          final int j;
+				          j = 1;
+				          System.out.println(j);
+				          break;
+				        case 2:
+				          j = 2;
+				          System.out.println(j);
+				      }
+				    }
+				  }
+				}
+				""",
 		},
 		"011\n22");
 }
@@ -1370,29 +1457,33 @@ public void test044() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public abstract class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"    for (int i = 0; i < 3; i++) {\n" +
-			"      System.out.print(i);\n" +
-			"      switch (i) {\n" +
-			"        case 1:\n" +
-			"          final int j = 1;\n" +
-			"          System.out.println(j);\n" +
-			"          break;\n" +
-			"        case 2:\n" +
-			"          j = 2;\n" +
-			"          System.out.println(j);\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				public abstract class X {
+				  public static void main(String[] args) {
+				    for (int i = 0; i < 3; i++) {
+				      System.out.print(i);
+				      switch (i) {
+				        case 1:
+				          final int j = 1;
+				          System.out.println(j);
+				          break;
+				        case 2:
+				          j = 2;
+				          System.out.println(j);
+				      }
+				    }
+				  }
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" +
-		"	j = 2;\n" +
-		"	^\n" +
-		"The final local variable j cannot be assigned. It must be blank and not using a compound assignment\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 11)
+				j = 2;
+				^
+			The final local variable j cannot be assigned. It must be blank and not using a compound assignment
+			----------
+			""");
 }
 // switch and definite assignment
 // **
@@ -1400,25 +1491,29 @@ public void test045() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public abstract class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"    switch (args.length) {\n" +
-			"      case 1:\n" +
-			"        final int j = 1;\n" +
-			"      case 2:\n" +
-			"        switch (5) {\n" +
-			"          case j:\n" +
-			"        }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				public abstract class X {
+				  public static void main(String[] args) {
+				    switch (args.length) {
+				      case 1:
+				        final int j = 1;
+				      case 2:
+				        switch (5) {
+				          case j:
+				        }
+				    }
+				  }
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	case j:\n" +
-		"	     ^\n" +
-		"The local variable j may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 8)
+				case j:
+				     ^
+			The local variable j may not have been initialized
+			----------
+			""");
 }
 // for and definite assignment
 public void test046() {
@@ -1426,21 +1521,25 @@ public void test046() {
 		true,
 		new String[] {
 			"X.java",
-			"public abstract class X {\n" +
-			"  public static void main(String args[]) {\n" +
-			"    for (final int i; 0 < (i = 1); i = i + 1) {\n" +
-			"      System.out.println(i);\n" +
-			"      break;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				public abstract class X {
+				  public static void main(String args[]) {
+				    for (final int i; 0 < (i = 1); i = i + 1) {
+				      System.out.println(i);
+				      break;
+				    }
+				  }
+				}
+				""",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	for (final int i; 0 < (i = 1); i = i + 1) {\n" +
-		"	                               ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				for (final int i; 0 < (i = 1); i = i + 1) {
+				                               ^^^^^^^^^
+			Dead code
+			----------
+			""",
 		"1",
 		"",
 		JavacTestOptions.JavacHasABug.JavacBug4660984);
@@ -1452,14 +1551,16 @@ public void test047() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo() {\n" +
-			"    done: do\n" +
-			"      break done;\n" +
-			"    while (false);\n" +
-			"    System.out.println();\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				public class X {
+				  public void foo() {
+				    done: do
+				      break done;
+				    while (false);
+				    System.out.println();
+				  }
+				}
+				""",
 		},
 		"");
 }
@@ -1470,28 +1571,32 @@ public void test048() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  private static final boolean b = false;\n" +
-			"  public Object foo() {\n" +
-			"    if (b) {\n" +
-			"      label: while (bar()) {\n" +
-			"      }\n" +
-			"      return null;\n" +
-			"    }\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"  boolean bar() {\n" +
-			"    return false;\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  private static final boolean b = false;
+				  public Object foo() {
+				    if (b) {
+				      label: while (bar()) {
+				      }
+				      return null;
+				    }
+				    return null;
+				  }
+				  boolean bar() {
+				    return false;
+				  }
+				}
+				"""
 			},
 		false /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. WARNING in X.java (at line 5)\n" +
-		"	label: while (bar()) {\n" +
-		"	^^^^^\n" +
-		"The label label is never explicitly referenced\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. WARNING in X.java (at line 5)
+				label: while (bar()) {
+				^^^^^
+			The label label is never explicitly referenced
+			----------
+			""",
 		"" /* expectedOutputString */,
 		"" /* expectedErrorString */,
 		false /* forceExecution */,
@@ -1509,20 +1614,22 @@ public void test049() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  private static final boolean b = false;\n" +
-			"  public Object foo() {\n" +
-			"    if (b) {\n" +
-			"      while (bar()) {\n" +
-			"      }\n" +
-			"      return null;\n" +
-			"    }\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"  boolean bar() {\n" +
-			"    return false;\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  private static final boolean b = false;
+				  public Object foo() {
+				    if (b) {
+				      while (bar()) {
+				      }
+				      return null;
+				    }
+				    return null;
+				  }
+				  boolean bar() {
+				    return false;
+				  }
+				}
+				"""
 			},
 		false /* expectingCompilerErrors */,
 		"" /* expectedCompilerLog */,
@@ -1542,14 +1649,16 @@ public void test050_definite_assigment_and_if_true() {
 		// test directory preparation
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"  final int i;\n" +
-			"  X() {\n" +
-			"    if (true) {\n" +
-			"      throw new NullPointerException();\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  final int i;
+				  X() {
+				    if (true) {
+				      throw new NullPointerException();
+				    }
+				  }
+				}
+				"""
 		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235781
@@ -1559,15 +1668,17 @@ public void test051_definite_assigment_and_if_true() {
 		// test directory preparation
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"  X() {\n" +
-			"    final int i;\n" +
-			"    if (true) {\n" +
-			"      throw new NullPointerException();\n" +
-			"    }\n" +
-			"    System.out.println(i);\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  X() {
+				    final int i;
+				    if (true) {
+				      throw new NullPointerException();
+				    }
+				    System.out.println(i);
+				  }
+				}
+				"""
 		}
 	);
 }
@@ -1576,128 +1687,144 @@ public void test052() {
 	runNegativeTest(
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"	void foo(boolean b) {\n" +
-			"		if (b && false) {\n" +
-			"			int i = 0; // deadcode\n" +
-			"			return;  // 1\n" +
-			"		}\n" +
-			"		return;\n" +
-			"		return;\n" +
-			"	}\n" +
-			"}	\n"
+			"""
+				public class X {
+					void foo(boolean b) {
+						if (b && false) {
+							int i = 0; // deadcode
+							return;  // 1
+						}
+						return;
+						return;
+					}
+				}\t
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	if (b && false) {\n" +
-		"			int i = 0; // deadcode\n" +
-		"			return;  // 1\n" +
-		"		}\n" +
-		"	                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	return;\n" +
-		"	^^^^^^^\n" +
-		"Unreachable code\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				if (b && false) {
+						int i = 0; // deadcode
+						return;  // 1
+					}
+				                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			2. ERROR in X.java (at line 8)
+				return;
+				^^^^^^^
+			Unreachable code
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
 public void test053() {
 	runNegativeTest(
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"	void foo(boolean b) {\n" +
-			"		if (false && b) {\n" +
-			"			int j = 0; // deadcode\n" +
-			"			return; // 2\n" +
-			"		}\n" +
-			"		return;\n" +
-			"		return;\n" +
-			"	}\n" +
-			"}	\n"
+			"""
+				public class X {
+					void foo(boolean b) {
+						if (false && b) {
+							int j = 0; // deadcode
+							return; // 2
+						}
+						return;
+						return;
+					}
+				}\t
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	if (false && b) {\n" +
-		"	             ^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 3)\n" +
-		"	if (false && b) {\n" +
-		"			int j = 0; // deadcode\n" +
-		"			return; // 2\n" +
-		"		}\n" +
-		"	                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 8)\n" +
-		"	return;\n" +
-		"	^^^^^^^\n" +
-		"Unreachable code\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				if (false && b) {
+				             ^
+			Dead code
+			----------
+			2. WARNING in X.java (at line 3)
+				if (false && b) {
+						int j = 0; // deadcode
+						return; // 2
+					}
+				                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			3. ERROR in X.java (at line 8)
+				return;
+				^^^^^^^
+			Unreachable code
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
 public void test054() {
 	runNegativeTest(
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"	void foo(boolean b) {\n" +
-			"		while (true) {\n" +
-			"			if (true) break;\n" +
-			"			int k = 0; // deadcode\n" +
-			"		}\n" +
-			"		return;\n" +
-			"		return;\n" +
-			"	}\n" +
-			"}	\n"
+			"""
+				public class X {
+					void foo(boolean b) {
+						while (true) {
+							if (true) break;
+							int k = 0; // deadcode
+						}
+						return;
+						return;
+					}
+				}\t
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 5)\n" +
-		"	int k = 0; // deadcode\n" +
-		"	^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	return;\n" +
-		"	^^^^^^^\n" +
-		"Unreachable code\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 5)
+				int k = 0; // deadcode
+				^^^^^^^^^^
+			Dead code
+			----------
+			2. ERROR in X.java (at line 8)
+				return;
+				^^^^^^^
+			Unreachable code
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
 public void test055() {
 	runNegativeTest(
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"	void foo(boolean b) {\n" +
-			"		if (true || b) {\n" +
-			"			int l = 0; // deadcode\n" +
-			"			return; // 2a\n" +
-			"		}		\n" +
-			"		return;\n" +
-			"		return;\n" +
-			"	}\n" +
-			"}	\n"
+			"""
+				public class X {
+					void foo(boolean b) {
+						if (true || b) {
+							int l = 0; // deadcode
+							return; // 2a
+						}	\t
+						return;
+						return;
+					}
+				}\t
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	if (true || b) {\n" +
-		"	            ^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 7)\n" +
-		"	return;\n" +
-		"	^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 8)\n" +
-		"	return;\n" +
-		"	^^^^^^^\n" +
-		"Unreachable code\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				if (true || b) {
+				            ^
+			Dead code
+			----------
+			2. WARNING in X.java (at line 7)
+				return;
+				^^^^^^^
+			Dead code
+			----------
+			3. ERROR in X.java (at line 8)
+				return;
+				^^^^^^^
+			Unreachable code
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
 public void test056() {
@@ -1705,300 +1832,328 @@ public void test056() {
 		runNegativeTest(
 			new String[] { /* test files */
 				"X.java",
-				"public class X {\n" +
-				"	void bar() {\n" +
-				"		return;\n" +
-				"		{\n" +
-				"			return; // 3\n" +
-				"		}\n" +
-				"	}\n" +
-				"	void baz() {\n" +
-				"		return;\n" +
-				"		{\n" +
-				"		}\n" +
-				"	}	\n" +
-				"	void baz2() {\n" +
-				"		return;\n" +
-				"		; // 4\n" +
-				"	}	\n" +
-				"}	\n"
+				"""
+					public class X {
+						void bar() {
+							return;
+							{
+								return; // 3
+							}
+						}
+						void baz() {
+							return;
+							{
+							}
+						}\t
+						void baz2() {
+							return;
+							; // 4
+						}\t
+					}\t
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	{\n" +
-			"			return; // 3\n" +
-			"		}\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Unreachable code\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
-			"	{\n" +
-			"		}\n" +
-			"	^^^^^\n" +
-			"Unreachable code\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					{
+							return; // 3
+						}
+					^^^^^^^^^^^^^^^^^^^^^
+				Unreachable code
+				----------
+				2. ERROR in X.java (at line 10)
+					{
+						}
+					^^^^^
+				Unreachable code
+				----------
+				""");
 		return;
 	}
 	runNegativeTest(
 			new String[] { /* test files */
 				"X.java",
-				"public class X {\n" +
-				"	void bar() {\n" +
-				"		return;\n" +
-				"		{\n" +
-				"			return; // 3\n" +
-				"		}\n" +
-				"	}\n" +
-				"	void baz() {\n" +
-				"		return;\n" +
-				"		{\n" +
-				"		}\n" +
-				"	}	\n" +
-				"	void baz2() {\n" +
-				"		return;\n" +
-				"		; // 4\n" +
-				"	}	\n" +
-				"}	\n"
+				"""
+					public class X {
+						void bar() {
+							return;
+							{
+								return; // 3
+							}
+						}
+						void baz() {
+							return;
+							{
+							}
+						}\t
+						void baz2() {
+							return;
+							; // 4
+						}\t
+					}\t
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	{\n" +
-			"			return; // 3\n" +
-			"		}\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Unreachable code\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
-			"	{\n" +
-			"		}\n" +
-			"	^^^^^\n" +
-			"Unreachable code\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 15)\n" +
-			"	; // 4\n" +
-			"	^\n" +
-			"Unreachable code\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					{
+							return; // 3
+						}
+					^^^^^^^^^^^^^^^^^^^^^
+				Unreachable code
+				----------
+				2. ERROR in X.java (at line 10)
+					{
+						}
+					^^^^^
+				Unreachable code
+				----------
+				3. ERROR in X.java (at line 15)
+					; // 4
+					^
+				Unreachable code
+				----------
+				""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110544
 public void test057() {
 	runNegativeTest(
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"	void foo(int x, int[] array) {\n" +
-			"		for (int i = 0; \n" +
-			"		     i < array.length; \n" +
-			"		     i++) {//dead code\n" +
-			"			if (x == array[i])\n" +
-			"				return;\n" +
-			"			else\n" +
-			"				break;\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					void foo(int x, int[] array) {
+						for (int i = 0;\s
+						     i < array.length;\s
+						     i++) {//dead code
+							if (x == array[i])
+								return;
+							else
+								break;
+						}
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 5)\n" +
-		"	i++) {//dead code\n" +
-		"	^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 9)\n" +
-		"	break;\n" +
-		"	^^^^^^\n" +
-		"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 5)
+				i++) {//dead code
+				^^^
+			Dead code
+			----------
+			2. WARNING in X.java (at line 9)
+				break;
+				^^^^^^
+			Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
 public void test058() {
 	runNegativeTest(
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		if (false) {\n" +
-			"			class Local {\n" +
-			"				int i = 12;\n" +
-			"				{   i++; }\n" +
-			"				void method() {\n" +
-			"					if (false)\n" +
-			"						System.out.println();\n" +
-			"					return;\n" +
-			"					return;\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					void foo() {
+						if (false) {
+							class Local {
+								int i = 12;
+								{   i++; }
+								void method() {
+									if (false)
+										System.out.println();
+									return;
+									return;
+								}
+							}
+						}
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	if (false) {\n" +
-		"			class Local {\n" +
-		"				int i = 12;\n" +
-		"				{   i++; }\n" +
-		"				void method() {\n" +
-		"					if (false)\n" +
-		"						System.out.println();\n" +
-		"					return;\n" +
-		"					return;\n" +
-		"				}\n" +
-		"			}\n" +
-		"		}\n" +
-		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	class Local {\n" +
-		"	      ^^^^^\n" +
-		"The type Local is never used locally\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 7)\n" +
-		"	void method() {\n" +
-		"	     ^^^^^^^^\n" +
-		"The method method() from the type Local is never used locally\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 11)\n" +
-		"	return;\n" +
-		"	^^^^^^^\n" +
-		"Unreachable code\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				if (false) {
+						class Local {
+							int i = 12;
+							{   i++; }
+							void method() {
+								if (false)
+									System.out.println();
+								return;
+								return;
+							}
+						}
+					}
+				           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			2. WARNING in X.java (at line 4)
+				class Local {
+				      ^^^^^
+			The type Local is never used locally
+			----------
+			3. WARNING in X.java (at line 7)
+				void method() {
+				     ^^^^^^^^
+			The method method() from the type Local is never used locally
+			----------
+			4. ERROR in X.java (at line 11)
+				return;
+				^^^^^^^
+			Unreachable code
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
 public void test059() {
 	runNegativeTest(
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"	void foo(boolean b) {\n" +
-			"		int i = false && b ? 0 : 1;\n" +
-			"		if (false) {\n" +
-			"			int j = false && b ? 0 : 1;\n" +
-			"		}\n" +
-			"		return;\n" +
-			"		return;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					void foo(boolean b) {
+						int i = false && b ? 0 : 1;
+						if (false) {
+							int j = false && b ? 0 : 1;
+						}
+						return;
+						return;
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	int i = false && b ? 0 : 1;\n" +
-		"	                 ^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 3)\n" +
-		"	int i = false && b ? 0 : 1;\n" +
-		"	                     ^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 4)\n" +
-		"	if (false) {\n" +
-		"			int j = false && b ? 0 : 1;\n" +
-		"		}\n" +
-		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 8)\n" +
-		"	return;\n" +
-		"	^^^^^^^\n" +
-		"Unreachable code\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				int i = false && b ? 0 : 1;
+				                 ^
+			Dead code
+			----------
+			2. WARNING in X.java (at line 3)
+				int i = false && b ? 0 : 1;
+				                     ^
+			Dead code
+			----------
+			3. WARNING in X.java (at line 4)
+				if (false) {
+						int j = false && b ? 0 : 1;
+					}
+				           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			4. ERROR in X.java (at line 8)
+				return;
+				^^^^^^^
+			Unreachable code
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
 public void test060() {
 	runNegativeTest(
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"	static final boolean DEBUG = false;\n" +
-			"	static final int DEBUG_LEVEL = 0;\n" +
-			"	boolean check() { return true; }\n" +
-			"	void foo(boolean b) {\n" +
-			"		if (DEBUG)\n" +
-			"			System.out.println(\"fake reachable1\"); //$NON-NLS-1$\n" +
-			"		if (DEBUG && b)\n" +
-			"			System.out.println(\"fake reachable2\"); //$NON-NLS-1$\n" +
-			"		if (DEBUG && check())\n" +
-			"			System.out.println(\"fake reachable3\"); //$NON-NLS-1$\n" +
-			"		if (b && DEBUG)\n" +
-			"			System.out.println(\"fake reachable4\"); //$NON-NLS-1$\n" +
-			"		if (check() && DEBUG)\n" +
-			"			System.out.println(\"fake reachable5\"); //$NON-NLS-1$\n" +
-			"		if (DEBUG_LEVEL > 1) \n" +
-			"			System.out.println(\"fake reachable6\"); //$NON-NLS-1$\n" +
-			"		return;\n" +
-			"		return;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					static final boolean DEBUG = false;
+					static final int DEBUG_LEVEL = 0;
+					boolean check() { return true; }
+					void foo(boolean b) {
+						if (DEBUG)
+							System.out.println("fake reachable1"); //$NON-NLS-1$
+						if (DEBUG && b)
+							System.out.println("fake reachable2"); //$NON-NLS-1$
+						if (DEBUG && check())
+							System.out.println("fake reachable3"); //$NON-NLS-1$
+						if (b && DEBUG)
+							System.out.println("fake reachable4"); //$NON-NLS-1$
+						if (check() && DEBUG)
+							System.out.println("fake reachable5"); //$NON-NLS-1$
+						if (DEBUG_LEVEL > 1)\s
+							System.out.println("fake reachable6"); //$NON-NLS-1$
+						return;
+						return;
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 8)\n" +
-		"	if (DEBUG && b)\n" +
-		"	             ^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 9)\n" +
-		"	System.out.println(\"fake reachable2\"); //$NON-NLS-1$\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 10)\n" +
-		"	if (DEBUG && check())\n" +
-		"	             ^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 11)\n" +
-		"	System.out.println(\"fake reachable3\"); //$NON-NLS-1$\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"5. WARNING in X.java (at line 13)\n" +
-		"	System.out.println(\"fake reachable4\"); //$NON-NLS-1$\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"6. WARNING in X.java (at line 15)\n" +
-		"	System.out.println(\"fake reachable5\"); //$NON-NLS-1$\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"7. WARNING in X.java (at line 17)\n" +
-		"	System.out.println(\"fake reachable6\"); //$NON-NLS-1$\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"8. ERROR in X.java (at line 19)\n" +
-		"	return;\n" +
-		"	^^^^^^^\n" +
-		"Unreachable code\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 8)
+				if (DEBUG && b)
+				             ^
+			Dead code
+			----------
+			2. WARNING in X.java (at line 9)
+				System.out.println("fake reachable2"); //$NON-NLS-1$
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			3. WARNING in X.java (at line 10)
+				if (DEBUG && check())
+				             ^^^^^^^
+			Dead code
+			----------
+			4. WARNING in X.java (at line 11)
+				System.out.println("fake reachable3"); //$NON-NLS-1$
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			5. WARNING in X.java (at line 13)
+				System.out.println("fake reachable4"); //$NON-NLS-1$
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			6. WARNING in X.java (at line 15)
+				System.out.println("fake reachable5"); //$NON-NLS-1$
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			7. WARNING in X.java (at line 17)
+				System.out.println("fake reachable6"); //$NON-NLS-1$
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			8. ERROR in X.java (at line 19)
+				return;
+				^^^^^^^
+			Unreachable code
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=265962
 public void test061() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"        private static final boolean isIS() {\n" +
-			"                return System.currentTimeMillis()<0 ;\n" +
-			"        }\n" +
-			"        public static void main(String[] args) {\n" +
-			"                do {\n" +
-			"                        return;\n" +
-			"                } while(isIS() && false);\n" +
-			"        }\n" +
-			"}\n", // =================
+			"""
+				public class X {
+				        private static final boolean isIS() {
+				                return System.currentTimeMillis()<0 ;
+				        }
+				        public static void main(String[] args) {
+				                do {
+				                        return;
+				                } while(isIS() && false);
+				        }
+				}
+				""", // =================
 		},
 		"");
 	// 	ensure optimized boolean codegen sequence
 	String expectedOutput =
-		"  public static void main(java.lang.String[] args);\n" +
-		"    0  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 7]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 1] local: args index: 0 type: java.lang.String[]\n";
+		"""
+		  public static void main(java.lang.String[] args);
+		    0  return
+		      Line numbers:
+		        [pc: 0, line: 7]
+		      Local variable table:
+		        [pc: 0, pc: 1] local: args index: 0 type: java.lang.String[]
+		""";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -2018,24 +2173,28 @@ public void test062() {
 	runNegativeTest(
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"        private static final boolean isIS() {\n" +
-			"                return System.currentTimeMillis()<0 ;\n" +
-			"        }\n" +
-			"        public static void main(String[] args) {\n" +
-			"                do {\n" +
-			"                        return;\n" +
-			"                } while(isIS() && false);\n" +
-			"                return;\n" +
-			"        }\n" +
-			"}\n"
+			"""
+				public class X {
+				        private static final boolean isIS() {
+				                return System.currentTimeMillis()<0 ;
+				        }
+				        public static void main(String[] args) {
+				                do {
+				                        return;
+				                } while(isIS() && false);
+				                return;
+				        }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	return;\n" +
-		"	^^^^^^^\n" +
-		"Unreachable code\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				return;
+				^^^^^^^
+			Unreachable code
+			----------
+			""");
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385
@@ -2045,20 +2204,23 @@ public void test063() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"   boolean bar() { return false; } \n" +
-			"	public void foo() {" +
-			"		if (bar())\n" +
-			"			new IllegalArgumentException(\"You must not bar!\");\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+				   boolean bar() { return false; }\s
+					public void foo() {\
+						if (bar())
+							new IllegalArgumentException("You must not bar!");
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	new IllegalArgumentException(\"You must not bar!\");\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The allocated object is never used\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				new IllegalArgumentException("You must not bar!");
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			The allocated object is never used
+			----------
+			""",
 		null /* classLibraries */,
 		true /* shouldFlushOutputDirectory */,
 		compilerOptions);
@@ -2071,20 +2233,23 @@ public void test064() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"   boolean bar() { return false; } \n" +
-			"	public void foo() {" +
-			"		if (bar())\n" +
-			"			new String(\"You must not bar!\");\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+				   boolean bar() { return false; }\s
+					public void foo() {\
+						if (bar())
+							new String("You must not bar!");
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	new String(\"You must not bar!\");\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The allocated object is never used\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				new String("You must not bar!");
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			The allocated object is never used
+			----------
+			""",
 		null /* classLibraries */,
 		true /* shouldFlushOutputDirectory */,
 		compilerOptions);
@@ -2098,14 +2263,15 @@ public void test065() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"   boolean bar() { return false; }\n" +
-			"   @SuppressWarnings(\"unused\")\n" +
-			"	public void foo() {" +
-			"		if (bar())\n" +
-			"			new IllegalArgumentException(\"You must not bar!\");\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+				   boolean bar() { return false; }
+				   @SuppressWarnings("unused")
+					public void foo() {\
+						if (bar())
+							new IllegalArgumentException("You must not bar!");
+					}
+				}""",
 		},
 		"" /* expectedOutputString */,
 		null /* classLib */,
@@ -2121,13 +2287,14 @@ public void test066() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"   boolean bar() { return false; }\n" +
-			"	public void foo() {" +
-			"		if (bar())\n" +
-			"			new IllegalArgumentException(\"You must not bar!\");\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+				   boolean bar() { return false; }
+					public void foo() {\
+						if (bar())
+							new IllegalArgumentException("You must not bar!");
+					}
+				}""",
 		},
 		"" /* expectedOutputString */);
 }
@@ -2140,13 +2307,14 @@ public void test067() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"   boolean bar() { return false; }\n" +
-			"   Throwable t;\n" +
-			"	public void foo() {" +
-			"		t = new IllegalArgumentException(\"You must not bar!\");\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+				   boolean bar() { return false; }
+				   Throwable t;
+					public void foo() {\
+						t = new IllegalArgumentException("You must not bar!");
+					}
+				}""",
 		},
 		"" /* expectedOutputString */,
 		null /* classLib */,
@@ -2164,13 +2332,14 @@ public void test068() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"   boolean bar() { return false; }\n" +
-			"	public void foo() {" +
-			"		if (bar())\n" +
-			"			new IllegalArgumentException(\"You must not bar!\").printStackTrace();\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+				   boolean bar() { return false; }
+					public void foo() {\
+						if (bar())
+							new IllegalArgumentException("You must not bar!").printStackTrace();
+					}
+				}""",
 		},
 		"" /* expectedOutputString */,
 		null /* classLib */,
@@ -2187,20 +2356,23 @@ public void test069() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"   boolean bar() { return false; } \n" +
-			"	public void foo() {" +
-			"		if (bar())\n" +
-			"			new Object() {};\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+				   boolean bar() { return false; }\s
+					public void foo() {\
+						if (bar())
+							new Object() {};
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	new Object() {};\n" +
-		"	^^^^^^^^^^^^^^^\n" +
-		"The allocated object is never used\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				new Object() {};
+				^^^^^^^^^^^^^^^
+			The allocated object is never used
+			----------
+			""",
 		null /* classLibraries */,
 		true /* shouldFlushOutputDirectory */,
 		compilerOptions);
@@ -2212,21 +2384,25 @@ public void test070() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public final class X {\n" +
-			"    private X (){\n" +
-			"        boolean flagSet = true;\n" +
-			"        Object first = true ? null : \"\";        \n" +
-			"        Object second = flagSet || first == null ? null :\n" +
-			"            new Object() {};\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public final class X {
+				    private X (){
+				        boolean flagSet = true;
+				        Object first = true ? null : "";       \s
+				        Object second = flagSet || first == null ? null :
+				            new Object() {};
+				    }
+				}
+				""",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	Object first = true ? null : \"\";        \n" +
-		"	                             ^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				Object first = true ? null : "";       \s
+				                             ^^
+			Dead code
+			----------
+			""",
 		null /* classLibraries */,
 		true /* shouldFlushOutputDirectory */,
 		compilerOptions);
@@ -2236,33 +2412,37 @@ public void test071() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.io.*;\n" +
-			"public class X {\n" +
-			"  static {\n" +
-			"    try {\n" +
-			"      while(true) {\n" +
-			"          if (true)\n" +
-			"              throw new NumberFormatException();\n" +
-			"          else\n" +
-			"              throw new IOException();\n" +
-			"      }\n" +
-			"    } catch(IOException e ) {\n" +
-			"        // empty\n" +
-			"    } \n" +
-			"  } \n" +
-			"}\n",
+			"""
+				import java.io.*;
+				public class X {
+				  static {
+				    try {
+				      while(true) {
+				          if (true)
+				              throw new NumberFormatException();
+				          else
+				              throw new IOException();
+				      }
+				    } catch(IOException e ) {
+				        // empty
+				    }\s
+				  }\s
+				}
+				""",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 9)\n" +
-		"	throw new IOException();\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 9)\n" +
-		"	throw new IOException();\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 9)
+				throw new IOException();
+				^^^^^^^^^^^^^^^^^^^^^^^^
+			Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally
+			----------
+			2. WARNING in X.java (at line 9)
+				throw new IOException();
+				^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			""");
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=338234
@@ -2272,26 +2452,30 @@ public void testBug338234a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public static void main(String[] args) {\n" +
-			"        int i;\n" +
-			"        String str = null;\n" +
-			"        if (str != null)\n" +
-			"            i++;    \n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    public static void main(String[] args) {
+				        int i;
+				        String str = null;
+				        if (str != null)
+				            i++;   \s
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 6)\n" +
-		"	i++;    \n" +
-		"	^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 6)\n" +
-		"	i++;    \n" +
-		"	^\n" +
-		"The local variable i may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 6)
+				i++;   \s
+				^^^
+			Dead code
+			----------
+			2. ERROR in X.java (at line 6)
+				i++;   \s
+				^
+			The local variable i may not have been initialized
+			----------
+			""");
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=338234
@@ -2301,17 +2485,19 @@ public void testBug338234b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public static void main(String[] args) {\n" +
-			"        int i;\n" +
-			"        l: {\n" +
-			"			if(false)\n" +
-			"				break l;\n" +
-			"        	return;\n" +
-			"		 }\n" +
-			"        i++;    \n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    public static void main(String[] args) {
+				        int i;
+				        l: {
+							if(false)
+								break l;
+				        	return;
+						 }
+				        i++;   \s
+				    }
+				}
+				"""
 		},
 		"");
 }
@@ -2323,32 +2509,36 @@ public void testBug338234c() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public final int field1;\n" +
-			"    {\n" +
-			"        int i;\n" +
-			"        String str = null;\n" +
-			"		 if(str != null)\n" +
-			"			i = field1;\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    public final int field1;
+				    {
+				        int i;
+				        String str = null;
+						 if(str != null)
+							i = field1;
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public final int field1;\n" +
-		"	                 ^^^^^^\n" +
-		"The blank final field field1 may not have been initialized\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 7)\n" +
-		"	i = field1;\n" +
-		"	^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 7)\n" +
-		"	i = field1;\n" +
-		"	    ^^^^^^\n" +
-		"The blank final field field1 may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				public final int field1;
+				                 ^^^^^^
+			The blank final field field1 may not have been initialized
+			----------
+			2. WARNING in X.java (at line 7)
+				i = field1;
+				^^^^^^^^^^
+			Dead code
+			----------
+			3. ERROR in X.java (at line 7)
+				i = field1;
+				    ^^^^^^
+			The blank final field field1 may not have been initialized
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=338234
 // Warn uninitialized field in deadcode if deadcode has been inferred
@@ -2357,26 +2547,30 @@ public void testBug338234d() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    void foo(boolean b) {\n" +
-			"        int i;\n" +
-			"		 String str = null;\n" +
-			"        if(b){\n" +
-			"		 	if(str == null)\n" +
-			"				return;\n" +
-			"		 } else {\n" +
-			"			i = 2;\n" +
-			"		 }\n" +
-			"		 i++;\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    void foo(boolean b) {
+				        int i;
+						 String str = null;
+				        if(b){
+						 	if(str == null)
+								return;
+						 } else {
+							i = 2;
+						 }
+						 i++;
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" +
-		"	i++;\n" +
-		"	^\n" +
-		"The local variable i may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 11)
+				i++;
+				^
+			The local variable i may not have been initialized
+			----------
+			""");
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // variant < 1.7 using Closeable: not closed
@@ -2386,24 +2580,28 @@ public void testCloseable1() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.io.File;\n" +
-				"import java.io.FileReader;\n" +
-				"import java.io.IOException;\n" +
-				"public class X {\n" +
-				"    void foo() throws IOException {\n" +
-				"        File file = new File(\"somefile\");\n" +
-				"        FileReader fileReader = new FileReader(file); // not closed\n" +
-				"        char[] in = new char[50];\n" +
-				"        fileReader.read(in);\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.io.File;
+					import java.io.FileReader;
+					import java.io.IOException;
+					public class X {
+					    void foo() throws IOException {
+					        File file = new File("somefile");
+					        FileReader fileReader = new FileReader(file); // not closed
+					        char[] in = new char[50];
+					        fileReader.read(in);
+					    }
+					}
+					"""
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 7)\n" +
-			"	FileReader fileReader = new FileReader(file); // not closed\n" +
-			"	           ^^^^^^^^^^\n" +
-			"Resource leak: 'fileReader' is never closed\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 7)
+					FileReader fileReader = new FileReader(file); // not closed
+					           ^^^^^^^^^^
+				Resource leak: 'fileReader' is never closed
+				----------
+				""",
 			null, true, options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -2414,18 +2612,20 @@ public void testCloseable2() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.io.File;\n" +
-				"import java.io.FileReader;\n" +
-				"import java.io.IOException;\n" +
-				"public class X {\n" +
-				"    void foo() throws IOException {\n" +
-				"        File file = new File(\"somefile\");\n" +
-				"        FileReader fileReader = new FileReader(file); // not closed\n" +
-				"        char[] in = new char[50];\n" +
-				"        fileReader.read(in);\n" +
-				"        fileReader.close();\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.io.File;
+					import java.io.FileReader;
+					import java.io.IOException;
+					public class X {
+					    void foo() throws IOException {
+					        File file = new File("somefile");
+					        FileReader fileReader = new FileReader(file); // not closed
+					        char[] in = new char[50];
+					        fileReader.read(in);
+					        fileReader.close();
+					    }
+					}
+					"""
 			},
 			"",
 			null, true, null, options, null);
@@ -2436,26 +2636,28 @@ public void testLocalClassInInitializer1() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    static {\n" +
-				"        final int i=4;\n" +
-				"        try {\n" +
-				"            Runnable runner = new Runnable() {\n" +
-				"                public void run() {\n" +
-				"                    switch (i) {" +
-				"                        case 4: break;\n" +
-				"                    }\n" +
-				"                    int j = i;\n" +
-				"                    while (j++ < 10) {\n" +
-				"                        if (j == 2) continue;\n" +
-				"                        if (j == 4) break;\n" +
-				"                        if (j == 6) return;\n" +
-				"                    }\n" +
-				"                }\n" +
-				"            };\n" +
-				"        } catch (RuntimeException re) {}\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					public class X {
+					    static {
+					        final int i=4;
+					        try {
+					            Runnable runner = new Runnable() {
+					                public void run() {
+					                    switch (i) {\
+					                        case 4: break;
+					                    }
+					                    int j = i;
+					                    while (j++ < 10) {
+					                        if (j == 2) continue;
+					                        if (j == 4) break;
+					                        if (j == 6) return;
+					                    }
+					                }
+					            };
+					        } catch (RuntimeException re) {}
+					    }
+					}
+					"""
 			},
 			"");
 }
@@ -2465,50 +2667,54 @@ public void testLocalClassInInitializer2() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    void f () {\n" +
-				"        while (true) {\n" +
-				"            class Inner1 {\n" +
-				"                { if (true) break; }\n" +
-				"            }\n" +
-				"            new Inner1();\n" +
-				"        }\n" +
-				"    } \n" +
-				"    void g () {\n" +
-				"        outer: for (int i=1;true;i++) {\n" +
-				"            class Inner2 {\n" +
-				"                int j = 3;\n" +
-				"                void foo () {\n" +
-				"                  if (2 == j) continue outer;\n" +
-				"                  else continue;\n" +
-				"                }\n" +
-				"            }\n" +
-				"            new Inner2().foo();\n" +
-				"        }\n" +
-				"    } \n" +
-				"}\n"
+				"""
+					public class X {
+					    void f () {
+					        while (true) {
+					            class Inner1 {
+					                { if (true) break; }
+					            }
+					            new Inner1();
+					        }
+					    }\s
+					    void g () {
+					        outer: for (int i=1;true;i++) {
+					            class Inner2 {
+					                int j = 3;
+					                void foo () {
+					                  if (2 == j) continue outer;
+					                  else continue;
+					                }
+					            }
+					            new Inner2().foo();
+					        }
+					    }\s
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	{ if (true) break; }\n" +
-			"	            ^^^^^^\n" +
-			"break cannot be used outside of a loop or a switch\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 11)\n" +
-			"	outer: for (int i=1;true;i++) {\n" +
-			"	^^^^^\n" +
-			"The label outer is never explicitly referenced\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 15)\n" +
-			"	if (2 == j) continue outer;\n" +
-			"	            ^^^^^^^^^^^^^^^\n" +
-			"The label outer is missing\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 16)\n" +
-			"	else continue;\n" +
-			"	     ^^^^^^^^^\n" +
-			"continue cannot be used outside of a loop\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					{ if (true) break; }
+					            ^^^^^^
+				break cannot be used outside of a loop or a switch
+				----------
+				2. WARNING in X.java (at line 11)
+					outer: for (int i=1;true;i++) {
+					^^^^^
+				The label outer is never explicitly referenced
+				----------
+				3. ERROR in X.java (at line 15)
+					if (2 == j) continue outer;
+					            ^^^^^^^^^^^^^^^
+				The label outer is missing
+				----------
+				4. ERROR in X.java (at line 16)
+					else continue;
+					     ^^^^^^^^^
+				continue cannot be used outside of a loop
+				----------
+				""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380313
 // Verify that the code runs fine with all compliance levels.
@@ -2518,40 +2724,42 @@ public void testBug380313() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"public void foo() throws Exception {\n" +
-				"        int i = 1;\n" +
-				"        int j = 2;\n" +
-				"        try {\n" +
-				"            if ((bar() == 1)) {\n" +
-				"                if ((i == 1)) {\n" +
-				"                    int n = bar();\n" +
-				"                    if (n == 35) {\n" +
-				"                        j = 2;\n" +
-				"                    } else {\n" +
-				"                        if (bar() > 0)\n" +
-				"                            return;\n" +
-				"                    }\n" +
-				"                } else {\n" +
-				"                    throw new Exception();\n" +
-				"                }\n" +
-				"            } else {\n" +
-				"                throw new Exception();\n" +
-				"            }\n" +
-				"            if (bar() == 0)\n" +
-				"                return;\n" +
-				"        } finally {\n" +
-				"            bar();\n" +
-				"        }\n" +
-				"    }\n" +
-				"\n" +
-				"    private int bar() {\n" +
-				"        return 0;\n" +
-				"    }\n" +
-				"\n" +
-				"    public static void main(String[] args) {\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					public class X {
+					public void foo() throws Exception {
+					        int i = 1;
+					        int j = 2;
+					        try {
+					            if ((bar() == 1)) {
+					                if ((i == 1)) {
+					                    int n = bar();
+					                    if (n == 35) {
+					                        j = 2;
+					                    } else {
+					                        if (bar() > 0)
+					                            return;
+					                    }
+					                } else {
+					                    throw new Exception();
+					                }
+					            } else {
+					                throw new Exception();
+					            }
+					            if (bar() == 0)
+					                return;
+					        } finally {
+					            bar();
+					        }
+					    }
+					
+					    private int bar() {
+					        return 0;
+					    }
+					
+					    public static void main(String[] args) {
+					    }
+					}
+					"""
 			},
 			"");
 }
@@ -2564,32 +2772,34 @@ public void testBug380313b() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.io.FileInputStream;\n" +
-				"import java.io.IOException;\n" +
-				"public class X {\n" +
-				"public void foo() throws Exception {\n" +
-				"        int i = 1;\n" +
-				"        try {\n" +
-				"            try (FileInputStream fis = new FileInputStream(\"\")) {\n" +
-				"				 if (i == 2)" +
-				"                	return;\n" +
-				" 			 }\n" +
-				"            if (i == 35) \n" +
-				"                return;\n" +
-				"        } catch(IOException e) {\n" +
-				"            bar();\n" +
-				"        } finally {\n" +
-				"            bar();\n" +
-				"        }\n" +
-				"    }\n" +
-				"\n" +
-				"    private int bar() {\n" +
-				"        return 0;\n" +
-				"    }\n" +
-				"\n" +
-				"    public static void main(String[] args) {\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.io.FileInputStream;
+					import java.io.IOException;
+					public class X {
+					public void foo() throws Exception {
+					        int i = 1;
+					        try {
+					            try (FileInputStream fis = new FileInputStream("")) {
+									 if (i == 2)\
+					                	return;
+					 			 }
+					            if (i == 35)\s
+					                return;
+					        } catch(IOException e) {
+					            bar();
+					        } finally {
+					            bar();
+					        }
+					    }
+					
+					    private int bar() {
+					        return 0;
+					    }
+					
+					    public static void main(String[] args) {
+					    }
+					}
+					"""
 			},
 			"");
 }
@@ -2601,18 +2811,20 @@ public void testBug380750() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	void foo(String[] args) {\n" +
-				"		String s0;\n" +
-				"		for(String s : singleton(s0=\"\")) {\n" +
-				"			System.out.println(s);\n" +
-				"		}\n" +
-				"		System.out.println(s0);\n" +
-				"	}\n" +
-				"	String[] singleton(String s) {\n" +
-				"		return new String[] {s};\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						void foo(String[] args) {
+							String s0;
+							for(String s : singleton(s0="")) {
+								System.out.println(s);
+							}
+							System.out.println(s0);
+						}
+						String[] singleton(String s) {
+							return new String[] {s};
+						}
+					}
+					"""
 			},
 			"");
 }
@@ -2622,32 +2834,33 @@ public void testBug391517() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.io.PrintWriter;\n" +
-				"\n" +
-				"public class X {\n" +
-				"\n" +
-				"	private static final int CONSTANT = 0;\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"		// TODO Auto-generated method stub\n" +
-				"\n" +
-				"	}\n" +
-				"\n" +
-				"	static void addStackTrace(String prefix) {\n" +
-				"		if (CONSTANT == 0) {\n" +
-				"			return;\n" +
-				"		}\n" +
-				"		PrintWriter pw = null;\n" +
-				"		new Exception().printStackTrace(pw);\n" +
-				"		if (bar() == null) {\n" +
-				"			System.out.println();\n" +
-				"		}\n" +
-				"	}\n" +
-				"\n" +
-				"	static Object bar() {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"}"
+				"""
+					import java.io.PrintWriter;
+					
+					public class X {
+					
+						private static final int CONSTANT = 0;
+					
+						public static void main(String[] args) {
+							// TODO Auto-generated method stub
+					
+						}
+					
+						static void addStackTrace(String prefix) {
+							if (CONSTANT == 0) {
+								return;
+							}
+							PrintWriter pw = null;
+							new Exception().printStackTrace(pw);
+							if (bar() == null) {
+								System.out.println();
+							}
+						}
+					
+						static Object bar() {
+							return null;
+						}
+					}"""
 			},
 			"");
 }
@@ -2657,14 +2870,15 @@ public void testBug415997a() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Object o = null;\n" +
-			"		if (o == null)\n" +
-			"			if (true)\n" +
-			"				return;\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					public static void main(String[] args) {
+						Object o = null;
+						if (o == null)
+							if (true)
+								return;
+					}
+				}"""
 		},
 		"");
 }
@@ -2672,15 +2886,16 @@ public void testBug415997b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Object o = null;\n" +
-			"		if (o == null) {}\n" +
-			"		else\n" +
-			"			if (true)\n" +
-			"				return;\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					public static void main(String[] args) {
+						Object o = null;
+						if (o == null) {}
+						else
+							if (true)
+								return;
+					}
+				}"""
 		},
 		"");
 }
@@ -2688,27 +2903,28 @@ public void testBug415997c() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) throws Exception {\n" +
-			"		System.out.println(ParseExpr11());\n" +
-			"	}\n" +
-			"	static final public Object ParseExpr11() throws Exception {\n" +
-			"		Object expr;\n" +
-			"		Object op = null;\n" +
-			"		expr = ParseVarExpr();\n" +
-			"		if (op == null) {\n" +
-			"			if (true)\n" +
-			"				return expr;\n" +
-			"		}\n" +
-			"		{\n" +
-			"			throw new Exception(\"++/-- not supported in TUD Bantam Java.\");\n" +
-			"		}\n" +
-			"	}\n" +
-			"	private static Object ParseVarExpr() {\n" +
-			"		// TODO Auto-generated method stub\n" +
-			"		return \"test\";\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					public static void main(String[] args) throws Exception {
+						System.out.println(ParseExpr11());
+					}
+					static final public Object ParseExpr11() throws Exception {
+						Object expr;
+						Object op = null;
+						expr = ParseVarExpr();
+						if (op == null) {
+							if (true)
+								return expr;
+						}
+						{
+							throw new Exception("++/-- not supported in TUD Bantam Java.");
+						}
+					}
+					private static Object ParseVarExpr() {
+						// TODO Auto-generated method stub
+						return "test";
+					}
+				}"""
 		},
 		"test");
 }
@@ -2716,20 +2932,22 @@ public void testBug499809() {
 	this.runConformTest(
 		new String[] {
 			"Foo.java",
-			"public class Foo {\n" +
-			"	static void foo( ) {\n" +
-			"		String _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, a, b,\n" +
-			"		c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, s0, s1, s2, s3, s4, s5, s6, s7;\n" +
-			"		Object ob = new Object();\n" +
-			"		int int1 = 0, int2 = 2, int3, int4;\n" +
-			"		if (ob != null) {\n" +
-			"			int4 = 1;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(\"Done\");\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class Foo {
+					static void foo( ) {
+						String _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, a, b,
+						c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, s0, s1, s2, s3, s4, s5, s6, s7;
+						Object ob = new Object();
+						int int1 = 0, int2 = 2, int3, int4;
+						if (ob != null) {
+							int4 = 1;
+						}
+					}
+					public static void main(String[] args) {
+						System.out.println("Done");
+					}
+				}
+				"""
 		},
 		"Done");
 }
@@ -2737,22 +2955,24 @@ public void testBug499809a() {
 	this.runConformTest(
 		new String[] {
 			"Foo.java",
-			"public class Foo {\n" +
-			"	static void foo( ) {\n" +
-			"		String _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, a, b,\n" +
-			"		c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, s0, s1, s2, s3, s4, s5, s6, s7;\n" +
-			"		Object ob = new Object();\n" +
-			"		int int1 = 0, int2 = 2, int3, int4;\n" +
-			"		if (ob == null) {\n" +
-			"			int1 = 1;\n" +
-			"		} else {\n" +
-			"			int4 = 1;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(\"Done\");\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class Foo {
+					static void foo( ) {
+						String _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, a, b,
+						c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, s0, s1, s2, s3, s4, s5, s6, s7;
+						Object ob = new Object();
+						int int1 = 0, int2 = 2, int3, int4;
+						if (ob == null) {
+							int1 = 1;
+						} else {
+							int4 = 1;
+						}
+					}
+					public static void main(String[] args) {
+						System.out.println("Done");
+					}
+				}
+				"""
 		},
 		"Done");
 }
@@ -2763,36 +2983,42 @@ public void testBug506315() {
 	this.runNegativeTest(
 		new String[] {
 			"Test.java",
-			"import java.util.function.Consumer;\n" +
-			"public class Test {\n" +
-			"    public void test(String method) {\n" +
-			"        String str;\n" +
-			"        if (!method.equals(\"\")) {\n" +
-			"        	str = \"String\";\n" +
-			"        	str.concat(method);\n" +
-			"        }\n" +
-			"        new Consumer<String>() {\n" +
-			"            public void accept(String s) {\n" +
-			"            	str = \"String\";\n" +
-			"            }\n" +
-			"        };\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.util.function.Consumer;
+				public class Test {
+				    public void test(String method) {
+				        String str;
+				        if (!method.equals("")) {
+				        	str = "String";
+				        	str.concat(method);
+				        }
+				        new Consumer<String>() {
+				            public void accept(String s) {
+				            	str = "String";
+				            }
+				        };
+				    }
+				}
+				"""
 		},
 		this.complianceLevel < ClassFileConstants.JDK1_8 ?
-			"----------\n" +
-			"1. ERROR in Test.java (at line 11)\n" +
-			"	str = \"String\";\n" +
-			"	^^^\n" +
-			"Cannot refer to the non-final local variable str defined in an enclosing scope\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in Test.java (at line 11)
+					str = "String";
+					^^^
+				Cannot refer to the non-final local variable str defined in an enclosing scope
+				----------
+				"""
 				:
-			"----------\n" +
-			"1. ERROR in Test.java (at line 11)\n" +
-			"	str = \"String\";\n" +
-			"	^^^\n" +
-			"Local variable str defined in an enclosing scope must be final or effectively final\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in Test.java (at line 11)
+					str = "String";
+					^^^
+				Local variable str defined in an enclosing scope must be final or effectively final
+				----------
+				""");
 }
 public void _testBug533435() {
 	this.runConformTest(
@@ -2818,136 +3044,146 @@ public void testBug537804_comment0() {
 	runConformTest(
 		new String[] {
 			"Test.java",
-			"public class Test\n" +
-			"{\n" +
-			"	private boolean dummy;\n" +
-			"\n" +
-			"//Test\n" +
-			"	void testMethod()\n" +
-			"	{\n" +
-			"		@SuppressWarnings(\"unused\")\n" +
-			"		boolean action;\n" +
-			"\n" +
-			"		OUTER:\n" +
-			"		{\n" +
-			"			while (true)\n" +
-			"			{\n" +
-			"				if (dummy)\n" +
-			"					break OUTER;\n" +
-			"\n" +
-			"				action = true;\n" +
-			"				break;\n" +
-			"			}\n" +
-			"\n" +
-			"			return;\n" +
-			"		}\n" +
-			"\n" +
-			"		return;\n" +
-			"	}\n" +
-			"\n" +
-			"//Main Method\n" +
-			"	public static void main(String[] arguments)\n" +
-			"	{\n" +
-			"		//No operation\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class Test
+				{
+					private boolean dummy;
+				
+				//Test
+					void testMethod()
+					{
+						@SuppressWarnings("unused")
+						boolean action;
+				
+						OUTER:
+						{
+							while (true)
+							{
+								if (dummy)
+									break OUTER;
+				
+								action = true;
+								break;
+							}
+				
+							return;
+						}
+				
+						return;
+					}
+				
+				//Main Method
+					public static void main(String[] arguments)
+					{
+						//No operation
+					}
+				}
+				"""
 		});
 }
 public void testBug537804_comment5() {
 	runNegativeTest(
 		new String[] {
 			"Test.java",
-			"public class Test\n" +
-			"{\n" +
-			"	private boolean dummy;\n" +
-			"\n" +
-			"//Test\n" +
-			"	void testMethod()\n" +
-			"	{\n" +
-			"		boolean action;\n" +
-			"\n" +
-			"		OUTER:\n" +
-			"		{\n" +
-			"			while (true)\n" +
-			"			{\n" +
-			"				if (dummy)\n" +
-			"					break OUTER;\n" +
-			"\n" +
-			"				action = true;\n" +
-			"				break;\n" +
-			"			}\n" +
-			"\n" +
-			"			if (action) //Okay.\n" +
-			"				noOp();\n" +
-			"\n" +
-			"			return;\n" +
-			"		}\n" +
-			"\n" +
-			"		if (action) //Missing error: 'action' may not be initialized!\n" +
-			"			noOp();\n" +
-			"\n" +
-			"		return;\n" +
-			"	}\n" +
-			"	void noOp()\n" +
-			"	{\n" +
-			"		//No operation\n" +
-			"	}\n" +
-			"\n" +
-			"//Main Method\n" +
-			"	public static void main(String[] arguments)\n" +
-			"	{\n" +
-			"		//No operation\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class Test
+				{
+					private boolean dummy;
+				
+				//Test
+					void testMethod()
+					{
+						boolean action;
+				
+						OUTER:
+						{
+							while (true)
+							{
+								if (dummy)
+									break OUTER;
+				
+								action = true;
+								break;
+							}
+				
+							if (action) //Okay.
+								noOp();
+				
+							return;
+						}
+				
+						if (action) //Missing error: 'action' may not be initialized!
+							noOp();
+				
+						return;
+					}
+					void noOp()
+					{
+						//No operation
+					}
+				
+				//Main Method
+					public static void main(String[] arguments)
+					{
+						//No operation
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in Test.java (at line 27)\n" +
-		"	if (action) //Missing error: \'action\' may not be initialized!\n" +
-		"	    ^^^^^^\n" +
-		"The local variable action may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Test.java (at line 27)
+				if (action) //Missing error: 'action' may not be initialized!
+				    ^^^^^^
+			The local variable action may not have been initialized
+			----------
+			""");
 }
 public void testBug548318_001() {
 	if (!checkSwitchAllowedLevel())
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
-			"	yield k;\n" +
-			"	      ^\n" +
-			"The local variable k may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 14)\n" +
-			"	return k + it;\n" +
-			"	       ^\n" +
-			"The local variable k may not have been initialized\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 11)
+			yield k;
+			      ^
+		The local variable k may not have been initialized
+		----------
+		2. ERROR in X.java (at line 14)
+			return k + it;
+			       ^
+		The local variable k may not have been initialized
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		final int k;\n" +
-			"\n" +
-			"		int it = switch (i) { \n" +
-			"		case 1  ->   {\n" +
-			"			k = 1;\n" +
-			"			yield k ;\n" +
-			"		}\n" +
-			"		default -> {\n" +
-			"			yield k;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		return k + it;\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean bar() {\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						final int k;
+				
+						int it = switch (i) {\s
+						case 1  ->   {
+							k = 1;
+							yield k ;
+						}
+						default -> {
+							yield k;
+						}
+						};
+						return k + it;
+					}
+				
+					public boolean bar() {
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 		};
 	this.runNegativeTest(
 			testFiles,
@@ -2961,42 +3197,46 @@ public void testBug548318_002() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	k = switch (i) { \n" +
-			"	^\n" +
-			"The final local variable k may already have been assigned\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 11)\n" +
-			"	yield k;\n" +
-			"	      ^\n" +
-			"The local variable k may not have been initialized\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 5)
+			k = switch (i) {\s
+			^
+		The final local variable k may already have been assigned
+		----------
+		2. ERROR in X.java (at line 11)
+			yield k;
+			      ^
+		The local variable k may not have been initialized
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		final int k;\n" +
-			"\n" +
-			"		k = switch (i) { \n" +
-			"		case 1  ->   {\n" +
-			"			k = 1;\n" +
-			"			yield k ;\n" +
-			"		}\n" +
-			"		default -> {\n" +
-			"			yield k;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		return k;\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean bar() {\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						final int k;
+				
+						k = switch (i) {\s
+						case 1  ->   {
+							k = 1;
+							yield k ;
+						}
+						default -> {
+							yield k;
+						}
+						};
+						return k;
+					}
+				
+					public boolean bar() {
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 		};
 	this.runNegativeTest(
 			testFiles,
@@ -3012,43 +3252,47 @@ public void testBug548318_003() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 23)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 23)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		final int k;\n" +
-			"\n" +
-			"		int it = switch (i) { \n" +
-			"		case 1  ->   {\n" +
-			"			k = 1;\n" +
-			"			yield k ;\n" +
-			"		}\n" +
-			"		case 2  ->   {\n" +
-			"			k = 2;\n" +
-			"			yield k ;\n" +
-			"		}\n" +
-			"		default -> {\n" +
-			"			k = 3;\n" +
-			"			yield k;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		return k;\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						final int k;
+				
+						int it = switch (i) {\s
+						case 1  ->   {
+							k = 1;
+							yield k ;
+						}
+						case 2  ->   {
+							k = 2;
+							yield k ;
+						}
+						default -> {
+							k = 3;
+							yield k;
+						}
+						};
+						return k;
+					}
+				
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -3061,58 +3305,62 @@ public void testBug548318_004() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	k = 1;\n" +
-			"	^\n" +
-			"The final local variable k cannot be assigned. It must be blank and not using a compound assignment\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 11)\n" +
-			"	k = 2;\n" +
-			"	^\n" +
-			"The final local variable k cannot be assigned. It must be blank and not using a compound assignment\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 15)\n" +
-			"	k = 3;\n" +
-			"	^\n" +
-			"The final local variable k cannot be assigned. It must be blank and not using a compound assignment\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 23)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 7)
+			k = 1;
+			^
+		The final local variable k cannot be assigned. It must be blank and not using a compound assignment
+		----------
+		2. ERROR in X.java (at line 11)
+			k = 2;
+			^
+		The final local variable k cannot be assigned. It must be blank and not using a compound assignment
+		----------
+		3. ERROR in X.java (at line 15)
+			k = 3;
+			^
+		The final local variable k cannot be assigned. It must be blank and not using a compound assignment
+		----------
+		4. ERROR in X.java (at line 23)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		final int k = 1;\n" +
-			"\n" +
-			"		int it = switch (i) { \n" +
-			"		case 1  ->   {\n" +
-			"			k = 1;\n" +
-			"			yield k ;\n" +
-			"		}\n" +
-			"		case 2  ->   {\n" +
-			"			k = 2;\n" +
-			"			yield k ;\n" +
-			"		}\n" +
-			"		default -> {\n" +
-			"			k = 3;\n" +
-			"			yield k;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		return k;\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						final int k = 1;
+				
+						int it = switch (i) {\s
+						case 1  ->   {
+							k = 1;
+							yield k ;
+						}
+						case 2  ->   {
+							k = 2;
+							yield k ;
+						}
+						default -> {
+							k = 3;
+							yield k;
+						}
+						};
+						return k;
+					}
+				
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -3125,52 +3373,56 @@ public void testBug548318_005() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
-			"	yield k ;\n" +
-			"	      ^\n" +
-			"The local variable k may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 18)\n" +
-			"	return k;\n" +
-			"	       ^\n" +
-			"The local variable k may not have been initialized\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 22)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 11)
+			yield k ;
+			      ^
+		The local variable k may not have been initialized
+		----------
+		2. ERROR in X.java (at line 18)
+			return k;
+			       ^
+		The local variable k may not have been initialized
+		----------
+		3. ERROR in X.java (at line 22)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		final int k;\n" +
-			"\n" +
-			"		int it = switch (i) { \n" +
-			"		case 1  ->   {\n" +
-			"			k = 1;\n" +
-			"			yield k ;\n" +
-			"		}\n" +
-			"		case 2  ->   {\n" +
-			"			yield k ;\n" +
-			"		}\n" +
-			"		default -> {\n" +
-			"			k = 3;\n" +
-			"			yield k;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		return k;\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						final int k;
+				
+						int it = switch (i) {\s
+						case 1  ->   {
+							k = 1;
+							yield k ;
+						}
+						case 2  ->   {
+							yield k ;
+						}
+						default -> {
+							k = 3;
+							yield k;
+						}
+						};
+						return k;
+					}
+				
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -3191,42 +3443,46 @@ public void testBug548318_006() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 22)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 22)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		int v;\n" +
-			"		boolean b = switch (i) {\n" +
-			"		case 1 :\n" +
-			"			v = 1;\n" +
-			"			yield true;\n" +
-			"		case 2 : {\n" +
-			"			v = 2;\n" +
-			"			yield true;\n" +
-			"		}\n" +
-			"		default : {\n" +
-			"			v = 3;\n" +
-			"			yield false;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		int d = b == true ? 0 : 1; \n" +
-			"		return v + d;\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						int v;
+						boolean b = switch (i) {
+						case 1 :
+							v = 1;
+							yield true;
+						case 2 : {
+							v = 2;
+							yield true;
+						}
+						default : {
+							v = 3;
+							yield false;
+						}
+						};
+						int d = b == true ? 0 : 1;\s
+						return v + d;
+					}
+				
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -3249,47 +3505,51 @@ public void testBug548318_007() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 18)\n" +
-			"	return v + d;\n" +
-			"	       ^\n" +
-			"The local variable v may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 22)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 18)
+			return v + d;
+			       ^
+		The local variable v may not have been initialized
+		----------
+		2. ERROR in X.java (at line 22)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		int v;\n" +
-			"		boolean b = switch (i) {\n" +
-			"		case 1 :\n" +
-			"			//v = 1;\n" +
-			"			yield true;\n" +
-			"		case 2 : {\n" +
-			"			//v = 2;\n" +
-			"			yield true;\n" +
-			"		}\n" +
-			"		default : {\n" +
-			"			//v = 3;\n" +
-			"			yield false;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		int d = b == true ? 0 : 1; \n" +
-			"		return v + d;\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						int v;
+						boolean b = switch (i) {
+						case 1 :
+							//v = 1;
+							yield true;
+						case 2 : {
+							//v = 2;
+							yield true;
+						}
+						default : {
+							//v = 3;
+							yield false;
+						}
+						};
+						int d = b == true ? 0 : 1;\s
+						return v + d;
+					}
+				
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -3306,42 +3566,46 @@ public void testBug548318_008() {
 	if (!checkSwitchAllowedLevel())
 		return;
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 22)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 22)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		int v = 1;\n" +
-			"		boolean b = switch (i) {\n" +
-			"		case 1 :\n" +
-			"			//v = 1;\n" +
-			"			yield true;\n" +
-			"		case 2 : {\n" +
-			"			//v = 2;\n" +
-			"			yield true;\n" +
-			"		}\n" +
-			"		default : {\n" +
-			"			//v = 3;\n" +
-			"			yield false;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		int d = b == true ? 0 : 1; \n" +
-			"		return v + d;\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						int v = 1;
+						boolean b = switch (i) {
+						case 1 :
+							//v = 1;
+							yield true;
+						case 2 : {
+							//v = 2;
+							yield true;
+						}
+						default : {
+							//v = 3;
+							yield false;
+						}
+						};
+						int d = b == true ? 0 : 1;\s
+						return v + d;
+					}
+				
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -3359,47 +3623,51 @@ public void testBug548318_009() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	boolean b = switch (v) {\n" +
-			"	                    ^\n" +
-			"The local variable v may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 22)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 4)
+			boolean b = switch (v) {
+			                    ^
+		The local variable v may not have been initialized
+		----------
+		2. ERROR in X.java (at line 22)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		int v;\n" +
-			"		boolean b = switch (v) {\n" +
-			"		case 1 :\n" +
-			"			v = 1;\n" +
-			"			yield true;\n" +
-			"		case 2 : {\n" +
-			"			v = 2;\n" +
-			"			yield true;\n" +
-			"		}\n" +
-			"		default : {\n" +
-			"			v = 3;\n" +
-			"			yield false;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		int d = b == true ? 0 : 1; \n" +
-			"		return v + d;\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						int v;
+						boolean b = switch (v) {
+						case 1 :
+							v = 1;
+							yield true;
+						case 2 : {
+							v = 2;
+							yield true;
+						}
+						default : {
+							v = 3;
+							yield false;
+						}
+						};
+						int d = b == true ? 0 : 1;\s
+						return v + d;
+					}
+				
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -3418,42 +3686,46 @@ public void testBug548318_010() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 22)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 22)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		int v;\n" +
-			"		boolean b = switch (i + (v =1)) {\n" +
-			"		case 1 :\n" +
-			"			v += 1;\n" +
-			"			yield true;\n" +
-			"		case 2 : {\n" +
-			"			v = 2;\n" +
-			"			yield true;\n" +
-			"		}\n" +
-			"		default : {\n" +
-			"			v = 3;\n" +
-			"			yield false;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		int d = b == true ? 0 : 1; \n" +
-			"		return v + d;\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						int v;
+						boolean b = switch (i + (v =1)) {
+						case 1 :
+							v += 1;
+							yield true;
+						case 2 : {
+							v = 2;
+							yield true;
+						}
+						default : {
+							v = 3;
+							yield false;
+						}
+						};
+						int d = b == true ? 0 : 1;\s
+						return v + d;
+					}
+				
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -3472,47 +3744,51 @@ public void testBug548318_011() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	v += 1;\n" +
-			"	^\n" +
-			"The local variable v may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 22)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 6)
+			v += 1;
+			^
+		The local variable v may not have been initialized
+		----------
+		2. ERROR in X.java (at line 22)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		int v;\n" +
-			"		boolean b = switch (i) {\n" +
-			"		case 1 :\n" +
-			"			v += 1;\n" +
-			"			yield true;\n" +
-			"		case 2 : {\n" +
-			"			v = 2;\n" +
-			"			yield true;\n" +
-			"		}\n" +
-			"		default : {\n" +
-			"			v = 3;\n" +
-			"			yield false;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		int d = b == true ? 0 : 1; \n" +
-			"		return v + d;\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						int v;
+						boolean b = switch (i) {
+						case 1 :
+							v += 1;
+							yield true;
+						case 2 : {
+							v = 2;
+							yield true;
+						}
+						default : {
+							v = 3;
+							yield false;
+						}
+						};
+						int d = b == true ? 0 : 1;\s
+						return v + d;
+					}
+				
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -3532,42 +3808,46 @@ public void testBug548318_012() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 22)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 22)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		int v;\n" +
-			"		boolean b = switch (i + (v =1)) {\n" +
-			"		case 1 :\n" +
-			"			v = 1;\n" +
-			"			yield true;\n" +
-			"		case 2 : {\n" +
-			"			v += 2;\n" +
-			"			yield true;\n" +
-			"		}\n" +
-			"		default : {\n" +
-			"			v = 3;\n" +
-			"			yield false;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		int d = b == true ? 0 : 1; \n" +
-			"		return v + d;\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						int v;
+						boolean b = switch (i + (v =1)) {
+						case 1 :
+							v = 1;
+							yield true;
+						case 2 : {
+							v += 2;
+							yield true;
+						}
+						default : {
+							v = 3;
+							yield false;
+						}
+						};
+						int d = b == true ? 0 : 1;\s
+						return v + d;
+					}
+				
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -3587,44 +3867,48 @@ public void testBug548318_012b() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 15)\n" +
-			"	return v + d;\n" +
-			"	       ^\n" +
-			"The local variable v may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 19)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 15)
+			return v + d;
+			       ^
+		The local variable v may not have been initialized
+		----------
+		2. ERROR in X.java (at line 19)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		int v;\n" +
-			"		boolean b = switch (i) {\n" +
-			"		case 1 :i =1;\n" +
-			"		case 2 : {\n" +
-			"			yield true;\n" +
-			"		}\n" +
-			"		default : {\n" +
-			"			v = 3;\n" +
-			"			yield false;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		int d = b == true ? 0 : 1; \n" +
-			"		return v + d;\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						int v;
+						boolean b = switch (i) {
+						case 1 :i =1;
+						case 2 : {
+							yield true;
+						}
+						default : {
+							v = 3;
+							yield false;
+						}
+						};
+						int d = b == true ? 0 : 1;\s
+						return v + d;
+					}
+				
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -3644,47 +3928,51 @@ public void testBug548318_013() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	v += 2;\n" +
-			"	^\n" +
-			"The local variable v may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 22)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 9)
+			v += 2;
+			^
+		The local variable v may not have been initialized
+		----------
+		2. ERROR in X.java (at line 22)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		int v;\n" +
-			"		boolean b = switch (i) {\n" +
-			"		case 1 :\n" +
-			"			v = 1;\n" +
-			"			yield true;\n" +
-			"		case 2 : {\n" +
-			"			v += 2;\n" +
-			"			yield true;\n" +
-			"		}\n" +
-			"		default : {\n" +
-			"			v = 3;\n" +
-			"			yield false;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		int d = b == true ? 0 : 1; \n" +
-			"		return v + d;\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						int v;
+						boolean b = switch (i) {
+						case 1 :
+							v = 1;
+							yield true;
+						case 2 : {
+							v += 2;
+							yield true;
+						}
+						default : {
+							v = 3;
+							yield false;
+						}
+						};
+						int d = b == true ? 0 : 1;\s
+						return v + d;
+					}
+				
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -3713,47 +4001,51 @@ public void testBug548318_014() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 23)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 23)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"	public static int foo(int i) throws IOException {\n" +
-			"		int v;\n" +
-			"		boolean b = switch (i ) {\n" +
-			"		case 0 -> (v = 1) != 0;\n" +
-			"		case 1 -> (v = 1) == 0;\n" +
-			"		case 2 -> {\n" +
-			"			v = 2;\n" +
-			"			yield true;\n" +
-			"		}\n" +
-			"		case 3 -> {\n" +
-			"			v = 3;\n" +
-			"			yield false;\n" +
-			"		}\n" +
-			"		default -> throw new IOException();\n" +
-			"		};\n" +
-			"		int d = b == true ? 0 : 1; \n" +
-			"		return v + d;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			System.out.println(foo(3));\n" +
-			"		} catch (IOException e) {\n" +
-			"			e.printStackTrace();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				import java.io.IOException;
+				public class X {
+					public static int foo(int i) throws IOException {
+						int v;
+						boolean b = switch (i ) {
+						case 0 -> (v = 1) != 0;
+						case 1 -> (v = 1) == 0;
+						case 2 -> {
+							v = 2;
+							yield true;
+						}
+						case 3 -> {
+							v = 3;
+							yield false;
+						}
+						default -> throw new IOException();
+						};
+						int d = b == true ? 0 : 1;\s
+						return v + d;
+					}
+				\t
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						try {
+							System.out.println(foo(3));
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -3784,50 +4076,54 @@ public void testBug548318_015() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 17)\n" +
-			"	return v + d;\n" +
-			"	       ^\n" +
-			"The local variable v may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 21)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 17)
+			return v + d;
+			       ^
+		The local variable v may not have been initialized
+		----------
+		2. ERROR in X.java (at line 21)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"	public static int foo(int i) throws IOException {\n" +
-			"		int v;\n" +
-			"		boolean b = switch (i ) {\n" +
-			"		case 0 ->  true;\n" +
-			"		case 1 -> false;\n" +
-			"		case 2 -> {\n" +
-			"			yield true;\n" +
-			"		}\n" +
-			"		case 3 -> {\n" +
-			"			yield false;\n" +
-			"		}\n" +
-			"		default -> throw new IOException();\n" +
-			"		};\n" +
-			"		int d = b == true ? 0 : 1; \n" +
-			"		return v + d;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			System.out.println(foo(3));\n" +
-			"		} catch (IOException e) {\n" +
-			"			e.printStackTrace();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				import java.io.IOException;
+				public class X {
+					public static int foo(int i) throws IOException {
+						int v;
+						boolean b = switch (i ) {
+						case 0 ->  true;
+						case 1 -> false;
+						case 2 -> {
+							yield true;
+						}
+						case 3 -> {
+							yield false;
+						}
+						default -> throw new IOException();
+						};
+						int d = b == true ? 0 : 1;\s
+						return v + d;
+					}
+				\t
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						try {
+							System.out.println(foo(3));
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -3846,38 +4142,42 @@ public void testBug548318_016() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 14)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 14)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"	public static int foo(int i) throws IOException {\n" +
-			"		int v;\n" +
-			"		boolean b = switch ((v = 1)) {\n" +
-			"		case 0 ->  v != 0;\n" +
-			"		default -> throw new IOException();\n" +
-			"		};\n" +
-			"		int d = b == true ? 0 : 1; \n" +
-			"		return v + d;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			System.out.println(foo(3));\n" +
-			"		} catch (IOException e) {\n" +
-			"			e.printStackTrace();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				import java.io.IOException;
+				public class X {
+					public static int foo(int i) throws IOException {
+						int v;
+						boolean b = switch ((v = 1)) {
+						case 0 ->  v != 0;
+						default -> throw new IOException();
+						};
+						int d = b == true ? 0 : 1;\s
+						return v + d;
+					}
+				\t
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						try {
+							System.out.println(foo(3));
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -3897,48 +4197,52 @@ public void testBug548318_017() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	case 0 ->  v != 0;\n" +
-			"	           ^\n" +
-			"The local variable v may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
-			"	return v + d;\n" +
-			"	       ^\n" +
-			"The local variable v may not have been initialized\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 14)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 6)
+			case 0 ->  v != 0;
+			           ^
+		The local variable v may not have been initialized
+		----------
+		2. ERROR in X.java (at line 10)
+			return v + d;
+			       ^
+		The local variable v may not have been initialized
+		----------
+		3. ERROR in X.java (at line 14)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"	public static int foo(int i) throws IOException {\n" +
-			"		int v;\n" +
-			"		boolean b = switch (i) {\n" +
-			"		case 0 ->  v != 0;\n" +
-			"		default -> throw new IOException();\n" +
-			"		};\n" +
-			"		int d = b == true ? 0 : 1; \n" +
-			"		return v + d;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			System.out.println(foo(3));\n" +
-			"		} catch (IOException e) {\n" +
-			"			e.printStackTrace();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				import java.io.IOException;
+				public class X {
+					public static int foo(int i) throws IOException {
+						int v;
+						boolean b = switch (i) {
+						case 0 ->  v != 0;
+						default -> throw new IOException();
+						};
+						int d = b == true ? 0 : 1;\s
+						return v + d;
+					}
+				\t
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						try {
+							System.out.println(foo(3));
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -3957,40 +4261,44 @@ public void testBug548318_018() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 20)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 20)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		int v;\n" +
-			"		int t = switch (i) {\n" +
-			"		case 0 : {\n" +
-			"			v = 1; // definitely assigned before yield\n" +
-			"			yield v;\n" +
-			"		}\n" +
-			"		case 2 : {\n" +
-			"			yield v =1; // definitely assigned after e\n" +
-			"		}\n" +
-			"		default : {\n" +
-			"			yield v = 2;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		return v + t;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						int v;
+						int t = switch (i) {
+						case 0 : {
+							v = 1; // definitely assigned before yield
+							yield v;
+						}
+						case 2 : {
+							yield v =1; // definitely assigned after e
+						}
+						default : {
+							yield v = 2;
+						}
+						};
+						return v + t;
+					}
+				\t
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -4009,44 +4317,48 @@ public void testBug548318_019() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 15)\n" +
-			"	return v + t;\n" +
-			"	       ^\n" +
-			"The local variable v may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 19)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 15)
+			return v + t;
+			       ^
+		The local variable v may not have been initialized
+		----------
+		2. ERROR in X.java (at line 19)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		int v;\n" +
-			"		int t = switch (i) {\n" +
-			"		case 0 : {\n" +
-			"			yield 1;\n" +
-			"		}\n" +
-			"		case 2 : {\n" +
-			"			yield 2;\n" +
-			"		}\n" +
-			"		default : {\n" +
-			"			yield 3;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		return v + t;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						int v;
+						int t = switch (i) {
+						case 0 : {
+							yield 1;
+						}
+						case 2 : {
+							yield 2;
+						}
+						default : {
+							yield 3;
+						}
+						};
+						return v + t;
+					}
+				\t
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -4064,39 +4376,43 @@ public void testBug548318_020() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 19)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 19)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		int v =1;\n" +
-			"		int t = switch (v) {\n" +
-			"		case 0 : {\n" +
-			"			yield 1;\n" +
-			"		}\n" +
-			"		case 2 : {\n" +
-			"			yield 2;\n" +
-			"		}\n" +
-			"		default : {\n" +
-			"			yield 3;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		return t;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						int v =1;
+						int t = switch (v) {
+						case 0 : {
+							yield 1;
+						}
+						case 2 : {
+							yield 2;
+						}
+						default : {
+							yield 3;
+						}
+						};
+						return t;
+					}
+				\t
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -4114,44 +4430,48 @@ public void testBug548318_021() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	int t = switch (v) {\n" +
-			"	                ^\n" +
-			"The local variable v may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 19)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 4)
+			int t = switch (v) {
+			                ^
+		The local variable v may not have been initialized
+		----------
+		2. ERROR in X.java (at line 19)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		int v;\n" +
-			"		int t = switch (v) {\n" +
-			"		case 0 : {\n" +
-			"			yield 1;\n" +
-			"		}\n" +
-			"		case 2 : {\n" +
-			"			yield 2;\n" +
-			"		}\n" +
-			"		default : {\n" +
-			"			yield 3;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		return t;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						int v;
+						int t = switch (v) {
+						case 0 : {
+							yield 1;
+						}
+						case 2 : {
+							yield 2;
+						}
+						default : {
+							yield 3;
+						}
+						};
+						return t;
+					}
+				\t
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -4173,39 +4493,43 @@ public void testBug548318_022() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 19)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 19)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		int v =1;\n" +
-			"		int t = switch (v) {\n" +
-			"		case 0 : {\n" +
-			"			yield v;\n" +
-			"		}\n" +
-			"		case 2 : {\n" +
-			"			yield 2;\n" +
-			"		}\n" +
-			"		default : {\n" +
-			"			yield 3;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		return t;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						int v =1;
+						int t = switch (v) {
+						case 0 : {
+							yield v;
+						}
+						case 2 : {
+							yield 2;
+						}
+						default : {
+							yield 3;
+						}
+						};
+						return t;
+					}
+				\t
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -4227,44 +4551,48 @@ public void testBug548318_023() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	yield v;\n" +
-			"	      ^\n" +
-			"The local variable v may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 19)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 6)
+			yield v;
+			      ^
+		The local variable v may not have been initialized
+		----------
+		2. ERROR in X.java (at line 19)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		int v;\n" +
-			"		int t = switch (i) {\n" +
-			"		case 0 : {\n" +
-			"			yield v;\n" +
-			"		}\n" +
-			"		case 2 : {\n" +
-			"			yield 2;\n" +
-			"		}\n" +
-			"		default : {\n" +
-			"			yield 3;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		return t;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						int v;
+						int t = switch (i) {
+						case 0 : {
+							yield v;
+						}
+						case 2 : {
+							yield 2;
+						}
+						default : {
+							yield 3;
+						}
+						};
+						return t;
+					}
+				\t
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -4286,44 +4614,48 @@ public void testBug548318_024() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	yield v;\n" +
-			"	      ^\n" +
-			"The local variable v may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 19)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 9)
+			yield v;
+			      ^
+		The local variable v may not have been initialized
+		----------
+		2. ERROR in X.java (at line 19)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"public class X {\n" +
-			"	public static int foo(int i) {\n" +
-			"		int v ;\n" +
-			"		int t = switch (i) {\n" +
-			"		case 0 : {\n" +
-			"			yield 1;\n" +
-			"		}\n" +
-			"		case 2 : {\n" +
-			"			yield v;\n" +
-			"		}\n" +
-			"		default : {\n" +
-			"			yield 3;\n" +
-			"		}\n" +
-			"		};\n" +
-			"		return t;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(foo(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int foo(int i) {
+						int v ;
+						int t = switch (i) {
+						case 0 : {
+							yield 1;
+						}
+						case 2 : {
+							yield v;
+						}
+						default : {
+							yield 3;
+						}
+						};
+						return t;
+					}
+				\t
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						System.out.println(foo(3));
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -4342,45 +4674,49 @@ public void testBug548318_025() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 20)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 20)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"import java.io.IOException;\n" +
-			"\n" +
-			"public class X {\n" +
-			"	public static int foo(int i) throws IOException {\n" +
-			"		int v ;\n" +
-			"		int t = switch (i) {\n" +
-			"		case 0 -> v = 1;\n" +
-			"		case 2 -> {\n" +
-			"			if (i > 1) {\n" +
-			"				yield v = 2;\n" +
-			"			}\n" +
-			"			yield v = 3;\n" +
-			"		}\n" +
-			"		default -> throw new IOException();\n" +
-			"		};\n" +
-			"		return v + t;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			System.out.println(foo(3));\n" +
-			"		} catch (IOException e) {\n" +
-			"			// TODO Auto-generated catch block\n" +
-			"			e.printStackTrace();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				import java.io.IOException;
+				
+				public class X {
+					public static int foo(int i) throws IOException {
+						int v ;
+						int t = switch (i) {
+						case 0 -> v = 1;
+						case 2 -> {
+							if (i > 1) {
+								yield v = 2;
+							}
+							yield v = 3;
+						}
+						default -> throw new IOException();
+						};
+						return v + t;
+					}
+				\t
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						try {
+							System.out.println(foo(3));
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -4399,50 +4735,54 @@ public void testBug548318_026() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 16)\n" +
-			"	return v + t;\n" +
-			"	       ^\n" +
-			"The local variable v may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 20)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 16)
+			return v + t;
+			       ^
+		The local variable v may not have been initialized
+		----------
+		2. ERROR in X.java (at line 20)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"import java.io.IOException;\n" +
-			"\n" +
-			"public class X {\n" +
-			"	public static int foo(int i) throws IOException {\n" +
-			"		int v ;\n" +
-			"		int t = switch (i) {\n" +
-			"		case 0 ->  1;\n" +
-			"		case 2 -> {\n" +
-			"			if (i > 1) {\n" +
-			"				yield  2;\n" +
-			"			}\n" +
-			"			yield 3;\n" +
-			"		}\n" +
-			"		default -> throw new IOException();\n" +
-			"		};\n" +
-			"		return v + t;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			System.out.println(foo(3));\n" +
-			"		} catch (IOException e) {\n" +
-			"			// TODO Auto-generated catch block\n" +
-			"			e.printStackTrace();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				import java.io.IOException;
+				
+				public class X {
+					public static int foo(int i) throws IOException {
+						int v ;
+						int t = switch (i) {
+						case 0 ->  1;
+						case 2 -> {
+							if (i > 1) {
+								yield  2;
+							}
+							yield 3;
+						}
+						default -> throw new IOException();
+						};
+						return v + t;
+					}
+				\t
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						try {
+							System.out.println(foo(3));
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -4461,45 +4801,49 @@ public void testBug548318_027() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 20)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 20)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"import java.io.IOException;\n" +
-			"\n" +
-			"public class X {\n" +
-			"	public static int foo(int i) throws IOException {\n" +
-			"		int v ;\n" +
-			"		int t = switch (v = 1) {\n" +
-			"		case 0 ->  v;\n" +
-			"		case 2 -> {\n" +
-			"			if (i > 1) {\n" +
-			"				yield  2;\n" +
-			"			}\n" +
-			"			yield 3;\n" +
-			"		}\n" +
-			"		default -> throw new IOException();\n" +
-			"		};\n" +
-			"		return v + t;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			System.out.println(foo(3));\n" +
-			"		} catch (IOException e) {\n" +
-			"			// TODO Auto-generated catch block\n" +
-			"			e.printStackTrace();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				import java.io.IOException;
+				
+				public class X {
+					public static int foo(int i) throws IOException {
+						int v ;
+						int t = switch (v = 1) {
+						case 0 ->  v;
+						case 2 -> {
+							if (i > 1) {
+								yield  2;
+							}
+							yield 3;
+						}
+						default -> throw new IOException();
+						};
+						return v + t;
+					}
+				\t
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						try {
+							System.out.println(foo(3));
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -4518,50 +4862,54 @@ public void testBug548318_028() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	case 0 ->  v;\n" +
-			"	           ^\n" +
-			"The local variable v may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 20)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 7)
+			case 0 ->  v;
+			           ^
+		The local variable v may not have been initialized
+		----------
+		2. ERROR in X.java (at line 20)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"import java.io.IOException;\n" +
-			"\n" +
-			"public class X {\n" +
-			"	public static int foo(int i) throws IOException {\n" +
-			"		int v ;\n" +
-			"		int t = switch (i) {\n" +
-			"		case 0 ->  v;\n" +
-			"		case 2 -> {\n" +
-			"			if (i > 1) {\n" +
-			"				yield  2;\n" +
-			"			}\n" +
-			"			yield 3;\n" +
-			"		}\n" +
-			"		default -> throw new IOException();\n" +
-			"		};\n" +
-			"		return t;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			System.out.println(foo(3));\n" +
-			"		} catch (IOException e) {\n" +
-			"			// TODO Auto-generated catch block\n" +
-			"			e.printStackTrace();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				import java.io.IOException;
+				
+				public class X {
+					public static int foo(int i) throws IOException {
+						int v ;
+						int t = switch (i) {
+						case 0 ->  v;
+						case 2 -> {
+							if (i > 1) {
+								yield  2;
+							}
+							yield 3;
+						}
+						default -> throw new IOException();
+						};
+						return t;
+					}
+				\t
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						try {
+							System.out.println(foo(3));
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -4585,49 +4933,53 @@ public void testBug548318_029() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 24)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 24)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"import java.io.IOException;\n" +
-			"\n" +
-			"public class X {\n" +
-			"	public static int foo(int i) throws IOException {\n" +
-			"		int v ;\n" +
-			"		switch (i) {\n" +
-			"		case 0 -> {\n" +
-			"			v = 0;\n" +
-			"		}\n" +
-			"		case 2 -> {\n" +
-			"			if (i > 1) {\n" +
-			"				v =  2;\n" +
-			"				break;\n" +
-			"			}\n" +
-			"			v = 3;\n" +
-			"			break;\n" +
-			"		}\n" +
-			"		default -> throw new IOException();\n" +
-			"		};\n" +
-			"		return v;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			System.out.println(foo(3));\n" +
-			"		} catch (IOException e) {\n" +
-			"			// TODO Auto-generated catch block\n" +
-			"			e.printStackTrace();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				import java.io.IOException;
+				
+				public class X {
+					public static int foo(int i) throws IOException {
+						int v ;
+						switch (i) {
+						case 0 -> {
+							v = 0;
+						}
+						case 2 -> {
+							if (i > 1) {
+								v =  2;
+								break;
+							}
+							v = 3;
+							break;
+						}
+						default -> throw new IOException();
+						};
+						return v;
+					}
+				\t
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						try {
+							System.out.println(foo(3));
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,
@@ -4651,54 +5003,58 @@ public void testBug548318_030() {
 		return;
 	setPresetPreviewOptions();
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 20)\n" +
-			"	return v;\n" +
-			"	       ^\n" +
-			"The local variable v may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 24)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 20)
+			return v;
+			       ^
+		The local variable v may not have been initialized
+		----------
+		2. ERROR in X.java (at line 24)
+			Zork();
+			^^^^
+		The method Zork() is undefined for the type X
+		----------
+		""";
 	String[] testFiles = new String[] {
 			"X.java", // =================
-			"import java.io.IOException;\n" +
-			"\n" +
-			"public class X {\n" +
-			"	public static int foo(int i) throws IOException {\n" +
-			"		int v ;\n" +
-			"		switch (i) {\n" +
-			"		case 0 -> {\n" +
-			"			v = 0;\n" +
-			"		}\n" +
-			"		case 2 -> {\n" +
-			"			if (i > 1) {\n" +
-			"				v =  2;\n" +
-			"				break;\n" +
-			"			}\n" +
-			"	//		v = 3;\n" +
-			"			break;\n" +
-			"		}\n" +
-			"		default -> throw new IOException();\n" +
-			"		};\n" +
-			"		return v;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public boolean bar() {\n" +
-			"		Zork();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			System.out.println(foo(3));\n" +
-			"		} catch (IOException e) {\n" +
-			"			// TODO Auto-generated catch block\n" +
-			"			e.printStackTrace();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				import java.io.IOException;
+				
+				public class X {
+					public static int foo(int i) throws IOException {
+						int v ;
+						switch (i) {
+						case 0 -> {
+							v = 0;
+						}
+						case 2 -> {
+							if (i > 1) {
+								v =  2;
+								break;
+							}
+					//		v = 3;
+							break;
+						}
+						default -> throw new IOException();
+						};
+						return v;
+					}
+				\t
+					public boolean bar() {
+						Zork();
+						return true;
+					}
+					public static void main(String[] args) {
+						try {
+							System.out.println(foo(3));
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+				""",
 	};
 	this.runNegativeTest(
 			testFiles,

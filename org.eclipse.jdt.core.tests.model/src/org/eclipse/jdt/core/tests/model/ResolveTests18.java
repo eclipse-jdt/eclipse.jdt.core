@@ -84,15 +84,17 @@ protected void tearDown() throws Exception {
 public void test0001() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	static void goo() {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = X::goo;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				public class X {
+					static void goo() {}
+					public static void main(String[] args) {
+						I i = X::goo;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "goo";
@@ -110,17 +112,19 @@ public void test0001() throws JavaModelException {
 public void test0002() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	static void goo() {}\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = X::goo;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				class Y {
+					static void goo() {}
+				}
+				public class X {
+					public static void main(String[] args) {
+						I i = X::goo;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "goo";
@@ -138,17 +142,19 @@ public void test0002() throws JavaModelException {
 public void test0003() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	private static void goo() {}\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = X::goo;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				class Y {
+					private static void goo() {}
+				}
+				public class X extends Y {
+					public static void main(String[] args) {
+						I i = X::goo;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "goo";
@@ -166,17 +172,19 @@ public void test0003() throws JavaModelException {
 public void test0004() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	static void goo() {}\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = X::goo;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				class Y {
+					static void goo() {}
+				}
+				public class X extends Y {
+					public static void main(String[] args) {
+						I i = X::goo;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "goo";
@@ -194,15 +202,17 @@ public void test0004() throws JavaModelException {
 public void test0005() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	void goo() {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = new X()::goo;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				public class X {
+					void goo() {}
+					public static void main(String[] args) {
+						I i = new X()::goo;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "goo";
@@ -220,17 +230,19 @@ public void test0005() throws JavaModelException {
 public void test0006() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	void goo() {}\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = new X()::goo;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				class Y {
+					void goo() {}
+				}
+				public class X extends Y {
+					public static void main(String[] args) {
+						I i = new X()::goo;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "goo";
@@ -248,15 +260,17 @@ public void test0006() throws JavaModelException {
 public void test0007() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	static void goo() {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = new X()::goo;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				public class X {
+					static void goo() {}
+					public static void main(String[] args) {
+						I i = new X()::goo;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "goo";
@@ -274,17 +288,19 @@ public void test0007() throws JavaModelException {
 public void test0008() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	void foo(X x);\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	void goo() {}\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = new X()::goo;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo(X x);
+				}
+				class Y {
+					void goo() {}
+				}
+				public class X extends Y {
+					public static void main(String[] args) {
+						I i = new X()::goo;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "goo";
@@ -302,17 +318,19 @@ public void test0008() throws JavaModelException {
 public void test0009() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	void foo(X x);\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	static void goo() {}\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = X::goo;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo(X x);
+				}
+				class Y {
+					static void goo() {}
+				}
+				public class X extends Y {
+					public static void main(String[] args) {
+						I i = X::goo;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "goo";
@@ -330,17 +348,19 @@ public void test0009() throws JavaModelException {
 public void test0010() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	void foo(X x);\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	void goo() {}\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = X::goo;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo(X x);
+				}
+				class Y {
+					void goo() {}
+				}
+				public class X extends Y {
+					public static void main(String[] args) {
+						I i = X::goo;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "goo";
@@ -358,18 +378,20 @@ public void test0010() throws JavaModelException {
 public void test0011() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	void foo(X x);\n" +
-			"}\n" +
-			"class Y {\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"	static void goo(X x) {}\n" +
-			"	void goo() {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = X::goo;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo(X x);
+				}
+				class Y {
+				}
+				public class X extends Y {
+					static void goo(X x) {}
+					void goo() {}
+					public static void main(String[] args) {
+						I i = X::goo;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "goo";
@@ -387,18 +409,20 @@ public void test0011() throws JavaModelException {
 public void test0012() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	void foo(X x);\n" +
-			"}\n" +
-			"class Y {\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"	static void goo(X x) {}\n" +
-			"	void goo() {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = X::goo;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo(X x);
+				}
+				class Y {
+				}
+				public class X extends Y {
+					static void goo(X x) {}
+					void goo() {}
+					public static void main(String[] args) {
+						I i = X::goo;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "X";
@@ -416,18 +440,20 @@ public void test0012() throws JavaModelException {
 public void test0013() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	void foo(X x);\n" +
-			"}\n" +
-			"class Y {\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"	static void goo(X x) {}\n" +
-			"	void goo() {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = X::<Y>goo;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo(X x);
+				}
+				class Y {
+				}
+				public class X extends Y {
+					static void goo(X x) {}
+					void goo() {}
+					public static void main(String[] args) {
+						I i = X::<Y>goo;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "Y";
@@ -445,15 +471,17 @@ public void test0013() throws JavaModelException {
 public void test0014() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	X foo(int x);\n" +
-			"}\n" +
-			"class Y {}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = X::<Y>new;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					X foo(int x);
+				}
+				class Y {}
+				public class X {
+					public static void main(String[] args) {
+						I i = X::<Y>new;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "new";
@@ -471,16 +499,18 @@ public void test0014() throws JavaModelException {
 public void test0015() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	X foo(int x);\n" +
-			"}\n" +
-			"class Y {}\n" +
-			"public class X {\n" +
-			"   X(long i) {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = X::<Y>new;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					X foo(int x);
+				}
+				class Y {}
+				public class X {
+				   X(long i) {}
+					public static void main(String[] args) {
+						I i = X::<Y>new;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "new";
@@ -498,16 +528,18 @@ public void test0015() throws JavaModelException {
 public void test0016() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	Y foo(int x);\n" +
-			"}\n" +
-			"class Y {}\n" +
-			"public class X {\n" +
-			"   X(long i) {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = X::<Y>new;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					Y foo(int x);
+				}
+				class Y {}
+				public class X {
+				   X(long i) {}
+					public static void main(String[] args) {
+						I i = X::<Y>new;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "new";
@@ -525,16 +557,18 @@ public void test0016() throws JavaModelException {
 public void test0017() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	Y foo(int x);\n" +
-			"}\n" +
-			"class Y {}\n" +
-			"public class X extends Y {\n" +
-			"   X(long i) {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = X::<Y>new;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					Y foo(int x);
+				}
+				class Y {}
+				public class X extends Y {
+				   X(long i) {}
+					public static void main(String[] args) {
+						I i = X::<Y>new;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "Y";
@@ -552,16 +586,18 @@ public void test0017() throws JavaModelException {
 public void test0018() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	X foo(int x);\n" +
-			"}\n" +
-			"class Y {}\n" +
-			"public class X {\n" +
-			"   X(Integer i) {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = X::<Y>new;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					X foo(int x);
+				}
+				class Y {}
+				public class X {
+				   X(Integer i) {}
+					public static void main(String[] args) {
+						I i = X::<Y>new;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "X";
@@ -579,15 +615,17 @@ public void test0018() throws JavaModelException {
 public void test0019() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	int foo();\n" +
-			"}\n" +
-			"class Y {}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = new X()::<Y>hashCode;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					int foo();
+				}
+				class Y {}
+				public class X {
+					public static void main(String[] args) {
+						I i = new X()::<Y>hashCode;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "hashCode";
@@ -605,15 +643,17 @@ public void test0019() throws JavaModelException {
 public void test0020() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	int foo();\n" +
-			"}\n" +
-			"class Y {}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = ((I)()->0)::<Y>hashCode;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					int foo();
+				}
+				class Y {}
+				public class X {
+					public static void main(String[] args) {
+						I i = ((I)()->0)::<Y>hashCode;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "hashCode";
@@ -631,17 +671,19 @@ public void test0020() throws JavaModelException {
 public void test0021() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	int foo();\n" +
-			"}\n" +
-			"class Y {\n" +
-			"    int foo() { return 10;}\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public void main(String[] args) {\n" +
-			"		I i = super::foo;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					int foo();
+				}
+				class Y {
+				    int foo() { return 10;}
+				}
+				public class X {
+					public void main(String[] args) {
+						I i = super::foo;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "foo";
@@ -659,17 +701,19 @@ public void test0021() throws JavaModelException {
 public void test0022() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	int foo();\n" +
-			"}\n" +
-			"class Y {\n" +
-			"    int foo() { return 10;}\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"	public void main(String[] args) {\n" +
-			"		I i = super::foo;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					int foo();
+				}
+				class Y {
+				    int foo() { return 10;}
+				}
+				public class X extends Y {
+					public void main(String[] args) {
+						I i = super::foo;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "super::foo";
@@ -687,17 +731,19 @@ public void test0022() throws JavaModelException {
 public void test0023() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	int [] foo(int x);\n" +
-			"}\n" +
-			"class Y {\n" +
-			"    int foo() { return 10;}\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"	public void main(String[] args) {\n" +
-			"		I i = int []::new;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					int [] foo(int x);
+				}
+				class Y {
+				    int foo() { return 10;}
+				}
+				public class X extends Y {
+					public void main(String[] args) {
+						I i = int []::new;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "new";
@@ -715,16 +761,18 @@ public void test0023() throws JavaModelException {
 public void test0024() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	int foo(int a);\n" +
-			"}\n" +
-			"public class X {	\n" +
-			"	void foo() {\n" +
-			"		I i = (xyz) -> {\n" +
-			"			return xyz;\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					int foo(int a);
+				}
+				public class X {\t
+					void foo() {
+						I i = (xyz) -> {
+							return xyz;
+						};
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "xyz";
@@ -742,14 +790,16 @@ public void test0024() throws JavaModelException {
 public void test0025() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	int foo(int a);\n" +
-			"}\n" +
-			"public class X {	\n" +
-			"	void foo() {\n" +
-			"		I i = (abc) -> abc++; \n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					int foo(int a);
+				}
+				public class X {\t
+					void foo() {
+						I i = (abc) -> abc++;\s
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "abc";
@@ -767,12 +817,14 @@ public void test0025() throws JavaModelException {
 public void test0026() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	int foo(int a);\n" +
-			"}\n" +
-			"public class X {	\n" +
-			"	I i = (abc) -> abc++; \n" +
-			"}\n");
+			"""
+				interface I {
+					int foo(int a);
+				}
+				public class X {\t
+					I i = (abc) -> abc++;\s
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "abc";
@@ -790,18 +842,20 @@ public void test0026() throws JavaModelException {
 public void test0027() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"    I doit(I xyz);\n" +
-			"}\n" +
-			"public class X { \n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = (pqr) -> {\n" +
-			"			return (xyz) -> {\n" +
-			"				return (abc) -> abc; \n" +
-			"			};\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+				    I doit(I xyz);
+				}
+				public class X {\s
+					public static void main(String[] args) {
+						I i = (pqr) -> {
+							return (xyz) -> {
+								return (abc) -> abc;\s
+							};
+						};
+					}
+				}
+				""");
 	String str = this.wc.getSource();
 	String selection = "abc";
 	int start = str.lastIndexOf(selection);
@@ -818,18 +872,20 @@ public void test0027() throws JavaModelException {
 public void test0028() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"    I doit(I xyz);\n" +
-			"}\n" +
-			"public class X { \n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = (pqr) -> {\n" +
-			"			return (xyz) -> {\n" +
-			"				return (abc) -> xyz; \n" +
-			"			};\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+				    I doit(I xyz);
+				}
+				public class X {\s
+					public static void main(String[] args) {
+						I i = (pqr) -> {
+							return (xyz) -> {
+								return (abc) -> xyz;\s
+							};
+						};
+					}
+				}
+				""");
 	String str = this.wc.getSource();
 	String selection = "xyz";
 	int start = str.lastIndexOf(selection);
@@ -846,18 +902,20 @@ public void test0028() throws JavaModelException {
 public void test0029() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"    I doit(I xyz);\n" +
-			"}\n" +
-			"public class X { \n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = (pqr) -> {\n" +
-			"			return (xyz) -> {\n" +
-			"				return (abc) -> args; \n" +
-			"			};\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+				    I doit(I xyz);
+				}
+				public class X {\s
+					public static void main(String[] args) {
+						I i = (pqr) -> {
+							return (xyz) -> {
+								return (abc) -> args;\s
+							};
+						};
+					}
+				}
+				""");
 	String str = this.wc.getSource();
 	String selection = "args";
 	int start = str.lastIndexOf(selection);
@@ -874,28 +932,30 @@ public void test0029() throws JavaModelException {
 public void test0030() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"    I doit(I xyz);\n" +
-			"}\n" +
-			"public class X { \n" +
-			"	X fx = new X((pqr) -> {\n" +
-			"		return (zyx) -> {\n" +
-			"			return (abc) -> zyx; \n" +
-			"		};\n" +
-			"	});\n" +
-			"	X(I i) {\n" +
-			"	}\n" +
-			"	void foo(X x) {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X x = null;\n" +
-			"		x = new X((pqr) -> {\n" +
-			"			return (xyz) -> {\n" +
-			"				return (abc) -> xyz; \n" +
-			"			};\n" +
-			"		});\n" +
-			"		System.out.println(x);\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+				    I doit(I xyz);
+				}
+				public class X {\s
+					X fx = new X((pqr) -> {
+						return (zyx) -> {
+							return (abc) -> zyx;\s
+						};
+					});
+					X(I i) {
+					}
+					void foo(X x) {}
+					public static void main(String[] args) {
+						X x = null;
+						x = new X((pqr) -> {
+							return (xyz) -> {
+								return (abc) -> xyz;\s
+							};
+						});
+						System.out.println(x);
+					}
+				}
+				""");
 	String str = this.wc.getSource();
 	String selection = "zyx";
 	int start = str.lastIndexOf(selection);
@@ -912,23 +972,25 @@ public void test0030() throws JavaModelException {
 public void test0031() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"    I doit(I xyz);\n" +
-			"}\n" +
-			"public class X { \n" +
-			"	X(I i) {\n" +
-			"	}\n" +
-			"	void foo(X x) {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X x = null;\n" +
-			"		x = new X((pqr) -> {\n" +
-			"			return (xyz) -> {\n" +
-			"				return (abc) -> xyz; \n" +
-			"			};\n" +
-			"		});\n" +
-			"		System.out.println(x);\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+				    I doit(I xyz);
+				}
+				public class X {\s
+					X(I i) {
+					}
+					void foo(X x) {}
+					public static void main(String[] args) {
+						X x = null;
+						x = new X((pqr) -> {
+							return (xyz) -> {
+								return (abc) -> xyz;\s
+							};
+						});
+						System.out.println(x);
+					}
+				}
+				""");
 	String str = this.wc.getSource();
 	String selection = "xyz";
 	int start = str.lastIndexOf(selection);
@@ -945,25 +1007,27 @@ public void test0031() throws JavaModelException {
 public void test0032() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"    I doit(I xyz);\n" +
-			"}\n" +
-			"public class X { \n" +
-			"	X fx = new X((pqr) -> {\n" +
-			"		return (xyz) -> {\n" +
-			"			return (abc) -> xyz; \n" +
-			"		};\n" +
-			"	});\n" +
-			"	X(I i) {\n" +
-			"	}\n" +
-			"	void foo(X x) {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X x = null;\n" +
-			"		I i = args != null ? (mno) -> mno : (def) -> (hij) -> {\n" +
-			"			return hij;\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+				    I doit(I xyz);
+				}
+				public class X {\s
+					X fx = new X((pqr) -> {
+						return (xyz) -> {
+							return (abc) -> xyz;\s
+						};
+					});
+					X(I i) {
+					}
+					void foo(X x) {}
+					public static void main(String[] args) {
+						X x = null;
+						I i = args != null ? (mno) -> mno : (def) -> (hij) -> {
+							return hij;
+						};
+					}
+				}
+				""");
 	String str = this.wc.getSource();
 	String selection = "hij";
 	int start = str.lastIndexOf(selection);
@@ -980,26 +1044,28 @@ public void test0032() throws JavaModelException {
 public void test0033() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"    I doit(I xyz);\n" +
-			"}\n" +
-			"public class X { \n" +
-			"	X fx = new X((pqr) -> {\n" +
-			"		return (xyz) -> {\n" +
-			"			return (abc) -> xyz; \n" +
-			"		};\n" +
-			"	});\n" +
-			"	X(I i) {\n" +
-			"	}\n" +
-			"	void foo(X x) {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X x = null;\n" +
-			"		I i;\n" +
-			"       i = args != null ? (mno) -> mno : (def) -> (hij) -> {\n" +
-			"			return hij;\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+				    I doit(I xyz);
+				}
+				public class X {\s
+					X fx = new X((pqr) -> {
+						return (xyz) -> {
+							return (abc) -> xyz;\s
+						};
+					});
+					X(I i) {
+					}
+					void foo(X x) {}
+					public static void main(String[] args) {
+						X x = null;
+						I i;
+				       i = args != null ? (mno) -> mno : (def) -> (hij) -> {
+							return hij;
+						};
+					}
+				}
+				""");
 	String str = this.wc.getSource();
 	String selection = "hij";
 	int start = str.lastIndexOf(selection);
@@ -1017,11 +1083,13 @@ public void test0033() throws JavaModelException {
 public void testBug408230a() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
-		String source = "package p;\n" +
-				"public class X {\n" +
-				"  FI i1 = (a, barg) -> a+barg;\n" +
-				"}\n" +
-				"interface FI { int f1(int a, int b); }\n";
+		String source = """
+			package p;
+			public class X {
+			  FI i1 = (a, barg) -> a+barg;
+			}
+			interface FI { int f1(int a, int b); }
+			""";
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -1040,13 +1108,15 @@ public void testBug408230a() throws CoreException {
 public void testBug408230b() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
-		String source = "package p;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"	FI i2 = (a, barg) -> { return a+barg; };\n" +
-				"  }\n" +
-				"}\n" +
-				"interface FI { int f1(int a, int b); }\n";
+		String source = """
+			package p;
+			public class X {
+			  void foo() {
+				FI i2 = (a, barg) -> { return a+barg; };
+			  }
+			}
+			interface FI { int f1(int a, int b); }
+			""";
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -1065,13 +1135,15 @@ public void testBug408230b() throws CoreException {
 public void testBug408230c() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
-		String source = "package p;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"	FI i2 = (a, barg) -> { int x = 2; while (x < 2) { x++; } return a+barg; };\n" +
-				"  }\n" +
-				"}\n" +
-				"interface FI { int f1(int a, int b); }\n";
+		String source = """
+			package p;
+			public class X {
+			  void foo() {
+				FI i2 = (a, barg) -> { int x = 2; while (x < 2) { x++; } return a+barg; };
+			  }
+			}
+			interface FI { int f1(int a, int b); }
+			""";
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -1090,11 +1162,13 @@ public void testBug408230c() throws CoreException {
 public void testBug408230d() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
-		String source = "package p;\n" +
-				"public class X {\n" +
-				"  FI i1 = (barg) -> ++barg;\n" +
-				"}\n" +
-				"interface FI { int f1(int b); }\n";
+		String source = """
+			package p;
+			public class X {
+			  FI i1 = (barg) -> ++barg;
+			}
+			interface FI { int f1(int b); }
+			""";
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -1113,11 +1187,13 @@ public void testBug408230d() throws CoreException {
 public void testBug408230e() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
-		String source = "package p;\n" +
-				"public class X {\n" +
-				"  FI i1 = (aarg) -> { return aarg++;};\n" +
-				"}\n" +
-				"interface FI { int f1(int a); }\n";
+		String source = """
+			package p;
+			public class X {
+			  FI i1 = (aarg) -> { return aarg++;};
+			}
+			interface FI { int f1(int a); }
+			""";
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -1136,11 +1212,13 @@ public void testBug408230e() throws CoreException {
 public void testBug408230f() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
-		String source = "package p;\n" +
-				"public class X {\n" +
-				"  FI i1 = (aarg) -> {  int x = aarg; return aarg++;};\n" +
-				"}\n" +
-				"interface FI { int f1(int a); }\n";
+		String source = """
+			package p;
+			public class X {
+			  FI i1 = (aarg) -> {  int x = aarg; return aarg++;};
+			}
+			interface FI { int f1(int a); }
+			""";
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -1159,14 +1237,16 @@ public void testBug408230f() throws CoreException {
 public void testBug408230g() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
-		String source = "package p;\n" +
-				"public class X {\n" +
-				" public void boo(FI fi) {}\n" +
-				"  void foo() {\n" +
-				"	boo((aarg) -> aarg++);\n" +
-				"  }\n" +
-				"}\n" +
-				"interface FI { int f1(int a); }\n";
+		String source = """
+			package p;
+			public class X {
+			 public void boo(FI fi) {}
+			  void foo() {
+				boo((aarg) -> aarg++);
+			  }
+			}
+			interface FI { int f1(int a); }
+			""";
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -1185,14 +1265,16 @@ public void testBug408230g() throws CoreException {
 public void testBug408230h() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
-		String source = "package p;\n" +
-				"public class X {\n" +
-				" public void boo(FI fi) {}\n" +
-				"  void foo() {\n" +
-				"	boo((aarg) -> {int b = 10; return aarg++;});\n" +
-				"  }\n" +
-				"}\n" +
-				"interface FI { int f1(int a); }\n";
+		String source = """
+			package p;
+			public class X {
+			 public void boo(FI fi) {}
+			  void foo() {
+				boo((aarg) -> {int b = 10; return aarg++;});
+			  }
+			}
+			interface FI { int f1(int a); }
+			""";
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -1211,14 +1293,16 @@ public void testBug408230h() throws CoreException {
 public void testBug408230i() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
-		String source = "package p;\n" +
-				"public class X {\n" +
-				" public void boo(FI fi) {}\n" +
-				"  void foo() {\n" +
-				"	boo((aarg, x) -> x + aarg++);\n" +
-				"  }\n" +
-				"}\n" +
-				"interface FI { int f1(int a, int b); }\n";
+		String source = """
+			package p;
+			public class X {
+			 public void boo(FI fi) {}
+			  void foo() {
+				boo((aarg, x) -> x + aarg++);
+			  }
+			}
+			interface FI { int f1(int a, int b); }
+			""";
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -1237,14 +1321,16 @@ public void testBug408230i() throws CoreException {
 public void testBug408230j() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
-		String source = "package p;\n" +
-				"public class X {\n" +
-				" public void boo(FI fi) {}\n" +
-				"  void foo() {\n" +
-				"	boo((aarg, x) -> {int b = 10; return x + aarg++;});\n" +
-				"  }\n" +
-				"}\n" +
-				"interface FI { int f1(int a, int b); }\n";
+		String source = """
+			package p;
+			public class X {
+			 public void boo(FI fi) {}
+			  void foo() {
+				boo((aarg, x) -> {int b = 10; return x + aarg++;});
+			  }
+			}
+			interface FI { int f1(int a, int b); }
+			""";
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -1263,14 +1349,16 @@ public void testBug408230j() throws CoreException {
 public void testBug408230k() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
-		String source = "package p;\n" +
-				"public class X {\n" +
-				" public void boo(int x, int y, FI fi) {}\n" +
-				"  void foo() {\n" +
-				"	boo(2, 4, (aarg) -> aarg++);\n" +
-				"  }\n" +
-				"}\n" +
-				"interface FI { int f1(int a); }\n";
+		String source = """
+			package p;
+			public class X {
+			 public void boo(int x, int y, FI fi) {}
+			  void foo() {
+				boo(2, 4, (aarg) -> aarg++);
+			  }
+			}
+			interface FI { int f1(int a); }
+			""";
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -1289,14 +1377,16 @@ public void testBug408230k() throws CoreException {
 public void testBug408230l() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
-		String source = "package p;\n" +
-				"public class X {\n" +
-				" public void boo(int x, FI fi) {}\n" +
-				"  void foo() {\n" +
-				"	boo(2, (aarg) -> {int b = 10; return aarg++;});\n" +
-				"  }\n" +
-				"}\n" +
-				"interface FI { int f1(int a); }\n";
+		String source = """
+			package p;
+			public class X {
+			 public void boo(int x, FI fi) {}
+			  void foo() {
+				boo(2, (aarg) -> {int b = 10; return aarg++;});
+			  }
+			}
+			interface FI { int f1(int a); }
+			""";
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -1315,14 +1405,16 @@ public void testBug408230l() throws CoreException {
 public void testBug408230m() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
-		String source = "package p;\n" +
-				"public class X {\n" +
-				" public void boo(int x, int y, FI fi) {}\n" +
-				"  void foo() {\n" +
-				"	boo(2, 5+6, (aarg, x) -> x + aarg++);\n" +
-				"  }\n" +
-				"}\n" +
-				"interface FI { int f1(int a, int b); }\n";
+		String source = """
+			package p;
+			public class X {
+			 public void boo(int x, int y, FI fi) {}
+			  void foo() {
+				boo(2, 5+6, (aarg, x) -> x + aarg++);
+			  }
+			}
+			interface FI { int f1(int a, int b); }
+			""";
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -1341,14 +1433,16 @@ public void testBug408230m() throws CoreException {
 public void testBug408230n() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
-		String source = "package p;\n" +
-				"public class X {\n" +
-				" public void boo(int x, FI fi) {}\n" +
-				"  void foo() {\n" +
-				"	boo(2, (aarg, x) -> {int b = 10; return x + aarg++;});\n" +
-				"  }\n" +
-				"}\n" +
-				"interface FI { int f1(int a, int b); }\n";
+		String source = """
+			package p;
+			public class X {
+			 public void boo(int x, FI fi) {}
+			  void foo() {
+				boo(2, (aarg, x) -> {int b = 10; return x + aarg++;});
+			  }
+			}
+			interface FI { int f1(int a, int b); }
+			""";
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -1368,21 +1462,23 @@ public void testBug408230n() throws CoreException {
 public void test417935() throws JavaModelException {  // JCL_MIN does not have the relevant classes - these are needed to handle lambda. Use local versions.
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"class Collections {\n" +
-			"	public static void sort(ArrayList list, Comparator c) {\n" +
-			"	}\n" +
-			"}\n" +
-			"interface Comparator {\n" +
-			"	int compareTo(X t, X s);\n" +
-			"}\n" +
-			"class ArrayList {\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	int compareTo(X x) { return 0; }\n" +
-			"	void foo() {\n" +
-			"		Collections.sort(new ArrayList(), (X o1, X o2) -> o1.compareTo(o2));\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				class Collections {
+					public static void sort(ArrayList list, Comparator c) {
+					}
+				}
+				interface Comparator {
+					int compareTo(X t, X s);
+				}
+				class ArrayList {
+				}
+				public class X {
+					int compareTo(X x) { return 0; }
+					void foo() {
+						Collections.sort(new ArrayList(), (X o1, X o2) -> o1.compareTo(o2));
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "compareTo";
@@ -1400,22 +1496,24 @@ public void test417935() throws JavaModelException {  // JCL_MIN does not have t
 public void test417935a() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"import java.util.ArrayList;\n" +
-			"import java.util.Arrays;\n" +
-			"import java.util.Collections;\n" +
-			"import java.util.Comparator;\n" +
-			"public class X {\n" +
-			"   int compareTo(X x) { return 0; }\n" +
-			"	void foo() {\n" +
-			"		Collections.sort(new ArrayList<X>(Arrays.asList(new X(), new X(), new X()),\n" +
-			"				new Comparator<X>() {\n" +
-			"					@Override\n" +
-			"					public int compare(X o1, X o2) {\n" +
-			"						return o1.compareTo(o2);\n" +
-			"					}\n" +
-			"				});\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.ArrayList;
+				import java.util.Arrays;
+				import java.util.Collections;
+				import java.util.Comparator;
+				public class X {
+				   int compareTo(X x) { return 0; }
+					void foo() {
+						Collections.sort(new ArrayList<X>(Arrays.asList(new X(), new X(), new X()),
+								new Comparator<X>() {
+									@Override
+									public int compare(X o1, X o2) {
+										return o1.compareTo(o2);
+									}
+								});
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "compareTo";
@@ -1432,12 +1530,14 @@ public void test417935a() throws JavaModelException {
 public void testFieldInit() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	void foo(int x, int y);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	I i = (first, second) -> { System.out.println(first); };\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo(int x, int y);
+				}
+				public class X {
+					I i = (first, second) -> { System.out.println(first); };
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "first";
@@ -1455,12 +1555,14 @@ public void testFieldInit() throws JavaModelException {
 public void test422468() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	void foo(X x, Object y);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	I i = (first, second) -> { System.out.println(); };\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo(X x, Object y);
+				}
+				public class X {
+					I i = (first, second) -> { System.out.println(); };
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "first";
@@ -1478,12 +1580,14 @@ public void test422468() throws JavaModelException {
 public void test422468a() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	void foo(X x, Object y);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	I i = (first, second) -> { System.out.println(); };\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo(X x, Object y);
+				}
+				public class X {
+					I i = (first, second) -> { System.out.println(); };
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "second";
@@ -1501,15 +1605,17 @@ public void test422468a() throws JavaModelException {
 public void test422468b() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	I foo (I x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	static void goo(I i) {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		goo((x) -> (y) -> (z) -> z.foo((p) -> p));\n" +
-			"	}\n" +
-			"} \n");
+			"""
+				interface I {
+					I foo (I x);
+				}
+				public class X {
+					static void goo(I i) {}
+					public static void main(String[] args) {
+						goo((x) -> (y) -> (z) -> z.foo((p) -> p));
+					}
+				}\s
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "y";
@@ -1527,15 +1633,17 @@ public void test422468b() throws JavaModelException {
 public void test422468c() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	I foo (I x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	static void goo(I i) {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		goo( x -> y -> z -> z.foo(p -> p));\n" +
-			"	}\n" +
-			"} \n");
+			"""
+				interface I {
+					I foo (I x);
+				}
+				public class X {
+					static void goo(I i) {}
+					public static void main(String[] args) {
+						goo( x -> y -> z -> z.foo(p -> p));
+					}
+				}\s
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "y";
@@ -1553,21 +1661,23 @@ public void test422468c() throws JavaModelException {
 public void test422468d() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	J foo(String x, String y);\n" +
-			"}\n" +
-			"interface J {\n" +
-			"	K foo(String x, String y);\n" +
-			"}\n" +
-			"interface K {\n" +
-			"	int foo(String x, int y);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	static void goo(K i) {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = (x, y) -> { return (a, b) -> (p, q) -> a.length(); };\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					J foo(String x, String y);
+				}
+				interface J {
+					K foo(String x, String y);
+				}
+				interface K {
+					int foo(String x, int y);
+				}
+				public class X {
+					static void goo(K i) {}
+					public static void main(String[] args) {
+						I i = (x, y) -> { return (a, b) -> (p, q) -> a.length(); };
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "a.length";
@@ -1585,21 +1695,23 @@ public void test422468d() throws JavaModelException {
 public void test422468e() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	J foo(String x, String y);\n" +
-			"}\n" +
-			"interface J {\n" +
-			"	K foo(String x, String y);\n" +
-			"}\n" +
-			"interface K {\n" +
-			"	int foo(String x, int y);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	static void goo(K i) {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = (x, y) -> { return (a, b) -> (p, q) -> a.length(); };\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					J foo(String x, String y);
+				}
+				interface J {
+					K foo(String x, String y);
+				}
+				interface K {
+					int foo(String x, int y);
+				}
+				public class X {
+					static void goo(K i) {}
+					public static void main(String[] args) {
+						I i = (x, y) -> { return (a, b) -> (p, q) -> a.length(); };
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "q";
@@ -1617,24 +1729,26 @@ public void test422468e() throws JavaModelException {
 public void testParser() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {\n" +
-			"	int foo(String x, Integer y);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = (x, y) -> {\n" +
-			"			x = \"Hello\"\n" +
-			"			y = 10;		\n" +
-			"			if (x.length() > y) {\n" +
-			"				System.out.println(\"if\");\n" +
-			"			} else {\n" +
-			"				System.out.println(\"else\");\n" +
-			"			}\n" +
-			"			return x.length();\n" +
-			"		};\n" +
-			"		// System.out.println((I) (p, q) -> { return q.\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					int foo(String x, Integer y);
+				}
+				public class X {
+					public static void main(String[] args) {
+						I i = (x, y) -> {
+							x = "Hello"
+							y = 10;	\t
+							if (x.length() > y) {
+								System.out.println("if");
+							} else {
+								System.out.println("else");
+							}
+							return x.length();
+						};
+						// System.out.println((I) (p, q) -> { return q.
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "x";
@@ -1652,19 +1766,21 @@ public void testParser() throws JavaModelException {
 public void test424110() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"public class X {\n" +
-			"	static F f = X::m; // [1] Works\n" +
-			"	int i = fun(X::m); // [2] Does not work\n" +
-			"	public static int m(int x) {\n" +
-			"		return x;\n" +
-			"	}\n" +
-			"	private int fun(F f) {\n" +
-			"		return f.foo(0);\n" +
-			"	}\n" +
-			"}\n" +
-			"interface F {\n" +
-			"	int foo(int x);\n" +
-			"}\n");
+			"""
+				public class X {
+					static F f = X::m; // [1] Works
+					int i = fun(X::m); // [2] Does not work
+					public static int m(int x) {
+						return x;
+					}
+					private int fun(F f) {
+						return f.foo(0);
+					}
+				}
+				interface F {
+					int foo(int x);
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "m";
@@ -1682,18 +1798,20 @@ public void test424110() throws JavaModelException {
 public void test424110a() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"public class X {\n" +
-			"	int i = fun(X::m); // [2] Does not work\n" +
-			"	public static int m(int x) {\n" +
-			"		return x;\n" +
-			"	}\n" +
-			"	private int fun(F f) {\n" +
-			"		return f.foo(0);\n" +
-			"	}\n" +
-			"}\n" +
-			"interface F {\n" +
-			"	int foo(int x);\n" +
-			"}\n");
+			"""
+				public class X {
+					int i = fun(X::m); // [2] Does not work
+					public static int m(int x) {
+						return x;
+					}
+					private int fun(F f) {
+						return f.foo(0);
+					}
+				}
+				interface F {
+					int foo(int x);
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "m";
@@ -1711,24 +1829,26 @@ public void test424110a() throws JavaModelException {
 public void test424071() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"import java.util.List;\n" +
-			"import java.util.Map;\n" +
-			"import java.util.stream.Collectors;\n" +
-			"class Person {\n" +
-			"	String getLast() { return \"\"; };\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	void test1(List<Person> roster) {\n" +
-			"        Map<String, Person> map = \n" +
-			"                roster\n" +
-			"                    .stream()\n" +
-			"                    .collect(\n" +
-			"                        Collectors.toMap(\n" +
-			"                            p -> p.getLast(), //[1]\n" +
-			"                            p -> p            //[2]\n" +
-			"                        ));\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.List;
+				import java.util.Map;
+				import java.util.stream.Collectors;
+				class Person {
+					String getLast() { return ""; };
+				}
+				public class X {
+					void test1(List<Person> roster) {
+				        Map<String, Person> map =\s
+				                roster
+				                    .stream()
+				                    .collect(
+				                        Collectors.toMap(
+				                            p -> p.getLast(), //[1]
+				                            p -> p            //[2]
+				                        ));
+					}
+				}
+				"""
 			);
 
 	String str = this.wc.getSource();
@@ -1747,52 +1867,54 @@ public void test424071() throws JavaModelException {
 public void test424198() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"import java.io.IOException;\n" +
-			"import java.nio.file.Path;\n" +
-			"import java.util.ArrayList;\n" +
-			"import java.util.List;\n" +
-			"import java.util.function.Function;\n" +
-			"import java.util.jar.JarEntry;\n" +
-			"import java.util.jar.JarFile;\n" +
-			"import java.util.stream.Collectors;\n" +
-			"import java.util.stream.Stream;\n" +
-			"class InsistentCapture {\n" +
-			"  static void processJar(Path plugin) throws IOException {\n" +
-			"    try(JarFile jar = new JarFile(plugin.toFile())) {\n" +
-			"      try(Stream<JarEntry> entries = jar.stream()) {\n" +
-			"        Function<? super JarEntry, ? extends String> toName =\n" +
-			"          entry -> entry.getName();\n" +
-			"        Stream<? extends String> stream = entries.map(toName).distinct(); // Ok\n" +
-			"        withWildcard(entries.map(toName).distinct()); // Ok\n" +
-			"        withWildcard(stream); // Ok\n" +
-			"        Stream<String> stream2 = entries.map(toName).distinct(); // ERROR\n" +
-			"        withoutWildcard(entries.map(toName).distinct()); // ERROR\n" +
-			"        withoutWildcard(stream); // ERROR\n" +
-			"        withoutWildcard(stream2); // Ok\n" +
-			"        withoutWildcard(coerce(stream)); // Ok\n" +
-			"        withoutWildcard(stream.map((String v1) -> { // ERROR\n" +
-			"          String r = \"\" + v1; // Hover on v: Ok\n" +
-			"          return r;\n" +
-			"        }));\n" +
-			"        withoutWildcard(stream.map((v2) -> { // Ok\n" +
-			"          String r = \"\" + v2; // Hover on v: NOT OK\n" +
-			"          return r;\n" +
-			"        }));\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  private static Stream<String> coerce(Stream<? extends String> stream) {\n" +
-			"    if(\"1\" == \"\") { return stream.collect(Collectors.toList()).stream(); // ERROR\n" +
-			"    }\n" +
-			"    return stream.collect(Collectors.toList()); // NO ERROR\n" +
-			"  }\n" +
-			"  private static void withWildcard(Stream<? extends String> distinct) {\n" +
-			"    distinct.forEach(s1 -> System.out.println(s1)); // hover on s: NOT OK\n" +
-			"  }\n" +
-			"  private static void withoutWildcard(Stream<String> distinct) {\n" +
-			"    distinct.forEach(s2 -> System.out.println(s2)); // hover on s: Ok\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.IOException;
+				import java.nio.file.Path;
+				import java.util.ArrayList;
+				import java.util.List;
+				import java.util.function.Function;
+				import java.util.jar.JarEntry;
+				import java.util.jar.JarFile;
+				import java.util.stream.Collectors;
+				import java.util.stream.Stream;
+				class InsistentCapture {
+				  static void processJar(Path plugin) throws IOException {
+				    try(JarFile jar = new JarFile(plugin.toFile())) {
+				      try(Stream<JarEntry> entries = jar.stream()) {
+				        Function<? super JarEntry, ? extends String> toName =
+				          entry -> entry.getName();
+				        Stream<? extends String> stream = entries.map(toName).distinct(); // Ok
+				        withWildcard(entries.map(toName).distinct()); // Ok
+				        withWildcard(stream); // Ok
+				        Stream<String> stream2 = entries.map(toName).distinct(); // ERROR
+				        withoutWildcard(entries.map(toName).distinct()); // ERROR
+				        withoutWildcard(stream); // ERROR
+				        withoutWildcard(stream2); // Ok
+				        withoutWildcard(coerce(stream)); // Ok
+				        withoutWildcard(stream.map((String v1) -> { // ERROR
+				          String r = "" + v1; // Hover on v: Ok
+				          return r;
+				        }));
+				        withoutWildcard(stream.map((v2) -> { // Ok
+				          String r = "" + v2; // Hover on v: NOT OK
+				          return r;
+				        }));
+				      }
+				    }
+				  }
+				  private static Stream<String> coerce(Stream<? extends String> stream) {
+				    if("1" == "") { return stream.collect(Collectors.toList()).stream(); // ERROR
+				    }
+				    return stream.collect(Collectors.toList()); // NO ERROR
+				  }
+				  private static void withWildcard(Stream<? extends String> distinct) {
+				    distinct.forEach(s1 -> System.out.println(s1)); // hover on s: NOT OK
+				  }
+				  private static void withoutWildcard(Stream<String> distinct) {
+				    distinct.forEach(s2 -> System.out.println(s2)); // hover on s: Ok
+				  }
+				}
+				"""
 			);
 
 	String str = this.wc.getSource();
@@ -1812,52 +1934,54 @@ public void test424198() throws JavaModelException {
 public void test424198a() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"import java.io.IOException;\n" +
-			"import java.nio.file.Path;\n" +
-			"import java.util.ArrayList;\n" +
-			"import java.util.List;\n" +
-			"import java.util.function.Function;\n" +
-			"import java.util.jar.JarEntry;\n" +
-			"import java.util.jar.JarFile;\n" +
-			"import java.util.stream.Collectors;\n" +
-			"import java.util.stream.Stream;\n" +
-			"class InsistentCapture {\n" +
-			"  static void processJar(Path plugin) throws IOException {\n" +
-			"    try(JarFile jar = new JarFile(plugin.toFile())) {\n" +
-			"      try(Stream<JarEntry> entries = jar.stream()) {\n" +
-			"        Function<? super JarEntry, ? extends String> toName =\n" +
-			"          entry -> entry.getName();\n" +
-			"        Stream<? extends String> stream = entries.map(toName).distinct(); // Ok\n" +
-			"        withWildcard(entries.map(toName).distinct()); // Ok\n" +
-			"        withWildcard(stream); // Ok\n" +
-			"        Stream<String> stream2 = entries.map(toName).distinct(); // ERROR\n" +
-			"        withoutWildcard(entries.map(toName).distinct()); // ERROR\n" +
-			"        withoutWildcard(stream); // ERROR\n" +
-			"        withoutWildcard(stream2); // Ok\n" +
-			"        withoutWildcard(coerce(stream)); // Ok\n" +
-			"        withoutWildcard(stream.map((String v1) -> { // ERROR\n" +
-			"          String r = \"\" + v1; // Hover on v: Ok\n" +
-			"          return r;\n" +
-			"        }));\n" +
-			"        withoutWildcard(stream.map((v2) -> { // Ok\n" +
-			"          String r = \"\" + v2; // Hover on v: NOT OK\n" +
-			"          return r;\n" +
-			"        }));\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  private static Stream<String> coerce(Stream<? extends String> stream) {\n" +
-			"    if(\"1\" == \"\") { return stream.collect(Collectors.toList()).stream(); // ERROR\n" +
-			"    }\n" +
-			"    return stream.collect(Collectors.toList()); // NO ERROR\n" +
-			"  }\n" +
-			"  private static void withWildcard(Stream<? extends String> distinct) {\n" +
-			"    distinct.forEach(s1 -> System.out.println(s1)); // hover on s: NOT OK\n" +
-			"  }\n" +
-			"  private static void withoutWildcard(Stream<String> distinct) {\n" +
-			"    distinct.forEach(s2 -> System.out.println(s2)); // hover on s: Ok\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.IOException;
+				import java.nio.file.Path;
+				import java.util.ArrayList;
+				import java.util.List;
+				import java.util.function.Function;
+				import java.util.jar.JarEntry;
+				import java.util.jar.JarFile;
+				import java.util.stream.Collectors;
+				import java.util.stream.Stream;
+				class InsistentCapture {
+				  static void processJar(Path plugin) throws IOException {
+				    try(JarFile jar = new JarFile(plugin.toFile())) {
+				      try(Stream<JarEntry> entries = jar.stream()) {
+				        Function<? super JarEntry, ? extends String> toName =
+				          entry -> entry.getName();
+				        Stream<? extends String> stream = entries.map(toName).distinct(); // Ok
+				        withWildcard(entries.map(toName).distinct()); // Ok
+				        withWildcard(stream); // Ok
+				        Stream<String> stream2 = entries.map(toName).distinct(); // ERROR
+				        withoutWildcard(entries.map(toName).distinct()); // ERROR
+				        withoutWildcard(stream); // ERROR
+				        withoutWildcard(stream2); // Ok
+				        withoutWildcard(coerce(stream)); // Ok
+				        withoutWildcard(stream.map((String v1) -> { // ERROR
+				          String r = "" + v1; // Hover on v: Ok
+				          return r;
+				        }));
+				        withoutWildcard(stream.map((v2) -> { // Ok
+				          String r = "" + v2; // Hover on v: NOT OK
+				          return r;
+				        }));
+				      }
+				    }
+				  }
+				  private static Stream<String> coerce(Stream<? extends String> stream) {
+				    if("1" == "") { return stream.collect(Collectors.toList()).stream(); // ERROR
+				    }
+				    return stream.collect(Collectors.toList()); // NO ERROR
+				  }
+				  private static void withWildcard(Stream<? extends String> distinct) {
+				    distinct.forEach(s1 -> System.out.println(s1)); // hover on s: NOT OK
+				  }
+				  private static void withoutWildcard(Stream<String> distinct) {
+				    distinct.forEach(s2 -> System.out.println(s2)); // hover on s: Ok
+				  }
+				}
+				"""
 			);
 
 	String str = this.wc.getSource();
@@ -1877,52 +2001,54 @@ public void test424198a() throws JavaModelException {
 public void test424198b() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"import java.io.IOException;\n" +
-			"import java.nio.file.Path;\n" +
-			"import java.util.ArrayList;\n" +
-			"import java.util.List;\n" +
-			"import java.util.function.Function;\n" +
-			"import java.util.jar.JarEntry;\n" +
-			"import java.util.jar.JarFile;\n" +
-			"import java.util.stream.Collectors;\n" +
-			"import java.util.stream.Stream;\n" +
-			"class InsistentCapture {\n" +
-			"  static void processJar(Path plugin) throws IOException {\n" +
-			"    try(JarFile jar = new JarFile(plugin.toFile())) {\n" +
-			"      try(Stream<JarEntry> entries = jar.stream()) {\n" +
-			"        Function<? super JarEntry, ? extends String> toName =\n" +
-			"          entry -> entry.getName();\n" +
-			"        Stream<? extends String> stream = entries.map(toName).distinct(); // Ok\n" +
-			"        withWildcard(entries.map(toName).distinct()); // Ok\n" +
-			"        withWildcard(stream); // Ok\n" +
-			"        Stream<String> stream2 = entries.map(toName).distinct(); // ERROR\n" +
-			"        withoutWildcard(entries.map(toName).distinct()); // ERROR\n" +
-			"        withoutWildcard(stream); // ERROR\n" +
-			"        withoutWildcard(stream2); // Ok\n" +
-			"        withoutWildcard(coerce(stream)); // Ok\n" +
-			"        withoutWildcard(stream.map((String v1) -> { // ERROR\n" +
-			"          String r = \"\" + v1; // Hover on v: Ok\n" +
-			"          return r;\n" +
-			"        }));\n" +
-			"        withoutWildcard(stream.map((v2) -> { // Ok\n" +
-			"          String r = \"\" + v2; // Hover on v: NOT OK\n" +
-			"          return r;\n" +
-			"        }));\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  private static Stream<String> coerce(Stream<? extends String> stream) {\n" +
-			"    if(\"1\" == \"\") { return stream.collect(Collectors.toList()).stream(); // ERROR\n" +
-			"    }\n" +
-			"    return stream.collect(Collectors.toList()); // NO ERROR\n" +
-			"  }\n" +
-			"  private static void withWildcard(Stream<? extends String> distinct) {\n" +
-			"    distinct.forEach(s1 -> System.out.println(s1)); // hover on s: NOT OK\n" +
-			"  }\n" +
-			"  private static void withoutWildcard(Stream<String> distinct) {\n" +
-			"    distinct.forEach(s2 -> System.out.println(s2)); // hover on s: Ok\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.IOException;
+				import java.nio.file.Path;
+				import java.util.ArrayList;
+				import java.util.List;
+				import java.util.function.Function;
+				import java.util.jar.JarEntry;
+				import java.util.jar.JarFile;
+				import java.util.stream.Collectors;
+				import java.util.stream.Stream;
+				class InsistentCapture {
+				  static void processJar(Path plugin) throws IOException {
+				    try(JarFile jar = new JarFile(plugin.toFile())) {
+				      try(Stream<JarEntry> entries = jar.stream()) {
+				        Function<? super JarEntry, ? extends String> toName =
+				          entry -> entry.getName();
+				        Stream<? extends String> stream = entries.map(toName).distinct(); // Ok
+				        withWildcard(entries.map(toName).distinct()); // Ok
+				        withWildcard(stream); // Ok
+				        Stream<String> stream2 = entries.map(toName).distinct(); // ERROR
+				        withoutWildcard(entries.map(toName).distinct()); // ERROR
+				        withoutWildcard(stream); // ERROR
+				        withoutWildcard(stream2); // Ok
+				        withoutWildcard(coerce(stream)); // Ok
+				        withoutWildcard(stream.map((String v1) -> { // ERROR
+				          String r = "" + v1; // Hover on v: Ok
+				          return r;
+				        }));
+				        withoutWildcard(stream.map((v2) -> { // Ok
+				          String r = "" + v2; // Hover on v: NOT OK
+				          return r;
+				        }));
+				      }
+				    }
+				  }
+				  private static Stream<String> coerce(Stream<? extends String> stream) {
+				    if("1" == "") { return stream.collect(Collectors.toList()).stream(); // ERROR
+				    }
+				    return stream.collect(Collectors.toList()); // NO ERROR
+				  }
+				  private static void withWildcard(Stream<? extends String> distinct) {
+				    distinct.forEach(s1 -> System.out.println(s1)); // hover on s: NOT OK
+				  }
+				  private static void withoutWildcard(Stream<String> distinct) {
+				    distinct.forEach(s2 -> System.out.println(s2)); // hover on s: Ok
+				  }
+				}
+				"""
 			);
 
 	String str = this.wc.getSource();
@@ -1942,52 +2068,54 @@ public void test424198b() throws JavaModelException {
 public void test424198c() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"import java.io.IOException;\n" +
-			"import java.nio.file.Path;\n" +
-			"import java.util.ArrayList;\n" +
-			"import java.util.List;\n" +
-			"import java.util.function.Function;\n" +
-			"import java.util.jar.JarEntry;\n" +
-			"import java.util.jar.JarFile;\n" +
-			"import java.util.stream.Collectors;\n" +
-			"import java.util.stream.Stream;\n" +
-			"class InsistentCapture {\n" +
-			"  static void processJar(Path plugin) throws IOException {\n" +
-			"    try(JarFile jar = new JarFile(plugin.toFile())) {\n" +
-			"      try(Stream<JarEntry> entries = jar.stream()) {\n" +
-			"        Function<? super JarEntry, ? extends String> toName =\n" +
-			"          entry -> entry.getName();\n" +
-			"        Stream<? extends String> stream = entries.map(toName).distinct(); // Ok\n" +
-			"        withWildcard(entries.map(toName).distinct()); // Ok\n" +
-			"        withWildcard(stream); // Ok\n" +
-			"        Stream<String> stream2 = entries.map(toName).distinct(); // ERROR\n" +
-			"        withoutWildcard(entries.map(toName).distinct()); // ERROR\n" +
-			"        withoutWildcard(stream); // ERROR\n" +
-			"        withoutWildcard(stream2); // Ok\n" +
-			"        withoutWildcard(coerce(stream)); // Ok\n" +
-			"        withoutWildcard(stream.map((String v1) -> { // ERROR\n" +
-			"          String r = \"\" + v1; // Hover on v: Ok\n" +
-			"          return r;\n" +
-			"        }));\n" +
-			"        withoutWildcard(stream.map((v2) -> { // Ok\n" +
-			"          String r = \"\" + v2; // Hover on v: NOT OK\n" +
-			"          return r;\n" +
-			"        }));\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  private static Stream<String> coerce(Stream<? extends String> stream) {\n" +
-			"    if(\"1\" == \"\") { return stream.collect(Collectors.toList()).stream(); // ERROR\n" +
-			"    }\n" +
-			"    return stream.collect(Collectors.toList()); // NO ERROR\n" +
-			"  }\n" +
-			"  private static void withWildcard(Stream<? extends String> distinct) {\n" +
-			"    distinct.forEach(s1 -> System.out.println(s1)); // hover on s: NOT OK\n" +
-			"  }\n" +
-			"  private static void withoutWildcard(Stream<String> distinct) {\n" +
-			"    distinct.forEach(s2 -> System.out.println(s2)); // hover on s: Ok\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.IOException;
+				import java.nio.file.Path;
+				import java.util.ArrayList;
+				import java.util.List;
+				import java.util.function.Function;
+				import java.util.jar.JarEntry;
+				import java.util.jar.JarFile;
+				import java.util.stream.Collectors;
+				import java.util.stream.Stream;
+				class InsistentCapture {
+				  static void processJar(Path plugin) throws IOException {
+				    try(JarFile jar = new JarFile(plugin.toFile())) {
+				      try(Stream<JarEntry> entries = jar.stream()) {
+				        Function<? super JarEntry, ? extends String> toName =
+				          entry -> entry.getName();
+				        Stream<? extends String> stream = entries.map(toName).distinct(); // Ok
+				        withWildcard(entries.map(toName).distinct()); // Ok
+				        withWildcard(stream); // Ok
+				        Stream<String> stream2 = entries.map(toName).distinct(); // ERROR
+				        withoutWildcard(entries.map(toName).distinct()); // ERROR
+				        withoutWildcard(stream); // ERROR
+				        withoutWildcard(stream2); // Ok
+				        withoutWildcard(coerce(stream)); // Ok
+				        withoutWildcard(stream.map((String v1) -> { // ERROR
+				          String r = "" + v1; // Hover on v: Ok
+				          return r;
+				        }));
+				        withoutWildcard(stream.map((v2) -> { // Ok
+				          String r = "" + v2; // Hover on v: NOT OK
+				          return r;
+				        }));
+				      }
+				    }
+				  }
+				  private static Stream<String> coerce(Stream<? extends String> stream) {
+				    if("1" == "") { return stream.collect(Collectors.toList()).stream(); // ERROR
+				    }
+				    return stream.collect(Collectors.toList()); // NO ERROR
+				  }
+				  private static void withWildcard(Stream<? extends String> distinct) {
+				    distinct.forEach(s1 -> System.out.println(s1)); // hover on s: NOT OK
+				  }
+				  private static void withoutWildcard(Stream<String> distinct) {
+				    distinct.forEach(s2 -> System.out.println(s2)); // hover on s: Ok
+				  }
+				}
+				"""
 			);
 
 	String str = this.wc.getSource();
@@ -2007,17 +2135,19 @@ public void test424198c() throws JavaModelException {
 public void test429262() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"class Y {\n" +
-			"    static void goo(I i) {}\n" +
-			"}\n" +
-			"public class X {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        Y.goo(x -> x * x);\n" +
-			"    }\n" +
-			"}\n" +
-			"interface I {\n" +
-			"	int foo(int x);\n" +
-			"}\n");
+			"""
+				class Y {
+				    static void goo(I i) {}
+				}
+				public class X {
+				    public static void main(String [] args) {
+				        Y.goo(x -> x * x);
+				    }
+				}
+				interface I {
+					int foo(int x);
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "->";
@@ -2035,17 +2165,19 @@ public void test429262() throws JavaModelException {
 public void test429262a() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"class Y {\n" +
-			"    static void goo(I i) {}\n" +
-			"}\n" +
-			"public class X {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        Y.goo(x -> x * x);\n" +
-			"    }\n" +
-			"}\n" +
-			"interface I {\n" +
-			"	int foo(int x);\n" +
-			"}\n");
+			"""
+				class Y {
+				    static void goo(I i) {}
+				}
+				public class X {
+				    public static void main(String [] args) {
+				        Y.goo(x -> x * x);
+				    }
+				}
+				interface I {
+					int foo(int x);
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = ">";
@@ -2063,17 +2195,19 @@ public void test429262a() throws JavaModelException {
 public void test429262b() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"class Y {\n" +
-			"    static void goo(I i) {}\n" +
-			"}\n" +
-			"public class X {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        Y.goo(x -> x * x);\n" +
-			"    }\n" +
-			"}\n" +
-			"interface I {\n" +
-			"	int foo(int x);\n" +
-			"}\n");
+			"""
+				class Y {
+				    static void goo(I i) {}
+				}
+				public class X {
+				    public static void main(String [] args) {
+				        Y.goo(x -> x * x);
+				    }
+				}
+				interface I {
+					int foo(int x);
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "-";
@@ -2091,18 +2225,20 @@ public void test429262b() throws JavaModelException {
 public void test429262c() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"class Y {\n" +
-			"    static void goo(I i) {}\n" +
-			"}\n" +
-			"public class X {\n" +
-			"    static int zoo(int x) { return x; }\n" +
-			"    public static void main(String [] args) {\n" +
-			"        Y.goo(X::zoo);\n" +
-			"    }\n" +
-			"}\n" +
-			"interface I {\n" +
-			"	int foo(int x);\n" +
-			"}\n");
+			"""
+				class Y {
+				    static void goo(I i) {}
+				}
+				public class X {
+				    static int zoo(int x) { return x; }
+				    public static void main(String [] args) {
+				        Y.goo(X::zoo);
+				    }
+				}
+				interface I {
+					int foo(int x);
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "::";
@@ -2120,18 +2256,20 @@ public void test429262c() throws JavaModelException {
 public void test429262d() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"class Y {\n" +
-			"    static void goo(I i) {}\n" +
-			"}\n" +
-			"public class X {\n" +
-			"    static int zoo(int x) { return x; }\n" +
-			"    public static void main(String [] args) {\n" +
-			"        Y.goo(X::zoo);\n" +
-			"    }\n" +
-			"}\n" +
-			"interface I {\n" +
-			"	int foo(int x);\n" +
-			"}\n");
+			"""
+				class Y {
+				    static void goo(I i) {}
+				}
+				public class X {
+				    static int zoo(int x) { return x; }
+				    public static void main(String [] args) {
+				        Y.goo(X::zoo);
+				    }
+				}
+				interface I {
+					int foo(int x);
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = ":";
@@ -2149,18 +2287,20 @@ public void test429262d() throws JavaModelException {
 public void test429262e() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"class Y {\n" +
-			"    static void goo(I i) {}\n" +
-			"}\n" +
-			"public class X {\n" +
-			"    static int zoo(int x) { return x; }\n" +
-			"    public static void main(String [] args) {\n" +
-			"        Y.goo(X::zoo);\n" +
-			"    }\n" +
-			"}\n" +
-			"interface I {\n" +
-			"	int foo(int x);\n" +
-			"}\n");
+			"""
+				class Y {
+				    static void goo(I i) {}
+				}
+				public class X {
+				    static int zoo(int x) { return x; }
+				    public static void main(String [] args) {
+				        Y.goo(X::zoo);
+				    }
+				}
+				interface I {
+					int foo(int x);
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = ":";
@@ -2178,21 +2318,23 @@ public void test429262e() throws JavaModelException {
 public void test428968() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"import java.util.ArrayList;\n" +
-			"import java.util.Collections;\n" +
-			"import java.util.Comparator;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"	private void foo() {\n" +
-			"		List<Person> people= new ArrayList<>();\n" +
-			"		Collections.sort(people, Comparator.comparing(p -> p.getLastName()));\n" +
-			"	}\n" +
-			"}\n" +
-			"class Person{\n" +
-			"	String getLastName() {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.ArrayList;
+				import java.util.Collections;
+				import java.util.Comparator;
+				import java.util.List;
+				public class X {
+					private void foo() {
+						List<Person> people= new ArrayList<>();
+						Collections.sort(people, Comparator.comparing(p -> p.getLastName()));
+					}
+				}
+				class Person{
+					String getLastName() {
+						return null;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "comparing";
@@ -2210,21 +2352,23 @@ public void test428968() throws JavaModelException {
 public void test428968a() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"import java.util.ArrayList;\n" +
-			"import java.util.Collections;\n" +
-			"import java.util.Comparator;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"	private void foo() {\n" +
-			"		List<Person> people= new ArrayList<>();\n" +
-			"		Collections.sort(people, Comparator.comparing((Person p) -> p.getLastName()));\n" +
-			"	}\n" +
-			"}\n" +
-			"class Person{\n" +
-			"	String getLastName() {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.ArrayList;
+				import java.util.Collections;
+				import java.util.Comparator;
+				import java.util.List;
+				public class X {
+					private void foo() {
+						List<Person> people= new ArrayList<>();
+						Collections.sort(people, Comparator.comparing((Person p) -> p.getLastName()));
+					}
+				}
+				class Person{
+					String getLastName() {
+						return null;
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "comparing";
@@ -2242,15 +2386,17 @@ public void test428968a() throws JavaModelException {
 public void test428968b() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"import java.util.ArrayList;\n" +
-			"import java.util.Collections;\n" +
-			"import java.util.Comparator;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"	private void foo() {\n" +
-			"		Comparator.reverseOrder();\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.ArrayList;
+				import java.util.Collections;
+				import java.util.Comparator;
+				import java.util.List;
+				public class X {
+					private void foo() {
+						Comparator.reverseOrder();
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "reverseOrder";
@@ -2268,12 +2414,14 @@ public void test428968b() throws JavaModelException {
 public void test425064() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"import java.util.Comparator;\n" +
-			"public class ComparatorUse {\n" +
-			"	Comparator<String> c =\n" +
-			"			Comparator.comparing((String s)->s.toString())\n" +
-			"			.thenComparing(s -> s.length());\n" +
-			"}\n");
+			"""
+				import java.util.Comparator;
+				public class ComparatorUse {
+					Comparator<String> c =
+							Comparator.comparing((String s)->s.toString())
+							.thenComparing(s -> s.length());
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "comparing";
@@ -2291,12 +2439,14 @@ public void test425064() throws JavaModelException {
 public void test425064a() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"import java.util.Comparator;\n" +
-			"public class ComparatorUse {\n" +
-			"	Comparator<String> c =\n" +
-			"			Comparator.comparing((String s)->s.toString())\n" +
-			"			.thenComparing(s -> s.length());\n" +
-			"}\n");
+			"""
+				import java.util.Comparator;
+				public class ComparatorUse {
+					Comparator<String> c =
+							Comparator.comparing((String s)->s.toString())
+							.thenComparing(s -> s.length());
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "thenComparing";
@@ -2314,22 +2464,24 @@ public void test425064a() throws JavaModelException {
 public void test429845() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"@FunctionalInterface\n" +
-			"interface FI {\n" +
-			"	int foo();\n" +
-			"}\n" +
-			"class C1 {\n" +
-			"	void fun1(int x) {\n" +
-			"		FI test= () -> {\n" +
-			"			for (int k=0;k<1;) ;\n" +
-			"			for (int k=0;k<1;) ;\n" +
-			"			try {\n" +
-			"			} catch (Exception ex) {\n" +
-			"			}\n" +
-			"			return 0;\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				@FunctionalInterface
+				interface FI {
+					int foo();
+				}
+				class C1 {
+					void fun1(int x) {
+						FI test= () -> {
+							for (int k=0;k<1;) ;
+							for (int k=0;k<1;) ;
+							try {
+							} catch (Exception ex) {
+							}
+							return 0;
+						};
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "ex";
@@ -2347,28 +2499,30 @@ public void test429845() throws JavaModelException {
 public void test429948() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface Supplier<T> {\n" +
-			"    T get();\n" +
-			"}\n" +
-			"interface Runnable {\n" +
-			"    public abstract void run();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		execute(() -> {\n" +
-			"			executeInner(() -> {\n" +
-			"                int xxx = 10;\n" +
-			"			});\n" +
-			"			return null;\n" +
-			"		});\n" +
-			"		System.out.println(\"done\");\n" +
-			"	}\n" +
-			"	static <R> R execute(Supplier<R> supplier) {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	static void executeInner(Runnable callback) {\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface Supplier<T> {
+				    T get();
+				}
+				interface Runnable {
+				    public abstract void run();
+				}
+				public class X {
+					public static void main(String[] args) {
+						execute(() -> {
+							executeInner(() -> {
+				                int xxx = 10;
+							});
+							return null;
+						});
+						System.out.println("done");
+					}
+					static <R> R execute(Supplier<R> supplier) {
+						return null;
+					}
+					static void executeInner(Runnable callback) {
+					}
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "xxx";
@@ -2386,15 +2540,17 @@ public void test429948() throws JavaModelException {
 public void test429934() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Resolve/src/X.java",
-			"interface Function<T, R> {\n" +
-			"    R apply(T t);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Function<String, String> f1= (String s, Function this) -> s;\n" +
-			"		Function<String, String> f2= (Function this, String s) -> s;\n" +
-			"	} \n" +
-			"}\n"
+			"""
+				interface Function<T, R> {
+				    R apply(T t);
+				}
+				public class X {
+					public static void main(String[] args) {
+						Function<String, String> f1= (String s, Function this) -> s;
+						Function<String, String> f2= (Function this, String s) -> s;
+					}\s
+				}
+				"""
 	);
 
 	String str = this.workingCopies[0].getSource();
@@ -2414,15 +2570,17 @@ public void test429934() throws CoreException {
 public void test429812() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Resolve/src/X.java",
-			"import java.util.List;\n" +
-			"interface Getter<E> {\n" +
-			"    E get(List<E> list, int i);\n" +
-			"}\n" +
-			"public class X<U> {\n" +
-			"	public void foo(List<U> l) {\n" +
-			"		Getter<U> g= (x, i) -> x.get(i);\n" +
-			"	} \n" +
-			"}\n"
+			"""
+				import java.util.List;
+				interface Getter<E> {
+				    E get(List<E> list, int i);
+				}
+				public class X<U> {
+					public void foo(List<U> l) {
+						Getter<U> g= (x, i) -> x.get(i);
+					}\s
+				}
+				"""
 			);
 
 	String str = this.workingCopies[0].getSource();
@@ -2443,16 +2601,18 @@ public void test429812() throws CoreException {
 public void test430136() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Resolve/src/X.java",
-			"import java.util.List;\n" +
-			"interface Getter<E> {\n" +
-			"    E get(List<E> list, int i);\n" +
-			"}\n" +
-			"public class X<U> {\n" +
-			"	public void foo(List<U> l) {\n" +
-			"		Getter<U> g= (x, i) -> x.get(i);\n" +
-			"		Getter<U> g1= (x, i) -> x.get(i);\n" +
-			"	} \n" +
-			"}\n"
+			"""
+				import java.util.List;
+				interface Getter<E> {
+				    E get(List<E> list, int i);
+				}
+				public class X<U> {
+					public void foo(List<U> l) {
+						Getter<U> g= (x, i) -> x.get(i);
+						Getter<U> g1= (x, i) -> x.get(i);
+					}\s
+				}
+				"""
 			);
 
 	String str = this.workingCopies[0].getSource();
@@ -2496,15 +2656,17 @@ public void test430136() throws CoreException {
 public void test430307() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Resolve/src/X.java",
-			"import java.util.List;\n" +
-			"interface Getter<E> {\n" +
-			"    E get(List<E> list, int i);\n" +
-			"}\n" +
-			"public class X<U> {\n" +
-			"	public void foo(List<U> l) {\n" +
-			"		Getter<U> g= (x, i) -> x.get(i);\n" +
-			"	} \n" +
-			"}\n"
+			"""
+				import java.util.List;
+				interface Getter<E> {
+				    E get(List<E> list, int i);
+				}
+				public class X<U> {
+					public void foo(List<U> l) {
+						Getter<U> g= (x, i) -> x.get(i);
+					}\s
+				}
+				"""
 			);
 
 	String str = this.workingCopies[0].getSource();
@@ -2544,18 +2706,20 @@ public void test430307() throws CoreException {
 public void test430307a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Resolve/src/X.java",
-			"interface I {\n" +
-			"    I doit(I xyz);\n" +
-			"}\n" +
-			"public class X { \n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = (pqr) -> {\n" +
-			"			return (xyz) -> {\n" +
-			"				return (abc) -> abc; \n" +
-			"			};\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+				    I doit(I xyz);
+				}
+				public class X {\s
+					public static void main(String[] args) {
+						I i = (pqr) -> {
+							return (xyz) -> {
+								return (abc) -> abc;\s
+							};
+						};
+					}
+				}
+				""");
 	String str = this.workingCopies[0].getSource();
 
 	String selection = "abc)";
@@ -2565,10 +2729,11 @@ public void test430307a() throws JavaModelException {
 	String memento = local.getHandleIdentifier();
 		assertEquals(
 				"Incorrect memento string",
-				"=Resolve/src<{X.java[X~main~\\[QString;=)=\"LI;!103!169!110=&doit!1=\"LI;=\"pqr=\"LI;=\"LX\\~I;.doit\\(LI;)"
-				+ "LI;@pqr!104!106!104!106!LI;!0!true=&=)=\"LI;!124!164!131=&doit!1=\"LI;=\"xyz=\"LI;=\"LX\\~I;.doit\\(LI;)"
-				+ "LI;@xyz!125!127!125!127!LI;!0!true=&=)=\"LI;!146!157!153=&doit!1=\"LI;=\"abc=\"LI;=\"LX\\~I;.doit\\(LI;)"
-				+ "LI;@abc!147!149!147!149!LI;!0!true=&@abc!147!149!147!149!LI;!0!true",
+				"""
+					=Resolve/src<{X.java[X~main~\\[QString;=)="LI;!103!169!110=&doit!1="LI;="pqr="LI;="LX\\~I;.doit\\(LI;)\
+					LI;@pqr!104!106!104!106!LI;!0!true=&=)="LI;!124!164!131=&doit!1="LI;="xyz="LI;="LX\\~I;.doit\\(LI;)\
+					LI;@xyz!125!127!125!127!LI;!0!true=&=)="LI;!146!157!153=&doit!1="LI;="abc="LI;="LX\\~I;.doit\\(LI;)\
+					LI;@abc!147!149!147!149!LI;!0!true=&@abc!147!149!147!149!LI;!0!true""",
 				memento);
 	IJavaElement result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", local, result);
@@ -2584,9 +2749,10 @@ public void test430307a() throws JavaModelException {
 	local = (ILocalVariable) elements[0];
 	memento = local.getHandleIdentifier();
 	assertEquals("Incorrect memento string",
-			"=Resolve/src<{X.java[X~main~\\[QString;=)=\"LI;!103!169!110=&doit!1=\"LI;=\"pqr=\"LI;=\"LX\\~I;.doit\\(LI;)"
-			+ "LI;@pqr!104!106!104!106!LI;!0!true=&=)=\"LI;!124!164!131=&doit!1=\"LI;=\"xyz=\"LI;=\"LX\\~I;.doit\\(LI;)"
-			+ "LI;@xyz!125!127!125!127!LI;!0!true=&@xyz!125!127!125!127!LI;!0!true",
+			"""
+				=Resolve/src<{X.java[X~main~\\[QString;=)="LI;!103!169!110=&doit!1="LI;="pqr="LI;="LX\\~I;.doit\\(LI;)\
+				LI;@pqr!104!106!104!106!LI;!0!true=&=)="LI;!124!164!131=&doit!1="LI;="xyz="LI;="LX\\~I;.doit\\(LI;)\
+				LI;@xyz!125!127!125!127!LI;!0!true=&@xyz!125!127!125!127!LI;!0!true""",
 			memento);
 	result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", local, result);
@@ -2618,23 +2784,24 @@ public void test430307a() throws JavaModelException {
 public void test439234() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"interface I {" +
-			"  int foo(int x);" +
-			"}" +
-			"public class X {" +
-			"  int bar(int x) {\n" +
-			"      return i;\n" +
-			"  }\n" +
-			"  public static void main(String[] args) {" +
-			"    I i = (x) -> {" +
-			"      return x;" +
-			"    };" +
-			"   i.foo(10);" +
-			"   X x = new X();\n" +
-			"   I i2 = x::bar;\n" +
-			"   i2.foo(10);\n" +
-			"  }" +
-			"}");
+			"""
+				interface I {\
+				  int foo(int x);\
+				}\
+				public class X {\
+				  int bar(int x) {
+				      return i;
+				  }
+				  public static void main(String[] args) {\
+				    I i = (x) -> {\
+				      return x;\
+				    };\
+				   i.foo(10);\
+				   X x = new X();
+				   I i2 = x::bar;
+				   i2.foo(10);
+				  }\
+				}""");
 
 
 	// check if selection of -> works
@@ -2703,19 +2870,20 @@ public void test439234() throws JavaModelException {
 public void test440731() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"class Y {\n" +
-			"	public void fooY() {return;}\n" +
-			"	public void bar(I2 i) {return;}\n" +
-			"	public void bar(I i) {return;}   \n" +
-			"}\n" +
-			"class fooY() {}\n" +
-			"interface I { void fooI(Y y); }\n" +
-			"interface I2 { void fooI2(int n);}\n" +
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		I i = Y::fooY; // works\n" +
-			"	}\n" +
-			"}");
+			"""
+				class Y {
+					public void fooY() {return;}
+					public void bar(I2 i) {return;}
+					public void bar(I i) {return;}  \s
+				}
+				class fooY() {}
+				interface I { void fooI(Y y); }
+				interface I2 { void fooI2(int n);}
+				public class X {
+					void foo() {
+						I i = Y::fooY; // works
+					}
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "fooY";
@@ -2782,16 +2950,18 @@ public void test440731() throws JavaModelException {
 public void test430572() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"@FunctionalInterface\n" +
-			"interface FI {\n" +
-			"	default int getID() {\n" +
-			"		return 11;\n" +
-			"	}\n" +
-			"	void print();\n" +
-			"}\n" +
-			"class T {\n" +
-			"	FI f2 = () -> System.out.println(super.toString());\n" +
-			"}\n");
+			"""
+				@FunctionalInterface
+				interface FI {
+					default int getID() {
+						return 11;
+					}
+					void print();
+				}
+				class T {
+					FI f2 = () -> System.out.println(super.toString());
+				}
+				""");
 
 	String str = this.wc.getSource();
 	String selection = "super";
@@ -2941,23 +3111,24 @@ public void testBug487791b() throws JavaModelException {
 public void testBug515758() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"Resolve/src/Snippet.java",
-			"import java.util.function.Function;\n" +
-			"\n" +
-			"public class Snippet {\n" +
-			"    void m1() {\n" +
-			"    	MyObservable.range(1, 2).groupBy(integer -> {\n" +
-			"	 		return \"even\";\n" +
-			"		});\n" +
-			"    }\n" +
-			"\n" +
-			"}\n" +
-			"class MyObservable<T> {\n" +
-			"	static MyObservable<Integer> range(int i1, int i2) {\n" +
-			"		return new MyObservable<>();\n" +
-			"	}\n" +
-			"	<K> void groupBy(Function<T, K> func) {\n" +
-			"	}\n" +
-			"}");
+			"""
+				import java.util.function.Function;
+				
+				public class Snippet {
+				    void m1() {
+				    	MyObservable.range(1, 2).groupBy(integer -> {
+					 		return "even";
+						});
+				    }
+				
+				}
+				class MyObservable<T> {
+					static MyObservable<Integer> range(int i1, int i2) {
+						return new MyObservable<>();
+					}
+					<K> void groupBy(Function<T, K> func) {
+					}
+				}""");
 	String str = this.wc.getSource();
 	String selection = "range";
 	int start = str.indexOf(selection);
@@ -2975,19 +3146,20 @@ public void testBug515758() throws JavaModelException {
 public void testGH1264() throws Exception {
 	this.wc = getWorkingCopy(
 			"Resolve/src/Snippet.java",
-			"import java.io.File;\n"
-			 + "import java.util.ArrayList;\n"
-			 + "import java.util.Collection;\n"
-			 + "import java.util.stream.Stream;\n"
-			 + "\n"
-			 + "public class Snippet {\n"
-			 + "	public static void main(String[] args) {\n"
-			 + "		Collection<File> rootDirectories = new ArrayList<>();\n"
-			 + "		Stream<Object> directories = rootDirectories.stream()\n"
-			 + "				.map(dir -> dir.listFiles(File::isDirectory));\n"
-			 + "		System.out.println(directories);\n"
-			 + "	}\n"
-			 + "}");
+			"""
+				import java.io.File;
+				import java.util.ArrayList;
+				import java.util.Collection;
+				import java.util.stream.Stream;
+				
+				public class Snippet {
+					public static void main(String[] args) {
+						Collection<File> rootDirectories = new ArrayList<>();
+						Stream<Object> directories = rootDirectories.stream()
+								.map(dir -> dir.listFiles(File::isDirectory));
+						System.out.println(directories);
+					}
+				}""");
 	String str = this.wc.getSource();
 	String selection = "->";
 	int start = str.indexOf(selection);
@@ -3004,13 +3176,15 @@ public void testGH1264() throws Exception {
 public void testGH1195() throws Exception {
 	this.wc = getWorkingCopy(
 			"Resolve/src/Reproducer.java",
-			"import java.util.function.Predicate;\n" +
-			"\n" +
-			"public class Reproducer {\n" +
-			"\n" +
-			"    private final Predicate<Object> predicate =\n" +
-			"            input -> (input instanceof String withoutThisVariableNameThereIsNoError);\n" +
-			"}\n");
+			"""
+				import java.util.function.Predicate;
+				
+				public class Reproducer {
+				
+				    private final Predicate<Object> predicate =
+				            input -> (input instanceof String withoutThisVariableNameThereIsNoError);
+				}
+				""");
 	String str = this.wc.getSource();
 	String selection = "predicate";
 	int start = str.indexOf(selection);
@@ -3027,20 +3201,22 @@ public void testGH1195() throws Exception {
 public void testBug576252() throws Exception {
 	this.wc = getWorkingCopy(
 			"Resolve/src/LambdaTest.java",
-			"public class LambdaTest {\n" +
-			"	public static void method(String value) {\n" +
-			"		System.out.print(\"para\");\n" +
-			"	}\n" +
-			"\n" +
-			"	public static void method(java.util.function.Supplier<String> supplier) {\n" +
-			"		System.out.print(supplier.get());\n" +
-			"	}\n" +
-			"\n" +
-			"	public static void main(String[] args) {\n" +
-			"		LambdaTest.method(LambdaTest.class::toString);\n" +
-			"		System.out.print(\"extra\");\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				public class LambdaTest {
+					public static void method(String value) {
+						System.out.print("para");
+					}
+				
+					public static void method(java.util.function.Supplier<String> supplier) {
+						System.out.print(supplier.get());
+					}
+				
+					public static void main(String[] args) {
+						LambdaTest.method(LambdaTest.class::toString);
+						System.out.print("extra");
+					}
+				}
+				""");
 	String str = this.wc.getSource();
 	String selection = "method";
 	int start = str.lastIndexOf(selection);
@@ -3057,35 +3233,37 @@ public void testBug576252() throws Exception {
 public void testBug578011() throws Exception {
 	this.wc = getWorkingCopy(
 			"Resolve/src/EclipseOpenDeclarationBug.java",
-			"import java.lang.reflect.Constructor;\n" +
-			"import java.util.HashSet;\n" +
-			"import java.util.Optional;\n" +
-			"import java.util.Set;\n" +
-			"\n" +
-			"public class EclipseOpenDeclarationBug {\n" +
-			"  public EclipseOpenDeclarationBug(Class<?> cls) {\n" +
-			"    Set<Constructor<?>> constructors = new HashSet<>();\n" +
-			"\n" +
-			"    getPublicEmptyConstructor(cls).ifPresent(c -> {\n" +
-			"      if(constructors.isEmpty()) {\n" +
-			"        constructors.add(c);\n" +
-			"      }\n" +
-			"    });\n" +
-			"\n" +
-			"    if(constructors.size() < 1) {\n" +
-			"      throw new IllegalArgumentException(\"No suitable constructor found; provide an empty constructor or annotate one with @Inject: \" + cls);\n" +
-			"    }\n" +
-			"  }\n" +
-			"\n" +
-			"  private static <T> Optional<Constructor<T>> getPublicEmptyConstructor(Class<T> cls) {\n" +
-			"    try {\n" +
-			"      return Optional.of(cls.getConstructor());\n" +
-			"    }\n" +
-			"    catch(NoSuchMethodException e) {\n" +
-			"      return Optional.empty();\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				import java.lang.reflect.Constructor;
+				import java.util.HashSet;
+				import java.util.Optional;
+				import java.util.Set;
+				
+				public class EclipseOpenDeclarationBug {
+				  public EclipseOpenDeclarationBug(Class<?> cls) {
+				    Set<Constructor<?>> constructors = new HashSet<>();
+				
+				    getPublicEmptyConstructor(cls).ifPresent(c -> {
+				      if(constructors.isEmpty()) {
+				        constructors.add(c);
+				      }
+				    });
+				
+				    if(constructors.size() < 1) {
+				      throw new IllegalArgumentException("No suitable constructor found; provide an empty constructor or annotate one with @Inject: " + cls);
+				    }
+				  }
+				
+				  private static <T> Optional<Constructor<T>> getPublicEmptyConstructor(Class<T> cls) {
+				    try {
+				      return Optional.of(cls.getConstructor());
+				    }
+				    catch(NoSuchMethodException e) {
+				      return Optional.empty();
+				    }
+				  }
+				}
+				""");
 	String str = this.wc.getSource();
 	String selection = "getPublicEmptyConstructor";
 	int start = str.indexOf(selection);
@@ -3102,24 +3280,26 @@ public void testBug578011() throws Exception {
 public void testBug546563() throws Exception {
 	this.wc = getWorkingCopy(
 			"Resolve/src/Test.java",
-			"import java.util.Optional;\n" +
-			"\n" +
-			"public class Test {\n" +
-			"\n" +
-			"  public void xyz() {\n" +
-			"    getOptionalValue().ifPresent(val -> {\n" +
-			"      int i = 1;\n" +
-			"      System.out.print(val);\n" +
-			"    });\n" +
-			"    try {\n" +
-			"    } catch (Exception e) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"\n" +
-			"  public Optional<String> getOptionalValue() {\n" +
-			"    return Optional.empty();\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				import java.util.Optional;
+				
+				public class Test {
+				
+				  public void xyz() {
+				    getOptionalValue().ifPresent(val -> {
+				      int i = 1;
+				      System.out.print(val);
+				    });
+				    try {
+				    } catch (Exception e) {
+				    }
+				  }
+				
+				  public Optional<String> getOptionalValue() {
+				    return Optional.empty();
+				  }
+				}
+				""");
 	String str = this.wc.getSource();
 	String selection = "getOptionalValue";
 	int start = str.indexOf(selection);

@@ -117,9 +117,10 @@ public abstract class AbstractLeakTest extends BuilderTests {
 
 	private void createJavaFile(IPath projectPath) {
 		IPath path = env.addClass(projectPath, "a", "Other",
-			"package a;\n" +
-			"public class Other {\n" +
-			"}"
+			"""
+				package a;
+				public class Other {
+				}"""
 		);
 		IFile file = env.getWorkspace().getRoot().getFile(path);
 		assertTrue("File should exists: " + path, file.exists());
@@ -127,10 +128,11 @@ public abstract class AbstractLeakTest extends BuilderTests {
 
 	private void changeJavaFile(IPath projectPath) throws Exception {
 		IPath path = env.addClass(projectPath, "a", "Other",
-			"package a;\n" +
-			"public class Other {\n" +
-			" // an extra comment \n" +
-			"}"
+			"""
+				package a;
+				public class Other {
+				 // an extra comment\s
+				}"""
 		);
 		IFile file = env.getWorkspace().getRoot().getFile(path);
 		assertTrue("FIle should exists: " + path, file.exists());

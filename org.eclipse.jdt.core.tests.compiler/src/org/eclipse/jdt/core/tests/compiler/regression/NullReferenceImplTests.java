@@ -1777,43 +1777,48 @@ private static State[] addSymbolicStates(State[] transitiveClosure) {
 private static void printHelp(boolean longText) {
 	if (longText) {
 		System.out.println(
-			"Generator use cases\n" +
-			" - when a brand new logic is experimented for the transitions, the best\n" +
-			"   way to go is to write explicit (inefficient) transformation code within\n" +
-			"   UnconditionalFlowInfo, then generate the literal initializers from\n" +
-			"   there; use the command\n" +
-			"   --reinitializeFromComputedValues <source file> <target file>\n" +
-			"   to this effect; in case of inconsistencies or errors, messages are\n" +
-			"   printed to the error output stream and the result should be considered as non reliable;\n" +
-			" - when only a few changes are made to state names or a specific\n" +
-			"   transitions, it should be possible to get the test initializers fixed\n" +
-			"   before UnconditionalFlowInfo implements those changes; use the command\n" +
-	        "   --reinitializeFromComments <states source file> <states target file> <transformations source file> <transformations target file>\n" +
-	        "   to this effect;\n" +
-	        " - the same command can be used when, while the semantics of the system\n" +
-	        "   are unchanged, the encoding is modified; it should then produce the\n" +
-	        "   initializers according to the new encoding, as defined by the comment\n" +
-	        "   for State.states, and the transformations as defined by their\n" +
-	        "   respective comment;\n" +
-	        " - when a given encoding is retained, its optimization may leverage truth\n" +
-	        "   tables; use the --printTruthTables command to this effect.\n" +
-	        "   \n\n");
+			"""
+				Generator use cases
+				 - when a brand new logic is experimented for the transitions, the best
+				   way to go is to write explicit (inefficient) transformation code within
+				   UnconditionalFlowInfo, then generate the literal initializers from
+				   there; use the command
+				   --reinitializeFromComputedValues <source file> <target file>
+				   to this effect; in case of inconsistencies or errors, messages are
+				   printed to the error output stream and the result should be considered as non reliable;
+				 - when only a few changes are made to state names or a specific
+				   transitions, it should be possible to get the test initializers fixed
+				   before UnconditionalFlowInfo implements those changes; use the command
+				   --reinitializeFromComments <states source file> <states target file> <transformations source file> <transformations target file>
+				   to this effect;
+				 - the same command can be used when, while the semantics of the system
+				   are unchanged, the encoding is modified; it should then produce the
+				   initializers according to the new encoding, as defined by the comment
+				   for State.states, and the transformations as defined by their
+				   respective comment;
+				 - when a given encoding is retained, its optimization may leverage truth
+				   tables; use the --printTruthTables command to this effect.
+				  \s
+				
+				""");
 		printHelp(false);
 	}
 	else {
 		System.out.println(
-	        "Usage:\n" +
-	        "Generator --help\n" +
-	        "  prints a more detailed help message\n" +
-	        "Generator --printTruthTables\n" +
-	        "  prints the truth tables of the transformations\n" +
-	        "Generator --reinitializeFromComments <source file> <target file>\n" +
-	        "  generates into target file a copy of source file into which\n" +
-	        "  transformations initializers have been reset from their definitions\n" +
-			"Generator --reinitializeFromComputedValues <source file> <target file>\n"  +
-	        "  generates into target file a copy of source file into which\n" +
-	        "  transformations definitions and initializers have been reset\n" +
-	        "  according to the behavior of the current UnconditionalFlowInfo\n"
+	        """
+				Usage:
+				Generator --help
+				  prints a more detailed help message
+				Generator --printTruthTables
+				  prints the truth tables of the transformations
+				Generator --reinitializeFromComments <source file> <target file>
+				  generates into target file a copy of source file into which
+				  transformations initializers have been reset from their definitions
+				Generator --reinitializeFromComputedValues <source file> <target file>
+				  generates into target file a copy of source file into which
+				  transformations definitions and initializers have been reset
+				  according to the behavior of the current UnconditionalFlowInfo
+				"""
 	        );
 	}
 }

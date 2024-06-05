@@ -138,10 +138,11 @@ public void testAddAnonymousInRegion() throws CoreException {
 
 		// add a field initialized with a 'new B() {...}' anonymous type
 		String newSource =
-			"package p3;\n" +
-			"public class A{\n" +
-			"  B field = new B() {};\n" +
-			"}";
+			"""
+			package p3;
+			public class A{
+			  B field = new B() {};
+			}""";
 		copy.getBuffer().setContents(newSource);
 		copy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		copy.commitWorkingCopy(true, null);
@@ -172,14 +173,16 @@ public void testAddCompilationUnit1() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("TypeHierarchyNotification", "src", "p");
 	ICompilationUnit newCU1 = pkg.createCompilationUnit(
 		"Z1.java",
-		"package p;\n" +
-		"\n" +
-		"public class Z1 {\n" +
-		"\n" +
-		"	public static main(String[] args) {\n" +
-		"		System.out.println(\"HelloWorld\");\n" +
-		"	}\n" +
-		"}\n",
+		"""
+			package p;
+			
+			public class Z1 {
+			
+				public static main(String[] args) {
+					System.out.println("HelloWorld");
+				}
+			}
+			""",
 		false,
 		null);
 	try {
@@ -206,10 +209,12 @@ public void testAddCompilationUnit2() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("TypeHierarchyNotification", "src", "p");
 	ICompilationUnit newCU2 = pkg.createCompilationUnit(
 		"Z2.java",
-		"package p;\n" +
-		"\n" +
-		"public class Z2 extends e.E {\n" +
-		"}\n",
+		"""
+			package p;
+			
+			public class Z2 extends e.E {
+			}
+			""",
 		false,
 		null);
 	try {
@@ -241,12 +246,14 @@ public void testAddCompilationUnit3() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("TypeHierarchyNotification", "src", "p");
 	ICompilationUnit newCU3 = pkg.createCompilationUnit(
 		"Z3.java",
-		"package p;\n" +
-		"\n" +
-		"public class Z3 {\n" +
-		"  public class InnerZ extends d.D {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			package p;
+			
+			public class Z3 {
+			  public class InnerZ extends d.D {
+			  }
+			}
+			""",
 		false,
 		null);
 	try {
@@ -277,10 +284,12 @@ public void testAddCompilationUnit4() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("TypeHierarchyNotification", "src", "p");
 	ICompilationUnit newCU2 = pkg.createCompilationUnit(
 		"Z2.java",
-		"package p;\n" +
-		"\n" +
-		"public abstract class Z2 extends java.util.Collection<java.lang.String> {\n" +
-		"}\n",
+		"""
+			package p;
+			
+			public abstract class Z2 extends java.util.Collection<java.lang.String> {
+			}
+			""",
 		false,
 		null);
 	try {
@@ -312,13 +321,15 @@ public void testAddCompilationUnitInRegion() throws CoreException, IOException {
 		IPackageFragment pkg = getPackageFragment("TypeHierarchyDependent", "", "");
 		ICompilationUnit newCU1 = pkg.createCompilationUnit(
 			"Z1.java",
-			"\n" +
-			"public class Z1 {\n" +
-			"\n" +
-			"	public static main(String[] args) {\n" +
-			"		System.out.println(\"HelloWorld\");\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				
+				public class Z1 {
+				
+					public static main(String[] args) {
+						System.out.println("HelloWorld");
+					}
+				}
+				""",
 			false,
 			null);
 		try {
@@ -334,10 +345,12 @@ public void testAddCompilationUnitInRegion() throws CoreException, IOException {
 		pkg = getPackageFragment("TypeHierarchyNotification", "src", "p");
 		ICompilationUnit newCU2 = pkg.createCompilationUnit(
 			"Z2.java",
-			"package p;\n" +
-			"\n" +
-			"public class Z2 extends e.E {\n" +
-			"}\n",
+			"""
+				package p;
+				
+				public class Z2 extends e.E {
+				}
+				""",
 			false,
 			null);
 		try {
@@ -358,10 +371,12 @@ public void testAddCompilationUnitInRegion() throws CoreException, IOException {
 		// a cu with a type which is part of the region and is not a sub type of an existing type of the region
 		ICompilationUnit newCU3 = pkg.createCompilationUnit(
 			"Z3.java",
-			"package p;\n" +
-			"\n" +
-			"public class Z3 extends Throwable {\n" +
-			"}\n",
+			"""
+				package p;
+				
+				public class Z3 extends Throwable {
+				}
+				""",
 			false,
 			null);
 		try {
@@ -395,14 +410,16 @@ public void testAddExternalCompilationUnit() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("TypeHierarchyNotification", "src", "p.other");
 	ICompilationUnit newCU= pkg.createCompilationUnit(
 		"Z.java",
-		"package p.other;\n" +
-		"\n" +
-		"public class Z {\n" +
-		"\n" +
-		"	public static main(String[] args) {\n" +
-		"		System.out.println(\"HelloWorld\");\n" +
-		"	}\n" +
-		"}\n",
+		"""
+			package p.other;
+			
+			public class Z {
+			
+				public static main(String[] args) {
+					System.out.println("HelloWorld");
+				}
+			}
+			""",
 		false,
 		null);
 	try {
@@ -634,9 +651,10 @@ public void testChangeFocusModifier() throws CoreException {
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				}"""
 		);
 		workingCopy = getCompilationUnit("/P1/p/X.java");
 		workingCopy.becomeWorkingCopy(null/*no progress*/);
@@ -644,9 +662,10 @@ public void testChangeFocusModifier() throws CoreException {
 		h.addTypeHierarchyChangedListener(this);
 
 		workingCopy.getBuffer().setContents(
-			"package p1;\n" +
-			"class X {\n" +
-			"}"
+			"""
+				package p1;
+				class X {
+				}"""
 		);
 		workingCopy.reconcile(ICompilationUnit.NO_AST, false/*no pb detection*/, null/*no workingcopy owner*/, null/*no prgress*/);
 		workingCopy.commitWorkingCopy(false/*don't force*/, null/*no progress*/);
@@ -691,9 +710,10 @@ public void testEditBuffer() throws CoreException {
 		createFolder("/P/p");
 		createFile(
 			"/P/p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p;
+				public class X {
+				}"""
 		);
 		workingCopy = getCompilationUnit("/P/p/X.java");
 		workingCopy.becomeWorkingCopy(null/*no progress*/);
@@ -701,9 +721,10 @@ public void testEditBuffer() throws CoreException {
 		h.addTypeHierarchyChangedListener(this);
 
 		workingCopy.getBuffer().setContents(
-			"package p;\n" +
-			"public class X extends Throwable {\n" +
-			"}"
+			"""
+				package p;
+				public class X extends Throwable {
+				}"""
 		);
 		workingCopy.commitWorkingCopy(false/*don't force*/, null/*no progress*/);
 
@@ -747,9 +768,10 @@ public void testAddDependentProject() throws CoreException {
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				}"""
 		);
 		h = getCompilationUnit("/P1/p/X.java").getType("X").newTypeHierarchy(null);
 		h.addTypeHierarchyChangedListener(this);
@@ -1300,16 +1322,18 @@ public void testGetWorkingCopy() throws CoreException {
 		createFolder("/P/p");
 		createFile(
 			"/P/p/IX.java",
-			"package p;\n" +
-			"public interface IX {\n" +
-			"}"
+			"""
+				package p;
+				public interface IX {
+				}"""
 		);
 
 		createFile(
 				"/P/p/X.java",
-				"package p;\n" +
-				"public class X implements IX{\n" +
-				"}"
+				"""
+					package p;
+					public class X implements IX{
+					}"""
 			);
 
 		superCopy = getCompilationUnit("/P/p/IX.java");
@@ -1346,9 +1370,10 @@ public void testOwner() throws CoreException {
 		createFolder("/P/p");
 		createFile(
 			"/P/p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p;
+				public class X {
+				}"""
 		);
 
 		aWorkingCopy = getCompilationUnit("/P/p/X.java").getWorkingCopy(null);
@@ -1357,9 +1382,10 @@ public void testOwner() throws CoreException {
 
 		anotherWorkingCopy = getCompilationUnit("/P/p/X.java").getWorkingCopy(null);
 		anotherWorkingCopy.getBuffer().setContents(
-			"package p;\n" +
-			"public class X extends Throwable {\n" +
-			"}"
+			"""
+				package p;
+				public class X extends Throwable {
+				}"""
 		);
 		anotherWorkingCopy.commitWorkingCopy(false/*don't force*/, null/*no progress*/);
 		assertTrue("Should receive NO change", !this.changeReceived);
@@ -1411,9 +1437,10 @@ public void testBug316654_a() throws CoreException {
 	IPath filePath = project.getProject().getFullPath().append("src").append("p").append("Y.java");
 	try {
 		createFile(filePath.toOSString(),
-					"package p;\n" +
-					"class Y extends X{\n" +
-					"}");
+					"""
+						package p;
+						class Y extends X{
+						}""");
 		assertOneChange(h);
 	} finally {
 		deleteFile(filePath.toOSString());

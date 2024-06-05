@@ -54,11 +54,12 @@ public void testCreatePackageFragment1() throws JavaModelException {
 	assertTrue("Fragment return not correct", frag.getElementName().equals("one.two.three"));
 	assertDeltas(
 		"Unexpected delta",
-		"P[*]: {CHILDREN}\n" +
-		"	<project root>[*]: {CHILDREN}\n" +
-		"		one.two.three[+]: {}\n" +
-		"		one.two[+]: {}\n" +
-		"		one[+]: {}"
+		"""
+			P[*]: {CHILDREN}
+				<project root>[*]: {CHILDREN}
+					one.two.three[+]: {}
+					one.two[+]: {}
+					one[+]: {}"""
 	);
 }
 /**
@@ -74,12 +75,13 @@ public void testCreatePackageFragment2() throws JavaModelException {
 	assertCreation(frag);
 	assertDeltas(
 		"Unexpected delta",
-		"P[*]: {CHILDREN}\n" +
-		"	<project root>[*]: {CHILDREN}\n" +
-		"		one.two.three.four[+]: {}\n" +
-		"		one.two.three[+]: {}\n" +
-		"		one.two[+]: {}\n" +
-		"		one[+]: {}"
+		"""
+			P[*]: {CHILDREN}
+				<project root>[*]: {CHILDREN}
+					one.two.three.four[+]: {}
+					one.two.three[+]: {}
+					one.two[+]: {}
+					one[+]: {}"""
 	);
 }
 /**

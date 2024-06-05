@@ -108,10 +108,12 @@ public class ModuleAttributeTests extends AbstractRegressionTest9 {
 	public void _testBug508889_003() throws Exception {
 		String[] contents = {
 			"module-info.java",
-			"module first {\n" +
-				"exports pack1;\n" +
-				"exports pack2 to zero;\n" +
-			"}\n",
+			"""
+				module first {
+				exports pack1;
+				exports pack2 to zero;
+				}
+				""",
 			"pack1/X11.java",
 			"package pack1;\n" +
 			"public class X11 {}\n",
@@ -155,10 +157,12 @@ public class ModuleAttributeTests extends AbstractRegressionTest9 {
 		associateToModule("first", pack1_x11java, pack2_x21java);
 		String[] contents = {
 			"module-info.java",
-			"module first {\n" +
-				"exports pack1;\n" +
-				"exports pack2 to zero;\n" +
-			"}\n",
+			"""
+				module first {
+				exports pack1;
+				exports pack2 to zero;
+				}
+				""",
 			pack1_x11java,
 			"package pack1;\n" +
 			"public class X11 {}\n",
@@ -181,17 +185,19 @@ public class ModuleAttributeTests extends AbstractRegressionTest9 {
 		associateToModule("first", pack1_x11java, pack2_x21java, pack3_x31java, pack4_x41java, pack5_x51java, pack6_x61java, pack7_x71java, pack8_x81java, pack9_x91java);
 		String[] contents = {
 			"module-info.java",
-			"module first {\n" +
-				"exports pack1.pack2.pack3.pack4 to zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;\n" +
-				"exports pack21.pack22.pack23.pack24 to zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;\n" +
-				"exports pack31.pack32.pack33.pack34 to zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;\n" +
-				"exports pack41.pack42.pack43.pack44 to zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;\n" +
-				"exports pack51.pack52.pack53.pack54 to zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;\n" +
-				"exports pack61.pack62.pack63.pack64 to zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;\n" +
-				"exports pack71.pack72.pack73.pack74 to zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;\n" +
-				"exports pack81.pack82.pack83.pack84 to zero, one, two, three, four, five;\n" +
-				"exports pack91.pack92.pack93.pack94 to zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;\n" +
-			"}\n",
+			"""
+				module first {
+				exports pack1.pack2.pack3.pack4 to zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;
+				exports pack21.pack22.pack23.pack24 to zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;
+				exports pack31.pack32.pack33.pack34 to zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;
+				exports pack41.pack42.pack43.pack44 to zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;
+				exports pack51.pack52.pack53.pack54 to zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;
+				exports pack61.pack62.pack63.pack64 to zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;
+				exports pack71.pack72.pack73.pack74 to zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;
+				exports pack81.pack82.pack83.pack84 to zero, one, two, three, four, five;
+				exports pack91.pack92.pack93.pack94 to zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;
+				}
+				""",
 			pack1_x11java,
 			"package pack1.pack2.pack3.pack4;\n" +
 			"public class X11 {}\n",
@@ -234,9 +240,11 @@ public class ModuleAttributeTests extends AbstractRegressionTest9 {
 	public void testBug533134() throws Exception {
 		String[] contents =  {
 			"module-info.java",
-			"@Deprecated\n" +
-			"module test {\n" +
-			"}\n",
+			"""
+				@Deprecated
+				module test {
+				}
+				""",
 			};
 		this.runConformTest(contents);
 		IClassFileReader cfr = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "module-info.class", IClassFileReader.CLASSFILE_ATTRIBUTES);

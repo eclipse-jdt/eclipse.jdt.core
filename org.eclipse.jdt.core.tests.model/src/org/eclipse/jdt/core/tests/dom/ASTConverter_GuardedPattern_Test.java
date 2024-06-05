@@ -69,32 +69,32 @@ public class ASTConverter_GuardedPattern_Test extends ConverterTestSetup {
 			System.err.println("Test "+getName()+" requires a JRE 21");
 			return;
 		}
-		String contents = "" +
-						"public class X {\n" +
-						"	interface Shape {\n" +
-						"		public double calculateArea();\n" +
-						"	}\n" +
-						"	record Triangle(double base, double height) implements Shape {\n" +
-						"		public double calculateArea() {\n" +
-						"			return (0.5 * base * height);\n" +
-						"		}\n" +
-						"	}\n" +
-						"	public static void main(String[] args) {\n" +
-						"		Shape s= new Triangle(10, 10);\n" +
-						"		testTriangle(s);\n" +
-						"		s= new Triangle(10, 100);\n" +
-						"		testTriangle(s);\n" +
-						"	}\n" +
-						"	static void testTriangle(Shape s) {\n" +
-						"	    switch (s) {\n" +
-						"	        case Triangle t \n" +
-						"	        when t.calculateArea() > 100 ->\n" +
-						"	            System.out.println(\"...Large triangle...\");\n" +
-						"	        default ->\n" +
-						"	            System.out.println(\"...A shape, possibly a small triangle...\");\n" +
-						"	    }\n" +
-						"	}\n" +
-						"}";
+		String contents = """
+			public class X {
+				interface Shape {
+					public double calculateArea();
+				}
+				record Triangle(double base, double height) implements Shape {
+					public double calculateArea() {
+						return (0.5 * base * height);
+					}
+				}
+				public static void main(String[] args) {
+					Shape s= new Triangle(10, 10);
+					testTriangle(s);
+					s= new Triangle(10, 100);
+					testTriangle(s);
+				}
+				static void testTriangle(Shape s) {
+				    switch (s) {
+				        case Triangle t\s
+				        when t.calculateArea() > 100 ->
+				            System.out.println("...Large triangle...");
+				        default ->
+				            System.out.println("...A shape, possibly a small triangle...");
+				    }
+				}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter_19/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,

@@ -371,24 +371,28 @@ public class Java9ElementsTests extends TestCase {
 		}
 		internalTest(compiler, MODULE_PROC, "testUnnamedModule5", null, new String[] {
 				"targets/model9x/X.java",
-				"package targets.model9x;\n" +
-				"public class X {\n" +
-				"    X(final int j) {\n" +
-				"        j = 4;\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					package targets.model9x;
+					public class X {
+					    X(final int j) {
+					        j = 4;
+					    }
+					}
+					"""
 		});
 	}
 	public void testUnnamedModule5() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, MODULE_PROC, "testUnnamedModule5", null, new String[] {
 				"targets/model9x/X.java",
-				"package targets.model9x;\n" +
-				"public class X {\n" +
-				"    X(final int j) {\n" +
-				"        j = 4;\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					package targets.model9x;
+					public class X {
+					    X(final int j) {
+					        j = 4;
+					    }
+					}
+					"""
 		});
 	}
 	public void testBug521723() throws IOException {

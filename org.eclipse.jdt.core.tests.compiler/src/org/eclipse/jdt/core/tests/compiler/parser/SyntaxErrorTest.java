@@ -91,31 +91,35 @@ public void checkParse(
 public void test01() {
 
 	String s =
-		"public class X {								\n"+
-		" public void solve(){							\n"+
-		"												\n"+
-		"  X[] results = new X[10];						\n"+
-		"  for(int i = 0; i < 10; i++){					\n"+
-		"   X result = results[i];						\n"+
-		"   boolean found = false;						\n"+
-		"   for(int j = 0; j < 10; j++){				\n"+
-		"    if (this.equals(result.documentName){		\n"+
-		"     found = true;								\n"+
-		"     break;									\n"+
-		"    }											\n"+
-		"   }											\n"+
-		"  }											\n"+
-		"  return andResult;							\n"+
-		" }												\n"+
-		"}												\n";
+		"""
+		public class X {							\t
+		 public void solve(){						\t
+													\t
+		  X[] results = new X[10];					\t
+		  for(int i = 0; i < 10; i++){				\t
+		   X result = results[i];					\t
+		   boolean found = false;					\t
+		   for(int j = 0; j < 10; j++){			\t
+		    if (this.equals(result.documentName){	\t
+		     found = true;							\t
+		     break;								\t
+		    }										\t
+		   }										\t
+		  }										\t
+		  return andResult;						\t
+		 }											\t
+		}											\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n" +
-		"1. ERROR in <parenthesis mismatch> (at line 9)\n" +
-		"	if (this.equals(result.documentName){		\n" +
-		"	                                   ^\n" +
-		"Syntax error, insert \") Statement\" to complete BlockStatements\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <parenthesis mismatch> (at line 9)
+			if (this.equals(result.documentName){	\t
+			                                   ^
+		Syntax error, insert ") Statement" to complete BlockStatements
+		----------
+		""";
 
 	String testName = "<parenthesis mismatch>";
 	checkParse(
@@ -129,19 +133,23 @@ public void test01() {
 public void test02() {
 
 	String s =
-		"class Bar {			\n"+
-		"	Bar() {				\n"+
-		"		this(fred().x{);\n"+
-		"	}					\n"+
-		"}						\n";
+		"""
+		class Bar {		\t
+			Bar() {			\t
+				this(fred().x{);
+			}				\t
+		}					\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n" +
-		"1. ERROR in <brace mismatch> (at line 3)\n" +
-		"	this(fred().x{);\n" +
-		"	             ^\n" +
-		"Syntax error on token \"{\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <brace mismatch> (at line 3)
+			this(fred().x{);
+			             ^
+		Syntax error on token "{", delete this token
+		----------
+		""";
 
 	String testName = "<brace mismatch>";
 	checkParse(
@@ -155,37 +163,41 @@ public void test02() {
 public void test03() {
 
 	String s =
-		"public class X { // should complain	\n"+
-		"	int foo(							\n"+
-		"		[ arg1, 						\n"+
-		"		{ arg2, ]						\n"+
-		"		  arg3, 						\n"+
-		"	){									\n"+
-		"	}									\n"+
-		"}										\n";
+		"""
+		public class X { // should complain\t
+			int foo(						\t
+				[ arg1, 					\t
+				{ arg2, ]					\t
+				  arg3, 					\t
+			){								\t
+			}								\t
+		}									\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-			"----------\n" +
-			"1. ERROR in <parenthesis mismatch> (at line 3)\n" +
-			"	[ arg1, 						\n" +
-			"	^\n" +
-			"Syntax error on token \"[\", byte expected\n" +
-			"----------\n" +
-			"2. ERROR in <parenthesis mismatch> (at line 4)\n" +
-			"	{ arg2, ]						\n" +
-			"	^\n" +
-			"Syntax error on token \"{\", byte expected\n" +
-			"----------\n" +
-			"3. ERROR in <parenthesis mismatch> (at line 4)\n" +
-			"	{ arg2, ]						\n" +
-			"	        ^\n" +
-			"Syntax error on token \"]\", byte expected\n" +
-			"----------\n" +
-			"4. ERROR in <parenthesis mismatch> (at line 5)\n" +
-			"	arg3, 						\n" +
-			"	    ^\n" +
-			"Syntax error on token \",\", FormalParameter expected after this token\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in <parenthesis mismatch> (at line 3)
+			[ arg1, 					\t
+			^
+		Syntax error on token "[", byte expected
+		----------
+		2. ERROR in <parenthesis mismatch> (at line 4)
+			{ arg2, ]					\t
+			^
+		Syntax error on token "{", byte expected
+		----------
+		3. ERROR in <parenthesis mismatch> (at line 4)
+			{ arg2, ]					\t
+			        ^
+		Syntax error on token "]", byte expected
+		----------
+		4. ERROR in <parenthesis mismatch> (at line 5)
+			arg3, 					\t
+			    ^
+		Syntax error on token ",", FormalParameter expected after this token
+		----------
+		""";
 
 	String testName = "<parenthesis mismatch>";
 	checkParse(
@@ -199,32 +211,36 @@ public void test03() {
 public void test04() {
 
 	String s =
-		"public class X { // should not complain	\n"+
-		"	int foo(								\n"+
-		"		{ arg1, 							\n"+
-		"		{ arg2, }							\n"+
-		"		  arg3, }							\n"+
-		"	){										\n"+
-		"	}										\n"+
-		"}											\n";
+		"""
+		public class X { // should not complain\t
+			int foo(							\t
+				{ arg1, 						\t
+				{ arg2, }						\t
+				  arg3, }						\t
+			){									\t
+			}									\t
+		}										\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n" +
-		"1. ERROR in <no parenthesis mismatch> (at line 2)\n" +
-		"	int foo(								\n" +
-		"	       ^\n" +
-		"Syntax error on token \"(\", = expected\n" +
-		"----------\n" +
-		"2. ERROR in <no parenthesis mismatch> (at line 5)\n" +
-		"	arg3, }							\n" +
-		"	^^^^\n" +
-		"Syntax error on token \"arg3\", delete this token\n" +
-		"----------\n" +
-		"3. ERROR in <no parenthesis mismatch> (at line 6)\n" +
-		"	){										\n" +
-		"	^\n" +
-		"Syntax error on token \")\", ; expected\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <no parenthesis mismatch> (at line 2)
+			int foo(							\t
+			       ^
+		Syntax error on token "(", = expected
+		----------
+		2. ERROR in <no parenthesis mismatch> (at line 5)
+			arg3, }						\t
+			^^^^
+		Syntax error on token "arg3", delete this token
+		----------
+		3. ERROR in <no parenthesis mismatch> (at line 6)
+			){									\t
+			^
+		Syntax error on token ")", ; expected
+		----------
+		""";
 
 	String testName = "<no parenthesis mismatch>";
 	checkParse(
@@ -236,24 +252,28 @@ public void test04() {
 public void test05() {
 
 	String s =
-		"public class X {							\n"+
-		"	public void foo() {						\n"+
-		"		(X) foo(); 							\n"+
-		"	}										\n"+
-		"}											\n";
+		"""
+		public class X {						\t
+			public void foo() {					\t
+				(X) foo(); 						\t
+			}									\t
+		}										\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n"+
-		"1. ERROR in <test> (at line 3)\n"+
-		"	(X) foo(); 							\n"+
-		"	  ^\n"+
-		"Syntax error, insert \"AssignmentOperator Expression\" to complete Assignment\n"+
-		"----------\n"+
-		"2. ERROR in <test> (at line 3)\n"+
-		"	(X) foo(); 							\n"+
-		"	  ^\n"+
-		"Syntax error, insert \";\" to complete BlockStatements\n"+
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test> (at line 3)
+			(X) foo(); 						\t
+			  ^
+		Syntax error, insert "AssignmentOperator Expression" to complete Assignment
+		----------
+		2. ERROR in <test> (at line 3)
+			(X) foo(); 						\t
+			  ^
+		Syntax error, insert ";" to complete BlockStatements
+		----------
+		""";
 
 	String testName = "<test>";
 	checkParse(
@@ -265,19 +285,23 @@ public void test05() {
 public void test06() {
 
 	String s =
-		"public class X { 							\n"+
-		"	public void foo(int i) {				\n"+
-		"		i; 									\n"+
-		"	}										\n"+
-		"}											\n";
+		"""
+		public class X { 						\t
+			public void foo(int i) {			\t
+				i; 								\t
+			}									\t
+		}										\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-			"----------\n" +
-			"1. ERROR in <test> (at line 3)\n" +
-			"	i; 									\n" +
-			"	^\n" +
-			"Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in <test> (at line 3)
+			i; 								\t
+			^
+		Syntax error, insert "VariableDeclarators" to complete LocalVariableDeclaration
+		----------
+		""";
 
 	String testName = "<test>";
 	checkParse(
@@ -289,17 +313,21 @@ public void test06() {
 public void test07() {
 
 	String s =
-		"public class X { 											\n"+
-		"	java.lang.Object o[] = { new String(\"SUCCESS\") ; };	\n"+
-		"}															\n";
+		"""
+		public class X { 										\t
+			java.lang.Object o[] = { new String("SUCCESS") ; };\t
+		}														\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n"+
-		"1. ERROR in <test> (at line 2)\n"+
-		"	java.lang.Object o[] = { new String(\"SUCCESS\") ; };	\n"+
-		"	                                               ^\n"+
-		"Syntax error on token \";\", , expected\n"+
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test> (at line 2)
+			java.lang.Object o[] = { new String("SUCCESS") ; };\t
+			                                               ^
+		Syntax error on token ";", , expected
+		----------
+		""";
 
 	String testName = "<test>";
 	checkParse(
@@ -311,17 +339,21 @@ public void test07() {
 public void test08() {
 
 	String s =
-		"public class X { 											\n"+
-		"	Object o[] = { new String(\"SUCCESS\") ; };				\n"+
-		"}															\n";
+		"""
+		public class X { 										\t
+			Object o[] = { new String("SUCCESS") ; };			\t
+		}														\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n"+
-		"1. ERROR in <test> (at line 2)\n"+
-		"	Object o[] = { new String(\"SUCCESS\") ; };				\n"+
-		"	                                     ^\n"+
-		"Syntax error on token \";\", , expected\n"+
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test> (at line 2)
+			Object o[] = { new String("SUCCESS") ; };			\t
+			                                     ^
+		Syntax error on token ";", , expected
+		----------
+		""";
 
 	String testName = "<test>";
 	checkParse(
@@ -333,19 +365,23 @@ public void test08() {
 public void test09() {
 
 	String s =
-		"public class X { 												\n"+
-		"	void foo() {												\n"+
-		"		java.lang.Object o[] = { new String(\"SUCCESS\") ; };	\n"+
-		"	}															\n"+
-		"}																\n";
+		"""
+		public class X { 											\t
+			void foo() {											\t
+				java.lang.Object o[] = { new String("SUCCESS") ; };\t
+			}														\t
+		}															\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n"+
-		"1. ERROR in <test> (at line 3)\n"+
-		"	java.lang.Object o[] = { new String(\"SUCCESS\") ; };	\n"+
-		"	                                               ^\n"+
-		"Syntax error on token \";\", , expected\n"+
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test> (at line 3)
+			java.lang.Object o[] = { new String("SUCCESS") ; };\t
+			                                               ^
+		Syntax error on token ";", , expected
+		----------
+		""";
 
 	String testName = "<test>";
 	checkParse(
@@ -357,19 +393,23 @@ public void test09() {
 public void test10() {
 
 	String s =
-		"public class X { 												\n"+
-		"	void foo() {												\n"+
-		"		Object o[] = { new String(\"SUCCESS\") ; };				\n"+
-		"	}															\n"+
-		"}																\n";
+		"""
+		public class X { 											\t
+			void foo() {											\t
+				Object o[] = { new String("SUCCESS") ; };			\t
+			}														\t
+		}															\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n"+
-		"1. ERROR in <test> (at line 3)\n"+
-		"	Object o[] = { new String(\"SUCCESS\") ; };				\n"+
-		"	                                     ^\n"+
-		"Syntax error on token \";\", , expected\n"+
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test> (at line 3)
+			Object o[] = { new String("SUCCESS") ; };			\t
+			                                     ^
+		Syntax error on token ";", , expected
+		----------
+		""";
 
 	String testName = "<test>";
 	checkParse(
@@ -381,18 +421,22 @@ public void test10() {
 public void test11() {
 
 	String s =
-		"package a;										\n"+
-		"public interface Test {						\n"+
-		"  public void myMethod()						\n"+
-		"}												\n";
+		"""
+		package a;									\t
+		public interface Test {					\t
+		  public void myMethod()					\t
+		}											\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n"+
-		"1. ERROR in <test> (at line 3)\n"+
-		"	public void myMethod()						\n"+
-		"	                     ^\n"+
-		"Syntax error, insert \";\" to complete MethodDeclaration\n"+
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test> (at line 3)
+			public void myMethod()					\t
+			                     ^
+		Syntax error, insert ";" to complete MethodDeclaration
+		----------
+		""";
 
 	String testName = "<test>";
 	checkParse(
@@ -404,24 +448,28 @@ public void test11() {
 public void test12() {
 
 	String s =
-		"package a;										\n"+
-		"public interface Test {						\n"+
-		"  public void myMethod()						\n"+
-		"    System.out.println();						\n"+
-		"}												\n";
+		"""
+		package a;									\t
+		public interface Test {					\t
+		  public void myMethod()					\t
+		    System.out.println();					\t
+		}											\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n"+
-		"1. ERROR in <test> (at line 3)\n"+
-		"	public void myMethod()						\n"+
-		"	                     ^\n"+
-		"Syntax error on token \")\", { expected after this token\n"+
-		"----------\n"+
-		"2. ERROR in <test> (at line 5)\n"+
-		"	}												\n"+
-		"	^\n"+
-		"Syntax error, insert \"}\" to complete InterfaceBody\n"+
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test> (at line 3)
+			public void myMethod()					\t
+			                     ^
+		Syntax error on token ")", { expected after this token
+		----------
+		2. ERROR in <test> (at line 5)
+			}											\t
+			^
+		Syntax error, insert "}" to complete InterfaceBody
+		----------
+		""";
 
 	String testName = "<test>";
 	checkParse(
@@ -433,20 +481,24 @@ public void test12() {
 public void test13() {
 
 	String s =
-		"package a;										\n"+
-		"public class Test {							\n"+
-		"  public void foo() {							\n"+
-		"    foo(a  \"\\\"\");							\n"+
-		"  }											\n"+
-		"}												\n";
+		"""
+		package a;									\t
+		public class Test {						\t
+		  public void foo() {						\t
+		    foo(a  "\\"");						\t
+		  }										\t
+		}											\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n"+
-		"1. ERROR in <test> (at line 4)\n"+
-		"	foo(a  \"\\\"\");							\n"+
-		"	       ^^^^\n"+
-		"Syntax error on token \"\"\\\"\"\", delete this token\n"+
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test> (at line 4)
+			foo(a  "\\"");						\t
+			       ^^^^
+		Syntax error on token ""\\\""", delete this token
+		----------
+		""";
 
 	String testName = "<test>";
 	checkParse(
@@ -458,23 +510,27 @@ public void test13() {
 public void test14() {
 
 	String s =
-		"public interface Test {\n"+
-		"  static {  }\n"+
-		"  {         }\n"+
-		"}\n";
+		"""
+		public interface Test {
+		  static {  }
+		  {         }
+		}
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n" +
-		"1. ERROR in <test> (at line 2)\n" +
-		"	static {  }\n" +
-		"	       ^^^^\n" +
-		"The interface Test cannot define an initializer\n" +
-		"----------\n" +
-		"2. ERROR in <test> (at line 3)\n" +
-		"	{         }\n" +
-		"	^^^^^^^^^^^\n" +
-		"The interface Test cannot define an initializer\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test> (at line 2)
+			static {  }
+			       ^^^^
+		The interface Test cannot define an initializer
+		----------
+		2. ERROR in <test> (at line 3)
+			{         }
+			^^^^^^^^^^^
+		The interface Test cannot define an initializer
+		----------
+		""";
 
 	String testName = "<test>";
 	checkParse(
@@ -486,37 +542,41 @@ public void test14() {
 public void test15() {
 
 	String s =
-		"package bug;\n" +
-		"public class Test {\n" +
-		"  static int X;\n" +
-		"  String field = { String str;\n" +
-		"      switch (X) {\n" +
-		"        case 0:\n" +
-		"          str = \"zero\";\n" +
-		"          break;\n" +
-		"        default:\n" +
-		"          str = \"other\";\n" +
-		"          break;\n" +
-		"      }\n" +
-		"      this.field = str;\n" +
-		"  };\n" +
-		"  public static void main(String[] args) {\n" +
-		"    System.out.println(new Test().field);\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package bug;
+		public class Test {
+		  static int X;
+		  String field = { String str;
+		      switch (X) {
+		        case 0:
+		          str = "zero";
+		          break;
+		        default:
+		          str = "other";
+		          break;
+		      }
+		      this.field = str;
+		  };
+		  public static void main(String[] args) {
+		    System.out.println(new Test().field);
+		  }
+		}
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n" +
-		"1. ERROR in <test> (at line 4)\n" +
-		"	String field = { String str;\n" +
-		"	               ^^^^^^^^\n" +
-		"Syntax error on token(s), misplaced construct(s)\n" +
-		"----------\n" +
-		"2. ERROR in <test> (at line 4)\n" +
-		"	String field = { String str;\n" +
-		"	                           ^\n" +
-		"Syntax error on token \";\", { expected after this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test> (at line 4)
+			String field = { String str;
+			               ^^^^^^^^
+		Syntax error on token(s), misplaced construct(s)
+		----------
+		2. ERROR in <test> (at line 4)
+			String field = { String str;
+			                           ^
+		Syntax error on token ";", { expected after this token
+		----------
+		""";
 
 	String testName = "<test>";
 	checkParse(

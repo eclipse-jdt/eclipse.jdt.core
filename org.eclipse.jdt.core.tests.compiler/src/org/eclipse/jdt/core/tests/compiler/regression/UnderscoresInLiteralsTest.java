@@ -39,358 +39,421 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0b_001);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(0b_001);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0b_001);\n" +
-			"	                   ^^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(0b_001);
+					                   ^^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test002() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0_b001);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(0_b001);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0_b001);\n" +
-			"	                   ^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(0_b001);
+					                   ^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test003() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0b001_);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(0b001_);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0b001_);\n" +
-			"	                   ^^^^^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(0b001_);
+					                   ^^^^^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test004() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0x_11.0p33f);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(0x_11.0p33f);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0x_11.0p33f);\n" +
-			"	                   ^^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(0x_11.0p33f);
+					                   ^^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test005() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0x11_.0p33f);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(0x11_.0p33f);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0x11_.0p33f);\n" +
-			"	                   ^^^^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(0x11_.0p33f);
+					                   ^^^^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test006() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0x11._0p33f);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(0x11._0p33f);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0x11._0p33f);\n" +
-			"	                   ^^^^^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(0x11._0p33f);
+					                   ^^^^^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test007() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0x11.0_p33f);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(0x11.0_p33f);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0x11.0_p33f);\n" +
-			"	                   ^^^^^^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(0x11.0_p33f);
+					                   ^^^^^^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test008() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0x11.0p_33f);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(0x11.0p_33f);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0x11.0p_33f);\n" +
-			"	                   ^^^^^^^^^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(0x11.0p_33f);
+					                   ^^^^^^^^^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test009() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0x11.0p33_f);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(0x11.0p33_f);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0x11.0p33_f);\n" +
-			"	                   ^^^^^^^^^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(0x11.0p33_f);
+					                   ^^^^^^^^^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test010() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0x_0001AEFBBA);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(0x_0001AEFBBA);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0x_0001AEFBBA);\n" +
-			"	                   ^^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(0x_0001AEFBBA);
+					                   ^^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test011() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0_x0001AEFBBA);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(0_x0001AEFBBA);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0_x0001AEFBBA);\n" +
-			"	                   ^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(0_x0001AEFBBA);
+					                   ^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test012() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0x0001AEFBBA_);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(0x0001AEFBBA_);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0x0001AEFBBA_);\n" +
-			"	                   ^^^^^^^^^^^^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(0x0001AEFBBA_);
+					                   ^^^^^^^^^^^^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test013() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(_01234567);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(_01234567);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(_01234567);\n" +
-			"	                   ^^^^^^^^^\n" +
-			"_01234567 cannot be resolved to a variable\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(_01234567);
+					                   ^^^^^^^^^
+				_01234567 cannot be resolved to a variable
+				----------
+				""");
 	}
 	public void test014() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(01234567_);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(01234567_);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(01234567_);\n" +
-			"	                   ^^^^^^^^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(01234567_);
+					                   ^^^^^^^^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test015() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(1_.236589954f);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(1_.236589954f);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(1_.236589954f);\n" +
-			"	                   ^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(1_.236589954f);
+					                   ^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test016() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(1._236589954f);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(1._236589954f);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(1._236589954f);\n" +
-			"	                   ^^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(1._236589954f);
+					                   ^^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test017() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(1_e2);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(1_e2);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(1_e2);\n" +
-			"	                   ^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(1_e2);
+					                   ^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test018() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(1e_2);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(1e_2);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(1e_2);\n" +
-			"	                   ^^^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(1e_2);
+					                   ^^^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test019() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(1e2_);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(1e2_);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(1e2_);\n" +
-			"	                   ^^^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(1e2_);
+					                   ^^^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test020() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(01e2_);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(01e2_);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(01e2_);\n" +
-			"	                   ^^^^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(01e2_);
+					                   ^^^^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test021() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(01_e2_);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(01_e2_);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(01_e2_);\n" +
-			"	                   ^^^\n" +
-			"Underscores have to be located within digits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(01_e2_);
+					                   ^^^
+				Underscores have to be located within digits
+				----------
+				""");
 	}
 	public void test022() {
 		Map customedOptions = getCompilerOptions();
@@ -400,18 +463,21 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0b1110000_);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(0b1110000_);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0b1110000_);\n" +
-			"	                   ^^^^^^^^^^\n" +
-			"Underscores can only be used with source level 1.7 or greater\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(0b1110000_);
+					                   ^^^^^^^^^^
+				Underscores can only be used with source level 1.7 or greater
+				----------
+				""",
 			null,
 			true,
 			customedOptions);
@@ -420,11 +486,12 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0x1234____5678____90L);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(0x1234____5678____90L);
+						}
+					}"""
 			},
 			"78187493520");
 	}
@@ -432,11 +499,12 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(90_00__00_0);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(90_00__00_0);
+						}
+					}"""
 			},
 			"9000000");
 	}

@@ -113,12 +113,14 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed class Y permits X{}\n" +
-				"non-sealed class X extends Y {\n"+
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(0);\n" +
-				"  }\n"+
-				"}\n",
+				"""
+					sealed class Y permits X{}
+					non-sealed class X extends Y {
+					  public static void main(String[] args){
+					     System.out.println(0);
+					  }
+					}
+					""",
 			},
 			"0");
 	}
@@ -126,11 +128,13 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"non-sealed class X extends Y {\n"+
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(0);\n" +
-				"  }\n"+
-				"}\n",
+				"""
+					non-sealed class X extends Y {
+					  public static void main(String[] args){
+					     System.out.println(0);
+					  }
+					}
+					""",
 				"Y.java",
 				"sealed class Y permits X{}\n",
 			},
@@ -140,14 +144,16 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed interface I extends SI{}\n"+
-				"non-sealed class X implements SI{\n"+
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(0);\n" +
-				"  }\n"+
-				"}\n" +
-				"sealed interface SI permits X, I{}\n" +
-				"non-sealed interface I2 extends I{}\n"
+				"""
+					sealed interface I extends SI{}
+					non-sealed class X implements SI{
+					  public static void main(String[] args){
+					     System.out.println(0);
+					  }
+					}
+					sealed interface SI permits X, I{}
+					non-sealed interface I2 extends I{}
+					"""
 			},
 			"0");
 	}
@@ -155,13 +161,15 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed class X permits Y {\n"+
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(100);\n" +
-				"  }\n"+
-				"}\n" +
-				"non-sealed class Y extends X {\n"+
-				"}\n"
+				"""
+					sealed class X permits Y {
+					  public static void main(String[] args){
+					     System.out.println(100);
+					  }
+					}
+					non-sealed class Y extends X {
+					}
+					"""
 			},
 			"100");
 	}
@@ -169,14 +177,16 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public sealed class X {\n"+
-				"  public static void main(String[] args){\n"+
-				"     int sealed = 100;\n" +
-				"     System.out.println(sealed);\n" +
-				"  }\n"+
-				"}\n" +
-				"non-sealed class Y extends X {\n"+
-				"}\n"
+				"""
+					public sealed class X {
+					  public static void main(String[] args){
+					     int sealed = 100;
+					     System.out.println(sealed);
+					  }
+					}
+					non-sealed class Y extends X {
+					}
+					"""
 			},
 			"100");
 	}
@@ -184,13 +194,15 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed public class X {\n"+
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(100);\n" +
-				"  }\n"+
-				"}\n" +
-				"non-sealed class Y extends X {\n"+
-				"}\n"
+				"""
+					sealed public class X {
+					  public static void main(String[] args){
+					     System.out.println(100);
+					  }
+					}
+					non-sealed class Y extends X {
+					}
+					"""
 			},
 			"100");
 	}
@@ -198,15 +210,17 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed interface I {}\n"+
-				"sealed public class X<T> {\n"+
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(100);\n" +
-				"  }\n"+
-				"}\n" +
-				"non-sealed class Y<T> extends X<T> {\n"+
-				"}\n" +
-				"non-sealed interface I2 extends I {}\n"
+				"""
+					sealed interface I {}
+					sealed public class X<T> {
+					  public static void main(String[] args){
+					     System.out.println(100);
+					  }
+					}
+					non-sealed class Y<T> extends X<T> {
+					}
+					non-sealed interface I2 extends I {}
+					"""
 			},
 			"100");
 	}
@@ -214,13 +228,15 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed public class X<T> {\n"+
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(100);\n" +
-				"  }\n"+
-				"}\n" +
-				"non-sealed class Y extends X {\n"+
-				"}\n"
+				"""
+					sealed public class X<T> {
+					  public static void main(String[] args){
+					     System.out.println(100);
+					  }
+					}
+					non-sealed class Y extends X {
+					}
+					"""
 			},
 			"100");
 	}
@@ -228,57 +244,64 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"sealed public sealed class X {\n"+
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(100);\n" +
-				"  }\n"+
-			"}",
+				"""
+					sealed public sealed class X {
+					  public static void main(String[] args){
+					     System.out.println(100);
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	sealed public sealed class X {\n" +
-			"	                           ^\n" +
-			"Duplicate modifier for the type X\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	sealed public sealed class X {\n" +
-			"	                           ^\n" +
-			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					sealed public sealed class X {
+					                           ^
+				Duplicate modifier for the type X
+				----------
+				2. ERROR in X.java (at line 1)
+					sealed public sealed class X {
+					                           ^
+				Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface
+				----------
+				""");
 	}
 	public void testBug562715_006() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public sealed class X {\n"+
-				"  public static sealed void main(String[] args){\n"+
-				"     System.out.println(100);\n" +
-				"  }\n"+
-			"}",
+				"""
+					public sealed class X {
+					  public static sealed void main(String[] args){
+					     System.out.println(100);
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public sealed class X {\n" +
-			"	                    ^\n" +
-			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 2)\n" +
-			"	public static sealed void main(String[] args){\n" +
-			"	              ^^^^^^\n" +
-			"Syntax error on token \"sealed\", static expected\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					public sealed class X {
+					                    ^
+				Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface
+				----------
+				2. ERROR in X.java (at line 2)
+					public static sealed void main(String[] args){
+					              ^^^^^^
+				Syntax error on token "sealed", static expected
+				----------
+				""");
 	}
 	public void testBug562715_007() {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed @MyAnnot public class X {\n"+
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(100);\n" +
-				"  }\n"+
-				"}\n" +
-				"@interface MyAnnot {}\n" +
-				"non-sealed class Y extends X{}"
+				"""
+					sealed @MyAnnot public class X {
+					  public static void main(String[] args){
+					     System.out.println(100);
+					  }
+					}
+					@interface MyAnnot {}
+					non-sealed class Y extends X{}"""
 			},
 			"100");
 	}
@@ -286,13 +309,15 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed class X permits Y {\n"+
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(100);\n" +
-				"  }\n"+
-				"}\n"+
-				"sealed class Y extends X {}\n" +
-				"final class Z extends Y {}\n"
+				"""
+					sealed class X permits Y {
+					  public static void main(String[] args){
+					     System.out.println(100);
+					  }
+					}
+					sealed class Y extends X {}
+					final class Z extends Y {}
+					"""
 			},
 			"100");
 	}
@@ -300,14 +325,16 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed class X permits Y,Z {\n"+
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(100);\n" +
-				"  }\n"+
-				"}\n"+
-				"sealed class Y extends X {}\n" +
-				"final class Z extends X {}\n" +
-				"final class Y2 extends Y {}\n"
+				"""
+					sealed class X permits Y,Z {
+					  public static void main(String[] args){
+					     System.out.println(100);
+					  }
+					}
+					sealed class Y extends X {}
+					final class Z extends X {}
+					final class Y2 extends Y {}
+					"""
 			},
 			"100");
 	}
@@ -315,287 +342,322 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public sealed class X permits {\n"+
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(100);\n" +
-				"  }\n"+
-			"}",
+				"""
+					public sealed class X permits {
+					  public static void main(String[] args){
+					     System.out.println(100);
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public sealed class X permits {\n" +
-			"	                    ^\n" +
-			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	public sealed class X permits {\n" +
-			"	                      ^^^^^^^\n" +
-			"Syntax error on token \"permits\", { expected\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 1)\n" +
-			"	public sealed class X permits {\n" +
-			"	                              ^\n" +
-			"Syntax error, insert \"}\" to complete Block\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					public sealed class X permits {
+					                    ^
+				Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface
+				----------
+				2. ERROR in X.java (at line 1)
+					public sealed class X permits {
+					                      ^^^^^^^
+				Syntax error on token "permits", { expected
+				----------
+				3. ERROR in X.java (at line 1)
+					public sealed class X permits {
+					                              ^
+				Syntax error, insert "}" to complete Block
+				----------
+				""");
 	}
 	// TODO : Enable after error flag code implemented
 	public void testBug562715_011() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"sealed enum Natural {ONE, TWO}\n"+
-				"public sealed class X {\n"+
-				"  public static sealed void main(String[] args){\n"+
-				"     System.out.println(100);\n" +
-				"  }\n"+
-			"}",
+				"""
+					sealed enum Natural {ONE, TWO}
+					public sealed class X {
+					  public static sealed void main(String[] args){
+					     System.out.println(100);
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	sealed enum Natural {ONE, TWO}\n" +
-			"	            ^^^^^^^\n" +
-			"Illegal modifier for the enum Natural; only public is permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 2)\n" +
-			"	public sealed class X {\n" +
-			"	                    ^\n" +
-			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 3)\n" +
-			"	public static sealed void main(String[] args){\n" +
-			"	              ^^^^^^\n" +
-			"Syntax error on token \"sealed\", static expected\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					sealed enum Natural {ONE, TWO}
+					            ^^^^^^^
+				Illegal modifier for the enum Natural; only public is permitted
+				----------
+				2. ERROR in X.java (at line 2)
+					public sealed class X {
+					                    ^
+				Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface
+				----------
+				3. ERROR in X.java (at line 3)
+					public static sealed void main(String[] args){
+					              ^^^^^^
+				Syntax error on token "sealed", static expected
+				----------
+				""");
 	}
 	public void testBug562715_xxx() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"sealed record R() {}\n"+
-				"public sealed class X {\n"+
-				"  public static sealed void main(String[] args){\n"+
-				"     System.out.println(100);\n" +
-				"  }\n"+
-			"}",
+				"""
+					sealed record R() {}
+					public sealed class X {
+					  public static sealed void main(String[] args){
+					     System.out.println(100);
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	sealed record R() {}\n" +
-			"	              ^\n" +
-			"Illegal modifier for the record R; only public, final and strictfp are permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 2)\n" +
-			"	public sealed class X {\n" +
-			"	                    ^\n" +
-			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 3)\n" +
-			"	public static sealed void main(String[] args){\n" +
-			"	              ^^^^^^\n" +
-			"Syntax error on token \"sealed\", static expected\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					sealed record R() {}
+					              ^
+				Illegal modifier for the record R; only public, final and strictfp are permitted
+				----------
+				2. ERROR in X.java (at line 2)
+					public sealed class X {
+					                    ^
+				Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface
+				----------
+				3. ERROR in X.java (at line 3)
+					public static sealed void main(String[] args){
+					              ^^^^^^
+				Syntax error on token "sealed", static expected
+				----------
+				""");
 	}
 	public void testBug563806_001() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public sealed class X permits Y, Z{\n"+
-				"}\n"+
-				"class Y {}\n"+
-				"class Z {}",
+				"""
+					public sealed class X permits Y, Z{
+					}
+					class Y {}
+					class Z {}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public sealed class X permits Y, Z{\n" +
-			"	                              ^\n" +
-			"Permitted class Y does not declare X as direct super class\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	public sealed class X permits Y, Z{\n" +
-			"	                                 ^\n" +
-			"Permitted class Z does not declare X as direct super class\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					public sealed class X permits Y, Z{
+					                              ^
+				Permitted class Y does not declare X as direct super class
+				----------
+				2. ERROR in X.java (at line 1)
+					public sealed class X permits Y, Z{
+					                                 ^
+				Permitted class Z does not declare X as direct super class
+				----------
+				""");
 	}
 	public void testBug563806_002() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed class X permits Y{\n"+
-				"}\n"+
-				"class Y {}\n"+
-				"class Z extends X{}",
+				"""
+					package p1;
+					public sealed class X permits Y{
+					}
+					class Y {}
+					class Z extends X{}""",
 				"p1/A.java",
 				"package p1;\n"+
 				"public sealed class A extends X{}",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed class X permits Y{\n" +
-			"	                              ^\n" +
-			"Permitted class Y does not declare p1.X as direct super class\n" +
-			"----------\n" +
-			"2. ERROR in p1\\X.java (at line 5)\n" +
-			"	class Z extends X{}\n" +
-			"	      ^\n" +
-			"The class Z with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
-			"----------\n" +
-			"3. ERROR in p1\\X.java (at line 5)\n" +
-			"	class Z extends X{}\n" +
-			"	                ^\n" +
-			"The type Z extending a sealed class X should be a permitted subtype of X\n" +
-			"----------\n" +
-			"----------\n" +
-			"1. ERROR in p1\\A.java (at line 2)\n" +
-			"	public sealed class A extends X{}\n" +
-			"	                    ^\n" +
-			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares A as its direct superclass or superinterface\n" +
-			"----------\n" +
-			"2. ERROR in p1\\A.java (at line 2)\n" +
-			"	public sealed class A extends X{}\n" +
-			"	                              ^\n" +
-			"The type A extending a sealed class X should be a permitted subtype of X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					public sealed class X permits Y{
+					                              ^
+				Permitted class Y does not declare p1.X as direct super class
+				----------
+				2. ERROR in p1\\X.java (at line 5)
+					class Z extends X{}
+					      ^
+				The class Z with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed
+				----------
+				3. ERROR in p1\\X.java (at line 5)
+					class Z extends X{}
+					                ^
+				The type Z extending a sealed class X should be a permitted subtype of X
+				----------
+				----------
+				1. ERROR in p1\\A.java (at line 2)
+					public sealed class A extends X{}
+					                    ^
+				Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares A as its direct superclass or superinterface
+				----------
+				2. ERROR in p1\\A.java (at line 2)
+					public sealed class A extends X{}
+					                              ^
+				The type A extending a sealed class X should be a permitted subtype of X
+				----------
+				""");
 	}
 	public void testBug563806_003() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public sealed interface X permits Y, Z{\n"+
-				"}\n"+
-				"class Y implements X{}\n"+
-				"class Z {}",
+				"""
+					public sealed interface X permits Y, Z{
+					}
+					class Y implements X{}
+					class Z {}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public sealed interface X permits Y, Z{\n" +
-			"	                                     ^\n" +
-			"Permitted type Z does not declare X as direct super interface \n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	class Y implements X{}\n" +
-			"	      ^\n" +
-			"The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					public sealed interface X permits Y, Z{
+					                                     ^
+				Permitted type Z does not declare X as direct super interface\s
+				----------
+				2. ERROR in X.java (at line 3)
+					class Y implements X{}
+					      ^
+				The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed
+				----------
+				""");
 	}
 	public void testBug563806_004() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed interface X permits Y, Z, Q{\n"+
-				"}\n"+
-				"class Y implements X{}\n" +
-				"interface Z {}",
+				"""
+					package p1;
+					public sealed interface X permits Y, Z, Q{
+					}
+					class Y implements X{}
+					interface Z {}""",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed interface X permits Y, Z, Q{\n" +
-			"	                                     ^\n" +
-			"Permitted type Z does not declare p1.X as direct super interface \n" +
-			"----------\n" +
-			"2. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed interface X permits Y, Z, Q{\n" +
-			"	                                        ^\n" +
-			"Q cannot be resolved to a type\n" +
-			"----------\n" +
-			"3. ERROR in p1\\X.java (at line 4)\n" +
-			"	class Y implements X{}\n" +
-			"	      ^\n" +
-			"The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					public sealed interface X permits Y, Z, Q{
+					                                     ^
+				Permitted type Z does not declare p1.X as direct super interface\s
+				----------
+				2. ERROR in p1\\X.java (at line 2)
+					public sealed interface X permits Y, Z, Q{
+					                                        ^
+				Q cannot be resolved to a type
+				----------
+				3. ERROR in p1\\X.java (at line 4)
+					class Y implements X{}
+					      ^
+				The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed
+				----------
+				""");
 	}
 	public void testBug563806_005() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public sealed class X permits Y, Y{\n"+
-				"}\n"+
-				"class Y extends X {}",
+				"""
+					public sealed class X permits Y, Y{
+					}
+					class Y extends X {}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public sealed class X permits Y, Y{\n" +
-			"	                                 ^\n" +
-			"Duplicate type Y for the type X in the permits clause\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	class Y extends X {}\n" +
-			"	      ^\n" +
-			"The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					public sealed class X permits Y, Y{
+					                                 ^
+				Duplicate type Y for the type X in the permits clause
+				----------
+				2. ERROR in X.java (at line 3)
+					class Y extends X {}
+					      ^
+				The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed
+				----------
+				""");
 	}
 	public void testBug563806_006() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed class X permits Y, p1.Y{\n"+
-				"}\n"+
-				"class Y extends X {}",
+				"""
+					package p1;
+					public sealed class X permits Y, p1.Y{
+					}
+					class Y extends X {}""",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed class X permits Y, p1.Y{\n" +
-			"	                                 ^^^^\n" +
-			"Duplicate type Y for the type X in the permits clause\n" +
-			"----------\n" +
-			"2. ERROR in p1\\X.java (at line 4)\n" +
-			"	class Y extends X {}\n" +
-			"	      ^\n" +
-			"The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					public sealed class X permits Y, p1.Y{
+					                                 ^^^^
+				Duplicate type Y for the type X in the permits clause
+				----------
+				2. ERROR in p1\\X.java (at line 4)
+					class Y extends X {}
+					      ^
+				The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed
+				----------
+				""");
 	}
 	public void testBug563806_007() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				"}\n"+
-				"non-sealed class Y extends X {}",
+				"""
+					public class X {
+					}
+					non-sealed class Y extends X {}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	non-sealed class Y extends X {}\n" +
-			"	                 ^\n" +
-			"A class Y declared as non-sealed should have either a sealed direct superclass or a sealed direct superinterface\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					non-sealed class Y extends X {}
+					                 ^
+				A class Y declared as non-sealed should have either a sealed direct superclass or a sealed direct superinterface
+				----------
+				""");
 	}
 	public void testBug563806_008() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed interface X permits Y {\n"+
-				"}\n"+
-				"class Y implements X{}\n",
+				"""
+					package p1;
+					public sealed interface X permits Y {
+					}
+					class Y implements X{}
+					""",
 				"p2/Y.java",
 				"package p2;\n"+
 				"non-sealed public interface Y {}",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 4)\n" +
-			"	class Y implements X{}\n" +
-			"	      ^\n" +
-			"The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
-			"----------\n" +
-			"----------\n" +
-			"1. ERROR in p2\\Y.java (at line 2)\n" +
-			"	non-sealed public interface Y {}\n" +
-			"	                            ^\n" +
-			"An interface Y declared as non-sealed should have a sealed direct superinterface\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 4)
+					class Y implements X{}
+					      ^
+				The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed
+				----------
+				----------
+				1. ERROR in p2\\Y.java (at line 2)
+					non-sealed public interface Y {}
+					                            ^
+				An interface Y declared as non-sealed should have a sealed direct superinterface
+				----------
+				""");
 	}
 	public void testBug563806_009() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public sealed class X {\n"+
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(100);\n" +
-				"  }\n"+
-				"}\n"+
-				"final class Y extends X {}",
+				"""
+					public sealed class X {
+					  public static void main(String[] args){
+					     System.out.println(100);
+					  }
+					}
+					final class Y extends X {}""",
 			},
 			"100");
 	}
@@ -603,33 +665,38 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed class X permits Y {\n"+
-				"}\n"+
-				"final class Y extends X{}\n",
+				"""
+					package p1;
+					public sealed class X permits Y {
+					}
+					final class Y extends X{}
+					""",
 				"p2/Y.java",
 				"package p2;\n"+
 				"public final class Y extends p1.X{}",
 			},
-			"----------\n" +
-			"1. ERROR in p2\\Y.java (at line 2)\n" +
-			"	public final class Y extends p1.X{}\n" +
-			"	                             ^^^^\n" +
-			"Sealed type X and sub type Y in an unnamed module should be declared in the same package p1\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p2\\Y.java (at line 2)
+					public final class Y extends p1.X{}
+					                             ^^^^
+				Sealed type X and sub type Y in an unnamed module should be declared in the same package p1
+				----------
+				""");
 	}
 	public void testBug563806_011() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  public static void main(String[] args) { \n" +
-				"    System.out.println(\"0\");\n" +
-				"  }\n" +
-				"}\n" +
-				"sealed interface Y {\n"+
-				"}\n"+
-				"final class Z implements Y {}",
+				"""
+					public class X {
+					  public static void main(String[] args) {\s
+					    System.out.println("0");
+					  }
+					}
+					sealed interface Y {
+					}
+					final class Z implements Y {}""",
 			},
 			"0");
 	}
@@ -637,184 +704,221 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed interface X permits Y {\n"+
-				"}\n"+
-				"final class Y implements X{}\n",
+				"""
+					package p1;
+					public sealed interface X permits Y {
+					}
+					final class Y implements X{}
+					""",
 				"p2/Y.java",
 				"package p2;\n"+
 				"public final class Y implements p1.X{}",
 			},
-			"----------\n" +
-			"1. ERROR in p2\\Y.java (at line 2)\n" +
-			"	public final class Y implements p1.X{}\n" +
-			"	                                ^^^^\n" +
-			"Sealed type X and sub type Y in an unnamed module should be declared in the same package p1\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p2\\Y.java (at line 2)
+					public final class Y implements p1.X{}
+					                                ^^^^
+				Sealed type X and sub type Y in an unnamed module should be declared in the same package p1
+				----------
+				""");
 	}
 	public void testBug563806_013() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public sealed interface X {\n"+
-				"}\n"+
-				"interface Y extends X {}",
+				"""
+					public sealed interface X {
+					}
+					interface Y extends X {}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	interface Y extends X {}\n" +
-			"	          ^\n" +
-			"The interface Y with a sealed direct superinterface X should be declared either sealed or non-sealed\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					interface Y extends X {}
+					          ^
+				The interface Y with a sealed direct superinterface X should be declared either sealed or non-sealed
+				----------
+				""");
 	}
 	public void testBug563806_014() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed interface X permits Y {\n"+
-				"}\n"+
-				"interface Y extends X{}\n",
+				"""
+					package p1;
+					public sealed interface X permits Y {
+					}
+					interface Y extends X{}
+					""",
 				"p2/Y.java",
 				"package p2;\n"+
 				"public interface Y extends p1.X{}",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 4)\n" +
-			"	interface Y extends X{}\n" +
-			"	          ^\n" +
-			"The interface Y with a sealed direct superinterface X should be declared either sealed or non-sealed\n" +
-			"----------\n" +
-			"----------\n" +
-			"1. ERROR in p2\\Y.java (at line 2)\n" +
-			"	public interface Y extends p1.X{}\n" +
-			"	                 ^\n" +
-			"The interface Y with a sealed direct superinterface X should be declared either sealed or non-sealed\n" +
-			"----------\n" +
-			"2. ERROR in p2\\Y.java (at line 2)\n" +
-			"	public interface Y extends p1.X{}\n" +
-			"	                           ^^^^\n" +
-			"Sealed type X and sub type Y in an unnamed module should be declared in the same package p1\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 4)
+					interface Y extends X{}
+					          ^
+				The interface Y with a sealed direct superinterface X should be declared either sealed or non-sealed
+				----------
+				----------
+				1. ERROR in p2\\Y.java (at line 2)
+					public interface Y extends p1.X{}
+					                 ^
+				The interface Y with a sealed direct superinterface X should be declared either sealed or non-sealed
+				----------
+				2. ERROR in p2\\Y.java (at line 2)
+					public interface Y extends p1.X{}
+					                           ^^^^
+				Sealed type X and sub type Y in an unnamed module should be declared in the same package p1
+				----------
+				""");
 	}
 	public void testBug563806_015() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X permits Y{\n"+
-				"}\n"+
-				"final class Y extends X {}",
+				"""
+					public class X permits Y{
+					}
+					final class Y extends X {}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public class X permits Y{\n" +
-			"	             ^\n" +
-			"A type declaration X that has a permits clause should have a sealed modifier\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					public class X permits Y{
+					             ^
+				A type declaration X that has a permits clause should have a sealed modifier
+				----------
+				""");
 	}
 	public void testBug563806_016() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public class X permits Y {\n"+
-				"}\n"+
-				"final class Y extends X{}\n",
+				"""
+					package p1;
+					public class X permits Y {
+					}
+					final class Y extends X{}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	public class X permits Y {\n" +
-			"	             ^\n" +
-			"A type declaration X that has a permits clause should have a sealed modifier\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					public class X permits Y {
+					             ^
+				A type declaration X that has a permits clause should have a sealed modifier
+				----------
+				""");
 	}
 	public void testBug563806_017() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public interface X permits Y{\n"+
-				"}\n"+
-				"final class Y implements X {}",
+				"""
+					public interface X permits Y{
+					}
+					final class Y implements X {}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public interface X permits Y{\n" +
-			"	                 ^\n" +
-			"A type declaration X that has a permits clause should have a sealed modifier\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					public interface X permits Y{
+					                 ^
+				A type declaration X that has a permits clause should have a sealed modifier
+				----------
+				""");
 	}
 	public void testBug563806_018() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public interface X permits Y {\n"+
-				"}\n"+
-				"final class Y implements X{}\n",
+				"""
+					package p1;
+					public interface X permits Y {
+					}
+					final class Y implements X{}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	public interface X permits Y {\n" +
-			"	                 ^\n" +
-			"A type declaration X that has a permits clause should have a sealed modifier\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					public interface X permits Y {
+					                 ^
+				A type declaration X that has a permits clause should have a sealed modifier
+				----------
+				""");
 	}
 	public void testBug563806_019() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed class X permits Y, p2.Y {\n"+
-				"}\n"+
-				"final class Y extends X{}\n",
+				"""
+					package p1;
+					public sealed class X permits Y, p2.Y {
+					}
+					final class Y extends X{}
+					""",
 				"p2/Y.java",
 				"package p2;\n"+
 				"public final class Y extends p1.X{}",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed class X permits Y, p2.Y {\n" +
-			"	                                 ^^^^\n" +
-			"Permitted type Y in an unnamed module should be declared in the same package p1 of declaring type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					public sealed class X permits Y, p2.Y {
+					                                 ^^^^
+				Permitted type Y in an unnamed module should be declared in the same package p1 of declaring type X
+				----------
+				""");
 	}
 	public void testBug563806_020() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed interface X permits Y, p2.Y {\n"+
-				"}\n"+
-				"final class Y implements X{}\n",
+				"""
+					package p1;
+					public sealed interface X permits Y, p2.Y {
+					}
+					final class Y implements X{}
+					""",
 				"p2/Y.java",
 				"package p2;\n"+
 				"public final class Y implements p1.X{}",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed interface X permits Y, p2.Y {\n" +
-			"	                                     ^^^^\n" +
-			"Permitted type Y in an unnamed module should be declared in the same package p1 of declaring type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					public sealed interface X permits Y, p2.Y {
+					                                     ^^^^
+				Permitted type Y in an unnamed module should be declared in the same package p1 of declaring type X
+				----------
+				""");
 	}
 	public void testBug563806_021() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed interface X permits Y, p2.Y {\n"+
-				"}\n"+
-				"non-sealed interface Y extends X{}\n",
+				"""
+					package p1;
+					public sealed interface X permits Y, p2.Y {
+					}
+					non-sealed interface Y extends X{}
+					""",
 				"p2/Y.java",
 				"package p2;\n"+
 				"public non-sealed interface Y extends p1.X{}",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed interface X permits Y, p2.Y {\n" +
-			"	                                     ^^^^\n" +
-			"Permitted type Y in an unnamed module should be declared in the same package p1 of declaring type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					public sealed interface X permits Y, p2.Y {
+					                                     ^^^^
+				Permitted type Y in an unnamed module should be declared in the same package p1 of declaring type X
+				----------
+				""");
 	}
 	public void testBug563806_022() {
 		associateToModule("mod.one", "p1/X.java");
@@ -822,34 +926,42 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
 				"mod.one/module-info.java",
-				"module mod.one {\n"+
-				"requires mod.two;\n"+
-				"}\n",
+				"""
+					module mod.one {
+					requires mod.two;
+					}
+					""",
 				"mod.two/module-info.java",
-				"module mod.two {\n" +
-				"exports p2;\n"+
-				"}\n",
+				"""
+					module mod.two {
+					exports p2;
+					}
+					""",
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed class X permits Y, p2.Y {\n"+
-				"}\n"+
-				"final class Y extends X{}\n",
+				"""
+					package p1;
+					public sealed class X permits Y, p2.Y {
+					}
+					final class Y extends X{}
+					""",
 				"p2/Y.java",
 				"package p2;\n"+
 				"public final class Y {}",
 			};
 		runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed class X permits Y, p2.Y {\n" +
-			"	                                 ^^^^\n" +
-			"Permitted type Y in a named module mod.one should be declared in the same module mod.one of declaring type X\n" +
-			"----------\n" +
-			"2. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed class X permits Y, p2.Y {\n" +
-			"	                                 ^^^^\n" +
-			"Permitted class Y does not declare p1.X as direct super class\n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					public sealed class X permits Y, p2.Y {
+					                                 ^^^^
+				Permitted type Y in a named module mod.one should be declared in the same module mod.one of declaring type X
+				----------
+				2. ERROR in p1\\X.java (at line 2)
+					public sealed class X permits Y, p2.Y {
+					                                 ^^^^
+				Permitted class Y does not declare p1.X as direct super class
+				----------
+				""";
 		runner.runNegativeTest();
 	}
 	public void testBug563806_023() {
@@ -858,34 +970,42 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
 				"mod.one/module-info.java",
-				"module mod.one {\n"+
-				"requires mod.two;\n"+
-				"}\n",
+				"""
+					module mod.one {
+					requires mod.two;
+					}
+					""",
 				"mod.two/module-info.java",
-				"module mod.two {\n" +
-				"exports p2;\n"+
-				"}\n",
+				"""
+					module mod.two {
+					exports p2;
+					}
+					""",
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed interface X permits Y, p2.Y {\n"+
-				"}\n"+
-				"final class Y implements X{}\n",
+				"""
+					package p1;
+					public sealed interface X permits Y, p2.Y {
+					}
+					final class Y implements X{}
+					""",
 				"p2/Y.java",
 				"package p2;\n"+
 				"public final class Y {}",
 			};
 		runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed interface X permits Y, p2.Y {\n" +
-			"	                                     ^^^^\n" +
-			"Permitted type Y in a named module mod.one should be declared in the same module mod.one of declaring type X\n" +
-			"----------\n" +
-			"2. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed interface X permits Y, p2.Y {\n" +
-			"	                                     ^^^^\n" +
-			"Permitted type Y does not declare p1.X as direct super interface \n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					public sealed interface X permits Y, p2.Y {
+					                                     ^^^^
+				Permitted type Y in a named module mod.one should be declared in the same module mod.one of declaring type X
+				----------
+				2. ERROR in p1\\X.java (at line 2)
+					public sealed interface X permits Y, p2.Y {
+					                                     ^^^^
+				Permitted type Y does not declare p1.X as direct super interface\s
+				----------
+				""";
 		runner.runNegativeTest();
 	}
 	public void testBug563806_024() {
@@ -894,34 +1014,42 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
 				"mod.one/module-info.java",
-				"module mod.one {\n"+
-				"requires mod.two;\n"+
-				"}\n",
+				"""
+					module mod.one {
+					requires mod.two;
+					}
+					""",
 				"mod.two/module-info.java",
-				"module mod.two {\n" +
-				"exports p2;\n"+
-				"}\n",
+				"""
+					module mod.two {
+					exports p2;
+					}
+					""",
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed interface X permits Y, p2.Y {\n"+
-				"}\n"+
-				"non-sealed interface Y extends X{}\n",
+				"""
+					package p1;
+					public sealed interface X permits Y, p2.Y {
+					}
+					non-sealed interface Y extends X{}
+					""",
 				"p2/Y.java",
 				"package p2;\n"+
 				"public interface Y {}",
 			};
 		runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed interface X permits Y, p2.Y {\n" +
-			"	                                     ^^^^\n" +
-			"Permitted type Y in a named module mod.one should be declared in the same module mod.one of declaring type X\n" +
-			"----------\n" +
-			"2. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed interface X permits Y, p2.Y {\n" +
-			"	                                     ^^^^\n" +
-			"Permitted type Y does not declare p1.X as direct super interface \n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					public sealed interface X permits Y, p2.Y {
+					                                     ^^^^
+				Permitted type Y in a named module mod.one should be declared in the same module mod.one of declaring type X
+				----------
+				2. ERROR in p1\\X.java (at line 2)
+					public sealed interface X permits Y, p2.Y {
+					                                     ^^^^
+				Permitted type Y does not declare p1.X as direct super interface\s
+				----------
+				""";
 		runner.runNegativeTest();
 	}
 	public void testBug563806_025() {
@@ -933,10 +1061,12 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"module mod.one {\n"+
 				"}\n",
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed class X permits Y, p2.Y {\n"+
-				"}\n"+
-				"final class Y extends X{}\n",
+				"""
+					package p1;
+					public sealed class X permits Y, p2.Y {
+					}
+					final class Y extends X{}
+					""",
 				"p2/Y.java",
 				"package p2;\n"+
 				"public final class Y extends p1.X{}",
@@ -951,10 +1081,12 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"module mod.one {\n"+
 				"}\n",
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed interface X permits Y, p2.Y {\n"+
-				"}\n"+
-				"final class Y implements X{}\n",
+				"""
+					package p1;
+					public sealed interface X permits Y, p2.Y {
+					}
+					final class Y implements X{}
+					""",
 				"p2/Y.java",
 				"package p2;\n"+
 				"public final class Y implements p1.X{}",
@@ -970,10 +1102,12 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"module mod.one {\n"+
 				"}\n",
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed interface X permits Y, p2.Y {\n"+
-				"}\n"+
-				"non-sealed interface Y extends X{}\n",
+				"""
+					package p1;
+					public sealed interface X permits Y, p2.Y {
+					}
+					non-sealed interface Y extends X{}
+					""",
 				"p2/Y.java",
 				"package p2;\n"+
 				"public non-sealed interface Y extends p1.X {}",
@@ -984,226 +1118,277 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public non-sealed enum X {\n"+
-				"}\n",
+				"""
+					package p1;
+					public non-sealed enum X {
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	public non-sealed enum X {\n" +
-			"	                       ^\n" +
-			"Illegal modifier for the enum X; only public is permitted\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					public non-sealed enum X {
+					                       ^
+				Illegal modifier for the enum X; only public is permitted
+				----------
+				""");
 	}
 	public void testBug563806_029() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed enum X {\n"+
-				"}\n",
+				"""
+					package p1;
+					public sealed enum X {
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed enum X {\n" +
-			"	                   ^\n" +
-			"Illegal modifier for the enum X; only public is permitted\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					public sealed enum X {
+					                   ^
+				Illegal modifier for the enum X; only public is permitted
+				----------
+				""");
 	}
 	public void testBug563806_030() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public class X {\n"+
-				"static sealed enum Y {}\n"+
-				"}\n",
+				"""
+					package p1;
+					public class X {
+					static sealed enum Y {}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 3)\n" +
-			"	static sealed enum Y {}\n" +
-			"	                   ^\n" +
-			"Illegal modifier for the member enum Y; only public, protected, private & static are permitted\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 3)
+					static sealed enum Y {}
+					                   ^
+				Illegal modifier for the member enum Y; only public, protected, private & static are permitted
+				----------
+				""");
 	}
 	public void testBug563806_031() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public class X {\n"+
-				"static non-sealed enum Y {}\n"+
-				"}\n",
+				"""
+					package p1;
+					public class X {
+					static non-sealed enum Y {}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 3)\n" +
-			"	static non-sealed enum Y {}\n" +
-			"	                       ^\n" +
-			"Illegal modifier for the member enum Y; only public, protected, private & static are permitted\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 3)
+					static non-sealed enum Y {}
+					                       ^
+				Illegal modifier for the member enum Y; only public, protected, private & static are permitted
+				----------
+				""");
 	}
 	public void testBug563806_032() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed non-sealed interface X {\n"+
-				"}\n",
+				"""
+					package p1;
+					public sealed non-sealed interface X {
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed non-sealed interface X {\n" +
-			"	                                   ^\n" +
-			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface\n" +
-			"----------\n" +
-			"2. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed non-sealed interface X {\n" +
-			"	                                   ^\n" +
-			"An interface X is declared both sealed and non-sealed\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					public sealed non-sealed interface X {
+					                                   ^
+				Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface
+				----------
+				2. ERROR in p1\\X.java (at line 2)
+					public sealed non-sealed interface X {
+					                                   ^
+				An interface X is declared both sealed and non-sealed
+				----------
+				""");
 	}
 	public void testBug563806_033() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public sealed  @interface X {\n"+
-				"}\n",
+				"""
+					package p1;
+					public sealed  @interface X {
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed  @interface X {\n" +
-			"	       ^^^^^^\n" +
-			"Syntax error on token \"sealed\", static expected\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					public sealed  @interface X {
+					       ^^^^^^
+				Syntax error on token "sealed", static expected
+				----------
+				""");
 	}
 	public void testBug563806_034() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public  non-sealed @interface X {\n"+
-				"}\n",
+				"""
+					package p1;
+					public  non-sealed @interface X {
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	public  non-sealed @interface X {\n" +
-			"	                              ^\n" +
-			"An interface X declared as non-sealed should have a sealed direct superinterface\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					public  non-sealed @interface X {
+					                              ^
+				An interface X declared as non-sealed should have a sealed direct superinterface
+				----------
+				""");
 	}
 	public void testBug563806_035() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public  non-sealed interface X {\n"+
-				"}\n",
+				"""
+					package p1;
+					public  non-sealed interface X {
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	public  non-sealed interface X {\n" +
-			"	                             ^\n" +
-			"An interface X declared as non-sealed should have a sealed direct superinterface\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					public  non-sealed interface X {
+					                             ^
+				An interface X declared as non-sealed should have a sealed direct superinterface
+				----------
+				""");
 	}
 	public void testBug563806_036() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public  class X {\n"+
-				"  public void foo() {\n"+
-				"    sealed class Y{}\n"+
-				"  }\n"+
-				"}\n",
+				"""
+					package p1;
+					public  class X {
+					  public void foo() {
+					    sealed class Y{}
+					  }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 4)\n" +
-			"	sealed class Y{}\n" +
-			"	             ^\n" +
-			"Illegal modifier for the local class Y; only abstract or final is permitted\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 4)
+					sealed class Y{}
+					             ^
+				Illegal modifier for the local class Y; only abstract or final is permitted
+				----------
+				""");
 	}
 	public void testBug563806_037() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public  class X {\n"+
-				"  public void foo() {\n"+
-				"    non-sealed class Y{}\n"+
-				"  }\n"+
-				"}\n",
+				"""
+					package p1;
+					public  class X {
+					  public void foo() {
+					    non-sealed class Y{}
+					  }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 4)\n" +
-			"	non-sealed class Y{}\n" +
-			"	                 ^\n" +
-			"Illegal modifier for the local class Y; only abstract or final is permitted\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 4)
+					non-sealed class Y{}
+					                 ^
+				Illegal modifier for the local class Y; only abstract or final is permitted
+				----------
+				""");
 	}
 	public void testBug563806_038() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"public  class X {\n"+
-				"  public void foo() {\n"+
-				"    non-sealed sealed class Y{}\n"+
-				"  }\n"+
-				"}\n",
+				"""
+					package p1;
+					public  class X {
+					  public void foo() {
+					    non-sealed sealed class Y{}
+					  }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 4)\n" +
-			"	non-sealed sealed class Y{}\n" +
-			"	                        ^\n" +
-			"Illegal modifier for the local class Y; only abstract or final is permitted\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 4)
+					non-sealed sealed class Y{}
+					                        ^
+				Illegal modifier for the local class Y; only abstract or final is permitted
+				----------
+				""");
 	}
 	public void testBug563806_039() {
 		this.runNegativeTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"sealed class A{}\n"+
-				"public  class X {\n"+
-				"  public void foo() {\n"+
-				"    class Y extends A{}\n"+
-				"  }\n"+
-				"}\n",
+				"""
+					package p1;
+					sealed class A{}
+					public  class X {
+					  public void foo() {
+					    class Y extends A{}
+					  }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
-			"	sealed class A{}\n" +
-			"	             ^\n" +
-			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares A as its direct superclass or superinterface\n" +
-			"----------\n" +
-			"2. ERROR in p1\\X.java (at line 5)\n" +
-			"	class Y extends A{}\n" +
-			"	                ^\n" +
-			"A local class Y cannot have a sealed direct superclass or a sealed direct superinterface A\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\X.java (at line 2)
+					sealed class A{}
+					             ^
+				Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares A as its direct superclass or superinterface
+				----------
+				2. ERROR in p1\\X.java (at line 5)
+					class Y extends A{}
+					                ^
+				A local class Y cannot have a sealed direct superclass or a sealed direct superinterface A
+				----------
+				""");
 	}
 	public void testBug564191_001() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
 				"p1/X.java",
-				"package p1;\n"+
-				"sealed class X permits Y, Z{\n" +
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(0);\n" +
-				"  }\n"+
-				"}\n" +
-				"final class Y extends X{}\n" +
-				"final class Z extends X{}\n",
+				"""
+					package p1;
+					sealed class X permits Y, Z{
+					  public static void main(String[] args){
+					     System.out.println(0);
+					  }
+					}
+					final class Y extends X{}
+					final class Z extends X{}
+					""",
 			},
 			"0");
 		String expectedOutput =
-				"PermittedSubclasses:\n" +
-				"   #33 p1/Y,\n" +
-				"   #35 p1/Z\n" +
-				"}";
+				"""
+			PermittedSubclasses:
+			   #33 p1/Y,
+			   #35 p1/Z
+			}""";
 		verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Test that implicit permitted (top-level) types make it to the .class file
@@ -1211,21 +1396,24 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"p1/X.java",
-					"package p1;\n"+
-					"sealed class X {\n" +
-					"  public static void main(String[] args){\n"+
-					"     System.out.println(0);\n" +
-					"  }\n"+
-					"}\n" +
-					"final class Y extends X{}\n" +
-					"final class Z extends X{}\n",
+					"""
+						package p1;
+						sealed class X {
+						  public static void main(String[] args){
+						     System.out.println(0);
+						  }
+						}
+						final class Y extends X{}
+						final class Z extends X{}
+						""",
 				},
 				"0");
 			String expectedOutput =
-					"PermittedSubclasses:\n" +
-					"   #33 p1/Y,\n" +
-					"   #35 p1/Z\n" +
-					"}";
+					"""
+				PermittedSubclasses:
+				   #33 p1/Y,
+				   #35 p1/Z
+				}""";
 			verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Test that implicit permitted final (member) types make it to the .class file
@@ -1233,21 +1421,23 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"p1/X.java",
-					"package p1;\n"+
-					"sealed class X {\n" +
-					"  public static void main(String[] args){\n"+
-					"     System.out.println(0);\n" +
-					"  }\n"+
-					"  final class Y extends X{}\n" +
-					"  final class Z extends X{}\n" +
-					"}",
+					"""
+						package p1;
+						sealed class X {
+						  public static void main(String[] args){
+						     System.out.println(0);
+						  }
+						  final class Y extends X{}
+						  final class Z extends X{}
+						}""",
 				},
 				"0");
 			String expectedOutput =
-					"PermittedSubclasses:\n" +
-					"   #33 p1/X$Y,\n" +
-					"   #35 p1/X$Z\n" +
-					"}";
+					"""
+				PermittedSubclasses:
+				   #33 p1/X$Y,
+				   #35 p1/X$Z
+				}""";
 			verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Test that implicit permitted non-sealed (member) types make it to the .class file
@@ -1255,21 +1445,23 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"p1/X.java",
-					"package p1;\n"+
-					"sealed class X {\n" +
-					"  public static void main(String[] args){\n"+
-					"     System.out.println(0);\n" +
-					"  }\n"+
-					"  non-sealed class Y extends X{}\n" +
-					"  non-sealed class Z extends X{}\n" +
-					"}",
+					"""
+						package p1;
+						sealed class X {
+						  public static void main(String[] args){
+						     System.out.println(0);
+						  }
+						  non-sealed class Y extends X{}
+						  non-sealed class Z extends X{}
+						}""",
 				},
 				"0");
 			String expectedOutput =
-					"PermittedSubclasses:\n" +
-					"   #33 p1/X$Y,\n" +
-					"   #35 p1/X$Z\n" +
-					"}";
+					"""
+				PermittedSubclasses:
+				   #33 p1/X$Y,
+				   #35 p1/X$Z
+				}""";
 			verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Test that implicit permitted member type is reported without final, sealed or non-sealed
@@ -1277,18 +1469,21 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"p1/X.java",
-					"package p1;\n"+
-					"sealed class X  {\n" +
-					"	class Y extends X {}\n" +
-					"	final class Z extends Y {}\n" +
-					"}",
+					"""
+						package p1;
+						sealed class X  {
+							class Y extends X {}
+							final class Z extends Y {}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in p1\\X.java (at line 3)\n" +
-				"	class Y extends X {}\n" +
-				"	      ^\n" +
-				"The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in p1\\X.java (at line 3)
+						class Y extends X {}
+						      ^
+					The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed
+					----------
+					""");
 	}
 	// Test that implicit permitted member type with implicit permitted types
 	// is reported when its permitted type doesn't extend the member type
@@ -1296,18 +1491,21 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"p1/X.java",
-					"package p1;\n"+
-					"sealed class X {\n" +
-					"	sealed class Y extends X {}\n" +
-					"	final class Z {}\n" +
-					"}",
+					"""
+						package p1;
+						sealed class X {
+							sealed class Y extends X {}
+							final class Z {}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in p1\\X.java (at line 3)\n" +
-				"	sealed class Y extends X {}\n" +
-				"	             ^\n" +
-				"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares Y as its direct superclass or superinterface\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in p1\\X.java (at line 3)
+						sealed class Y extends X {}
+						             ^
+					Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares Y as its direct superclass or superinterface
+					----------
+					""");
 	}
 	// Test that implicit permitted member type with explicit permits clause
 	// is reported when its permitted type doesn't extend the member type
@@ -1315,18 +1513,21 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"p1/X.java",
-					"package p1;\n"+
-					"sealed class X  {\n" +
-					"	sealed class Y extends X permits Z {}\n" +
-					"	final class Z {}\n" +
-					"}",
+					"""
+						package p1;
+						sealed class X  {
+							sealed class Y extends X permits Z {}
+							final class Z {}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in p1\\X.java (at line 3)\n" +
-				"	sealed class Y extends X permits Z {}\n" +
-				"	                                 ^\n" +
-				"Permitted class Z does not declare p1.X.Y as direct super class\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in p1\\X.java (at line 3)
+						sealed class Y extends X permits Z {}
+						                                 ^
+					Permitted class Z does not declare p1.X.Y as direct super class
+					----------
+					""");
 	}
 	// Test that implicit permitted member type with explicit permits clause
 	// is reported when its permitted type doesn't extend the member type
@@ -1337,31 +1538,37 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 					"package p1;\n"+
 					"sealed interface SI {}",
 				},
-				"----------\n" +
-				"1. ERROR in p1\\X.java (at line 2)\n" +
-				"	sealed interface SI {}\n" +
-				"	                 ^^\n" +
-				"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares SI as its direct superclass or superinterface\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in p1\\X.java (at line 2)
+						sealed interface SI {}
+						                 ^^
+					Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares SI as its direct superclass or superinterface
+					----------
+					""");
 	}
 	public void testBug564450_001() throws IOException, ClassFormatException {
 		runNegativeTest(
 				new String[] {
 					"p1/X.java",
-					"package p1;\n"+
-					"sealed class X permits Y{\n" +
-					"}",
+					"""
+						package p1;
+						sealed class X permits Y{
+						}""",
 					"p1/Y.java",
-					"package p1;\n"+
-					"class Y extends X {\n" +
-					"}",
+					"""
+						package p1;
+						class Y extends X {
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in p1\\Y.java (at line 2)\n" +
-				"	class Y extends X {\n" +
-				"	      ^\n" +
-				"The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in p1\\Y.java (at line 2)
+						class Y extends X {
+						      ^
+					The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed
+					----------
+					""");
 	}
 	public void testBug564047_001() throws CoreException, IOException {
 		String outputDirectory = Util.getOutputDirectory();
@@ -1386,24 +1593,27 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 				new String[] {
 					"src/p/X.java",
-					"package p;\n" +
-					"public class X extends Y {\n" +
-					"  public static void main(String[] args){\n" +
-					"     System.out.println(0);\n" +
-					"  }\n" +
-					"}",
+					"""
+						package p;
+						public class X extends Y {
+						  public static void main(String[] args){
+						     System.out.println(0);
+						  }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in src\\p\\X.java (at line 2)\n" +
-				"	public class X extends Y {\n" +
-				"	             ^\n" +
-				"The class X with a sealed direct superclass or a sealed direct superinterface Y should be declared either final, sealed, or non-sealed\n" +
-				"----------\n" +
-				"2. ERROR in src\\p\\X.java (at line 2)\n" +
-				"	public class X extends Y {\n" +
-				"	                       ^\n" +
-				"The type X extending a sealed class Y should be a permitted subtype of Y\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in src\\p\\X.java (at line 2)
+						public class X extends Y {
+						             ^
+					The class X with a sealed direct superclass or a sealed direct superinterface Y should be declared either final, sealed, or non-sealed
+					----------
+					2. ERROR in src\\p\\X.java (at line 2)
+						public class X extends Y {
+						                       ^
+					The type X extending a sealed class Y should be a permitted subtype of Y
+					----------
+					""",
 				libs,
 		        true);
 		} catch (IOException e) {
@@ -1417,108 +1627,125 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				"  public static void main(String[] args){\n"+
-				"     new Y(){};\n" +
-				"  }\n"+
-				"}\n"+
-				"sealed class Y{}\n"+
-				"final class Z extends Y {\n"+
-			"}",
+				"""
+					public class X {
+					  public static void main(String[] args){
+					     new Y(){};
+					  }
+					}
+					sealed class Y{}
+					final class Z extends Y {
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	new Y(){};\n" +
-			"	    ^\n" +
-			"An anonymous class cannot subclass a sealed type Y\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					new Y(){};
+					    ^
+				An anonymous class cannot subclass a sealed type Y
+				----------
+				""");
 	}
 	public void testBug564492_002() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X  {\n"+
-				"   public static void main(String[] args) {\n"+
-				"        IY y = new IY(){};\n"+
-				"   }\n"+
-				"}\n"+
-				"sealed interface I {}\n"+
-				"sealed interface IY extends I {}\n"+
-				"final class Z implements IY{}\n",
+				"""
+					public class X  {
+					   public static void main(String[] args) {
+					        IY y = new IY(){};
+					   }
+					}
+					sealed interface I {}
+					sealed interface IY extends I {}
+					final class Z implements IY{}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	IY y = new IY(){};\n" +
-			"	           ^^\n" +
-			"An anonymous class cannot subclass a sealed type IY\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					IY y = new IY(){};
+					           ^^
+				An anonymous class cannot subclass a sealed type IY
+				----------
+				""");
 	}
 	public void testBug564492_003() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public sealed class X permits A.Y {\n"+
-				"       public static void main(String[] args) {\n"+
-				"               new A.Y() {};\n"+
-				"       }\n"+
-				"}\n"+
-				" \n"+
-				"class A {\n"+
-				"       static sealed class Y extends X permits Z {}\n"+
-				"       final class Z extends Y{}\n"+
-				"}\n",
+				"""
+					public sealed class X permits A.Y {
+					       public static void main(String[] args) {
+					               new A.Y() {};
+					       }
+					}
+					\s
+					class A {
+					       static sealed class Y extends X permits Z {}
+					       final class Z extends Y{}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	new A.Y() {};\n" +
-			"	    ^^^\n" +
-			"An anonymous class cannot subclass a sealed type A.Y\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					new A.Y() {};
+					    ^^^
+				An anonymous class cannot subclass a sealed type A.Y
+				----------
+				""");
 	}
 	public void testBug564492_004() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public  class X {\n"+
-				"       public static void main(String[] args) {\n"+
-				"               new A.IY() {};\n"+
-				"       }\n"+
-				"}\n"+
-				" \n"+
-				"class A {\n"+
-				"       sealed interface I permits IY{}\n"+
-				"       sealed interface IY extends I permits Z {}\n"+
-				"       final class Z implements IY{}\n"+
-				"}\n",
+				"""
+					public  class X {
+					       public static void main(String[] args) {
+					               new A.IY() {};
+					       }
+					}
+					\s
+					class A {
+					       sealed interface I permits IY{}
+					       sealed interface IY extends I permits Z {}
+					       final class Z implements IY{}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	new A.IY() {};\n" +
-			"	    ^^^^\n" +
-			"An anonymous class cannot subclass a sealed type A.IY\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					new A.IY() {};
+					    ^^^^
+				An anonymous class cannot subclass a sealed type A.IY
+				----------
+				""");
 	}
 	public void testBug564498_1() throws IOException, ClassFormatException {
 		runConformTest(
 				new String[] {
 					"p1/X.java",
-					"package p1;\n"+
-					"public sealed class X permits A.Y {\n" +
-					"	public static void main(String[] args) {}\n" +
-					"}\n" +
-					"class A {\n" +
-					"	sealed class Y extends X {\n" +
-					"		final class SubInnerY extends Y {}\n" +
-					"	} \n" +
-					"	final class Z extends Y {}\n" +
-					"}",
+					"""
+						package p1;
+						public sealed class X permits A.Y {
+							public static void main(String[] args) {}
+						}
+						class A {
+							sealed class Y extends X {
+								final class SubInnerY extends Y {}
+							}\s
+							final class Z extends Y {}
+						}""",
 				},
 				"");
 			String expectedOutput =
-					"PermittedSubclasses:\n" +
-					"   #24 p1/A$Y$SubInnerY,\n" +
-					"   #26 p1/A$Z\n" +
-					"}";
+					"""
+				PermittedSubclasses:
+				   #24 p1/A$Y$SubInnerY,
+				   #26 p1/A$Z
+				}""";
 			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
 			expectedOutput =
 					"PermittedSubclasses:\n" +
@@ -1529,22 +1756,24 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"p1/X.java",
-					"package p1;\n"+
-					"public sealed class X permits A.Y {\n" +
-					"	public static void main(String[] args) {}\n" +
-					"}\n" +
-					"class A {\n" +
-					"	sealed class Y extends X {} \n" +
-					"	final class Z extends Y {}\n" +
-					"   final class SubY extends Y {}" +
-					"}",
+					"""
+						package p1;
+						public sealed class X permits A.Y {
+							public static void main(String[] args) {}
+						}
+						class A {
+							sealed class Y extends X {}\s
+							final class Z extends Y {}
+						   final class SubY extends Y {}\
+						}""",
 				},
 				"");
 			String expectedOutput =
-					"PermittedSubclasses:\n" +
-					"   #22 p1/A$Z,\n" +
-					"   #24 p1/A$SubY\n" +
-					"}";
+					"""
+				PermittedSubclasses:
+				   #22 p1/A$Z,
+				   #24 p1/A$SubY
+				}""";
 			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
 			expectedOutput =
 					"PermittedSubclasses:\n" +
@@ -1555,39 +1784,43 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"p1/X.java",
-					"package p1;\n"+
-					"public sealed class X permits A.Y {\n" +
-					"	public static void main(String[] args) {}\n" +
-					"}\n" +
-					"class A {\n" +
-					"	sealed class Y extends X {\n" +
-					"		final class SubInnerY extends Y {}\n" +
-					"	} \n" +
-					"	final class Z extends Y {}\n" +
-					"   final class SubY extends Y {}" +
-					"}",
+					"""
+						package p1;
+						public sealed class X permits A.Y {
+							public static void main(String[] args) {}
+						}
+						class A {
+							sealed class Y extends X {
+								final class SubInnerY extends Y {}
+							}\s
+							final class Z extends Y {}
+						   final class SubY extends Y {}\
+						}""",
 				},
 				"");
 			String expectedOutput =
-					"PermittedSubclasses:\n" +
-					"   #24 p1/A$Y$SubInnerY,\n" +
-					"   #26 p1/A$Z,\n" +
-					"   #28 p1/A$SubY\n";
+					"""
+				PermittedSubclasses:
+				   #24 p1/A$Y$SubInnerY,
+				   #26 p1/A$Z,
+				   #28 p1/A$SubY
+				""";
 			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug564498_4() throws IOException, ClassFormatException {
 		runConformTest(
 				new String[] {
 					"p1/X.java",
-					"package p1;\n"+
-					"public sealed class X permits A.Y {\n" +
-					"	public static void main(String[] args) {}\n" +
-					"}\n" +
-					"class A {\n" +
-					"	sealed class Y extends X permits Y.SubInnerY {\n" +
-					"		final class SubInnerY extends Y {}\n" +
-					"	} \n" +
-					"}",
+					"""
+						package p1;
+						public sealed class X permits A.Y {
+							public static void main(String[] args) {}
+						}
+						class A {
+							sealed class Y extends X permits Y.SubInnerY {
+								final class SubInnerY extends Y {}
+							}\s
+						}""",
 				},
 				"");
 			String expectedOutput =
@@ -1600,22 +1833,25 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"p1/X.java",
-					"package p1;\n"+
-					"public sealed class X permits A.Y {\n" +
-					"	public static void main(String[] args) {}\n" +
-					"}\n" +
-					"class A {\n" +
-					"	sealed class Y extends X permits SubInnerY {\n" +
-					"		final class SubInnerY extends Y {}\n" +
-					"	} \n" +
-					"}",
+					"""
+						package p1;
+						public sealed class X permits A.Y {
+							public static void main(String[] args) {}
+						}
+						class A {
+							sealed class Y extends X permits SubInnerY {
+								final class SubInnerY extends Y {}
+							}\s
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in p1\\X.java (at line 7)\n" +
-				"	final class SubInnerY extends Y {}\n" +
-				"	                              ^\n" +
-				"The type SubInnerY extending a sealed class A.Y should be a permitted subtype of A.Y\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in p1\\X.java (at line 7)
+						final class SubInnerY extends Y {}
+						                              ^
+					The type SubInnerY extending a sealed class A.Y should be a permitted subtype of A.Y
+					----------
+					""");
 	}
 	// accept references of membertype without qualifier of enclosing type in permits clause
 	// provided it is imported
@@ -1623,14 +1859,15 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"p1/X.java",
-						"package p1;\n"+
-						"import p1.Y.Z;\n" +
-						"public class X {\n" +
-						"	public static void main(String[] args) {}\n" +
-						"}\n" +
-						"sealed class Y permits Z {\n" +
-						"	final class Z extends Y {}\n" +
-						"}",
+						"""
+							package p1;
+							import p1.Y.Z;
+							public class X {
+								public static void main(String[] args) {}
+							}
+							sealed class Y permits Z {
+								final class Z extends Y {}
+							}""",
 				},
 				"");
 	}
@@ -1638,16 +1875,17 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				"\n"+
-				"       public boolean permits( String s ) {\n"+
-				"               return true;\n"+
-				"       }\n"+
-				"       public static void main(String[] args) {\n"+
-				"               boolean b = new X().permits(\"hello\");\n"+
-				"               System.out.println(b ? \"Hello\" : \"World\");\n"+
-				"       }\n"+
-				"}",
+				"""
+					public class X {
+					
+					       public boolean permits( String s ) {
+					               return true;
+					       }
+					       public static void main(String[] args) {
+					               boolean b = new X().permits("hello");
+					               System.out.println(b ? "Hello" : "World");
+					       }
+					}""",
 			},
 			"Hello");
 	}
@@ -1655,16 +1893,19 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public sealed class X permits permits Y, Z {}\n"+
-				"final class Y extends X{}\n" +
-				"final class Z extends X{}",
+				"""
+					public sealed class X permits permits Y, Z {}
+					final class Y extends X{}
+					final class Z extends X{}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public sealed class X permits permits Y, Z {}\n" +
-			"	                      ^^^^^^^\n" +
-			"Syntax error on token \"permits\", delete this token\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					public sealed class X permits permits Y, Z {}
+					                      ^^^^^^^
+				Syntax error on token "permits", delete this token
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_001() {
@@ -1673,23 +1914,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class permits {\n"+
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class permits {
+					  void foo() {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class permits {\n" +
-			"	      ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type permits\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class permits {
+					      ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type permits
+				----------
+				""",
 			null,
 			true,
 			options
@@ -1699,23 +1943,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class permits {\n"+
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class permits {
+					  void foo() {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class permits {\n" +
-			"	      ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type permits\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class permits {
+					      ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type permits
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_003() {
@@ -1724,34 +1971,37 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  permits p;\n" +
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  permits p;
+					  void foo() {
+					    Zork();
+					  }
+					}""",
 				"permits.java",
 				"public class permits {\n"+
 				"}",
 			},
-			"----------\n" +
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	permits p;\n" +
-			"	^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"----------\n" +
-			"1. ERROR in permits.java (at line 1)\n" +
-			"	public class permits {\n" +
-			"	             ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				----------
+				1. ERROR in X.java (at line 2)
+					permits p;
+					^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 4)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				----------
+				1. ERROR in permits.java (at line 1)
+					public class permits {
+					             ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -1761,33 +2011,36 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  permits p;\n" +
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  permits p;
+					  void foo() {
+					    Zork();
+					  }
+					}""",
 				"permits.java",
 				"public class permits {\n"+
 				"}",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	permits p;\n" +
-			"	^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"----------\n" +
-			"1. ERROR in permits.java (at line 1)\n" +
-			"	public class permits {\n" +
-			"	             ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					permits p;
+					^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 4)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				----------
+				1. ERROR in permits.java (at line 1)
+					public class permits {
+					             ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_005() {
@@ -1796,23 +2049,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X<permits> {\n"+
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X<permits> {
+					  void foo() {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X<permits> {\n" +
-			"	        ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X<permits>\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X<permits> {
+					        ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X<permits>
+				----------
+				""",
 			null,
 			true,
 			options
@@ -1822,52 +2078,58 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X<permits> {\n"+
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X<permits> {
+					  void foo() {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X<permits> {\n" +
-			"	        ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X<permits>\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X<permits> {
+					        ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X<permits>
+				----------
+				""");
 	}
 	public void testBug564638_007() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X extends permits {\n"+
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}\n" +
-				"class permits {\n"+
-				"}",
+				"""
+					class X extends permits {
+					  void foo() {
+					    Zork();
+					  }
+					}
+					class permits {
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X extends permits {\n" +
-			"	                ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	class permits {\n" +
-			"	      ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X extends permits {
+					                ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				3. ERROR in X.java (at line 6)
+					class permits {
+					      ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_008() {
@@ -1876,30 +2138,33 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X extends permits {\n"+
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}\n" +
-				"class permits {\n"+
-				"}",
+				"""
+					class X extends permits {
+					  void foo() {
+					    Zork();
+					  }
+					}
+					class permits {
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X extends permits {\n" +
-			"	                ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	class permits {\n" +
-			"	      ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X extends permits {
+					                ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				3. ERROR in X.java (at line 6)
+					class permits {
+					      ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -1909,30 +2174,33 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X implements permits {\n"+
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}\n" +
-				"interface permits {\n"+
-				"}",
+				"""
+					class X implements permits {
+					  void foo() {
+					    Zork();
+					  }
+					}
+					interface permits {
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X implements permits {\n" +
-			"	                   ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	interface permits {\n" +
-			"	          ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X implements permits {
+					                   ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				3. ERROR in X.java (at line 6)
+					interface permits {
+					          ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_010() {
@@ -1941,30 +2209,33 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X implements permits {\n"+
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}\n" +
-				"interface permits {\n"+
-				"}",
+				"""
+					class X implements permits {
+					  void foo() {
+					    Zork();
+					  }
+					}
+					interface permits {
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X implements permits {\n" +
-			"	                   ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	interface permits {\n" +
-			"	          ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X implements permits {
+					                   ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				3. ERROR in X.java (at line 6)
+					interface permits {
+					          ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -1974,30 +2245,33 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"interface X extends permits {\n"+
-				"  default void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}\n" +
-				"interface permits {\n"+
-				"}",
+				"""
+					interface X extends permits {
+					  default void foo() {
+					    Zork();
+					  }
+					}
+					interface permits {
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	interface X extends permits {\n" +
-			"	                    ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	interface permits {\n" +
-			"	          ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					interface X extends permits {
+					                    ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				3. ERROR in X.java (at line 6)
+					interface permits {
+					          ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_012() {
@@ -2006,30 +2280,33 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"interface X extends permits {\n"+
-				"  default void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}\n" +
-				"interface permits {\n"+
-				"}",
+				"""
+					interface X extends permits {
+					  default void foo() {
+					    Zork();
+					  }
+					}
+					interface permits {
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	interface X extends permits {\n" +
-			"	                    ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	interface permits {\n" +
-			"	          ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					interface X extends permits {
+					                    ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				3. ERROR in X.java (at line 6)
+					interface permits {
+					          ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2039,29 +2316,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X extends {\n"+
-				"  permits foo() {\n" +
-				"    Zork();\n" +
-				"    return null;\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X extends {
+					  permits foo() {
+					    Zork();
+					    return null;
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X extends {\n" +
-			"	        ^^^^^^^\n" +
-			"Syntax error on token \"extends\", Type expected after this token\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 2)\n" +
-			"	permits foo() {\n" +
-			"	^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X extends {
+					        ^^^^^^^
+				Syntax error on token "extends", Type expected after this token
+				----------
+				2. ERROR in X.java (at line 2)
+					permits foo() {
+					^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_014() {
@@ -2070,24 +2350,27 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  permits foo() {\n" +
-				"    Zork();\n" +
-				"    return null;\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  permits foo() {
+					    Zork();
+					    return null;
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	permits foo() {\n" +
-			"	^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					permits foo() {
+					^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2097,23 +2380,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X  {\n"+
-				"  void foo() throws permits{\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X  {
+					  void foo() throws permits{
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	void foo() throws permits{\n" +
-			"	                  ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					void foo() throws permits{
+					                  ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_016() {
@@ -2122,23 +2408,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  void foo() throws permits{\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  void foo() throws permits{
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	void foo() throws permits{\n" +
-			"	                  ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					void foo() throws permits{
+					                  ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2148,38 +2437,41 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X <T extends permits> {\n"+
-				"  <T> void foo(T extends permits) {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X <T extends permits> {
+					  <T> void foo(T extends permits) {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X <T extends permits> {\n" +
-			"	                   ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	class X <T extends permits> {\n" +
-			"	                            ^\n" +
-			"Syntax error, insert \"}\" to complete ClassBody\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 2)\n" +
-			"	<T> void foo(T extends permits) {\n" +
-			"	 ^\n" +
-			"The type parameter T is hiding the type T\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 2)\n" +
-			"	<T> void foo(T extends permits) {\n" +
-			"	               ^^^^^^^\n" +
-			"Syntax error on token \"extends\", delete this token\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 5)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error on token \"}\", delete this token\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X <T extends permits> {
+					                   ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 1)
+					class X <T extends permits> {
+					                            ^
+				Syntax error, insert "}" to complete ClassBody
+				----------
+				3. WARNING in X.java (at line 2)
+					<T> void foo(T extends permits) {
+					 ^
+				The type parameter T is hiding the type T
+				----------
+				4. ERROR in X.java (at line 2)
+					<T> void foo(T extends permits) {
+					               ^^^^^^^
+				Syntax error on token "extends", delete this token
+				----------
+				5. ERROR in X.java (at line 5)
+					}
+					^
+				Syntax error on token "}", delete this token
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_018() {
@@ -2188,38 +2480,41 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X <T extends permits>{\n"+
-				"  <T> void foo(T extends permits) {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X <T extends permits>{
+					  <T> void foo(T extends permits) {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X <T extends permits>{\n" +
-			"	                   ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 1)\n" +
-			"	class X <T extends permits>{\n" +
-			"	                           ^\n" +
-			"Syntax error, insert \"}\" to complete ClassBody\n" +
-			"----------\n" +
-			"4. WARNING in X.java (at line 2)\n" +
-			"	<T> void foo(T extends permits) {\n" +
-			"	 ^\n" +
-			"The type parameter T is hiding the type T\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 2)\n" +
-			"	<T> void foo(T extends permits) {\n" +
-			"	               ^^^^^^^\n" +
-			"Syntax error on token \"extends\", delete this token\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 5)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error on token \"}\", delete this token\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X <T extends permits>{
+					                   ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 1)
+					class X <T extends permits>{
+					                           ^
+				Syntax error, insert "}" to complete ClassBody
+				----------
+				4. WARNING in X.java (at line 2)
+					<T> void foo(T extends permits) {
+					 ^
+				The type parameter T is hiding the type T
+				----------
+				5. ERROR in X.java (at line 2)
+					<T> void foo(T extends permits) {
+					               ^^^^^^^
+				Syntax error on token "extends", delete this token
+				----------
+				6. ERROR in X.java (at line 5)
+					}
+					^
+				Syntax error on token "}", delete this token
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2229,25 +2524,28 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"enum X {\n"+
-				"  ONE(1);\n" +
-				"  private final permits p;\n" +
-				"  X(int p) {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					enum X {
+					  ONE(1);
+					  private final permits p;
+					  X(int p) {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	private final permits p;\n" +
-			"	              ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					private final permits p;
+					              ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 5)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_020() {
@@ -2256,25 +2554,28 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"enum X {\n"+
-				"  ONE(1);\n" +
-				"  private final permits p;\n" +
-				"  X(int p) {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					enum X {
+					  ONE(1);
+					  private final permits p;
+					  X(int p) {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	private final permits p;\n" +
-			"	              ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					private final permits p;
+					              ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 5)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2294,17 +2595,19 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"  void apply(Object o);\n" +
 				"}",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	I i = (permits p)-> {};\n" +
-			"	      ^^^^^^^^^^^^^\n" +
-			"This lambda expression refers to the missing type permits\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	I i = (permits p)-> {};\n" +
-			"	       ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					I i = (permits p)-> {};
+					      ^^^^^^^^^^^^^
+				This lambda expression refers to the missing type permits
+				----------
+				2. ERROR in X.java (at line 3)
+					I i = (permits p)-> {};
+					       ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_022() {
@@ -2313,32 +2616,35 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public static void main(String[] args) {\n" +
-				"    I i = (permits p)-> {};\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}\n" +
-				"interface I {\n" +
-				"  void apply(Object o);\n" +
-				"}",
+				"""
+					class X {
+					  public static void main(String[] args) {
+					    I i = (permits p)-> {};
+					    Zork();
+					  }
+					}
+					interface I {
+					  void apply(Object o);
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	I i = (permits p)-> {};\n" +
-			"	      ^^^^^^^^^^^^^\n" +
-			"This lambda expression refers to the missing type permits\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	I i = (permits p)-> {};\n" +
-			"	       ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 4)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					I i = (permits p)-> {};
+					      ^^^^^^^^^^^^^
+				This lambda expression refers to the missing type permits
+				----------
+				2. ERROR in X.java (at line 3)
+					I i = (permits p)-> {};
+					       ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				4. ERROR in X.java (at line 4)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2348,16 +2654,19 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public void foo(permits this) {}\n" +
-				"}",
+				"""
+					class X {
+					  public void foo(permits this) {}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public void foo(permits this) {}\n" +
-			"	                ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public void foo(permits this) {}
+					                ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_024() {
@@ -2366,16 +2675,19 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public void foo(permits this) {}\n" +
-				"}",
+				"""
+					class X {
+					  public void foo(permits this) {}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public void foo(permits this) {}\n" +
-			"	                ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public void foo(permits this) {}
+					                ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2385,16 +2697,19 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public void foo(permits this) {}\n" +
-				"}",
+				"""
+					class X {
+					  public void foo(permits this) {}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public void foo(permits this) {}\n" +
-			"	                ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public void foo(permits this) {}
+					                ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_026() {
@@ -2403,16 +2718,19 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public void foo(permits this) {}\n" +
-				"}",
+				"""
+					class X {
+					  public void foo(permits this) {}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public void foo(permits this) {}\n" +
-			"	                ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public void foo(permits this) {}
+					                ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2422,23 +2740,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  class permits {\n"+
-				"     public void foo(permits this) {}\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  class permits {
+					     public void foo(permits this) {}
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	class permits {\n" +
-			"	      ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	public void foo(permits this) {}\n" +
-			"	                ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					class permits {
+					      ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					public void foo(permits this) {}
+					                ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_028() {
@@ -2447,23 +2768,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  class permits {\n"+
-				"     public void foo(permits this) {}\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  class permits {
+					     public void foo(permits this) {}
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	class permits {\n" +
-			"	      ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	public void foo(permits this) {}\n" +
-			"	                ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					class permits {
+					      ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					public void foo(permits this) {}
+					                ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2473,24 +2797,27 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public static void main(String[] args) {\n" +
-				"    permits p;\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  public static void main(String[] args) {
+					    permits p;
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	permits p;\n" +
-			"	^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					permits p;
+					^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 4)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_030() {
@@ -2499,24 +2826,27 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public static void main(String[] args) {\n" +
-				"    permits p;\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  public static void main(String[] args) {
+					    permits p;
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	permits p;\n" +
-			"	^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					permits p;
+					^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 4)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2526,26 +2856,29 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public static void main(String[] args) {\n" +
-				"    for (permits i = 0; i < 10; ++i) {} \n" +
-				"  }\n" +
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  public static void main(String[] args) {
+					    for (permits i = 0; i < 10; ++i) {}\s
+					  }
+					  void foo() {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	for (permits i = 0; i < 10; ++i) {} \n" +
-			"	     ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					for (permits i = 0; i < 10; ++i) {}\s
+					     ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 6)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_032() {
@@ -2554,26 +2887,29 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public static void main(String[] args) {\n" +
-				"    for (permits i = 0; i < 10; ++i) {} \n" +
-				"  }\n" +
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  public static void main(String[] args) {
+					    for (permits i = 0; i < 10; ++i) {}\s
+					  }
+					  void foo() {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	for (permits i = 0; i < 10; ++i) {} \n" +
-			"	     ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					for (permits i = 0; i < 10; ++i) {}\s
+					     ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 6)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2583,23 +2919,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public static void main(permits[] args) {\n" +
-				"    for (permits p : args) {} \n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  public static void main(permits[] args) {
+					    for (permits p : args) {}\s
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public static void main(permits[] args) {\n" +
-			"	                        ^^^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	for (permits p : args) {} \n" +
-			"	     ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public static void main(permits[] args) {
+					                        ^^^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					for (permits p : args) {}\s
+					     ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_034() {
@@ -2608,23 +2947,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public static void main(permits[] args) {\n" +
-				"    for (permits p : args) {} \n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  public static void main(permits[] args) {
+					    for (permits p : args) {}\s
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public static void main(permits[] args) {\n" +
-			"	                        ^^^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 3)\n" +
-			"	for (permits p : args) {} \n" +
-			"	     ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public static void main(permits[] args) {
+					                        ^^^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 3)
+					for (permits p : args) {}\s
+					     ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2634,28 +2976,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public static void main(String[] args) {\n"+
-				"               try (permits y = new Y()) {\n"+
-				"                       \n"+
-				"               } catch (Exception e) {\n"+
-				"                       e.printStackTrace();\n"+
-				"               } finally {\n"+
-				"                       \n"+
-				"               }\n"+
-				"       }\n"+
-				"}\n"+
-				"class Y implements AutoCloseable {\n"+
-				"       @Override\n"+
-				"       public void close() throws Exception {}\n"+
-				"}\n",
+				"""
+					class X {
+					       public static void main(String[] args) {
+					               try (permits y = new Y()) {
+					                      \s
+					               } catch (Exception e) {
+					                       e.printStackTrace();
+					               } finally {
+					                      \s
+					               }
+					       }
+					}
+					class Y implements AutoCloseable {
+					       @Override
+					       public void close() throws Exception {}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	try (permits y = new Y()) {\n" +
-			"	     ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					try (permits y = new Y()) {
+					     ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_036() {
@@ -2664,28 +3010,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public static void main(String[] args) {\n"+
-				"               try (permits y = new Y()) {\n"+
-				"                       \n"+
-				"               } catch (Exception e) {\n"+
-				"                       e.printStackTrace();\n"+
-				"               } finally {\n"+
-				"                       \n"+
-				"               }\n"+
-				"       }\n"+
-				"}\n"+
-				"class Y implements AutoCloseable {\n"+
-				"       @Override\n"+
-				"       public void close() throws Exception {}\n"+
-				"}\n",
+				"""
+					class X {
+					       public static void main(String[] args) {
+					               try (permits y = new Y()) {
+					                      \s
+					               } catch (Exception e) {
+					                       e.printStackTrace();
+					               } finally {
+					                      \s
+					               }
+					       }
+					}
+					class Y implements AutoCloseable {
+					       @Override
+					       public void close() throws Exception {}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	try (permits y = new Y()) {\n" +
-			"	     ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					try (permits y = new Y()) {
+					     ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2695,28 +3045,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public static void main(String[] args) {\n"+
-				"               try (Y y = new Y()) {\n"+
-				"                       \n"+
-				"               } catch (permits e) {\n"+
-				"                       e.printStackTrace();\n"+
-				"               } finally {\n"+
-				"                       \n"+
-				"               }\n"+
-				"       }\n"+
-				"}\n"+
-				"class Y implements AutoCloseable {\n"+
-				"       @Override\n"+
-				"       public void close() throws Exception {}\n"+
-				"}\n",
+				"""
+					class X {
+					       public static void main(String[] args) {
+					               try (Y y = new Y()) {
+					                      \s
+					               } catch (permits e) {
+					                       e.printStackTrace();
+					               } finally {
+					                      \s
+					               }
+					       }
+					}
+					class Y implements AutoCloseable {
+					       @Override
+					       public void close() throws Exception {}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	} catch (permits e) {\n" +
-			"	         ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					} catch (permits e) {
+					         ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_038() {
@@ -2725,28 +3079,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public static void main(String[] args) {\n"+
-				"               try (Y y = new Y()) {\n"+
-				"                       \n"+
-				"               } catch (permits e) {\n"+
-				"                       e.printStackTrace();\n"+
-				"               } finally {\n"+
-				"                       \n"+
-				"               }\n"+
-				"       }\n"+
-				"}\n"+
-				"class Y implements AutoCloseable {\n"+
-				"       @Override\n"+
-				"       public void close() throws Exception {}\n"+
-				"}\n",
+				"""
+					class X {
+					       public static void main(String[] args) {
+					               try (Y y = new Y()) {
+					                      \s
+					               } catch (permits e) {
+					                       e.printStackTrace();
+					               } finally {
+					                      \s
+					               }
+					       }
+					}
+					class Y implements AutoCloseable {
+					       @Override
+					       public void close() throws Exception {}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	} catch (permits e) {\n" +
-			"	         ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					} catch (permits e) {
+					         ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2759,17 +3117,19 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"record X(permits p) {\n"+
 				"}\n",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	record X(permits p) {\n" +
-			"	^\n" +
-			"permits cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	record X(permits p) {\n" +
-			"	         ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					record X(permits p) {
+					^
+				permits cannot be resolved to a type
+				----------
+				2. ERROR in X.java (at line 1)
+					record X(permits p) {
+					         ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_040() {
@@ -2781,17 +3141,19 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"record X(permits p) {\n"+
 				"}\n",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	record X(permits p) {\n" +
-			"	^\n" +
-			"permits cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	record X(permits p) {\n" +
-			"	         ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					record X(permits p) {
+					^
+				permits cannot be resolved to a type
+				----------
+				2. ERROR in X.java (at line 1)
+					record X(permits p) {
+					         ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2801,25 +3163,29 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public <T> X(T t) {}\n"+
-				"       \n"+
-				"       public X(int t, char c) {\n"+
-				"               <permits>this(t);\n"+
-				"       }\n"+
-				"}\n",
+				"""
+					class X {
+					       public <T> X(T t) {}
+					      \s
+					       public X(int t, char c) {
+					               <permits>this(t);
+					       }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	<permits>this(t);\n" +
-			"	 ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	<permits>this(t);\n" +
-			"	         ^^^^^^^^\n" +
-			"The parameterized constructor <permits>X(permits) of type X is not applicable for the arguments (Integer)\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					<permits>this(t);
+					 ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 5)
+					<permits>this(t);
+					         ^^^^^^^^
+				The parameterized constructor <permits>X(permits) of type X is not applicable for the arguments (Integer)
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_042() {
@@ -2828,25 +3194,29 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public <T> X(T t) {}\n"+
-				"       \n"+
-				"       public X(int t, char c) {\n"+
-				"               <permits>this(t);\n"+
-				"       }\n"+
-				"}\n",
+				"""
+					class X {
+					       public <T> X(T t) {}
+					      \s
+					       public X(int t, char c) {
+					               <permits>this(t);
+					       }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	<permits>this(t);\n" +
-			"	 ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	<permits>this(t);\n" +
-			"	         ^^^^^^^^\n" +
-			"The parameterized constructor <permits>X(permits) of type X is not applicable for the arguments (Integer)\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					<permits>this(t);
+					 ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 5)
+					<permits>this(t);
+					         ^^^^^^^^
+				The parameterized constructor <permits>X(permits) of type X is not applicable for the arguments (Integer)
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2856,26 +3226,30 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public <T> X(T t) {}\n"+
-				"       \n"+
-				"       public X(int t, char c) {\n"+
-				"           new <permits>X(t).foo();\n"+
-				"       }\n"+
-				"       public void foo() {}\n"+
-				"}\n",
+				"""
+					class X {
+					       public <T> X(T t) {}
+					      \s
+					       public X(int t, char c) {
+					           new <permits>X(t).foo();
+					       }
+					       public void foo() {}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	new <permits>X(t).foo();\n" +
-			"	^^^^^^^^^^^^^^^^^\n" +
-			"The parameterized constructor <permits>X(permits) of type X is not applicable for the arguments (Integer)\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	new <permits>X(t).foo();\n" +
-			"	     ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					new <permits>X(t).foo();
+					^^^^^^^^^^^^^^^^^
+				The parameterized constructor <permits>X(permits) of type X is not applicable for the arguments (Integer)
+				----------
+				2. ERROR in X.java (at line 5)
+					new <permits>X(t).foo();
+					     ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_044() {
@@ -2884,26 +3258,30 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public <T> X(T t) {}\n"+
-				"       \n"+
-				"       public X(int t, char c) {\n"+
-				"           new <permits>X(t).foo();\n"+
-				"       }\n"+
-				"       public void foo() {}\n"+
-				"}\n",
+				"""
+					class X {
+					       public <T> X(T t) {}
+					      \s
+					       public X(int t, char c) {
+					           new <permits>X(t).foo();
+					       }
+					       public void foo() {}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	new <permits>X(t).foo();\n" +
-			"	^^^^^^^^^^^^^^^^^\n" +
-			"The parameterized constructor <permits>X(permits) of type X is not applicable for the arguments (Integer)\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	new <permits>X(t).foo();\n" +
-			"	     ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					new <permits>X(t).foo();
+					^^^^^^^^^^^^^^^^^
+				The parameterized constructor <permits>X(permits) of type X is not applicable for the arguments (Integer)
+				----------
+				2. ERROR in X.java (at line 5)
+					new <permits>X(t).foo();
+					     ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2913,26 +3291,29 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public <T> void foo(T t) {}\n"+
-				"       \n"+
-				"       public X() {\n"+
-				"               X x = new X();\n"+
-				"               x.<permits>foo(0);\n"+
-				"       }\n"+
-				"}",
+				"""
+					class X {
+					       public <T> void foo(T t) {}
+					      \s
+					       public X() {
+					               X x = new X();
+					               x.<permits>foo(0);
+					       }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	x.<permits>foo(0);\n" +
-			"	   ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
-			"	x.<permits>foo(0);\n" +
-			"	           ^^^\n" +
-			"The parameterized method <permits>foo(permits) of type X is not applicable for the arguments (Integer)\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					x.<permits>foo(0);
+					   ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 6)
+					x.<permits>foo(0);
+					           ^^^
+				The parameterized method <permits>foo(permits) of type X is not applicable for the arguments (Integer)
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_046() {
@@ -2941,26 +3322,30 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public <T> void foo(T t) {}\n"+
-				"       \n"+
-				"       public X() {\n"+
-				"               X x = new X();\n"+
-				"               x.<permits>foo(0);\n"+
-				"       }\n"+
-				"}\n",
+				"""
+					class X {
+					       public <T> void foo(T t) {}
+					      \s
+					       public X() {
+					               X x = new X();
+					               x.<permits>foo(0);
+					       }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	x.<permits>foo(0);\n" +
-			"	   ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	x.<permits>foo(0);\n" +
-			"	           ^^^\n" +
-			"The parameterized method <permits>foo(permits) of type X is not applicable for the arguments (Integer)\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					x.<permits>foo(0);
+					   ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 6)
+					x.<permits>foo(0);
+					           ^^^
+				The parameterized method <permits>foo(permits) of type X is not applicable for the arguments (Integer)
+				----------
+				""",
 			null,
 			true,
 			options
@@ -2970,20 +3355,23 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public <T> void foo(T t) {}\n"+
-				"       \n"+
-				"       public X() {\n"+
-				"               X x = new permits();\n"+
-				"       }\n"+
-				"}",
+				"""
+					class X {
+					       public <T> void foo(T t) {}
+					      \s
+					       public X() {
+					               X x = new permits();
+					       }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	X x = new permits();\n" +
-			"	          ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					X x = new permits();
+					          ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_048() {
@@ -2992,20 +3380,24 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public <T> void foo(T t) {}\n"+
-				"       \n"+
-				"       public X() {\n"+
-				"               X x = new permits();\n"+
-				"       }\n"+
-				"}\n",
+				"""
+					class X {
+					       public <T> void foo(T t) {}
+					      \s
+					       public X() {
+					               X x = new permits();
+					       }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	X x = new permits();\n" +
-			"	          ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					X x = new permits();
+					          ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -3015,29 +3407,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public X() {\n"+
-				"               new permits() {\n"+
-				"                       @Override\n"+
-				"                       void foo() {}\n"+
-				"               }.foo();\n"+
-				"       }\n"+
-				"}\n"+
-				"abstract class permits {\n"+
-				"       abstract void foo();\n"+
-				"}",
+				"""
+					class X {
+					       public X() {
+					               new permits() {
+					                       @Override
+					                       void foo() {}
+					               }.foo();
+					       }
+					}
+					abstract class permits {
+					       abstract void foo();
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	new permits() {\n" +
-			"	    ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 9)\n" +
-			"	abstract class permits {\n" +
-			"	               ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					new permits() {
+					    ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 9)
+					abstract class permits {
+					               ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_050() {
@@ -3046,36 +3441,40 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"    public X() {\n"+
-				"       new permits() {\n"+
-				"          @Override\n"+
-				"          void foo() {\n"+
-				"            Zork();\n"+
-				"          }\n"+
-				"       }.foo();\n"+
-				"       }\n"+
-				"}\n"+
-				"abstract class permits {\n"+
-				"       abstract void foo();\n"+
-				"}\n",
+				"""
+					class X {
+					    public X() {
+					       new permits() {
+					          @Override
+					          void foo() {
+					            Zork();
+					          }
+					       }.foo();
+					       }
+					}
+					abstract class permits {
+					       abstract void foo();
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	new permits() {\n" +
-			"	    ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type new permits(){}\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 11)\n" +
-			"	abstract class permits {\n" +
-			"	               ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					new permits() {
+					    ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 6)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type new permits(){}
+				----------
+				3. ERROR in X.java (at line 11)
+					abstract class permits {
+					               ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -3085,18 +3484,21 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public X() {\n"+
-				"    Object[] p = new permits[10];\n"+
-			    "  }\n"+
-				"}",
+				"""
+					class X {
+					  public X() {
+					    Object[] p = new permits[10];
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	Object[] p = new permits[10];\n" +
-			"	                 ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					Object[] p = new permits[10];
+					                 ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_052() {
@@ -3105,18 +3507,21 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public X() {\n"+
-				"    Object[] p = new permits[10];\n"+
-			    "  }\n"+
-				"}",
+				"""
+					class X {
+					  public X() {
+					    Object[] p = new permits[10];
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	Object[] p = new permits[10];\n" +
-			"	                 ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					Object[] p = new permits[10];
+					                 ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -3126,29 +3531,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   new X().foo((permits) null);\n"+
-				" }\n"+
-				" private void foo(permits o) {}\n"+
-				"}",
+				"""
+					class X {
+					 public static void main(String[] args) {
+					   new X().foo((permits) null);
+					 }
+					 private void foo(permits o) {}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	new X().foo((permits) null);\n" +
-			"	        ^^^\n" +
-			"The method foo(permits) from the type X refers to the missing type permits\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	new X().foo((permits) null);\n" +
-			"	             ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	private void foo(permits o) {}\n" +
-			"	                 ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					new X().foo((permits) null);
+					        ^^^
+				The method foo(permits) from the type X refers to the missing type permits
+				----------
+				2. ERROR in X.java (at line 3)
+					new X().foo((permits) null);
+					             ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 5)
+					private void foo(permits o) {}
+					                 ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_054() {
@@ -3157,29 +3565,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   new X().foo((permits) null);\n"+
-				" }\n"+
-				" private void foo(permits o) {}\n"+
-				"}",
+				"""
+					class X {
+					 public static void main(String[] args) {
+					   new X().foo((permits) null);
+					 }
+					 private void foo(permits o) {}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	new X().foo((permits) null);\n" +
-			"	        ^^^\n" +
-			"The method foo(permits) from the type X refers to the missing type permits\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	new X().foo((permits) null);\n" +
-			"	             ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 5)\n" +
-			"	private void foo(permits o) {}\n" +
-			"	                 ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					new X().foo((permits) null);
+					        ^^^
+				The method foo(permits) from the type X refers to the missing type permits
+				----------
+				2. ERROR in X.java (at line 3)
+					new X().foo((permits) null);
+					             ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				4. ERROR in X.java (at line 5)
+					private void foo(permits o) {}
+					                 ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -3189,18 +3600,21 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				" private void foo(Object o) {\n"+
-				"   if (o instanceof permits) {}\n"+
-				" }\n"+
-				"}",
+				"""
+					class X {
+					 private void foo(Object o) {
+					   if (o instanceof permits) {}
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	if (o instanceof permits) {}\n" +
-			"	                 ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					if (o instanceof permits) {}
+					                 ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_056() {
@@ -3209,18 +3623,21 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				" private void foo(Object o) {\n"+
-				"   if (o instanceof permits) {}\n"+
-				" }\n"+
-				"}",
+				"""
+					class X {
+					 private void foo(Object o) {
+					   if (o instanceof permits) {}
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	if (o instanceof permits) {}\n" +
-			"	                 ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					if (o instanceof permits) {}
+					                 ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -3230,29 +3647,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   @SuppressWarnings(\"unused\")\n"+
-				"   I i = permits :: new;\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}\n"+
-				"class permits{}\n" +
-				"interface I {\n"+
-				" Object gen();\n"+
-				"}",
+				"""
+					class X {
+					 public static void main(String[] args) {
+					   @SuppressWarnings("unused")
+					   I i = permits :: new;
+					   Zork();
+					 }
+					}
+					class permits{}
+					interface I {
+					 Object gen();
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 8)\n" +
-			"	class permits{}\n" +
-			"	      ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				2. ERROR in X.java (at line 8)
+					class permits{}
+					      ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_058() {
@@ -3261,29 +3681,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   @SuppressWarnings(\"unused\")\n"+
-				"   I i = permits :: new;\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}\n"+
-				"class permits{}\n" +
-				"interface I {\n"+
-				" Object gen();\n"+
-				"}",
+				"""
+					class X {
+					 public static void main(String[] args) {
+					   @SuppressWarnings("unused")
+					   I i = permits :: new;
+					   Zork();
+					 }
+					}
+					class permits{}
+					interface I {
+					 Object gen();
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 8)\n" +
-			"	class permits{}\n" +
-			"	      ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				2. ERROR in X.java (at line 8)
+					class permits{}
+					      ^^^^^^^
+				'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -3296,23 +3719,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class sealed {\n"+
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class sealed {
+					  void foo() {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class sealed {\n" +
-			"	      ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type sealed\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class sealed {
+					      ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type sealed
+				----------
+				""",
 			null,
 			true,
 			options
@@ -3322,23 +3748,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class sealed {\n"+
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class sealed {
+					  void foo() {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class sealed {\n" +
-			"	      ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type sealed\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class sealed {
+					      ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type sealed
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_003() {
@@ -3347,34 +3776,37 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  sealed p;\n" +
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  sealed p;
+					  void foo() {
+					    Zork();
+					  }
+					}""",
 				"sealed.java",
 				"public class sealed {\n"+
 				"}",
 			},
-			"----------\n" +
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	sealed p;\n" +
-			"	^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"----------\n" +
-			"1. ERROR in sealed.java (at line 1)\n" +
-			"	public class sealed {\n" +
-			"	             ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				----------
+				1. ERROR in X.java (at line 2)
+					sealed p;
+					^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 4)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				----------
+				1. ERROR in sealed.java (at line 1)
+					public class sealed {
+					             ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -3384,33 +3816,36 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  sealed p;\n" +
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  sealed p;
+					  void foo() {
+					    Zork();
+					  }
+					}""",
 				"sealed.java",
 				"public class sealed {\n"+
 				"}",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	sealed p;\n" +
-			"	^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"----------\n" +
-			"1. ERROR in sealed.java (at line 1)\n" +
-			"	public class sealed {\n" +
-			"	             ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					sealed p;
+					^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 4)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				----------
+				1. ERROR in sealed.java (at line 1)
+					public class sealed {
+					             ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_005() {
@@ -3419,23 +3854,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X<sealed> {\n"+
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X<sealed> {
+					  void foo() {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X<sealed> {\n" +
-			"	        ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X<sealed>\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X<sealed> {
+					        ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X<sealed>
+				----------
+				""",
 			null,
 			true,
 			options
@@ -3445,52 +3883,58 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X<sealed> {\n"+
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X<sealed> {
+					  void foo() {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X<sealed> {\n" +
-			"	        ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X<sealed>\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X<sealed> {
+					        ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X<sealed>
+				----------
+				""");
 	}
 	public void testBug564638b_007() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X extends sealed {\n"+
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}\n" +
-				"class sealed {\n"+
-				"}",
+				"""
+					class X extends sealed {
+					  void foo() {
+					    Zork();
+					  }
+					}
+					class sealed {
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X extends sealed {\n" +
-			"	                ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	class sealed {\n" +
-			"	      ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X extends sealed {
+					                ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				3. ERROR in X.java (at line 6)
+					class sealed {
+					      ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_008() {
@@ -3499,30 +3943,33 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X extends sealed {\n"+
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}\n" +
-				"class sealed {\n"+
-				"}",
+				"""
+					class X extends sealed {
+					  void foo() {
+					    Zork();
+					  }
+					}
+					class sealed {
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X extends sealed {\n" +
-			"	                ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	class sealed {\n" +
-			"	      ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X extends sealed {
+					                ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				3. ERROR in X.java (at line 6)
+					class sealed {
+					      ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -3532,30 +3979,33 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X implements sealed {\n"+
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}\n" +
-				"interface sealed {\n"+
-				"}",
+				"""
+					class X implements sealed {
+					  void foo() {
+					    Zork();
+					  }
+					}
+					interface sealed {
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X implements sealed {\n" +
-			"	                   ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	interface sealed {\n" +
-			"	          ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X implements sealed {
+					                   ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				3. ERROR in X.java (at line 6)
+					interface sealed {
+					          ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_010() {
@@ -3564,30 +4014,33 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X implements sealed {\n"+
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}\n" +
-				"interface sealed {\n"+
-				"}",
+				"""
+					class X implements sealed {
+					  void foo() {
+					    Zork();
+					  }
+					}
+					interface sealed {
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X implements sealed {\n" +
-			"	                   ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	interface sealed {\n" +
-			"	          ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X implements sealed {
+					                   ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				3. ERROR in X.java (at line 6)
+					interface sealed {
+					          ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -3597,30 +4050,33 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"interface X extends sealed {\n"+
-				"  default void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}\n" +
-				"interface sealed {\n"+
-				"}",
+				"""
+					interface X extends sealed {
+					  default void foo() {
+					    Zork();
+					  }
+					}
+					interface sealed {
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	interface X extends sealed {\n" +
-			"	                    ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	interface sealed {\n" +
-			"	          ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					interface X extends sealed {
+					                    ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				3. ERROR in X.java (at line 6)
+					interface sealed {
+					          ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_012() {
@@ -3629,30 +4085,33 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"interface X extends sealed {\n"+
-				"  default void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}\n" +
-				"interface sealed {\n"+
-				"}",
+				"""
+					interface X extends sealed {
+					  default void foo() {
+					    Zork();
+					  }
+					}
+					interface sealed {
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	interface X extends sealed {\n" +
-			"	                    ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	interface sealed {\n" +
-			"	          ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					interface X extends sealed {
+					                    ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				3. ERROR in X.java (at line 6)
+					interface sealed {
+					          ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -3662,29 +4121,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X extends {\n"+
-				"  sealed foo() {\n" +
-				"    Zork();\n" +
-				"    return null;\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X extends {
+					  sealed foo() {
+					    Zork();
+					    return null;
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X extends {\n" +
-			"	        ^^^^^^^\n" +
-			"Syntax error on token \"extends\", Type expected after this token\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 2)\n" +
-			"	sealed foo() {\n" +
-			"	^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X extends {
+					        ^^^^^^^
+				Syntax error on token "extends", Type expected after this token
+				----------
+				2. ERROR in X.java (at line 2)
+					sealed foo() {
+					^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_014() {
@@ -3693,24 +4155,27 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  sealed foo() {\n" +
-				"    Zork();\n" +
-				"    return null;\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  sealed foo() {
+					    Zork();
+					    return null;
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	sealed foo() {\n" +
-			"	^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					sealed foo() {
+					^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""",
 			null,
 			true,
 			options
@@ -3720,23 +4185,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X  {\n"+
-				"  void foo() throws sealed{\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X  {
+					  void foo() throws sealed{
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	void foo() throws sealed{\n" +
-			"	                  ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					void foo() throws sealed{
+					                  ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_016() {
@@ -3745,23 +4213,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  void foo() throws sealed{\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  void foo() throws sealed{
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	void foo() throws sealed{\n" +
-			"	                  ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 3)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					void foo() throws sealed{
+					                  ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 3)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""",
 			null,
 			true,
 			options
@@ -3771,38 +4242,41 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X <T extends sealed> {\n"+
-				"  <T> void foo(T extends sealed) {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X <T extends sealed> {
+					  <T> void foo(T extends sealed) {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X <T extends sealed> {\n" +
-			"	                   ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	class X <T extends sealed> {\n" +
-			"	                           ^\n" +
-			"Syntax error, insert \"}\" to complete ClassBody\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 2)\n" +
-			"	<T> void foo(T extends sealed) {\n" +
-			"	 ^\n" +
-			"The type parameter T is hiding the type T\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 2)\n" +
-			"	<T> void foo(T extends sealed) {\n" +
-			"	               ^^^^^^^\n" +
-			"Syntax error on token \"extends\", delete this token\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 5)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error on token \"}\", delete this token\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X <T extends sealed> {
+					                   ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 1)
+					class X <T extends sealed> {
+					                           ^
+				Syntax error, insert "}" to complete ClassBody
+				----------
+				3. WARNING in X.java (at line 2)
+					<T> void foo(T extends sealed) {
+					 ^
+				The type parameter T is hiding the type T
+				----------
+				4. ERROR in X.java (at line 2)
+					<T> void foo(T extends sealed) {
+					               ^^^^^^^
+				Syntax error on token "extends", delete this token
+				----------
+				5. ERROR in X.java (at line 5)
+					}
+					^
+				Syntax error on token "}", delete this token
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_018() {
@@ -3811,38 +4285,41 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X <T extends sealed>{\n"+
-				"  <T> void foo(T extends sealed) {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X <T extends sealed>{
+					  <T> void foo(T extends sealed) {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	class X <T extends sealed>{\n" +
-			"	                   ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 1)\n" +
-			"	class X <T extends sealed>{\n" +
-			"	                          ^\n" +
-			"Syntax error, insert \"}\" to complete ClassBody\n" +
-			"----------\n" +
-			"4. WARNING in X.java (at line 2)\n" +
-			"	<T> void foo(T extends sealed) {\n" +
-			"	 ^\n" +
-			"The type parameter T is hiding the type T\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 2)\n" +
-			"	<T> void foo(T extends sealed) {\n" +
-			"	               ^^^^^^^\n" +
-			"Syntax error on token \"extends\", delete this token\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 5)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error on token \"}\", delete this token\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					class X <T extends sealed>{
+					                   ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 1)
+					class X <T extends sealed>{
+					                          ^
+				Syntax error, insert "}" to complete ClassBody
+				----------
+				4. WARNING in X.java (at line 2)
+					<T> void foo(T extends sealed) {
+					 ^
+				The type parameter T is hiding the type T
+				----------
+				5. ERROR in X.java (at line 2)
+					<T> void foo(T extends sealed) {
+					               ^^^^^^^
+				Syntax error on token "extends", delete this token
+				----------
+				6. ERROR in X.java (at line 5)
+					}
+					^
+				Syntax error on token "}", delete this token
+				----------
+				""",
 			null,
 			true,
 			options
@@ -3852,25 +4329,28 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"enum X {\n"+
-				"  ONE(1);\n" +
-				"  private final sealed p;\n" +
-				"  X(int p) {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					enum X {
+					  ONE(1);
+					  private final sealed p;
+					  X(int p) {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	private final sealed p;\n" +
-			"	              ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					private final sealed p;
+					              ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 5)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_020() {
@@ -3879,25 +4359,28 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"enum X {\n"+
-				"  ONE(1);\n" +
-				"  private final sealed p;\n" +
-				"  X(int p) {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					enum X {
+					  ONE(1);
+					  private final sealed p;
+					  X(int p) {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	private final sealed p;\n" +
-			"	              ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					private final sealed p;
+					              ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 5)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""",
 			null,
 			true,
 			options
@@ -3917,17 +4400,19 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"  void apply(Object o);\n" +
 				"}",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	I i = (sealed p)-> {};\n" +
-			"	      ^^^^^^^^^^^^\n" +
-			"This lambda expression refers to the missing type sealed\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	I i = (sealed p)-> {};\n" +
-			"	       ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					I i = (sealed p)-> {};
+					      ^^^^^^^^^^^^
+				This lambda expression refers to the missing type sealed
+				----------
+				2. ERROR in X.java (at line 3)
+					I i = (sealed p)-> {};
+					       ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_022() {
@@ -3936,32 +4421,35 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public static void main(String[] args) {\n" +
-				"    I i = (sealed p)-> {};\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}\n" +
-				"interface I {\n" +
-				"  void apply(Object o);\n" +
-				"}",
+				"""
+					class X {
+					  public static void main(String[] args) {
+					    I i = (sealed p)-> {};
+					    Zork();
+					  }
+					}
+					interface I {
+					  void apply(Object o);
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	I i = (sealed p)-> {};\n" +
-			"	      ^^^^^^^^^^^^\n" +
-			"This lambda expression refers to the missing type sealed\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	I i = (sealed p)-> {};\n" +
-			"	       ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 4)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					I i = (sealed p)-> {};
+					      ^^^^^^^^^^^^
+				This lambda expression refers to the missing type sealed
+				----------
+				2. ERROR in X.java (at line 3)
+					I i = (sealed p)-> {};
+					       ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				4. ERROR in X.java (at line 4)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""",
 			null,
 			true,
 			options
@@ -3971,16 +4459,19 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public void foo(sealed this) {}\n" +
-				"}",
+				"""
+					class X {
+					  public void foo(sealed this) {}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public void foo(sealed this) {}\n" +
-			"	                ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public void foo(sealed this) {}
+					                ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_024() {
@@ -3989,16 +4480,19 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public void foo(sealed this) {}\n" +
-				"}",
+				"""
+					class X {
+					  public void foo(sealed this) {}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public void foo(sealed this) {}\n" +
-			"	                ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public void foo(sealed this) {}
+					                ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4008,16 +4502,19 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public void foo(sealed this) {}\n" +
-				"}",
+				"""
+					class X {
+					  public void foo(sealed this) {}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public void foo(sealed this) {}\n" +
-			"	                ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public void foo(sealed this) {}
+					                ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_026() {
@@ -4026,16 +4523,19 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public void foo(sealed this) {}\n" +
-				"}",
+				"""
+					class X {
+					  public void foo(sealed this) {}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public void foo(sealed this) {}\n" +
-			"	                ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public void foo(sealed this) {}
+					                ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4045,23 +4545,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  class sealed {\n"+
-				"     public void foo(sealed this) {}\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  class sealed {
+					     public void foo(sealed this) {}
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	class sealed {\n" +
-			"	      ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	public void foo(sealed this) {}\n" +
-			"	                ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					class sealed {
+					      ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					public void foo(sealed this) {}
+					                ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_028() {
@@ -4070,23 +4573,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  class sealed {\n"+
-				"     public void foo(sealed this) {}\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  class sealed {
+					     public void foo(sealed this) {}
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	class sealed {\n" +
-			"	      ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	public void foo(sealed this) {}\n" +
-			"	                ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					class sealed {
+					      ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					public void foo(sealed this) {}
+					                ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4096,24 +4602,27 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public static void main(String[] args) {\n" +
-				"    sealed p;\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  public static void main(String[] args) {
+					    sealed p;
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	sealed p;\n" +
-			"	^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					sealed p;
+					^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 4)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_030() {
@@ -4122,24 +4631,27 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public static void main(String[] args) {\n" +
-				"    sealed p;\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  public static void main(String[] args) {
+					    sealed p;
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	sealed p;\n" +
-			"	^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					sealed p;
+					^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 4)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4149,26 +4661,29 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public static void main(String[] args) {\n" +
-				"    for (sealed i = 0; i < 10; ++i) {} \n" +
-				"  }\n" +
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  public static void main(String[] args) {
+					    for (sealed i = 0; i < 10; ++i) {}\s
+					  }
+					  void foo() {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	for (sealed i = 0; i < 10; ++i) {} \n" +
-			"	     ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					for (sealed i = 0; i < 10; ++i) {}\s
+					     ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 6)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_032() {
@@ -4177,26 +4692,29 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public static void main(String[] args) {\n" +
-				"    for (sealed i = 0; i < 10; ++i) {} \n" +
-				"  }\n" +
-				"  void foo() {\n" +
-				"    Zork();\n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  public static void main(String[] args) {
+					    for (sealed i = 0; i < 10; ++i) {}\s
+					  }
+					  void foo() {
+					    Zork();
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	for (sealed i = 0; i < 10; ++i) {} \n" +
-			"	     ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					for (sealed i = 0; i < 10; ++i) {}\s
+					     ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 6)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4206,23 +4724,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public static void main(sealed[] args) {\n" +
-				"    for (sealed p : args) {} \n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  public static void main(sealed[] args) {
+					    for (sealed p : args) {}\s
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public static void main(sealed[] args) {\n" +
-			"	                        ^^^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	for (sealed p : args) {} \n" +
-			"	     ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public static void main(sealed[] args) {
+					                        ^^^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 3)
+					for (sealed p : args) {}\s
+					     ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_034() {
@@ -4231,23 +4752,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public static void main(sealed[] args) {\n" +
-				"    for (sealed p : args) {} \n" +
-				"  }\n" +
-				"}",
+				"""
+					class X {
+					  public static void main(sealed[] args) {
+					    for (sealed p : args) {}\s
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public static void main(sealed[] args) {\n" +
-			"	                        ^^^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 3)\n" +
-			"	for (sealed p : args) {} \n" +
-			"	     ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public static void main(sealed[] args) {
+					                        ^^^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 3)
+					for (sealed p : args) {}\s
+					     ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4257,28 +4781,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public static void main(String[] args) {\n"+
-				"               try (sealed y = new Y()) {\n"+
-				"                       \n"+
-				"               } catch (Exception e) {\n"+
-				"                       e.printStackTrace();\n"+
-				"               } finally {\n"+
-				"                       \n"+
-				"               }\n"+
-				"       }\n"+
-				"}\n"+
-				"class Y implements AutoCloseable {\n"+
-				"       @Override\n"+
-				"       public void close() throws Exception {}\n"+
-				"}\n",
+				"""
+					class X {
+					       public static void main(String[] args) {
+					               try (sealed y = new Y()) {
+					                      \s
+					               } catch (Exception e) {
+					                       e.printStackTrace();
+					               } finally {
+					                      \s
+					               }
+					       }
+					}
+					class Y implements AutoCloseable {
+					       @Override
+					       public void close() throws Exception {}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	try (sealed y = new Y()) {\n" +
-			"	     ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					try (sealed y = new Y()) {
+					     ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_036() {
@@ -4287,28 +4815,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public static void main(String[] args) {\n"+
-				"               try (sealed y = new Y()) {\n"+
-				"                       \n"+
-				"               } catch (Exception e) {\n"+
-				"                       e.printStackTrace();\n"+
-				"               } finally {\n"+
-				"                       \n"+
-				"               }\n"+
-				"       }\n"+
-				"}\n"+
-				"class Y implements AutoCloseable {\n"+
-				"       @Override\n"+
-				"       public void close() throws Exception {}\n"+
-				"}\n",
+				"""
+					class X {
+					       public static void main(String[] args) {
+					               try (sealed y = new Y()) {
+					                      \s
+					               } catch (Exception e) {
+					                       e.printStackTrace();
+					               } finally {
+					                      \s
+					               }
+					       }
+					}
+					class Y implements AutoCloseable {
+					       @Override
+					       public void close() throws Exception {}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	try (sealed y = new Y()) {\n" +
-			"	     ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					try (sealed y = new Y()) {
+					     ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4318,28 +4850,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public static void main(String[] args) {\n"+
-				"               try (Y y = new Y()) {\n"+
-				"                       \n"+
-				"               } catch (sealed e) {\n"+
-				"                       e.printStackTrace();\n"+
-				"               } finally {\n"+
-				"                       \n"+
-				"               }\n"+
-				"       }\n"+
-				"}\n"+
-				"class Y implements AutoCloseable {\n"+
-				"       @Override\n"+
-				"       public void close() throws Exception {}\n"+
-				"}\n",
+				"""
+					class X {
+					       public static void main(String[] args) {
+					               try (Y y = new Y()) {
+					                      \s
+					               } catch (sealed e) {
+					                       e.printStackTrace();
+					               } finally {
+					                      \s
+					               }
+					       }
+					}
+					class Y implements AutoCloseable {
+					       @Override
+					       public void close() throws Exception {}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	} catch (sealed e) {\n" +
-			"	         ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					} catch (sealed e) {
+					         ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_038() {
@@ -4348,28 +4884,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public static void main(String[] args) {\n"+
-				"               try (Y y = new Y()) {\n"+
-				"                       \n"+
-				"               } catch (sealed e) {\n"+
-				"                       e.printStackTrace();\n"+
-				"               } finally {\n"+
-				"                       \n"+
-				"               }\n"+
-				"       }\n"+
-				"}\n"+
-				"class Y implements AutoCloseable {\n"+
-				"       @Override\n"+
-				"       public void close() throws Exception {}\n"+
-				"}\n",
+				"""
+					class X {
+					       public static void main(String[] args) {
+					               try (Y y = new Y()) {
+					                      \s
+					               } catch (sealed e) {
+					                       e.printStackTrace();
+					               } finally {
+					                      \s
+					               }
+					       }
+					}
+					class Y implements AutoCloseable {
+					       @Override
+					       public void close() throws Exception {}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	} catch (sealed e) {\n" +
-			"	         ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					} catch (sealed e) {
+					         ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4382,17 +4922,19 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"record X(sealed p) {\n"+
 				"}\n",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	record X(sealed p) {\n" +
-			"	^\n" +
-			"sealed cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	record X(sealed p) {\n" +
-			"	         ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					record X(sealed p) {
+					^
+				sealed cannot be resolved to a type
+				----------
+				2. ERROR in X.java (at line 1)
+					record X(sealed p) {
+					         ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_040() {
@@ -4404,17 +4946,19 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"record X(sealed p) {\n"+
 				"}\n",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	record X(sealed p) {\n" +
-			"	^\n" +
-			"sealed cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	record X(sealed p) {\n" +
-			"	         ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					record X(sealed p) {
+					^
+				sealed cannot be resolved to a type
+				----------
+				2. ERROR in X.java (at line 1)
+					record X(sealed p) {
+					         ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4424,25 +4968,29 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public <T> X(T t) {}\n"+
-				"       \n"+
-				"       public X(int t, char c) {\n"+
-				"               <sealed>this(t);\n"+
-				"       }\n"+
-				"}\n",
+				"""
+					class X {
+					       public <T> X(T t) {}
+					      \s
+					       public X(int t, char c) {
+					               <sealed>this(t);
+					       }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	<sealed>this(t);\n" +
-			"	 ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	<sealed>this(t);\n" +
-			"	        ^^^^^^^^\n" +
-			"The parameterized constructor <sealed>X(sealed) of type X is not applicable for the arguments (Integer)\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					<sealed>this(t);
+					 ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 5)
+					<sealed>this(t);
+					        ^^^^^^^^
+				The parameterized constructor <sealed>X(sealed) of type X is not applicable for the arguments (Integer)
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_042() {
@@ -4451,25 +4999,29 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public <T> X(T t) {}\n"+
-				"       \n"+
-				"       public X(int t, char c) {\n"+
-				"               <sealed>this(t);\n"+
-				"       }\n"+
-				"}\n",
+				"""
+					class X {
+					       public <T> X(T t) {}
+					      \s
+					       public X(int t, char c) {
+					               <sealed>this(t);
+					       }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	<sealed>this(t);\n" +
-			"	 ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	<sealed>this(t);\n" +
-			"	        ^^^^^^^^\n" +
-			"The parameterized constructor <sealed>X(sealed) of type X is not applicable for the arguments (Integer)\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					<sealed>this(t);
+					 ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 5)
+					<sealed>this(t);
+					        ^^^^^^^^
+				The parameterized constructor <sealed>X(sealed) of type X is not applicable for the arguments (Integer)
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4479,26 +5031,30 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public <T> X(T t) {}\n"+
-				"       \n"+
-				"       public X(int t, char c) {\n"+
-				"           new <sealed>X(t).foo();\n"+
-				"       }\n"+
-				"       public void foo() {}\n"+
-				"}\n",
+				"""
+					class X {
+					       public <T> X(T t) {}
+					      \s
+					       public X(int t, char c) {
+					           new <sealed>X(t).foo();
+					       }
+					       public void foo() {}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	new <sealed>X(t).foo();\n" +
-			"	^^^^^^^^^^^^^^^^\n" +
-			"The parameterized constructor <sealed>X(sealed) of type X is not applicable for the arguments (Integer)\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	new <sealed>X(t).foo();\n" +
-			"	     ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					new <sealed>X(t).foo();
+					^^^^^^^^^^^^^^^^
+				The parameterized constructor <sealed>X(sealed) of type X is not applicable for the arguments (Integer)
+				----------
+				2. ERROR in X.java (at line 5)
+					new <sealed>X(t).foo();
+					     ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_044() {
@@ -4507,26 +5063,30 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public <T> X(T t) {}\n"+
-				"       \n"+
-				"       public X(int t, char c) {\n"+
-				"           new <sealed>X(t).foo();\n"+
-				"       }\n"+
-				"       public void foo() {}\n"+
-				"}\n",
+				"""
+					class X {
+					       public <T> X(T t) {}
+					      \s
+					       public X(int t, char c) {
+					           new <sealed>X(t).foo();
+					       }
+					       public void foo() {}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	new <sealed>X(t).foo();\n" +
-			"	^^^^^^^^^^^^^^^^\n" +
-			"The parameterized constructor <sealed>X(sealed) of type X is not applicable for the arguments (Integer)\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	new <sealed>X(t).foo();\n" +
-			"	     ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					new <sealed>X(t).foo();
+					^^^^^^^^^^^^^^^^
+				The parameterized constructor <sealed>X(sealed) of type X is not applicable for the arguments (Integer)
+				----------
+				2. ERROR in X.java (at line 5)
+					new <sealed>X(t).foo();
+					     ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4536,26 +5096,29 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public <T> void foo(T t) {}\n"+
-				"       \n"+
-				"       public X() {\n"+
-				"               X x = new X();\n"+
-				"               x.<sealed>foo(0);\n"+
-				"       }\n"+
-				"}",
+				"""
+					class X {
+					       public <T> void foo(T t) {}
+					      \s
+					       public X() {
+					               X x = new X();
+					               x.<sealed>foo(0);
+					       }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	x.<sealed>foo(0);\n" +
-			"	   ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
-			"	x.<sealed>foo(0);\n" +
-			"	          ^^^\n" +
-			"The parameterized method <sealed>foo(sealed) of type X is not applicable for the arguments (Integer)\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					x.<sealed>foo(0);
+					   ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 6)
+					x.<sealed>foo(0);
+					          ^^^
+				The parameterized method <sealed>foo(sealed) of type X is not applicable for the arguments (Integer)
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_046() {
@@ -4564,26 +5127,30 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public <T> void foo(T t) {}\n"+
-				"       \n"+
-				"       public X() {\n"+
-				"               X x = new X();\n"+
-				"               x.<sealed>foo(0);\n"+
-				"       }\n"+
-				"}\n",
+				"""
+					class X {
+					       public <T> void foo(T t) {}
+					      \s
+					       public X() {
+					               X x = new X();
+					               x.<sealed>foo(0);
+					       }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	x.<sealed>foo(0);\n" +
-			"	   ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	x.<sealed>foo(0);\n" +
-			"	          ^^^\n" +
-			"The parameterized method <sealed>foo(sealed) of type X is not applicable for the arguments (Integer)\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					x.<sealed>foo(0);
+					   ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 6)
+					x.<sealed>foo(0);
+					          ^^^
+				The parameterized method <sealed>foo(sealed) of type X is not applicable for the arguments (Integer)
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4593,20 +5160,23 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public <T> void foo(T t) {}\n"+
-				"       \n"+
-				"       public X() {\n"+
-				"               X x = new sealed();\n"+
-				"       }\n"+
-				"}",
+				"""
+					class X {
+					       public <T> void foo(T t) {}
+					      \s
+					       public X() {
+					               X x = new sealed();
+					       }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	X x = new sealed();\n" +
-			"	          ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					X x = new sealed();
+					          ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_048() {
@@ -4615,20 +5185,24 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public <T> void foo(T t) {}\n"+
-				"       \n"+
-				"       public X() {\n"+
-				"               X x = new sealed();\n"+
-				"       }\n"+
-				"}\n",
+				"""
+					class X {
+					       public <T> void foo(T t) {}
+					      \s
+					       public X() {
+					               X x = new sealed();
+					       }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	X x = new sealed();\n" +
-			"	          ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					X x = new sealed();
+					          ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4638,29 +5212,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"       public X() {\n"+
-				"               new sealed() {\n"+
-				"                       @Override\n"+
-				"                       void foo() {}\n"+
-				"               }.foo();\n"+
-				"       }\n"+
-				"}\n"+
-				"abstract class sealed {\n"+
-				"       abstract void foo();\n"+
-				"}",
+				"""
+					class X {
+					       public X() {
+					               new sealed() {
+					                       @Override
+					                       void foo() {}
+					               }.foo();
+					       }
+					}
+					abstract class sealed {
+					       abstract void foo();
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	new sealed() {\n" +
-			"	    ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 9)\n" +
-			"	abstract class sealed {\n" +
-			"	               ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					new sealed() {
+					    ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 9)
+					abstract class sealed {
+					               ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_050() {
@@ -4669,36 +5246,40 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"    public X() {\n"+
-				"       new sealed() {\n"+
-				"          @Override\n"+
-				"          void foo() {\n"+
-				"            Zork();\n"+
-				"          }\n"+
-				"       }.foo();\n"+
-				"       }\n"+
-				"}\n"+
-				"abstract class sealed {\n"+
-				"       abstract void foo();\n"+
-				"}\n",
+				"""
+					class X {
+					    public X() {
+					       new sealed() {
+					          @Override
+					          void foo() {
+					            Zork();
+					          }
+					       }.foo();
+					       }
+					}
+					abstract class sealed {
+					       abstract void foo();
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	new sealed() {\n" +
-			"	    ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type new sealed(){}\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 11)\n" +
-			"	abstract class sealed {\n" +
-			"	               ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					new sealed() {
+					    ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				2. ERROR in X.java (at line 6)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type new sealed(){}
+				----------
+				3. ERROR in X.java (at line 11)
+					abstract class sealed {
+					               ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4708,18 +5289,21 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public X() {\n"+
-				"    Object[] p = new sealed[10];\n"+
-			    "  }\n"+
-				"}",
+				"""
+					class X {
+					  public X() {
+					    Object[] p = new sealed[10];
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	Object[] p = new sealed[10];\n" +
-			"	                 ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					Object[] p = new sealed[10];
+					                 ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_052() {
@@ -4728,18 +5312,21 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"  public X() {\n"+
-				"    Object[] p = new sealed[10];\n"+
-			    "  }\n"+
-				"}",
+				"""
+					class X {
+					  public X() {
+					    Object[] p = new sealed[10];
+					  }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	Object[] p = new sealed[10];\n" +
-			"	                 ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					Object[] p = new sealed[10];
+					                 ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4749,29 +5336,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   new X().foo((sealed) null);\n"+
-				" }\n"+
-				" private void foo(sealed o) {}\n"+
-				"}",
+				"""
+					class X {
+					 public static void main(String[] args) {
+					   new X().foo((sealed) null);
+					 }
+					 private void foo(sealed o) {}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	new X().foo((sealed) null);\n" +
-			"	        ^^^\n" +
-			"The method foo(sealed) from the type X refers to the missing type sealed\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	new X().foo((sealed) null);\n" +
-			"	             ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	private void foo(sealed o) {}\n" +
-			"	                 ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					new X().foo((sealed) null);
+					        ^^^
+				The method foo(sealed) from the type X refers to the missing type sealed
+				----------
+				2. ERROR in X.java (at line 3)
+					new X().foo((sealed) null);
+					             ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				3. ERROR in X.java (at line 5)
+					private void foo(sealed o) {}
+					                 ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_054() {
@@ -4780,29 +5370,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   new X().foo((sealed) null);\n"+
-				" }\n"+
-				" private void foo(sealed o) {}\n"+
-				"}",
+				"""
+					class X {
+					 public static void main(String[] args) {
+					   new X().foo((sealed) null);
+					 }
+					 private void foo(sealed o) {}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	new X().foo((sealed) null);\n" +
-			"	        ^^^\n" +
-			"The method foo(sealed) from the type X refers to the missing type sealed\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	new X().foo((sealed) null);\n" +
-			"	             ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 5)\n" +
-			"	private void foo(sealed o) {}\n" +
-			"	                 ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					new X().foo((sealed) null);
+					        ^^^
+				The method foo(sealed) from the type X refers to the missing type sealed
+				----------
+				2. ERROR in X.java (at line 3)
+					new X().foo((sealed) null);
+					             ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				4. ERROR in X.java (at line 5)
+					private void foo(sealed o) {}
+					                 ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4812,18 +5405,21 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				" private void foo(Object o) {\n"+
-				"   if (o instanceof sealed) {}\n"+
-				" }\n"+
-				"}",
+				"""
+					class X {
+					 private void foo(Object o) {
+					   if (o instanceof sealed) {}
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	if (o instanceof sealed) {}\n" +
-			"	                 ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					if (o instanceof sealed) {}
+					                 ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_056() {
@@ -4832,18 +5428,21 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				" private void foo(Object o) {\n"+
-				"   if (o instanceof sealed) {}\n"+
-				" }\n"+
-				"}",
+				"""
+					class X {
+					 private void foo(Object o) {
+					   if (o instanceof sealed) {}
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	if (o instanceof sealed) {}\n" +
-			"	                 ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					if (o instanceof sealed) {}
+					                 ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4853,29 +5452,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   @SuppressWarnings(\"unused\")\n"+
-				"   I i = sealed :: new;\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}\n"+
-				"class sealed{}\n" +
-				"interface I {\n"+
-				" Object gen();\n"+
-				"}",
+				"""
+					class X {
+					 public static void main(String[] args) {
+					   @SuppressWarnings("unused")
+					   I i = sealed :: new;
+					   Zork();
+					 }
+					}
+					class sealed{}
+					interface I {
+					 Object gen();
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 8)\n" +
-			"	class sealed{}\n" +
-			"	      ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				2. ERROR in X.java (at line 8)
+					class sealed{}
+					      ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_058() {
@@ -4884,29 +5486,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   @SuppressWarnings(\"unused\")\n"+
-				"   I i = sealed :: new;\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}\n"+
-				"class sealed{}\n" +
-				"interface I {\n"+
-				" Object gen();\n"+
-				"}",
+				"""
+					class X {
+					 public static void main(String[] args) {
+					   @SuppressWarnings("unused")
+					   I i = sealed :: new;
+					   Zork();
+					 }
+					}
+					class sealed{}
+					interface I {
+					 Object gen();
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 8)\n" +
-			"	class sealed{}\n" +
-			"	      ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				2. ERROR in X.java (at line 8)
+					class sealed{}
+					      ^^^^^^
+				'sealed' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17
+				----------
+				""",
 			null,
 			true,
 			options
@@ -4916,36 +5521,39 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public sealed class X permits Outer.Inner {\n" +
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(0);\n" +
-				"  }\n"+
-				"}\n" +
-				"class Outer{\n" +
-				"   final class Inner extends X{}\n"+
-				"}",
+				"""
+					public sealed class X permits Outer.Inner {
+					  public static void main(String[] args){
+					     System.out.println(0);
+					  }
+					}
+					class Outer{
+					   final class Inner extends X{}
+					}""",
 			},
 			"0");
 		String expectedOutput =
-			"  Inner classes:\n" +
-			"    [inner class info: #33 Outer$Inner, outer class info: #36 Outer\n" +
-			"     inner name: #38 Inner, accessflags: 16 final]\n" +
-			"\n" +
-			"PermittedSubclasses:\n" +
-			"   #33 Outer$Inner\n" +
-			"}";
+			"""
+			  Inner classes:
+			    [inner class info: #33 Outer$Inner, outer class info: #36 Outer
+			     inner name: #38 Inner, accessflags: 16 final]
+			
+			PermittedSubclasses:
+			   #33 Outer$Inner
+			}""";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug565116_001() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
 				"permits/X.java",
-				"package permits;\n"+
-				"class X {\n"+
-				"  public static void main(String[] args) {\n"+
-				"    X x = new permits.X();\n"+
-				"  }\n"+
-				"}",
+				"""
+					package permits;
+					class X {
+					  public static void main(String[] args) {
+					    X x = new permits.X();
+					  }
+					}""",
 			},
 			"");
 	}
@@ -4953,15 +5561,16 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed class X {\n"+
-				"  public static void main(String[] args) {\n"+
-				"    System.out.println(0);\n"+
-				"  }\n"+
-				"}\n"+
-				"final class Outer {\n"+
-				"    final class Inner extends X{\n"+
-				"  }\n"+
-				"}",
+				"""
+					sealed class X {
+					  public static void main(String[] args) {
+					    System.out.println(0);
+					  }
+					}
+					final class Outer {
+					    final class Inner extends X{
+					  }
+					}""",
 			},
 			"0");
 	}
@@ -4969,32 +5578,35 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed interface I permits X {}\n"+
-				"enum X implements I {\n"+
-				"    ONE {};\n"+
-				"    public static void main(String[] args) {\n"+
-				"        System.out.println(0);\n"+
-				"   }\n"+
-				"}",
+				"""
+					sealed interface I permits X {}
+					enum X implements I {
+					    ONE {};
+					    public static void main(String[] args) {
+					        System.out.println(0);
+					   }
+					}""",
 			},
 			"0");
 		String expectedOutput =
-				"PermittedSubclasses:\n" +
-				"   #14 X$1\n" +
-				"}";
+				"""
+			PermittedSubclasses:
+			   #14 X$1
+			}""";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug565782_002() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed interface I permits X {}\n"+
-				"public enum X implements I {\n"+
-				"    ONE ;\n"+
-				"    public static void main(String[] args) {\n"+
-				"        System.out.println(0);\n"+
-				"   }\n"+
-				"}",
+				"""
+					sealed interface I permits X {}
+					public enum X implements I {
+					    ONE ;
+					    public static void main(String[] args) {
+					        System.out.println(0);
+					   }
+					}""",
 			},
 			"0");
 		String expectedOutput =	"public final enum X implements I {\n";
@@ -5004,63 +5616,69 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed interface I {}\n"+
-				"enum X implements I {\n"+
-				"    ONE {};\n"+
-				"    public static void main(String[] args) {\n"+
-				"        System.out.println(0);\n"+
-				"   }\n"+
-				"}",
+				"""
+					sealed interface I {}
+					enum X implements I {
+					    ONE {};
+					    public static void main(String[] args) {
+					        System.out.println(0);
+					   }
+					}""",
 			},
 			"0");
 		String expectedOutput =
-				"PermittedSubclasses:\n" +
-				"   #14 X$1\n" +
-				"}";
+				"""
+			PermittedSubclasses:
+			   #14 X$1
+			}""";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug565782_004() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed interface I {}\n"+
-				"class X {\n"+
-				"	enum E implements I {\n"+
-				"   	ONE {};\n"+
-				"	}\n"+
-				"   public static void main(String[] args) {\n"+
-				"      	System.out.println(0);\n"+
-				"   }\n"+
-				"}",
+				"""
+					sealed interface I {}
+					class X {
+						enum E implements I {
+					   	ONE {};
+						}
+					   public static void main(String[] args) {
+					      	System.out.println(0);
+					   }
+					}""",
 			},
 			"0");
 		String expectedOutput =
-				"PermittedSubclasses:\n" +
-				"   #14 X$E$1\n" +
-				"}";
+				"""
+			PermittedSubclasses:
+			   #14 X$E$1
+			}""";
 		verifyClassFile(expectedOutput, "X$E.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug565782_005() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed interface I permits X {}\n"+
-				"enum X implements I {\n"+
-				"    ONE {},\n"+
-				"    TWO {},\n"+
-				"    THREE {};\n"+
-				"    public static void main(String[] args) {\n"+
-				"        System.out.println(0);\n"+
-				"   }\n"+
-				"}",
+				"""
+					sealed interface I permits X {}
+					enum X implements I {
+					    ONE {},
+					    TWO {},
+					    THREE {};
+					    public static void main(String[] args) {
+					        System.out.println(0);
+					   }
+					}""",
 			},
 			"0");
 		String expectedOutput =
-				"PermittedSubclasses:\n" +
-				"   #16 X$1,\n" +
-				"   #25 X$2,\n" +
-				"   #31 X$3\n" +
-				"}";
+				"""
+			PermittedSubclasses:
+			   #16 X$1,
+			   #25 X$2,
+			   #31 X$3
+			}""";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug565847_001() {
@@ -5070,24 +5688,27 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public sealed class X  permits Y {" +
-				"Zork();\n" +
-				"}\n" +
-				"final class  Y extends X{}\n" +
-				"sealed interface I{}\n" +
-				"final class Z implements I{}",
+				"""
+					public sealed class X  permits Y {\
+					Zork();
+					}
+					final class  Y extends X{}
+					sealed interface I{}
+					final class Z implements I{}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public sealed class X  permits Y {Zork();\n" +
-			"	                                  ^^^^^^\n" +
-			"Return type for the method is missing\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	public sealed class X  permits Y {Zork();\n" +
-			"	                                  ^^^^^^\n" +
-			"This method requires a body instead of a semicolon\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					public sealed class X  permits Y {Zork();
+					                                  ^^^^^^
+				Return type for the method is missing
+				----------
+				2. ERROR in X.java (at line 1)
+					public sealed class X  permits Y {Zork();
+					                                  ^^^^^^
+				This method requires a body instead of a semicolon
+				----------
+				""",
 			null,
 			true,
 			options
@@ -5099,16 +5720,20 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"    public sealed void main(String[] args){ }\n"+
-				"}\n",
+				"""
+					class X {
+					    public sealed void main(String[] args){ }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public sealed void main(String[] args){ }\n" +
-			"	       ^^^^^^\n" +
-			"Syntax error on token \"sealed\", static expected\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public sealed void main(String[] args){ }
+					       ^^^^^^
+				Syntax error on token "sealed", static expected
+				----------
+				""",
 			null,
 			true,
 			options
@@ -5121,16 +5746,20 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"    public sealed void main(String[] args){ }\n"+
-				"}\n",
+				"""
+					class X {
+					    public sealed void main(String[] args){ }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public sealed void main(String[] args){ }\n" +
-			"	       ^^^^^^\n" +
-			"Syntax error on token \"sealed\", static expected\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public sealed void main(String[] args){ }
+					       ^^^^^^
+				Syntax error on token "sealed", static expected
+				----------
+				""",
 			null,
 			true,
 			options
@@ -5142,16 +5771,20 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"    public permits void main(String[] args){ }\n"+
-				"}\n",
+				"""
+					class X {
+					    public permits void main(String[] args){ }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public permits void main(String[] args){ }\n" +
-			"	               ^^^^\n" +
-			"Syntax error on token \"void\", delete this token\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public permits void main(String[] args){ }
+					               ^^^^
+				Syntax error on token "void", delete this token
+				----------
+				""",
 			null,
 			true,
 			options
@@ -5164,16 +5797,20 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"    public permits void main(String[] args){ }\n"+
-				"}\n",
+				"""
+					class X {
+					    public permits void main(String[] args){ }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public permits void main(String[] args){ }\n" +
-			"	               ^^^^\n" +
-			"Syntax error on token \"void\", delete this token\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public permits void main(String[] args){ }
+					               ^^^^
+				Syntax error on token "void", delete this token
+				----------
+				""",
 			null,
 			true,
 			options
@@ -5187,22 +5824,24 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"X.java",
 				"record X;\n",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	record X;\n" +
-			"	^\n" +
-			"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 22 and above\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	record X;\n" +
-			"	^^^^^^\n" +
-			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 1)\n" +
-			"	record X;\n" +
-			"	^\n" +
-			"Implicitly declared class must have a candidate main method\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					record X;
+					^
+				The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 22 and above
+				----------
+				2. ERROR in X.java (at line 1)
+					record X;
+					^^^^^^
+				'record' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16
+				----------
+				3. ERROR in X.java (at line 1)
+					record X;
+					^
+				Implicitly declared class must have a candidate main method
+				----------
+				""",
 			null,
 			true,
 			options
@@ -5212,72 +5851,88 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"    public void foo() {\n" +
-				"        sealed interface I {}\n"+
-				"    }\n"+
-				"}\n",
+				"""
+					class X {
+					    public void foo() {
+					        sealed interface I {}
+					    }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	sealed interface I {}\n" +
-			"	                 ^\n" +
-			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					sealed interface I {}
+					                 ^
+				Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly\s
+				----------
+				"""
 		);
 	}
 	public void testBug568428_002() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"    public void foo() {\n" +
-				"        non-sealed interface I {}\n"+
-				"    }\n"+
-				"}\n",
+				"""
+					class X {
+					    public void foo() {
+					        non-sealed interface I {}
+					    }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	non-sealed interface I {}\n" +
-			"	                     ^\n" +
-			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					non-sealed interface I {}
+					                     ^
+				Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly\s
+				----------
+				"""
 		);
 	}
 	public void testBug568514_001() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"    public void foo() {\n" +
-				"        sealed enum I {}\n"+
-				"    }\n"+
-				"}\n",
+				"""
+					class X {
+					    public void foo() {
+					        sealed enum I {}
+					    }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	sealed enum I {}\n" +
-			"	            ^\n" +
-			"Illegal modifier for local enum I; no explicit modifier is permitted\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					sealed enum I {}
+					            ^
+				Illegal modifier for local enum I; no explicit modifier is permitted
+				----------
+				"""
 		);
 	}
 	public void testBug568514_002() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class X {\n"+
-				"    public void foo() {\n" +
-				"        non-sealed enum I {}\n"+
-				"    }\n"+
-				"}\n",
+				"""
+					class X {
+					    public void foo() {
+					        non-sealed enum I {}
+					    }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	non-sealed enum I {}\n" +
-			"	                ^\n" +
-			"Illegal modifier for local enum I; no explicit modifier is permitted\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					non-sealed enum I {}
+					                ^
+				Illegal modifier for local enum I; no explicit modifier is permitted
+				----------
+				"""
 		);
 	}
 	public void testBug568758_001() {
@@ -5288,30 +5943,33 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"Y.java",
 				"public final class Y implements X{}",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public sealed interface X{}\n" +
-			"	                        ^\n" +
-			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface\n" +
-			"----------\n" +
-			"----------\n" +
-			"1. ERROR in Y.java (at line 1)\n" +
-			"	public final class Y implements X{}\n" +
-			"	                                ^\n" +
-			"The type Y that implements a sealed interface X should be a permitted subtype of X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					public sealed interface X{}
+					                        ^
+				Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface
+				----------
+				----------
+				1. ERROR in Y.java (at line 1)
+					public final class Y implements X{}
+					                                ^
+				The type Y that implements a sealed interface X should be a permitted subtype of X
+				----------
+				""");
 	}
 	public void testBug569522_001() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				"  sealed interface Foo<T> permits Bar { }\n"+
-				"  final class Bar<T> implements Foo<T> { }\n"+
-				"  public static void main(String[] args) {\n"+
-				"       System.out.println(\"\");\n"+
-				"  }\n"+
-				"}",
+				"""
+					public class X {
+					  sealed interface Foo<T> permits Bar { }
+					  final class Bar<T> implements Foo<T> { }
+					  public static void main(String[] args) {
+					       System.out.println("");
+					  }
+					}""",
 			},
 			"");
 	}
@@ -5319,13 +5977,14 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				"  sealed class Foo<T> permits Bar { }\n"+
-				"  final class Bar<T> extends Foo<T> { }\n"+
-				"  public static void main(String[] args) {\n"+
-				"       System.out.println(\"\");\n"+
-				"  }\n"+
-				"}",
+				"""
+					public class X {
+					  sealed class Foo<T> permits Bar { }
+					  final class Bar<T> extends Foo<T> { }
+					  public static void main(String[] args) {
+					       System.out.println("");
+					  }
+					}""",
 			},
 			"");
 	}
@@ -5333,268 +5992,309 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.reflect.Modifier;\n"+
-				"\n"+
-				"sealed interface I {\n"+
-				" void foo();\n"+
-				"}\n"+
-				"\n"+
-				"class Y {\n"+
-				" enum E implements I {\n"+
-				"   ONE() {\n"+
-				"     public void foo() {\n"+
-				"     }\n"+
-				"   };\n"+
-				" }\n"+
-				"}\n"+
-				"\n"+
-				"public class X {\n"+
-				" public static void main(String argv[]) {\n"+
-				"   Class<? extends Y.E> c = Y.E.ONE.getClass();\n"+
-				"   System.out.println(c != null ? (c.getModifiers() & Modifier.FINAL) != 0 : false);\n"+
-				" }\n"+
-				"}",
+				"""
+					import java.lang.reflect.Modifier;
+					
+					sealed interface I {
+					 void foo();
+					}
+					
+					class Y {
+					 enum E implements I {
+					   ONE() {
+					     public void foo() {
+					     }
+					   };
+					 }
+					}
+					
+					public class X {
+					 public static void main(String argv[]) {
+					   Class<? extends Y.E> c = Y.E.ONE.getClass();
+					   System.out.println(c != null ? (c.getModifiers() & Modifier.FINAL) != 0 : false);
+					 }
+					}""",
 			},
 			"true");
 		String expectedOutput = "final enum Y$E$1 {\n";
 		SealedTypesTests.verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
 		expectedOutput =
-				"  Inner classes:\n" +
-				"    [inner class info: #3 Y$E, outer class info: #20 Y\n" +
-				"     inner name: #22 E, accessflags: 17416 abstract static],\n" +
-				"    [inner class info: #1 Y$E$1, outer class info: #0\n" +
-				"     inner name: #0, accessflags: 16400 final]\n" +
-				"  Enclosing Method: #3  #0 Y$E\n";
+				"""
+					  Inner classes:
+					    [inner class info: #3 Y$E, outer class info: #20 Y
+					     inner name: #22 E, accessflags: 17416 abstract static],
+					    [inner class info: #1 Y$E$1, outer class info: #0
+					     inner name: #0, accessflags: 16400 final]
+					  Enclosing Method: #3  #0 Y$E
+					""";
 		SealedTypesTests.verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug568854_001() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" public class X {\n"+
-				"   sealed interface Foo permits A {}\n"+
-				"   record A() implements Foo {}\n"+
-				"   record B() implements Foo {}\n"+
-				" }",
+				"""
+					 public class X {
+					   sealed interface Foo permits A {}
+					   record A() implements Foo {}
+					   record B() implements Foo {}
+					 }\
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	record B() implements Foo {}\n" +
-			"	                      ^^^\n" +
-			"The type B that implements a sealed interface X.Foo should be a permitted subtype of X.Foo\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					record B() implements Foo {}
+					                      ^^^
+				The type B that implements a sealed interface X.Foo should be a permitted subtype of X.Foo
+				----------
+				""");
 	}
 	public void testBug568854_002() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" sealed interface Foo permits X.A {}\n"+
-				" public class X {\n"+
-				"   record A() implements Foo {}\n"+
-				"   record B() implements Foo {}\n"+
-				" }",
+				"""
+					 sealed interface Foo permits X.A {}
+					 public class X {
+					   record A() implements Foo {}
+					   record B() implements Foo {}
+					 }\
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	record B() implements Foo {}\n" +
-			"	                      ^^^\n" +
-			"The type B that implements a sealed interface Foo should be a permitted subtype of Foo\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					record B() implements Foo {}
+					                      ^^^
+				The type B that implements a sealed interface Foo should be a permitted subtype of Foo
+				----------
+				""");
 	}
 	public void testBug568854_003() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" sealed interface Foo permits A {}\n"+
-				" record A() implements Foo {}\n"+
-				" record B() implements Foo {}\n"+
-				" public class X {\n"+
-				" }",
+				"""
+					 sealed interface Foo permits A {}
+					 record A() implements Foo {}
+					 record B() implements Foo {}
+					 public class X {
+					 }\
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	record B() implements Foo {}\n" +
-			"	                      ^^^\n" +
-			"The type B that implements a sealed interface Foo should be a permitted subtype of Foo\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					record B() implements Foo {}
+					                      ^^^
+				The type B that implements a sealed interface Foo should be a permitted subtype of Foo
+				----------
+				""");
 	}
 	public void testBug568854_004() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" public class X {\n"+
-				"   sealed interface Foo permits A {}\n"+
-				"   class A implements Foo {}\n"+
-				"   final class B implements Foo {}\n"+
-				" }",
+				"""
+					 public class X {
+					   sealed interface Foo permits A {}
+					   class A implements Foo {}
+					   final class B implements Foo {}
+					 }\
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	class A implements Foo {}\n" +
-			"	      ^\n" +
-			"The class A with a sealed direct superclass or a sealed direct superinterface X.Foo should be declared either final, sealed, or non-sealed\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	final class B implements Foo {}\n" +
-			"	                         ^^^\n" +
-			"The type B that implements a sealed interface X.Foo should be a permitted subtype of X.Foo\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					class A implements Foo {}
+					      ^
+				The class A with a sealed direct superclass or a sealed direct superinterface X.Foo should be declared either final, sealed, or non-sealed
+				----------
+				2. ERROR in X.java (at line 4)
+					final class B implements Foo {}
+					                         ^^^
+				The type B that implements a sealed interface X.Foo should be a permitted subtype of X.Foo
+				----------
+				""");
 	}
 	public void testBug568854_005() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" sealed interface Foo permits X.A {}\n"+
-				" public class X {\n"+
-				"   class A implements Foo {}\n"+
-				"   final class B implements Foo {}\n"+
-				" }",
+				"""
+					 sealed interface Foo permits X.A {}
+					 public class X {
+					   class A implements Foo {}
+					   final class B implements Foo {}
+					 }\
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	class A implements Foo {}\n" +
-			"	      ^\n" +
-			"The class A with a sealed direct superclass or a sealed direct superinterface Foo should be declared either final, sealed, or non-sealed\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	final class B implements Foo {}\n" +
-			"	                         ^^^\n" +
-			"The type B that implements a sealed interface Foo should be a permitted subtype of Foo\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					class A implements Foo {}
+					      ^
+				The class A with a sealed direct superclass or a sealed direct superinterface Foo should be declared either final, sealed, or non-sealed
+				----------
+				2. ERROR in X.java (at line 4)
+					final class B implements Foo {}
+					                         ^^^
+				The type B that implements a sealed interface Foo should be a permitted subtype of Foo
+				----------
+				""");
 	}
 	public void testBug568854_006() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" sealed interface Foo permits A {}\n"+
-				" class A implements Foo {}\n"+
-				" final class B implements Foo {}\n"+
-				" public class X {\n"+
-				" }",
+				"""
+					 sealed interface Foo permits A {}
+					 class A implements Foo {}
+					 final class B implements Foo {}
+					 public class X {
+					 }\
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	class A implements Foo {}\n" +
-			"	      ^\n" +
-			"The class A with a sealed direct superclass or a sealed direct superinterface Foo should be declared either final, sealed, or non-sealed\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	final class B implements Foo {}\n" +
-			"	                         ^^^\n" +
-			"The type B that implements a sealed interface Foo should be a permitted subtype of Foo\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					class A implements Foo {}
+					      ^
+				The class A with a sealed direct superclass or a sealed direct superinterface Foo should be declared either final, sealed, or non-sealed
+				----------
+				2. ERROR in X.java (at line 3)
+					final class B implements Foo {}
+					                         ^^^
+				The type B that implements a sealed interface Foo should be a permitted subtype of Foo
+				----------
+				""");
 	}
 	public void testBug568854_007() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"sealed interface I permits A {}\n"+
-				"final class A implements I {}\n"+
-				"enum B {\n"+
-				"   ONE {\n"+
-				"     class Y implements I {}\n"+
-				"   }\n"+
-				"}\n"+
-				"public class    X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   class Z implements I{}\n"+
-				" }\n"+
-				"}",
+				"""
+					sealed interface I permits A {}
+					final class A implements I {}
+					enum B {
+					   ONE {
+					     class Y implements I {}
+					   }
+					}
+					public class    X {
+					 public static void main(String[] args) {
+					   class Z implements I{}
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	class Y implements I {}\n" +
-			"	                   ^\n" +
-			"A local class Y cannot have a sealed direct superclass or a sealed direct superinterface I\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
-			"	class Z implements I{}\n" +
-			"	                   ^\n" +
-			"A local class Z cannot have a sealed direct superclass or a sealed direct superinterface I\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					class Y implements I {}
+					                   ^
+				A local class Y cannot have a sealed direct superclass or a sealed direct superinterface I
+				----------
+				2. ERROR in X.java (at line 10)
+					class Z implements I{}
+					                   ^
+				A local class Z cannot have a sealed direct superclass or a sealed direct superinterface I
+				----------
+				""");
 	}
 	public void testBug568854_008() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"sealed interface I permits X.A {}\n"+
-				"public class    X {\n"+
-				"final class A implements I {}\n"+
-				"enum B {\n"+
-				"   ONE {\n"+
-				"     class Y implements I {}\n"+
-				"   }\n"+
-				"}\n"+
-				" public static void main(String[] args) {\n"+
-				"   class Z implements I{}\n"+
-				" }\n"+
-				"}",
+				"""
+					sealed interface I permits X.A {}
+					public class    X {
+					final class A implements I {}
+					enum B {
+					   ONE {
+					     class Y implements I {}
+					   }
+					}
+					 public static void main(String[] args) {
+					   class Z implements I{}
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	class Y implements I {}\n" +
-			"	                   ^\n" +
-			"A local class Y cannot have a sealed direct superclass or a sealed direct superinterface I\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
-			"	class Z implements I{}\n" +
-			"	                   ^\n" +
-			"A local class Z cannot have a sealed direct superclass or a sealed direct superinterface I\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					class Y implements I {}
+					                   ^
+				A local class Y cannot have a sealed direct superclass or a sealed direct superinterface I
+				----------
+				2. ERROR in X.java (at line 10)
+					class Z implements I{}
+					                   ^
+				A local class Z cannot have a sealed direct superclass or a sealed direct superinterface I
+				----------
+				""");
 	}
 	public void testBug571332_001() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"sealed interface I {\n"+
-				"       void foo();\n"+
-				"}\n"+
-				"non-sealed interface I1 extends I {}\n"+
-				"public class X {\n"+
-				"    public static void main(String argv[]) {\n"+
-				"        I lambda = () -> {};\n"+
-				"    }\n"+
-				"}",
+				"""
+					sealed interface I {
+					       void foo();
+					}
+					non-sealed interface I1 extends I {}
+					public class X {
+					    public static void main(String argv[]) {
+					        I lambda = () -> {};
+					    }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	I lambda = () -> {};\n" +
-			"	           ^^^^^\n" +
-			"The target type of this expression must be a functional interface\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					I lambda = () -> {};
+					           ^^^^^
+				The target type of this expression must be a functional interface
+				----------
+				""");
 	}
 	public void testBug570605_001() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"sealed class Y {}\n"+
-					"non-sealed class Z extends Y {}\n"+
-					"public class X {\n"+
-					" public void foo() {\n"+
-					"        record R()  {\n"+
-					"            class L extends Y {}\n"+
-					"        }\n"+
-					"    }\n"+
-					"}"
+					"""
+						sealed class Y {}
+						non-sealed class Z extends Y {}
+						public class X {
+						 public void foo() {
+						        record R()  {
+						            class L extends Y {}
+						        }
+						    }
+						}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	class L extends Y {}\n" +
-				"	                ^\n" +
-				"A local class L cannot have a sealed direct superclass or a sealed direct superinterface Y\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						class L extends Y {}
+						                ^
+					A local class L cannot have a sealed direct superclass or a sealed direct superinterface Y
+					----------
+					""");
 	}
 	public void testBug570218_001() {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {}\n" +
-				"sealed class A permits X {}\n"+
-				"final class X extends A implements I { \n" +
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(0);\n" +
-				"  }\n"+
-				"}\n",
+				"""
+					interface I {}
+					sealed class A permits X {}
+					final class X extends A implements I {\s
+					  public static void main(String[] args){
+					     System.out.println(0);
+					  }
+					}
+					""",
 			},
 			"0");
 	}
@@ -5602,13 +6302,15 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed interface I permits X{}\n" +
-				"class A  {}\n"+
-				"final class X extends A implements I { \n" +
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(0);\n" +
-				"  }\n"+
-				"}\n",
+				"""
+					sealed interface I permits X{}
+					class A  {}
+					final class X extends A implements I {\s
+					  public static void main(String[] args){
+					     System.out.println(0);
+					  }
+					}
+					""",
 			},
 			"0");
 	}
@@ -5616,38 +6318,42 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X{\n" +
-				"  public static void main(String[] args) {\n" +
-				"	 class Circle implements Shape{}\n" +
-				"  }\n" +
-				"  sealed interface Shape {}\n" +
-				"}",
+				"""
+					public class X{
+					  public static void main(String[] args) {
+						 class Circle implements Shape{}
+					  }
+					  sealed interface Shape {}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	class Circle implements Shape{}\n" +
-			"	                        ^^^^^\n" +
-			"A local class Circle cannot have a sealed direct superclass or a sealed direct superinterface X.Shape\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	sealed interface Shape {}\n" +
-			"	                 ^^^^^\n" +
-			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares Shape as its direct superclass or superinterface\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					class Circle implements Shape{}
+					                        ^^^^^
+				A local class Circle cannot have a sealed direct superclass or a sealed direct superinterface X.Shape
+				----------
+				2. ERROR in X.java (at line 5)
+					sealed interface Shape {}
+					                 ^^^^^
+				Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares Shape as its direct superclass or superinterface
+				----------
+				""");
 	}
 	public void testBug573450_001() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"sealed interface Foo permits Foo.Bar {\n" +
-					"	interface Interface {}\n" +
-					"	record Bar() implements Foo, Interface { }\n" +
-					"}\n" +
-					"public class X { \n" +
-					"  public static void main(String[] args){\n"+
-					"     System.out.println(0);\n" +
-					"  }\n"+
-					"}",
+					"""
+						sealed interface Foo permits Foo.Bar {
+							interface Interface {}
+							record Bar() implements Foo, Interface { }
+						}
+						public class X {\s
+						  public static void main(String[] args){
+						     System.out.println(0);
+						  }
+						}""",
 				},
 				"0");
 	}
@@ -5656,15 +6362,16 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"interface Interface {}\n" +
-					"sealed interface Foo extends Interface permits Foo.Bar {\n" +
-					"	record Bar() implements Foo, Interface {}\n" +
-					"}\n" +
-					"public class X { \n" +
-					"  public static void main(String[] args){\n"+
-					"     System.out.println(0);\n" +
-					"  }\n"+
-					"}"
+					"""
+						interface Interface {}
+						sealed interface Foo extends Interface permits Foo.Bar {
+							record Bar() implements Foo, Interface {}
+						}
+						public class X {\s
+						  public static void main(String[] args){
+						     System.out.println(0);
+						  }
+						}"""
 				},
 				"0");
 	}
@@ -5672,38 +6379,42 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"sealed interface Interface extends Foo{}\n" +
-					"sealed interface Foo extends Interface permits Foo.Bar, Interface {\n" +
-					"	record Bar() implements Foo, Interface {} \n" +
-					"}"
+					"""
+						sealed interface Interface extends Foo{}
+						sealed interface Foo extends Interface permits Foo.Bar, Interface {
+							record Bar() implements Foo, Interface {}\s
+						}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 1)\n" +
-				"	sealed interface Interface extends Foo{}\n" +
-				"	                 ^^^^^^^^^\n" +
-				"The hierarchy of the type Interface is inconsistent\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 2)\n" +
-				"	sealed interface Foo extends Interface permits Foo.Bar, Interface {\n" +
-				"	                             ^^^^^^^^^\n" +
-				"Cycle detected: a cycle exists in the type hierarchy between Foo and Interface\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 3)\n" +
-				"	record Bar() implements Foo, Interface {} \n" +
-				"	       ^^^\n" +
-				"The hierarchy of the type Bar is inconsistent\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 1)
+						sealed interface Interface extends Foo{}
+						                 ^^^^^^^^^
+					The hierarchy of the type Interface is inconsistent
+					----------
+					2. ERROR in X.java (at line 2)
+						sealed interface Foo extends Interface permits Foo.Bar, Interface {
+						                             ^^^^^^^^^
+					Cycle detected: a cycle exists in the type hierarchy between Foo and Interface
+					----------
+					3. ERROR in X.java (at line 3)
+						record Bar() implements Foo, Interface {}\s
+						       ^^^
+					The hierarchy of the type Bar is inconsistent
+					----------
+					""");
 	}
 	public void testBug573450_004() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public sealed class X permits X.Y {\n" +
-					"	final class Y extends X {}\n" +
-					"	public static void main(String[] args){\n"+
-					"		System.out.println(0);\n" +
-					"	}\n"+
-					"}"
+					"""
+						public sealed class X permits X.Y {
+							final class Y extends X {}
+							public static void main(String[] args){
+								System.out.println(0);
+							}
+						}"""
 				},
 				"0");
 	}
@@ -5711,29 +6422,33 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public sealed class X permits Y {\n" +
-					"	final class Y extends X {}\n" +
-					"}"
+					"""
+						public sealed class X permits Y {
+							final class Y extends X {}
+						}"""
 				},
-				"----------\n"
-				+ "1. ERROR in X.java (at line 2)\n"
-				+ "	final class Y extends X {}\n"
-				+ "	                      ^\n"
-				+ "The type Y extending a sealed class X should be a permitted subtype of X\n"
-				+ "----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 2)
+						final class Y extends X {}
+						                      ^
+					The type Y extending a sealed class X should be a permitted subtype of X
+					----------
+					""");
 	}
 	public void testBug578619_1() {
 		runConformTest(
 				new String[] {
 						"Bug578619.java",
-						"public class Bug578619 {\n"
-						+ "	public static void main(String[] args) {\n"
-						+ "		System.out.println(\"Hola\");\n"
-						+ "	}\n"
-						+ "}\n"
-						+ "sealed interface I1 permits I2, I3 {}\n"
-						+ "non-sealed interface I2 extends I1 {}\n"
-						+ "non-sealed interface I3 extends I2, I1 {}"
+						"""
+							public class Bug578619 {
+								public static void main(String[] args) {
+									System.out.println("Hola");
+								}
+							}
+							sealed interface I1 permits I2, I3 {}
+							non-sealed interface I2 extends I1 {}
+							non-sealed interface I3 extends I2, I1 {}"""
 				},
 				"Hola");
 	}
@@ -5741,26 +6456,29 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 						"Bug578619.java",
-						"public class Bug578619 {\n"
-						+ "	public static void main(String[] args) {\n"
-						+ "		System.out.println(\"Hola\");\n"
-						+ "	}\n"
-						+ "}\n"
-						+ "sealed interface I1 permits I2, I3 {}\n"
-						+ "non-sealed interface I2 extends I1 {}\n"
-						+ "non-sealed interface I3 extends I2 {}"
+						"""
+							public class Bug578619 {
+								public static void main(String[] args) {
+									System.out.println("Hola");
+								}
+							}
+							sealed interface I1 permits I2, I3 {}
+							non-sealed interface I2 extends I1 {}
+							non-sealed interface I3 extends I2 {}"""
 				},
-				"----------\n" +
-				"1. ERROR in Bug578619.java (at line 6)\n" +
-				"	sealed interface I1 permits I2, I3 {}\n" +
-				"	                                ^^\n" +
-				"Permitted type I3 does not declare I1 as direct super interface \n" +
-				"----------\n" +
-				"2. ERROR in Bug578619.java (at line 8)\n" +
-				"	non-sealed interface I3 extends I2 {}\n" +
-				"	                     ^^\n" +
-				"An interface I3 declared as non-sealed should have a sealed direct superinterface\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in Bug578619.java (at line 6)
+						sealed interface I1 permits I2, I3 {}
+						                                ^^
+					Permitted type I3 does not declare I1 as direct super interface\s
+					----------
+					2. ERROR in Bug578619.java (at line 8)
+						non-sealed interface I3 extends I2 {}
+						                     ^^
+					An interface I3 declared as non-sealed should have a sealed direct superinterface
+					----------
+					""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576378
 	// [compiler] Wrong rawtype warning and wrong compilation of generic type reference in permits clause
@@ -5768,25 +6486,29 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"sealed interface I permits J {}\r\n" +
-						"record J<T>() implements I {}\n" +
-						"public class X {\n" +
-						"    public static void main(String [] args) {\n" +
-						"        J j; K k;\n" +
-						"    }\n" +
-						"}\n"
+						"""
+							sealed interface I permits J {}\r
+							record J<T>() implements I {}
+							public class X {
+							    public static void main(String [] args) {
+							        J j; K k;
+							    }
+							}
+							"""
 				},
-				"----------\n"
-				+ "1. WARNING in X.java (at line 5)\n"
-				+ "	J j; K k;\n"
-				+ "	^\n"
-				+ "J is a raw type. References to generic type J<T> should be parameterized\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 5)\n"
-				+ "	J j; K k;\n"
-				+ "	     ^\n"
-				+ "K cannot be resolved to a type\n"
-				+ "----------\n");
+				"""
+					----------
+					1. WARNING in X.java (at line 5)
+						J j; K k;
+						^
+					J is a raw type. References to generic type J<T> should be parameterized
+					----------
+					2. ERROR in X.java (at line 5)
+						J j; K k;
+						     ^
+					K cannot be resolved to a type
+					----------
+					""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576378
 	// [compiler] Wrong rawtype warning and wrong compilation of generic type reference in permits clause
@@ -5797,12 +6519,14 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 						"sealed interface I permits J<Object> {}\r\n" +
 						"record J<T>() implements I {}\n"
 				},
-				"----------\n"
-				+ "1. ERROR in X.java (at line 1)\n"
-				+ "	sealed interface I permits J<Object> {}\n"
-				+ "	                             ^^^^^^\n"
-				+ "Type arguments are not allowed here\n"
-				+ "----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 1)
+						sealed interface I permits J<Object> {}
+						                             ^^^^^^
+					Type arguments are not allowed here
+					----------
+					""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576378
 	// [compiler] Wrong rawtype warning and wrong compilation of generic type reference in permits clause
@@ -5810,22 +6534,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"sealed interface I permits J<Object>.K<String> {}\r\n" +
-						"final class J<T> {\n" +
-						"    final class K<P> implements I {}\n" +
-						"}\n"
+						"""
+							sealed interface I permits J<Object>.K<String> {}\r
+							final class J<T> {
+							    final class K<P> implements I {}
+							}
+							"""
 				},
-				"----------\n"
-				+ "1. ERROR in X.java (at line 1)\n"
-				+ "	sealed interface I permits J<Object>.K<String> {}\n"
-				+ "	                             ^^^^^^\n"
-				+ "Type arguments are not allowed here\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 1)\n"
-				+ "	sealed interface I permits J<Object>.K<String> {}\n"
-				+ "	                                       ^^^^^^\n"
-				+ "Type arguments are not allowed here\n"
-				+ "----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 1)
+						sealed interface I permits J<Object>.K<String> {}
+						                             ^^^^^^
+					Type arguments are not allowed here
+					----------
+					2. ERROR in X.java (at line 1)
+						sealed interface I permits J<Object>.K<String> {}
+						                                       ^^^^^^
+					Type arguments are not allowed here
+					----------
+					""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576378
 	// [compiler] Wrong rawtype warning and wrong compilation of generic type reference in permits clause
@@ -5833,16 +6561,20 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"sealed interface I permits J.K<String> {}\r\n" +
-						"final class J<T> {\n" +
-						"    final static class K<P> implements I {}\n" +
-						"}\n"
+						"""
+							sealed interface I permits J.K<String> {}\r
+							final class J<T> {
+							    final static class K<P> implements I {}
+							}
+							"""
 				},
-				"----------\n"
-				+ "1. ERROR in X.java (at line 1)\n"
-				+ "	sealed interface I permits J.K<String> {}\n"
-				+ "	                               ^^^^^^\n"
-				+ "Type arguments are not allowed here\n"
-				+ "----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 1)
+						sealed interface I permits J.K<String> {}
+						                               ^^^^^^
+					Type arguments are not allowed here
+					----------
+					""");
 	}
 }

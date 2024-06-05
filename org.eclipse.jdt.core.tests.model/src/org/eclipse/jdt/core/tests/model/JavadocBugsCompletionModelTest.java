@@ -52,13 +52,15 @@ protected void setUp() throws Exception {
  */
 public void testBug3270() throws JavaModelException {
 	String source =
-		"package javadoc.bugs;\n" +
-		"public class BasicTestBugs {\n" +
-		"	/**\n" +
-		"	 * @throws \n" +
-		"	 */\n" +
-		"	void foo() throws InterruptedException {}\n" +
-		"}\n";
+		"""
+		package javadoc.bugs;
+		public class BasicTestBugs {
+			/**
+			 * @throws\s
+			 */
+			void foo() throws InterruptedException {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "@throws ", 0); // empty token
 	if (CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
 		assertSortedResults(
@@ -73,13 +75,15 @@ public void testBug3270() throws JavaModelException {
 }
 public void testBug3270a() throws JavaModelException {
 	String source =
-		"package javadoc.bugs;\n" +
-		"public class BasicTestBugs {\n" +
-		"	/**\n" +
-		"	 * @throws I\n" +
-		"	 */\n" +
-		"	void foo() throws InterruptedException {}\n" +
-		"}\n";
+		"""
+		package javadoc.bugs;
+		public class BasicTestBugs {
+			/**
+			 * @throws I
+			 */
+			void foo() throws InterruptedException {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "I");
 	assertSortedResults(
 		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DRICUNREEET+"}\n" +
@@ -88,13 +92,15 @@ public void testBug3270a() throws JavaModelException {
 }
 public void testBug3270b() throws JavaModelException {
 	String source =
-		"package javadoc.bugs;\n" +
-		"public class BasicTestBugs {\n" +
-		"	/**\n" +
-		"	 * @throws Cl\n" +
-		"	 */\n" +
-		"	void foo() throws InterruptedException {}\n" +
-		"}\n";
+		"""
+		package javadoc.bugs;
+		public class BasicTestBugs {
+			/**
+			 * @throws Cl
+			 */
+			void foo() throws InterruptedException {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "Cl");
 	assertSortedResults(
 		"CloneNotSupportedException[TYPE_REF]{CloneNotSupportedException, java.lang, Ljava.lang.CloneNotSupportedException;, null, null, "+this.positions+R_DRICUNRE+"}\n" +
@@ -108,14 +114,16 @@ public void testBug3270b() throws JavaModelException {
  */
 public void testBug22043() throws JavaModelException {
 	String source =
-		"package javadoc.bugs;\n" +
-		"/**\n" +
-		" * Complete after (S:\n" +
-		" * 	@see #thisIsAMethod(S\n" +
-		" */\n" +
-		"public class BasicTestBugs {\n" +
-		"	public void thisIsAMethod(String param) {}\n" +
-		"}\n";
+		"""
+		package javadoc.bugs;
+		/**
+		 * Complete after (S:
+		 * 	@see #thisIsAMethod(S
+		 */
+		public class BasicTestBugs {
+			public void thisIsAMethod(String param) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "S", 2); // 2nd occurence
 	assertSortedResults(
 		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DRICUNR+"}\n" +
@@ -126,14 +134,16 @@ public void testBug22043() throws JavaModelException {
 
 public void testBug22043a() throws JavaModelException {
 	String source =
-		"package javadoc.bugs;\n" +
-		"/**\n" +
-		" * Complete after 'thisIsAMethod':\n" +
-		" * 	@see #thisIsAMethod(S\n" +
-		" */\n" +
-		"public class BasicTestBugs {\n" +
-		"	public void thisIsAMethod(String param) {}\n" +
-		"}\n";
+		"""
+		package javadoc.bugs;
+		/**
+		 * Complete after 'thisIsAMethod':
+		 * 	@see #thisIsAMethod(S
+		 */
+		public class BasicTestBugs {
+			public void thisIsAMethod(String param) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "thisIsAMethod", 2); // 2nd occurence
 	assertResults(
 		"thisIsAMethod[METHOD_REF]{thisIsAMethod(String), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.String;)V, thisIsAMethod, (param), "+this.positions+R_DRICENNRNS+"}"
@@ -142,14 +152,16 @@ public void testBug22043a() throws JavaModelException {
 
 public void testBug22043b() throws JavaModelException {
 	String source =
-		"package javadoc.bugs;\n" +
-		"/**\n" +
-		" * Complete after 'thisIsAMethod(':\n" +
-		" * 	@see #thisIsAMethod(S\n" +
-		" */\n" +
-		"public class BasicTestBugs {\n" +
-		"	public void thisIsAMethod(String param) {}\n" +
-		"}\n";
+		"""
+		package javadoc.bugs;
+		/**
+		 * Complete after 'thisIsAMethod(':
+		 * 	@see #thisIsAMethod(S
+		 */
+		public class BasicTestBugs {
+			public void thisIsAMethod(String param) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "thisIsAMethod(", 2); // 2nd occurence
 	assertResults(
 		"thisIsAMethod[METHOD_REF]{thisIsAMethod(String), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.String;)V, thisIsAMethod, (param), "+this.positions+R_DRICENUNR+"}"
@@ -158,15 +170,17 @@ public void testBug22043b() throws JavaModelException {
 
 public void testBug22043c() throws JavaModelException {
 	String source =
-		"package javadoc.bugs;\n" +
-		"/**\n" +
-		" * Complete after thisIsAMethod(:\n" +
-		" * 	@see #thisIsAMethod(Object\n" +
-		" */\n" +
-		"public class BasicTestBugs {\n" +
-		"	public void thisIsAMethod(String param) {}\n" +
-		"	public void thisIsAMethod(Object str) {}\n" +
-		"}\n";
+		"""
+		package javadoc.bugs;
+		/**
+		 * Complete after thisIsAMethod(:
+		 * 	@see #thisIsAMethod(Object
+		 */
+		public class BasicTestBugs {
+			public void thisIsAMethod(String param) {}
+			public void thisIsAMethod(Object str) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "thisIsAMethod(", 2); // 2nd occurence
 	assertResults(
 		"thisIsAMethod[METHOD_REF]{thisIsAMethod(Object), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.Object;)V, thisIsAMethod, (str), "+this.positions+R_DRICENUNR+"}\n" +
@@ -180,13 +194,15 @@ public void testBug22043c() throws JavaModelException {
  */
 public void testBug67732() throws JavaModelException {
 	String source =
-		"package javadoc.bugs;\n" +
-		"/**\n" +
-		" * This line approaches the print margin {@link \n" +
-		" * Object#to\n" +
-		" */\n" +
-		"public class T67732 {\n" +
-		"}\n";
+		"""
+		package javadoc.bugs;
+		/**
+		 * This line approaches the print margin {@link\s
+		 * Object#to
+		 */
+		public class T67732 {
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "to");
 	assertSortedResults(
 		"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DRICNRNS+"}"
@@ -200,18 +216,22 @@ public void testBug67732() throws JavaModelException {
 public void testBug68757() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/bugs/BasicTestBugs.java",
-			"package javadoc.bugs;\n" +
-			"import javadoc.tests.OtherType;\n" +
-			"public class BasicTestBugs {\n" +
-			"	/**\n" +
-			"	 * @see Other\n" +
-			"	 */\n" +
-			"	public void foo(OtherType type) {}\n" +
-			"}\n",
+			"""
+				package javadoc.bugs;
+				import javadoc.tests.OtherType;
+				public class BasicTestBugs {
+					/**
+					 * @see Other
+					 */
+					public void foo(OtherType type) {}
+				}
+				""",
 		"/Completion/src/javadoc/tests/OtherType.java",
-			"package javadoc.tests;\n" +
-			"public class OtherType {\n" +
-			"}\n"
+			"""
+				package javadoc.tests;
+				public class OtherType {
+				}
+				"""
 	};
 	completeInJavadoc(sources, true, "Other", 2);	// 2nd occurrence
 	assertSortedResults(
@@ -221,17 +241,21 @@ public void testBug68757() throws JavaModelException {
 public void testBug68757a() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/bugs/BasicTestBugs.java",
-			"package javadoc.bugs;\n" +
-			"public class BasicTestBugs {\n" +
-			"	/**\n" +
-			"	 * @see Other\n" +
-			"	 */\n" +
-			"	public void foo(javadoc.tests.OtherType type) {}\n" +
-			"}\n",
+			"""
+				package javadoc.bugs;
+				public class BasicTestBugs {
+					/**
+					 * @see Other
+					 */
+					public void foo(javadoc.tests.OtherType type) {}
+				}
+				""",
 		"/Completion/src/javadoc/tests/OtherType.java",
-			"package javadoc.tests;\n" +
-			"public class OtherType {\n" +
-			"}\n"
+			"""
+				package javadoc.tests;
+				public class OtherType {
+				}
+				"""
 	};
 	completeInJavadoc(sources, true, "Other");
 	assertSortedResults(
@@ -241,17 +265,21 @@ public void testBug68757a() throws JavaModelException {
 public void testBug68757b() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/bugs/BasicTestBugs.java",
-			"package javadoc.bugs;\n" +
-			"public class BasicTestBugs {\n" +
-			"	/**\n" +
-			"	 * @see Other\n" +
-			"	 */\n" +
-			"	public void foo() {}\n" +
-			"}\n",
+			"""
+				package javadoc.bugs;
+				public class BasicTestBugs {
+					/**
+					 * @see Other
+					 */
+					public void foo() {}
+				}
+				""",
 		"/Completion/src/javadoc/tests/OtherType.java",
-			"package javadoc.tests;\n" +
-			"public class OtherType {\n" +
-			"}\n"
+			"""
+				package javadoc.tests;
+				public class OtherType {
+				}
+				"""
 	};
 	completeInJavadoc(sources, true, "Other");
 	assertSortedResults(
@@ -267,21 +295,23 @@ public void testBug68757b() throws JavaModelException {
 public void _testBug75551() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/bugs/BasicTestBugs.java",
-			"package javadoc.bugs;\n" +
-			"public class BasicTestBugs extends SuperClass {\n" +
-			"  /**\n" +
-			"   * {@link #kick(Inner\n" +
-			"   */\n" +
-			"  public BasicTestBugs() {\n" +
-			"  }\n" +
-			"  public void kick(InnerClass innerClass) {}\n" +
-			"}",
+			"""
+				package javadoc.bugs;
+				public class BasicTestBugs extends SuperClass {
+				  /**
+				   * {@link #kick(Inner
+				   */
+				  public BasicTestBugs() {
+				  }
+				  public void kick(InnerClass innerClass) {}
+				}""",
 			"/Completion/src/javadoc/bugs/SuperClass.java",
-			"package javadoc.bugs;\n" +
-			"public class SuperClass {\n" +
-			"  protected static class InnerClass {\n" +
-			"  }\n" +
-			"}"
+			"""
+				package javadoc.bugs;
+				public class SuperClass {
+				  protected static class InnerClass {
+				  }
+				}"""
 	};
 	completeInJavadoc(sources, true, "Inner");
 	assertSortedResults(
@@ -296,20 +326,22 @@ public void _testBug75551() throws JavaModelException {
 public void testBug86112() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/bugs/BasicTestBugs.java",
-			"package javadoc.bugs;\n" +
-			"public class BasicTestBugs {\n" +
-			"  /**\n" +
-			"   * @see Terminator#\n" +
-			"   */\n" +
-			"  public BasicTestBugs() {\n" +
-			"  }\n" +
-			"}",
+			"""
+				package javadoc.bugs;
+				public class BasicTestBugs {
+				  /**
+				   * @see Terminator#
+				   */
+				  public BasicTestBugs() {
+				  }
+				}""",
 			"/Completion/src/javadoc/bugs/Terminator.java",
-			"package javadoc.bugs;\n" +
-			"public class Terminator {\n" +
-			"  static {\n" +
-			"  }\n" +
-			"}"
+			"""
+				package javadoc.bugs;
+				public class Terminator {
+				  static {
+				  }
+				}"""
 	};
 	completeInJavadoc(sources, true, "#", 0); // empty token
 	assertSortedResults(
@@ -335,13 +367,14 @@ public void testBug86112() throws JavaModelException {
 public void testBug87868() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.bugs;\n" +
-		"public class BasicTestBugs<S> {\n" +
-		"	/** \n" +
-		"	 * Calls {@link #meth\n" +
-		"	 */\n" +
-		"	public void method(S s) {}\n" +
-		"}";
+		"""
+		package javadoc.bugs;
+		public class BasicTestBugs<S> {
+			/**\s
+			 * Calls {@link #meth
+			 */
+			public void method(S s) {}
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "meth");
 	assertSortedResults(
 		"method[METHOD_REF]{method(Object), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.Object;)V, method, (s), "+this.positions+R_DRICNRNS+"}"
@@ -355,24 +388,26 @@ public void testBug87868() throws JavaModelException {
 public void testBug113374a() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.bugs;\n" +
-		"/** \n" +
-		" * <co\n" +
-		" */\n" +
-		"public class BasicTestBugs {\n" +
-		"}";
+		"""
+		package javadoc.bugs;
+		/**\s
+		 * <co
+		 */
+		public class BasicTestBugs {
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "co");
 	assertSortedResults("");
 }
 public void testBug113374b() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.bugs;\n" +
-		"/** \n" +
-		" * &un\n" +
-		" */\n" +
-		"public class BasicTestBugs {\n" +
-		"}";
+		"""
+		package javadoc.bugs;
+		/**\s
+		 * &un
+		 */
+		public class BasicTestBugs {
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "un");
 	assertSortedResults("");
 }
@@ -385,18 +420,20 @@ public void testBug113376a() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String[] sources = {
 		"/Completion/src/javadoc/bugs/BasicTestFields.java",
-			"package javadoc.bugs;\n" +
-			"/**\n" +
-			" * @see javadoc.util.Collection\n" +
-			" * @see javadoc.util.List#add(Object)\n" +
-			" */public class BasicTestBugs<A> {\n" +
-			"}",
+			"""
+				package javadoc.bugs;
+				/**
+				 * @see javadoc.util.Collection
+				 * @see javadoc.util.List#add(Object)
+				 */public class BasicTestBugs<A> {
+				}""",
 		"/Completion/src/javadoc/util/Collection.java",
-			"package javadoc.util;\n" +
-			"public interface Collection<E> {}\n" +
-			"public interface List<E> {}\n" +
-			"	public void add(E e);\n" +
-			"}"
+			"""
+				package javadoc.util;
+				public interface Collection<E> {}
+				public interface List<E> {}
+					public void add(E e);
+				}"""
 	};
 	completeInJavadoc(sources, true, "javadoc.util.Collection");
 	assertSortedResults(
@@ -407,20 +444,22 @@ public void testBug113376b() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String[] sources = {
 		"/Completion/src/javadoc/bugs/BasicTestFields.java",
-			"package javadoc.bugs;\n" +
-			"/**\n" +
-			" * {@link String.}\n" +
-			" * \n" +
-			" * @see javadoc.util.Collection\n" +
-			" * @see javadoc.util.List#add(Object)\n" +
-			" */public class BasicTestBugs<A> {\n" +
-			"}",
+			"""
+				package javadoc.bugs;
+				/**
+				 * {@link String.}
+				 *\s
+				 * @see javadoc.util.Collection
+				 * @see javadoc.util.List#add(Object)
+				 */public class BasicTestBugs<A> {
+				}""",
 		"/Completion/src/javadoc/util/Collection.java",
-			"package javadoc.util;\n" +
-			"public interface Collection<E> {}\n" +
-			"public interface List<E> {}\n" +
-			"	public void add(E e);\n" +
-			"}"
+			"""
+				package javadoc.util;
+				public interface Collection<E> {}
+				public interface List<E> {}
+					public void add(E e);
+				}"""
 	};
 	completeInJavadoc(sources, true, "String.", 0); // empty token
 	assertSortedResults("");
@@ -432,16 +471,18 @@ public void testBug113376b() throws JavaModelException {
  */
 public void testBug114341a() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"  /**\n" +
-		"   * Secondary.Mem\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}\n" +
-		"class Secondary {\n" +
-		"  class Member {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+		  /**
+		   * Secondary.Mem
+		   */
+		  void foo() {}
+		}
+		class Secondary {
+		  class Member {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "Secondary.Mem");
 	assertSortedResults(
 		"Secondary.Member[JAVADOC_TYPE_REF]{{@link Member}, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DRICNRIT+"}\n" +
@@ -451,16 +492,18 @@ public void testBug114341a() throws JavaModelException {
 
 public void testBug114341b() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"  /**\n" +
-		"   * @see Secondary.Mem\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}\n" +
-		"class Secondary {\n" +
-		"  class Member {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+		  /**
+		   * @see Secondary.Mem
+		   */
+		  void foo() {}
+		}
+		class Secondary {
+		  class Member {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "Mem");
 	assertSortedResults(
 		"Secondary.Member[TYPE_REF]{Member, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DRICNR+"}"
@@ -469,16 +512,18 @@ public void testBug114341b() throws JavaModelException {
 
 public void testBug114341c() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"  /**\n" +
-		"   * {@link Secondary.Mem }\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}\n" +
-		"class Secondary {\n" +
-		"  class Member {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+		  /**
+		   * {@link Secondary.Mem }
+		   */
+		  void foo() {}
+		}
+		class Secondary {
+		  class Member {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "Mem");
 	assertSortedResults(
 		"Secondary.Member[TYPE_REF]{Member, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DRICNR+"}"
@@ -486,16 +531,18 @@ public void testBug114341c() throws JavaModelException {
 }
 public void testBug114341d() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"  /**\n" +
-		"   * javadoc.text.Secondary.Mem\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}\n" +
-		"class Secondary {\n" +
-		"  class Member {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+		  /**
+		   * javadoc.text.Secondary.Mem
+		   */
+		  void foo() {}
+		}
+		class Secondary {
+		  class Member {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "javadoc.text.Secondary.Mem");
 	assertSortedResults(
 		"Secondary.Member[JAVADOC_TYPE_REF]{{@link Member}, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DRICNRIT+"}\n" +
@@ -505,16 +552,18 @@ public void testBug114341d() throws JavaModelException {
 
 public void testBug114341e() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"  /**\n" +
-		"   * @see javadoc.text.Secondary.Mem\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}\n" +
-		"class Secondary {\n" +
-		"  class Member {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+		  /**
+		   * @see javadoc.text.Secondary.Mem
+		   */
+		  void foo() {}
+		}
+		class Secondary {
+		  class Member {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "Mem");
 	assertSortedResults(
 		"Secondary.Member[TYPE_REF]{Member, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DRICNR+"}"
@@ -523,16 +572,18 @@ public void testBug114341e() throws JavaModelException {
 
 public void testBug114341f() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"  /**\n" +
-		"   * {@link javadoc.text.Secondary.Mem }\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}\n" +
-		"class Secondary {\n" +
-		"  class Member {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+		  /**
+		   * {@link javadoc.text.Secondary.Mem }
+		   */
+		  void foo() {}
+		}
+		class Secondary {
+		  class Member {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "Mem");
 	assertSortedResults(
 		"Secondary.Member[TYPE_REF]{Member, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DRICNR+"}"
@@ -545,13 +596,15 @@ public void testBug114341f() throws JavaModelException {
  */
 public void testBug115662a() throws JavaModelException {
 	String source =
-		"package bugs.b115662;\n" +
-		"/**\n" +
-		" * {@link #to\n" +
-		" */\n" +
-		"public class Tests {\n" +
-		"	int toto;\n" +
-		"}\n";
+		"""
+		package bugs.b115662;
+		/**
+		 * {@link #to
+		 */
+		public class Tests {
+			int toto;
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b115662/Test.java", source, true, "to");
 	assertSortedResults(
 		"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -561,13 +614,15 @@ public void testBug115662a() throws JavaModelException {
 
 public void testBug115662b() throws JavaModelException {
 	String source =
-		"package bugs.b115662;\n" +
-		"/**\n" +
-		" * {@link #toString()\n" +
-		" */\n" +
-		"public class Tests {\n" +
-		"	int toto;\n" +
-		"}\n";
+		"""
+		package bugs.b115662;
+		/**
+		 * {@link #toString()
+		 */
+		public class Tests {
+			int toto;
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b115662/Test.java", source, true, "to");
 	assertSortedResults(
 		"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -577,13 +632,15 @@ public void testBug115662b() throws JavaModelException {
 
 public void testBug115662c() throws JavaModelException {
 	String source =
-		"package bugs.b115662;\n" +
-		"/**\n" +
-		" * {@link #toString()\n" +
-		" */\n" +
-		"public class Test {\n" +
-		"	int toto;\n" +
-		"}\n";
+		"""
+		package bugs.b115662;
+		/**
+		 * {@link #toString()
+		 */
+		public class Test {
+			int toto;
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b115662/Test.java", source, true, "toString");
 	assertSortedResults(
 		"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DRICENNRNS+"}"
@@ -597,18 +654,22 @@ public void testBug115662c() throws JavaModelException {
 public void testBug117183a() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/bugs/BasicTestBugs.java",
-			"package javadoc.bugs;\n" +
-			"/**\n" +
-			" * Completion inside reference Reference#A_STATIC_FIELD.\n" +
-			" * Try to complete wherever inside A_STATIC_FIELD gives no proposal!\n" +
-			" */\n" +
-			"public class BasicTestBugs {\n" +
-			"}\n",
+			"""
+				package javadoc.bugs;
+				/**
+				 * Completion inside reference Reference#A_STATIC_FIELD.
+				 * Try to complete wherever inside A_STATIC_FIELD gives no proposal!
+				 */
+				public class BasicTestBugs {
+				}
+				""",
 		"/Completion/src/javadoc/bugs/Reference.java",
-			"package javadoc.bugs;\n" +
-			"public class Reference {\n" +
-			"	public static int A_STATIC_FIELD = 0;\n" +
-			"}\n"
+			"""
+				package javadoc.bugs;
+				public class Reference {
+					public static int A_STATIC_FIELD = 0;
+				}
+				"""
 	};
 	completeInJavadoc(sources, true, "Reference#A_");
 	assertSortedResults(
@@ -619,18 +680,22 @@ public void testBug117183a() throws JavaModelException {
 public void testBug117183b() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/bugs/BasicTestBugs.java",
-			"package javadoc.bugs;\n" +
-			"/**\n" +
-			" * Completion inside reference Reference#A_STATIC_FIELD.\n" +
-			" * Try to complete wherever inside A_STATIC_FIELD gives no proposal!\n" +
-			" */\n" +
-			"public class BasicTestBugs {\n" +
-			"}\n",
+			"""
+				package javadoc.bugs;
+				/**
+				 * Completion inside reference Reference#A_STATIC_FIELD.
+				 * Try to complete wherever inside A_STATIC_FIELD gives no proposal!
+				 */
+				public class BasicTestBugs {
+				}
+				""",
 		"/Completion/src/javadoc/bugs/Reference.java",
-			"package javadoc.bugs;\n" +
-			"public class Reference {\n" +
-			"	public static int A_STATIC_FIELD = 0;\n" +
-			"}\n"
+			"""
+				package javadoc.bugs;
+				public class Reference {
+					public static int A_STATIC_FIELD = 0;
+				}
+				"""
 	};
 	completeInJavadoc(sources, true, "Reference#A_STATIC_FIELD");
 	assertSortedResults(
@@ -641,12 +706,14 @@ public void testBug117183b() throws JavaModelException {
 public void testBug117183c() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/bugs/BasicTestBugs.java",
-			"package javadoc.bugs;\n" +
-			"/**\n" +
-			" * Completion after Obj|\n" +
-			" */\n" +
-			"class BasicTestBugs {\n" +
-			"}\n"
+			"""
+				package javadoc.bugs;
+				/**
+				 * Completion after Obj|
+				 */
+				class BasicTestBugs {
+				}
+				"""
 	};
 	completeInJavadoc(sources, true, "Obj");
 	assertSortedResults(
@@ -657,12 +724,14 @@ public void testBug117183c() throws JavaModelException {
 public void testBug117183d() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/bugs/BasicTestBugs.java",
-			"package javadoc.bugs;\n" +
-			"/**\n" +
-			" * Completion after Str.\n" +
-			" */\n" +
-			"class BasicTestBugs {\n" +
-			"}\n"
+			"""
+				package javadoc.bugs;
+				/**
+				 * Completion after Str.
+				 */
+				class BasicTestBugs {
+				}
+				"""
 	};
 	completeInJavadoc(sources, true, "Str");
 	assertSortedResults(
@@ -677,12 +746,14 @@ public void testBug117183d() throws JavaModelException {
  */
 public void testBug118105() throws JavaModelException {
 	String source =
-		"package bugs.b118105;\n" +
-		"/**\n" +
-		" * Some words here {@link Str.\n" +
-		" */\n" +
-		"public class BasicTestBugs {\n" +
-		"}\n";
+		"""
+		package bugs.b118105;
+		/**
+		 * Some words here {@link Str.
+		 */
+		public class BasicTestBugs {
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b118105/BasicTestBugs.java", source, true, "Str");
 	assertSortedResults(
 		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DRICUNR+"}"
@@ -695,13 +766,15 @@ public void testBug118105() throws JavaModelException {
  */
 public void testBug118092() throws JavaModelException {
 	String source =
-		"package bugs.b118092;\n" +
-		"public class BasicTestBugs {\n" +
-		"   /**\n" +
-		"    * \u00B8<c\n" +
-		"    */\n" +
-		"   public void method() {}\n" +
-		"}\n";
+		"""
+		package bugs.b118092;
+		public class BasicTestBugs {
+		   /**
+		    * \u00B8<c
+		    */
+		   public void method() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b118092/BasicTestBugs.java", source, true, "<c");
 	// expect no result, just not hang...
 	assertSortedResults("");
@@ -713,13 +786,15 @@ public void testBug118092() throws JavaModelException {
  */
 public void testBug118311() throws JavaModelException {
 	String source =
-		"package bugs.b118311;\n" +
-		"/**\n" +
-		" * Text \\@\n" +
-		" */\n" +
-		"public class BasicTestBugs {\n" +
-		"\n" +
-		"}\n";
+		"""
+		package bugs.b118311;
+		/**
+		 * Text \\@
+		 */
+		public class BasicTestBugs {
+		
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b118311/BasicTestBugs.java", source, true, "@");
 	assertSortedResults(
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -735,12 +810,14 @@ public void testBug118311() throws JavaModelException {
  */
 public void testBug118397a() throws JavaModelException {
 	String source =
-		"package bugs.b118397;\n" +
-		"/**\n" +
-		" * @see bugs.b118.BasicTestBugs\n" +
-		" */\n" +
-		"public class BasicTestBugs {\n" +
-		"}\n";
+		"""
+		package bugs.b118397;
+		/**
+		 * @see bugs.b118.BasicTestBugs
+		 */
+		public class BasicTestBugs {
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b118397/BasicTestBugs.java", source, true, "bugs.b118", 2); // 2nd occurence
 	assertSortedResults(
 		"bugs.b118397[PACKAGE_REF]{bugs.b118397, bugs.b118397, null, null, null, "+this.positions+R_DRICQNR+"}"
@@ -748,14 +825,16 @@ public void testBug118397a() throws JavaModelException {
 }
 public void testBug118397b() throws JavaModelException {
 	String source =
-		"package bugs.b118397;\n" +
-		"/**\n" +
-		" * @see Basic.Inner\n" +
-		" */\n" +
-		"public class BasicTestBugs {\n" +
-		"	class Inner {\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package bugs.b118397;
+		/**
+		 * @see Basic.Inner
+		 */
+		public class BasicTestBugs {
+			class Inner {
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b118397/BasicTestBugs.java", source, true, "Basic");
 	assertSortedResults(
 		"BasicTestBugs[TYPE_REF]{BasicTestBugs, bugs.b118397, Lbugs.b118397.BasicTestBugs;, null, null, "+this.positions+R_DRICUNR+"}\n" +
@@ -764,18 +843,20 @@ public void testBug118397b() throws JavaModelException {
 }
 public void testBug118397c() throws JavaModelException {
 	String source =
-		"package bugs.b118397;\n" +
-		"/**\n" +
-		" * @see BasicTestBugs.In.Level2\n" +
-		" */\n" +
-		"public class BasicTestBugs {\n" +
-		"	class Inner {\n" +
-		"		class Level2 {\n" +
-		"			class Level3 {\n" +
-		"			}\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package bugs.b118397;
+		/**
+		 * @see BasicTestBugs.In.Level2
+		 */
+		public class BasicTestBugs {
+			class Inner {
+				class Level2 {
+					class Level3 {
+					}
+				}
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b118397/BasicTestBugs.java", source, true, "In");
 	assertSortedResults(
 		"BasicTestBugs.Inner[TYPE_REF]{Inner, bugs.b118397, Lbugs.b118397.BasicTestBugs$Inner;, null, null, "+this.positions+R_DRICNR+"}"
@@ -783,18 +864,20 @@ public void testBug118397c() throws JavaModelException {
 }
 public void testBug118397d() throws JavaModelException {
 	String source =
-		"package bugs.b118397;\n" +
-		"/**\n" +
-		" * @see BasicTestBugs.Inner.Lev.Level3\n" +
-		" */\n" +
-		"public class BasicTestBugs {\n" +
-		"	class Inner {\n" +
-		"		class Level2 {\n" +
-		"			class Level3 {\n" +
-		"			}\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package bugs.b118397;
+		/**
+		 * @see BasicTestBugs.Inner.Lev.Level3
+		 */
+		public class BasicTestBugs {
+			class Inner {
+				class Level2 {
+					class Level3 {
+					}
+				}
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b118397/BasicTestBugs.java", source, true, "Lev");
 	assertSortedResults(
 		"BasicTestBugs.Inner.Level2[TYPE_REF]{Level2, bugs.b118397, Lbugs.b118397.BasicTestBugs$Inner$Level2;, null, null, "+this.positions+R_DRICNR+"}"
@@ -808,13 +891,15 @@ public void testBug118397d() throws JavaModelException {
  */
 public void testBug139621a() throws JavaModelException {
 	String source =
-		"package bugs.b139621;\n" +
-		"public class BasicTestBugs {\n" +
-		"	/**\n" +
-		"	 * Test with only an orphan comment in type declaration\n" +
-		"	 * @see Obj\n" +
-		"	 */\n" +
-		"}\n";
+		"""
+		package bugs.b139621;
+		public class BasicTestBugs {
+			/**
+			 * Test with only an orphan comment in type declaration
+			 * @see Obj
+			 */
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "Obj");
 	assertSortedResults(
 		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNR+"}"
@@ -822,17 +907,19 @@ public void testBug139621a() throws JavaModelException {
 }
 public void testBug139621b() throws JavaModelException {
 	String source =
-		"package bugs.b139621;\n" +
-		"/**\n" +
-		" * Test with an existing javadoc type declaration\n" +
-		" * @see Test\n" +
-		" */\n" +
-		"public class BasicTestBugs {\n" +
-		"	/**\n" +
-		"	 * Test with only an orphan comment in type declaration\n" +
-		"	 * @see Obj\n" +
-		"	 */\n" +
-		"}\n";
+		"""
+		package bugs.b139621;
+		/**
+		 * Test with an existing javadoc type declaration
+		 * @see Test
+		 */
+		public class BasicTestBugs {
+			/**
+			 * Test with only an orphan comment in type declaration
+			 * @see Obj
+			 */
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "Obj");
 	assertSortedResults(
 		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNR+"}"
@@ -840,14 +927,16 @@ public void testBug139621b() throws JavaModelException {
 }
 public void testBug139621c() throws JavaModelException {
 	String source =
-		"package bugs.b139621;\n" +
-		"public class BasicTestBugs {\n" +
-		"	/**\n" +
-		"	 * Test with only an orphan comment in type declaration\n" +
-		"	 * (completion for tags)\n" +
-		"	 * @\n" +
-		"	 */\n" +
-		"}\n";
+		"""
+		package bugs.b139621;
+		public class BasicTestBugs {
+			/**
+			 * Test with only an orphan comment in type declaration
+			 * (completion for tags)
+			 * @
+			 */
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "@");
 	assertSortedResults(
 		"author[JAVADOC_BLOCK_TAG]{@author, null, null, author, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -892,18 +981,20 @@ public void testBug139621d() throws JavaModelException {
 }
 public void testBug139621e() throws JavaModelException {
 	String source =
-		"package bugs.b139621;\n" +
-		"/**\n" +
-		" * Test with orphan comment after a method declaration\n" +
-		" * @see Test\n" +
-		" */\n" +
-		"public class BasicTestBugs {\n" +
-		"	public void foo() {}\n" +
-		"	/**\n" +
-		"	 * This method returns an object\n" +
-		"	 * @see Obj\n" +
-		"	 */\n" +
-		"}\n";
+		"""
+		package bugs.b139621;
+		/**
+		 * Test with orphan comment after a method declaration
+		 * @see Test
+		 */
+		public class BasicTestBugs {
+			public void foo() {}
+			/**
+			 * This method returns an object
+			 * @see Obj
+			 */
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "Obj");
 	assertSortedResults(
 		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNR+"}"
@@ -911,18 +1002,20 @@ public void testBug139621e() throws JavaModelException {
 }
 public void testBug139621f() throws JavaModelException {
 	String source =
-		"package bugs.b139621;\n" +
-		"/**\n" +
-		" * Test with orphan comment after a field declaration\n" +
-		" * @see Test\n" +
-		" */\n" +
-		"public class BasicTestBugs {\n" +
-		"	public int x;\n" +
-		"	/**\n" +
-		"	 * This method returns an object\n" +
-		"	 * @see Obj\n" +
-		"	 */\n" +
-		"}\n";
+		"""
+		package bugs.b139621;
+		/**
+		 * Test with orphan comment after a field declaration
+		 * @see Test
+		 */
+		public class BasicTestBugs {
+			public int x;
+			/**
+			 * This method returns an object
+			 * @see Obj
+			 */
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "Obj");
 	assertSortedResults(
 		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNR+"}"
@@ -930,11 +1023,13 @@ public void testBug139621f() throws JavaModelException {
 }
 public void testBug139621g() throws JavaModelException {
 	String source =
-		"package bugs.b139621;\n" +
-		"/**\n" +
-		" * Compilation unit without any type\n" +
-		" * @see Obj\n" +
-		" */\n";
+		"""
+		package bugs.b139621;
+		/**
+		 * Compilation unit without any type
+		 * @see Obj
+		 */
+		""";
 	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "Obj");
 	assertSortedResults(
 		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNR+"}"
@@ -942,12 +1037,14 @@ public void testBug139621g() throws JavaModelException {
 }
 public void testBug139621h() throws JavaModelException {
 	String source =
-		"package bugs.b139621;\n" +
-		"/**\n" +
-		" * Compilation unit without any type\n" +
-		" * (completion for tags)\n" +
-		" * @\n" +
-		" */\n";
+		"""
+		package bugs.b139621;
+		/**
+		 * Compilation unit without any type
+		 * (completion for tags)
+		 * @
+		 */
+		""";
 	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "@");
 	assertSortedResults(
 		"author[JAVADOC_BLOCK_TAG]{@author, null, null, author, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -987,17 +1084,19 @@ public void testBug139621i() throws JavaModelException {
  */
 public void testBug144866() throws JavaModelException {
 	String source =
-		"package bugs.b144866;\n" +
-		"public class BasicTestBugs {\n" +
-		"	public static int EXAMPLE = 0;\n" +
-		"	/**\n" +
-		"	 * This method returns an object\n" +
-		"	 * @see Object\n" +
-		"	 * 	This method will use {@value #EX } constant value...\n" +
-		"	 */\n" +
-		"	public void foo() {\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package bugs.b144866;
+		public class BasicTestBugs {
+			public static int EXAMPLE = 0;
+			/**
+			 * This method returns an object
+			 * @see Object
+			 * 	This method will use {@value #EX } constant value...
+			 */
+			public void foo() {
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b144866/BasicTestBugs.java", source, true, "EX", 2); // 2nd occurence
 	assertSortedResults(
 		"EXAMPLE[FIELD_REF]{EXAMPLE, Lbugs.b144866.BasicTestBugs;, I, EXAMPLE, null, "+this.positions+R_DRICNR+"}"
@@ -1011,16 +1110,18 @@ public void testBug144866() throws JavaModelException {
  */
 public void testBug171016() throws JavaModelException {
 	String source =
-		"package bugs.b171016;\n" +
-		"public class BasicTestBugs {\n" +
-		"	public void foo() {}" +
-		"}\n" +
-		"class X extends BasicTestBugs {\n" +
-		"	/**\n" +
-		"	 * {@In\n" +
-		"	 */\n" +
-		"	public void foo() {}" +
-		"}\n";
+		"""
+		package bugs.b171016;
+		public class BasicTestBugs {
+			public void foo() {}\
+		}
+		class X extends BasicTestBugs {
+			/**
+			 * {@In
+			 */
+			public void foo() {}\
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b171016/BasicTestBugs.java", source, true, "{@In", 1);
 	assertSortedResults(
 		"inheritDoc[JAVADOC_INLINE_TAG]{{@inheritDoc}, null, null, inheritDoc, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -1028,16 +1129,18 @@ public void testBug171016() throws JavaModelException {
 }
 public void testBug171016b() throws JavaModelException {
 	String source =
-		"package bugs.b171016;\n" +
-		"public class BasicTestBugs {\n" +
-		"	public void foo() {}" +
-		"}\n" +
-		"class X extends BasicTestBugs {\n" +
-		"	/**\n" +
-		"	 * @In\n" +
-		"	 */\n" +
-		"	public void foo() {}" +
-		"}\n";
+		"""
+		package bugs.b171016;
+		public class BasicTestBugs {
+			public void foo() {}\
+		}
+		class X extends BasicTestBugs {
+			/**
+			 * @In
+			 */
+			public void foo() {}\
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b171016/BasicTestBugs.java", source, true, "@In", 1);
 	assertSortedResults(
 		"inheritDoc[JAVADOC_INLINE_TAG]{{@inheritDoc}, null, null, inheritDoc, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -1052,13 +1155,15 @@ public void testBug171016b() throws JavaModelException {
 // TODO (eric) enable when bug will be fixed
 public void _testBug171031() throws JavaModelException {
 	String source =
-		"package bugs.b171031;\n" +
-		"public class BasicTestBugs {\n" +
-		"	/**\n" +
-		"	 * @In+\n" +
-		"	 */\n" +
-		"	public void foo() {}" +
-		"}\n";
+		"""
+		package bugs.b171031;
+		public class BasicTestBugs {
+			/**
+			 * @In+
+			 */
+			public void foo() {}\
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b171031/BasicTestBugs.java", source, true, "@In", 1);
 	assertSortedResults(""); // should not have any proposal as
 }
@@ -1071,19 +1176,21 @@ public void _testBug171031() throws JavaModelException {
 public void testBug185576a() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package bugs.b185576;\n" +
-		"public class BasicTestBugs {\n" +
-		"	/**\n" +
-		"	 * The return type is {@link } and that is all.  \n" +
-		"	 * \n" +
-		"	 * @param <X>\n" +
-		"	 * @param t\n" +
-		"	 * @return something.\n" +
-		"	 */\n" +
-		"	public <X> X foooo(X t) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package bugs.b185576;
+		public class BasicTestBugs {
+			/**
+			 * The return type is {@link } and that is all. \s
+			 *\s
+			 * @param <X>
+			 * @param t
+			 * @return something.
+			 */
+			public <X> X foooo(X t) {
+				return null;
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b185576/BasicTestBugs.java", source, true, "@link ", 0);
 	String emptyPositions = "["+this.completionStart+", "+this.completionStart+"], ";
 	assertSortedResults(
@@ -1093,20 +1200,22 @@ public void testBug185576a() throws JavaModelException {
 public void testBug185576b() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package bugs.b185576;\n" +
-		"public class BasicTestBugs {\n" +
-		"	/**\n" +
-		"	 * The return type is {@link } and that is all.  \n" +
-		"	 * \n" +
-		"	 * @param <X>\n" +
-		"	 * @param t\n" +
-		"	 * @return something.\n" +
-		"	 */\n" +
-		"	public <X> X foooo(X t) {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"  class X {}\n" +
-		"}\n";
+		"""
+		package bugs.b185576;
+		public class BasicTestBugs {
+			/**
+			 * The return type is {@link } and that is all. \s
+			 *\s
+			 * @param <X>
+			 * @param t
+			 * @return something.
+			 */
+			public <X> X foooo(X t) {
+				return null;
+			}
+		  class X {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b185576/BasicTestBugs.java", source, true, "@link ", 0);
 	String emptyPositions = "["+this.completionStart+", "+this.completionStart+"], ";
 	assertSortedResults(
@@ -1117,17 +1226,19 @@ public void testBug185576b() throws JavaModelException {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249785
 public void testBug249785a() throws JavaModelException {
 	String source =
-		"package bugs.b171016;\n" +
-		"public class BasicTestBugs {\n" +
-		"	/**\n" +
-		"	 * @deprecated\n" +
-		"	 */\n" +
-		"	public int field\n" +
-		"	/**\n" +
-		"	 * @see #fie\n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n";
+		"""
+		package bugs.b171016;
+		public class BasicTestBugs {
+			/**
+			 * @deprecated
+			 */
+			public int field
+			/**
+			 * @see #fie
+			 */
+			public void foo() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/bugs/b171016/BasicTestBugs.java", source, true, "fie", -1);
 	assertSortedResults(
 		"field[FIELD_REF]{field, Lbugs.b171016.BasicTestBugs;, I, field, null, "+this.positions+R_DRICNRNS+"}"
@@ -1140,12 +1251,14 @@ public void testBug249785a() throws JavaModelException {
  */
 public void testBug255752() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" *\n" +
-		" * @\n" +
-		" */" +
-		"package javadoc.bugs;\n" +
-		"public class BasicTestBugs {}\n";
+		"""
+		/**
+		 *
+		 * @
+		 */\
+		package javadoc.bugs;
+		public class BasicTestBugs {}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "@", -1);
 	assertSortedResults("");
 }
@@ -1155,11 +1268,13 @@ public void testBug255752() throws JavaModelException {
  */
 public void testBug255752a() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" *\n" +
-		" * @\n" +
-		" */" +
-		"\n";
+		"""
+		/**
+		 *
+		 * @
+		 */\
+		
+		""";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "@", -1);
 	assertResults(
 			"author[JAVADOC_BLOCK_TAG]{@author, null, null, author, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +

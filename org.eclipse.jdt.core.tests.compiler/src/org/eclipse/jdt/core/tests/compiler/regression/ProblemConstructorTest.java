@@ -35,20 +35,23 @@ public void test001() {
 	this.runNegativeTest(
 		new String[] {
 			"prs/Test1.java",
-			"package prs;	\n" +
-			"import java.io.IOException;	\n" +
-			"public class Test1 {	\n" +
-			"String s = 3;	\n" +
-			"Test1() throws IOException {	\n" +
-			"}	\n" +
-			"}"
+			"""
+				package prs;\t
+				import java.io.IOException;\t
+				public class Test1 {\t
+				String s = 3;\t
+				Test1() throws IOException {\t
+				}\t
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in prs\\Test1.java (at line 4)\n" +
-		"	String s = 3;	\n" +
-		"	           ^\n" +
-		"Type mismatch: cannot convert from int to String\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in prs\\Test1.java (at line 4)
+				String s = 3;\t
+				           ^
+			Type mismatch: cannot convert from int to String
+			----------
+			""",
 		null,
 		true,
 		null,
@@ -60,19 +63,20 @@ public void test001() {
 		false /* do not flush output directory */,
 		new String[] { /* test files */
 			"prs/Test2.java",
-			"package prs;	\n" +
-			"import java.io.IOException;	\n" +
-			"public class Test2 {	\n" +
-			"public void foo() {	\n" +
-			"try {	\n" +
-			"Test1 t = new Test1();	\n" +
-			"System.out.println();	\n" +
-			"} catch(IOException e)	\n" +
-			"{	\n" +
-			"e.printStackTrace();	\n" +
-			"}	\n" +
-			"}	\n" +
-			"}"
+			"""
+				package prs;\t
+				import java.io.IOException;\t
+				public class Test2 {\t
+				public void foo() {\t
+				try {\t
+				Test1 t = new Test1();\t
+				System.out.println();\t
+				} catch(IOException e)\t
+				{\t
+				e.printStackTrace();\t
+				}\t
+				}\t
+				}"""
 		},
 		// compiler results
 		"" /* expected compiler log */,
@@ -87,63 +91,70 @@ public void test002() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public X();\n" +
-			"    public Y();\n" +
-			"    \n" +
-			"}"
+			"""
+				public class X {
+				    public X();
+				    public Y();
+				   \s
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public X();\n" +
-		"	       ^^^\n" +
-		"This method requires a body instead of a semicolon\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	public Y();\n" +
-		"	       ^^^\n" +
-		"Return type for the method is missing\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 3)\n" +
-		"	public Y();\n" +
-		"	       ^^^\n" +
-		"This method requires a body instead of a semicolon\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				public X();
+				       ^^^
+			This method requires a body instead of a semicolon
+			----------
+			2. ERROR in X.java (at line 3)
+				public Y();
+				       ^^^
+			Return type for the method is missing
+			----------
+			3. ERROR in X.java (at line 3)
+				public Y();
+				       ^^^
+			This method requires a body instead of a semicolon
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=163443
 public void test003() {
 	this.runNegativeTest(
 		new String[] {
 			"Example.java",
-			"class Example {\n" +
-			"  private Example() {\n" +
-			"  }\n" +
-			"  public Example(int i) {\n" +
-			"  }\n" +
-			"}\n" +
-			"class E1 {\n" +
-			"    private E1(int i) {}\n" +
-			"    private E1(long l) {}\n" +
-			"}\n" +
-			"class E2 {\n" +
-			"    private E2(int i) {}\n" +
-			"}\n" +
-			"class E3 {\n" +
-			"    public E3(int i) {}\n" +
-			"    Zork z;\n" +
-			"}\n"
+			"""
+				class Example {
+				  private Example() {
+				  }
+				  public Example(int i) {
+				  }
+				}
+				class E1 {
+				    private E1(int i) {}
+				    private E1(long l) {}
+				}
+				class E2 {
+				    private E2(int i) {}
+				}
+				class E3 {
+				    public E3(int i) {}
+				    Zork z;
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in Example.java (at line 2)\n" +
-		"	private Example() {\n" +
-		"	        ^^^^^^^^^\n" +
-		"The constructor Example() is never used locally\n" +
-		"----------\n" +
-		"2. ERROR in Example.java (at line 16)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in Example.java (at line 2)
+				private Example() {
+				        ^^^^^^^^^
+			The constructor Example() is never used locally
+			----------
+			2. ERROR in Example.java (at line 16)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=201912, test to make sure that unused public members of
 // private class (including constructors, fields, types and methods) get warned about.
@@ -178,27 +189,29 @@ public void test004() {
 			"	}\n" +
 			"} \n"
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	public int unusedMethod() { return this.state; }\n" +
-		"	           ^^^^^^^^^^^^^^\n" +
-		"The method unusedMethod() from the type X.M is never used locally\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	public M (int state) { this.state = state;} \n" +
-		"	       ^^^^^^^^^^^^^\n" +
-		"The constructor X.M(int) is never used locally\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 6)\n" +
-		"	public int unusedField = 0;\n" +
-		"	           ^^^^^^^^^^^\n" +
-		"The value of the field X.M.unusedField is not used\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 7)\n" +
-		"	public class N {}\n" +
-		"	             ^\n" +
-		"The type X.M.N is never used locally\n" +
-		"----------\n"
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				public int unusedMethod() { return this.state; }
+				           ^^^^^^^^^^^^^^
+			The method unusedMethod() from the type X.M is never used locally
+			----------
+			2. WARNING in X.java (at line 5)
+				public M (int state) { this.state = state;}\s
+				       ^^^^^^^^^^^^^
+			The constructor X.M(int) is never used locally
+			----------
+			3. WARNING in X.java (at line 6)
+				public int unusedField = 0;
+				           ^^^^^^^^^^^
+			The value of the field X.M.unusedField is not used
+			----------
+			4. WARNING in X.java (at line 7)
+				public class N {}
+				             ^
+			The type X.M.N is never used locally
+			----------
+			"""
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=264991, wrong unused warning reported. Test to ensure that
@@ -208,25 +221,29 @@ public void test004() {
 public void test005() {
 	String[]  testFiles = new String[] {
 			"A.java",
-			"public class A {\n" +
-			"	public A(String s) {\n" +
-			"		B.test();\n" +
-			"	}\n" +
-			"\n" +
-			"	private static class B extends A {\n" +
-			"		public B () { super(\"\"); }\n" +
-			"	private static void test() {};\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class A {
+					public A(String s) {
+						B.test();
+					}
+				
+					private static class B extends A {
+						public B () { super(""); }
+					private static void test() {};
+					}
+				}
+				"""
 			};
 	if (!isMinimumCompliant(ClassFileConstants.JDK11)) {
 		this.runNegativeTest(testFiles,
-				"----------\n" +
-				"1. WARNING in A.java (at line 3)\n" +
-				"	B.test();\n" +
-				"	^^^^^^^^\n" +
-				"Access to enclosing method test() from the type A.B is emulated by a synthetic accessor method\n" +
-				"----------\n");
+				"""
+					----------
+					1. WARNING in A.java (at line 3)
+						B.test();
+						^^^^^^^^
+					Access to enclosing method test() from the type A.B is emulated by a synthetic accessor method
+					----------
+					""");
 	} else {
 		this.runConformTest(testFiles);
 	}
@@ -235,38 +252,44 @@ public void test005() {
 //we DO complain about the constructor of B not being used when its base class has a no-arg constructor
 public void test006() {
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
-			"----------\n" +
-			"1. WARNING in A.java (at line 8)\n" +
-			"	public B () { super(\"\"); }\n" +
-			"	       ^^^^\n" +
-			"The constructor A.B() is never used locally\n" +
-			"----------\n"
+			"""
+				----------
+				1. WARNING in A.java (at line 8)
+					public B () { super(""); }
+					       ^^^^
+				The constructor A.B() is never used locally
+				----------
+				"""
 			:
-			"----------\n" +
-			"1. WARNING in A.java (at line 3)\n" +
-			"	B.test();\n" +
-			"	^^^^^^^^\n" +
-			"Access to enclosing method test() from the type A.B is emulated by a synthetic accessor method\n" +
-			"----------\n" +
-			"2. WARNING in A.java (at line 8)\n" +
-			"	public B () { super(\"\"); }\n" +
-			"	       ^^^^\n" +
-			"The constructor A.B() is never used locally\n" +
-			"----------\n";
+			"""
+				----------
+				1. WARNING in A.java (at line 3)
+					B.test();
+					^^^^^^^^
+				Access to enclosing method test() from the type A.B is emulated by a synthetic accessor method
+				----------
+				2. WARNING in A.java (at line 8)
+					public B () { super(""); }
+					       ^^^^
+				The constructor A.B() is never used locally
+				----------
+				""";
 	this.runNegativeTest(
 		new String[] {
 			"A.java",
-			"public class A {\n" +
-		    "	public A(String s) {\n" +
-		    "		B.test();\n" +
-		    "	}\n" +
-		    "	public A() {}\n" +
-		    "\n" +
-		    "	private static class B extends A {\n" +
-		    "		public B () { super(\"\"); }\n" +
-		    "		private static void test() {};\n" +
-		    "   }\n" +
-			"}\n"
+			"""
+				public class A {
+					public A(String s) {
+						B.test();
+					}
+					public A() {}
+				
+					private static class B extends A {
+						public B () { super(""); }
+						private static void test() {};
+				   }
+				}
+				"""
 		},
 		errMessage);
 }
@@ -276,16 +299,18 @@ public void test007() {
 	this.runConformTest(
 		new String[] {
 			"A.java",
-			"public class A {\n" +
-		    "	public A(String s) {\n" +
-		    "		B.test();\n" +
-		    "	}\n" +
-		    "	public A() {}\n" +
-		    "\n" +
-		    "	private static class B extends A {\n" +
-		    "		private static void test() {};\n" +
-		    "	}\n" +
-			"}\n"
+			"""
+				public class A {
+					public A(String s) {
+						B.test();
+					}
+					public A() {}
+				
+					private static class B extends A {
+						private static void test() {};
+					}
+				}
+				"""
 		});
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=265142, wrong unused warning reported. Test to ensure that
@@ -294,19 +319,21 @@ public void test008() {
 	this.runNegativeTest(
 		new String[] {
 			"A.java",
-			"public class A {\n" +
-			"	public A(String s) {this();}\n" +
-			"	private A() {}\n" +
-			"}\n" +
-			"class C {\n" +
-			"	private static class B extends A {\n" +
-			"		public B () { super(\"\"); }\n" +
-			"		static void foo() {}\n" +
-			"	}\n" +
-			"	C() {\n" +
-			"		B.foo();\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class A {
+					public A(String s) {this();}
+					private A() {}
+				}
+				class C {
+					private static class B extends A {
+						public B () { super(""); }
+						static void foo() {}
+					}
+					C() {
+						B.foo();
+					}
+				}
+				"""
 			},
 			"");
 }
@@ -316,26 +343,30 @@ public void test009() {
 	this.runNegativeTest(
 		new String[] {
 			"A.java",
-			"public class A {\n" +
-			"	public A(String s) {}\n" +
-			"	protected A() {}\n" +
-			"}\n" +
-			"class C {\n" +
-			"	private static class B extends A {\n" +
-			"		public B () { super(\"\"); }\n" +
-			"		static void foo() {}\n" +
-			"	}\n" +
-			"	C() {\n" +
-			"		B.foo();\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class A {
+					public A(String s) {}
+					protected A() {}
+				}
+				class C {
+					private static class B extends A {
+						public B () { super(""); }
+						static void foo() {}
+					}
+					C() {
+						B.foo();
+					}
+				}
+				"""
 			},
-			"----------\n" +
-			"1. WARNING in A.java (at line 7)\n" +
-			"	public B () { super(\"\"); }\n" +
-			"	       ^^^^\n" +
-			"The constructor C.B() is never used locally\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in A.java (at line 7)
+					public B () { super(""); }
+					       ^^^^
+				The constructor C.B() is never used locally
+				----------
+				""");
 }
 //Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
 public void test408038a() {
@@ -344,26 +375,29 @@ public void test408038a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	private class Y {\n" +
-			"		static final int i = 10;\n" +
-			"		public Y() {}\n" +
-			"		public Y(int x) {System.out.println(x);}\n" +
-			"   }\n" +
-			"\n" +
-			"	public void zoo() {\n" +
-			"		System.out.println(Y.i);\n" +
-			"		Y y = new Y(5);\n" +
-			"		System.out.println(y);\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					private class Y {
+						static final int i = 10;
+						public Y() {}
+						public Y(int x) {System.out.println(x);}
+				   }
+				
+					public void zoo() {
+						System.out.println(Y.i);
+						Y y = new Y(5);
+						System.out.println(y);
+					}
+				}"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	public Y() {}\n" +
-		"	       ^^^\n" +
-		"The constructor X.Y() is never used locally\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				public Y() {}
+				       ^^^
+			The constructor X.Y() is never used locally
+			----------
+			""",
 		null,
 		true,
 		null
@@ -376,26 +410,29 @@ public void test408038b() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	private static class Y {\n" +
-			"		static final int i = 10;\n" +
-			"		public Y() {}\n" +
-			"		public Y(int x) {System.out.println(x);}\n" +
-			"   }\n" +
-			"\n" +
-			"	public void zoo() {\n" +
-			"		System.out.println(Y.i);\n" +
-			"		Y y = new Y(5);\n" +
-			"		System.out.println(y);\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					private static class Y {
+						static final int i = 10;
+						public Y() {}
+						public Y(int x) {System.out.println(x);}
+				   }
+				
+					public void zoo() {
+						System.out.println(Y.i);
+						Y y = new Y(5);
+						System.out.println(y);
+					}
+				}"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	public Y() {}\n" +
-		"	       ^^^\n" +
-		"The constructor X.Y() is never used locally\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				public Y() {}
+				       ^^^
+			The constructor X.Y() is never used locally
+			----------
+			""",
 		null,
 		true,
 		null
@@ -408,31 +445,32 @@ public void test408038c() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.io.Externalizable;\n" +
-			"import java.io.IOException;\n" +
-			"import java.io.ObjectInput;\n" +
-			"import java.io.ObjectOutput;\n" +
-			"public class X {\n" +
-			"	private static class Y implements Externalizable {\n" +
-			"		static final int i = 10;\n" +
-			"		public Y() {}\n" +
-			"		public Y(int x) {System.out.println(x);}\n" +
-			"\n" +
-			"		@Override\n" +
-			"		public void writeExternal(ObjectOutput out) throws IOException {\n" +
-			"		}\n" +
-			"\n" +
-			"		@Override \n" +
-			"		public void readExternal(ObjectInput in) throws IOException,\n" +
-			"		ClassNotFoundException {\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public void zoo() {\n" +
-			"		System.out.println(Y.i);\n" +
-			"		Y y = new Y(5);\n" +
-			"		System.out.println(y);\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.io.Externalizable;
+				import java.io.IOException;
+				import java.io.ObjectInput;
+				import java.io.ObjectOutput;
+				public class X {
+					private static class Y implements Externalizable {
+						static final int i = 10;
+						public Y() {}
+						public Y(int x) {System.out.println(x);}
+				
+						@Override
+						public void writeExternal(ObjectOutput out) throws IOException {
+						}
+				
+						@Override\s
+						public void readExternal(ObjectInput in) throws IOException,
+						ClassNotFoundException {
+						}
+					}
+					public void zoo() {
+						System.out.println(Y.i);
+						Y y = new Y(5);
+						System.out.println(y);
+					}
+				}"""
 		},
 		"",
 		null,
@@ -447,38 +485,41 @@ public void test408038d() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.io.Externalizable;\n" +
-			"import java.io.IOException;\n" +
-			"import java.io.ObjectInput;\n" +
-			"import java.io.ObjectOutput;\n" +
-			"public class X {\n" +
-			"	private class Y implements Externalizable {\n" +
-			"		static final int i = 10;\n" +
-			"		public Y() {}\n" +
-			"		public Y(int x) {System.out.println(x);}\n" +
-			"\n" +
-			"		@Override\n" +
-			"		public void writeExternal(ObjectOutput out) throws IOException {\n" +
-			"		}\n" +
-			"\n" +
-			"		@Override \n" +
-			"		public void readExternal(ObjectInput in) throws IOException,\n" +
-			"		ClassNotFoundException {\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public void zoo() {\n" +
-			"		System.out.println(Y.i);\n" +
-			"		Y y = new Y(5);\n" +
-			"		System.out.println(y);\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.io.Externalizable;
+				import java.io.IOException;
+				import java.io.ObjectInput;
+				import java.io.ObjectOutput;
+				public class X {
+					private class Y implements Externalizable {
+						static final int i = 10;
+						public Y() {}
+						public Y(int x) {System.out.println(x);}
+				
+						@Override
+						public void writeExternal(ObjectOutput out) throws IOException {
+						}
+				
+						@Override\s
+						public void readExternal(ObjectInput in) throws IOException,
+						ClassNotFoundException {
+						}
+					}
+					public void zoo() {
+						System.out.println(Y.i);
+						Y y = new Y(5);
+						System.out.println(y);
+					}
+				}"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 8)\n" +
-		"	public Y() {}\n" +
-		"	       ^^^\n" +
-		"The constructor X.Y() is never used locally\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 8)
+				public Y() {}
+				       ^^^
+			The constructor X.Y() is never used locally
+			----------
+			""",
 		null,
 		true,
 		null
@@ -492,21 +533,25 @@ public void test408038e() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	int i;\n" +
-			"	private X(int x) {i = x;}\n" +
-			"	X() {}\n" +
-			"	public int foo() {\n" +
-			"		X x = new X();\n" +
-			"		return x.i;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				class X {
+					int i;
+					private X(int x) {i = x;}
+					X() {}
+					public int foo() {
+						X x = new X();
+						return x.i;
+					}
+				}
+				"""
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	private X(int x) {i = x;}\n" +
-			"	        ^^^^^^^^\n" +
-			"The constructor X(int) is never used locally\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					private X(int x) {i = x;}
+					        ^^^^^^^^
+				The constructor X(int) is never used locally
+				----------
+				""");
 }
 }

@@ -73,37 +73,38 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	private static PrintStream[] LOG_STREAMS = new PrintStream[DIM_NAMES.length];
 
 	// Options
-	private static final String ALL_OPTIONS = "-warn:" +
-			"allDeprecation," +
-			"allJavadoc," +
-			"assertIdentifier," +
-			"charConcat," +
-			"conditionAssign," +
-			"constructorName," +
-			"deprecation," +
-			"emptyBlock," +
-			"fieldHiding," +
-			"finally," +
-			"indirectStatic," +
-			"intfNonInherited," +
-			"localHiding," +
-			"maskedCatchBlock," +
-			"nls," +
-			"noEffectAssign," +
-			"pkgDefaultMethod," +
-			"semicolon," +
-			"unqualifiedField," +
-			"unusedArgument," +
-			"unusedImport," +
-			"unusedLocal," +
-			"unusedPrivate," +
-			"unusedThrown," +
-			"unnecessaryElse," +
-			"uselessTypeCheck," +
-			"specialParamHiding," +
-			"staticReceiver," +
-			"syntheticAccess," +
-			"tasks(TODO|FIX|XXX)";
+	private static final String ALL_OPTIONS = """
+		-warn:\
+		allDeprecation,\
+		allJavadoc,\
+		assertIdentifier,\
+		charConcat,\
+		conditionAssign,\
+		constructorName,\
+		deprecation,\
+		emptyBlock,\
+		fieldHiding,\
+		finally,\
+		indirectStatic,\
+		intfNonInherited,\
+		localHiding,\
+		maskedCatchBlock,\
+		nls,\
+		noEffectAssign,\
+		pkgDefaultMethod,\
+		semicolon,\
+		unqualifiedField,\
+		unusedArgument,\
+		unusedImport,\
+		unusedLocal,\
+		unusedPrivate,\
+		unusedThrown,\
+		unnecessaryElse,\
+		uselessTypeCheck,\
+		specialParamHiding,\
+		staticReceiver,\
+		syntheticAccess,\
+		tasks(TODO|FIX|XXX)""";
 
 	// Source paths
 	final static String[] JDT_CORE_SRC_PATHS = {

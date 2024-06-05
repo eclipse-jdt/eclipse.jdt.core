@@ -32,14 +32,16 @@ public void test001() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import foo.bar;\n" +
-			"public class X {	\n" +
-			"    foo	afoo; \n" +
-			"    bar	abar; \n" +
-			"    public static void main(String[] args) {	\n" +
-			"		System.out.print(\"SUCCESS\");	\n" +
-			"    }	\n" +
-			"}	\n",
+			"""
+				import foo.bar;
+				public class X {\t
+				    foo	afoo;\s
+				    bar	abar;\s
+				    public static void main(String[] args) {\t
+						System.out.print("SUCCESS");\t
+				    }\t
+				}\t
+				""",
 			"foo.java",
 			"public class foo {}\n",
 			"foo/bar.java",
@@ -53,40 +55,48 @@ public void test002() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {	\n" +
-			"    foo	afoo; \n" +
-			"    foo.bar	abar; \n" +
-			"}	\n",
+			"""
+				public class X {\t
+				    foo	afoo;\s
+				    foo.bar	abar;\s
+				}\t
+				""",
 			"foo.java",
 			"public class foo {}\n",
 			"foo/bar.java",
 			"package foo;\n" +
 			"public class bar {}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	foo.bar	abar; \n" +
-		"	^^^^^^^\n" +
-		"foo.bar cannot be resolved to a type\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				foo.bar	abar;\s
+				^^^^^^^
+			foo.bar cannot be resolved to a type
+			----------
+			""");
 }
 // http://bugs.eclipse.org/bugs/show_bug.cgi?id=84886
 public void test003() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	class MyFoo {\n" +
-			"		class Bar {}\n" +
-			"	}\n" +
-			"	static class MyFoo$Bar {}\n" +
-			"}\n",
+			"""
+				class X {
+					class MyFoo {
+						class Bar {}
+					}
+					static class MyFoo$Bar {}
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	static class MyFoo$Bar {}\n" +
-		"	             ^^^^^^^^^\n" +
-		"Duplicate nested type MyFoo$Bar\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				static class MyFoo$Bar {}
+				             ^^^^^^^^^
+			Duplicate nested type MyFoo$Bar
+			----------
+			""");
 }
 }

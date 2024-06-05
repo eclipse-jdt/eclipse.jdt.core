@@ -34,23 +34,23 @@ public class SourceModifierTest extends AbstractJavaModelTests {
 	}
 
 	public void testRemoveIndents() throws Exception {
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        while (i == 0) {\n");
-		buf.append("            foo();\n");
-		buf.append("            i++; // comment\n");
-		buf.append("            i++;\n");
-		buf.append("        }\n");
-		buf.append("        return;\n");
-		buf.append("    }\n");
-		buf.append("}\n");
+		String str = """
+			package test1;
+			public class E {
+			    public void foo() {
+			        while (i == 0) {
+			            foo();
+			            i++; // comment
+			            i++;
+			        }
+			        return;
+			    }
+			}
+			""";
+		Document buffer= new Document(str);
 
-		Document buffer= new Document(buf.toString());
-
-		int offset= buf.toString().indexOf("while");
-		int length= buf.toString().indexOf("return;") + "return;".length() - offset;
+		int offset= str.indexOf("while");
+		int length= str.indexOf("return;") + "return;".length() - offset;
 
 		String content= buffer.get(offset, length);
 		SourceModifier modifier= new SourceModifier(2, "    ", 4, 4);
@@ -67,41 +67,41 @@ public class SourceModifierTest extends AbstractJavaModelTests {
 
 		String preview= buffer.get();
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        while (i == 0) {\n");
-		buf.append("        foo();\n");
-		buf.append("        i++; // comment\n");
-		buf.append("        i++;\n");
-		buf.append("    }\n");
-		buf.append("    return;\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		String expected= buf.toString();
+		String expected= """
+			package test1;
+			public class E {
+			    public void foo() {
+			        while (i == 0) {
+			        foo();
+			        i++; // comment
+			        i++;
+			    }
+			    return;
+			    }
+			}
+			""";
 
 		StringAsserts.assertEqualString(preview, expected);
 	}
 
 	public void testAddIndents() throws Exception {
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        while (i == 0) {\n");
-		buf.append("            foo();\n");
-		buf.append("            i++; // comment\n");
-		buf.append("            i++;\n");
-		buf.append("        }\n");
-		buf.append("        return;\n");
-		buf.append("    }\n");
-		buf.append("}\n");
+		String str = """
+			package test1;
+			public class E {
+			    public void foo() {
+			        while (i == 0) {
+			            foo();
+			            i++; // comment
+			            i++;
+			        }
+			        return;
+			    }
+			}
+			""";
+		Document buffer= new Document(str);
 
-		Document buffer= new Document(buf.toString());
-
-		int offset= buf.toString().indexOf("while");
-		int length= buf.toString().indexOf("return;") + "return;".length() - offset;
+		int offset= str.indexOf("while");
+		int length= str.indexOf("return;") + "return;".length() - offset;
 
 		String content= buffer.get(offset, length);
 		SourceModifier modifier= new SourceModifier(2, "            ", 4, 4);
@@ -118,19 +118,19 @@ public class SourceModifierTest extends AbstractJavaModelTests {
 
 		String preview= buffer.get();
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        while (i == 0) {\n");
-		buf.append("                foo();\n");
-		buf.append("                i++; // comment\n");
-		buf.append("                i++;\n");
-		buf.append("            }\n");
-		buf.append("            return;\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		String expected= buf.toString();
+		String expected= """
+			package test1;
+			public class E {
+			    public void foo() {
+			        while (i == 0) {
+			                foo();
+			                i++; // comment
+			                i++;
+			            }
+			            return;
+			    }
+			}
+			""";
 
 		StringAsserts.assertEqualString(preview, expected);
 	}

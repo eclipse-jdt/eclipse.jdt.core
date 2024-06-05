@@ -38,19 +38,23 @@ public class Bug562420Test extends BuilderTests {
 
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		IPath testAppPath = env.addClass(src, "org.easylibs.test", "TestApp",
-				"package org.easylibs.test;\n" +
-				"public class TestApp {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(\"Hello World\");\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					package org.easylibs.test;
+					public class TestApp {
+						public static void main(String[] args) {
+							System.out.println("Hello World");
+						}
+					}
+					""");
 		env.addFile(testAppPath.removeLastSegments(1), "package-info.java",
 				"package org.easylibs.test;");
 		env.addFile(src, "module-info.java",
-				"module test {\n" +
-				"	requires java.base;\n" +
-				"	exports org.easylibs.test;\n" +
-				"}\n");
+				"""
+					module test {
+						requires java.base;
+						exports org.easylibs.test;
+					}
+					""");
 		fullBuild();
 		if (CompilerOptions.versionToJdkLevel(System.getProperty("java.specification.version")) < ClassFileConstants.JDK9) {
 			expectingProblemsFor(projectPath,

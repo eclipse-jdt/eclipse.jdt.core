@@ -86,29 +86,35 @@ public class JavaSearchNameEnvironmentTest extends ModifyingResourceTests {
 
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchMultipleProjects2/src/b88300/SubClass.java",
-				"package b88300;\n" +
-				"public class SubClass extends SuperClass {\n" +
-				"	private void aMethod(String x) {\n" +
-				"	}\n" +
-				"	public void aMethod(Object x) {\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package b88300;
+					public class SubClass extends SuperClass {
+						private void aMethod(String x) {
+						}
+						public void aMethod(Object x) {
+						}
+					}
+					"""
 			);
 			this.workingCopies[1] = getWorkingCopy("/JavaSearchMultipleProjects2/src/b88300/SuperClass.java",
-				"package b88300;\n" +
-				"public class SuperClass {\n" +
-				"    public void aMethod(Object x) {\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					package b88300;
+					public class SuperClass {
+					    public void aMethod(Object x) {
+					    }
+					}
+					"""
 				);
 			this.workingCopies[2] = getWorkingCopy("/JavaSearchMultipleProjects2/src/b88300/User.java",
-				"package b88300;\n" +
-				"public class User {\n" +
-				"    public void methodUsingSubClassMethod() {\n" +
-				"        SuperClass user = new SubClass();\n" +
-				"        user.aMethod(new Object());\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					package b88300;
+					public class User {
+					    public void methodUsingSubClassMethod() {
+					        SuperClass user = new SubClass();
+					        user.aMethod(new Object());
+					    }
+					}
+					"""
 			);
 
 		JavaSearchNameEnvironmentUnderTest nameEnvironment = newJavaSearchEnvironment(this.p2, this.p1);

@@ -152,9 +152,10 @@ public void testJarFile() throws Exception {
 		IJavaProject p2 = createJavaProject("P2");
 		String[] pathsAndContents = new String[] {
 			"test/X.java",
-			"package test;\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				package test;
+				public class X {
+				}""",
 		};
 		addLibrary(p2, "lib.jar", "libsrc.zip", pathsAndContents, JavaCore.VERSION_1_5);
 		IJavaProject p1 = createJavaProject("P1", new String[] {}, new String[] {"/P2/lib.jar"}, "bin");
@@ -366,11 +367,12 @@ public void testNonExistingPackageFragment3() throws CoreException {
 		IPackageFragment pkg = getPackage("/P/pack");
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry excluding=\"pack/\" kind=\"src\" path=\"\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry excluding="pack/" kind="src" path=""/>
+					<classpathentry kind="output" path=""/>
+				</classpath>"""
 		);
 		assertFalse(	"pack should not exist", pkg.exists());
 	} finally {
@@ -432,9 +434,10 @@ public void testTypeParameter2() throws CoreException {
 		createJavaProject("P");
 		createFile(
 			"P/X.java",
-			"public class X {\n" +
-			"  <T extends String> void foo() {}\n" +
-			"}"
+			"""
+				public class X {
+				  <T extends String> void foo() {}
+				}"""
 		);
 		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getMethod("foo", new String[0]).getTypeParameter("T");
 		assertTrue("Type parameter should exist", typeParameter.exists());
@@ -466,9 +469,10 @@ public void testTypeParameter4() throws CoreException {
 		createJavaProject("P");
 		createFile(
 			"P/X.java",
-			"public class X {\n" +
-			"  <T extends String> void foo() {}\n" +
-			"}"
+			"""
+				public class X {
+				  <T extends String> void foo() {}
+				}"""
 		);
 		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getMethod("foo", new String[0]).getTypeParameter("String");
 		assertTrue("Type parameter should not exist", !typeParameter.exists());
@@ -485,9 +489,10 @@ public void testTypeParameter5() throws CoreException {
 		createJavaProject("P");
 		createFile(
 			"P/X.java",
-			"public class X {\n" +
-			"  class T {}\n" +
-			"}"
+			"""
+				public class X {
+				  class T {}
+				}"""
 		);
 		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getTypeParameter("T");
 		assertTrue("Type parameter should not exist", !typeParameter.exists());

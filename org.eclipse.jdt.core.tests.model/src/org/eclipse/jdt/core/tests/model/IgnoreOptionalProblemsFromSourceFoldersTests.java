@@ -64,12 +64,13 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 
 			createFolder("/P/src/p");
 			IFile file = createFile("/P/src/p/X.java",
-					"package p;\n" +
-					"public class X {\n" +
-					"	public void foo() {\n" +
-					"		int i;\n" +
-					"	}\n" +
-					"}");
+					"""
+						package p;
+						public class X {
+							public void foo() {
+								int i;
+							}
+						}""");
 			unit = (ICompilationUnit) JavaCore.create(file);
 
 			ProblemRequestor problemRequestor = new ProblemRequestor();
@@ -105,21 +106,23 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 
 			createFolder("/P/src/p");
 			IFile fileX = createFile("/P/src/p/X.java",
-					"package p;\n" +
-					"public class X {\n" +
-					"	public void foo() {\n" +
-					"		int i;\n" +
-					"	}\n" +
-					"}");
+					"""
+						package p;
+						public class X {
+							public void foo() {
+								int i;
+							}
+						}""");
 			x = (ICompilationUnit) JavaCore.create(fileX);
 			createFolder("/P/src2/q");
 			IFile fileY = createFile("/P/src2/q/Y.java",
-					"package q;\n" +
-					"public class Y {\n" +
-					"	public void foo() {\n" +
-					"		int i;\n" +
-					"	}\n" +
-					"}");
+					"""
+						package q;
+						public class Y {
+							public void foo() {
+								int i;
+							}
+						}""");
 			y = (ICompilationUnit) JavaCore.create(fileY);
 
 			ProblemRequestor problemRequestorX = new ProblemRequestor();
@@ -134,10 +137,12 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 			WorkingCopyOwner ownerY = newWorkingCopyOwner(problemRequestorY);
 			y.getWorkingCopy(ownerY, null);
 			assertProblems("Unexpected problems value",
-					"----------\n" +
-					"1. ERROR in /P/src2/q/Y.java\n" +
-					"The value of the local variable i is not used\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in /P/src2/q/Y.java
+						The value of the local variable i is not used
+						----------
+						""",
 					problemRequestorY);
 		} finally {
 			if (x != null) {
@@ -169,21 +174,23 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 
 			createFolder("/P/src/p");
 			IFile fileX = createFile("/P/src/p/X.java",
-					"package p;\n" +
-					"public class X {\n" +
-					"	public void foo() {\n" +
-					"		int i;\n" +
-					"	}\n" +
-					"}");
+					"""
+						package p;
+						public class X {
+							public void foo() {
+								int i;
+							}
+						}""");
 			x = (ICompilationUnit) JavaCore.create(fileX);
 			createFolder("/P/src2/q");
 			IFile fileY = createFile("/P/src2/q/Y.java",
-					"package q;\n" +
-					"public class Y {\n" +
-					"	public void foo() {\n" +
-					"		int i;\n" +
-					"	}\n" +
-					"}");
+					"""
+						package q;
+						public class Y {
+							public void foo() {
+								int i;
+							}
+						}""");
 			y = (ICompilationUnit) JavaCore.create(fileY);
 
 			ProblemRequestor problemRequestorX = new ProblemRequestor();
@@ -228,25 +235,28 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 
 			createFolder("/P/src/p");
 			IFile file = createFile("/P/src/p/X.java",
-					"package p;\n" +
-					"public class X {\n" +
-					"	public void foo() {\n" +
-					"		int i;\n" +
-					"	}\n" +
-					"	public void bar() {\n" +
-					"		a++;\n" +
-					"	}\n" +
-					"}");
+					"""
+						package p;
+						public class X {
+							public void foo() {
+								int i;
+							}
+							public void bar() {
+								a++;
+							}
+						}""");
 			unit = (ICompilationUnit) JavaCore.create(file);
 
 			ProblemRequestor problemRequestor = new ProblemRequestor();
 			WorkingCopyOwner owner = newWorkingCopyOwner(problemRequestor);
 			unit.getWorkingCopy(owner, null);
 			assertProblems("Unexpeted problems",
-					"----------\n" +
-					"1. ERROR in /P/src/p/X.java\n" +
-					"a cannot be resolved to a variable\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in /P/src/p/X.java
+						a cannot be resolved to a variable
+						----------
+						""",
 					problemRequestor);
 		} finally {
 			if (unit != null) {
@@ -274,25 +284,28 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 
 			createFolder("/P/src/p");
 			IFile file = createFile("/P/src/p/X.java",
-					"package p;\n" +
-					"public class X {\n" +
-					"	public void foo() {\n" +
-					"		int i;\n" +
-					"	}\n" +
-					"	public void bar() {\n" +
-					"		// TODO nothing\n" +
-					"	}\n" +
-					"}");
+					"""
+						package p;
+						public class X {
+							public void foo() {
+								int i;
+							}
+							public void bar() {
+								// TODO nothing
+							}
+						}""");
 			unit = (ICompilationUnit) JavaCore.create(file);
 
 			ProblemRequestor problemRequestor = new ProblemRequestor();
 			WorkingCopyOwner owner = newWorkingCopyOwner(problemRequestor);
 			unit.getWorkingCopy(owner, null);
 			assertProblems("Unexpeted problems",
-					"----------\n" +
-					"1. WARNING in /P/src/p/X.java\n" +
-					"TODO nothing\n" +
-					"----------\n",
+					"""
+						----------
+						1. WARNING in /P/src/p/X.java
+						TODO nothing
+						----------
+						""",
 					problemRequestor);
 		} finally {
 			if (unit != null) {
@@ -320,12 +333,13 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 
 			createFolder("/P/src/p");
 			IFile file = createFile("/P/src/p/X.java",
-					"package p;\n" +
-					"public class X {\n" +
-					"	public void foo() {\n" +
-					"		int i;\n" +
-					"	}\n" +
-					"}");
+					"""
+						package p;
+						public class X {
+							public void foo() {
+								int i;
+							}
+						}""");
 			ICompilationUnit unit = (ICompilationUnit) JavaCore.create(file);
 
 			ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);

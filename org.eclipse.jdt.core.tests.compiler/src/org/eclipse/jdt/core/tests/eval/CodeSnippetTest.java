@@ -900,16 +900,17 @@ public void testFor89632() {
 		this.context.setImports(new char[][] {"java.util.*".toCharArray()});
 		evaluateWithExpectedDisplayString(
 				buildCharArray(new String[] {
-					"Collection<String> c = new ArrayList<String>();\n" +
-					"c.add(\"a\");\n" +
-					"c.add(\"b\");\n" +
-					"c.add(\"c\");  \n" +
-					"Iterator<String> i = c.iterator();\n" +
-					"StringBuffer buffer = new StringBuffer();\n" +
-					"while (i.hasNext()) {\n" +
-					"	buffer.append(i.next());\n" +
-					"}" +
-					"return String.valueOf(buffer);"
+					"""
+						Collection<String> c = new ArrayList<String>();
+						c.add("a");
+						c.add("b");
+						c.add("c"); \s
+						Iterator<String> i = c.iterator();
+						StringBuffer buffer = new StringBuffer();
+						while (i.hasNext()) {
+							buffer.append(i.next());
+						}\
+						return String.valueOf(buffer);"""
 				}),
 				"abc".toCharArray());
 	} finally {
@@ -1053,9 +1054,10 @@ public void testGH1060() {
 		return;
 	}
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
-			"return java.time.format.DateTimeFormatter\r\n"
-			+ "				.ofPattern(\"yyyyMMddHHmmss.SSS000\")\r\n"
-			+ "				.format(java.time.format.DateTimeFormatter.ofPattern(\"dd.MM.yyyy HHmmss\").parse(\"30.03.2021 112430\", java.time.LocalDateTime::from));"}),
+			"""
+				return java.time.format.DateTimeFormatter\r
+								.ofPattern("yyyyMMddHHmmss.SSS000")\r
+								.format(java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy HHmmss").parse("30.03.2021 112430", java.time.LocalDateTime::from));"""}),
 			"20210330112430.000000".toCharArray());
 }
 }

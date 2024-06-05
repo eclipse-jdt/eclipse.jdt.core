@@ -408,35 +408,38 @@ public void test007(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.List;\n" +
-			"\n" +
-			"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
-			")\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		if (false) {\n" +
-			"			;\n" +
-			"		} else {\n" +
-			"		}\n" +
-			"		// Zork z;\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.util.List;
+				
+				@SuppressWarnings("all"//$NON-NLS-1$
+				)
+				public class X {
+					public static void main(String[] args) {
+						if (false) {
+							;
+						} else {
+						}
+						// Zork z;
+					}
+				}"""
         },
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -bootclasspath " + getLibraryClassesAsQuotedString()
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -verbose -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
-		"[reading    java/lang/Object.class]\n" +
-		"[reading    java/lang/SuppressWarnings.class]\n" +
-		"[reading    java/lang/String.class]\n" +
-		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
-		"[reading    java/util/List.class]\n" +
-		"[writing    X.class - #1]\n" +
-		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
-		"[1 unit compiled]\n" +
-		"[1 .class file generated]\n",
+        """
+			[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]
+			[reading    java/lang/Object.class]
+			[reading    java/lang/SuppressWarnings.class]
+			[reading    java/lang/String.class]
+			[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]
+			[reading    java/util/List.class]
+			[writing    X.class - #1]
+			[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]
+			[1 unit compiled]
+			[1 .class file generated]
+			""",
         "", // changed with bug 123522: now the SuppressWarning upon the first type
         	// influences warnings on unused imports
         true);
@@ -446,19 +449,20 @@ public void test008(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.List;\n" +
-			"\n" +
-			"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
-			")\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		if (false) {\n" +
-			"			;\n" +
-			"		} else {\n" +
-			"		}\n" +
-			"		Zork z;\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.util.List;
+				
+				@SuppressWarnings("all"//$NON-NLS-1$
+				)
+				public class X {
+					public static void main(String[] args) {
+						if (false) {
+							;
+						} else {
+						}
+						Zork z;
+					}
+				}"""
         },
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -466,13 +470,15 @@ public void test008(){
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" +
-        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 11)\n" +
-        "	Zork z;\n" +
-        "	^^^^\n" +
-        "Zork cannot be resolved to a type\n" +
-        "----------\n" +
-        "1 problem (1 error)\n",
+        """
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 11)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			1 problem (1 error)
+			""",
         true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=92398 -- a case that works, another that does not
@@ -481,34 +487,39 @@ public void test009(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"	OK1 ok1;\n" +
-			"	OK2 ok2;\n" +
-			"	Warn warn;\n" +
-			"	KO ko;\n" +
-	        "	Zork z;\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+					OK1 ok1;
+					OK2 ok2;
+					Warn warn;
+					KO ko;
+					Zork z;
+				}""",
 			"OK1.java",
-			"/** */\n" +
-			"public class OK1 {\n" +
-			"	// empty\n" +
-			"}",
+			"""
+				/** */
+				public class OK1 {
+					// empty
+				}""",
 			"OK2.java",
-			"/** */\n" +
-			"public class OK2 {\n" +
-			"	// empty\n" +
-			"}",
+			"""
+				/** */
+				public class OK2 {
+					// empty
+				}""",
 			"Warn.java",
-			"/** */\n" +
-			"public class Warn {\n" +
-			"	// empty\n" +
-			"}",
+			"""
+				/** */
+				public class Warn {
+					// empty
+				}""",
 			"KO.java",
-			"/** */\n" +
-			"public class KO {\n" +
-			"	// empty\n" +
-			"}",
+			"""
+				/** */
+				public class KO {
+					// empty
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -517,23 +528,25 @@ public void test009(){
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" +
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-        "	Warn warn;\n" +
-        "	^^^^\n" +
-        "Discouraged access: The type \'Warn\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
-        "----------\n" +
-        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-        "	KO ko;\n" +
-        "	^^\n" +
-        "Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
-        "----------\n" +
-        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-        "	Zork z;\n" +
-        "	^^^^\n" +
-        "Zork cannot be resolved to a type\n" +
-        "----------\n" +
-        "3 problems (1 error, 2 warnings)\n",
+        """
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				Warn warn;
+				^^^^
+			Discouraged access: The type 'Warn' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---')
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				KO ko;
+				^^
+			Access restriction: The type 'KO' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---')
+			----------
+			3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			3 problems (1 error, 2 warnings)
+			""",
         true);
 }
 // command line - no user classpath nor bootclasspath
@@ -541,34 +554,37 @@ public void test010(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.List;\n" +
-			"\n" +
-			"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
-			")\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		if (false) {\n" +
-			"			;\n" +
-			"		} else {\n" +
-			"		}\n" +
-			"		// Zork z;\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.util.List;
+				
+				@SuppressWarnings("all"//$NON-NLS-1$
+				)
+				public class X {
+					public static void main(String[] args) {
+						if (false) {
+							;
+						} else {
+						}
+						// Zork z;
+					}
+				}"""
         },
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
-		"[reading    java/lang/Object.class]\n" +
-		"[reading    java/lang/SuppressWarnings.class]\n" +
-		"[reading    java/lang/String.class]\n" +
-		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
-		"[reading    java/util/List.class]\n" +
-		"[writing    X.class - #1]\n" +
-		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
-		"[1 unit compiled]\n" +
-		"[1 .class file generated]\n",
+        """
+			[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]
+			[reading    java/lang/Object.class]
+			[reading    java/lang/SuppressWarnings.class]
+			[reading    java/lang/String.class]
+			[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]
+			[reading    java/util/List.class]
+			[writing    X.class - #1]
+			[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]
+			[1 unit compiled]
+			[1 .class file generated]
+			""",
         "",
         true);
 }
@@ -577,9 +593,10 @@ public void test011_classpath(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -996,21 +1013,23 @@ public void test012b(){
 		String logFileName = OUTPUT_DIR + File.separator + "log.xml";
 		this.runNegativeTest(new String[] {
 				"X.java",
-				"/** */\n" +
-				"public class X {\n" +
-				"	Zork z;\n" +
-				"}", },
+				"""
+					/** */
+					public class X {
+						Zork z;
+					}""", },
 				"\"" + OUTPUT_DIR + File.separator + "X.java\""
 				+ " -1.5 -proceedOnError"
 				+ " -log \"" + logFileName + "\" -d \"" + OUTPUT_DIR + "\"",
 				"",
-				"----------\n" +
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-				"	Zork z;\n" +
-				"	^^^^\n" +
-				"Zork cannot be resolved to a type\n" +
-				"----------\n" +
-				"1 problem (1 error)",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+						Zork z;
+						^^^^
+					Zork cannot be resolved to a type
+					----------
+					1 problem (1 error)""",
 				true);
 		String logContents = Util.fileContent(logFileName);
 		String expectedLogContents =
@@ -1234,21 +1253,24 @@ public void test012b(){
 		String logFileName = OUTPUT_DIR + File.separator + "log.txt";
 		this.runNegativeTest(new String[] {
 				"X.java",
-				"/** */\n" +
-				"public class X {\n" +
-				"	Zork z;\n" +
-				"}", },
+				"""
+					/** */
+					public class X {
+						Zork z;
+					}""", },
 				"\"" + OUTPUT_DIR + File.separator + "X.java\""
 				+ " -1.5 -proceedOnError"
 				+ " -log \"" + logFileName + "\" -d \"" + OUTPUT_DIR + "\"",
 				"",
-				"----------\n" +
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-				"	Zork z;\n" +
-				"	^^^^\n" +
-				"Zork cannot be resolved to a type\n" +
-				"----------\n" +
-				"1 problem (1 error)\n",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+						Zork z;
+						^^^^
+					Zork cannot be resolved to a type
+					----------
+					1 problem (1 error)
+					""",
 				false);
 		String logContents = Util.fileContent(logFileName);
 		String expectedLogContents =
@@ -1281,21 +1303,24 @@ public void test012b(){
 		String logFileName = OUTPUT_DIR + File.separator + "log";
 		this.runNegativeTest(new String[] {
 				"X.java",
-				"/** */\n" +
-				"public class X {\n" +
-				"	Zork z;\n" +
-				"}", },
+				"""
+					/** */
+					public class X {
+						Zork z;
+					}""", },
 				"\"" + OUTPUT_DIR + File.separator + "X.java\""
 				+ " -1.5 -proceedOnError"
 				+ " -log \"" + logFileName + "\" -d \"" + OUTPUT_DIR + "\"",
 				"",
-				"----------\n" +
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-				"	Zork z;\n" +
-				"	^^^^\n" +
-				"Zork cannot be resolved to a type\n" +
-				"----------\n" +
-				"1 problem (1 error)\n",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+						Zork z;
+						^^^^
+					Zork cannot be resolved to a type
+					----------
+					1 problem (1 error)
+					""",
 				false);
 		String logContents = Util.fileContent(logFileName);
 		String expectedLogContents =
@@ -1330,32 +1355,36 @@ public void test016(){
 		this.runConformTest(
 			new String[] {
 					"X.java",
-					"/** */\n" +
-					"public class X {\n" +
-					"	OK1 ok1;\n" +
-					"}",
+					"""
+						/** */
+						public class X {
+							OK1 ok1;
+						}""",
 					"OK1.java",
-					"/** */\n" +
-					"public class OK1 {\n" +
-					"	// empty\n" +
-					"}"
+					"""
+						/** */
+						public class OK1 {
+							// empty
+						}"""
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 	        + " -1.5 -g -preserveAllLocals"
 	        + " -cp ." + File.pathSeparator + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
 	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\"",
-			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
-			"[reading    java/lang/Object.class]\n" +
-			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
-			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/OK1.java - #2/2]\n" +
-			"[writing    X.class - #1]\n" +
-			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/2]\n" +
-			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/OK1.java - #2/2]\n" +
-			"[writing    OK1.class - #2]\n" +
-			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/OK1.java - #2/2]\n" +
-			"[2 units compiled]\n" +
-			"[2 .class files generated]\n",
+			"""
+				[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]
+				[reading    java/lang/Object.class]
+				[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]
+				[parsing    ---OUTPUT_DIR_PLACEHOLDER---/OK1.java - #2/2]
+				[writing    X.class - #1]
+				[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/2]
+				[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/OK1.java - #2/2]
+				[writing    OK1.class - #2]
+				[completed  ---OUTPUT_DIR_PLACEHOLDER---/OK1.java - #2/2]
+				[2 units compiled]
+				[2 .class files generated]
+				""",
 	        "",
 	        true);
 	} finally {
@@ -1366,15 +1395,17 @@ public void test017(){
 		this.runConformTest(
 			new String[] {
 					"X.java",
-					"/** */\n" +
-					"public class X {\n" +
-					"	OK1 ok1;\n" +
-					"}",
+					"""
+						/** */
+						public class X {
+							OK1 ok1;
+						}""",
 					"OK1.java",
-					"/** */\n" +
-					"public class OK1 {\n" +
-					"	// empty\n" +
-					"}"
+					"""
+						/** */
+						public class OK1 {
+							// empty
+						}"""
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 	        + " -1.5 -g -preserveAllLocals"
@@ -1392,15 +1423,17 @@ public void test017b(){
 		true,
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"	OK1 ok1;\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+					OK1 ok1;
+				}""",
 			"OK1.java",
-			"/** */\n" +
-			"public class OK1 {\n" +
-			"	// empty\n" +
-			"}"
+			"""
+				/** */
+				public class OK1 {
+					// empty
+				}"""
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -1418,15 +1451,17 @@ public void test017c(){
 		true,
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"	OK1 ok1;\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+					OK1 ok1;
+				}""",
 			"OK1.java",
-			"/** */\n" +
-			"public class OK1 {\n" +
-			"	// empty\n" +
-			"}"
+			"""
+				/** */
+				public class OK1 {
+					// empty
+				}"""
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -1454,10 +1489,11 @@ public void test018a(){
 			sourceFileWriter = new PrintWriter(new FileOutputStream(file));
 			try {
 				sourceFileWriter.write(
-					"/** */\n" +
-					"public class X {\n" +
-					"	OK1 ok1;\n" +
-					"}");
+					"""
+						/** */
+						public class X {
+							OK1 ok1;
+						}""");
 			} finally {
 				sourceFileWriter.close();
 			}
@@ -1465,10 +1501,11 @@ public void test018a(){
 			sourceFileWriter = new PrintWriter(new FileOutputStream(file));
 			try {
 				sourceFileWriter.write(
-					"/** */\n" +
-					"public class OK1 {\n" +
-					"	// empty\n" +
-					"}");
+					"""
+						/** */
+						public class OK1 {
+							// empty
+						}""");
 			} finally {
 				sourceFileWriter.close();
 			}
@@ -1510,18 +1547,20 @@ public void _test018b(){
 			File file = new File(xPath);
 			sourceFileWriter = new PrintWriter(new FileOutputStream(file));
 			sourceFileWriter.write(
-				"/** */\n" +
-				"public class X {\n" +
-				"	OK1 ok1;\n" +
-				"}");
+				"""
+					/** */
+					public class X {
+						OK1 ok1;
+					}""");
 			sourceFileWriter.close();
 			file = new File(ok1Path);
 			sourceFileWriter = new PrintWriter(new FileOutputStream(file));
 			sourceFileWriter.write(
-				"/** */\n" +
-				"public class OK1 {\n" +
-				"	// empty\n" +
-				"}");
+				"""
+					/** */
+					public class OK1 {
+						// empty
+					}""");
 			sourceFileWriter.close();
 			this.runTest(
 				true,
@@ -1548,34 +1587,39 @@ public void test019(){
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"/** */\n" +
-				"public class X {\n" +
-				"	OK1 ok1;\n" +
-				"	OK2 ok2;\n" +
-				"	Warn warn;\n" +
-				"	KO ko;\n" +
-		        "	Zork z;\n" +
-				"}",
+				"""
+					/** */
+					public class X {
+						OK1 ok1;
+						OK2 ok2;
+						Warn warn;
+						KO ko;
+						Zork z;
+					}""",
 				"OK1.java",
-				"/** */\n" +
-				"public class OK1 {\n" +
-				"	// empty\n" +
-				"}",
+				"""
+					/** */
+					public class OK1 {
+						// empty
+					}""",
 				"OK2.java",
-				"/** */\n" +
-				"public class OK2 {\n" +
-				"	// empty\n" +
-				"}",
+				"""
+					/** */
+					public class OK2 {
+						// empty
+					}""",
 				"Warn.java",
-				"/** */\n" +
-				"public class Warn {\n" +
-				"	// empty\n" +
-				"}",
+				"""
+					/** */
+					public class Warn {
+						// empty
+					}""",
 				"KO.java",
-				"/** */\n" +
-				"public class KO {\n" +
-				"	// empty\n" +
-				"}",
+				"""
+					/** */
+					public class KO {
+						// empty
+					}""",
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 	        + " -1.5 -g -preserveAllLocals"
@@ -1584,23 +1628,25 @@ public void test019(){
 	        + " -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\"",
 	        "",
-			"----------\n" +
-			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-			"	Warn warn;\n" +
-			"	^^^^\n" +
-			"Discouraged access: The type \'Warn\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
-			"----------\n" +
-			"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-			"	KO ko;\n" +
-			"	^^\n" +
-			"Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
-			"----------\n" +
-			"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-			"	Zork z;\n" +
-			"	^^^^\n" +
-			"Zork cannot be resolved to a type\n" +
-			"----------\n" +
-			"3 problems (1 error, 2 warnings)\n",
+			"""
+				----------
+				1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+					Warn warn;
+					^^^^
+				Discouraged access: The type 'Warn' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---')
+				----------
+				2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+					KO ko;
+					^^
+				Access restriction: The type 'KO' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---')
+				----------
+				3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)
+					Zork z;
+					^^^^
+				Zork cannot be resolved to a type
+				----------
+				3 problems (1 error, 2 warnings)
+				""",
 	        true);
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - skip options -O -Jxxx and -Xxxx, multiple times if needed
@@ -1608,21 +1654,24 @@ public void test019(){
 		this.runConformTest(
 			new String[] {
 					"X.java",
-					"/** */\n" +
-					"public class X {\n" +
-					"}",
+					"""
+						/** */
+						public class X {
+						}""",
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 	        + " -1.5 -g -preserveAllLocals"
 	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\" -O -Xxxx -O -Jxyz -Xtyu -Jyu",
-			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
-			"[reading    java/lang/Object.class]\n" +
-			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
-			"[writing    X.class - #1]\n" +
-			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
-			"[1 unit compiled]\n" +
-			"[1 .class file generated]\n",
+			"""
+				[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]
+				[reading    java/lang/Object.class]
+				[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]
+				[writing    X.class - #1]
+				[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]
+				[1 unit compiled]
+				[1 .class file generated]
+				""",
 	        "",
 	        true);
 	}
@@ -1634,13 +1683,15 @@ public void test019(){
 			this.runConformTest(
 				new String[] {
 						"src1/X.java",
-						"/** */\n" +
-						"public class X {\n" +
-						"}",
+						"""
+							/** */
+							public class X {
+							}""",
 						"src2/Y.java",
-						"/** */\n" +
-						"public class Y extends X {\n" +
-						"}",
+						"""
+							/** */
+							public class Y extends X {
+							}""",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
 				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\""
@@ -1648,17 +1699,19 @@ public void test019(){
 		        + " -1.5 -g -preserveAllLocals"
 		        + " -verbose -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + "\" ",
-				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" +
-				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
-				"[reading    java/lang/Object.class]\n" +
-				"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
-				"[writing    Y.class - #1]\n" +
-				"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
-				"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
-				"[writing    X.class - #2]\n" +
-				"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
-				"[2 units compiled]\n" +
-				"[2 .class files generated]\n",
+				"""
+					[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]
+					[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]
+					[reading    java/lang/Object.class]
+					[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]
+					[writing    Y.class - #1]
+					[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]
+					[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]
+					[writing    X.class - #2]
+					[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]
+					[2 units compiled]
+					[2 .class files generated]
+					""",
 		        "",
 		        true);
 		} finally {
@@ -1671,13 +1724,15 @@ public void test019(){
 		this.runNegativeTest(
 			new String[] {
 					"src1/X.java",
-					"/** */\n" +
-					"public class X {\n" +
-					"}",
+					"""
+						/** */
+						public class X {
+						}""",
 					"src2/Y.java",
-					"/** */\n" +
-					"public class Y extends X {\n" +
-					"}",
+					"""
+						/** */
+						public class Y extends X {
+						}""",
 			},
 			" -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\""
 			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src2\""
@@ -1694,13 +1749,15 @@ public void test019(){
 		this.runNegativeTest(
 			new String[] {
 					"src1/X.java",
-					"/** */\n" +
-					"public class X {\n" +
-					"}",
+					"""
+						/** */
+						public class X {
+						}""",
 					"src2/Y.java",
-					"/** */\n" +
-					"public class Y extends X {\n" +
-					"}",
+					"""
+						/** */
+						public class Y extends X {
+						}""",
 			},
 			" -extdirs \"" + OUTPUT_DIR +  File.separator + "src1\""
 			+ " -extdirs \"" + OUTPUT_DIR +  File.separator + "src2\""
@@ -1721,10 +1778,11 @@ public void test019(){
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"/** */\n" +
-						"public class X {\n" +
-						"  sun.net.spi.nameservice.dns.DNSNameService dummy;\n" +
-						"}",
+						"""
+							/** */
+							public class X {
+							  sun.net.spi.nameservice.dns.DNSNameService dummy;
+							}""",
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 				+ " -extdirs \"\""
@@ -1732,13 +1790,15 @@ public void test019(){
 				+ " -proceedOnError -referenceInfo"
 				+ " -d \"" + OUTPUT_DIR + "\" ",
 				"",
-				"----------\n" +
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-				"	sun.net.spi.nameservice.dns.DNSNameService dummy;\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"sun.net.spi.nameservice.dns cannot be resolved to a type\n" +
-				"----------\n" +
-				"1 problem (1 error)\n",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+						sun.net.spi.nameservice.dns.DNSNameService dummy;
+						^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					sun.net.spi.nameservice.dns cannot be resolved to a type
+					----------
+					1 problem (1 error)
+					""",
 				true);
 	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - cumulative -extdirs extends the classpath
@@ -1754,9 +1814,10 @@ public void test019(){
 		try {
 			Util.createJar(new String[] {
 					"my/pkg/Zork.java",
-					"package my.pkg;\n" +
-					"public class Zork {\n" +
-					"}",
+					"""
+						package my.pkg;
+						public class Zork {
+						}""",
 				},
 				libPath,
 				JavaCore.VERSION_1_4);
@@ -1764,14 +1825,16 @@ public void test019(){
 			this.runConformTest(
 				new String[] {
 						"src1/X.java",
-						"/** */\n" +
-						"public class X {\n" +
-						"  my.pkg.Zork dummy;\n" +
-						"}",
+						"""
+							/** */
+							public class X {
+							  my.pkg.Zork dummy;
+							}""",
 						"src2/Y.java",
-						"/** */\n" +
-						"public class Y extends X {\n" +
-						"}",
+						"""
+							/** */
+							public class Y extends X {
+							}""",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
 				+ " -extdirs \"" + path + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\""
@@ -1779,18 +1842,20 @@ public void test019(){
 		        + " -1.5 -g -preserveAllLocals"
 		        + " -verbose -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + "\" ",
-		        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" +
-		        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
-		        "[reading    java/lang/Object.class]\n" +
-		        "[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
-		        "[writing    Y.class - #1]\n" +
-		        "[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
-		        "[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
-		        "[reading    my/pkg/Zork.class]\n" +
-		        "[writing    X.class - #2]\n" +
-		        "[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
-		        "[2 units compiled]\n" +
-		        "[2 .class files generated]\n",
+		        """
+					[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]
+					[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]
+					[reading    java/lang/Object.class]
+					[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]
+					[writing    Y.class - #1]
+					[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]
+					[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]
+					[reading    my/pkg/Zork.class]
+					[writing    X.class - #2]
+					[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]
+					[2 units compiled]
+					[2 .class files generated]
+					""",
 		        "",
 		        true);
 		} finally {
@@ -1806,18 +1871,21 @@ public void test019(){
 			this.runConformTest(
 				new String[] {
 						"src1/X.java",
-						"/** */\n" +
-						"public class X {\n" +
-						"}",
+						"""
+							/** */
+							public class X {
+							}""",
 						"src2/Y.java",
-						"/** */\n" +
-						"public class Y extends X {\n" +
-						"}",
+						"""
+							/** */
+							public class Y extends X {
+							}""",
 						"src3/X.java",
-						"/** */\n" +
-						"public class X {\n" +
-						"  Zork error;\n" +
-						"}",
+						"""
+							/** */
+							public class X {
+							  Zork error;
+							}""",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
 				+ " -classpath \"" + OUTPUT_DIR +  File.separator + "src3\""
@@ -1826,17 +1894,19 @@ public void test019(){
 		        + " -1.5 -g -preserveAllLocals"
 		        + " -verbose -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + "\" ",
-				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" +
-				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
-				"[reading    java/lang/Object.class]\n" +
-				"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
-				"[writing    Y.class - #1]\n" +
-				"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
-				"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
-				"[writing    X.class - #2]\n" +
-				"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
-				"[2 units compiled]\n" +
-				"[2 .class files generated]\n",
+				"""
+					[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]
+					[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]
+					[reading    java/lang/Object.class]
+					[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]
+					[writing    Y.class - #1]
+					[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]
+					[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]
+					[writing    X.class - #2]
+					[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]
+					[2 units compiled]
+					[2 .class files generated]
+					""",
 				"",
 		        true);
 		} finally {
@@ -1848,34 +1918,39 @@ public void test027(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"	OK1 ok1;\n" +
-			"	OK2 ok2;\n" +
-			"	Warn warn;\n" +
-			"	KO ko;\n" +
-	        "	Zork z;\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+					OK1 ok1;
+					OK2 ok2;
+					Warn warn;
+					KO ko;
+					Zork z;
+				}""",
 			"OK1.java",
-			"/** */\n" +
-			"public class OK1 {\n" +
-			"	// empty\n" +
-			"}",
+			"""
+				/** */
+				public class OK1 {
+					// empty
+				}""",
 			"OK2.java",
-			"/** */\n" +
-			"public class OK2 {\n" +
-			"	// empty\n" +
-			"}",
+			"""
+				/** */
+				public class OK2 {
+					// empty
+				}""",
 			"p1/Warn.java",
-			"/** */\n" +
-			"public class Warn {\n" +
-			"	// empty\n" +
-			"}",
+			"""
+				/** */
+				public class Warn {
+					// empty
+				}""",
 			"KO.java",
-			"/** */\n" +
-			"public class KO {\n" +
-			"	// empty\n" +
-			"}",
+			"""
+				/** */
+				public class KO {
+					// empty
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -1886,32 +1961,35 @@ public void test027(){
         //               generated, once able to avoid console echoing
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" +
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-        "	Warn warn;\n" +
-        "	^^^^\n" +
-        "Discouraged access: The type \'Warn\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/p1\')\n" +
-        "----------\n" +
-        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-        "	KO ko;\n" +
-        "	^^\n" +
-        "Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
-        "----------\n" +
-        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-        "	Zork z;\n" +
-        "	^^^^\n" +
-        "Zork cannot be resolved to a type\n" +
-        "----------\n" +
-        "3 problems (1 error, 2 warnings)\n",
+        """
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				Warn warn;
+				^^^^
+			Discouraged access: The type 'Warn' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---/p1')
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				KO ko;
+				^^
+			Access restriction: The type 'KO' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---')
+			----------
+			3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			3 problems (1 error, 2 warnings)
+			""",
         true);
 }
 public void test028(){
 			this.runConformTest(
 				new String[] {
 					"src1/X.java",
-					"/** */\n" +
-					"public class X {\n" +
-					"}",
+					"""
+						/** */
+						public class X {
+						}""",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "src1/X.java\""
 		        + " -1.5 -g -preserveAllLocals"
@@ -1923,9 +2001,10 @@ public void test028(){
 			this.runConformTest(
 				new String[] {
 					"src2/Y.java",
-					"/** */\n" +
-					"public class Y extends X {\n" +
-					"}",
+					"""
+						/** */
+						public class Y extends X {
+						}""",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
 		        + " -1.5 -g -preserveAllLocals"
@@ -1943,20 +2022,24 @@ public void test030(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public interface X<T extends X<T, K, S>, \n" +
-			"                   K extends X.K<T, S>, \n" +
-			"                   S extends X.S> {\n" +
-			"	public interface K<KT extends X<KT, ?, KS>, \n" +
-			"	                   KS extends X.S> {\n" +
-			"	}\n" +
-			"	public interface S {\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public interface X<T extends X<T, K, S>,\s
+				                   K extends X.K<T, S>,\s
+				                   S extends X.S> {
+					public interface K<KT extends X<KT, ?, KS>,\s
+					                   KS extends X.S> {
+					}
+					public interface S {
+					}
+				}
+				""",
 			"Y.java",
-			"public class Y<T extends X<T, K, S>, \n" +
-			"               K extends X.K<T, S>, \n" +
-			"               S extends X.S> { \n" +
-			"}\n",
+			"""
+				public class Y<T extends X<T, K, S>,\s
+				               K extends X.K<T, S>,\s
+				               S extends X.S> {\s
+				}
+				""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -1970,15 +2053,17 @@ public void test030(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public interface X<T extends X<T, K, S>, \n" +
-			"                   K extends X.K<T, S>, \n" +
-			"                   S extends X.S> {\n" +
-			"	public interface K<KT extends X<KT, ?, KS>, \n" +
-			"	                   KS extends X.S> {\n" +
-			"	}\n" +
-			"	public interface S {\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public interface X<T extends X<T, K, S>,\s
+				                   K extends X.K<T, S>,\s
+				                   S extends X.S> {
+					public interface K<KT extends X<KT, ?, KS>,\s
+					                   KS extends X.S> {
+					}
+					public interface S {
+					}
+				}
+				""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -1990,10 +2075,12 @@ public void test030(){
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"public class Y<T extends X<T, K, S>, \n" +
-			"               K extends X.K<T, S>, \n" +
-			"               S extends X.S> { \n" +
-			"}\n",
+			"""
+				public class Y<T extends X<T, K, S>,\s
+				               K extends X.K<T, S>,\s
+				               S extends X.S> {\s
+				}
+				""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2011,120 +2098,126 @@ public void test032(){
 	this.runConformTest(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"import java.io.Serializable;\n" +
-				"public interface X<T extends X<T, U, V>, \n" +
-				"				   U extends X.XX<T, V>, \n" +
-				"				   V extends X.XY> {\n" +
-				"	public interface XX<TT extends X<TT, ?, UU>, \n" +
-				"	                    UU extends X.XY> \n" +
-				"			extends	Serializable {\n" +
-				"	}\n" +
-				"	public interface XY extends Serializable {\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					package p;
+					import java.io.Serializable;
+					public interface X<T extends X<T, U, V>,\s
+									   U extends X.XX<T, V>,\s
+									   V extends X.XY> {
+						public interface XX<TT extends X<TT, ?, UU>,\s
+						                    UU extends X.XY>\s
+								extends	Serializable {
+						}
+						public interface XY extends Serializable {
+						}
+					}
+					""",
 				"p/Y.java",
-				"package p;\n" +
-				"import java.util.*;\n" +
-				"import p.X.*;\n" +
-				"public class Y<T extends X<T, U, V>, \n" +
-				"               U extends X.XX<T, V>, \n" +
-				"               V extends X.XY> {\n" +
-				"	private final Map<U, V> m1 = new HashMap<U, V>();\n" +
-				"	private final Map<U, T> m2 = new HashMap<U, T>();\n" +
-				"	private final Z m3;\n" +
-				"\n" +
-				"	public Y(final Z p1) {\n" +
-				"		this.m3 = p1;\n" +
-				"	}\n" +
-				"\n" +
-				"	public void foo1(final U p1, final V p2, final T p3) {\n" +
-				"		m1.put(p1, p2);\n" +
-				"		m2.put(p1, p3);\n" +
-				"		m3.foo2(p1, p2);\n" +
-				"	}\n" +
-				"\n" +
-				"	public void foo3(final U p1) {\n" +
-				"		assert m1.containsKey(p1);\n" +
-				"		m1.remove(p1);\n" +
-				"		m2.remove(p1);\n" +
-				"		m3.foo2(p1, null);\n" +
-				"	}\n" +
-				"\n" +
-				"	public Collection<T> foo4() {\n" +
-				"		return Collections.unmodifiableCollection(m2.values());\n" +
-				"	}\n" +
-				"\n" +
-				"	public void foo5(final Map<XX<?, ?>, XY> p1) {\n" +
-				"		p1.putAll(m1);\n" +
-				"	}\n" +
-				"	public void foo6(final Map<XX<?, ?>, XY> p1) {\n" +
-				"		m1.keySet().retainAll(p1.keySet());\n" +
-				"		m2.keySet().retainAll(p1.keySet());\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					package p;
+					import java.util.*;
+					import p.X.*;
+					public class Y<T extends X<T, U, V>,\s
+					               U extends X.XX<T, V>,\s
+					               V extends X.XY> {
+						private final Map<U, V> m1 = new HashMap<U, V>();
+						private final Map<U, T> m2 = new HashMap<U, T>();
+						private final Z m3;
+					
+						public Y(final Z p1) {
+							this.m3 = p1;
+						}
+					
+						public void foo1(final U p1, final V p2, final T p3) {
+							m1.put(p1, p2);
+							m2.put(p1, p3);
+							m3.foo2(p1, p2);
+						}
+					
+						public void foo3(final U p1) {
+							assert m1.containsKey(p1);
+							m1.remove(p1);
+							m2.remove(p1);
+							m3.foo2(p1, null);
+						}
+					
+						public Collection<T> foo4() {
+							return Collections.unmodifiableCollection(m2.values());
+						}
+					
+						public void foo5(final Map<XX<?, ?>, XY> p1) {
+							p1.putAll(m1);
+						}
+						public void foo6(final Map<XX<?, ?>, XY> p1) {
+							m1.keySet().retainAll(p1.keySet());
+							m2.keySet().retainAll(p1.keySet());
+						}
+					}
+					""",
 				"p/Z.java",
-				"package p;\n" +
-				"\n" +
-				"import java.util.*;\n" +
-				"\n" +
-				"import p.X.*;\n" +
-				"\n" +
-				"public class Z {\n" +
-				"	private final Map<Class<? extends X>, \n" +
-				"		              Y<?, ? extends XX<?, ?>, ? extends XY>> \n" +
-				"		m1 = new HashMap<Class<? extends X>, \n" +
-				"		                 Y<?, ? extends XX<?, ?>, ? extends XY>>();\n" +
-				"\n" +
-				"	private Map<X.XX<?, XY>, \n" +
-				"	            X.XY> \n" +
-				"		m2 = new HashMap<X.XX<?, XY>, \n" +
-				"		                 X.XY>();\n" +
-				"\n" +
-				"	public <T extends X<T, U, V>, \n" +
-				"	        U extends X.XX<T, V>, \n" +
-				"	        V extends X.XY> \n" +
-				"	Y<T, U, V> foo1(final Class<T> p1) {\n" +
-				"		Y l1 = m1.get(p1);\n" +
-				"		if (l1 == null) {\n" +
-				"			l1 = new Y<T, U, V>(this);\n" +
-				"			m1.put(p1, l1);\n" +
-				"		}\n" +
-				"		return l1;\n" +
-				"	}\n" +
-				"\n" +
-				"	public <TT extends X.XX<?, UU>, \n" +
-				"	        UU extends X.XY> \n" +
-				"	void foo2(final TT p1, final UU p2) {\n" +
-				"		m2.put((XX<?, XY>) p1, p2);\n" +
-				"	}\n" +
-				"\n" +
-				"	public Map<XX<?, ?>, XY> foo3() {\n" +
-				"		final Map<XX<?, ?>, \n" +
-				"		          XY> l1 = new HashMap<XX<?, ?>, \n" +
-				"		                               XY>();\n" +
-				"		for (final Y<?, \n" +
-				"				     ? extends XX<?, ?>, \n" +
-				"				     ? extends XY> \n" +
-				"				i : m1.values()) {\n" +
-				"			i.foo5(l1);\n" +
-				"		}\n" +
-				"		return l1;\n" +
-				"	}\n" +
-				"\n" +
-				"	public void foo4(final Object p1, final Map<XX<?, ?>, \n" +
-				"			                                    XY> p2) {\n" +
-				"		for (final Y<?, \n" +
-				"				     ? extends XX<?, ?>, \n" +
-				"				     ? extends XY> i : m1.values()) {\n" +
-				"			i.foo6(p2);\n" +
-				"		}\n" +
-				"		for (final Map.Entry<XX<?, ?>, \n" +
-				"				             XY> i : p2.entrySet()) {\n" +
-				"			final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package p;
+					
+					import java.util.*;
+					
+					import p.X.*;
+					
+					public class Z {
+						private final Map<Class<? extends X>,\s
+							              Y<?, ? extends XX<?, ?>, ? extends XY>>\s
+							m1 = new HashMap<Class<? extends X>,\s
+							                 Y<?, ? extends XX<?, ?>, ? extends XY>>();
+					
+						private Map<X.XX<?, XY>,\s
+						            X.XY>\s
+							m2 = new HashMap<X.XX<?, XY>,\s
+							                 X.XY>();
+					
+						public <T extends X<T, U, V>,\s
+						        U extends X.XX<T, V>,\s
+						        V extends X.XY>\s
+						Y<T, U, V> foo1(final Class<T> p1) {
+							Y l1 = m1.get(p1);
+							if (l1 == null) {
+								l1 = new Y<T, U, V>(this);
+								m1.put(p1, l1);
+							}
+							return l1;
+						}
+					
+						public <TT extends X.XX<?, UU>,\s
+						        UU extends X.XY>\s
+						void foo2(final TT p1, final UU p2) {
+							m2.put((XX<?, XY>) p1, p2);
+						}
+					
+						public Map<XX<?, ?>, XY> foo3() {
+							final Map<XX<?, ?>,\s
+							          XY> l1 = new HashMap<XX<?, ?>,\s
+							                               XY>();
+							for (final Y<?,\s
+									     ? extends XX<?, ?>,\s
+									     ? extends XY>\s
+									i : m1.values()) {
+								i.foo5(l1);
+							}
+							return l1;
+						}
+					
+						public void foo4(final Object p1, final Map<XX<?, ?>,\s
+								                                    XY> p2) {
+							for (final Y<?,\s
+									     ? extends XX<?, ?>,\s
+									     ? extends XY> i : m1.values()) {
+								i.foo6(p2);
+							}
+							for (final Map.Entry<XX<?, ?>,\s
+									             XY> i : p2.entrySet()) {
+								final XX<?, XY> l1 = (XX<?, XY>) i.getKey();
+							}
+						}
+					}
+					"""
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "p/X.java\""
 	        + " \"" + OUTPUT_DIR +  File.separator + "p/Y.java\""
@@ -2134,65 +2227,69 @@ public void test032(){
 	        + " -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\"",
 	        "",
-	        "----------\n" +
-	        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 8)\n" +
-	        "	private final Map<Class<? extends X>, \n" +
-	        "	                                  ^\n" +
-	        "X is a raw type. References to generic type X<T,U,V> should be parameterized\n" +
-	        "----------\n" +
-	        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 10)\n" +
-	        "	m1 = new HashMap<Class<? extends X>, \n" +
-	        "	                                 ^\n" +
-	        "X is a raw type. References to generic type X<T,U,V> should be parameterized\n" +
-	        "----------\n" +
-	        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 22)\n" +
-	        "	Y l1 = m1.get(p1);\n" +
-	        "	^\n" +
-	        "Y is a raw type. References to generic type Y<T,U,V> should be parameterized\n" +
-	        "----------\n" +
-	        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 25)\n" +
-	        "	m1.put(p1, l1);\n" +
-	        "	           ^^\n" +
-	        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>\n" +
-	        "----------\n" +
-	        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 27)\n" +
-	        "	return l1;\n" +
-	        "	       ^^\n" +
-	        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>\n" +
-	        "----------\n" +
-	        "6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 33)\n" +
-	        "	m2.put((XX<?, XY>) p1, p2);\n" +
-	        "	       ^^^^^^^^^^^^^^\n" +
-	        "Type safety: Unchecked cast from TT to X.XX<?,X.XY>\n" +
-	        "----------\n" +
-	        "7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" +
-	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" +
-	        "	                ^^\n" +
-	        "The value of the local variable l1 is not used\n" +
-	        "----------\n" +
-	        "8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" +
-	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" +
-	        "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" +
-	        "Type safety: Unchecked cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY>\n" +
-	        "----------\n" +
-	        "8 problems (8 warnings)\n",
+	        """
+				----------
+				1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 8)
+					private final Map<Class<? extends X>,\s
+					                                  ^
+				X is a raw type. References to generic type X<T,U,V> should be parameterized
+				----------
+				2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 10)
+					m1 = new HashMap<Class<? extends X>,\s
+					                                 ^
+				X is a raw type. References to generic type X<T,U,V> should be parameterized
+				----------
+				3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 22)
+					Y l1 = m1.get(p1);
+					^
+				Y is a raw type. References to generic type Y<T,U,V> should be parameterized
+				----------
+				4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 25)
+					m1.put(p1, l1);
+					           ^^
+				Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>
+				----------
+				5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 27)
+					return l1;
+					       ^^
+				Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>
+				----------
+				6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 33)
+					m2.put((XX<?, XY>) p1, p2);
+					       ^^^^^^^^^^^^^^
+				Type safety: Unchecked cast from TT to X.XX<?,X.XY>
+				----------
+				7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)
+					final XX<?, XY> l1 = (XX<?, XY>) i.getKey();
+					                ^^
+				The value of the local variable l1 is not used
+				----------
+				8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)
+					final XX<?, XY> l1 = (XX<?, XY>) i.getKey();
+					                     ^^^^^^^^^^^^^^^^^^^^^^
+				Type safety: Unchecked cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY>
+				----------
+				8 problems (8 warnings)
+				""",
 	        true);
 	// second series shows that a staged build - that simulates the auto build context - is OK as well
 	this.runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" +
-			"import java.io.Serializable;\n" +
-			"public interface X<T extends X<T, U, V>, \n" +
-			"				   U extends X.XX<T, V>, \n" +
-			"				   V extends X.XY> {\n" +
-			"	public interface XX<TT extends X<TT, ?, UU>, \n" +
-			"	                    UU extends X.XY> \n" +
-			"			extends	Serializable {\n" +
-			"	}\n" +
-			"	public interface XY extends Serializable {\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				package p;
+				import java.io.Serializable;
+				public interface X<T extends X<T, U, V>,\s
+								   U extends X.XX<T, V>,\s
+								   V extends X.XY> {
+					public interface XX<TT extends X<TT, ?, UU>,\s
+					                    UU extends X.XY>\s
+							extends	Serializable {
+					}
+					public interface XY extends Serializable {
+					}
+				}
+				""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p/X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2204,107 +2301,111 @@ public void test032(){
 	this.runConformTest(
 		new String[] {
 			"p/Y.java",
-			"package p;\n" +
-			"import java.util.*;\n" +
-			"import p.X.*;\n" +
-			"public class Y<T extends X<T, U, V>, \n" +
-			"               U extends X.XX<T, V>, \n" +
-			"               V extends X.XY> {\n" +
-			"	private final Map<U, V> m1 = new HashMap<U, V>();\n" +
-			"	private final Map<U, T> m2 = new HashMap<U, T>();\n" +
-			"	private final Z m3;\n" +
-			"\n" +
-			"	public Y(final Z p1) {\n" +
-			"		this.m3 = p1;\n" +
-			"	}\n" +
-			"\n" +
-			"	public void foo1(final U p1, final V p2, final T p3) {\n" +
-			"		m1.put(p1, p2);\n" +
-			"		m2.put(p1, p3);\n" +
-			"		m3.foo2(p1, p2);\n" +
-			"	}\n" +
-			"\n" +
-			"	public void foo3(final U p1) {\n" +
-			"		assert m1.containsKey(p1);\n" +
-			"		m1.remove(p1);\n" +
-			"		m2.remove(p1);\n" +
-			"		m3.foo2(p1, null);\n" +
-			"	}\n" +
-			"\n" +
-			"	public Collection<T> foo4() {\n" +
-			"		return Collections.unmodifiableCollection(m2.values());\n" +
-			"	}\n" +
-			"\n" +
-			"	public void foo5(final Map<XX<?, ?>, XY> p1) {\n" +
-			"		p1.putAll(m1);\n" +
-			"	}\n" +
-			"	public void foo6(final Map<XX<?, ?>, XY> p1) {\n" +
-			"		m1.keySet().retainAll(p1.keySet());\n" +
-			"		m2.keySet().retainAll(p1.keySet());\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				package p;
+				import java.util.*;
+				import p.X.*;
+				public class Y<T extends X<T, U, V>,\s
+				               U extends X.XX<T, V>,\s
+				               V extends X.XY> {
+					private final Map<U, V> m1 = new HashMap<U, V>();
+					private final Map<U, T> m2 = new HashMap<U, T>();
+					private final Z m3;
+				
+					public Y(final Z p1) {
+						this.m3 = p1;
+					}
+				
+					public void foo1(final U p1, final V p2, final T p3) {
+						m1.put(p1, p2);
+						m2.put(p1, p3);
+						m3.foo2(p1, p2);
+					}
+				
+					public void foo3(final U p1) {
+						assert m1.containsKey(p1);
+						m1.remove(p1);
+						m2.remove(p1);
+						m3.foo2(p1, null);
+					}
+				
+					public Collection<T> foo4() {
+						return Collections.unmodifiableCollection(m2.values());
+					}
+				
+					public void foo5(final Map<XX<?, ?>, XY> p1) {
+						p1.putAll(m1);
+					}
+					public void foo6(final Map<XX<?, ?>, XY> p1) {
+						m1.keySet().retainAll(p1.keySet());
+						m2.keySet().retainAll(p1.keySet());
+					}
+				}
+				""",
 			"p/Z.java",
-			"package p;\n" +
-			"\n" +
-			"import java.util.*;\n" +
-			"\n" +
-			"import p.X.*;\n" +
-			"\n" +
-			"public class Z {\n" +
-			"	private final Map<Class<? extends X>, \n" +
-			"		              Y<?, ? extends XX<?, ?>, ? extends XY>> \n" +
-			"		m1 = new HashMap<Class<? extends X>, \n" +
-			"		                 Y<?, ? extends XX<?, ?>, ? extends XY>>();\n" +
-			"\n" +
-			"	private Map<X.XX<?, XY>, \n" +
-			"	            X.XY> \n" +
-			"		m2 = new HashMap<X.XX<?, XY>, \n" +
-			"		                 X.XY>();\n" +
-			"\n" +
-			"	public <T extends X<T, U, V>, \n" +
-			"	        U extends X.XX<T, V>, \n" +
-			"	        V extends X.XY> \n" +
-			"	Y<T, U, V> foo1(final Class<T> p1) {\n" +
-			"		Y l1 = m1.get(p1);\n" +
-			"		if (l1 == null) {\n" +
-			"			l1 = new Y<T, U, V>(this);\n" +
-			"			m1.put(p1, l1);\n" +
-			"		}\n" +
-			"		return l1;\n" +
-			"	}\n" +
-			"\n" +
-			"	public <TT extends X.XX<?, UU>, \n" +
-			"	        UU extends X.XY> \n" +
-			"	void foo2(final TT p1, final UU p2) {\n" +
-			"		m2.put((XX<?, XY>) p1, p2);\n" +
-			"	}\n" +
-			"\n" +
-			"	public Map<XX<?, ?>, XY> foo3() {\n" +
-			"		final Map<XX<?, ?>, \n" +
-			"		          XY> l1 = new HashMap<XX<?, ?>, \n" +
-			"		                               XY>();\n" +
-			"		for (final Y<?, \n" +
-			"				     ? extends XX<?, ?>, \n" +
-			"				     ? extends XY> \n" +
-			"				i : m1.values()) {\n" +
-			"			i.foo5(l1);\n" +
-			"		}\n" +
-			"		return l1;\n" +
-			"	}\n" +
-			"\n" +
-			"	public void foo4(final Object p1, final Map<XX<?, ?>, \n" +
-			"			                                    XY> p2) {\n" +
-			"		for (final Y<?, \n" +
-			"				     ? extends XX<?, ?>, \n" +
-			"				     ? extends XY> i : m1.values()) {\n" +
-			"			i.foo6(p2);\n" +
-			"		}\n" +
-			"		for (final Map.Entry<XX<?, ?>, \n" +
-			"				             XY> i : p2.entrySet()) {\n" +
-			"			final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package p;
+				
+				import java.util.*;
+				
+				import p.X.*;
+				
+				public class Z {
+					private final Map<Class<? extends X>,\s
+						              Y<?, ? extends XX<?, ?>, ? extends XY>>\s
+						m1 = new HashMap<Class<? extends X>,\s
+						                 Y<?, ? extends XX<?, ?>, ? extends XY>>();
+				
+					private Map<X.XX<?, XY>,\s
+					            X.XY>\s
+						m2 = new HashMap<X.XX<?, XY>,\s
+						                 X.XY>();
+				
+					public <T extends X<T, U, V>,\s
+					        U extends X.XX<T, V>,\s
+					        V extends X.XY>\s
+					Y<T, U, V> foo1(final Class<T> p1) {
+						Y l1 = m1.get(p1);
+						if (l1 == null) {
+							l1 = new Y<T, U, V>(this);
+							m1.put(p1, l1);
+						}
+						return l1;
+					}
+				
+					public <TT extends X.XX<?, UU>,\s
+					        UU extends X.XY>\s
+					void foo2(final TT p1, final UU p2) {
+						m2.put((XX<?, XY>) p1, p2);
+					}
+				
+					public Map<XX<?, ?>, XY> foo3() {
+						final Map<XX<?, ?>,\s
+						          XY> l1 = new HashMap<XX<?, ?>,\s
+						                               XY>();
+						for (final Y<?,\s
+								     ? extends XX<?, ?>,\s
+								     ? extends XY>\s
+								i : m1.values()) {
+							i.foo5(l1);
+						}
+						return l1;
+					}
+				
+					public void foo4(final Object p1, final Map<XX<?, ?>,\s
+							                                    XY> p2) {
+						for (final Y<?,\s
+								     ? extends XX<?, ?>,\s
+								     ? extends XY> i : m1.values()) {
+							i.foo6(p2);
+						}
+						for (final Map.Entry<XX<?, ?>,\s
+								             XY> i : p2.entrySet()) {
+							final XX<?, XY> l1 = (XX<?, XY>) i.getKey();
+						}
+					}
+				}
+				"""
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p/Y.java\""
         + " \"" + OUTPUT_DIR +  File.separator + "p/Z.java\""
@@ -2313,48 +2414,50 @@ public void test032(){
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" +
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 8)\n" +
-        "	private final Map<Class<? extends X>, \n" +
-        "	                                  ^\n" +
-        "X is a raw type. References to generic type X<T,U,V> should be parameterized\n" +
-        "----------\n" +
-        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 10)\n" +
-        "	m1 = new HashMap<Class<? extends X>, \n" +
-        "	                                 ^\n" +
-        "X is a raw type. References to generic type X<T,U,V> should be parameterized\n" +
-        "----------\n" +
-        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 22)\n" +
-        "	Y l1 = m1.get(p1);\n" +
-        "	^\n" +
-        "Y is a raw type. References to generic type Y<T,U,V> should be parameterized\n" +
-        "----------\n" +
-        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 25)\n" +
-        "	m1.put(p1, l1);\n" +
-        "	           ^^\n" +
-        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>\n" +
-        "----------\n" +
-        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 27)\n" +
-        "	return l1;\n" +
-        "	       ^^\n" +
-        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>\n" +
-        "----------\n" +
-        "6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 33)\n" +
-        "	m2.put((XX<?, XY>) p1, p2);\n" +
-        "	       ^^^^^^^^^^^^^^\n" +
-        "Type safety: Unchecked cast from TT to X.XX<?,X.XY>\n" +
-        "----------\n" +
-        "7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" +
-        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" +
-        "	                ^^\n" +
-        "The value of the local variable l1 is not used\n" +
-        "----------\n" +
-        "8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" +
-        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" +
-        "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" +
-        "Type safety: Unchecked cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY>\n" +
-        "----------\n" +
-        "8 problems (8 warnings)\n",
+        """
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 8)
+				private final Map<Class<? extends X>,\s
+				                                  ^
+			X is a raw type. References to generic type X<T,U,V> should be parameterized
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 10)
+				m1 = new HashMap<Class<? extends X>,\s
+				                                 ^
+			X is a raw type. References to generic type X<T,U,V> should be parameterized
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 22)
+				Y l1 = m1.get(p1);
+				^
+			Y is a raw type. References to generic type Y<T,U,V> should be parameterized
+			----------
+			4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 25)
+				m1.put(p1, l1);
+				           ^^
+			Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>
+			----------
+			5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 27)
+				return l1;
+				       ^^
+			Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>
+			----------
+			6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 33)
+				m2.put((XX<?, XY>) p1, p2);
+				       ^^^^^^^^^^^^^^
+			Type safety: Unchecked cast from TT to X.XX<?,X.XY>
+			----------
+			7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)
+				final XX<?, XY> l1 = (XX<?, XY>) i.getKey();
+				                ^^
+			The value of the local variable l1 is not used
+			----------
+			8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)
+				final XX<?, XY> l1 = (XX<?, XY>) i.getKey();
+				                     ^^^^^^^^^^^^^^^^^^^^^^
+			Type safety: Unchecked cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY>
+			----------
+			8 problems (8 warnings)
+			""",
         false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104664
@@ -2362,9 +2465,10 @@ public void test033(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2380,9 +2484,10 @@ public void test034(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2414,12 +2519,13 @@ public void test035(){
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"import p.Y;\n" +
-					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		System.out.print(Y.S);\n" +
-					"	}\n" +
-					"}",
+					"""
+						import p.Y;
+						public class X {
+							public static void main(String[] args) {
+								System.out.print(Y.S);
+							}
+						}""",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
@@ -2448,10 +2554,11 @@ public void test036(){
 	this.runConformTest(
 		new String[] {
 			"src1/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				}""",
 		},
         "\"" + OUTPUT_DIR + "/src1/p/X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2463,9 +2570,10 @@ public void test036(){
 	this.runConformTest(
 		new String[] {
 			"src2/Y.java",
-			"/** */\n" +
-			"public class Y extends p.X {\n" +
-			"}",
+			"""
+				/** */
+				public class Y extends p.X {
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2473,13 +2581,15 @@ public void test036(){
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + File.separator + "bin2/\"",
         "",
-        "----------\n" +
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 2)\n" +
-        "	public class Y extends p.X {\n" +
-        "	                       ^^^\n" +
-        "Discouraged access: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" +
-        "----------\n" +
-        "1 problem (1 warning)\n",
+        """
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 2)
+				public class Y extends p.X {
+				                       ^^^
+			Discouraged access: The type 'X' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---/bin1')
+			----------
+			1 problem (1 warning)
+			""",
         false);
 }
 
@@ -2489,12 +2599,14 @@ public void test037() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(int i, final int j) {\n" +
-			"    i =  0; // warning\n" +
-			"    j =  0; // error\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(int i, final int j) {
+				    i =  0; // warning
+				    j =  0; // error
+				  }
+				}
+				"""},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.5 "
 		+ " -cp \"" + OUTPUT_DIR + "\""
@@ -2502,18 +2614,20 @@ public void test037() {
 		+ " -proceedOnError"
 		+ " -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	i =  0; // warning\n" +
-		"	^\n" +
-		"The parameter i should not be assigned\n" +
-		"----------\n" +
-		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	j =  0; // error\n" +
-		"	^\n" +
-		"The final local variable j cannot be assigned. It must be blank and not using a compound assignment\n" +
-		"----------\n" +
-		"2 problems (1 error, 1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				i =  0; // warning
+				^
+			The parameter i should not be assigned
+			----------
+			2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				j =  0; // error
+				^
+			The final local variable j cannot be assigned. It must be blank and not using a compound assignment
+			----------
+			2 problems (1 error, 1 warning)
+			""",
 		true);
 }
 
@@ -2524,10 +2638,11 @@ public void test039(){
 	this.runConformTest(
 		new String[] {
 			"src1/p/X.java",
-			"package p;\n" +
-			"public class X<T> {\n" +
-			"	T m;\n" +
-			"}",
+			"""
+				package p;
+				public class X<T> {
+					T m;
+				}""",
 		},
         "\"" + OUTPUT_DIR + "/src1/p/X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2539,11 +2654,12 @@ public void test039(){
 	this.runConformTest(
 		new String[] {
 			"src2/Y.java",
-			"package p;\n" +
-			"public class Y {\n" +
-			"	X x1;\n" +
-			"	X<String> x2 = new X<String>();\n" +
-			"}",
+			"""
+				package p;
+				public class Y {
+					X x1;
+					X<String> x2 = new X<String>();
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2551,33 +2667,35 @@ public void test039(){
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + File.separator + "bin2/\"",
         "",
-        "----------\n" +
-       "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" +
-       "	X x1;\n" +
-       "	^\n" +
-       "Discouraged access: The type \'X<T>\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" +
-       "----------\n" +
-       "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" +
-       "	X x1;\n" +
-       "	^\n" +
-       "X is a raw type. References to generic type X<T> should be parameterized\n" +
-       "----------\n" +
-       "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" +
-       "	X<String> x2 = new X<String>();\n" +
-       "	^\n" +
-       "Discouraged access: The type \'X<String>\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" +
-       "----------\n" +
-       "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" +
-       "	X<String> x2 = new X<String>();\n" +
-       "	                   ^\n" +
-       "Discouraged access: The type \'X<String>\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" +
-       "----------\n" +
-       "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" +
-       "	X<String> x2 = new X<String>();\n" +
-       "	                   ^\n" +
-       "Discouraged access: The constructor \'X<String>()\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" +
-       "----------\n" +
-       "5 problems (5 warnings)\n",
+        """
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)
+				X x1;
+				^
+			Discouraged access: The type 'X<T>' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---/bin1')
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)
+				X x1;
+				^
+			X is a raw type. References to generic type X<T> should be parameterized
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)
+				X<String> x2 = new X<String>();
+				^
+			Discouraged access: The type 'X<String>' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---/bin1')
+			----------
+			4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)
+				X<String> x2 = new X<String>();
+				                   ^
+			Discouraged access: The type 'X<String>' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---/bin1')
+			----------
+			5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)
+				X<String> x2 = new X<String>();
+				                   ^
+			Discouraged access: The constructor 'X<String>()' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---/bin1')
+			----------
+			5 problems (5 warnings)
+			""",
         false);
 }
 
@@ -2586,15 +2704,17 @@ public void test040(){
 	this.runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				}""",
 			"p/Z.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class Z {\n" +
-			"}"
+			"""
+				package p;
+				/** */
+				public class Z {
+				}"""
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " \"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "Z.java\""
@@ -2607,11 +2727,12 @@ public void test040(){
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"/** */\n" +
-			"public class Y {\n" +
-			"  p.X x;\n" +
-			"  p.Z z;\n" +
-			"}",
+			"""
+				/** */
+				public class Y {
+				  p.X x;
+				  p.Z z;
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2619,13 +2740,15 @@ public void test040(){
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" +
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" +
-        "	p.Z z;\n" +
-        "	^^^\n" +
-        "Access restriction: The type \'Z\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
-        "----------\n" +
-        "1 problem (1 warning)\n",
+        """
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)
+				p.Z z;
+				^^^
+			Access restriction: The type 'Z' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---')
+			----------
+			1 problem (1 warning)
+			""",
         false);
 }
 
@@ -2635,15 +2758,17 @@ public void test041(){
 	this.runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				}""",
 			"p/Z.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class Z {\n" +
-			"}"
+			"""
+				package p;
+				/** */
+				public class Z {
+				}"""
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " \"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "Z.java\""
@@ -2656,11 +2781,12 @@ public void test041(){
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"/** */\n" +
-			"public class Y {\n" +
-			"  p.X x;\n" +
-			"  p.Z z;\n" +
-			"}",
+			"""
+				/** */
+				public class Y {
+				  p.X x;
+				  p.Z z;
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2668,13 +2794,15 @@ public void test041(){
         + " -warn:-discouraged -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" +
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" +
-        "	p.Z z;\n" +
-        "	^^^\n" +
-        "Access restriction: The type \'Z\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
-        "----------\n" +
-        "1 problem (1 warning)\n",
+        """
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)
+				p.Z z;
+				^^^
+			Access restriction: The type 'Z' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---')
+			----------
+			1 problem (1 warning)
+			""",
         false);
 }
 
@@ -2684,15 +2812,17 @@ public void test042(){
 	this.runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				}""",
 			"p/Z.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class Z {\n" +
-			"}"
+			"""
+				package p;
+				/** */
+				public class Z {
+				}"""
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " \"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "Z.java\""
@@ -2705,11 +2835,12 @@ public void test042(){
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"/** */\n" +
-			"public class Y {\n" +
-			"  p.X x;\n" +
-			"  p.Z z;\n" +
-			"}",
+			"""
+				/** */
+				public class Y {
+				  p.X x;
+				  p.Z z;
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2717,13 +2848,15 @@ public void test042(){
         + " -warn:-forbidden -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" +
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)\n" +
-        "	p.X x;\n" +
-        "	^^^\n" +
-        "Discouraged access: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
-        "----------\n" +
-        "1 problem (1 warning)\n",
+        """
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)
+				p.X x;
+				^^^
+			Discouraged access: The type 'X' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---')
+			----------
+			1 problem (1 warning)
+			""",
         false);
 }
 
@@ -2733,15 +2866,17 @@ public void test043(){
 	this.runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				}""",
 			"p/Z.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class Z {\n" +
-			"}"
+			"""
+				package p;
+				/** */
+				public class Z {
+				}"""
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " \"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "Z.java\""
@@ -2754,11 +2889,12 @@ public void test043(){
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"/** */\n" +
-			"public class Y {\n" +
-			"  p.X x;\n" +
-			"  p.Z z;\n" +
-			"}",
+			"""
+				/** */
+				public class Y {
+				  p.X x;
+				  p.Z z;
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2775,25 +2911,28 @@ public void test044(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  void foo() {
+				    Object o = null;
+				    o.toString();
+				  }
+				}"""},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -bootclasspath " + getLibraryClassesAsQuotedString()
         + " -warn:+null"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" +
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-        "	o.toString();\n" +
-        "	^\n" +
-        "Null pointer access: The variable o can only be null at this location\n" +
-        "----------\n" +
-        "1 problem (1 warning)\n",
+        """
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			1 problem (1 warning)
+			""",
         true);
 }
 
@@ -2802,12 +2941,13 @@ public void test045(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  void foo() {
+				    Object o = null;
+				    o.toString();
+				  }
+				}"""},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -bootclasspath " + getLibraryClassesAsQuotedString()
@@ -2823,10 +2963,11 @@ public void test046(){
 	this.runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2838,11 +2979,12 @@ public void test046(){
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"/** */\n" +
-			"@SuppressWarnings(\"all\")\n" +
-			"public class Y {\n" +
-			"  p.X x;\n" +
-			"}",
+			"""
+				/** */
+				@SuppressWarnings("all")
+				public class Y {
+				  p.X x;
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2860,10 +3002,11 @@ public void test047(){
 	this.runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2875,11 +3018,12 @@ public void test047(){
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"/** */\n" +
-			"@SuppressWarnings(\"restriction\")\n" +
-			"public class Y {\n" +
-			"  p.X x;\n" +
-			"}",
+			"""
+				/** */
+				@SuppressWarnings("restriction")
+				public class Y {
+				  p.X x;
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2897,10 +3041,11 @@ public void test048(){
 	this.runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2912,11 +3057,12 @@ public void test048(){
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"/** */\n" +
-			"@SuppressWarnings(\"deprecation\")\n" +
-			"public class Y {\n" +
-			"  p.X x;\n" +
-			"}",
+			"""
+				/** */
+				@SuppressWarnings("deprecation")
+				public class Y {
+				  p.X x;
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2924,18 +3070,20 @@ public void test048(){
         + " -warn:+discouraged,forbidden,deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" +
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 2)\n" +
-        "	@SuppressWarnings(\"deprecation\")\n" +
-        "	                  ^^^^^^^^^^^^^\n" +
-        "Unnecessary @SuppressWarnings(\"deprecation\")\n" +
-        "----------\n" +
-        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" +
-        "	p.X x;\n" +
-        "	^^^\n" +
-        "Discouraged access: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
-        "----------\n" +
-        "2 problems (2 warnings)\n",
+        """
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 2)
+				@SuppressWarnings("deprecation")
+				                  ^^^^^^^^^^^^^
+			Unnecessary @SuppressWarnings("deprecation")
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)
+				p.X x;
+				^^^
+			Discouraged access: The type 'X' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---')
+			----------
+			2 problems (2 warnings)
+			""",
         false);
 }
 
@@ -2946,17 +3094,18 @@ public void test049(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"    public void test(int p) {\n" +
-			"        switch (p) {\n" +
-			"        case 0:\n" +
-			"            System.out.println(0);\n" +
-			"        case 1:\n" +
-			"            System.out.println(1); // possible fall-through\n" +
-			"        }\n" +
-			"    }\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				    public void test(int p) {
+				        switch (p) {
+				        case 0:
+				            System.out.println(0);
+				        case 1:
+				            System.out.println(1); // possible fall-through
+				        }
+				    }
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2974,17 +3123,18 @@ public void test050(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"    public void test(int p) {\n" +
-			"        switch (p) {\n" +
-			"        case 0:\n" +
-			"            System.out.println(0);\n" +
-			"        case 1:\n" +
-			"            System.out.println(1); // possible fall-through\n" +
-			"        }\n" +
-			"    }\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				    public void test(int p) {
+				        switch (p) {
+				        case 0:
+				            System.out.println(0);
+				        case 1:
+				            System.out.println(1); // possible fall-through
+				        }
+				    }
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -3002,30 +3152,33 @@ public void test051(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"    public void test(int p) {\n" +
-			"        switch (p) {\n" +
-			"        case 0:\n" +
-			"            System.out.println(0);\n" +
-			"        case 1:\n" +
-			"            System.out.println(1); // complain: possible fall-through\n" +
-			"        }\n" +
-			"    }\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				    public void test(int p) {
+				        switch (p) {
+				        case 0:
+				            System.out.println(0);
+				        case 1:
+				            System.out.println(1); // complain: possible fall-through
+				        }
+				    }
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -warn:+fallthrough"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-		"	case 1:\n" +
-		"	^^^^^^\n" +
-		"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)
+				case 1:
+				^^^^^^
+			Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above
+			----------
+			1 problem (1 warning)
+			""",
         true);
 }
 
@@ -3036,12 +3189,14 @@ public void test052(){
 		File barFile = new File(OUTPUT_DIR +  File.separator + "Bar.java");
 		try (FileOutputStream barOutput = new FileOutputStream(barFile)) {
 			String barContents =
-				"public class Bar	\n" +
-				"{	\n" +
-				"  Bar(int class)	\n" +
-				"  {	\n" +
-				"  }	\n" +
-				"}\n";
+				"""
+				public class Bar\t
+				{\t
+				  Bar(int class)\t
+				  {\t
+				  }\t
+				}
+				""";
 			barOutput.write(barContents.getBytes());
 		}
 	} catch(IOException e) {
@@ -3051,48 +3206,52 @@ public void test052(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X\n" +
-			"{\n" +
-			"  static Object x()\n" +
-			"  {\n" +
-			"    return new Bar(5);\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				public class X
+				{
+				  static Object x()
+				  {
+				    return new Bar(5);
+				  }
+				}
+				""",
 		},
      "\"" + OUTPUT_DIR +  File.separator + "X.java\""
      + " -cp \"" + OUTPUT_DIR + File.pathSeparator + "\""
      + " -d \"" + OUTPUT_DIR + "\"",
      "",
-     "----------\n" +
-     "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-     "	return new Bar(5);\n" +
-     "	       ^^^^^^^^^^\n" +
-     "The constructor Bar(int) is undefined\n" +
-     "----------\n" +
-     "----------\n" +
-     "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java (at line 2)\n" +
-     "	{	\n" +
-     "	^\n" +
-     "Syntax error, insert \"}\" to complete ClassBody\n" +
-     "----------\n" +
-     "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java (at line 3)\n" +
-     "	Bar(int class)	\n" +
-     "	        ^^^^^\n" +
-     "Syntax error on token \"class\", invalid VariableDeclaratorId\n" +
-     "----------\n" +
-     "4. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java (at line 3)\n" +
-     "	Bar(int class)	\n" +
-     "  {	\n" +
-     "  }	\n" +
-     "	        ^^^^^^^^^^^^^^^^\n" +
-     "Syntax error on tokens, delete these tokens\n" +
-     "----------\n" +
-     "5. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java (at line 6)\n" +
-     "	}\n" +
-     "	^\n" +
-     "Syntax error on token \"}\", delete this token\n" +
-     "----------\n" +
-     "5 problems (5 errors)\n",
+     """
+		----------
+		1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+			return new Bar(5);
+			       ^^^^^^^^^^
+		The constructor Bar(int) is undefined
+		----------
+		----------
+		2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java (at line 2)
+			{\t
+			^
+		Syntax error, insert "}" to complete ClassBody
+		----------
+		3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java (at line 3)
+			Bar(int class)\t
+			        ^^^^^
+		Syntax error on token "class", invalid VariableDeclaratorId
+		----------
+		4. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java (at line 3)
+			Bar(int class)\t
+		  {\t
+		  }\t
+			        ^^^^^^^^^^^^^^^^
+		Syntax error on tokens, delete these tokens
+		----------
+		5. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java (at line 6)
+			}
+			^
+		Syntax error on token "}", delete this token
+		----------
+		5 problems (5 errors)
+		""",
      false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=137053
@@ -3106,10 +3265,12 @@ public void test053(){
         + " -1.5 -g -preserveAllLocals"
         + " -d \"" + OUTPUT_DIR + File.separator + "X.java\"",
 		"",
-		"No .class file created for file X.class in ---OUTPUT_DIR_PLACEHOLDER" +
-			"---/X.java because of an IOException: Regular file " +
-			"---OUTPUT_DIR_PLACEHOLDER---/X.java cannot be used " +
-			"as output directory\n",
+		"""
+			No .class file created for file X.class in ---OUTPUT_DIR_PLACEHOLDER\
+			---/X.java because of an IOException: Regular file \
+			---OUTPUT_DIR_PLACEHOLDER---/X.java cannot be used \
+			as output directory
+			""",
 		true);
 }
 // suggested by https://bugs.eclipse.org/bugs/show_bug.cgi?id=141522
@@ -3128,9 +3289,11 @@ public void test054(){
         + " -1.5 -g -preserveAllLocals"
         + " -d \"" + OUTPUT_DIR + "/f/out\"",
 		"",
-		"No .class file created for file X.class in ---OUTPUT_DIR_PLACEHOLDER" +
-			"---/f/out because of an IOException: " +
-			"Could not create output directory ---OUTPUT_DIR_PLACEHOLDER---/f/out\n",
+		"""
+			No .class file created for file X.class in ---OUTPUT_DIR_PLACEHOLDER\
+			---/f/out because of an IOException: \
+			Could not create output directory ---OUTPUT_DIR_PLACEHOLDER---/f/out
+			""",
 		true);
 }
 // suggested by https://bugs.eclipse.org/bugs/show_bug.cgi?id=141522
@@ -3157,10 +3320,12 @@ public void test055(){
 	        + " -1.5 -g -preserveAllLocals"
 	        + " -d \"" + OUTPUT_DIR + "/out\"",
 			"",
-			"No .class file created for file p/X.class in " +
-				"---OUTPUT_DIR_PLACEHOLDER---/out because of " +
-				"an IOException: Could not create subdirectory p into output directory " +
-				"---OUTPUT_DIR_PLACEHOLDER---/out\n",
+			"""
+				No .class file created for file p/X.class in \
+				---OUTPUT_DIR_PLACEHOLDER---/out because of \
+				an IOException: Could not create subdirectory p into output directory \
+				---OUTPUT_DIR_PLACEHOLDER---/out
+				""",
 			false /* do not flush output directory */);
 	}
 }
@@ -3183,10 +3348,12 @@ public void test056(){
         + " -1.5 -g -preserveAllLocals"
         + " -d \"" + OUTPUT_DIR + tentativeOutputDirNameTail + "\"",
 		"",
-		"No .class file created for file p/X.class in " +
-			"---OUTPUT_DIR_PLACEHOLDER---/out" +
-			" because of an IOException: Regular file ---OUTPUT_DIR_PLACEHOLDER---" +
-			"/out/p cannot be used as output directory\n",
+		"""
+			No .class file created for file p/X.class in \
+			---OUTPUT_DIR_PLACEHOLDER---/out\
+			 because of an IOException: Regular file ---OUTPUT_DIR_PLACEHOLDER---\
+			/out/p cannot be used as output directory
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=147461
@@ -3199,27 +3366,31 @@ public void test057_access_restrictions_separator(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"	OK1 ok1;\n" +
-			"	OK2 ok2;\n" +
-			"	KO ko;\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+					OK1 ok1;
+					OK2 ok2;
+					KO ko;
+				}""",
 			"OK1.java",
-			"/** */\n" +
-			"public class OK1 {\n" +
-			"	// empty\n" +
-			"}",
+			"""
+				/** */
+				public class OK1 {
+					// empty
+				}""",
 			"OK2.java",
-			"/** */\n" +
-			"public class OK2 {\n" +
-			"	// empty\n" +
-			"}",
+			"""
+				/** */
+				public class OK2 {
+					// empty
+				}""",
 			"KO.java",
-			"/** */\n" +
-			"public class KO {\n" +
-			"	// empty\n" +
-			"}",
+			"""
+				/** */
+				public class KO {
+					// empty
+				}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -3273,21 +3444,24 @@ public void test061(){
 	this.runNegativeTest(
 		new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  foo m;\n" +
-				"}",
+				"""
+					public class X {
+					  foo m;
+					}""",
 	        },
 	    "\"" + OUTPUT_DIR + "\""
 	    + " -1.5 -g -preserveAllLocals"
 	    + " -d \"" + OUTPUT_DIR + "/out\"",
 		"",
-		"----------\n" +
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
-		"	foo m;\n" +
-		"	^^^\n" +
-		"foo cannot be resolved to a type\n" +
-		"----------\n" +
-		"1 problem (1 error)\n",
+		"""
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)
+				foo m;
+				^^^
+			foo cannot be resolved to a type
+			----------
+			1 problem (1 error)
+			""",
 		false /* do not flush output directory */);
 }
 
@@ -3346,9 +3520,10 @@ public void _test062(){
 	this.runConformTest(
 		new String[] {
 			"d/X.java",
-			"public class X {\n" +
-			"  Y m;\n" +
-			"}"},
+			"""
+				public class X {
+				  Y m;
+				}"""},
 	    "\"" + outputDirName + "\""
 	    + " -1.5 -g -preserveAllLocals"
 	    + " -cp L.jar"
@@ -3395,9 +3570,10 @@ public void test063(){
 	this.runConformTest(
 		new String[] {
 			"d/X.java",
-			"public class X {\n" +
-			"  Y m;\n" +
-			"}"},
+			"""
+				public class X {
+				  Y m;
+				}"""},
 	    "\"" + outputDirName + "\""
 	    + " -1.5 -g -preserveAllLocals"
 	    + " -cp \"" + jarFileName + "\""
@@ -3416,9 +3592,10 @@ public void _test064_per_sourcepath_directory_default_encoding(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -3441,9 +3618,10 @@ public void test065_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -3471,9 +3649,10 @@ public void test066_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -3521,9 +3700,10 @@ public void test068_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -3560,9 +3740,10 @@ public void test069_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -3593,9 +3774,10 @@ public void test070_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -3624,9 +3806,10 @@ public void test071_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -3678,9 +3861,10 @@ public void test073_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -3688,13 +3872,15 @@ public void test073_per_source_output_directory(){
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\"" +
         	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" +
-		"	X f;\n" +
-		"	^\n" +
-		"Access restriction: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/src1\')\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)
+				X f;
+				^
+			Access restriction: The type 'X' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---/src1')
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 
@@ -3710,9 +3896,10 @@ public void test074_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -3749,9 +3936,10 @@ public void test075_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -3782,9 +3970,10 @@ public void test076_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -3813,9 +4002,10 @@ public void test077_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -3867,9 +4057,10 @@ public void test079_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -3877,13 +4068,15 @@ public void test079_per_source_output_directory(){
         + " -classpath \"" + OUTPUT_DIR + File.separator + source1 + "\"" +
         	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" +
-		"	X f;\n" +
-		"	^\n" +
-		"Access restriction: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/src1\')\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)
+				X f;
+				^
+			Access restriction: The type 'X' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---/src1')
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 
@@ -3899,9 +4092,10 @@ public void test080_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -3939,9 +4133,10 @@ public void test081_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -3973,9 +4168,10 @@ public void test082_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -4005,9 +4201,10 @@ public void test083_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -4060,9 +4257,10 @@ public void test085_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -4071,13 +4269,15 @@ public void test085_per_source_output_directory(){
         	"\"" + OUTPUT_DIR + File.separator + source1 + "\"" +
         	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" +
-		"	X f;\n" +
-		"	^\n" +
-		"Access restriction: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/src1\')\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)
+				X f;
+				^
+			Access restriction: The type 'X' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---/src1')
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 
@@ -4106,9 +4306,10 @@ public void test086_per_source_output_directory(){
 	this.runConformTest(
 		new String[] {
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -4141,9 +4342,10 @@ public void test087_per_source_output_directory(){
 	this.runNegativeTest(
 		new String[] {
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -4209,9 +4411,10 @@ public void test089_per_source_output_directory(){
 	this.runConformTest(
 		new String[] {
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -4261,9 +4464,10 @@ public void test090_per_source_output_directory(){
 	this.runConformTest(
 		new String[] {
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -4312,9 +4516,10 @@ public void test091_per_source_output_directory(){
 	this.runConformTest(
 		new String[] {
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -4349,9 +4554,10 @@ public void test092_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -4388,9 +4594,10 @@ public void test093_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -4421,9 +4628,10 @@ public void test094_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  // X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  // X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -4452,9 +4660,10 @@ public void test095_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  // X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  // X f;
+				}""",
         },
         " \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d none] "
@@ -4483,9 +4692,10 @@ public void test096_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			"Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
@@ -4519,9 +4729,10 @@ public void test097_per_source_output_directory(){
 			source1 + File.separator + "/X.java",
 			"public class X {}",
 			source2 + File.separator + "Z.java",
-			"public class Z {\n" +
-			"  X f;\n" +
-			"}",
+			"""
+				public class Z {
+				  X f;
+				}""",
         },
         " \"" + OUTPUT_DIR + File.separator + source2 + "\""
         + " \"" + OUTPUT_DIR + File.separator + source1 + "\""
@@ -4553,9 +4764,10 @@ public void test098_per_source_output_directory(){
 	this.runNegativeTest(
 		new String[] {
 			source1 + File.separator + "X.java",
-			"public class X {\n" +
-			"  Zork z;\n" +
-			"}"},
+			"""
+				public class X {
+				  Zork z;
+				}"""},
         "\"" + OUTPUT_DIR +  File.separator + source1 + "\""
         + "[~**/internal/*]"
         + " -1.5",
@@ -4729,9 +4941,10 @@ public void test107() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
      "\"" + OUTPUT_DIR +  File.separator + "X.java\""
      + " -1.3 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
@@ -4747,9 +4960,10 @@ public void test108() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.4 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
@@ -4765,9 +4979,10 @@ public void test109() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.4 -source 1.4 -d \"" + OUTPUT_DIR + "\"",
@@ -4783,9 +4998,10 @@ public void test110() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.5 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
@@ -4801,9 +5017,10 @@ public void test111() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.5 -source 1.4 -d \"" + OUTPUT_DIR + "\"",
@@ -4819,9 +5036,10 @@ public void test112() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.5 -source 1.5 -d \"" + OUTPUT_DIR + "\"",
@@ -4837,9 +5055,10 @@ public void test113() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.6 -source 1.3 -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -4855,9 +5074,10 @@ public void test114() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.6 -source 1.4 -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -4873,9 +5093,10 @@ public void test115() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.6 -source 1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -4891,9 +5112,10 @@ public void test116() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.6 -source 1.6 -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -4909,9 +5131,10 @@ public void test117() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.7 -source 1.3 -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -4927,9 +5150,10 @@ public void test118() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.7 -source 1.4 -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -4945,9 +5169,10 @@ public void test119() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.7 -source 1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -4963,9 +5188,10 @@ public void test120() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.7 -source 1.6 -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -4982,9 +5208,10 @@ public void test121() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.7 -source 1.7 -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -5190,25 +5417,28 @@ public void test141_null_ref_option(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  void foo() {
+				    Object o = null;
+				    o.toString();
+				  }
+				}"""},
      "\"" + OUTPUT_DIR +  File.separator + "X.java\""
      + " -1.5 -g -preserveAllLocals"
      + " -bootclasspath " + getLibraryClassesAsQuotedString()
      + " -warn:+nullDereference"
      + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
      "",
-     "----------\n" +
-     "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-     "	o.toString();\n" +
-     "	^\n" +
-     "Null pointer access: The variable o can only be null at this location\n" +
-     "----------\n" +
-     "1 problem (1 warning)\n",
+     """
+		----------
+		1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+			o.toString();
+			^
+		Null pointer access: The variable o can only be null at this location
+		----------
+		1 problem (1 warning)
+		""",
      true);
 }
 // null ref option
@@ -5218,25 +5448,28 @@ public void test142_null_ref_option(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    if (o == null) {}\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  void foo() {
+				    Object o = null;
+				    if (o == null) {}
+				  }
+				}"""},
   "\"" + OUTPUT_DIR +  File.separator + "X.java\""
   + " -1.5 -g -preserveAllLocals"
   + " -bootclasspath " + getLibraryClassesAsQuotedString()
   + " -warn:+null"
   + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
   "",
-  "----------\n" +
-  "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-  "	if (o == null) {}\n" +
-  "	    ^\n" +
-  "Redundant null check: The variable o can only be null at this location\n" +
-  "----------\n" +
-  "1 problem (1 warning)\n",
+  """
+	----------
+	1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+		if (o == null) {}
+		    ^
+	Redundant null check: The variable o can only be null at this location
+	----------
+	1 problem (1 warning)
+	""",
   true);
 }
 // null ref option
@@ -5246,12 +5479,13 @@ public void test143_null_ref_option(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    if (o == null) {}\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  void foo() {
+				    Object o = null;
+				    if (o == null) {}
+				  }
+				}"""},
 "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 + " -1.5 -g -preserveAllLocals"
 + " -bootclasspath " + getLibraryClassesAsQuotedString()
@@ -5268,9 +5502,10 @@ public void test144() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"/** */\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					/** */
+					public class X {
+					}""",
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 			+ " -1.6 -source 1.6 -d \"" + OUTPUT_DIR + "\"",
@@ -5287,11 +5522,13 @@ public void test145_declared_thrown_checked_exceptions(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public void foo() throws IOException {\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public void foo() throws IOException {
+				  }
+				}
+				"""},
   "\"" + OUTPUT_DIR +  File.separator + "X.java\""
   + " -1.5 -g -preserveAllLocals"
   + " -bootclasspath " + getLibraryClassesAsQuotedString()
@@ -5305,24 +5542,28 @@ public void test146_declared_thrown_checked_exceptions(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public void foo() throws IOException {\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public void foo() throws IOException {
+				  }
+				}
+				"""},
   "\"" + OUTPUT_DIR +  File.separator + "X.java\""
   + " -1.5 -g -preserveAllLocals"
   + " -bootclasspath " + getLibraryClassesAsQuotedString()
   + " -warn:+unusedThrown"
   + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
   "",
-  "----------\n" +
-  "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-  "	public void foo() throws IOException {\n" +
-  "	                         ^^^^^^^^^^^\n" +
-  "The declared exception IOException is not actually thrown by the method foo() from type X\n" +
-  "----------\n" +
-  "1 problem (1 warning)\n",
+  """
+	----------
+	1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+		public void foo() throws IOException {
+		                         ^^^^^^^^^^^
+	The declared exception IOException is not actually thrown by the method foo() from type X
+	----------
+	1 problem (1 warning)
+	""",
   true);
 }
 
@@ -5332,22 +5573,24 @@ public void test148_access_restrictions(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"	KO ko;\n" +
-			"   void foo() {\n" +
-			"     ko = new KO();\n" +
-			"     ko.bar();\n" +
-			"     if (ko.m) {}\n" +
-			"   }\n" +
-			"   Zork z;\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+					KO ko;
+				   void foo() {
+				     ko = new KO();
+				     ko.bar();
+				     if (ko.m) {}
+				   }
+				   Zork z;
+				}""",
 			"KO.java",
-			"/** */\n" +
-			"public class KO {\n" +
-			"  void bar() {};\n" +
-			"  boolean m;\n" +
-			"}",
+			"""
+				/** */
+				public class KO {
+				  void bar() {};
+				  boolean m;
+				}""",
 		},
   "\"" + OUTPUT_DIR +  File.separator + "X.java\""
   + " -1.5 -g -preserveAllLocals"
@@ -5355,38 +5598,40 @@ public void test148_access_restrictions(){
   + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
   + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
   "",
-  "----------\n" +
-  "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-  "	KO ko;\n" +
-  "	^^\n" +
-  "Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
-  "----------\n" +
-  "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-  "	ko = new KO();\n" +
-  "	         ^^\n" +
-  "Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
-  "----------\n" +
-  "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-  "	ko = new KO();\n" +
-  "	         ^^\n" +
-  "Access restriction: The constructor \'KO()\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
-  "----------\n" +
-  "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-  "	ko.bar();\n" +
-  "	   ^^^\n" +
-  "Access restriction: The method \'KO.bar()\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
-  "----------\n" +
-  "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-  "	if (ko.m) {}\n" +
-  "	       ^\n" +
-  "Access restriction: The field \'KO.m\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
-  "----------\n" +
-  "6. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" +
-  "	Zork z;\n" +
-  "	^^^^\n" +
-  "Zork cannot be resolved to a type\n" +
-  "----------\n" +
-  "6 problems (1 error, 5 warnings)\n",
+  """
+	----------
+	1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+		KO ko;
+		^^
+	Access restriction: The type 'KO' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---')
+	----------
+	2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+		ko = new KO();
+		         ^^
+	Access restriction: The type 'KO' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---')
+	----------
+	3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+		ko = new KO();
+		         ^^
+	Access restriction: The constructor 'KO()' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---')
+	----------
+	4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+		ko.bar();
+		   ^^^
+	Access restriction: The method 'KO.bar()' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---')
+	----------
+	5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)
+		if (ko.m) {}
+		       ^
+	Access restriction: The field 'KO.m' is not API (restriction on classpath entry '---OUTPUT_DIR_PLACEHOLDER---')
+	----------
+	6. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)
+		Zork z;
+		^^^^
+	Zork cannot be resolved to a type
+	----------
+	6 problems (1 error, 5 warnings)
+	""",
   true);
 }
 //http://bugs.eclipse.org/bugs/show_bug.cgi?id=168230
@@ -5394,12 +5639,13 @@ public void test149() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void foo() {}\n" +
-			"	public static void bar() {\n" +
-			"		X.<String>foo();\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					public static void foo() {}
+					public static void bar() {
+						X.<String>foo();
+					}
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.7 -warn:-unused -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -5413,24 +5659,27 @@ public void test150_null_ref_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void foo() {\n" +
-			"     String s = null;\n" +
-			"     s.toString();\n" +
-			"   }\n" +
-			"	// Zork z;\n" +
-			"}",
+			"""
+				public class X {
+					public static void foo() {
+				     String s = null;
+				     s.toString();
+				   }
+					// Zork z;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	s.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable s can only be null at this location\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				s.toString();
+				^
+			Null pointer access: The variable s can only be null at this location
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // http://bugs.eclipse.org/bugs/show_bug.cgi?id=192875
@@ -5439,13 +5688,14 @@ public void test151_null_ref_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void foo() {\n" +
-			"     String s = null;\n" +
-			"     s.toString();\n" +
-			"   }\n" +
-			"	// Zork z;\n" +
-			"}",
+			"""
+				public class X {
+					public static void foo() {
+				     String s = null;
+				     s.toString();
+				   }
+					// Zork z;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:-nullDereference -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -5458,25 +5708,28 @@ public void test152() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void foo() {\n" +
-			"     String s = null;\n" +
-			"     s.toString();\n" +
-			"   }\n" +
-			"	// Zork z;\n" +
-			"}",
+			"""
+				public class X {
+					public static void foo() {
+				     String s = null;
+				     s.toString();
+				   }
+					// Zork z;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:-nullDereferences -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"invalid warning token: 'nullDereferences'. Ignoring warning and compiling\n" +
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	s.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable s can only be null at this location\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			invalid warning token: 'nullDereferences'. Ignoring warning and compiling
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				s.toString();
+				^
+			Null pointer access: The variable s can only be null at this location
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -5485,30 +5738,33 @@ public void test153_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void foo() {\n" +
-			"     String s = null;\n" +
-			"     s.toString();\n" +
-			"     String u;\n" +
-			"   }\n" +
-			"}",
+			"""
+				public class X {
+					public static void foo() {
+				     String s = null;
+				     s.toString();
+				     String u;
+				   }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
 //		+ " -warn:none -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	s.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable s can only be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	String u;\n" +
-		"	       ^\n" +
-		"The value of the local variable u is not used\n" +
-		"----------\n" +
-		"2 problems (2 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				s.toString();
+				^
+			Null pointer access: The variable s can only be null at this location
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				String u;
+				       ^
+			The value of the local variable u is not used
+			----------
+			2 problems (2 warnings)
+			""",
 		true);
 	// observe -warn options variations
 	this.runConformTest(
@@ -5525,24 +5781,27 @@ public void test154_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void foo() {\n" +
-			"     String s = null;\n" +
-			"     s.toString();\n" +
-			"     String u;\n" +
-			"   }\n" +
-			"}",
+			"""
+				public class X {
+					public static void foo() {
+				     String s = null;
+				     s.toString();
+				     String u;
+				   }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:null -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	s.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable s can only be null at this location\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				s.toString();
+				^
+			Null pointer access: The variable s can only be null at this location
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -5551,24 +5810,27 @@ public void test155_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void foo() {\n" +
-			"     String s = null;\n" +
-			"     s.toString();\n" +
-			"     String u;\n" +
-			"   }\n" +
-			"}",
+			"""
+				public class X {
+					public static void foo() {
+				     String s = null;
+				     s.toString();
+				     String u;
+				   }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:none -warn:null -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	s.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable s can only be null at this location\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				s.toString();
+				^
+			Null pointer access: The variable s can only be null at this location
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
@@ -5578,24 +5840,27 @@ public void test156_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void foo() {\n" +
-			"     String s = null;\n" +
-			"     s.toString();\n" +
-			"     String u;\n" +
-			"   }\n" +
-			"}",
+			"""
+				public class X {
+					public static void foo() {
+				     String s = null;
+				     s.toString();
+				     String u;
+				   }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:null -warn:unused -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	String u;\n" +
-		"	       ^\n" +
-		"The value of the local variable u is not used\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				String u;
+				       ^
+			The value of the local variable u is not used
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
@@ -5605,29 +5870,32 @@ public void test157_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void foo() {\n" +
-			"     String s = null;\n" +
-			"     s.toString();\n" +
-			"     String u;\n" +
-			"   }\n" +
-			"}",
+			"""
+				public class X {
+					public static void foo() {
+				     String s = null;
+				     s.toString();
+				     String u;
+				   }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:null -warn:+unused -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	s.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable s can only be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	String u;\n" +
-		"	       ^\n" +
-		"The value of the local variable u is not used\n" +
-		"----------\n" +
-		"2 problems (2 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				s.toString();
+				^
+			Null pointer access: The variable s can only be null at this location
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				String u;
+				       ^
+			The value of the local variable u is not used
+			----------
+			2 problems (2 warnings)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
@@ -5637,24 +5905,27 @@ public void test158_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void foo() {\n" +
-			"     String s = null;\n" +
-			"     s.toString();\n" +
-			"     String u;\n" +
-			"   }\n" +
-			"}",
+			"""
+				public class X {
+					public static void foo() {
+				     String s = null;
+				     s.toString();
+				     String u;
+				   }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:null -warn:+unused -warn:-null -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	String u;\n" +
-		"	       ^\n" +
-		"The value of the local variable u is not used\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				String u;
+				       ^
+			The value of the local variable u is not used
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -5663,24 +5934,27 @@ public void test159_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void foo() {\n" +
-			"     String s = null;\n" +
-			"     s.toString();\n" +
-			"     String u;\n" +
-			"   }\n" +
-			"}",
+			"""
+				public class X {
+					public static void foo() {
+				     String s = null;
+				     s.toString();
+				     String u;
+				   }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unused -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	String u;\n" +
-		"	       ^\n" +
-		"The value of the local variable u is not used\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				String u;
+				       ^
+			The value of the local variable u is not used
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -5689,29 +5963,32 @@ public void test160_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void foo() {\n" +
-			"     String s = null;\n" +
-			"     s.toString();\n" +
-			"     String u;\n" +
-			"   }\n" +
-			"}",
+			"""
+				public class X {
+					public static void foo() {
+				     String s = null;
+				     s.toString();
+				     String u;
+				   }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:none -warn:+unused,null -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	s.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable s can only be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	String u;\n" +
-		"	       ^\n" +
-		"The value of the local variable u is not used\n" +
-		"----------\n" +
-		"2 problems (2 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				s.toString();
+				^
+			Null pointer access: The variable s can only be null at this location
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				String u;
+				       ^
+			The value of the local variable u is not used
+			----------
+			2 problems (2 warnings)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -5721,29 +5998,32 @@ public void test161_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void foo() {\n" +
-			"     String s = null;\n" +
-			"     s.toString();\n" +
-			"     String u;\n" +
-			"   }\n" +
-			"}",
+			"""
+				public class X {
+					public static void foo() {
+				     String s = null;
+				     s.toString();
+				     String u;
+				   }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:-null,unused,+unused,null -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	s.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable s can only be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	String u;\n" +
-		"	       ^\n" +
-		"The value of the local variable u is not used\n" +
-		"----------\n" +
-		"2 problems (2 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				s.toString();
+				^
+			Null pointer access: The variable s can only be null at this location
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				String u;
+				       ^
+			The value of the local variable u is not used
+			----------
+			2 problems (2 warnings)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -5753,13 +6033,14 @@ public void test162_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void foo() {\n" +
-			"     String s = null;\n" +
-			"     s.toString();\n" +
-			"     String u;\n" +
-			"   }\n" +
-			"}",
+			"""
+				public class X {
+					public static void foo() {
+				     String s = null;
+				     s.toString();
+				     String u;
+				   }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -nowarn -warn:+null,unused,-unused,null -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -5773,25 +6054,29 @@ public void test163_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Y f;\n" +
-			"}",
+			"""
+				public class X {
+				  Y f;
+				}""",
 			"Y.java",
-			"/** @deprecated */\n" +
-			"public class Y {\n" +
-			"}",
+			"""
+				/** @deprecated */
+				public class Y {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
-		"	Y f;\n" +
-		"	^\n" +
-		"The type Y is deprecated\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)
+				Y f;
+				^
+			The type Y is deprecated
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 	// observe -warn options variations
 	this.runConformTest(
@@ -5809,25 +6094,29 @@ public void test164_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Y f;\n" +
-			"}",
+			"""
+				public class X {
+				  Y f;
+				}""",
 			"Y.java",
-			"/** @deprecated */\n" +
-			"public class Y {\n" +
-			"}",
+			"""
+				/** @deprecated */
+				public class Y {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -nowarn -deprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
-		"	Y f;\n" +
-		"	^\n" +
-		"The type Y is deprecated\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)
+				Y f;
+				^
+			The type Y is deprecated
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -5836,13 +6125,15 @@ public void test165_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Y f;\n" +
-			"}",
+			"""
+				public class X {
+				  Y f;
+				}""",
 			"Y.java",
-			"/** @deprecated */\n" +
-			"public class Y {\n" +
-			"}",
+			"""
+				/** @deprecated */
+				public class Y {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
@@ -5857,13 +6148,15 @@ public void test166_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Y f;\n" +
-			"}",
+			"""
+				public class X {
+				  Y f;
+				}""",
 			"Y.java",
-			"/** @deprecated */\n" +
-			"public class Y {\n" +
-			"}",
+			"""
+				/** @deprecated */
+				public class Y {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
@@ -5878,25 +6171,29 @@ public void test167_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Y f;\n" +
-			"}",
+			"""
+				public class X {
+				  Y f;
+				}""",
 			"Y.java",
-			"/** @deprecated */\n" +
-			"public class Y {\n" +
-			"}",
+			"""
+				/** @deprecated */
+				public class Y {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:allDeprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
-		"	Y f;\n" +
-		"	^\n" +
-		"The type Y is deprecated\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)
+				Y f;
+				^
+			The type Y is deprecated
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -5905,13 +6202,14 @@ public void test168_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  /**\n" +
-			"    @param\n" +
-			"  */\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  /**
+				    @param
+				  */
+				  public void foo() {
+				  }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -5924,13 +6222,15 @@ public void test168_warn_options() {
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:javadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	@param\n" +
-		"	 ^^^^^\n" +
-		"Javadoc: Missing parameter name\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				@param
+				 ^^^^^
+			Javadoc: Missing parameter name
+			----------
+			1 problem (1 warning)
+			""",
 		false);
 }
 // -warn option - regression tests
@@ -5939,29 +6239,32 @@ public void test169_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  /**\n" +
-			"    @param\n" +
-			"  */\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  /**
+				    @param
+				  */
+				  public void foo() {
+				  }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		"	public class X {\n" +
-		"	             ^\n" +
-		"Javadoc: Missing comment for public declaration\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	@param\n" +
-		"	 ^^^^^\n" +
-		"Javadoc: Missing parameter name\n" +
-		"----------\n" +
-		"2 problems (2 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+				public class X {
+				             ^
+			Javadoc: Missing comment for public declaration
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				@param
+				 ^^^^^
+			Javadoc: Missing parameter name
+			----------
+			2 problems (2 warnings)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -5970,13 +6273,14 @@ public void test170_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  /**\n" +
-			"    @param\n" +
-			"  */\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  /**
+				    @param
+				  */
+				  public void foo() {
+				  }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:javadoc -warn:-allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -5991,24 +6295,27 @@ public void test171_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  /**\n" +
-			"    @param\n" +
-			"  */\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  /**
+				    @param
+				  */
+				  public void foo() {
+				  }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:allJavadoc -warn:-javadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		"	public class X {\n" +
-		"	             ^\n" +
-		"Javadoc: Missing comment for public declaration\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+				public class X {
+				             ^
+			Javadoc: Missing comment for public declaration
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -6017,28 +6324,32 @@ public void test172_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Y f;\n" +
-			"  /** @deprecated */\n" +
-			"  void foo(Y p) {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  Y f;
+				  /** @deprecated */
+				  void foo(Y p) {
+				  }
+				}""",
 			"Y.java",
-			"/** @deprecated */\n" +
-			"public class Y {\n" +
-			"}",
+			"""
+				/** @deprecated */
+				public class Y {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
-		"	Y f;\n" +
-		"	^\n" +
-		"The type Y is deprecated\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)
+				Y f;
+				^
+			The type Y is deprecated
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 	// observe -warn options variations
 	this.runConformTest(
@@ -6047,18 +6358,20 @@ public void test172_warn_options() {
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:allDeprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
-		"	Y f;\n" +
-		"	^\n" +
-		"The type Y is deprecated\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	void foo(Y p) {\n" +
-		"	         ^\n" +
-		"The type Y is deprecated\n" +
-		"----------\n" +
-		"2 problems (2 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)
+				Y f;
+				^
+			The type Y is deprecated
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				void foo(Y p) {
+				         ^
+			The type Y is deprecated
+			----------
+			2 problems (2 warnings)
+			""",
 		false);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
@@ -6068,28 +6381,31 @@ public void _test173_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Y f;\n" +
-			"  /** @deprecated */\n" +
-			"  void foo(Y p) {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  Y f;
+				  /** @deprecated */
+				  void foo(Y p) {
+				  }
+				}""",
 			"Y.java",
-			"/** @deprecated */\n" +
-			"public class Y {\n" +
-			"}",
+			"""
+				/** @deprecated */
+				public class Y {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:allDeprecation -warn:-deprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	void foo(Y p) {\n" +
-		"	         ^\n" +
-		"The type Y is deprecated\n" +
-		"----------\n" +
-		"1 problem (1 warning)",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				void foo(Y p) {
+				         ^
+			The type Y is deprecated
+			----------
+			1 problem (1 warning)""",
 		true);
 }
 // -warn option - regression tests
@@ -6098,53 +6414,56 @@ public void test174_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  int i;\n" +
-			"  class XX {\n" +
-			"    int i;\n" +
-			"  }\n" +
-			"  void foo(int i) {\n" +
-			"    class XX {\n" +
-			"    }\n" +
-			"    if (i > 0) {\n" +
-			"      try {\n" +
-			"        bar();\n" +
-			"      } catch (E2 e2) {\n" +
-			"      } catch (E1 e1) {\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() throws E2 {\n" +
-			"    throw new E2();\n" +
-			"  }\n" +
-			"}\n" +
-			"class E1 extends Exception {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}\n" +
-			"class E2 extends E1 {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}"
+			"""
+				public class X {
+				  int i;
+				  class XX {
+				    int i;
+				  }
+				  void foo(int i) {
+				    class XX {
+				    }
+				    if (i > 0) {
+				      try {
+				        bar();
+				      } catch (E2 e2) {
+				      } catch (E1 e1) {
+				      }
+				    }
+				  }
+				  void bar() throws E2 {
+				    throw new E2();
+				  }
+				}
+				class E1 extends Exception {
+				  private static final long serialVersionUID = 1L;
+				}
+				class E2 extends E1 {
+				  private static final long serialVersionUID = 1L;
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-		"	class XX {\n" +
-		"	      ^^\n" +
-		"The type XX is hiding the type X.XX\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-		"	class XX {\n" +
-		"	      ^^\n" +
-		"The type XX is never used locally\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" +
-		"	} catch (E1 e1) {\n" +
-		"	         ^^\n" +
-		"Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).\n" +
-		"----------\n" +
-		"3 problems (3 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)
+				class XX {
+				      ^^
+			The type XX is hiding the type X.XX
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)
+				class XX {
+				      ^^
+			The type XX is never used locally
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)
+				} catch (E1 e1) {
+				         ^^
+			Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).
+			----------
+			3 problems (3 warnings)
+			""",
 		true);
 	// observe -warn options variations
 	this.runConformTest(
@@ -6161,58 +6480,61 @@ public void test175_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  int i;\n" +
-			"  class XX {\n" +
-			"    int i;\n" +
-			"  }\n" +
-			"  void foo(int i) {\n" +
-			"    class XX {\n" +
-			"    }\n" +
-			"    if (i > 0) {\n" +
-			"      try {\n" +
-			"        bar();\n" +
-			"      } catch (E2 e2) {\n" +
-			"      } catch (E1 e1) {\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() throws E2 {\n" +
-			"    throw new E2();\n" +
-			"  }\n" +
-			"}\n" +
-			"class E1 extends Exception {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}\n" +
-			"class E2 extends E1 {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}"
+			"""
+				public class X {
+				  int i;
+				  class XX {
+				    int i;
+				  }
+				  void foo(int i) {
+				    class XX {
+				    }
+				    if (i > 0) {
+				      try {
+				        bar();
+				      } catch (E2 e2) {
+				      } catch (E1 e1) {
+				      }
+				    }
+				  }
+				  void bar() throws E2 {
+				    throw new E2();
+				  }
+				}
+				class E1 extends Exception {
+				  private static final long serialVersionUID = 1L;
+				}
+				class E2 extends E1 {
+				  private static final long serialVersionUID = 1L;
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:hiding -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	int i;\n" +
-		"	    ^\n" +
-		"The field X.XX.i is hiding a field from type X\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-		"	void foo(int i) {\n" +
-		"	             ^\n" +
-		"The parameter i is hiding a field from type X\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-		"	class XX {\n" +
-		"	      ^^\n" +
-		"The type XX is hiding the type X.XX\n" +
-		"----------\n" +
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" +
-		"	} catch (E1 e1) {\n" +
-		"	         ^^\n" +
-		"Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).\n" +
-		"----------\n" +
-		"4 problems (4 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				int i;
+				    ^
+			The field X.XX.i is hiding a field from type X
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				void foo(int i) {
+				             ^
+			The parameter i is hiding a field from type X
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)
+				class XX {
+				      ^^
+			The type XX is hiding the type X.XX
+			----------
+			4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)
+				} catch (E1 e1) {
+				         ^^
+			Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).
+			----------
+			4 problems (4 warnings)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -6221,43 +6543,46 @@ public void test176_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  int i;\n" +
-			"  class XX {\n" +
-			"    int i;\n" +
-			"  }\n" +
-			"  void foo(int i) {\n" +
-			"    class XX {\n" +
-			"    }\n" +
-			"    if (i > 0) {\n" +
-			"      try {\n" +
-			"        bar();\n" +
-			"      } catch (E2 e2) {\n" +
-			"      } catch (E1 e1) {\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() throws E2 {\n" +
-			"    throw new E2();\n" +
-			"  }\n" +
-			"}\n" +
-			"class E1 extends Exception {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}\n" +
-			"class E2 extends E1 {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}"
+			"""
+				public class X {
+				  int i;
+				  class XX {
+				    int i;
+				  }
+				  void foo(int i) {
+				    class XX {
+				    }
+				    if (i > 0) {
+				      try {
+				        bar();
+				      } catch (E2 e2) {
+				      } catch (E1 e1) {
+				      }
+				    }
+				  }
+				  void bar() throws E2 {
+				    throw new E2();
+				  }
+				}
+				class E1 extends Exception {
+				  private static final long serialVersionUID = 1L;
+				}
+				class E2 extends E1 {
+				  private static final long serialVersionUID = 1L;
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:fieldHiding -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	int i;\n" +
-		"	    ^\n" +
-		"The field X.XX.i is hiding a field from type X\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				int i;
+				    ^
+			The field X.XX.i is hiding a field from type X
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -6266,43 +6591,46 @@ public void test177_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  int i;\n" +
-			"  class XX {\n" +
-			"    int i;\n" +
-			"  }\n" +
-			"  void foo(int i) {\n" +
-			"    class XX {\n" +
-			"    }\n" +
-			"    if (i > 0) {\n" +
-			"      try {\n" +
-			"        bar();\n" +
-			"      } catch (E2 e2) {\n" +
-			"      } catch (E1 e1) {\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() throws E2 {\n" +
-			"    throw new E2();\n" +
-			"  }\n" +
-			"}\n" +
-			"class E1 extends Exception {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}\n" +
-			"class E2 extends E1 {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}"
+			"""
+				public class X {
+				  int i;
+				  class XX {
+				    int i;
+				  }
+				  void foo(int i) {
+				    class XX {
+				    }
+				    if (i > 0) {
+				      try {
+				        bar();
+				      } catch (E2 e2) {
+				      } catch (E1 e1) {
+				      }
+				    }
+				  }
+				  void bar() throws E2 {
+				    throw new E2();
+				  }
+				}
+				class E1 extends Exception {
+				  private static final long serialVersionUID = 1L;
+				}
+				class E2 extends E1 {
+				  private static final long serialVersionUID = 1L;
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:localHiding -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-		"	void foo(int i) {\n" +
-		"	             ^\n" +
-		"The parameter i is hiding a field from type X\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				void foo(int i) {
+				             ^
+			The parameter i is hiding a field from type X
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -6311,43 +6639,46 @@ public void test178_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  int i;\n" +
-			"  class XX {\n" +
-			"    int i;\n" +
-			"  }\n" +
-			"  void foo(int i) {\n" +
-			"    class XX {\n" +
-			"    }\n" +
-			"    if (i > 0) {\n" +
-			"      try {\n" +
-			"        bar();\n" +
-			"      } catch (E2 e2) {\n" +
-			"      } catch (E1 e1) {\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() throws E2 {\n" +
-			"    throw new E2();\n" +
-			"  }\n" +
-			"}\n" +
-			"class E1 extends Exception {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}\n" +
-			"class E2 extends E1 {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}"
+			"""
+				public class X {
+				  int i;
+				  class XX {
+				    int i;
+				  }
+				  void foo(int i) {
+				    class XX {
+				    }
+				    if (i > 0) {
+				      try {
+				        bar();
+				      } catch (E2 e2) {
+				      } catch (E1 e1) {
+				      }
+				    }
+				  }
+				  void bar() throws E2 {
+				    throw new E2();
+				  }
+				}
+				class E1 extends Exception {
+				  private static final long serialVersionUID = 1L;
+				}
+				class E2 extends E1 {
+				  private static final long serialVersionUID = 1L;
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:maskedCatchBlock -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" +
-		"	} catch (E1 e1) {\n" +
-		"	         ^^\n" +
-		"Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)
+				} catch (E1 e1) {
+				         ^^
+			Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -6356,43 +6687,46 @@ public void test179_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  int i;\n" +
-			"  class XX {\n" +
-			"    int i;\n" +
-			"  }\n" +
-			"  void foo(int i) {\n" +
-			"    class XX {\n" +
-			"    }\n" +
-			"    if (i > 0) {\n" +
-			"      try {\n" +
-			"        bar();\n" +
-			"      } catch (E2 e2) {\n" +
-			"      } catch (E1 e1) {\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() throws E2 {\n" +
-			"    throw new E2();\n" +
-			"  }\n" +
-			"}\n" +
-			"class E1 extends Exception {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}\n" +
-			"class E2 extends E1 {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}"
+			"""
+				public class X {
+				  int i;
+				  class XX {
+				    int i;
+				  }
+				  void foo(int i) {
+				    class XX {
+				    }
+				    if (i > 0) {
+				      try {
+				        bar();
+				      } catch (E2 e2) {
+				      } catch (E1 e1) {
+				      }
+				    }
+				  }
+				  void bar() throws E2 {
+				    throw new E2();
+				  }
+				}
+				class E1 extends Exception {
+				  private static final long serialVersionUID = 1L;
+				}
+				class E2 extends E1 {
+				  private static final long serialVersionUID = 1L;
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:typeHiding -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-		"	class XX {\n" +
-		"	      ^^\n" +
-		"The type XX is hiding the type X.XX\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)
+				class XX {
+				      ^^
+			The type XX is hiding the type X.XX
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -6401,53 +6735,56 @@ public void test180_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  int i;\n" +
-			"  class XX {\n" +
-			"    int i;\n" +
-			"  }\n" +
-			"  void foo(int i) {\n" +
-			"    class XX {\n" +
-			"    }\n" +
-			"    if (i > 0) {\n" +
-			"      try {\n" +
-			"        bar();\n" +
-			"      } catch (E2 e2) {\n" +
-			"      } catch (E1 e1) {\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() throws E2 {\n" +
-			"    throw new E2();\n" +
-			"  }\n" +
-			"}\n" +
-			"class E1 extends Exception {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}\n" +
-			"class E2 extends E1 {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}"
+			"""
+				public class X {
+				  int i;
+				  class XX {
+				    int i;
+				  }
+				  void foo(int i) {
+				    class XX {
+				    }
+				    if (i > 0) {
+				      try {
+				        bar();
+				      } catch (E2 e2) {
+				      } catch (E1 e1) {
+				      }
+				    }
+				  }
+				  void bar() throws E2 {
+				    throw new E2();
+				  }
+				}
+				class E1 extends Exception {
+				  private static final long serialVersionUID = 1L;
+				}
+				class E2 extends E1 {
+				  private static final long serialVersionUID = 1L;
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:hiding -warn:-fieldHiding -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-		"	void foo(int i) {\n" +
-		"	             ^\n" +
-		"The parameter i is hiding a field from type X\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-		"	class XX {\n" +
-		"	      ^^\n" +
-		"The type XX is hiding the type X.XX\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" +
-		"	} catch (E1 e1) {\n" +
-		"	         ^^\n" +
-		"Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).\n" +
-		"----------\n" +
-		"3 problems (3 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				void foo(int i) {
+				             ^
+			The parameter i is hiding a field from type X
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)
+				class XX {
+				      ^^
+			The type XX is hiding the type X.XX
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)
+				} catch (E1 e1) {
+				         ^^
+			Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).
+			----------
+			3 problems (3 warnings)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -6456,53 +6793,56 @@ public void test181_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  int i;\n" +
-			"  class XX {\n" +
-			"    int i;\n" +
-			"  }\n" +
-			"  void foo(int i) {\n" +
-			"    class XX {\n" +
-			"    }\n" +
-			"    if (i > 0) {\n" +
-			"      try {\n" +
-			"        bar();\n" +
-			"      } catch (E2 e2) {\n" +
-			"      } catch (E1 e1) {\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() throws E2 {\n" +
-			"    throw new E2();\n" +
-			"  }\n" +
-			"}\n" +
-			"class E1 extends Exception {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}\n" +
-			"class E2 extends E1 {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}"
+			"""
+				public class X {
+				  int i;
+				  class XX {
+				    int i;
+				  }
+				  void foo(int i) {
+				    class XX {
+				    }
+				    if (i > 0) {
+				      try {
+				        bar();
+				      } catch (E2 e2) {
+				      } catch (E1 e1) {
+				      }
+				    }
+				  }
+				  void bar() throws E2 {
+				    throw new E2();
+				  }
+				}
+				class E1 extends Exception {
+				  private static final long serialVersionUID = 1L;
+				}
+				class E2 extends E1 {
+				  private static final long serialVersionUID = 1L;
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:hiding -warn:-localHiding -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	int i;\n" +
-		"	    ^\n" +
-		"The field X.XX.i is hiding a field from type X\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-		"	class XX {\n" +
-		"	      ^^\n" +
-		"The type XX is hiding the type X.XX\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" +
-		"	} catch (E1 e1) {\n" +
-		"	         ^^\n" +
-		"Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).\n" +
-		"----------\n" +
-		"3 problems (3 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				int i;
+				    ^
+			The field X.XX.i is hiding a field from type X
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)
+				class XX {
+				      ^^
+			The type XX is hiding the type X.XX
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)
+				} catch (E1 e1) {
+				         ^^
+			Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).
+			----------
+			3 problems (3 warnings)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -6511,53 +6851,56 @@ public void test182_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  int i;\n" +
-			"  class XX {\n" +
-			"    int i;\n" +
-			"  }\n" +
-			"  void foo(int i) {\n" +
-			"    class XX {\n" +
-			"    }\n" +
-			"    if (i > 0) {\n" +
-			"      try {\n" +
-			"        bar();\n" +
-			"      } catch (E2 e2) {\n" +
-			"      } catch (E1 e1) {\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() throws E2 {\n" +
-			"    throw new E2();\n" +
-			"  }\n" +
-			"}\n" +
-			"class E1 extends Exception {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}\n" +
-			"class E2 extends E1 {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}"
+			"""
+				public class X {
+				  int i;
+				  class XX {
+				    int i;
+				  }
+				  void foo(int i) {
+				    class XX {
+				    }
+				    if (i > 0) {
+				      try {
+				        bar();
+				      } catch (E2 e2) {
+				      } catch (E1 e1) {
+				      }
+				    }
+				  }
+				  void bar() throws E2 {
+				    throw new E2();
+				  }
+				}
+				class E1 extends Exception {
+				  private static final long serialVersionUID = 1L;
+				}
+				class E2 extends E1 {
+				  private static final long serialVersionUID = 1L;
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:hiding -warn:-maskedCatchBlock -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	int i;\n" +
-		"	    ^\n" +
-		"The field X.XX.i is hiding a field from type X\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-		"	void foo(int i) {\n" +
-		"	             ^\n" +
-		"The parameter i is hiding a field from type X\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-		"	class XX {\n" +
-		"	      ^^\n" +
-		"The type XX is hiding the type X.XX\n" +
-		"----------\n" +
-		"3 problems (3 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				int i;
+				    ^
+			The field X.XX.i is hiding a field from type X
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				void foo(int i) {
+				             ^
+			The parameter i is hiding a field from type X
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)
+				class XX {
+				      ^^
+			The type XX is hiding the type X.XX
+			----------
+			3 problems (3 warnings)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -6566,53 +6909,56 @@ public void test183_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  int i;\n" +
-			"  class XX {\n" +
-			"    int i;\n" +
-			"  }\n" +
-			"  void foo(int i) {\n" +
-			"    class XX {\n" +
-			"    }\n" +
-			"    if (i > 0) {\n" +
-			"      try {\n" +
-			"        bar();\n" +
-			"      } catch (E2 e2) {\n" +
-			"      } catch (E1 e1) {\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() throws E2 {\n" +
-			"    throw new E2();\n" +
-			"  }\n" +
-			"}\n" +
-			"class E1 extends Exception {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}\n" +
-			"class E2 extends E1 {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}"
+			"""
+				public class X {
+				  int i;
+				  class XX {
+				    int i;
+				  }
+				  void foo(int i) {
+				    class XX {
+				    }
+				    if (i > 0) {
+				      try {
+				        bar();
+				      } catch (E2 e2) {
+				      } catch (E1 e1) {
+				      }
+				    }
+				  }
+				  void bar() throws E2 {
+				    throw new E2();
+				  }
+				}
+				class E1 extends Exception {
+				  private static final long serialVersionUID = 1L;
+				}
+				class E2 extends E1 {
+				  private static final long serialVersionUID = 1L;
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:hiding -warn:-typeHiding -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	int i;\n" +
-		"	    ^\n" +
-		"The field X.XX.i is hiding a field from type X\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-		"	void foo(int i) {\n" +
-		"	             ^\n" +
-		"The parameter i is hiding a field from type X\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" +
-		"	} catch (E1 e1) {\n" +
-		"	         ^^\n" +
-		"Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).\n" +
-		"----------\n" +
-		"3 problems (3 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				int i;
+				    ^
+			The field X.XX.i is hiding a field from type X
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				void foo(int i) {
+				             ^
+			The parameter i is hiding a field from type X
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)
+				} catch (E1 e1) {
+				         ^^
+			Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).
+			----------
+			3 problems (3 warnings)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -6621,27 +6967,30 @@ public void test184_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X extends Y {\n" +
-			"  public static int i;\n" +
-			"  void foo() {\n" +
-			"    if (this.i > X.j) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  static int j;\n" +
-			"}"
+			"""
+				public class X extends Y {
+				  public static int i;
+				  void foo() {
+				    if (this.i > X.j) {
+				    }
+				  }
+				}
+				class Y {
+				  static int j;
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	if (this.i > X.j) {\n" +
-		"	         ^\n" +
-		"The static field X.i should be accessed in a static way\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				if (this.i > X.j) {
+				         ^
+			The static field X.i should be accessed in a static way
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 	// observe -warn options variations
 	this.runConformTest(
@@ -6658,27 +7007,30 @@ public void test185_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X extends Y {\n" +
-			"  public static int i;\n" +
-			"  void foo() {\n" +
-			"    if (this.i > X.j) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  static int j;\n" +
-			"}"
+			"""
+				public class X extends Y {
+				  public static int i;
+				  void foo() {
+				    if (this.i > X.j) {
+				    }
+				  }
+				}
+				class Y {
+				  static int j;
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:staticReceiver -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	if (this.i > X.j) {\n" +
-		"	         ^\n" +
-		"The static field X.i should be accessed in a static way\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				if (this.i > X.j) {
+				         ^
+			The static field X.i should be accessed in a static way
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -6687,27 +7039,30 @@ public void test186_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X extends Y {\n" +
-			"  public static int i;\n" +
-			"  void foo() {\n" +
-			"    if (this.i > X.j) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  static int j;\n" +
-			"}"
+			"""
+				public class X extends Y {
+				  public static int i;
+				  void foo() {
+				    if (this.i > X.j) {
+				    }
+				  }
+				}
+				class Y {
+				  static int j;
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:indirectStatic -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	if (this.i > X.j) {\n" +
-		"	               ^\n" +
-		"The static field Y.j should be accessed directly\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				if (this.i > X.j) {
+				               ^
+			The static field Y.j should be accessed directly
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -6716,32 +7071,35 @@ public void test187_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X extends Y {\n" +
-			"  public static int i;\n" +
-			"  void foo() {\n" +
-			"    if (this.i > X.j) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  static int j;\n" +
-			"}"
+			"""
+				public class X extends Y {
+				  public static int i;
+				  void foo() {
+				    if (this.i > X.j) {
+				    }
+				  }
+				}
+				class Y {
+				  static int j;
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:static-access -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	if (this.i > X.j) {\n" +
-		"	         ^\n" +
-		"The static field X.i should be accessed in a static way\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	if (this.i > X.j) {\n" +
-		"	               ^\n" +
-		"The static field Y.j should be accessed directly\n" +
-		"----------\n" +
-		"2 problems (2 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				if (this.i > X.j) {
+				         ^
+			The static field X.i should be accessed in a static way
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				if (this.i > X.j) {
+				               ^
+			The static field Y.j should be accessed directly
+			----------
+			2 problems (2 warnings)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -6750,27 +7108,30 @@ public void test188_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X extends Y {\n" +
-			"  public static int i;\n" +
-			"  void foo() {\n" +
-			"    if (this.i > X.j) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  static int j;\n" +
-			"}"
+			"""
+				public class X extends Y {
+				  public static int i;
+				  void foo() {
+				    if (this.i > X.j) {
+				    }
+				  }
+				}
+				class Y {
+				  static int j;
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:static-access -warn:-staticReceiver -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	if (this.i > X.j) {\n" +
-		"	               ^\n" +
-		"The static field Y.j should be accessed directly\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				if (this.i > X.j) {
+				               ^
+			The static field Y.j should be accessed directly
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -6779,27 +7140,30 @@ public void test189_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X extends Y {\n" +
-			"  public static int i;\n" +
-			"  void foo() {\n" +
-			"    if (this.i > X.j) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  static int j;\n" +
-			"}"
+			"""
+				public class X extends Y {
+				  public static int i;
+				  void foo() {
+				    if (this.i > X.j) {
+				    }
+				  }
+				}
+				class Y {
+				  static int j;
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:static-access -warn:-indirectStatic -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	if (this.i > X.j) {\n" +
-		"	         ^\n" +
-		"The static field X.i should be accessed in a static way\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				if (this.i > X.j) {
+				         ^
+			The static field X.i should be accessed in a static way
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -6808,53 +7172,56 @@ public void test190_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X extends Y {\n" +
-			"  private void foo(int i) throws java.io.IOException {\n" +
-			"    int j;\n" +
-			"    this.<String>bar();\n" +
-			"    next: for (;;) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  <T> void bar() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				public class X extends Y {
+				  private void foo(int i) throws java.io.IOException {
+				    int j;
+				    this.<String>bar();
+				    next: for (;;) {
+				      return;
+				    }
+				  }
+				  void bar() {
+				  }
+				}
+				class Y {
+				  <T> void bar() {
+				  }
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		"	import java.util.ArrayList;\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^\n" +
-		"The import java.util.ArrayList is never used\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The method foo(int) from the type X is never used locally\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	int j;\n" +
-		"	    ^\n" +
-		"The value of the local variable j is not used\n" +
-		"----------\n" +
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	this.<String>bar();\n" +
-		"	      ^^^^^^\n" +
-		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" +
-		"----------\n" +
-		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-		"	next: for (;;) {\n" +
-		"	^^^^\n" +
-		"The label next is never explicitly referenced\n" +
-		"----------\n" +
-		"5 problems (5 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+				import java.util.ArrayList;
+				       ^^^^^^^^^^^^^^^^^^^
+			The import java.util.ArrayList is never used
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			The method foo(int) from the type X is never used locally
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				int j;
+				    ^
+			The value of the local variable j is not used
+			----------
+			4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				this.<String>bar();
+				      ^^^^^^
+			Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>
+			----------
+			5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				next: for (;;) {
+				^^^^
+			The label next is never explicitly referenced
+			----------
+			5 problems (5 warnings)
+			""",
 		true);
 	// observe -warn options variations
 	this.runConformTest(
@@ -6871,68 +7238,71 @@ public void test191_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X extends Y {\n" +
-			"  private void foo(int i) throws java.io.IOException {\n" +
-			"    int j;\n" +
-			"    this.<String>bar();\n" +
-			"    next: for (;;) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  <T> void bar() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				public class X extends Y {
+				  private void foo(int i) throws java.io.IOException {
+				    int j;
+				    this.<String>bar();
+				    next: for (;;) {
+				      return;
+				    }
+				  }
+				  void bar() {
+				  }
+				}
+				class Y {
+				  <T> void bar() {
+				  }
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unused -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		"	import java.util.ArrayList;\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^\n" +
-		"The import java.util.ArrayList is never used\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The method foo(int) from the type X is never used locally\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	                     ^\n" +
-		"The value of the parameter i is not used\n" +
-		"----------\n" +
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	                               ^^^^^^^^^^^^^^^^^^^\n" +
-		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" +
-		"----------\n" +
-		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	int j;\n" +
-		"	    ^\n" +
-		"The value of the local variable j is not used\n" +
-		"----------\n" +
-		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	this.<String>bar();\n" +
-		"	      ^^^^^^\n" +
-		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" +
-		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-		"	next: for (;;) {\n" +
-		"	^^^^\n" +
-		"The label next is never explicitly referenced\n" +
-		"----------\n" +
-		"8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" +
-		"	<T> void bar() {\n" +
-		"	 ^\n" +
-		"Unused type parameter T\n" +
-		"----------\n" +
-		"8 problems (8 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+				import java.util.ArrayList;
+				       ^^^^^^^^^^^^^^^^^^^
+			The import java.util.ArrayList is never used
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			The method foo(int) from the type X is never used locally
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				                     ^
+			The value of the parameter i is not used
+			----------
+			4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				                               ^^^^^^^^^^^^^^^^^^^
+			The declared exception IOException is not actually thrown by the method foo(int) from type X
+			----------
+			5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				int j;
+				    ^
+			The value of the local variable j is not used
+			----------
+			6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				this.<String>bar();
+				      ^^^^^^
+			Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>
+			----------
+			7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				next: for (;;) {
+				^^^^
+			The label next is never explicitly referenced
+			----------
+			8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)
+				<T> void bar() {
+				 ^
+			Unused type parameter T
+			----------
+			8 problems (8 warnings)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -6941,33 +7311,36 @@ public void test192_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X extends Y {\n" +
-			"  private void foo(int i) throws java.io.IOException {\n" +
-			"    int j;\n" +
-			"    this.<String>bar();\n" +
-			"    next: for (;;) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  <T> void bar() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				public class X extends Y {
+				  private void foo(int i) throws java.io.IOException {
+				    int j;
+				    this.<String>bar();
+				    next: for (;;) {
+				      return;
+				    }
+				  }
+				  void bar() {
+				  }
+				}
+				class Y {
+				  <T> void bar() {
+				  }
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unusedArgument -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	                     ^\n" +
-		"The value of the parameter i is not used\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				                     ^
+			The value of the parameter i is not used
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -6976,33 +7349,36 @@ public void test193_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X extends Y {\n" +
-			"  private void foo(int i) throws java.io.IOException {\n" +
-			"    int j;\n" +
-			"    this.<String>bar();\n" +
-			"    next: for (;;) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  <T> void bar() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				public class X extends Y {
+				  private void foo(int i) throws java.io.IOException {
+				    int j;
+				    this.<String>bar();
+				    next: for (;;) {
+				      return;
+				    }
+				  }
+				  void bar() {
+				  }
+				}
+				class Y {
+				  <T> void bar() {
+				  }
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unusedImport -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		"	import java.util.ArrayList;\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^\n" +
-		"The import java.util.ArrayList is never used\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+				import java.util.ArrayList;
+				       ^^^^^^^^^^^^^^^^^^^
+			The import java.util.ArrayList is never used
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -7011,33 +7387,36 @@ public void test194_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X extends Y {\n" +
-			"  private void foo(int i) throws java.io.IOException {\n" +
-			"    int j;\n" +
-			"    this.<String>bar();\n" +
-			"    next: for (;;) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  <T> void bar() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				public class X extends Y {
+				  private void foo(int i) throws java.io.IOException {
+				    int j;
+				    this.<String>bar();
+				    next: for (;;) {
+				      return;
+				    }
+				  }
+				  void bar() {
+				  }
+				}
+				class Y {
+				  <T> void bar() {
+				  }
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unusedLabel -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-		"	next: for (;;) {\n" +
-		"	^^^^\n" +
-		"The label next is never explicitly referenced\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				next: for (;;) {
+				^^^^
+			The label next is never explicitly referenced
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -7046,33 +7425,36 @@ public void test195_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X extends Y {\n" +
-			"  private void foo(int i) throws java.io.IOException {\n" +
-			"    int j;\n" +
-			"    this.<String>bar();\n" +
-			"    next: for (;;) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  <T> void bar() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				public class X extends Y {
+				  private void foo(int i) throws java.io.IOException {
+				    int j;
+				    this.<String>bar();
+				    next: for (;;) {
+				      return;
+				    }
+				  }
+				  void bar() {
+				  }
+				}
+				class Y {
+				  <T> void bar() {
+				  }
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unusedLocal -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	int j;\n" +
-		"	    ^\n" +
-		"The value of the local variable j is not used\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				int j;
+				    ^
+			The value of the local variable j is not used
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -7081,33 +7463,36 @@ public void test196_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X extends Y {\n" +
-			"  private void foo(int i) throws java.io.IOException {\n" +
-			"    int j;\n" +
-			"    this.<String>bar();\n" +
-			"    next: for (;;) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  <T> void bar() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				public class X extends Y {
+				  private void foo(int i) throws java.io.IOException {
+				    int j;
+				    this.<String>bar();
+				    next: for (;;) {
+				      return;
+				    }
+				  }
+				  void bar() {
+				  }
+				}
+				class Y {
+				  <T> void bar() {
+				  }
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unusedPrivate -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The method foo(int) from the type X is never used locally\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			The method foo(int) from the type X is never used locally
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -7116,33 +7501,36 @@ public void test197_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X extends Y {\n" +
-			"  private void foo(int i) throws java.io.IOException {\n" +
-			"    int j;\n" +
-			"    this.<String>bar();\n" +
-			"    next: for (;;) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  <T> void bar() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				public class X extends Y {
+				  private void foo(int i) throws java.io.IOException {
+				    int j;
+				    this.<String>bar();
+				    next: for (;;) {
+				      return;
+				    }
+				  }
+				  void bar() {
+				  }
+				}
+				class Y {
+				  <T> void bar() {
+				  }
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unusedTypeArgs -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	this.<String>bar();\n" +
-		"	      ^^^^^^\n" +
-		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				this.<String>bar();
+				      ^^^^^^
+			Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -7151,33 +7539,36 @@ public void test198_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X extends Y {\n" +
-			"  private void foo(int i) throws java.io.IOException {\n" +
-			"    int j;\n" +
-			"    this.<String>bar();\n" +
-			"    next: for (;;) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  <T> void bar() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				public class X extends Y {
+				  private void foo(int i) throws java.io.IOException {
+				    int j;
+				    this.<String>bar();
+				    next: for (;;) {
+				      return;
+				    }
+				  }
+				  void bar() {
+				  }
+				}
+				class Y {
+				  <T> void bar() {
+				  }
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unusedThrown -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	                               ^^^^^^^^^^^^^^^^^^^\n" +
-		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				                               ^^^^^^^^^^^^^^^^^^^
+			The declared exception IOException is not actually thrown by the method foo(int) from type X
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -7186,63 +7577,66 @@ public void test199_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X extends Y {\n" +
-			"  private void foo(int i) throws java.io.IOException {\n" +
-			"    int j;\n" +
-			"    this.<String>bar();\n" +
-			"    next: for (;;) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  <T> void bar() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				public class X extends Y {
+				  private void foo(int i) throws java.io.IOException {
+				    int j;
+				    this.<String>bar();
+				    next: for (;;) {
+				      return;
+				    }
+				  }
+				  void bar() {
+				  }
+				}
+				class Y {
+				  <T> void bar() {
+				  }
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unused -warn:-unusedArgument -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		"	import java.util.ArrayList;\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^\n" +
-		"The import java.util.ArrayList is never used\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The method foo(int) from the type X is never used locally\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	                               ^^^^^^^^^^^^^^^^^^^\n" +
-		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" +
-		"----------\n" +
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	int j;\n" +
-		"	    ^\n" +
-		"The value of the local variable j is not used\n" +
-		"----------\n" +
-		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	this.<String>bar();\n" +
-		"	      ^^^^^^\n" +
-		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" +
-		"----------\n" +
-		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-		"	next: for (;;) {\n" +
-		"	^^^^\n" +
-		"The label next is never explicitly referenced\n" +
-		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" +
-		"	<T> void bar() {\n" +
-		"	 ^\n" +
-		"Unused type parameter T\n" +
-		"----------\n" +
-		"7 problems (7 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+				import java.util.ArrayList;
+				       ^^^^^^^^^^^^^^^^^^^
+			The import java.util.ArrayList is never used
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			The method foo(int) from the type X is never used locally
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				                               ^^^^^^^^^^^^^^^^^^^
+			The declared exception IOException is not actually thrown by the method foo(int) from type X
+			----------
+			4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				int j;
+				    ^
+			The value of the local variable j is not used
+			----------
+			5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				this.<String>bar();
+				      ^^^^^^
+			Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>
+			----------
+			6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				next: for (;;) {
+				^^^^
+			The label next is never explicitly referenced
+			----------
+			7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)
+				<T> void bar() {
+				 ^
+			Unused type parameter T
+			----------
+			7 problems (7 warnings)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -7251,63 +7645,66 @@ public void test200_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X extends Y {\n" +
-			"  private void foo(int i) throws java.io.IOException {\n" +
-			"    int j;\n" +
-			"    this.<String>bar();\n" +
-			"    next: for (;;) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  <T> void bar() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				public class X extends Y {
+				  private void foo(int i) throws java.io.IOException {
+				    int j;
+				    this.<String>bar();
+				    next: for (;;) {
+				      return;
+				    }
+				  }
+				  void bar() {
+				  }
+				}
+				class Y {
+				  <T> void bar() {
+				  }
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unused -warn:-unusedImport -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The method foo(int) from the type X is never used locally\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	                     ^\n" +
-		"The value of the parameter i is not used\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	                               ^^^^^^^^^^^^^^^^^^^\n" +
-		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" +
-		"----------\n" +
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	int j;\n" +
-		"	    ^\n" +
-		"The value of the local variable j is not used\n" +
-		"----------\n" +
-		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	this.<String>bar();\n" +
-		"	      ^^^^^^\n" +
-		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" +
-		"----------\n" +
-		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-		"	next: for (;;) {\n" +
-		"	^^^^\n" +
-		"The label next is never explicitly referenced\n" +
-		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" +
-		"	<T> void bar() {\n" +
-		"	 ^\n" +
-		"Unused type parameter T\n" +
-		"----------\n" +
-		"7 problems (7 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			The method foo(int) from the type X is never used locally
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				                     ^
+			The value of the parameter i is not used
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				                               ^^^^^^^^^^^^^^^^^^^
+			The declared exception IOException is not actually thrown by the method foo(int) from type X
+			----------
+			4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				int j;
+				    ^
+			The value of the local variable j is not used
+			----------
+			5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				this.<String>bar();
+				      ^^^^^^
+			Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>
+			----------
+			6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				next: for (;;) {
+				^^^^
+			The label next is never explicitly referenced
+			----------
+			7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)
+				<T> void bar() {
+				 ^
+			Unused type parameter T
+			----------
+			7 problems (7 warnings)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -7316,63 +7713,66 @@ public void test201_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X extends Y {\n" +
-			"  private void foo(int i) throws java.io.IOException {\n" +
-			"    int j;\n" +
-			"    this.<String>bar();\n" +
-			"    next: for (;;) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  <T> void bar() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				public class X extends Y {
+				  private void foo(int i) throws java.io.IOException {
+				    int j;
+				    this.<String>bar();
+				    next: for (;;) {
+				      return;
+				    }
+				  }
+				  void bar() {
+				  }
+				}
+				class Y {
+				  <T> void bar() {
+				  }
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unused -warn:-unusedLabel -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		"	import java.util.ArrayList;\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^\n" +
-		"The import java.util.ArrayList is never used\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The method foo(int) from the type X is never used locally\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	                     ^\n" +
-		"The value of the parameter i is not used\n" +
-		"----------\n" +
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	                               ^^^^^^^^^^^^^^^^^^^\n" +
-		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" +
-		"----------\n" +
-		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	int j;\n" +
-		"	    ^\n" +
-		"The value of the local variable j is not used\n" +
-		"----------\n" +
-		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	this.<String>bar();\n" +
-		"	      ^^^^^^\n" +
-		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" +
-		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" +
-		"	<T> void bar() {\n" +
-		"	 ^\n" +
-		"Unused type parameter T\n" +
-		"----------\n" +
-		"7 problems (7 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+				import java.util.ArrayList;
+				       ^^^^^^^^^^^^^^^^^^^
+			The import java.util.ArrayList is never used
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			The method foo(int) from the type X is never used locally
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				                     ^
+			The value of the parameter i is not used
+			----------
+			4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				                               ^^^^^^^^^^^^^^^^^^^
+			The declared exception IOException is not actually thrown by the method foo(int) from type X
+			----------
+			5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				int j;
+				    ^
+			The value of the local variable j is not used
+			----------
+			6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				this.<String>bar();
+				      ^^^^^^
+			Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>
+			----------
+			7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)
+				<T> void bar() {
+				 ^
+			Unused type parameter T
+			----------
+			7 problems (7 warnings)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -7381,63 +7781,66 @@ public void test202_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X extends Y {\n" +
-			"  private void foo(int i) throws java.io.IOException {\n" +
-			"    int j;\n" +
-			"    this.<String>bar();\n" +
-			"    next: for (;;) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  <T> void bar() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				public class X extends Y {
+				  private void foo(int i) throws java.io.IOException {
+				    int j;
+				    this.<String>bar();
+				    next: for (;;) {
+				      return;
+				    }
+				  }
+				  void bar() {
+				  }
+				}
+				class Y {
+				  <T> void bar() {
+				  }
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unused -warn:-unusedLocal -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		"	import java.util.ArrayList;\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^\n" +
-		"The import java.util.ArrayList is never used\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The method foo(int) from the type X is never used locally\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	                     ^\n" +
-		"The value of the parameter i is not used\n" +
-		"----------\n" +
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	                               ^^^^^^^^^^^^^^^^^^^\n" +
-		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" +
-		"----------\n" +
-		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	this.<String>bar();\n" +
-		"	      ^^^^^^\n" +
-		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" +
-		"----------\n" +
-		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-		"	next: for (;;) {\n" +
-		"	^^^^\n" +
-		"The label next is never explicitly referenced\n" +
-		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" +
-		"	<T> void bar() {\n" +
-		"	 ^\n" +
-		"Unused type parameter T\n" +
-		"----------\n" +
-		"7 problems (7 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+				import java.util.ArrayList;
+				       ^^^^^^^^^^^^^^^^^^^
+			The import java.util.ArrayList is never used
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			The method foo(int) from the type X is never used locally
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				                     ^
+			The value of the parameter i is not used
+			----------
+			4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				                               ^^^^^^^^^^^^^^^^^^^
+			The declared exception IOException is not actually thrown by the method foo(int) from type X
+			----------
+			5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				this.<String>bar();
+				      ^^^^^^
+			Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>
+			----------
+			6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				next: for (;;) {
+				^^^^
+			The label next is never explicitly referenced
+			----------
+			7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)
+				<T> void bar() {
+				 ^
+			Unused type parameter T
+			----------
+			7 problems (7 warnings)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -7446,63 +7849,66 @@ public void test203_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X extends Y {\n" +
-			"  private void foo(int i) throws java.io.IOException {\n" +
-			"    int j;\n" +
-			"    this.<String>bar();\n" +
-			"    next: for (;;) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  <T> void bar() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				public class X extends Y {
+				  private void foo(int i) throws java.io.IOException {
+				    int j;
+				    this.<String>bar();
+				    next: for (;;) {
+				      return;
+				    }
+				  }
+				  void bar() {
+				  }
+				}
+				class Y {
+				  <T> void bar() {
+				  }
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unused -warn:-unusedPrivate -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		"	import java.util.ArrayList;\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^\n" +
-		"The import java.util.ArrayList is never used\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	                     ^\n" +
-		"The value of the parameter i is not used\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	                               ^^^^^^^^^^^^^^^^^^^\n" +
-		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" +
-		"----------\n" +
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	int j;\n" +
-		"	    ^\n" +
-		"The value of the local variable j is not used\n" +
-		"----------\n" +
-		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	this.<String>bar();\n" +
-		"	      ^^^^^^\n" +
-		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" +
-		"----------\n" +
-		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-		"	next: for (;;) {\n" +
-		"	^^^^\n" +
-		"The label next is never explicitly referenced\n" +
-		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" +
-		"	<T> void bar() {\n" +
-		"	 ^\n" +
-		"Unused type parameter T\n" +
-		"----------\n" +
-		"7 problems (7 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+				import java.util.ArrayList;
+				       ^^^^^^^^^^^^^^^^^^^
+			The import java.util.ArrayList is never used
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				                     ^
+			The value of the parameter i is not used
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				                               ^^^^^^^^^^^^^^^^^^^
+			The declared exception IOException is not actually thrown by the method foo(int) from type X
+			----------
+			4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				int j;
+				    ^
+			The value of the local variable j is not used
+			----------
+			5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				this.<String>bar();
+				      ^^^^^^
+			Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>
+			----------
+			6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				next: for (;;) {
+				^^^^
+			The label next is never explicitly referenced
+			----------
+			7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)
+				<T> void bar() {
+				 ^
+			Unused type parameter T
+			----------
+			7 problems (7 warnings)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -7511,63 +7917,66 @@ public void test204_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X extends Y {\n" +
-			"  private void foo(int i) throws java.io.IOException {\n" +
-			"    int j;\n" +
-			"    this.<String>bar();\n" +
-			"    next: for (;;) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  <T> void bar() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				public class X extends Y {
+				  private void foo(int i) throws java.io.IOException {
+				    int j;
+				    this.<String>bar();
+				    next: for (;;) {
+				      return;
+				    }
+				  }
+				  void bar() {
+				  }
+				}
+				class Y {
+				  <T> void bar() {
+				  }
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unused -warn:-unusedThrown -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		"	import java.util.ArrayList;\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^\n" +
-		"The import java.util.ArrayList is never used\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The method foo(int) from the type X is never used locally\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	                     ^\n" +
-		"The value of the parameter i is not used\n" +
-		"----------\n" +
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	int j;\n" +
-		"	    ^\n" +
-		"The value of the local variable j is not used\n" +
-		"----------\n" +
-		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	this.<String>bar();\n" +
-		"	      ^^^^^^\n" +
-		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" +
-		"----------\n" +
-		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-		"	next: for (;;) {\n" +
-		"	^^^^\n" +
-		"The label next is never explicitly referenced\n" +
-		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" +
-		"	<T> void bar() {\n" +
-		"	 ^\n" +
-		"Unused type parameter T\n" +
-		"----------\n" +
-		"7 problems (7 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+				import java.util.ArrayList;
+				       ^^^^^^^^^^^^^^^^^^^
+			The import java.util.ArrayList is never used
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			The method foo(int) from the type X is never used locally
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				                     ^
+			The value of the parameter i is not used
+			----------
+			4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				int j;
+				    ^
+			The value of the local variable j is not used
+			----------
+			5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				this.<String>bar();
+				      ^^^^^^
+			Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>
+			----------
+			6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				next: for (;;) {
+				^^^^
+			The label next is never explicitly referenced
+			----------
+			7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)
+				<T> void bar() {
+				 ^
+			Unused type parameter T
+			----------
+			7 problems (7 warnings)
+			""",
 		true);
 }
 // -warn option - regression tests
@@ -7576,63 +7985,66 @@ public void test205_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X extends Y {\n" +
-			"  private void foo(int i) throws java.io.IOException {\n" +
-			"    int j;\n" +
-			"    this.<String>bar();\n" +
-			"    next: for (;;) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  <T> void bar() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				public class X extends Y {
+				  private void foo(int i) throws java.io.IOException {
+				    int j;
+				    this.<String>bar();
+				    next: for (;;) {
+				      return;
+				    }
+				  }
+				  void bar() {
+				  }
+				}
+				class Y {
+				  <T> void bar() {
+				  }
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unused -warn:-unusedTypeArgs -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		"	import java.util.ArrayList;\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^\n" +
-		"The import java.util.ArrayList is never used\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The method foo(int) from the type X is never used locally\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	                     ^\n" +
-		"The value of the parameter i is not used\n" +
-		"----------\n" +
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private void foo(int i) throws java.io.IOException {\n" +
-		"	                               ^^^^^^^^^^^^^^^^^^^\n" +
-		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" +
-		"----------\n" +
-		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	int j;\n" +
-		"	    ^\n" +
-		"The value of the local variable j is not used\n" +
-		"----------\n" +
-		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-		"	next: for (;;) {\n" +
-		"	^^^^\n" +
-		"The label next is never explicitly referenced\n" +
-		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" +
-		"	<T> void bar() {\n" +
-		"	 ^\n" +
-		"Unused type parameter T\n" +
-		"----------\n" +
-		"7 problems (7 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+				import java.util.ArrayList;
+				       ^^^^^^^^^^^^^^^^^^^
+			The import java.util.ArrayList is never used
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			The method foo(int) from the type X is never used locally
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				                     ^
+			The value of the parameter i is not used
+			----------
+			4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private void foo(int i) throws java.io.IOException {
+				                               ^^^^^^^^^^^^^^^^^^^
+			The declared exception IOException is not actually thrown by the method foo(int) from type X
+			----------
+			5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				int j;
+				    ^
+			The value of the local variable j is not used
+			----------
+			6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				next: for (;;) {
+				^^^^
+			The label next is never explicitly referenced
+			----------
+			7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)
+				<T> void bar() {
+				 ^
+			Unused type parameter T
+			----------
+			7 problems (7 warnings)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
@@ -7642,13 +8054,14 @@ public void test206_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  /**\n" +
-			"    @param\n" +
-			"  */\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  /**
+				    @param
+				  */
+				  public void foo() {
+				  }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:allJavadoc -enableJavadoc -warn:-allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -7663,13 +8076,14 @@ public void test207_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  /**\n" +
-			"    @param\n" +
-			"  */\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  /**
+				    @param
+				  */
+				  public void foo() {
+				  }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:javadoc -enableJavadoc -warn:-javadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -7683,24 +8097,27 @@ public void test208_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  /**\n" +
-			"    @param i explained\n" +
-			"  */\n" +
-			"  public void foo(int i) {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  /**
+				    @param i explained
+				  */
+				  public void foo(int i) {
+				  }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unused -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	public void foo(int i) {\n" +
-		"	                    ^\n" +
-		"The value of the parameter i is not used\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				public void foo(int i) {
+				                    ^
+			The value of the parameter i is not used
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
@@ -7709,13 +8126,14 @@ public void test209_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  /**\n" +
-			"    @param i explained\n" +
-			"  */\n" +
-			"  public void foo(int i) {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  /**
+				    @param i explained
+				  */
+				  public void foo(int i) {
+				  }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unused -enableJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -7729,13 +8147,14 @@ public void test210_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  /**\n" +
-			"    @param i explained\n" +
-			"  */\n" +
-			"  public void foo(int i) {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  /**
+				    @param i explained
+				  */
+				  public void foo(int i) {
+				  }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unused -warn:-allJavadoc -enableJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -7749,13 +8168,14 @@ public void test211_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  /**\n" +
-			"    @param i explained\n" +
-			"  */\n" +
-			"  public void foo(int i) {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  /**
+				    @param i explained
+				  */
+				  public void foo(int i) {
+				  }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unused -enableJavadoc -warn:-allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -7769,29 +8189,32 @@ public void test212_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  /**\n" +
-			"    @param i explained\n" +
-			"  */\n" +
-			"  public void foo(int i) {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  /**
+				    @param i explained
+				  */
+				  public void foo(int i) {
+				  }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unused,allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		"	public class X {\n" +
-		"	             ^\n" +
-		"Javadoc: Missing comment for public declaration\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	public void foo(int i) {\n" +
-		"	                    ^\n" +
-		"The value of the parameter i is not used\n" +
-		"----------\n" +
-		"2 problems (2 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+				public class X {
+				             ^
+			Javadoc: Missing comment for public declaration
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				public void foo(int i) {
+				                    ^
+			The value of the parameter i is not used
+			----------
+			2 problems (2 warnings)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
@@ -7800,24 +8223,27 @@ public void test213_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  /**\n" +
-			"    @param i explained\n" +
-			"  */\n" +
-			"  public void foo(int i) {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  /**
+				    @param i explained
+				  */
+				  public void foo(int i) {
+				  }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unused,javadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	public void foo(int i) {\n" +
-		"	                    ^\n" +
-		"The value of the parameter i is not used\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				public void foo(int i) {
+				                    ^
+			The value of the parameter i is not used
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
@@ -7827,18 +8253,21 @@ public void _test216a_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */" +
-			"public class X {\n" +
-			"  /**\n" +
-			"    {@link Y}\n" +
-			"  */\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				/** */\
+				public class X {
+				  /**
+				    {@link Y}
+				  */
+				  public void foo() {
+				  }
+				}
+				""",
 			"Y.java",
-			"/** @deprecated */" +
-			"public class Y {\n" +
-			"}",
+			"""
+				/** @deprecated */\
+				public class Y {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\""
@@ -7872,30 +8301,35 @@ public void test216b_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */" +
-			"public class X {\n" +
-			"  /**\n" +
-			"    {@link Y}\n" +
-			"  */\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				/** */\
+				public class X {
+				  /**
+				    {@link Y}
+				  */
+				  public void foo() {
+				  }
+				}
+				""",
 			"Y.java",
-			"/** @deprecated */" +
-			"public class Y {\n" +
-			"}",
+			"""
+				/** @deprecated */\
+				public class Y {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:+allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	{@link Y}\n" +
-		"	       ^\n" +
-		"Javadoc: The type Y is deprecated\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				{@link Y}
+				       ^
+			Javadoc: The type Y is deprecated
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 	// same sources, what if we add -warn:+javadoc
 	this.runConformTest(
@@ -7904,13 +8338,15 @@ public void test216b_warn_options() {
 		+ " -warn:+allJavadoc -warn:+javadoc -proc:none -d \"" + OUTPUT_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	{@link Y}\n" +
-		"	       ^\n" +
-		"Javadoc: The type Y is deprecated\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				{@link Y}
+				       ^
+			Javadoc: The type Y is deprecated
+			----------
+			1 problem (1 warning)
+			""",
 		false);
 	// same sources, what if we only have -warn:javadoc
 	this.runConformTest(
@@ -7919,13 +8355,15 @@ public void test216b_warn_options() {
 		+ " -warn:+javadoc -proc:none -d \"" + OUTPUT_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	{@link Y}\n" +
-		"	       ^\n" +
-		"Javadoc: The type Y is deprecated\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				{@link Y}
+				       ^
+			Javadoc: The type Y is deprecated
+			----------
+			1 problem (1 warning)
+			""",
 		false);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
@@ -7935,29 +8373,33 @@ public void test217_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */" +
-			"public class X {\n" +
-			"  /**\n" +
-			"    @see #bar()\n" +
-			"  */\n" +
-			"  public void foo() {\n" +
-			"    bar();\n" +
-			"  }\n" +
-			"  private void bar() {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				/** */\
+				public class X {
+				  /**
+				    @see #bar()
+				  */
+				  public void foo() {
+				    bar();
+				  }
+				  private void bar() {
+				  }
+				}
+				"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	@see #bar()\n" +
-		"	     ^^^^^^\n" +
-		"Javadoc: \'public\' visibility for malformed doc comments hides this \'private\' reference\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				@see #bar()
+				     ^^^^^^
+			Javadoc: 'public' visibility for malformed doc comments hides this 'private' reference
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 	// same sources, what if we add -warn:+javadoc
 	this.runConformTest(
@@ -7966,13 +8408,15 @@ public void test217_warn_options() {
 		+ " -warn:allJavadoc -warn:+javadoc -proc:none -d \"" + OUTPUT_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	@see #bar()\n" +
-		"	     ^^^^^^\n" +
-		"Javadoc: \'public\' visibility for malformed doc comments hides this \'private\' reference\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				@see #bar()
+				     ^^^^^^
+			Javadoc: 'public' visibility for malformed doc comments hides this 'private' reference
+			----------
+			1 problem (1 warning)
+			""",
 		false);
 	// same sources, what if we only have -warn:javadoc
 	this.runConformTest(
@@ -7981,13 +8425,15 @@ public void test217_warn_options() {
 		+ " -warn:javadoc -proc:none -d \"" + OUTPUT_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	@see #bar()\n" +
-		"	     ^^^^^^\n" +
-		"Javadoc: \'public\' visibility for malformed doc comments hides this \'private\' reference\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				@see #bar()
+				     ^^^^^^
+			Javadoc: 'public' visibility for malformed doc comments hides this 'private' reference
+			----------
+			1 problem (1 warning)
+			""",
 		false);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=214731
@@ -8013,33 +8459,36 @@ public void _test220_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Y f;\n" +
-			"  /** @deprecated */\n" +
-			"  void foo(Y p) {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  Y f;
+				  /** @deprecated */
+				  void foo(Y p) {
+				  }
+				}""",
 			"Y.java",
-			"/** @deprecated */\n" +
-			"public class Y {\n" +
-			"}",
+			"""
+				/** @deprecated */
+				public class Y {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:allDeprecation -warn:+deprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
-		"	Y f;\n" +
-		"	^\n" +
-		"The type Y is deprecated\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	void foo(Y p) {\n" +
-		"	         ^\n" +
-		"The type Y is deprecated\n" +
-		"----------\n" +
-		"2 problems (2 warnings)",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)
+				Y f;
+				^
+			The type Y is deprecated
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				void foo(Y p) {
+				         ^
+			The type Y is deprecated
+			----------
+			2 problems (2 warnings)""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
@@ -8050,28 +8499,32 @@ public void test221_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Y f;\n" +
-			"  /** @deprecated */\n" +
-			"  void foo(Y p) {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  Y f;
+				  /** @deprecated */
+				  void foo(Y p) {
+				  }
+				}""",
 			"Y.java",
-			"/** @deprecated */\n" +
-			"public class Y {\n" +
-			"}",
+			"""
+				/** @deprecated */
+				public class Y {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:allDeprecation -warn:deprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
-		"	Y f;\n" +
-		"	^\n" +
-		"The type Y is deprecated\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)
+				Y f;
+				^
+			The type Y is deprecated
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
@@ -8082,34 +8535,38 @@ public void test222_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Y f;\n" +
-			"  /** @deprecated */\n" +
-			"  void foo(Y p) {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  Y f;
+				  /** @deprecated */
+				  void foo(Y p) {
+				  }
+				}""",
 			"Y.java",
-			"/** @deprecated */\n" +
-			"public class Y {\n" +
-			"}",
+			"""
+				/** @deprecated */
+				public class Y {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:allDeprecation -deprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
 		// according to the documentation, equivalent to -warn:allDeprecation -warn:+deprecation
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
-		"	Y f;\n" +
-		"	^\n" +
-		"The type Y is deprecated\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	void foo(Y p) {\n" +
-		"	         ^\n" +
-		"The type Y is deprecated\n" +
-		"----------\n" +
-		"2 problems (2 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)
+				Y f;
+				^
+			The type Y is deprecated
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				void foo(Y p) {
+				         ^
+			The type Y is deprecated
+			----------
+			2 problems (2 warnings)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
@@ -8120,16 +8577,18 @@ public void test223_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Y f;\n" +
-			"  /** @deprecated */\n" +
-			"  void foo(Y p) {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  Y f;
+				  /** @deprecated */
+				  void foo(Y p) {
+				  }
+				}""",
 			"Y.java",
-			"/** @deprecated */\n" +
-			"public class Y {\n" +
-			"}",
+			"""
+				/** @deprecated */
+				public class Y {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
@@ -8145,23 +8604,25 @@ public void _test224_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  int i;\n" +
-			"  X(int i) {\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  int i;
+				  X(int i) {
+				  }
+				}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:+localHiding,specialParamHiding -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	X(int i) {\n" +
-		"	      ^\n" +
-		"The parameter i is hiding a field from type X\n" +
-		"----------\n" +
-		"1 problem (1 warning)",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				X(int i) {
+				      ^
+			The parameter i is hiding a field from type X
+			----------
+			1 problem (1 warning)""",
 		true);
 	// deprecation should erase whatever warnings have been set previously
 	this.runConformTest(
@@ -8180,17 +8641,19 @@ public void test225_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"@SuppressWarnings(\"deprecation\")\n" +
-			"public class X {\n" +
-			"  Y f;\n" +
-			"  /** @deprecated */\n" +
-			"  void foo(Y p) {\n" +
-			"  }\n" +
-			"}",
+			"""
+				@SuppressWarnings("deprecation")
+				public class X {
+				  Y f;
+				  /** @deprecated */
+				  void foo(Y p) {
+				  }
+				}""",
 			"Y.java",
-			"/** @deprecated */\n" +
-			"public class Y {\n" +
-			"}",
+			"""
+				/** @deprecated */
+				public class Y {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.5 -sourcepath \"" + OUTPUT_DIR + "\""
@@ -8206,30 +8669,33 @@ public void _test226_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"@SuppressWarnings(\"deprecation\")\n" +
-			"public class X {\n" +
-			"  Y f;\n" +
-			"  /** @deprecated */\n" +
-			"  void foo(Y p) {\n" +
-			"  }\n" +
-			"}",
+			"""
+				@SuppressWarnings("deprecation")
+				public class X {
+				  Y f;
+				  /** @deprecated */
+				  void foo(Y p) {
+				  }
+				}""",
 			"Y.java",
-			"/** @deprecated */\n" +
-			"public class Y {\n" +
-			"}",
+			"""
+				/** @deprecated */
+				public class Y {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.5 -sourcepath \"" + OUTPUT_DIR + "\""
 		// default -warn:+suppress gets overriden
 		+ " -warn:deprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	Y f;\n" +
-		"	^\n" +
-		"The type Y is deprecated\n" +
-		"----------\n" +
-		"1 problem (1 warning)",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				Y f;
+				^
+			The type Y is deprecated
+			----------
+			1 problem (1 warning)""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
@@ -8240,24 +8706,27 @@ public void test227_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  /**\n" +
-			"    @param i explained\n" +
-			"  */\n" +
-			"  public void foo(int i) {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X {
+				  /**
+				    @param i explained
+				  */
+				  public void foo(int i) {
+				  }
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unused -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	public void foo(int i) {\n" +
-		"	                    ^\n" +
-		"The value of the parameter i is not used\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				public void foo(int i) {
+				                    ^
+			The value of the parameter i is not used
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
@@ -8267,12 +8736,14 @@ public void test228_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"/** @throws IOException mute warning **/\n" +
-			"  public void foo() throws IOException {\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				import java.io.IOException;
+				public class X {
+				/** @throws IOException mute warning **/
+				  public void foo() throws IOException {
+				  }
+				}
+				""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unusedThrown -enableJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -8287,23 +8758,27 @@ public void test229_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"/** @throws IOException mute warning **/\n" +
-			"  public void foo() throws IOException {\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				import java.io.IOException;
+				public class X {
+				/** @throws IOException mute warning **/
+				  public void foo() throws IOException {
+				  }
+				}
+				""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unusedThrown -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	public void foo() throws IOException {\n" +
-		"	                         ^^^^^^^^^^^\n" +
-		"The declared exception IOException is not actually thrown by the method foo() from type X\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				public void foo() throws IOException {
+				                         ^^^^^^^^^^^
+			The declared exception IOException is not actually thrown by the method foo() from type X
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 //-warn option - regression tests
@@ -8312,27 +8787,31 @@ public void test230_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X<T>{\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  public X(T t){}\n" +
-			"  void foo() {\n" +
-			"      X<String> x = new X<String>();\n" +
-			"	   X<Number> x1 = new X<Number>(1);\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.util.ArrayList;
+				public class X<T>{
+				  public X() {
+				  }
+				  public X(T t){}
+				  void foo() {
+				      X<String> x = new X<String>();
+					   X<Number> x1 = new X<Number>(1);
+				  }
+				}
+				"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unusedTypeArgs -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-		"	X<String> x = new X<String>();\n" +
-		"	                  ^\n" +
-		"Redundant specification of type arguments <String>\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)
+				X<String> x = new X<String>();
+				                  ^
+			Redundant specification of type arguments <String>
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
@@ -8346,13 +8825,17 @@ public void test230_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		true /* shouldCompileOK*/,
 		new String[] { /* testFiles */
 			"src1/X.java",
-			"public class X {\n" +
-			"  public static final int CONST = 1;\n" +
-			"}\n",
+			"""
+				public class X {
+				  public static final int CONST = 1;
+				}
+				""",
 			"src2/X.java",
-			"public class X {\n" +
-			"  public static final int CONST = 2;\n" +
-			"}\n",
+			"""
+				public class X {
+				  public static final int CONST = 2;
+				}
+				""",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java\"" /* commandLine */
 		+ " -verbose -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
@@ -8383,26 +8866,30 @@ public void test230_sourcepath_vs_classpath() throws IOException, InterruptedExc
 	runConformTest(
 		new String[] {
 			"Y.java",
-			"public class Y {\n" +
-			"  public static void main (String[] args) {\n" +
-			"    System.out.println(X.CONST);\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				public class Y {
+				  public static void main (String[] args) {
+				    System.out.println(X.CONST);
+				  }
+				}
+				""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "Y.java\""
 		+ " -classpath \"" + OUTPUT_DIR + File.separator + "bin1" + "\""
 		+ " -verbose -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" +
-		"[reading    java/lang/Object.class]\n" +
-		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" +
-		"[reading    java/lang/String.class]\n" +
-		"[reading    java/lang/System.class]\n" +
-		"[reading    java/io/PrintStream.class]\n" +
-		"[reading    X.class]\n" +
-		"[writing    Y.class - #1]\n" +
-		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" +
-		"[1 unit compiled]\n" +
-		"[1 .class file generated]\n",
+		"""
+			[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]
+			[reading    java/lang/Object.class]
+			[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]
+			[reading    java/lang/String.class]
+			[reading    java/lang/System.class]
+			[reading    java/io/PrintStream.class]
+			[reading    X.class]
+			[writing    Y.class - #1]
+			[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]
+			[1 unit compiled]
+			[1 .class file generated]
+			""",
 		"",
 		false);
 	// compile with sourcepath and classpath: src2/X.java is preferred
@@ -8420,20 +8907,22 @@ public void test230_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		runConformTest(
 			null,
 			sourceFilePath + commonOptions + " -verbose -proc:none",
-			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" +
-			"[reading    java/lang/Object.class]\n" +
-			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" +
-			"[reading    java/lang/String.class]\n" +
-			"[reading    java/lang/System.class]\n" +
-			"[reading    java/io/PrintStream.class]\n" +
-			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" +
-			"[writing    Y.class - #1]\n" +
-			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/2]\n" +
-			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" +
-			"[writing    X.class - #2]\n" +
-			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" +
-			"[2 units compiled]\n" +
-			"[2 .class files generated]\n",
+			"""
+				[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]
+				[reading    java/lang/Object.class]
+				[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]
+				[reading    java/lang/String.class]
+				[reading    java/lang/System.class]
+				[reading    java/io/PrintStream.class]
+				[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]
+				[writing    Y.class - #1]
+				[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/2]
+				[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]
+				[writing    X.class - #2]
+				[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]
+				[2 units compiled]
+				[2 .class files generated]
+				""",
 			"",
 			false);
 	} finally {
@@ -8481,9 +8970,11 @@ public void test231_sourcepath_vs_classpath() throws IOException, InterruptedExc
 	runConformTest(
 		new String[] {
 			"src1/X.java",
-			"public class X {\n" +
-			"  public static final int CONST = 1;\n" +
-			"}\n",
+			"""
+				public class X {
+				  public static final int CONST = 1;
+				}
+				""",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java\""
 		+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
@@ -8512,11 +9003,13 @@ public void test231_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		false /* shouldCompileOK */,
 		new String[] { /* testFiles */
 			"Y.java",
-			"public class Y {\n" +
-			"  public static void main (String[] args) {\n" +
-			"    System.out.println(X.CONST);\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				public class Y {
+				  public static void main (String[] args) {
+				    System.out.println(X.CONST);
+				  }
+				}
+				""",
 		},
 		sourceFilePath + commonOptions + " -proc:none " /* commandLine */,
 		"" /* expectedOutOutputString */,
@@ -8568,10 +9061,12 @@ public void test232_repeated_classpath() throws IOException, InterruptedExceptio
 			"public class Y {\n" +
 			"}\n",
 			"src3/Z.java",
-			"public class Z {\n" +
-			"  X x;\n" +
-			"  Y y;\n" +
-			"}\n",
+			"""
+				public class Z {
+				  X x;
+				  Y y;
+				}
+				""",
 		},
 		sourceFilePath + " -proc:none " + combinedClasspathOptions /* commandLine */,
 		"" /* expectedOutOutputString */,
@@ -8626,14 +9121,18 @@ public void test233_repeated_sourcepath() throws IOException, InterruptedExcepti
 			"public class Y {\n" +
 			"}\n",
 			"src3/Z.java",
-			"public class Z {\n" +
-			"  Y y;\n" +
-			"}\n",
+			"""
+				public class Z {
+				  Y y;
+				}
+				""",
 			"src3/W.java",
-			"public class W {\n" +
-			"  X x;\n" +
-			"  Y y;\n" +
-			"}\n",
+			"""
+				public class W {
+				  X x;
+				  Y y;
+				}
+				""",
 		},
 		sourceFilePathZ + " -proc:none " + commonOptions /* commandLine */,
 		"" /* expectedOutOutputString */,
@@ -8682,10 +9181,12 @@ public void test234_sourcepath_vs_classpath() throws IOException, InterruptedExc
 			"public class Y {\n" +
 			"}\n",
 			"src3/Z.java",
-			"public class Z {\n" +
-			"  X x;\n" +
-			"  Y y;\n" +
-			"}\n",
+			"""
+				public class Z {
+				  X x;
+				  Y y;
+				}
+				""",
 		},
 		sourceFilePath + " -proc:none " + commonOptions /* commandLine */,
 		"" /* expectedOutOutputString */,
@@ -8718,9 +9219,11 @@ public void test235_classpath() throws IOException, InterruptedException {
 		true /* shouldCompileOK*/,
 		new String[] { /* testFiles */
 			"src1/X.java",
-			"public class X {\n" +
-			"  public static final int CONST = 1;\n" +
-			"}\n",
+			"""
+				public class X {
+				  public static final int CONST = 1;
+				}
+				""",
 			"src2/X.java",
 			"public class X {\n" +
 			"}\n",
@@ -8757,22 +9260,26 @@ public void test235_classpath() throws IOException, InterruptedException {
 		false /* shouldCompileOK*/,
 		new String[] { /* testFiles */
 			"Y.java",
-			"public class Y {\n" +
-			"  public static void main (String[] args) {\n" +
-			"    System.out.println(X.CONST);\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				public class Y {
+				  public static void main (String[] args) {
+				    System.out.println(X.CONST);
+				  }
+				}
+				""",
 		},
 		sourceFilePath /* commandLine */
 		+ " -proc:none " + commonOptions,
 		"" /* expectedOutOutputString */,
-		"----------\n" +
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)\n" +
-		"	System.out.println(X.CONST);\n" +
-		"	                     ^^^^^\n" +
-		"CONST cannot be resolved or is not a field\n" +
-		"----------\n" +
-		"1 problem (1 error)\n",
+		"""
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)
+				System.out.println(X.CONST);
+				                     ^^^^^
+			CONST cannot be resolved or is not a field
+			----------
+			1 problem (1 error)
+			""",
 		false /* shouldFlushOutputDirectory */,
 		null /* progress */);
 	// javac passes, using the most recent file amongst source and class files
@@ -8799,9 +9306,11 @@ public void test236_classpath() throws IOException, InterruptedException {
 		true /* shouldCompileOK*/,
 		new String[] { /* testFiles */
 			"src1/X.java",
-			"public class X {\n" +
-			"  public static final int CONST = 1;\n" +
-			"}\n",
+			"""
+				public class X {
+				  public static final int CONST = 1;
+				}
+				""",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java\"" /* commandLine */
 		+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
@@ -8816,9 +9325,11 @@ public void test236_classpath() throws IOException, InterruptedException {
 			true /* shouldCompileOK*/,
 			new String[] { /* testFiles */
 				"src2/X.java",
-				"public class X {\n" +
-				"  public static final int CONST = 2;\n" +
-				"}\n",
+				"""
+					public class X {
+					  public static final int CONST = 2;
+					}
+					""",
 			},
 			"\"" + OUTPUT_DIR + File.separator + "src2" + File.separator + "X.java\"" /* commandLine */
 			+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin2" + "\"",
@@ -8836,11 +9347,13 @@ public void test236_classpath() throws IOException, InterruptedException {
 		true /* shouldCompileOK*/,
 		new String[] { /* testFiles */
 			"Y.java",
-			"public class Y {\n" +
-			"  public static void main (String[] args) {\n" +
-			"    System.out.println(X.CONST);\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				public class Y {
+				  public static void main (String[] args) {
+				    System.out.println(X.CONST);
+				  }
+				}
+				""",
 		},
 		sourceFilePath + commonOptions	+ " -proc:none " /* commandLine */,
 		"" /* expectedOutOutputString */,
@@ -8874,9 +9387,11 @@ public void test237_classpath() throws IOException, InterruptedException {
 		true /* shouldCompileOK*/,
 		new String[] { /* testFiles */
 			"src1/X.java",
-			"public class X {\n" +
-			"  public static final int CONST = 1;\n" +
-			"}\n",
+			"""
+				public class X {
+				  public static final int CONST = 1;
+				}
+				""",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java\"" /* commandLine */
 		+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
@@ -8889,9 +9404,11 @@ public void test237_classpath() throws IOException, InterruptedException {
 	new File(OUTPUT_DIR + File.separator + "src2").mkdirs();
 	do {
 		Util.writeToFile(
-			"public class X {\n" +
-			"  public static final int CONST = 2;\n" +
-			"}\n",
+			"""
+				public class X {
+				  public static final int CONST = 2;
+				}
+				""",
 			sourceFile.getPath());
 	} while (classFile.lastModified() >= sourceFile.lastModified());
 	String sourceFilePath = "\"" + OUTPUT_DIR +  File.separator + "Y.java\"";
@@ -8903,11 +9420,13 @@ public void test237_classpath() throws IOException, InterruptedException {
 		true /* shouldCompileOK*/,
 		new String[] { /* testFiles */
 			"Y.java",
-			"public class Y {\n" +
-			"  public static void main (String[] args) {\n" +
-			"    System.out.println(X.CONST);\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				public class Y {
+				  public static void main (String[] args) {
+				    System.out.println(X.CONST);
+				  }
+				}
+				""",
 		},
 		sourceFilePath + commonOptions	+ " -proc:none " /* commandLine */,
 		"" /* expectedOutOutputString */,
@@ -8942,16 +9461,20 @@ public void test238_classpath() throws IOException, InterruptedException {
 	File sourceFile1 = new File(OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java");
 	File sourceFile2 = new File(OUTPUT_DIR + File.separator + "src2" + File.separator + "X.java");
 	Util.writeToFile(
-		"public class X {\n" +
-		"  public static final int CONST = 1;\n" +
-		"}\n",
+		"""
+			public class X {
+			  public static final int CONST = 1;
+			}
+			""",
 		sourceFile1.getPath());
 	new File(OUTPUT_DIR + File.separator + "src2").mkdirs();
 	do {
 		Util.writeToFile(
-			"public class X {\n" +
-			"  public static final int CONST = 2;\n" +
-			"}\n",
+			"""
+				public class X {
+				  public static final int CONST = 2;
+				}
+				""",
 			sourceFile2.getPath());
 	} while (sourceFile1.lastModified() >= sourceFile2.lastModified());
 	String sourceFilePath = "\"" + OUTPUT_DIR +  File.separator + "Y.java\"";
@@ -8963,11 +9486,13 @@ public void test238_classpath() throws IOException, InterruptedException {
 		true /* shouldCompileOK*/,
 		new String[] { /* testFiles */
 			"Y.java",
-			"public class Y {\n" +
-			"  public static void main (String[] args) {\n" +
-			"    System.out.println(X.CONST);\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				public class Y {
+				  public static void main (String[] args) {
+				    System.out.println(X.CONST);
+				  }
+				}
+				""",
 		},
 		sourceFilePath + commonOptions	+ " -proc:none " /* commandLine */,
 		"" /* expectedOutOutputString */,
@@ -9000,12 +9525,13 @@ public void test239_jar_ref_in_jar(){
 	this.runConformTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"  B b;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				  B b;
+				}""",
 		},
      "\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib1.jar\""
@@ -9024,14 +9550,15 @@ public void test240_jar_ref_in_jar(){
 	this.runConformTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"  B b;\n" +
-			"  C c;\n" +
-			"  D d;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				  B b;
+				  C c;
+				  D d;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar\""
@@ -9050,12 +9577,13 @@ public void test241_jar_ref_in_jar(){
 	this.runNegativeTest(
 			new String[] {
 					"src/p/X.java",
-					"package p;\n" +
-					"/** */\n" +
-					"public class X {\n" +
-					"  int i = R.R2;\n" +
-					"  int j = R.R3;\n" +
-					"}",
+					"""
+						package p;
+						/** */
+						public class X {
+						  int i = R.R2;
+						  int j = R.R3;
+						}""",
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib1.jar\""
@@ -9065,13 +9593,15 @@ public void test241_jar_ref_in_jar(){
 			+ " -proceedOnError -referenceInfo"
 			+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 			"",
-			"----------\n" +
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" +
-			"	int j = R.R3;\n" +
-			"	          ^^\n" +
-			"R3 cannot be resolved or is not a field\n" +
-			"----------\n" +
-			"1 problem (1 error)\n",
+			"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)
+					int j = R.R3;
+					          ^^
+				R3 cannot be resolved or is not a field
+				----------
+				1 problem (1 error)
+				""",
 			true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
@@ -9081,12 +9611,13 @@ public void test242_jar_ref_in_jar(){
 	this.runNegativeTest(
 			new String[] {
 					"src/p/X.java",
-					"package p;\n" +
-					"/** */\n" +
-					"public class X {\n" +
-					"  int i = R.R2;\n" +
-					"  int j = R.R3;\n" +
-					"}",
+					"""
+						package p;
+						/** */
+						public class X {
+						  int i = R.R2;
+						  int j = R.R3;
+						}""",
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib4.jar\""
@@ -9095,13 +9626,15 @@ public void test242_jar_ref_in_jar(){
 			+ " -proceedOnError -referenceInfo"
 			+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 			"",
-			"----------\n" +
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" +
-			"	int j = R.R3;\n" +
-			"	          ^^\n" +
-			"R3 cannot be resolved or is not a field\n" +
-			"----------\n" +
-			"1 problem (1 error)\n",
+			"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)
+					int j = R.R3;
+					          ^^
+				R3 cannot be resolved or is not a field
+				----------
+				1 problem (1 error)
+				""",
 			true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
@@ -9111,14 +9644,15 @@ public void test243_jar_ref_in_jar(){
 	this.runConformTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"  B b;\n" +
-			"  C c;\n" +
-			"  D d;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				  B b;
+				  C c;
+				  D d;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib5.jar\""
@@ -9137,11 +9671,12 @@ public void test244_jar_ref_in_jar(){
 	this.runConformTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  C c;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  C c;
+				}""",
 		},
   "\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib4.jar\""
@@ -9160,11 +9695,12 @@ public void test245_jar_ref_in_jar(){
 	this.runConformTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  F f;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  F f;
+				}""",
 		},
 	"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib8.jar\""
@@ -9183,12 +9719,13 @@ public void test246_jar_ref_in_jar(){
 	this.runConformTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"  F f;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				  F f;
+				}""",
 		},
 	"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib8.jar\""
@@ -9207,11 +9744,12 @@ public void test247_jar_ref_in_jar(){
 	this.runNegativeTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  C c;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  C c;
+				}""",
 		},
 	"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib8.jar\""
@@ -9220,13 +9758,15 @@ public void test247_jar_ref_in_jar(){
 	+ " -proceedOnError -referenceInfo"
 	+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 	"",
-	"----------\n" +
-	"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
-	"	C c;\n" +
-	"	^\n" +
-	"C cannot be resolved to a type\n" +
-	"----------\n" +
-	"1 problem (1 error)\n",
+	"""
+		----------
+		1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)
+			C c;
+			^
+		C cannot be resolved to a type
+		----------
+		1 problem (1 error)
+		""",
 	true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
@@ -9237,12 +9777,13 @@ public void test248_jar_ref_in_jar(){
 	this.runConformTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"  G g;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				  G g;
+				}""",
 		},
 	"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib9.jar\""
@@ -9262,12 +9803,13 @@ public void test249_jar_ref_in_jar(){
 	this.runConformTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  C c;\n" +
-			"  G g;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  C c;
+				  G g;
+				}""",
 		},
 	"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib9.jar\""
@@ -9286,12 +9828,13 @@ public void test250_jar_ref_in_jar(){
 	this.runNegativeTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"  B b;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				  B b;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 	  	+ " -bootclasspath " + getLibraryClassesAsQuotedString()
@@ -9301,13 +9844,15 @@ public void test250_jar_ref_in_jar(){
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"----------\n" +
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" +
-		"	B b;\n" +
-		"	^\n" +
-		"B cannot be resolved to a type\n" +
-		"----------\n" +
-		"1 problem (1 error)\n",
+		"""
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)
+				B b;
+				^
+			B cannot be resolved to a type
+			----------
+			1 problem (1 error)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
@@ -9318,11 +9863,12 @@ public void test251_jar_ref_in_jar(){
 	this.runConformTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[~p/A]\""
@@ -9331,13 +9877,15 @@ public void test251_jar_ref_in_jar(){
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
-		"	A a;\n" +
-		"	^\n" +
-		"Discouraged access: The type \'A\' is not API (restriction on classpath entry \'---LIB_DIR_PLACEHOLDER---/lib3.jar\')\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)
+				A a;
+				^
+			Discouraged access: The type 'A' is not API (restriction on classpath entry '---LIB_DIR_PLACEHOLDER---/lib3.jar')
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=217233
@@ -9353,12 +9901,14 @@ public void test252_progress() {
 		+ " -d \"" + OUTPUT_DIR + "\"",
 		""/*out output*/,
 		""/*err output*/,
-		"----------\n" +
-		"[worked: 0 - remaining: 1]\n" +
-		"Beginning to compile\n" +
-		"Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" +
-		"[worked: 1 - remaining: 0]\n" +
-		"----------\n"
+		"""
+			----------
+			[worked: 0 - remaining: 1]
+			Beginning to compile
+			Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java
+			[worked: 1 - remaining: 0]
+			----------
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=217233
@@ -9378,14 +9928,16 @@ public void test253_progress() {
 		+ " -d \"" + OUTPUT_DIR + "\"",
 		""/*out output*/,
 		""/*err output*/,
-		"----------\n" +
-		"[worked: 0 - remaining: 1]\n" +
-		"Beginning to compile\n" +
-		"Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" +
-		"[worked: 1 - remaining: 1]\n" +
-		"Processing ---OUTPUT_DIR_PLACEHOLDER---/Y.java\n" +
-		"[worked: 2 - remaining: 0]\n" +
-		"----------\n"
+		"""
+			----------
+			[worked: 0 - remaining: 1]
+			Beginning to compile
+			Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java
+			[worked: 1 - remaining: 1]
+			Processing ---OUTPUT_DIR_PLACEHOLDER---/Y.java
+			[worked: 2 - remaining: 0]
+			----------
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=217233
@@ -9405,28 +9957,32 @@ public void test254_progress() {
         + " -cp " + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
 		+ " -d \"" + OUTPUT_DIR + "\""
 		+ " -repeat 3",
-		"[repetition 1/3]\n" +
-		"[repetition 2/3]\n" +
-		"[repetition 3/3]\n"/*out output*/,
+		"""
+			[repetition 1/3]
+			[repetition 2/3]
+			[repetition 3/3]
+			""",
 		""/*err output*/,
-		"----------\n" +
-		"[worked: 0 - remaining: 6]\n" +
-		"Beginning to compile\n" +
-		"Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" +
-		"[worked: 1 - remaining: 5]\n" +
-		"Processing ---OUTPUT_DIR_PLACEHOLDER---/Y.java\n" +
-		"[worked: 2 - remaining: 4]\n" +
-		"Beginning to compile\n" +
-		"Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" +
-		"[worked: 3 - remaining: 3]\n" +
-		"Processing ---OUTPUT_DIR_PLACEHOLDER---/Y.java\n" +
-		"[worked: 4 - remaining: 2]\n" +
-		"Beginning to compile\n" +
-		"Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" +
-		"[worked: 5 - remaining: 1]\n" +
-		"Processing ---OUTPUT_DIR_PLACEHOLDER---/Y.java\n" +
-		"[worked: 6 - remaining: 0]\n" +
-		"----------\n"
+		"""
+			----------
+			[worked: 0 - remaining: 6]
+			Beginning to compile
+			Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java
+			[worked: 1 - remaining: 5]
+			Processing ---OUTPUT_DIR_PLACEHOLDER---/Y.java
+			[worked: 2 - remaining: 4]
+			Beginning to compile
+			Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java
+			[worked: 3 - remaining: 3]
+			Processing ---OUTPUT_DIR_PLACEHOLDER---/Y.java
+			[worked: 4 - remaining: 2]
+			Beginning to compile
+			Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java
+			[worked: 5 - remaining: 1]
+			Processing ---OUTPUT_DIR_PLACEHOLDER---/Y.java
+			[worked: 6 - remaining: 0]
+			----------
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=217233
@@ -9459,12 +10015,14 @@ public void test255_progress() {
 			""/*out output*/,
 			""/*err output*/,
 			progress,
-			"----------\n" +
-			"[worked: 0 - remaining: 1]\n" +
-			"Beginning to compile\n" +
-			"Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" +
-			"[worked: 1 - remaining: 1]\n" +
-			"----------\n"
+			"""
+				----------
+				[worked: 0 - remaining: 1]
+				Beginning to compile
+				Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java
+				[worked: 1 - remaining: 1]
+				----------
+				"""
 		);
 	} finally {
 		System.setProperty("jdt.compiler.useSingleThread", setting == null ? "false" : setting);
@@ -9479,11 +10037,12 @@ public void test256_jar_ref_in_jar(){
 	this.runConformTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[~p/A]\""
@@ -9493,13 +10052,15 @@ public void test256_jar_ref_in_jar(){
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
-		"	A a;\n" +
-		"	^\n" +
-		"Discouraged access: The type \'A\' is not API (restriction on classpath entry \'---LIB_DIR_PLACEHOLDER---/lib3.jar\')\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)
+				A a;
+				^
+			Discouraged access: The type 'A' is not API (restriction on classpath entry '---LIB_DIR_PLACEHOLDER---/lib3.jar')
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
@@ -9511,11 +10072,12 @@ public void test257_jar_ref_in_jar(){
 	this.runConformTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[-DUMMY]\""
@@ -9537,11 +10099,12 @@ public void test258_jar_ref_in_jar(){
 	this.runConformTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar\""
@@ -9561,11 +10124,12 @@ public void test259_jar_ref_in_jar(){
 	this.runConformTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  S1 s;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  S1 s;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -sourcepath \"" + LIB_DIR + File.separator + "lib1.jar\""
@@ -9584,11 +10148,12 @@ public void test260_jar_ref_in_jar(){
 	this.runNegativeTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  S2 s;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  S2 s;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -sourcepath \"" + LIB_DIR + File.separator + "lib1.jar\""
@@ -9596,13 +10161,15 @@ public void test260_jar_ref_in_jar(){
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"----------\n" +
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
-		"	S2 s;\n" +
-		"	^^\n" +
-		"S2 cannot be resolved to a type\n" +
-		"----------\n" +
-		"1 problem (1 error)\n",
+		"""
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)
+				S2 s;
+				^^
+			S2 cannot be resolved to a type
+			----------
+			1 problem (1 error)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
@@ -9612,12 +10179,13 @@ public void test261_jar_ref_in_jar(){
 	this.runNegativeTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"  B b;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				  B b;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 				+ " -cp \"" + LIB_DIR + File.separator + "lib10.jar\""
@@ -9626,13 +10194,15 @@ public void test261_jar_ref_in_jar(){
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"----------\n" +
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" +
-		"	B b;\n" +
-		"	^\n" +
-		"B cannot be resolved to a type\n" +
-		"----------\n" +
-		"1 problem (1 error)\n",
+		"""
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)
+				B b;
+				^
+			B cannot be resolved to a type
+			----------
+			1 problem (1 error)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
@@ -9651,18 +10221,21 @@ public void test262_jar_ref_in_jar(){
 				null,
 				new String[] {
 					"META-INF/MANIFEST.MF",
-					"Manifest-Version: 1.0\n" +
-					"Created-By: Eclipse JDT Test Harness\n" +
-					"Class-Path: lib2.jar\n",
+					"""
+						Manifest-Version: 1.0
+						Created-By: Eclipse JDT Test Harness
+						Class-Path: lib2.jar
+						""",
 				},
 				lib1Path,
 				JavaCore.VERSION_1_4);
 			Util.createJar(
 				new String[] {
 					"p/A.java",
-					"package p;\n" +
-					"public class A {\n" +
-					"}",
+					"""
+						package p;
+						public class A {
+						}""",
 				},
 				null,
 				lib2Path,
@@ -9670,11 +10243,12 @@ public void test262_jar_ref_in_jar(){
 			this.runConformTest(
 				new String[] {
 					"src/p/X.java",
-					"package p;\n" +
-					"/** */\n" +
-					"public class X {\n" +
-					"  A a;\n" +
-					"}",
+					"""
+						package p;
+						/** */
+						public class X {
+						  A a;
+						}""",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 				+ " -cp lib1.jar" // relative
@@ -9705,11 +10279,12 @@ public void test263_jar_ref_in_jar(){
 		true,
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -classpath \"" + LIB_DIR + File.separator + "lib11.jar\""
@@ -9730,11 +10305,12 @@ public void test264_jar_ref_in_jar(){
 		false,
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -classpath \"" + LIB_DIR + File.separator + "lib12.jar\""
@@ -9742,14 +10318,16 @@ public void test264_jar_ref_in_jar(){
 		+ " -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"invalid Class-Path header in manifest of jar file: ---LIB_DIR_PLACEHOLDER---/lib12.jar\n" +
-		"----------\n" +
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
-		"	A a;\n" +
-		"	^\n" +
-		"A cannot be resolved to a type\n" +
-		"----------\n" +
-		"1 problem (1 error)\n",
+		"""
+			invalid Class-Path header in manifest of jar file: ---LIB_DIR_PLACEHOLDER---/lib12.jar
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)
+				A a;
+				^
+			A cannot be resolved to a type
+			----------
+			1 problem (1 error)
+			""",
 		true,
 		null /* progress */);
 }
@@ -9764,11 +10342,12 @@ public void test265_jar_ref_in_jar(){
 		false,
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -classpath \"" + LIB_DIR + File.separator + "lib13.jar\""
@@ -9776,14 +10355,16 @@ public void test265_jar_ref_in_jar(){
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"invalid Class-Path header in manifest of jar file: ---LIB_DIR_PLACEHOLDER---/lib13.jar\n" +
-		"----------\n" +
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
-		"	A a;\n" +
-		"	^\n" +
-		"A cannot be resolved to a type\n" +
-		"----------\n" +
-		"1 problem (1 error)\n",
+		"""
+			invalid Class-Path header in manifest of jar file: ---LIB_DIR_PLACEHOLDER---/lib13.jar
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)
+				A a;
+				^
+			A cannot be resolved to a type
+			----------
+			1 problem (1 error)
+			""",
 		true,
 		null /* progress */);
 }
@@ -9797,11 +10378,12 @@ public void test266_jar_ref_in_jar(){
 		false,
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -classpath \"" + LIB_DIR + File.separator + "lib14.jar\""
@@ -9809,13 +10391,15 @@ public void test266_jar_ref_in_jar(){
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"----------\n" +
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
-		"	A a;\n" +
-		"	^\n" +
-		"A cannot be resolved to a type\n" +
-		"----------\n" +
-		"1 problem (1 error)\n",
+		"""
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)
+				A a;
+				^
+			A cannot be resolved to a type
+			----------
+			1 problem (1 error)
+			""",
 		true,
 		null /* progress */);
 }
@@ -9829,11 +10413,12 @@ public void test267_jar_ref_in_jar(){
 		false,
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -classpath \"" + LIB_DIR + File.separator + "lib15.jar\""
@@ -9841,14 +10426,16 @@ public void test267_jar_ref_in_jar(){
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"invalid Class-Path header in manifest of jar file: ---LIB_DIR_PLACEHOLDER---/lib15.jar\n" +
-		"----------\n" +
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
-		"	A a;\n" +
-		"	^\n" +
-		"A cannot be resolved to a type\n" +
-		"----------\n" +
-		"1 problem (1 error)\n",
+		"""
+			invalid Class-Path header in manifest of jar file: ---LIB_DIR_PLACEHOLDER---/lib15.jar
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)
+				A a;
+				^
+			A cannot be resolved to a type
+			----------
+			1 problem (1 error)
+			""",
 		true,
 		null /* progress */);
 }
@@ -9860,11 +10447,13 @@ public void test268_jar_ref_in_jar(){
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
 		assertTrue(analyzeManifestContents(
 			analyzer,
-			"Manifest-Version: 1.0\n" +
-			"Created-By: Eclipse JDT Test Harness\n" +
-			"Class-Path: lib1.jar\n" +
-			"\n" +
-			"Class-Path: lib3.jar\n"));
+			"""
+				Manifest-Version: 1.0
+				Created-By: Eclipse JDT Test Harness
+				Class-Path: lib1.jar
+				
+				Class-Path: lib3.jar
+				"""));
 		assertEquals(2, analyzer.getClasspathSectionsCount());
 		assertEquals(2, analyzer.getCalledFileNames().size());
 	} catch (IOException e) {
@@ -9881,11 +10470,13 @@ public void test269_jar_ref_in_jar(){
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
 		assertTrue(analyzeManifestContents(
 			analyzer,
-			"Manifest-Version: 1.0\n" +
-			"Created-By: Eclipse JDT Test Harness\n" +
-			"Class-Path: lib1.jar\n" +
-			"Dummy:\n" +
-			"Class-Path: lib3.jar\n"));
+			"""
+				Manifest-Version: 1.0
+				Created-By: Eclipse JDT Test Harness
+				Class-Path: lib1.jar
+				Dummy:
+				Class-Path: lib3.jar
+				"""));
 		assertEquals(2, analyzer.getClasspathSectionsCount());
 		assertEquals(2, analyzer.getCalledFileNames().size());
 	} catch (IOException e) {
@@ -9901,9 +10492,11 @@ public void test270_jar_ref_in_jar(){
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
 		assertTrue(analyzeManifestContents(
 			analyzer,
-			"Manifest-Version: 1.0\n" +
-			"Created-By: Eclipse JDT Test Harness\n" +
-			"Class-Path: lib1.jar\tlib2.jar\n"));
+			"""
+				Manifest-Version: 1.0
+				Created-By: Eclipse JDT Test Harness
+				Class-Path: lib1.jar	lib2.jar
+				"""));
 		assertEquals(1, analyzer.getClasspathSectionsCount());
 		assertEquals(1, analyzer.getCalledFileNames().size());
 	} catch (IOException e) {
@@ -9918,12 +10511,13 @@ public void test271_jar_ref_in_jar(){
 	this.runConformTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"  B b;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				  B b;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 				+ " -cp \"" + LIB_DIR + File.separator + "lib16.jar\""
@@ -9942,11 +10536,13 @@ public void test272_jar_ref_in_jar(){
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
 		assertTrue(analyzeManifestContents(
 			analyzer,
-			"Manifest-Version: 1.0\n" +
-			"Created-By: Eclipse JDT Test Harness\n" +
-			"Class-Path: \n" +
-			"            lib1.jar       \n" +
-			"\n"));
+			"""
+				Manifest-Version: 1.0
+				Created-By: Eclipse JDT Test Harness
+				Class-Path:\s
+				            lib1.jar      \s
+				
+				"""));
 		assertEquals(1, analyzer.getClasspathSectionsCount());
 		assertEquals(1, analyzer.getCalledFileNames().size());
 	} catch (IOException e) {
@@ -9961,14 +10557,16 @@ public void test273_jar_ref_in_jar(){
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
 		assertTrue(analyzeManifestContents(
 			analyzer,
-			"Manifest-Version: 1.0\n" +
-			"Created-By: Eclipse JDT Test Harness\n" +
-			"Class-Path: \n" +
-			" \n" +
-			"            lib1.jar       \n" +
-			" \n" +
-			"            lib1.jar       \n" +
-			"\n"));
+			"""
+				Manifest-Version: 1.0
+				Created-By: Eclipse JDT Test Harness
+				Class-Path:\s
+				\s
+				            lib1.jar      \s
+				\s
+				            lib1.jar      \s
+				
+				"""));
 		assertEquals(1, analyzer.getClasspathSectionsCount());
 		assertEquals(2, analyzer.getCalledFileNames().size());
 	} catch (IOException e) {
@@ -9983,10 +10581,11 @@ public void test274_jar_ref_in_jar(){
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
 		assertFalse(analyzeManifestContents(
 			analyzer,
-			"Manifest-Version: 1.0\n" +
-			"Created-By: Eclipse JDT Test Harness\n" +
-			"Class-Path: \n" +
-			"            lib1.jar"));
+			"""
+				Manifest-Version: 1.0
+				Created-By: Eclipse JDT Test Harness
+				Class-Path:\s
+				            lib1.jar"""));
 	} catch (IOException e) {
 		e.printStackTrace();
 		fail();
@@ -9998,11 +10597,12 @@ public void test275_jar_ref_in_jar(){
 	try {
 		assertFalse(analyzeManifestContents(
 			new ManifestAnalyzer(),
-			"Manifest-Version: 1.0\n" +
-			"Created-By: Eclipse JDT Test Harness\n" +
-			"Class-Path: \n" +
-			" \n" +
-			"            lib1.jar"));
+			"""
+				Manifest-Version: 1.0
+				Created-By: Eclipse JDT Test Harness
+				Class-Path:\s
+				\s
+				            lib1.jar"""));
 	} catch (IOException e) {
 		e.printStackTrace();
 		fail();
@@ -10020,10 +10620,11 @@ public void test276_jar_ref_in_jar(){
 	try {
 		assertFalse(analyzeManifestContents(
 			new ManifestAnalyzer(),
-			"Manifest-Version: 1.0\n" +
-			"Created-By: Eclipse JDT Test Harness\n" +
-			"Class-Path:      \n" +
-			"lib1.jar"));
+			"""
+				Manifest-Version: 1.0
+				Created-By: Eclipse JDT Test Harness
+				Class-Path:     \s
+				lib1.jar"""));
 	} catch (IOException e) {
 		e.printStackTrace();
 		fail();
@@ -10036,12 +10637,13 @@ public void test277_jar_ref_in_jar(){
 	this.runNegativeTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"  B b;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				  B b;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 	  	+ " -extdirs \"" + LIB_DIR + File.separator + "dir\""
@@ -10050,13 +10652,15 @@ public void test277_jar_ref_in_jar(){
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"----------\n" +
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" +
-		"	B b;\n" +
-		"	^\n" +
-		"B cannot be resolved to a type\n" +
-		"----------\n" +
-		"1 problem (1 error)\n",
+		"""
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)
+				B b;
+				^
+			B cannot be resolved to a type
+			----------
+			1 problem (1 error)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
@@ -10066,12 +10670,13 @@ public void test278_jar_ref_in_jar(){
 	this.runNegativeTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"  B b;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				  B b;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 	  	+ " -endorseddirs \"" + LIB_DIR + File.separator + "dir\""
@@ -10080,13 +10685,15 @@ public void test278_jar_ref_in_jar(){
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"----------\n" +
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" +
-		"	B b;\n" +
-		"	^\n" +
-		"B cannot be resolved to a type\n" +
-		"----------\n" +
-		"1 problem (1 error)\n",
+		"""
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)
+				B b;
+				^
+			B cannot be resolved to a type
+			----------
+			1 problem (1 error)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
@@ -10097,13 +10704,17 @@ public void test279_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		true /* shouldCompileOK*/,
 		new String[] { /* testFiles */
 			"src1/X.java",
-			"public class X {\n" +
-			"  public static final int CONST = 1;\n" +
-			"}\n",
+			"""
+				public class X {
+				  public static final int CONST = 1;
+				}
+				""",
 			"src2/X.java",
-			"public class X {\n" +
-			"  public static final int CONST = 2;\n" +
-			"}\n",
+			"""
+				public class X {
+				  public static final int CONST = 2;
+				}
+				""",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java\"" /* commandLine */
 		+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
@@ -10128,11 +10739,13 @@ public void test279_sourcepath_vs_classpath() throws IOException, InterruptedExc
 	runConformTest(
 		new String[] {
 			"Y.java",
-			"public class Y {\n" +
-			"  public static void main (String[] args) {\n" +
-			"    System.out.println(X.CONST);\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				public class Y {
+				  public static void main (String[] args) {
+				    System.out.println(X.CONST);
+				  }
+				}
+				""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "Y.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src2[?**/*]" + "\""
@@ -10153,9 +10766,11 @@ public void test280_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		true /* shouldCompileOK*/,
 		new String[] { /* testFiles */
 			"src1/X.java",
-			"public class X {\n" +
-			"  public static final int CONST = 1;\n" +
-			"}\n",
+			"""
+				public class X {
+				  public static final int CONST = 1;
+				}
+				""",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java\"" /* commandLine */
 		+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
@@ -10170,9 +10785,11 @@ public void test280_sourcepath_vs_classpath() throws IOException, InterruptedExc
 	new File(OUTPUT_DIR + File.separator + "src2").mkdirs();
 	do {
 		Util.writeToFile(
-			"public class X {\n" +
-			"  public static final int CONST = 2;\n" +
-			"}\n",
+			"""
+				public class X {
+				  public static final int CONST = 2;
+				}
+				""",
 			sourceFile.getPath());
 	} while (classFile.lastModified() >= sourceFile.lastModified());
 	// the ignore if better rule upon src2 leads to bin1 being selected even if
@@ -10180,11 +10797,13 @@ public void test280_sourcepath_vs_classpath() throws IOException, InterruptedExc
 	runConformTest(
 		new String[] {
 			"Y.java",
-			"public class Y {\n" +
-			"  public static void main (String[] args) {\n" +
-			"    System.out.println(X.CONST);\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				public class Y {
+				  public static void main (String[] args) {
+				    System.out.println(X.CONST);
+				  }
+				}
+				""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "Y.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src2[?**/*]" + "\""
@@ -10316,22 +10935,26 @@ public void test288_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"interface IX {}\n" +
-			"class BaseX implements IX {}\n" +
-			"public class X extends BaseX implements IX {\n" +
-			"}\n",
+			"""
+				interface IX {}
+				class BaseX implements IX {}
+				public class X extends BaseX implements IX {
+				}
+				""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:+intfRedundant -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	public class X extends BaseX implements IX {\n" +
-		"	                                        ^^\n" +
-		"Redundant superinterface IX for the type X, already defined by BaseX\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				public class X extends BaseX implements IX {
+				                                        ^^
+			Redundant superinterface IX for the type X, already defined by BaseX
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=246066 - variation
@@ -10339,22 +10962,26 @@ public void test289_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"interface IX {}\n" +
-			"class BaseX implements IX {}\n" +
-			"public class X extends BaseX implements IX {\n" +
-			"}\n",
+			"""
+				interface IX {}
+				class BaseX implements IX {}
+				public class X extends BaseX implements IX {
+				}
+				""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:+redundantSuperinterface -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	public class X extends BaseX implements IX {\n" +
-		"	                                        ^^\n" +
-		"Redundant superinterface IX for the type X, already defined by BaseX\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				public class X extends BaseX implements IX {
+				                                        ^^
+			Redundant superinterface IX for the type X, already defined by BaseX
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=246066 - variation
@@ -10362,10 +10989,12 @@ public void test290_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"interface IX {}\n" +
-			"class BaseX implements IX {}\n" +
-			"public class X extends BaseX implements IX {\n" +
-			"}\n",
+			"""
+				interface IX {}
+				class BaseX implements IX {}
+				public class X extends BaseX implements IX {
+				}
+				""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
@@ -10379,10 +11008,12 @@ public void test291_jar_ref_in_jar() throws Exception {
 	ManifestAnalyzer analyzer = new ManifestAnalyzer();
 	assertTrue(analyzeManifestContents(
 		analyzer,
-		"Manifest-Version: 1.0\r\n" +
-		"Created-By: Eclipse JDT Test Harness\r\n" +
-		"Class-Path: \r\n" +
-		"\r\n"
+		"""
+			Manifest-Version: 1.0\r
+			Created-By: Eclipse JDT Test Harness\r
+			Class-Path: \r
+			\r
+			"""
 		));
 	List calledFileNames = analyzer.getCalledFileNames();
 	String actual = calledFileNames == null ? "<null>" : Util.toString((String[]) calledFileNames.toArray(new String[calledFileNames.size()]), false/*don't add extra new lines*/);
@@ -10397,38 +11028,41 @@ public void test292_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"interface A {\n" +
-			"  void m();\n" +
-			"}" +
-			"interface B extends A{\n" +
-			"  void m();\n" +
-			"}" +
-			"public class X implements A{\n" +
-			"  public void m(){}\n" +
-			"  public String toString(){return \"HelloWorld\";}\n" +
-			"}",
+			"""
+				interface A {
+				  void m();
+				}\
+				interface B extends A{
+				  void m();
+				}\
+				public class X implements A{
+				  public void m(){}
+				  public String toString(){return "HelloWorld";}
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:allOver-ann -1.6 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	void m();\n" +
-		"	     ^^^\n" +
-		"The method m() of type B should be tagged with @Override since it actually overrides a superinterface method\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-		"	public void m(){}\n" +
-		"	            ^^^\n"+
-		"The method m() of type X should be tagged with @Override since it actually overrides a superinterface method\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-		"	public String toString(){return \"HelloWorld\";}\n" +
-		"	              ^^^^^^^^^^\n" +
-		"The method toString() of type X should be tagged with @Override since it actually overrides a superclass method\n" +
-		"----------\n" +
-		"3 problems (3 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				void m();
+				     ^^^
+			The method m() of type B should be tagged with @Override since it actually overrides a superinterface method
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				public void m(){}
+				            ^^^
+			The method m() of type X should be tagged with @Override since it actually overrides a superinterface method
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)
+				public String toString(){return "HelloWorld";}
+				              ^^^^^^^^^^
+			The method toString() of type X should be tagged with @Override since it actually overrides a superclass method
+			----------
+			3 problems (3 warnings)
+			""",
 		true);
 }
 
@@ -10440,66 +11074,72 @@ public void test293_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo(Object a, Object b, Object c) {\n" +
-			"		assert a == null;\n " +
-			"		if (a!=null) {\n" +
-			"			System.out.println(\"a is not null\");\n" +
-			"		 } else{\n" +
-			"			System.out.println(\"a is null\");\n" +
-			"		 }\n" +
-			"		a = null;\n" +
-			"		if (a== null) {}\n" +
-			"		assert b != null;\n " +
-			"		if (b!=null) {\n" +
-			"			System.out.println(\"b is not null\");\n" +
-			"		 } else{\n" +
-			"			System.out.println(\"b is null\");\n" +
-			"		 }\n" +
-			"		assert c == null;\n" +
-			"		if (c.equals(a)) {\n" +
-			"			System.out.println(\"\");\n" +
-			"		 } else{\n" +
-			"			System.out.println(\"\");\n" +
-			"		 }\n" +
-			"	}\n" +
-			"	public static void main(String[] args){\n" +
-			"		X test = new X();\n" +
-			"		test.foo(null,null, null);\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					void foo(Object a, Object b, Object c) {
+						assert a == null;
+				 \
+						if (a!=null) {
+							System.out.println("a is not null");
+						 } else{
+							System.out.println("a is null");
+						 }
+						a = null;
+						if (a== null) {}
+						assert b != null;
+				 \
+						if (b!=null) {
+							System.out.println("b is not null");
+						 } else{
+							System.out.println("b is null");
+						 }
+						assert c == null;
+						if (c.equals(a)) {
+							System.out.println("");
+						 } else{
+							System.out.println("");
+						 }
+					}
+					public static void main(String[] args){
+						X test = new X();
+						test.foo(null,null, null);
+					}
+				}
+				""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:null,includeAssertNull -1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	if (a!=null) {\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable a can only be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" +
-		"	a = null;\n" +
-		"	^\n" +
-		"Redundant assignment: The variable a can only be null at this location\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 10)\n" +
-		"	if (a== null) {}\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable a can only be null at this location\n" +
-		"----------\n" +
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 12)\n" +
-		"	if (b!=null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable b cannot be null at this location\n" +
-		"----------\n" +
-		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 18)\n" +
-		"	if (c.equals(a)) {\n" +
-		"	    ^\n" +
-		"Null pointer access: The variable c can only be null at this location\n" +
-		"----------\n" +
-		"5 problems (5 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				if (a!=null) {
+				    ^
+			Null comparison always yields false: The variable a can only be null at this location
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)
+				a = null;
+				^
+			Redundant assignment: The variable a can only be null at this location
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 10)
+				if (a== null) {}
+				    ^
+			Redundant null check: The variable a can only be null at this location
+			----------
+			4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 12)
+				if (b!=null) {
+				    ^
+			Redundant null check: The variable b cannot be null at this location
+			----------
+			5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 18)
+				if (c.equals(a)) {
+				    ^
+			Null pointer access: The variable c can only be null at this location
+			----------
+			5 problems (5 warnings)
+			""",
 		true);
 }
 
@@ -10510,53 +11150,57 @@ public void test294_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static int field1;\n" +
-			"	public static int field2;\n" +
-			"	public void bar(int i) {\n" +
-			"		System.out.println(foo());\n" +
-			"		foo();" +
-			"		System.out.println(X.field1);\n" +
-			"		System.out.println(field2);\n" +
-			"		field2 = 1;\n" +
-			"	}\n" +
-			"	private static String foo() {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	private void foo1() {\n" +
-			"		System.out.println();\n" +
-			"	}\n" +
-			"	public final void foo2() {\n" +
-			"		System.out.println();\n" +
-			"	}\n" +
-			"}\n" +
-			"final class A {" +
-			"	public void foo() {\n" +
-			"		System.out.println();\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int field1;
+					public static int field2;
+					public void bar(int i) {
+						System.out.println(foo());
+						foo();\
+						System.out.println(X.field1);
+						System.out.println(field2);
+						field2 = 1;
+					}
+					private static String foo() {
+						return null;
+					}
+					private void foo1() {
+						System.out.println();
+					}
+					public final void foo2() {
+						System.out.println();
+					}
+				}
+				final class A {\
+					public void foo() {
+						System.out.println();
+					}
+				}
+				""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:static-method -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" +
-		"	private void foo1() {\n" +
-		"	             ^^^^^^\n" +
-		"The method foo1() from the type X can be declared as static\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 16)\n" +
-		"	public final void foo2() {\n" +
-		"	                  ^^^^^^\n" +
-		"The method foo2() from the type X can be declared as static\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 20)\n" +
-		"	final class A {	public void foo() {\n" +
-		"	               	            ^^^^^\n" +
-		"The method foo() from the type A can be declared as static\n" +
-		"----------\n" +
-		"3 problems (3 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)
+				private void foo1() {
+				             ^^^^^^
+			The method foo1() from the type X can be declared as static
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 16)
+				public final void foo2() {
+				                  ^^^^^^
+			The method foo2() from the type X can be declared as static
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 20)
+				final class A {	public void foo() {
+				               	            ^^^^^
+			The method foo() from the type A can be declared as static
+			----------
+			3 problems (3 warnings)
+			""",
 		true);
 }
 
@@ -10567,58 +11211,62 @@ public void test295_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static int field1;\n" +
-			"	public static int field2;\n" +
-			"	public void bar(int i) {\n" +
-			"		System.out.println(foo());\n" +
-			"		foo();" +
-			"		System.out.println(X.field1);\n" +
-			"		System.out.println(field2);\n" +
-			"		field2 = 1;\n" +
-			"	}\n" +
-			"	private static String foo() {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	private void foo1() {\n" +
-			"		System.out.println();\n" +
-			"	}\n" +
-			"	public final void foo2() {\n" +
-			"		System.out.println();\n" +
-			"	}\n" +
-			"}\n" +
-			"final class A {" +
-			"	public void foo() {\n" +
-			"		System.out.println();\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static int field1;
+					public static int field2;
+					public void bar(int i) {
+						System.out.println(foo());
+						foo();\
+						System.out.println(X.field1);
+						System.out.println(field2);
+						field2 = 1;
+					}
+					private static String foo() {
+						return null;
+					}
+					private void foo1() {
+						System.out.println();
+					}
+					public final void foo2() {
+						System.out.println();
+					}
+				}
+				final class A {\
+					public void foo() {
+						System.out.println();
+					}
+				}
+				""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:all-static-method -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	public void bar(int i) {\n" +
-		"	            ^^^^^^^^^^\n" +
-		"The method bar(int) from the type X can potentially be declared as static\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" +
-		"	private void foo1() {\n" +
-		"	             ^^^^^^\n" +
-		"The method foo1() from the type X can be declared as static\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 16)\n" +
-		"	public final void foo2() {\n" +
-		"	                  ^^^^^^\n" +
-		"The method foo2() from the type X can be declared as static\n" +
-		"----------\n" +
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 20)\n" +
-		"	final class A {	public void foo() {\n" +
-		"	               	            ^^^^^\n" +
-		"The method foo() from the type A can be declared as static\n" +
-		"----------\n" +
-		"4 problems (4 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				public void bar(int i) {
+				            ^^^^^^^^^^
+			The method bar(int) from the type X can potentially be declared as static
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)
+				private void foo1() {
+				             ^^^^^^
+			The method foo1() from the type X can be declared as static
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 16)
+				public final void foo2() {
+				                  ^^^^^^
+			The method foo2() from the type X can be declared as static
+			----------
+			4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 20)
+				final class A {	public void foo() {
+				               	            ^^^^^
+			The method foo() from the type A can be declared as static
+			----------
+			4 problems (4 warnings)
+			""",
 		true);
 }
 
@@ -10628,11 +11276,12 @@ public void test293(){
 	this.runNegativeTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[~p/A]\""
@@ -10641,13 +11290,15 @@ public void test293(){
 		+ " -proceedOnError -referenceInfo -err:+discouraged"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"----------\n" +
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
-		"	A a;\n" +
-		"	^\n" +
-		"Discouraged access: The type \'A\' is not API (restriction on classpath entry \'---LIB_DIR_PLACEHOLDER---/lib3.jar\')\n" +
-		"----------\n" +
-		"1 problem (1 error)\n",
+		"""
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)
+				A a;
+				^
+			Discouraged access: The type 'A' is not API (restriction on classpath entry '---LIB_DIR_PLACEHOLDER---/lib3.jar')
+			----------
+			1 problem (1 error)
+			""",
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=280784
@@ -10709,10 +11360,11 @@ public void test298(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	@SuppressWarnings(\"unused\")\n" +
-			"	private int i;\n" +
-			"}",
+			"""
+				public class X {
+					@SuppressWarnings("unused")
+					private int i;
+				}""",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "X.java\""
 		+ " -1.5 -g -preserveAllLocals"
@@ -10726,27 +11378,30 @@ public void test299(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	@SuppressWarnings(\"unused\")\n" +
-			"	private int i;\n" +
-			"}",
+			"""
+				public class X {
+					@SuppressWarnings("unused")
+					private int i;
+				}""",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "X.java\""
 		+ " -1.5 -g -preserveAllLocals"
 		+ " -proceedOnError -err:+unused -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
-		"	@SuppressWarnings(\"unused\")\n" +
-		"	                  ^^^^^^^^\n" +
-		"Unnecessary @SuppressWarnings(\"unused\")\n" +
-		"----------\n" +
-		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private int i;\n" +
-		"	            ^\n" +
-		"The value of the field X.i is not used\n" +
-		"----------\n" +
-		"2 problems (1 error, 1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)
+				@SuppressWarnings("unused")
+				                  ^^^^^^^^
+			Unnecessary @SuppressWarnings("unused")
+			----------
+			2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private int i;
+				            ^
+			The value of the field X.i is not used
+			----------
+			2 problems (1 error, 1 warning)
+			""",
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
@@ -10754,10 +11409,11 @@ public void test300(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	@SuppressWarnings(\"unused\")\n" +
-			"	private int i;\n" +
-			"}",
+			"""
+				public class X {
+					@SuppressWarnings("unused")
+					private int i;
+				}""",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "X.java\""
 		+ " -1.5 -g -preserveAllLocals"
@@ -10771,22 +11427,25 @@ public void test301(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	@SuppressWarnings(\"unused\")\n" +
-			"	private int i;\n" +
-			"}",
+			"""
+				public class X {
+					@SuppressWarnings("unused")
+					private int i;
+				}""",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "X.java\""
 		+ " -1.5 -g -preserveAllLocals"
 		+ " -proceedOnError -warn:-suppress -err:+unused -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private int i;\n" +
-		"	            ^\n" +
-		"The value of the field X.i is not used\n" +
-		"----------\n" +
-		"1 problem (1 error)\n",
+		"""
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private int i;
+				            ^
+			The value of the field X.i is not used
+			----------
+			1 problem (1 error)
+			""",
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
@@ -10794,22 +11453,25 @@ public void test302(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	@SuppressWarnings(\"unused\")\n" +
-			"	private int i;\n" +
-			"}",
+			"""
+				public class X {
+					@SuppressWarnings("unused")
+					private int i;
+				}""",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "X.java\""
 		+ " -1.5 -g -preserveAllLocals"
 		+ " -proceedOnError -warn:-suppress -err:+suppress,unused -warn:-suppress -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private int i;\n" +
-		"	            ^\n" +
-		"The value of the field X.i is not used\n" +
-		"----------\n" +
-		"1 problem (1 error)\n",
+		"""
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private int i;
+				            ^
+			The value of the field X.i is not used
+			----------
+			1 problem (1 error)
+			""",
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
@@ -10817,27 +11479,30 @@ public void test303(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	@SuppressWarnings(\"unused\")\n" +
-			"	private int i;\n" +
-			"}",
+			"""
+				public class X {
+					@SuppressWarnings("unused")
+					private int i;
+				}""",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "X.java\""
 		+ " -1.5 -g -preserveAllLocals"
 		+ " -proceedOnError -warn:-suppress -err:+suppress,unused -warn:+suppress -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
-		"	@SuppressWarnings(\"unused\")\n" +
-		"	                  ^^^^^^^^\n" +
-		"Unnecessary @SuppressWarnings(\"unused\")\n" +
-		"----------\n" +
-		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private int i;\n" +
-		"	            ^\n" +
-		"The value of the field X.i is not used\n" +
-		"----------\n" +
-		"2 problems (1 error, 1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)
+				@SuppressWarnings("unused")
+				                  ^^^^^^^^
+			Unnecessary @SuppressWarnings("unused")
+			----------
+			2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private int i;
+				            ^
+			The value of the field X.i is not used
+			----------
+			2 problems (1 error, 1 warning)
+			""",
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
@@ -10845,22 +11510,25 @@ public void test304(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	@SuppressWarnings(\"unused\")\n" +
-			"	private int i;\n" +
-			"}",
+			"""
+				public class X {
+					@SuppressWarnings("unused")
+					private int i;
+				}""",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "X.java\""
 		+ " -1.5 -g -preserveAllLocals"
 		+ " -proceedOnError -err:+suppress,unused -warn:-suppress -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	private int i;\n" +
-		"	            ^\n" +
-		"The value of the field X.i is not used\n" +
-		"----------\n" +
-		"1 problem (1 error)\n",
+		"""
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				private int i;
+				            ^
+			The value of the field X.i is not used
+			----------
+			1 problem (1 error)
+			""",
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=310330
@@ -10886,9 +11554,11 @@ public void test306(){
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
 		+ " -encoding UTF-8 -1.5 -encoding Cp1252 -g -encoding ISO-8859-1",
-		"Found encoding Cp1252. A different encoding was specified: UTF-8\n" +
-		"Found encoding ISO-8859-1. Different encodings were specified: Cp1252, UTF-8\n" +
-		"Multiple encoding specified: Cp1252, ISO-8859-1, UTF-8. The default encoding has been set to ISO-8859-1\n",
+		"""
+			Found encoding Cp1252. A different encoding was specified: UTF-8
+			Found encoding ISO-8859-1. Different encodings were specified: Cp1252, UTF-8
+			Multiple encoding specified: Cp1252, ISO-8859-1, UTF-8. The default encoding has been set to ISO-8859-1
+			""",
 		"",
 		true);
 }
@@ -10917,13 +11587,14 @@ public void test0307(){
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"import p.Y.I;\n" +
-					"public class X {\n" +
-					"   I i;\n" +
-					"	public static void main(String[] args) {\n" +
-					"		System.out.print(\"\");\n" +
-					"	}\n" +
-					"}",
+					"""
+						import p.Y.I;
+						public class X {
+						   I i;
+							public static void main(String[] args) {
+								System.out.print("");
+							}
+						}""",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
@@ -10970,30 +11641,33 @@ public void test0307a(){
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"import p.Y.I;\n" +
-					"public class X {\n" +
-					"   I i;\n" +
-					"	public static void main(String[] args) {\n" +
-					"		System.out.print(\"\");\n" +
-					"	}\n" +
-					"}",
+					"""
+						import p.Y.I;
+						public class X {
+						   I i;
+							public static void main(String[] args) {
+								System.out.print("");
+							}
+						}""",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 		        "",// this is not the runtime output
-		        "no classpath defined, using default directory instead\n" +
-		        "----------\n" +
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		        "	import p.Y.I;\n" +
-		        "	       ^^^\n" +
-		        "The import p.Y cannot be resolved\n" +
-		        "----------\n" +
-		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		        "	I i;\n" +
-		        "	^\n" +
-		        "I cannot be resolved to a type\n" +
-		        "----------\n" +
-		        "2 problems (2 errors)\n",
+		        """
+					no classpath defined, using default directory instead
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+						import p.Y.I;
+						       ^^^
+					The import p.Y cannot be resolved
+					----------
+					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+						I i;
+						^
+					I cannot be resolved to a type
+					----------
+					2 problems (2 errors)
+					""",
 		        false);
 		final String userDir = System.getProperty("user.dir");
 		File f = new File(userDir, "X.java");
@@ -11035,30 +11709,33 @@ public void test0307b(){
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"import p.Y.I;\n" +
-					"public class X {\n" +
-					"   I i;\n" +
-					"	public static void main(String[] args) {\n" +
-					"		System.out.print(\"\");\n" +
-					"	}\n" +
-					"}",
+					"""
+						import p.Y.I;
+						public class X {
+						   I i;
+							public static void main(String[] args) {
+								System.out.print("");
+							}
+						}""",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 		        "",// this is not the runtime output
-		        "no classpath defined, using default directory instead\n" +
-		        "----------\n" +
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		        "	import p.Y.I;\n" +
-		        "	       ^^^\n" +
-		        "The import p.Y cannot be resolved\n" +
-		        "----------\n" +
-		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		        "	I i;\n" +
-		        "	^\n" +
-		        "I cannot be resolved to a type\n" +
-		        "----------\n" +
-		        "2 problems (2 errors)\n",
+		        """
+					no classpath defined, using default directory instead
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+						import p.Y.I;
+						       ^^^
+					The import p.Y cannot be resolved
+					----------
+					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+						I i;
+						^
+					I cannot be resolved to a type
+					----------
+					2 problems (2 errors)
+					""",
 		        false);
 		final String userDir = System.getProperty("user.dir");
 		File f = new File(userDir, "X.java");
@@ -11100,30 +11777,33 @@ public void test0307c(){
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"import p.Y.I;\n" +
-					"public class X {\n" +
-					"   I i;\n" +
-					"	public static void main(String[] args) {\n" +
-					"		System.out.print(\"\");\n" +
-					"	}\n" +
-					"}",
+					"""
+						import p.Y.I;
+						public class X {
+						   I i;
+							public static void main(String[] args) {
+								System.out.print("");
+							}
+						}""",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 		        "",// this is not the runtime output
-		        "no classpath defined, using default directory instead\n" +
-		        "----------\n" +
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		        "	import p.Y.I;\n" +
-		        "	       ^^^^^\n" +
-		        "The import p.Y.I cannot be resolved\n" +
-		        "----------\n" +
-		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		        "	I i;\n" +
-		        "	^\n" +
-		        "I cannot be resolved to a type\n" +
-		        "----------\n" +
-		        "2 problems (2 errors)\n",
+		        """
+					no classpath defined, using default directory instead
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+						import p.Y.I;
+						       ^^^^^
+					The import p.Y.I cannot be resolved
+					----------
+					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+						I i;
+						^
+					I cannot be resolved to a type
+					----------
+					2 problems (2 errors)
+					""",
 		        false);
 		final String userDir = System.getProperty("user.dir");
 		File f = new File(userDir, "X.java");
@@ -11165,30 +11845,33 @@ public void test0307d(){
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"import p.Y.I;\n" +
-					"public class X {\n" +
-					"   I i;\n" +
-					"	public static void main(String[] args) {\n" +
-					"		System.out.print(\"\");\n" +
-					"	}\n" +
-					"}",
+					"""
+						import p.Y.I;
+						public class X {
+						   I i;
+							public static void main(String[] args) {
+								System.out.print("");
+							}
+						}""",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 		        "",// this is not the runtime output
-		        "no classpath defined, using default directory instead\n" +
-		        "----------\n" +
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		        "	import p.Y.I;\n" +
-		        "	       ^^^\n" +
-		        "The import p.Y cannot be resolved\n" +
-		        "----------\n" +
-		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		        "	I i;\n" +
-		        "	^\n" +
-		        "I cannot be resolved to a type\n" +
-		        "----------\n" +
-		        "2 problems (2 errors)\n",
+		        """
+					no classpath defined, using default directory instead
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+						import p.Y.I;
+						       ^^^
+					The import p.Y cannot be resolved
+					----------
+					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+						I i;
+						^
+					I cannot be resolved to a type
+					----------
+					2 problems (2 errors)
+					""",
 		        false);
 		final String userDir = System.getProperty("user.dir");
 		File f = new File(userDir, "X.java");
@@ -11230,30 +11913,33 @@ public void test0307e(){
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"import p.Y.I;\n" +
-					"public class X {\n" +
-					"   I i;\n" +
-					"	public static void main(String[] args) {\n" +
-					"		System.out.print(\"\");\n" +
-					"	}\n" +
-					"}",
+					"""
+						import p.Y.I;
+						public class X {
+						   I i;
+							public static void main(String[] args) {
+								System.out.print("");
+							}
+						}""",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 		        "",// this is not the runtime output
-		        "no classpath defined, using default directory instead\n" +
-		        "----------\n" +
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		        "	import p.Y.I;\n" +
-		        "	       ^^^\n" +
-		        "The import p.Y cannot be resolved\n" +
-		        "----------\n" +
-		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		        "	I i;\n" +
-		        "	^\n" +
-		        "I cannot be resolved to a type\n" +
-		        "----------\n" +
-		        "2 problems (2 errors)\n",
+		        """
+					no classpath defined, using default directory instead
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+						import p.Y.I;
+						       ^^^
+					The import p.Y cannot be resolved
+					----------
+					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+						I i;
+						^
+					I cannot be resolved to a type
+					----------
+					2 problems (2 errors)
+					""",
 		        false);
 		final String userDir = System.getProperty("user.dir");
 		File f = new File(userDir, "X.java");
@@ -11283,11 +11969,12 @@ public void testInferenceIn14Project(){
 		Util.createJar(
 				new String[] {
 						"Bundle.java",
-						"public class Bundle {\n" +
-						"    static <A> A adapt(Class<A> type) {\n" +
-						"        return null;\n" +
-						"    }\n" +
-						"}"
+						"""
+							public class Bundle {
+							    static <A> A adapt(Class<A> type) {
+							        return null;
+							    }
+							}"""
 				},
 				null,
 				lib1Path,
@@ -11295,10 +11982,12 @@ public void testInferenceIn14Project(){
 		this.runNegativeTest(
 				new String[] {
 						"src/X.java",
-						"public class X {\n" +
-						"    Bundle b = Bundle.adapt(BundleWiring.class);\n" +
-						"}\n" +
-						"class BundleWiring {}\n",
+						"""
+							public class X {
+							    Bundle b = Bundle.adapt(BundleWiring.class);
+							}
+							class BundleWiring {}
+							""",
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
 				+ " -cp lib1.jar" // relative
@@ -11307,13 +11996,15 @@ public void testInferenceIn14Project(){
 				+ " -proceedOnError -referenceInfo"
 				+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		        "",
-		        "----------\n" +
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 2)\n" +
-		        "	Bundle b = Bundle.adapt(BundleWiring.class);\n" +
-		        "	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		        "Type mismatch: cannot convert from Object to Bundle\n" +
-		        "----------\n" +
-		        "1 problem (1 error)\n",
+		        """
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 2)
+						Bundle b = Bundle.adapt(BundleWiring.class);
+						           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					Type mismatch: cannot convert from Object to Bundle
+					----------
+					1 problem (1 error)
+					""",
 		        true);
 	} catch (IOException e) {
 		System.err.println("BatchCompilerTest#testInference14 could not write to current working directory " + currentWorkingDirectoryPath);
@@ -11334,11 +12025,12 @@ public void testInferenceIn15Project(){  // ensure 1.5 complains too
 		Util.createJar(
 				new String[] {
 						"Bundle.java",
-						"public class Bundle {\n" +
-						"    static <A> A adapt(Class<A> type) {\n" +
-						"        return null;\n" +
-						"    }\n" +
-						"}"
+						"""
+							public class Bundle {
+							    static <A> A adapt(Class<A> type) {
+							        return null;
+							    }
+							}"""
 				},
 				null,
 				lib1Path,
@@ -11346,10 +12038,12 @@ public void testInferenceIn15Project(){  // ensure 1.5 complains too
 		this.runNegativeTest(
 				new String[] {
 						"src/X.java",
-						"public class X {\n" +
-						"    Bundle b = Bundle.adapt(BundleWiring.class);\n" +
-						"}\n" +
-						"class BundleWiring {}\n",
+						"""
+							public class X {
+							    Bundle b = Bundle.adapt(BundleWiring.class);
+							}
+							class BundleWiring {}
+							""",
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
 				+ " -cp lib1.jar" // relative
@@ -11358,13 +12052,15 @@ public void testInferenceIn15Project(){  // ensure 1.5 complains too
 				+ " -proceedOnError -referenceInfo"
 				+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		        "",
-		        "----------\n" +
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 2)\n" +
-		        "	Bundle b = Bundle.adapt(BundleWiring.class);\n" +
-		        "	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		        "Type mismatch: cannot convert from BundleWiring to Bundle\n" +
-		        "----------\n" +
-		        "1 problem (1 error)\n",
+		        """
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 2)
+						Bundle b = Bundle.adapt(BundleWiring.class);
+						           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					Type mismatch: cannot convert from BundleWiring to Bundle
+					----------
+					1 problem (1 error)
+					""",
 		        true);
 	} catch (IOException e) {
 		System.err.println("BatchCompilerTest#testInference14 could not write to current working directory " + currentWorkingDirectoryPath);
@@ -11441,15 +12137,19 @@ public void testBridgeMethodRetention(){
 		Util.createJar(
 				new String[] {
 						"Comparable.java",
-						"public interface Comparable<T> {\n" +
-						"    public int compareTo(T o);\n" +
-						"}\n",
+						"""
+							public interface Comparable<T> {
+							    public int compareTo(T o);
+							}
+							""",
 						"Character.java",
-						"public class Character implements Comparable<Character> {\n" +
-						"	public int compareTo(Character obj) {\n" +
-						"		return 0;\n" +
-						"	}\n" +
-						"}\n"
+						"""
+							public class Character implements Comparable<Character> {
+								public int compareTo(Character obj) {
+									return 0;
+								}
+							}
+							"""
 				},
 				null,
 				lib1Path,
@@ -11457,12 +12157,14 @@ public void testBridgeMethodRetention(){
 		this.runConformTest(
 				new String[] {
 						"src/X.java",
-						"public class X {\n" +
-						"    Object fValue;\n" +
-						"    public int compareTo(Object obj) {\n" +
-						"            return ((Character)fValue).compareTo(obj);\n" +
-						"    }\n" +
-						"}\n",
+						"""
+							public class X {
+							    Object fValue;
+							    public int compareTo(Object obj) {
+							            return ((Character)fValue).compareTo(obj);
+							    }
+							}
+							""",
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
 				+ " -cp lib1.jar" // relative
@@ -11484,31 +12186,35 @@ public void testReportingUnavoidableGenericProblems() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"interface Adaptable {\n" +
-			"    public Object getAdapter(Class clazz);    \n" +
-			"}\n" +
-			"public class X implements Adaptable {\n" +
-			"    public Object getAdapter(Class clazz) {\n" +
-			"        return null;\n" +
-			"    }\n" +
-			"    Zork z;\n" +
-			"}\n"
+			"""
+				interface Adaptable {
+				    public Object getAdapter(Class clazz);   \s
+				}
+				public class X implements Adaptable {
+				    public Object getAdapter(Class clazz) {
+				        return null;
+				    }
+				    Zork z;
+				}
+				"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.5 -warn:-unavoidableGenericProblems -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
-		"	public Object getAdapter(Class clazz);    \n" +
-		"	                         ^^^^^\n" +
-		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-		"----------\n" +
-		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 8)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n" +
-		"2 problems (1 error, 1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)
+				public Object getAdapter(Class clazz);   \s
+				                         ^^^^^
+			Class is a raw type. References to generic type Class<T> should be parameterized
+			----------
+			2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 8)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			2 problems (1 error, 1 warning)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817  -- without new option kicking in
@@ -11516,36 +12222,40 @@ public void testReportingUnavoidableGenericProblems2() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"interface Adaptable {\n" +
-			"    public Object getAdapter(Class clazz);    \n" +
-			"}\n" +
-			"public class X implements Adaptable {\n" +
-			"    public Object getAdapter(Class clazz) {\n" +
-			"        return null;\n" +
-			"    }\n" +
-			"    Zork z;\n" +
-			"}\n"
+			"""
+				interface Adaptable {
+				    public Object getAdapter(Class clazz);   \s
+				}
+				public class X implements Adaptable {
+				    public Object getAdapter(Class clazz) {
+				        return null;
+				    }
+				    Zork z;
+				}
+				"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.5 -warn:+unavoidableGenericProblems -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
-		"	public Object getAdapter(Class clazz);    \n" +
-		"	                         ^^^^^\n" +
-		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	public Object getAdapter(Class clazz) {\n" +
-		"	                         ^^^^^\n" +
-		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-		"----------\n" +
-		"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 8)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n" +
-		"3 problems (1 error, 2 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)
+				public Object getAdapter(Class clazz);   \s
+				                         ^^^^^
+			Class is a raw type. References to generic type Class<T> should be parameterized
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+				public Object getAdapter(Class clazz) {
+				                         ^^^^^
+			Class is a raw type. References to generic type Class<T> should be parameterized
+			----------
+			3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 8)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			3 problems (1 error, 2 warnings)
+			""",
 		true);
 }
 //-warn option - regression tests
@@ -11554,14 +12264,16 @@ public void test0308_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileReader;\n" +
-			"public class X {\n" +
-			"  void foo() throws java.io.IOException {\n" +
-			"      FileReader r = new FileReader(\"f1\");\n" +
-			"      char[] cs = new char[1024];\n" +
-			"	   r.read(cs);\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.FileReader;
+				public class X {
+				  void foo() throws java.io.IOException {
+				      FileReader r = new FileReader("f1");
+				      char[] cs = new char[1024];
+					   r.read(cs);
+				  }
+				}
+				"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:-resource -1.7 -d \"" + OUTPUT_DIR + "\"",
@@ -11575,26 +12287,30 @@ public void test0309_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileReader;\n" +
-			"public class X {\n" +
-			"  void foo(boolean b) throws java.io.IOException {\n" +
-			"      FileReader r = new FileReader(\"f1\");\n" +
-			"      char[] cs = new char[1024];\n" +
-			"	   r.read(cs);\n" +
-			"      if (b) r.close();\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.FileReader;
+				public class X {
+				  void foo(boolean b) throws java.io.IOException {
+				      FileReader r = new FileReader("f1");
+				      char[] cs = new char[1024];
+					   r.read(cs);
+				      if (b) r.close();
+				  }
+				}
+				"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:+resource -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-		"	FileReader r = new FileReader(\"f1\");\n" +
-		"	           ^\n" +
-		"Potential resource leak: \'r\' may not be closed\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+				FileReader r = new FileReader("f1");
+				           ^
+			Potential resource leak: 'r' may not be closed
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 
@@ -11612,13 +12328,15 @@ public void test310_warn_options() {
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:syncOverride -1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
-		"	class Y extends X { @Override void foo() { } }\n" +
-		"	                                   ^^^^^\n" +
-		"The method Y.foo() is overriding a synchronized method without being synchronized\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)
+				class Y extends X { @Override void foo() { } }
+				                                   ^^^^^
+			The method Y.foo() is overriding a synchronized method without being synchronized
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 
@@ -11629,22 +12347,25 @@ public void test310b_warn_options() {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  void bar() { new X() { @Override void foo() {} }; }\n"+
-				"  synchronized void foo() { }\n"+
-				"}"
+				"""
+					public class X {
+					  void bar() { new X() { @Override void foo() {} }; }
+					  synchronized void foo() { }
+					}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:syncOverride -1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
-		"	void bar() { new X() { @Override void foo() {} }; }\n"+
-		"	                                      ^^^^^\n" +
-		"The method new X(){}.foo() is overriding a synchronized method without being synchronized\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)
+				void bar() { new X() { @Override void foo() {} }; }
+				                                      ^^^^^
+			The method new X(){}.foo() is overriding a synchronized method without being synchronized
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 
@@ -11655,99 +12376,102 @@ public void test312_warn_options() {
 	this.runConformTest(
 		new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"import static java.lang.annotation.ElementType.*;\n" +
-				"import java.lang.annotation.*;\n" +
-				"@SuppressWarnings(\"unused\")\n" +
-				"public class X {\n" +
-				"	public void test() { Object o = null; o.toString();}\n" +
-				"  @NonNull Object foo(@Nullable Object o, @NonNull Object o2) {\n" +
-				"    if (o.toString() == \"\"){ return null;}\n" +
-				"    if (o2 == null) {}\n" +
-				"    goo(null).toString();\n" +
-				"	 Object local = null;\n" +
-				"	 o.toString();\n" +
-				"	 return null;\n" +
-				"  }\n" +
-				"  @Nullable Object goo(@NonNull Object o2) {\n" +
-				"    return new Object();\n" +
-				"  }\n" +
-				"  @NonNullByDefault Object hoo(Object o2) {\n" +
-				"    if (o2 == null){}\n" +
-				"    if (o2 == null){\n" +
-				"	    return null;\n" +
-				"	 }\n" +
-				"	 return new Object();\n" +
-				"  }\n" +
-				"}\n" +
-				"@Documented\n" +
-				"@Retention(RetentionPolicy.CLASS)\n" +
-				"@Target({ METHOD, PARAMETER })\n" +
-				"@interface NonNull{\n" +
-				"}\n" +
-				"@Documented\n" +
-				"@Retention(RetentionPolicy.CLASS)\n" +
-				"@Target({ METHOD, PARAMETER })\n" +
-				"@interface Nullable{\n" +
-				"}\n" +
-				"@Documented\n" +
-				"@Retention(RetentionPolicy.CLASS)\n" +
-				"@Target({ PACKAGE, TYPE, METHOD, CONSTRUCTOR })\n" +
-				"@interface NonNullByDefault{\n" +
-				"}"
+				"""
+					package p;
+					import static java.lang.annotation.ElementType.*;
+					import java.lang.annotation.*;
+					@SuppressWarnings("unused")
+					public class X {
+						public void test() { Object o = null; o.toString();}
+					  @NonNull Object foo(@Nullable Object o, @NonNull Object o2) {
+					    if (o.toString() == ""){ return null;}
+					    if (o2 == null) {}
+					    goo(null).toString();
+						 Object local = null;
+						 o.toString();
+						 return null;
+					  }
+					  @Nullable Object goo(@NonNull Object o2) {
+					    return new Object();
+					  }
+					  @NonNullByDefault Object hoo(Object o2) {
+					    if (o2 == null){}
+					    if (o2 == null){
+						    return null;
+						 }
+						 return new Object();
+					  }
+					}
+					@Documented
+					@Retention(RetentionPolicy.CLASS)
+					@Target({ METHOD, PARAMETER })
+					@interface NonNull{
+					}
+					@Documented
+					@Retention(RetentionPolicy.CLASS)
+					@Target({ METHOD, PARAMETER })
+					@interface Nullable{
+					}
+					@Documented
+					@Retention(RetentionPolicy.CLASS)
+					@Target({ PACKAGE, TYPE, METHOD, CONSTRUCTOR })
+					@interface NonNullByDefault{
+					}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 //		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -1.5"
 		+ " -warn:+nullAnnot(p.Nullable|p.NonNull|p.NonNullByDefault) -warn:+null -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 6)\n" +
-		"	public void test() { Object o = null; o.toString();}\n" +
-		"	                                      ^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" +
-		"	if (o.toString() == \"\"){ return null;}\n" +
-		"	    ^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" +
-		"	if (o.toString() == \"\"){ return null;}\n" +
-		"	                                ^^^^\n" +
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
-		"----------\n" +
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" +
-		"	if (o2 == null) {}\n" +
-		"	    ^^\n" +
-		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" +
-		"----------\n" +
-		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" +
-		"	goo(null).toString();\n" +
-		"	^^^^^^^^^\n" +
-		"Potential null pointer access: The method goo(Object) may return null\n" +
-		"----------\n" +
-		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" +
-		"	goo(null).toString();\n" +
-		"	    ^^^^\n" +
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
-		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 13)\n" +
-		"	return null;\n" +
-		"	       ^^^^\n" +
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
-		"----------\n" +
-		"8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 19)\n" +
-		"	if (o2 == null){}\n" +
-		"	    ^^\n" +
-		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" +
-		"----------\n" +
-		"9. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 20)\n" +
-		"	if (o2 == null){\n" +
-		"	    ^^\n" +
-		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" +
-		"----------\n" +
-		"9 problems (9 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 6)
+				public void test() { Object o = null; o.toString();}
+				                                      ^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)
+				if (o.toString() == ""){ return null;}
+				    ^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)
+				if (o.toString() == ""){ return null;}
+				                                ^^^^
+			Null type mismatch: required '@NonNull Object' but the provided value is null
+			----------
+			4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)
+				if (o2 == null) {}
+				    ^^
+			Null comparison always yields false: The variable o2 is specified as @NonNull
+			----------
+			5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)
+				goo(null).toString();
+				^^^^^^^^^
+			Potential null pointer access: The method goo(Object) may return null
+			----------
+			6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)
+				goo(null).toString();
+				    ^^^^
+			Null type mismatch: required '@NonNull Object' but the provided value is null
+			----------
+			7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 13)
+				return null;
+				       ^^^^
+			Null type mismatch: required '@NonNull Object' but the provided value is null
+			----------
+			8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 19)
+				if (o2 == null){}
+				    ^^
+			Null comparison always yields false: The variable o2 is specified as @NonNull
+			----------
+			9. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 20)
+				if (o2 == null){
+				    ^^
+			Null comparison always yields false: The variable o2 is specified as @NonNull
+			----------
+			9 problems (9 warnings)
+			""",
 		true);
 }
 
@@ -11757,29 +12481,33 @@ public void test317_warn_options() {
 	this.runConformTest(
 		new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"enum Color { RED, GREEN };\n" +
-				"public class X {\n" +
-				"     int getVal(Color c) {\n" +
-				"         switch (c) {\n" +
-				"             case RED: return 1;\n" +
-				"             default : return 0;\n" +
-				"         }\n" +
-				"     }\n" +
-				"}\n"
+				"""
+					package p;
+					enum Color { RED, GREEN };
+					public class X {
+					     int getVal(Color c) {
+					         switch (c) {
+					             case RED: return 1;
+					             default : return 0;
+					         }
+					     }
+					}
+					"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -1.5"
 		+ " -warn:+enumSwitchPedantic -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 5)\n" +
-		"	switch (c) {\n" +
-		"	        ^\n" +
-		"The enum constant GREEN should have a corresponding case label in this enum switch on Color. To suppress this problem, add a comment //$CASES-OMITTED$ on the line above the 'default:'\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 5)
+				switch (c) {
+				        ^
+			The enum constant GREEN should have a corresponding case label in this enum switch on Color. To suppress this problem, add a comment //$CASES-OMITTED$ on the line above the 'default:'
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 
@@ -11789,29 +12517,33 @@ public void test318_warn_options() {
 	this.runNegativeTest(
 			new String[] {
 					"p/X.java",
-					"package p;\n" +
-					"enum Color { RED, GREEN };\n" +
-					"public class X {\n" +
-					"     int getVal(Color c) {\n" +
-					"         switch (c) {\n" +
-					"             case RED: return 1;\n" +
-					"             default : return 0;\n" +
-					"         }\n" +
-					"     }\n" +
-					"}\n"
+					"""
+						package p;
+						enum Color { RED, GREEN };
+						public class X {
+						     int getVal(Color c) {
+						         switch (c) {
+						             case RED: return 1;
+						             default : return 0;
+						         }
+						     }
+						}
+						"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 			+ " -sourcepath \"" + OUTPUT_DIR + "\""
 			+ " -1.5"
 			+ " -err:+enumSwitchPedantic -proc:none -d \"" + OUTPUT_DIR + "\"",
 			"",
-			"----------\n" +
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 5)\n" +
-			"	switch (c) {\n" +
-			"	        ^\n" +
-			"The enum constant GREEN should have a corresponding case label in this enum switch on Color. To suppress this problem, add a comment //$CASES-OMITTED$ on the line above the 'default:'\n" +
-			"----------\n" +
-			"1 problem (1 error)\n",
+			"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 5)
+					switch (c) {
+					        ^
+				The enum constant GREEN should have a corresponding case label in this enum switch on Color. To suppress this problem, add a comment //$CASES-OMITTED$ on the line above the 'default:'
+				----------
+				1 problem (1 error)
+				""",
 			true);
 }
 
@@ -11821,30 +12553,34 @@ public void test319_warn_options() {
 	this.runConformTest(
 		new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"enum Color { RED, GREEN };\n" +
-				"public class X {\n" +
-				"     int getVal(Color c) {\n" +
-				"         switch (c) {\n" +
-				"             case RED: return 1;\n" +
-				"             case GREEN : return 2;\n" +
-				"         }\n" +
-				"         return 0;\n" +
-				"     }\n" +
-				"}\n"
+				"""
+					package p;
+					enum Color { RED, GREEN };
+					public class X {
+					     int getVal(Color c) {
+					         switch (c) {
+					             case RED: return 1;
+					             case GREEN : return 2;
+					         }
+					         return 0;
+					     }
+					}
+					"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -1.5"
 		+ " -warn:+switchDefault -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 5)\n" +
-		"	switch (c) {\n" +
-		"	        ^\n" +
-		"The switch over the enum type Color should have a default case\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 5)
+				switch (c) {
+				        ^
+			The switch over the enum type Color should have a default case
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 
@@ -11855,13 +12591,14 @@ public void test317_nowarn_options() {
 	this.runConformTest(
 		new String[] {
 				"src/X.java",
-				"public class X {\n" +
-				"  /**\n" +
-				"    @param\n" +
-				"  */\n" +
-				"  public void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class X {
+					  /**
+					    @param
+					  */
+					  public void foo() {
+					  }
+					}""",
 			},
 			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
 			+ " -warn:javadoc -nowarn:[\"" +
@@ -11879,21 +12616,23 @@ public void test318_nowarn_options() {
 	this.runConformTest(
 		new String[] {
 				"src/X.java",
-				"public class X {\n" +
-				"  /**\n" +
-				"    @param\n" +
-				"  */\n" +
-				"  public void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class X {
+					  /**
+					    @param
+					  */
+					  public void foo() {
+					  }
+					}""",
 				"src2/Y.java",
-				"public class Y {\n" +
-				"  /**\n" +
-				"    @param\n" +
-				"  */\n" +
-				"  public void foo() {\n" +
-				"  }\n" +
-				"}"
+				"""
+					public class Y {
+					  /**
+					    @param
+					  */
+					  public void foo() {
+					  }
+					}"""
 			},
 			"\"" + OUTPUT_DIR + File.separator + "src/X.java\"" +
 			" \"" + OUTPUT_DIR + File.separator + "src2/Y.java\"" +
@@ -11901,13 +12640,15 @@ public void test318_nowarn_options() {
 			"\"" + OUTPUT_DIR + File.separator + "src"
 			+ "\"] -proc:none -d \"" + OUTPUT_DIR + "\"",
 			"",
-			"----------\n" +
-			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" +
-			"	@param\n" +
-			"	 ^^^^^\n" +
-			"Javadoc: Missing parameter name\n" +
-			"----------\n" +
-			"1 problem (1 warning)\n",
+			"""
+				----------
+				1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)
+					@param
+					 ^^^^^
+				Javadoc: Missing parameter name
+				----------
+				1 problem (1 warning)
+				""",
 			true);
 }
 
@@ -11918,21 +12659,23 @@ public void test319_nowarn_options() {
 	this.runConformTest(
 		new String[] {
 				"src1/X.java",
-				"public class X {\n" +
-				"  /**\n" +
-				"    @param\n" +
-				"  */\n" +
-				"  public void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class X {
+					  /**
+					    @param
+					  */
+					  public void foo() {
+					  }
+					}""",
 				"src2/Y.java",
-				"public class Y {\n" +
-				"  /**\n" +
-				"    @param\n" +
-				"  */\n" +
-				"  public void foo() {\n" +
-				"  }\n" +
-				"}"
+				"""
+					public class Y {
+					  /**
+					    @param
+					  */
+					  public void foo() {
+					  }
+					}"""
 			},
 			"\"" + OUTPUT_DIR + File.separator + "src1/X.java\"" +
 			" \"" + OUTPUT_DIR + File.separator + "src2/Y.java\"" +
@@ -11952,21 +12695,23 @@ public void test320_nowarn_options() {
 	this.runConformTest(
 		new String[] {
 				"src1/X.java",
-				"public class X {\n" +
-				"  /**\n" +
-				"    @param\n" +
-				"  */\n" +
-				"  public void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class X {
+					  /**
+					    @param
+					  */
+					  public void foo() {
+					  }
+					}""",
 				"src2/Y.java",
-				"public class Y {\n" +
-				"  /**\n" +
-				"    @param\n" +
-				"  */\n" +
-				"  public void foo() {\n" +
-				"  }\n" +
-				"}"
+				"""
+					public class Y {
+					  /**
+					    @param
+					  */
+					  public void foo() {
+					  }
+					}"""
 			},
 			"\"" + OUTPUT_DIR + File.separator + "src1/X.java\"" +
 			" \"" + OUTPUT_DIR + File.separator + "src2/Y.java\"" +
@@ -11986,13 +12731,14 @@ public void test321_nowarn_options() {
 	this.runNegativeTest(
 		new String[] {
 				"src/X.java",
-				"public class X {\n" +
-				"  /**\n" +
-				"    @param\n" +
-				"  */\n" +
-				"  public void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class X {
+					  /**
+					    @param
+					  */
+					  public void foo() {
+					  }
+					}""",
 			},
 			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
 			+ " -warn:javadoc -nowarn: -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -12008,13 +12754,14 @@ public void test322_nowarn_options() {
 	this.runNegativeTest(
 		new String[] {
 				"src/X.java",
-				"public class X {\n" +
-				"  /**\n" +
-				"    @param\n" +
-				"  */\n" +
-				"  public void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class X {
+					  /**
+					    @param
+					  */
+					  public void foo() {
+					  }
+					}""",
 			},
 			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
 			+ " -warn:javadoc -nowarn:[ -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -12030,13 +12777,14 @@ public void test323_nowarn_options() {
 	this.runNegativeTest(
 		new String[] {
 				"src/X.java",
-				"public class X {\n" +
-				"  /**\n" +
-				"    @param\n" +
-				"  */\n" +
-				"  public void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class X {
+					  /**
+					    @param
+					  */
+					  public void foo() {
+					  }
+					}""",
 			},
 			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
 			+ " -warn:javadoc -nowarn:[src -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -12052,13 +12800,14 @@ public void test324_nowarn_options() {
 	this.runNegativeTest(
 		new String[] {
 				"src/X.java",
-				"public class X {\n" +
-				"  /**\n" +
-				"    @param\n" +
-				"  */\n" +
-				"  public void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class X {
+					  /**
+					    @param
+					  */
+					  public void foo() {
+					  }
+					}""",
 			},
 			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
 			+ " -warn:javadoc -nowarn:src] -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -12074,13 +12823,14 @@ public void test325_nowarn_options() {
 	this.runNegativeTest(
 		new String[] {
 				"src/X.java",
-				"public class X {\n" +
-				"  /**\n" +
-				"    @param\n" +
-				"  */\n" +
-				"  public void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class X {
+					  /**
+					    @param
+					  */
+					  public void foo() {
+					  }
+					}""",
 			},
 			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
 			+ " -warn:javadoc -nowarn[src] -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -12096,13 +12846,14 @@ public void test326_nowarn_options() {
 	this.runNegativeTest(
 		new String[] {
 				"src/X.java",
-				"public class X {\n" +
-				"  /**\n" +
-				"    @param\n" +
-				"  */\n" +
-				"  public void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class X {
+					  /**
+					    @param
+					  */
+					  public void foo() {
+					  }
+					}""",
 			},
 			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
 			+ " -warn:javadoc -nowarn:[src1]src2 -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -12118,13 +12869,14 @@ public void test327_nowarn_options() {
 	this.runNegativeTest(
 		new String[] {
 				"src/X.java",
-				"public class X {\n" +
-				"  /**\n" +
-				"    @param\n" +
-				"  */\n" +
-				"  public void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class X {
+					  /**
+					    @param
+					  */
+					  public void foo() {
+					  }
+					}""",
 			},
 			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
 			+ " -warn:javadoc -nowarn:[] -proc:none -d \"" + OUTPUT_DIR + "\"",
@@ -12140,26 +12892,29 @@ public void test328_nowarn_options() {
 	this.runNegativeTest(
 		new String[] {
 				"src/X.java",
-				"public class X {\n" +
-				"  /**\n" +
-				"    @param\n" +
-				"  */\n" +
-				"  public void foo() {\n" +
-				"    a++;\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class X {
+					  /**
+					    @param
+					  */
+					  public void foo() {
+					    a++;
+					  }
+					}""",
 			},
 			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
 			+ " -warn:javadoc -nowarn:[" +
 			"\"" + OUTPUT_DIR + File.separator + "src]\" -proc:none -d \"" + OUTPUT_DIR + "\"",
 			"",
-			"----------\n" +
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 6)\n" +
-			"	a++;\n" +
-			"	^\n" +
-			"a cannot be resolved to a variable\n" +
-			"----------\n" +
-			"1 problem (1 error)\n",
+			"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 6)
+					a++;
+					^
+				a cannot be resolved to a variable
+				----------
+				1 problem (1 error)
+				""",
 			true);
 }
 
@@ -12170,26 +12925,29 @@ public void test329_nowarn_options() {
 	this.runConformTest(
 		new String[] {
 				"src/X.java",
-				"public class X {\n" +
-				"  /**\n" +
-				"    @param\n" +
-				"  */\n" +
-				"  public void foo() {\n" +
-				"    // TODO nothing\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class X {
+					  /**
+					    @param
+					  */
+					  public void foo() {
+					    // TODO nothing
+					  }
+					}""",
 			},
 			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
 			+ " -warn:javadoc,tasks(TODO) -nowarn:[" +
 			"\"" + OUTPUT_DIR + File.separator + "src]\" -proc:none -d \"" + OUTPUT_DIR + "\"",
 			"",
-			"----------\n" +
-			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 6)\n" +
-			"	// TODO nothing\n" +
-			"	   ^^^^^^^^^^^^\n" +
-			"TODO nothing\n" +
-			"----------\n" +
-			"1 problem (1 warning)\n",
+			"""
+				----------
+				1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 6)
+					// TODO nothing
+					   ^^^^^^^^^^^^
+				TODO nothing
+				----------
+				1 problem (1 warning)
+				""",
 			true);
 }
 
@@ -12199,13 +12957,15 @@ public void test330_warn_options() {
 	this.runConformTest(
 		new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"import java.util.Map;\n" +
-				"public class X {\n" +
-				"  Integer foo(Map<String,Integer> map) {\n" +
-				"	 return map.get(3);\n" +
-				"  }\n" +
-				"}\n",
+				"""
+					package p;
+					import java.util.Map;
+					public class X {
+					  Integer foo(Map<String,Integer> map) {
+						 return map.get(3);
+					  }
+					}
+					""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
@@ -12220,12 +12980,14 @@ public void test331_warn_options() {
 	this.runConformTest(
 		new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"  boolean foo() {\n" +
-				"	 return \"three\".equals(3);\n" +
-				"  }\n" +
-				"}\n",
+				"""
+					package p;
+					public class X {
+					  boolean foo() {
+						 return "three".equals(3);
+					  }
+					}
+					""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
@@ -12241,36 +13003,40 @@ public void testBug375409a() {
 	this.runConformTest(
 		new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"/** \n" +
-				"* Description {@see String}, {@category cat}\n" +
-				"* @param a\n" +
-				"*/\n" +
-				"public void foo(int i) {}}\n"
+				"""
+					package p;
+					public class X {
+					/**\s
+					* Description {@see String}, {@category cat}
+					* @param a
+					*/
+					public void foo(int i) {}}
+					"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -1.5"
 		+ " -warn:invalidJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 4)\n" +
-		"	* Description {@see String}, {@category cat}\n" +
-		"	                ^^^\n" +
-		"Javadoc: Unexpected tag\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 4)\n" +
-		"	* Description {@see String}, {@category cat}\n" +
-		"	                               ^^^^^^^^\n" +
-		"Javadoc: Unexpected tag\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 5)\n" +
-		"	* @param a\n" +
-		"	         ^\n" +
-		"Javadoc: Parameter a is not declared\n" +
-		"----------\n" +
-		"3 problems (3 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 4)
+				* Description {@see String}, {@category cat}
+				                ^^^
+			Javadoc: Unexpected tag
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 4)
+				* Description {@see String}, {@category cat}
+				                               ^^^^^^^^
+			Javadoc: Unexpected tag
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 5)
+				* @param a
+				         ^
+			Javadoc: Parameter a is not declared
+			----------
+			3 problems (3 warnings)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375409
@@ -12278,26 +13044,30 @@ public void testBug375409b() {
 	this.runConformTest(
 		new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"/** \n" +
-				"* Description {@see String}, {@category cat}\n" +
-				"* @param a\n" +
-				"*/\n" +
-				"public void foo(int i) {}}\n"
+				"""
+					package p;
+					public class X {
+					/**\s
+					* Description {@see String}, {@category cat}
+					* @param a
+					*/
+					public void foo(int i) {}}
+					"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -1.5"
 		+ " -warn:missingJavadocTags,missingJavadocTagsVisibility(public) -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 7)\n" +
-		"	public void foo(int i) {}}\n" +
-		"	                    ^\n" +
-		"Javadoc: Missing tag for parameter i\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 7)
+				public void foo(int i) {}}
+				                    ^
+			Javadoc: Missing tag for parameter i
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375409
@@ -12305,26 +13075,30 @@ public void testBug375409c() {
 	this.runConformTest(
 		new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"/** \n" +
-				"* Description {@see String}, {@category cat}\n" +
-				"* @param a\n" +
-				"*/\n" +
-				"public void foo(int i) {}}\n"
+				"""
+					package p;
+					public class X {
+					/**\s
+					* Description {@see String}, {@category cat}
+					* @param a
+					*/
+					public void foo(int i) {}}
+					"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -1.5"
 		+ " -warn:missingJavadocComments -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 2)\n" +
-		"	public class X {\n" +
-		"	             ^\n" +
-		"Javadoc: Missing comment for public declaration\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 2)
+				public class X {
+				             ^
+			Javadoc: Missing comment for public declaration
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375409
@@ -12332,31 +13106,35 @@ public void testBug375409d() {
 	this.runConformTest(
 		new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"/** \n" +
-				"* Description {@see String}, {@category cat}\n" +
-				"* @param a\n" +
-				"*/\n" +
-				"void foo(int i) {}\n" +
-				"/** \n" +
-				"* Description {@see String}, {@category cat}\n" +
-				"* @param a\n" +
-				"*/\n" +
-				"public void foo2(int i2) {}}\n"
+				"""
+					package p;
+					public class X {
+					/**\s
+					* Description {@see String}, {@category cat}
+					* @param a
+					*/
+					void foo(int i) {}
+					/**\s
+					* Description {@see String}, {@category cat}
+					* @param a
+					*/
+					public void foo2(int i2) {}}
+					"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -1.5"
 		+ " -warn:missingJavadocTags,missingJavadocTagsVisibility(public) -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 12)\n" +
-		"	public void foo2(int i2) {}}\n" +
-		"	                     ^^\n" +
-		"Javadoc: Missing tag for parameter i2\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 12)
+				public void foo2(int i2) {}}
+				                     ^^
+			Javadoc: Missing tag for parameter i2
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 
@@ -12408,42 +13186,45 @@ public void testBug375409f() {
 	this.runConformTest(
 		new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"import static java.lang.annotation.ElementType.*;\n" +
-				"import java.lang.annotation.*;\n" +
-				"@NonNullByDefault public class X {\n" +
-				"  @NonNull Object foo() {\n" +
-				"	 return null;\n" +
-				"  }\n" +
-				"}\n" +
-				"@Documented\n" +
-				"@Retention(RetentionPolicy.CLASS)\n" +
-				"@Target({ METHOD, PARAMETER })\n" +
-				"@interface NonNull{\n" +
-				"}\n" +
-				"@Documented\n" +
-				"@Retention(RetentionPolicy.CLASS)\n" +
-				"@Target({ METHOD, PARAMETER })\n" +
-				"@interface Nullable{\n" +
-				"}\n" +
-				"@Documented\n" +
-				"@Retention(RetentionPolicy.CLASS)\n" +
-				"@Target({ PACKAGE, TYPE, METHOD, CONSTRUCTOR })\n" +
-				"@interface NonNullByDefault{\n" +
-				"}"
+				"""
+					package p;
+					import static java.lang.annotation.ElementType.*;
+					import java.lang.annotation.*;
+					@NonNullByDefault public class X {
+					  @NonNull Object foo() {
+						 return null;
+					  }
+					}
+					@Documented
+					@Retention(RetentionPolicy.CLASS)
+					@Target({ METHOD, PARAMETER })
+					@interface NonNull{
+					}
+					@Documented
+					@Retention(RetentionPolicy.CLASS)
+					@Target({ METHOD, PARAMETER })
+					@interface Nullable{
+					}
+					@Documented
+					@Retention(RetentionPolicy.CLASS)
+					@Target({ PACKAGE, TYPE, METHOD, CONSTRUCTOR })
+					@interface NonNullByDefault{
+					}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -1.5"
 		+ " -warn:+nullAnnot(p.Nullable|p.NonNull|p.NonNullByDefault),+null,-nullAnnotRedundant "
 		+ "-proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 6)\n" +
-		"	return null;\n" +
-		"	       ^^^^\n" +
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 6)
+				return null;
+				       ^^^^
+			Null type mismatch: required '@NonNull Object' but the provided value is null
+			----------
+			1 problem (1 warning)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375409
@@ -12452,32 +13233,33 @@ public void testBug375409g() {
 	this.runConformTest(
 		new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"import static java.lang.annotation.ElementType.*;\n" +
-				"import java.lang.annotation.*;\n" +
-				"public class X {\n" +
-				"  @NonNull Object foo(@Nullable Object o, @NonNull Object o2) {\n" +
-				"	 return new X().bar();\n" +
-				"  }\n" +
-				"  Object bar() {\n" +
-				"	 return null;\n" +
-				"  }\n" +
-				"}\n" +
-				"@Documented\n" +
-				"@Retention(RetentionPolicy.CLASS)\n" +
-				"@Target({ METHOD, PARAMETER })\n" +
-				"@interface NonNull{\n" +
-				"}\n" +
-				"@Documented\n" +
-				"@Retention(RetentionPolicy.CLASS)\n" +
-				"@Target({ METHOD, PARAMETER })\n" +
-				"@interface Nullable{\n" +
-				"}\n" +
-				"@Documented\n" +
-				"@Retention(RetentionPolicy.CLASS)\n" +
-				"@Target({ PACKAGE, TYPE, METHOD, CONSTRUCTOR })\n" +
-				"@interface NonNullByDefault{\n" +
-				"}"
+				"""
+					package p;
+					import static java.lang.annotation.ElementType.*;
+					import java.lang.annotation.*;
+					public class X {
+					  @NonNull Object foo(@Nullable Object o, @NonNull Object o2) {
+						 return new X().bar();
+					  }
+					  Object bar() {
+						 return null;
+					  }
+					}
+					@Documented
+					@Retention(RetentionPolicy.CLASS)
+					@Target({ METHOD, PARAMETER })
+					@interface NonNull{
+					}
+					@Documented
+					@Retention(RetentionPolicy.CLASS)
+					@Target({ METHOD, PARAMETER })
+					@interface Nullable{
+					}
+					@Documented
+					@Retention(RetentionPolicy.CLASS)
+					@Target({ PACKAGE, TYPE, METHOD, CONSTRUCTOR })
+					@interface NonNullByDefault{
+					}"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -1.5"
@@ -12499,17 +13281,19 @@ public void testBug375366a() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"bugs/warning/ShowBug.java",
-			"package bugs.warning;\n" +
-			"\n" +
-			"public class ShowBug {\n" +
-			"	/**\n" +
-			"	 * \n" +
-			"	 * @param unusedParam\n" +
-			"	 */\n" +
-			"	public void foo(Object unusedParam) {\n" +
-			"		\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package bugs.warning;
+				
+				public class ShowBug {
+					/**
+					 *\s
+					 * @param unusedParam
+					 */
+					public void foo(Object unusedParam) {
+					\t
+					}
+				}
+				"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "bugs" + File.separator + "warning" + File.separator + "ShowBug.java\""
 		+ " -1.5"
@@ -12525,37 +13309,43 @@ public void testBug375366a() throws IOException {
 public void testBug375366b() throws IOException {
 	createOutputTestDirectory("regression/.settings");
 	Util.createFile(OUTPUT_DIR+"/.settings/org.eclipse.jdt.core.prefs",
-			"eclipse.preferences.version=1\n" +
-			"org.eclipse.jdt.core.compiler.problem.unusedParameter=warning\n" +
-			"org.eclipse.jdt.core.compiler.doc.comment.support=disabled\n");
+			"""
+				eclipse.preferences.version=1
+				org.eclipse.jdt.core.compiler.problem.unusedParameter=warning
+				org.eclipse.jdt.core.compiler.doc.comment.support=disabled
+				""");
 	this.runTest(
 		true, // compile OK, expecting only warning
 		new String[] {
 			"bugs/warning/ShowBug.java",
-			"package bugs.warning;\n" +
-			"\n" +
-			"public class ShowBug {\n" +
-			"	/**\n" +
-			"	 * \n" +
-			"	 * @param unusedParam\n" +
-			"	 */\n" +
-			"	public void foo(Object unusedParam) {\n" +
-			"		\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package bugs.warning;
+				
+				public class ShowBug {
+					/**
+					 *\s
+					 * @param unusedParam
+					 */
+					public void foo(Object unusedParam) {
+					\t
+					}
+				}
+				"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "bugs" + File.separator + "warning" + File.separator + "ShowBug.java\""
 		+ " -1.5"
 		+ " -properties " + OUTPUT_DIR + File.separator +".settings" + File.separator + "org.eclipse.jdt.core.prefs "
 		+ " -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/bugs/warning/ShowBug.java (at line 8)\n" +
-		"	public void foo(Object unusedParam) {\n" +
-		"	                       ^^^^^^^^^^^\n" +
-		"The value of the parameter unusedParam is not used\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/bugs/warning/ShowBug.java (at line 8)
+				public void foo(Object unusedParam) {
+				                       ^^^^^^^^^^^
+			The value of the parameter unusedParam is not used
+			----------
+			1 problem (1 warning)
+			""",
 		false /*don't flush output dir*/,
 		null /* progress */);
 }
@@ -12568,48 +13358,52 @@ public void test385780_warn_option() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n"+
-			"public <S> X() {\n"+
-			"}\n"+
-			"public void ph(int t) {\n"+
-	        "}\n"+
-			"}\n"+
-			"interface doNothingInterface<T> {\n"+
-			"}\n"+
-			"class doNothing {\n"+
-			"public <T> void doNothingMethod() {"+
-			"}\n"+
-			"}\n"+
-			"class noerror {\n"+
-			"public <T> void doNothing(T t) {"+
-			"}"+
-			"}\n"
+			"""
+				public class X<T> {
+				public <S> X() {
+				}
+				public void ph(int t) {
+				}
+				}
+				interface doNothingInterface<T> {
+				}
+				class doNothing {
+				public <T> void doNothingMethod() {\
+				}
+				}
+				class noerror {
+				public <T> void doNothing(T t) {\
+				}\
+				}
+				"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unusedTypeParameter -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-		"	public class X<T> {\n" +
-		"	               ^\n" +
-		"Unused type parameter T\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
-		"	public <S> X() {\n" +
-		"	        ^\n" +
-		"Unused type parameter S\n" +
-		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-		"	interface doNothingInterface<T> {\n" +
-		"	                             ^\n" +
-		"Unused type parameter T\n" +
-		"----------\n" +
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 10)\n" +
-		"	public <T> void doNothingMethod() {}\n" +
-		"	        ^\n" +
-		"Unused type parameter T\n" +
-		"----------\n" +
-		"4 problems (4 warnings)\n",
+		"""
+			----------
+			1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)
+				public class X<T> {
+				               ^
+			Unused type parameter T
+			----------
+			2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)
+				public <S> X() {
+				        ^
+			Unused type parameter S
+			----------
+			3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)
+				interface doNothingInterface<T> {
+				                             ^
+			Unused type parameter T
+			----------
+			4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 10)
+				public <T> void doNothingMethod() {}
+				        ^
+			Unused type parameter T
+			----------
+			4 problems (4 warnings)
+			""",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=405225
@@ -12619,14 +13413,16 @@ public void test405225_extdirs() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileReader;\n" +
-			"public class X {\n" +
-			"  void foo() throws java.io.IOException {\n" +
-			"      FileReader r = new FileReader(\"f1\");\n" +
-			"      char[] cs = new char[1024];\n" +
-			"	   r.read(cs);\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.FileReader;
+				public class X {
+				  void foo() throws java.io.IOException {
+				      FileReader r = new FileReader("f1");
+				      char[] cs = new char[1024];
+					   r.read(cs);
+				  }
+				}
+				"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:-resource -1.7 -extdirs \"" + LIB_DIR + "\" -d \"" + OUTPUT_DIR + "\"",
@@ -12639,32 +13435,35 @@ public void test408038a() {
 	this.runConformTest(
 		new String[] {
 			"externalizable/warning/X.java",
-			"package externalizable.warning;\n" +
-			"\n" +
-			"public class X {\n" +
-			"	private class Y {\n" +
-			"		static final int i = 10;\n" +
-			"		public Y() {}\n" +
-			"		public Y(int x) {System.out.println(x);}\n" +
-			"	}\n" +
-			"\n" +
-			"	public void zoo() {\n" +
-			"		System.out.println(Y.i);\n" +
-			"		Y y = new Y(5);\n" +
-			"		System.out.println(y);\n" +
-			"	}\n" +
-			"}",
+			"""
+				package externalizable.warning;
+				
+				public class X {
+					private class Y {
+						static final int i = 10;
+						public Y() {}
+						public Y(int x) {System.out.println(x);}
+					}
+				
+					public void zoo() {
+						System.out.println(Y.i);
+						Y y = new Y(5);
+						System.out.println(y);
+					}
+				}""",
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "externalizable" + File.separator + "warning" + File.separator + "X.java\""
 			+ " -1.6 -d none",
 			"",
-			"----------\n" +
-			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 6)\n" +
-			"	public Y() {}\n" +
-			"	       ^^^\n" +
-			"The constructor X.Y() is never used locally\n" +
-			"----------\n" +
-			"1 problem (1 warning)\n",
+			"""
+				----------
+				1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 6)
+					public Y() {}
+					       ^^^
+				The constructor X.Y() is never used locally
+				----------
+				1 problem (1 warning)
+				""",
 			true);
 }
 //Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
@@ -12672,32 +13471,35 @@ public void test408038b() {
 	this.runConformTest(
 		new String[] {
 			"externalizable/warning/X.java",
-			"package externalizable.warning;\n" +
-			"\n" +
-			"public class X {\n" +
-			"	private static class Y {\n" +
-			"		static final int i = 10;\n" +
-			"		public Y() {}\n" +
-			"		public Y(int x) {System.out.println(x);}\n" +
-			"	}\n" +
-			"\n" +
-			"	public void zoo() {\n" +
-			"		System.out.println(Y.i);\n" +
-			"		Y y = new Y(5);\n" +
-			"		System.out.println(y);\n" +
-			"	}\n" +
-			"}",
+			"""
+				package externalizable.warning;
+				
+				public class X {
+					private static class Y {
+						static final int i = 10;
+						public Y() {}
+						public Y(int x) {System.out.println(x);}
+					}
+				
+					public void zoo() {
+						System.out.println(Y.i);
+						Y y = new Y(5);
+						System.out.println(y);
+					}
+				}""",
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "externalizable" + File.separator + "warning" + File.separator + "X.java\""
 			+ " -1.6 -d none",
 			"",
-			"----------\n" +
-			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 6)\n" +
-			"	public Y() {}\n" +
-			"	       ^^^\n" +
-			"The constructor X.Y() is never used locally\n" +
-			"----------\n" +
-			"1 problem (1 warning)\n",
+			"""
+				----------
+				1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 6)
+					public Y() {}
+					       ^^^
+				The constructor X.Y() is never used locally
+				----------
+				1 problem (1 warning)
+				""",
 			true);
 }
 //Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
@@ -12705,34 +13507,35 @@ public void test408038c() {
 	this.runConformTest(
 		new String[] {
 			"externalizable/warning/X.java",
-			"package externalizable.warning;\n" +
-			"import java.io.Externalizable;\n" +
-			"import java.io.IOException;\n" +
-			"import java.io.ObjectInput;\n" +
-			"import java.io.ObjectOutput;\n" +
-			"\n" +
-			"public class X {\n" +
-			"	private static class Y implements Externalizable {\n" +
-			"		static final int i = 10;\n" +
-			"		public Y() {}\n" +
-			"		public Y(int x) {System.out.println(x);}\n" +
-			"\n" +
-			"		@Override\n" +
-			"		public void writeExternal(ObjectOutput out) throws IOException {\n" +
-			"		}\n" +
-			"\n" +
-			"		@Override\n" +
-			"		public void readExternal(ObjectInput in) throws IOException,\n" +
-			"		ClassNotFoundException {\n" +
-			"		}\n" +
-			"	}\n" +
-			"\n" +
-			"	public void zoo() {\n" +
-			"		System.out.println(Y.i);\n" +
-			"		Y y = new Y(5);\n" +
-			"		System.out.println(y);\n" +
-			"	}\n" +
-			"}",
+			"""
+				package externalizable.warning;
+				import java.io.Externalizable;
+				import java.io.IOException;
+				import java.io.ObjectInput;
+				import java.io.ObjectOutput;
+				
+				public class X {
+					private static class Y implements Externalizable {
+						static final int i = 10;
+						public Y() {}
+						public Y(int x) {System.out.println(x);}
+				
+						@Override
+						public void writeExternal(ObjectOutput out) throws IOException {
+						}
+				
+						@Override
+						public void readExternal(ObjectInput in) throws IOException,
+						ClassNotFoundException {
+						}
+					}
+				
+					public void zoo() {
+						System.out.println(Y.i);
+						Y y = new Y(5);
+						System.out.println(y);
+					}
+				}""",
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "externalizable" + File.separator + "warning" + File.separator + "X.java\""
 			+ " -1.6 -d none",
@@ -12745,45 +13548,48 @@ public void test408038d() {
 	this.runConformTest(
 		new String[] {
 			"externalizable/warning/X.java",
-			"package externalizable.warning;\n" +
-			"import java.io.Externalizable;\n" +
-			"import java.io.IOException;\n" +
-			"import java.io.ObjectInput;\n" +
-			"import java.io.ObjectOutput;\n" +
-			"\n" +
-			"public class X {\n" +
-			"	private class Y implements Externalizable {\n" +
-			"		static final int i = 10;\n" +
-			"		public Y() {}\n" +
-			"		public Y(int x) {System.out.println(x);}\n" +
-			"\n" +
-			"		@Override\n" +
-			"		public void writeExternal(ObjectOutput out) throws IOException {\n" +
-			"		}\n" +
-			"\n" +
-			"		@Override\n" +
-			"		public void readExternal(ObjectInput in) throws IOException,\n" +
-			"		ClassNotFoundException {\n" +
-			"		}\n" +
-			"	}\n" +
-			"\n" +
-			"	public void zoo() {\n" +
-			"		System.out.println(Y.i);\n" +
-			"		Y y = new Y(5);\n" +
-			"		System.out.println(y);\n" +
-			"	}\n" +
-			"}",
+			"""
+				package externalizable.warning;
+				import java.io.Externalizable;
+				import java.io.IOException;
+				import java.io.ObjectInput;
+				import java.io.ObjectOutput;
+				
+				public class X {
+					private class Y implements Externalizable {
+						static final int i = 10;
+						public Y() {}
+						public Y(int x) {System.out.println(x);}
+				
+						@Override
+						public void writeExternal(ObjectOutput out) throws IOException {
+						}
+				
+						@Override
+						public void readExternal(ObjectInput in) throws IOException,
+						ClassNotFoundException {
+						}
+					}
+				
+					public void zoo() {
+						System.out.println(Y.i);
+						Y y = new Y(5);
+						System.out.println(y);
+					}
+				}""",
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "externalizable" + File.separator + "warning" + File.separator + "X.java\""
 			+ " -1.6 -d none",
 			"",
-			"----------\n" +
-			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 10)\n" +
-			"	public Y() {}\n" +
-			"	       ^^^\n" +
-			"The constructor X.Y() is never used locally\n" +
-			"----------\n" +
-			"1 problem (1 warning)\n",
+			"""
+				----------
+				1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 10)
+					public Y() {}
+					       ^^^
+				The constructor X.Y() is never used locally
+				----------
+				1 problem (1 warning)
+				""",
 			true);
 }
 // Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
@@ -12793,27 +13599,31 @@ public void test408038e() {
 	this.runConformTest(
 		new String[] {
 			"externalizable/warning/X.java",
-			"package externalizable.warning;\n" +
-			"class X {\n" +
-			"	int i;\n" +
-			"	private X(int x) {i = x;}\n" +
-			"	X() {}\n" +
-			"	public int foo() {\n" +
-			"		X x = new X();\n" +
-			"		return x.i;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package externalizable.warning;
+				class X {
+					int i;
+					private X(int x) {i = x;}
+					X() {}
+					public int foo() {
+						X x = new X();
+						return x.i;
+					}
+				}
+				"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "externalizable" + File.separator + "warning" + File.separator + "X.java\""
 			+ " -1.6 -d none",
 			"",
-			"----------\n" +
-			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 4)\n" +
-			"	private X(int x) {i = x;}\n" +
-	        "	        ^^^^^^^^\n" +
-	        "The constructor X(int) is never used locally\n" +
-	        "----------\n" +
-	        "1 problem (1 warning)\n",
+			"""
+				----------
+				1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 4)
+					private X(int x) {i = x;}
+					        ^^^^^^^^
+				The constructor X(int) is never used locally
+				----------
+				1 problem (1 warning)
+				""",
 			true);
 }
 public void testBug574425() {
@@ -12828,30 +13638,32 @@ public void testBug574425() {
 		Util.createJar(
 				new String[] {
 						"org/apache/accumulo/core/conf/Property.java",
-						"package org.apache.accumulo.core.conf;\n"
-						+ "import java.lang.annotation.Inherited;\n"
-						+ "import java.lang.annotation.Retention;\n"
-						+ "import java.lang.annotation.RetentionPolicy;\n"
-						+ "public enum Property {\n"
-						+ "	@Deprecated(since = \"2.1.0\")\n"
-						+ "	TSERV_WAL_SORT_MAX_CONCURRENT(\"tserver.wal.sort.concurrent.max\", \"2\", \"2\",\n"
-						+ "			\"The maximum number of threads to use to sort logs during recovery\", \"2.1.0\"),\n"
-						+ "	@Deprecated(since = \"2.1.0\")\n"
-						+ "	@ReplacedBy(property = Property.TSERV_WAL_SORT_MAX_CONCURRENT) \n"
-						+ "	TSERV_RECOVERY_MAX_CONCURRENT(\"tserver.recovery.concurrent.max\", \"2\", \"2\",\n"
-						+ "			\"The maximum number of threads to use to sort logs during recovery\", \"1.5.0\"),\n"
-						+ "	RPC_SSL_KEYSTORE_PASSWORD(\"rpc.javax.net.ssl.keyStorePassword\", \"\", \"2\",\n"
-						+ "			\"Password used to encrypt the SSL private keystore. \" + \"Leave blank to use the Accumulo instance secret\",\n"
-						+ "			\"1.6.0\"); \n"
-						+ "  Property(String name, String defaultValue, String type, String description,\n"
-						+ "      String availableSince) {\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "@Inherited\n"
-						+ "@Retention(RetentionPolicy.RUNTIME)\n"
-						+ "@interface ReplacedBy { \n"
-						+ "  Property property();\n"
-						+ "}\n"
+						"""
+							package org.apache.accumulo.core.conf;
+							import java.lang.annotation.Inherited;
+							import java.lang.annotation.Retention;
+							import java.lang.annotation.RetentionPolicy;
+							public enum Property {
+								@Deprecated(since = "2.1.0")
+								TSERV_WAL_SORT_MAX_CONCURRENT("tserver.wal.sort.concurrent.max", "2", "2",
+										"The maximum number of threads to use to sort logs during recovery", "2.1.0"),
+								@Deprecated(since = "2.1.0")
+								@ReplacedBy(property = Property.TSERV_WAL_SORT_MAX_CONCURRENT)\s
+								TSERV_RECOVERY_MAX_CONCURRENT("tserver.recovery.concurrent.max", "2", "2",
+										"The maximum number of threads to use to sort logs during recovery", "1.5.0"),
+								RPC_SSL_KEYSTORE_PASSWORD("rpc.javax.net.ssl.keyStorePassword", "", "2",
+										"Password used to encrypt the SSL private keystore. " + "Leave blank to use the Accumulo instance secret",
+										"1.6.0");\s
+							  Property(String name, String defaultValue, String type, String description,
+							      String availableSince) {
+							  }
+							}
+							@Inherited
+							@Retention(RetentionPolicy.RUNTIME)
+							@interface ReplacedBy {\s
+							  Property property();
+							}
+							"""
 				},
 				null,
 				libPath,
@@ -12859,10 +13671,12 @@ public void testBug574425() {
 		this.runConformTest(
 				new String[] {
 						"src/org/apache/accumulo/test/fate/zookeeper/X.java",
-						"package org.apache.accumulo.test.fate.zookeeper;\n"
-						+ "import org.apache.accumulo.core.conf.Property;\n"
-						+ "public class X {\n"
-						+ "}\n",
+						"""
+							package org.apache.accumulo.test.fate.zookeeper;
+							import org.apache.accumulo.core.conf.Property;
+							public class X {
+							}
+							""",
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "src/org/apache/accumulo/test/fate/zookeeper/X.java\""
 				+ " -classpath \"" + libPath + "\""
@@ -12889,10 +13703,12 @@ public void testBug419351() {
 		Util.createJar(
 				new String[] {
 						"java/lang/String.java",
-						"package java.lang;\n" +
-						"public class String {\n" +
-						"    public String(java.lang.Object obj) {}\n" +
-						"}\n"
+						"""
+							package java.lang;
+							public class String {
+							    public String(java.lang.Object obj) {}
+							}
+							"""
 				},
 				null,
 				lib1Path,
@@ -12900,11 +13716,13 @@ public void testBug419351() {
 		this.runConformTest(
 				new String[] {
 						"src/X.java",
-						"public class X {\n" +
-						"    public void foo(Object obj) {\n" +
-						"        java.lang.String str = new java.lang.String(obj);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							public class X {
+							    public void foo(Object obj) {
+							        java.lang.String str = new java.lang.String(obj);
+								}
+							}
+							""",
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
 				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
@@ -12924,13 +13742,15 @@ public void testBug419351() {
 public void test501457() throws IOException {
 	this.runConformTest(new String[] {
 			"FailingClass.java",
-			"import java.lang.invoke.MethodHandle;\n" +
-			"import java.util.ArrayList;\n" +
-			"public class FailingClass {\n" +
-			"  protected void test(MethodHandle handle) throws Throwable {\n" +
-			"        handle.invoke(null, new ArrayList<>());\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.lang.invoke.MethodHandle;
+				import java.util.ArrayList;
+				public class FailingClass {
+				  protected void test(MethodHandle handle) throws Throwable {
+				        handle.invoke(null, new ArrayList<>());
+				    }
+				}
+				"""
 		},
 		" -1.8 " +
 		" -sourcepath \"" + OUTPUT_DIR + "\" " +
@@ -12946,34 +13766,38 @@ public void test439750() {
 	this.runConformTest(
 		new String[] {
 			"externalizable/warning/X.java",
-			"import java.io.FileInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		FileInputStream fis = null;\n" +
-			"		try {\n" +
-			"			fis = new FileInputStream(\"xyz\");\n" +
-			"			System.out.println(\"fis\");\n" +
-			"		} catch (IOException e) {\n" +
-			"			e.printStackTrace();\n" +
-			"		} finally {\n" +
-			"			try {\n" +
-			"				if (fis != null) fis.close();\n" +
-			"			} catch (Exception e) {}\n" +
- 			"		}\n" +
- 			"	}\n" +
-			"}\n"
+			"""
+				import java.io.FileInputStream;
+				import java.io.IOException;
+				class X {
+					public static void main(String[] args) {
+						FileInputStream fis = null;
+						try {
+							fis = new FileInputStream("xyz");
+							System.out.println("fis");
+						} catch (IOException e) {
+							e.printStackTrace();
+						} finally {
+							try {
+								if (fis != null) fis.close();
+							} catch (Exception e) {}
+						}
+					}
+				}
+				"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "externalizable" + File.separator + "warning" + File.separator + "X.java\""
 			+ " -1.6 -warn:unused -warn:unusedExceptionParam -d none",
 			"",
-			"----------\n" +
-			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 14)\n" +
-			"	} catch (Exception e) {}\n" +
-			"	                   ^\n" +
-			"The value of the exception parameter e is not used\n" +
-			"----------\n" +
-			"1 problem (1 warning)\n",
+			"""
+				----------
+				1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 14)
+					} catch (Exception e) {}
+					                   ^
+				The value of the exception parameter e is not used
+				----------
+				1 problem (1 warning)
+				""",
 			true);
 }
 
@@ -13020,11 +13844,12 @@ public void test496137a(){
 	this.runConformTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[~p/A]\""
@@ -13033,13 +13858,15 @@ public void test496137a(){
 		+ " -proceedOnError -referenceInfo -info:+discouraged"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"----------\n" +
-		"1. INFO in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
-		"	A a;\n" +
-		"	^\n" +
-		"Discouraged access: The type \'A\' is not API (restriction on classpath entry \'---LIB_DIR_PLACEHOLDER---/lib3.jar\')\n" +
-		"----------\n" +
-		"1 problem (1 info)\n",
+		"""
+			----------
+			1. INFO in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)
+				A a;
+				^
+			Discouraged access: The type 'A' is not API (restriction on classpath entry '---LIB_DIR_PLACEHOLDER---/lib3.jar')
+			----------
+			1 problem (1 info)
+			""",
 		true);
 }
 //same as test294, but for -info: instead of -err:
@@ -13100,37 +13927,43 @@ public void test496137d(){
 public void test496137e() throws IOException {
 	createOutputTestDirectory("regression/.settings");
 	Util.createFile(OUTPUT_DIR+"/.settings/org.eclipse.jdt.core.prefs",
-			"eclipse.preferences.version=1\n" +
-			"org.eclipse.jdt.core.compiler.problem.unusedParameter=info\n" +
-			"org.eclipse.jdt.core.compiler.doc.comment.support=disabled\n");
+			"""
+				eclipse.preferences.version=1
+				org.eclipse.jdt.core.compiler.problem.unusedParameter=info
+				org.eclipse.jdt.core.compiler.doc.comment.support=disabled
+				""");
 	this.runTest(
 		true, // compile OK, expecting only warning
 		new String[] {
 			"bugs/warning/ShowBug.java",
-			"package bugs.warning;\n" +
-			"\n" +
-			"public class ShowBug {\n" +
-			"	/**\n" +
-			"	 * \n" +
-			"	 * @param unusedParam\n" +
-			"	 */\n" +
-			"	public void foo(Object unusedParam) {\n" +
-			"		\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package bugs.warning;
+				
+				public class ShowBug {
+					/**
+					 *\s
+					 * @param unusedParam
+					 */
+					public void foo(Object unusedParam) {
+					\t
+					}
+				}
+				"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "bugs" + File.separator + "warning" + File.separator + "ShowBug.java\""
 		+ " -1.5"
 		+ " -properties " + OUTPUT_DIR + File.separator +".settings" + File.separator + "org.eclipse.jdt.core.prefs "
 		+ " -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. INFO in ---OUTPUT_DIR_PLACEHOLDER---/bugs/warning/ShowBug.java (at line 8)\n" +
-		"	public void foo(Object unusedParam) {\n" +
-		"	                       ^^^^^^^^^^^\n" +
-		"The value of the parameter unusedParam is not used\n" +
-		"----------\n" +
-		"1 problem (1 info)\n",
+		"""
+			----------
+			1. INFO in ---OUTPUT_DIR_PLACEHOLDER---/bugs/warning/ShowBug.java (at line 8)
+				public void foo(Object unusedParam) {
+				                       ^^^^^^^^^^^
+			The value of the parameter unusedParam is not used
+			----------
+			1 problem (1 info)
+			""",
 		false /*don't flush output dir*/,
 		null /* progress */);
 }
@@ -13140,11 +13973,12 @@ public void test496137f(){
 	this.runConformTest(
 		new String[] {
 			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  A a;\n" +
-			"}",
+			"""
+				package p;
+				/** */
+				public class X {
+				  A a;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[~p/A]\""
@@ -13167,9 +14001,10 @@ public void testReleaseOption() throws Exception {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"/** */\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					/** */
+					public class X {
+					}""",
 			},
 	     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 	     + " --release 8 -d \"" + OUTPUT_DIR + "\"",
@@ -13183,13 +14018,15 @@ public void testBug531579() throws Exception {
 	// these types replace inaccessible types from JRE/javax.xml.bind:
 	runConformTest(new String[] {
 			"src/javax/xml/bind/JAXBContext.java",
-			"package javax.xml.bind;\n" +
-			"public abstract class JAXBContext {\n" +
-			"	public static JAXBContext newInstance( String contextPath )\n" +
-			"		throws JAXBException {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				package javax.xml.bind;
+				public abstract class JAXBContext {
+					public static JAXBContext newInstance( String contextPath )
+						throws JAXBException {
+						return null;
+					}
+				}
+				""",
 			"src/javax/xml/bind/JAXBException.java",
 			"package javax.xml.bind;\n" +
 			"public class JAXBException extends Exception {}\n"
@@ -13206,17 +14043,19 @@ public void testBug531579() throws Exception {
 
 	runConformTest(new String[] {
 			"src/p1/ImportJAXBType.java",
-			"package p1;\n" +
-			"\n" +
-			"import javax.xml.bind.JAXBContext;\n" +
-			"\n" +
-			"public class ImportJAXBType {\n" +
-			"\n" +
-			"	public static void main(String[] args) throws Exception {\n" +
-			"		JAXBContext context = JAXBContext.newInstance(\"\");\n" +
-			"	}\n" +
-			"\n" +
-			"}\n"
+			"""
+				package p1;
+				
+				import javax.xml.bind.JAXBContext;
+				
+				public class ImportJAXBType {
+				
+					public static void main(String[] args) throws Exception {
+						JAXBContext context = JAXBContext.newInstance("");
+					}
+				
+				}
+				"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p1/ImportJAXBType.java\""
 		+ " -cp \"" + OUTPUT_DIR + File.separator + "bin\" "
@@ -13233,9 +14072,10 @@ public void testFailOnWarnings_NoWarning() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -failOnWarning"
@@ -13250,10 +14090,11 @@ public void testFailOnWarnings_WithWarning() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"private int a;\n" +
-			"}",
+			"""
+				/** */
+				public class X {
+				private int a;
+				}""",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -failOnWarning"
@@ -13274,23 +14115,27 @@ public void testUnusedObjectAllocation() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		new X();\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					void foo() {
+						new X();
+					}
+				}
+				"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -err:+unused"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin/\"",
 		"",
-		"----------\n" +
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-		"	new X();\n" +
-		"	^^^^^^^\n" +
-		"The allocated object is never used\n" +
-		"----------\n" +
-		"1 problem (1 error)\n",
+		"""
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+				new X();
+				^^^^^^^
+			The allocated object is never used
+			----------
+			1 problem (1 error)
+			""",
 		true);
 
 }
@@ -13310,18 +14155,19 @@ public void test413873() {
 	this.runConformTest(
 		new String[] {
 			"OuterClass.java",
-			"public class OuterClass<T> {\n" +
-			"	private final class InnerClass {\n" +
-			"	}\n" +
-			"\n" +
-			"	private InnerClass foo(final InnerClass object) {\n" +
-			"		return object;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public void doStuff() {\n" +
-			"		foo(new InnerClass());\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class OuterClass<T> {
+					private final class InnerClass {
+					}
+				
+					private InnerClass foo(final InnerClass object) {
+						return object;
+					}
+				\t
+					public void doStuff() {
+						foo(new InnerClass());
+					}
+				}"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "OuterClass.java\""
 			+ " -1.6 -warn:all-static-method -proc:none -d none",
@@ -13334,50 +14180,54 @@ public void testIssue89_1() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.Set;\n"
-				+ "public class X<T> {\n"
-				+ "	public boolean method1(final Set<Integer> a) {\n"
-				+ "		return a.isEmpty();\n"
-				+ "	}\n"
-				+ "	public String method2(final X a) {\n"
-				+ "		return a.toString();\n"
-				+ "	}\n"
-				+ "}"
+				"""
+					import java.util.Set;
+					public class X<T> {
+						public boolean method1(final Set<Integer> a) {
+							return a.isEmpty();
+						}
+						public String method2(final X a) {
+							return a.toString();
+						}
+					}"""
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "X.java\" "
 				+ " -failOnWarning"
 				+ " -1.6 -warn:all-static-method -proc:none -d none",
 				"",
-				"----------\n" +
-				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-				"	public boolean method1(final Set<Integer> a) {\n" +
-				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"The method method1(Set<Integer>) from the type X<T> can potentially be declared as static\n" +
-				"----------\n" +
-				"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-				"	public String method2(final X a) {\n" +
-				"	              ^^^^^^^^^^^^^^^^^^\n" +
-				"The method method2(X) from the type X<T> can potentially be declared as static\n" +
-				"----------\n" +
-				"2 problems (2 warnings)\n" +
-				"error: warnings found and -failOnWarning specified\n",
+				"""
+					----------
+					1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+						public boolean method1(final Set<Integer> a) {
+						               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					The method method1(Set<Integer>) from the type X<T> can potentially be declared as static
+					----------
+					2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+						public String method2(final X a) {
+						              ^^^^^^^^^^^^^^^^^^
+					The method method2(X) from the type X<T> can potentially be declared as static
+					----------
+					2 problems (2 warnings)
+					error: warnings found and -failOnWarning specified
+					""",
 				true);
 }
 public void testIssue89_2() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.Set;\n"
-				+ "public class X<T> {\n"
-				+ " @SuppressWarnings(\"static-method\")"
-				+ "	public boolean method1(final Set<Integer> a) {\n"
-				+ "		return a.isEmpty();\n"
-				+ "	}\n"
-				+ " @SuppressWarnings(\"static-method\")"
-				+ "	public String method2(final X a) {\n"
-				+ "		return a.toString();\n"
-				+ "	}\n"
-				+ "}"
+				"""
+					import java.util.Set;
+					public class X<T> {
+					 @SuppressWarnings("static-method")\
+						public boolean method1(final Set<Integer> a) {
+							return a.isEmpty();
+						}
+					 @SuppressWarnings("static-method")\
+						public String method2(final X a) {
+							return a.toString();
+						}
+					}"""
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "X.java\" "
 				+ " -failOnWarning"
@@ -13390,84 +14240,93 @@ public void testIssue89_3() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.Set;\n"
-				+ "public class X<T> {\n"
-				+ " private final class InnerClass{}\n"
-				+ "	public boolean method1(final Set<Integer> a) {\n"
-				+ "		return a.isEmpty();\n"
-				+ "	}\n"
-				+ "	public String method2(final InnerClass i) {\n"
-				+ "		return i.toString();\n"
-				+ "	}\n"
-				+ "}"
+				"""
+					import java.util.Set;
+					public class X<T> {
+					 private final class InnerClass{}
+						public boolean method1(final Set<Integer> a) {
+							return a.isEmpty();
+						}
+						public String method2(final InnerClass i) {
+							return i.toString();
+						}
+					}"""
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "X.java\" "
 				+ " -failOnWarning"
 				+ " -1.6 -warn:all-static-method -proc:none -d none",
 				"",
-				"----------\n" +
-				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-				"	public boolean method1(final Set<Integer> a) {\n" +
-				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"The method method1(Set<Integer>) from the type X<T> can potentially be declared as static\n" +
-				"----------\n" +
-				"1 problem (1 warning)\n" +
-				"error: warnings found and -failOnWarning specified\n",
+				"""
+					----------
+					1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+						public boolean method1(final Set<Integer> a) {
+						               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					The method method1(Set<Integer>) from the type X<T> can potentially be declared as static
+					----------
+					1 problem (1 warning)
+					error: warnings found and -failOnWarning specified
+					""",
 				true);
 }
 public void testIssue89_4() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.Set;\n"
-				+ "public class X<T> {\n"
-				+ " private final class InnerClass{}\n"
-				+ "	public boolean method1(final Set<Integer> a) {\n"
-				+ "		return a.isEmpty();\n"
-				+ "	}\n"
-				+ "	public InnerClass method2() {\n"
-				+ "		return null;\n"
-				+ "	}\n"
-				+ "}"
+				"""
+					import java.util.Set;
+					public class X<T> {
+					 private final class InnerClass{}
+						public boolean method1(final Set<Integer> a) {
+							return a.isEmpty();
+						}
+						public InnerClass method2() {
+							return null;
+						}
+					}"""
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "X.java\" "
 				+ " -failOnWarning"
 				+ " -1.6 -warn:all-static-method -proc:none -d none",
 				"",
-				"----------\n" +
-				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
-				"	public boolean method1(final Set<Integer> a) {\n" +
-				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"The method method1(Set<Integer>) from the type X<T> can potentially be declared as static\n" +
-				"----------\n" +
-				"1 problem (1 warning)\n" +
-				"error: warnings found and -failOnWarning specified\n",
+				"""
+					----------
+					1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)
+						public boolean method1(final Set<Integer> a) {
+						               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					The method method1(Set<Integer>) from the type X<T> can potentially be declared as static
+					----------
+					1 problem (1 warning)
+					error: warnings found and -failOnWarning specified
+					""",
 				true);
 }
 public void testIssue89_5() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.Set;\n"
-				+ "public class X<T> {\n"
-				+ " private final class InnerClass{}"
-				+ "	public boolean method1(final Set<InnerClass> a) {\n"
-				+ "		return a.isEmpty();\n"
-				+ "	}\n"
-				+ "}"
+				"""
+					import java.util.Set;
+					public class X<T> {
+					 private final class InnerClass{}\
+						public boolean method1(final Set<InnerClass> a) {
+							return a.isEmpty();
+						}
+					}"""
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "X.java\" "
 				+ " -failOnWarning"
 				+ " -1.6 -warn:all-static-method -proc:none -d none",
 				"",
-				"----------\n" +
-				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-				"	private final class InnerClass{}	public boolean method1(final Set<InnerClass> a) {\n" +
-				"	                                	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"The method method1(Set<X<T>.InnerClass>) from the type X<T> can potentially be declared as static\n" +
-				"----------\n" +
-				"1 problem (1 warning)\n" +
-				"error: warnings found and -failOnWarning specified\n",
+				"""
+					----------
+					1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+						private final class InnerClass{}	public boolean method1(final Set<InnerClass> a) {
+						                                	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					The method method1(Set<X<T>.InnerClass>) from the type X<T> can potentially be declared as static
+					----------
+					1 problem (1 warning)
+					error: warnings found and -failOnWarning specified
+					""",
 				true);
 }
 
@@ -13525,21 +14384,22 @@ public void testGH2434(){
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "	static {\n"
-				+ "		String a = \"Blah\";\n"
-				+ "		if (a != null) {\n"
-				+ "				String c = a;\n"
-				+ "				if (c != null) {\n"
-				+ "					String[] bundles = new String [0];\n"
-				+ "					for (String bundle : bundles) {\n"
-				+ "						if (bundle == null)\n"
-				+ "							bundle = null;\n"
-				+ "					}\n"
-				+ "				}\n"
-				+ "		}\n"
-				+ "	}\n"
-				+ "}",
+				"""
+					public class X {
+						static {
+							String a = "Blah";
+							if (a != null) {
+									String c = a;
+									if (c != null) {
+										String[] bundles = new String [0];
+										for (String bundle : bundles) {
+											if (bundle == null)
+												bundle = null;
+										}
+									}
+							}
+						}
+					}""",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"

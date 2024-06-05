@@ -30,71 +30,78 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 
 	protected static final String GOOGLE_INJECT_NAME = "com/google/inject/Inject.java";
 	protected static final String GOOGLE_INJECT_CONTENT =
-		"package com.google.inject;\n" +
-		"import static java.lang.annotation.ElementType.*;\n" +
-		"import java.lang.annotation.Retention;\n" +
-		"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"@Target({ METHOD, CONSTRUCTOR, FIELD })\n" +
-		"@Retention(RUNTIME)\n" +
-		"public @interface Inject {\n" +
-		"\n" +
-		"  boolean optional() default false;\n" +
-		"}";
+		"""
+		package com.google.inject;
+		import static java.lang.annotation.ElementType.*;
+		import java.lang.annotation.Retention;
+		import static java.lang.annotation.RetentionPolicy.RUNTIME;
+		import java.lang.annotation.Target;
+		@Target({ METHOD, CONSTRUCTOR, FIELD })
+		@Retention(RUNTIME)
+		public @interface Inject {
+		
+		  boolean optional() default false;
+		}""";
 
 	protected static final String JAVAX_INJECT_NAME = "javax/inject/Inject.java";
 	protected static final String JAVAX_INJECT_CONTENT =
-		"package jakarta.inject;\n" +
-		"import static java.lang.annotation.ElementType.*;\n" +
-		"import java.lang.annotation.Retention;\n" +
-		"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"@Target({ METHOD, CONSTRUCTOR, FIELD })\n" +
-		"@Retention(RUNTIME)\n" +
-		"public @interface Inject {}\n";
+		"""
+		package jakarta.inject;
+		import static java.lang.annotation.ElementType.*;
+		import java.lang.annotation.Retention;
+		import static java.lang.annotation.RetentionPolicy.RUNTIME;
+		import java.lang.annotation.Target;
+		@Target({ METHOD, CONSTRUCTOR, FIELD })
+		@Retention(RUNTIME)
+		public @interface Inject {}
+		""";
 
 	protected static final String JAKARTA_INJECT_NAME = "jakarta/inject/Inject.java";
 	protected static final String JAKARTA_INJECT_CONTENT =
-		"package jakarta.inject;\n" +
-		"import static java.lang.annotation.ElementType.*;\n" +
-		"import java.lang.annotation.Retention;\n" +
-		"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"@Target({ METHOD, CONSTRUCTOR, FIELD })\n" +
-		"@Retention(RUNTIME)\n" +
-		"public @interface Inject {}\n";
+		"""
+		package jakarta.inject;
+		import static java.lang.annotation.ElementType.*;
+		import java.lang.annotation.Retention;
+		import static java.lang.annotation.RetentionPolicy.RUNTIME;
+		import java.lang.annotation.Target;
+		@Target({ METHOD, CONSTRUCTOR, FIELD })
+		@Retention(RUNTIME)
+		public @interface Inject {}
+		""";
 
 	protected static final String SPRINGFRAMEWORK_AUTOWIRED_NAME = "org/springframework/beans/factory/annotation/Autowired.java";
 	protected static final String SPRINGFRAMEWORK_AUTOWIRED_CONTENT =
-		"package org.springframework.beans.factory.annotation;\n" +
-		"import java.lang.annotation.Documented;\n" +
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Retention;\n" +
-		"import java.lang.annotation.RetentionPolicy;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"@Target({ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD})\n" +
-		"@Retention(RetentionPolicy.RUNTIME)\n" +
-		"@Documented\n" +
-		"public @interface Autowired {\n" +
-		"\n" +
-		"	boolean required() default true;\n" +
-		"\n" +
-		"}";
+		"""
+		package org.springframework.beans.factory.annotation;
+		import java.lang.annotation.Documented;
+		import java.lang.annotation.ElementType;
+		import java.lang.annotation.Retention;
+		import java.lang.annotation.RetentionPolicy;
+		import java.lang.annotation.Target;
+		@Target({ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD})
+		@Retention(RetentionPolicy.RUNTIME)
+		@Documented
+		public @interface Autowired {
+		
+			boolean required() default true;
+		
+		}""";
 
 	protected static final String JUNIT_METHODSOURCE_NAME = "org/junit/jupiter/params/provider/MethodSource.java";
 	protected static final String JUNIT_METHODSOURCE_CONTENT =
-	    "package org.junit.jupiter.params.provider;\n" +
-	    "import java.lang.annotation.ElementType;\n" +
-	    "import java.lang.annotation.Retention;\n" +
-	    "import java.lang.annotation.RetentionPolicy;\n" +
-	    "import java.lang.annotation.Target;\n" +
-	    "@Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD})\n" +
-	    "@Retention(RetentionPolicy.RUNTIME)\n" +
-	    "public @interface MethodSource {\n" +
-	    "\n" +
-	    "	String[] value() default \"\";\n" +
-	    "\n" +
-	    "}";
+	    """
+		package org.junit.jupiter.params.provider;
+		import java.lang.annotation.ElementType;
+		import java.lang.annotation.Retention;
+		import java.lang.annotation.RetentionPolicy;
+		import java.lang.annotation.Target;
+		@Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD})
+		@Retention(RetentionPolicy.RUNTIME)
+		public @interface MethodSource {
+		
+			String[] value() default "";
+		
+		}""";
 
 	public static Test buildComparableTestSuite(Class evaluationTestClass) {
 		Test suite = buildMinimalComplianceTestSuite(evaluationTestClass, F_1_5);

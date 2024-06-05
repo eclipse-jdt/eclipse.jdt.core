@@ -1517,9 +1517,10 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) node; // first for loop
-		String expectedSource = "for (int i = 0; i < 10; i++)  // for 1\n" +
-			"	        for (int j = 0; j < 10; j++)  // for 2\n" +
-			"	            if (true) { }";
+		String expectedSource = """
+			for (int i = 0; i < 10; i++)  // for 1
+				        for (int j = 0; j < 10; j++)  // for 2
+				            if (true) { }""";
 		checkSourceRange(forStatement, expectedSource, source);
 		Statement body = forStatement.getBody();
 		expectedSource = "for (int j = 0; j < 10; j++)  // for 2\n" +
@@ -1566,9 +1567,10 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) node; // first for loop
-		String expectedSource = "for (int i= 10; i < 10; i++)/*[*/\n"+
-			"			for (int z= 10; z < 10; z++)\n" +
-			"				foo();";
+		String expectedSource = """
+			for (int i= 10; i < 10; i++)/*[*/
+						for (int z= 10; z < 10; z++)
+							foo();""";
 		checkSourceRange(forStatement, expectedSource, source);
 		Statement body = forStatement.getBody();
 		expectedSource = "for (int z= 10; z < 10; z++)\n" +
@@ -1593,9 +1595,10 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) node; // first for loop
-		String expectedSource = "for (int i= 10; i < 10; i++)/*[*/\n"+
-			"			for (int z= 10; z < 10; z++)\n" +
-			"				;";
+		String expectedSource = """
+			for (int i= 10; i < 10; i++)/*[*/
+						for (int z= 10; z < 10; z++)
+							;""";
 		checkSourceRange(forStatement, expectedSource, source);
 		Statement body = forStatement.getBody();
 		expectedSource = "for (int z= 10; z < 10; z++)\n" +
@@ -1622,9 +1625,10 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
 		ForStatement forStatement = (ForStatement) node; // first for loop
-		String expectedSource = "for (int i= 10; i < 10; i++)/*[*/\n"+
-			"			for (int z= 10; z < 10; z++)\n" +
-			"				{    }";
+		String expectedSource = """
+			for (int i= 10; i < 10; i++)/*[*/
+						for (int z= 10; z < 10; z++)
+							{    }""";
 		checkSourceRange(forStatement, expectedSource, source);
 		Statement body = forStatement.getBody();
 		expectedSource = "for (int z= 10; z < 10; z++)\n" +
@@ -4152,10 +4156,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		try {
 			sourceUnit.becomeWorkingCopy(null, null);
 			sourceUnit.getBuffer().setContents(
-				"package test0538;\n" +
-				"public class A {\n" +
-				"  int i;\n" +
-				"}"
+				"""
+					package test0538;
+					public class A {
+					  int i;
+					}"""
 			);
 			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, false, null, null);
 			assertNotNull("No level 2 compilation unit", unit);
@@ -4173,10 +4178,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		try {
 			sourceUnit.becomeWorkingCopy(null);
 			sourceUnit.getBuffer().setContents(
-				"package test0538;\n" +
-				"public class A {\n" +
-				"  int i;\n" +
-				"}"
+				"""
+					package test0538;
+					public class A {
+					  int i;
+					}"""
 			);
 			CompilationUnit unit = sourceUnit.reconcile(0, false, null, null);
 			assertNull("Unexpected compilation unit", unit);
@@ -4209,10 +4215,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor();
 			sourceUnit.becomeWorkingCopy(pbRequestor, null);
 			sourceUnit.getBuffer().setContents(
-				"package test0538;\n" +
-				"public class A {\n" +
-				"  Object field;\n" +
-				"}"
+				"""
+					package test0538;
+					public class A {
+					  Object field;
+					}"""
 			);
 			// TODO improve test for AST.JLS3
 			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, false, null, null);
@@ -4263,15 +4270,16 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor();
 			sourceUnit.becomeWorkingCopy(pbRequestor, null);
 			sourceUnit.getBuffer().setContents(
-				"package test0538;\n" +
-				"public class A {\n" +
-				"  void foo() {\n" +
-				"    new Object() {\n" +
-				"      void bar() {\n" +
-				"      }\n" +
-				"    };\n" +
-				"  }\n" +
-				"}"
+				"""
+					package test0538;
+					public class A {
+					  void foo() {
+					    new Object() {
+					      void bar() {
+					      }
+					    };
+					  }
+					}"""
 			);
 			// TODO improve test for AST.JLS3
 			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, true/*force pb detection*/, null, null);
@@ -4293,15 +4301,16 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor();
 			sourceUnit.becomeWorkingCopy(pbRequestor, null);
 			sourceUnit.getBuffer().setContents(
-				"package test0538;\n" +
-				"public class A {\n" +
-				"  void foo() {\n" +
-				"    new Object() {\n" +
-				"      void bar() {\n" +
-				"      }\n" +
-				"    };\n" +
-				"  }\n" +
-				"}"
+				"""
+					package test0538;
+					public class A {
+					  void foo() {
+					    new Object() {
+					      void bar() {
+					      }
+					    };
+					  }
+					}"""
 			);
 			sourceUnit.reconcile(ICompilationUnit.NO_AST, false/* don't force pb detection*/, null, null);
 			// TODO improve test for AST.JLS3
@@ -4328,10 +4337,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			};
 			sourceUnit.becomeWorkingCopy(pbRequestor, null);
 			sourceUnit.getBuffer().setContents(
-				"package test0538;\n" +
-				"public class A {\n" +
-				"  Object field;\n" +
-				"}"
+				"""
+					package test0538;
+					public class A {
+					  Object field;
+					}"""
 			);
 			// TODO improve test for AST.JLS3
 			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, false, null, null);
@@ -4373,13 +4383,14 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 */
 	public void test0540() {
 		char[] source =
-				("package test0540;\n" +  //$NON-NLS-1$
-				"\n" +  //$NON-NLS-1$
-				"class Test {\n" +  //$NON-NLS-1$
-				"	public void foo(int arg) {\n" +//$NON-NLS-1$
-				"		assert true;\n" +//$NON-NLS-1$
-				"	}\n" +  //$NON-NLS-1$
-				"}").toCharArray(); //$NON-NLS-1$
+						("""
+			package test0540;
+			
+			class Test {
+				public void foo(int arg) {
+					assert true;
+				}
+			}""").toCharArray(); //$NON-NLS-1$
 		IJavaProject project = getJavaProject("Converter"); //$NON-NLS-1$
 		Map options = project.getOptions(true);
 		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
@@ -5225,10 +5236,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		try {
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true);
 			CompilationUnit unit = (CompilationUnit) buildAST(
-				"import java.util.List;\n" +
-				"public class X{\n" +
-				"  List field;\n" +
-				"}",
+				"""
+					import java.util.List;
+					public class X{
+					  List field;
+					}""",
 				workingCopy
 			);
 			ImportDeclaration importDeclaration = (ImportDeclaration) unit.imports().iterator().next();
@@ -5251,10 +5263,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		try {
 			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"CONVERTER_JCL_LIB"}, "");
 			String source =
-				"public class X {\n" +
-				"  public class Y {\n" +
-				"  }\n" +
-				"}";
+				"""
+				public class X {
+				  public class Y {
+				  }
+				}""";
 			addLibrary(p, "test0571.jar", "test0571.zip", new String[] {"X.java", source	}, "1.4");
 			IOrdinaryClassFile classFile = getClassFile("P", "/P/test0571.jar", "", "X$Y.class");
 			CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), classFile, 0, true);
@@ -5276,13 +5289,14 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		try {
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			AnonymousClassDeclaration type = (AnonymousClassDeclaration) buildAST(
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    new X() /*start*/{\n" +
-				"      void bar() {}\n" +
-				"    }/*end*/;\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class X {
+					  void foo() {
+					    new X() /*start*/{
+					      void bar() {}
+					    }/*end*/;
+					  }
+					}""",
 				workingCopy);
 			ITypeBinding typeBinding = type.resolveBinding();
 			assertBindingsEqual(
@@ -5321,9 +5335,10 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		try {
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode string = buildAST(
-				"public class X {\n" +
-				"  String s = /*start*/\"a\" + \"b\"/*end*/;\n" +
-				"}",
+				"""
+					public class X {
+					  String s = /*start*/"a" + "b"/*end*/;
+					}""",
 				workingCopy);
 			assertEquals("Unexpected node type", ASTNode.INFIX_EXPRESSION, string.getNodeType());
 		} finally {
@@ -5341,10 +5356,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		try {
     		workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 	    	String contents =
-				"public class X {\n" +
-				"	/*start1*/String foo(String o) {return null;}/*end1*/\n" +
-				"	/*start2*/String foo(Object o) {return null;}/*end2*/\n" +
-				"}";
+				"""
+				public class X {
+					/*start1*/String foo(String o) {return null;}/*end1*/
+					/*start2*/String foo(Object o) {return null;}/*end2*/
+				}""";
 		   	IBinding[] firstBatch = resolveBindings(contents, workingCopy);
 		   	IBinding[] secondBatch = resolveBindings(contents, workingCopy);
 		   	assertTrue("2 different method type bindings should not be equals", !firstBatch[0].isEqualTo(secondBatch[1]));
@@ -5363,11 +5379,12 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"CONVERTER_JCL15_LIB"}, "", "1.5");
 			addLibrary(project, "lib.jar", "src.zip", new String[] {
 				"/P1/p/X.java",
-				"package p;\n" +
-				"public class X<T> {\n" +
-				"  /*start*/public class Member {\n" +
-				"  }/*end*/\n" +
-				"}",
+				"""
+					package p;
+					public class X<T> {
+					  /*start*/public class Member {
+					  }/*end*/
+					}""",
 			}, "1.5");
 			IOrdinaryClassFile classFile = getClassFile("P1", "/P1/lib.jar", "p", "X$Member.class");
 			ASTNode node = buildAST(classFile);
@@ -5388,9 +5405,10 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		try {
 			workingCopy = getWorkingCopy(
 				"/Converter/src/X.java",
-				"public class X {\n" +
-				"  String s = /*start*/\"a\" + \"b\"/*end*/;\n" +
-				"}",
+				"""
+					public class X {
+					  String s = /*start*/"a" + "b"/*end*/;
+					}""",
 				true/*resolve*/);
 			ASTNode string = buildAST(workingCopy);
 			assertEquals("Unexpected node type", ASTNode.INFIX_EXPRESSION, string.getNodeType());
@@ -5410,11 +5428,13 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			workingCopy = newExternalWorkingCopy("External.java", classpath, new ProblemRequestor(), "");
 
 			String contents =
-				"public class External {\n"+
-				"	/*start*/String foo(){\n"+
-				"		return \"\";\n" +
-				"	}/*end*/\n"+
-				"}\n";
+				"""
+				public class External {
+					/*start*/String foo(){
+						return "";
+					}/*end*/
+				}
+				""";
 			IBinding methodBinding = resolveBindings(contents, workingCopy)[0];
 			assertBindingEquals(
 				"LExternal;.foo()Ljava/lang/String;",
@@ -5434,10 +5454,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		try {
 			workingCopy = getWorkingCopy(
 				"/Converter/src/X.java",
-				"public class X {\n" +
-				"  /*start*/void foo(Object/*first arg*/ arg1, Object arg2) {\n" +
-				"  }/*end*/\n" +
-				"}",
+				"""
+					public class X {
+					  /*start*/void foo(Object/*first arg*/ arg1, Object arg2) {
+					  }/*end*/
+					}""",
 				true/*resolve*/);
 			MethodDeclaration method = (MethodDeclaration) buildAST(workingCopy);
 			SingleVariableDeclaration arg2 = (SingleVariableDeclaration) method.parameters().get(1);
@@ -5473,13 +5494,14 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		try {
 			workingCopy = getWorkingCopy(
 				"/Converter/src/X.java",
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    #\n" +
-				"    /*start*/new Object() {\n" +
-				"    }/*end*/;\n" +
-				"  }\n" +
-				"}",
+				"""
+					public class X {
+					  void foo() {
+					    #
+					    /*start*/new Object() {
+					    }/*end*/;
+					  }
+					}""",
 				true/*resolve*/);
 			ASTNode string = buildAST(null, workingCopy, false, true);
 			assertEquals("Unexpected node type", ASTNode.CLASS_INSTANCE_CREATION, string.getNodeType());
@@ -5506,12 +5528,13 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		try {
 			workingCopy = getWorkingCopy(
 				"/Converter/src/X.java",
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    for (int i=0,; i<10; i++) {\n" +
-				"    }\n" +
-				"  }\n" +
-				"}"
+				"""
+					public class X {
+					  void foo() {
+					    for (int i=0,; i<10; i++) {
+					    }
+					  }
+					}"""
 			);
 			ASTNode node = buildAST(null, workingCopy, false, true);
 			assertNotNull("Should get an AST", node);
@@ -5542,11 +5565,12 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		try {
 			workingCopy = getWorkingCopy(
 				"/Converter/src/X.java",
-				"public class X {\n" +
-				"        void foo(a, b, ) {\n" +
-				"        	if\n" +
-				"        }\n" +
-				"}"
+				"""
+					public class X {
+					        void foo(a, b, ) {
+					        	if
+					        }
+					}"""
 			);
 			ASTNode cu = workingCopy.reconcile(getJLS3(), true, true, null, null);
 			assertNotNull("Should get an AST", cu);
@@ -5562,14 +5586,16 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		try {
 			workingCopy = getWorkingCopy(
 				"/Converter/src/X.java",
-				"public class X {\n" +
-				"	  private class B {\n" +
-				"	    public B() {\n" +
-				"	    }\n" +
-				"	  }\n" +
-				"	  public X() {\n" +
-				"	  }\n" +
-				"	}\n"
+				"""
+					public class X {
+						  private class B {
+						    public B() {
+						    }
+						  }
+						  public X() {
+						  }
+						}
+					"""
 			);
 
 			// Create parser

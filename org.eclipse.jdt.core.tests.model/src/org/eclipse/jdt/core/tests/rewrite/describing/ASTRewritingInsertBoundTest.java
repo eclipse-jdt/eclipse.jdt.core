@@ -72,24 +72,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// insert first and last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    public void foo3();
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -106,29 +107,29 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    void new1();\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("    void new2();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    void new1();
+			
+			    public void foo1();
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    public void foo3();
+			
+			    void new2();
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -137,24 +138,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// insert 2 x before
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    public void foo3();
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -175,29 +177,29 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    void new1();\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    void new2();\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			    void new1();
+			
+			    public void foo2();
+			
+			//c3
+			
+			    void new2();
+			
+			    public void foo3();
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -206,24 +208,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// insert 2 x first and 2 x last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    public void foo3();
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -244,33 +247,33 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    void new1();\n");
-		buf.append("\n");
-		buf.append("    void new2();\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("    void new3();\n");
-		buf.append("\n");
-		buf.append("    void new4();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    void new1();
+			
+			    void new2();
+			
+			    public void foo1();
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    public void foo3();
+			
+			    void new3();
+			
+			    void new4();
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -278,24 +281,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// insert first and last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public int x3;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public int x1;
+			
+			//c2
+			
+			    public int x2;
+			
+			//c3
+			
+			    public int x3;
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -312,28 +316,29 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    int new1;\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public int x3;\n");
-		buf.append("\n");
-		buf.append("    int new2;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    int new1;
+			
+			    public int x1;
+			
+			//c2
+			
+			    public int x2;
+			
+			//c3
+			
+			    public int x3;
+			
+			    int new2;
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -341,24 +346,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// insert 2x first and 2 x last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public int x3;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public int x1;
+			
+			//c2
+			
+			    public int x2;
+			
+			//c3
+			
+			    public int x3;
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -380,33 +386,33 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    int new1;\n");
-		buf.append("\n");
-		buf.append("    int new2;\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public int x3;\n");
-		buf.append("\n");
-		buf.append("    int new3;\n");
-		buf.append("\n");
-		buf.append("    int new4;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    int new1;
+			
+			    int new2;
+			
+			    public int x1;
+			
+			//c2
+			
+			    public int x2;
+			
+			//c3
+			
+			    public int x3;
+			
+			    int new3;
+			
+			    int new4;
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -414,24 +420,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// insert 2 x after
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public int x3;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public int x1;
+			
+			//c2
+			
+			    public int x2;
+			
+			//c3
+			
+			    public int x3;
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -452,28 +459,29 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("    int new1;\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("    int new2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public int x3;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public int x1;
+			
+			    int new1;
+			
+			//c2
+			
+			    public int x2;
+			
+			    int new2;
+			
+			//c3
+			
+			    public int x3;
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -481,24 +489,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first and last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    public void foo3();
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 
@@ -511,24 +520,24 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			   \s
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -536,24 +545,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove second
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    public void foo3();
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 
@@ -565,25 +575,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			   \s
+			
+			//c3
+			
+			    public void foo3();
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -591,24 +601,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove 2nd and 3rd
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    public void foo3();
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 
@@ -621,23 +632,23 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			
+			//c3
+			
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -645,24 +656,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove all
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    public void foo3();
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 
@@ -676,25 +688,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			   \s
+			
+			//c2
+			
+			   \s
+			
+			//c3
+			
+			   \s
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -703,24 +715,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first add before first, remove last add after last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    public void foo3();
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -741,27 +754,27 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    void new1();\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    void new2();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    void new1();
+			
+			   \s
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    void new2();
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -769,24 +782,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first add 2x first, remove last add 2x  last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    public void foo3();
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -814,31 +828,31 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    void new1();\n");
-		buf.append("\n");
-		buf.append("    void new2();\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    void new3();\n");
-		buf.append("\n");
-		buf.append("    void new4();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    void new1();
+			
+			    void new2();
+			
+			   \s
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    void new3();
+			
+			    void new4();
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -846,24 +860,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove middle, add before, add after
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    public void foo3();
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -885,29 +900,29 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    void new1();\n");
-		buf.append("\n");
-		buf.append("    void new2();\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			    void new1();
+			
+			    void new2();
+			
+			   \s
+			
+			//c3
+			
+			    public void foo3();
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -916,24 +931,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first add before first, remove last add after last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public int x3;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public int x1;
+			
+			//c2
+			
+			    public int x2;
+			
+			//c3
+			
+			    public int x3;
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -955,27 +971,27 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    int new1;\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    int new2;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    int new1;
+			
+			   \s
+			
+			//c2
+			
+			    public int x2;
+			
+			//c3
+			
+			    int new2;
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -983,24 +999,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first add 2x first, remove last add 2x  last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public int x3;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public int x1;
+			
+			//c2
+			
+			    public int x2;
+			
+			//c3
+			
+			    public int x3;
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -1027,31 +1044,31 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    int new1;\n");
-		buf.append("\n");
-		buf.append("    int new2;\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    int new3;\n");
-		buf.append("\n");
-		buf.append("    int new4;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    int new1;
+			
+			    int new2;
+			
+			   \s
+			
+			//c2
+			
+			    public int x2;
+			
+			//c3
+			
+			    int new3;
+			
+			    int new4;
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -1059,24 +1076,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove middle, add before, add after
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public int x3;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public int x1;
+			
+			//c2
+			
+			    public int x2;
+			
+			//c3
+			
+			    public int x3;
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -1098,29 +1116,29 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    int new1;\n");
-		buf.append("\n");
-		buf.append("    int new2;\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public int x3;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public int x1;
+			
+			//c2
+			
+			    int new1;
+			
+			    int new2;
+			
+			   \s
+			
+			//c3
+			
+			    public int x3;
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -1128,24 +1146,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first and add after first, remove last and add before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    public void foo3();
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -1170,27 +1189,27 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    void new1();\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    void new2();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    void new1();
+			
+			   \s
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    void new2();
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -1198,24 +1217,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first and add after first, remove last and add before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public int x3;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public int x1;
+			
+			//c2
+			
+			    public int x2;
+			
+			//c3
+			
+			    public int x3;
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -1239,27 +1259,27 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    int new1;\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    int new2;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    int new1;
+			
+			   \s
+			
+			//c2
+			
+			    public int x2;
+			
+			//c3
+			
+			    int new2;
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -1267,24 +1287,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first and add after and before first, remove last and add after and before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    public void foo3();
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -1314,31 +1335,31 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    void new1();\n");
-		buf.append("\n");
-		buf.append("    void new2();\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    void new3();\n");
-		buf.append("\n");
-		buf.append("    void new4();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    void new1();
+			
+			    void new2();
+			
+			   \s
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    void new3();
+			
+			    void new4();
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -1346,24 +1367,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first and add after first, remove last and add before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public int x3;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public int x1;
+			
+			//c2
+			
+			    public int x2;
+			
+			//c3
+			
+			    public int x3;
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -1392,31 +1414,31 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    int new1;\n");
-		buf.append("\n");
-		buf.append("    int new2;\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    int new3;\n");
-		buf.append("\n");
-		buf.append("    int new4;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    int new1;
+			
+			    int new2;
+			
+			   \s
+			
+			//c2
+			
+			    public int x2;
+			
+			//c3
+			
+			    int new3;
+			
+			    int new4;
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -1425,24 +1447,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove all, add before first and after last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    public void foo3();
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -1464,27 +1487,27 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    void new1();\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    void new2();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    void new1();
+			
+			   \s
+			
+			//c2
+			
+			   \s
+			
+			//c3
+			
+			    void new2();
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -1492,24 +1515,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove all, add before first and after last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public int x3;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public int x1;
+			
+			//c2
+			
+			    public int x2;
+			
+			//c3
+			
+			    public int x3;
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -1531,27 +1555,27 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    int new1;\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    int new2;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    int new1;
+			
+			   \s
+			
+			//c2
+			
+			   \s
+			
+			//c3
+			
+			    int new2;
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -1560,24 +1584,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove all, add after first and before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public void foo1();\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public void foo2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public void foo3();\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public void foo1();
+			
+			//c2
+			
+			    public void foo2();
+			
+			//c3
+			
+			    public void foo3();
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -1601,27 +1626,27 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    void new1();\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    void new2();\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    void new1();
+			
+			   \s
+			
+			//c2
+			
+			    void new2();
+			
+			//c3
+			
+			   \s
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -1629,24 +1654,25 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove all, add after first and before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    public int x3;\n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			//c1
+			
+			    public int x1;
+			
+			//c2
+			
+			    public int x2;
+			
+			//c3
+			
+			    public int x3;
+			
+			//c4
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -1670,27 +1696,27 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("//c1\n");
-		buf.append("\n");
-		buf.append("    int new1;\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c2\n");
-		buf.append("\n");
-		buf.append("    int new2;\n");
-		buf.append("\n");
-		buf.append("//c3\n");
-		buf.append("\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("//c4\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class C {
+			//c1
+			
+			    int new1;
+			
+			   \s
+			
+			//c2
+			
+			    int new2;
+			
+			//c3
+			
+			   \s
+			
+			//c4
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -1745,22 +1771,23 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 		// Note that c1 is absent because source range has been calculated from c1
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("    \n");
-		buf.append("\n");
-		buf.append("    //c2\n");
-		buf.append("\n");
-		buf.append("    public int x2;\n");
-		buf.append("\n");
-		buf.append("    //c3\n");
-		buf.append("\n");
-		buf.append("    public int x3;\n");
-		buf.append("\n");
-		buf.append("    //c4\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str = """
+			package test1;
+			public class C {
+			   \s
+			
+			    //c2
+			
+			    public int x2;
+			
+			    //c3
+			
+			    public int x3;
+			
+			    //c4
+			}
+			""";
+		assertEqualString(preview, str);
 
 	}
 

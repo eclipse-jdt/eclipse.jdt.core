@@ -64,13 +64,14 @@ public class PerformanceTests extends TestBase
 	private void createBoringFiles(int numFiles, IJavaProject jproj)
 	{
 		String srcTemplate =
-			"package p;\n" +
-			"import java.util.List;\n" +
-			"@SuppressWarnings(\"unchecked\")\n" +
-			"public class TestB%05d {\n" +
-			"  private List l = null;\n" +
-			"  public List getL() { return l; }\n" +
-			"}";
+			"""
+			package p;
+			import java.util.List;
+			@SuppressWarnings("unchecked")
+			public class TestB%05d {
+			  private List l = null;
+			  public List getL() { return l; }
+			}""";
 		String nameTemplate = "TestB%05d";
 		createFiles(numFiles, nameTemplate, srcTemplate, jproj);
 	}
@@ -81,20 +82,21 @@ public class PerformanceTests extends TestBase
 	private void createInterestingFilesWithJ6(int numFiles, IJavaProject jproj)
 	{
 		String srcTemplate =
-			"package p;\n" +
-			"import org.eclipse.jdt.apt.pluggable.tests.annotations.ModelTestTrigger;\n" +
-			"import org.eclipse.jdt.apt.pluggable.tests.annotations.LookAt;\n" +
-			"import java.util.List;\n" +
-			"@ModelTestTrigger(test = \"testFieldType\")" +
-			"@SuppressWarnings(\"unused\")\n" +
-			"public class TestI6%05d {\n" +
-			"    @LookAt\n" +
-			"    private int _fInt = 0;\n" +
-			"    @LookAt\n" +
-			"    private String _fString = \"\";\n" +
-			"    @LookAt\n" +
-			"    private List<String> _fFoo = null;\n" +
-			"}";
+			"""
+			package p;
+			import org.eclipse.jdt.apt.pluggable.tests.annotations.ModelTestTrigger;
+			import org.eclipse.jdt.apt.pluggable.tests.annotations.LookAt;
+			import java.util.List;
+			@ModelTestTrigger(test = "testFieldType")\
+			@SuppressWarnings("unused")
+			public class TestI6%05d {
+			    @LookAt
+			    private int _fInt = 0;
+			    @LookAt
+			    private String _fString = "";
+			    @LookAt
+			    private List<String> _fFoo = null;
+			}""";
 		String nameTemplate = "TestI6%05d";
 		createFiles(numFiles, nameTemplate, srcTemplate, jproj);
 	}
@@ -105,10 +107,11 @@ public class PerformanceTests extends TestBase
 	private void createGeneratingFiles(int numFiles, IJavaProject jproj)
 	{
 		String srcTemplate =
-			"package p;\n" +
-			"import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;\n" +
-			"@GenClass6(pkg=\"g\", name=\"Generated%05d\")\n" +
-			"public class TestG%05d {}";
+			"""
+			package p;
+			import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;
+			@GenClass6(pkg="g", name="Generated%05d")
+			public class TestG%05d {}""";
 
 		String nameTemplate = "TestG%05d";
 		createFiles(numFiles, nameTemplate, srcTemplate, jproj);

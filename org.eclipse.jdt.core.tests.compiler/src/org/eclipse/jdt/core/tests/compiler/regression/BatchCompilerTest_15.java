@@ -73,12 +73,13 @@ public class BatchCompilerTest_15 extends AbstractBatchCompilerTest {
 			this.runNegativeTest(
 					new String[] {
 						"src/p/X.java",
-						"package p;\n" +
-						"public class X extends Y {\n" +
-						"  public static void main(String[] args){\n" +
-						"     System.out.println(0);\n" +
-						"  }\n" +
-						"}",
+						"""
+							package p;
+							public class X extends Y {
+							  public static void main(String[] args){
+							     System.out.println(0);
+							  }
+							}""",
 					},
 			        "\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 					+ " -cp " + lib1Path  // relative
@@ -87,18 +88,20 @@ public class BatchCompilerTest_15 extends AbstractBatchCompilerTest {
 			        + " -proceedOnError -referenceInfo"
 			        + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 			        "",
-			        "----------\n" +
-			        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 2)\n" +
-			        "	public class X extends Y {\n" +
-			        "	                       ^\n" +
-			        "The class X with a sealed direct superclass or a sealed direct superinterface Y should be declared either final, sealed, or non-sealed\n" +
-			        "----------\n" +
-			        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 2)\n" +
-			        "	public class X extends Y {\n" +
-			        "	                       ^\n" +
-			        "The type X extending a sealed class Y should be a permitted subtype of Y\n" +
-			        "----------\n" +
-			        "2 problems (2 errors)\n",
+			        """
+						----------
+						1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 2)
+							public class X extends Y {
+							                       ^
+						The class X with a sealed direct superclass or a sealed direct superinterface Y should be declared either final, sealed, or non-sealed
+						----------
+						2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 2)
+							public class X extends Y {
+							                       ^
+						The type X extending a sealed class Y should be a permitted subtype of Y
+						----------
+						2 problems (2 errors)
+						""",
 			        true);
 			} catch (IOException e) {
 				System.err.println("BatchCompilerTest#testBug563430_001 could not write to current working directory " + currentWorkingDirectoryPath);

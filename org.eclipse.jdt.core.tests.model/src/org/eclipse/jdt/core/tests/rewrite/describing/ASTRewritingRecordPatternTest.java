@@ -76,21 +76,22 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		String buf =  "public class X {\n"
-				+ "  public static void printLowerRight(Rectangle r) {\n"
-				+ "    int res = switch(r) {\n"
-				+ "        default -> 0;\n"
-				+ "    }; \n"
-				+ "  }\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-				+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-				+ "  }\n"
-				+ "}\n"
-				+ "record Point(int x, int y) {}\n"
-				+ "enum Color { RED, GREEN, BLUE }\n"
-				+ "record ColoredPoint(Point p, Color c) {}\n"
-				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}";
+		String buf =  """
+			public class X {
+			  public static void printLowerRight(Rectangle r) {
+			    int res = switch(r) {
+			        default -> 0;
+			    };\s
+			  }
+			  public static void main(String[] args) {
+			    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+			        new ColoredPoint(new Point(30, 10), Color.RED)));
+			  }
+			}
+			record Point(int x, int y) {}
+			enum Color { RED, GREEN, BLUE }
+			record ColoredPoint(Point p, Color c) {}
+			record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}""";
 
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
@@ -132,24 +133,25 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf =  "public class X {\n"
-				+ "  public static void printLowerRight(Rectangle r) {\n"
-				+ "    int res = switch(r) {\n"
-				+ "        case Rectangle r1 -> {\n"
-				+ "    yield 1;\n"
-				+ "}\n"
-				+ "        default -> 0;\n"
-				+ "    }; \n"
-				+ "  }\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-				+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-				+ "  }\n"
-				+ "}\n"
-				+ "record Point(int x, int y) {}\n"
-				+ "enum Color { RED, GREEN, BLUE }\n"
-				+ "record ColoredPoint(Point p, Color c) {}\n"
-				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}";
+		buf =  """
+			public class X {
+			  public static void printLowerRight(Rectangle r) {
+			    int res = switch(r) {
+			        case Rectangle r1 -> {
+			    yield 1;
+			}
+			        default -> 0;
+			    };\s
+			  }
+			  public static void main(String[] args) {
+			    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+			        new ColoredPoint(new Point(30, 10), Color.RED)));
+			  }
+			}
+			record Point(int x, int y) {}
+			enum Color { RED, GREEN, BLUE }
+			record ColoredPoint(Point p, Color c) {}
+			record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}""";
 		assertEqualString(preview, buf.toString());
 	}
 
@@ -159,23 +161,24 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		String buf =  "public class X {\n"
-				+ "  public static void printLowerRight(Rectangle r) {\n"
-				+ "    int res = switch(r) {\n"
-				+ "        case Rectangle(ColoredPoint clr) -> {\n"
-				+ "				yield 1;\n"
-				+ "			}\n"
-				+ "        default -> 0;\n"
-				+ "    }; \n"
-				+ "  }\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE)));\n"
-				+ "  }\n"
-				+ "}\n"
-				+ "record Point(int x, int y) {}\n"
-				+ "enum Color { RED, GREEN, BLUE }\n"
-				+ "record ColoredPoint(Point p, Color c) {}\n"
-				+ "record Rectangle(ColoredPoint upperLeft) {}";
+		String buf =  """
+			public class X {
+			  public static void printLowerRight(Rectangle r) {
+			    int res = switch(r) {
+			        case Rectangle(ColoredPoint clr) -> {
+							yield 1;
+						}
+			        default -> 0;
+			    };\s
+			  }
+			  public static void main(String[] args) {
+			    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE)));
+			  }
+			}
+			record Point(int x, int y) {}
+			enum Color { RED, GREEN, BLUE }
+			record ColoredPoint(Point p, Color c) {}
+			record Rectangle(ColoredPoint upperLeft) {}""";
 
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
@@ -208,23 +211,24 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);
-		buf =  "public class X {\n"
-				+ "  public static void printLowerRight(Rectangle r) {\n"
-				+ "    int res = switch(r) {\n"
-				+ "        case Rectangle(ColoredPoint clr1, ColoredPoint clr) -> {\n"
-				+ "				yield 1;\n"
-				+ "			}\n"
-				+ "        default -> 0;\n"
-				+ "    }; \n"
-				+ "  }\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE)));\n"
-				+ "  }\n"
-				+ "}\n"
-				+ "record Point(int x, int y) {}\n"
-				+ "enum Color { RED, GREEN, BLUE }\n"
-				+ "record ColoredPoint(Point p, Color c) {}\n"
-				+ "record Rectangle(ColoredPoint upperLeft) {}";
+		buf =  """
+			public class X {
+			  public static void printLowerRight(Rectangle r) {
+			    int res = switch(r) {
+			        case Rectangle(ColoredPoint clr1, ColoredPoint clr) -> {
+							yield 1;
+						}
+			        default -> 0;
+			    };\s
+			  }
+			  public static void main(String[] args) {
+			    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE)));
+			  }
+			}
+			record Point(int x, int y) {}
+			enum Color { RED, GREEN, BLUE }
+			record ColoredPoint(Point p, Color c) {}
+			record Rectangle(ColoredPoint upperLeft) {}""";
 		assertEqualString(preview, buf.toString());
 	}
 
@@ -233,24 +237,25 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		String buf =  "public class X {\n"
-				+ "  public static void printLowerRight(Rectangle r) {\n"
-				+ "    int res = switch(r) {\n"
-				+ "        case Rectangle r1 -> {\n"
-				+ "    yield 1;\n"
-				+ "}\n"
-				+ "        default -> 0;\n"
-				+ "    }; \n"
-				+ "  }\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-				+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-				+ "  }\n"
-				+ "}\n"
-				+ "record Point(int x, int y) {}\n"
-				+ "enum Color { RED, GREEN, BLUE }\n"
-				+ "record ColoredPoint(Point p, Color c) {}\n"
-				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}";
+		String buf =  """
+			public class X {
+			  public static void printLowerRight(Rectangle r) {
+			    int res = switch(r) {
+			        case Rectangle r1 -> {
+			    yield 1;
+			}
+			        default -> 0;
+			    };\s
+			  }
+			  public static void main(String[] args) {
+			    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+			        new ColoredPoint(new Point(30, 10), Color.RED)));
+			  }
+			}
+			record Point(int x, int y) {}
+			enum Color { RED, GREEN, BLUE }
+			record ColoredPoint(Point p, Color c) {}
+			record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}""";
 
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
@@ -279,21 +284,22 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf =  "public class X {\n"
-				+ "  public static void printLowerRight(Rectangle r) {\n"
-				+ "    int res = switch(r) {\n"
-				+ "        default -> 0;\n"
-				+ "    }; \n"
-				+ "  }\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-				+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-				+ "  }\n"
-				+ "}\n"
-				+ "record Point(int x, int y) {}\n"
-				+ "enum Color { RED, GREEN, BLUE }\n"
-				+ "record ColoredPoint(Point p, Color c) {}\n"
-				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}";
+		buf =  """
+			public class X {
+			  public static void printLowerRight(Rectangle r) {
+			    int res = switch(r) {
+			        default -> 0;
+			    };\s
+			  }
+			  public static void main(String[] args) {
+			    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+			        new ColoredPoint(new Point(30, 10), Color.RED)));
+			  }
+			}
+			record Point(int x, int y) {}
+			enum Color { RED, GREEN, BLUE }
+			record ColoredPoint(Point p, Color c) {}
+			record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}""";
 
 		assertEqualString(preview, buf.toString());
 	}
@@ -304,17 +310,17 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		default       	: System.out.println(\"0\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					default       	: System.out.println("0");
+				}
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -368,18 +374,19 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i when i > 10:\n");
-		buf.append(	    "            System.out.println(\"Greater than 10\");\n");
-		buf.append(	    "        default       	: System.out.println(\"0\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i when i > 10:
+			            System.out.println("Greater than 10");
+			        default       	: System.out.println("0");
+				}
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testModifyGuardedPattern() throws Exception {
@@ -387,18 +394,18 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "       case String s when s.equals(\"hi\") : System.out.println(\"hi\");\n");
-		buf.append(	    "		default       	: System.out.println(\"0\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+			       case String s when s.equals("hi") : System.out.println("hi");
+					default       	: System.out.println("0");
+				}
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -436,17 +443,18 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "       case Integer i when i > 10 : System.out.println(\"hi\");\n");
-		buf.append(	    "		default       	: System.out.println(\"0\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+			       case Integer i when i > 10 : System.out.println("hi");
+					default       	: System.out.println("0");
+				}
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testRemoveRecordInstanceOfPattern() throws Exception {
@@ -454,19 +462,19 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	int i = switch (o) {\n");
-		buf.append(	    "		case Integer i when i > 10 : System.out.println(\"hi\");\n");
-		buf.append(	    "       case String s when s.equals(\"hi\") : System.out.println(\"hi\");\n");
-		buf.append(	    "		default       	-> 0;\n");
-		buf.append(	    "	};\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				int i = switch (o) {
+					case Integer i when i > 10 : System.out.println("hi");
+			       case String s when s.equals("hi") : System.out.println("hi");
+					default       	-> 0;
+				};
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -494,17 +502,18 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	int i = switch (o) {\n");
-		buf.append(	    "		case String s when s.equals(\"hi\") : System.out.println(\"hi\");\n");
-		buf.append(	    "		default       	-> 0;\n");
-		buf.append(	    "	};\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				int i = switch (o) {
+					case String s when s.equals("hi") : System.out.println("hi");
+					default       	-> 0;
+				};
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testModifyRecordInstanceOfPattern() throws Exception {
@@ -512,18 +521,18 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "		default       	-> 0;\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+					default       	-> 0;
+				}
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -566,18 +575,19 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "        case null -> System.out.println(\"Null\");\n");
-		buf.append(	    "		default       	-> 0;\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+			        case null -> System.out.println("Null");
+					default       	-> 0;
+				}
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 }

@@ -56,9 +56,10 @@ protected void setUp() throws Exception {
 
 public void testSimpleSubTypeHierarchy() throws CoreException {
 	String newContents =
-		"package x.y;\n" +
-		"public class A extends B {\n" +
-		"}";
+		"""
+		package x.y;
+		public class A extends B {
+		}""";
 	this.copy.getBuffer().setContents(newContents);
 	this.copy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 
@@ -66,9 +67,10 @@ public void testSimpleSubTypeHierarchy() throws CoreException {
 	try {
 		file = this.createFile(
 			"P/src/x/y/B.java",
-			"package x.y;\n" +
-			"public class B {\n" +
-			"}");
+			"""
+				package x.y;
+				public class B {
+				}""");
 
 		IType type = this.getCompilationUnit("P/src/x/y/B.java").getType("B");
 		ITypeHierarchy h = type.newTypeHierarchy(new ICompilationUnit[] {this.copy}, null);
@@ -88,11 +90,12 @@ public void testSimpleSubTypeHierarchy() throws CoreException {
 }
 public void testSimpleSuperTypeHierarchy() throws CoreException {
 	String newContents =
-		"package x.y;\n" +
-		"public class A {\n" +
-		"}\n"  +
-		"class B {\n" +
-		"}";
+		"""
+		package x.y;
+		public class A {
+		}
+		class B {
+		}""";
 	this.copy.getBuffer().setContents(newContents);
 	this.copy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 
@@ -100,9 +103,10 @@ public void testSimpleSuperTypeHierarchy() throws CoreException {
 	try {
 		file = this.createFile(
 			"P/src/x/y/C.java",
-			"package x.y;\n" +
-			"public class C extends B {\n" +
-			"}");
+			"""
+				package x.y;
+				public class C extends B {
+				}""");
 
 		IType type = this.getCompilationUnit("P/src/x/y/C.java").getType("C");
 		ITypeHierarchy h = type.newSupertypeHierarchy(new ICompilationUnit[] {this.copy}, null);
@@ -124,9 +128,10 @@ public void testSimpleSuperTypeHierarchy() throws CoreException {
 //make sure uncommitted changes to primary working copy shows up in hierarchy
 public void test228845() throws CoreException {
 	String newContents =
-		"package x.y;\n" +
-		"public class A extends B {\n" +
-		"}";
+		"""
+		package x.y;
+		public class A extends B {
+		}""";
 
 	ICompilationUnit primaryCu = this.copy.getPrimary();
 	primaryCu.becomeWorkingCopy(null);
@@ -138,9 +143,10 @@ public void test228845() throws CoreException {
 	try {
 		file = this.createFile(
 			"P/src/x/y/B.java",
-			"package x.y;\n" +
-			"public class B {\n" +
-			"}");
+			"""
+				package x.y;
+				public class B {
+				}""");
 
 		IType type = this.getCompilationUnit("P/src/x/y/B.java").getType("B");
 		ITypeHierarchy h = type.newTypeHierarchy(null);  // no working copies explicitly passed, should still honor primary working copies.
@@ -167,13 +173,16 @@ public void test228845b() throws CoreException, IOException {
 
 	addLibrary(getJavaProject("P"), "myLib.jar", "myLibsrc.zip", new String[] {
 			"my/pkg/X.java",
-			"package my.pkg;\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				package my.pkg;
+				public class X {
+				}""",
 			"my/pkg/Y.java",
-			"package my.pkg;\n" +
-			"public class Y {\n" +
-			"  }\n",
+			"""
+				package my.pkg;
+				public class Y {
+				  }
+				""",
 		}, JavaCore.VERSION_1_4);
 
 
@@ -221,12 +230,13 @@ public void test228845b() throws CoreException, IOException {
 // Fix for 228845 does not seem to work for anonymous/local/functional types.
 public void test400905() throws CoreException {
 	String newContents =
-		"package x.y;\n" +
-		"public class A {\n" +
-		"    void foo() {\n" +
-        "        class X extends B {}\n" +
-		"    }\n" +
-		"}";
+		"""
+		package x.y;
+		public class A {
+		    void foo() {
+		        class X extends B {}
+		    }
+		}""";
 
 	ICompilationUnit primaryCu = this.copy.getPrimary();
 	primaryCu.becomeWorkingCopy(null);
@@ -238,9 +248,10 @@ public void test400905() throws CoreException {
 	try {
 		file = this.createFile(
 			"P/src/x/y/B.java",
-			"package x.y;\n" +
-			"public class B {\n" +
-			"}");
+			"""
+				package x.y;
+				public class B {
+				}""");
 
 		IType type = this.getCompilationUnit("P/src/x/y/B.java").getType("B");
 		ITypeHierarchy h = type.newTypeHierarchy(null);  // no working copies explicitly passed, should still honor primary working copies.
@@ -264,12 +275,13 @@ public void test400905() throws CoreException {
 // Fix for 228845 does not seem to work for anonymous/local/functional types.
 public void test400905a() throws CoreException {
 	String newContents =
-		"package x.y;\n" +
-		"public class A {\n" +
-		"    void foo() {\n" +
-        "        X x  = new B() {}\n" +
-		"    }\n" +
-		"}";
+		"""
+		package x.y;
+		public class A {
+		    void foo() {
+		        X x  = new B() {}
+		    }
+		}""";
 
 	ICompilationUnit primaryCu = this.copy.getPrimary();
 	primaryCu.becomeWorkingCopy(null);
@@ -281,9 +293,10 @@ public void test400905a() throws CoreException {
 	try {
 		file = this.createFile(
 			"P/src/x/y/B.java",
-			"package x.y;\n" +
-			"public class B {\n" +
-			"}");
+			"""
+				package x.y;
+				public class B {
+				}""");
 
 		IType type = this.getCompilationUnit("P/src/x/y/B.java").getType("B");
 		ITypeHierarchy h = type.newTypeHierarchy(null);  // no working copies explicitly passed, should still honor primary working copies.
@@ -313,32 +326,34 @@ public void test400905b() throws CoreException, IOException {
 		javaProject.setOption(JavaCore.COMPILER_COMPLIANCE, "1.8");
 		javaProject.setOption(JavaCore.COMPILER_SOURCE, "1.8");
 		String newContents =
-						"package x.y;\n" +
-						"interface I { \n" +
-						"	int thrice(int x);\n" +
-						"}\n" +
-						"interface J {\n" +
-						"	int twice(int x);\n" +
-						"}\n" +
-						"public class X {\n" +
-						"	I i = (x) -> {return x * 3;}; \n" +
-						"	X x = null;\n" +
-						"	static void goo(I i) {} \n" +
-						"	public static void main(String[] args) { \n" +
-						"		goo((x)-> { \n" +
-						"			int y = 3;\n" +
-						"			return x * y; \n" +
-						"		});\n" +
-						"		I i2 = (x) -> {\n" +
-						"			int y = 3; \n" +
-						"			return x * y;\n" +
-						"		};\n" +
-						"		J j1 = (x) -> { \n" +
-						"			int y = 2;  \n" +
-						"			return x * y;\n" +
-						"		};  \n" +
-						"	}\n" +
-						"}\n";
+						"""
+			package x.y;
+			interface I {\s
+				int thrice(int x);
+			}
+			interface J {
+				int twice(int x);
+			}
+			public class X {
+				I i = (x) -> {return x * 3;};\s
+				X x = null;
+				static void goo(I i) {}\s
+				public static void main(String[] args) {\s
+					goo((x)-> {\s
+						int y = 3;
+						return x * y;\s
+					});
+					I i2 = (x) -> {
+						int y = 3;\s
+						return x * y;
+					};
+					J j1 = (x) -> {\s
+						int y = 2; \s
+						return x * y;
+					}; \s
+				}
+			}
+			""";
 
 		ICompilationUnit primaryCu = this.copy.getPrimary();
 		primaryCu.becomeWorkingCopy(null);
@@ -351,12 +366,14 @@ public void test400905b() throws CoreException, IOException {
 			ITypeHierarchy h = type.newTypeHierarchy(null);  // no working copies explicitly passed, should still honor primary working copies.
 
 			assertHierarchyEquals(
-							"Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]\n" +
-							"Super types:\n" +
-							"Sub types:\n" +
-							"  <lambda #1> [in i [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" +
-							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" +
-							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n",
+							"""
+								Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]
+								Super types:
+								Sub types:
+								  <lambda #1> [in i [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]
+								  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]
+								  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]
+								""",
 				h);
 		} finally {
 			primaryCu.discardWorkingCopy();
@@ -377,34 +394,36 @@ public void test429435() throws CoreException, IOException {
 		javaProject.setOption(JavaCore.COMPILER_COMPLIANCE, "1.8");
 		javaProject.setOption(JavaCore.COMPILER_SOURCE, "1.8");
 		String newContents =
-						"package x.y;\n" +
-						"interface I {\n" +
-						"    public int doit();\n" +
-						"}\n" +
-						"public class X {\n" +
-						"void zoo() {\n" +
-						"	    I i = () /*1*/-> {\n" +
-						"                 I i2 = () /*2*/-> Y.foo(() -> Y.foo(()->Y.foo(()->10)));\n" +
-						"                 final Y y = new Y() {\n" +
-						"                		@Override\n" +
-						"                		public int doit() {\n" +
-						"                			I i = () -> 10;\n" +
-						"                			return i.doit();\n" +
-						"                		}\n" +
-						"                 };\n" +
-						"                 return 0;\n" +
-						"       };\n" +
-						"   }\n" +
-						"}\n" +
-						" class Y implements I{\n" +
-						"\n" +
-						"	static int foo(I i) { return 0;}\n" +
-						"	@Override\n" +
-						"	public int doit() {\n" +
-						"		// TODO Auto-generated method stub\n" +
-						"		return 0;\n" +
-						"	}	 \n" +
-						"}\n";
+						"""
+			package x.y;
+			interface I {
+			    public int doit();
+			}
+			public class X {
+			void zoo() {
+				    I i = () /*1*/-> {
+			                 I i2 = () /*2*/-> Y.foo(() -> Y.foo(()->Y.foo(()->10)));
+			                 final Y y = new Y() {
+			                		@Override
+			                		public int doit() {
+			                			I i = () -> 10;
+			                			return i.doit();
+			                		}
+			                 };
+			                 return 0;
+			       };
+			   }
+			}
+			 class Y implements I{
+			
+				static int foo(I i) { return 0;}
+				@Override
+				public int doit() {
+					// TODO Auto-generated method stub
+					return 0;
+				}	\s
+			}
+			""";
 
 		ICompilationUnit primaryCu = this.copy.getPrimary();
 		primaryCu.becomeWorkingCopy(null);
@@ -417,16 +436,18 @@ public void test429435() throws CoreException, IOException {
 			ITypeHierarchy h = type.newTypeHierarchy(null);  // no working copies explicitly passed, should still honor primary working copies.
 
 			assertHierarchyEquals(
-					"Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]\n" +
-							"Super types:\n" +
-							"Sub types:\n" +
-							"  <lambda #1> [in doit() [in <anonymous #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]\n" +
-							"  <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]]]]]\n" +
-							"  <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]]]\n" +
-							"  <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]\n" +
-							"  <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]\n" +
-							"  <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" +
-							"  Y [in [Working copy] A.java [in x.y [in src [in P]]]]\n",
+					"""
+						Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]
+						Super types:
+						Sub types:
+						  <lambda #1> [in doit() [in <anonymous #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]
+						  <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]]]]]
+						  <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]]]
+						  <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]
+						  <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]
+						  <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]
+						  Y [in [Working copy] A.java [in x.y [in src [in P]]]]
+						""",
 				h);
 		} finally {
 			primaryCu.discardWorkingCopy();
@@ -447,20 +468,22 @@ public void test429537() throws CoreException, IOException {
 		javaProject.setOption(JavaCore.COMPILER_COMPLIANCE, "1.8");
 		javaProject.setOption(JavaCore.COMPILER_SOURCE, "1.8");
 		String newContents =
-						"package x.y;\n" +
-						"public class X extends Y {\n" +
-						"public static void main(String [] args) {\n" +
-						"	I<Y> c = () /* foo */ -> () /* bar */ -> {};\n" +
-						"	I<Y> y = args.length < 1 ? (() /* true */-> 42) : (() /* false */ -> 23);\n" +
-						"	Object o = (I) () /* cast */ -> 42;\n" +
-						"	}\n" +
-						"}\n" +
-						"interface I<T> {\n" +
-						"	public T foo();\n" +
-						"}\n" +
-						"class Y {\n" +
-						"	public void bar() {}\n" +
-						"}\n";
+						"""
+			package x.y;
+			public class X extends Y {
+			public static void main(String [] args) {
+				I<Y> c = () /* foo */ -> () /* bar */ -> {};
+				I<Y> y = args.length < 1 ? (() /* true */-> 42) : (() /* false */ -> 23);
+				Object o = (I) () /* cast */ -> 42;
+				}
+			}
+			interface I<T> {
+				public T foo();
+			}
+			class Y {
+				public void bar() {}
+			}
+			""";
 
 		ICompilationUnit primaryCu = this.copy.getPrimary();
 		primaryCu.becomeWorkingCopy(null);
@@ -473,13 +496,15 @@ public void test429537() throws CoreException, IOException {
 			ITypeHierarchy h = type.newTypeHierarchy(null);  // no working copies explicitly passed, should still honor primary working copies.
 
 			assertHierarchyEquals(
-							"Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]\n" +
-							"Super types:\n" +
-							"Sub types:\n" +
-							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" +
-							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" +
-							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" +
-							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n",
+							"""
+								Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]
+								Super types:
+								Sub types:
+								  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]
+								  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]
+								  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]
+								  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]
+								""",
 				h);
 		} finally {
 			primaryCu.discardWorkingCopy();
@@ -507,23 +532,27 @@ public void test442534() throws CoreException, IOException {
 
 		this.createFolder("Bug442534/src/q");
 		this.createFile("Bug442534/src/X.java",
-				"import q.*;\n" +
-				"public final class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		foo(e -> { if (new Object() instanceof Y);});\n" +
-				"	};\n" +
-				"	static void foo(I i) {\n" +
-				"		return;\n" +
-				"	}\n" +
-				"}\n" +
-				"interface I {\n" +
-				"	void foo(int x);\n" +
-				"}\n");
+				"""
+					import q.*;
+					public final class X {
+						public static void main(String[] args) {
+							foo(e -> { if (new Object() instanceof Y);});
+						};
+						static void foo(I i) {
+							return;
+						}
+					}
+					interface I {
+						void foo(int x);
+					}
+					""");
 
 		this.createFile("Bug442534/src/q/Y.java",
-				"package q;\n" +
-				"public class Y {\n" +
-				"}\n");
+				"""
+					package q;
+					public class Y {
+					}
+					""");
 
 		this.createFile("Bug442534/src/q/package-info.java",
 				"package q;\n"
@@ -549,39 +578,41 @@ public void test450442() throws CoreException, IOException {
 		project.setOption(JavaCore.COMPILER_SOURCE, "1.8");
 
 		this.createFile("Bug450442/src/Claxx.java",
-				"import java.util.function.Consumer;\n" +
-				"public class Claxx {\n" +
-				"	void post(Runnable r) {\n" +
-				"		r.run();\n" +
-				"	}\n" +
-				"	void absorb(Consumer<Claxx> c) throws Exception {\n" +
-				"		c.accept(this);\n" +
-				"	}\n" +
-				"	\n" +
-				"	static void execute() {\n" +
-				"		System.out.println(\"exec!\");\n" +
-				"	}\n" +
-				"	static void executeGiven(Object o) {\n" +
-				"		System.out.println(\"exec \" + o);\n" +
-				"	}\n" +
-				"	void executeObject() {\n" +
-				"		System.out.println(\"exec \" + this);\n" +
-				"	}	\n" +
-				"}\n" +
-				"class ClaxxTest {\n" +
-				"	Claxx claxx = new Claxx();\n" +
-				"	\n" +
-				"	void doInBackground() throws Exception {\n" +
-				"		claxx.post(Claxx::execute); \n" +
-				"		absorb(Claxx::executeGiven);\n" +
-				"		post(this::executeObject);\n" +
-				"		\n" +
-				"		absorb(Claxx::executeObject);\n" +
-				"		post(() -> execute());\n" +
-				"		post(() -> executeGiven(this)); // not convertible\n" +
-				"		post(() -> executeObject());\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					import java.util.function.Consumer;
+					public class Claxx {
+						void post(Runnable r) {
+							r.run();
+						}
+						void absorb(Consumer<Claxx> c) throws Exception {
+							c.accept(this);
+						}
+					\t
+						static void execute() {
+							System.out.println("exec!");
+						}
+						static void executeGiven(Object o) {
+							System.out.println("exec " + o);
+						}
+						void executeObject() {
+							System.out.println("exec " + this);
+						}\t
+					}
+					class ClaxxTest {
+						Claxx claxx = new Claxx();
+					\t
+						void doInBackground() throws Exception {
+							claxx.post(Claxx::execute);\s
+							absorb(Claxx::executeGiven);
+							post(this::executeObject);
+						\t
+							absorb(Claxx::executeObject);
+							post(() -> execute());
+							post(() -> executeGiven(this)); // not convertible
+							post(() -> executeObject());
+						}
+					}
+					""");
 
 		ITypeHierarchy h = project.findType("Claxx").newSupertypeHierarchy(null);
 		assertHierarchyEquals(

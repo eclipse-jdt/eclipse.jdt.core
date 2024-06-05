@@ -34,229 +34,273 @@ public void test001() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo(){\n" +
-			"		throws\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					void foo(){
+						throws
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	throws\n" +
-		"	^^^^^^\n" +
-		"Syntax error on token \"throws\", delete this token\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				throws
+				^^^^^^
+			Syntax error on token "throws", delete this token
+			----------
+			"""
 	);
 }
 public void test002() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo(){\n" +
-			"		throws new\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					void foo(){
+						throws new
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	throws new\n" +
-		"	^^^^^^^^^^\n" +
-		"Syntax error on tokens, delete these tokens\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				throws new
+				^^^^^^^^^^
+			Syntax error on tokens, delete these tokens
+			----------
+			"""
 	);
 }
 public void test003() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo(){\n" +
-			"		throws new X\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					void foo(){
+						throws new X
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	throws new X\n" +
-		"	^^^^^^\n" +
-		"Syntax error on token \"throws\", throw expected\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	throws new X\n" +
-		"	           ^\n" +
-		"Syntax error, insert \"( )\" to complete Expression\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 3)\n" +
-		"	throws new X\n" +
-		"	           ^\n" +
-		"Syntax error, insert \";\" to complete BlockStatements\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				throws new X
+				^^^^^^
+			Syntax error on token "throws", throw expected
+			----------
+			2. ERROR in X.java (at line 3)
+				throws new X
+				           ^
+			Syntax error, insert "( )" to complete Expression
+			----------
+			3. ERROR in X.java (at line 3)
+				throws new X
+				           ^
+			Syntax error, insert ";" to complete BlockStatements
+			----------
+			""");
 }
 public void test004() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	{\n" +
-			"		throws\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					{
+						throws
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	throws\n" +
-		"	^^^^^^\n" +
-		"Syntax error on token \"throws\", delete this token\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				throws
+				^^^^^^
+			Syntax error on token "throws", delete this token
+			----------
+			"""
 	);
 }
 public void test005() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	{\n" +
-			"		throws new\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					{
+						throws new
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	throws new\n" +
-		"	^^^^^^^^^^\n" +
-		"Syntax error on tokens, delete these tokens\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				throws new
+				^^^^^^^^^^
+			Syntax error on tokens, delete these tokens
+			----------
+			"""
 	);
 }
 public void test006() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	{\n" +
-			"		throws new X\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					{
+						throws new X
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	throws new X\n" +
-		"	^^^^^^\n" +
-		"Syntax error on token \"throws\", throw expected\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	throws new X\n" +
-		"	           ^\n" +
-		"Syntax error, insert \"( )\" to complete Expression\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 3)\n" +
-		"	throws new X\n" +
-		"	           ^\n" +
-		"Syntax error, insert \";\" to complete BlockStatements\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				throws new X
+				^^^^^^
+			Syntax error on token "throws", throw expected
+			----------
+			2. ERROR in X.java (at line 3)
+				throws new X
+				           ^
+			Syntax error, insert "( )" to complete Expression
+			----------
+			3. ERROR in X.java (at line 3)
+				throws new X
+				           ^
+			Syntax error, insert ";" to complete BlockStatements
+			----------
+			""");
 }
 public void test007() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo()throw {\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					void foo()throw {
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X {\n" +
-		"	               ^\n" +
-		"Syntax error, insert \"}\" to complete ClassBody\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	void foo()throw {\n" +
-		"	          ^^^^^\n" +
-		"Syntax error on token \"throw\", { expected\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 1)
+				public class X {
+				               ^
+			Syntax error, insert "}" to complete ClassBody
+			----------
+			2. ERROR in X.java (at line 2)
+				void foo()throw {
+				          ^^^^^
+			Syntax error on token "throw", { expected
+			----------
+			"""
 	);
 }
 public void test008() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo()throw E {\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					void foo()throw E {
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X {\n" +
-		"	               ^\n" +
-		"Syntax error, insert \"}\" to complete ClassBody\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	void foo()throw E {\n" +
-		"	          ^^^^^\n" +
-		"Syntax error on token \"throw\", throws expected\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error on token \"}\", delete this token\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 1)
+				public class X {
+				               ^
+			Syntax error, insert "}" to complete ClassBody
+			----------
+			2. ERROR in X.java (at line 2)
+				void foo()throw E {
+				          ^^^^^
+			Syntax error on token "throw", throws expected
+			----------
+			3. ERROR in X.java (at line 4)
+				}
+				^
+			Syntax error on token "}", delete this token
+			----------
+			"""
 	);
 }
 public void test009() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo(){\n" +
-			"		throws e\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					void foo(){
+						throws e
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	throws e\n" +
-		"	^^^^^^^^\n" +
-		"Syntax error on tokens, delete these tokens\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				throws e
+				^^^^^^^^
+			Syntax error on tokens, delete these tokens
+			----------
+			"""
 	);
 }
 public void test010() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo(){\n" +
-			"		throws e;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					void foo(){
+						throws e;
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	throws e;\n" +
-		"	^^^^^^\n" +
-		"Syntax error on token \"throws\", throw expected\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				throws e;
+				^^^^^^
+			Syntax error on token "throws", throw expected
+			----------
+			"""
 	);
 }
 public void _test011() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public void foo(X, Object o, String s) {\n" +
-			"	}\n" +
-			"   public void bar(){}\n" +
-			"}\n"
+			"""
+				public class X {
+					public void foo(X, Object o, String s) {
+					}
+				   public void bar(){}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public void foo(X, Object o, String s) {\n" +
-		"	                 ^\n" +
-		"Syntax error on token \",\", . expected\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				public void foo(X, Object o, String s) {
+				                 ^
+			Syntax error on token ",", . expected
+			----------
+			"""
 	);
 }
 /*
@@ -269,25 +313,29 @@ public void test012() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public void foo() {\n" +
-			"		\"foo\".equals(\"bar\");\n" +
-			"		;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					public void foo() {
+						"foo".equals("bar");
+						;
+					}
+				}
+				"""
 		},
 		null, nls,
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	\"foo\".equals(\"bar\");\n" +
-		"	^^^^^\n" +
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	\"foo\".equals(\"bar\");\n" +
-		"	             ^^^^^\n" +
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				"foo".equals("bar");
+				^^^^^
+			Non-externalized string literal; it should be followed by //$NON-NLS-<n>$
+			----------
+			2. ERROR in X.java (at line 3)
+				"foo".equals("bar");
+				             ^^^^^
+			Non-externalized string literal; it should be followed by //$NON-NLS-<n>$
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 /*
@@ -300,25 +348,29 @@ public void test013() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public void foo() {\n" +
-			"		\"foo\".equals(\"bar\");\n" +
-			"		//;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					public void foo() {
+						"foo".equals("bar");
+						//;
+					}
+				}
+				"""
 		},
 		null, nls,
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	\"foo\".equals(\"bar\");\n" +
-		"	^^^^^\n" +
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	\"foo\".equals(\"bar\");\n" +
-		"	             ^^^^^\n" +
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				"foo".equals("bar");
+				^^^^^
+			Non-externalized string literal; it should be followed by //$NON-NLS-<n>$
+			----------
+			2. ERROR in X.java (at line 3)
+				"foo".equals("bar");
+				             ^^^^^
+			Non-externalized string literal; it should be followed by //$NON-NLS-<n>$
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 /*
@@ -328,23 +380,27 @@ public void test014() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public void foo() { \n" +
-			"		import java.lang.*;\n" +
-			"	} \n" +
-			"}\n"
+			"""
+				public class X {
+					public void foo() {\s
+						import java.lang.*;
+					}\s
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	import java.lang.*;\n" +
-		"	^^^^^^\n" +
-		"Syntax error on token \"import\", delete this token\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	import java.lang.*;\n" +
-		"	^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error on token(s), misplaced construct(s)\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				import java.lang.*;
+				^^^^^^
+			Syntax error on token "import", delete this token
+			----------
+			2. ERROR in X.java (at line 3)
+				import java.lang.*;
+				^^^^^^^^^^^^^^^^^
+			Syntax error on token(s), misplaced construct(s)
+			----------
+			"""
 	);
 }
 /*
@@ -354,20 +410,24 @@ public void test015() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"// some code\n" +
-			"}\n" +
-			"/*\n" +
-			"// some comments\n"
+			"""
+				public class X {
+				// some code
+				}
+				/*
+				// some comments
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	/*\n" +
-		"// some comments\n" +
-		"\n" +
-		"	^^^^^^^^^^^^^^^^^^^^\n" +
-		"Unexpected end of comment\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				/*
+			// some comments
+			
+				^^^^^^^^^^^^^^^^^^^^
+			Unexpected end of comment
+			----------
+			"""
 	);
 }
 /*
@@ -380,12 +440,14 @@ public void test016() {
 			"public class X {\n" +
 			"	String s = \""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	String s = \"\n" +
-		"	           ^\n" +
-		"String literal is not properly closed by a double-quote\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				String s = "
+				           ^
+			String literal is not properly closed by a double-quote
+			----------
+			"""
 	);
 }
 /*
@@ -398,12 +460,14 @@ public void test017() {
 			"public class X {\n" +
 			"	char c = '"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	char c = \'\n" +
-		"	         ^\n" +
-		"Invalid character constant\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				char c = '
+				         ^
+			Invalid character constant
+			----------
+			"""
 	);
 }
 /*
@@ -416,12 +480,14 @@ public void test018() {
 			"public class X {\n" +
 			"	char c = '\\u0"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	char c = \'\\u0\n" +
-		"	          ^^^\n" +
-		"Invalid unicode\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				char c = '\\u0
+				          ^^^
+			Invalid unicode
+			----------
+			"""
 	);
 }
 /*
@@ -431,24 +497,27 @@ public void test019() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public void doit() {\n" +
-			"		int[] foo = null;\n" +
-			"		foo[0] = \n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					public void doit() {
+						int[] foo = null;
+						foo[0] =\s
+					}
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	foo[0] = \n" +
-		"	     ^\n" +
-		"Syntax error, insert \"AssignmentOperator Expression\" to complete Assignment\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
-		"	foo[0] = \n" +
-		"	     ^\n" +
-		"Syntax error, insert \";\" to complete Statement\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				foo[0] =\s
+				     ^
+			Syntax error, insert "AssignmentOperator Expression" to complete Assignment
+			----------
+			2. ERROR in X.java (at line 4)
+				foo[0] =\s
+				     ^
+			Syntax error, insert ";" to complete Statement
+			----------
+			"""
 	);
 }
 /*
@@ -458,36 +527,38 @@ public void test020() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"	}\n" +
-			"	public static int newLibraryEntry() {\n" +
-
-			"		if (sourceAttachmentPath != null) {\n" +
-			"			if (sourceAttachmentPath.isEmpty()) { && !\n" +
-			"sourceAttachmentPath.isAbsolute()) {\n" +
-			"			foo();\n" +
-			"		}\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	}\n" +
-			"	public void foo() {\n" +
-			"	}\n" +
-			"	public void bar() {\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					public static void main(String[] args) {
+					}
+					public static int newLibraryEntry() {
+						if (sourceAttachmentPath != null) {
+							if (sourceAttachmentPath.isEmpty()) { && !
+				sourceAttachmentPath.isAbsolute()) {
+							foo();
+						}
+						return null;
+					}
+					}
+					public void foo() {
+					}
+					public void bar() {
+					}
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (sourceAttachmentPath.isEmpty()) { && !\n" +
-		"	                                      ^^\n" +
-		"Syntax error on token \"&&\", invalid (\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	sourceAttachmentPath.isAbsolute()) {\n" +
-		"	                                   ^\n" +
-		"Syntax error on token \"{\", invalid AssignmentOperator\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (sourceAttachmentPath.isEmpty()) { && !
+				                                      ^^
+			Syntax error on token "&&", invalid (
+			----------
+			2. ERROR in X.java (at line 7)
+				sourceAttachmentPath.isAbsolute()) {
+				                                   ^
+			Syntax error on token "{", invalid AssignmentOperator
+			----------
+			"""
 	);
 }
 public void test021() {
@@ -511,57 +582,59 @@ public void test021() {
 			"X.java",
 			buffer.toString()
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 1003)\n" +
-		"	void method_1() { method_0() \n" +
-		"	                           ^\n" +
-		"Syntax error, insert \"}\" to complete MethodBody\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1003)\n" +
-		"	void method_1() { method_0() \n" +
-		"	                           ^\n" +
-		"Syntax error, insert \";\" to complete BlockStatements\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 1004)\n" +
-		"	void method_2() { method_1() \n" +
-		"	                           ^\n" +
-		"Syntax error, insert \"}\" to complete MethodBody\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 1004)\n" +
-		"	void method_2() { method_1() \n" +
-		"	                           ^\n" +
-		"Syntax error, insert \";\" to complete BlockStatements\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 1005)\n" +
-		"	void method_3() { method_2() \n" +
-		"	                           ^\n" +
-		"Syntax error, insert \"}\" to complete MethodBody\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 1005)\n" +
-		"	void method_3() { method_2() \n" +
-		"	                           ^\n" +
-		"Syntax error, insert \";\" to complete BlockStatements\n" +
-		"----------\n" +
-		"7. ERROR in X.java (at line 1006)\n" +
-		"	void method_4() { method_3() \n" +
-		"	                           ^\n" +
-		"Syntax error, insert \"}\" to complete MethodBody\n" +
-		"----------\n" +
-		"8. ERROR in X.java (at line 1006)\n" +
-		"	void method_4() { method_3() \n" +
-		"	                           ^\n" +
-		"Syntax error, insert \";\" to complete BlockStatements\n" +
-		"----------\n" +
-		"9. ERROR in X.java (at line 1007)\n" +
-		"	void method_5() { method_4() \n" +
-		"	                           ^\n" +
-		"Syntax error, insert \"}\" to complete MethodBody\n" +
-		"----------\n" +
-		"10. ERROR in X.java (at line 2002)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error, insert \"}\" to complete ClassBody\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 1003)
+				void method_1() { method_0()\s
+				                           ^
+			Syntax error, insert "}" to complete MethodBody
+			----------
+			2. ERROR in X.java (at line 1003)
+				void method_1() { method_0()\s
+				                           ^
+			Syntax error, insert ";" to complete BlockStatements
+			----------
+			3. ERROR in X.java (at line 1004)
+				void method_2() { method_1()\s
+				                           ^
+			Syntax error, insert "}" to complete MethodBody
+			----------
+			4. ERROR in X.java (at line 1004)
+				void method_2() { method_1()\s
+				                           ^
+			Syntax error, insert ";" to complete BlockStatements
+			----------
+			5. ERROR in X.java (at line 1005)
+				void method_3() { method_2()\s
+				                           ^
+			Syntax error, insert "}" to complete MethodBody
+			----------
+			6. ERROR in X.java (at line 1005)
+				void method_3() { method_2()\s
+				                           ^
+			Syntax error, insert ";" to complete BlockStatements
+			----------
+			7. ERROR in X.java (at line 1006)
+				void method_4() { method_3()\s
+				                           ^
+			Syntax error, insert "}" to complete MethodBody
+			----------
+			8. ERROR in X.java (at line 1006)
+				void method_4() { method_3()\s
+				                           ^
+			Syntax error, insert ";" to complete BlockStatements
+			----------
+			9. ERROR in X.java (at line 1007)
+				void method_5() { method_4()\s
+				                           ^
+			Syntax error, insert "}" to complete MethodBody
+			----------
+			10. ERROR in X.java (at line 2002)
+				}
+				^
+			Syntax error, insert "}" to complete ClassBody
+			----------
+			""",
 		null, // custom classpath
 		true, // flush previous output dir content
 		options // custom options
@@ -577,17 +650,20 @@ public void test022() {
 		true,
 		new String[] {
 			"X.java",
-			"interface X {\n" +
-			"    int f= 1;;\n" +
-			"}"
+			"""
+				interface X {
+				    int f= 1;;
+				}"""
 		},
 		null, options,
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	int f= 1;;\n" +
-		"	         ^\n" +
-		"Unnecessary semicolon\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				int f= 1;;
+				         ^
+			Unnecessary semicolon
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 /*
@@ -600,17 +676,20 @@ public void test023() {
 		true,
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"    int f= 1;;\n" +
-			"}"
+			"""
+				class X {
+				    int f= 1;;
+				}"""
 		},
 		null, options,
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	int f= 1;;\n" +
-		"	         ^\n" +
-		"Unnecessary semicolon\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				int f= 1;;
+				         ^
+			Unnecessary semicolon
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 /*
@@ -623,17 +702,20 @@ public void test024() {
 		true,
 		new String[] {
 			"X.java",
-			"interface X {\n" +
-			"    int f= 1;\\u003B\n" +
-			"}"
+			"""
+				interface X {
+				    int f= 1;\\u003B
+				}"""
 		},
 		null, options,
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	int f= 1;\\u003B\n" +
-		"	         ^^^^^^\n" +
-		"Unnecessary semicolon\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				int f= 1;\\u003B
+				         ^^^^^^
+			Unnecessary semicolon
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 /*
@@ -646,27 +728,30 @@ public void test025() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"        static class Y {\n" +
-			"                public void foo(int i) {}\n" +
-			"        }\n" +
-			"        static Y FakeInvocationSite = new Y(){\n" +
-			"                public void foo(int i) {}\n" +
-			"        };\n" +
-			"}"
+			"""
+				public class X {
+				        static class Y {
+				                public void foo(int i) {}
+				        }
+				        static Y FakeInvocationSite = new Y(){
+				                public void foo(int i) {}
+				        };
+				}"""
 		},
 		null, options,
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	public void foo(int i) {}\n" +
-		"	                       ^^\n" +
-		"Empty block should be documented\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 6)\n" +
-		"	public void foo(int i) {}\n" +
-		"	                       ^^\n" +
-		"Empty block should be documented\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				public void foo(int i) {}
+				                       ^^
+			Empty block should be documented
+			----------
+			2. ERROR in X.java (at line 6)
+				public void foo(int i) {}
+				                       ^^
+			Empty block should be documented
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 /*
@@ -679,33 +764,36 @@ public void test026() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"        static class Y {\n" +
-			"                public void foo(int i) {}\n" +
-			"        }\n" +
-			"        static Y FakeInvocationSite = new Y(){\n" +
-			"                public void foo(int i) {\n" +
-			"					class A {\n" +
-			"						A() {}\n" +
-			"						public void bar() {}\n" +
-			"					}\n" +
-			"					new A().bar();\n" +
-			"				 }\n" +
-			"        };\n" +
-			"}"
+			"""
+				public class X {
+				        static class Y {
+				                public void foo(int i) {}
+				        }
+				        static Y FakeInvocationSite = new Y(){
+				                public void foo(int i) {
+									class A {
+										A() {}
+										public void bar() {}
+									}
+									new A().bar();
+								 }
+				        };
+				}"""
 		},
 		null, options,
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	public void foo(int i) {}\n" +
-		"	                       ^^\n" +
-		"Empty block should be documented\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 9)\n" +
-		"	public void bar() {}\n" +
-		"	                  ^^\n" +
-		"Empty block should be documented\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				public void foo(int i) {}
+				                       ^^
+			Empty block should be documented
+			----------
+			2. ERROR in X.java (at line 9)
+				public void bar() {}
+				                  ^^
+			Empty block should be documented
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -716,38 +804,42 @@ public void test027() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.io.EOFException;\n" +
-			"import java.io.FileNotFoundException;\n" +
-			"import java.io.IOException;\n" +
-			"import org.xml.sax.SAXException;\n" +
-			"public class X {\n" +
-        		"public void doSomething() throws FileNotFoundException, EOFException, SAXException{\n" +
-        		"\n" +
-        		"}\n" +
-			"public void doSomethingElse() {\n" +
-        		"try {\n" +
-                	"	doSomething();\n" +
-        		"}\n" +
-       			" catch ( SAXException exception) {\n" +
-			"\n" +
-      			"}  \n" +
-        		"catch ( FileNotFoundException exception ) {\n" +
-			"\n" +
-        		"}    \n" +
-       			"catch (\n" +
-                	"	// working before the slashes\n" +
-        		") {\n" +
-			"\n" +
-        		"} \n" +
-        		"} \n" +
-        	"}\n"
+			"""
+				import java.io.EOFException;
+				import java.io.FileNotFoundException;
+				import java.io.IOException;
+				import org.xml.sax.SAXException;
+				public class X {
+				public void doSomething() throws FileNotFoundException, EOFException, SAXException{
+				
+				}
+				public void doSomethingElse() {
+				try {
+					doSomething();
+				}
+				 catch ( SAXException exception) {
+				
+				} \s
+				catch ( FileNotFoundException exception ) {
+				
+				}   \s
+				catch (
+					// working before the slashes
+				) {
+				
+				}\s
+				}\s
+				}
+				"""
         	},
-		"----------\n" +
-		"1. ERROR in X.java (at line 19)\n" +
-		"	catch (\n" +
-		"	      ^\n" +
-		"Syntax error on token \"(\", FormalParameter expected after this token\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 19)
+				catch (
+				      ^
+			Syntax error on token "(", FormalParameter expected after this token
+			----------
+			"""
 	);
 }
 /*
@@ -755,35 +847,40 @@ public void test027() {
  */
 public void _test028() {
 	String error = (this.complianceLevel == ClassFileConstants.JDK14) ?
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	Srtring bar = \"\"\"\n" +
-			"    }\n" +
-			"	              ^^^^\n" +
-			"Text block is not properly closed with the delimiter\n" +
-			"----------\n" :
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	Srtring bar = \"\"\"\n" +
-			"	              ^^\n" +
-			"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	Srtring bar = \"\"\"\n" +
-			"	                ^\n" +
-			"String literal is not properly closed by a double-quote\n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					Srtring bar = \"""
+				    }
+					              ^^^^
+				Text block is not properly closed with the delimiter
+				----------
+				""" :
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					Srtring bar = \"""
+					              ^^
+				Non-externalized string literal; it should be followed by //$NON-NLS-<n>$
+				----------
+				2. ERROR in X.java (at line 4)
+					Srtring bar = \"""
+					                ^
+				String literal is not properly closed by a double-quote
+				----------
+				""";
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"    public static void foo(String param) {\n" +
-			"    	String foo= param;\n" +
-			"    	Srtring bar = \"\"\"\n" +
-			"    }\n" +
-			"}"
+			"""
+				class X {
+				    public static void foo(String param) {
+				    	String foo= param;
+				    	Srtring bar = \"""
+				    }
+				}"""
 		},
 		error,
 		null,
@@ -807,21 +904,23 @@ public void testBug485477() {
 			"  }\n" +
 			"}"
 		},
-		"----------\n" +
-		"1. ERROR in T.java (at line 2)\n" +
-		"	Object o = T.super; // error: \'.\' expected\n" +
-		"	             ^^^^^\n" +
-		"Syntax error, insert \". Identifier\" to complete Expression\n" +
-		"----------\n" +
-		"2. ERROR in T.java (at line 7)\n" +
-		"	Object o2 = T.super;\n" +
-		"	              ^^^^^\n" +
-		"Syntax error, insert \". Identifier\" to complete Expression\n" +
-		"----------\n" +
-		"3. ERROR in T.java (at line 9)\n" +
-		"	o1 = U.super;\n" +
-		"	       ^^^^^\n" +
-		"Syntax error, insert \". Identifier\" to complete Expression\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in T.java (at line 2)
+				Object o = T.super; // error: '.' expected
+				             ^^^^^
+			Syntax error, insert ". Identifier" to complete Expression
+			----------
+			2. ERROR in T.java (at line 7)
+				Object o2 = T.super;
+				              ^^^^^
+			Syntax error, insert ". Identifier" to complete Expression
+			----------
+			3. ERROR in T.java (at line 9)
+				o1 = U.super;
+				       ^^^^^
+			Syntax error, insert ". Identifier" to complete Expression
+			----------
+			""");
 }
 }

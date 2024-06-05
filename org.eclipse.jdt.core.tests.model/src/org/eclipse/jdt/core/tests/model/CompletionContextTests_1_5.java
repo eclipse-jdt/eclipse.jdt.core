@@ -39,10 +39,11 @@ public void test0001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0001/X.java",
-		"package test0001;\n" +
-		"public class X<T> {\n" +
-		"  X<Object>.ZZZZ\n" +
-		"}");
+		"""
+			package test0001;
+			public class X<T> {
+			  X<Object>.ZZZZ
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -65,10 +66,11 @@ public void test0002() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0002/X.java",
-		"package test0002;\n" +
-		"public class X<T> {\n" +
-		"  X<Object>.ZZZZ\n" +
-		"}");
+		"""
+			package test0002;
+			public class X<T> {
+			  X<Object>.ZZZZ
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -91,10 +93,11 @@ public void test0003() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0003/X.java",
-		"package test0003;\n" +
-		"public class X<T> {\n" +
-		"  X<Object>.ZZZZ\n" +
-		"}");
+		"""
+			package test0003;
+			public class X<T> {
+			  X<Object>.ZZZZ
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -117,10 +120,11 @@ public void test0004() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0004/X.java",
-		"package test0004;\n" +
-		"public class X<T> {\n" +
-		"  X<Object>.\n" +
-		"}");
+		"""
+			package test0004;
+			public class X<T> {
+			  X<Object>.
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf(">.") + ">.".length();
@@ -143,10 +147,11 @@ public void test0005() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0005/X.java",
-		"package test0005;\n" +
-		"@ZZZZ\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0005;
+			@ZZZZ
+			public class X {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -169,10 +174,11 @@ public void test0006() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0006/X.java",
-		"package test0006;\n" +
-		"@ZZZZ\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0006;
+			@ZZZZ
+			public class X {
+			}""");
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
 	int tokenEnd = tokenStart + "ZZZZ".length() - 1;
@@ -194,10 +200,11 @@ public void test0007() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0007/X.java",
-		"package test0007;\n" +
-		"@ZZZZ\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0007;
+			@ZZZZ
+			public class X {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -220,10 +227,11 @@ public void test0008() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0008/X.java",
-		"package test0008;\n" +
-		"@\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0008;
+			@
+			public class X {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("@") + "@".length();
@@ -246,12 +254,13 @@ public void test0009() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0009/X.java",
-		"package test0009;\n" +
-		"class Y {\n" +
-		"}\n" +
-		"@Y.ZZZZ\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0009;
+			class Y {
+			}
+			@Y.ZZZZ
+			public class X {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -274,12 +283,13 @@ public void test0010() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0010/X.java",
-		"package test0010;\n" +
-		"class Y {\n" +
-		"}\n" +
-		"@Y.ZZZZ\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0010;
+			class Y {
+			}
+			@Y.ZZZZ
+			public class X {
+			}""");
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
 	int tokenEnd = tokenStart + "ZZZZ".length() - 1;
@@ -301,12 +311,13 @@ public void test0011() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0011/X.java",
-		"package test0011;\n" +
-		"class Y {\n" +
-		"}\n" +
-		"@Y.ZZZZ\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0011;
+			class Y {
+			}
+			@Y.ZZZZ
+			public class X {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -329,12 +340,13 @@ public void test0012() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0012/X.java",
-		"package test0012;\n" +
-		"class Y {\n" +
-		"}\n" +
-		"@Y.\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0012;
+			class Y {
+			}
+			@Y.
+			public class X {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("@Y.") + "@Y.".length();
@@ -357,10 +369,11 @@ public void test0013() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0013/X.java",
-		"package test0013;\n" +
-		"@test0013.ZZZZ\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0013;
+			@test0013.ZZZZ
+			public class X {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -383,10 +396,11 @@ public void test0014() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0014/X.java",
-		"package test0014;\n" +
-		"@test0014.ZZZZ\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0014;
+			@test0014.ZZZZ
+			public class X {
+			}""");
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
 	int tokenEnd = tokenStart + "ZZZZ".length() - 1;
@@ -408,10 +422,11 @@ public void test0015() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0015/X.java",
-		"package test0015;\n" +
-		"@test0015.ZZZZ\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0015;
+			@test0015.ZZZZ
+			public class X {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -434,10 +449,11 @@ public void test0016() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0016/X.java",
-		"package test0016;\n" +
-		"@test0016.\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0016;
+			@test0016.
+			public class X {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("@test0016.") + "@test0016.".length();
@@ -460,13 +476,14 @@ public void test0017() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0017/X.java",
-		"package test0017;\n" +
-		"@interface Y {\n" +
-		"  int value();\n" +
-		"}\n" +
-		"@Y(ZZZZ)\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0017;
+			@interface Y {
+			  int value();
+			}
+			@Y(ZZZZ)
+			public class X {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -489,13 +506,14 @@ public void test0018() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0018/X.java",
-		"package test0018;\n" +
-		"@interface Y {\n" +
-		"  int value();\n" +
-		"}\n" +
-		"@Y(ZZZZ)\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0018;
+			@interface Y {
+			  int value();
+			}
+			@Y(ZZZZ)
+			public class X {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -518,13 +536,14 @@ public void test0019() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0019/X.java",
-		"package test0019;\n" +
-		"@interface Y {\n" +
-		"  int value();\n" +
-		"}\n" +
-		"@Y(ZZZZ)\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0019;
+			@interface Y {
+			  int value();
+			}
+			@Y(ZZZZ)
+			public class X {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -547,13 +566,14 @@ public void test0020() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0020/X.java",
-		"package test0020;\n" +
-		"@interface Y {\n" +
-		"  int value();\n" +
-		"}\n" +
-		"@Y()\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0020;
+			@interface Y {
+			  int value();
+			}
+			@Y()
+			public class X {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("@Y(") + "@Y(".length();
@@ -576,14 +596,15 @@ public void test0021() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0021/X.java",
-		"package test0021;\n" +
-		"@interface Y {\n" +
-		"  int value1();\n" +
-		"  int value2();\n" +
-		"}\n" +
-		"@Y(value1=1,ZZZZ)\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0021;
+			@interface Y {
+			  int value1();
+			  int value2();
+			}
+			@Y(value1=1,ZZZZ)
+			public class X {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -606,14 +627,15 @@ public void test0022() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0022/X.java",
-		"package test0022;\n" +
-		"@interface Y {\n" +
-		"  int value1();\n" +
-		"  int value2();\n" +
-		"}\n" +
-		"@Y(value1=1,ZZZZ)\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0022;
+			@interface Y {
+			  int value1();
+			  int value2();
+			}
+			@Y(value1=1,ZZZZ)
+			public class X {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -636,14 +658,15 @@ public void test0023() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0023/X.java",
-		"package test0023;\n" +
-		"@interface Y {\n" +
-		"  int value1();\n" +
-		"  int value2();\n" +
-		"}\n" +
-		"@Y(value1=1,ZZZZ)\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0023;
+			@interface Y {
+			  int value1();
+			  int value2();
+			}
+			@Y(value1=1,ZZZZ)
+			public class X {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -666,14 +689,15 @@ public void test0024() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0024/X.java",
-		"package test0024;\n" +
-		"@interface Y {\n" +
-		"  int value1();\n" +
-		"  int value2();\n" +
-		"}\n" +
-		"@Y(value1=1,)\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0024;
+			@interface Y {
+			  int value1();
+			  int value2();
+			}
+			@Y(value1=1,)
+			public class X {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("value1=1,") + "value1=1,".length();
@@ -697,16 +721,18 @@ public void test0025() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0006/X.java",
-		"package test0006;\n" +
-		"@ZZZZ\n" +
-		"public class X {\n" +
-		"}");
+		"""
+			package test0006;
+			@ZZZZ
+			public class X {
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src3/pkgannotation/QQAnnotation.java",
-		"package pkgannotations;\n" +
-		"public @interface QQAnnotation {\n" +
-		"}");
+		"""
+			package pkgannotations;
+			public @interface QQAnnotation {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -730,10 +756,11 @@ public void test0026() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X {\n" +
-		"  @MyAnnot ZZZZ\n" +
-		"}");
+		"""
+			package test;
+			public class X {
+			  @MyAnnot ZZZZ
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -758,12 +785,13 @@ public void test0027() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X {\n" +
-		"  public void foo() {\n" +
-		"    @MyAnnot ZZZZ\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;
+			public class X {
+			  public void foo() {
+			    @MyAnnot ZZZZ
+			  }
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -787,20 +815,22 @@ public void test0028() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X<TX> extends A<String> {\n" +
-		"  public void methodX(TX x) {}\n" +
-		"  public void foo() {\n" +
-		"    zzzz\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;
+			public class X<TX> extends A<String> {
+			  public void methodX(TX x) {}
+			  public void foo() {
+			    zzzz
+			  }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src3/test/A.java",
-		"package test;\n" +
-		"public class A<TA> {\n" +
-		"  public void methodA(TA a) {}\n" +
-		"}");
+		"""
+			package test;
+			public class A<TA> {
+			  public void methodA(TA a) {}
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("zzzz");
@@ -841,19 +871,21 @@ public void test0029() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X {\n" +
-		"  public A<String> methodX() {return null;}\n" +
-		"  public void foo() {\n" +
-		"    zzzz\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;
+			public class X {
+			  public A<String> methodX() {return null;}
+			  public void foo() {
+			    zzzz
+			  }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src3/test/A.java",
-		"package test;\n" +
-		"public class A<TA> {\n" +
-		"}");
+		"""
+			package test;
+			public class A<TA> {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("zzzz");
@@ -880,25 +912,28 @@ public void test0030() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X {\n" +
-		"  public A<String> methodX() {return null;}\n" +
-		"  public void foo() {\n" +
-		"    zzzz\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;
+			public class X {
+			  public A<String> methodX() {return null;}
+			  public void foo() {
+			    zzzz
+			  }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src3/test/A.java",
-		"package test;\n" +
-		"public class A<TA> {\n" +
-		"}");
+		"""
+			package test;
+			public class A<TA> {
+			}""");
 
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src3/test/B.java",
-		"package test;\n" +
-		"public class B<TB> {\n" +
-		"}");
+		"""
+			package test;
+			public class B<TB> {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("zzzz");
@@ -923,25 +958,28 @@ public void test0031() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X {\n" +
-		"  public A<String> methodX() {return null;}\n" +
-		"  public void foo() {\n" +
-		"    zzzz\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;
+			public class X {
+			  public A<String> methodX() {return null;}
+			  public void foo() {
+			    zzzz
+			  }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src3/test/A.java",
-		"package test;\n" +
-		"public class A<TA> extends B<TA>{\n" +
-		"}");
+		"""
+			package test;
+			public class A<TA> extends B<TA>{
+			}""");
 
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src3/test/B.java",
-		"package test;\n" +
-		"public class B<TB> {\n" +
-		"}");
+		"""
+			package test;
+			public class B<TB> {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("zzzz");
@@ -968,19 +1006,21 @@ public void test0032() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X {\n" +
-		"  public A<String> methodX() {return null;}\n" +
-		"  public void foo() {\n" +
-		"    zzzz\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;
+			public class X {
+			  public A<String> methodX() {return null;}
+			  public void foo() {
+			    zzzz
+			  }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src3/test/A.java",
-		"package test;\n" +
-		"public class A<TA> {\n" +
-		"}");
+		"""
+			package test;
+			public class A<TA> {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("zzzz");
@@ -1005,19 +1045,21 @@ public void test0033() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X {\n" +
-		"  public A<String> methodX() {return null;}\n" +
-		"  public void foo() {\n" +
-		"    zzzz\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;
+			public class X {
+			  public A<String> methodX() {return null;}
+			  public void foo() {
+			    zzzz
+			  }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src3/test/A.java",
-		"package test;\n" +
-		"public class A<TA> {\n" +
-		"}");
+		"""
+			package test;
+			public class A<TA> {
+			}""");
 
 
 	String str = this.workingCopies[0].getSource();
@@ -1043,13 +1085,14 @@ public void test0034() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X<T> {\n" +
-		"  public T methodX() {return null;}\n" +
-		"  public void foo() {\n" +
-		"    zzzz\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;
+			public class X<T> {
+			  public T methodX() {return null;}
+			  public void foo() {
+			    zzzz
+			  }
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("zzzz");
@@ -1076,13 +1119,14 @@ public void test0035() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X {\n" +
-		"  public <T> T methodX() {return null;}\n" +
-		"  public void foo() {\n" +
-		"    zzzz\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;
+			public class X {
+			  public <T> T methodX() {return null;}
+			  public void foo() {
+			    zzzz
+			  }
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("zzzz");
@@ -1107,12 +1151,13 @@ public void test0036() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X {\n" +
-		"  public <T> T methodX() {\n" +
-		"    zzzz\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;
+			public class X {
+			  public <T> T methodX() {
+			    zzzz
+			  }
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("zzzz");
@@ -1139,19 +1184,21 @@ public void test0037() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X {\n" +
-		"  public A<String> methodX() {return null;}\n" +
-		"  public void foo() {\n" +
-		"    zzzz\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;
+			public class X {
+			  public A<String> methodX() {return null;}
+			  public void foo() {
+			    zzzz
+			  }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src3/test/A.java",
-		"package test;\n" +
-		"public class A<TA> {\n" +
-		"}");
+		"""
+			package test;
+			public class A<TA> {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("zzzz");
@@ -1178,29 +1225,32 @@ public void test0038() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X {\n" +
-		"  public A<Z<String>>.B<Z<String>>.C<Z<String>> methodX() {return null;}\n" +
-		"  public void foo() {\n" +
-		"    zzzz\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;
+			public class X {
+			  public A<Z<String>>.B<Z<String>>.C<Z<String>> methodX() {return null;}
+			  public void foo() {
+			    zzzz
+			  }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src3/test/Z.java",
-		"package test;\n" +
-		"public class Z<TZ> {\n" +
-		"}");
+		"""
+			package test;
+			public class Z<TZ> {
+			}""");
 
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src3/test/A.java",
-		"package test;\n" +
-		"public class A<TA> {\n" +
-		"  public class B<TB> {\n" +
-		"    public class C<TC> {\n" +
-		"    }\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;
+			public class A<TA> {
+			  public class B<TB> {
+			    public class C<TC> {
+			    }
+			  }
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("zzzz");
@@ -1227,29 +1277,32 @@ public void test0039() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X {\n" +
-		"  public A<A<Z<String>>.B<Z<String>>> methodX() {return null;}\n" +
-		"  public void foo() {\n" +
-		"    zzzz\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;
+			public class X {
+			  public A<A<Z<String>>.B<Z<String>>> methodX() {return null;}
+			  public void foo() {
+			    zzzz
+			  }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src3/test/Z.java",
-		"package test;\n" +
-		"public class Z<TZ> {\n" +
-		"}");
+		"""
+			package test;
+			public class Z<TZ> {
+			}""");
 
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src3/test/A.java",
-		"package test;\n" +
-		"public class A<TA> {\n" +
-		"  public class B<TB> {\n" +
-		"    public class C<TC> {\n" +
-		"    }\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;
+			public class A<TA> {
+			  public class B<TB> {
+			    public class C<TC> {
+			    }
+			  }
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("zzzz");
@@ -1276,13 +1329,14 @@ public void test0040() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X {\n" +
-		"  public X foo() {return null;}\n" +
-		"  public A() {\n" +
-		"    zzzz\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;
+			public class X {
+			  public X foo() {return null;}
+			  public A() {
+			    zzzz
+			  }
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("zzzz");
@@ -1309,18 +1363,20 @@ public void test0041() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X {\n" +
-		"  @TestAnnot(value=\"\")\n" +
-		"  public int field = 0;\n" +
-		"}");
+		"""
+			package test;
+			public class X {
+			  @TestAnnot(value="")
+			  public int field = 0;
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src3/test/TestAnnot.java",
-		"package test;\n" +
-		"public @interface X {\n" +
-		"  String value();\n" +
-		"}");
+		"""
+			package test;
+			public @interface X {
+			  String value();
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("\"\"");
@@ -1344,18 +1400,20 @@ public void test0042() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X {\n" +
-		"  @TestAnnot(\"\")\n" +
-		"  public int field = 0;\n" +
-		"}");
+		"""
+			package test;
+			public class X {
+			  @TestAnnot("")
+			  public int field = 0;
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src3/test/TestAnnot.java",
-		"package test;\n" +
-		"public @interface X {\n" +
-		"  String value();\n" +
-		"}");
+		"""
+			package test;
+			public @interface X {
+			  String value();
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("\"\"");
@@ -1380,14 +1438,15 @@ public void testBug311022a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X {\n" +
-		"    void foo(Object o) {}\n" +
-		"	 <T> void bar() {\n" +
-		"    	T<T> loc = 12;\n" +
-		"    	foo\n" +
-		"    }\n" +
-		"}");
+		"""
+			package test;
+			public class X {
+			    void foo(Object o) {}
+				 <T> void bar() {
+			    	T<T> loc = 12;
+			    	foo
+			    }
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("foo");
@@ -1418,14 +1477,15 @@ public void testBug311022b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test/X.java",
-		"package test;\n" +
-		"public class X<A1,A2> {\n" +
-		"    void foo(Object 0) {}\n" +
-		"	 <T> void bar() {\n" +
-		"    	X<String, String, String> x;\n" +
-		"    	foo\n" +
-		"    }\n" +
-		"}");
+		"""
+			package test;
+			public class X<A1,A2> {
+			    void foo(Object 0) {}
+				 <T> void bar() {
+			    	X<String, String, String> x;
+			    	foo
+			    }
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("foo");
