@@ -8019,4 +8019,36 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"b1");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2513
+	// [Enhanced switch] Unexpected MatchException thrown at runtime
+	public void testIssue2513() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					sealed interface SyDeclClass permits SyDeclClassLit {
+
+					}
+
+					record SyDeclClassLit() implements SyDeclClass {}
+
+
+					public class X {
+
+						public static void main(String[] args) {
+							System.out.println("Start");
+							SyDeclClass sdc = new SyDeclClassLit();
+							switch (sdc) {
+								case SyDeclClassLit C:
+									// omit;
+							}
+							System.out.println("Stop");
+						}
+
+					}
+					"""
+				},
+				"Start\n"
+				+ "Stop");
+	}
 }

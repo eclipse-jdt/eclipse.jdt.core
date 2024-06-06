@@ -897,6 +897,9 @@ public class SwitchStatement extends Expression {
 				 * enum constants and the class that is using the switch on the enum has not been recompiled
 				 */
 				if (compilerOptions.complianceLevel >= ClassFileConstants.JDK19) {
+					if (codeStream.lastAbruptCompletion != codeStream.position) {
+						codeStream.goto_(this.breakLabel); // hop, skip and jump over match exception throw.
+					}
 					codeStream.newJavaLangMatchException();
 					codeStream.dup();
 					codeStream.aconst_null();
