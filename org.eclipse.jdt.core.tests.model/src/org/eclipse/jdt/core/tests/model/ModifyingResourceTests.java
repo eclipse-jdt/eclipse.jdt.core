@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IFile;
@@ -200,6 +201,9 @@ protected IFile createFile(String path, byte[] content) throws CoreException {
 @Override
 protected IFile createFile(String path, String content) throws CoreException {
 	return createFile(path, content.getBytes());
+}
+protected IFile createFile(String path, String content, Charset charsetName) throws CoreException {
+	return createFile(path, content.getBytes(charsetName));
 }
 protected IFile createFile(String path, String content, String charsetName) throws CoreException, UnsupportedEncodingException {
 	return createFile(path, content.getBytes(charsetName));
