@@ -438,7 +438,7 @@ public char[][] fullInclusionPatternChars() {
 public String getElementName() {
 	IResource res = resource();
 	if (res instanceof IFolder)
-		return ((IFolder) res).getName();
+		return res.getName();
 	return ""; //$NON-NLS-1$
 }
 /**

@@ -63,7 +63,7 @@ public class ModularClassFile extends AbstractClassFile implements IModularClass
 		BinaryModule module = new BinaryModule(this, moduleInfo);
 		newElements.put(module, moduleInfo);
 		info.setChildren(new IJavaElement[] {module});
-		((ClassFileInfo) info).setModule(module);
+		info.setModule(module);
 		((PackageFragmentRootInfo) getPackageFragmentRoot().getElementInfo()).setModule(module);
 		return true;
 	}

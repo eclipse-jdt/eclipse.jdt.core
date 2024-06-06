@@ -9381,7 +9381,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, statement2.getNodeType());
 		Expression expression2 = ((ExpressionStatement) statement2).getExpression();
 		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression2.getNodeType());
-		ITypeBinding typeBinding = ((MethodInvocation) expression2).resolveTypeBinding();
+		ITypeBinding typeBinding = expression2.resolveTypeBinding();
 		assertTrue("Not a capture", typeBinding.isCapture());
 		assertNull("No binary type", typeBinding.getBinaryName());
 	}
@@ -11372,7 +11372,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			true,
 			true);
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 1, 0);
-		ITypeBinding binding = ((MethodInvocation) statement.getExpression()).resolveTypeBinding();
+		ITypeBinding binding = statement.getExpression().resolveTypeBinding();
 		assertTrue("Should be seen as a wildcard (really an intersection type)", binding.isWildcardType());
 		assertNull("should be null", binding.getGenericTypeOfWildcardType());
 	}

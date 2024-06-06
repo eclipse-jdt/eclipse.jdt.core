@@ -18,7 +18,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -201,9 +200,8 @@ public JavaModel getJavaModel() {
 public IJavaProject getJavaProject(IResource resource) {
 	switch(resource.getType()){
 		case IResource.FOLDER:
-			return new JavaProject(((IFolder)resource).getProject(), this);
 		case IResource.FILE:
-			return new JavaProject(((IFile)resource).getProject(), this);
+			return new JavaProject(resource.getProject(), this);
 		case IResource.PROJECT:
 			return new JavaProject((IProject)resource, this);
 		default:

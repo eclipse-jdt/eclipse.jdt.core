@@ -1678,7 +1678,7 @@ public void testBug153133() throws JavaModelException {
 		// Need to get type members constructors
 		for (int i = 0; i < length; i++) {
 			assertTrue(members[i] instanceof IMember);
-			if (((IMember)members[i]).getElementType() == IJavaElement.TYPE) {
+			if (members[i].getElementType() == IJavaElement.TYPE) {
 				IType typeMember = (IType) members[i];
 				String typeName = typeMember.getElementName();
 				IMethod[] methods = typeMember.getMethods();

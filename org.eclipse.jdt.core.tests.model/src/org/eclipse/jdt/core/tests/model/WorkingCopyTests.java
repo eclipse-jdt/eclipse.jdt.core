@@ -655,25 +655,25 @@ public void testNonExistingCU() throws JavaModelException {
 	try {
 		// getBuffer()
 		workingCopy = nonExistingCU.getWorkingCopy(null);
-		assertSourceEquals("Buffer should be empty", "", ((IOpenable)workingCopy).getBuffer().getContents());
+		assertSourceEquals("Buffer should be empty", "", workingCopy.getBuffer().getContents());
 
 		// exists()
-		assertTrue("Working copy should exists", ((IJavaElement)workingCopy).exists());
+		assertTrue("Working copy should exists", workingCopy.exists());
 
 		// getCorrespondingResource()
-		assertEquals("Corresponding resource should be null", null, ((IJavaElement)workingCopy).getCorrespondingResource());
+		assertEquals("Corresponding resource should be null", null, workingCopy.getCorrespondingResource());
 
 		// getPrimaryElement()
 		assertEquals("Unexpected orginal element", nonExistingCU, workingCopy.getPrimaryElement());
 
 		// getPath()
-		assertEquals("Unexpected path", new Path("/P/src/x/y/NonExisting.java"), ((IJavaElement)workingCopy).getPath());
+		assertEquals("Unexpected path", new Path("/P/src/x/y/NonExisting.java"), workingCopy.getPath());
 
 		// getResource()
-		assertEquals("Unexpected resource", nonExistingCU.getResource(), ((IJavaElement)workingCopy).getResource());
+		assertEquals("Unexpected resource", nonExistingCU.getResource(), workingCopy.getResource());
 
 		// isConsistent()
-		assertTrue("Working copy should be consistent", ((IOpenable)workingCopy).isConsistent());
+		assertTrue("Working copy should be consistent", workingCopy.isConsistent());
 
 		// restore()
 		boolean exception = false;
@@ -685,19 +685,19 @@ public void testNonExistingCU() throws JavaModelException {
 		assertTrue("Should not be able to restore from primary element", exception);
 
 		// makeConsistent()
-		((IOpenable)workingCopy).getBuffer().setContents(
+		workingCopy.getBuffer().setContents(
 			"public class X {\n" +
 			"}");
-		assertTrue("Working copy should not be consistent", !((IOpenable)workingCopy).isConsistent());
-		((IOpenable)workingCopy).makeConsistent(null);
-		assertTrue("Working copy should be consistent", ((IOpenable)workingCopy).isConsistent());
+		assertTrue("Working copy should not be consistent", !workingCopy.isConsistent());
+		workingCopy.makeConsistent(null);
+		assertTrue("Working copy should be consistent", workingCopy.isConsistent());
 
 		// save()
-		((IOpenable)workingCopy).getBuffer().setContents(
+		workingCopy.getBuffer().setContents(
 			"public class Y {\n" +
 			"}");
-		((IOpenable)workingCopy).save(null, false);
-		assertTrue("Working copy should be consistent after save", ((IOpenable)workingCopy).isConsistent());
+		workingCopy.save(null, false);
+		assertTrue("Working copy should be consistent after save", workingCopy.isConsistent());
 		assertTrue("Primary cu should not exist", !nonExistingCU.exists());
 
 		// commitWorkingCopy()

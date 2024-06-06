@@ -144,7 +144,7 @@ public class ParameterizedType extends Type {
 	ASTNode clone0(AST target) {
 		ParameterizedType result = new ParameterizedType(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setType((Type) ((ASTNode) getType()).clone(target));
+		result.setType((Type) getType().clone(target));
 		result.typeArguments().addAll(
 			ASTNode.copySubtrees(target, typeArguments()));
 		return result;

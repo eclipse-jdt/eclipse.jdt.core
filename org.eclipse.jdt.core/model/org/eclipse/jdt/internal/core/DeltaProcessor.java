@@ -1903,7 +1903,7 @@ public class DeltaProcessor {
 		while (this.currentElement != null) {
 			IPath currentElementPath = null;
 			if (this.currentElement instanceof IPackageFragmentRoot) {
-				currentElementPath = ((IPackageFragmentRoot)this.currentElement).getPath();
+				currentElementPath = this.currentElement.getPath();
 			} else {
 				IResource currentElementResource = this.currentElement.resource();
 				if (currentElementResource != null) {

@@ -76,7 +76,7 @@ public void testCreateCompilationUnits() throws CoreException {
 		assertTrue("wrong object B created", objectB instanceof ICompilationUnit);
 		assertTrue("compilation unit B does not exist", objectB.exists());
 
-		assertEquals("should share project", ((ICompilationUnit)objectA).getJavaProject(), ((ICompilationUnit)objectB).getJavaProject());
+		assertEquals("should share project", objectA.getJavaProject(), objectB.getJavaProject());
 	} finally {
 		this.deleteProject("P");
 	}
@@ -103,7 +103,7 @@ public void testCreateCompilationUnitsNotOnClasspath() throws CoreException {
 		assertTrue("wrong object B created", objectB instanceof ICompilationUnit);
 		assertTrue("compilation unit B should not exist", !objectB.exists());
 
-		assertEquals("should share project", ((ICompilationUnit)objectA).getJavaProject(), ((ICompilationUnit)objectB).getJavaProject());
+		assertEquals("should share project", objectA.getJavaProject(), objectB.getJavaProject());
 
 		IJavaElement objectC = JavaCore.create(fileC);
 		assertTrue("tooling object C not created", objectC != null);

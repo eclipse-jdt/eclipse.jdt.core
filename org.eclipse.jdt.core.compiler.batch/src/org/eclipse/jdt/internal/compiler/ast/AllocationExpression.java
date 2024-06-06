@@ -107,7 +107,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		boolean analyseResources = currentScope.compilerOptions().analyseResourceLeaks;
 		boolean hasResourceWrapperType = analyseResources
 				&& this.resolvedType instanceof ReferenceBinding
-				&& ((ReferenceBinding)this.resolvedType).hasTypeBit(TypeIds.BitWrapperCloseable);
+				&& this.resolvedType.hasTypeBit(TypeIds.BitWrapperCloseable);
 		for (int i = 0, count = this.arguments.length; i < count; i++) {
 			Expression argument = this.arguments[i];
 			flowInfo =

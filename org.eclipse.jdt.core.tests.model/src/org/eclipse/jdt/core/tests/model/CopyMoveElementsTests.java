@@ -405,7 +405,7 @@ public void testCopyFieldsMultiStatus() throws CoreException {
 			typeDest.getJavaModel().copy(fieldsSource, dests, null, null, false, null);
 		} catch (JavaModelException jme) {
 			assertTrue("Should be multistatus", jme.getStatus().isMultiStatus());
-			assertTrue("Should be an invalid destination", ((IJavaModelStatus)jme.getStatus().getChildren()[0]).getCode()== IJavaModelStatusConstants.INVALID_DESTINATION);
+			assertTrue("Should be an invalid destination", jme.getStatus().getChildren()[0].getCode()== IJavaModelStatusConstants.INVALID_DESTINATION);
 			e = true;
 		}
 		assertTrue("Should have been an exception", e);
@@ -457,7 +457,7 @@ public void testCopyFieldsMultiStatusInDifferentProject() throws CoreException {
 			typeDest.getJavaModel().copy(fieldsSource, dests, null, null, false, null);
 		} catch (JavaModelException jme) {
 			assertTrue("Should be multistatus", jme.getStatus().isMultiStatus());
-			assertTrue("Should be an invalid destination", ((IJavaModelStatus)jme.getStatus().getChildren()[0]).getCode()== IJavaModelStatusConstants.INVALID_DESTINATION);
+			assertTrue("Should be an invalid destination", jme.getStatus().getChildren()[0].getCode()== IJavaModelStatusConstants.INVALID_DESTINATION);
 			e = true;
 		}
 		assertTrue("Should have been an exception", e);

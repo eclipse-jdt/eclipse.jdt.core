@@ -24,7 +24,7 @@ public class TestCodeUtil {
 	}
 
 	public static boolean isTestCode(ICompilationUnit cu) {
-		IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) ((IJavaElement) cu)
+		IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) cu
 				.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 		if (packageFragmentRoot != null) {
 			try {
