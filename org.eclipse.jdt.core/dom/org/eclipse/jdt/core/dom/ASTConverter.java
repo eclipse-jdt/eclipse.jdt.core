@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -40,6 +44,7 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.CompactConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.IntersectionCastTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocArgumentExpression;
 import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
@@ -1569,9 +1574,10 @@ class ASTConverter {
 			}
 			org.eclipse.jdt.internal.compiler.ast.ImportReference[] imports = unit.imports;
 			if (imports != null) {
-				int importLength = imports.length;
-				for (int i = 0; i < importLength; i++) {
-					compilationUnit.imports().add(convertImport(imports[i]));
+				for (ImportReference importReference : imports) {
+					if (importReference.isImplicit())
+						continue;
+					compilationUnit.imports().add(convertImport(importReference));
 				}
 			}
 

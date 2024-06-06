@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann  - Contribution for bug 295551
@@ -456,6 +460,10 @@ public boolean isPackageInfo() {
 
 public boolean isModuleInfo() {
 	return CharOperation.equals(getMainTypeName(), TypeConstants.MODULE_INFO_NAME);
+}
+
+public boolean isSimpleCompilationUnit() {
+	return this.types != null && this.types.length == 1 && this.types[0].isImplicitType();
 }
 
 public boolean isSuppressed(CategorizedProblem problem) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2018 IBM Corporation.
+ * Copyright (c) 2016, 2024 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -190,7 +194,7 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements ISourceMod
 				mod.requires[i+1].modifiers = refs[i].modifiers;
 			}
 		} else {
-			mod.requires = CharOperation.equals(module.moduleName, TypeConstants.JAVA_BASE)
+			mod.requires = CharOperation.equals(module.moduleName, TypeConstants.JAVA_DOT_BASE)
 					? NO_REQUIRES
 					: new ModuleReferenceInfo[] { getJavaBaseReference() };
 		}
@@ -237,7 +241,7 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements ISourceMod
 
 	private static ModuleReferenceInfo getJavaBaseReference() {
 		ModuleReferenceInfo ref = new ModuleReferenceInfo();
-		ref.name = TypeConstants.JAVA_BASE;
+		ref.name = TypeConstants.JAVA_DOT_BASE;
 		return ref;
 	}
 
