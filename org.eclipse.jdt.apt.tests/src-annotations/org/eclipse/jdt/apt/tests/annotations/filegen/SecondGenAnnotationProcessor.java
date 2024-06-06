@@ -52,18 +52,30 @@ public class SecondGenAnnotationProcessor extends BaseProcessor {
 	}
 
 	protected String CODE_OVERWRITE =
-		"package duptest;" + "\n" +
-		"public class DupFile" + "\n" +
-		"{" + "\n" +
-		"    public class Inner" + "\n" +
-		"    {" + "\n" +
-		"    }" + "\n" +
-		"}";
+		"""
+		package duptest;\
+		
+		public class DupFile\
+		
+		{\
+		
+		    public class Inner\
+		
+		    {\
+		
+		    }\
+		
+		}""";
 
 	protected String CODE_REF =
-		"package reftest;" + "\n" +
-		"public class RefFile" + "\n" +
-		"{" + "\n" +
-		"    duptest.DupFile.Inner i;" + "\n" +
-		"}";
+		"""
+		package reftest;\
+		
+		public class RefFile\
+		
+		{\
+		
+		    duptest.DupFile.Inner i;\
+		
+		}""";
 }

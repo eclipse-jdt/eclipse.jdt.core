@@ -106,14 +106,26 @@ public class AptBuilderTests extends APTTestBase
 		IProject project = env.getProject( projectName );
 		IPath srcRoot = getSourcePath( projectName );
 
-		String code = "package p1;\n"
-			+ "//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
-			+ "\n" + "public class A " + "\n" + "{"
-			+ "    //@HelloWorldAnnotation" + "\n"
-			+ "    public static void main( String[] argv )" + "\n" + "    {"
-			+ "\n"
-			+ "        generatedfilepackage.GeneratedFileTest.helloWorld();"
-			+ "\n" + "    }" + "\n" + "}" + "\n";
+		String code = """
+			package p1;
+			//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			
+			public class A \
+			
+			{\
+			    //@HelloWorldAnnotation\
+			
+			    public static void main( String[] argv )\
+			
+			    {\
+			
+			        generatedfilepackage.GeneratedFileTest.helloWorld();\
+			
+			    }\
+			
+			}\
+			
+			""";
 
 		IPath p1aPath = env.addClass( srcRoot, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			code );
@@ -124,14 +136,26 @@ public class AptBuilderTests extends APTTestBase
 		expectingOnlySpecificProblemFor( p1aPath, new ExpectedProblem(
 			"A", "generatedfilepackage cannot be resolved", p1aPath ) ); //$NON-NLS-1$ //$NON-NLS-2$
 
-		code = "package p1;\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
-			+ "\n" + "public class A " + "\n" + "{"
-			+ "    @HelloWorldAnnotation" + "\n"
-			+ "    public static void main( String[] argv )" + "\n" + "    {"
-			+ "\n"
-			+ "         generatedfilepackage.GeneratedFileTest.helloWorld();"
-			+ "\n" + "    }" + "\n" + "}" + "\n";
+		code = """
+			package p1;
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			
+			public class A \
+			
+			{\
+			    @HelloWorldAnnotation\
+			
+			    public static void main( String[] argv )\
+			
+			    {\
+			
+			         generatedfilepackage.GeneratedFileTest.helloWorld();\
+			
+			    }\
+			
+			}\
+			
+			""";
 
 		env.addClass( srcRoot, "p1", "A", code );
 		fullBuild( project.getFullPath() );
@@ -149,15 +173,27 @@ public class AptBuilderTests extends APTTestBase
 		IProject project = env.getProject( projectName );
 		IPath srcRoot = getSourcePath( projectName );
 
-		String code = "package p1;\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
-			+ "import generatedfilepackage.GeneratedFileTest;"
-			+ "\n" + "public class A " + "\n" + "{"
-			+ "    @HelloWorldAnnotation" + "\n"
-			+ "    public static void main( String[] argv )" + "\n" + "    {"
-			+ "\n"
-			+ "        GeneratedFileTest.helloWorld();"
-			+ "\n" + "    }" + "\n" + "}" + "\n";
+		String code = """
+			package p1;
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			import generatedfilepackage.GeneratedFileTest;\
+			
+			public class A \
+			
+			{\
+			    @HelloWorldAnnotation\
+			
+			    public static void main( String[] argv )\
+			
+			    {\
+			
+			        GeneratedFileTest.helloWorld();\
+			
+			    }\
+			
+			}\
+			
+			""";
 
 		env.addClass( srcRoot, "p1", "A", code );
 		fullBuild( project.getFullPath() );
@@ -175,15 +211,27 @@ public class AptBuilderTests extends APTTestBase
 		IProject project = env.getProject( projectName );
 		IPath srcRoot = getSourcePath( projectName );
 
-		String code = "package p1;\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
-			+ "import generatedfilepackage.GeneratedFileTest;"
-			+ "\n" + "public class A " + "\n" + "{"
-			+ "    @HelloWorldAnnotation(\"Bad-Type-Name\")" + "\n"
-			+ "    public static void main( String[] argv )" + "\n" + "    {"
-			+ "\n"
-			+ "        GeneratedFileTest.helloWorld();"
-			+ "\n" + "    }" + "\n" + "}" + "\n";
+		String code = """
+			package p1;
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			import generatedfilepackage.GeneratedFileTest;\
+			
+			public class A \
+			
+			{\
+			    @HelloWorldAnnotation("Bad-Type-Name")\
+			
+			    public static void main( String[] argv )\
+			
+			    {\
+			
+			        GeneratedFileTest.helloWorld();\
+			
+			    }\
+			
+			}\
+			
+			""";
 
 		env.addClass( srcRoot, "p1", "A", code );
 		fullBuild( project.getFullPath() );
@@ -191,15 +239,27 @@ public class AptBuilderTests extends APTTestBase
 
 		// Type "lowercase" would cause a warning in the new type wizard, because it doesn't start with caps.
 		// Test that we do not issue a warning or error in this case.
-		String code2 = "package p1;\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
-			+ "import generatedfilepackage.lowercase;"
-			+ "\n" + "public class A " + "\n" + "{"
-			+ "    @HelloWorldAnnotation(\"lowercase\")" + "\n"
-			+ "    public static void main( String[] argv )" + "\n" + "    {"
-			+ "\n"
-			+ "        lowercase.helloWorld();"
-			+ "\n" + "    }" + "\n" + "}" + "\n";
+		String code2 = """
+			package p1;
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			import generatedfilepackage.lowercase;\
+			
+			public class A \
+			
+			{\
+			    @HelloWorldAnnotation("lowercase")\
+			
+			    public static void main( String[] argv )\
+			
+			    {\
+			
+			        lowercase.helloWorld();\
+			
+			    }\
+			
+			}\
+			
+			""";
 
 		env.addClass( srcRoot, "p1", "A", code2 );
 		fullBuild( project.getFullPath() );
@@ -218,17 +278,19 @@ public class AptBuilderTests extends APTTestBase
 		IProject project = env.getProject( projectName );
 		IPath srcRoot = getSourcePath( projectName );
 
-		String codeMessageFirst = "package p1;\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.messager.MessagerAnnotation;\n"
-			+ "import generatedfilepackage.GeneratedFileTest;\n"
-			+ "@MessagerAnnotation(severity=MessagerAnnotation.Severity.ERROR)\n"
-			+ "@HelloWorldAnnotation\n"
-			+ "public class A {\n"
-			+ "    public static void main( String[] argv ) {\n"
-			+ "        GeneratedFileTest.helloWorld();\n"
-			+ "    }\n"
-			+ "}\n";
+		String codeMessageFirst = """
+			package p1;
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;
+			import org.eclipse.jdt.apt.tests.annotations.messager.MessagerAnnotation;
+			import generatedfilepackage.GeneratedFileTest;
+			@MessagerAnnotation(severity=MessagerAnnotation.Severity.ERROR)
+			@HelloWorldAnnotation
+			public class A {
+			    public static void main( String[] argv ) {
+			        GeneratedFileTest.helloWorld();
+			    }
+			}
+			""";
 
 		IPath p1aPath = env.addClass( srcRoot, "p1", "A", codeMessageFirst );
 		fullBuild( project.getFullPath() );
@@ -249,15 +311,27 @@ public class AptBuilderTests extends APTTestBase
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath( getProjectName() );
 
-		String code = "package p1;\n"
-			+ "//import org.eclipse.jdt.apt.tests.annotations.nestedhelloworld.NestedHelloWorldAnnotation;"
-			+ "import generatedfilepackage.GeneratedFileTest;"
-			+ "\n" + "public class A " + "\n" + "{"
-			+ "    //@NestedHelloWorldAnnotation" + "\n"
-			+ "    public static void main( String[] argv )" + "\n" + "    {"
-			+ "\n"
-			+ "        GeneratedFileTest.helloWorld();"
-			+ "\n" + "    }" + "\n" + "}" + "\n";
+		String code = """
+			package p1;
+			//import org.eclipse.jdt.apt.tests.annotations.nestedhelloworld.NestedHelloWorldAnnotation;\
+			import generatedfilepackage.GeneratedFileTest;\
+			
+			public class A \
+			
+			{\
+			    //@NestedHelloWorldAnnotation\
+			
+			    public static void main( String[] argv )\
+			
+			    {\
+			
+			        GeneratedFileTest.helloWorld();\
+			
+			    }\
+			
+			}\
+			
+			""";
 
 
 		IPath p1aPath = env.addClass( srcRoot, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
@@ -269,15 +343,27 @@ public class AptBuilderTests extends APTTestBase
 		expectingOnlySpecificProblemFor( p1aPath, new ExpectedProblem(
 			"A", "GeneratedFileTest cannot be resolved", p1aPath ) ); //$NON-NLS-1$ //$NON-NLS-2$
 
-		code = "package p1;\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.nestedhelloworld.NestedHelloWorldAnnotation;\n"
-			+ "import generatedfilepackage.GeneratedFileTest;"
-			+ "\n" + "public class A " + "\n" + "{"
-			+ "    @NestedHelloWorldAnnotation" + "\n"
-			+ "    public static void main( String[] argv )" + "\n" + "    {"
-			+ "\n"
-			+ "        GeneratedFileTest.helloWorld();"
-			+ "\n" + "    }" + "\n" + "}" + "\n";
+		code = """
+			package p1;
+			import org.eclipse.jdt.apt.tests.annotations.nestedhelloworld.NestedHelloWorldAnnotation;
+			import generatedfilepackage.GeneratedFileTest;\
+			
+			public class A \
+			
+			{\
+			    @NestedHelloWorldAnnotation\
+			
+			    public static void main( String[] argv )\
+			
+			    {\
+			
+			        GeneratedFileTest.helloWorld();\
+			
+			    }\
+			
+			}\
+			
+			""";
 
 		env.addClass( srcRoot, "p1", "A", code );
 		fullBuild( project.getFullPath() );
@@ -353,10 +439,13 @@ public class AptBuilderTests extends APTTestBase
 		//
 
 		// new code for A with an annotation processor that should introduce a dep on C
-		codeA = "package p1.p2.p3.p4;\n"
-			+  "import org.eclipse.jdt.apt.tests.annotations.extradependency.ExtraDependencyAnnotation;" + "\n"
-			+  "@ExtraDependencyAnnotation" + "\n"
-			+  "public class A {  }";
+		codeA = """
+			package p1.p2.p3.p4;
+			import org.eclipse.jdt.apt.tests.annotations.extradependency.ExtraDependencyAnnotation;\
+			
+			@ExtraDependencyAnnotation\
+			
+			public class A {  }""";
 
 		env.addClass( srcRoot, "p1.p2.p3.p4", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			codeA );
@@ -387,10 +476,13 @@ public class AptBuilderTests extends APTTestBase
 		//
 
 		// new code for A with an annotation processor that should remove a dep on C
-		codeA = "package p1.p2.p3.p4;\n"
-			+  "import org.eclipse.jdt.apt.tests.annotations.noop.NoOpAnnotation;" + "\n"
-			+  "@NoOpAnnotation" + "\n"
-			+  "public class A { B b; D d; }";
+		codeA = """
+			package p1.p2.p3.p4;
+			import org.eclipse.jdt.apt.tests.annotations.noop.NoOpAnnotation;\
+			
+			@NoOpAnnotation\
+			
+			public class A { B b; D d; }""";
 
 		env.addClass( srcRoot, "p1.p2.p3.p4", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			codeA );
@@ -422,32 +514,50 @@ public class AptBuilderTests extends APTTestBase
 
 	public void testCaching()
 	{
-		String code = "package p1;\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
-			+ "\n" + "public class A " + "\n" + "{"
-			+ "    @HelloWorldAnnotation" + "\n"
-			+ "    public static void main( String[] argv )" + "\n" + "    {"
-			+ "\n"
-			+ "    }"
-			+ "\n"
-			+ "}"
-			+ "\n";
+		String code = """
+			package p1;
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			
+			public class A \
+			
+			{\
+			    @HelloWorldAnnotation\
+			
+			    public static void main( String[] argv )\
+			
+			    {\
+			
+			    }\
+			
+			}\
+			
+			""";
 
-		String modifiedCode = "package p1;\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
-			+ "\n" + "public class A " + "\n" + "{"
-			+ "    @HelloWorldAnnotation" + "\n"
-			+ "    public static void main( String[] argv )" + "\n" + "    {"
-			+ "\n"
-			+ "        "
-			+ "\n"
-			+ "    }"
-			+ "\n"
-			+ "    public static void otherMethod()" + "\n" + "    {"
-			+ "        System.out.println();\n"
-			+ "    }"
-			+ "}"
-			+ "\n";
+		String modifiedCode = """
+			package p1;
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			
+			public class A \
+			
+			{\
+			    @HelloWorldAnnotation\
+			
+			    public static void main( String[] argv )\
+			
+			    {\
+			
+			        \
+			
+			    }\
+			
+			    public static void otherMethod()\
+			
+			    {\
+			        System.out.println();
+			    }\
+			}\
+			
+			""";
 
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath( getProjectName() );
@@ -477,16 +587,26 @@ public class AptBuilderTests extends APTTestBase
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath( getProjectName() );
 
-		String a1Code = "package p1; " + "\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n"
-			+ "@HelloWorldAnnotation" + "\n"
-			+ "public class A1 {}";
-		String a2Code = "package p1; " + "\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n"
-			+ "@HelloWorldAnnotation" + "\n"
-			+ "public class A2 {}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B { generatedfilepackage.GeneratedFileTest gft; }";
+		String a1Code = """
+			package p1; \
+			
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			
+			@HelloWorldAnnotation\
+			
+			public class A1 {}""";
+		String a2Code = """
+			package p1; \
+			
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			
+			@HelloWorldAnnotation\
+			
+			public class A2 {}""";
+		String bCode = """
+			package p1; \
+			
+			public class B { generatedfilepackage.GeneratedFileTest gft; }""";
 
 		IPath p1a1Path = env.addClass( srcRoot, "p1", "A1", //$NON-NLS-1$ //$NON-NLS-2$
 			a1Code );
@@ -536,15 +656,27 @@ public class AptBuilderTests extends APTTestBase
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath( getProjectName() );
 
-		String code = "package p1;\n"
-			+ "//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\n"
-			+ "import generatedfilepackage.GeneratedFileTest;"
-			+ "\n" + "public class A " + "\n" + "{"
-			+ "    //@HelloWorldAnnotation" + "\n"
-			+ "    public static void main( String[] argv )" + "\n" + "    {"
-			+ "\n"
-			+ "        GeneratedFileTest.helloWorld();"
-			+ "\n" + "    }" + "\n" + "}" + "\n";
+		String code = """
+			package p1;
+			//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;
+			import generatedfilepackage.GeneratedFileTest;\
+			
+			public class A \
+			
+			{\
+			    //@HelloWorldAnnotation\
+			
+			    public static void main( String[] argv )\
+			
+			    {\
+			
+			        GeneratedFileTest.helloWorld();\
+			
+			    }\
+			
+			}\
+			
+			""";
 
 
 		IPath p1aPath = env.addClass( srcRoot, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
@@ -562,15 +694,27 @@ public class AptBuilderTests extends APTTestBase
 				new ExpectedProblem( "A", "GeneratedFileTest cannot be resolved", p1aPath ) }
 				); //$NON-NLS-1$ //$NON-NLS-2$
 
-		code = "package p1;\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
-			+ "import generatedfilepackage.GeneratedFileTest;"
-			+ "\n" + "public class A " + "\n" + "{"
-			+ "    @HelloWorldAnnotation" + "\n"
-			+ "    public static void main( String[] argv )" + "\n" + "    {"
-			+ "\n"
-			+ "        GeneratedFileTest.helloWorld();"
-			+ "\n" + "    }" + "\n" + "}" + "\n";
+		code = """
+			package p1;
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			import generatedfilepackage.GeneratedFileTest;\
+			
+			public class A \
+			
+			{\
+			    @HelloWorldAnnotation\
+			
+			    public static void main( String[] argv )\
+			
+			    {\
+			
+			        GeneratedFileTest.helloWorld();\
+			
+			    }\
+			
+			}\
+			
+			""";
 
 		env.addClass( srcRoot, "p1", "A", code );
 		if ( fullBuild )
@@ -588,15 +732,27 @@ public class AptBuilderTests extends APTTestBase
 
 		// now remove the annotation.  The generated file should go away
 		// and we should see errors again
-		code = "package p1;\n"
-			+ "//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
-			+ "import generatedfilepackage.GeneratedFileTest;"
-			+ "\n" + "public class A " + "\n" + "{"
-			+ "    //@HelloWorldAnnotation" + "\n"
-			+ "    public static void main( String[] argv )" + "\n" + "    {"
-			+ "\n"
-			+ "        GeneratedFileTest.helloWorld();"
-			+ "\n" + "    }" + "\n" + "}" + "\n";
+		code = """
+			package p1;
+			//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			import generatedfilepackage.GeneratedFileTest;\
+			
+			public class A \
+			
+			{\
+			    //@HelloWorldAnnotation\
+			
+			    public static void main( String[] argv )\
+			
+			    {\
+			
+			        GeneratedFileTest.helloWorld();\
+			
+			    }\
+			
+			}\
+			
+			""";
 
 		env.addClass( srcRoot, "p1", "A", code );
 
@@ -616,16 +772,23 @@ public class AptBuilderTests extends APTTestBase
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath( getProjectName()  );
 
-		String codeX = "package p1;\n"
-			+ "\n import org.eclipse.jdt.apt.tests.annotations.aptrounding.*;"
-			+ "\n@GenBean\n"
-			+ "public class X {}\n";
+		String codeX = """
+			package p1;
+			
+			 import org.eclipse.jdt.apt.tests.annotations.aptrounding.*;\
+			
+			@GenBean
+			public class X {}
+			""";
 
 		env.addClass( srcRoot, "p1", "X", codeX );
 
-		String codeY = "package p1;\n"
-			+ "\n import org.eclipse.jdt.apt.tests.annotations.aptrounding.*;"
-			+ "public class Y { @GenBean2 test.Bean _bean = null; }\n";
+		String codeY = """
+			package p1;
+			
+			 import org.eclipse.jdt.apt.tests.annotations.aptrounding.*;\
+			public class Y { @GenBean2 test.Bean _bean = null; }
+			""";
 
 		env.addClass( srcRoot, "p1", "Y", codeY );
 
@@ -645,12 +808,15 @@ public class AptBuilderTests extends APTTestBase
 		IProject project = env.getProject( projectName );
 		IPath srcRoot = getSourcePath( projectName );
 		// this will cause a type generation.
-		String code = "package pkg;\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
-			+ "\npublic class Foo{\n"
-			+ "    @HelloWorldAnnotation\n"
-			+ "    public static void main( String[] argv ){}"
-			+ "\n}";
+		String code = """
+			package pkg;
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			
+			public class Foo{
+			    @HelloWorldAnnotation
+			    public static void main( String[] argv ){}\
+			
+			}""";
 
 		env.addClass( srcRoot, "pkg", "Foo", code );
 
@@ -668,10 +834,13 @@ public class AptBuilderTests extends APTTestBase
 		expectingNoMarkers();
 
 		// take out the annotation and no type generation will occur.
-		code = "package pkg;\n"
-			+ "\npublic class Foo{\n"
-			+ "    public static void main( String[] argv ){}"
-			+ "\n}";
+		code = """
+			package pkg;
+			
+			public class Foo{
+			    public static void main( String[] argv ){}\
+			
+			}""";
 
 		env.addClass( srcRoot, "pkg", "Foo", code );
 		fullBuild( project.getFullPath() );
@@ -689,12 +858,15 @@ public class AptBuilderTests extends APTTestBase
 		IProject project = env.getProject( projectName );
 		IPath srcRoot = getSourcePath( projectName );
 		// this will cause a type generation.
-		String code = "package pkg;\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
-			+ "\npublic class Foo{\n"
-			+ "    @HelloWorldAnnotation\n"
-			+ "    public static void main( String[] argv ){}"
-			+ "\n}";
+		String code = """
+			package pkg;
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			
+			public class Foo{
+			    @HelloWorldAnnotation
+			    public static void main( String[] argv ){}\
+			
+			}""";
 
 		env.addClass( srcRoot, "pkg", "Foo", code );
 		AptConfig.setEnabled(javaProj, true);

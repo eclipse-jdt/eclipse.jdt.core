@@ -118,25 +118,28 @@ public void test001() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-				" /**\n"
-				+ " * {@snippet : public static void main(String... args) {\n"
-				+ " *       for (var arg : args) {                 \n"
-				+ " *           if (!arg.isBlank()) {\n"
-				+ " *               System.out.println(arg);\n"
-				+ " *           }\n"
-				+ " *       }                                      \n"
-				+ " *   }\n"
-				+ " *   }\n"
-				+ " */\n"
-				+ "public class X {\n"
-				+ "}",
+				"""
+					 /**
+					 * {@snippet : public static void main(String... args) {
+					 *       for (var arg : args) {                \s
+					 *           if (!arg.isBlank()) {
+					 *               System.out.println(arg);
+					 *           }
+					 *       }                                     \s
+					 *   }
+					 *   }
+					 */
+					public class X {
+					}""",
 		},
-		"----------\n" +
-				"1. ERROR in X.java (at line 2)\n" +
-				"	* {@snippet : public static void main(String... args) {\n" +
-				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Snippet content should be on a new line\n" +
-				"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				* {@snippet : public static void main(String... args) {
+				              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Javadoc: Snippet content should be on a new line
+			----------
+			""",
 
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
@@ -149,19 +152,20 @@ public void test002() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-				" /**\n"
-				+ " * {@snippet : "
-				+ " * public static void main(String... args) {\n"
-				+ " *       for (var arg : args) {                 \n"
-				+ " *           if (!arg.isBlank()) {\n"
-				+ " *               System.out.println(arg);\n"
-				+ " *           }\n"
-				+ " *       }                                      \n"
-				+ " *   }\n"
-				+ " *   }\n"
-				+ " */\n"
-				+ "public class X {\n"
-				+ "}",
+				"""
+					 /**
+					 * {@snippet : \
+					 * public static void main(String... args) {
+					 *       for (var arg : args) {                \s
+					 *           if (!arg.isBlank()) {
+					 *               System.out.println(arg);
+					 *           }
+					 *       }                                     \s
+					 *   }
+					 *   }
+					 */
+					public class X {
+					}""",
 		},
 		null,
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
@@ -175,24 +179,27 @@ public void test003() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-				" /**\n"
-				+ " * {@snippet:\n"
-				+ " *abcd                  \n"
-				+ " */\n"
-				+ "public class X {\n"
-				+ "}",
+				"""
+					 /**
+					 * {@snippet:
+					 *abcd                 \s
+					 */
+					public class X {
+					}""",
 		},
-		"----------\n" +
-				"1. ERROR in X.java (at line 2)\n" +
-				"	* {@snippet:\n" +
-				"	  ^^^^^^^^^^\n" +
-				"Javadoc: Missing closing brace for inline tag\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 2)\n" +
-				"	* {@snippet:\n" +
-				"	    ^^^^^^^^\n" +
-				"Javadoc: Space required after snippet tag\n" +
-				"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				* {@snippet:
+				  ^^^^^^^^^^
+			Javadoc: Missing closing brace for inline tag
+			----------
+			2. ERROR in X.java (at line 2)
+				* {@snippet:
+				    ^^^^^^^^
+			Javadoc: Space required after snippet tag
+			----------
+			""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
@@ -204,12 +211,13 @@ public void test004() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-				" /**\n"
-				+ " * {@snippet :\n"
-				+ " *abcd   }               \n"
-				+ " */\n"
-				+ "public class X {\n"
-				+ "}",
+				"""
+					 /**
+					 * {@snippet :
+					 *abcd   }              \s
+					 */
+					public class X {
+					}""",
 		}
 	);
 }
@@ -221,20 +229,23 @@ public void test005() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-				" /**\n"
-				+ " * {@snippet :\n"
-				+ " * while(true){{{             \n"
-				+ " * }             \n"
-				+ " */\n"
-				+ "public class X {\n"
-				+ "}",
+				"""
+					 /**
+					 * {@snippet :
+					 * while(true){{{            \s
+					 * }            \s
+					 */
+					public class X {
+					}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	* {@snippet :\n" +
-		"	  ^^^^^^^^^^^\n" +
-		"Javadoc: Missing closing brace for inline tag\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				* {@snippet :
+				  ^^^^^^^^^^^
+			Javadoc: Missing closing brace for inline tag
+			----------
+			"""
 	,
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
@@ -247,20 +258,23 @@ public void test006() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-				" /**\n"
-				+ " * {@snippet \n"
-				+ " *              \n"
-				+ " * }             \n"
-				+ " */\n"
-				+ "public class X {\n"
-				+ "}",
+				"""
+					 /**
+					 * {@snippet\s
+					 *             \s
+					 * }            \s
+					 */
+					public class X {
+					}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	* }             \n" +
-		"	   ^^^^^^^^^^^^^\n" +
-		"Javadoc: Snippet is invalid due to missing colon\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				* }            \s
+				   ^^^^^^^^^^^^^
+			Javadoc: Snippet is invalid due to missing colon
+			----------
+			""",
 
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
@@ -272,20 +286,23 @@ public void test007() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-				" /**\n"
-				+ " * {@snippet \n"
-				+ " *              \n"
-				+ " * }             \n"
-				+ " */\n"
-				+ "public class X {\n"
-				+ "}",
+				"""
+					 /**
+					 * {@snippet\s
+					 *             \s
+					 * }            \s
+					 */
+					public class X {
+					}""",
 		},
-		"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	* }             \n" +
-				"	   ^^^^^^^^^^^^^\n" +
-				"Javadoc: Snippet is invalid due to missing colon\n" +
-				"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				* }            \s
+				   ^^^^^^^^^^^^^
+			Javadoc: Snippet is invalid due to missing colon
+			----------
+			""",
 
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
@@ -298,20 +315,23 @@ public void test008() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-				" /**\n"
-				+ " * {@snippet : \n"
-				+ " *     abc // @replace substring='a'  regex='a'       \n"
-				+ " * }             \n"
-				+ " */\n"
-				+ "public class X {\n"
-				+ "}",
+				"""
+					 /**
+					 * {@snippet :\s
+					 *     abc // @replace substring='a'  regex='a'      \s
+					 * }            \s
+					 */
+					public class X {
+					}""",
 		},
-		"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	*     abc // @replace substring=\'a\'  regex=\'a\'       \n" +
-				"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Attribute regex and substring used simulataneously\n" +
-				"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				*     abc // @replace substring='a'  regex='a'      \s
+				          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Javadoc: Attribute regex and substring used simulataneously
+			----------
+			""",
 
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
@@ -323,21 +343,24 @@ public void test009() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-				" /**\n"
-				+ " * {@snippet : \n"
-				+ " *     abc // @highlight substring='a'  region='abcd'      \n"
-				+ " *      //@end region='abc'        \n"
-				+ " * }             \n"
-				+ " */\n"
-				+ "public class X {\n"
-				+ "}",
+				"""
+					 /**
+					 * {@snippet :\s
+					 *     abc // @highlight substring='a'  region='abcd'     \s
+					 *      //@end region='abc'       \s
+					 * }            \s
+					 */
+					public class X {
+					}""",
 		},
-		"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	* }             \n" +
-				"	   ^^^^^^^^^^^^^\n" +
-				"Javadoc: Region in the snippet is not closed\n" +
-				"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				* }            \s
+				   ^^^^^^^^^^^^^
+			Javadoc: Region in the snippet is not closed
+			----------
+			""",
 
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
@@ -349,23 +372,26 @@ public void test010() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-				" /**\n"
-				+ " * {@snippet : \n"
-				+ " *     abc // @highlight substring='a'  region='abcd'      \n"
-				+ " *     abc // @highlight substring='a'  region='abcd'      \n"
-				+ " *      //@end region='abcd'        \n"
-				+ " *      //@end region='abcd'        \n"
-				+ " * }             \n"
-				+ " */\n"
-				+ "public class X {\n"
-				+ "}",
+				"""
+					 /**
+					 * {@snippet :\s
+					 *     abc // @highlight substring='a'  region='abcd'     \s
+					 *     abc // @highlight substring='a'  region='abcd'     \s
+					 *      //@end region='abcd'       \s
+					 *      //@end region='abcd'       \s
+					 * }            \s
+					 */
+					public class X {
+					}""",
 		},
-		"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	*     abc // @highlight substring=\'a\'  region=\'abcd\'      \n" +
-				"	                                       ^^^^^^\n" +
-				"Javadoc: Duplicate region\n" +
-				"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				*     abc // @highlight substring='a'  region='abcd'     \s
+				                                       ^^^^^^
+			Javadoc: Duplicate region
+			----------
+			""",
 
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);

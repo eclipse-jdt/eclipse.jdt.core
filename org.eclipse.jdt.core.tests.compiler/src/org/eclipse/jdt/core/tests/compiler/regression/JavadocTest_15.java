@@ -206,36 +206,36 @@ public void test001() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
 
-	String moduleInfo = "" +
-						"/**\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						"}";
-	String I1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" * @see mod.one/\n" +
-				" */\n" +
-				"interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}";
+	String moduleInfo = """
+		/**
+		 */
+		module mod.one {\s
+		 exports p;
+		}""";
+	String I1 = """
+		package p;
+		/**
+		 * interface I1
+		 * @see mod.one/
+		 */
+		interface I1 {
+			/**
+			 * Method foo
+		    * @return int
+		    */
+			public int foo();
+		}""";
 
-	String P1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" * @see mod.one/p.I1\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}";
+	String P1 = """
+		package p;
+		/**
+		 * class P1
+		 * @see mod.one/p.I1
+		 */
+		public class P1 implements I1 {
+			@Override
+			public int foo() { return 0; }
+		}""";
 	associateToModule("mod.one", "p/I1.java");
 	associateToModule("mod.one", "p/P1.java");
 	String[] testFiles = new String[] {"p/I1.java", I1 ,"p/P1.java", P1};
@@ -248,36 +248,36 @@ public void test002() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
 
-	String moduleInfo = "" +
-						"/**\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						"}";
-	String I1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" * {@link mod.one/}\n" +
-				" */\n" +
-				"interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}";
+	String moduleInfo = """
+		/**
+		 */
+		module mod.one {\s
+		 exports p;
+		}""";
+	String I1 = """
+		package p;
+		/**
+		 * interface I1
+		 * {@link mod.one/}
+		 */
+		interface I1 {
+			/**
+			 * Method foo
+		    * @return int
+		    */
+			public int foo();
+		}""";
 
-	String P1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" * {@link mod.one/p.I1}\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}";
+	String P1 = """
+		package p;
+		/**
+		 * class P1
+		 * {@link mod.one/p.I1}
+		 */
+		public class P1 implements I1 {
+			@Override
+			public int foo() { return 0; }
+		}""";
 	associateToModule("mod.one", "p/I1.java");
 	associateToModule("mod.one", "p/P1.java");
 	String[] testFiles = new String[] {"p/I1.java", I1 ,"p/P1.java", P1};
@@ -290,36 +290,36 @@ public void test003() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
 
-	String moduleInfo = "" +
-						"/**\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						"}";
-	String I1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" * {@linkplain mod.one/}\n" +
-				" */\n" +
-				"interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}";
+	String moduleInfo = """
+		/**
+		 */
+		module mod.one {\s
+		 exports p;
+		}""";
+	String I1 = """
+		package p;
+		/**
+		 * interface I1
+		 * {@linkplain mod.one/}
+		 */
+		interface I1 {
+			/**
+			 * Method foo
+		    * @return int
+		    */
+			public int foo();
+		}""";
 
-	String P1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" * {@linkplain mod.one/p.I1}\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}";
+	String P1 = """
+		package p;
+		/**
+		 * class P1
+		 * {@linkplain mod.one/p.I1}
+		 */
+		public class P1 implements I1 {
+			@Override
+			public int foo() { return 0; }
+		}""";
 
 
 	associateToModule("mod.one", "p/I1.java");
@@ -334,36 +334,36 @@ public void test004() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
 
-	String moduleInfo = "" +
-						"/**\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						"}";
-	String I1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" * {@linkplain mod.one/}\n" +
-				" */\n" +
-				"interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}";
+	String moduleInfo = """
+		/**
+		 */
+		module mod.one {\s
+		 exports p;
+		}""";
+	String I1 = """
+		package p;
+		/**
+		 * interface I1
+		 * {@linkplain mod.one/}
+		 */
+		interface I1 {
+			/**
+			 * Method foo
+		    * @return int
+		    */
+			public int foo();
+		}""";
 
-	String P1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" * {@linkplain mod.one/p.P1#foo()}\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}";
+	String P1 = """
+		package p;
+		/**
+		 * class P1
+		 * {@linkplain mod.one/p.P1#foo()}
+		 */
+		public class P1 implements I1 {
+			@Override
+			public int foo() { return 0; }
+		}""";
 
 	associateToModule("mod.one", "p/I1.java");
 	associateToModule("mod.one", "p/P1.java");
@@ -377,37 +377,37 @@ public void test005() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
 
-	String moduleInfo = "" +
-						"/**\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						"}";
-	String I1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" * {@linkplain mod.one/}\n" +
-				" */\n" +
-				"interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}";
+	String moduleInfo = """
+		/**
+		 */
+		module mod.one {\s
+		 exports p;
+		}""";
+	String I1 = """
+		package p;
+		/**
+		 * interface I1
+		 * {@linkplain mod.one/}
+		 */
+		interface I1 {
+			/**
+			 * Method foo
+		    * @return int
+		    */
+			public int foo();
+		}""";
 
-	String P1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" * {@linkplain mod.one/p.P1#abc}\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	public int abc;\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}";
+	String P1 = """
+		package p;
+		/**
+		 * class P1
+		 * {@linkplain mod.one/p.P1#abc}
+		 */
+		public class P1 implements I1 {
+			public int abc;
+			@Override
+			public int foo() { return 0; }
+		}""";
 
 	associateToModule("mod.one", "p/I1.java");
 	associateToModule("mod.one", "p/P1.java");
@@ -421,44 +421,45 @@ public void test006() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
 
-	String moduleInfo = "" +
-						"/**\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						"}";
-	String I1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" * {@linkplain mod.one/}\n" +
-				" */\n" +
-				"interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}";
+	String moduleInfo = """
+		/**
+		 */
+		module mod.one {\s
+		 exports p;
+		}""";
+	String I1 = """
+		package p;
+		/**
+		 * interface I1
+		 * {@linkplain mod.one/}
+		 */
+		interface I1 {
+			/**
+			 * Method foo
+		    * @return int
+		    */
+			public int foo();
+		}""";
 
-	String P1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" * {@linkplain mod.one/p.P1#abd}\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	public int abc;\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}";
-	String errorMsg = "" +
-				"----------\n" +
-				"1. ERROR in p\\P1.java (at line 4)\n" +
-				"	* {@linkplain mod.one/p.P1#abd}\n" +
-				"	                           ^^^\n" +
-				"Javadoc: abd cannot be resolved or is not a field\n" +
-				"----------\n";
+	String P1 = """
+		package p;
+		/**
+		 * class P1
+		 * {@linkplain mod.one/p.P1#abd}
+		 */
+		public class P1 implements I1 {
+			public int abc;
+			@Override
+			public int foo() { return 0; }
+		}""";
+	String errorMsg = """
+		----------
+		1. ERROR in p\\P1.java (at line 4)
+			* {@linkplain mod.one/p.P1#abd}
+			                           ^^^
+		Javadoc: abd cannot be resolved or is not a field
+		----------
+		""";
 
 	associateToModule("mod.one", "p/I1.java");
 	associateToModule("mod.one", "p/P1.java");
@@ -473,36 +474,36 @@ public void test007() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
 
-	String moduleInfo = "" +
-						"/**\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						"}";
-	String I1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" * @see mod.one/ abc\n" +
-				" */\n" +
-				"interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}";
+	String moduleInfo = """
+		/**
+		 */
+		module mod.one {\s
+		 exports p;
+		}""";
+	String I1 = """
+		package p;
+		/**
+		 * interface I1
+		 * @see mod.one/ abc
+		 */
+		interface I1 {
+			/**
+			 * Method foo
+		    * @return int
+		    */
+			public int foo();
+		}""";
 
-	String P1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" * @see mod.one/p.I1 xyz\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}";
+	String P1 = """
+		package p;
+		/**
+		 * class P1
+		 * @see mod.one/p.I1 xyz
+		 */
+		public class P1 implements I1 {
+			@Override
+			public int foo() { return 0; }
+		}""";
 
 	associateToModule("mod.one", "p/I1.java");
 	associateToModule("mod.one", "p/P1.java");
@@ -516,36 +517,36 @@ public void test008() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
 
-	String moduleInfo = "" +
-						"/**\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						"}";
-	String I1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" * {@link mod.one/ abc}\n" +
-				" */\n" +
-				"interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}";
+	String moduleInfo = """
+		/**
+		 */
+		module mod.one {\s
+		 exports p;
+		}""";
+	String I1 = """
+		package p;
+		/**
+		 * interface I1
+		 * {@link mod.one/ abc}
+		 */
+		interface I1 {
+			/**
+			 * Method foo
+		    * @return int
+		    */
+			public int foo();
+		}""";
 
-	String P1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" * {@link mod.one/p.I1 xyz}\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}";
+	String P1 = """
+		package p;
+		/**
+		 * class P1
+		 * {@link mod.one/p.I1 xyz}
+		 */
+		public class P1 implements I1 {
+			@Override
+			public int foo() { return 0; }
+		}""";
 
 	associateToModule("mod.one", "p/I1.java");
 	associateToModule("mod.one", "p/P1.java");
@@ -559,36 +560,36 @@ public void test009() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
 
-	String moduleInfo = "" +
-						"/**\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						"}";
-	String I1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" * {@linkplain mod.one/ abc}\n" +
-				" */\n" +
-				"public interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}";
+	String moduleInfo = """
+		/**
+		 */
+		module mod.one {\s
+		 exports p;
+		}""";
+	String I1 = """
+		package p;
+		/**
+		 * interface I1
+		 * {@linkplain mod.one/ abc}
+		 */
+		public interface I1 {
+			/**
+			 * Method foo
+		    * @return int
+		    */
+			public int foo();
+		}""";
 
-	String P1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" * {@linkplain mod.one/p.I1 xyz}\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}";
+	String P1 = """
+		package p;
+		/**
+		 * class P1
+		 * {@linkplain mod.one/p.I1 xyz}
+		 */
+		public class P1 implements I1 {
+			@Override
+			public int foo() { return 0; }
+		}""";
 
 	associateToModule("mod.one", "p/I1.java");
 	associateToModule("mod.one", "p/P1.java");
@@ -602,44 +603,45 @@ public void test010() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
 
-	String moduleInfo = "" +
-						"/**\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						"}";
-	String I1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" * {@linkplain mod.on/}\n" +
-				" */\n" +
-				"interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}";
+	String moduleInfo = """
+		/**
+		 */
+		module mod.one {\s
+		 exports p;
+		}""";
+	String I1 = """
+		package p;
+		/**
+		 * interface I1
+		 * {@linkplain mod.on/}
+		 */
+		interface I1 {
+			/**
+			 * Method foo
+		    * @return int
+		    */
+			public int foo();
+		}""";
 
-	String P1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" * {@linkplain mod.one/p.P1#abc}\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	public int abc;\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}";
-	String errorMsg = "" +
-				"----------\n" +
-				"1. ERROR in p\\I1.java (at line 4)\n" +
-				"	* {@linkplain mod.on/}\n" +
-				"	              ^^^^^^\n" +
-				"Javadoc: mod.on cannot be resolved to a module\n" +
-				"----------\n";
+	String P1 = """
+		package p;
+		/**
+		 * class P1
+		 * {@linkplain mod.one/p.P1#abc}
+		 */
+		public class P1 implements I1 {
+			public int abc;
+			@Override
+			public int foo() { return 0; }
+		}""";
+	String errorMsg = """
+		----------
+		1. ERROR in p\\I1.java (at line 4)
+			* {@linkplain mod.on/}
+			              ^^^^^^
+		Javadoc: mod.on cannot be resolved to a module
+		----------
+		""";
 
 	associateToModule("mod.one", "p/I1.java");
 	associateToModule("mod.one", "p/P1.java");
@@ -654,44 +656,45 @@ public void test011() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
 
-	String moduleInfo = "" +
-						"/**\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						"}";
-	String I1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" * {@linkplain mod.one/}\n" +
-				" */\n" +
-				"interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}";
+	String moduleInfo = """
+		/**
+		 */
+		module mod.one {\s
+		 exports p;
+		}""";
+	String I1 = """
+		package p;
+		/**
+		 * interface I1
+		 * {@linkplain mod.one/}
+		 */
+		interface I1 {
+			/**
+			 * Method foo
+		    * @return int
+		    */
+			public int foo();
+		}""";
 
-	String P1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" * {@linkplain mod.one/p.P2#abc}\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	public int abc;\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}";
-	String errorMsg = "" +
-				"----------\n" +
-				"1. ERROR in p\\P1.java (at line 4)\n" +
-				"	* {@linkplain mod.one/p.P2#abc}\n" +
-				"	                      ^^^^\n" +
-				"Javadoc: p.P2 cannot be resolved to a type\n" +
-				"----------\n";
+	String P1 = """
+		package p;
+		/**
+		 * class P1
+		 * {@linkplain mod.one/p.P2#abc}
+		 */
+		public class P1 implements I1 {
+			public int abc;
+			@Override
+			public int foo() { return 0; }
+		}""";
+	String errorMsg = """
+		----------
+		1. ERROR in p\\P1.java (at line 4)
+			* {@linkplain mod.one/p.P2#abc}
+			                      ^^^^
+		Javadoc: p.P2 cannot be resolved to a type
+		----------
+		""";
 
 	associateToModule("mod.one", "p/I1.java");
 	associateToModule("mod.one", "p/P1.java");
@@ -706,44 +709,45 @@ public void test012() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
 
-	String moduleInfo = "" +
-						"/**\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						"}";
-	String I1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" * {@linkplain mod.one/}\n" +
-				" */\n" +
-				"interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}";
+	String moduleInfo = """
+		/**
+		 */
+		module mod.one {\s
+		 exports p;
+		}""";
+	String I1 = """
+		package p;
+		/**
+		 * interface I1
+		 * {@linkplain mod.one/}
+		 */
+		interface I1 {
+			/**
+			 * Method foo
+		    * @return int
+		    */
+			public int foo();
+		}""";
 
-	String P1 = "" +
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" * {@linkplain mod.one/q.P1#abc}\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	public int abc;\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}";
-	String errorMsg = "" +
-				"----------\n" +
-				"1. ERROR in p\\P1.java (at line 4)\n" +
-				"	* {@linkplain mod.one/q.P1#abc}\n" +
-				"	                      ^^^^\n" +
-				"Javadoc: q cannot be resolved to a type\n" +
-				"----------\n";
+	String P1 = """
+		package p;
+		/**
+		 * class P1
+		 * {@linkplain mod.one/q.P1#abc}
+		 */
+		public class P1 implements I1 {
+			public int abc;
+			@Override
+			public int foo() { return 0; }
+		}""";
+	String errorMsg = """
+		----------
+		1. ERROR in p\\P1.java (at line 4)
+			* {@linkplain mod.one/q.P1#abc}
+			                      ^^^^
+		Javadoc: q cannot be resolved to a type
+		----------
+		""";
 
 	associateToModule("mod.one", "p/I1.java");
 	associateToModule("mod.one", "p/P1.java");

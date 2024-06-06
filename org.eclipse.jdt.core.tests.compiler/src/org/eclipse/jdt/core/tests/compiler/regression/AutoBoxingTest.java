@@ -58,12 +58,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(1);\n" +
-				"	}\n" +
-				"	public static void test(Integer i) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							test(1);
+						}
+						public static void test(Integer i) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -71,12 +73,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test((byte)127);\n" +
-				"	}\n" +
-				"	public static void test(Byte b) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							test((byte)127);
+						}
+						public static void test(Byte b) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -84,12 +88,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test('b');\n" +
-				"	}\n" +
-				"	public static void test(Character c) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							test('b');
+						}
+						public static void test(Character c) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -97,12 +103,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(-0.0f);\n" +
-				"	}\n" +
-				"	public static void test(Float f) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							test(-0.0f);
+						}
+						public static void test(Float f) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -110,12 +118,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(0.0);\n" +
-				"	}\n" +
-				"	public static void test(Double d) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							test(0.0);
+						}
+						public static void test(Double d) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -123,12 +133,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(Long.MAX_VALUE);\n" +
-				"	}\n" +
-				"	public static void test(Long l) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							test(Long.MAX_VALUE);
+						}
+						public static void test(Long l) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -136,12 +148,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(Short.MAX_VALUE);\n" +
-				"	}\n" +
-				"	public static void test(Short s) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							test(Short.MAX_VALUE);
+						}
+						public static void test(Short s) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -149,12 +163,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(false);\n" +
-				"	}\n" +
-				"	public static void test(Boolean b) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							test(false);
+						}
+						public static void test(Boolean b) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -165,13 +181,15 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static int bar() {return 1;}\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(bar());\n" +
-				"	}\n" +
-				"	public static void test(Integer i) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static int bar() {return 1;}
+						public static void main(String[] s) {
+							test(bar());
+						}
+						public static void test(Integer i) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -179,13 +197,15 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static byte bar() {return 1;}\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(bar());\n" +
-				"	}\n" +
-				"	public static void test(Byte b) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static byte bar() {return 1;}
+						public static void main(String[] s) {
+							test(bar());
+						}
+						public static void test(Byte b) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -193,13 +213,15 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static char bar() {return 'c';}\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(bar());\n" +
-				"	}\n" +
-				"	public static void test(Character c) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static char bar() {return 'c';}
+						public static void main(String[] s) {
+							test(bar());
+						}
+						public static void test(Character c) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -207,13 +229,15 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static float bar() {return 0.0f;}\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(bar());\n" +
-				"	}\n" +
-				"	public static void test(Float f) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static float bar() {return 0.0f;}
+						public static void main(String[] s) {
+							test(bar());
+						}
+						public static void test(Float f) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -221,13 +245,15 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static double bar() {return 0.0;}\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(bar());\n" +
-				"	}\n" +
-				"	public static void test(Double d) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static double bar() {return 0.0;}
+						public static void main(String[] s) {
+							test(bar());
+						}
+						public static void test(Double d) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -235,13 +261,15 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static long bar() {return 0;}\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(bar());\n" +
-				"	}\n" +
-				"	public static void test(Long l) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static long bar() {return 0;}
+						public static void main(String[] s) {
+							test(bar());
+						}
+						public static void test(Long l) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -249,13 +277,15 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static short bar() {return 0;}\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(bar());\n" +
-				"	}\n" +
-				"	public static void test(Short s) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static short bar() {return 0;}
+						public static void main(String[] s) {
+							test(bar());
+						}
+						public static void test(Short s) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -263,13 +293,15 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static boolean bar() {return true;}\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(bar());\n" +
-				"	}\n" +
-				"	public static void test(Boolean b) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static boolean bar() {return true;}
+						public static void main(String[] s) {
+							test(bar());
+						}
+						public static void test(Boolean b) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -280,12 +312,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(new Integer(1));\n" +
-				"	}\n" +
-				"	public static void test(int i) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							test(new Integer(1));
+						}
+						public static void test(int i) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -293,12 +327,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(new Byte((byte) 1));\n" +
-				"	}\n" +
-				"	public static void test(byte b) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							test(new Byte((byte) 1));
+						}
+						public static void test(byte b) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -306,12 +342,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(new Byte((byte) 1));\n" +
-				"	}\n" +
-				"	public static void test(long l) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							test(new Byte((byte) 1));
+						}
+						public static void test(long l) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -319,12 +357,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(new Character('c'));\n" +
-				"	}\n" +
-				"	public static void test(char c) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							test(new Character('c'));
+						}
+						public static void test(char c) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -332,12 +372,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(new Float(0.0f));\n" +
-				"	}\n" +
-				"	public static void test(float f) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							test(new Float(0.0f));
+						}
+						public static void test(float f) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -345,12 +387,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(new Double(0.0));\n" +
-				"	}\n" +
-				"	public static void test(double d) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							test(new Double(0.0));
+						}
+						public static void test(double d) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -358,12 +402,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(new Long(0L));\n" +
-				"	}\n" +
-				"	public static void test(long l) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							test(new Long(0L));
+						}
+						public static void test(long l) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -371,12 +417,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(new Short((short) 0));\n" +
-				"	}\n" +
-				"	public static void test(short s) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							test(new Short((short) 0));
+						}
+						public static void test(short s) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -384,12 +432,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		test(Boolean.TRUE);\n" +
-				"	}\n" +
-				"	public static void test(boolean b) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							test(Boolean.TRUE);
+						}
+						public static void test(boolean b) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -399,32 +449,36 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		Y.test(1);\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	private static void test(int i) { System.out.print('n'); }\n" +
-				"	static void test(int... i) { System.out.print('n'); }\n" +
-				"	public static void test(Integer i) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							Y.test(1);
+						}
+					}
+					class Y {
+						private static void test(int i) { System.out.print('n'); }
+						static void test(int... i) { System.out.print('n'); }
+						public static void test(Integer i) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		new Y().test(1);\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	private void test(int i) { System.out.print('n'); }\n" +
-				"	void test(int... i) { System.out.print('n'); }\n" +
-				"	public void test(Integer i) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							new Y().test(1);
+						}
+					}
+					class Y {
+						private void test(int i) { System.out.print('n'); }
+						void test(int... i) { System.out.print('n'); }
+						public void test(Integer i) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -434,15 +488,17 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		new Y().test(1);\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	void test(Integer i) { System.out.print('n'); }\n" +
-				"	void test(long i) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							new Y().test(1);
+						}
+					}
+					class Y {
+						void test(Integer i) { System.out.print('n'); }
+						void test(long i) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -452,42 +508,48 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runNegativeTest( // Integers are not compatible with Longs, even though ints are compatible with longs
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		new Y().test(1, 1);\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	void test(Long i, int j) { System.out.print('n'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							new Y().test(1, 1);
+						}
+					}
+					class Y {
+						void test(Long i, int j) { System.out.print('n'); }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	new Y().test(1, 1);\n" +
-			"	        ^^^^\n" +
-			"The method test(Long, int) in the type Y is not applicable for the arguments (int, int)\n" +
-			"----------\n"
-			// test(java.lang.Long,int) in Y cannot be applied to (int,int)
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					new Y().test(1, 1);
+					        ^^^^
+				The method test(Long, int) in the type Y is not applicable for the arguments (int, int)
+				----------
+				"""
 		);
 		this.runNegativeTest( // likewise with Byte and Integer
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		new Y().test((byte) 1, 1);\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	void test(Integer i, int j) { System.out.print('n'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							new Y().test((byte) 1, 1);
+						}
+					}
+					class Y {
+						void test(Integer i, int j) { System.out.print('n'); }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	new Y().test((byte) 1, 1);\n" +
-			"	        ^^^^\n" +
-			"The method test(Integer, int) in the type Y is not applicable for the arguments (byte, int)\n" +
-			"----------\n"
-			// test(java.lang.Integer,int) in Y cannot be applied to (byte,int)
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					new Y().test((byte) 1, 1);
+					        ^^^^
+				The method test(Integer, int) in the type Y is not applicable for the arguments (byte, int)
+				----------
+				"""
 		);
 	}
 
@@ -495,15 +557,17 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest( // this is NOT an ambiguous case as Long is not a match for int
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		new Y().test(1, 1);\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	void test(Long i, int j) { System.out.print('n'); }\n" +
-				"	void test(long i, Integer j) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							new Y().test(1, 1);
+						}
+					}
+					class Y {
+						void test(Long i, int j) { System.out.print('n'); }
+						void test(long i, Integer j) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -513,14 +577,16 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		Y.test(1, new Integer(2), -3);\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	public static void test(int ... i) { System.out.print('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							Y.test(1, new Integer(2), -3);
+						}
+					}
+					class Y {
+						public static void test(int ... i) { System.out.print('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -542,31 +608,35 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"	void test(int i, Integer j) {}\n" +
 				"}\n",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	new Y().test(1, 1);\n" +
-			"	        ^^^^\n" +
-			"The method test(Integer, int) is ambiguous for the type Y\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	new Y().test(Integer.valueOf(1), Integer.valueOf(1));\n" +
-			"	        ^^^^\n" +
-			"The method test(Integer, int) is ambiguous for the type Y\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					new Y().test(1, 1);
+					        ^^^^
+				The method test(Integer, int) is ambiguous for the type Y
+				----------
+				2. ERROR in X.java (at line 5)
+					new Y().test(Integer.valueOf(1), Integer.valueOf(1));
+					        ^^^^
+				The method test(Integer, int) is ambiguous for the type Y
+				----------
+				"""
 		);
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		new Y().test(new Integer(1), 1);\n" +
-				"		new Y().test(1, new Integer(1));\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	void test(Integer i, int j) { System.out.print(1); }\n" +
-				"	void test(int i, Integer j) { System.out.print(2); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							new Y().test(new Integer(1), 1);
+							new Y().test(1, new Integer(1));
+						}
+					}
+					class Y {
+						void test(Integer i, int j) { System.out.print(1); }
+						void test(int i, Integer j) { System.out.print(2); }
+					}
+					""",
 			},
 			"12"
 		);
@@ -576,30 +646,34 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		int i = Y.test();\n" +
-				"		System.out.print(i);\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	public static Byte test() { return new Byte((byte) 1); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							int i = Y.test();
+							System.out.print(i);
+						}
+					}
+					class Y {
+						public static Byte test() { return new Byte((byte) 1); }
+					}
+					""",
 			},
 			"1"
 		);
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		Object o = Y.test();\n" +
-				"		System.out.print(o);\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	public static int test() { return 1; }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							Object o = Y.test();
+							System.out.print(o);
+						}
+					}
+					class Y {
+						public static int test() { return 1; }
+					}
+					""",
 			},
 			"1"
 		);
@@ -609,30 +683,34 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	static int i = Y.test();\n" +
-				"	public static void main(String[] s) {\n" +
-				"		System.out.print(i);\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	public static Byte test() { return new Byte((byte) 1); }\n" +
-				"}\n",
+				"""
+					public class X {
+						static int i = Y.test();
+						public static void main(String[] s) {
+							System.out.print(i);
+						}
+					}
+					class Y {
+						public static Byte test() { return new Byte((byte) 1); }
+					}
+					""",
 			},
 			"1"
 		);
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	static Object o = Y.test();\n" +
-				"	public static void main(String[] s) {\n" +
-				"		System.out.print(o);\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	public static int test() { return 1; }\n" +
-				"}\n",
+				"""
+					public class X {
+						static Object o = Y.test();
+						public static void main(String[] s) {
+							System.out.print(o);
+						}
+					}
+					class Y {
+						public static int test() { return 1; }
+					}
+					""",
 			},
 			"1"
 		);
@@ -642,13 +720,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Integer x = new Integer(15); \n" +
-				"		int y = 32;\n" +
-				"		System.out.printf(\"%x + %x\", x, y);\n" +
-				"	}\n" +
-				"}",
+				"""
+					public class X {
+						public static void main(String[] args) {
+							Integer x = new Integer(15);\s
+							int y = 32;
+							System.out.printf("%x + %x", x, y);
+						}
+					}""",
 			},
 			"f + 20"
 		);
@@ -658,28 +737,32 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int[] tab = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };\n" +
-				"		for (final Integer e : tab) {\n" +
-				"			System.out.print(e);\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] args) {
+							int[] tab = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+							for (final Integer e : tab) {
+								System.out.print(e);
+							}
+						}
+					}
+					""",
 			},
 			"123456789"
 		);
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Integer[] tab = new Integer[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };\n" +
-				"		for (final int e : tab) {\n" +
-				"			System.out.print(e);\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] args) {
+							Integer[] tab = new Integer[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+							for (final int e : tab) {
+								System.out.print(e);
+							}
+						}
+					}
+					""",
 			},
 			"123456789"
 		);
@@ -689,14 +772,16 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		Integer i = new Integer(1);\n" +
-				"		switch(i) {\n" +
-				"			case 1 : System.out.print('y');\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							Integer i = new Integer(1);
+							switch(i) {
+								case 1 : System.out.print('y');
+							}
+						}
+					}
+					""",
 			},
 			"y"
 		);
@@ -706,18 +791,20 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	static Integer foo1() {\n" +
-				"		return 0;\n" +
-				"	}\n" +
-				"	static int foo2() {\n" +
-				"		return new Integer(0);\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.print(foo1());\n" +
-				"		System.out.println(foo2());\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						static Integer foo1() {
+							return 0;
+						}
+						static int foo2() {
+							return new Integer(0);
+						}
+						public static void main(String[] args) {
+							System.out.print(foo1());
+							System.out.println(foo2());
+						}
+					}
+					""",
 			},
 			"00"
 		);
@@ -727,12 +814,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Integer i = args.length == 0 ? 0 : new Integer(1);\n" +
-				"		System.out.println(i);\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] args) {
+							Integer i = args.length == 0 ? 0 : new Integer(1);
+							System.out.println(i);
+						}
+					}
+					""",
 			},
 			"0"
 		);
@@ -742,12 +831,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Integer i = new Integer(1);\n" +
-				"		System.out.println((int)i);\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] args) {
+							Integer i = new Integer(1);
+							System.out.println((int)i);
+						}
+					}
+					""",
 			},
 			"1"
 		);
@@ -757,68 +848,78 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	@SuppressWarnings(\"deprecation\")\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Float f = args.length == 0 ? Float.valueOf(0) : 0;\n" +
-				"		System.out.println((int)f);\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						@SuppressWarnings("deprecation")
+						public static void main(String[] args) {
+							Float f = args.length == 0 ? Float.valueOf(0) : 0;
+							System.out.println((int)f);
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	Float f = args.length == 0 ? Float.valueOf(0) : 0;\n" +
-			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The expression of type float is boxed into Float\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	Float f = args.length == 0 ? Float.valueOf(0) : 0;\n" +
-			"	                             ^^^^^^^^^^^^^^^^\n" +
-			"The expression of type Float is unboxed into float\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	System.out.println((int)f);\n" +
-			"	                   ^^^^^^\n" +
-			"Cannot cast from Float to int\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 4)
+					Float f = args.length == 0 ? Float.valueOf(0) : 0;
+					          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				The expression of type float is boxed into Float
+				----------
+				2. WARNING in X.java (at line 4)
+					Float f = args.length == 0 ? Float.valueOf(0) : 0;
+					                             ^^^^^^^^^^^^^^^^
+				The expression of type Float is unboxed into float
+				----------
+				3. ERROR in X.java (at line 5)
+					System.out.println((int)f);
+					                   ^^^^^^
+				Cannot cast from Float to int
+				----------
+				""");
 	}
 
 	public void test019() { // cast expression
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println((Integer) 0);\n" +
-				"		System.out.println((Float) 0);\n" +
-				"		\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println((Integer) 0);
+							System.out.println((Float) 0);
+						\t
+						}
+					}
+					""",
 			},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	System.out.println((Integer) 0);\n" +
-		"	                             ^\n" +
-		"The expression of type int is boxed into Integer\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
-		"	System.out.println((Float) 0);\n" +
-		"	                   ^^^^^^^^^\n" +
-		"Cannot cast from int to Float\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				System.out.println((Integer) 0);
+				                             ^
+			The expression of type int is boxed into Integer
+			----------
+			2. ERROR in X.java (at line 4)
+				System.out.println((Float) 0);
+				                   ^^^^^^^^^
+			Cannot cast from int to Float
+			----------
+			""");
 	}
 
 	public void test020() { // binary expression
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"	    Byte b = new Byte((byte)1);\n" +
-				"      System.out.println(2 + b);\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					public class X {
+					
+						public static void main(String[] args) {
+						    Byte b = new Byte((byte)1);
+					      System.out.println(2 + b);
+					    }
+					}
+					""",
 			},
 			"3"
 		);
@@ -828,14 +929,16 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"	    Byte b = new Byte((byte)1);\n" +
-				"	    Integer i = +b + (-b);\n" +
-				"		System.out.println(i);\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					public class X {
+					
+						public static void main(String[] args) {
+						    Byte b = new Byte((byte)1);
+						    Integer i = +b + (-b);
+							System.out.println(i);
+					    }
+					}
+					""",
 			},
 			"0"
 		);
@@ -845,15 +948,17 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"	    Byte b = new Byte((byte)1);\n" +
-				"	    Integer i = 0;\n" +
-				"	    int n = b + i;\n" +
-				"		System.out.println(n);\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					public class X {
+					
+						public static void main(String[] args) {
+						    Byte b = new Byte((byte)1);
+						    Integer i = 0;
+						    int n = b + i;
+							System.out.println(n);
+					    }
+					}
+					""",
 			},
 			"1"
 		);
@@ -863,12 +968,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Character cValue = new Character('c');\n" +
-				"		if ('c' == cValue) System.out.println('y');\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] args) {
+							Character cValue = new Character('c');
+							if ('c' == cValue) System.out.println('y');
+						}
+					}
+					""",
 			},
 			"y"
 		);
@@ -878,10 +985,12 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) { test(2); }\n" +
-				"	static void test(Object o) { System.out.println('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] args) { test(2); }
+						static void test(Object o) { System.out.println('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -891,10 +1000,12 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) { test(true); }\n" +
-				"	static void test(Object ... o) { System.out.println('y'); }\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] args) { test(true); }
+						static void test(Object ... o) { System.out.println('y'); }
+					}
+					""",
 			},
 			"y"
 		);
@@ -904,15 +1015,17 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"	    Byte b = new Byte((byte)1);\n" +
-				"	    Integer i = 0;\n" +
-				"	    i += b;\n" +
-				"		System.out.println(i);\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					public class X {
+					
+						public static void main(String[] args) {
+						    Byte b = new Byte((byte)1);
+						    Integer i = 0;
+						    i += b;
+							System.out.println(i);
+					    }
+					}
+					""",
 			},
 			"1"
 		);
@@ -922,20 +1035,24 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		if (0 == new X()) {\n" +
-				"			System.out.println();\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							if (0 == new X()) {
+								System.out.println();
+							}
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	if (0 == new X()) {\n" +
-			"	    ^^^^^^^^^^^^\n" +
-			"Incompatible operand types int and X\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					if (0 == new X()) {
+					    ^^^^^^^^^^^^
+				Incompatible operand types int and X
+				----------
+				"""
 		);
 	}
 
@@ -943,14 +1060,16 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"	    Byte b = new Byte((byte)1);\n" +
-				"	    int i = +b;\n" +
-				"		System.out.println(i);\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					public class X {
+					
+						public static void main(String[] args) {
+						    Byte b = new Byte((byte)1);
+						    int i = +b;
+							System.out.println(i);
+					    }
+					}
+					""",
 			},
 			"1"
 		);
@@ -960,24 +1079,25 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" +
-				"import java.util.List;\n" +
-				"import java.util.Iterator;\n" +
-				"\n" +
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"		List<Integer> list = new ArrayList<Integer>();\n" +
-				"		for (int i = 0; i < 5; i++) {\n" +
-				"			list.add(i);\n" +
-				"	    }\n" +
-				"	    int sum = 0;\n" +
-				"	    for (Iterator<Integer> iterator = list.iterator(); iterator.hasNext(); ) {\n" +
-				"	    	sum += iterator.next();\n" +
-				"	    }\n" +
-				"        System.out.print(sum);\n" +
-				"    }\n" +
-				"}",
+				"""
+					import java.util.ArrayList;
+					import java.util.List;
+					import java.util.Iterator;
+					
+					public class X {
+					
+						public static void main(String[] args) {
+							List<Integer> list = new ArrayList<Integer>();
+							for (int i = 0; i < 5; i++) {
+								list.add(i);
+						    }
+						    int sum = 0;
+						    for (Iterator<Integer> iterator = list.iterator(); iterator.hasNext(); ) {
+						    	sum += iterator.next();
+						    }
+					        System.out.print(sum);
+					    }
+					}""",
 			},
 			"10"
 		);
@@ -987,18 +1107,19 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Boolean b = Boolean.TRUE;\n" +
-				"		\n" +
-				"		if (b && !b) {\n" +
-				"			System.out.print(\"THEN\");\n" +
-				"		} else {\n" +
-				"			System.out.print(\"ELSE\");\n" +
-				"		}\n" +
-				"    }\n" +
-				"}",
+				"""
+					public class X {
+					
+						public static void main(String[] args) {
+							Boolean b = Boolean.TRUE;
+						\t
+							if (b && !b) {
+								System.out.print("THEN");
+							} else {
+								System.out.print("ELSE");
+							}
+					    }
+					}""",
 			},
 			"ELSE"
 		);
@@ -1008,18 +1129,19 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static Boolean foo() { return Boolean.FALSE; }\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Boolean b = foo();\n" +
-				"		\n" +
-				"		if (!b) {\n" +
-				"			System.out.print(\"THEN\");\n" +
-				"		} else {\n" +
-				"			System.out.print(\"ELSE\");\n" +
-				"		}\n" +
-				"    }\n" +
-				"}",
+				"""
+					public class X {
+						public static Boolean foo() { return Boolean.FALSE; }
+						public static void main(String[] args) {
+							Boolean b = foo();
+						\t
+							if (!b) {
+								System.out.print("THEN");
+							} else {
+								System.out.print("ELSE");
+							}
+					    }
+					}""",
 			},
 			"THEN"
 		);
@@ -1029,14 +1151,15 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"   public static void main(String[] args) {\n" +
-				"      if (new Integer(1) == new Integer(0)) {\n" +
-				"         System.out.println();\n" +
-				"      }\n" +
-				"      System.out.print(\"SUCCESS\");\n" +
-				"   }\n" +
-				"}",
+				"""
+					public class X {
+					   public static void main(String[] args) {
+					      if (new Integer(1) == new Integer(0)) {
+					         System.out.println();
+					      }
+					      System.out.print("SUCCESS");
+					   }
+					}""",
 			},
 			"SUCCESS"
 		);
@@ -1050,24 +1173,26 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				ClassFileBytesDisassembler.DETAILED);
 
 		String expectedOutput =
-			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
-			"  // Stack: 4, Locals: 1\n" +
-			"  public static void main(java.lang.String[] args);\n" +
-			"     0  new java.lang.Integer [16]\n" +
-			"     3  dup\n" +
-			"     4  iconst_1\n" +
-			"     5  invokespecial java.lang.Integer(int) [18]\n" +
-			"     8  new java.lang.Integer [16]\n" +
-			"    11  dup\n" +
-			"    12  iconst_0\n" +
-			"    13  invokespecial java.lang.Integer(int) [18]\n" +
-			"    16  if_acmpne 25\n" +
-			"    19  getstatic java.lang.System.out : java.io.PrintStream [21]\n" +
-			"    22  invokevirtual java.io.PrintStream.println() : void [27]\n" +
-			"    25  getstatic java.lang.System.out : java.io.PrintStream [21]\n" +
-			"    28  ldc <String \"SUCCESS\"> [32]\n" +
-			"    30  invokevirtual java.io.PrintStream.print(java.lang.String) : void [34]\n" +
-			"    33  return\n";
+			"""
+			  // Method descriptor #15 ([Ljava/lang/String;)V
+			  // Stack: 4, Locals: 1
+			  public static void main(java.lang.String[] args);
+			     0  new java.lang.Integer [16]
+			     3  dup
+			     4  iconst_1
+			     5  invokespecial java.lang.Integer(int) [18]
+			     8  new java.lang.Integer [16]
+			    11  dup
+			    12  iconst_0
+			    13  invokespecial java.lang.Integer(int) [18]
+			    16  if_acmpne 25
+			    19  getstatic java.lang.System.out : java.io.PrintStream [21]
+			    22  invokevirtual java.io.PrintStream.println() : void [27]
+			    25  getstatic java.lang.System.out : java.io.PrintStream [21]
+			    28  ldc <String "SUCCESS"> [32]
+			    30  invokevirtual java.io.PrintStream.print(java.lang.String) : void [34]
+			    33  return
+			""";
 
 		int index = actualOutput.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {
@@ -1082,11 +1207,12 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"   public static void main(String[] s) {\n" +
-				"      System.out.print(Boolean.TRUE || Boolean.FALSE);\n" +
-				"   }\n" +
-				"}",
+				"""
+					public class X {
+					   public static void main(String[] s) {
+					      System.out.print(Boolean.TRUE || Boolean.FALSE);
+					   }
+					}""",
 			},
 			"true"
 		);
@@ -1096,15 +1222,17 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"	    Byte b = new Byte((byte)1);\n" +
-				"	    int i = b++;\n" +
-				"		System.out.print(i);\n" +
-				"		System.out.print(b);\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					public class X {
+					
+						public static void main(String[] args) {
+						    Byte b = new Byte((byte)1);
+						    int i = b++;
+							System.out.print(i);
+							System.out.print(b);
+					    }
+					}
+					""",
 			},
 			"12"
 		);
@@ -1114,15 +1242,17 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"	    Byte b = new Byte((byte)1);\n" +
-				"	    int i = b--;\n" +
-				"		System.out.print(i);\n" +
-				"		System.out.print(b);\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					public class X {
+					
+						public static void main(String[] args) {
+						    Byte b = new Byte((byte)1);
+						    int i = b--;
+							System.out.print(i);
+							System.out.print(b);
+					    }
+					}
+					""",
 			},
 			"10"
 		);
@@ -1132,15 +1262,17 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"	    Byte b = new Byte((byte)1);\n" +
-				"	    int i = ++b;\n" +
-				"		System.out.print(i);\n" +
-				"		System.out.print(b);\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					public class X {
+					
+						public static void main(String[] args) {
+						    Byte b = new Byte((byte)1);
+						    int i = ++b;
+							System.out.print(i);
+							System.out.print(b);
+					    }
+					}
+					""",
 			},
 			"22"
 		);
@@ -1150,15 +1282,17 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"	    Byte b = new Byte((byte)1);\n" +
-				"	    int i = --b;\n" +
-				"		System.out.print(i);\n" +
-				"		System.out.print(b);\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					public class X {
+					
+						public static void main(String[] args) {
+						    Byte b = new Byte((byte)1);
+						    int i = --b;
+							System.out.print(i);
+							System.out.print(b);
+					    }
+					}
+					""",
 			},
 			"00"
 		);
@@ -1168,13 +1302,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static boolean foo() { return false; }\n" +
-				"   public static void main(String[] s) {\n" +
-				"		boolean b = foo();\n" +
-				"      System.out.print(b || Boolean.FALSE);\n" +
-				"   }\n" +
-				"}",
+				"""
+					public class X {
+						public static boolean foo() { return false; }
+					   public static void main(String[] s) {
+							boolean b = foo();
+					      System.out.print(b || Boolean.FALSE);
+					   }
+					}""",
 			},
 			"false"
 		);
@@ -1184,20 +1319,24 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 0;\n" +
-				"		if (i != null) {\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] args) {
+							int i = 0;
+							if (i != null) {
+							}
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	if (i != null) {\n" +
-			"	    ^^^^^^^^^\n" +
-			"The operator != is undefined for the argument type(s) int, null\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					if (i != null) {
+					    ^^^^^^^^^
+				The operator != is undefined for the argument type(s) int, null
+				----------
+				"""
 		);
 	}
 
@@ -1205,15 +1344,16 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Integer i = new Integer(1);\n" +
-				"		if (i == null)\n" +
-				"			i++;\n" +
-				"		System.out.print(i);\n" +
-				"	}\n" +
-				"}",
+				"""
+					public class X {
+					
+						public static void main(String[] args) {
+							Integer i = new Integer(1);
+							if (i == null)
+								i++;
+							System.out.print(i);
+						}
+					}""",
 			},
 			"1"
 		);
@@ -1223,14 +1363,16 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Integer i = 0;\n" +
-				"		if (i != null) {\n" +
-				"			System.out.println(\"SUCCESS\");\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] args) {
+							Integer i = 0;
+							if (i != null) {
+								System.out.println("SUCCESS");
+							}
+						}
+					}
+					""",
 			},
 			"SUCCESS"
 		);
@@ -1240,14 +1382,15 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static Boolean bar() { return Boolean.TRUE; } \n" +
-				"	public static void main(String[] args) {\n" +
-				"		Integer i = bar() ? new Integer(1) : null;\n" +
-				"		int j = i;\n" +
-				"		System.out.print(j);\n" +
-				"	}\n" +
-				"}",
+				"""
+					public class X {
+						public static Boolean bar() { return Boolean.TRUE; }\s
+						public static void main(String[] args) {
+							Integer i = bar() ? new Integer(1) : null;
+							int j = i;
+							System.out.print(j);
+						}
+					}""",
 			},
 			"1"
 		);
@@ -1257,85 +1400,99 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Integer i = 0;\n" +
-				"		i += \"aaa\";\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] args) {
+							Integer i = 0;
+							i += "aaa";
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	Integer i = 0;\n" +
-			"	            ^\n" +
-			"The expression of type int is boxed into Integer\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	i += \"aaa\";\n" +
-			"	^^^^^^^^^^\n" +
-			"The operator += is undefined for the argument type(s) Integer, String\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					Integer i = 0;
+					            ^
+				The expression of type int is boxed into Integer
+				----------
+				2. ERROR in X.java (at line 4)
+					i += "aaa";
+					^^^^^^^^^^
+				The operator += is undefined for the argument type(s) Integer, String
+				----------
+				""");
 	}
 
 	public void test044() { // compound assignment
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Integer i = 0;\n" +
-				"		i += null;\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] args) {
+							Integer i = 0;
+							i += null;
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	Integer i = 0;\n" +
-			"	            ^\n" +
-			"The expression of type int is boxed into Integer\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	i += null;\n" +
-			"	^^^^^^^^^\n" +
-			"The operator += is undefined for the argument type(s) Integer, null\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					Integer i = 0;
+					            ^
+				The expression of type int is boxed into Integer
+				----------
+				2. ERROR in X.java (at line 4)
+					i += null;
+					^^^^^^^^^
+				The operator += is undefined for the argument type(s) Integer, null
+				----------
+				""");
 	}
 
 	public void test045() { // binary expression
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Integer i = 0;\n" +
-				"		i = i + null;\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] args) {
+							Integer i = 0;
+							i = i + null;
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	Integer i = 0;\n" +
-			"	            ^\n" +
-			"The expression of type int is boxed into Integer\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	i = i + null;\n" +
-			"	    ^^^^^^^^\n" +
-			"The operator + is undefined for the argument type(s) Integer, null\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					Integer i = 0;
+					            ^
+				The expression of type int is boxed into Integer
+				----------
+				2. ERROR in X.java (at line 4)
+					i = i + null;
+					    ^^^^^^^^
+				The operator + is undefined for the argument type(s) Integer, null
+				----------
+				""");
 	}
 
 	public void test046() { // postfix increment
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		Byte b = new Byte((byte)1);\n" +
-				"		b++;\n" +
-				"		System.out.println((Byte)b);\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							Byte b = new Byte((byte)1);
+							b++;
+							System.out.println((Byte)b);
+						}
+					}
+					""",
 			},
 			"2");
 	}
@@ -1344,15 +1501,17 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		Byte b = new Byte((byte)1);\n" +
-				"		b++;\n" +
-				"		if (b instanceof Byte) {\n" +
-				"			System.out.println(\"SUCCESS\" + b);\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							Byte b = new Byte((byte)1);
+							b++;
+							if (b instanceof Byte) {
+								System.out.println("SUCCESS" + b);
+							}
+						}
+					}
+					""",
 			},
 			"SUCCESS2");
 	}
@@ -1361,15 +1520,17 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static Byte b = new Byte((byte)1);\n" +
-				"	public static void main(String[] s) {\n" +
-				"		b++;\n" +
-				"		if (b instanceof Byte) {\n" +
-				"			System.out.print(\"SUCCESS\" + b);\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static Byte b = new Byte((byte)1);
+						public static void main(String[] s) {
+							b++;
+							if (b instanceof Byte) {
+								System.out.print("SUCCESS" + b);
+							}
+						}
+					}
+					""",
 			},
 			"SUCCESS2");
 	}
@@ -1378,17 +1539,19 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static class Y {\n" +
-				"		public static Byte b = new Byte((byte)1);\n" +
-				"	}\n" +
-				"	public static void main(String[] s) {\n" +
-				"		X.Y.b++;\n" +
-				"		if (X.Y.b instanceof Byte) {\n" +
-				"			System.out.print(\"SUCCESS\" + X.Y.b);\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static class Y {
+							public static Byte b = new Byte((byte)1);
+						}
+						public static void main(String[] s) {
+							X.Y.b++;
+							if (X.Y.b instanceof Byte) {
+								System.out.print("SUCCESS" + X.Y.b);
+							}
+						}
+					}
+					""",
 			},
 			"SUCCESS2");
 	}
@@ -1397,15 +1560,17 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static Byte b = new Byte((byte)1);\n" +
-				"	public static void main(String[] s) {\n" +
-				"		++b;\n" +
-				"		if (b instanceof Byte) {\n" +
-				"			System.out.print(\"SUCCESS\" + b);\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static Byte b = new Byte((byte)1);
+						public static void main(String[] s) {
+							++b;
+							if (b instanceof Byte) {
+								System.out.print("SUCCESS" + b);
+							}
+						}
+					}
+					""",
 			},
 			"SUCCESS2");
 	}
@@ -1414,17 +1579,19 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static class Y {\n" +
-				"		public static Byte b = new Byte((byte)1);\n" +
-				"	}\n" +
-				"	public static void main(String[] s) {\n" +
-				"		++X.Y.b;\n" +
-				"		if (X.Y.b instanceof Byte) {\n" +
-				"			System.out.print(\"SUCCESS\" + X.Y.b);\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static class Y {
+							public static Byte b = new Byte((byte)1);
+						}
+						public static void main(String[] s) {
+							++X.Y.b;
+							if (X.Y.b instanceof Byte) {
+								System.out.print("SUCCESS" + X.Y.b);
+							}
+						}
+					}
+					""",
 			},
 			"SUCCESS2");
 	}
@@ -1433,52 +1600,58 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		Byte b = 0;\n" +
-				"		++b;\n" +
-				"		foo(0);\n" +
-				"	}\n" +
-				"	static void foo(Byte b) {\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							Byte b = 0;
+							++b;
+							foo(0);
+						}
+						static void foo(Byte b) {
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	Byte b = 0;\n" +
-			"	         ^\n" +
-			"The expression of type int is boxed into Byte\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	++b;\n" +
-			"	^^^\n" +
-			"The expression of type byte is boxed into Byte\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 4)\n" +
-			"	++b;\n" +
-			"	  ^\n" +
-			"The expression of type Byte is unboxed into int\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 5)\n" +
-			"	foo(0);\n" +
-			"	^^^\n" +
-			"The method foo(Byte) in the type X is not applicable for the arguments (int)\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					Byte b = 0;
+					         ^
+				The expression of type int is boxed into Byte
+				----------
+				2. WARNING in X.java (at line 4)
+					++b;
+					^^^
+				The expression of type byte is boxed into Byte
+				----------
+				3. WARNING in X.java (at line 4)
+					++b;
+					  ^
+				The expression of type Byte is unboxed into int
+				----------
+				4. ERROR in X.java (at line 5)
+					foo(0);
+					^^^
+				The method foo(Byte) in the type X is not applicable for the arguments (int)
+				----------
+				""");
 	}
 
 	public void test053() { // boxing in var decl
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		Byte b = 1;\n" +
-				"		++b;\n" +
-				"		if (b instanceof Byte) {\n" +
-				"			System.out.println(\"SUCCESS\");\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							Byte b = 1;
+							++b;
+							if (b instanceof Byte) {
+								System.out.println("SUCCESS");
+							}
+						}
+					}
+					""",
 			},
 			"SUCCESS");
 	}
@@ -1487,15 +1660,17 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	static Byte b = 1;\n" +
-				"	public static void main(String[] s) {\n" +
-				"		++b;\n" +
-				"		if (b instanceof Byte) {\n" +
-				"			System.out.println(\"SUCCESS\");\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						static Byte b = 1;
+						public static void main(String[] s) {
+							++b;
+							if (b instanceof Byte) {
+								System.out.println("SUCCESS");
+							}
+						}
+					}
+					""",
 			},
 			"SUCCESS");
 	}
@@ -1504,40 +1679,46 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		byte[] bytes = {0, 1, 2};\n" +
-				"		for(Integer i : bytes) {\n" +
-				"			System.out.print(i);\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							byte[] bytes = {0, 1, 2};
+							for(Integer i : bytes) {
+								System.out.print(i);
+							}
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	for(Integer i : bytes) {\n" +
-			"	                ^^^^^\n" +
-			"Type mismatch: cannot convert from element type byte to Integer\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	for(Integer i : bytes) {\n" +
-			"	                ^^^^^\n" +
-			"The expression of type byte is boxed into Integer\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					for(Integer i : bytes) {
+					                ^^^^^
+				Type mismatch: cannot convert from element type byte to Integer
+				----------
+				2. WARNING in X.java (at line 4)
+					for(Integer i : bytes) {
+					                ^^^^^
+				The expression of type byte is boxed into Integer
+				----------
+				""");
 	}
 
 	public void test056() { // boxing in foreach
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		int[] ints = {0, 1, 2};\n" +
-				"		for(Integer i : ints) {\n" +
-				"			System.out.print(i);\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							int[] ints = {0, 1, 2};
+							for(Integer i : ints) {
+								System.out.print(i);
+							}
+						}
+					}
+					""",
 			},
 			"012");
 	}
@@ -1546,14 +1727,16 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		byte[] bytes = {0, 1, 2};\n" +
-				"		for(Byte b : bytes) {\n" +
-				"			System.out.print(b);\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] s) {
+							byte[] bytes = {0, 1, 2};
+							for(Byte b : bytes) {
+								System.out.print(b);
+							}
+						}
+					}
+					""",
 			},
 			"012");
 	}
@@ -1562,24 +1745,26 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" +
-				"import java.util.List;\n" +
-				"import java.util.Iterator;\n" +
-				"\n" +
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"		List<Integer> list = new ArrayList<Integer>();\n" +
-				"		for (int i = 0; i < 5; i++) {\n" +
-				"			list.add(i);\n" +
-				"	    }\n" +
-				"	    int sum = 0;\n" +
-				"	    for (Integer i : list) {\n" +
-				"	    	sum += i;\n" +
-				"	    }	    \n" +
-				"        System.out.print(sum);\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					import java.util.ArrayList;
+					import java.util.List;
+					import java.util.Iterator;
+					
+					public class X {
+					
+						public static void main(String[] args) {
+							List<Integer> list = new ArrayList<Integer>();
+							for (int i = 0; i < 5; i++) {
+								list.add(i);
+						    }
+						    int sum = 0;
+						    for (Integer i : list) {
+						    	sum += i;
+						    }	   \s
+					        System.out.print(sum);
+					    }
+					}
+					""",
 			},
 			"10");
 	}
@@ -1588,26 +1773,28 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" +
-				"import java.util.List;\n" +
-				"import java.util.Iterator;\n" +
-				"\n" +
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"		List<Integer> list = new ArrayList<Integer>();\n" +
-				"		for (int i = 0; i < 5; i++) {\n" +
-				"			list.add(i);\n" +
-				"	    }\n" +
-				"	    int sum = 0;\n" +
-				"	    for (Iterator<Integer> iterator = list.iterator(); iterator.hasNext(); ) {\n" +
-				"	    	if (1 == iterator.next()) {\n" +
-				"	    		System.out.println(\"SUCCESS\");\n" +
-				"	    		break;\n" +
-				"	    	}\n" +
-				"	    }\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					import java.util.ArrayList;
+					import java.util.List;
+					import java.util.Iterator;
+					
+					public class X {
+					
+						public static void main(String[] args) {
+							List<Integer> list = new ArrayList<Integer>();
+							for (int i = 0; i < 5; i++) {
+								list.add(i);
+						    }
+						    int sum = 0;
+						    for (Iterator<Integer> iterator = list.iterator(); iterator.hasNext(); ) {
+						    	if (1 == iterator.next()) {
+						    		System.out.println("SUCCESS");
+						    		break;
+						    	}
+						    }
+					    }
+					}
+					""",
 			},
 			"SUCCESS");
 	}
@@ -1616,25 +1803,27 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" +
-				"import java.util.List;\n" +
-				"import java.util.Iterator;\n" +
-				"\n" +
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"		List<Boolean> list = new ArrayList<Boolean>();\n" +
-				"		for (int i = 0; i < 5; i++) {\n" +
-				"			list.add(i % 2 == 0);\n" +
-				"	    }\n" +
-				"	    for (Iterator<Boolean> iterator = list.iterator(); iterator.hasNext(); ) {\n" +
-				"	    	if (iterator.next()) {\n" +
-				"	    		System.out.println(\"SUCCESS\");\n" +
-				"	    		break;\n" +
-				"	    	}\n" +
-				"	    }\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					import java.util.ArrayList;
+					import java.util.List;
+					import java.util.Iterator;
+					
+					public class X {
+					
+						public static void main(String[] args) {
+							List<Boolean> list = new ArrayList<Boolean>();
+							for (int i = 0; i < 5; i++) {
+								list.add(i % 2 == 0);
+						    }
+						    for (Iterator<Boolean> iterator = list.iterator(); iterator.hasNext(); ) {
+						    	if (iterator.next()) {
+						    		System.out.println("SUCCESS");
+						    		break;
+						    	}
+						    }
+					    }
+					}
+					""",
 			},
 			"SUCCESS");
 	}
@@ -1643,26 +1832,28 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" +
-				"import java.util.List;\n" +
-				"import java.util.Iterator;\n" +
-				"\n" +
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"		List<Boolean> list = new ArrayList<Boolean>();\n" +
-				"		boolean b = true;\n" +
-				"		for (int i = 0; i < 5; i++) {\n" +
-				"			list.add((i % 2 == 0) && b);\n" +
-				"	    }\n" +
-				"	    for (Iterator<Boolean> iterator = list.iterator(); iterator.hasNext(); ) {\n" +
-				"	    	if (iterator.next()) {\n" +
-				"	    		System.out.println(\"SUCCESS\");\n" +
-				"	    		break;\n" +
-				"	    	}\n" +
-				"	    }\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					import java.util.ArrayList;
+					import java.util.List;
+					import java.util.Iterator;
+					
+					public class X {
+					
+						public static void main(String[] args) {
+							List<Boolean> list = new ArrayList<Boolean>();
+							boolean b = true;
+							for (int i = 0; i < 5; i++) {
+								list.add((i % 2 == 0) && b);
+						    }
+						    for (Iterator<Boolean> iterator = list.iterator(); iterator.hasNext(); ) {
+						    	if (iterator.next()) {
+						    		System.out.println("SUCCESS");
+						    		break;
+						    	}
+						    }
+					    }
+					}
+					""",
 			},
 			"SUCCESS");
 	}
@@ -1671,25 +1862,27 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" +
-				"import java.util.List;\n" +
-				"import java.util.Iterator;\n" +
-				"\n" +
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"		List<Integer> list = new ArrayList<Integer>();\n" +
-				"		boolean b = true;\n" +
-				"		for (int i = 0; i < 5; i++) {\n" +
-				"			list.add(i);\n" +
-				"	    }\n" +
-				"		int sum = 0;\n" +
-				"	    for (Iterator<Integer> iterator = list.iterator(); iterator.hasNext(); ) {\n" +
-				"	    	sum = sum + iterator.next();\n" +
-				"	    }\n" +
-				"	    System.out.println(sum);\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					import java.util.ArrayList;
+					import java.util.List;
+					import java.util.Iterator;
+					
+					public class X {
+					
+						public static void main(String[] args) {
+							List<Integer> list = new ArrayList<Integer>();
+							boolean b = true;
+							for (int i = 0; i < 5; i++) {
+								list.add(i);
+						    }
+							int sum = 0;
+						    for (Iterator<Integer> iterator = list.iterator(); iterator.hasNext(); ) {
+						    	sum = sum + iterator.next();
+						    }
+						    System.out.println(sum);
+					    }
+					}
+					""",
 			},
 			"10");
 	}
@@ -1698,25 +1891,27 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" +
-				"import java.util.List;\n" +
-				"import java.util.Iterator;\n" +
-				"\n" +
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"		List<Integer> list = new ArrayList<Integer>();\n" +
-				"		boolean b = true;\n" +
-				"		for (int i = 0; i < 5; i++) {\n" +
-				"			list.add(i);\n" +
-				"	    }\n" +
-				"		int val = 0;\n" +
-				"	    for (Iterator<Integer> iterator = list.iterator(); iterator.hasNext(); ) {\n" +
-				"	    	val = ~ iterator.next();\n" +
-				"	    }\n" +
-				"	    System.out.println(val);\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					import java.util.ArrayList;
+					import java.util.List;
+					import java.util.Iterator;
+					
+					public class X {
+					
+						public static void main(String[] args) {
+							List<Integer> list = new ArrayList<Integer>();
+							boolean b = true;
+							for (int i = 0; i < 5; i++) {
+								list.add(i);
+						    }
+							int val = 0;
+						    for (Iterator<Integer> iterator = list.iterator(); iterator.hasNext(); ) {
+						    	val = ~ iterator.next();
+						    }
+						    System.out.println(val);
+					    }
+					}
+					""",
 			},
 			"-5");
 	}
@@ -1725,25 +1920,27 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" +
-				"import java.util.List;\n" +
-				"import java.util.Iterator;\n" +
-				"\n" +
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"		List<Integer> list = new ArrayList<Integer>();\n" +
-				"		boolean b = true;\n" +
-				"		for (int i = 0; i < 5; i++) {\n" +
-				"			list.add(i);\n" +
-				"	    }\n" +
-				"		int val = 0;\n" +
-				"	    for (Iterator<Integer> iterator = list.iterator(); iterator.hasNext(); ) {\n" +
-				"	    	val += (int) iterator.next();\n" +
-				"	    }\n" +
-				"	    System.out.println(val);\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					import java.util.ArrayList;
+					import java.util.List;
+					import java.util.Iterator;
+					
+					public class X {
+					
+						public static void main(String[] args) {
+							List<Integer> list = new ArrayList<Integer>();
+							boolean b = true;
+							for (int i = 0; i < 5; i++) {
+								list.add(i);
+						    }
+							int val = 0;
+						    for (Iterator<Integer> iterator = list.iterator(); iterator.hasNext(); ) {
+						    	val += (int) iterator.next();
+						    }
+						    System.out.println(val);
+					    }
+					}
+					""",
 			},
 			"10");
 	}
@@ -1752,22 +1949,23 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" +
-				"import java.util.List;\n" +
-				"\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		List<Integer> list = new ArrayList<Integer>();\n" +
-				"		for (int i = 0; i < 5; i++) {\n" +
-				"			list.add(i);\n" +
-				"	    }\n" +
-				"	    int sum = 0;\n" +
-				"	    for (int i : list) {\n" +
-				"	    	sum += i;\n" +
-				"	    }\n" +
-				"        System.out.print(sum);\n" +
-				"    }\n" +
-				"}",
+				"""
+					import java.util.ArrayList;
+					import java.util.List;
+					
+					public class X {
+						public static void main(String[] args) {
+							List<Integer> list = new ArrayList<Integer>();
+							for (int i = 0; i < 5; i++) {
+								list.add(i);
+						    }
+						    int sum = 0;
+						    for (int i : list) {
+						    	sum += i;
+						    }
+					        System.out.print(sum);
+					    }
+					}""",
 			},
 			"10"
 		);
@@ -1777,19 +1975,20 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" +
-				"import java.util.List;\n" +
-				"\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Integer[] tab = new Integer[] {0, 1, 2, 3, 4};\n" +
-				"	    int sum = 0;\n" +
-				"	    for (int i : tab) {\n" +
-				"	    	sum += i;\n" +
-				"	    }\n" +
-				"        System.out.print(sum);\n" +
-				"    }\n" +
-				"}",
+				"""
+					import java.util.ArrayList;
+					import java.util.List;
+					
+					public class X {
+						public static void main(String[] args) {
+							Integer[] tab = new Integer[] {0, 1, 2, 3, 4};
+						    int sum = 0;
+						    for (int i : tab) {
+						    	sum += i;
+						    }
+					        System.out.print(sum);
+					    }
+					}""",
 			},
 			"10"
 		);
@@ -1799,19 +1998,20 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" +
-				"import java.util.List;\n" +
-				"\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int[] tab = new int[] {0, 1, 2, 3, 4};\n" +
-				"	    int sum = 0;\n" +
-				"	    for (Integer i : tab) {\n" +
-				"	    	sum += i;\n" +
-				"	    }\n" +
-				"        System.out.print(sum);\n" +
-				"    }\n" +
-				"}",
+				"""
+					import java.util.ArrayList;
+					import java.util.List;
+					
+					public class X {
+						public static void main(String[] args) {
+							int[] tab = new int[] {0, 1, 2, 3, 4};
+						    int sum = 0;
+						    for (Integer i : tab) {
+						    	sum += i;
+						    }
+					        System.out.print(sum);
+					    }
+					}""",
 			},
 			"10"
 		);
@@ -1821,22 +2021,23 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" +
-				"import java.util.List;\n" +
-				"\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		List<Integer> list = new ArrayList<Integer>();\n" +
-				"		for (int i = 0; i < 5; i++) {\n" +
-				"			list.add(i);\n" +
-				"	    }\n" +
-				"	    int sum = 0;\n" +
-				"	    for (Integer i : list) {\n" +
-				"	    	sum += i;\n" +
-				"	    }\n" +
-				"        System.out.print(sum);\n" +
-				"    }\n" +
-				"}",
+				"""
+					import java.util.ArrayList;
+					import java.util.List;
+					
+					public class X {
+						public static void main(String[] args) {
+							List<Integer> list = new ArrayList<Integer>();
+							for (int i = 0; i < 5; i++) {
+								list.add(i);
+						    }
+						    int sum = 0;
+						    for (Integer i : list) {
+						    	sum += i;
+						    }
+					        System.out.print(sum);
+					    }
+					}""",
 			},
 			"10"
 		);
@@ -1846,13 +2047,15 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Boolean bool = true;\n" +
-				"		assert bool : \"failed\";\n" +
-				"	    System.out.println(\"SUCCESS\");\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] args) {
+							Boolean bool = true;
+							assert bool : "failed";
+						    System.out.println("SUCCESS");
+						}
+					}
+					""",
 			},
 			"SUCCESS");
 	}
@@ -1861,17 +2064,19 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.*;\n" +
-				"\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		List<Boolean> lb = new ArrayList<Boolean>();\n" +
-				"		lb.add(true);\n" +
-				"		Iterator<Boolean> iterator = lb.iterator();\n" +
-				"		assert iterator.next() : \"failed\";\n" +
-				"	    System.out.println(\"SUCCESS\");\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					import java.util.*;
+					
+					public class X {
+						public static void main(String[] args) {
+							List<Boolean> lb = new ArrayList<Boolean>();
+							lb.add(true);
+							Iterator<Boolean> iterator = lb.iterator();
+							assert iterator.next() : "failed";
+						    System.out.println("SUCCESS");
+						}
+					}
+					""",
 			},
 			"SUCCESS");
 	}
@@ -1880,17 +2085,19 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.*;\n" +
-				"\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		List<Boolean> lb = new ArrayList<Boolean>();\n" +
-				"		lb.add(true);\n" +
-				"		Iterator<Boolean> iterator = lb.iterator();\n" +
-				"		assert args != null : iterator.next();\n" +
-				"	    System.out.println(\"SUCCESS\");\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					import java.util.*;
+					
+					public class X {
+						public static void main(String[] args) {
+							List<Boolean> lb = new ArrayList<Boolean>();
+							lb.add(true);
+							Iterator<Boolean> iterator = lb.iterator();
+							assert args != null : iterator.next();
+						    System.out.println("SUCCESS");
+						}
+					}
+					""",
 			},
 			"SUCCESS");
 	}
@@ -1900,22 +2107,26 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String[] args) {\n" +
-				"        doFoo(getVoid());\n" +
-				"    }\n" +
-				"\n" +
-				"    private static void doFoo(Object o) { }\n" +
-				"\n" +
-				"    private static void getVoid() { }\n" +
-				"}\n",
+				"""
+					public class X {
+					    public static void main(String[] args) {
+					        doFoo(getVoid());
+					    }
+					
+					    private static void doFoo(Object o) { }
+					
+					    private static void getVoid() { }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	doFoo(getVoid());\n" +
-			"	^^^^^\n" +
-			"The method doFoo(Object) in the type X is not applicable for the arguments (void)\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					doFoo(getVoid());
+					^^^^^
+				The method doFoo(Object) in the type X is not applicable for the arguments (void)
+				----------
+				""");
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81571
@@ -1923,22 +2134,25 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	@SuppressWarnings(\"deprecation\")\n" +
-				"    public static void main(String[] args) {\n" +
-				"        a(Integer.valueOf(1), 2);\n" +
-				"    }\n" +
-				"    public static void a(int a, int b) { System.out.println(\"SUCCESS\"); }\n" +
-				"    public static void a(Object a, Object b) {}\n" +
-				"}\n",
+				"""
+					public class X {
+						@SuppressWarnings("deprecation")
+					    public static void main(String[] args) {
+					        a(Integer.valueOf(1), 2);
+					    }
+					    public static void a(int a, int b) { System.out.println("SUCCESS"); }
+					    public static void a(Object a, Object b) {}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	a(Integer.valueOf(1), 2);\n" +
-			"	^\n" +
-			"The method a(int, int) is ambiguous for the type X\n" +
-			"----------\n"
-			// a is ambiguous, both method a(int,int) in X and method a(java.lang.Object,java.lang.Object) in X match
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					a(Integer.valueOf(1), 2);
+					^
+				The method a(int, int) is ambiguous for the type X
+				----------
+				"""
 		);
 	}
 
@@ -1947,14 +2161,15 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				" Object e() {\n" +
-				"  return \"\".compareTo(\"\") > 0;\n" +
-				" }\n" +
-				" public static void main(String[] args) {\n" +
-				"  System.out.print(new X().e());\n" +
-				" }\n" +
-				"}",
+				"""
+					public class X {
+					 Object e() {
+					  return "".compareTo("") > 0;
+					 }
+					 public static void main(String[] args) {
+					  System.out.print(new X().e());
+					 }
+					}""",
 			},
 			"false");
 	}
@@ -1964,27 +2179,30 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				" Object e() {\n" +
-				"  return \"\".compareTo(\"\") > 0;\n" +
-				" }\n" +
-				" public static void main(String[] args) {\n" +
-				"  System.out.print(new X().e());\n" +
-				" }\n" +
-				" Zork z;\n" +
-				"}",
+				"""
+					public class X {
+					 Object e() {
+					  return "".compareTo("") > 0;
+					 }
+					 public static void main(String[] args) {
+					  System.out.print(new X().e());
+					 }
+					 Zork z;
+					}""",
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	return \"\".compareTo(\"\") > 0;\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^\n" +
-			"The expression of type boolean is boxed into Boolean\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 8)\n" +
-			"	Zork z;\n" +
-			"	^^^^\n" +
-			"Zork cannot be resolved to a type\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					return "".compareTo("") > 0;
+					       ^^^^^^^^^^^^^^^^^^^^
+				The expression of type boolean is boxed into Boolean
+				----------
+				2. ERROR in X.java (at line 8)
+					Zork z;
+					^^^^
+				Zork cannot be resolved to a type
+				----------
+				""");
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82432 - variation
@@ -1992,101 +2210,104 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				" Object e() {\n" +
-				" int i = 12; \n" +
-				"  boolean b = false;\n" +
-				"  switch(i) {\n" +
-				"    case 0: return i > 0;\n" +
-				"    case 1: return i >= 0;\n" +
-				"    case 2: return i < 0;\n" +
-				"    case 3: return i <= 0;\n" +
-				"    case 4: return i == 0;\n" +
-				"    case 5: return i != 0;\n" +
-				"    case 6: return i & 0;\n" +
-				"    case 7: return i ^ 0;\n" +
-				"    case 8: return i | 0;\n" +
-				"    case 9: return b && b;\n" +
-				"    default: return b || b;\n" +
-				"  }\n" +
-				" }\n" +
-				" public static void main(String[] args) {\n" +
-				"  System.out.print(new X().e());\n" +
-				" }\n" +
-				" Zork z;\n" +
-				"}",
+				"""
+					public class X {
+					 Object e() {
+					 int i = 12;\s
+					  boolean b = false;
+					  switch(i) {
+					    case 0: return i > 0;
+					    case 1: return i >= 0;
+					    case 2: return i < 0;
+					    case 3: return i <= 0;
+					    case 4: return i == 0;
+					    case 5: return i != 0;
+					    case 6: return i & 0;
+					    case 7: return i ^ 0;
+					    case 8: return i | 0;
+					    case 9: return b && b;
+					    default: return b || b;
+					  }
+					 }
+					 public static void main(String[] args) {
+					  System.out.print(new X().e());
+					 }
+					 Zork z;
+					}""",
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 6)\n" +
-			"	case 0: return i > 0;\n" +
-			"	               ^^^^^\n" +
-			"The expression of type boolean is boxed into Boolean\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 7)\n" +
-			"	case 1: return i >= 0;\n" +
-			"	               ^^^^^^\n" +
-			"The expression of type boolean is boxed into Boolean\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 8)\n" +
-			"	case 2: return i < 0;\n" +
-			"	               ^^^^^\n" +
-			"The expression of type boolean is boxed into Boolean\n" +
-			"----------\n" +
-			"4. WARNING in X.java (at line 9)\n" +
-			"	case 3: return i <= 0;\n" +
-			"	               ^^^^^^\n" +
-			"The expression of type boolean is boxed into Boolean\n" +
-			"----------\n" +
-			"5. WARNING in X.java (at line 10)\n" +
-			"	case 4: return i == 0;\n" +
-			"	               ^^^^^^\n" +
-			"The expression of type boolean is boxed into Boolean\n" +
-			"----------\n" +
-			"6. WARNING in X.java (at line 11)\n" +
-			"	case 5: return i != 0;\n" +
-			"	               ^^^^^^\n" +
-			"The expression of type boolean is boxed into Boolean\n" +
-			"----------\n" +
-			"7. WARNING in X.java (at line 12)\n" +
-			"	case 6: return i & 0;\n" +
-			"	               ^^^^^\n" +
-			"The expression of type int is boxed into Integer\n" +
-			"----------\n" +
-			"8. WARNING in X.java (at line 13)\n" +
-			"	case 7: return i ^ 0;\n" +
-			"	               ^^^^^\n" +
-			"The expression of type int is boxed into Integer\n" +
-			"----------\n" +
-			"9. WARNING in X.java (at line 14)\n" +
-			"	case 8: return i | 0;\n" +
-			"	               ^^^^^\n" +
-			"The expression of type int is boxed into Integer\n" +
-			"----------\n" +
-			"10. WARNING in X.java (at line 15)\n" +
-			"	case 9: return b && b;\n" +
-			"	               ^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"11. WARNING in X.java (at line 15)\n" +
-			"	case 9: return b && b;\n" +
-			"	               ^^^^^^\n" +
-			"The expression of type boolean is boxed into Boolean\n" +
-			"----------\n" +
-			"12. WARNING in X.java (at line 16)\n" +
-			"	default: return b || b;\n" +
-			"	                ^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"13. WARNING in X.java (at line 16)\n" +
-			"	default: return b || b;\n" +
-			"	                ^^^^^^\n" +
-			"The expression of type boolean is boxed into Boolean\n" +
-			"----------\n" +
-			"14. ERROR in X.java (at line 22)\n" +
-			"	Zork z;\n" +
-			"	^^^^\n" +
-			"Zork cannot be resolved to a type\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 6)
+					case 0: return i > 0;
+					               ^^^^^
+				The expression of type boolean is boxed into Boolean
+				----------
+				2. WARNING in X.java (at line 7)
+					case 1: return i >= 0;
+					               ^^^^^^
+				The expression of type boolean is boxed into Boolean
+				----------
+				3. WARNING in X.java (at line 8)
+					case 2: return i < 0;
+					               ^^^^^
+				The expression of type boolean is boxed into Boolean
+				----------
+				4. WARNING in X.java (at line 9)
+					case 3: return i <= 0;
+					               ^^^^^^
+				The expression of type boolean is boxed into Boolean
+				----------
+				5. WARNING in X.java (at line 10)
+					case 4: return i == 0;
+					               ^^^^^^
+				The expression of type boolean is boxed into Boolean
+				----------
+				6. WARNING in X.java (at line 11)
+					case 5: return i != 0;
+					               ^^^^^^
+				The expression of type boolean is boxed into Boolean
+				----------
+				7. WARNING in X.java (at line 12)
+					case 6: return i & 0;
+					               ^^^^^
+				The expression of type int is boxed into Integer
+				----------
+				8. WARNING in X.java (at line 13)
+					case 7: return i ^ 0;
+					               ^^^^^
+				The expression of type int is boxed into Integer
+				----------
+				9. WARNING in X.java (at line 14)
+					case 8: return i | 0;
+					               ^^^^^
+				The expression of type int is boxed into Integer
+				----------
+				10. WARNING in X.java (at line 15)
+					case 9: return b && b;
+					               ^^^^^^
+				Comparing identical expressions
+				----------
+				11. WARNING in X.java (at line 15)
+					case 9: return b && b;
+					               ^^^^^^
+				The expression of type boolean is boxed into Boolean
+				----------
+				12. WARNING in X.java (at line 16)
+					default: return b || b;
+					                ^^^^^^
+				Comparing identical expressions
+				----------
+				13. WARNING in X.java (at line 16)
+					default: return b || b;
+					                ^^^^^^
+				The expression of type boolean is boxed into Boolean
+				----------
+				14. ERROR in X.java (at line 22)
+					Zork z;
+					^^^^
+				Zork cannot be resolved to a type
+				----------
+				""");
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82432 - variation
@@ -2094,28 +2315,29 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				" Object e() {\n" +
-				" int i = 12; \n" +
-				"  boolean b = false;\n" +
-				"  switch(i) {\n" +
-				"    case 0: return i > 0;\n" +
-				"    case 1: return i >= 0;\n" +
-				"    case 2: return i < 0;\n" +
-				"    case 3: return i <= 0;\n" +
-				"    case 4: return i == 0;\n" +
-				"    case 5: return i != 0;\n" +
-				"    case 6: return i & 0;\n" +
-				"    case 7: return i ^ 0;\n" +
-				"    case 8: return i | 0;\n" +
-				"    case 9: return b && b;\n" +
-				"    default: return b || b;\n" +
-				"  }\n" +
-				" }\n" +
-				" public static void main(String[] args) {\n" +
-				"  System.out.print(new X().e());\n" +
-				" }\n" +
-				"}",
+				"""
+					public class X {
+					 Object e() {
+					 int i = 12;\s
+					  boolean b = false;
+					  switch(i) {
+					    case 0: return i > 0;
+					    case 1: return i >= 0;
+					    case 2: return i < 0;
+					    case 3: return i <= 0;
+					    case 4: return i == 0;
+					    case 5: return i != 0;
+					    case 6: return i & 0;
+					    case 7: return i ^ 0;
+					    case 8: return i | 0;
+					    case 9: return b && b;
+					    default: return b || b;
+					  }
+					 }
+					 public static void main(String[] args) {
+					  System.out.print(new X().e());
+					 }
+					}""",
 			},
 			"false");
 	}
@@ -2125,17 +2347,19 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X<T> {\n" +
-				"	public <A extends T> X(A... t) {}\n" +
-				"	<T> void foo(T... t) {}\n" +
-				"	<T> void zip(T t) {}\n" +
-				"	void test() {\n" +
-				"		new X<Integer>(10, 20);\n" +
-				"		foo(10);\n" +
-				"		foo(10, 20);\n" +
-				"		zip(10);\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X<T> {
+						public <A extends T> X(A... t) {}
+						<T> void foo(T... t) {}
+						<T> void zip(T t) {}
+						void test() {
+							new X<Integer>(10, 20);
+							foo(10);
+							foo(10, 20);
+							zip(10);
+						}
+					}
+					"""
 			},
 			""
 		);
@@ -2146,29 +2370,31 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.HashMap;\n" +
-				"public class X {\n" +
-				"	static HashMap<Character, Character> substitutionList(String s1, String s2) {\n" +
-				"		HashMap<Character, Character> subst = new HashMap<Character, Character>();\n" +
-				"		for (int i = 0; i < s1.length(); i++) {\n" +
-				"			char key = s1.charAt(i);\n" +
-				"			char value = s2.charAt(i);\n" +
-				"			if (subst.containsKey(key)) {\n" +
-				"				if (value != subst.get(key)) {\n" +
-				"					return null;\n" +
-				"				}\n" +
-				"			} else if (subst.containsValue(value)) {\n" +
-				"				return null;\n" +
-				"			} else {\n" +
-				"				subst.put(key, value);\n" +
-				"			}\n" +
-				"		}\n" +
-				"		return subst;\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(\"Bogon\");\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.util.HashMap;
+					public class X {
+						static HashMap<Character, Character> substitutionList(String s1, String s2) {
+							HashMap<Character, Character> subst = new HashMap<Character, Character>();
+							for (int i = 0; i < s1.length(); i++) {
+								char key = s1.charAt(i);
+								char value = s2.charAt(i);
+								if (subst.containsKey(key)) {
+									if (value != subst.get(key)) {
+										return null;
+									}
+								} else if (subst.containsValue(value)) {
+									return null;
+								} else {
+									subst.put(key, value);
+								}
+							}
+							return subst;
+						}
+						public static void main(String[] args) {
+							System.out.println("Bogon");
+						}
+					}
+					"""
 			},
 			"SUCCESS");
 	}
@@ -2178,18 +2404,20 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.HashMap;\n" +
-				"\n" +
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"		HashMap<Character, Character> subst = new HashMap<Character, Character>();\n" +
-				"		subst.put(\'a\', \'a\');\n" +
-				"		if (\'a\' == subst.get(\'a\')) {\n" +
-				"			System.out.println(\"SUCCESS\");\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.util.HashMap;
+					
+					public class X {
+					
+						public static void main(String[] args) {
+							HashMap<Character, Character> subst = new HashMap<Character, Character>();
+							subst.put('a', 'a');
+							if ('a' == subst.get('a')) {
+								System.out.println("SUCCESS");
+							}
+						}
+					}
+					"""
 			},
 			"SUCCESS");
 	}
@@ -2199,18 +2427,20 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.HashMap;\n" +
-				"\n" +
-				"public class X {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"		HashMap<Byte, Byte> subst = new HashMap<Byte, Byte>();\n" +
-				"		subst.put((byte)1, (byte)1);\n" +
-				"		if (1 + subst.get((byte)1) > 0.f) {\n" +
-				"			System.out.println(\"SUCCESS\");\n" +
-				"		}		\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.util.HashMap;
+					
+					public class X {
+					
+						public static void main(String[] args) {
+							HashMap<Byte, Byte> subst = new HashMap<Byte, Byte>();
+							subst.put((byte)1, (byte)1);
+							if (1 + subst.get((byte)1) > 0.f) {
+								System.out.println("SUCCESS");
+							}	\t
+						}
+					}
+					"""
 			},
 			"SUCCESS");
 	}
@@ -2220,11 +2450,12 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String argv[]) {\n" +
-				"		System.out.println(void.class == Void.TYPE);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String argv[]) {
+							System.out.println(void.class == Void.TYPE);
+						}
+					}"""
 			},
 			"true"
 		);
@@ -2235,73 +2466,75 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	int counter = 0;\n" +
-				"\n" +
-				"	public boolean wasNull() {\n" +
-				"		return ++counter % 2 == 0;\n" +
-				"	}\n" +
-				"\n" +
-				"	private Byte getByte() {\n" +
-				"		return (byte) 0;\n" +
-				"	}\n" +
-				"\n" +
-				"	private Short getShort() {\n" +
-				"		return (short) 0;\n" +
-				"	}\n" +
-				"\n" +
-				"	private Long getLong() {\n" +
-				"		return 0L;\n" +
-				"	}\n" +
-				"\n" +
-				"	private Integer getInt() {\n" +
-				"		return 0; // autoboxed okay\n" +
-				"	}\n" +
-				"\n" +
-				"	// This should be the same as the second one.\n" +
-				"	private Byte getBytey() {\n" +
-				"		byte value = getByte();\n" +
-				"		return wasNull() ? null : value;\n" +
-				"	}\n" +
-				"\n" +
-				"	private Byte getByteyNoBoxing() {\n" +
-				"		byte value = getByte();\n" +
-				"		return wasNull() ? null : (Byte) value;\n" +
-				"	}\n" +
-				"\n" +
-				"	// This should be the same as the second one.\n" +
-				"	private Short getShorty() {\n" +
-				"		short value = getShort();\n" +
-				"		return wasNull() ? null : value;\n" +
-				"	}\n" +
-				"\n" +
-				"	private Short getShortyNoBoxing() {\n" +
-				"		short value = getShort();\n" +
-				"		return wasNull() ? null : (Short) value;\n" +
-				"	}\n" +
-				"\n" +
-				"	// This should be the same as the second one.\n" +
-				"	private Long getLongy() {\n" +
-				"		long value = getLong();\n" +
-				"		return wasNull() ? null : value;\n" +
-				"	}\n" +
-				"\n" +
-				"	private Long getLongyNoBoxing() {\n" +
-				"		long value = getLong();\n" +
-				"		return wasNull() ? null : (Long) value;\n" +
-				"	}\n" +
-				"\n" +
-				"	// This should be the same as the second one.\n" +
-				"	private Integer getIntegery() {\n" +
-				"		int value = getInt();\n" +
-				"		return wasNull() ? null : value;\n" +
-				"	}\n" +
-				"\n" +
-				"	private Integer getIntegeryNoBoxing() {\n" +
-				"		int value = getInt();\n" +
-				"		return wasNull() ? null : (Integer) value;\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						int counter = 0;
+					
+						public boolean wasNull() {
+							return ++counter % 2 == 0;
+						}
+					
+						private Byte getByte() {
+							return (byte) 0;
+						}
+					
+						private Short getShort() {
+							return (short) 0;
+						}
+					
+						private Long getLong() {
+							return 0L;
+						}
+					
+						private Integer getInt() {
+							return 0; // autoboxed okay
+						}
+					
+						// This should be the same as the second one.
+						private Byte getBytey() {
+							byte value = getByte();
+							return wasNull() ? null : value;
+						}
+					
+						private Byte getByteyNoBoxing() {
+							byte value = getByte();
+							return wasNull() ? null : (Byte) value;
+						}
+					
+						// This should be the same as the second one.
+						private Short getShorty() {
+							short value = getShort();
+							return wasNull() ? null : value;
+						}
+					
+						private Short getShortyNoBoxing() {
+							short value = getShort();
+							return wasNull() ? null : (Short) value;
+						}
+					
+						// This should be the same as the second one.
+						private Long getLongy() {
+							long value = getLong();
+							return wasNull() ? null : value;
+						}
+					
+						private Long getLongyNoBoxing() {
+							long value = getLong();
+							return wasNull() ? null : (Long) value;
+						}
+					
+						// This should be the same as the second one.
+						private Integer getIntegery() {
+							int value = getInt();
+							return wasNull() ? null : value;
+						}
+					
+						private Integer getIntegeryNoBoxing() {
+							int value = getInt();
+							return wasNull() ? null : (Integer) value;
+						}
+					}
+					"""
 			},
 			""
 		);
@@ -2312,28 +2545,32 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	Short foo() {\n" +
-				"		short value = 0;\n" +
-				"		return this == null ? null : value;\n" +
-				"	}\n" +
-				"	boolean bar() {\n" +
-				"		short value = 0;\n" +
-				"		return null == value;\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						Short foo() {
+							short value = 0;
+							return this == null ? null : value;
+						}
+						boolean bar() {
+							short value = 0;
+							return null == value;
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	return this == null ? null : value;\n" +
-			"	                             ^^^^^\n" +
-			"The expression of type short is boxed into Short\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 8)\n" +
-			"	return null == value;\n" +
-			"	       ^^^^^^^^^^^^^\n" +
-			"The operator == is undefined for the argument type(s) null, short\n" +
-			"----------\n"
+			"""
+				----------
+				1. WARNING in X.java (at line 4)
+					return this == null ? null : value;
+					                             ^^^^^
+				The expression of type short is boxed into Short
+				----------
+				2. ERROR in X.java (at line 8)
+					return null == value;
+					       ^^^^^^^^^^^^^
+				The operator == is undefined for the argument type(s) null, short
+				----------
+				"""
 		);
 	}
 
@@ -2342,121 +2579,123 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"\n" +
-				"	private static void checkByteConversions(Byte _byte) {\n" +
-				"		short s = (short) _byte;\n" +
-				"		short s2 = _byte;\n" +
-				"		int i = (int) _byte;\n" +
-				"		long l = (long) _byte;\n" +
-				"		float f = (float) _byte;\n" +
-				"		double d = (double) _byte;\n" +
-				"		if ( _byte.byteValue() != s ) {\n" +
-				"            System.err.println(\"Must be equal 0\");\n" +
-				"        }\n" +
-				"		if ( _byte.byteValue() != i ) {\n" +
-				"            System.err.println(\"Must be equal 1\");\n" +
-				"        }\n" +
-				"		if ( _byte.byteValue() != l ) {\n" +
-				"            System.err.println(\"Must be equal 2\");\n" +
-				"        }\n" +
-				"		if ( _byte.byteValue() != f ) {\n" +
-				"            System.err.println(\"Must be equal 3\");\n" +
-				"        }\n" +
-				"		if ( _byte.byteValue() != d ) {\n" +
-				"            System.err.println(\"Must be equal 4\");\n" +
-				"        }\n" +
-				"	} \n" +
-				"\n" +
-				"	private static void checkCharacterConversions(Character _character) {\n" +
-				"		int i = (int) _character;\n" +
-				"		long l = (long) _character;\n" +
-				"		float f = (float) _character;\n" +
-				"		double d = (double) _character;\n" +
-				"		if ( _character.charValue() != i ) {\n" +
-				"            System.err.println(\"Must be equal 9\");\n" +
-				"        }\n" +
-				"		if ( _character.charValue() != l ) {\n" +
-				"            System.err.println(\"Must be equal 10\");\n" +
-				"        }\n" +
-				"		if ( _character.charValue() != f ) {\n" +
-				"            System.err.println(\"Must be equal 11\");\n" +
-				"        }\n" +
-				"		if ( _character.charValue() != d ) {\n" +
-				"            System.err.println(\"Must be equal 12\");\n" +
-				"        }\n" +
-				"	}\n" +
-				"\n" +
-				"	private static void checkFloatConversions(Float _float) {\n" +
-				"		double d = (double) _float;\n" +
-				"		if ( _float.floatValue() != d ) {\n" +
-				"            System.err.println(\"Must be equal 18\");\n" +
-				"        }\n" +
-				"	}\n" +
-				"\n" +
-				"	private static void checkIntegerConversions(Integer _integer) {\n" +
-				"		long l = (long) _integer;\n" +
-				"		float f = (float) _integer;\n" +
-				"		double d = (double) _integer;\n" +
-				"		if ( _integer.intValue() != l ) {\n" +
-				"            System.err.println(\"Must be equal 13\");\n" +
-				"        }\n" +
-				"		if ( _integer.intValue() != f ) {\n" +
-				"            System.err.println(\"Must be equal 14\");\n" +
-				"        }\n" +
-				"		if ( _integer.intValue() != d ) {\n" +
-				"            System.err.println(\"Must be equal 15\");\n" +
-				"        }\n" +
-				"	}\n" +
-				"\n" +
-				"	private static void checkIntegerConversions(Short _short) {\n" +
-				"		int i = (int) _short;\n" +
-				"		long l = (long) _short;\n" +
-				"		float f = (float) _short;\n" +
-				"		double d = (double) _short;\n" +
-				"		if ( _short.shortValue() != i ) {\n" +
-				"            System.err.println(\"Must be equal 5\");\n" +
-				"        }\n" +
-				"		if ( _short.shortValue() != l ) {\n" +
-				"            System.err.println(\"Must be equal 6\");\n" +
-				"        }\n" +
-				"		if ( _short.shortValue() != f ) {\n" +
-				"            System.err.println(\"Must be equal 7\");\n" +
-				"        }\n" +
-				"		if ( _short.shortValue() != d ) {\n" +
-				"            System.err.println(\"Must be equal 8\");\n" +
-				"        }\n" +
-				"	}\n" +
-				"\n" +
-				"	private static void checkLongConversions(Long _long) {\n" +
-				"		float f = (float) _long;\n" +
-				"		double d = (double) _long;\n" +
-				"		if ( _long.longValue() != f ) {\n" +
-				"            System.err.println(\"Must be equal 16\");\n" +
-				"        }\n" +
-				"		if ( _long.longValue() != d ) {\n" +
-				"            System.err.println(\"Must be equal 17\");\n" +
-				"        }\n" +
-				"	}\n" +
-				"\n" +
-				"    public static void main(String args[]) {\n" +
-				"        Byte _byte = new Byte((byte)2);\n" +
-				"        Character _character = new Character(\'@\');\n" +
-				"        Short _short = new Short((short)255);\n" +
-				"        Integer _integer = new Integer(12345678);\n" +
-				"        Long _long = new Long(1234567890);\n" +
-				"        Float _float = new Float(-0.0);\n" +
-				"\n" +
-				"        checkByteConversions(_byte);\n" +
-				"        checkIntegerConversions(_short);\n" +
-				"        checkCharacterConversions(_character);\n" +
-				"        checkIntegerConversions(_integer);\n" +
-				"        checkLongConversions(_long);\n" +
-				"        checkFloatConversions(_float);\n" +
-				"\n" +
-				"        System.out.println(\"OK\");\n" +
-				"      }\n" +
-				"}\n"
+				"""
+					public class X {
+					
+						private static void checkByteConversions(Byte _byte) {
+							short s = (short) _byte;
+							short s2 = _byte;
+							int i = (int) _byte;
+							long l = (long) _byte;
+							float f = (float) _byte;
+							double d = (double) _byte;
+							if ( _byte.byteValue() != s ) {
+					            System.err.println("Must be equal 0");
+					        }
+							if ( _byte.byteValue() != i ) {
+					            System.err.println("Must be equal 1");
+					        }
+							if ( _byte.byteValue() != l ) {
+					            System.err.println("Must be equal 2");
+					        }
+							if ( _byte.byteValue() != f ) {
+					            System.err.println("Must be equal 3");
+					        }
+							if ( _byte.byteValue() != d ) {
+					            System.err.println("Must be equal 4");
+					        }
+						}\s
+					
+						private static void checkCharacterConversions(Character _character) {
+							int i = (int) _character;
+							long l = (long) _character;
+							float f = (float) _character;
+							double d = (double) _character;
+							if ( _character.charValue() != i ) {
+					            System.err.println("Must be equal 9");
+					        }
+							if ( _character.charValue() != l ) {
+					            System.err.println("Must be equal 10");
+					        }
+							if ( _character.charValue() != f ) {
+					            System.err.println("Must be equal 11");
+					        }
+							if ( _character.charValue() != d ) {
+					            System.err.println("Must be equal 12");
+					        }
+						}
+					
+						private static void checkFloatConversions(Float _float) {
+							double d = (double) _float;
+							if ( _float.floatValue() != d ) {
+					            System.err.println("Must be equal 18");
+					        }
+						}
+					
+						private static void checkIntegerConversions(Integer _integer) {
+							long l = (long) _integer;
+							float f = (float) _integer;
+							double d = (double) _integer;
+							if ( _integer.intValue() != l ) {
+					            System.err.println("Must be equal 13");
+					        }
+							if ( _integer.intValue() != f ) {
+					            System.err.println("Must be equal 14");
+					        }
+							if ( _integer.intValue() != d ) {
+					            System.err.println("Must be equal 15");
+					        }
+						}
+					
+						private static void checkIntegerConversions(Short _short) {
+							int i = (int) _short;
+							long l = (long) _short;
+							float f = (float) _short;
+							double d = (double) _short;
+							if ( _short.shortValue() != i ) {
+					            System.err.println("Must be equal 5");
+					        }
+							if ( _short.shortValue() != l ) {
+					            System.err.println("Must be equal 6");
+					        }
+							if ( _short.shortValue() != f ) {
+					            System.err.println("Must be equal 7");
+					        }
+							if ( _short.shortValue() != d ) {
+					            System.err.println("Must be equal 8");
+					        }
+						}
+					
+						private static void checkLongConversions(Long _long) {
+							float f = (float) _long;
+							double d = (double) _long;
+							if ( _long.longValue() != f ) {
+					            System.err.println("Must be equal 16");
+					        }
+							if ( _long.longValue() != d ) {
+					            System.err.println("Must be equal 17");
+					        }
+						}
+					
+					    public static void main(String args[]) {
+					        Byte _byte = new Byte((byte)2);
+					        Character _character = new Character('@');
+					        Short _short = new Short((short)255);
+					        Integer _integer = new Integer(12345678);
+					        Long _long = new Long(1234567890);
+					        Float _float = new Float(-0.0);
+					
+					        checkByteConversions(_byte);
+					        checkIntegerConversions(_short);
+					        checkCharacterConversions(_character);
+					        checkIntegerConversions(_integer);
+					        checkLongConversions(_long);
+					        checkFloatConversions(_float);
+					
+					        System.out.println("OK");
+					      }
+					}
+					"""
 			},
 			"OK"
 		);
@@ -2466,29 +2705,33 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  private static void checkConversions(byte _byte) {\n" +
-				"    Short s = (short) _byte; // cast is necessary\n" +
-				"    Short s2 = _byte; // ko\n" +
-				"  } \n" +
-				"  public static void main(String args[]) {\n" +
-				"    byte _byte = 2;\n" +
-				"    checkConversions(_byte);\n" +
-				"    System.out.println(\"OK\");\n" +
-				"  }\n" +
-				"}\n"
+				"""
+					public class X {
+					  private static void checkConversions(byte _byte) {
+					    Short s = (short) _byte; // cast is necessary
+					    Short s2 = _byte; // ko
+					  }\s
+					  public static void main(String args[]) {
+					    byte _byte = 2;
+					    checkConversions(_byte);
+					    System.out.println("OK");
+					  }
+					}
+					"""
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	Short s = (short) _byte; // cast is necessary\n" +
-			"	          ^^^^^^^^^^^^^\n" +
-			"The expression of type short is boxed into Short\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	Short s2 = _byte; // ko\n" +
-			"	           ^^^^^\n" +
-			"Type mismatch: cannot convert from byte to Short\n" +
-			"----------\n"
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					Short s = (short) _byte; // cast is necessary
+					          ^^^^^^^^^^^^^
+				The expression of type short is boxed into Short
+				----------
+				2. ERROR in X.java (at line 4)
+					Short s2 = _byte; // ko
+					           ^^^^^
+				Type mismatch: cannot convert from byte to Short
+				----------
+				"""
         );
 	}
     // autoboxing and type argument inference
@@ -2496,32 +2739,36 @@ public class AutoBoxingTest extends AbstractComparableTest {
         this.runNegativeTest(
             new String[] {
                 "X.java",
-                "public class X {\n" +
-                "    <T> T foo(T t) { return t; }\n" +
-                "    \n" +
-                "    public static void main(String[] args) {\n" +
-                "        int i = new X().foo(12);\n" +
-                "        System.out.println(i);\n" +
-                "    }\n" +
-                "    Zork z;\n" +
-                "}\n"
+                """
+					public class X {
+					    <T> T foo(T t) { return t; }
+					   \s
+					    public static void main(String[] args) {
+					        int i = new X().foo(12);
+					        System.out.println(i);
+					    }
+					    Zork z;
+					}
+					"""
             },
-			"----------\n" +
-			"1. WARNING in X.java (at line 5)\n" +
-			"	int i = new X().foo(12);\n" +
-			"	        ^^^^^^^^^^^^^^^\n" +
-			"The expression of type Integer is unboxed into int\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 5)\n" +
-			"	int i = new X().foo(12);\n" +
-			"	                    ^^\n" +
-			"The expression of type int is boxed into Integer\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 8)\n" +
-			"	Zork z;\n" +
-			"	^^^^\n" +
-			"Zork cannot be resolved to a type\n" +
-			"----------\n"
+			"""
+				----------
+				1. WARNING in X.java (at line 5)
+					int i = new X().foo(12);
+					        ^^^^^^^^^^^^^^^
+				The expression of type Integer is unboxed into int
+				----------
+				2. WARNING in X.java (at line 5)
+					int i = new X().foo(12);
+					                    ^^
+				The expression of type int is boxed into Integer
+				----------
+				3. ERROR in X.java (at line 8)
+					Zork z;
+					^^^^
+				Zork cannot be resolved to a type
+				----------
+				"""
         );
     }
 	/*
@@ -2533,33 +2780,37 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	int f;\n" +
-				"	void foo(int i) {\n" +
-				"		i = i++;\n" +
-				"		i = ++i;\n" +
-				"		f = f++;\n" +
-				"		f = ++f;\n" +
-				"		Zork z;\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						int f;
+						void foo(int i) {
+							i = i++;
+							i = ++i;
+							f = f++;
+							f = ++f;
+							Zork z;
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 5)\n" +
-			"	i = ++i;\n" +
-			"	^^^^^^^\n" +
-			"The assignment to variable i has no effect\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 7)\n" +
-			"	f = ++f;\n" +
-			"	^^^^^^^\n" +
-			"The assignment to variable f has no effect\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 8)\n" +
-			"	Zork z;\n" +
-			"	^^^^\n" +
-			"Zork cannot be resolved to a type\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 5)
+					i = ++i;
+					^^^^^^^
+				The assignment to variable i has no effect
+				----------
+				2. WARNING in X.java (at line 7)
+					f = ++f;
+					^^^^^^^
+				The assignment to variable f has no effect
+				----------
+				3. ERROR in X.java (at line 8)
+					Zork z;
+					^^^^
+				Zork cannot be resolved to a type
+				----------
+				""",
 			null,
 			true,
 			customOptions);
@@ -2569,33 +2820,37 @@ public class AutoBoxingTest extends AbstractComparableTest {
         this.runNegativeTest(
             new String[] {
                 "X.java",
-				"public class X {\n" +
-				"  public Object foo() {\n" +
-				"  	byte b = 0;\n" +
-				"	Number n = (Number) b;\n" +
-				"\n" +
-				"    java.io.Serializable o = null;\n" +
-				"    if (o == 0) return o;\n" +
-				"    return this;\n" +
-				"  }\n" +
-				"}\n"
+				"""
+					public class X {
+					  public Object foo() {
+					  	byte b = 0;
+						Number n = (Number) b;
+					
+					    java.io.Serializable o = null;
+					    if (o == 0) return o;
+					    return this;
+					  }
+					}
+					"""
             },
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	Number n = (Number) b;\n" +
-			"	           ^^^^^^^^^^\n" +
-			"Unnecessary cast from byte to Number\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	Number n = (Number) b;\n" +
-			"	                    ^\n" +
-			"The expression of type byte is boxed into Byte\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 7)\n" +
-			"	if (o == 0) return o;\n" +
-			"	    ^^^^^^\n" +
-			"Incompatible operand types Serializable and int\n" +
-			"----------\n"
+			"""
+				----------
+				1. WARNING in X.java (at line 4)
+					Number n = (Number) b;
+					           ^^^^^^^^^^
+				Unnecessary cast from byte to Number
+				----------
+				2. WARNING in X.java (at line 4)
+					Number n = (Number) b;
+					                    ^
+				The expression of type byte is boxed into Byte
+				----------
+				3. ERROR in X.java (at line 7)
+					if (o == 0) return o;
+					    ^^^^^^
+				Incompatible operand types Serializable and int
+				----------
+				"""
         );
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84345 - variation
@@ -2603,28 +2858,32 @@ public class AutoBoxingTest extends AbstractComparableTest {
         this.runNegativeTest(
             new String[] {
                 "X.java",
-				"public class X {\n" +
-				"  public Object foo() {\n" +
-				"  \n" +
-				"  	Boolean b = null;\n" +
-				"     if (b == true) return b;\n" +
-				"     Object o = null;\n" +
-				"    if (o == true) return o;\n" +
-				"    return this;\n" +
-				"  }\n" +
-				"}\n"
+				"""
+					public class X {
+					  public Object foo() {
+					 \s
+					  	Boolean b = null;
+					     if (b == true) return b;
+					     Object o = null;
+					    if (o == true) return o;
+					    return this;
+					  }
+					}
+					"""
             },
-			"----------\n" +
-			"1. WARNING in X.java (at line 5)\n" +
-			"	if (b == true) return b;\n" +
-			"	    ^\n" +
-			"The expression of type Boolean is unboxed into boolean\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	if (o == true) return o;\n" +
-			"	    ^^^^^^^^^\n" +
-			"Incompatible operand types Object and boolean\n" +
-			"----------\n"
+			"""
+				----------
+				1. WARNING in X.java (at line 5)
+					if (b == true) return b;
+					    ^
+				The expression of type Boolean is unboxed into boolean
+				----------
+				2. ERROR in X.java (at line 7)
+					if (o == true) return o;
+					    ^^^^^^^^^
+				Incompatible operand types Object and boolean
+				----------
+				"""
         );
     }
 
@@ -2633,17 +2892,19 @@ public class AutoBoxingTest extends AbstractComparableTest {
         this.runConformTest(
             new String[] {
                 "X.java",
-				"public class X {\n" +
-				"\n" +
-				"    public static void main(String[] args) {\n" +
-				"        Comparable<?> c1 = foo(\"\", new Integer(5));\n" +
-				"        Object o = foo(\"\", 5);\n" +
-				"    }\n" +
-				"    public static <T> T foo(T t1, T t2) { \n" +
-				"    	System.out.print(\"foo(\"+t1.getClass().getSimpleName()+\",\"+t2.getClass().getSimpleName()+\")\");\n" +
-				"    	return null; \n" +
-				"    }\n" +
-				"}\n"
+				"""
+					public class X {
+					
+					    public static void main(String[] args) {
+					        Comparable<?> c1 = foo("", new Integer(5));
+					        Object o = foo("", 5);
+					    }
+					    public static <T> T foo(T t1, T t2) {\s
+					    	System.out.print("foo("+t1.getClass().getSimpleName()+","+t2.getClass().getSimpleName()+")");
+					    	return null;\s
+					    }
+					}
+					"""
             },
 			"foo(String,Integer)foo(String,Integer)"
         );
@@ -2654,27 +2915,29 @@ public class AutoBoxingTest extends AbstractComparableTest {
         this.runConformTest(
             new String[] {
                 "X.java",
-				"public class X\n" +
-				"{\n" +
-				"	public X()\n" +
-				"	{\n" +
-				"		super();\n" +
-				"	}\n" +
-				"\n" +
-				"	public Object convert(Object value)\n" +
-				"	{\n" +
-				"		Double d = (Double)value;\n" +
-				"		d = (d/100);\n" +
-				"		return d;\n" +
-				"	}\n" +
-				"\n" +
-				"	public static void main(String[] args)\n" +
-				"	{\n" +
-				"		X test = new X();\n" +
-				"		Object value = test.convert(new Double(50));\n" +
-				"		System.out.println(value);\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X
+					{
+						public X()
+						{
+							super();
+						}
+					
+						public Object convert(Object value)
+						{
+							Double d = (Double)value;
+							d = (d/100);
+							return d;
+						}
+					
+						public static void main(String[] args)
+						{
+							X test = new X();
+							Object value = test.convert(new Double(50));
+							System.out.println(value);
+						}
+					}
+					"""
             },
 			"0.5"
         );
@@ -2684,12 +2947,14 @@ public class AutoBoxingTest extends AbstractComparableTest {
         this.runConformTest(
             new String[] {
                 "X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Integer someInteger = 12;\n" +
-				"		System.out.println((args == null ? someInteger : \'A\') == \'A\');\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							Integer someInteger = 12;
+							System.out.println((args == null ? someInteger : 'A') == 'A');
+						}
+					}
+					"""
             },
 			"true"
         );
@@ -2699,30 +2964,34 @@ public class AutoBoxingTest extends AbstractComparableTest {
         this.runNegativeTest(
             new String[] {
                 "X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Integer someInteger = 12;\n" +
-				"		System.out.println((args == null ? someInteger : \'A\') == \'A\');\n" +
-				"		Zork z;\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							Integer someInteger = 12;
+							System.out.println((args == null ? someInteger : 'A') == 'A');
+							Zork z;
+						}
+					}
+					"""
             },
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	Integer someInteger = 12;\n" +
-			"	                      ^^\n" +
-			"The expression of type int is boxed into Integer\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	System.out.println((args == null ? someInteger : \'A\') == \'A\');\n" +
-			"	                                   ^^^^^^^^^^^\n" +
-			"The expression of type Integer is unboxed into int\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	Zork z;\n" +
-			"	^^^^\n" +
-			"Zork cannot be resolved to a type\n" +
-			"----------\n"
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					Integer someInteger = 12;
+					                      ^^
+				The expression of type int is boxed into Integer
+				----------
+				2. WARNING in X.java (at line 4)
+					System.out.println((args == null ? someInteger : 'A') == 'A');
+					                                   ^^^^^^^^^^^
+				The expression of type Integer is unboxed into int
+				----------
+				3. ERROR in X.java (at line 5)
+					Zork z;
+					^^^^
+				Zork cannot be resolved to a type
+				----------
+				"""
         );
     }
 
@@ -2731,19 +3000,21 @@ public class AutoBoxingTest extends AbstractComparableTest {
         this.runConformTest(
             new String[] {
                 "X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = true;\n" +
-				"		Character _Character = new Character(\' \');\n" +
-				"		char c = \' \';\n" +
-				"		Integer _Integer = new Integer(2);\n" +
-				"		if ((b ? _Character : _Integer) == c) {\n" +
-				"			System.out.println(\"SUCCESS\");\n" +
-				"		} else {\n" +
-				"			System.out.println(\"FAILURE\");\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							boolean b = true;
+							Character _Character = new Character(' ');
+							char c = ' ';
+							Integer _Integer = new Integer(2);
+							if ((b ? _Character : _Integer) == c) {
+								System.out.println("SUCCESS");
+							} else {
+								System.out.println("FAILURE");
+							}
+						}
+					}
+					"""
             },
 			"SUCCESS"
         );
@@ -2753,37 +3024,41 @@ public class AutoBoxingTest extends AbstractComparableTest {
         this.runNegativeTest(
             new String[] {
                 "X.java",
-				"public class X {\n" +
-				"	@SuppressWarnings(\"deprecation\")\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = true;\n" +
-				"		Character _Character = Character.valueOf(\' \');\n" +
-				"		char c = \' \';\n" +
-				"		Integer _Integer = Integer.valueOf(2);\n" +
-				"		if ((b ? _Character : _Integer) == c) {\n" +
-				"			System.out.println(zork);\n" +
-				"		} else {\n" +
-				"			System.out.println(\"FAILURE\");\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X {
+						@SuppressWarnings("deprecation")
+						public static void main(String[] args) {
+							boolean b = true;
+							Character _Character = Character.valueOf(' ');
+							char c = ' ';
+							Integer _Integer = Integer.valueOf(2);
+							if ((b ? _Character : _Integer) == c) {
+								System.out.println(zork);
+							} else {
+								System.out.println("FAILURE");
+							}
+						}
+					}
+					"""
             },
-			"----------\n" +
-			"1. WARNING in X.java (at line 8)\n" +
-			"	if ((b ? _Character : _Integer) == c) {\n" +
-			"	         ^^^^^^^^^^\n" +
-			"The expression of type Character is unboxed into int\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 8)\n" +
-			"	if ((b ? _Character : _Integer) == c) {\n" +
-			"	                      ^^^^^^^^\n" +
-			"The expression of type Integer is unboxed into int\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 9)\n" +
-			"	System.out.println(zork);\n" +
-			"	                   ^^^^\n" +
-			"zork cannot be resolved to a variable\n" +
-			"----------\n"
+			"""
+				----------
+				1. WARNING in X.java (at line 8)
+					if ((b ? _Character : _Integer) == c) {
+					         ^^^^^^^^^^
+				The expression of type Character is unboxed into int
+				----------
+				2. WARNING in X.java (at line 8)
+					if ((b ? _Character : _Integer) == c) {
+					                      ^^^^^^^^
+				The expression of type Integer is unboxed into int
+				----------
+				3. ERROR in X.java (at line 9)
+					System.out.println(zork);
+					                   ^^^^
+				zork cannot be resolved to a variable
+				----------
+				"""
         );
     }
     // conditional operator: bool ? Integer : Integer --> Integer (identical operand types)
@@ -2792,21 +3067,23 @@ public class AutoBoxingTest extends AbstractComparableTest {
         this.runConformTest(
             new String[] {
                 "X.java",
-				"public class X {\n" +
-				"    public static void main(String args[]) {\n" +
-				"        Integer i = 1;\n" +
-				"        Integer j = 2;\n" +
-				"        Short s = 3;\n" +
-				"        foo(args != null ? i : j);\n" +
-				"        foo(args != null ? i : s);\n" +
-				"    }\n" +
-				"    static void foo(int i) {\n" +
-				"        System.out.print(\"[int:\"+i+\"]\");\n" +
-				"    }\n" +
-				"    static void foo(Integer i) {\n" +
-				"        System.out.print(\"[Integer:\"+i+\"]\");\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String args[]) {
+					        Integer i = 1;
+					        Integer j = 2;
+					        Short s = 3;
+					        foo(args != null ? i : j);
+					        foo(args != null ? i : s);
+					    }
+					    static void foo(int i) {
+					        System.out.print("[int:"+i+"]");
+					    }
+					    static void foo(Integer i) {
+					        System.out.print("[Integer:"+i+"]");
+					    }
+					}
+					"""
             },
 			"[Integer:1][int:1]"
         );
@@ -2818,54 +3095,58 @@ public class AutoBoxingTest extends AbstractComparableTest {
         this.runNegativeTest(
             new String[] {
                 "X.java",
-				"public class X {\n" +
-				"    public static void main(String args[]) {\n" +
-				"        Integer i = 1;\n" +
-				"        Integer j = 2;\n" +
-				"        Short s = 3;\n" +
-				"        foo(args != null ? i : j);\n" +
-				"        foo(args != null ? i : s);\n" +
-				"		 Zork z;\n" +
-				"    }\n" +
-				"    static void foo(int i) {\n" +
-				"        System.out.print(\"[int:\"+i+\"]\");\n" +
-				"    }\n" +
-				"    static void foo(Integer i) {\n" +
-				"        System.out.print(\"[Integer:\"+i+\"]\");\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String args[]) {
+					        Integer i = 1;
+					        Integer j = 2;
+					        Short s = 3;
+					        foo(args != null ? i : j);
+					        foo(args != null ? i : s);
+							 Zork z;
+					    }
+					    static void foo(int i) {
+					        System.out.print("[int:"+i+"]");
+					    }
+					    static void foo(Integer i) {
+					        System.out.print("[Integer:"+i+"]");
+					    }
+					}
+					"""
             },
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	Integer i = 1;\n" +
-			"	            ^\n" +
-			"The expression of type int is boxed into Integer\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	Integer j = 2;\n" +
-			"	            ^\n" +
-			"The expression of type int is boxed into Integer\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 5)\n" +
-			"	Short s = 3;\n" +
-			"	          ^\n" +
-			"The expression of type int is boxed into Short\n" +
-			"----------\n" +
-			"4. WARNING in X.java (at line 7)\n" +
-			"	foo(args != null ? i : s);\n" +
-			"	                   ^\n" +
-			"The expression of type Integer is unboxed into int\n" +
-			"----------\n" +
-			"5. WARNING in X.java (at line 7)\n" +
-			"	foo(args != null ? i : s);\n" +
-			"	                       ^\n" +
-			"The expression of type Short is unboxed into int\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 8)\n" +
-			"	Zork z;\n" +
-			"	^^^^\n" +
-			"Zork cannot be resolved to a type\n" +
-			"----------\n"
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					Integer i = 1;
+					            ^
+				The expression of type int is boxed into Integer
+				----------
+				2. WARNING in X.java (at line 4)
+					Integer j = 2;
+					            ^
+				The expression of type int is boxed into Integer
+				----------
+				3. WARNING in X.java (at line 5)
+					Short s = 3;
+					          ^
+				The expression of type int is boxed into Short
+				----------
+				4. WARNING in X.java (at line 7)
+					foo(args != null ? i : s);
+					                   ^
+				The expression of type Integer is unboxed into int
+				----------
+				5. WARNING in X.java (at line 7)
+					foo(args != null ? i : s);
+					                       ^
+				The expression of type Short is unboxed into int
+				----------
+				6. ERROR in X.java (at line 8)
+					Zork z;
+					^^^^
+				Zork cannot be resolved to a type
+				----------
+				"""
         );
     }
 
@@ -2874,20 +3155,22 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X extends A {\n" +
-				"    public void m(Object o) { System.out.println(\"SUCCESS\"); }\n" +
-				"    public static void main(String[] args) { ((A) new X()).m(1); }\n" +
-				"}\n" +
-				"interface I { void m(Object o); }\n" +
-				"abstract class A implements I {\n" +
-				"	public final void m(int i) {\n" +
-				"		System.out.print(\"SUCCESS + \");\n" +
-				"		m(new Integer(i));\n" +
-				"	}\n" +
-				"	public final void m(double d) {\n" +
-				"		System.out.print(\"FAILED\");\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X extends A {
+					    public void m(Object o) { System.out.println("SUCCESS"); }
+					    public static void main(String[] args) { ((A) new X()).m(1); }
+					}
+					interface I { void m(Object o); }
+					abstract class A implements I {
+						public final void m(int i) {
+							System.out.print("SUCCESS + ");
+							m(new Integer(i));
+						}
+						public final void m(double d) {
+							System.out.print("FAILED");
+						}
+					}
+					"""
 			},
 			"SUCCESS + SUCCESS"
 		);
@@ -2897,26 +3180,30 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Integer[] integers = {};\n" +
-				"		int[] ints = (int[]) integers;\n" +
-				"		float[] floats = {};\n" +
-				"		Float[] fs = (Float[]) floats;\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] args) {
+							Integer[] integers = {};
+							int[] ints = (int[]) integers;
+							float[] floats = {};
+							Float[] fs = (Float[]) floats;
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	int[] ints = (int[]) integers;\n" +
-			"	             ^^^^^^^^^^^^^^^^\n" +
-			"Cannot cast from Integer[] to int[]\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
-			"	Float[] fs = (Float[]) floats;\n" +
-			"	             ^^^^^^^^^^^^^^^^\n" +
-			"Cannot cast from float[] to Float[]\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					int[] ints = (int[]) integers;
+					             ^^^^^^^^^^^^^^^^
+				Cannot cast from Integer[] to int[]
+				----------
+				2. ERROR in X.java (at line 6)
+					Float[] fs = (Float[]) floats;
+					             ^^^^^^^^^^^^^^^^
+				Cannot cast from float[] to Float[]
+				----------
+				""");
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85491
@@ -2924,94 +3211,106 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	void foo(Object... i) { System.out.print(1); }\n" +
-				"	void foo(int... i) { System.out.print(2); }\n" +
-				"	@SuppressWarnings(\"deprecation\")\n" +
-				"	public static void main(String[] args) {\n" +
-				"		new X().foo(1);\n" +
-				"		new X().foo(Integer.valueOf(1));\n" +
-				"		new X().foo(1, Integer.valueOf(1));\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						void foo(Object... i) { System.out.print(1); }
+						void foo(int... i) { System.out.print(2); }
+						@SuppressWarnings("deprecation")
+						public static void main(String[] args) {
+							new X().foo(1);
+							new X().foo(Integer.valueOf(1));
+							new X().foo(1, Integer.valueOf(1));
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	new X().foo(1);\n" +
-			"	        ^^^\n" +
-			"The method foo(Object[]) is ambiguous for the type X\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	new X().foo(Integer.valueOf(1));\n" +
-			"	        ^^^\n" +
-			"The method foo(Object[]) is ambiguous for the type X\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 8)\n" +
-			"	new X().foo(1, Integer.valueOf(1));\n" +
-			"	        ^^^\n" +
-			"The method foo(Object[]) is ambiguous for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					new X().foo(1);
+					        ^^^
+				The method foo(Object[]) is ambiguous for the type X
+				----------
+				2. ERROR in X.java (at line 7)
+					new X().foo(Integer.valueOf(1));
+					        ^^^
+				The method foo(Object[]) is ambiguous for the type X
+				----------
+				3. ERROR in X.java (at line 8)
+					new X().foo(1, Integer.valueOf(1));
+					        ^^^
+				The method foo(Object[]) is ambiguous for the type X
+				----------
+				""");
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	void foo(Number... i) { System.out.print(1); }\n" +
-				"	void foo(int... i) { System.out.print(2); }\n" +
-				"	@SuppressWarnings(\"deprecation\")\n" +
-				"	public static void main(String[] args) {\n" +
-				"		new X().foo(1);\n" +
-				"		new X().foo(Integer.valueOf(1));\n" +
-				"		new X().foo(1, Integer.valueOf(1));\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						void foo(Number... i) { System.out.print(1); }
+						void foo(int... i) { System.out.print(2); }
+						@SuppressWarnings("deprecation")
+						public static void main(String[] args) {
+							new X().foo(1);
+							new X().foo(Integer.valueOf(1));
+							new X().foo(1, Integer.valueOf(1));
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	new X().foo(1);\n" +
-			"	        ^^^\n" +
-			"The method foo(Number[]) is ambiguous for the type X\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	new X().foo(Integer.valueOf(1));\n" +
-			"	        ^^^\n" +
-			"The method foo(Number[]) is ambiguous for the type X\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 8)\n" +
-			"	new X().foo(1, Integer.valueOf(1));\n" +
-			"	        ^^^\n" +
-			"The method foo(Number[]) is ambiguous for the type X\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					new X().foo(1);
+					        ^^^
+				The method foo(Number[]) is ambiguous for the type X
+				----------
+				2. ERROR in X.java (at line 7)
+					new X().foo(Integer.valueOf(1));
+					        ^^^
+				The method foo(Number[]) is ambiguous for the type X
+				----------
+				3. ERROR in X.java (at line 8)
+					new X().foo(1, Integer.valueOf(1));
+					        ^^^
+				The method foo(Number[]) is ambiguous for the type X
+				----------
+				"""
 		);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	void foo(int i, Object... o) { System.out.print(1); }\n" +
-				"	void foo(Integer o, int... i) { System.out.print(2); }\n" +
-				"	@SuppressWarnings(\"deprecation\")\n" +
-				"	public static void main(String[] args) {\n" +
-				"		new X().foo(1);\n" +
-				"		new X().foo(Integer.valueOf(1));\n" +
-				"		new X().foo(1, Integer.valueOf(1));\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						void foo(int i, Object... o) { System.out.print(1); }
+						void foo(Integer o, int... i) { System.out.print(2); }
+						@SuppressWarnings("deprecation")
+						public static void main(String[] args) {
+							new X().foo(1);
+							new X().foo(Integer.valueOf(1));
+							new X().foo(1, Integer.valueOf(1));
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	new X().foo(1);\n" +
-			"	        ^^^\n" +
-			"The method foo(int, Object[]) is ambiguous for the type X\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	new X().foo(Integer.valueOf(1));\n" +
-			"	        ^^^\n" +
-			"The method foo(int, Object[]) is ambiguous for the type X\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 8)\n" +
-			"	new X().foo(1, Integer.valueOf(1));\n" +
-			"	        ^^^\n" +
-			"The method foo(int, Object[]) is ambiguous for the type X\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					new X().foo(1);
+					        ^^^
+				The method foo(int, Object[]) is ambiguous for the type X
+				----------
+				2. ERROR in X.java (at line 7)
+					new X().foo(Integer.valueOf(1));
+					        ^^^
+				The method foo(int, Object[]) is ambiguous for the type X
+				----------
+				3. ERROR in X.java (at line 8)
+					new X().foo(1, Integer.valueOf(1));
+					        ^^^
+				The method foo(int, Object[]) is ambiguous for the type X
+				----------
+				"""
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84801
@@ -3021,42 +3320,44 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			true /* flush output directory */,
 			new String[] { /* test files */
 				"X.java",
-				"class Cla<A> {\n" +
-				"	A val;\n" +
-				"	public Cla(A x) { val = x; }\n" +
-				"	A getVal() { return val; }\n" +
-				"}\n" +
-				"\n" +
-				"public class X {\n" +
-				"	\n" +
-				"	void proc0(Cla<Long> b0) {\n" +
-				"		final Long t1 = b0.getVal();\n" +
-				"		System.out.print(t1);\n" +
-				"		final long t2 = b0.getVal();\n" +
-				"		System.out.print(t2);\n" +
-				"	}\n" +
-				"\n" +
-				"	void proc1(Cla<? extends Long> obj) {\n" +
-				"		final Long t3 = obj.getVal();\n" +
-				"		System.out.print(t3);\n" +
-				"		final long t4 = obj.getVal();\n" +
-				"		System.out.print(t4);\n" +
-				"	}\n" +
-				"	\n" +
-				"	<U extends Long> void proc2(Cla<U> obj) {\n" +
-				"		final Long t5 = obj.getVal();\n" +
-				"		System.out.print(t5);\n" +
-				"		final long t6 = obj.getVal();\n" +
-				"		System.out.println(t6);\n" +
-				"	}\n" +
-				"	\n" +
-				"	public static void main(String[] args) {\n" +
-				"		X x = new X();\n" +
-				"		x.proc0(new Cla<Long>(0l));\n" +
-				"		x.proc1(new Cla<Long>(1l));\n" +
-				"		x.proc2(new Cla<Long>(2l));\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					class Cla<A> {
+						A val;
+						public Cla(A x) { val = x; }
+						A getVal() { return val; }
+					}
+					
+					public class X {
+					\t
+						void proc0(Cla<Long> b0) {
+							final Long t1 = b0.getVal();
+							System.out.print(t1);
+							final long t2 = b0.getVal();
+							System.out.print(t2);
+						}
+					
+						void proc1(Cla<? extends Long> obj) {
+							final Long t3 = obj.getVal();
+							System.out.print(t3);
+							final long t4 = obj.getVal();
+							System.out.print(t4);
+						}
+					\t
+						<U extends Long> void proc2(Cla<U> obj) {
+							final Long t5 = obj.getVal();
+							System.out.print(t5);
+							final long t6 = obj.getVal();
+							System.out.println(t6);
+						}
+					\t
+						public static void main(String[] args) {
+							X x = new X();
+							x.proc0(new Cla<Long>(0l));
+							x.proc1(new Cla<Long>(1l));
+							x.proc2(new Cla<Long>(2l));
+						}
+					}
+					"""
 			},
 			// compiler results
 			null /* do not check compiler log */,
@@ -3071,90 +3372,94 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class Cla<A> {\n" +
-				"	Zork z;\n" +
-				"	A val;\n" +
-				"	public Cla(A x) { val = x; }\n" +
-				"	A getVal() { return val; }\n" +
-				"}\n" +
-				"\n" +
-				"public class X {\n" +
-				"	\n" +
-				"	void proc0(Cla<Long> b0) {\n" +
-				"		final Long t1 = b0.getVal();\n" +
-				"		System.out.print(t1);\n" +
-				"		final long t2 = b0.getVal();\n" +
-				"		System.out.print(t2);\n" +
-				"	}\n" +
-				"\n" +
-				"	void proc1(Cla<? extends Long> obj) {\n" +
-				"		final Long t3 = obj.getVal();\n" +
-				"		System.out.print(t3);\n" +
-				"		final long t4 = obj.getVal();\n" +
-				"		System.out.print(t4);\n" +
-				"	}\n" +
-				"	\n" +
-				"	<U extends Long> void proc2(Cla<U> obj) {\n" +
-				"		final Long t5 = obj.getVal();\n" +
-				"		System.out.print(t5);\n" +
-				"		final long t6 = obj.getVal();\n" +
-				"		System.out.printltn(t6);\n" +
-				"	}\n" +
-				"	\n" +
-				"	public static void main(String[] args) {\n" +
-				"		X x = new X();\n" +
-				"		x.proc0(new Cla<Long>(0l));\n" +
-				"		x.proc1(new Cla<Long>(1l));\n" +
-				"		x.proc2(new Cla<Long>(2l));\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					class Cla<A> {
+						Zork z;
+						A val;
+						public Cla(A x) { val = x; }
+						A getVal() { return val; }
+					}
+					
+					public class X {
+					\t
+						void proc0(Cla<Long> b0) {
+							final Long t1 = b0.getVal();
+							System.out.print(t1);
+							final long t2 = b0.getVal();
+							System.out.print(t2);
+						}
+					
+						void proc1(Cla<? extends Long> obj) {
+							final Long t3 = obj.getVal();
+							System.out.print(t3);
+							final long t4 = obj.getVal();
+							System.out.print(t4);
+						}
+					\t
+						<U extends Long> void proc2(Cla<U> obj) {
+							final Long t5 = obj.getVal();
+							System.out.print(t5);
+							final long t6 = obj.getVal();
+							System.out.printltn(t6);
+						}
+					\t
+						public static void main(String[] args) {
+							X x = new X();
+							x.proc0(new Cla<Long>(0l));
+							x.proc1(new Cla<Long>(1l));
+							x.proc2(new Cla<Long>(2l));
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	Zork z;\n" +
-			"	^^^^\n" +
-			"Zork cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 13)\n" +
-			"	final long t2 = b0.getVal();\n" +
-			"	                ^^^^^^^^^^^\n" +
-			"The expression of type Long is unboxed into long\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 20)\n" +
-			"	final long t4 = obj.getVal();\n" +
-			"	                ^^^^^^^^^^^^\n" +
-			"The expression of type capture#2-of ? extends Long is unboxed into long\n" +
-			"----------\n" +
-			"4. WARNING in X.java (at line 24)\n" +
-			"	<U extends Long> void proc2(Cla<U> obj) {\n" +
-			"	           ^^^^\n" +
-			"The type parameter U should not be bounded by the final type Long. Final types cannot be further extended\n" +
-			"----------\n" +
-			"5. WARNING in X.java (at line 27)\n" +
-			"	final long t6 = obj.getVal();\n" +
-			"	                ^^^^^^^^^^^^\n" +
-			"The expression of type U is unboxed into long\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 28)\n" +
-			"	System.out.printltn(t6);\n" +
-			"	           ^^^^^^^^\n" +
-			"The method printltn(long) is undefined for the type PrintStream\n" +
-			"----------\n" +
-			"7. WARNING in X.java (at line 33)\n" +
-			"	x.proc0(new Cla<Long>(0l));\n" +
-			"	                      ^^\n" +
-			"The expression of type long is boxed into Long\n" +
-			"----------\n" +
-			"8. WARNING in X.java (at line 34)\n" +
-			"	x.proc1(new Cla<Long>(1l));\n" +
-			"	                      ^^\n" +
-			"The expression of type long is boxed into Long\n" +
-			"----------\n" +
-			"9. WARNING in X.java (at line 35)\n" +
-			"	x.proc2(new Cla<Long>(2l));\n" +
-			"	                      ^^\n" +
-			"The expression of type long is boxed into Long\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					Zork z;
+					^^^^
+				Zork cannot be resolved to a type
+				----------
+				2. WARNING in X.java (at line 13)
+					final long t2 = b0.getVal();
+					                ^^^^^^^^^^^
+				The expression of type Long is unboxed into long
+				----------
+				3. WARNING in X.java (at line 20)
+					final long t4 = obj.getVal();
+					                ^^^^^^^^^^^^
+				The expression of type capture#2-of ? extends Long is unboxed into long
+				----------
+				4. WARNING in X.java (at line 24)
+					<U extends Long> void proc2(Cla<U> obj) {
+					           ^^^^
+				The type parameter U should not be bounded by the final type Long. Final types cannot be further extended
+				----------
+				5. WARNING in X.java (at line 27)
+					final long t6 = obj.getVal();
+					                ^^^^^^^^^^^^
+				The expression of type U is unboxed into long
+				----------
+				6. ERROR in X.java (at line 28)
+					System.out.printltn(t6);
+					           ^^^^^^^^
+				The method printltn(long) is undefined for the type PrintStream
+				----------
+				7. WARNING in X.java (at line 33)
+					x.proc0(new Cla<Long>(0l));
+					                      ^^
+				The expression of type long is boxed into Long
+				----------
+				8. WARNING in X.java (at line 34)
+					x.proc1(new Cla<Long>(1l));
+					                      ^^
+				The expression of type long is boxed into Long
+				----------
+				9. WARNING in X.java (at line 35)
+					x.proc2(new Cla<Long>(2l));
+					                      ^^
+				The expression of type long is boxed into Long
+				----------
+				""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95868
 	public void test104() {
@@ -3163,19 +3468,21 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			JavacTestOptions.Excuse.JavacGeneratesIncorrectCode,
 			new String[] {
 				"X.java",
-				"import java.util.HashMap;\n" +
-				"\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		try {\n" +
-				"			String x = \"\";\n" +
-				"			HashMap<String, Integer> y = new HashMap<String, Integer>();\n" +
-				"			Integer w = (x.equals(\"X\") ? 0 : y.get(\"yKey\"));\n" +
-				"		} catch(NullPointerException e) {\n" +
-				"			System.out.println(\"SUCCESS\");\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.util.HashMap;
+					
+					public class X {
+						public static void main(String[] args) {
+							try {
+								String x = "";
+								HashMap<String, Integer> y = new HashMap<String, Integer>();
+								Integer w = (x.equals("X") ? 0 : y.get("yKey"));
+							} catch(NullPointerException e) {
+								System.out.println("SUCCESS");
+							}
+						}
+					}
+					"""
 			},
 			"SUCCESS");
 	}
@@ -3186,34 +3493,36 @@ public void test105() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"final class Pair<F, S> {\n" +
-			"	public F first;\n" +
-			"	public S second;\n" +
-			"\n" +
-			"	public static <F, S> Pair<F, S> create(F f, S s) {\n" +
-			"		return new Pair<F, S>(f, s);\n" +
-			"	}\n" +
-			"\n" +
-			"	public Pair(final F f, final S s) {\n" +
-			"		first = f;\n" +
-			"		second = s;\n" +
-			"	}\n" +
-			"}\n" +
-			"\n" +
-			"public class X {\n" +
-			"	public void a() {\n" +
-			"		Pair<Integer, Integer> p = Pair.create(1, 3);\n" +
-			"		// p.first -= 1; // should be rejected ?\n" +
-			"		p.first--;\n" +
-			"		--p.first;\n" +
-			"		p.first = p.first - 1;\n" +
-			"		System.out.println(p.first);\n" +
-			"	}\n" +
-			"\n" +
-			"	public static void main(final String[] args) {\n" +
-			"		new X().a();\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				final class Pair<F, S> {
+					public F first;
+					public S second;
+				
+					public static <F, S> Pair<F, S> create(F f, S s) {
+						return new Pair<F, S>(f, s);
+					}
+				
+					public Pair(final F f, final S s) {
+						first = f;
+						second = s;
+					}
+				}
+				
+				public class X {
+					public void a() {
+						Pair<Integer, Integer> p = Pair.create(1, 3);
+						// p.first -= 1; // should be rejected ?
+						p.first--;
+						--p.first;
+						p.first = p.first - 1;
+						System.out.println(p.first);
+					}
+				
+					public static void main(final String[] args) {
+						new X().a();
+					}
+				}
+				""",
 		},
 		// compiler results
 		null /* do not check compiler log */,
@@ -3230,24 +3539,26 @@ public void test106() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"class XSuper<T> {\n" +
-			"	T value;\n" +
-			"}\n" +
-			"public class X extends XSuper<Integer>{\n" +
-			"	public void a() {\n" +
-			"		value--;\n" +
-			"		--value;\n" +
-			"		value -= 1;\n" +
-			"		value = value - 1;\n" +
-			"		System.out.println(value);\n" +
-			"	}\n" +
-			"\n" +
-			"	public static void main(final String[] args) {\n" +
-			"		X x = new X();\n" +
-			"		x.value = 5;\n" +
-			"		x.a();\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				class XSuper<T> {
+					T value;
+				}
+				public class X extends XSuper<Integer>{
+					public void a() {
+						value--;
+						--value;
+						value -= 1;
+						value = value - 1;
+						System.out.println(value);
+					}
+				
+					public static void main(final String[] args) {
+						X x = new X();
+						x.value = 5;
+						x.a();
+					}
+				}
+				""",
 		},
 		// compiler results
 		null /* do not check compiler log */,
@@ -3264,24 +3575,26 @@ public void test107() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"class XSuper<T> {\n" +
-			"	T value;\n" +
-			"}\n" +
-			"public class X extends XSuper<Integer>{\n" +
-			"	public void a() {\n" +
-			"		this.value--;\n" +
-			"		--this.value;\n" +
-			"		this.value -= 1;\n" +
-			"		this.value = this.value - 1;\n" +
-			"		System.out.println(this.value);\n" +
-			"	}\n" +
-			"\n" +
-			"	public static void main(final String[] args) {\n" +
-			"		X x = new X();\n" +
-			"		x.value = 5;\n" +
-			"		x.a();\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				class XSuper<T> {
+					T value;
+				}
+				public class X extends XSuper<Integer>{
+					public void a() {
+						this.value--;
+						--this.value;
+						this.value -= 1;
+						this.value = this.value - 1;
+						System.out.println(this.value);
+					}
+				
+					public static void main(final String[] args) {
+						X x = new X();
+						x.value = 5;
+						x.a();
+					}
+				}
+				""",
 		},
 		// compiler results
 		null /* do not check compiler log */,
@@ -3298,24 +3611,26 @@ public void test108() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"class XSuper<T> {\n" +
-			"	T value;\n" +
-			"}\n" +
-			"public class X extends XSuper<Integer>{\n" +
-			"	public static void a(X x) {\n" +
-			"		x.value--;\n" +
-			"		--x.value;\n" +
-			"		x.value -= 1;\n" +
-			"		x.value = x.value - 1;\n" +
-			"		System.out.println(x.value);\n" +
-			"	}\n" +
-			"\n" +
-			"	public static void main(final String[] args) {\n" +
-			"		X x = new X();\n" +
-			"		x.value = 5;\n" +
-			"		a(x);\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				class XSuper<T> {
+					T value;
+				}
+				public class X extends XSuper<Integer>{
+					public static void a(X x) {
+						x.value--;
+						--x.value;
+						x.value -= 1;
+						x.value = x.value - 1;
+						System.out.println(x.value);
+					}
+				
+					public static void main(final String[] args) {
+						X x = new X();
+						x.value = 5;
+						a(x);
+					}
+				}
+				""",
 		},
 		// compiler results
 		null /* do not check compiler log */,
@@ -3330,13 +3645,15 @@ public void test109() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		int foo = 0;\n" +
-			"		String bar = \"zero\";\n" +
-			"		System.out.println((foo != 0) ? foo : bar);\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						int foo = 0;
+						String bar = "zero";
+						System.out.println((foo != 0) ? foo : bar);
+					}
+				}
+				""",
 		},
 		"zero");
 }
@@ -3345,15 +3662,17 @@ public void test110() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public static void main(String args[]) {\n" +
-			"    	if (new Boolean(true) ? true : new Boolean(false)) {\n" +
-			"    		System.out.print(\"SUCCESS\");\n" +
-			"    	} else {\n" +
-			"    		System.out.print(\"FAILED\");\n" +
-			"    	}\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X {
+				    public static void main(String args[]) {
+				    	if (new Boolean(true) ? true : new Boolean(false)) {
+				    		System.out.print("SUCCESS");
+				    	} else {
+				    		System.out.print("FAILED");
+				    	}
+				    }
+				}
+				""",
 		},
 		"SUCCESS");
 }
@@ -3364,22 +3683,24 @@ public void test111() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"class Wrapper< T >\n" +
-			"{\n" +
-			"    public T value;\n" +
-			"}\n" +
-			"\n" +
-			"public class X\n" +
-			"{\n" +
-			"    public static void main( final String[ ] args )\n" +
-			"    {\n" +
-			"        final Wrapper< Integer > wrap = new Wrapper< Integer >( );\n" +
-			"        wrap.value = 0;\n" +
-			"        wrap.value = wrap.value + 1; // works\n" +
-			"        wrap.value++; // throws VerifyError\n" +
-			"        wrap.value += 1; // throws VerifyError\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				class Wrapper< T >
+				{
+				    public T value;
+				}
+				
+				public class X
+				{
+				    public static void main( final String[ ] args )
+				    {
+				        final Wrapper< Integer > wrap = new Wrapper< Integer >( );
+				        wrap.value = 0;
+				        wrap.value = wrap.value + 1; // works
+				        wrap.value++; // throws VerifyError
+				        wrap.value += 1; // throws VerifyError
+				    }
+				}
+				""",
 		},
 		// compiler results
 		null /* do not check compiler log */,
@@ -3394,14 +3715,16 @@ public void test112() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Short s;\n" +
-			"		s = 5;  // Type mismatch: cannot convert from int to Short\n" +
-			"		Short[] shorts = { 0, 1, 2, 3 };\n" +
-			"		System.out.println(s+shorts[2]);\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						Short s;
+						s = 5;  // Type mismatch: cannot convert from int to Short
+						Short[] shorts = { 0, 1, 2, 3 };
+						System.out.println(s+shorts[2]);
+					}
+				}
+				""",
 		},
 		"7");
 }
@@ -3410,101 +3733,110 @@ public void test113() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Short s;\n" +
-			"		s = 5;  // Type mismatch: cannot convert from int to Short\n" +
-			"\n" +
-			"		int i = 0;\n" +
-			"		s = i; // not a constant\n" +
-			"		\n" +
-			"		bar(4);\n" +
-			"		Short[] shorts = { 0, 1, 2, 3 };\n" +
-			"	}\n" +
-			"	void bar(Short s) {}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						Short s;
+						s = 5;  // Type mismatch: cannot convert from int to Short
+				
+						int i = 0;
+						s = i; // not a constant
+					\t
+						bar(4);
+						Short[] shorts = { 0, 1, 2, 3 };
+					}
+					void bar(Short s) {}
+				}
+				""",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	s = 5;  // Type mismatch: cannot convert from int to Short\n" +
-		"	    ^\n" +
-		"The expression of type int is boxed into Short\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	s = i; // not a constant\n" +
-		"	    ^\n" +
-		"Type mismatch: cannot convert from int to Short\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 9)\n" +
-		"	bar(4);\n" +
-		"	^^^\n" +
-		"The method bar(Short) in the type X is not applicable for the arguments (int)\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 10)\n" +
-		"	Short[] shorts = { 0, 1, 2, 3 };\n" +
-		"	                   ^\n" +
-		"The expression of type int is boxed into Short\n" +
-		"----------\n" +
-		"5. WARNING in X.java (at line 10)\n" +
-		"	Short[] shorts = { 0, 1, 2, 3 };\n" +
-		"	                      ^\n" +
-		"The expression of type int is boxed into Short\n" +
-		"----------\n" +
-		"6. WARNING in X.java (at line 10)\n" +
-		"	Short[] shorts = { 0, 1, 2, 3 };\n" +
-		"	                         ^\n" +
-		"The expression of type int is boxed into Short\n" +
-		"----------\n" +
-		"7. WARNING in X.java (at line 10)\n" +
-		"	Short[] shorts = { 0, 1, 2, 3 };\n" +
-		"	                            ^\n" +
-		"The expression of type int is boxed into Short\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				s = 5;  // Type mismatch: cannot convert from int to Short
+				    ^
+			The expression of type int is boxed into Short
+			----------
+			2. ERROR in X.java (at line 7)
+				s = i; // not a constant
+				    ^
+			Type mismatch: cannot convert from int to Short
+			----------
+			3. ERROR in X.java (at line 9)
+				bar(4);
+				^^^
+			The method bar(Short) in the type X is not applicable for the arguments (int)
+			----------
+			4. WARNING in X.java (at line 10)
+				Short[] shorts = { 0, 1, 2, 3 };
+				                   ^
+			The expression of type int is boxed into Short
+			----------
+			5. WARNING in X.java (at line 10)
+				Short[] shorts = { 0, 1, 2, 3 };
+				                      ^
+			The expression of type int is boxed into Short
+			----------
+			6. WARNING in X.java (at line 10)
+				Short[] shorts = { 0, 1, 2, 3 };
+				                         ^
+			The expression of type int is boxed into Short
+			----------
+			7. WARNING in X.java (at line 10)
+				Short[] shorts = { 0, 1, 2, 3 };
+				                            ^
+			The expression of type int is boxed into Short
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100182
 public void test114() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] s) {\n" +
-			"		char c = \'a\';\n" +
-			"		System.out.printf(\"%c\",c);		\n" +
-			"		System.out.printf(\"%d\\n\",(int)c);		\n" +
-			"	}\n" +
-			"	Zork z;\n" +
-			"}\n" ,
+			"""
+				public class X {
+					public static void main(String[] s) {
+						char c = 'a';
+						System.out.printf("%c",c);	\t
+						System.out.printf("%d\\n",(int)c);	\t
+					}
+					Zork z;
+				}
+				""" ,
 		},
-		// ensure no unnecessary cast warning
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\r\n" +
-		"	System.out.printf(\"%c\",c);		\r\n" +
-		"	                       ^\n" +
-		"The expression of type char is boxed into Character\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\r\n" +
-		"	System.out.printf(\"%d\\n\",(int)c);		\r\n" +
-		"	                         ^^^^^^\n" +
-		"The expression of type int is boxed into Integer\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 7)\r\n" +
-		"	Zork z;\r\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 4)\r
+				System.out.printf("%c",c);		\r
+				                       ^
+			The expression of type char is boxed into Character
+			----------
+			2. WARNING in X.java (at line 5)\r
+				System.out.printf("%d\\n",(int)c);		\r
+				                         ^^^^^^
+			The expression of type int is boxed into Integer
+			----------
+			3. ERROR in X.java (at line 7)\r
+				Zork z;\r
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100182 - variation
 public void test115() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] s) {\n" +
-			"		char c = \'a\';\n" +
-			"		System.out.printf(\"%c\",c);		\n" +
-			"		System.out.printf(\"%d\\n\",(int)c);		\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static void main(String[] s) {
+						char c = 'a';
+						System.out.printf("%c",c);	\t
+						System.out.printf("%d\\n",(int)c);	\t
+					}
+				}
+				""",
 		},
 		"a97");
 }
@@ -3513,74 +3845,82 @@ public void test116() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    boolean foo(Long l, Float f) {\n" +
-			"    	return f == l;\n" +
-			"    }\n" +
-			"    float bar(Long l, Float f) {\n" +
-			"    	return this == null ? f : l;\n" +
-			"    }\n" +
-			"    double baz(Long l, Float f) {\n" +
-			"    	return this == null ? f : l;\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X {
+				    boolean foo(Long l, Float f) {
+				    	return f == l;
+				    }
+				    float bar(Long l, Float f) {
+				    	return this == null ? f : l;
+				    }
+				    double baz(Long l, Float f) {
+				    	return this == null ? f : l;
+				    }
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\r\n" +
-		"	return f == l;\r\n" +
-		"	       ^^^^^^\n" +
-		"Incompatible operand types Float and Long\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 6)\r\n" +
-		"	return this == null ? f : l;\r\n" +
-		"	                      ^\n" +
-		"The expression of type Float is unboxed into float\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 6)\r\n" +
-		"	return this == null ? f : l;\r\n" +
-		"	                          ^\n" +
-		"The expression of type Long is unboxed into float\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 9)\r\n" +
-		"	return this == null ? f : l;\r\n" +
-		"	                      ^\n" +
-		"The expression of type Float is unboxed into float\n" +
-		"----------\n" +
-		"5. WARNING in X.java (at line 9)\r\n" +
-		"	return this == null ? f : l;\r\n" +
-		"	                          ^\n" +
-		"The expression of type Long is unboxed into float\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 3)\r
+				return f == l;\r
+				       ^^^^^^
+			Incompatible operand types Float and Long
+			----------
+			2. WARNING in X.java (at line 6)\r
+				return this == null ? f : l;\r
+				                      ^
+			The expression of type Float is unboxed into float
+			----------
+			3. WARNING in X.java (at line 6)\r
+				return this == null ? f : l;\r
+				                          ^
+			The expression of type Long is unboxed into float
+			----------
+			4. WARNING in X.java (at line 9)\r
+				return this == null ? f : l;\r
+				                      ^
+			The expression of type Float is unboxed into float
+			----------
+			5. WARNING in X.java (at line 9)\r
+				return this == null ? f : l;\r
+				                          ^
+			The expression of type Long is unboxed into float
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122987
 public void test117() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public static void main(String[] args)\n" +
-			"    {\n" +
-			"        Object obj = true ? true : 17.3;\n" +
-			"		 Zork z;\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X {
+				    public static void main(String[] args)
+				    {
+				        Object obj = true ? true : 17.3;
+						 Zork z;
+				    }
+				}
+				""",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	Object obj = true ? true : 17.3;\n" +
-		"	                    ^^^^\n" +
-		"The expression of type boolean is boxed into Boolean\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	Object obj = true ? true : 17.3;\n" +
-		"	                           ^^^^\n" +
-		"The expression of type double is boxed into Double\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 5)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				Object obj = true ? true : 17.3;
+				                    ^^^^
+			The expression of type boolean is boxed into Boolean
+			----------
+			2. WARNING in X.java (at line 4)
+				Object obj = true ? true : 17.3;
+				                           ^^^^
+			The expression of type double is boxed into Double
+			----------
+			3. ERROR in X.java (at line 5)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			""");
 }
 
 // Integer array and method with T extends Integer bound
@@ -3642,75 +3982,82 @@ public void test120() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		int a = 100;\n" +
-			"		boolean c = a instanceof Integer;\n" +
-			"		Integer i = (Integer) a;\n" +
-			"		System.out.println(c);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					public static void main(String[] args) {
+						int a = 100;
+						boolean c = a instanceof Integer;
+						Integer i = (Integer) a;
+						System.out.println(c);
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	boolean c = a instanceof Integer;\n" +
-		"	            ^^^^^^^^^^^^^^^^^^^^\n" +
-		"Incompatible conditional operand types int and Integer\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	Integer i = (Integer) a;\n" +
-		"	            ^^^^^^^^^^^\n" +
-		"Unnecessary cast from int to Integer\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 5)\n" +
-		"	Integer i = (Integer) a;\n" +
-		"	                      ^\n" +
-		"The expression of type int is boxed into Integer\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				boolean c = a instanceof Integer;
+				            ^^^^^^^^^^^^^^^^^^^^
+			Incompatible conditional operand types int and Integer
+			----------
+			2. WARNING in X.java (at line 5)
+				Integer i = (Integer) a;
+				            ^^^^^^^^^^^
+			Unnecessary cast from int to Integer
+			----------
+			3. WARNING in X.java (at line 5)
+				Integer i = (Integer) a;
+				                      ^
+			The expression of type int is boxed into Integer
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156108
 public void test121() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		final int i = -128;\n" +
-			"		Byte b = i;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Byte no = 127; // warning: int boxed to Byte > fine\n" +
-			"		switch (no) { // warning: Byte is unboxed into int > why in int??? output\n" +
-			"			case -128: // error: cannot convert int to Byte > needs a explicit (byte)cast.\n" +
-			"				break;\n" +
-			"			case (byte) 127: // works\n" +
-			"				break;\n" +
-			"		}\n" +
-			"		no = new Byte(127);\n" +
-			"	}\n" +
-			"}", // =================
+			"""
+				public class X {
+					void foo() {
+						final int i = -128;
+						Byte b = i;
+					}
+					public static void main(String[] args) {
+						Byte no = 127; // warning: int boxed to Byte > fine
+						switch (no) { // warning: Byte is unboxed into int > why in int??? output
+							case -128: // error: cannot convert int to Byte > needs a explicit (byte)cast.
+								break;
+							case (byte) 127: // works
+								break;
+						}
+						no = new Byte(127);
+					}
+				}""", // =================
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	Byte b = i;\n" +
-		"	         ^\n" +
-		"The expression of type int is boxed into Byte\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 7)\n" +
-		"	Byte no = 127; // warning: int boxed to Byte > fine\n" +
-		"	          ^^^\n" +
-		"The expression of type int is boxed into Byte\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 8)\n" +
-		"	switch (no) { // warning: Byte is unboxed into int > why in int??? output\n" +
-		"	        ^^\n" +
-		"The expression of type Byte is unboxed into int\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 14)\n" +
-		"	no = new Byte(127);\n" +
-		"	     ^^^^^^^^^^^^^\n" +
-		"The constructor Byte(int) is undefined\n" +
-		"----------\n"
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				Byte b = i;
+				         ^
+			The expression of type int is boxed into Byte
+			----------
+			2. WARNING in X.java (at line 7)
+				Byte no = 127; // warning: int boxed to Byte > fine
+				          ^^^
+			The expression of type int is boxed into Byte
+			----------
+			3. WARNING in X.java (at line 8)
+				switch (no) { // warning: Byte is unboxed into int > why in int??? output
+				        ^^
+			The expression of type Byte is unboxed into int
+			----------
+			4. ERROR in X.java (at line 14)
+				no = new Byte(127);
+				     ^^^^^^^^^^^^^
+			The constructor Byte(int) is undefined
+			----------
+			"""
 );
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156108 - variation
@@ -3718,59 +4065,63 @@ public void test122() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	Byte foo() {\n" +
-			"		final int i = -128;\n" +
-			"		return i;\n" +
-			"	}\n" +
-			"	Byte bar() {\n" +
-			"		final int i = 1000;\n" +
-			"		return i;\n" +
-			"	}	\n" +
-			"}", // =================
+			"""
+				public class X {
+					Byte foo() {
+						final int i = -128;
+						return i;
+					}
+					Byte bar() {
+						final int i = 1000;
+						return i;
+					}\t
+				}""", // =================
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	return i;\n" +
-		"	       ^\n" +
-		"The expression of type int is boxed into Byte\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	return i;\n" +
-		"	       ^\n" +
-		"Type mismatch: cannot convert from int to Byte\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				return i;
+				       ^
+			The expression of type int is boxed into Byte
+			----------
+			2. ERROR in X.java (at line 8)
+				return i;
+				       ^
+			Type mismatch: cannot convert from int to Byte
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155255
 public void test123() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		foo1();\n" +
-			"		foo2();\n" +
-			"		foo3();\n" +
-			"		foo4();\n" +
-			"		System.out.println(\"[done]\");\n" +
-			"	}\n" +
-			"	static void foo1() {\n" +
-			"		Object x = true ? true : \"\";\n" +
-			"		System.out.print(\"[1:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" +
-			"	}\n" +
-			"	static void foo2() {\n" +
-			"		Object x = Boolean.TRUE != null ? true : \"\";\n" +
-			"		System.out.print(\"[2:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" +
-			"	}\n" +
-			"	static void foo3() {\n" +
-			"		Object x = false ? \"\" : false;\n" +
-			"		System.out.print(\"[3:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" +
-			"	}\n" +
-			"	static void foo4() {\n" +
-			"		Object x = Boolean.TRUE == null ? \"\" : false;\n" +
-			"		System.out.print(\"[4:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" +
-			"	}\n" +
-			"}", // =================
+			"""
+				public class X {
+					public static void main(String[] args) {
+						foo1();
+						foo2();
+						foo3();
+						foo4();
+						System.out.println("[done]");
+					}
+					static void foo1() {
+						Object x = true ? true : "";
+						System.out.print("[1:"+ x + "," + x.getClass().getCanonicalName() + "]");
+					}
+					static void foo2() {
+						Object x = Boolean.TRUE != null ? true : "";
+						System.out.print("[2:"+ x + "," + x.getClass().getCanonicalName() + "]");
+					}
+					static void foo3() {
+						Object x = false ? "" : false;
+						System.out.print("[3:"+ x + "," + x.getClass().getCanonicalName() + "]");
+					}
+					static void foo4() {
+						Object x = Boolean.TRUE == null ? "" : false;
+						System.out.print("[4:"+ x + "," + x.getClass().getCanonicalName() + "]");
+					}
+				}""", // =================
 		},
 		"[1:true,java.lang.Boolean][2:true,java.lang.Boolean][3:false,java.lang.Boolean][4:false,java.lang.Boolean][done]");
 }
@@ -3783,25 +4134,28 @@ public void test124() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	static void foo5() {\n" +
-			"		boolean x = false ? \"\" : false;\n" +
-			"		System.out.print(\"[4:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" +
-			"	}	\n" +
-			"}", // =================
+			"""
+				public class X {
+					static void foo5() {
+						boolean x = false ? "" : false;
+						System.out.print("[4:"+ x + "," + x.getClass().getCanonicalName() + "]");
+					}\t
+				}""", // =================
 		},
 		this.complianceLevel >= ClassFileConstants.JDK1_8 ?
-				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	boolean x = false ? \"\" : false;\n" +
-				"	                    ^^\n" +
-				"Type mismatch: cannot convert from String to boolean\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	System.out.print(\"[4:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" +
-				"	                                  ^^^^^^^^^^^^\n" +
-				"Cannot invoke getClass() on the primitive type boolean\n" +
-				"----------\n" :
+				"""
+					----------
+					1. ERROR in X.java (at line 3)
+						boolean x = false ? "" : false;
+						                    ^^
+					Type mismatch: cannot convert from String to boolean
+					----------
+					2. ERROR in X.java (at line 4)
+						System.out.print("[4:"+ x + "," + x.getClass().getCanonicalName() + "]");
+						                                  ^^^^^^^^^^^^
+					Cannot invoke getClass() on the primitive type boolean
+					----------
+					""" :
 						"----------\n" +
 						"1. ERROR in X.java (at line 3)\n" +
 						"	boolean x = false ? \"\" : false;\n" +
@@ -3824,26 +4178,28 @@ public void test125() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		foo1();\n" +
-			"		foo2();\n" +
-			"		foo3();\n" +
-			"		System.out.println(\"[done]\");\n" +
-			"	}\n" +
-			"	static void foo1() {\n" +
-			"		Object x = true ? 3.0f : false;\n" +
-			"		System.out.print(\"[1:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" +
-			"	}\n" +
-			"	static void foo2() {\n" +
-			"		Object x = true ? 2 : false;\n" +
-			"		System.out.print(\"[2:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" +
-			"	}\n" +
-			"	static void foo3() {\n" +
-			"		Object x = false ? 2 : false;\n" +
-			"		System.out.print(\"[3:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" +
-			"	}\n" +
-			"}\n", // =================
+			"""
+				public class X {
+					public static void main(String[] args) {
+						foo1();
+						foo2();
+						foo3();
+						System.out.println("[done]");
+					}
+					static void foo1() {
+						Object x = true ? 3.0f : false;
+						System.out.print("[1:"+ x + "," + x.getClass().getCanonicalName() + "]");
+					}
+					static void foo2() {
+						Object x = true ? 2 : false;
+						System.out.print("[2:"+ x + "," + x.getClass().getCanonicalName() + "]");
+					}
+					static void foo3() {
+						Object x = false ? 2 : false;
+						System.out.print("[3:"+ x + "," + x.getClass().getCanonicalName() + "]");
+					}
+				}
+				""", // =================
 		},
 		"[1:3.0,java.lang.Float][2:2,java.lang.Integer][3:false,java.lang.Boolean][done]");
 	}
@@ -3851,53 +4207,59 @@ public void test126() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo(boolean b) {\n" +
-			"		int i = 12;\n" +
-			"		Integer r1 = b ? null : i;\n" +
-			"		int r2 = b ? null : i;\n" +
-			"	}\n" +
-			"	Zork z;\n" +
-			"}\n", // =================
+			"""
+				public class X {
+					void foo(boolean b) {
+						int i = 12;
+						Integer r1 = b ? null : i;
+						int r2 = b ? null : i;
+					}
+					Zork z;
+				}
+				""", // =================
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	Integer r1 = b ? null : i;\n" +
-		"	                        ^\n" +
-		"The expression of type int is boxed into Integer\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	int r2 = b ? null : i;\n" +
-		"	         ^^^^^^^^^^^^\n" +
-		"The expression of type Integer is unboxed into int\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 5)\n" +
-		"	int r2 = b ? null : i;\n" +
-		"	                    ^\n" +
-		"The expression of type int is boxed into Integer\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 7)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				Integer r1 = b ? null : i;
+				                        ^
+			The expression of type int is boxed into Integer
+			----------
+			2. WARNING in X.java (at line 5)
+				int r2 = b ? null : i;
+				         ^^^^^^^^^^^^
+			The expression of type Integer is unboxed into int
+			----------
+			3. WARNING in X.java (at line 5)
+				int r2 = b ? null : i;
+				                    ^
+			The expression of type int is boxed into Integer
+			----------
+			4. ERROR in X.java (at line 7)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			""");
 }
 public void test127() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"        public static void main(String[] s) {\n" +
-			"                Object[] os1 = new Object[] {(long)1234567};\n" +
-			"                Object[] os2 = new Object[] {1234567};\n" +
-			"                Object o1 = os1[0], o2 = os2[0];\n" +
-			"                if (o1.getClass().equals(o2.getClass())) {\n" +
-			"                    System.out.println(\"FAILED:o1[\"+o1.getClass().getName()+\"],o2:[\"+o2.getClass()+\"]\");\n" +
-			"                } else {\n" +
-			"                    System.out.println(\"SUCCESS:o1[\"+o1.getClass().getName()+\"],o2:[\"+o2.getClass()+\"]\");\n" +
-			"                }\n" +
-			"        }\n" +
-			"}\n", // =================
+			"""
+				public class X {
+				        public static void main(String[] s) {
+				                Object[] os1 = new Object[] {(long)1234567};
+				                Object[] os2 = new Object[] {1234567};
+				                Object o1 = os1[0], o2 = os2[0];
+				                if (o1.getClass().equals(o2.getClass())) {
+				                    System.out.println("FAILED:o1["+o1.getClass().getName()+"],o2:["+o2.getClass()+"]");
+				                } else {
+				                    System.out.println("SUCCESS:o1["+o1.getClass().getName()+"],o2:["+o2.getClass()+"]");
+				                }
+				        }
+				}
+				""", // =================
 		},
 		"SUCCESS:o1[java.lang.Long],o2:[class java.lang.Integer]");
 }
@@ -3907,86 +4269,95 @@ public void test128() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] s) {\n" +
-			"		Object o1 = (long) 1234567;\n" +
-			"		Object[] os1 = new Object[] { (long) 1234567 };\n" +
-			"		Object[] os2 = { (long) 1234567 };\n" +
-			"		foo((long) 1234567);\n" +
-			"	}\n" +
-			"	static void foo(Object o) {\n" +
-			"	}\n" +
-			"	Zork z;\n" +
-			"}\n", // =================
+			"""
+				public class X {
+					public static void main(String[] s) {
+						Object o1 = (long) 1234567;
+						Object[] os1 = new Object[] { (long) 1234567 };
+						Object[] os2 = { (long) 1234567 };
+						foo((long) 1234567);
+					}
+					static void foo(Object o) {
+					}
+					Zork z;
+				}
+				""", // =================
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	Object o1 = (long) 1234567;\n" +
-		"	            ^^^^^^^^^^^^^^\n" +
-		"The expression of type long is boxed into Long\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	Object[] os1 = new Object[] { (long) 1234567 };\n" +
-		"	                              ^^^^^^^^^^^^^^\n" +
-		"The expression of type long is boxed into Long\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 5)\n" +
-		"	Object[] os2 = { (long) 1234567 };\n" +
-		"	                 ^^^^^^^^^^^^^^\n" +
-		"The expression of type long is boxed into Long\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 6)\n" +
-		"	foo((long) 1234567);\n" +
-		"	    ^^^^^^^^^^^^^^\n" +
-		"The expression of type long is boxed into Long\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 10)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				Object o1 = (long) 1234567;
+				            ^^^^^^^^^^^^^^
+			The expression of type long is boxed into Long
+			----------
+			2. WARNING in X.java (at line 4)
+				Object[] os1 = new Object[] { (long) 1234567 };
+				                              ^^^^^^^^^^^^^^
+			The expression of type long is boxed into Long
+			----------
+			3. WARNING in X.java (at line 5)
+				Object[] os2 = { (long) 1234567 };
+				                 ^^^^^^^^^^^^^^
+			The expression of type long is boxed into Long
+			----------
+			4. WARNING in X.java (at line 6)
+				foo((long) 1234567);
+				    ^^^^^^^^^^^^^^
+			The expression of type long is boxed into Long
+			----------
+			5. ERROR in X.java (at line 10)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155104
 public void test129() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X{\n" +
-			"   java.io.Serializable field=this==null?8:\"\".getBytes();\n" +
-			"	Zork z;\n" +
-			"}\n", // =================
+			"""
+				public class X{
+				   java.io.Serializable field=this==null?8:"".getBytes();
+					Zork z;
+				}
+				""", // =================
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 2)\r\n" +
-		"	java.io.Serializable field=this==null?8:\"\".getBytes();\r\n" +
-		"	                                      ^\n" +
-		"The expression of type int is boxed into Integer\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\r\n" +
-		"	Zork z;\r\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 2)\r
+				java.io.Serializable field=this==null?8:"".getBytes();\r
+				                                      ^
+			The expression of type int is boxed into Integer
+			----------
+			2. ERROR in X.java (at line 3)\r
+				Zork z;\r
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=174879
 public void test130() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	Boolean[] myBool = new Boolean[1];\n" +
-			"	void foo() {\n" +
-			"		if (this.myBool[0]) {}\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			new X().foo();\n" +
-			"			System.out.println(\"FAILURE\");\n" +
-			"		} catch(NullPointerException e) {\n" +
-			"			System.out.println(\"SUCCESS\");\n" +
-			"		}\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					Boolean[] myBool = new Boolean[1];
+					void foo() {
+						if (this.myBool[0]) {}
+					}
+					public static void main(String[] args) {
+						try {
+							new X().foo();
+							System.out.println("FAILURE");
+						} catch(NullPointerException e) {
+							System.out.println("SUCCESS");
+						}
+					}
+				}""",
 		},
 		"SUCCESS");
 }
@@ -3995,20 +4366,21 @@ public void test131() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	Boolean myBool = null;\n" +
-			"	void foo() {\n" +
-			"		if (myBool) {}\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			new X().foo();\n" +
-			"			System.out.println(\"FAILURE\");\n" +
-			"		} catch(NullPointerException e) {\n" +
-			"			System.out.println(\"SUCCESS\");\n" +
-			"		}\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					Boolean myBool = null;
+					void foo() {
+						if (myBool) {}
+					}
+					public static void main(String[] args) {
+						try {
+							new X().foo();
+							System.out.println("FAILURE");
+						} catch(NullPointerException e) {
+							System.out.println("SUCCESS");
+						}
+					}
+				}""",
 		},
 		"SUCCESS");
 }
@@ -4017,20 +4389,21 @@ public void test132() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	static Boolean myBool = null;\n" +
-			"	static void foo() {\n" +
-			"		if (myBool) {}\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			foo();\n" +
-			"			System.out.println(\"FAILURE\");\n" +
-			"		} catch(NullPointerException e) {\n" +
-			"			System.out.println(\"SUCCESS\");\n" +
-			"		}\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					static Boolean myBool = null;
+					static void foo() {
+						if (myBool) {}
+					}
+					public static void main(String[] args) {
+						try {
+							foo();
+							System.out.println("FAILURE");
+						} catch(NullPointerException e) {
+							System.out.println("SUCCESS");
+						}
+					}
+				}""",
 		},
 		"SUCCESS");
 }
@@ -4039,20 +4412,21 @@ public void test133() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	Boolean myBool = null;\n" +
-			"	void foo() {\n" +
-			"		if (this.myBool) {}\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			new X().foo();\n" +
-			"			System.out.println(\"FAILURE\");\n" +
-			"		} catch(NullPointerException e) {\n" +
-			"			System.out.println(\"SUCCESS\");\n" +
-			"		}\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					Boolean myBool = null;
+					void foo() {
+						if (this.myBool) {}
+					}
+					public static void main(String[] args) {
+						try {
+							new X().foo();
+							System.out.println("FAILURE");
+						} catch(NullPointerException e) {
+							System.out.println("SUCCESS");
+						}
+					}
+				}""",
 		},
 		"SUCCESS");
 }
@@ -4061,20 +4435,21 @@ public void test134() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	static Boolean MyBool = null;\n" +
-			"	static void foo() {\n" +
-			"		if (X.MyBool) {}\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			foo();\n" +
-			"			System.out.println(\"FAILURE\");\n" +
-			"		} catch(NullPointerException e) {\n" +
-			"			System.out.println(\"SUCCESS\");\n" +
-			"		}\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					static Boolean MyBool = null;
+					static void foo() {
+						if (X.MyBool) {}
+					}
+					public static void main(String[] args) {
+						try {
+							foo();
+							System.out.println("FAILURE");
+						} catch(NullPointerException e) {
+							System.out.println("SUCCESS");
+						}
+					}
+				}""",
 		},
 		"SUCCESS");
 }
@@ -4085,23 +4460,25 @@ public void test135() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class A<T> {\n" +
-			"        public T foo() { return null; }\n" +
-			"}\n" +
-			"\n" +
-			"public class X {\n" +
-			"        public static void main(String[] args) {\n" +
-			"                A<Long> a = new A<Long>();\n" +
-			"				 A ua = a;\n" +
-			"                try {\n" +
-			"	                long s = a.foo();\n" +
-			"                } catch(NullPointerException e) {\n" +
-			"                	System.out.println(\"SUCCESS\");\n" +
-			"                	return;\n" +
-			"                }\n" +
-			"            	System.out.println(\"FAILED\");\n" +
-			"        }\n" +
-			"}\n", // =================
+			"""
+				class A<T> {
+				        public T foo() { return null; }
+				}
+				
+				public class X {
+				        public static void main(String[] args) {
+				                A<Long> a = new A<Long>();
+								 A ua = a;
+				                try {
+					                long s = a.foo();
+				                } catch(NullPointerException e) {
+				                	System.out.println("SUCCESS");
+				                	return;
+				                }
+				            	System.out.println("FAILED");
+				        }
+				}
+				""", // =================
 		},
 		"SUCCESS",
 		null,
@@ -4117,24 +4494,26 @@ public void test136() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class A<T> {\n" +
-			"        public T foo(Object o) {\n" +
-			"                return (T) o; // should get unchecked warning\n" +
-			"        }\n" +
-			"}\n" +
-			"\n" +
-			"public class X {\n" +
-			"        public static void main(String[] args) {\n" +
-			"                A<Long> a = new A<Long>();\n" +
-			"                try {\n" +
-			"	                long s = a.foo(new Object());\n" +
-			"                } catch(ClassCastException e) {\n" +
-			"                	System.out.println(\"SUCCESS\");\n" +
-			"                	return;\n" +
-			"                }\n" +
-			"            	System.out.println(\"FAILED\");\n" +
-			"        }\n" +
-			"}\n", // =================
+			"""
+				class A<T> {
+				        public T foo(Object o) {
+				                return (T) o; // should get unchecked warning
+				        }
+				}
+				
+				public class X {
+				        public static void main(String[] args) {
+				                A<Long> a = new A<Long>();
+				                try {
+					                long s = a.foo(new Object());
+				                } catch(ClassCastException e) {
+				                	System.out.println("SUCCESS");
+				                	return;
+				                }
+				            	System.out.println("FAILED");
+				        }
+				}
+				""", // =================
 		},
 		"SUCCESS",
 		null,
@@ -4150,24 +4529,26 @@ public void test137() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class A<T> {\n" +
-			"        public T foo;\n" +
-			"}\n" +
-			"\n" +
-			"public class X {\n" +
-			"        public static void main(String[] args) {\n" +
-			"                A<Long> a = new A<Long>();\n" +
-			"				 A ua = a;\n" +
-			"				 ua.foo = new Object();\n" +
-			"                try {\n" +
-			"	                long s = a.foo;\n" +
-			"                } catch(ClassCastException e) {\n" +
-			"                	System.out.println(\"SUCCESS\");\n" +
-			"                	return;\n" +
-			"                }\n" +
-			"            	System.out.println(\"FAILED\");\n" +
-			"        }\n" +
-			"}\n", // =================
+			"""
+				class A<T> {
+				        public T foo;
+				}
+				
+				public class X {
+				        public static void main(String[] args) {
+				                A<Long> a = new A<Long>();
+								 A ua = a;
+								 ua.foo = new Object();
+				                try {
+					                long s = a.foo;
+				                } catch(ClassCastException e) {
+				                	System.out.println("SUCCESS");
+				                	return;
+				                }
+				            	System.out.println("FAILED");
+				        }
+				}
+				""", // =================
 		},
 		"SUCCESS",
 		null,
@@ -4183,26 +4564,28 @@ public void test138() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class A<T> {\n" +
-			"        public T foo;\n" +
-			"}\n" +
-			"\n" +
-			"public class X extends A<Long>{\n" +
-			"        public static void main(String[] args) {\n" +
-			"			new X().foo();\n" +
-			"		 }\n" +
-			" 		 public void foo() {\n" +
-			"				 A ua = this;\n" +
-			"				 ua.foo = new Object();\n" +
-			"                try {\n" +
-			"	                long s = foo;\n" +
-			"                } catch(ClassCastException e) {\n" +
-			"                	System.out.println(\"SUCCESS\");\n" +
-			"                	return;\n" +
-			"                }\n" +
-			"            	System.out.println(\"FAILED\");\n" +
-			"        }\n" +
-			"}\n", // =================
+			"""
+				class A<T> {
+				        public T foo;
+				}
+				
+				public class X extends A<Long>{
+				        public static void main(String[] args) {
+							new X().foo();
+						 }
+				 		 public void foo() {
+								 A ua = this;
+								 ua.foo = new Object();
+				                try {
+					                long s = foo;
+				                } catch(ClassCastException e) {
+				                	System.out.println("SUCCESS");
+				                	return;
+				                }
+				            	System.out.println("FAILED");
+				        }
+				}
+				""", // =================
 		},
 		"SUCCESS",
 		null,
@@ -4218,26 +4601,28 @@ public void test139() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class A<T> {\n" +
-			"        public T foo;\n" +
-			"}\n" +
-			"\n" +
-			"public class X extends A<Long>{\n" +
-			"        public static void main(String[] args) {\n" +
-			"			new X().foo();\n" +
-			"		 }\n" +
-			" 		 public void foo() {\n" +
-			"				 A ua = this;\n" +
-			"				 ua.foo = new Object();\n" +
-			"                try {\n" +
-			"	                long s = this.foo;\n" +
-			"                } catch(ClassCastException e) {\n" +
-			"                	System.out.println(\"SUCCESS\");\n" +
-			"                	return;\n" +
-			"                }\n" +
-			"            	System.out.println(\"FAILED\");\n" +
-			"        }\n" +
-			"}\n", // =================
+			"""
+				class A<T> {
+				        public T foo;
+				}
+				
+				public class X extends A<Long>{
+				        public static void main(String[] args) {
+							new X().foo();
+						 }
+				 		 public void foo() {
+								 A ua = this;
+								 ua.foo = new Object();
+				                try {
+					                long s = this.foo;
+				                } catch(ClassCastException e) {
+				                	System.out.println("SUCCESS");
+				                	return;
+				                }
+				            	System.out.println("FAILED");
+				        }
+				}
+				""", // =================
 		},
 		"SUCCESS",
 		null,
@@ -4253,19 +4638,21 @@ public void test140() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class A {\n" +
-			"        long foo() {\n" +
-			"                return 0L;\n" +
-			"        }\n" +
-			"}\n" +
-			"\n" +
-			"public class X {\n" +
-			"        public static void main(String[] args) {\n" +
-			"                A a = new A();\n" +
-			"	             Long s = a.foo();\n" +
-			"                System.out.println(\"SUCCESS\");\n" +
-			"        }\n" +
-			"}\n", // =================
+			"""
+				class A {
+				        long foo() {
+				                return 0L;
+				        }
+				}
+				
+				public class X {
+				        public static void main(String[] args) {
+				                A a = new A();
+					             Long s = a.foo();
+				                System.out.println("SUCCESS");
+				        }
+				}
+				""", // =================
 		},
 		"SUCCESS",
 		null,
@@ -4281,17 +4668,19 @@ public void test141() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class A {\n" +
-			"        long foo = 0L;\n" +
-			"}\n" +
-			"\n" +
-			"public class X {\n" +
-			"        public static void main(String[] args) {\n" +
-			"                A a = new A();\n" +
-			"	             Long s = a.foo;\n" +
-			"                System.out.println(\"SUCCESS\");\n" +
-			"        }\n" +
-			"}\n", // =================
+			"""
+				class A {
+				        long foo = 0L;
+				}
+				
+				public class X {
+				        public static void main(String[] args) {
+				                A a = new A();
+					             Long s = a.foo;
+				                System.out.println("SUCCESS");
+				        }
+				}
+				""", // =================
 		},
 		"SUCCESS",
 		null,
@@ -4307,19 +4696,21 @@ public void test142() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class A {\n" +
-			"        long foo = 0L;\n" +
-			"}\n" +
-			"\n" +
-			"public class X extends A {\n" +
-			"        public static void main(String[] args) {\n" +
-			"			new X().bar();\n" +
-			"        }\n" +
-			"		void bar() {\n" +
-			"	             Long s = foo;\n" +
-			"                System.out.println(\"SUCCESS\");\n" +
-			"        }\n" +
-			"}\n", // =================
+			"""
+				class A {
+				        long foo = 0L;
+				}
+				
+				public class X extends A {
+				        public static void main(String[] args) {
+							new X().bar();
+				        }
+						void bar() {
+					             Long s = foo;
+				                System.out.println("SUCCESS");
+				        }
+				}
+				""", // =================
 		},
 		"SUCCESS",
 		null,
@@ -4335,19 +4726,21 @@ public void test143() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class A {\n" +
-			"        long foo = 0L;\n" +
-			"}\n" +
-			"\n" +
-			"public class X extends A {\n" +
-			"        public static void main(String[] args) {\n" +
-			"			new X().bar();\n" +
-			"        }\n" +
-			"		void bar() {\n" +
-			"	             Long s = this.foo;\n" +
-			"                System.out.println(\"SUCCESS\");\n" +
-			"        }\n" +
-			"}\n", // =================
+			"""
+				class A {
+				        long foo = 0L;
+				}
+				
+				public class X extends A {
+				        public static void main(String[] args) {
+							new X().bar();
+				        }
+						void bar() {
+					             Long s = this.foo;
+				                System.out.println("SUCCESS");
+				        }
+				}
+				""", // =================
 		},
 		"SUCCESS",
 		null,
@@ -4363,26 +4756,28 @@ public void test144() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class A<T> {\n" +
-			"        public T[] foo;\n" +
-			"}\n" +
-			"\n" +
-			"public class X extends A<Long>{\n" +
-			"        public static void main(String[] args) {\n" +
-			"			new X().foo();\n" +
-			"		 }\n" +
-			" 		 public void foo() {\n" +
-			"				 A ua = this;\n" +
-			"				 ua.foo = new Object[1];\n" +
-			"                try {\n" +
-			"	                long s = this.foo[0];\n" +
-			"                } catch(ClassCastException e) {\n" +
-			"                	System.out.println(\"SUCCESS\");\n" +
-			"                	return;\n" +
-			"                }\n" +
-			"            	System.out.println(\"FAILED\");\n" +
-			"        }\n" +
-			"}\n", // =================
+			"""
+				class A<T> {
+				        public T[] foo;
+				}
+				
+				public class X extends A<Long>{
+				        public static void main(String[] args) {
+							new X().foo();
+						 }
+				 		 public void foo() {
+								 A ua = this;
+								 ua.foo = new Object[1];
+				                try {
+					                long s = this.foo[0];
+				                } catch(ClassCastException e) {
+				                	System.out.println("SUCCESS");
+				                	return;
+				                }
+				            	System.out.println("FAILED");
+				        }
+				}
+				""", // =================
 		},
 		"SUCCESS",
 		null,
@@ -4398,19 +4793,21 @@ public void test145() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class A {\n" +
-			"        long[] foo = { 0L };\n" +
-			"}\n" +
-			"\n" +
-			"public class X extends A {\n" +
-			"        public static void main(String[] args) {\n" +
-			"			new X().bar();\n" +
-			"        }\n" +
-			"		void bar() {\n" +
-			"	             Long s = this.foo[0];\n" +
-			"                System.out.println(\"SUCCESS\");\n" +
-			"        }\n" +
-			"}\n", // =================
+			"""
+				class A {
+				        long[] foo = { 0L };
+				}
+				
+				public class X extends A {
+				        public static void main(String[] args) {
+							new X().bar();
+				        }
+						void bar() {
+					             Long s = this.foo[0];
+				                System.out.println("SUCCESS");
+				        }
+				}
+				""", // =================
 		},
 		"SUCCESS",
 		null,
@@ -4426,17 +4823,19 @@ public void test146() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class A<T> {\n" +
-			"        public T foo;\n" +
-			"}\n" +
-			"\n" +
-			"public class X {\n" +
-			"        public static void main(String[] args) {\n" +
-			"            A<Long> a = new A<Long>();\n" +
-			"	         long s = a.foo.MAX_VALUE;\n" +
-			"            System.out.println(\"SUCCESS\");\n" +
-			"        }\n" +
-			"}\n", // =================
+			"""
+				class A<T> {
+				        public T foo;
+				}
+				
+				public class X {
+				        public static void main(String[] args) {
+				            A<Long> a = new A<Long>();
+					         long s = a.foo.MAX_VALUE;
+				            System.out.println("SUCCESS");
+				        }
+				}
+				""", // =================
 		},
 		"SUCCESS",
 		null,
@@ -4450,12 +4849,13 @@ public void test147() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		if(new Integer(2) == 0) {}\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						if(new Integer(2) == 0) {}
+						System.out.println("SUCCESS");
+					}
+				}""",
 		},
 		"SUCCESS");
 }
@@ -4464,20 +4864,22 @@ public void test148() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Z test = new Z(1, 1);\n" +
-			"		System.out.println(\"SUCCESS\" + test.foo());\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						Z test = new Z(1, 1);
+						System.out.println("SUCCESS" + test.foo());
+					}
+				}""",
 			"Z.java",
-			"class Z {\n" +
-			"	public <A, B extends A> Z(A a, B b) {\n" +
-			"	}\n" +
-			"	public int foo() {\n" +
-			"		return 0;\n" +
-			"	}\n" +
-			"}"
+			"""
+				class Z {
+					public <A, B extends A> Z(A a, B b) {
+					}
+					public int foo() {
+						return 0;
+					}
+				}"""
 		},
 		"SUCCESS0");
 }
@@ -4486,17 +4888,19 @@ public void test149() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Z test = new Z(1, 1);\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						Z test = new Z(1, 1);
+						System.out.println("SUCCESS");
+					}
+				}""",
 			"Z.java",
-			"class Z {\n" +
-			"	public <A, B extends A> Z(A a, B b) {\n" +
-			"	}\n" +
-			"}"
+			"""
+				class Z {
+					public <A, B extends A> Z(A a, B b) {
+					}
+				}"""
 		},
 		"SUCCESS");
 }
@@ -4505,15 +4909,16 @@ public void test150() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		if(new Integer(2) == 0) {\n" +
-			"			System.out.println(\"FAILED\");\n" +
-			"		} else {\n" +
-			"			System.out.println(\"SUCCESS\");\n" +
-			"		}\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						if(new Integer(2) == 0) {
+							System.out.println("FAILED");
+						} else {
+							System.out.println("SUCCESS");
+						}
+					}
+				}""",
 		},
 		"SUCCESS");
 }
@@ -4522,15 +4927,16 @@ public void test151() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		if(new Double(2.0) == 0.0) {\n" +
-			"			System.out.println(\"FAILED\");\n" +
-			"		} else {\n" +
-			"			System.out.println(\"SUCCESS\");\n" +
-			"		}\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						if(new Double(2.0) == 0.0) {
+							System.out.println("FAILED");
+						} else {
+							System.out.println("SUCCESS");
+						}
+					}
+				}""",
 		},
 		"SUCCESS");
 }
@@ -4539,12 +4945,13 @@ public void test152() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		if(new Double(2.0) == 0.0) {}\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						if(new Double(2.0) == 0.0) {}
+						System.out.println("SUCCESS");
+					}
+				}""",
 		},
 		"SUCCESS");
 }
@@ -4553,96 +4960,102 @@ public void test153() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		Integer a = 0;\n" +
-			"		char b = (char)((int)a);\n" +
-			"		char c = (char)(a + 1);\n" +
-			"		char d = (char)(a);\n" +
-			"		int e = (int) a;\n" +
-			"		Integer f = (Integer) e;\n" +
-			"	}\n" +
-			"	void bar() {\n" +
-			"		X x = (X) null;\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					void foo() {
+						Integer a = 0;
+						char b = (char)((int)a);
+						char c = (char)(a + 1);
+						char d = (char)(a);
+						int e = (int) a;
+						Integer f = (Integer) e;
+					}
+					void bar() {
+						X x = (X) null;
+					}
+				}
+				""",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	Integer a = 0;\n" +
-		"	            ^\n" +
-		"The expression of type int is boxed into Integer\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	char b = (char)((int)a);\n" +
-		"	                     ^\n" +
-		"The expression of type Integer is unboxed into int\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 5)\n" +
-		"	char c = (char)(a + 1);\n" +
-		"	                ^\n" +
-		"The expression of type Integer is unboxed into int\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 6)\n" +
-		"	char d = (char)(a);\n" +
-		"	         ^^^^^^^^^\n" +
-		"Cannot cast from Integer to char\n" +
-		"----------\n" +
-		"5. WARNING in X.java (at line 7)\n" +
-		"	int e = (int) a;\n" +
-		"	        ^^^^^^^\n" +
-		"Unnecessary cast from Integer to int\n" +
-		"----------\n" +
-		"6. WARNING in X.java (at line 7)\n" +
-		"	int e = (int) a;\n" +
-		"	              ^\n" +
-		"The expression of type Integer is unboxed into int\n" +
-		"----------\n" +
-		"7. WARNING in X.java (at line 8)\n" +
-		"	Integer f = (Integer) e;\n" +
-		"	            ^^^^^^^^^^^\n" +
-		"Unnecessary cast from int to Integer\n" +
-		"----------\n" +
-		"8. WARNING in X.java (at line 8)\n" +
-		"	Integer f = (Integer) e;\n" +
-		"	                      ^\n" +
-		"The expression of type int is boxed into Integer\n" +
-		"----------\n" +
-		"9. WARNING in X.java (at line 11)\n" +
-		"	X x = (X) null;\n" +
-		"	      ^^^^^^^^\n" +
-		"Unnecessary cast from null to X\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				Integer a = 0;
+				            ^
+			The expression of type int is boxed into Integer
+			----------
+			2. WARNING in X.java (at line 4)
+				char b = (char)((int)a);
+				                     ^
+			The expression of type Integer is unboxed into int
+			----------
+			3. WARNING in X.java (at line 5)
+				char c = (char)(a + 1);
+				                ^
+			The expression of type Integer is unboxed into int
+			----------
+			4. ERROR in X.java (at line 6)
+				char d = (char)(a);
+				         ^^^^^^^^^
+			Cannot cast from Integer to char
+			----------
+			5. WARNING in X.java (at line 7)
+				int e = (int) a;
+				        ^^^^^^^
+			Unnecessary cast from Integer to int
+			----------
+			6. WARNING in X.java (at line 7)
+				int e = (int) a;
+				              ^
+			The expression of type Integer is unboxed into int
+			----------
+			7. WARNING in X.java (at line 8)
+				Integer f = (Integer) e;
+				            ^^^^^^^^^^^
+			Unnecessary cast from int to Integer
+			----------
+			8. WARNING in X.java (at line 8)
+				Integer f = (Integer) e;
+				                      ^
+			The expression of type int is boxed into Integer
+			----------
+			9. WARNING in X.java (at line 11)
+				X x = (X) null;
+				      ^^^^^^^^
+			Unnecessary cast from null to X
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565
 public void test154() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"        T counter;\n" +
-			"        public static void main(String[] args) {\n" +
-			"        	 bar(new X<Integer>());\n" +
-			"        	 new Y().foo();\n" +
-			"        	 new Y().baz();\n" +
-			"        }\n" +
-			"        static void bar(X<Integer> x) {\n" +
-			"        	x.counter = 0;\n" +
-			"            System.out.print(Integer.toString(x.counter++));\n" +
-			"        }\n" +
-			"}\n" +
-			"\n" +
-			"class Y extends X<Integer> {\n" +
-			"	Y() {\n" +
-			"		this.counter = 0;\n" +
-			"	}\n" +
-			"    void foo() {\n" +
-			"        System.out.print(Integer.toString(counter++));\n" +
-			"    }\n" +
-			"    void baz() {\n" +
-			"        System.out.println(Integer.toString(this.counter++));\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X<T> {
+				        T counter;
+				        public static void main(String[] args) {
+				        	 bar(new X<Integer>());
+				        	 new Y().foo();
+				        	 new Y().baz();
+				        }
+				        static void bar(X<Integer> x) {
+				        	x.counter = 0;
+				            System.out.print(Integer.toString(x.counter++));
+				        }
+				}
+				
+				class Y extends X<Integer> {
+					Y() {
+						this.counter = 0;
+					}
+				    void foo() {
+				        System.out.print(Integer.toString(counter++));
+				    }
+				    void baz() {
+				        System.out.println(Integer.toString(this.counter++));
+				    }
+				}
+				""",
 		},
 		"000");
 }
@@ -4651,30 +5064,32 @@ public void test155() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"        T[] counter;\n" +
-			"        public static void main(String[] args) {\n" +
-			"        	 bar(new X<Integer>());\n" +
-			"        	 new Y().foo();\n" +
-			"        	 new Y().baz();\n" +
-			"        }\n" +
-			"        static void bar(X<Integer> x) {\n" +
-			"        	x.counter = new Integer[]{ 0 };\n" +
-			"            System.out.print(Integer.toString(x.counter[0]++));\n" +
-			"        }\n" +
-			"}\n" +
-			"\n" +
-			"class Y extends X<Integer> {\n" +
-			"	Y() {\n" +
-			"		this.counter =  new Integer[]{ 0 };\n" +
-			"	}\n" +
-			"    void foo() {\n" +
-			"        System.out.print(Integer.toString(counter[0]++));\n" +
-			"    }\n" +
-			"    void baz() {\n" +
-			"        System.out.println(Integer.toString(this.counter[0]++));\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X<T> {
+				        T[] counter;
+				        public static void main(String[] args) {
+				        	 bar(new X<Integer>());
+				        	 new Y().foo();
+				        	 new Y().baz();
+				        }
+				        static void bar(X<Integer> x) {
+				        	x.counter = new Integer[]{ 0 };
+				            System.out.print(Integer.toString(x.counter[0]++));
+				        }
+				}
+				
+				class Y extends X<Integer> {
+					Y() {
+						this.counter =  new Integer[]{ 0 };
+					}
+				    void foo() {
+				        System.out.print(Integer.toString(counter[0]++));
+				    }
+				    void baz() {
+				        System.out.println(Integer.toString(this.counter[0]++));
+				    }
+				}
+				""",
 		},
 		"000");
 }
@@ -4683,17 +5098,19 @@ public void test156() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	static void print(Character c) {\n" +
-			"		System.out.print((char) c);\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		char c = \'H\';\n" +
-			"		print(c++);\n" +
-			"		print(c++);\n" +
-			"		System.out.println(\"done\");\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X {
+					static void print(Character c) {
+						System.out.print((char) c);
+					}
+					public static void main(String[] args) {
+						char c = 'H';
+						print(c++);
+						print(c++);
+						System.out.println("done");
+				    }
+				}
+				""",
 		},
 		"HIdone");
 }
@@ -4702,18 +5119,20 @@ public void test157() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	char c = \'H\';\n" +
-			"	static void print(Character c) {\n" +
-			"		System.out.print((char) c);\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X x = new X();\n" +
-			"		print(x.c++);\n" +
-			"		print(x.c++);\n" +
-			"		System.out.println(\"done\");\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X {
+					char c = 'H';
+					static void print(Character c) {
+						System.out.print((char) c);
+					}
+					public static void main(String[] args) {
+						X x = new X();
+						print(x.c++);
+						print(x.c++);
+						System.out.println("done");
+				    }
+				}
+				""",
 		},
 		"HIdone");
 }
@@ -4722,20 +5141,22 @@ public void test158() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	static X singleton = new X();\n" +
-			"	static X singleton() { return singleton; }\n" +
-			"	char c = \'H\';\n" +
-			"	\n" +
-			"	static void print(Character c) {\n" +
-			"		System.out.print((char) c);\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		print(singleton().c++);\n" +
-			"		print(singleton().c++);\n" +
-			"		System.out.println(\"done\");\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X {
+					static X singleton = new X();
+					static X singleton() { return singleton; }
+					char c = 'H';
+				\t
+					static void print(Character c) {
+						System.out.print((char) c);
+					}
+					public static void main(String[] args) {
+						print(singleton().c++);
+						print(singleton().c++);
+						System.out.println("done");
+				    }
+				}
+				""",
 		},
 		"HIdone");
 }
@@ -4744,68 +5165,74 @@ public void test159() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X {\n" +
-			"    ArrayList params;\n" +
-			"    public int getSqlParamCount() {\n" +
-			"        return params == null ? null:params.size();\n" +
-			"    }\n" +
-			"    public int getSqlParamCount2() {\n" +
-			"        return null;\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				import java.util.ArrayList;
+				public class X {
+				    ArrayList params;
+				    public int getSqlParamCount() {
+				        return params == null ? null:params.size();
+				    }
+				    public int getSqlParamCount2() {
+				        return null;
+				    }
+				}
+				""",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	ArrayList params;\n" +
-		"	^^^^^^^^^\n" +
-		"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	return params == null ? null:params.size();\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The expression of type Integer is unboxed into int\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 5)\n" +
-		"	return params == null ? null:params.size();\n" +
-		"	                             ^^^^^^^^^^^^^\n" +
-		"The expression of type int is boxed into Integer\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 8)\n" +
-		"	return null;\n" +
-		"	       ^^^^\n" +
-		"Type mismatch: cannot convert from null to int\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				ArrayList params;
+				^^^^^^^^^
+			ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized
+			----------
+			2. WARNING in X.java (at line 5)
+				return params == null ? null:params.size();
+				       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			The expression of type Integer is unboxed into int
+			----------
+			3. WARNING in X.java (at line 5)
+				return params == null ? null:params.size();
+				                             ^^^^^^^^^^^^^
+			The expression of type int is boxed into Integer
+			----------
+			4. ERROR in X.java (at line 8)
+				return null;
+				       ^^^^
+			Type mismatch: cannot convert from null to int
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
 public void test160() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"        T counter;\n" +
-			"        public static void main(String[] args) {\n" +
-			"        	 bar(new X<Integer>());\n" +
-			"        	 new Y().foo();\n" +
-			"        	 new Y().baz();\n" +
-			"        }\n" +
-			"        static void bar(X<Integer> x) {\n" +
-			"        	x.counter = 0;\n" +
-			"            System.out.print(Integer.toString(++x.counter));\n" +
-			"        }\n" +
-			"}\n" +
-			"\n" +
-			"class Y extends X<Integer> {\n" +
-			"	Y() {\n" +
-			"		this.counter = 0;\n" +
-			"	}\n" +
-			"    void foo() {\n" +
-			"        System.out.print(Integer.toString(++counter));\n" +
-			"    }\n" +
-			"    void baz() {\n" +
-			"        System.out.println(Integer.toString(++this.counter));\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X<T> {
+				        T counter;
+				        public static void main(String[] args) {
+				        	 bar(new X<Integer>());
+				        	 new Y().foo();
+				        	 new Y().baz();
+				        }
+				        static void bar(X<Integer> x) {
+				        	x.counter = 0;
+				            System.out.print(Integer.toString(++x.counter));
+				        }
+				}
+				
+				class Y extends X<Integer> {
+					Y() {
+						this.counter = 0;
+					}
+				    void foo() {
+				        System.out.print(Integer.toString(++counter));
+				    }
+				    void baz() {
+				        System.out.println(Integer.toString(++this.counter));
+				    }
+				}
+				""",
 		},
 		"111");
 }
@@ -4814,30 +5241,32 @@ public void test161() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"        T[] counter;\n" +
-			"        public static void main(String[] args) {\n" +
-			"        	 bar(new X<Integer>());\n" +
-			"        	 new Y().foo();\n" +
-			"        	 new Y().baz();\n" +
-			"        }\n" +
-			"        static void bar(X<Integer> x) {\n" +
-			"        	x.counter = new Integer[]{ 0 };\n" +
-			"            System.out.print(Integer.toString(++x.counter[0]));\n" +
-			"        }\n" +
-			"}\n" +
-			"\n" +
-			"class Y extends X<Integer> {\n" +
-			"	Y() {\n" +
-			"		this.counter =  new Integer[]{ 0 };\n" +
-			"	}\n" +
-			"    void foo() {\n" +
-			"        System.out.print(Integer.toString(++counter[0]));\n" +
-			"    }\n" +
-			"    void baz() {\n" +
-			"        System.out.println(Integer.toString(++this.counter[0]));\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X<T> {
+				        T[] counter;
+				        public static void main(String[] args) {
+				        	 bar(new X<Integer>());
+				        	 new Y().foo();
+				        	 new Y().baz();
+				        }
+				        static void bar(X<Integer> x) {
+				        	x.counter = new Integer[]{ 0 };
+				            System.out.print(Integer.toString(++x.counter[0]));
+				        }
+				}
+				
+				class Y extends X<Integer> {
+					Y() {
+						this.counter =  new Integer[]{ 0 };
+					}
+				    void foo() {
+				        System.out.print(Integer.toString(++counter[0]));
+				    }
+				    void baz() {
+				        System.out.println(Integer.toString(++this.counter[0]));
+				    }
+				}
+				""",
 		},
 		"111");
 }
@@ -4846,17 +5275,19 @@ public void test162() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	static void print(Character c) {\n" +
-			"		System.out.print((char) c);\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		char c = \'H\';\n" +
-			"		print(++c);\n" +
-			"		print(++c);\n" +
-			"		System.out.println(\"done\");\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X {
+					static void print(Character c) {
+						System.out.print((char) c);
+					}
+					public static void main(String[] args) {
+						char c = 'H';
+						print(++c);
+						print(++c);
+						System.out.println("done");
+				    }
+				}
+				""",
 		},
 		"IJdone");
 }
@@ -4865,18 +5296,20 @@ public void test163() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	char c = \'H\';\n" +
-			"	static void print(Character c) {\n" +
-			"		System.out.print((char) c);\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X x = new X();\n" +
-			"		print(++x.c);\n" +
-			"		print(++x.c);\n" +
-			"		System.out.println(\"done\");\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X {
+					char c = 'H';
+					static void print(Character c) {
+						System.out.print((char) c);
+					}
+					public static void main(String[] args) {
+						X x = new X();
+						print(++x.c);
+						print(++x.c);
+						System.out.println("done");
+				    }
+				}
+				""",
 		},
 		"IJdone");
 }
@@ -4885,20 +5318,22 @@ public void test164() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	static X singleton = new X();\n" +
-			"	static X singleton() { return singleton; }\n" +
-			"	char c = \'H\';\n" +
-			"	\n" +
-			"	static void print(Character c) {\n" +
-			"		System.out.print((char) c);\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		print(++singleton().c);\n" +
-			"		print(++singleton().c);\n" +
-			"		System.out.println(\"done\");\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X {
+					static X singleton = new X();
+					static X singleton() { return singleton; }
+					char c = 'H';
+				\t
+					static void print(Character c) {
+						System.out.print((char) c);
+					}
+					public static void main(String[] args) {
+						print(++singleton().c);
+						print(++singleton().c);
+						System.out.println("done");
+				    }
+				}
+				""",
 		},
 		"IJdone");
 }
@@ -4907,97 +5342,101 @@ public void test165() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public void foo() {\n" +
-			"        Integer i1 = 10 ;\n" +
-			"        final short s = 100;\n" +
-			"        i1 = s;\n" +
-			"        switch (i1)\n" +
-			"        {\n" +
-			"            case s:\n" +
-			"        }\n" +
-			"    }\n" +
-			"    public void bar() {\n" +
-			"        Integer i2 = 10 ;\n" +
-			"        final byte b = 100;\n" +
-			"        i2 = b;\n" +
-			"        switch (i2)\n" +
-			"        {\n" +
-			"            case b:\n" +
-			"        }\n" +
-			"    }   \n" +
-			"    public void baz() {\n" +
-			"        Integer i3 = 10 ;\n" +
-			"        final char c = 100;\n" +
-			"        i3 = c;\n" +
-			"        switch (i3)\n" +
-			"        {\n" +
-			"            case c:\n" +
-			"        }\n" +
-			"    }     \n" +
-			"}\n",
+			"""
+				public class X {
+				    public void foo() {
+				        Integer i1 = 10 ;
+				        final short s = 100;
+				        i1 = s;
+				        switch (i1)
+				        {
+				            case s:
+				        }
+				    }
+				    public void bar() {
+				        Integer i2 = 10 ;
+				        final byte b = 100;
+				        i2 = b;
+				        switch (i2)
+				        {
+				            case b:
+				        }
+				    }  \s
+				    public void baz() {
+				        Integer i3 = 10 ;
+				        final char c = 100;
+				        i3 = c;
+				        switch (i3)
+				        {
+				            case c:
+				        }
+				    }    \s
+				}
+				""",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	Integer i1 = 10 ;\n" +
-		"	             ^^\n" +
-		"The expression of type int is boxed into Integer\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	i1 = s;\n" +
-		"	     ^\n" +
-		"Type mismatch: cannot convert from short to Integer\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 6)\n" +
-		"	switch (i1)\n" +
-		"	        ^^\n" +
-		"The expression of type Integer is unboxed into int\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 8)\n" +
-		"	case s:\n" +
-		"	     ^\n" +
-		"Type mismatch: cannot convert from short to Integer\n" +
-		"----------\n" +
-		"5. WARNING in X.java (at line 12)\n" +
-		"	Integer i2 = 10 ;\n" +
-		"	             ^^\n" +
-		"The expression of type int is boxed into Integer\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 14)\n" +
-		"	i2 = b;\n" +
-		"	     ^\n" +
-		"Type mismatch: cannot convert from byte to Integer\n" +
-		"----------\n" +
-		"7. WARNING in X.java (at line 15)\n" +
-		"	switch (i2)\n" +
-		"	        ^^\n" +
-		"The expression of type Integer is unboxed into int\n" +
-		"----------\n" +
-		"8. ERROR in X.java (at line 17)\n" +
-		"	case b:\n" +
-		"	     ^\n" +
-		"Type mismatch: cannot convert from byte to Integer\n" +
-		"----------\n" +
-		"9. WARNING in X.java (at line 21)\n" +
-		"	Integer i3 = 10 ;\n" +
-		"	             ^^\n" +
-		"The expression of type int is boxed into Integer\n" +
-		"----------\n" +
-		"10. ERROR in X.java (at line 23)\n" +
-		"	i3 = c;\n" +
-		"	     ^\n" +
-		"Type mismatch: cannot convert from char to Integer\n" +
-		"----------\n" +
-		"11. WARNING in X.java (at line 24)\n" +
-		"	switch (i3)\n" +
-		"	        ^^\n" +
-		"The expression of type Integer is unboxed into int\n" +
-		"----------\n" +
-		"12. ERROR in X.java (at line 26)\n" +
-		"	case c:\n" +
-		"	     ^\n" +
-		"Type mismatch: cannot convert from char to Integer\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				Integer i1 = 10 ;
+				             ^^
+			The expression of type int is boxed into Integer
+			----------
+			2. ERROR in X.java (at line 5)
+				i1 = s;
+				     ^
+			Type mismatch: cannot convert from short to Integer
+			----------
+			3. WARNING in X.java (at line 6)
+				switch (i1)
+				        ^^
+			The expression of type Integer is unboxed into int
+			----------
+			4. ERROR in X.java (at line 8)
+				case s:
+				     ^
+			Type mismatch: cannot convert from short to Integer
+			----------
+			5. WARNING in X.java (at line 12)
+				Integer i2 = 10 ;
+				             ^^
+			The expression of type int is boxed into Integer
+			----------
+			6. ERROR in X.java (at line 14)
+				i2 = b;
+				     ^
+			Type mismatch: cannot convert from byte to Integer
+			----------
+			7. WARNING in X.java (at line 15)
+				switch (i2)
+				        ^^
+			The expression of type Integer is unboxed into int
+			----------
+			8. ERROR in X.java (at line 17)
+				case b:
+				     ^
+			Type mismatch: cannot convert from byte to Integer
+			----------
+			9. WARNING in X.java (at line 21)
+				Integer i3 = 10 ;
+				             ^^
+			The expression of type int is boxed into Integer
+			----------
+			10. ERROR in X.java (at line 23)
+				i3 = c;
+				     ^
+			Type mismatch: cannot convert from char to Integer
+			----------
+			11. WARNING in X.java (at line 24)
+				switch (i3)
+				        ^^
+			The expression of type Integer is unboxed into int
+			----------
+			12. ERROR in X.java (at line 26)
+				case c:
+				     ^
+			Type mismatch: cannot convert from char to Integer
+			----------
+			""");
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=231709 - variation
@@ -5005,321 +5444,339 @@ public void test166() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo(short s, byte b, char c) {\n" +
-			"		Integer is = s;\n" +
-			"		Integer ib = b;\n" +
-			"		Integer ic = c;	\n" +
-			"	}\n" +
-			"	void foo() {\n" +
-			"		final short s = 0;\n" +
-			"		final byte b = 0;\n" +
-			"		final char c = 0;\n" +
-			"		Integer is = s;\n" +
-			"		Integer ib = b;\n" +
-			"		Integer ic = c;	\n" +
-			"	}\n" +
-			"	void foo2() {\n" +
-			"		Integer is = (short)0;\n" +
-			"		Integer ib = (byte)0;\n" +
-			"		Integer ic = (char)0;	\n" +
-			"	}\n" +
-			"	void foo3() {\n" +
-			"		Short si = 0;\n" +
-			"		Byte bi = 0;\n" +
-			"		Character ci = 0;\n" +
-			"	}\n" +
-			"	void foo4() {\n" +
-			"		Short si = (byte) 0;\n" +
-			"		Byte bi = (short) 0;\n" +
-			"		Character ci = (short) 0;\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					void foo(short s, byte b, char c) {
+						Integer is = s;
+						Integer ib = b;
+						Integer ic = c;\t
+					}
+					void foo() {
+						final short s = 0;
+						final byte b = 0;
+						final char c = 0;
+						Integer is = s;
+						Integer ib = b;
+						Integer ic = c;\t
+					}
+					void foo2() {
+						Integer is = (short)0;
+						Integer ib = (byte)0;
+						Integer ic = (char)0;\t
+					}
+					void foo3() {
+						Short si = 0;
+						Byte bi = 0;
+						Character ci = 0;
+					}
+					void foo4() {
+						Short si = (byte) 0;
+						Byte bi = (short) 0;
+						Character ci = (short) 0;
+					}
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	Integer is = s;\n" +
-		"	             ^\n" +
-		"Type mismatch: cannot convert from short to Integer\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
-		"	Integer ib = b;\n" +
-		"	             ^\n" +
-		"Type mismatch: cannot convert from byte to Integer\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 5)\n" +
-		"	Integer ic = c;	\n" +
-		"	             ^\n" +
-		"Type mismatch: cannot convert from char to Integer\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 11)\n" +
-		"	Integer is = s;\n" +
-		"	             ^\n" +
-		"Type mismatch: cannot convert from short to Integer\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 12)\n" +
-		"	Integer ib = b;\n" +
-		"	             ^\n" +
-		"Type mismatch: cannot convert from byte to Integer\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 13)\n" +
-		"	Integer ic = c;	\n" +
-		"	             ^\n" +
-		"Type mismatch: cannot convert from char to Integer\n" +
-		"----------\n" +
-		"7. ERROR in X.java (at line 16)\n" +
-		"	Integer is = (short)0;\n" +
-		"	             ^^^^^^^^\n" +
-		"Type mismatch: cannot convert from short to Integer\n" +
-		"----------\n" +
-		"8. ERROR in X.java (at line 17)\n" +
-		"	Integer ib = (byte)0;\n" +
-		"	             ^^^^^^^\n" +
-		"Type mismatch: cannot convert from byte to Integer\n" +
-		"----------\n" +
-		"9. ERROR in X.java (at line 18)\n" +
-		"	Integer ic = (char)0;	\n" +
-		"	             ^^^^^^^\n" +
-		"Type mismatch: cannot convert from char to Integer\n" +
-		"----------\n" +
-		"10. WARNING in X.java (at line 21)\n" +
-		"	Short si = 0;\n" +
-		"	           ^\n" +
-		"The expression of type int is boxed into Short\n" +
-		"----------\n" +
-		"11. WARNING in X.java (at line 22)\n" +
-		"	Byte bi = 0;\n" +
-		"	          ^\n" +
-		"The expression of type int is boxed into Byte\n" +
-		"----------\n" +
-		"12. WARNING in X.java (at line 23)\n" +
-		"	Character ci = 0;\n" +
-		"	               ^\n" +
-		"The expression of type int is boxed into Character\n" +
-		"----------\n" +
-		"13. WARNING in X.java (at line 26)\n" +
-		"	Short si = (byte) 0;\n" +
-		"	           ^^^^^^^^\n" +
-		"The expression of type byte is boxed into Short\n" +
-		"----------\n" +
-		"14. WARNING in X.java (at line 27)\n" +
-		"	Byte bi = (short) 0;\n" +
-		"	          ^^^^^^^^^\n" +
-		"The expression of type short is boxed into Byte\n" +
-		"----------\n" +
-		"15. WARNING in X.java (at line 28)\n" +
-		"	Character ci = (short) 0;\n" +
-		"	               ^^^^^^^^^\n" +
-		"The expression of type short is boxed into Character\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				Integer is = s;
+				             ^
+			Type mismatch: cannot convert from short to Integer
+			----------
+			2. ERROR in X.java (at line 4)
+				Integer ib = b;
+				             ^
+			Type mismatch: cannot convert from byte to Integer
+			----------
+			3. ERROR in X.java (at line 5)
+				Integer ic = c;\t
+				             ^
+			Type mismatch: cannot convert from char to Integer
+			----------
+			4. ERROR in X.java (at line 11)
+				Integer is = s;
+				             ^
+			Type mismatch: cannot convert from short to Integer
+			----------
+			5. ERROR in X.java (at line 12)
+				Integer ib = b;
+				             ^
+			Type mismatch: cannot convert from byte to Integer
+			----------
+			6. ERROR in X.java (at line 13)
+				Integer ic = c;\t
+				             ^
+			Type mismatch: cannot convert from char to Integer
+			----------
+			7. ERROR in X.java (at line 16)
+				Integer is = (short)0;
+				             ^^^^^^^^
+			Type mismatch: cannot convert from short to Integer
+			----------
+			8. ERROR in X.java (at line 17)
+				Integer ib = (byte)0;
+				             ^^^^^^^
+			Type mismatch: cannot convert from byte to Integer
+			----------
+			9. ERROR in X.java (at line 18)
+				Integer ic = (char)0;\t
+				             ^^^^^^^
+			Type mismatch: cannot convert from char to Integer
+			----------
+			10. WARNING in X.java (at line 21)
+				Short si = 0;
+				           ^
+			The expression of type int is boxed into Short
+			----------
+			11. WARNING in X.java (at line 22)
+				Byte bi = 0;
+				          ^
+			The expression of type int is boxed into Byte
+			----------
+			12. WARNING in X.java (at line 23)
+				Character ci = 0;
+				               ^
+			The expression of type int is boxed into Character
+			----------
+			13. WARNING in X.java (at line 26)
+				Short si = (byte) 0;
+				           ^^^^^^^^
+			The expression of type byte is boxed into Short
+			----------
+			14. WARNING in X.java (at line 27)
+				Byte bi = (short) 0;
+				          ^^^^^^^^^
+			The expression of type short is boxed into Byte
+			----------
+			15. WARNING in X.java (at line 28)
+				Character ci = (short) 0;
+				               ^^^^^^^^^
+			The expression of type short is boxed into Character
+			----------
+			""");
 }
 public void test167() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"     String foo(Comparable<String> x) {\n" +
-			"       System.out.println( \"one\" );" +
-			"		return null;\n" +
-			"     }\n" +
-			"     void foo(int x) {\n" +
-			"       System.out.println( \"two\" );\n" +
-			"     }\n" +
-			"	void bar() {\n" +
-			"       Integer i = 1;\n" +
-			"       String s = foo(i); \n" +
-			"     }\n" +
-			"}\n",
+			"""
+				public class X {
+				     String foo(Comparable<String> x) {
+				       System.out.println( "one" );\
+						return null;
+				     }
+				     void foo(int x) {
+				       System.out.println( "two" );
+				     }
+					void bar() {
+				       Integer i = 1;
+				       String s = foo(i);\s
+				     }
+				}
+				""",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 9)\n" +
-		"	Integer i = 1;\n" +
-		"	            ^\n" +
-		"The expression of type int is boxed into Integer\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 10)\n" +
-		"	String s = foo(i); \n" +
-		"	           ^^^^^^\n" +
-		"Type mismatch: cannot convert from void to String\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 10)\n" +
-		"	String s = foo(i); \n" +
-		"	               ^\n" +
-		"The expression of type Integer is unboxed into int\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 9)
+				Integer i = 1;
+				            ^
+			The expression of type int is boxed into Integer
+			----------
+			2. ERROR in X.java (at line 10)
+				String s = foo(i);\s
+				           ^^^^^^
+			Type mismatch: cannot convert from void to String
+			----------
+			3. WARNING in X.java (at line 10)
+				String s = foo(i);\s
+				               ^
+			The expression of type Integer is unboxed into int
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=264843
 public void test168() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"@SuppressWarnings(\"deprecation\")\n" +
-			"public class X {\n" +
-			"    <T extends Integer> T a() { return 35; }\n" +
-			"    <T extends Integer> T[] b() { return new int[]{35}; }\n" +
-			"    <T extends Integer> T c() { return Integer.valueOf(35); }\n" +
-			"    <T extends Integer> T[] d() { return new Integer[]{35}; }\n" +
-			"}\n",
+			"""
+				@SuppressWarnings("deprecation")
+				public class X {
+				    <T extends Integer> T a() { return 35; }
+				    <T extends Integer> T[] b() { return new int[]{35}; }
+				    <T extends Integer> T c() { return Integer.valueOf(35); }
+				    <T extends Integer> T[] d() { return new Integer[]{35}; }
+				}
+				""",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	<T extends Integer> T a() { return 35; }\n" +
-		"	           ^^^^^^^\n" +
-		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	<T extends Integer> T a() { return 35; }\n" +
-		"	                                   ^^\n" +
-		"Type mismatch: cannot convert from int to T\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 4)\n" +
-		"	<T extends Integer> T[] b() { return new int[]{35}; }\n" +
-		"	           ^^^^^^^\n" +
-		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 4)\n" +
-		"	<T extends Integer> T[] b() { return new int[]{35}; }\n" +
-		"	                                     ^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from int[] to T[]\n" +
-		"----------\n" +
-		"5. WARNING in X.java (at line 5)\n" +
-		"	<T extends Integer> T c() { return Integer.valueOf(35); }\n" +
-		"	           ^^^^^^^\n" +
-		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 5)\n" +
-		"	<T extends Integer> T c() { return Integer.valueOf(35); }\n" +
-		"	                                   ^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from Integer to T\n" +
-		"----------\n" +
-		"7. WARNING in X.java (at line 6)\n" +
-		"	<T extends Integer> T[] d() { return new Integer[]{35}; }\n" +
-		"	           ^^^^^^^\n" +
-		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" +
-		"----------\n" +
-		"8. ERROR in X.java (at line 6)\n" +
-		"	<T extends Integer> T[] d() { return new Integer[]{35}; }\n" +
-		"	                                     ^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from Integer[] to T[]\n" +
-		"----------\n" +
-		"9. WARNING in X.java (at line 6)\n" +
-		"	<T extends Integer> T[] d() { return new Integer[]{35}; }\n" +
-		"	                                                   ^^\n" +
-		"The expression of type int is boxed into Integer\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				<T extends Integer> T a() { return 35; }
+				           ^^^^^^^
+			The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended
+			----------
+			2. ERROR in X.java (at line 3)
+				<T extends Integer> T a() { return 35; }
+				                                   ^^
+			Type mismatch: cannot convert from int to T
+			----------
+			3. WARNING in X.java (at line 4)
+				<T extends Integer> T[] b() { return new int[]{35}; }
+				           ^^^^^^^
+			The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended
+			----------
+			4. ERROR in X.java (at line 4)
+				<T extends Integer> T[] b() { return new int[]{35}; }
+				                                     ^^^^^^^^^^^^^
+			Type mismatch: cannot convert from int[] to T[]
+			----------
+			5. WARNING in X.java (at line 5)
+				<T extends Integer> T c() { return Integer.valueOf(35); }
+				           ^^^^^^^
+			The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended
+			----------
+			6. ERROR in X.java (at line 5)
+				<T extends Integer> T c() { return Integer.valueOf(35); }
+				                                   ^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from Integer to T
+			----------
+			7. WARNING in X.java (at line 6)
+				<T extends Integer> T[] d() { return new Integer[]{35}; }
+				           ^^^^^^^
+			The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended
+			----------
+			8. ERROR in X.java (at line 6)
+				<T extends Integer> T[] d() { return new Integer[]{35}; }
+				                                     ^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from Integer[] to T[]
+			----------
+			9. WARNING in X.java (at line 6)
+				<T extends Integer> T[] d() { return new Integer[]{35}; }
+				                                                   ^^
+			The expression of type int is boxed into Integer
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=264843
 public void test169() {
 	String expectedCompilerLog = this.complianceLevel >= ClassFileConstants.JDK21 ?
-			"----------\n" +
-			"1. WARNING in X.java (at line 1)\n" +
-			"	public class X<T extends Integer> {\n" +
-			"	                         ^^^^^^^\n" +
-			"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 2)\n" +
-			"	T x = 12;\n" +
-			"	      ^^\n" +
-			"Type mismatch: cannot convert from int to T\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 3)\n" +
-			"	Byte y = 12;\n" +
-			"	         ^^\n" +
-			"The expression of type int is boxed into Byte\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 5)\n" +
-			"	t = 5;\n" +
-			"	    ^\n" +
-			"Type mismatch: cannot convert from int to T\n" +
-			"----------\n" +
-			"5. WARNING in X.java (at line 6)\n" +
-			"	switch (t) {\n" +
-			"	        ^\n" +
-			"The expression of type T is unboxed into int\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 6)\n" +
-			"	switch (t) {\n" +
-			"	        ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 7)\n" +
-			"	case 1:\n" +
-			"	     ^\n" +
-			"Type mismatch: cannot convert from int to T\n" +
-			"----------\n" +
-			"8. WARNING in X.java (at line 12)\n" +
-			"	t = 5;\n" +
-			"	    ^\n" +
-			"The expression of type int is boxed into Byte\n" +
-			"----------\n" +
-			"9. WARNING in X.java (at line 13)\n" +
-			"	switch (t) {\n" +
-			"	        ^\n" +
-			"The expression of type Byte is unboxed into int\n" +
-			"----------\n"
+			"""
+				----------
+				1. WARNING in X.java (at line 1)
+					public class X<T extends Integer> {
+					                         ^^^^^^^
+				The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended
+				----------
+				2. ERROR in X.java (at line 2)
+					T x = 12;
+					      ^^
+				Type mismatch: cannot convert from int to T
+				----------
+				3. WARNING in X.java (at line 3)
+					Byte y = 12;
+					         ^^
+				The expression of type int is boxed into Byte
+				----------
+				4. ERROR in X.java (at line 5)
+					t = 5;
+					    ^
+				Type mismatch: cannot convert from int to T
+				----------
+				5. WARNING in X.java (at line 6)
+					switch (t) {
+					        ^
+				The expression of type T is unboxed into int
+				----------
+				6. ERROR in X.java (at line 6)
+					switch (t) {
+					        ^
+				An enhanced switch statement should be exhaustive; a default label expected
+				----------
+				7. ERROR in X.java (at line 7)
+					case 1:
+					     ^
+				Type mismatch: cannot convert from int to T
+				----------
+				8. WARNING in X.java (at line 12)
+					t = 5;
+					    ^
+				The expression of type int is boxed into Byte
+				----------
+				9. WARNING in X.java (at line 13)
+					switch (t) {
+					        ^
+				The expression of type Byte is unboxed into int
+				----------
+				"""
 	  :
-			"----------\n" +
-			"1. WARNING in X.java (at line 1)\n" +
-			"	public class X<T extends Integer> {\n" +
-			"	                         ^^^^^^^\n" +
-			"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 2)\n" +
-			"	T x = 12;\n" +
-			"	      ^^\n" +
-			"Type mismatch: cannot convert from int to T\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 3)\n" +
-			"	Byte y = 12;\n" +
-			"	         ^^\n" +
-			"The expression of type int is boxed into Byte\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 5)\n" +
-			"	t = 5;\n" +
-			"	    ^\n" +
-			"Type mismatch: cannot convert from int to T\n" +
-			"----------\n" +
-			"5. WARNING in X.java (at line 6)\n" +
-			"	switch (t) {\n" +
-			"	        ^\n" +
-			"The expression of type T is unboxed into int\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 7)\n" +
-			"	case 1:\n" +
-			"	     ^\n" +
-			"Type mismatch: cannot convert from int to T\n" +
-			"----------\n" +
-			"7. WARNING in X.java (at line 12)\n" +
-			"	t = 5;\n" +
-			"	    ^\n" +
-			"The expression of type int is boxed into Byte\n" +
-			"----------\n" +
-			"8. WARNING in X.java (at line 13)\n" +
-			"	switch (t) {\n" +
-			"	        ^\n" +
-			"The expression of type Byte is unboxed into int\n" +
-			"----------\n";
+			"""
+				----------
+				1. WARNING in X.java (at line 1)
+					public class X<T extends Integer> {
+					                         ^^^^^^^
+				The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended
+				----------
+				2. ERROR in X.java (at line 2)
+					T x = 12;
+					      ^^
+				Type mismatch: cannot convert from int to T
+				----------
+				3. WARNING in X.java (at line 3)
+					Byte y = 12;
+					         ^^
+				The expression of type int is boxed into Byte
+				----------
+				4. ERROR in X.java (at line 5)
+					t = 5;
+					    ^
+				Type mismatch: cannot convert from int to T
+				----------
+				5. WARNING in X.java (at line 6)
+					switch (t) {
+					        ^
+				The expression of type T is unboxed into int
+				----------
+				6. ERROR in X.java (at line 7)
+					case 1:
+					     ^
+				Type mismatch: cannot convert from int to T
+				----------
+				7. WARNING in X.java (at line 12)
+					t = 5;
+					    ^
+				The expression of type int is boxed into Byte
+				----------
+				8. WARNING in X.java (at line 13)
+					switch (t) {
+					        ^
+				The expression of type Byte is unboxed into int
+				----------
+				""";
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T extends Integer> {\n" +
-			"    T x = 12;\n" +
-			"    Byte y = 12;\n" +
-			"    	void x(T t) {\n" +
-			"    		t = 5;\n" +
-			"    		switch (t) {\n" +
-			"    		case 1:\n" +
-			"    			break;\n" +
-			"    		}\n" +
-			"    	}\n" +
-			"    	void y(Byte t) {\n" +
-			"    		t = 5;\n" +
-			"    		switch (t) {\n" +
-			"    		case 1:\n" +
-			"    			break;\n" +
-			"    		}\n" +
-			"    	}\n" +
-			"}\n",
+			"""
+				public class X<T extends Integer> {
+				    T x = 12;
+				    Byte y = 12;
+				    	void x(T t) {
+				    		t = 5;
+				    		switch (t) {
+				    		case 1:
+				    			break;
+				    		}
+				    	}
+				    	void y(Byte t) {
+				    		t = 5;
+				    		switch (t) {
+				    		case 1:
+				    			break;
+				    		}
+				    	}
+				}
+				""",
 		},
 		expectedCompilerLog);
 }

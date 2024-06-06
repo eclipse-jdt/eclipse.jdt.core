@@ -88,12 +88,13 @@ public void testIgnoreUnnamedModule1() {
 			true,
 			new String[] {
 				"X.java",
-				"import org.xml.sax.SAXException;\n" +
-				"public class X {\n" +
-				"	void foo() {\n" +
-				"		SAXException s;\n" +
-				"	}\n" +
-				"}"
+				"""
+					import org.xml.sax.SAXException;
+					public class X {
+						void foo() {
+							SAXException s;
+						}
+					}"""
 			},
 			libs,
 			compilerOptions,
@@ -115,11 +116,12 @@ public void testIgnoreUnnamedModule2() {
 			true,
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	void foo() {\n" +
-				"		org.xml.sax.SAXException s;\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						void foo() {
+							org.xml.sax.SAXException s;
+						}
+					}"""
 			},
 			libs,
 			compilerOptions,
@@ -141,12 +143,13 @@ public void testIgnoreUnnamedModule3() {
 			true,
 			new String[] {
 				"X.java",
-				"import static org.xml.sax.helpers.NamespaceSupport.XMLNS;\n" +
-				"public class X {\n" +
-				"	void foo() {\n" +
-				"		String s = XMLNS;\n" +
-				"	}\n" +
-				"}"
+				"""
+					import static org.xml.sax.helpers.NamespaceSupport.XMLNS;
+					public class X {
+						void foo() {
+							String s = XMLNS;
+						}
+					}"""
 			},
 			libs,
 			compilerOptions,
@@ -168,11 +171,12 @@ public void testIgnoreUnnamedModule4() {
 			true,
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	void foo() {\n" +
-				"		String s = org.xml.sax.helpers.NamespaceSupport.XMLNS;\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						void foo() {
+							String s = org.xml.sax.helpers.NamespaceSupport.XMLNS;
+						}
+					}"""
 			},
 			libs,
 			compilerOptions,
@@ -193,19 +197,22 @@ public void testConflictWithUnnamedModule() {
 	runner.testFiles =
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	void foo() {\n" +
-				"		String s = org.xml.sax.helpers.NamespaceSupport.XMLNS;\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						void foo() {
+							String s = org.xml.sax.helpers.NamespaceSupport.XMLNS;
+						}
+					}"""
 			};
 	runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	String s = org.xml.sax.helpers.NamespaceSupport.XMLNS;\n" +
-			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The package org.xml.sax.helpers is accessible from more than one module: <unnamed>, java.xml\n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					String s = org.xml.sax.helpers.NamespaceSupport.XMLNS;
+					           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				The package org.xml.sax.helpers is accessible from more than one module: <unnamed>, java.xml
+				----------
+				""";
 	runner.runNegativeTest();
 }
 public void testGH445_1() {
@@ -222,12 +229,13 @@ public void testGH445_1() {
 			true,
 			new String[] {
 				"X.java",
-				"import org.xml.sax.SAXException;\n" +
-				"public class X {\n" +
-				"	void foo() {\n" +
-				"		SAXException s;\n" +
-				"	}\n" +
-				"}"
+				"""
+					import org.xml.sax.SAXException;
+					public class X {
+						void foo() {
+							SAXException s;
+						}
+					}"""
 			},
 			libs,
 			compilerOptions,
@@ -250,12 +258,13 @@ public void testGH445_2() {
 			true,
 			new String[] {
 				"X.java",
-				"import org.xml.sax.*;\n" +
-				"public class X {\n" +
-				"	void foo() {\n" +
-				"		SAXException s;\n" +
-				"	}\n" +
-				"}"
+				"""
+					import org.xml.sax.*;
+					public class X {
+						void foo() {
+							SAXException s;
+						}
+					}"""
 			},
 			libs,
 			compilerOptions,

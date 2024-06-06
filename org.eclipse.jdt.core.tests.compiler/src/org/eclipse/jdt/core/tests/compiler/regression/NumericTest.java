@@ -28,117 +28,129 @@ public static Test suite() {
 public void test001() {
 	this.runConformTest(new String[] {
 		"p/B.java",
-		"package p;\n" +
-		"public class B {\n" +
-		"  public static void main(String[] args) {\n" +
-		"    int offset = -8;\n" +
-		"    int temp = 0 - offset;\n" +
-		"    offset = 0 - offset;  // This is the problem line\n" +
-		"    System.out.println(\"offset: \" + offset);\n" +
-		"    System.out.println(\"temp: \" + temp);\n" +
-		"    if (offset != temp ) {\n" +
-		"      System.err.println(\"offset (\" + offset + \") should be equal to temp (\" + temp + \").\");\n" +
-		"      System.exit(-1);\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			package p;
+			public class B {
+			  public static void main(String[] args) {
+			    int offset = -8;
+			    int temp = 0 - offset;
+			    offset = 0 - offset;  // This is the problem line
+			    System.out.println("offset: " + offset);
+			    System.out.println("temp: " + temp);
+			    if (offset != temp ) {
+			      System.err.println("offset (" + offset + ") should be equal to temp (" + temp + ").");
+			      System.exit(-1);
+			    }
+			  }
+			}
+			""",
 	});
 }
 
 public void test002() {
 	this.runConformTest(new String[] {
 		"p/Y.java",
-		"package p;\n" +
-		"public class Y {\n" +
-		"  public static void main(String[] args) {\n" +
-		"    int clockend = 0;\n" +
-		"    clockend += 128;\n" +
-		"    if(clockend < 0) {\n" +
-		"      System.out.println(clockend);\n" +
-		"      System.exit(-1);\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			package p;
+			public class Y {
+			  public static void main(String[] args) {
+			    int clockend = 0;
+			    clockend += 128;
+			    if(clockend < 0) {
+			      System.out.println(clockend);
+			      System.exit(-1);
+			    }
+			  }
+			}
+			""",
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=133738
 public void test003() {
 	this.runNegativeTest(new String[] {
 		"X.java",
-		"public class X {\n" +
-		"  int i1 = -2147483648;\n" +
-		"  int i2 = -(2147483648);\n" +
-		"}",
+		"""
+			public class X {
+			  int i1 = -2147483648;
+			  int i2 = -(2147483648);
+			}""",
 	},
-	"----------\n" +
-	"1. ERROR in X.java (at line 3)\n" +
-	"	int i2 = -(2147483648);\n" +
-	"	          ^^^^^^^^^^^^\n" +
-	"The literal 2147483648 of type int is out of range \n" +
-	"----------\n");
+	"""
+		----------
+		1. ERROR in X.java (at line 3)
+			int i2 = -(2147483648);
+			          ^^^^^^^^^^^^
+		The literal 2147483648 of type int is out of range\s
+		----------
+		""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=133738
 public void test004() {
 	this.runNegativeTest(new String[] {
 		"X.java",
-		"public class X {\n" +
-		"  long l1 = -9223372036854775808L;\n" +
-		"  long l2 = -(9223372036854775808L);\n" +
-		"}",
+		"""
+			public class X {
+			  long l1 = -9223372036854775808L;
+			  long l2 = -(9223372036854775808L);
+			}""",
 	},
-	"----------\n" +
-	"1. ERROR in X.java (at line 3)\n" +
-	"	long l2 = -(9223372036854775808L);\n" +
-	"	           ^^^^^^^^^^^^^^^^^^^^^^\n" +
-	"The literal 9223372036854775808L of type long is out of range \n" +
-	"----------\n");
+	"""
+		----------
+		1. ERROR in X.java (at line 3)
+			long l2 = -(9223372036854775808L);
+			           ^^^^^^^^^^^^^^^^^^^^^^
+		The literal 9223372036854775808L of type long is out of range\s
+		----------
+		""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232814
 public void test005() {
 	this.runConformTest(new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	public static void main(String[] args) {\n" +
-		"		int result;\n" +
-		"		if (130 != (result = testShort1())) System.out.println(\"failed-testShort1():\" + result);\n" +
-		"		if (130 != (result = testShort2())) System.out.println(\"failed-testShort2():\" + result);\n" +
-		"		if (130 != (result = testInt1())) System.out.println(\"failed-testInt1():\" + result);\n" +
-		"		if (130 != (result = testInt2())) System.out.println(\"failed-testInt2():\" + result);\n" +
-		"		if (30 != (result = testByte1())) System.out.println(\"failed-testByte1():\" + result);\n" +
-		"		if (30 != (result = testByte2())) System.out.println(\"failed-testByte2():\" + result);\n" +
-		"		System.out.println(\"done\");\n" +
-		"	}\n" +
-		"	static int testShort1() {\n" +
-		"		short min = Short.MIN_VALUE;\n" +
-		"		int num = -32638;\n" +
-		"		return num = num - min;\n" +
-		"	}\n" +
-		"	static int testShort2() {\n" +
-		"		final short min = Short.MIN_VALUE;\n" +
-		"		int num = -32638;\n" +
-		"		return num = num - min;\n" +
-		"	}\n" +
-		"	static int testInt1() {\n" +
-		"		short min = Short.MIN_VALUE;\n" +
-		"		int num = -32638;\n" +
-		"		return num = num - min;\n" +
-		"	}\n" +
-		"	static int testInt2() {\n" +
-		"		final short min = Short.MIN_VALUE;\n" +
-		"		int num = -32638;\n" +
-		"		return num = num - min;\n" +
-		"	}	\n" +
-		"	static int testByte1() {\n" +
-		"		byte min = Byte.MIN_VALUE;\n" +
-		"		int num = -98;\n" +
-		"		return num = num - min;\n" +
-		"	}\n" +
-		"	static int testByte2() {\n" +
-		"		final byte min = Byte.MIN_VALUE;\n" +
-		"		int num = -98;\n" +
-		"		return num = num - min;\n" +
-		"	}		\n" +
-		"}\n",
+		"""
+			public class X {
+				public static void main(String[] args) {
+					int result;
+					if (130 != (result = testShort1())) System.out.println("failed-testShort1():" + result);
+					if (130 != (result = testShort2())) System.out.println("failed-testShort2():" + result);
+					if (130 != (result = testInt1())) System.out.println("failed-testInt1():" + result);
+					if (130 != (result = testInt2())) System.out.println("failed-testInt2():" + result);
+					if (30 != (result = testByte1())) System.out.println("failed-testByte1():" + result);
+					if (30 != (result = testByte2())) System.out.println("failed-testByte2():" + result);
+					System.out.println("done");
+				}
+				static int testShort1() {
+					short min = Short.MIN_VALUE;
+					int num = -32638;
+					return num = num - min;
+				}
+				static int testShort2() {
+					final short min = Short.MIN_VALUE;
+					int num = -32638;
+					return num = num - min;
+				}
+				static int testInt1() {
+					short min = Short.MIN_VALUE;
+					int num = -32638;
+					return num = num - min;
+				}
+				static int testInt2() {
+					final short min = Short.MIN_VALUE;
+					int num = -32638;
+					return num = num - min;
+				}\t
+				static int testByte1() {
+					byte min = Byte.MIN_VALUE;
+					int num = -98;
+					return num = num - min;
+				}
+				static int testByte2() {
+					final byte min = Byte.MIN_VALUE;
+					int num = -98;
+					return num = num - min;
+				}	\t
+			}
+			""",
 	},
 	"done");
 }

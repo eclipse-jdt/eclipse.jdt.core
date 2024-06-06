@@ -150,28 +150,31 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 	public void testBug570246_001() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X2 {\n" +
-			"public static void main(String[] args) {\n" +
-		    " enum Y2 {\n" +
-			"	BLEU,\n" +
-			"	BLANC,\n" +
-			"	ROUGE;\n" +
-			"	public static void main(String[] args) {\n" +
-			"		for(Y2 y: Y2.values()) {\n" +
-			"			System.out.print(y);\n" +
-			"		}\n" +
-			"	}\n" +
-			"  }\n" +
-			"  Y2.main(args);\n" +
-		"	}\n" +
-		"}\n"
+			"""
+				public class X2 {
+				public static void main(String[] args) {
+				 enum Y2 {
+					BLEU,
+					BLANC,
+					ROUGE;
+					public static void main(String[] args) {
+						for(Y2 y: Y2.values()) {
+							System.out.print(y);
+						}
+					}
+				  }
+				  Y2.main(args);
+					}
+				}
+				"""
 
 				);
 		search("Y2", ENUM, ALL_OCCURRENCES);
-		assertSearchResults("src/X.java void X2.main(String[]):Y2#1 [Y2] EXACT_MATCH\n" +
-				"src/X.java void void X2.main(String[]):Y2#1.main(String[]) [Y2] EXACT_MATCH\n" +
-				"src/X.java void void X2.main(String[]):Y2#1.main(String[]) [Y2] EXACT_MATCH\n" +
-				"src/X.java void X2.main(String[]) [Y2] EXACT_MATCH");
+		assertSearchResults("""
+			src/X.java void X2.main(String[]):Y2#1 [Y2] EXACT_MATCH
+			src/X.java void void X2.main(String[]):Y2#1.main(String[]) [Y2] EXACT_MATCH
+			src/X.java void void X2.main(String[]):Y2#1.main(String[]) [Y2] EXACT_MATCH
+			src/X.java void X2.main(String[]) [Y2] EXACT_MATCH""");
 
 	}
 
@@ -179,21 +182,23 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 		public void testBug570246_002() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X2 {\n" +
-				"public static void main(String[] args) {\n" +
-			    " enum Y2 {\n" +
-				"	BLEU,\n" +
-				"	BLANC,\n" +
-				"	ROUGE;\n" +
-				"	public static void main(String[] args) {\n" +
-				"		for(Y2 y: Y2.values()) {\n" +
-				"			System.out.print(y);\n" +
-				"		}\n" +
-				"	}\n" +
-				"  }\n" +
-				"  Y2.main(args);\n" +
-			"	}\n" +
-			"}\n"
+				"""
+					public class X2 {
+					public static void main(String[] args) {
+					 enum Y2 {
+						BLEU,
+						BLANC,
+						ROUGE;
+						public static void main(String[] args) {
+							for(Y2 y: Y2.values()) {
+								System.out.print(y);
+							}
+						}
+					  }
+					  Y2.main(args);
+						}
+					}
+					"""
 
 					);
 			search("Y2", ENUM, DECLARATIONS);
@@ -206,68 +211,70 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
 
-					"public class X {\n"+
-							"    public static void main(String[] args) {\n"+
-							"          enum Role { M, D }\n"+
-							" enum T {\n"+
-							"       PHILIPPE(37) {\n"+
-							"               public boolean isManager() {\n"+
-							"                       return true;\n"+
-							"               }\n"+
-							"       },\n"+
-							"       DAVID(27),\n"+
-							"       JEROME(33),\n"+
-							"       OLIVIER(35),\n"+
-							"       KENT(40),\n"+
-							"       YODA(41),\n"+
-							"       FREDERIC;\n"+
-							"       final static int OLD = 41;\n"+
-							"\n"+
-							"\n"+
-							"   int age;\n"+
-							"       Role role;\n"+
-							"\n"+
-							"       T() { this(OLD); }\n"+
-							"       T(int age) {\n"+
-							"               this.age = age;\n"+
-							"       }\n"+
-							"       public int age() { return this.age; }\n"+
-							"       public boolean isManager() { return false; }\n"+
-							"       void setRole(boolean mgr) {\n"+
-							"               this.role = mgr ? Role.M : Role.D;\n"+
-							"       }\n"+
-							"}\n"+
-							"       System.out.print(\"JDTCore team:\");\n"+
-							"       T oldest = null;\n"+
-							"       int maxAge = Integer.MIN_VALUE;\n"+
-							"       for (T t : T.values()) {\n"+
-							"            if (t == T.YODA) continue;// skip YODA\n"+
-							"            t.setRole(t.isManager());\n"+
-							"                        if (t.age() > maxAge) {\n"+
-							"               oldest = t;\n"+
-							"               maxAge = t.age();\n"+
-							"            }\n"+
-							"                      Location l = switch(t) {\n"+
-							"                         case PHILIPPE, DAVID, JEROME, FREDERIC-> Location.SNZ;\n"+
-							"                         case OLIVIER, KENT -> Location.OTT;\n"+
-							"                         default-> throw new AssertionError(\"Unknown team member: \" + t);\n"+
-							"                       };\n"+
-							"\n"+
-							"            System.out.print(\" \"+ t + ':'+t.age()+':'+l+':'+t.role);\n"+
-							"        }\n"+
-							"        System.out.println(\" WINNER is:\" + T.valueOf(oldest.name()));\n"+
-							"    }\n"+
-							"\n"+
-							"   private enum Location { SNZ, OTT }\n"+
-							"}"
+					"""
+						public class X {
+						    public static void main(String[] args) {
+						          enum Role { M, D }
+						 enum T {
+						       PHILIPPE(37) {
+						               public boolean isManager() {
+						                       return true;
+						               }
+						       },
+						       DAVID(27),
+						       JEROME(33),
+						       OLIVIER(35),
+						       KENT(40),
+						       YODA(41),
+						       FREDERIC;
+						       final static int OLD = 41;
+						
+						
+						   int age;
+						       Role role;
+						
+						       T() { this(OLD); }
+						       T(int age) {
+						               this.age = age;
+						       }
+						       public int age() { return this.age; }
+						       public boolean isManager() { return false; }
+						       void setRole(boolean mgr) {
+						               this.role = mgr ? Role.M : Role.D;
+						       }
+						}
+						       System.out.print("JDTCore team:");
+						       T oldest = null;
+						       int maxAge = Integer.MIN_VALUE;
+						       for (T t : T.values()) {
+						            if (t == T.YODA) continue;// skip YODA
+						            t.setRole(t.isManager());
+						                        if (t.age() > maxAge) {
+						               oldest = t;
+						               maxAge = t.age();
+						            }
+						                      Location l = switch(t) {
+						                         case PHILIPPE, DAVID, JEROME, FREDERIC-> Location.SNZ;
+						                         case OLIVIER, KENT -> Location.OTT;
+						                         default-> throw new AssertionError("Unknown team member: " + t);
+						                       };
+						
+						            System.out.print(" "+ t + ':'+t.age()+':'+l+':'+t.role);
+						        }
+						        System.out.println(" WINNER is:" + T.valueOf(oldest.name()));
+						    }
+						
+						   private enum Location { SNZ, OTT }
+						}"""
 					);
 			search("T", ENUM, ALL_OCCURRENCES);
-			assertSearchResults("src/X.java void X.main(String[]):T#1 [T] EXACT_MATCH\n"
-					+ "src/X.java void X.main(String[]) [T] EXACT_MATCH\n"
-					+ "src/X.java void X.main(String[]) [T] EXACT_MATCH\n"
-					+ "src/X.java void X.main(String[]) [T] EXACT_MATCH\n"
-					+ "src/X.java void X.main(String[]) [T] EXACT_MATCH\n"
-					+ "src/X.java void X.main(String[]) [T] EXACT_MATCH");
+			assertSearchResults("""
+				src/X.java void X.main(String[]):T#1 [T] EXACT_MATCH
+				src/X.java void X.main(String[]) [T] EXACT_MATCH
+				src/X.java void X.main(String[]) [T] EXACT_MATCH
+				src/X.java void X.main(String[]) [T] EXACT_MATCH
+				src/X.java void X.main(String[]) [T] EXACT_MATCH
+				src/X.java void X.main(String[]) [T] EXACT_MATCH""");
 
 
 		}
@@ -275,66 +282,68 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
 
-					"public class X {\n"+
-							"    public static void main(String[] args) {\n"+
-							"          enum Role { M, D }\n"+
-							" enum T {\n"+
-							"       PHILIPPE(37) {\n"+
-							"               public boolean isManager() {\n"+
-							"                       return true;\n"+
-							"               }\n"+
-							"       },\n"+
-							"       DAVID(27),\n"+
-							"       JEROME(33),\n"+
-							"       OLIVIER(35),\n"+
-							"       KENT(40),\n"+
-							"       YODA(41),\n"+
-							"       FREDERIC;\n"+
-							"       final static int OLD = 41;\n"+
-							"\n"+
-							"\n"+
-							"   int age;\n"+
-							"       Role role;\n"+
-							"\n"+
-							"       T() { this(OLD); }\n"+
-							"       T(int age) {\n"+
-							"               this.age = age;\n"+
-							"       }\n"+
-							"       public int age() { return this.age; }\n"+
-							"       public boolean isManager() { return false; }\n"+
-							"       void setRole(boolean mgr) {\n"+
-							"               this.role = mgr ? Role.M : Role.D;\n"+
-							"       }\n"+
-							"}\n"+
-							"       System.out.print(\"JDTCore team:\");\n"+
-							"       T oldest = null;\n"+
-							"       int maxAge = Integer.MIN_VALUE;\n"+
-							"       for (T t : T.values()) {\n"+
-							"            if (t == T.YODA) continue;// skip YODA\n"+
-							"            t.setRole(t.isManager());\n"+
-							"                        if (t.age() > maxAge) {\n"+
-							"               oldest = t;\n"+
-							"               maxAge = t.age();\n"+
-							"            }\n"+
-							"                      Location l = switch(t) {\n"+
-							"                         case PHILIPPE, DAVID, JEROME, FREDERIC-> Location.SNZ;\n"+
-							"                         case OLIVIER, KENT -> Location.OTT;\n"+
-							"                         default-> throw new AssertionError(\"Unknown team member: \" + t);\n"+
-							"                       };\n"+
-							"\n"+
-							"            System.out.print(\" \"+ t + ':'+t.age()+':'+l+':'+t.role);\n"+
-							"        }\n"+
-							"        System.out.println(\" WINNER is:\" + T.valueOf(oldest.name()));\n"+
-							"    }\n"+
-							"\n"+
-							"   private enum Location { SNZ, OTT }\n"+
-							"}"
+					"""
+						public class X {
+						    public static void main(String[] args) {
+						          enum Role { M, D }
+						 enum T {
+						       PHILIPPE(37) {
+						               public boolean isManager() {
+						                       return true;
+						               }
+						       },
+						       DAVID(27),
+						       JEROME(33),
+						       OLIVIER(35),
+						       KENT(40),
+						       YODA(41),
+						       FREDERIC;
+						       final static int OLD = 41;
+						
+						
+						   int age;
+						       Role role;
+						
+						       T() { this(OLD); }
+						       T(int age) {
+						               this.age = age;
+						       }
+						       public int age() { return this.age; }
+						       public boolean isManager() { return false; }
+						       void setRole(boolean mgr) {
+						               this.role = mgr ? Role.M : Role.D;
+						       }
+						}
+						       System.out.print("JDTCore team:");
+						       T oldest = null;
+						       int maxAge = Integer.MIN_VALUE;
+						       for (T t : T.values()) {
+						            if (t == T.YODA) continue;// skip YODA
+						            t.setRole(t.isManager());
+						                        if (t.age() > maxAge) {
+						               oldest = t;
+						               maxAge = t.age();
+						            }
+						                      Location l = switch(t) {
+						                         case PHILIPPE, DAVID, JEROME, FREDERIC-> Location.SNZ;
+						                         case OLIVIER, KENT -> Location.OTT;
+						                         default-> throw new AssertionError("Unknown team member: " + t);
+						                       };
+						
+						            System.out.print(" "+ t + ':'+t.age()+':'+l+':'+t.role);
+						        }
+						        System.out.println(" WINNER is:" + T.valueOf(oldest.name()));
+						    }
+						
+						   private enum Location { SNZ, OTT }
+						}"""
 					);
 			search("Role", ENUM, ALL_OCCURRENCES);
-			assertSearchResults("src/X.java void X.main(String[]):Role#1 [Role] EXACT_MATCH\n"
-					+ "src/X.java void X.main(String[]):T#1.role [Role] EXACT_MATCH\n"
-					+ "src/X.java void void X.main(String[]):T#1.setRole(boolean) [Role] EXACT_MATCH\n"
-					+ "src/X.java void void X.main(String[]):T#1.setRole(boolean) [Role] EXACT_MATCH");
+			assertSearchResults("""
+				src/X.java void X.main(String[]):Role#1 [Role] EXACT_MATCH
+				src/X.java void X.main(String[]):T#1.role [Role] EXACT_MATCH
+				src/X.java void void X.main(String[]):T#1.setRole(boolean) [Role] EXACT_MATCH
+				src/X.java void void X.main(String[]):T#1.setRole(boolean) [Role] EXACT_MATCH""");
 
 		}
 
@@ -342,24 +351,25 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 		public void testBug570246_004() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-					"public class X {\n"+
-					" static void foo() {\n"+
-					"   interface F {\n"+
-					"     static int create(int lo) {\n"+
-					"       I myI = s -> lo;\n"+
-					"       return myI.bar(0);\n"+
-					"     }\n"+
-					"   }\n"+
-					"   System.out.println(F.create(0));\n"+
-					"     }\n"+
-					" public static void main(String[] args) {\n"+
-					"   X.foo();\n"+
-					" }\n"+
-					"}\n"+
-					"\n"+
-					"interface I {\n"+
-					" int bar(int l);\n"+
-					"}"
+					"""
+						public class X {
+						 static void foo() {
+						   interface F {
+						     static int create(int lo) {
+						       I myI = s -> lo;
+						       return myI.bar(0);
+						     }
+						   }
+						   System.out.println(F.create(0));
+						     }
+						 public static void main(String[] args) {
+						   X.foo();
+						 }
+						}
+						
+						interface I {
+						 int bar(int l);
+						}"""
 
 					);
 			search("F", INTERFACE, DECLARATIONS);
@@ -371,24 +381,25 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 		public void testBug570246_005() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-					"public class X {\n"+
-					" static void foo() {\n"+
-					"   interface F {\n"+
-					"     static int create(int lo) {\n"+
-					"       I myI = s -> lo;\n"+
-					"       return myI.bar(0);\n"+
-					"     }\n"+
-					"   }\n"+
-					"   System.out.println(F.create(0));\n"+
-					"     }\n"+
-					" public static void main(String[] args) {\n"+
-					"   X.foo();\n"+
-					" }\n"+
-					"}\n"+
-					"\n"+
-					"interface I {\n"+
-					" int bar(int l);\n"+
-					"}"
+					"""
+						public class X {
+						 static void foo() {
+						   interface F {
+						     static int create(int lo) {
+						       I myI = s -> lo;
+						       return myI.bar(0);
+						     }
+						   }
+						   System.out.println(F.create(0));
+						     }
+						 public static void main(String[] args) {
+						   X.foo();
+						 }
+						}
+						
+						interface I {
+						 int bar(int l);
+						}"""
 
 					);
 			search("F", INTERFACE, ALL_OCCURRENCES);
@@ -400,28 +411,29 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 		public void testBug570246_006() throws CoreException {
 				this.workingCopies = new ICompilationUnit[1];
 				this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-						"public class X {\n"+
-								" static void foo() {\n"+
-								"   int f = switch (5) {\n"+
-								"			case 5: {\n"+
-								"				interface Inter{\n"+
-								"					\n"+
-								"				}\n"+
-								"				class C implements Inter{\n"+
-								"					public int j = 5;\n"+
-								"				}\n"+
-								"				\n"+
-								"				yield new C().j;\n"+
-								"			}\n"+
-								"			default:\n"+
-								"				throw new IllegalArgumentException(\"Unexpected value: \" );\n"+
-								"			};\n"+
-								"	System.out.println(f);\n"+
-								" }\n"+
-								" public static void main(String[] args) {\n"+
-								"   X.foo();\n"+
-								" }\n"+
-								"}"
+						"""
+							public class X {
+							 static void foo() {
+							   int f = switch (5) {
+										case 5: {
+											interface Inter{
+											\t
+											}
+											class C implements Inter{
+												public int j = 5;
+											}
+										\t
+											yield new C().j;
+										}
+										default:
+											throw new IllegalArgumentException("Unexpected value: " );
+										};
+								System.out.println(f);
+							 }
+							 public static void main(String[] args) {
+							   X.foo();
+							 }
+							}"""
 
 						);
 				search("Inter", INTERFACE, ALL_OCCURRENCES);
@@ -432,16 +444,18 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 		public void testBug572100 () throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Bug572100/X.java",
-					"public interface X {\n"+
-				 " interface inter1  {\n"+
-				   " record record1(Class<?> type) implements inter1 {\n"+
-				  "    public record1 {\n"+
-				   "     if (!type.isPrimitive()) {\n"+
-				   "    }\n"+
-				    "  }\n"+
-				   " }\n"+
-				 " }\n"+
-				"}\n"
+					"""
+						public interface X {
+						 interface inter1  {
+						 record record1(Class<?> type) implements inter1 {
+						    public record1 {
+						     if (!type.isPrimitive()) {
+						    }
+						  }
+						 }
+						 }
+						}
+						"""
 				);
 			String str = this.workingCopies[0].getSource();
 			String selection = "inter1";
@@ -462,23 +476,32 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 		public void testBug573388 () throws CoreException {
 			this.workingCopies = new ICompilationUnit[3];
 			this.workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b573388/X.java",
-				"package b573388;\n\n" +
-				"public class X {\n"+
-					"public static void main() {\n" +
-					"		R r= new R(7);\n"+
-					"		C c= new C();\n"+
-					"}\n"+
-				"}\n"
+				"""
+					package b573388;
+					
+					public class X {
+					public static void main() {
+							R r= new R(7);
+							C c= new C();
+					}
+					}
+					"""
 				);
 			this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b573388/C.java",
-					"package b573388;\n\n" +
-					"public class C {\n"+
-					"}\n"
+					"""
+						package b573388;
+						
+						public class C {
+						}
+						"""
 					);
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b573388/R.java",
-				"package b573388;\n\n" +
-				"public record R(int a) {\n"+
-				"}\n"
+				"""
+					package b573388;
+					
+					public record R(int a) {
+					}
+					"""
 				);
 			String str = this.workingCopies[2].getSource();
 			String selection = "X";
@@ -496,16 +519,15 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy(
 					"/JavaSearchBugs/src/X.java",
-					"public class X {\n" +
-							"private void method(Object o) {\n" +
-							"if ((o instanceof String xvar )) \n" +
-							"{\n" +
-							" System.out.println(/*here*/xvar);\n" +
-							"}\n" +
-
-							"}\n" +
-
-					"}");
+					"""
+						public class X {
+						private void method(Object o) {
+						if ((o instanceof String xvar ))\s
+						{
+						 System.out.println(/*here*/xvar);
+						}
+						}
+						}""");
 
 			// working copies
 			try {
@@ -528,16 +550,15 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy(
 					"/JavaSearchBugs/src/X.java",
-					"public class X {\n" +
-							"private void method(Object o) {\n" +
-							"if ((o instanceof String /*here*/xvar )) \n" +
-							"{\n" +
-							" System.out.println(xvar+xvar);\n" +
-							"}\n" +
-
-							"}\n" +
-
-					"}");
+					"""
+						public class X {
+						private void method(Object o) {
+						if ((o instanceof String /*here*/xvar ))\s
+						{
+						 System.out.println(xvar+xvar);
+						}
+						}
+						}""");
 
 			// working copies
 			try {
@@ -561,16 +582,15 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy(
 					"/JavaSearchBugs/src/X.java",
-					"public class X {\n" +
-							"private void method(Object o) {\n" +
-							"if ((o instanceof String /*here*/xvar )) \n" +
-							"{\n" +
-							" System.out.println(xvar+xvar);\n" +
-							"}\n" +
-
-							"}\n" +
-
-					"}");
+					"""
+						public class X {
+						private void method(Object o) {
+						if ((o instanceof String /*here*/xvar ))\s
+						{
+						 System.out.println(xvar+xvar);
+						}
+						}
+						}""");
 
 			// working copies
 			try {
@@ -583,9 +603,10 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
 				ILocalVariable local = (ILocalVariable) elements[0];
 				search(local, ALL_OCCURRENCES, EXACT_RULE);
-				assertSearchResults("src/X.java void X.method(Object).xvar [xvar] EXACT_MATCH\n"
-						+ "src/X.java void X.method(Object) [xvar] EXACT_MATCH\n"
-						+ "src/X.java void X.method(Object) [xvar] EXACT_MATCH");
+				assertSearchResults("""
+					src/X.java void X.method(Object).xvar [xvar] EXACT_MATCH
+					src/X.java void X.method(Object) [xvar] EXACT_MATCH
+					src/X.java void X.method(Object) [xvar] EXACT_MATCH""");
 
 			} finally {
 
@@ -595,16 +616,15 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy(
 					"/JavaSearchBugs/src/X.java",
-					"public class X {\n" +
-							"private void method(Object o) {\n" +
-							"if (o instanceof String xvar ) \n" +
-							"{\n" +
-							" System.out.println(/*here*/xvar);\n" +
-							"}\n" +
-
-							"}\n" +
-
-					"}");
+					"""
+						public class X {
+						private void method(Object o) {
+						if (o instanceof String xvar )\s
+						{
+						 System.out.println(/*here*/xvar);
+						}
+						}
+						}""");
 
 			// working copies
 			try {
@@ -638,15 +658,17 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 			String packageFolder = "/" + testProjectName + "/src/test";
 			createFolder(packageFolder);
 			String testSource =
-				"package test;\n" +
-				"public class Test {\n" +
-				"protected final java.util.HashMap<?, ?> internal;\n" +
-				"protected final java.util.HashMap<?, ?> map;\n" +
-				"    public Test() {\n" +
-				"	    internal = new java.util.HashMap<>();\n" +
-				"	    map = internal;\n" +
-				"    }\n" +
-			    "}\n";
+				"""
+				package test;
+				public class Test {
+				protected final java.util.HashMap<?, ?> internal;
+				protected final java.util.HashMap<?, ?> map;
+				    public Test() {
+					    internal = new java.util.HashMap<>();
+					    map = internal;
+				    }
+				}
+				""";
 			createFile(packageFolder + "/Test.java", testSource);
 			buildAndExpectNoProblems(project);
 
@@ -689,21 +711,23 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 			project = createJavaProject("P", new String[] {""}, new String[] { "/P/lib1297.jar", "JCL15_LIB" }, "", "1.5");
 			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 					"p1/AnnotationTypes.java",
-					"package p1;\n" +
-					"import java.lang.annotation.*;\n" +
-					"@Retention(RetentionPolicy.RUNTIME)\n" +
-					"@Target(ElementType.METHOD)\n" +
-					"@interface MyCustomAnnotation {\n" +
-					"	String value();\n" +
-					"}\n" +
-					"public class AnnotationTypes {\n" +
-					"	@MyCustomAnnotation(value = \"Eclipse\")\n" +
-					"	public void myMethod() {\n" +
-					"		System.out.println(\"Annotated method called\");\n" +
-					"	}\n" +
-					"	@MyCustomAnnotation(value = \"Eclipse1\")\n" +
-					"	public void newAnnotation() { }\n" +
-					"}\n" },
+					"""
+						package p1;
+						import java.lang.annotation.*;
+						@Retention(RetentionPolicy.RUNTIME)
+						@Target(ElementType.METHOD)
+						@interface MyCustomAnnotation {
+							String value();
+						}
+						public class AnnotationTypes {
+							@MyCustomAnnotation(value = "Eclipse")
+							public void myMethod() {
+								System.out.println("Annotated method called");
+							}
+							@MyCustomAnnotation(value = "Eclipse1")
+							public void newAnnotation() { }
+						}
+						""" },
 					project.getProject().getLocation().append("lib1297.jar").toOSString(), "1.5");
 
 
@@ -712,22 +736,24 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 
 			createFolder("/P/p1");
 			String testSource =
-				"package p1;\n" +
-				"import java.lang.annotation.*;\n" +
-				"@Retention(RetentionPolicy.RUNTIME)\n" +
-				"@Target(ElementType.METHOD)\n" +
-				"public class Test {\n" +
-				"	@MyCustomAnnotation(value = \"Custom Annotation Example\")\n" +
-				"	public void annotatedMethod() {" +
-				"		System.out.println(\"Annotated method called\");\n" +
-				"	}\n" +
-				"	@MyCustomAnnotation(value = \"Custom Annotation Example1\")\n" +
-				"	public void test123() {" +
-				"		System.out.println(\"Annotated method called\");\n" +
-				"	}\n" +
-				"	public static void main(String[] args) throws NoSuchMethodException {\n" +
-				"	}\n" +
-			    "}\n";
+				"""
+				package p1;
+				import java.lang.annotation.*;
+				@Retention(RetentionPolicy.RUNTIME)
+				@Target(ElementType.METHOD)
+				public class Test {
+					@MyCustomAnnotation(value = "Custom Annotation Example")
+					public void annotatedMethod() {\
+						System.out.println("Annotated method called");
+					}
+					@MyCustomAnnotation(value = "Custom Annotation Example1")
+					public void test123() {\
+						System.out.println("Annotated method called");
+					}
+					public static void main(String[] args) throws NoSuchMethodException {
+					}
+				}
+				""";
 			createFile("/P/p1/Test.java", testSource);
 
 			SearchPattern pattern = SearchPattern.createPattern(
@@ -740,10 +766,11 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 
 			search(pattern, scope, this.resultCollector);
 			assertSearchResults(
-					"p1/Test.java void p1.Test.annotatedMethod() [MyCustomAnnotation] EXACT_MATCH\n" +
-					"p1/Test.java void p1.Test.test123() [MyCustomAnnotation] EXACT_MATCH\n" +
-					"lib1297.jar void p1.AnnotationTypes.myMethod() [No source] EXACT_MATCH\n" +
-					"lib1297.jar void p1.AnnotationTypes.newAnnotation() [No source] EXACT_MATCH"
+					"""
+						p1/Test.java void p1.Test.annotatedMethod() [MyCustomAnnotation] EXACT_MATCH
+						p1/Test.java void p1.Test.test123() [MyCustomAnnotation] EXACT_MATCH
+						lib1297.jar void p1.AnnotationTypes.myMethod() [No source] EXACT_MATCH
+						lib1297.jar void p1.AnnotationTypes.newAnnotation() [No source] EXACT_MATCH"""
 					);
 		} finally {
 			deleteProject(project);

@@ -130,13 +130,15 @@ protected void setUp () throws Exception {
 public void testBug529434_001() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"class B {\n" +
-			"}\n" +
-			"public class X {\n" +
-			"    public static void main(String [] args) throws Exception {\n" +
-			"    	var B = new B();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				class B {
+				}
+				public class X {
+				    public static void main(String [] args) throws Exception {
+				    	var B = new B();
+				    }
+				}
+				"""
 			);
 	search("B", CONSTRUCTOR, REFERENCES, EXACT_RULE);
 	assertSearchResults("src/X.java void X.main(String[]) [new B()] EXACT_MATCH");

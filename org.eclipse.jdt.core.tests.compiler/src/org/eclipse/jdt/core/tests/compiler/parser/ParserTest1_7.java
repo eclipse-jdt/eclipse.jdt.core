@@ -244,91 +244,100 @@ protected Map getCompilerOptions() {
 public void test0001() {
 
 	String s =
-		"public class A {\n" +
-		"	public void foo(String fileName) {\n" +
-		"		try (Reader reader = new FileReader(\"fileName\")) {\n" +
-		"			System.out.println(reader.read());\n" +
-		"		} catch(FileNotFoundException | IOException | Exception e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		} finally {\n" +
-		"			System.out.println(\"Finishing try-with-resources\");\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class A {
+			public void foo(String fileName) {
+				try (Reader reader = new FileReader("fileName")) {
+					System.out.println(reader.read());
+				} catch(FileNotFoundException | IOException | Exception e) {
+					e.printStackTrace();
+				} finally {
+					System.out.println("Finishing try-with-resources");
+				}
+			}
+		}""";
 
 	String expectedDietUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		  }
+		  public void foo(String fileName) {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException | IOException | Exception e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"    finally\n" +
-		"      {\n" +
-		"        System.out.println(\"Finishing try-with-resources\");\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException | IOException | Exception e)
+		      {
+		        e.printStackTrace();
+		      }
+		    finally
+		      {
+		        System.out.println("Finishing try-with-resources");
+		      }
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException | IOException | Exception e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"    finally\n" +
-		"      {\n" +
-		"        System.out.println(\"Finishing try-with-resources\");\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException | IOException | Exception e)
+		      {
+		        e.printStackTrace();
+		      }
+		    finally
+		      {
+		        System.out.println("Finishing try-with-resources");
+		      }
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException | IOException | Exception e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"    finally\n" +
-		"      {\n" +
-		"        System.out.println(\"Finishing try-with-resources\");\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException | IOException | Exception e)
+		      {
+		        e.printStackTrace();
+		      }
+		    finally
+		      {
+		        System.out.println("Finishing try-with-resources");
+		      }
+		  }
+		}
+		""";
 
 	String expectedFullWithStatementRecoveryUnitToString =
 		expectedFullUnitToString;
@@ -347,91 +356,100 @@ public void test0001() {
 public void test0002() {
 
 	String s =
-		"public class A {\n" +
-		"	public void foo(String fileName) {\n" +
-		"		try (Reader reader = new FileReader(\"fileName\")) {\n" +
-		"			System.out.println(reader.read());\n" +
-		"		} catch(FileNotFoundException e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		} finally {\n" +
-		"			System.out.println(\"Finishing try-with-resources\");\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class A {
+			public void foo(String fileName) {
+				try (Reader reader = new FileReader("fileName")) {
+					System.out.println(reader.read());
+				} catch(FileNotFoundException e) {
+					e.printStackTrace();
+				} finally {
+					System.out.println("Finishing try-with-resources");
+				}
+			}
+		}""";
 
 	String expectedDietUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		  }
+		  public void foo(String fileName) {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"    finally\n" +
-		"      {\n" +
-		"        System.out.println(\"Finishing try-with-resources\");\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException e)
+		      {
+		        e.printStackTrace();
+		      }
+		    finally
+		      {
+		        System.out.println("Finishing try-with-resources");
+		      }
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"    finally\n" +
-		"      {\n" +
-		"        System.out.println(\"Finishing try-with-resources\");\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException e)
+		      {
+		        e.printStackTrace();
+		      }
+		    finally
+		      {
+		        System.out.println("Finishing try-with-resources");
+		      }
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"    finally\n" +
-		"      {\n" +
-		"        System.out.println(\"Finishing try-with-resources\");\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException e)
+		      {
+		        e.printStackTrace();
+		      }
+		    finally
+		      {
+		        System.out.println("Finishing try-with-resources");
+		      }
+		  }
+		}
+		""";
 
 	String expectedFullWithStatementRecoveryUnitToString =
 		expectedFullUnitToString;
@@ -450,63 +468,72 @@ public void test0002() {
 public void test0003() {
 
 	String s =
-		"public class A {\n" +
-		"	public void foo(String fileName) {\n" +
-		"		try (Reader reader = new FileReader(\"fileName\")) {\n" +
-		"			System.out.println(reader.read());\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class A {
+			public void foo(String fileName) {
+				try (Reader reader = new FileReader("fileName")) {
+					System.out.println(reader.read());
+				}
+			}
+		}""";
 
 	String expectedDietUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		  }
+		  public void foo(String fileName) {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		  }
+		}
+		""";
 
 	String expectedFullWithStatementRecoveryUnitToString =
 		expectedFullUnitToString;
@@ -525,77 +552,86 @@ public void test0003() {
 public void test0004() {
 
 	String s =
-		"public class A {\n" +
-		"	public void foo(String fileName) {\n" +
-		"		try (Reader reader = new FileReader(\"fileName\")) {\n" +
-		"			System.out.println(reader.read());\n" +
-		"		} finally {\n" +
-		"			System.out.println(\"Finishing try-with-resources\");\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class A {
+			public void foo(String fileName) {
+				try (Reader reader = new FileReader("fileName")) {
+					System.out.println(reader.read());
+				} finally {
+					System.out.println("Finishing try-with-resources");
+				}
+			}
+		}""";
 
 	String expectedDietUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		  }
+		  public void foo(String fileName) {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    finally\n" +
-		"      {\n" +
-		"        System.out.println(\"Finishing try-with-resources\");\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    finally
+		      {
+		        System.out.println("Finishing try-with-resources");
+		      }
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    finally\n" +
-		"      {\n" +
-		"        System.out.println(\"Finishing try-with-resources\");\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    finally
+		      {
+		        System.out.println("Finishing try-with-resources");
+		      }
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    finally\n" +
-		"      {\n" +
-		"        System.out.println(\"Finishing try-with-resources\");\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    finally
+		      {
+		        System.out.println("Finishing try-with-resources");
+		      }
+		  }
+		}
+		""";
 
 	String expectedFullWithStatementRecoveryUnitToString =
 		expectedFullUnitToString;
@@ -614,77 +650,86 @@ public void test0004() {
 public void test0005() {
 
 	String s =
-		"public class A {\n" +
-		"	public void foo(String fileName) {\n" +
-		"		try (Reader reader = new FileReader(\"fileName\")) {\n" +
-		"			System.out.println(reader.read());\n" +
-		"		} catch(FileNotFoundException e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class A {
+			public void foo(String fileName) {
+				try (Reader reader = new FileReader("fileName")) {
+					System.out.println(reader.read());
+				} catch(FileNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+		}""";
 
 	String expectedDietUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		  }
+		  public void foo(String fileName) {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException e)
+		      {
+		        e.printStackTrace();
+		      }
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException e)
+		      {
+		        e.printStackTrace();
+		      }
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException e)
+		      {
+		        e.printStackTrace();
+		      }
+		  }
+		}
+		""";
 
 	String expectedFullWithStatementRecoveryUnitToString =
 		expectedFullUnitToString;
@@ -703,91 +748,100 @@ public void test0005() {
 public void test0006() {
 
 	String s =
-		"public class A {\n" +
-		"	public void foo(String fileName) {\n" +
-		"		try {\n" +
-		"			System.out.println(reader.read());\n" +
-		"		} catch(FileNotFoundException | IOException | Exception e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		} finally {\n" +
-		"			System.out.println(\"Finishing try-with-resources\");\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class A {
+			public void foo(String fileName) {
+				try {
+					System.out.println(reader.read());
+				} catch(FileNotFoundException | IOException | Exception e) {
+					e.printStackTrace();
+				} finally {
+					System.out.println("Finishing try-with-resources");
+				}
+			}
+		}""";
 
 	String expectedDietUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		  }
+		  public void foo(String fileName) {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException | IOException | Exception e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"    finally\n" +
-		"      {\n" +
-		"        System.out.println(\"Finishing try-with-resources\");\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException | IOException | Exception e)
+		      {
+		        e.printStackTrace();
+		      }
+		    finally
+		      {
+		        System.out.println("Finishing try-with-resources");
+		      }
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException | IOException | Exception e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"    finally\n" +
-		"      {\n" +
-		"        System.out.println(\"Finishing try-with-resources\");\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException | IOException | Exception e)
+		      {
+		        e.printStackTrace();
+		      }
+		    finally
+		      {
+		        System.out.println("Finishing try-with-resources");
+		      }
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException | IOException | Exception e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"    finally\n" +
-		"      {\n" +
-		"        System.out.println(\"Finishing try-with-resources\");\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException | IOException | Exception e)
+		      {
+		        e.printStackTrace();
+		      }
+		    finally
+		      {
+		        System.out.println("Finishing try-with-resources");
+		      }
+		  }
+		}
+		""";
 
 	String expectedFullWithStatementRecoveryUnitToString =
 		expectedFullUnitToString;
@@ -806,56 +860,65 @@ public void test0006() {
 public void test0007() {
 
 	String s =
-		"public class A {\n" +
-		"	public void foo(String fileName) {\n" +
-		"		List<String> l = new ArrayList<>();\n" +
-		"		System.out.println(l);\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class A {
+			public void foo(String fileName) {
+				List<String> l = new ArrayList<>();
+				System.out.println(l);
+			}
+		}""";
 
 	String expectedDietUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		  }
+		  public void foo(String fileName) {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    List<String> l = new ArrayList<>();\n" +
-		"    System.out.println(l);\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    List<String> l = new ArrayList<>();
+		    System.out.println(l);
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    List<String> l = new ArrayList<>();\n" +
-		"    System.out.println(l);\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    List<String> l = new ArrayList<>();
+		    System.out.println(l);
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    List<String> l = new ArrayList<>();\n" +
-		"    System.out.println(l);\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    List<String> l = new ArrayList<>();
+		    System.out.println(l);
+		  }
+		}
+		""";
 
 	String expectedFullWithStatementRecoveryUnitToString =
 		expectedFullUnitToString;
@@ -874,56 +937,65 @@ public void test0007() {
 public void test0008() {
 
 	String s =
-		"public class A {\n" +
-		"	public void foo(String fileName) {\n" +
-		"		List<> l = new ArrayList<>();\n" +
-		"		System.out.println(l);\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class A {
+			public void foo(String fileName) {
+				List<> l = new ArrayList<>();
+				System.out.println(l);
+			}
+		}""";
 
 	String expectedDietUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		  }
+		  public void foo(String fileName) {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    List<> l = new ArrayList<>();\n" +
-		"    System.out.println(l);\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    List<> l = new ArrayList<>();
+		    System.out.println(l);
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    List<> l = new ArrayList<>();\n" +
-		"    System.out.println(l);\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    List<> l = new ArrayList<>();
+		    System.out.println(l);
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    List<> l = new ArrayList<>();\n" +
-		"    System.out.println(l);\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    List<> l = new ArrayList<>();
+		    System.out.println(l);
+		  }
+		}
+		""";
 
 	String expectedFullWithStatementRecoveryUnitToString =
 		expectedFullUnitToString;
@@ -942,56 +1014,65 @@ public void test0008() {
 public void test0009() {
 
 	String s =
-		"public class A {\n" +
-		"	public void foo(String fileName) {\n" +
-		"		List<String> l = new java.util.ArrayList<>();\n" +
-		"		System.out.println(l);\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class A {
+			public void foo(String fileName) {
+				List<String> l = new java.util.ArrayList<>();
+				System.out.println(l);
+			}
+		}""";
 
 	String expectedDietUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		  }
+		  public void foo(String fileName) {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    List<String> l = new java.util.ArrayList<>();\n" +
-		"    System.out.println(l);\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    List<String> l = new java.util.ArrayList<>();
+		    System.out.println(l);
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    List<String> l = new java.util.ArrayList<>();\n" +
-		"    System.out.println(l);\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    List<String> l = new java.util.ArrayList<>();
+		    System.out.println(l);
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    List<String> l = new java.util.ArrayList<>();\n" +
-		"    System.out.println(l);\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    List<String> l = new java.util.ArrayList<>();
+		    System.out.println(l);
+		  }
+		}
+		""";
 
 	String expectedFullWithStatementRecoveryUnitToString =
 		expectedFullUnitToString;
@@ -1010,56 +1091,65 @@ public void test0009() {
 public void test0010() {
 
 	String s =
-		"public class A {\n" +
-		"	public void foo(String fileName) {\n" +
-		"		B<String>.C<Integer> o = new B<>.C<>();\n" +
-		"		System.out.println(l);\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class A {
+			public void foo(String fileName) {
+				B<String>.C<Integer> o = new B<>.C<>();
+				System.out.println(l);
+			}
+		}""";
 
 	String expectedDietUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		  }
+		  public void foo(String fileName) {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    B<String>.C<Integer> o = new B<>.C<>();\n" +
-		"    System.out.println(l);\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    B<String>.C<Integer> o = new B<>.C<>();
+		    System.out.println(l);
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    B<String>.C<Integer> o = new B<>.C<>();\n" +
-		"    System.out.println(l);\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    B<String>.C<Integer> o = new B<>.C<>();
+		    System.out.println(l);
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    B<String>.C<Integer> o = new B<>.C<>();\n" +
-		"    System.out.println(l);\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    B<String>.C<Integer> o = new B<>.C<>();
+		    System.out.println(l);
+		  }
+		}
+		""";
 
 	String expectedFullWithStatementRecoveryUnitToString =
 		expectedFullUnitToString;
@@ -1078,77 +1168,86 @@ public void test0010() {
 public void test0011() {
 
 	String s =
-		"public class A {\n" +
-		"	public void foo(String fileName) {\n" +
-		"		try (Reader reader = new FileReader(\"fileName\");) {\n" +
-		"			System.out.println(reader.read());\n" +
-		"		} catch(FileNotFoundException e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class A {
+			public void foo(String fileName) {
+				try (Reader reader = new FileReader("fileName");) {
+					System.out.println(reader.read());
+				} catch(FileNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+		}""";
 
 	String expectedDietUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		  }
+		  public void foo(String fileName) {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException e)
+		      {
+		        e.printStackTrace();
+		      }
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException e)
+		      {
+		        e.printStackTrace();
+		      }
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException e)
+		      {
+		        e.printStackTrace();
+		      }
+		  }
+		}
+		""";
 
 	String expectedFullWithStatementRecoveryUnitToString =
 		expectedFullUnitToString;
@@ -1167,81 +1266,90 @@ public void test0011() {
 public void test0012() {
 
 	String s =
-		"public class A {\n" +
-		"	public void foo(String fileName) {\n" +
-		"		try (Reader reader = new FileReader(\"fileName\");\n" +
-		"			Reader reader2 = new FileReader(\"fileName\");) {\n" +
-		"			System.out.println(reader.read());\n" +
-		"		} catch(FileNotFoundException e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class A {
+			public void foo(String fileName) {
+				try (Reader reader = new FileReader("fileName");
+					Reader reader2 = new FileReader("fileName");) {
+					System.out.println(reader.read());
+				} catch(FileNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+		}""";
 
 	String expectedDietUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		  }
+		  public void foo(String fileName) {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\");\n" +
-		"        Reader reader2 = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName");
+		        Reader reader2 = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException e)
+		      {
+		        e.printStackTrace();
+		      }
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\");\n" +
-		"        Reader reader2 = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName");
+		        Reader reader2 = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException e)
+		      {
+		        e.printStackTrace();
+		      }
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
-		"public class A {\n" +
-		"  public A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public void foo(String fileName) {\n" +
-		"    try (Reader reader = new FileReader(\"fileName\");\n" +
-		"        Reader reader2 = new FileReader(\"fileName\"))\n" +
-		"      {\n" +
-		"        System.out.println(reader.read());\n" +
-		"      }\n" +
-		"    catch (FileNotFoundException e)\n" +
-		"      {\n" +
-		"        e.printStackTrace();\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class A {
+		  public A() {
+		    super();
+		  }
+		  public void foo(String fileName) {
+		    try (Reader reader = new FileReader("fileName");
+		        Reader reader2 = new FileReader("fileName"))
+		      {
+		        System.out.println(reader.read());
+		      }
+		    catch (FileNotFoundException e)
+		      {
+		        e.printStackTrace();
+		      }
+		  }
+		}
+		""";
 
 	String expectedFullWithStatementRecoveryUnitToString =
 		expectedFullUnitToString;

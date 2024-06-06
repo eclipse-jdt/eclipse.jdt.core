@@ -47,20 +47,24 @@ public void test0001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
- 		"    MissingType m = null;\n" +
- 		"    m.b\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    MissingType m = null;
+			    m.b
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public void bar() {}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public void bar() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -84,20 +88,24 @@ public void test0002() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
- 		"    MissingType m = null;\n" +
- 		"    m.b\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    MissingType m = null;
+			    m.b
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public int bar;\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public int bar;
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -121,26 +129,32 @@ public void test0003() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
- 		"    MissingType m = null;\n" +
- 		"    m.b\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    MissingType m = null;
+			    m.b
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType extends SuperType {\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType extends SuperType {
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/SuperType.java",
-		"package missing;"+
-		"public class SuperType {\n" +
-		"  public int bar;\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class SuperType {
+			  public int bar;
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -164,20 +178,24 @@ public void test0004() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
- 		"    MissingType[] m = null;\n" +
- 		"    m.\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    MissingType[] m = null;
+			    m.
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public void bar() {};\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public void bar() {};
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -224,20 +242,24 @@ public void test0005() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  MissingType m;\n" +
-		"  void foo() {\n" +
- 		"    m.b\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  MissingType m;
+			  void foo() {
+			    m.b
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public void bar() {}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public void bar() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -261,22 +283,26 @@ public void test0006() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  MissingType m;\n" +
-		"  public class Test1 {\n" +
-		"    void foo() {\n" +
- 		"      m.b\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  MissingType m;
+			  public class Test1 {
+			    void foo() {
+			      m.b
+			    }
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public void bar() {}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public void bar() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -300,29 +326,35 @@ public void test0007() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  MissingType m;\n" +
-		"  public class Test1 extends test.SuperType {\n" +
-		"    void foo() {\n" +
- 		"      m.e\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  MissingType m;
+			  public class Test1 extends test.SuperType {
+			    void foo() {
+			      m.e
+			    }
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public void bar() {}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public void bar() {}
+			}
+			""");
 
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/SuperType.java",
-		"package test;"+
-		"public class SuperType {\n" +
-		"  public Object m;\n" +
-		"}\n");
+		"""
+			package test;\
+			public class SuperType {
+			  public Object m;
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -343,29 +375,35 @@ public void test0008() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  MissingType m;\n" +
-		"  public class Test1 extends test.SuperType {\n" +
-		"    void foo() {\n" +
- 		"      m.b\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  MissingType m;
+			  public class Test1 extends test.SuperType {
+			    void foo() {
+			      m.b
+			    }
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public void bar() {}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public void bar() {}
+			}
+			""");
 
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/SuperType.java",
-		"package test;"+
-		"public class SuperType {\n" +
-		"  public Object m;\n" +
-		"}\n");
+		"""
+			package test;\
+			public class SuperType {
+			  public Object m;
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -383,27 +421,33 @@ public void test0009() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
- 		"    MissingType m = null;\n" +
- 		"    m.b\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    MissingType m = null;
+			    m.b
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public void bar() {}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public void bar() {}
+			}
+			""");
 
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/missing2/MissingType.java",
-		"package missing2;"+
-		"public class MissingType {\n" +
-		"  public void bar() {}\n" +
-		"}\n");
+		"""
+			package missing2;\
+			public class MissingType {
+			  public void bar() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -429,22 +473,26 @@ public void test0010() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
- 		"    MissingMemberType m = null;\n" +
- 		"    m.b\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    MissingMemberType m = null;
+			    m.b
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public class MissingMemberType {\n" +
-		"    public void bar() {}\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public class MissingMemberType {
+			    public void bar() {}
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -468,20 +516,24 @@ public void test0011() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  MissingType m() {return null;}\n" +
-		"  void foo() {\n" +
- 		"    m().b\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  MissingType m() {return null;}
+			  void foo() {
+			    m().b
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public void bar() {}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public void bar() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -505,20 +557,24 @@ public void test0012() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  MissingType m(int i) {return null;}\n" +
-		"  void foo() {\n" +
- 		"    m(0).b\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  MissingType m(int i) {return null;}
+			  void foo() {
+			    m(0).b
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public void bar() {}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public void bar() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -542,29 +598,35 @@ public void test0013() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  MissingType m() {return null;}\n" +
-		"  public class Inner extends missing.SuperType{\n" +
-		"    void foo() {\n" +
- 		"      m().e\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  MissingType m() {return null;}
+			  public class Inner extends missing.SuperType{
+			    void foo() {
+			      m().e
+			    }
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public void bar() {}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public void bar() {}
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/SuperType.java",
-		"package missing;"+
-		"public class SuperType {\n" +
-		"  public Object m() {return null;}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class SuperType {
+			  public Object m() {return null;}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -585,29 +647,35 @@ public void test0014() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  MissingType m() {return null;}\n" +
-		"  public class Inner extends missing.SuperType{\n" +
-		"    void foo() {\n" +
- 		"      m().b\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  MissingType m() {return null;}
+			  public class Inner extends missing.SuperType{
+			    void foo() {
+			      m().b
+			    }
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public void bar() {}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public void bar() {}
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/SuperType.java",
-		"package missing;"+
-		"public class SuperType {\n" +
-		"  public Object m() {return null;}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class SuperType {
+			  public Object m() {return null;}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -625,29 +693,35 @@ public void test0015() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  MissingType m() {return null;}\n" +
-		"  public class Inner extends missing.SuperType{\n" +
-		"    void foo() {\n" +
- 		"      m().b\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  MissingType m() {return null;}
+			  public class Inner extends missing.SuperType{
+			    void foo() {
+			      m().b
+			    }
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public void bar() {}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public void bar() {}
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/SuperType.java",
-		"package missing;"+
-		"public class SuperType {\n" +
-		"  public Object m(int i) {return null;}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class SuperType {
+			  public Object m(int i) {return null;}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -671,22 +745,26 @@ public void test0016() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
- 		"    MissingType.MissingMemberType m = null;\n" +
- 		"    m.b\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    MissingType.MissingMemberType m = null;
+			    m.b
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public class MissingMemberType {\n" +
-		"    public void bar() {}\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public class MissingMemberType {
+			    public void bar() {}
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -710,22 +788,26 @@ public void test0017() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
- 		"    missing2.MissingType.MissingMemberType m = null;\n" +
- 		"    m.b\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    missing2.MissingType.MissingMemberType m = null;
+			    m.b
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing1/missing2/MissingType.java",
-		"package missing1.missing2;"+
-		"public class MissingType {\n" +
-		"  public class MissingMemberType {\n" +
-		"    public void bar() {}\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package missing1.missing2;\
+			public class MissingType {
+			  public class MissingMemberType {
+			    public void bar() {}
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -743,22 +825,26 @@ public void test0018() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
- 		"    missing2.missing3.MissingType.MissingMemberType m = null;\n" +
- 		"    m.b\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    missing2.missing3.MissingType.MissingMemberType m = null;
+			    m.b
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing1/missing2/missing3/MissingType.java",
-		"package missing1.missing2.missing3;"+
-		"public class MissingType {\n" +
-		"  public class MissingMemberType {\n" +
-		"    public void bar() {}\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package missing1.missing2.missing3;\
+			public class MissingType {
+			  public class MissingMemberType {
+			    public void bar() {}
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -776,22 +862,26 @@ public void test0019() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
- 		"    MissingType.MissingMemberType[] m = null;\n" +
- 		"    m.e\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    MissingType.MissingMemberType[] m = null;
+			    m.e
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public class MissingMemberType {\n" +
-		"    public void bar() {}\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public class MissingMemberType {
+			    public void bar() {}
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -822,23 +912,26 @@ public void test0020() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;\n"+
-			"public class Test {\n"+
-			"	void foo() {\n"+
-			"		MissingMemberType m = null;\n"+
-			"		m.b\n"+
-			"	}\n"+
-			"}");
+			"""
+				package test;
+				public class Test {
+					void foo() {
+						MissingMemberType m = null;
+						m.b
+					}
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/missing/MissingType.java",
-			"package missing;"+
-			"public class MissingType {\n" +
-			"  /** @deprecated */\n" +
-			"  public class MissingMemberType {\n" +
-			"    public void bar() {}\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package missing;\
+				public class MissingType {
+				  /** @deprecated */
+				  public class MissingMemberType {
+				    public void bar() {}
+				  }
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
@@ -872,23 +965,26 @@ public void test0021() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;\n"+
-			"public class Test {\n"+
-			"	void foo() {\n"+
-			"		MissingMemberType m = null;\n"+
-			"		m.b\n"+
-			"	}\n"+
-			"}");
+			"""
+				package test;
+				public class Test {
+					void foo() {
+						MissingMemberType m = null;
+						m.b
+					}
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/missing/MissingType.java",
-			"package missing;"+
-			"public class MissingType {\n" +
-			"  /** @deprecated */\n" +
-			"  public class MissingMemberType {\n" +
-			"    public void bar() {}\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package missing;\
+				public class MissingType {
+				  /** @deprecated */
+				  public class MissingMemberType {
+				    public void bar() {}
+				  }
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
@@ -916,25 +1012,28 @@ public void test0022() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;\n"+
-			"public class Test {\n"+
-			"	void foo() {\n"+
-			"		MissingMemberMemberType m = null;\n"+
-			"		m.b\n"+
-			"	}\n"+
-			"}");
+			"""
+				package test;
+				public class Test {
+					void foo() {
+						MissingMemberMemberType m = null;
+						m.b
+					}
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/missing/MissingType.java",
-			"package missing;"+
-			"public class MissingType {\n" +
-			"  	/** @deprecated */\n" +
-			"  public class MissingMemberType {\n" +
-			"  	 public class MissingMemberMemberType {\n" +
-			"      public void bar() {}\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package missing;\
+				public class MissingType {
+				  	/** @deprecated */
+				  public class MissingMemberType {
+				  	 public class MissingMemberMemberType {
+				      public void bar() {}
+				    }
+				  }
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
@@ -968,25 +1067,28 @@ public void test0023() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;\n"+
-			"public class Test {\n"+
-			"	void foo() {\n"+
-			"		MissingMemberMemberType m = null;\n"+
-			"		m.b\n"+
-			"	}\n"+
-			"}");
+			"""
+				package test;
+				public class Test {
+					void foo() {
+						MissingMemberMemberType m = null;
+						m.b
+					}
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/missing/MissingType.java",
-			"package missing;"+
-			"public class MissingType {\n" +
-			"  /** @deprecated */\n" +
-			"  public class MissingMemberType {\n" +
-			"  	 public class MissingMemberMemberType {\n" +
-			"      public void bar() {}\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package missing;\
+				public class MissingType {
+				  /** @deprecated */
+				  public class MissingMemberType {
+				  	 public class MissingMemberMemberType {
+				      public void bar() {}
+				    }
+				  }
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
@@ -1014,22 +1116,25 @@ public void _test0024() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;\n"+
-			"public class Test {\n"+
-			"	void foo() {\n"+
-			"		MissingMemberType m = null;\n"+
-			"		m.b\n"+
-			"	}\n"+
-			"}");
+			"""
+				package test;
+				public class Test {
+					void foo() {
+						MissingMemberType m = null;
+						m.b
+					}
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/missing/MissingType.java",
-			"package missing;"+
-			"public class MissingType {\n" +
-			"  private class MissingMemberType {\n" +
-			"    public void bar() {}\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package missing;\
+				public class MissingType {
+				  private class MissingMemberType {
+				    public void bar() {}
+				  }
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
@@ -1063,22 +1168,25 @@ public void test0025() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;\n"+
-			"public class Test {\n"+
-			"	void foo() {\n"+
-			"		MissingMemberType m = null;\n"+
-			"		m.b\n"+
-			"	}\n"+
-			"}");
+			"""
+				package test;
+				public class Test {
+					void foo() {
+						MissingMemberType m = null;
+						m.b
+					}
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/missing/MissingType.java",
-			"package missing;"+
-			"public class MissingType {\n" +
-			"  private class MissingMemberType {\n" +
-			"    public void bar() {}\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package missing;\
+				public class MissingType {
+				  private class MissingMemberType {
+				    public void bar() {}
+				  }
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
@@ -1106,24 +1214,27 @@ public void _test0026() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;\n"+
-			"public class Test {\n"+
-			"	void foo() {\n"+
-			"		MissingMemberMemberType m = null;\n"+
-			"		m.b\n"+
-			"	}\n"+
-			"}");
+			"""
+				package test;
+				public class Test {
+					void foo() {
+						MissingMemberMemberType m = null;
+						m.b
+					}
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/missing/MissingType.java",
-			"package missing;"+
-			"public class MissingType {\n" +
-			"  private class MissingMemberType {\n" +
-			"  	 public class MissingMemberMemberType {\n" +
-			"      public void bar() {}\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package missing;\
+				public class MissingType {
+				  private class MissingMemberType {
+				  	 public class MissingMemberMemberType {
+				      public void bar() {}
+				    }
+				  }
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
@@ -1157,24 +1268,27 @@ public void test0027() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;\n"+
-			"public class Test {\n"+
-			"	void foo() {\n"+
-			"		MissingMemberMemberType m = null;\n"+
-			"		m.b\n"+
-			"	}\n"+
-			"}");
+			"""
+				package test;
+				public class Test {
+					void foo() {
+						MissingMemberMemberType m = null;
+						m.b
+					}
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/missing/MissingType.java",
-			"package missing;"+
-			"public class MissingType {\n" +
-			"  private class MissingMemberType {\n" +
-			"  	 public class MissingMemberMemberType {\n" +
-			"      public void bar() {}\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package missing;\
+				public class MissingType {
+				  private class MissingMemberType {
+				  	 public class MissingMemberMemberType {
+				      public void bar() {}
+				    }
+				  }
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
@@ -1195,28 +1309,34 @@ public void test0028() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"import known.KnownType;\n"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
- 		"    MissingType m = null;\n" +
- 		"    m.field.b\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			import known.KnownType;
+			public class Test {
+			  void foo() {
+			    MissingType m = null;
+			    m.field.b
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public known.KnownType field\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public known.KnownType field
+			}
+			""");
 
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/known/KnownType.java",
-		"package known;"+
-		"public class KnownType {\n" +
-		"  public void bar() {}\n" +
-		"}\n");
+		"""
+			package known;\
+			public class KnownType {
+			  public void bar() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1234,28 +1354,34 @@ public void test0029() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"import known.KnownType;\n"+
-		"public class Test {\n" +
-		"  MissingType m = null;\n" +
-		"  void foo() {\n" +
- 		"    m.field.b\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			import known.KnownType;
+			public class Test {
+			  MissingType m = null;
+			  void foo() {
+			    m.field.b
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public known.KnownType field\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public known.KnownType field
+			}
+			""");
 
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/known/KnownType.java",
-		"package known;"+
-		"public class KnownType {\n" +
-		"  public void bar() {}\n" +
-		"}\n");
+		"""
+			package known;\
+			public class KnownType {
+			  public void bar() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1273,28 +1399,34 @@ public void test0030() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"import known.KnownType;\n"+
-		"public class Test {\n" +
-		"  MissingType m(){return null;}\n" +
-		"  void foo() {\n" +
- 		"    m().field.b\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			import known.KnownType;
+			public class Test {
+			  MissingType m(){return null;}
+			  void foo() {
+			    m().field.b
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public known.KnownType field\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public known.KnownType field
+			}
+			""");
 
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/known/KnownType.java",
-		"package known;"+
-		"public class KnownType {\n" +
-		"  public void bar() {}\n" +
-		"}\n");
+		"""
+			package known;\
+			public class KnownType {
+			  public void bar() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1312,28 +1444,34 @@ public void test0031() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"import known.KnownType;\n"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    MissingType m = null;\n" +
- 		"    m.method().b\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			import known.KnownType;
+			public class Test {
+			  void foo() {
+			    MissingType m = null;
+			    m.method().b
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public known.KnownType method() {return null;}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public known.KnownType method() {return null;}
+			}
+			""");
 
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/known/KnownType.java",
-		"package known;"+
-		"public class KnownType {\n" +
-		"  public void bar() {}\n" +
-		"}\n");
+		"""
+			package known;\
+			public class KnownType {
+			  public void bar() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1351,28 +1489,34 @@ public void test0032() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"import known.KnownType;\n"+
-		"public class Test {\n" +
-		"  MissingType m(){return null;}\n" +
-		"  void foo() {\n" +
- 		"    m().method().b\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			import known.KnownType;
+			public class Test {
+			  MissingType m(){return null;}
+			  void foo() {
+			    m().method().b
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public known.KnownType method() {return null;}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public known.KnownType method() {return null;}
+			}
+			""");
 
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/known/KnownType.java",
-		"package known;"+
-		"public class KnownType {\n" +
-		"  public void bar() {}\n" +
-		"}\n");
+		"""
+			package known;\
+			public class KnownType {
+			  public void bar() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1390,19 +1534,23 @@ public void test0033() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  /** @see MissingType#b */\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  /** @see MissingType#b */
+			  void foo() {
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public void bar()\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public void bar()
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1420,20 +1568,24 @@ public void test0034() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    MissingType.foo\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    MissingType.foo
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public void foo1()\n" +
-		"  public static void foo2()\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public void foo1()
+			  public static void foo2()
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1457,20 +1609,24 @@ public void test0035() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    MissingType.foo\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    MissingType.foo
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public int foo1;\n" +
-		"  public static int foo2;\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public int foo1;
+			  public static int foo2;
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1494,20 +1650,24 @@ public void test0036() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    MissingType.foo\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    MissingType.foo
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public class foo1 {}\n" +
-		"  public static class foo2 {}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public class foo1 {}
+			  public static class foo2 {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1533,22 +1693,26 @@ public void test0037() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    MissingType.MissingType2.foo\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    MissingType.MissingType2.foo
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public class MissingType2 {\n" +
-		"    public void foo1()\n" +
-		"    public static void foo2()\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public class MissingType2 {
+			    public void foo1()
+			    public static void foo2()
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1566,18 +1730,22 @@ public void test0038() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    MissingType.cla\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    MissingType.cla
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1600,23 +1768,27 @@ public void test0039() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  MissingType m;\n" +
-		"  void foo() {\n" +
-		"    class MissingType {\n" +
-		"      public void bar2() {}\n" +
-		"    }\n" +
-		"    m.b\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  MissingType m;
+			  void foo() {
+			    class MissingType {
+			      public void bar2() {}
+			    }
+			    m.b
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public void bar1() {}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public void bar1() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1640,17 +1812,21 @@ public void test0040() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  MissingType.Mem\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  MissingType.Mem
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public class Member {}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public class Member {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1674,18 +1850,22 @@ public void test0041() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    new MissingType(\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    new MissingType(
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1711,19 +1891,23 @@ public void test0042() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    new MissingType.Member(\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    new MissingType.Member(
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public static class Member {}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public static class Member {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1749,18 +1933,22 @@ public void test0043() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    this.new MissingType(\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    this.new MissingType(
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1778,20 +1966,24 @@ public void test0044() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    MissingType m = null;\n" +
-		"    m.new Member(\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    MissingType m = null;
+			    m.new Member(
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public class MissingType {\n" +
-		"  public class Member {}\n" +
-		"}\n");
+		"""
+			package missing;\
+			public class MissingType {
+			  public class Member {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1809,18 +2001,22 @@ public void test0045() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    new MissingType(\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    new MissingType(
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public interface MissingType {\n" +
-		"}\n");
+		"""
+			package missing;\
+			public interface MissingType {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -1844,18 +2040,22 @@ public void test0046() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    new MissingType(\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    new MissingType(
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
-		"package missing;"+
-		"public abstract class MissingType {\n" +
-		"}\n");
+		"""
+			package missing;\
+			public abstract class MissingType {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();

@@ -126,14 +126,16 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 
 	public void test000() throws Exception {
 		String contents =
-					"public class X extends @Marker @SingleMember(0) @Normal(value = 0) Object {\n" +
-					"}\n" +
-					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-					"@interface Marker {}\n" +
-					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-					"@interface SingleMember { int value() default 0;}\n" +
-					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-					"@interface Normal { int value() default 0;}\n";
+					"""
+			public class X extends @Marker @SingleMember(0) @Normal(value = 0) Object {
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface SingleMember { int value() default 0;}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Normal { int value() default 0;}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -150,11 +152,13 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test001() throws Exception {
 		String contents =
-				"public class X {\n" +
-						"    @Marker int x;\n" +
-						"}\n" +
-						"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-						"@interface Marker {}\n";
+				"""
+			public class X {
+			    @Marker int x;
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -171,13 +175,15 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test002() throws Exception {
 		String contents =
-						"public class X {\n" +
-						"    @Marker <@Marker2 T> int x() { return 10; };\n" +
-						"}\n" +
-						"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_PARAMETER)\n" +
-						"@interface Marker2{}\n" +
-						"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-						"@interface Marker {}\n";
+						"""
+			public class X {
+			    @Marker <@Marker2 T> int x() { return 10; };
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_PARAMETER)
+			@interface Marker2{}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -198,11 +204,13 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test003() throws Exception {
 		String contents =
-						"public class X {\n" +
-						"    int x(@Marker int p) { return 10; };\n" +
-						"}\n" +
-						"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-						"@interface Marker {}\n";
+						"""
+			public class X {
+			    int x(@Marker int p) { return 10; };
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -224,11 +232,13 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test004() throws Exception {
 		String contents =
-				"public class X {\n" +
-						"    int x(@Marker int ... p) { return 10; };\n" +
-						"}\n" +
-						"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-						"@interface Marker {}\n";
+				"""
+			public class X {
+			    int x(@Marker int ... p) { return 10; };
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -248,15 +258,17 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 
 	public void test005() throws Exception {
 			String contents =
-				"public class X {\n" +
-						"    int x(@Marker int @Marker2 [] @Marker3 ... p) { return 10; };\n" +
-						"}\n" +
-						"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-						"@interface Marker {}\n" +
-						"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-						"@interface Marker2 {}\n" +
-						"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-						"@interface Marker3 {}\n";
+				"""
+				public class X {
+				    int x(@Marker int @Marker2 [] @Marker3 ... p) { return 10; };
+				}
+				@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+				@interface Marker {}
+				@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+				@interface Marker2 {}
+				@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+				@interface Marker3 {}
+				""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -280,18 +292,20 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test006() throws Exception {
 		String contents =
-						"public class X {\n" +
-						"    int x() {\n" +
-						"        try {\n" +
-						"        } catch (@Marker NullPointerException | @Marker2 ArrayIndexOutOfBoundsException e) {\n" +
-						"        }\n" +
-						"        return 10;\n" +
-						"    }\n" +
-						"}\n" +
-						"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-						"@interface Marker {}\n" +
-						"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-						"@interface Marker2 {}\n";
+						"""
+			public class X {
+			    int x() {
+			        try {
+			        } catch (@Marker NullPointerException | @Marker2 ArrayIndexOutOfBoundsException e) {
+			        }
+			        return 10;
+			    }
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -318,22 +332,24 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test007() throws Exception {
 		String contents =
-				"package java.lang;\n" +
-				"public class X {\n" +
-				"    public void x() throws Exception {\n" +
-				"        try (@Marker LocalStream p = null; final @Marker2 LocalStream q = null; @Marker3 final LocalStream r = null) {}\n" +
-				"    }\n" +
-				"}\n" +
-				"class LocalStream implements AutoCloseable {\n" +
-				"    public void close() throws Exception {}\n" +
-				"}\n" +
-				"interface AutoCloseable {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker3 {}\n";
+				"""
+			package java.lang;
+			public class X {
+			    public void x() throws Exception {
+			        try (@Marker LocalStream p = null; final @Marker2 LocalStream q = null; @Marker3 final LocalStream r = null) {}
+			    }
+			}
+			class LocalStream implements AutoCloseable {
+			    public void close() throws Exception {}
+			}
+			interface AutoCloseable {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker3 {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/java/lang/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -367,16 +383,18 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test008() throws Exception {
 		String contents =
-				"public class X {\n" +
-						"    int x() {\n" +
-						"        for (@Marker int i: new int[3]) {}\n" +
-						"        for (final @Marker int i: new int[3]) {}\n" +
-						"        for (@Marker final int i: new int[3]) {}\n" +
-						"        return 10;\n" +
-						"    }\n" +
-						"}\n" +
-						"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-						"@interface Marker {}\n";
+				"""
+			public class X {
+			    int x() {
+			        for (@Marker int i: new int[3]) {}
+			        for (final @Marker int i: new int[3]) {}
+			        for (@Marker final int i: new int[3]) {}
+			        return 10;
+			    }
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -401,18 +419,20 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test009() throws Exception {
 		String contents =
-				"interface I {\n" +
-				"    Object copy(int [] ia);\n" +
-				"}\n" +
-				"public class X  {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        I i = @Marker int @Marker2 []::clone;\n" +
-				"    }\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {}\n";
+				"""
+			interface I {
+			    Object copy(int [] ia);
+			}
+			public class X  {
+			    public static void main(String [] args) {
+			        I i = @Marker int @Marker2 []::clone;
+			    }
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -438,16 +458,18 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test010() throws Exception {
 		String contents =
-				"public class X  {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        int i [] = new @Marker int @Marker2 [4];\n" +
-				"        int j [] = new @Marker2 int @Marker [] { 10 };\n" +
-				"    }\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {}\n";
+				"""
+			public class X  {
+			    public static void main(String [] args) {
+			        int i [] = new @Marker int @Marker2 [4];
+			        int j [] = new @Marker2 int @Marker [] { 10 };
+			    }
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -485,16 +507,18 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test011() throws Exception {
 		String contents =
-				"public class X  {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        int i = (@Marker int) 0;\n" +
-				"        int j [] = (@Marker int @Marker2 []) null;\n" +
-				"    }\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {}\n";
+				"""
+			public class X  {
+			    public static void main(String [] args) {
+			        int i = (@Marker int) 0;
+			        int j [] = (@Marker int @Marker2 []) null;
+			    }
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -527,14 +551,16 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test012() throws Exception {
 		String contents =
-				"public class X  {\n" +
-				"    public static void main(String args) {\n" +
-				"        if (args instanceof @Marker String) {\n" +
-				"        }\n" +
-				"    }\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n";
+				"""
+			public class X  {
+			    public static void main(String args) {
+			        if (args instanceof @Marker String) {
+			        }
+			    }
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -555,10 +581,12 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test013() throws Exception {
 			String contents =
-				"public class X extends Y<@Marker(10) Integer, String> {}\n" +
-				"class Y<T, V> {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {int value();}\n";
+				"""
+				public class X extends Y<@Marker(10) Integer, String> {}
+				class Y<T, V> {}
+				@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+				@interface Marker {int value();}
+				""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -577,10 +605,12 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test014() throws Exception {
 		String contents =
-				"public class X<T extends Object & Comparable<? super @Marker String>> {}\n" +
-				"class Y<T> {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n";
+				"""
+			public class X<T extends Object & Comparable<? super @Marker String>> {}
+			class Y<T> {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -605,19 +635,21 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test015() throws Exception {
 		String contents =
-				"public class X {\n" +
-				"	void foo(Map<@Marker ? super @Marker2 Object, @Marker3 ? extends @Marker4 String> m){}\n" +
-				"   void goo(Map<@Marker4 ? extends @Marker3 Object, @Marker2 ? super @Marker String> m){}\n" +
-				"}\n" +
-				"class Map<K, V>{}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker3 {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker4 {}\n";
+				"""
+			public class X {
+				void foo(Map<@Marker ? super @Marker2 Object, @Marker3 ? extends @Marker4 String> m){}
+			   void goo(Map<@Marker4 ? extends @Marker3 Object, @Marker2 ? super @Marker String> m){}
+			}
+			class Map<K, V>{}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker3 {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker4 {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -661,17 +693,19 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test016() throws Exception {
 		String contents =
-				"public class X<E> {\n" +
-				"  class Y {\n" +
-				"    E e;\n" +
-				"    E getOtherElement(Object other) {\n" +
-				"      if (!(other instanceof @Marker X<?>.Y)) {};\n" +
-				"      return null;\n" +
-				"    }\n" +
-				"  }\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n";
+				"""
+			public class X<E> {
+			  class Y {
+			    E e;
+			    E getOtherElement(Object other) {
+			      if (!(other instanceof @Marker X<?>.Y)) {};
+			      return null;
+			    }
+			  }
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -693,13 +727,15 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test017() throws Exception {
 		String contents =
-				"public class X<P, C> {\n" +
-				"  public X() {\n" +
-				"    if (!(this instanceof @Marker X)) {}\n" +
-				"  }\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n";
+				"""
+			public class X<P, C> {
+			  public X() {
+			    if (!(this instanceof @Marker X)) {}
+			  }
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -718,23 +754,25 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test018() throws Exception {
 		String contents =
-				"interface I {\n" +
-				"    void foo(Y<String>.Z z, int x);\n" +
-				"}\n" +
-				"public class X  {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        I i = Y<String>.@Marker Z::foo;\n" +
-				"        i.foo(new Y<String>().new Z(), 10); \n" +
-				"    }\n" +
-				"}\n" +
-				"class Y<T> {\n" +
-				"    class Z {\n" +
-				"        void foo(int x) {\n" +
-				"        }\n" +
-				"    }\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n";
+				"""
+			interface I {
+			    void foo(Y<String>.Z z, int x);
+			}
+			public class X  {
+			    public static void main(String [] args) {
+			        I i = Y<String>.@Marker Z::foo;
+			        i.foo(new Y<String>().new Z(), 10);\s
+			    }
+			}
+			class Y<T> {
+			    class Z {
+			        void foo(int x) {
+			        }
+			    }
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -758,16 +796,18 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test019() throws Exception {
 		String contents =
-				"public class X  {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        X [] x = new @Marker X @Marker2 [5];\n" +
-				"        X [] x2 = new @Marker2 X @Marker [] { null };\n" +
-				"    }\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {}\n";
+				"""
+			public class X  {
+			    public static void main(String [] args) {
+			        X [] x = new @Marker X @Marker2 [5];
+			        X [] x2 = new @Marker2 X @Marker [] { null };
+			    }
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -805,16 +845,18 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test020() throws Exception {
 		String contents =
-				"public class X  {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        Map.Entry<String, String> [] e = (Map.@Marker Entry<String, String> []) null;\n" +
-				"    }\n" +
-				"}\n" +
-				"class Map<K, V> {\n" +
-				"	interface Entry<K, V> {}\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n";
+				"""
+			public class X  {
+			    public static void main(String [] args) {
+			        Map.Entry<String, String> [] e = (Map.@Marker Entry<String, String> []) null;
+			    }
+			}
+			class Map<K, V> {
+				interface Entry<K, V> {}
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -837,15 +879,17 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test021() throws Exception {
 		String contents =
-				"import java.io.Serializable;\n" +
-				"import java.util.List;\n" +
-				"public class X<T extends Comparable<T> & Serializable> {\n" +
-				"	void foo(List<? extends @Marker @Marker2 Comparable<T>> p) {} \n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {}\n";
+				"""
+			import java.io.Serializable;
+			import java.util.List;
+			public class X<T extends Comparable<T> & Serializable> {
+				void foo(List<? extends @Marker @Marker2 Comparable<T>> p) {}\s
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -867,13 +911,15 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test022() throws Exception {
 		String contents =
-				"public class X {\n" +
-				"    X x = new @Marker X();\n" +
-				"    X y = new <String> @Marker X();\n" +
-				"	<T> X(){}\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n";
+				"""
+			public class X {
+			    X x = new @Marker X();
+			    X y = new <String> @Marker X();
+				<T> X(){}
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -897,17 +943,19 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test023() throws Exception {
 		String contents =
-				"public class X {\n" +
-				"    class Y {\n" +
-				"	    <T> Y(){}\n" +
-				"    }\n" +
-				"    Y y1 = new @Marker X().new @Marker2 Y();\n" +
-				"    Y y2 = new @Marker2 X().new <String> @Marker Y();\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {}\n";
+				"""
+			public class X {
+			    class Y {
+				    <T> Y(){}
+			    }
+			    Y y1 = new @Marker X().new @Marker2 Y();
+			    Y y2 = new @Marker2 X().new <String> @Marker Y();
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -935,13 +983,15 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test024() throws Exception {
 		String contents =
-				"public class X {\n" +
-				"    void foo() throws @Marker NullPointerException, @Marker2 ArrayIndexOutOfBoundsException {}\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {}\n";
+				"""
+			public class X {
+			    void foo() throws @Marker NullPointerException, @Marker2 ArrayIndexOutOfBoundsException {}
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -961,16 +1011,18 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test025() throws Exception {
 		String contents =
-				"interface I {}\n" +
-				"interface J {}\n" +
-				"interface K extends @Marker I, @Marker2 J {}\n" +
-				"interface L {}\n" +
-				"public class X implements @Marker2 K, @Marker L {\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {}\n";
+				"""
+			interface I {}
+			interface J {}
+			interface K extends @Marker I, @Marker2 J {}
+			interface L {}
+			public class X implements @Marker2 K, @Marker L {
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -993,26 +1045,28 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test026() throws Exception {
 		String contents =
-				"interface I {\n" +
-				"    void foo(int x);\n" +
-				"}\n" +
-				"public class X  {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        I i = A.Y.@Marker Z ::foo;\n" +
-				"        i.foo(10); \n" +
-				"    }\n" +
-				"}\n" +
-				"class A {\n" +
-				"  static class Y {\n" +
-				"    static class Z {\n" +
-				"        public static void foo(int x) {\n" +
-				"	        System.out.println(x);\n" +
-				"        }\n" +
-				"    }\n" +
-				"  }\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n";
+				"""
+			interface I {
+			    void foo(int x);
+			}
+			public class X  {
+			    public static void main(String [] args) {
+			        I i = A.Y.@Marker Z ::foo;
+			        i.foo(10);\s
+			    }
+			}
+			class A {
+			  static class Y {
+			    static class Z {
+			        public static void foo(int x) {
+				        System.out.println(x);
+			        }
+			    }
+			  }
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -1034,34 +1088,36 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void test027() throws Exception {
 		String contents =
-				"interface I {\n" +
-				"    Y foo(int x);\n" +
-				"}\n" +
-				"public class X  {\n" +
-				"    class Z extends Y {\n" +
-				"        public Z(int x) {\n" +
-				"            super(x);\n" +
-				"        }\n" +
-				"    }\n" +
-				"    public static void main(String [] args) {\n" +
-				"        I i = @Marker W<@Marker2 Integer>::<@Marker3 String> new;\n" +
-				"    }\n" +
-				"}\n" +
-				"class W<T> extends Y {\n" +
-				"    public <C> W(T x) {\n" +
-				"        super(0);\n" +
-				"    }\n" +
-				"}\n" +
-				"class Y {\n" +
-				"    public Y(int x) {\n" +
-				"    }\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker3 {}\n";
+				"""
+			interface I {
+			    Y foo(int x);
+			}
+			public class X  {
+			    class Z extends Y {
+			        public Z(int x) {
+			            super(x);
+			        }
+			    }
+			    public static void main(String [] args) {
+			        I i = @Marker W<@Marker2 Integer>::<@Marker3 String> new;
+			    }
+			}
+			class W<T> extends Y {
+			    public <C> W(T x) {
+			        super(0);
+			    }
+			}
+			class Y {
+			    public Y(int x) {
+			    }
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker3 {}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -1086,13 +1142,15 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418096
 	public void test028() throws Exception {
 		String contents =
-				"public class X {\n" +
-				"    @TypeUseAnnotation(\"a\") String @TypeUseAnnotation(\"a1\") [] @TypeUseAnnotation(\"a2\") [] _field2 @TypeUseAnnotation(\"a3\") [], _field3 @TypeUseAnnotation(\"a4\") [][] = null;\n" +
-				"}" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface TypeUseAnnotation {\n" +
-				"	String value() default \"\";\n" +
-				"}\n";
+				"""
+			public class X {
+			    @TypeUseAnnotation("a") String @TypeUseAnnotation("a1") [] @TypeUseAnnotation("a2") [] _field2 @TypeUseAnnotation("a3") [], _field3 @TypeUseAnnotation("a4") [][] = null;
+			}\
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface TypeUseAnnotation {
+				String value() default "";
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -1128,17 +1186,19 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		try {
 			String[] pathAndContents = new String[] {
 				"Outer.java",
-				"public class Outer  {\n" +
-				"	class Middle {\n" +
-				"		class Inner {\n" +
-				"		}\n" +
-				"	}\n" +
-				"	public @Marker(\"Outer\") Outer.@Marker (\"Middle\") Middle.@Marker(\"Inner\") Inner omi;\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {\n" +
-				"	String value() default \"GOK\";\n" +
-				"}\n"
+				"""
+					public class Outer  {
+						class Middle {
+							class Inner {
+							}
+						}
+						public @Marker("Outer") Outer.@Marker ("Middle") Middle.@Marker("Inner") Inner omi;
+					}
+					@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+					@interface Marker {
+						String value() default "GOK";
+					}
+					"""
 			};
 
 			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
@@ -1146,11 +1206,12 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
 
 			String contents =
-					"public class X {\n" +
-					"    void foo(Outer o) {\n" +
-					"        o.omi = null;\n" +
-					"    }\n" +
-					"}";
+					"""
+				public class X {
+				    void foo(Outer o) {
+				        o.omi = null;
+				    }
+				}""";
 
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 			ASTNode node = buildAST(contents, this.workingCopy);
@@ -1181,17 +1242,19 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		try {
 			String[] pathAndContents = new String[] {
 				"Outer.java",
-				"public class Outer  {\n" +
-				"	class Middle {\n" +
-				"		class Inner {\n" +
-				"		}\n" +
-				"	}\n" +
-				"	public @Marker(\"Outer\") Outer.@Marker (\"Middle\") Middle.@Marker(\"Inner\") Inner @Marker(\"Prefix []\") [] omi @Marker(\"Extended []\") [];\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {\n" +
-				"	String value() default \"GOK\";\n" +
-				"}\n"
+				"""
+					public class Outer  {
+						class Middle {
+							class Inner {
+							}
+						}
+						public @Marker("Outer") Outer.@Marker ("Middle") Middle.@Marker("Inner") Inner @Marker("Prefix []") [] omi @Marker("Extended []") [];
+					}
+					@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+					@interface Marker {
+						String value() default "GOK";
+					}
+					"""
 			};
 
 			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
@@ -1199,11 +1262,12 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
 
 			String contents =
-					"public class X {\n" +
-					"    void foo(Outer o) {\n" +
-					"        o.omi = null;\n" +
-					"    }\n" +
-					"}";
+					"""
+				public class X {
+				    void foo(Outer o) {
+				        o.omi = null;
+				    }
+				}""";
 
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 			ASTNode node = buildAST(contents, this.workingCopy);
@@ -1234,15 +1298,17 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		try {
 			String[] pathAndContents = new String[] {
 				"Outer.java",
-				"public class Outer<K>  {\n" +
-				"	class Inner<P> {\n" +
-				"	}\n" +
-				"	public @T(1) Outer<@T(2) String>.@T(3) Inner<@T(4) Integer> @T(5) [] omi @T(6) [];\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface T {\n" +
-				"	int value();\n" +
-				"}\n"
+				"""
+					public class Outer<K>  {
+						class Inner<P> {
+						}
+						public @T(1) Outer<@T(2) String>.@T(3) Inner<@T(4) Integer> @T(5) [] omi @T(6) [];
+					}
+					@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+					@interface T {
+						int value();
+					}
+					"""
 			};
 
 			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
@@ -1250,11 +1316,12 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
 
 			String contents =
-					"public class X {\n" +
-					"    void foo(Outer<String> o) {\n" +
-					"        o.omi = null;\n" +
-					"    }\n" +
-					"}";
+					"""
+				public class X {
+				    void foo(Outer<String> o) {
+				        o.omi = null;
+				    }
+				}""";
 
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 			ASTNode node = buildAST(contents, this.workingCopy);
@@ -1286,15 +1353,17 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		try {
 			String[] pathAndContents = new String[] {
 				"Outer.java",
-				"public class Outer<K>  {\n" +
-				"	class Inner<P> {\n" +
-				"	}\n" +
-				"	@T(1) K @T(2) [] f @T(3) [];\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface T {\n" +
-				"	int value();\n" +
-				"}\n"
+				"""
+					public class Outer<K>  {
+						class Inner<P> {
+						}
+						@T(1) K @T(2) [] f @T(3) [];
+					}
+					@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+					@interface T {
+						int value();
+					}
+					"""
 			};
 
 			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
@@ -1302,11 +1371,12 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
 
 			String contents =
-					"public class X {\n" +
-					"    void foo(Outer<String> o) {\n" +
-					"        o.f = null;\n" +
-					"    }\n" +
-					"}";
+					"""
+				public class X {
+				    void foo(Outer<String> o) {
+				        o.f = null;
+				    }
+				}""";
 
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 			ASTNode node = buildAST(contents, this.workingCopy);
@@ -1337,15 +1407,17 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		try {
 			String[] pathAndContents = new String[] {
 				"Outer.java",
-				"public class Outer<K>  {\n" +
-				"	class Inner<P> {\n" +
-				"	}\n" +
-				"	@T(1) Outer<@T(2) ? extends @T(3) String>.@T(4) Inner<@T(5) ? super @T(6) Integer> @T(7) [] f @T(8) [];\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface T {\n" +
-				"	int value();\n" +
-				"}\n"
+				"""
+					public class Outer<K>  {
+						class Inner<P> {
+						}
+						@T(1) Outer<@T(2) ? extends @T(3) String>.@T(4) Inner<@T(5) ? super @T(6) Integer> @T(7) [] f @T(8) [];
+					}
+					@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+					@interface T {
+						int value();
+					}
+					"""
 			};
 
 			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
@@ -1353,11 +1425,12 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
 
 			String contents =
-					"public class X {\n" +
-					"    void foo(Outer<String> o) {\n" +
-					"        o.f = null;\n" +
-					"    }\n" +
-					"}";
+					"""
+				public class X {
+				    void foo(Outer<String> o) {
+				        o.f = null;
+				    }
+				}""";
 
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 			ASTNode node = buildAST(contents, this.workingCopy);
@@ -1388,15 +1461,17 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		try {
 			String[] pathAndContents = new String[] {
 				"Outer.java",
-				"public class Outer<K>  {\n" +
-				"	class Inner<P> {\n" +
-				"	}\n" +
-				"	@T(1) Outer.@T(2) Inner @T(3) [] f @T(4) [];\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface T {\n" +
-				"	int value();\n" +
-				"}\n"
+				"""
+					public class Outer<K>  {
+						class Inner<P> {
+						}
+						@T(1) Outer.@T(2) Inner @T(3) [] f @T(4) [];
+					}
+					@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+					@interface T {
+						int value();
+					}
+					"""
 			};
 
 			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
@@ -1404,11 +1479,12 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
 
 			String contents =
-					"public class X {\n" +
-					"    void foo(Outer<String> o) {\n" +
-					"        o.f = null;\n" +
-					"    }\n" +
-					"}";
+					"""
+				public class X {
+				    void foo(Outer<String> o) {
+				        o.f = null;
+				    }
+				}""";
 
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 			ASTNode node = buildAST(contents, this.workingCopy);
@@ -1434,21 +1510,23 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void testIntersectionCastType() throws CoreException, IOException {
 		String contents =
-				"import java.lang.annotation.ElementType;\n" +
-						"import java.lang.annotation.Target;\n" +
-						"@Target(ElementType.TYPE_USE)\n" +
-						"@interface T1 {\n" +
-						"}\n" +
-						"@Target(ElementType.TYPE_USE)\n" +
-						"@interface T2 {\n" +
-						"}\n" +
-						"@Target(ElementType.TYPE_USE)\n" +
-						"@interface T3 {\n" +
-						"}\n" +
-						"public class X {\n" +
-						"	Object o = (@T1 Object & @T2 Runnable & java.io.@T3 Serializable) null;\n" +
-						"	Object p = (@T1 Object & @T2 Runnable & java.io.@T3 Serializable) null;\n" +
-						"}\n";
+				"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			@Target(ElementType.TYPE_USE)
+			@interface T1 {
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface T2 {
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface T3 {
+			}
+			public class X {
+				Object o = (@T1 Object & @T2 Runnable & java.io.@T3 Serializable) null;
+				Object p = (@T1 Object & @T2 Runnable & java.io.@T3 Serializable) null;
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -1485,10 +1563,12 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		try {
 			String[] pathAndContents = new String[] {
 				"Outer.java",
-				"public class Outer  {\n" +
-				"	class Inner {\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class Outer  {
+						class Inner {
+						}
+					}
+					"""
 			};
 
 			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
@@ -1496,13 +1576,15 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
 
 			String contents =
-					"public class X {\n" +
-					"    void foo(@T Outer o) {\n" +
-					"    }\n" +
-					"}\n" +
-					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-					"@interface T {\n" +
-					"}\n";
+					"""
+				public class X {
+				    void foo(@T Outer o) {
+				    }
+				}
+				@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+				@interface T {
+				}
+				""";
 
 
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
@@ -1536,12 +1618,14 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		try {
 			String[] pathAndContents = new String[] {
 				"Outer.java",
-				"public class Outer  {\n" +
-				"    @T Outer f;\n"+
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface T {\n" +
-				"}\n"
+				"""
+					public class Outer  {
+					    @T Outer f;
+					}
+					@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+					@interface T {
+					}
+					"""
 			};
 
 			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
@@ -1549,11 +1633,13 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
 
 			String contents =
-					"public class X {\n" +
-					"    void foo(Outer o) {\n" +
-					"		o.f = null;\n" +
-					"    }\n" +
-					"}\n";
+					"""
+				public class X {
+				    void foo(Outer o) {
+						o.f = null;
+				    }
+				}
+				""";
 
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 			ASTNode node = buildAST(contents, this.workingCopy);
@@ -1587,13 +1673,15 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		try {
 			String[] pathAndContents = new String[] {
 				"Y.java",
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"@Target(ElementType.TYPE_USE)\n" +
-				"@interface T1 {\n" +
-				"}\n" +
-				"public abstract class Y implements Comparable<@T1 Y>{  \n" +
-				"}\n"
+				"""
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Target;
+					@Target(ElementType.TYPE_USE)
+					@interface T1 {
+					}
+					public abstract class Y implements Comparable<@T1 Y>{ \s
+					}
+					"""
 			};
 
 			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
@@ -1601,10 +1689,12 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
 
 			String contents =
-					"public class X {\n" +
-					"    void foo(Y y) {\n" +
-					"    }\n" +
-					"}\n";
+					"""
+				public class X {
+				    void foo(Y y) {
+				    }
+				}
+				""";
 
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 			ASTNode node = buildAST(contents, this.workingCopy);
@@ -1630,15 +1720,17 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void testMemberTypeSource() throws CoreException, IOException {
 		String contents =
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"@Target(ElementType.TYPE_USE)\n" +
-				"@interface T {\n" +
-				"}\n" +
-				"public class X {\n" +
-				"    class Y {}\n" +
-				"    @T X.Y xy;\n" +
-				"}\n";
+				"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			@Target(ElementType.TYPE_USE)
+			@interface T {
+			}
+			public class X {
+			    class Y {}
+			    @T X.Y xy;
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -1656,15 +1748,17 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void testAnnotatedTypeIdentity() throws CoreException, IOException {
 		String contents =
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"import java.util.List;\n" +
-				"@Target(ElementType.TYPE_USE)\n" +
-				"@interface T {\n" +
-				"}\n" +
-				"public class X {\n" +
-				"    @T List<@T String> ls = (@T List<@T String>) null;\n" +
-				"}\n";
+				"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			import java.util.List;
+			@Target(ElementType.TYPE_USE)
+			@interface T {
+			}
+			public class X {
+			    @T List<@T String> ls = (@T List<@T String>) null;
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -1690,13 +1784,15 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		try {
 			String[] pathAndContents = new String[] {
 				"Outer.java",
-				"public class Outer  {\n" +
-				"	Outer @T [] f @T [];\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface T {\n" +
-				"	int value() default 10;\n" +
-				"}\n"
+				"""
+					public class Outer  {
+						Outer @T [] f @T [];
+					}
+					@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+					@interface T {
+						int value() default 10;
+					}
+					"""
 			};
 
 			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
@@ -1704,12 +1800,13 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
 
 			String contents =
-					"public class X {\n" +
-					"	 Outer @T [] f @T [];\n" +
-					"    void foo(Outer o) {\n" +
-					"        o.f = this.f;\n" +
-					"    }\n" +
-					"}";
+					"""
+				public class X {
+					 Outer @T [] f @T [];
+				    void foo(Outer o) {
+				        o.f = this.f;
+				    }
+				}""";
 
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 			ASTNode node = buildAST(contents, this.workingCopy);
@@ -1743,14 +1840,16 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		try {
 			String[] pathAndContents = new String[] {
 				"Outer.java",
-				"import java.util.List;\n" +
-				"public class Outer  {\n" +
-				"	@T List<@T String> ls;\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface T {\n" +
-				"	int value() default 10;\n" +
-				"}\n"
+				"""
+					import java.util.List;
+					public class Outer  {
+						@T List<@T String> ls;
+					}
+					@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+					@interface T {
+						int value() default 10;
+					}
+					"""
 			};
 
 			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
@@ -1758,13 +1857,14 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
 
 			String contents =
-					"import java.util.List;\n" +
-					"public class X {\n" +
-					"	@T List<@T String> ls;\n" +
-					"    void foo(Outer o) {\n" +
-					"        o.ls = this.ls;\n" +
-					"    }\n" +
-					"}";
+					"""
+				import java.util.List;
+				public class X {
+					@T List<@T String> ls;
+				    void foo(Outer o) {
+				        o.ls = this.ls;
+				    }
+				}""";
 
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 			ASTNode node = buildAST(contents, this.workingCopy);
@@ -1793,26 +1893,28 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void testHybridAnnotations() throws CoreException, IOException {
 		String contents =
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"@interface A {\n" +
-				"}\n" +
-				"@Target(ElementType.TYPE_USE)\n" +
-				"@interface AUse {\n" +
-				"}\n" +
-				"@Target({ElementType.TYPE_USE, ElementType.PARAMETER})\n" +
-				"@interface AUseParameter {\n" +
-				"}\n" +
-				"@Target({ElementType.TYPE_USE, ElementType.LOCAL_VARIABLE})\n" +
-				"@interface AUseLocal {\n" +
-				"}\n" +
-				"@Target({ElementType.PARAMETER})\n" +
-				"@interface AParameter {\n" +
-				"}\n" +
-				"public class X {    \n" +
-				"	void foo(@A @AUse @AUseParameter @AUseLocal @AParameter X x) {\n" +
-				"	}\n" +
-				"}\n";
+				"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			@interface A {
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface AUse {
+			}
+			@Target({ElementType.TYPE_USE, ElementType.PARAMETER})
+			@interface AUseParameter {
+			}
+			@Target({ElementType.TYPE_USE, ElementType.LOCAL_VARIABLE})
+			@interface AUseLocal {
+			}
+			@Target({ElementType.PARAMETER})
+			@interface AParameter {
+			}
+			public class X {   \s
+				void foo(@A @AUse @AUseParameter @AUseLocal @AParameter X x) {
+				}
+			}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -1833,17 +1935,19 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void testGenericMethod() throws CoreException, IOException {
 		String contents =
-				"import java.lang.annotation.Annotation;\n" +
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"@Target(ElementType.TYPE_USE)\n" +
-				"@interface T {\n" +
-				"}\n" +
-				"public class X { \n" +
-				"	<N extends Annotation> @T String f(N a) {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"}\n";
+				"""
+			import java.lang.annotation.Annotation;
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			@Target(ElementType.TYPE_USE)
+			@interface T {
+			}
+			public class X {\s
+				<N extends Annotation> @T String f(N a) {
+					return null;
+				}
+			}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -1862,24 +1966,26 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void testHybridAnnotations2() throws CoreException, IOException {
 		String contents =
-				"import java.lang.annotation.Target;\n" +
-				"import java.lang.annotation.ElementType;\n" +
-				"@Target({ ElementType.TYPE_USE, ElementType.METHOD })\n" +
-				"@interface SillyAnnotation {  }\n" +
-				"public class X {\n" +
-				"    @SillyAnnotation\n" +
-				"    X(@SillyAnnotation int x) {\n" +
-				"    }\n" +
-				"    @SillyAnnotation\n" +
-				"    void foo(@SillyAnnotation int x) {\n" +
-				"    }\n" +
-				"    @SillyAnnotation\n" +
-				"    String goo(@SillyAnnotation int x) {\n" +
-				"	return null;\n" +
-				"    }\n" +
-				"    @SillyAnnotation\n" +
-				"    X field;\n" +
-				"}\n";
+				"""
+			import java.lang.annotation.Target;
+			import java.lang.annotation.ElementType;
+			@Target({ ElementType.TYPE_USE, ElementType.METHOD })
+			@interface SillyAnnotation {  }
+			public class X {
+			    @SillyAnnotation
+			    X(@SillyAnnotation int x) {
+			    }
+			    @SillyAnnotation
+			    void foo(@SillyAnnotation int x) {
+			    }
+			    @SillyAnnotation
+			    String goo(@SillyAnnotation int x) {
+				return null;
+			    }
+			    @SillyAnnotation
+			    X field;
+			}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -1959,24 +2065,26 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		try {
 			String[] pathAndContents = new String[] {
 				"Superclass.java",
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"@Target(ElementType.TYPE_USE)\n" +
-				"@interface T {\n" +
-				"	int value() default 0;\n" +
-				"}\n" +
-				"@T(1)\n" +
-				"public abstract class Superclass extends @T(2) Object implements @T(3) Runnable {\n" +
-				"	Object @T(4) [] field;\n" +
-				"	@T(5)\n" +
-				"	public String run(@T(6) Superclass this, Object @T(7) [] that) throws @T(8) NullPointerException {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"   @T(9)\n" +
-				"   Superclass () {}\n" +
-				"   @T(10)\n" +
-				"   class Inner {}\n" +
-				"}\n"
+				"""
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Target;
+					@Target(ElementType.TYPE_USE)
+					@interface T {
+						int value() default 0;
+					}
+					@T(1)
+					public abstract class Superclass extends @T(2) Object implements @T(3) Runnable {
+						Object @T(4) [] field;
+						@T(5)
+						public String run(@T(6) Superclass this, Object @T(7) [] that) throws @T(8) NullPointerException {
+							return null;
+						}
+					   @T(9)
+					   Superclass () {}
+					   @T(10)
+					   class Inner {}
+					}
+					"""
 			};
 
 			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
@@ -1984,20 +2092,22 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
 
 			String contents =
-					"@T(21)\n" +
-					"public abstract class X extends @T(22) Superclass implements @T(23) Runnable {\n" +
-					"	Object @T(24) [] field;\n" +
-					"	@T(25)\n" +
-					"	public String run(@T(26) X this, Object @T(27) [] that) throws @T(28) NullPointerException {\n" +
-					"		return null;\n" +
-					"	}\n" +
-					"   @T(29)\n" +
-					"   X() {\n" +
-		            "   }" +
-					"   @T(30)\n" +
-					"   class Inner {\n" +
-					"   }\n" +
-					"}\n";
+					"""
+				@T(21)
+				public abstract class X extends @T(22) Superclass implements @T(23) Runnable {
+					Object @T(24) [] field;
+					@T(25)
+					public String run(@T(26) X this, Object @T(27) [] that) throws @T(28) NullPointerException {
+						return null;
+					}
+				   @T(29)
+				   X() {
+				   }\
+				   @T(30)
+				   class Inner {
+				   }
+				}
+				""";
 
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 			ASTNode node = buildAST(contents, this.workingCopy);
@@ -2098,25 +2208,27 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		try {
 			String[] pathAndContents = new String[] {
 				"Superclass.java",
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"@Target(ElementType.TYPE_USE)\n" +
-				"@interface T {\n" +
-				"	int value() default 0;\n" +
-				"}\n" +
-				"@T(1)\n" +
-				"public abstract class Superclass extends @T(2) Object implements @T(3) Runnable {\n" +
-				"   @T(9)\n" +
-				"   Superclass () {}\n" +
-				"   @T(10)\n" +
-				"   class Inner {}\n" +
-				"   @T(11)\n" +
-				"   class SubInner extends @T(12) Inner {}\n" +
-				"   @T(13)\n" +
-				"   static class Nested {}\n" +
-				"   @T(14)\n" +
-				"   static class SubNested extends @T(15) Nested {}\n" +
-				"}\n"
+				"""
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Target;
+					@Target(ElementType.TYPE_USE)
+					@interface T {
+						int value() default 0;
+					}
+					@T(1)
+					public abstract class Superclass extends @T(2) Object implements @T(3) Runnable {
+					   @T(9)
+					   Superclass () {}
+					   @T(10)
+					   class Inner {}
+					   @T(11)
+					   class SubInner extends @T(12) Inner {}
+					   @T(13)
+					   static class Nested {}
+					   @T(14)
+					   static class SubNested extends @T(15) Nested {}
+					}
+					"""
 			};
 
 			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
@@ -2124,9 +2236,11 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
 
 			String contents =
-					"@T(21)\n" +
-					"public abstract class X extends @T(22) Superclass implements @T(23) Runnable {\n" +
-					"}\n";
+					"""
+				@T(21)
+				public abstract class X extends @T(22) Superclass implements @T(23) Runnable {
+				}
+				""";
 
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 			ASTNode node = buildAST(contents, this.workingCopy);
@@ -2175,13 +2289,15 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		try {
 			String[] pathAndContents = new String[] {
 				"T.java",
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"@Deprecated\n" +
-				"@Target(ElementType.TYPE_USE)\n" +
-				"@interface T {\n" +
-				"	int value() default 0;\n" +
-				"}\n"
+				"""
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Target;
+					@Deprecated
+					@Target(ElementType.TYPE_USE)
+					@interface T {
+						int value() default 0;
+					}
+					"""
 			};
 
 			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
@@ -2189,9 +2305,11 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
 
 			String contents =
-					"@T\n" +
-					"public class X {\n" +
-					"}\n";
+					"""
+				@T
+				public class X {
+				}
+				""";
 
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 			ASTNode node = buildAST(contents, this.workingCopy, false);
@@ -2223,34 +2341,38 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=420320, [1.8] Bad AST recovery with type annotation and a syntax error in secondary type
 	public void testAnnotationRecovery() throws CoreException, IOException {
 		String contents =
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"import java.util.List;\n" +
-				"@Target(ElementType.TYPE_USE)\n" +
-				"@interface NonNull {\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	List<@NonNull String> list2;\n" +
-				"}\n" +
-				"class Y {\n" +
-				"    void bar()\n" +
-				"    void foo() { }\n" +
-				"}\n";
+				"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			import java.util.List;
+			@Target(ElementType.TYPE_USE)
+			@interface NonNull {
+			}
+			public class X {
+				List<@NonNull String> list2;
+			}
+			class Y {
+			    void bar()
+			    void foo() { }
+			}
+			""";
 
 		String expected =
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"import java.util.List;\n" +
-				"@Target(ElementType.TYPE_USE) @interface NonNull {}\n" +
-				"public class X {\n" +
-				"  List<@NonNull String> list2;\n" +
-				"}\n" +
-				"class Y {\n" +
-				"  void bar(){\n" +
-				"  }\n" +
-				"  void foo(){\n" +
-				"  }\n" +
-				"}\n";
+				"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			import java.util.List;
+			@Target(ElementType.TYPE_USE) @interface NonNull {}
+			public class X {
+			  List<@NonNull String> list2;
+			}
+			class Y {
+			  void bar(){
+			  }
+			  void foo(){
+			  }
+			}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy, false, true);
@@ -2263,15 +2385,17 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 				"}\n";
 
 		createFile("/Converter18/src/NonNull.java",
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"@Target(ElementType.TYPE_USE)\n" +
-				"@interface NonNull {}");
+				"""
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Target;
+					@Target(ElementType.TYPE_USE)
+					@interface NonNull {}""");
 		createFile("/Converter18/src/I.java",
-				"import java.util.List;\n" +
-				"interface I { \n" +
-				"	String bar2(@NonNull String s, @NonNull List<@NonNull String> l2);\n" +
-				"}");
+				"""
+					import java.util.List;
+					interface I {\s
+						String bar2(@NonNull String s, @NonNull List<@NonNull String> l2);
+					}""");
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy, false, true);
@@ -2289,24 +2413,29 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	public void testBug426515() throws CoreException {
 		try {
 			String contents =
-					"public class X {\n" +
-					"	void foo() {\n" +
-					"		Outer.getInner();\n" +
-					"	}\n" +
-					"}\n";
+					"""
+				public class X {
+					void foo() {
+						Outer.getInner();
+					}
+				}
+				""";
 
 			createFile("/Converter18/src/A.java",
-					"import java.lang.annotation.ElementType;\n" +
-					"import java.lang.annotation.Target;\n" +
-					"@Target(ElementType.TYPE_USE)\n" +
-					"@interface A { int value() default 0; \n }");
+					"""
+						import java.lang.annotation.ElementType;
+						import java.lang.annotation.Target;
+						@Target(ElementType.TYPE_USE)
+						@interface A { int value() default 0;\s
+						 }""");
 			createFile("/Converter18/src/Outer.java",
-					"class Outer<T> { \n" +
-					"	public class Inner<I> {}\n" +
-					"	public static @A(1) Outer<java.lang.@A(2) String>.@A(3) Inner<java.lang.@A(4) Object> getInner() { \n" +
-					"		return null;\n" +
-					"	}\n" +
-					"}");
+					"""
+						class Outer<T> {\s
+							public class Inner<I> {}
+							public static @A(1) Outer<java.lang.@A(2) String>.@A(3) Inner<java.lang.@A(4) Object> getInner() {\s
+								return null;
+							}
+						}""");
 
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 			ASTNode node = buildAST(contents, this.workingCopy, false, true);
@@ -2325,15 +2454,17 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425599, [1.8][compiler] ISE when trying to compile qualified and annotated class instance creation
 	public void test425599() throws CoreException, IOException {
 		String contents =
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"public class X {\n" +
-				"    Object ax = new @A(1) Outer().new @A(2) Middle<@A(3) String>();\n" +
-				"}\n" +
-				"@Target(ElementType.TYPE_USE) @interface A { int value(); }\n" +
-				"class Outer {\n" +
-				"    class Middle<E> {}\n" +
-				"}\n";
+				"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+			    Object ax = new @A(1) Outer().new @A(2) Middle<@A(3) String>();
+			}
+			@Target(ElementType.TYPE_USE) @interface A { int value(); }
+			class Outer {
+			    class Middle<E> {}
+			}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -2351,15 +2482,17 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425216, Bug 425216 - [1.8][dom ast] Binding for 'this' should have type annotations when receiver is annotated
 	public void test425216() throws CoreException, IOException {
 		String contents =
-				"import static java.lang.annotation.ElementType.TYPE_USE;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"@Target(TYPE_USE)\n" +
-				"@interface NonNull {}\n" +
-				"public class X {\n" +
-				"   X foo(@NonNull X this) {\n" +
-				"	   return this;\n" +
-				"   }\n" +
-				"}\n";
+				"""
+			import static java.lang.annotation.ElementType.TYPE_USE;
+			import java.lang.annotation.Target;
+			@Target(TYPE_USE)
+			@interface NonNull {}
+			public class X {
+			   X foo(@NonNull X this) {
+				   return this;
+			   }
+			}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -2380,22 +2513,24 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425216, Bug 425216 - [1.8][dom ast] Binding for 'this' should have type annotations when receiver is annotated
 	public void test425216a() throws CoreException, IOException {
 		String contents =
-				"import java.lang.annotation.*;\n" +
-				"@Target(ElementType.TYPE_USE)\n" +
-				"@interface A {\n" +
-				"    int value() default 0;\n" +
-				"}\n" +
-				"public class Outer {\n" +
-				"    class Middle {\n" +
-				"    	class Inner {\n" +
-				"    		public @A(1) Inner(@A(2) Outer.@A(3) Middle Middle.this) {\n" +
-				"    			Outer r1 = Outer.this;\n" +
-				"    			Outer.Middle middle = Outer.Middle.this;\n" +
-				"    			Inner i = this;\n" +
-				"    		}\n" +
-				"    	}\n" +
-				"    }\n" +
-				"}\n";
+				"""
+			import java.lang.annotation.*;
+			@Target(ElementType.TYPE_USE)
+			@interface A {
+			    int value() default 0;
+			}
+			public class Outer {
+			    class Middle {
+			    	class Inner {
+			    		public @A(1) Inner(@A(2) Outer.@A(3) Middle Middle.this) {
+			    			Outer r1 = Outer.this;
+			    			Outer.Middle middle = Outer.Middle.this;
+			    			Inner i = this;
+			    		}
+			    	}
+			    }
+			}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/Outer.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -2429,19 +2564,21 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425216, Bug 425216 - [1.8][dom ast] Binding for 'this' should have type annotations when receiver is annotated
 	public void test425216b() throws CoreException, IOException {
 		String contents =
-				"import java.lang.annotation.*;\n" +
-				"@Target(ElementType.TYPE_USE)\n" +
-				"@interface A {\n" +
-				"    int value() default 0;\n" +
-				"}\n" +
-				"public class Outer {\n" +
-				"    class Middle {\n" +
-				"    	class Inner {\n" +
-				"    		public @A(1) Inner(@A(2) Outer.@A(3) Middle Middle.this) {\n" +
-				"    		}\n" +
-				"    	}\n" +
-				"    }\n" +
-				"}\n";
+				"""
+			import java.lang.annotation.*;
+			@Target(ElementType.TYPE_USE)
+			@interface A {
+			    int value() default 0;
+			}
+			public class Outer {
+			    class Middle {
+			    	class Inner {
+			    		public @A(1) Inner(@A(2) Outer.@A(3) Middle Middle.this) {
+			    		}
+			    	}
+			    }
+			}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/Outer.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
@@ -2460,18 +2597,22 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	public void testBug427320() throws Exception {
 		try {
 			String contents =
-					"public class X {\n" +
-					"	@A @B @C X() {}\n" +
-					"	@A @B @C String foo() {\nreturn null;\n}\n" +
-					"}\n" +
-					"@java.lang.annotation.Target ({java.lang.annotation.ElementType.CONSTRUCTOR, "
-													+ "java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE_USE})\n" +
-					"@interface A {}\n" +
-					"@java.lang.annotation.Target ({java.lang.annotation.ElementType.CONSTRUCTOR, "
-													+ "java.lang.annotation.ElementType.METHOD})\n" +
-					"@interface B {}\n" +
-					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-					"@interface C {}\n";
+					"""
+				public class X {
+					@A @B @C X() {}
+					@A @B @C String foo() {
+				return null;
+				}
+				}
+				@java.lang.annotation.Target ({java.lang.annotation.ElementType.CONSTRUCTOR, \
+				java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE_USE})
+				@interface A {}
+				@java.lang.annotation.Target ({java.lang.annotation.ElementType.CONSTRUCTOR, \
+				java.lang.annotation.ElementType.METHOD})
+				@interface B {}
+				@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+				@interface C {}
+				""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy, false);
@@ -2509,17 +2650,19 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	public void testBug431810() throws Exception {
 		try {
 			String contents =
-				"import java.lang.annotation.ElementType; \n" +
-				"import java.lang.annotation.Target; \n" +
-				"@interface A {}\n" +
-				"@Target(ElementType.TYPE_USE)\n" +
-				"@interface B {} \n" +
-				"class X {\n" +
-				"	@A \n" +
-				"	X() {}\n" +
-				"	@B \n" +
-				"	X(int x) {}\n" +
-				"}\n";
+				"""
+				import java.lang.annotation.ElementType;\s
+				import java.lang.annotation.Target;\s
+				@interface A {}
+				@Target(ElementType.TYPE_USE)
+				@interface B {}\s
+				class X {
+					@A\s
+					X() {}
+					@B\s
+					X(int x) {}
+				}
+				""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy, false);
@@ -2556,18 +2699,20 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	public void testBug431810a() throws Exception {
 		try {
 			String contents =
-				"import java.lang.annotation.ElementType; \n" +
-				"import java.lang.annotation.Target; \n" +
-				"@Target({}) \n" +
-				"@interface A {} \n" +
-				"@Target(ElementType.TYPE)\n" +
-				"@interface B {} \n" +
-				"class X {\n" +
-				"	@A \n" +
-				"	X() {}\n" +
-				"	@B \n" +
-				"	X(int x) {}\n" +
-				"}\n";
+				"""
+				import java.lang.annotation.ElementType;\s
+				import java.lang.annotation.Target;\s
+				@Target({})\s
+				@interface A {}\s
+				@Target(ElementType.TYPE)
+				@interface B {}\s
+				class X {
+					@A\s
+					X() {}
+					@B\s
+					X(int x) {}
+				}
+				""";
 
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy, false);
@@ -2598,14 +2743,16 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	public void testBug487716() throws Exception {
 		try {
 			String contents =
-				"import java.lang.annotation.ElementType; \n" +
-				"import java.lang.annotation.Target; \n" +
-				"@Target({ElementType.TYPE_USE, ElementType.CONSTRUCTOR})\n" +
-				"@interface A {} \n" +
-				"class X {\n" +
-				"	@A X() {}\n" +
-				"	X _x_ = new X();\n" +
-				"}\n";
+				"""
+				import java.lang.annotation.ElementType;\s
+				import java.lang.annotation.Target;\s
+				@Target({ElementType.TYPE_USE, ElementType.CONSTRUCTOR})
+				@interface A {}\s
+				class X {
+					@A X() {}
+					X _x_ = new X();
+				}
+				""";
 
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(contents, this.workingCopy, false);
@@ -2636,18 +2783,20 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	public void testBug487716a() throws Exception {
 		try {
 			String contents =
-				"package p;\n" +
-				"import java.lang.annotation.ElementType; \n" +
-				"import java.lang.annotation.Target; \n" +
-				"@Target({ElementType.TYPE_USE})\n" +
-				"@interface A {} \n" +
-				"class X {\n" +
-				"	@A X() {}\n" +
-				"   class Y {\n" +
-				"		@A Y() {}\n" +
-				"		Y _y_ = new X().new Y();\n" +
-				"	}\n" +
-				"}\n";
+				"""
+				package p;
+				import java.lang.annotation.ElementType;\s
+				import java.lang.annotation.Target;\s
+				@Target({ElementType.TYPE_USE})
+				@interface A {}\s
+				class X {
+					@A X() {}
+				   class Y {
+						@A Y() {}
+						Y _y_ = new X().new Y();
+					}
+				}
+				""";
 
 			this.workingCopy = getWorkingCopy("/Converter18/src/p/X.java", true/*resolve*/);
 			ASTNode node = buildAST(contents, this.workingCopy, false);
@@ -2685,23 +2834,27 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		IPackageFragment testPackage = srcRoot.getPackageFragment("test");
 
 		testPackage.createCompilationUnit("Generic.java",
-				"package test;\n" +
-				"\n" +
-				"public class Generic<T> {\n" +
-				"	public static class NestedStatic {\n" +
-				"		public static final String X = \"x\";\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					package test;
+					
+					public class Generic<T> {
+						public static class NestedStatic {
+							public static final String X = "x";
+						}
+					}
+					""",
 				true,
 				null);
 		String contents =
-				"package test;\n" +
-				"\n" +
-				"public class Usage {\n" +
-				"	String f() {\n" +
-				"		return Generic.NestedStatic.X;\n" +
-				"	}\n" +
-				"}\n";
+				"""
+			package test;
+			
+			public class Usage {
+				String f() {
+					return Generic.NestedStatic.X;
+				}
+			}
+			""";
 		ICompilationUnit cu = testPackage.createCompilationUnit("Usage.java", contents, true, null);
 		ASTNode node = buildAST(contents, cu, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());

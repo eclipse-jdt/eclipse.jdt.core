@@ -30,31 +30,33 @@ public static Test suite() {
  */
 public void test1FTZCIG() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		new X() {							\n" +
-		"			protected void bar() {			\n" +
-		"			}								\n" +
-		"		}									\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					new X() {						\t
+						protected void bar() {		\t
+						}							\t
+					}								\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"p",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:p>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    new X() {\n" +
-		"      <CompleteOnType:p>;\n" +
-		"      void bar() {\n" +
-		"      }\n" +
-		"    };\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    new X() {
+			      <CompleteOnType:p>;
+			      void bar() {
+			      }
+			    };
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"p",
 		// expectedReplacedSource:
@@ -68,29 +70,31 @@ public void test1FTZCIG() {
  */
 public void testBlock() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		try {								\n" +
-		"			Xxx o = new Y();				\n" +
-		"		} catch (Exception e) {				\n"	+
-		"		}									\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					try {							\t
+						Xxx o = new Y();			\t
+					} catch (Exception e) {			\t
+					}								\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    {\n" +
-		"      <CompleteOnName:X>;\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    {
+			      <CompleteOnName:X>;
+			    }
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -104,26 +108,28 @@ public void testBlock() {
  */
 public void testBlockStatements() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		int i = 0;							\n" +
-		"		Xxx o = new Y();					\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					int i = 0;						\t
+					Xxx o = new Y();				\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    int i;\n" +
-		"    <CompleteOnName:X>;\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    int i;
+			    <CompleteOnName:X>;
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -137,33 +143,35 @@ public void testBlockStatements() {
  */
 public void testCatchClause1() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		try {								\n" +
-		"			fred();							\n" +
-		"		} catch (Xxx e) {					\n"	+
-		"		}									\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					try {							\t
+						fred();						\t
+					} catch (Xxx e) {				\t
+					}								\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnException:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    try\n" +
-		"      {\n" +
-		"        fred();\n" +
-		"      }\n" +
-		"    catch (<CompleteOnException:X>  )\n" +
-		"      {\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    try
+			      {
+			        fred();
+			      }
+			    catch (<CompleteOnException:X>  )
+			      {
+			      }
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -177,33 +185,35 @@ public void testCatchClause1() {
  */
 public void testCatchClause2() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		try {								\n" +
-		"			fred();							\n" +
-		"		} catch (final Xxx e) {				\n"	+
-		"		}									\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					try {							\t
+						fred();						\t
+					} catch (final Xxx e) {			\t
+					}								\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnException:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    try\n" +
-		"      {\n" +
-		"        fred();\n" +
-		"      }\n" +
-		"    catch (<CompleteOnException:X>  )\n" +
-		"      {\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    try
+			      {
+			        fred();
+			      }
+			    catch (<CompleteOnException:X>  )
+			      {
+			      }
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -217,33 +227,35 @@ public void testCatchClause2() {
  */
 public void testCatchClause3() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		try {								\n" +
-		"			fred();							\n" +
-		"		} catch (x.y.Xxx e) {				\n"	+
-		"		}									\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					try {							\t
+						fred();						\t
+					} catch (x.y.Xxx e) {			\t
+					}								\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"x.y.X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnException:x.y.X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    try\n" +
-		"      {\n" +
-		"        fred();\n" +
-		"      }\n" +
-		"    catch (<CompleteOnException:x.y.X>  )\n" +
-		"      {\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    try
+			      {
+			        fred();
+			      }
+			    catch (<CompleteOnException:x.y.X>  )
+			      {
+			      }
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -257,21 +269,23 @@ public void testCatchClause3() {
  */
 public void testClassBody() {
 	runTestCheckDietParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	Xxx foo() {								\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				Xxx foo() {							\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  <CompleteOnType:X>\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  <CompleteOnType:X>
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -285,23 +299,25 @@ public void testClassBody() {
  */
 public void testClassBodyDeclarations() {
 	runTestCheckDietParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	int i = 0;								\n" +
-		"	Xxx foo() {								\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				int i = 0;							\t
+				Xxx foo() {							\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  int i;\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  <CompleteOnType:X>\n" +
-		"}\n",
+		"""
+			class Bar {
+			  int i;
+			  Bar() {
+			  }
+			  <CompleteOnType:X>
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -315,24 +331,26 @@ public void testClassBodyDeclarations() {
  */
 public void testClassInstanceCreationExpression1() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		new Xxx().zzz();					\n" +
-		"	}										\n" +
-		"}\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					new Xxx().zzz();				\t
+				}									\t
+			}
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    new <CompleteOnType:X>();\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    new <CompleteOnType:X>();
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -346,24 +364,26 @@ public void testClassInstanceCreationExpression1() {
  */
 public void testClassInstanceCreationExpression2() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		new Y(new Xxx()).zzz();				\n" +
-		"	}										\n" +
-		"}\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					new Y(new Xxx()).zzz();			\t
+				}									\t
+			}
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    new Y(new <CompleteOnType:X>());\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    new Y(new <CompleteOnType:X>());
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -377,24 +397,26 @@ public void testClassInstanceCreationExpression2() {
  */
 public void testClassInstanceCreationExpression3() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		new Y(1, true, new Xxx()).zzz();	\n" +
-		"	}										\n" +
-		"}\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					new Y(1, true, new Xxx()).zzz();\t
+				}									\t
+			}
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    new Y(1, true, new <CompleteOnType:X>()).zzz();\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    new Y(1, true, new <CompleteOnType:X>()).zzz();
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -408,24 +430,26 @@ public void testClassInstanceCreationExpression3() {
  */
 public void testClassInstanceCreationExpression4() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		fred().new Y(new Xxx()).zzz();		\n" +
-		"	}										\n" +
-		"}\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					fred().new Y(new Xxx()).zzz();	\t
+				}									\t
+			}
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    fred().new Y(new <CompleteOnType:X>()).zzz();\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    fred().new Y(new <CompleteOnType:X>()).zzz();
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -439,34 +463,36 @@ public void testClassInstanceCreationExpression4() {
  */
 public void testClassInstanceCreationExpressionName1() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"public class Bar {								\n" +
-		"	static Bar baz;								\n" +
-		"	public class X {							\n" +
-		"		void foo() {							\n" +
-		"			Bar.baz.new Xxx();					\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			public class Bar {							\t
+				static Bar baz;							\t
+				public class X {						\t
+					void foo() {						\t
+						Bar.baz.new Xxx();				\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"new X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"public class Bar {\n" +
-		"  public class X {\n" +
-		"    public X() {\n" +
-		"    }\n" +
-		"    void foo() {\n" +
-		"      Bar.baz.new <CompleteOnType:X>();\n" +
-		"    }\n" +
-		"  }\n" +
-		"  static Bar baz;\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  public Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			public class Bar {
+			  public class X {
+			    public X() {
+			    }
+			    void foo() {
+			      Bar.baz.new <CompleteOnType:X>();
+			    }
+			  }
+			  static Bar baz;
+			  <clinit>() {
+			  }
+			  public Bar() {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -480,34 +506,36 @@ public void testClassInstanceCreationExpressionName1() {
  */
 public void testClassInstanceCreationExpressionName2() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"public class Bar {								\n" +
-		"	static Bar baz;								\n" +
-		"	public class X {							\n" +
-		"		void foo() {							\n" +
-		"			new Y(Bar.baz.new Xxx());			\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			public class Bar {							\t
+				static Bar baz;							\t
+				public class X {						\t
+					void foo() {						\t
+						new Y(Bar.baz.new Xxx());		\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"new X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"public class Bar {\n" +
-		"  public class X {\n" +
-		"    public X() {\n" +
-		"    }\n" +
-		"    void foo() {\n" +
-		"      new Y(Bar.baz.new <CompleteOnType:X>());\n" +
-		"    }\n" +
-		"  }\n" +
-		"  static Bar baz;\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  public Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			public class Bar {
+			  public class X {
+			    public X() {
+			    }
+			    void foo() {
+			      new Y(Bar.baz.new <CompleteOnType:X>());
+			    }
+			  }
+			  static Bar baz;
+			  <clinit>() {
+			  }
+			  public Bar() {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -521,34 +549,36 @@ public void testClassInstanceCreationExpressionName2() {
  */
 public void testClassInstanceCreationExpressionName3() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"public class Bar {								\n" +
-		"	static Bar baz;								\n" +
-		"	public class X {							\n" +
-		"		void foo() {							\n" +
-		"			new Y(1, true, Bar.baz.new Xxx());	\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			public class Bar {							\t
+				static Bar baz;							\t
+				public class X {						\t
+					void foo() {						\t
+						new Y(1, true, Bar.baz.new Xxx());\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"new X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"public class Bar {\n" +
-		"  public class X {\n" +
-		"    public X() {\n" +
-		"    }\n" +
-		"    void foo() {\n" +
-		"      new Y(1, true, Bar.baz.new <CompleteOnType:X>());\n" +
-		"    }\n" +
-		"  }\n" +
-		"  static Bar baz;\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  public Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			public class Bar {
+			  public class X {
+			    public X() {
+			    }
+			    void foo() {
+			      new Y(1, true, Bar.baz.new <CompleteOnType:X>());
+			    }
+			  }
+			  static Bar baz;
+			  <clinit>() {
+			  }
+			  public Bar() {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -562,34 +592,36 @@ public void testClassInstanceCreationExpressionName3() {
  */
 public void testClassInstanceCreationExpressionName4() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"public class Bar {								\n" +
-		"	static Bar baz;								\n" +
-		"	public class X {							\n" +
-		"		void foo() {							\n" +
-		"			fred().new Y(Bar.baz.new Xxx());		\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			public class Bar {							\t
+				static Bar baz;							\t
+				public class X {						\t
+					void foo() {						\t
+						fred().new Y(Bar.baz.new Xxx());	\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"new X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"public class Bar {\n" +
-		"  public class X {\n" +
-		"    public X() {\n" +
-		"    }\n" +
-		"    void foo() {\n" +
-		"      fred().new Y(Bar.baz.new <CompleteOnType:X>());\n" +
-		"    }\n" +
-		"  }\n" +
-		"  static Bar baz;\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  public Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			public class Bar {
+			  public class X {
+			    public X() {
+			    }
+			    void foo() {
+			      fred().new Y(Bar.baz.new <CompleteOnType:X>());
+			    }
+			  }
+			  static Bar baz;
+			  <clinit>() {
+			  }
+			  public Bar() {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -603,30 +635,32 @@ public void testClassInstanceCreationExpressionName4() {
  */
 public void testClassInstanceCreationExpressionPrimary1() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"public class Bar {								\n" +
-		"	public class X {							\n" +
-		"		void foo() {							\n" +
-		"			new Bar().new Xxx();				\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			public class Bar {							\t
+				public class X {						\t
+					void foo() {						\t
+						new Bar().new Xxx();			\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"new X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"public class Bar {\n" +
-		"  public class X {\n" +
-		"    public X() {\n" +
-		"    }\n" +
-		"    void foo() {\n" +
-		"      new Bar().new <CompleteOnType:X>();\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			public class Bar {
+			  public class X {
+			    public X() {
+			    }
+			    void foo() {
+			      new Bar().new <CompleteOnType:X>();
+			    }
+			  }
+			  public Bar() {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -640,30 +674,32 @@ public void testClassInstanceCreationExpressionPrimary1() {
  */
 public void testClassInstanceCreationExpressionPrimary2() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"public class Bar {								\n" +
-		"	public class X {							\n" +
-		"		void foo() {							\n" +
-		"			new Y(new Bar().new Xxx());			\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			public class Bar {							\t
+				public class X {						\t
+					void foo() {						\t
+						new Y(new Bar().new Xxx());		\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"new X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"public class Bar {\n" +
-		"  public class X {\n" +
-		"    public X() {\n" +
-		"    }\n" +
-		"    void foo() {\n" +
-		"      new Y(new Bar().new <CompleteOnType:X>());\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			public class Bar {
+			  public class X {
+			    public X() {
+			    }
+			    void foo() {
+			      new Y(new Bar().new <CompleteOnType:X>());
+			    }
+			  }
+			  public Bar() {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -677,30 +713,32 @@ public void testClassInstanceCreationExpressionPrimary2() {
  */
 public void testClassInstanceCreationExpressionPrimary3() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"public class Bar {								\n" +
-		"	public class X {							\n" +
-		"		void foo() {							\n" +
-		"			fred().new Y(new Bar().new Xxx());	\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			public class Bar {							\t
+				public class X {						\t
+					void foo() {						\t
+						fred().new Y(new Bar().new Xxx());\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"new X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"public class Bar {\n" +
-		"  public class X {\n" +
-		"    public X() {\n" +
-		"    }\n" +
-		"    void foo() {\n" +
-		"      fred().new Y(new Bar().new <CompleteOnType:X>());\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			public class Bar {
+			  public class X {
+			    public X() {
+			    }
+			    void foo() {
+			      fred().new Y(new Bar().new <CompleteOnType:X>());
+			    }
+			  }
+			  public Bar() {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -714,30 +752,32 @@ public void testClassInstanceCreationExpressionPrimary3() {
  */
 public void testClassInstanceCreationExpressionPrimary4() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"public class Bar {								\n" +
-		"	public class X {							\n" +
-		"		void foo() {							\n" +
-		"			new Y(1, true, new Bar().new Xxx());\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			public class Bar {							\t
+				public class X {						\t
+					void foo() {						\t
+						new Y(1, true, new Bar().new Xxx());
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"new X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"public class Bar {\n" +
-		"  public class X {\n" +
-		"    public X() {\n" +
-		"    }\n" +
-		"    void foo() {\n" +
-		"      new Y(1, true, new Bar().new <CompleteOnType:X>());\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			public class Bar {
+			  public class X {
+			    public X() {
+			    }
+			    void foo() {
+			      new Y(1, true, new Bar().new <CompleteOnType:X>());
+			    }
+			  }
+			  public Bar() {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -751,22 +791,24 @@ public void testClassInstanceCreationExpressionPrimary4() {
  */
 public void testClassTypeList() {
 	runTestCheckDietParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() throws Exception, Xxx {		\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo() throws Exception, Xxx {	\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnException:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() throws Exception, <CompleteOnException:X> {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() throws Exception, <CompleteOnException:X> {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -780,23 +822,25 @@ public void testClassTypeList() {
  */
 public void testConstructorBody() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	Bar() {									\n" +
-		"		Xxx o = new Y();					\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				Bar() {								\t
+					Xxx o = new Y();				\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"    super();\n" +
-		"    <CompleteOnName:X>;\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			    super();
+			    <CompleteOnName:X>;
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -810,20 +854,22 @@ public void testConstructorBody() {
  */
 public void testConstructorDeclarator() {
 	runTestCheckDietParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	Bar(Xxx o) {							\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				Bar(Xxx o) {						\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar(<CompleteOnType:X> o) {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar(<CompleteOnType:X> o) {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -837,43 +883,45 @@ public void testConstructorDeclarator() {
  */
 public void testDeepReference() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		if (a == 2) {						\n" +
-		"		}									\n" +
-		"		try {								\n" +
-		"		} finally {							\n" +
-		"			if (1 == fgh) {					\n" +
-		"				Xxx o = null;				\n" +
-		"			}								\n" +
-		"		}									\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					if (a == 2) {					\t
+					}								\t
+					try {							\t
+					} finally {						\t
+						if (1 == fgh) {				\t
+							Xxx o = null;			\t
+						}							\t
+					}								\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    if ((a == 2))\n" +
-		"        {\n" +
-		"        }\n" +
-		"    try\n" +
-		"      {\n" +
-		"      }\n" +
-		"    finally\n" +
-		"      {\n" +
-		"        if ((1 == fgh))\n" +
-		"            {\n" +
-		"              <CompleteOnType:X> o;\n" +
-		"            }\n" +
-		"      }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    if ((a == 2))
+			        {
+			        }
+			    try
+			      {
+			      }
+			    finally
+			      {
+			        if ((1 == fgh))
+			            {
+			              <CompleteOnType:X> o;
+			            }
+			      }
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -894,11 +942,12 @@ public void testExtendsClass() {
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnClass:X>",
-		// expectedUnitDisplayString:
-		"class Bar extends <CompleteOnClass:X> {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar extends <CompleteOnClass:X> {
+			  Bar() {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -936,20 +985,22 @@ public void testExtendsInterface() {
  */
 public void testFieldDeclarationWithModifiers() {
 	runTestCheckDietParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	public final Xxx foo;					\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				public final Xxx foo;				\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>;",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  <CompleteOnType:X>;\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  <CompleteOnType:X>;
+			  Bar() {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -964,20 +1015,22 @@ public void testFieldDeclarationWithModifiers() {
  */
 public void testFieldDeclarationWithoutModifiers() {
 	runTestCheckDietParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	Xxx foo;								\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				Xxx foo;							\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>;",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  <CompleteOnType:X>;\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  <CompleteOnType:X>;
+			  Bar() {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -991,22 +1044,24 @@ public void testFieldDeclarationWithoutModifiers() {
  */
 public void testFormalParameter() {
 	runTestCheckDietParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo(final Xxx x) {					\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo(final Xxx x) {				\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo(final <CompleteOnType:X> x) {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo(final <CompleteOnType:X> x) {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -1020,22 +1075,24 @@ public void testFormalParameter() {
  */
 public void testFormalParameterList() {
 	runTestCheckDietParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo(int i, final Object o, Xxx x) {\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo(int i, final Object o, Xxx x) {
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo(int i, final Object o, <CompleteOnType:X> x) {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo(int i, final Object o, <CompleteOnType:X> x) {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -1051,25 +1108,27 @@ public void testFormalParameterList() {
  */
 public void testForStatement() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	void foo() {								\n" +
-		"		for (Xxx o = new Y(); o.size() < 10; ) {\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				void foo() {							\t
+					for (Xxx o = new Y(); o.size() < 10; ) {
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:X>;\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    <CompleteOnName:X>;
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -1090,11 +1149,12 @@ public void testImplements() {
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnInterface:X>",
-		// expectedUnitDisplayString:
-		"class Bar implements <CompleteOnInterface:X> {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar implements <CompleteOnInterface:X> {
+			  Bar() {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -1108,24 +1168,26 @@ public void testImplements() {
  */
 public void testInstanceOf() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	boolean foo() {								\n" +
-		"		return this instanceof Xxx;				\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				boolean foo() {							\t
+					return this instanceof Xxx;			\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  boolean foo() {\n" +
-		"    return (this instanceof <CompleteOnType:X>);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  boolean foo() {
+			    return (this instanceof <CompleteOnType:X>);
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -1139,18 +1201,20 @@ public void testInstanceOf() {
  */
 public void testInterfaceBody() {
 	runTestCheckDietParse(
-		// compilationUnit:
-		"interface Bar {							\n" +
-		"	Xxx foo();								\n" +
-		"}											\n",
+		"""
+			interface Bar {						\t
+				Xxx foo();							\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"interface Bar {\n" +
-		"  <CompleteOnType:X>\n" +
-		"}\n",
+		"""
+			interface Bar {
+			  <CompleteOnType:X>
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -1164,22 +1228,24 @@ public void testInterfaceBody() {
  */
 public void testInterfaceMemberDeclarations() {
 	runTestCheckDietParse(
-		// compilationUnit:
-		"interface Bar {							\n" +
-		"	int CONSTANT = 0;						\n" +
-		"	Xxx foo();								\n" +
-		"}											\n",
+		"""
+			interface Bar {						\t
+				int CONSTANT = 0;					\t
+				Xxx foo();							\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"interface Bar {\n" +
-		"  int CONSTANT;\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  <CompleteOnType:X>\n" +
-		"}\n",
+		"""
+			interface Bar {
+			  int CONSTANT;
+			  <clinit>() {
+			  }
+			  <CompleteOnType:X>
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -1216,24 +1282,26 @@ public void testInterfaceTypeList() {
  */
 public void testLocalVariableDeclaration() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	void foo() {								\n" +
-		"		final Xxx o = new Y();					\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				void foo() {							\t
+					final Xxx o = new Y();				\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:X>;\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    <CompleteOnName:X>;
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -1247,24 +1315,26 @@ public void testLocalVariableDeclaration() {
  */
 public void testMethodBody() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		Xxx o = new Y();					\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					Xxx o = new Y();				\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:X>;\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    <CompleteOnName:X>;
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -1278,22 +1348,24 @@ public void testMethodBody() {
  */
 public void testMethodDeclarator() {
 	runTestCheckDietParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo(Xxx o) {						\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo(Xxx o) {					\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo(<CompleteOnType:X> o) {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo(<CompleteOnType:X> o) {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -1308,21 +1380,23 @@ public void testMethodDeclarator() {
  */
 public void testMethodHeaderWithModifiers() {
 	runTestCheckDietParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	public static Xxx foo() {				\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				public static Xxx foo() {			\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  <CompleteOnType:X>\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  <CompleteOnType:X>
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -1337,21 +1411,23 @@ public void testMethodHeaderWithModifiers() {
  */
 public void testMethodHeaderWithoutModifiers() {
 	runTestCheckDietParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	Xxx foo() {								\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				Xxx foo() {							\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  <CompleteOnType:X>\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  <CompleteOnType:X>
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -1366,26 +1442,28 @@ public void testMethodHeaderWithoutModifiers() {
  */
 public void testQualifiedTypeReferenceShrinkAll() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		int i = 0;							\n" +
-		"		new a.b.c.Xxx();			\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					int i = 0;						\t
+					new a.b.c.Xxx();		\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"		new a",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:a>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    int i;\n" +
-		"    new <CompleteOnType:a>();\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    int i;
+			    new <CompleteOnType:a>();
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"a",
 		// expectedReplacedSource:
@@ -1399,26 +1477,28 @@ public void testQualifiedTypeReferenceShrinkAll() {
  */
 public void testQualifiedTypeReferenceShrinkAllButOne() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		int i = 0;							\n" +
-		"		new a.b.c.Xxx();			\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					int i = 0;						\t
+					new a.b.c.Xxx();		\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"a.",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:a.>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    int i;\n" +
-		"    new <CompleteOnType:a.>();\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    int i;
+			    new <CompleteOnType:a.>();
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
@@ -1433,26 +1513,28 @@ public void testQualifiedTypeReferenceShrinkAllButOne() {
  */
 public void testQualifiedTypeReferenceShrinkNone() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		int i = 0;							\n" +
-		"		new a.b.c.Xxx();			\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					int i = 0;						\t
+					new a.b.c.Xxx();		\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:a.b.c.X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    int i;\n" +
-		"    new <CompleteOnType:a.b.c.X>();\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    int i;
+			    new <CompleteOnType:a.b.c.X>();
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -1467,26 +1549,28 @@ public void testQualifiedTypeReferenceShrinkNone() {
  */
 public void testQualifiedTypeReferenceShrinkOne() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		int i = 0;							\n" +
-		"		new a.b.c.Xxx();			\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					int i = 0;						\t
+					new a.b.c.Xxx();		\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"a.b.c.",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:a.b.c.>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    int i;\n" +
-		"    new <CompleteOnType:a.b.c.>();\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    int i;
+			    new <CompleteOnType:a.b.c.>();
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
@@ -1500,36 +1584,38 @@ public void testQualifiedTypeReferenceShrinkOne() {
  */
 public void testSwitchBlockStatement() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		int i = 1;							\n" +
-		"		switch (i) {						\n" +
-		"			case 1: 						\n" +
-		"				Xxx o = fred(i);			\n" +
-		"				break;						\n" +
-		"			default:						\n" +
-		"		}									\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					int i = 1;						\t
+					switch (i) {					\t
+						case 1: 					\t
+							Xxx o = fred(i);		\t
+							break;					\t
+						default:					\t
+					}								\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    int i;\n" +
-		"    switch (i) {\n" +
-		"    case 1 :\n" +
-		"        <CompleteOnType:X> o;\n" +
-		"        break;\n" +
-		"    default :\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    int i;
+			    switch (i) {
+			    case 1 :
+			        <CompleteOnType:X> o;
+			        break;
+			    default :
+			    }
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:
@@ -1543,22 +1629,24 @@ public void testSwitchBlockStatement() {
  */
 public void testThrows() {
 	runTestCheckDietParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() throws Xxx {					\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				void foo() throws Xxx {				\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
 		"<CompleteOnException:X>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() throws <CompleteOnException:X> {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() throws <CompleteOnException:X> {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"X",
 		// expectedReplacedSource:

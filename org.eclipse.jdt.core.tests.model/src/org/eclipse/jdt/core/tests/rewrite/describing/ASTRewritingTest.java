@@ -15,7 +15,8 @@ package org.eclipse.jdt.core.tests.rewrite.describing;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
-
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -40,9 +41,6 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * Tests for ASTRewrite. Subclasses must have 2 constructors that forward to
@@ -180,6 +178,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		  suite.addTest(ImportRewrite_RecordTest.suite());
 		  suite.addTest(ASTRewritingStringTemplateTest.suite());
 		  suite.addTest(ASTRewritingSuperAfterStatementsTest.suite());
+		  suite.addTest(ASTRewritingEitherOrMultiPatternNodeTest.suite());
 
 		return suite;
 	}

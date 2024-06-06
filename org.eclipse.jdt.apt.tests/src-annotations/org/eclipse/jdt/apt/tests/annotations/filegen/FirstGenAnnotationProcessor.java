@@ -47,10 +47,16 @@ public class FirstGenAnnotationProcessor extends BaseProcessor {
 	}
 
 	protected String CODE =
-		"package duptest;" + "\n" +
-		"import org.eclipse.jdt.apt.tests.annotations.filegen.SecondGenAnnotation;" + "\n" +
-		"@SecondGenAnnotation" + "\n" +
-		"public class DupFile" + "\n" +
-		"{" + "\n" +
-		"}";
+		"""
+		package duptest;\
+		
+		import org.eclipse.jdt.apt.tests.annotations.filegen.SecondGenAnnotation;\
+		
+		@SecondGenAnnotation\
+		
+		public class DupFile\
+		
+		{\
+		
+		}""";
 }

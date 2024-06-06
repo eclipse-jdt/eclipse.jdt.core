@@ -70,13 +70,15 @@ public class ConcurrentBatchCompilerTest extends BatchCompilerTest {
 			// expected error output for runner2 times COUNT:
 			final StringBuilder errorOutput = new StringBuilder();
 			for (int j=0; j<COUNT; j++)
-				errorOutput.append("----------\n" +
-						"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/test01/X.java (at line 12)\n" +
-						"	FileReader reader = getReader(\"somefile\");\n" +
-						"	           ^^^^^^\n" +
-						"Potential resource leak: \'reader\' may not be closed\n" +
-						"----------\n" +
-						"1 problem (1 error)\n");
+				errorOutput.append("""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/test01/X.java (at line 12)
+						FileReader reader = getReader("somefile");
+						           ^^^^^^
+					Potential resource leak: 'reader' may not be closed
+					----------
+					1 problem (1 error)
+					""");
 
 			// collect exceptions indicating a failure:
 			final Throwable[] thrown = new Throwable[2];

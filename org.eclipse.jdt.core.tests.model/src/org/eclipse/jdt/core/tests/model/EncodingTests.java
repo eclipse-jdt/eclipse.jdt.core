@@ -153,11 +153,12 @@ public class EncodingTests extends ModifyingResourceTests {
 
 			IJavaProject newProject = createJavaProject("P", new String[] { "" }, "");
 			IPackageFragment pkg = getPackageFragment("P", "", "");
-			String source = "public class A {\r\n" +
-				"	public static main(String[] args) {\r\n" +
-				"		System.out.println(\"\u00e9\");\r\n" +
-				"	}\r\n" +
-				"}";
+			String source = """
+				public class A {\r
+					public static main(String[] args) {\r
+						System.out.println("\u00e9");\r
+					}\r
+				}""";
 			ICompilationUnit cu= pkg.createCompilationUnit("A.java", source, false, new NullProgressMonitor());
 			assertCreation(cu);
 			cu.rename("B.java", true, new NullProgressMonitor());
@@ -533,19 +534,21 @@ public class EncodingTests extends ModifyingResourceTests {
 		try {
 			String encoding = "UTF-8";
 			this.createJavaProject("P", new String[] {""}, "");
-			String initialContent = "/**\n"+
-				" */\n"+
-				"public class Test {}";
+			String initialContent = """
+				/**
+				 */
+				public class Test {}""";
 			IFile file = this.createFile("P/Test.java", initialContent);
 			file.setCharset(encoding, null);
 			ICompilationUnit cu = this.getCompilationUnit("P/Test.java");
 
 			// Modif direct the buffer
-			String firstModif = "/**\n"+
-				" * Caract?res exotiques:\n"+
-				" * ?|#|?|?|?|?|?|?|?|?|??\n"+
-				" */\n"+
-				"public class Test {}";
+			String firstModif = """
+				/**
+				 * Caract?res exotiques:
+				 * ?|#|?|?|?|?|?|?|?|?|??
+				 */
+				public class Test {}""";
 			cu.getBuffer().setContents(firstModif);
 			cu.getBuffer().save(null, true);
 			String source = cu.getBuffer().getContents();
@@ -579,22 +582,24 @@ public class EncodingTests extends ModifyingResourceTests {
 		try {
 			String encoding = "UTF-8";
 			this.createJavaProject("P", new String[] {""}, "");
-			String initialContent = "/**\n"+
-				" */\n"+
-				"public class Test {}";
+			String initialContent = """
+				/**
+				 */
+				public class Test {}""";
 			IFile file = this.createFile("P/Test.java", initialContent);
 			file.setCharset(encoding, null);
 			ICompilationUnit cu = this.getCompilationUnit("P/Test.java");
 
 			// Modif using working copy
 			workingCopy = cu.getWorkingCopy(null);
-			String secondModif = "/**\n"+
-				" * Caract?res exotiques:\n"+
-				" * ?|#|?|?|?|?|?|?|?|?|??\n"+
-				" * Autres caract?res exotiques:\n"+
-				" * ?|?|?|?|?|?\n"+
-				" */\n"+
-				"public class Test {}";
+			String secondModif = """
+				/**
+				 * Caract?res exotiques:
+				 * ?|#|?|?|?|?|?|?|?|?|??
+				 * Autres caract?res exotiques:
+				 * ?|?|?|?|?|?
+				 */
+				public class Test {}""";
 			workingCopy.getBuffer().setContents(secondModif);
 			workingCopy.commitWorkingCopy(true, null);
 			String source = workingCopy.getBuffer().getContents();
@@ -654,10 +659,11 @@ public class EncodingTests extends ModifyingResourceTests {
 					try {
 						file = createFile(
 							"/Encoding/src/test68585/X.java",
-							"package  test68585;\n" +
-							"public class X {\n" +
-							"}\n" +
-							"class Y\u00F4 {}",
+							"""
+								package  test68585;
+								public class X {
+								}
+								class Y\u00F4 {}""",
 							encoding);
 					} catch (UnsupportedEncodingException e) {
 						e.printStackTrace();

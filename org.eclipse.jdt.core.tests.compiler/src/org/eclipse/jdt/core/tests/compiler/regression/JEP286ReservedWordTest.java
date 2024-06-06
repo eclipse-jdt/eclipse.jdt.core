@@ -48,12 +48,14 @@ public void test0001_class_var_warning() throws IOException {
 			"	+\n" +
 			"}\n";
 	String errorTail =
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	+\n" +
-			"	^\n" +
-			"Syntax error on token \"+\", delete this token\n" +
-			"----------\n";
+			"""
+		----------
+		2. ERROR in X.java (at line 3)
+			+
+			^
+		Syntax error on token "+", delete this token
+		----------
+		""";
 
 	if (Long.compare(this.complianceLevel, ClassFileConstants.JDK10) >= 0) {
 		this.runNegativeTest(
@@ -91,12 +93,14 @@ public void test0002_interface_var_warning() throws IOException {
 			"	+\n" +
 			"}\n";
 	String errorTail =
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	+\n" +
-			"	^\n" +
-			"Syntax error on token \"+\", delete this token\n" +
-			"----------\n";
+			"""
+		----------
+		2. ERROR in X.java (at line 3)
+			+
+			^
+		Syntax error on token "+", delete this token
+		----------
+		""";
 
 	if (Long.compare(this.complianceLevel, ClassFileConstants.JDK10) >= 0) {
 		this.runNegativeTest(
@@ -132,41 +136,50 @@ public void testBug530920() throws IOException {
 			classX
 		},
 		Long.compare(this.complianceLevel, ClassFileConstants.JDK10) >= 0 ?
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public class X<var extends Number> { }\n" +
-			"	               ^^^\n" +
-			"'var' is not allowed here\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					public class X<var extends Number> { }
+					               ^^^
+				'var' is not allowed here
+				"""
 		:
-			"----------\n" +
-			"1. WARNING in X.java (at line 1)\n" +
-			"	public class X<var extends Number> { }\n" +
-			"	               ^^^\n" +
-			"'var' should not be used as an type name, since it is a reserved word from source level 10 on\n"
+			"""
+				----------
+				1. WARNING in X.java (at line 1)
+					public class X<var extends Number> { }
+					               ^^^
+				'var' should not be used as an type name, since it is a reserved word from source level 10 on
+				"""
 		);
 }
 public void testBug530920a() throws IOException {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	<var extends Number> var getNumber() {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					<var extends Number> var getNumber() {
+						return null;
+					}
+				}"""
 		},
 		Long.compare(this.complianceLevel, ClassFileConstants.JDK10) >= 0 ?
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	<var extends Number> var getNumber() {\n" +
-			"	 ^^^\n" +
-			"'var' is not allowed here\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					<var extends Number> var getNumber() {
+					 ^^^
+				'var' is not allowed here
+				"""
 		:
-			"----------\n" +
-			"1. WARNING in X.java (at line 2)\n" +
-			"	<var extends Number> var getNumber() {\n" +
-			"	 ^^^\n" +
-			"'var' should not be used as an type name, since it is a reserved word from source level 10 on\n"
+			"""
+				----------
+				1. WARNING in X.java (at line 2)
+					<var extends Number> var getNumber() {
+					 ^^^
+				'var' should not be used as an type name, since it is a reserved word from source level 10 on
+				"""
 		);
 }
 }

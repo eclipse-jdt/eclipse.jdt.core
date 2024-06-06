@@ -50,12 +50,18 @@ public class FileGenerationTests extends APTTestBase {
 		IPath srcRoot = getSourcePath();
 
 		String code =
-				"package test;" + "\n" +
-				"import org.eclipse.jdt.apt.tests.annotations.filegen.FileGenLocationAnnotation;" + "\n" +
-				"@FileGenLocationAnnotation" + "\n" +
-				"public class Test" + "\n" +
-				"{" + "\n" +
-				"}";
+				"""
+			package test;\
+			
+			import org.eclipse.jdt.apt.tests.annotations.filegen.FileGenLocationAnnotation;\
+			
+			@FileGenLocationAnnotation\
+			
+			public class Test\
+			
+			{\
+			
+			}""";
 
 		env.addClass(srcRoot, "test", "Test", code);
 
@@ -71,12 +77,18 @@ public class FileGenerationTests extends APTTestBase {
 		IPath srcRoot = getSourcePath();
 
 		String code =
-			"package test;" + "\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.filegen.FirstGenAnnotation;" + "\n" +
-			"@FirstGenAnnotation" + "\n" +
-			"public class Test" + "\n" +
-			"{" + "\n" +
-			"}";
+			"""
+			package test;\
+			
+			import org.eclipse.jdt.apt.tests.annotations.filegen.FirstGenAnnotation;\
+			
+			@FirstGenAnnotation\
+			
+			public class Test\
+			
+			{\
+			
+			}""";
 
 		env.addClass(srcRoot, "test", "Test", code);
 
@@ -93,13 +105,20 @@ public class FileGenerationTests extends APTTestBase {
 		IPath srcRoot = getSourcePath();
 
 		String code =
-			"package test;" + "\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
-			"@HelloWorldAnnotation" + "\n" +
-			"public class Test" + "\n" +
-			"{" + "\n" +
-			"	generatedfilepackage.GeneratedFileTest gft;" + "\n" +
-			"}";
+			"""
+			package test;\
+			
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			
+			@HelloWorldAnnotation\
+			
+			public class Test\
+			
+			{\
+			
+				generatedfilepackage.GeneratedFileTest gft;\
+			
+			}""";
 
 		AptConfig.setGenSrcDir(jproj, "__foo_src");
 
@@ -122,13 +141,20 @@ public class FileGenerationTests extends APTTestBase {
 		IPath srcRoot = getSourcePath();
 
 		String code =
-			"package test;" + "\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
-			"@HelloWorldAnnotation" + "\n" +
-			"public class Test" + "\n" +
-			"{" + "\n" +
-			"	generatedfilepackage.GeneratedFileTest gft;" + "\n" +
-			"}";
+			"""
+			package test;\
+			
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			
+			@HelloWorldAnnotation\
+			
+			public class Test\
+			
+			{\
+			
+				generatedfilepackage.GeneratedFileTest gft;\
+			
+			}""";
 
 		AptConfig.setGenSrcDir(jproj, "gen/foo");
 		env.addClass(srcRoot, "test", "Test", code);
@@ -176,12 +202,18 @@ public class FileGenerationTests extends APTTestBase {
 
 		// Change the annotation to specify an illegal filename, and an exception should be thrown
 		code =
-			"package test;" + "\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.filegen.TextGenAnnotation;" + "\n" +
-			"@TextGenAnnotation(\">.txt\")" + "\n" +
-			"public class Test" + "\n" +
-			"{" + "\n" +
-			"}";
+			"""
+				package test;\
+				
+				import org.eclipse.jdt.apt.tests.annotations.filegen.TextGenAnnotation;\
+				
+				@TextGenAnnotation(">.txt")\
+				
+				public class Test\
+				
+				{\
+				
+				}""";
 		env.addClass(srcRoot, "test", "Test", code);
 
 		incrementalBuild( project.getFullPath() );
@@ -191,10 +223,14 @@ public class FileGenerationTests extends APTTestBase {
 
 		// remove the annotation, and the file should be deleted and processor should not run
 		code =
-			"package test;" + "\n" +
-			"public class Test" + "\n" +
-			"{" + "\n" +
-			"}";
+			"""
+				package test;\
+				
+				public class Test\
+				
+				{\
+				
+				}""";
 		env.addClass(srcRoot, "test", "Test", code);
 
 		incrementalBuild( project.getFullPath() );
@@ -209,12 +245,18 @@ public class FileGenerationTests extends APTTestBase {
 		IPath srcRoot = getSourcePath();
 
 		String code =
-				"package test;" + "\n" +
-				"import org.eclipse.jdt.apt.tests.annotations.filegen.FileGenLocationAnnotation;" + "\n" +
-				"@FileGenLocationAnnotation" + "\n" +
-				"public class Test" + "\n" +
-				"{" + "\n" +
-				"}";
+				"""
+			package test;\
+			
+			import org.eclipse.jdt.apt.tests.annotations.filegen.FileGenLocationAnnotation;\
+			
+			@FileGenLocationAnnotation\
+			
+			public class Test\
+			
+			{\
+			
+			}""";
 
 		env.addClass(srcRoot, "test", "Test", code);
 
@@ -240,22 +282,37 @@ public class FileGenerationTests extends APTTestBase {
 		IPath srcRoot = getSourcePath();
 
 		String mainCode =
-				"package test;" + "\n" +
-				"import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
-				"@HelloWorldAnnotation(\"GeneratedFileMain\")" + "\n" +
-				"public class Main" + "\n" +
-				"{" + "\n" +
-				"	generatedfilepackage.GeneratedFileMain gfm;" + "\n" +
-				"}";
+				"""
+			package test;\
+			
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			
+			@HelloWorldAnnotation("GeneratedFileMain")\
+			
+			public class Main\
+			
+			{\
+			
+				generatedfilepackage.GeneratedFileMain gfm;\
+			
+			}""";
 		String testCode =
-				"package test;" + "\n" +
-				"import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
-				"@HelloWorldAnnotation" + "\n" +
-				"public class Test" + "\n" +
-				"{" + "\n" +
-				"	generatedfilepackage.GeneratedFileTest gft;" + "\n" +
-				"	generatedfilepackage.GeneratedFileMain gfm;" + "\n" +
-				"}";
+				"""
+			package test;\
+			
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			
+			@HelloWorldAnnotation\
+			
+			public class Test\
+			
+			{\
+			
+				generatedfilepackage.GeneratedFileTest gft;\
+			
+				generatedfilepackage.GeneratedFileMain gfm;\
+			
+			}""";
 
 		AptConfig.setGenSrcDir(jproj, "__main_foo_src");
 		AptConfig.setGenTestSrcDir(jproj, "__test_foo_src");

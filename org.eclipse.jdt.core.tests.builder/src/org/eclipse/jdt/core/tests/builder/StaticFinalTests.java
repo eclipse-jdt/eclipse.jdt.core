@@ -38,13 +38,15 @@ public class StaticFinalTests extends BuilderTests {
 		);
 
 		env.addClass(projectPath, "p1", "Main", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n" + //$NON-NLS-1$
-			"public class Main {\n" + //$NON-NLS-1$
-			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-			"      System.out.println(A.VAR);\n"+ //$NON-NLS-1$
-			"   }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-		);
+					"""
+			package p1;
+			public class Main {
+			   public static void main(String args[]) {
+			      System.out.println(A.VAR);
+			   }
+			}
+			""" //$NON-NLS-1$
+				);
 
 		fullBuild();
 		expectingNoProblems();
@@ -70,13 +72,15 @@ public class StaticFinalTests extends BuilderTests {
 		);
 
 		env.addClass(projectPath, "p1", "Main", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n" + //$NON-NLS-1$
-			"public class Main {\n" + //$NON-NLS-1$
-			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-			"      System.out.println(A.VAR);\n"+ //$NON-NLS-1$
-			"   }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-		);
+					"""
+			package p1;
+			public class Main {
+			   public static void main(String args[]) {
+			      System.out.println(A.VAR);
+			   }
+			}
+			""" //$NON-NLS-1$
+				);
 
 		fullBuild();
 		expectingNoProblems();
@@ -102,13 +106,15 @@ public class StaticFinalTests extends BuilderTests {
 		);
 
 		env.addClass(projectPath, "p1", "Main", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n" + //$NON-NLS-1$
-			"public class Main {\n" + //$NON-NLS-1$
-			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-			"      System.out.println(A.VAR);\n"+ //$NON-NLS-1$
-			"   }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-		);
+					"""
+			package p1;
+			public class Main {
+			   public static void main(String args[]) {
+			      System.out.println(A.VAR);
+			   }
+			}
+			""" //$NON-NLS-1$
+				);
 
 		fullBuild();
 		expectingNoProblems();
@@ -134,13 +140,15 @@ public class StaticFinalTests extends BuilderTests {
 		);
 
 		env.addClass(projectPath, "p1", "Main", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n" + //$NON-NLS-1$
-			"public class Main {\n" + //$NON-NLS-1$
-			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-			"      System.out.println(A.VAR);\n"+ //$NON-NLS-1$
-			"   }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-		);
+					"""
+			package p1;
+			public class Main {
+			   public static void main(String args[]) {
+			      System.out.println(A.VAR);
+			   }
+			}
+			""" //$NON-NLS-1$
+				);
 
 		fullBuild();
 		expectingNoProblems();
@@ -166,13 +174,15 @@ public class StaticFinalTests extends BuilderTests {
 		);
 
 		env.addClass(projectPath, "p1", "Main", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n" + //$NON-NLS-1$
-			"public class Main {\n" + //$NON-NLS-1$
-			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-			"      System.out.println(A.VAR);\n"+ //$NON-NLS-1$
-			"   }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-		);
+					"""
+			package p1;
+			public class Main {
+			   public static void main(String args[]) {
+			      System.out.println(A.VAR);
+			   }
+			}
+			""" //$NON-NLS-1$
+				);
 
 		fullBuild();
 		expectingNoProblems();
@@ -198,13 +208,15 @@ public class StaticFinalTests extends BuilderTests {
 		);
 
 		env.addClass(projectPath, "p1", "Main", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n" + //$NON-NLS-1$
-			"public class Main {\n" + //$NON-NLS-1$
-			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-			"      System.out.println(A.VAR);\n"+ //$NON-NLS-1$
-			"   }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-		);
+					"""
+			package p1;
+			public class Main {
+			   public static void main(String args[]) {
+			      System.out.println(A.VAR);
+			   }
+			}
+			""" //$NON-NLS-1$
+				);
 
 		fullBuild();
 		expectingNoProblems();
@@ -230,13 +242,15 @@ public class StaticFinalTests extends BuilderTests {
 		);
 
 		env.addClass(projectPath, "p1", "Main", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n" + //$NON-NLS-1$
-			"public class Main {\n" + //$NON-NLS-1$
-			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-			"      System.out.println(A.VAR);\n"+ //$NON-NLS-1$
-			"   }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-		);
+					"""
+			package p1;
+			public class Main {
+			   public static void main(String args[]) {
+			      System.out.println(A.VAR);
+			   }
+			}
+			""" //$NON-NLS-1$
+				);
 
 		fullBuild();
 		expectingNoProblems();
@@ -262,13 +276,15 @@ public class StaticFinalTests extends BuilderTests {
 		);
 
 		env.addClass(projectPath, "p1", "Main", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n" + //$NON-NLS-1$
-			"public class Main {\n" + //$NON-NLS-1$
-			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-			"      System.out.println(A.VAR);\n"+ //$NON-NLS-1$
-			"   }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-		);
+					"""
+			package p1;
+			public class Main {
+			   public static void main(String args[]) {
+			      System.out.println(A.VAR);
+			   }
+			}
+			""" //$NON-NLS-1$
+				);
 
 		fullBuild();
 		expectingNoProblems();
@@ -294,13 +310,15 @@ public class StaticFinalTests extends BuilderTests {
 		);
 
 		env.addClass(projectPath, "p1", "Main", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n" + //$NON-NLS-1$
-			"public class Main {\n" + //$NON-NLS-1$
-			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-			"      System.out.println(A.VAR);\n"+ //$NON-NLS-1$
-			"   }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-		);
+					"""
+			package p1;
+			public class Main {
+			   public static void main(String args[]) {
+			      System.out.println(A.VAR);
+			   }
+			}
+			""" //$NON-NLS-1$
+				);
 
 		fullBuild();
 		expectingNoProblems();

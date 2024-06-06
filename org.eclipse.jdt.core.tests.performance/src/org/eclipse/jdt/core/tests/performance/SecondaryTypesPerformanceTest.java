@@ -93,19 +93,19 @@ public class SecondaryTypesPerformanceTest extends PerformanceTestCase {
 			parser.setUnitName("X");
 			parser.setKind(ASTParser.K_COMPILATION_UNIT);
 			parser.setEnvironment(classpathList.toArray(new String[classpathList.size()]), null, null, true);
-			parser.setSource((""
-					+ "import test.performance.test1.*;\n"
-					+ "public enum X\n" +
-					"{\n" +
-					"    TEST;\n" +
-					"\n" +
-					"    public void method() {\n" +
-					"        new Z().toString();\n" +
-					"        new test.performance.test2.Z().toString();\n" +
-					"        new test.performance.test3.Z().toString();\n" +
-					"\n" +
-					"    }\n" +
-					"}").toCharArray());
+			parser.setSource(("""
+				import test.performance.test1.*;
+				public enum X
+				{
+				    TEST;
+				
+				    public void method() {
+				        new Z().toString();
+				        new test.performance.test2.Z().toString();
+				        new test.performance.test3.Z().toString();
+				
+				    }
+				}""").toCharArray());
 
 			startMeasuring();
 			ASTNode theAST = parser.createAST(null);

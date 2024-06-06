@@ -51,43 +51,46 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_0/src/p1/ABC.java";
-			String fileContent1 = "" +
-					"package p1;\n\n" +
-					"public class ABC  {\n" +
-					"}";
+			String fileContent1 = """
+				package p1;
+				
+				public class ABC  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_0/src/p3";
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_0/src/p3/MNO.java";
-			fileContent1 = "" +
-					"package p3;\n\n" +
-					"public class MNO  {\n" +
-					"}";
+			fileContent1 = """
+				package p3;
+				
+				public class MNO  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_0/src/module-info.java";
-			fileContent1 =  "" +
-					"module testM {\n" +
-					"	exports p1;\n" +
-					"	exports p3;\n" +
-					"}";
+			fileContent1 =  """
+				module testM {
+					exports p1;
+					exports p3;
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_0/src/p2";
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_0/src/p2/XYZ.java";
-			fileContent1 = "" +
-					"package p2;\n\n" +
-					"/**\n" +
-					" * \n" +
-					" * @see  testM/ \n" +
-					" *\n"+
-					" */\n" +
-					"public class XYZ  {\n" +
-					"}";
+			fileContent1 = """
+				package p2;
+				
+				/**
+				 *\s
+				 * @see  testM/\s
+				 *
+				 */
+				public class XYZ  {
+				}""";
 			createFile(filePath1, fileContent1);
 			String completeBehind = "testM/";
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
@@ -123,27 +126,29 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_1/src/p1/ABC.java";
-			String fileContent1 = "" +
-					"package p1;\n\n" +
-					"public class ABC  {\n" +
-					"}";
+			String fileContent1 = """
+				package p1;
+				
+				public class ABC  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_1/src/p2";
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_1/src/p2/XYZ.java";
-			fileContent1 = "" +
-					"package p2;\n\n" +
-					"public class XYZ  {\n" +
-					"}";
+			fileContent1 = """
+				package p2;
+				
+				public class XYZ  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_1/src/module-info.java";
-			fileContent1 =  "" +
-					"module testM {\n" +
-					"	exports p1;\n" +
-					"}";
+			fileContent1 =  """
+				module testM {
+					exports p1;
+				}""";
 			createFile(filePath1, fileContent1);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 
@@ -153,23 +158,25 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 			createFolder(filePath2);
 
 			filePath2 = "/Completion15_2/src/module-info.java";
-			String fileContent2 = "" +
-					"module testQ {\n" +
-					"	exports p3;\n\n" +
-					"	requires testM;\n" +
-					"}";
+			String fileContent2 = """
+				module testQ {
+					exports p3;
+				
+					requires testM;
+				}""";
 			createFile(filePath2, fileContent2);
 
 			filePath2 = "/Completion15_2/src/p3/MNO.java";
-			fileContent2 = "" +
-					"package p3;\n\n" +
-					"/**\n" +
-					" * \n" +
-					" * @see  testM/ \n" +
-					" *\n"+
-					" */\n" +
-					"public class MNO  {\n" +
-					"}";
+			fileContent2 = """
+				package p3;
+				
+				/**
+				 *\s
+				 * @see  testM/\s
+				 *
+				 */
+				public class MNO  {
+				}""";
 			createFile(filePath2, fileContent2);
 			String completeBehind = "testM/";
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
@@ -204,24 +211,25 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 			project1.open(null);
 
 			String filePath1 = "/Completion15_0/src/module-info.java";
-			String fileContent1 =  "" +
-					"module testM {\n" +
-					"}";
+			String fileContent1 =  """
+				module testM {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_0/src/p1";
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_0/src/p1/ABC.java";
-			fileContent1 = "" +
-					"package p1;\n\n" +
-					"/**\n" +
-					" * \n" +
-					" * @see  java.base/ \n" +
-					" *\n"+
-					" */\n" +
-					"public class ABC  {\n" +
-					"}";
+			fileContent1 = """
+				package p1;
+				
+				/**
+				 *\s
+				 * @see  java.base/\s
+				 *
+				 */
+				public class ABC  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			String completeBehind = "java.base/";
@@ -260,15 +268,16 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_0/src/p1/ABC.java";
-			String fileContent1 = "" +
-					"package p1;\n\n" +
-					"/**\n" +
-					" * \n" +
-					" * @see  java.base/ \n" +
-					" *\n"+
-					" */\n" +
-					"public class ABC  {\n" +
-					"}";
+			String fileContent1 = """
+				package p1;
+				
+				/**
+				 *\s
+				 * @see  java.base/\s
+				 *
+				 */
+				public class ABC  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			String completeBehind = "java.base/";
@@ -306,43 +315,46 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 			createFolder(filePath1);
 
 			filePath1 = "/Completion14_0/src/p1/ABC.java";
-			String fileContent1 = "" +
-					"package p1;\n\n" +
-					"public class ABC  {\n" +
-					"}";
+			String fileContent1 = """
+				package p1;
+				
+				public class ABC  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion14_0/src/p3";
 			createFolder(filePath1);
 
 			filePath1 = "/Completion14_0/src/p3/MNO.java";
-			fileContent1 = "" +
-					"package p3;\n\n" +
-					"public class MNO  {\n" +
-					"}";
+			fileContent1 = """
+				package p3;
+				
+				public class MNO  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion14_0/src/module-info.java";
-			fileContent1 =  "" +
-					"module testM {\n" +
-					"	exports p1;\n" +
-					"	exports p3;\n" +
-					"}";
+			fileContent1 =  """
+				module testM {
+					exports p1;
+					exports p3;
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion14_0/src/p2";
 			createFolder(filePath1);
 
 			filePath1 = "/Completion14_0/src/p2/XYZ.java";
-			fileContent1 = "" +
-					"package p2;\n\n" +
-					"/**\n" +
-					" * \n" +
-					" * @see  testM/ \n" +
-					" *\n"+
-					" */\n" +
-					"public class XYZ  {\n" +
-					"}";
+			fileContent1 = """
+				package p2;
+				
+				/**
+				 *\s
+				 * @see  testM/\s
+				 *
+				 */
+				public class XYZ  {
+				}""";
 			createFile(filePath1, fileContent1);
 			String completeBehind = "testM/";
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
@@ -375,15 +387,16 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 			createFolder(filePath1);
 
 			filePath1 = "/Completion14_2/src/p1/ABC.java";
-			String fileContent1 = "" +
-					"package p1;\n\n" +
-					"/**\n" +
-					" * \n" +
-					" * @see  java.base/ \n" +
-					" *\n"+
-					" */\n" +
-					"public class ABC  {\n" +
-					"}";
+			String fileContent1 = """
+				package p1;
+				
+				/**
+				 *\s
+				 * @see  java.base/\s
+				 *
+				 */
+				public class ABC  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			String completeBehind = "java.base/";
@@ -417,27 +430,29 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_1/src/p1/ABC.java";
-			String fileContent1 = "" +
-					"package p1;\n\n" +
-					"public class ABC  {\n" +
-					"}";
+			String fileContent1 = """
+				package p1;
+				
+				public class ABC  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_1/src/p2";
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_1/src/p2/XYZ.java";
-			fileContent1 = "" +
-					"package p2;\n\n" +
-					"public class XYZ  {\n" +
-					"}";
+			fileContent1 = """
+				package p2;
+				
+				public class XYZ  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_1/src/module-info.java";
-			fileContent1 =  "" +
-					"module testM {\n" +
-					"	exports p1;\n" +
-					"}";
+			fileContent1 =  """
+				module testM {
+					exports p1;
+				}""";
 			createFile(filePath1, fileContent1);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 
@@ -447,23 +462,25 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 			createFolder(filePath2);
 
 			filePath2 = "/Completion15_2/src/module-info.java";
-			String fileContent2 = "" +
-					"module testQ {\n" +
-					"	exports p3;\n\n" +
-					"	requires testM;\n" +
-					"}";
+			String fileContent2 = """
+				module testQ {
+					exports p3;
+				
+					requires testM;
+				}""";
 			createFile(filePath2, fileContent2);
 
 			filePath2 = "/Completion15_2/src/p3/MNO.java";
-			fileContent2 = "" +
-					"package p3;\n\n" +
-					"/**\n" +
-					" * \n" +
-					" * @see  test \n" +
-					" *\n"+
-					" */\n" +
-					"public class MNO  {\n" +
-					"}";
+			fileContent2 = """
+				package p3;
+				
+				/**
+				 *\s
+				 * @see  test\s
+				 *
+				 */
+				public class MNO  {
+				}""";
 			createFile(filePath2, fileContent2);
 			String completeBehind = "test";
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
@@ -503,27 +520,29 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_1/src/p1/ABC.java";
-			String fileContent1 = "" +
-					"package p1;\n\n" +
-					"public class ABC  {\n" +
-					"}";
+			String fileContent1 = """
+				package p1;
+				
+				public class ABC  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_1/src/p2";
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_1/src/p2/XYZ.java";
-			fileContent1 = "" +
-					"package p2;\n\n" +
-					"public class XYZ  {\n" +
-					"}";
+			fileContent1 = """
+				package p2;
+				
+				public class XYZ  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_1/src/module-info.java";
-			fileContent1 =  "" +
-					"module testM.partial.mod {\n" +
-					"	exports p1;\n" +
-					"}";
+			fileContent1 =  """
+				module testM.partial.mod {
+					exports p1;
+				}""";
 			createFile(filePath1, fileContent1);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 
@@ -533,23 +552,25 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 			createFolder(filePath2);
 
 			filePath2 = "/Completion15_2/src/module-info.java";
-			String fileContent2 = "" +
-					"module testQ {\n" +
-					"	exports p3;\n\n" +
-					"	requires testM.partial.mod;\n" +
-					"}";
+			String fileContent2 = """
+				module testQ {
+					exports p3;
+				
+					requires testM.partial.mod;
+				}""";
 			createFile(filePath2, fileContent2);
 
 			filePath2 = "/Completion15_2/src/p3/MNO.java";
-			fileContent2 = "" +
-					"package p3;\n\n" +
-					"/**\n" +
-					" * \n" +
-					" * @see  testM.par \n" +
-					" *\n"+
-					" */\n" +
-					"public class MNO  {\n" +
-					"}";
+			fileContent2 = """
+				package p3;
+				
+				/**
+				 *\s
+				 * @see  testM.par\s
+				 *
+				 */
+				public class MNO  {
+				}""";
 			createFile(filePath2, fileContent2);
 			String completeBehind = "testM.par";
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
@@ -587,43 +608,46 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_0/src/p1/ABC.java";
-			String fileContent1 = "" +
-					"package p1;\n\n" +
-					"public class ABC  {\n" +
-					"}";
+			String fileContent1 = """
+				package p1;
+				
+				public class ABC  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_0/src/p3";
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_0/src/p3/MNO.java";
-			fileContent1 = "" +
-					"package p3;\n\n" +
-					"public class MNO  {\n" +
-					"}";
+			fileContent1 = """
+				package p3;
+				
+				public class MNO  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_0/src/module-info.java";
-			fileContent1 =  "" +
-					"module testM {\n" +
-					"	exports p1;\n" +
-					"	exports p3;\n" +
-					"}";
+			fileContent1 =  """
+				module testM {
+					exports p1;
+					exports p3;
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_0/src/p2";
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_0/src/p2/XYZ.java";
-			fileContent1 = "" +
-					"package p2;\n\n" +
-					"/**\n" +
-					" * \n" +
-					" * @see  testM/p \n" +
-					" *\n"+
-					" */\n" +
-					"public class XYZ  {\n" +
-					"}";
+			fileContent1 = """
+				package p2;
+				
+				/**
+				 *\s
+				 * @see  testM/p\s
+				 *
+				 */
+				public class XYZ  {
+				}""";
 			createFile(filePath1, fileContent1);
 			String completeBehind = "testM/p";
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
@@ -658,42 +682,45 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_0/src/p1/ABC.java";
-			String fileContent1 = "" +
-					"package p1;\n\n" +
-					"public class ABC  {\n" +
-					"}";
+			String fileContent1 = """
+				package p1;
+				
+				public class ABC  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_0/src/p3";
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_0/src/p3/MNO.java";
-			fileContent1 = "" +
-					"package p3;\n\n" +
-					"public class MNO  {\n" +
-					"}";
+			fileContent1 = """
+				package p3;
+				
+				public class MNO  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_0/src/module-info.java";
-			fileContent1 =  "" +
-					"module testM {\n" +
-					"	exports p3;\n" +
-					"}";
+			fileContent1 =  """
+				module testM {
+					exports p3;
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_0/src/p2";
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_0/src/p2/XYZ.java";
-			fileContent1 = "" +
-					"package p2;\n\n" +
-					"/**\n" +
-					" * \n" +
-					" * @see  testM/p \n" +
-					" *\n"+
-					" */\n" +
-					"public class XYZ  {\n" +
-					"}";
+			fileContent1 = """
+				package p2;
+				
+				/**
+				 *\s
+				 * @see  testM/p\s
+				 *
+				 */
+				public class XYZ  {
+				}""";
 			createFile(filePath1, fileContent1);
 			String completeBehind = "testM/p";
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
@@ -728,29 +755,31 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_1/src/p1/ABC.java";
-			String fileContent1 = "" +
-					"package p1;\n\n" +
-					"public class ABC  {\n" +
-					"    public int fld;\n" +
-					"	 public String getVal() { return null; }\n" +
-					"}";
+			String fileContent1 = """
+				package p1;
+				
+				public class ABC  {
+				    public int fld;
+					 public String getVal() { return null; }
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_1/src/p2";
 			createFolder(filePath1);
 
 			filePath1 = "/Completion15_1/src/p2/XYZ.java";
-			fileContent1 = "" +
-					"package p2;\n\n" +
-					"public class XYZ  {\n" +
-					"}";
+			fileContent1 = """
+				package p2;
+				
+				public class XYZ  {
+				}""";
 			createFile(filePath1, fileContent1);
 
 			filePath1 = "/Completion15_1/src/module-info.java";
-			fileContent1 =  "" +
-					"module testM.partial.mod {\n" +
-					"	exports p1;\n" +
-					"}";
+			fileContent1 =  """
+				module testM.partial.mod {
+					exports p1;
+				}""";
 			createFile(filePath1, fileContent1);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 
@@ -760,23 +789,25 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 			createFolder(filePath2);
 
 			filePath2 = "/Completion15_2/src/module-info.java";
-			String fileContent2 = "" +
-					"module testQ {\n" +
-					"	exports p3;\n\n" +
-					"	requires testM.partial.mod;\n" +
-					"}";
+			String fileContent2 = """
+				module testQ {
+					exports p3;
+				
+					requires testM.partial.mod;
+				}""";
 			createFile(filePath2, fileContent2);
 
 			filePath2 = "/Completion15_2/src/p3/MNO.java";
-			fileContent2 = "" +
-					"package p3;\n\n" +
-					"/**\n" +
-					" * \n" +
-					" * @see  testM.partial.mod/p1.ABC# \n" +
-					" *\n"+
-					" */\n" +
-					"public class MNO  {\n" +
-					"}";
+			fileContent2 = """
+				package p3;
+				
+				/**
+				 *\s
+				 * @see  testM.partial.mod/p1.ABC#\s
+				 *
+				 */
+				public class MNO  {
+				}""";
 			createFile(filePath2, fileContent2);
 			String completeBehind = "testM.partial.mod/p1.ABC#";
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));

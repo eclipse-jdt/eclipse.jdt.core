@@ -38,13 +38,14 @@ public void test0001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0001/X.java",
-		"package test0001;\n" +
-		"public class X {\n" +
-		"  /**\n" +
-		"   * @param <ZZZZ\n" +
-		"   */\n" +
-		"  public <T> void foo(){}\n" +
-		"}");
+		"""
+			package test0001;
+			public class X {
+			  /**
+			   * @param <ZZZZ
+			   */
+			  public <T> void foo(){}
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -67,13 +68,14 @@ public void test0002() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0002/X.java",
-		"package test0002;\n" +
-		"public class X {\n" +
-		"  /**\n" +
-		"   * @param <ZZZZ\n" +
-		"   */\n" +
-		"  public <T> void foo(){}\n" +
-		"}");
+		"""
+			package test0002;
+			public class X {
+			  /**
+			   * @param <ZZZZ
+			   */
+			  public <T> void foo(){}
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -96,13 +98,14 @@ public void test0003() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0003/X.java",
-		"package test0003;\n" +
-		"public class X {\n" +
-		"  /**\n" +
-		"   * @param <ZZZZ\n" +
-		"   */\n" +
-		"  public <T> void foo(){}\n" +
-		"}");
+		"""
+			package test0003;
+			public class X {
+			  /**
+			   * @param <ZZZZ
+			   */
+			  public <T> void foo(){}
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
@@ -125,13 +128,14 @@ public void test0004() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0004/X.java",
-		"package test0004;\n" +
-		"public class X {\n" +
-		"  /**\n" +
-		"   * @param <\n" +
-		"   */\n" +
-		"  public <T> void foo(){}\n" +
-		"}");
+		"""
+			package test0004;
+			public class X {
+			  /**
+			   * @param <
+			   */
+			  public <T> void foo(){}
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("@param <") + "@param <".length();

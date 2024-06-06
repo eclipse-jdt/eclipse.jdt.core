@@ -66,15 +66,17 @@ public void testQualifiedNonStaticMethod() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  public Object bar1() {}\n" +
-		"  public Zork Bar2() {}\n" +
-		"  public void removeBar() {}\n" +
-		"  void foo() {\n" +
-		"    this.bar\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  public Object bar1() {}
+			  public Zork Bar2() {}
+			  public void removeBar() {}
+			  void foo() {
+			    this.bar
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -93,15 +95,17 @@ public void testUnqualifiedNonStaticMethod() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  public Object bar1() {}\n" +
-		"  public Zork Bar2() {}\n" +
-		"  public void removeBar() {}\n" +
-		"  void foo() {\n" +
-		"    bar\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  public Object bar1() {}
+			  public Zork Bar2() {}
+			  public void removeBar() {}
+			  void foo() {
+			    bar
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -119,15 +123,17 @@ public void testQualifiedStaticMethod() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  public static Object bar1() {}\n" +
-		"  public Zork Bar2() {}\n" +
-		"  public static void removeBar() {}\n" +
-		"  void foo() {\n" +
-		"    Test.bar\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  public static Object bar1() {}
+			  public Zork Bar2() {}
+			  public static void removeBar() {}
+			  void foo() {
+			    Test.bar
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -144,15 +150,17 @@ public void testUnqualifiedStaticMethod() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  public static Object bar1() {}\n" +
-		"  public Zork Bar2() {}\n" +
-		"  public static void removeBar() {}\n" +
-		"  void foo() {\n" +
-		"    Bar\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  public static Object bar1() {}
+			  public Zork Bar2() {}
+			  public static void removeBar() {}
+			  void foo() {
+			    Bar
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -170,15 +178,17 @@ public void testQualifiedNonStaticField() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  int items;\n" +
-		"  int otherItems;\n" +
-		"  long itemsCount;\n" +
-		"  void foo() {\n" +
-		"    this.item\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  int items;
+			  int otherItems;
+			  long itemsCount;
+			  void foo() {
+			    this.item
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -197,15 +207,17 @@ public void testUnqualifiedNonStaticField() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  int items;\n" +
-			"  int otherItems;\n" +
-			"  long itemsCount;\n" +
-			"  void foo() {\n" +
-			"    item\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  int items;
+				  int otherItems;
+				  long itemsCount;
+				  void foo() {
+				    item
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -223,15 +235,17 @@ public void testQualifiedStaticField() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  static int items;\n" +
-			"  int otherItems;\n" +
-			"  static long itemsCount;\n" +
-			"  void foo() {\n" +
-			"    Test.item\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  static int items;
+				  int otherItems;
+				  static long itemsCount;
+				  void foo() {
+				    Test.item
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -248,15 +262,17 @@ public void testUnqualifiedStaticField() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  static int items;\n" +
-			"  int otherItems;\n" +
-			"  static long itemsCount;\n" +
-			"  void foo() {\n" +
-			"    item\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  static int items;
+				  int otherItems;
+				  static long itemsCount;
+				  void foo() {
+				    item
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -274,16 +290,18 @@ public void testLocalVariable() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  static int items;\n" +
-			"  int otherItems;\n" +
-			"  static long itemsCount;\n" +
-			"  void foo() {\n" +
-			"    int temporaryItem = 0;\n" +
-			"    item\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  static int items;
+				  int otherItems;
+				  static long itemsCount;
+				  void foo() {
+				    int temporaryItem = 0;
+				    item
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -302,15 +320,17 @@ public void testMethodParamVariable() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  static int items;\n" +
-			"  int otherItems;\n" +
-			"  static long itemsCount;\n" +
-			"  void foo(int initItems) {\n" +
-			"    item\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  static int items;
+				  int otherItems;
+				  static long itemsCount;
+				  void foo(int initItems) {
+				    item
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -329,20 +349,24 @@ public void testClassTypeInstantiation() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/Foobar.java",
-			"package test;\n"+
-			"interface Foobar {}\n" +
-			"class SpecificFooBar implements Foobar {}\n" +
-			"class EvenMoreSpecificFooBar extends SpecificFooBar {}\n" +
-			"interface Foobaz {}\n" +
-			"class SpecificFooBaz implements Foobaz {}\n");
+			"""
+				package test;
+				interface Foobar {}
+				class SpecificFooBar implements Foobar {}
+				class EvenMoreSpecificFooBar extends SpecificFooBar {}
+				interface Foobaz {}
+				class SpecificFooBaz implements Foobaz {}
+				""");
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  {\n" +
-			"    Foobar f = new bar\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  {
+				    Foobar f = new bar
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -360,18 +384,22 @@ public void testClassTypeFieldDeclaration() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/Foobar.java",
-			"package test;\n"+
-			"interface Foobar {}\n" +
-			"class SpecificFooBar implements Foobar {}\n" +
-			"class EvenMoreSpecificFooBar extends SpecificFooBar {}\n" +
-			"interface Foobaz {}\n" +
-			"class SpecificFooBaz implements Foobaz {}\n");
+			"""
+				package test;
+				interface Foobar {}
+				class SpecificFooBar implements Foobar {}
+				class EvenMoreSpecificFooBar extends SpecificFooBar {}
+				interface Foobaz {}
+				class SpecificFooBaz implements Foobaz {}
+				""");
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  public bar\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  public bar
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -389,18 +417,22 @@ public void testClassTypeParamDeclaration() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/Foobar.java",
-			"package test;\n"+
-			"interface Foobar {}\n" +
-			"class SpecificFooBar implements Foobar {}\n" +
-			"class EvenMoreSpecificFooBar extends SpecificFooBar {}\n" +
-			"interface Foobaz {}\n" +
-			"class SpecificFooBaz implements Foobaz {}\n");
+			"""
+				package test;
+				interface Foobar {}
+				class SpecificFooBar implements Foobar {}
+				class EvenMoreSpecificFooBar extends SpecificFooBar {}
+				interface Foobaz {}
+				class SpecificFooBaz implements Foobaz {}
+				""");
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  void setFoo(bar\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  void setFoo(bar
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -418,20 +450,24 @@ public void testClassTypeLocalVarDeclaration() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/Foobar.java",
-			"package test;\n"+
-			"interface Foobar {}\n" +
-			"class SpecificFooBar implements Foobar {}\n" +
-			"class EvenMoreSpecificFooBar extends SpecificFooBar {}\n" +
-			"interface Foobaz {}\n" +
-			"class SpecificFooBaz implements Foobaz {}\n");
+			"""
+				package test;
+				interface Foobar {}
+				class SpecificFooBar implements Foobar {}
+				class EvenMoreSpecificFooBar extends SpecificFooBar {}
+				interface Foobaz {}
+				class SpecificFooBaz implements Foobaz {}
+				""");
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  void foo() {\n" +
-			"    final bar" +
-			"  }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  void foo() {
+				    final bar\
+				  }\
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -449,19 +485,23 @@ public void testClassTypeThrowsDeclaration() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/Foobar.java",
-			"package test;\n"+
-			"interface Foobar {}\n" +
-			"class SpecificFooBar implements Foobar {}\n" +
-			"class EvenMoreSpecificFooBar extends SpecificFooBar {}\n" +
-			"interface Foobaz {}\n" +
-			"class SpecificFooBaz implements Foobaz {}\n");
+			"""
+				package test;
+				interface Foobar {}
+				class SpecificFooBar implements Foobar {}
+				class EvenMoreSpecificFooBar extends SpecificFooBar {}
+				interface Foobaz {}
+				class SpecificFooBaz implements Foobaz {}
+				""");
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  void foo() throws bar {\n" +
-			"  }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  void foo() throws bar {
+				  }\
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -478,18 +518,22 @@ public void testClassTypeExtends() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/Foobar.java",
-			"package test;\n"+
-			"interface Foobar {}\n" +
-			"class SpecificFooBar implements Foobar {}\n" +
-			"class EvenMoreSpecificFooBar extends SpecificFooBar {}\n" +
-			"interface Foobaz {}\n" +
-			"class SpecificFooBaz implements Foobaz {}\n");
+			"""
+				package test;
+				interface Foobar {}
+				class SpecificFooBar implements Foobar {}
+				class EvenMoreSpecificFooBar extends SpecificFooBar {}
+				interface Foobaz {}
+				class SpecificFooBaz implements Foobaz {}
+				""");
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test extends bar {\n" +
-			"  }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test extends bar {
+				  }\
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -506,19 +550,23 @@ public void testClassTypeImplements() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/Foobar.java",
-			"package test;\n"+
-			"interface Foobar {}\n" +
-			"interface FoobarExtension extends Foobar {}\n" +
-			"class SpecificFooBar implements Foobar {}\n" +
-			"class EvenMoreSpecificFooBar extends SpecificFooBar {}\n" +
-			"interface Foobaz {}\n" +
-			"class SpecificFooBaz implements Foobaz {}\n");
+			"""
+				package test;
+				interface Foobar {}
+				interface FoobarExtension extends Foobar {}
+				class SpecificFooBar implements Foobar {}
+				class EvenMoreSpecificFooBar extends SpecificFooBar {}
+				interface Foobaz {}
+				class SpecificFooBaz implements Foobaz {}
+				""");
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test implements bar {\n" +
-			"  }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test implements bar {
+				  }\
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -535,14 +583,16 @@ public void testInnerClassTypeInstantiation() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  class FooBar {}\n" +
-			"  {\n" +
-			"    Test t = new Test();\n" +
-			"    Object f = t.new bar\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  class FooBar {}
+				  {
+				    Test t = new Test();
+				    Object f = t.new bar
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -558,11 +608,13 @@ public void testInnerClassTypeFieldDeclaration() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  class FooBar {}\n" +
-			"  public bar\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  class FooBar {}
+				  public bar
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -578,11 +630,13 @@ public void testInnerClassTypeParamDeclaration() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  class FooBar {}\n" +
-			"  void foo(bar\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  class FooBar {}
+				  void foo(bar
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -598,13 +652,15 @@ public void testInnerClassTypeLocalVarDeclaration() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  class FooBar {}\n" +
-			"  {\n" +
-			"    final bar\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  class FooBar {}
+				  {
+				    final bar
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -620,11 +676,13 @@ public void testInnerClassTypeThrowsDeclaration() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  class FooBar extends Exception {}\n" +
-			"  void foo() throws bar" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  class FooBar extends Exception {}
+				  void foo() throws bar\
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -640,11 +698,13 @@ public void testInnerClassTypeExtends() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  class FooBar {}\n" +
-			"  class SpecificFooBar extends bar\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  class FooBar {}
+				  class SpecificFooBar extends bar
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -660,11 +720,13 @@ public void testInnerClassTypeImplements() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  interface FooBar {}\n" +
-			"  class SpecificFooBar implements bar\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  interface FooBar {}
+				  class SpecificFooBar implements bar
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -680,13 +742,15 @@ public void testStaticNestedClassTypeInstantiation() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  static class FooBar {}\n" +
-			"  {\n" +
-			"    Object f = new bar\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  static class FooBar {}
+				  {
+				    Object f = new bar
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -702,11 +766,13 @@ public void testStaticNestedClassTypeFieldDeclaration() throws JavaModelExceptio
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  static class FooBar {}\n" +
-			"  public bar\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  static class FooBar {}
+				  public bar
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -722,11 +788,13 @@ public void testStaticNestedClassTypeParamDeclaration() throws JavaModelExceptio
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  static class FooBar {}\n" +
-			"  void foo(bar\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  static class FooBar {}
+				  void foo(bar
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -742,13 +810,15 @@ public void testStaticNestedClassTypeLocalVarDeclaration() throws JavaModelExcep
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  static class FooBar {}\n" +
-			"  {\n" +
-			"    final bar\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  static class FooBar {}
+				  {
+				    final bar
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -764,11 +834,13 @@ public void testStaticNestedClassTypeThrowsDeclaration() throws JavaModelExcepti
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  static class FooBar extends Exception {}\n" +
-			"  void foo() throws bar" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  static class FooBar extends Exception {}
+				  void foo() throws bar\
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -784,11 +856,13 @@ public void testStaticNestedClassTypeExtends() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  static class FooBar {}\n" +
-			"  class SpecificFooBar extends bar\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  static class FooBar {}
+				  class SpecificFooBar extends bar
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -804,11 +878,13 @@ public void testStaticNestedClassTypeImplements() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  static interface FooBar {}\n" +
-			"  class SpecificFooBar implements bar\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  static interface FooBar {}
+				  class SpecificFooBar implements bar
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -824,13 +900,15 @@ public void testLocalClassTypeInstantiation() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  void foo() {\n" +
-			"    class FooBar {}\n" +
-			"    Object f = new bar\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  void foo() {
+				    class FooBar {}
+				    Object f = new bar
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -846,13 +924,15 @@ public void testLocalClassTypeLocalVarDeclaration() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  void foo() {\n" +
-			"    class FooBar {}\n" +
-			"    final bar\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  void foo() {
+				    class FooBar {}
+				    final bar
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -868,13 +948,15 @@ public void testLocalClassTypeExtends() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"  void foo() {\n" +
-			"    class FooBar {}\n" +
-			"    class SpecificFooBar extends bar\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+				  void foo() {
+				    class FooBar {}
+				    class SpecificFooBar extends bar
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -888,12 +970,14 @@ public void testLocalClassTypeExtends() throws JavaModelException {
 }
 public void testBug488441_1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
-	String content = "public class Try18 {\n" +
-						"	public void main(String[] args) {\n" +
-						"		\"s\".st\n" +
-						"	}\n" +
-						"}\n" +
-						"}\n";
+	String content = """
+		public class Try18 {
+			public void main(String[] args) {
+				"s".st
+			}
+		}
+		}
+		""";
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
 			content);
@@ -918,11 +1002,13 @@ public void testBug488441_1() throws JavaModelException {
 }
 public void testBug488441_2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
-	String content = "public class Try18 {\n" +
-						"	public void main(String[] args) {\n" +
-						"		int i = \"s\".st\n" +
-						"	}\n" +
-						"}\n";
+	String content = """
+		public class Try18 {
+			public void main(String[] args) {
+				int i = "s".st
+			}
+		}
+		""";
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
 			content);
@@ -948,11 +1034,13 @@ public void testBug488441_2() throws JavaModelException {
 }
 public void testBug488441_3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
-	String content = "public class Try18 {\n" +
-						"	public void main(String[] args) {\n" +
-						"		String s = \"s\".st\n" +
-						"	}\n" +
-						"}\n";
+	String content = """
+		public class Try18 {
+			public void main(String[] args) {
+				String s = "s".st
+			}
+		}
+		""";
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
 			content);
@@ -978,11 +1066,13 @@ public void testBug488441_3() throws JavaModelException {
 }
 public void testBug488441_4() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
-	String content = "public class Try18 {\n" +
-						"	public void main(String[] args) {\n" +
-						"		boolean s = \"s\".st\n" +
-						"	}\n" +
-						"}\n";
+	String content = """
+		public class Try18 {
+			public void main(String[] args) {
+				boolean s = "s".st
+			}
+		}
+		""";
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
 			content);
@@ -1010,14 +1100,16 @@ public void testBug488441_5() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"import java.util.Arrays;\n" +
-			"public class Try18 {\n" +
-			"	public void main(String[] args) {\n" +
-			"	String msg=\"\";\n" +
-			"	String[] parameters = {\"a\"};\n" +
-			"	System.out.println(msg + Arrays.as);\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.Arrays;
+				public class Try18 {
+					public void main(String[] args) {
+					String msg="";
+					String[] parameters = {"a"};
+					System.out.println(msg + Arrays.as);
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -1043,14 +1135,16 @@ public void testBug488441_6() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"import java.util.Arrays;\n" +
-			"public class Try18 {\n" +
-			"	public void main(String[] args) {\n" +
-			"	String msg=\"\";\n" +
-			"	String[] parameters = {\"a\"};\n" +
-			"	System.out.println(msg + Arrays.aS);\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.Arrays;
+				public class Try18 {
+					public void main(String[] args) {
+					String msg="";
+					String[] parameters = {"a"};
+					System.out.println(msg + Arrays.aS);
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -1076,14 +1170,16 @@ public void testBug488441_7() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"import java.util.Arrays;\n" +
-			"public class Try18 {\n" +
-			"	public void main(String[] args) {\n" +
-			"	String msg=\"\";\n" +
-			"	String[] parameters = {\"a\"};\n" +
-			"	System.out.println(Arrays.as);\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.Arrays;
+				public class Try18 {
+					public void main(String[] args) {
+					String msg="";
+					String[] parameters = {"a"};
+					System.out.println(Arrays.as);
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -1109,14 +1205,16 @@ public void testBug488441_8() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"import java.util.Arrays;\n" +
-			"public class Try18 {\n" +
-			"	public void main(String[] args) {\n" +
-			"	String msg=\"\";\n" +
-			"	String[] parameters = {\"a\"};\n" +
-			"	int i = Arrays.as;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.Arrays;
+				public class Try18 {
+					public void main(String[] args) {
+					String msg="";
+					String[] parameters = {"a"};
+					int i = Arrays.as;
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();

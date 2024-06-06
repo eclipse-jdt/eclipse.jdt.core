@@ -361,34 +361,37 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 		String moduleLoc = directory + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, moduleLoc, "module-info.java",
-						"/**\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						" provides p.I1 with p.P1;\n" +
-						" uses java.util.Currency;\n" +
-						"}");
+						"""
+							/**
+							 */
+							module mod.one {\s
+							 exports p;
+							 provides p.I1 with p.P1;
+							 uses java.util.Currency;
+							}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "I1.java",
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" */\n" +
-				"public interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}");
+				"""
+					package p;
+					/**
+					 * interface I1
+					 */
+					public interface I1 {
+						/**
+						 * Method foo
+					    * @return int
+					    */
+						public int foo();
+					}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "P1.java",
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}");
+				"""
+					package p;
+					/**
+					 * class P1
+					 */
+					public class P1 implements I1 {
+						@Override
+						public int foo() { return 0; }
+					}""");
 
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
@@ -408,18 +411,20 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				new String[0],
 				buffer.toString(),
 				"",
-				"----------\n" +
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 5)\n" +
-				"	provides p.I1 with p.P1;\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Missing provides tag\n" +
-				"----------\n" +
-				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 6)\n" +
-				"	uses java.util.Currency;\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Missing uses tag\n" +
-				"----------\n" +
-				"2 problems (2 errors)\n",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 5)
+						provides p.I1 with p.P1;
+						^^^^^^^^^^^^^^^^^^^^^^^
+					Javadoc: Missing provides tag
+					----------
+					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 6)
+						uses java.util.Currency;
+						^^^^^^^^^^^^^^^^^^^^^^^
+					Javadoc: Missing uses tag
+					----------
+					2 problems (2 errors)
+					""",
 				false,
 				"missing tags",
 				OUTPUT_DIR,
@@ -434,36 +439,39 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 		String moduleLoc = directory + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, moduleLoc, "module-info.java",
-						"/**\n" +
-						" @provides p.I\n" +
-						" @uses java.util.Currenc\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						" provides p.I1 with p.P1;\n" +
-						" uses java.util.Currency;\n" +
-						"}");
+						"""
+							/**
+							 @provides p.I
+							 @uses java.util.Currenc
+							 */
+							module mod.one {\s
+							 exports p;
+							 provides p.I1 with p.P1;
+							 uses java.util.Currency;
+							}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "I1.java",
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" */\n" +
-				"public interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}");
+				"""
+					package p;
+					/**
+					 * interface I1
+					 */
+					public interface I1 {
+						/**
+						 * Method foo
+					    * @return int
+					    */
+						public int foo();
+					}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "P1.java",
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}");
+				"""
+					package p;
+					/**
+					 * class P1
+					 */
+					public class P1 implements I1 {
+						@Override
+						public int foo() { return 0; }
+					}""");
 
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
@@ -483,18 +491,20 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				new String[0],
 				buffer.toString(),
 				"",
-				"----------\n" +
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 7)\n" +
-				"	provides p.I1 with p.P1;\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Missing provides tag\n" +
-				"----------\n" +
-				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 8)\n" +
-				"	uses java.util.Currency;\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Missing uses tag\n" +
-				"----------\n" +
-				"2 problems (2 errors)\n",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 7)
+						provides p.I1 with p.P1;
+						^^^^^^^^^^^^^^^^^^^^^^^
+					Javadoc: Missing provides tag
+					----------
+					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 8)
+						uses java.util.Currency;
+						^^^^^^^^^^^^^^^^^^^^^^^
+					Javadoc: Missing uses tag
+					----------
+					2 problems (2 errors)
+					""",
 				false,
 				"service-type not found");
 	}
@@ -507,38 +517,41 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 		String moduleLoc = directory + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, moduleLoc, "module-info.java",
-						"/**\n" +
-						" @provides p.I1\n" +
-						" @uses java.util.Currency\n" +
-						" @provides p.I1\n" +
-						" @uses java.util.Currency\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						" provides p.I1 with p.P1;\n" +
-						" uses java.util.Currency;\n" +
-						"}");
+						"""
+							/**
+							 @provides p.I1
+							 @uses java.util.Currency
+							 @provides p.I1
+							 @uses java.util.Currency
+							 */
+							module mod.one {\s
+							 exports p;
+							 provides p.I1 with p.P1;
+							 uses java.util.Currency;
+							}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "I1.java",
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" */\n" +
-				"public interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}");
+				"""
+					package p;
+					/**
+					 * interface I1
+					 */
+					public interface I1 {
+						/**
+						 * Method foo
+					    * @return int
+					    */
+						public int foo();
+					}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "P1.java",
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}");
+				"""
+					package p;
+					/**
+					 * class P1
+					 */
+					public class P1 implements I1 {
+						@Override
+						public int foo() { return 0; }
+					}""");
 
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
@@ -558,18 +571,20 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				new String[0],
 				buffer.toString(),
 				"",
-				"----------\n" +
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 4)\n" +
-				"	@provides p.I1\n" +
-				"	          ^^^^\n" +
-				"Javadoc: Duplicate provides tag\n" +
-				"----------\n" +
-				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 5)\n" +
-				"	@uses java.util.Currency\n" +
-				"	      ^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Duplicate uses tag\n" +
-				"----------\n" +
-				"2 problems (2 errors)\n",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 4)
+						@provides p.I1
+						          ^^^^
+					Javadoc: Duplicate provides tag
+					----------
+					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 5)
+						@uses java.util.Currency
+						      ^^^^^^^^^^^^^^^^^^
+					Javadoc: Duplicate uses tag
+					----------
+					2 problems (2 errors)
+					""",
 				false,
 				"duplicate tags",
 				OUTPUT_DIR,
@@ -584,36 +599,39 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 		String moduleLoc = directory + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, moduleLoc, "module-info.java",
-						"/**\n" +
-						" @provides p.I1\n" +
-						" @uses java.util.Currency\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						" provides p.I1 with p.P1;\n" +
-						" uses java.util.Currency;\n" +
-						"}");
+						"""
+							/**
+							 @provides p.I1
+							 @uses java.util.Currency
+							 */
+							module mod.one {\s
+							 exports p;
+							 provides p.I1 with p.P1;
+							 uses java.util.Currency;
+							}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "I1.java",
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" */\n" +
-				"public interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}");
+				"""
+					package p;
+					/**
+					 * interface I1
+					 */
+					public interface I1 {
+						/**
+						 * Method foo
+					    * @return int
+					    */
+						public int foo();
+					}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "P1.java",
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}");
+				"""
+					package p;
+					/**
+					 * class P1
+					 */
+					public class P1 implements I1 {
+						@Override
+						public int foo() { return 0; }
+					}""");
 
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
@@ -637,35 +655,38 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 		String moduleLoc = directory + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, moduleLoc, "module-info.java",
-						"/**\n" +
-						" @provides p.I1\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						" provides p.I1 with p.P1;\n" +
-						" uses java.util.Currency;\n" +
-						"}");
+						"""
+							/**
+							 @provides p.I1
+							 */
+							module mod.one {\s
+							 exports p;
+							 provides p.I1 with p.P1;
+							 uses java.util.Currency;
+							}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "I1.java",
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" */\n" +
-				"public interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}");
+				"""
+					package p;
+					/**
+					 * interface I1
+					 */
+					public interface I1 {
+						/**
+						 * Method foo
+					    * @return int
+					    */
+						public int foo();
+					}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "P1.java",
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}");
+				"""
+					package p;
+					/**
+					 * class P1
+					 */
+					public class P1 implements I1 {
+						@Override
+						public int foo() { return 0; }
+					}""");
 
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
@@ -685,13 +706,15 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				new String[0],
 				buffer.toString(),
 				"",
-				"----------\n" +
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 7)\n" +
-				"	uses java.util.Currency;\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Missing uses tag\n" +
-				"----------\n" +
-				"1 problem (1 error)\n",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 7)
+						uses java.util.Currency;
+						^^^^^^^^^^^^^^^^^^^^^^^
+					Javadoc: Missing uses tag
+					----------
+					1 problem (1 error)
+					""",
 				false,
 				"missing tags",
 				OUTPUT_DIR,
@@ -706,35 +729,38 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 		String moduleLoc = directory + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, moduleLoc, "module-info.java",
-						"/**\n" +
-						" @uses java.util.Currency\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						" provides p.I1 with p.P1;\n" +
-						" uses java.util.Currency;\n" +
-						"}");
+						"""
+							/**
+							 @uses java.util.Currency
+							 */
+							module mod.one {\s
+							 exports p;
+							 provides p.I1 with p.P1;
+							 uses java.util.Currency;
+							}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "I1.java",
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" */\n" +
-				"public interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}");
+				"""
+					package p;
+					/**
+					 * interface I1
+					 */
+					public interface I1 {
+						/**
+						 * Method foo
+					    * @return int
+					    */
+						public int foo();
+					}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "P1.java",
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}");
+				"""
+					package p;
+					/**
+					 * class P1
+					 */
+					public class P1 implements I1 {
+						@Override
+						public int foo() { return 0; }
+					}""");
 
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
@@ -754,13 +780,15 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				new String[0],
 				buffer.toString(),
 				"",
-				"----------\n" +
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 6)\n" +
-				"	provides p.I1 with p.P1;\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Missing provides tag\n" +
-				"----------\n" +
-				"1 problem (1 error)\n",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 6)
+						provides p.I1 with p.P1;
+						^^^^^^^^^^^^^^^^^^^^^^^
+					Javadoc: Missing provides tag
+					----------
+					1 problem (1 error)
+					""",
 				false,
 				"missing tags",
 				OUTPUT_DIR,
@@ -775,34 +803,37 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 		String moduleLoc = directory + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, moduleLoc, "module-info.java",
-						"/**\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						" provides p.I1 with p.P1;\n" +
-						" uses java.util.Currency;\n" +
-						"}");
+						"""
+							/**
+							 */
+							module mod.one {\s
+							 exports p;
+							 provides p.I1 with p.P1;
+							 uses java.util.Currency;
+							}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "I1.java",
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" */\n" +
-				"public interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}");
+				"""
+					package p;
+					/**
+					 * interface I1
+					 */
+					public interface I1 {
+						/**
+						 * Method foo
+					    * @return int
+					    */
+						public int foo();
+					}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "P1.java",
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}");
+				"""
+					package p;
+					/**
+					 * class P1
+					 */
+					public class P1 implements I1 {
+						@Override
+						public int foo() { return 0; }
+					}""");
 
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
@@ -822,18 +853,20 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				new String[0],
 				buffer.toString(),
 				"",
-				"----------\n" +
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 5)\n" +
-				"	provides p.I1 with p.P1;\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Missing provides tag\n" +
-				"----------\n" +
-				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 6)\n" +
-				"	uses java.util.Currency;\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Missing uses tag\n" +
-				"----------\n" +
-				"2 problems (2 errors)\n",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 5)
+						provides p.I1 with p.P1;
+						^^^^^^^^^^^^^^^^^^^^^^^
+					Javadoc: Missing provides tag
+					----------
+					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 6)
+						uses java.util.Currency;
+						^^^^^^^^^^^^^^^^^^^^^^^
+					Javadoc: Missing uses tag
+					----------
+					2 problems (2 errors)
+					""",
 				false,
 				"missing tags",
 				OUTPUT_DIR,
@@ -848,36 +881,39 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 		String moduleLoc = directory + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, moduleLoc, "module-info.java",
-						"/**\n" +
-						" * @provides p.I\n" +
-						" * @uses java.util.Currenc\n" +
-						" */\n" +
-						"module mod.one { \n" +
-						" exports p;\n" +
-						" provides p.I1 with p.P1;\n" +
-						" uses java.util.Currency;\n" +
-						"}");
+						"""
+							/**
+							 * @provides p.I
+							 * @uses java.util.Currenc
+							 */
+							module mod.one {\s
+							 exports p;
+							 provides p.I1 with p.P1;
+							 uses java.util.Currency;
+							}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "I1.java",
-				"package p;\n" +
-				"/**\n" +
-				" * interface I1\n" +
-				" */\n" +
-				"public interface I1 {\n" +
-				"	/**\n" +
-				"	 * Method foo\n" +
-				"    * @return int\n" +
-				"    */\n" +
-				"	public int foo();\n" +
-				"}");
+				"""
+					package p;
+					/**
+					 * interface I1
+					 */
+					public interface I1 {
+						/**
+						 * Method foo
+					    * @return int
+					    */
+						public int foo();
+					}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "P1.java",
-				"package p;\n" +
-				"/**\n" +
-				" * class P1\n" +
-				" */\n" +
-				"public class P1 implements I1 {\n" +
-				"	@Override\n" +
-				"	public int foo() { return 0; }\n" +
-				"}");
+				"""
+					package p;
+					/**
+					 * class P1
+					 */
+					public class P1 implements I1 {
+						@Override
+						public int foo() { return 0; }
+					}""");
 
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
@@ -897,18 +933,20 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				new String[0],
 				buffer.toString(),
 				"",
-				"----------\n" +
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 7)\n" +
-				"	provides p.I1 with p.P1;\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Missing provides tag\n" +
-				"----------\n" +
-				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 8)\n" +
-				"	uses java.util.Currency;\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Missing uses tag\n" +
-				"----------\n" +
-				"2 problems (2 errors)\n",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 7)
+						provides p.I1 with p.P1;
+						^^^^^^^^^^^^^^^^^^^^^^^
+					Javadoc: Missing provides tag
+					----------
+					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 8)
+						uses java.util.Currency;
+						^^^^^^^^^^^^^^^^^^^^^^^
+					Javadoc: Missing uses tag
+					----------
+					2 problems (2 errors)
+					""",
 				false,
 				"reference not found");
 	}
@@ -940,13 +978,15 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				new String[0],
 				buffer.toString(),
 				"",
-				"----------\n" +
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 1)\n" +
-				"	module mod.one {\n" +
-				"	^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Missing comment for module declaration\n" +
-				"----------\n" +
-				"1 problem (1 error)\n",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 1)
+						module mod.one {
+						^^^^^^^^^^^^^^^
+					Javadoc: Missing comment for module declaration
+					----------
+					1 problem (1 error)
+					""",
 				false,
 				"no comment");
 	}
@@ -968,20 +1008,24 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 		runNegativeModuleTest(
 			new String[] {
 				"src/Test.java",
-				"/**\n" +
-				" * {@link sun.security.ssl.X509TrustManagerImpl}\n" +
-				" */\n" +
-				"public class Test {}\n"
+				"""
+					/**
+					 * {@link sun.security.ssl.X509TrustManagerImpl}
+					 */
+					public class Test {}
+					"""
 			},
 			options,
 			"",
-			"----------\n" +
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/Test.java (at line 2)\n" +
-			"	* {@link sun.security.ssl.X509TrustManagerImpl}\n" +
-			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type sun.security.ssl.X509TrustManagerImpl is not accessible\n" +
-			"----------\n" +
-			"1 problem (1 error)\n",
+			"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/Test.java (at line 2)
+					* {@link sun.security.ssl.X509TrustManagerImpl}
+					         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type sun.security.ssl.X509TrustManagerImpl is not accessible
+				----------
+				1 problem (1 error)
+				""",
 			false,
 			"reference not found");
 	}

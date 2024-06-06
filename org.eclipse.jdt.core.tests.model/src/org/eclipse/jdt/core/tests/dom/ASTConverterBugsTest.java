@@ -148,9 +148,10 @@ public void testBug186410() throws CoreException, IOException {
 	try {
 		createJavaProject("P", new String[] { "" }, new String[0], "");
 			createFile("P/A.java",
-				"public class A {\n" +
-				"	void method(){}\n" +
-				"}"
+				"""
+					public class A {
+						void method(){}
+					}"""
 			);
 		ICompilationUnit cuA = getCompilationUnit("P/A.java");
 		CompilationUnit unitA = (CompilationUnit) runConversion(cuA, true, false, true);
@@ -168,9 +169,10 @@ public void testBug186410b() throws CoreException, IOException {
 	try {
 		createJavaProject("P", new String[] { "" }, new String[0], "");
 			createFile("P/A.java",
-				"public class A {\n" +
-				"	Object field;\n" +
-				"}"
+				"""
+					public class A {
+						Object field;
+					}"""
 			);
 		ICompilationUnit cuA = getCompilationUnit("P/A.java");
 		CompilationUnit unitA = (CompilationUnit) runConversion(cuA, true, false, true);
@@ -196,9 +198,10 @@ public void testBug209150a() throws CoreException, IOException {
 	try {
 		createJavaProject("P", new String[] { "" }, new String[0], "");
 			createFile("P/A.java",
-				"public class A {\n" +
-				"	void method(){}\n" +
-				"}"
+				"""
+					public class A {
+						void method(){}
+					}"""
 			);
 		ICompilationUnit cuA = getCompilationUnit("P/A.java");
 		CompilationUnit unitA = (CompilationUnit) runConversion(cuA, true, false, true);
@@ -218,9 +221,10 @@ public void testBug209150b() throws CoreException, IOException {
 	try {
 		createJavaProject("P", new String[] { "" }, new String[0], "");
 			createFile("P/A.java",
-				"public class A {\n" +
-				"	Object field;\n" +
-				"}"
+				"""
+					public class A {
+						Object field;
+					}"""
 			);
 		ICompilationUnit cuA = getCompilationUnit("P/A.java");
 		CompilationUnit unitA = (CompilationUnit) runConversion(cuA, true, false, true);
@@ -243,9 +247,10 @@ public void testBug209150c() throws CoreException, IOException {
 	try {
 		createJavaProject("P", new String[] { "" }, new String[0], "");
 			createFile("P/A.java",
-				"public class A {\n" +
-				"	Object[] array;\n" +
-				"}"
+				"""
+					public class A {
+						Object[] array;
+					}"""
 			);
 		ICompilationUnit cuA = getCompilationUnit("P/A.java");
 		CompilationUnit unitA = (CompilationUnit) runConversion(cuA, true, false, true);
@@ -272,11 +277,12 @@ public void testBug212100a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 	String contents =
-		"public class X {\n" +
-		"	public class Y {\n" +
-		"      void foo() {}\n" +
-		"   }\n" +
-		"}";
+		"""
+		public class X {
+			public class Y {
+		      void foo() {}
+		   }
+		}""";
 	this.workingCopies[0].getBuffer().setContents(contents);
 	this.workingCopies[0].save(null, true);
 	final IBinding[] bindings = new IBinding[4];
@@ -307,21 +313,23 @@ public void testBug212100b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 	String contents =
-		"public class X {\n" +
-		"	public class Y {\n" +
-		"      void foo() {}\n" +
-		"   }\n" +
-		"}";
+		"""
+		public class X {
+			public class Y {
+		      void foo() {}
+		   }
+		}""";
 	this.workingCopies[0].getBuffer().setContents(contents);
 	this.workingCopies[0].save(null, true);
 
 	this.workingCopies[1] = getWorkingCopy("/Converter15/src/Z.java", true/*resolve*/);
 	String contentsZ =
-		"public class Z {\n" +
-		"	public class W {\n" +
-		"      void bar() {}\n" +
-		"   }\n" +
-		"}";
+		"""
+		public class Z {
+			public class W {
+		      void bar() {}
+		   }
+		}""";
 	this.workingCopies[1].getBuffer().setContents(contentsZ);
 	this.workingCopies[1].save(null, true);
 
@@ -359,22 +367,24 @@ public void testBug212834() throws CoreException, IOException {
 		"}\n"
 	);
 	this.workingCopies[1] = getWorkingCopy("/Converter15/src/C.java",
-		"public class C {\n" +
-		"public C(D d) {\n" +
-		"	foo(5);\n" +
-		"	d.bar(7);\n" +
-		"}\n" +
-		"@Baz\n" +
-		"public void foo(@Baz int x) { }\n" +
-		"\n" +
-		"}"
+		"""
+			public class C {
+			public C(D d) {
+				foo(5);
+				d.bar(7);
+			}
+			@Baz
+			public void foo(@Baz int x) { }
+			
+			}"""
 	);
 	this.workingCopies[2] = getWorkingCopy("/Converter15/src/D.java",
-		"public class D {\n" +
-		"@Baz\n" +
-		"public void bar(@Baz int y) { }\n" +
-		"\n" +
-		"}"
+		"""
+			public class D {
+			@Baz
+			public void bar(@Baz int y) { }
+			
+			}"""
 	);
 
 	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[1], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
@@ -394,66 +404,77 @@ public void testBug212834() throws CoreException, IOException {
  */
 public void testBug212857() throws CoreException, IOException {
 	this.workingCopies = new ICompilationUnit[1];
-	String source = "package xy;\n" +
-		"public class C {\n" +
-		"	void m(@SuppressWarnings({\"unused\", \"bla\"}) int arg) {\n" +
-		"		int local;\n" +
-		"	}\n" +
-		"}\n";
+	String source = """
+		package xy;
+		public class C {
+			void m(@SuppressWarnings({"unused", "bla"}) int arg) {
+				int local;
+			}
+		}
+		""";
 	this.workingCopies[0] = getWorkingCopy("/Converter15/src/xy/C.java", source);
 	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkSourceRange(methodDeclaration.getBody(),
-		"{\n" +
-		"		int local;\n" +
-		"	}",
+		"""
+			{
+					int local;
+				}""",
 		source
 	);
 }
 public void testBug212857a() throws CoreException, IOException {
 	this.workingCopies = new ICompilationUnit[1];
-	String source = "package xy;\n" +
-	"public class C {\n" +
-	"	@SuppressWarnings({\"unused\", \"bla\"}) void m() {\n" +
-	"		int local;\n" +
-	"	}\n" +
-	"}\n";
+	String source = """
+		package xy;
+		public class C {
+			@SuppressWarnings({"unused", "bla"}) void m() {
+				int local;
+			}
+		}
+		""";
 	this.workingCopies[0] = getWorkingCopy("/Converter15/src/xy/C.java", source);
 	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkSourceRange(methodDeclaration.getBody(),
-		"{\n" +
-		"		int local;\n" +
-		"	}",
+		"""
+			{
+					int local;
+				}""",
 		source
 	);
 }
 // tests with recovery
 public void testBug212857b() throws CoreException, IOException {
 	this.workingCopies = new ICompilationUnit[1];
-	String source = "package test;\n" +
-	"public class X {\n" +
-	"	void m() \n" +
-	"		if (arg == 0) {}\n" +
-	"	}\n" +
-	"}\n";
+	String source = """
+		package test;
+		public class X {
+			void m()\s
+				if (arg == 0) {}
+			}
+		}
+		""";
 	this.workingCopies[0] = getWorkingCopy("/Converter15/src/test/X.java", source);
 	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkSourceRange(methodDeclaration.getBody(),
-		" \n" +
-		"		if (arg == 0) {}\n" +
-		"	}",
+		"""
+			\s
+					if (arg == 0) {}
+				}""",
 		source
 	);
 }
 public void testBug212857c() throws CoreException, IOException {
 	this.workingCopies = new ICompilationUnit[1];
-	String source = "package test;\n" +
-	"public class X {\n" +
-	"	void m() \n" +
-	"	}\n" +
-	"}\n";
+	String source = """
+		package test;
+		public class X {
+			void m()\s
+			}
+		}
+		""";
 	this.workingCopies[0] = getWorkingCopy("/Converter15/src/test/X.java", source);
 	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
@@ -465,29 +486,34 @@ public void testBug212857c() throws CoreException, IOException {
 }
 public void testBug212857d() throws CoreException, IOException {
 	this.workingCopies = new ICompilationUnit[1];
-	String source = "package test;\n" +
-	"public class X {\n" +
-	"	void m(String str) \n" +
-	"		if (arg == 0) {}\n" +
-	"	}\n" +
-	"}\n";
+	String source = """
+		package test;
+		public class X {
+			void m(String str)\s
+				if (arg == 0) {}
+			}
+		}
+		""";
 	this.workingCopies[0] = getWorkingCopy("/Converter15/src/test/X.java", source);
 	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkSourceRange(methodDeclaration.getBody(),
-		" \n" +
-		"		if (arg == 0) {}\n" +
-		"	}",
+		"""
+			\s
+					if (arg == 0) {}
+				}""",
 		source
 	);
 }
 public void testBug212857e() throws CoreException, IOException {
 	this.workingCopies = new ICompilationUnit[1];
-	String source = "package test;\n" +
-	"public class X {\n" +
-	"	void m(Object obj, int x) \n" +
-	"	}\n" +
-	"}\n";
+	String source = """
+		package test;
+		public class X {
+			void m(Object obj, int x)\s
+			}
+		}
+		""";
 	this.workingCopies[0] = getWorkingCopy("/Converter15/src/test/X.java", source);
 	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
@@ -506,60 +532,69 @@ public void testBug212857e() throws CoreException, IOException {
 public void testBug213509() throws CoreException, IOException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
-		"public class Test {\n" +
-		"	void m(@Foo @Bar @Annot String str, @Bar @Foo Object obj, @Annot int x) {}\n" +
-		"}\n" +
-		"@interface Foo {}\n" +
-		"@interface Bar {}\n" +
-		"@interface Annot {}\n"
+		"""
+			public class Test {
+				void m(@Foo @Bar @Annot String str, @Bar @Foo Object obj, @Annot int x) {}
+			}
+			@interface Foo {}
+			@interface Bar {}
+			@interface Annot {}
+			"""
 	);
 
 	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
-		"----- param 1-----\n" +
-		"@LTest~Foo;\n" +
-		"@LTest~Bar;\n" +
-		"@LTest~Annot;\n" +
-		"----- param 2-----\n" +
-		"@LTest~Bar;\n" +
-		"@LTest~Foo;\n" +
-		"----- param 3-----\n" +
-		"@LTest~Annot;\n",
+		"""
+			----- param 1-----
+			@LTest~Foo;
+			@LTest~Bar;
+			@LTest~Annot;
+			----- param 2-----
+			@LTest~Bar;
+			@LTest~Foo;
+			----- param 3-----
+			@LTest~Annot;
+			""",
 		methodDeclaration.resolveBinding()
 	);
 }
 public void testBug213509_invocation() throws CoreException, IOException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
-		"public class Test {\n" +
-		"	void m(@Foo @Bar @Annot String str, @Bar @Foo Object obj, @Annot int x) {}\n" +
-		"}\n" +
-		"@interface Foo {}\n" +
-		"@interface Bar {}\n" +
-		"@interface Annot {}\n"
+		"""
+			public class Test {
+				void m(@Foo @Bar @Annot String str, @Bar @Foo Object obj, @Annot int x) {}
+			}
+			@interface Foo {}
+			@interface Bar {}
+			@interface Annot {}
+			"""
 	);
 	this.workingCopies[1] = getWorkingCopy("/Converter15/src/X.java",
-		"public class X {\n" +
-		"public X(Test test) {\n" +
-		"	test.m(\"\", null, 7);\n" +
-		"}\n" +
-		"}"
+		"""
+			public class X {
+			public X(Test test) {
+				test.m("", null, 7);
+			}
+			}"""
 	);
 
 	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[1], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	MethodInvocation methodInvocation = (MethodInvocation) ((ExpressionStatement) methodDeclaration.getBody().statements().get(0)).getExpression();
 	checkParameterAnnotations(methodInvocation+" has invalid parameter annotations!",
-		"----- param 1-----\n" +
-		"@LTest~Foo;\n" +
-		"@LTest~Bar;\n" +
-		"@LTest~Annot;\n" +
-		"----- param 2-----\n" +
-		"@LTest~Bar;\n" +
-		"@LTest~Foo;\n" +
-		"----- param 3-----\n" +
-		"@LTest~Annot;\n",
+		"""
+			----- param 1-----
+			@LTest~Foo;
+			@LTest~Bar;
+			@LTest~Annot;
+			----- param 2-----
+			@LTest~Bar;
+			@LTest~Foo;
+			----- param 3-----
+			@LTest~Annot;
+			""",
 		methodInvocation.resolveMethodBinding()
 	);
 }
@@ -572,46 +607,54 @@ public void testBug213509_invocation() throws CoreException, IOException {
 public void testBug214002() throws CoreException, IOException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
-		"public class Test {\n" +
-		"	void m(String str, @Bar @Foo Object obj, @Annot int x) {}\n" +
-		"}\n" +
-		"@interface Foo {}\n" +
-		"@interface Bar {}\n" +
-		"@interface Annot {}\n"
+		"""
+			public class Test {
+				void m(String str, @Bar @Foo Object obj, @Annot int x) {}
+			}
+			@interface Foo {}
+			@interface Bar {}
+			@interface Annot {}
+			"""
 	);
 
 	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
-		"----- param 1-----\n" +
-		"----- param 2-----\n" +
-		"@LTest~Bar;\n" +
-		"@LTest~Foo;\n" +
-		"----- param 3-----\n" +
-		"@LTest~Annot;\n",
+		"""
+			----- param 1-----
+			----- param 2-----
+			@LTest~Bar;
+			@LTest~Foo;
+			----- param 3-----
+			@LTest~Annot;
+			""",
 		methodDeclaration.resolveBinding()
 	);
 }
 public void testBug214002b() throws CoreException, IOException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
-		"public class Test {\n" +
-		"	void m(@Annot String str, Object obj, @Bar @Foo int x) {}\n" +
-		"}\n" +
-		"@interface Foo {}\n" +
-		"@interface Bar {}\n" +
-		"@interface Annot {}\n"
+		"""
+			public class Test {
+				void m(@Annot String str, Object obj, @Bar @Foo int x) {}
+			}
+			@interface Foo {}
+			@interface Bar {}
+			@interface Annot {}
+			"""
 	);
 
 	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
-		"----- param 1-----\n" +
-		"@LTest~Annot;\n" +
-		"----- param 2-----\n" +
-		"----- param 3-----\n" +
-		"@LTest~Bar;\n" +
-		"@LTest~Foo;\n",
+		"""
+			----- param 1-----
+			@LTest~Annot;
+			----- param 2-----
+			----- param 3-----
+			@LTest~Bar;
+			@LTest~Foo;
+			""",
 		methodDeclaration.resolveBinding()
 	);
 }
@@ -623,27 +666,28 @@ public void testBug214002b() throws CoreException, IOException {
 		try {
 			createJavaProject("P", new String[] {""}, new String[0], "");
 			createFile("P/A.java",
-					"public class A {\n"+
-					"\n"+
-					"	public void foo() {\n"+
-					"		new Object() { \n"+
-					"			public void bar() { \n"+
-					"				if (true) {\n"+
-					"					final\n"+
-					"				}\n"+
-					"			}\n"+
-					"\n"+
-					"		};  \n"+
-					"\n"+
-					"		if (false) {\n"+
-					"			Object var = new Object() {\n"+
-					"				void toto() {\n"+
-					"					\n"+
-					"				}\n"+
-					"			};\n"+
-					"		}\n"+
-					"	}\n"+
-					"}"
+					"""
+						public class A {
+						
+							public void foo() {
+								new Object() {\s
+									public void bar() {\s
+										if (true) {
+											final
+										}
+									}
+						
+								}; \s
+						
+								if (false) {
+									Object var = new Object() {
+										void toto() {
+										\t
+										}
+									};
+								}
+							}
+						}"""
 			);
 			ICompilationUnit cuA = getCompilationUnit("P/A.java");
 			try {
@@ -663,9 +707,11 @@ public void testBug214002b() throws CoreException, IOException {
 public void testBug214647() throws CoreException, IOException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
-		"public class Test {\n" +
-		"	void m(String str) {}\n" +
-		"}\n"
+		"""
+			public class Test {
+				void m(String str) {}
+			}
+			"""
 	);
 
 	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
@@ -678,17 +724,21 @@ public void testBug214647() throws CoreException, IOException {
 public void testBug214647b() throws CoreException, IOException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
-		"public class Test {\n" +
-		"	void m(String str, Object o, int x) {}\n" +
-		"}\n"
+		"""
+			public class Test {
+				void m(String str, Object o, int x) {}
+			}
+			"""
 	);
 
 	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
-		"----- param 1-----\n" +
-		"----- param 2-----\n" +
-		"----- param 3-----\n",
+		"""
+			----- param 1-----
+			----- param 2-----
+			----- param 3-----
+			""",
 		methodDeclaration.resolveBinding()
 	);
 }
@@ -703,52 +753,56 @@ public void testBug215759a() throws CoreException {
 
 	this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/p/Y.java",
-			"package p;\n" +
-			"public class  Y {\n" +
-			"}",
+			"""
+				package p;
+				public class  Y {
+				}""",
 			true/*resolve*/);
 
 	ASTResult result = this.buildMarkedAST(
 			"/Converter/src/p/X.java",
-			"package p;\n" +
-			"public class X extends Y {\n" +
-			"	/**\n" +
-			"	 * blabla1\n" +
-			"	 * @param [*1*]string[*1*] blabla2\n" +
-			"	 */\n" +
-			"	protected [*2*]String[*2*] foo(String string) {\n" +
-			"		return [*3*](\"\" + string + \"\")[*3*] + (\"\");\n" +
-			"	}\n" +
-			"	/*comment*/[*4*]protected void bar() {}[*4*]\n" +
-			"	#\n" +
-			"}");
+			"""
+				package p;
+				public class X extends Y {
+					/**
+					 * blabla1
+					 * @param [*1*]string[*1*] blabla2
+					 */
+					protected [*2*]String[*2*] foo(String string) {
+						return [*3*]("" + string + "")[*3*] + ("");
+					}
+					/*comment*/[*4*]protected void bar() {}[*4*]
+					#
+				}""");
 
 	assertASTResult(
-			"===== AST =====\n" +
-			"package p;\n" +
-			"public class X extends Y {\n" +
-			"  /** \n" +
-			" * blabla1\n" +
-			" * @param [*1*]string[*1*] blabla2\n" +
-			" */\n" +
-			"  protected [*2*]String[*2*] foo(  String string){\n" +
-			"    return [*3*](\"\" + string + \"\")[*3*] + (\"\");\n" +
-			"  }\n" +
-			"  [*4*]protected void bar(){\n" +
-			"  }[*4*]\n" +
-			"}\n" +
-			"\n" +
-			"===== Details =====\n" +
-			"1:SIMPLE_NAME,[66,6],,,[VARIABLE,Lp/X;.foo(Ljava/lang/String;)Ljava/lang/String;#string#0#0,]\n" +
-			"2:SIMPLE_TYPE,[97,6],,,[TYPE,Ljava/lang/String;,]\n" +
-			"2:SIMPLE_NAME,[97,6],,,[TYPE,Ljava/lang/String;,]\n" +
-			"3:PARENTHESIZED_EXPRESSION,[134,18],,,[N/A]\n" +
-			"4:METHOD_DECLARATION,[176,23],,,[METHOD,Lp/X;.bar()V,]\n" +
-			"===== Problems =====\n" +
-			"1. ERROR in /Converter/src/p/X.java (at line 11)\n" +
-			"	#\n" +
-			"	^\n" +
-			"Syntax error on token \"Invalid Character\", delete this token\n",
+			"""
+				===== AST =====
+				package p;
+				public class X extends Y {
+				  /**\s
+				 * blabla1
+				 * @param [*1*]string[*1*] blabla2
+				 */
+				  protected [*2*]String[*2*] foo(  String string){
+				    return [*3*]("" + string + "")[*3*] + ("");
+				  }
+				  [*4*]protected void bar(){
+				  }[*4*]
+				}
+				
+				===== Details =====
+				1:SIMPLE_NAME,[66,6],,,[VARIABLE,Lp/X;.foo(Ljava/lang/String;)Ljava/lang/String;#string#0#0,]
+				2:SIMPLE_TYPE,[97,6],,,[TYPE,Ljava/lang/String;,]
+				2:SIMPLE_NAME,[97,6],,,[TYPE,Ljava/lang/String;,]
+				3:PARENTHESIZED_EXPRESSION,[134,18],,,[N/A]
+				4:METHOD_DECLARATION,[176,23],,,[METHOD,Lp/X;.bar()V,]
+				===== Problems =====
+				1. ERROR in /Converter/src/p/X.java (at line 11)
+					#
+					^
+				Syntax error on token "Invalid Character", delete this token
+				""",
 			result);
 }
 
@@ -757,55 +811,58 @@ public void testBug215759b() throws CoreException {
 
 	this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/p/Y.java",
-			"package p;\n" +
-			"public class  Y {\n" +
-			"}",
+			"""
+				package p;
+				public class  Y {
+				}""",
 			true/*resolve*/);
 
 	ASTResult result = this.buildMarkedAST(
 			"/Converter/src/p/X.java",
-			"package p;\n" +
-			"public class X extends Y {\n" +
-			"	/**\n" +
-			"	 * blabla1\n" +
-			"	 * @param [*1*]string[*1*] blabla2\n" +
-			"	 */\n" +
-			"	protected [*2*]String[*2*] foo(String string) {\n" +
-			"		return [*3*](\"\" + string + \"\")[*3*] + (\"\");\n" +
-			"	}\n" +
-			"	/*comment*/[*4*]protected void bar() {}[*4*]\n" +
-			"	[*5*]/**@deprecated*/protected void bar2() {}[*5*]\n" +
-			"}");
+			"""
+				package p;
+				public class X extends Y {
+					/**
+					 * blabla1
+					 * @param [*1*]string[*1*] blabla2
+					 */
+					protected [*2*]String[*2*] foo(String string) {
+						return [*3*]("" + string + "")[*3*] + ("");
+					}
+					/*comment*/[*4*]protected void bar() {}[*4*]
+					[*5*]/**@deprecated*/protected void bar2() {}[*5*]
+				}""");
 
 	assertASTResult(
-			"===== AST =====\n" +
-			"package p;\n" +
-			"public class X extends Y {\n" +
-			"  /** \n" +
-			" * blabla1\n" +
-			" * @param [*1*]string[*1*] blabla2\n" +
-			" */\n" +
-			"  protected [*2*]String[*2*] foo(  String string){\n" +
-			"    return [*3*](\"\" + string + \"\")[*3*] + (\"\");\n" +
-			"  }\n" +
-			"  [*4*]protected void bar(){\n" +
-			"  }[*4*]\n" +
-			"  [*5*]/** \n" +
-			" * @deprecated\n" +
-			" */\n" +
-			"  protected void bar2(){\n" +
-			"  }[*5*]\n" +
-			"}\n" +
-			"\n" +
-			"===== Details =====\n" +
-			"1:SIMPLE_NAME,[66,6],,,[VARIABLE,Lp/X;.foo(Ljava/lang/String;)Ljava/lang/String;#string#0#0,]\n" +
-			"2:SIMPLE_TYPE,[97,6],,,[TYPE,Ljava/lang/String;,]\n" +
-			"2:SIMPLE_NAME,[97,6],,,[TYPE,Ljava/lang/String;,]\n" +
-			"3:PARENTHESIZED_EXPRESSION,[134,18],,,[N/A]\n" +
-			"4:METHOD_DECLARATION,[176,23],[165,34],,[METHOD,Lp/X;.bar()V,]\n" +
-			"5:METHOD_DECLARATION,[201,40],,,[METHOD,Lp/X;.bar2()V,DEPRECATED]\n" +
-			"===== Problems =====\n" +
-			"No problem",
+			"""
+				===== AST =====
+				package p;
+				public class X extends Y {
+				  /**\s
+				 * blabla1
+				 * @param [*1*]string[*1*] blabla2
+				 */
+				  protected [*2*]String[*2*] foo(  String string){
+				    return [*3*]("" + string + "")[*3*] + ("");
+				  }
+				  [*4*]protected void bar(){
+				  }[*4*]
+				  [*5*]/**\s
+				 * @deprecated
+				 */
+				  protected void bar2(){
+				  }[*5*]
+				}
+				
+				===== Details =====
+				1:SIMPLE_NAME,[66,6],,,[VARIABLE,Lp/X;.foo(Ljava/lang/String;)Ljava/lang/String;#string#0#0,]
+				2:SIMPLE_TYPE,[97,6],,,[TYPE,Ljava/lang/String;,]
+				2:SIMPLE_NAME,[97,6],,,[TYPE,Ljava/lang/String;,]
+				3:PARENTHESIZED_EXPRESSION,[134,18],,,[N/A]
+				4:METHOD_DECLARATION,[176,23],[165,34],,[METHOD,Lp/X;.bar()V,]
+				5:METHOD_DECLARATION,[201,40],,,[METHOD,Lp/X;.bar2()V,DEPRECATED]
+				===== Problems =====
+				No problem""",
 			result);
 }
 /**
@@ -815,86 +872,90 @@ public void testBug215759b() throws CoreException {
 public void testBug218824a() throws JavaModelException {
 	ASTResult result = this.buildMarkedAST(
 			"/Converter15/src/a/X.java",
-			"package a;\n" +
-			"public class X {\n"+
-			"        public void takeParam(int i) {\n"+
-			"                // do something\n"+
-			"        }\n"+
-			"\n"+
-			"        void test() {\n"+
-			"                char c = 'a';\n"+
-			"                   public void takeParam(int i) {\n"+
-			"                             // do something\n"+
-			"                           }\n"+
-			"\n"+
-			"                           void test() {\n"+
-			"                             char c = 'a';\n"+
-			"                            takeParam((int) c);\n"+
-			"                           }[*1*]takeParam([*1*](int) c);\n"+
-			"        }\n"+
-			"}\n");
+			"""
+				package a;
+				public class X {
+				        public void takeParam(int i) {
+				                // do something
+				        }
+				
+				        void test() {
+				                char c = 'a';
+				                   public void takeParam(int i) {
+				                             // do something
+				                           }
+				
+				                           void test() {
+				                             char c = 'a';
+				                            takeParam((int) c);
+				                           }[*1*]takeParam([*1*](int) c);
+				        }
+				}
+				""");
 
 	assertASTResult(
-			"===== AST =====\n" +
-			"package a;\n" +
-			"public class X {\n" +
-			"  public void takeParam(  int i){\n" +
-			"  }\n" +
-			"  void test(){\n" +
-			"    char c=\'a\';\n" +
-			"    public void takeParam;\n" +
-			"    int i;\n" +
-			"    new test(){\n" +
-			"      char c=\'a\';\n" +
-			"{\n" +
-			"        takeParam((int)c);\n" +
-			"      }\n" +
-			"      [*1*]void takeParam(){\n" +
-			"      }[*1*]\n" +
-			"    }\n" +
-			";\n" +
-			"  }\n" +
-			"}\n" +
-			"\n" +
-			"===== Details =====\n" +
-			"1:METHOD_DECLARATION,[447,10],,MALFORMED,[null]\n" +
-			"===== Problems =====\n" +
-			"1. ERROR in /Converter15/src/a/X.java (at line 9)\n" +
-			"	public void takeParam(int i) {\n" +
-			"	            ^^^^^^^^^\n" +
-			"void is an invalid type for the variable takeParam\n" +
-			"2. ERROR in /Converter15/src/a/X.java (at line 9)\n" +
-			"	public void takeParam(int i) {\n" +
-			"	                     ^\n" +
-			"Syntax error on token \"(\", ; expected\n" +
-			"3. ERROR in /Converter15/src/a/X.java (at line 9)\n" +
-			"	public void takeParam(int i) {\n" +
-			"	                           ^\n" +
-			"Syntax error on token \")\", ; expected\n" +
-			"4. ERROR in /Converter15/src/a/X.java (at line 13)\n" +
-			"	void test() {\n" +
-			"	^^^^\n" +
-			"Syntax error on token \"void\", new expected\n" +
-			"5. ERROR in /Converter15/src/a/X.java (at line 13)\n" +
-			"	void test() {\n" +
-			"	     ^^^^\n" +
-			"test cannot be resolved to a type\n" +
-			"6. ERROR in /Converter15/src/a/X.java (at line 14)\n" +
-			"	char c = \'a\';\n" +
-			"	            ^\n" +
-			"Syntax error on token \";\", { expected after this token\n" +
-			"7. ERROR in /Converter15/src/a/X.java (at line 16)\n" +
-			"	}takeParam((int) c);\n" +
-			"	^\n" +
-			"Syntax error, insert \"}\" to complete ClassBody\n" +
-			"8. ERROR in /Converter15/src/a/X.java (at line 16)\n" +
-			"	}takeParam((int) c);\n" +
-			"	^\n" +
-			"Syntax error, insert \";\" to complete Statement\n" +
-			"9. ERROR in /Converter15/src/a/X.java (at line 16)\n" +
-			"	}takeParam((int) c);\n" +
-			"	 ^^^^^^^^^^\n" +
-			"Return type for the method is missing\n",
+			"""
+				===== AST =====
+				package a;
+				public class X {
+				  public void takeParam(  int i){
+				  }
+				  void test(){
+				    char c='a';
+				    public void takeParam;
+				    int i;
+				    new test(){
+				      char c='a';
+				{
+				        takeParam((int)c);
+				      }
+				      [*1*]void takeParam(){
+				      }[*1*]
+				    }
+				;
+				  }
+				}
+				
+				===== Details =====
+				1:METHOD_DECLARATION,[447,10],,MALFORMED,[null]
+				===== Problems =====
+				1. ERROR in /Converter15/src/a/X.java (at line 9)
+					public void takeParam(int i) {
+					            ^^^^^^^^^
+				void is an invalid type for the variable takeParam
+				2. ERROR in /Converter15/src/a/X.java (at line 9)
+					public void takeParam(int i) {
+					                     ^
+				Syntax error on token "(", ; expected
+				3. ERROR in /Converter15/src/a/X.java (at line 9)
+					public void takeParam(int i) {
+					                           ^
+				Syntax error on token ")", ; expected
+				4. ERROR in /Converter15/src/a/X.java (at line 13)
+					void test() {
+					^^^^
+				Syntax error on token "void", new expected
+				5. ERROR in /Converter15/src/a/X.java (at line 13)
+					void test() {
+					     ^^^^
+				test cannot be resolved to a type
+				6. ERROR in /Converter15/src/a/X.java (at line 14)
+					char c = 'a';
+					            ^
+				Syntax error on token ";", { expected after this token
+				7. ERROR in /Converter15/src/a/X.java (at line 16)
+					}takeParam((int) c);
+					^
+				Syntax error, insert "}" to complete ClassBody
+				8. ERROR in /Converter15/src/a/X.java (at line 16)
+					}takeParam((int) c);
+					^
+				Syntax error, insert ";" to complete Statement
+				9. ERROR in /Converter15/src/a/X.java (at line 16)
+					}takeParam((int) c);
+					 ^^^^^^^^^^
+				Return type for the method is missing
+				""",
 			result);
 }
 /**
@@ -904,109 +965,125 @@ public void testBug218824a() throws JavaModelException {
 public void testBug215137a() throws JavaModelException {
 	ASTResult result = this.buildMarkedAST(
 			"/Converter15/src/a/X.java",
-			"package a;\n" +
-			"public class X {\n"+
-			"        public void foo() [*1*]{\n"+
-			"                System.out.println(\"hello);\n"+
-			"        }[*1*]\n"+
-			"}\n");
+			"""
+				package a;
+				public class X {
+				        public void foo() [*1*]{
+				                System.out.println("hello);
+				        }[*1*]
+				}
+				""");
 
 	assertASTResult(
-			"===== AST =====\n" +
-			"package a;\n" +
-			"public class X {\n" +
-			"  public void foo()[*1*]{\n" +
-			"  }[*1*]\n" +
-			"}\n" +
-			"\n" +
-			"===== Details =====\n" +
-			"1:BLOCK,[54,55],,RECOVERED,[N/A]\n" +
-			"===== Problems =====\n" +
-			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" +
-			"	System.out.println(\"hello);\n" +
-			"	                   ^^^^^^^^\n" +
-			"String literal is not properly closed by a double-quote\n",
+			"""
+				===== AST =====
+				package a;
+				public class X {
+				  public void foo()[*1*]{
+				  }[*1*]
+				}
+				
+				===== Details =====
+				1:BLOCK,[54,55],,RECOVERED,[N/A]
+				===== Problems =====
+				1. ERROR in /Converter15/src/a/X.java (at line 4)
+					System.out.println("hello);
+					                   ^^^^^^^^
+				String literal is not properly closed by a double-quote
+				""",
 			result);
 }
 public void testBug215137b() throws JavaModelException {
 	ASTResult result = this.buildMarkedAST(
 			"/Converter15/src/a/X.java",
-			"package a;\n" +
-			"public class X {\n"+
-			"        public void foo() [*1*]{\n"+
-			"                System.out.println('a);\n"+
-			"        }[*1*]\n"+
-			"}\n");
+			"""
+				package a;
+				public class X {
+				        public void foo() [*1*]{
+				                System.out.println('a);
+				        }[*1*]
+				}
+				""");
 
 	assertASTResult(
-			"===== AST =====\n" +
-			"package a;\n" +
-			"public class X {\n" +
-			"  public void foo()[*1*]{\n" +
-			"  }[*1*]\n" +
-			"}\n" +
-			"\n" +
-			"===== Details =====\n" +
-			"1:BLOCK,[54,51],,RECOVERED,[N/A]\n" +
-			"===== Problems =====\n" +
-			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" +
-			"	System.out.println(\'a);\n" +
-			"	                   ^^\n" +
-			"Invalid character constant\n",
+			"""
+				===== AST =====
+				package a;
+				public class X {
+				  public void foo()[*1*]{
+				  }[*1*]
+				}
+				
+				===== Details =====
+				1:BLOCK,[54,51],,RECOVERED,[N/A]
+				===== Problems =====
+				1. ERROR in /Converter15/src/a/X.java (at line 4)
+					System.out.println('a);
+					                   ^^
+				Invalid character constant
+				""",
 			result);
 }
 public void testBug215137c() throws JavaModelException {
 	ASTResult result = this.buildMarkedAST(
 			"/Converter15/src/a/X.java",
-			"package a;\n" +
-			"public class X {\n"+
-			"        public void foo() [*1*]{\n"+
-			"                System.out.println(''a);\n"+
-			"        }[*1*]\n"+
-			"}\n");
+			"""
+				package a;
+				public class X {
+				        public void foo() [*1*]{
+				                System.out.println(''a);
+				        }[*1*]
+				}
+				""");
 
 	assertASTResult(
-			"===== AST =====\n" +
-			"package a;\n" +
-			"public class X {\n" +
-			"  public void foo()[*1*]{\n" +
-			"  }[*1*]\n" +
-			"}\n" +
-			"\n" +
-			"===== Details =====\n" +
-			"1:BLOCK,[54,52],,RECOVERED,[N/A]\n" +
-			"===== Problems =====\n" +
-			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" +
-			"	System.out.println(\'\'a);\n" +
-			"	                   ^^\n" +
-			"Invalid character constant\n",
+			"""
+				===== AST =====
+				package a;
+				public class X {
+				  public void foo()[*1*]{
+				  }[*1*]
+				}
+				
+				===== Details =====
+				1:BLOCK,[54,52],,RECOVERED,[N/A]
+				===== Problems =====
+				1. ERROR in /Converter15/src/a/X.java (at line 4)
+					System.out.println(''a);
+					                   ^^
+				Invalid character constant
+				""",
 			result);
 }
 public void testBug215137d() throws JavaModelException {
 	ASTResult result = this.buildMarkedAST(
 			"/Converter15/src/a/X.java",
-			"package a;\n" +
-			"public class X {\n"+
-			"        public void foo() [*1*]{\n"+
-			"                7eSystem.out.println();\n"+
-			"        }[*1*]\n"+
-			"}\n");
+			"""
+				package a;
+				public class X {
+				        public void foo() [*1*]{
+				                7eSystem.out.println();
+				        }[*1*]
+				}
+				""");
 
 	assertASTResult(
-			"===== AST =====\n" +
-			"package a;\n" +
-			"public class X {\n" +
-			"  public void foo()[*1*]{\n" +
-			"  }[*1*]\n" +
-			"}\n" +
-			"\n" +
-			"===== Details =====\n" +
-			"1:BLOCK,[54,51],,RECOVERED,[N/A]\n" +
-			"===== Problems =====\n" +
-			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" +
-			"	7eSystem.out.println();\n" +
-			"	^^^\n" +
-			"Invalid float literal number\n",
+			"""
+				===== AST =====
+				package a;
+				public class X {
+				  public void foo()[*1*]{
+				  }[*1*]
+				}
+				
+				===== Details =====
+				1:BLOCK,[54,51],,RECOVERED,[N/A]
+				===== Problems =====
+				1. ERROR in /Converter15/src/a/X.java (at line 4)
+					7eSystem.out.println();
+					^^^
+				Invalid float literal number
+				""",
 			result);
 }
 /**
@@ -1016,11 +1093,13 @@ public void testBug215137d() throws JavaModelException {
  */
 public void testBug223838() throws JavaModelException {
 	String contents =
-		"package b223838;\n" +
-		"@Deprecated\n" +
-		"@Invalid\n" +
-		"public class Test {\n" +
-		"}\n";
+		"""
+		package b223838;
+		@Deprecated
+		@Invalid
+		public class Test {
+		}
+		""";
 	ICompilationUnit workingCopy = getWorkingCopy(
 			"/Converter15/src/b223838/Test.java",
 			contents,
@@ -1041,11 +1120,13 @@ public void testBug223838() throws JavaModelException {
  */
 public void testBug223838a() throws JavaModelException {
 	String contents =
-		"package b223838;\n" +
-		"@Deprecated\n" +
-		"@Invalid\n" +
-		"public class Test {\n" +
-		"}\n";
+		"""
+		package b223838;
+		@Deprecated
+		@Invalid
+		public class Test {
+		}
+		""";
 	ICompilationUnit workingCopy = getWorkingCopy(
 			"/Converter15/src/b223838/Test.java",
 			contents,
@@ -1068,21 +1149,24 @@ public void testBug223838a() throws JavaModelException {
 public void testBug226357() throws CoreException, IOException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy("/Converter15/src/ParameterSubsetAnnotated.java",
-		"public class ParameterSubsetAnnotated {\n" +
-		"        public @interface NonZero { }\n" +
-		"        public static int safeDiv(int a, @NonZero int b) {\n" +
-		"                return a / b;\n" +
-		"        }\n" +
-		"}"
+		"""
+			public class ParameterSubsetAnnotated {
+			        public @interface NonZero { }
+			        public static int safeDiv(int a, @NonZero int b) {
+			                return a / b;
+			        }
+			}"""
 	);
 	this.workingCopies[1] = getWorkingCopy("/Converter15/src/ParameterSubsetClient.java",
-		"public class ParameterSubsetClient {\n" +
-		"\n" +
-		"        public void client() {\n" +
-		"                ParameterSubsetAnnotated.safeDiv(5, 0);\n" +
-		"        }\n" +
-		"\n" +
-		"}\n"
+		"""
+			public class ParameterSubsetClient {
+			
+			        public void client() {
+			                ParameterSubsetAnnotated.safeDiv(5, 0);
+			        }
+			
+			}
+			"""
 	);
 
 	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[1], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
@@ -1090,9 +1174,11 @@ public void testBug226357() throws CoreException, IOException {
 	ExpressionStatement statement = (ExpressionStatement) methodDeclaration.getBody().statements().get(0);
 	MethodInvocation methodInvocation = (MethodInvocation) statement.getExpression();
 	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
-		"----- param 1-----\n" +
-		"----- param 2-----\n" +
-		"@LParameterSubsetAnnotated$NonZero;\n",
+		"""
+			----- param 1-----
+			----- param 2-----
+			@LParameterSubsetAnnotated$NonZero;
+			""",
 		methodInvocation.resolveMethodBinding()
 	);
 }
@@ -1100,227 +1186,253 @@ public void testBug226357() throws CoreException, IOException {
 public void testBug274898a() throws JavaModelException {
 	ASTResult result = this.buildMarkedAST(
 			"/Converter15/src/a/X.java",
-			"package a;\n" +
-			"public class X {\n"+
-			"        public void foo() {\n"+
-			"                [*1*]Object o = new [*1*][*2*]new Object(){}[*2*]; \n"+
-			"        }\n"+
-			"}\n");
+			"""
+				package a;
+				public class X {
+				        public void foo() {
+				                [*1*]Object o = new [*1*][*2*]new Object(){}[*2*];\s
+				        }
+				}
+				""");
 
 	assertASTResult(
-			"===== AST =====\n" +
-			"package a;\n" +
-			"public class X {\n" +
-			"  public void foo(){\n" +
-			"    [*1*]Object o;[*1*]\n" +
-			"    [*2*]new Object(){\n" +
-			"    }\n" +
-			";[*2*]\n" +
-			"  }\n" +
-			"}\n" +
-			"\n" +
-			"===== Details =====\n" +
-			"1:VARIABLE_DECLARATION_STATEMENT,[72,15],,,[N/A]\n" +
-			"2:EXPRESSION_STATEMENT,[87,14],,,[N/A]\n" +
-			"2:CLASS_INSTANCE_CREATION,[87,14],,RECOVERED,[N/A]\n" +
-			"===== Problems =====\n" +
-			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" +
-			"	Object o = new new Object(){}; \n" +
-			"	               ^^^\n" +
-			"Syntax error on token \"new\", delete this token\n",
+			"""
+				===== AST =====
+				package a;
+				public class X {
+				  public void foo(){
+				    [*1*]Object o;[*1*]
+				    [*2*]new Object(){
+				    }
+				;[*2*]
+				  }
+				}
+				
+				===== Details =====
+				1:VARIABLE_DECLARATION_STATEMENT,[72,15],,,[N/A]
+				2:EXPRESSION_STATEMENT,[87,14],,,[N/A]
+				2:CLASS_INSTANCE_CREATION,[87,14],,RECOVERED,[N/A]
+				===== Problems =====
+				1. ERROR in /Converter15/src/a/X.java (at line 4)
+					Object o = new new Object(){};\s
+					               ^^^
+				Syntax error on token "new", delete this token
+				""",
 			result);
 }
 public void testBug274898b() throws JavaModelException {
 	ASTResult result = this.buildMarkedAST(
 			"/Converter15/src/a/X.java",
-			"package a;\n" +
-			"public class X {\n"+
-			"        public void foo() {\n"+
-			"                [*1*]Object o = new # [*1*][*2*]new Object(){}[*2*]; \n"+
-			"        }\n"+
-			"}\n");
+			"""
+				package a;
+				public class X {
+				        public void foo() {
+				                [*1*]Object o = new # [*1*][*2*]new Object(){}[*2*];\s
+				        }
+				}
+				""");
 
 	assertASTResult(
-			"===== AST =====\n" +
-			"package a;\n" +
-			"public class X {\n" +
-			"  public void foo(){\n" +
-			"    [*1*]Object o;[*1*]\n" +
-			"    [*2*]new Object(){\n" +
-			"    }\n" +
-			";[*2*]\n" +
-			"  }\n" +
-			"}\n" +
-			"\n" +
-			"===== Details =====\n" +
-			"1:VARIABLE_DECLARATION_STATEMENT,[72,17],,,[N/A]\n" +
-			"2:EXPRESSION_STATEMENT,[89,14],,,[N/A]\n" +
-			"2:CLASS_INSTANCE_CREATION,[89,14],,,[N/A]\n" +
-			"===== Problems =====\n" +
-			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" +
-			"	Object o = new # new Object(){}; \n" +
-			"	               ^^^^^\n" +
-			"Syntax error on tokens, delete these tokens\n",
+			"""
+				===== AST =====
+				package a;
+				public class X {
+				  public void foo(){
+				    [*1*]Object o;[*1*]
+				    [*2*]new Object(){
+				    }
+				;[*2*]
+				  }
+				}
+				
+				===== Details =====
+				1:VARIABLE_DECLARATION_STATEMENT,[72,17],,,[N/A]
+				2:EXPRESSION_STATEMENT,[89,14],,,[N/A]
+				2:CLASS_INSTANCE_CREATION,[89,14],,,[N/A]
+				===== Problems =====
+				1. ERROR in /Converter15/src/a/X.java (at line 4)
+					Object o = new # new Object(){};\s
+					               ^^^^^
+				Syntax error on tokens, delete these tokens
+				""",
 			result);
 }
 
 public void testBug277204a() throws JavaModelException {
 	ASTResult result = this.buildMarkedAST(
 			"/Converter15/src/a/X.java",
-			"package a;\n" +
-			"public class X {\n" +
-			"	{\n" +
-			"        class Local {\n" +
-			"                [*1*]Object [*2*]x[*2*], [*3*]Local[*3*];[*1*]  \n" +
-			"        }\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package a;
+				public class X {
+					{
+				        class Local {
+				                [*1*]Object [*2*]x[*2*], [*3*]Local[*3*];[*1*] \s
+				        }
+					}
+				}
+				""");
 
 	assertASTResult(
-			"===== AST =====\n" +
-			"package a;\n" +
-			"public class X {\n" +
-			"{\n" +
-			"class Local {\n" +
-			"      [*1*]Object [*2*]x[*2*], [*3*]Local[*3*];[*1*]\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"\n" +
-			"===== Details =====\n" +
-			"1:FIELD_DECLARATION,[69,16],,,[N/A]\n" +
-			"2:VARIABLE_DECLARATION_FRAGMENT,[76,1],,,[VARIABLE,La/X$45$Local;.x)Ljava/lang/Object;,]\n" +
-			"2:SIMPLE_NAME,[76,1],,,[VARIABLE,La/X$45$Local;.x)Ljava/lang/Object;,]\n" +
-			"3:VARIABLE_DECLARATION_FRAGMENT,[79,5],,,[VARIABLE,La/X$45$Local;.Local)Ljava/lang/Object;,]\n" +
-			"3:SIMPLE_NAME,[79,5],,,[VARIABLE,La/X$45$Local;.Local)Ljava/lang/Object;,]\n" +
-			"===== Problems =====\n" +
-			"No problem",
+			"""
+				===== AST =====
+				package a;
+				public class X {
+				{
+				class Local {
+				      [*1*]Object [*2*]x[*2*], [*3*]Local[*3*];[*1*]
+				    }
+				  }
+				}
+				
+				===== Details =====
+				1:FIELD_DECLARATION,[69,16],,,[N/A]
+				2:VARIABLE_DECLARATION_FRAGMENT,[76,1],,,[VARIABLE,La/X$45$Local;.x)Ljava/lang/Object;,]
+				2:SIMPLE_NAME,[76,1],,,[VARIABLE,La/X$45$Local;.x)Ljava/lang/Object;,]
+				3:VARIABLE_DECLARATION_FRAGMENT,[79,5],,,[VARIABLE,La/X$45$Local;.Local)Ljava/lang/Object;,]
+				3:SIMPLE_NAME,[79,5],,,[VARIABLE,La/X$45$Local;.Local)Ljava/lang/Object;,]
+				===== Problems =====
+				No problem""",
 			result);
 }
 public void testBug277204b() throws JavaModelException {
 	ASTResult result = this.buildMarkedAST(
 			"/Converter15/src/a/X.java",
-			"package a;\n" +
-			"public class X {\n" +
-			"	{\n" +
-			"        class Local {\n" +
-			"                [*1*]Object [*2*]x[*2*], [*3*]Local[*3*]  \n" +
-			"        [*1*]}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package a;
+				public class X {
+					{
+				        class Local {
+				                [*1*]Object [*2*]x[*2*], [*3*]Local[*3*] \s
+				        [*1*]}
+					}
+				}
+				""");
 
 	assertASTResult(
-			"===== AST =====\n" +
-			"package a;\n" +
-			"public class X {\n" +
-			"{\n" +
-			"class Local {\n" +
-			"      [*1*]Object [*2*]x[*2*], [*3*]Local[*3*];[*1*]\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"\n" +
-			"===== Details =====\n" +
-			"1:FIELD_DECLARATION,[69,26],,MALFORMED,[N/A]\n" +
-			"2:VARIABLE_DECLARATION_FRAGMENT,[76,1],,,[VARIABLE,La/X$45$Local;.x)Ljava/lang/Object;,]\n" +
-			"2:SIMPLE_NAME,[76,1],,,[VARIABLE,La/X$45$Local;.x)Ljava/lang/Object;,]\n" +
-			"3:VARIABLE_DECLARATION_FRAGMENT,[79,5],,,[VARIABLE,La/X$45$Local;.Local)Ljava/lang/Object;,]\n" +
-			"3:SIMPLE_NAME,[79,5],,,[VARIABLE,La/X$45$Local;.Local)Ljava/lang/Object;,]\n" +
-			"===== Problems =====\n" +
-			"1. ERROR in /Converter15/src/a/X.java (at line 5)\n" +
-			"	Object x, Local  \n" +
-			"	          ^^^^^\n" +
-			"Syntax error, insert \";\" to complete ClassBodyDeclarations\n",
+			"""
+				===== AST =====
+				package a;
+				public class X {
+				{
+				class Local {
+				      [*1*]Object [*2*]x[*2*], [*3*]Local[*3*];[*1*]
+				    }
+				  }
+				}
+				
+				===== Details =====
+				1:FIELD_DECLARATION,[69,26],,MALFORMED,[N/A]
+				2:VARIABLE_DECLARATION_FRAGMENT,[76,1],,,[VARIABLE,La/X$45$Local;.x)Ljava/lang/Object;,]
+				2:SIMPLE_NAME,[76,1],,,[VARIABLE,La/X$45$Local;.x)Ljava/lang/Object;,]
+				3:VARIABLE_DECLARATION_FRAGMENT,[79,5],,,[VARIABLE,La/X$45$Local;.Local)Ljava/lang/Object;,]
+				3:SIMPLE_NAME,[79,5],,,[VARIABLE,La/X$45$Local;.Local)Ljava/lang/Object;,]
+				===== Problems =====
+				1. ERROR in /Converter15/src/a/X.java (at line 5)
+					Object x, Local \s
+					          ^^^^^
+				Syntax error, insert ";" to complete ClassBodyDeclarations
+				""",
 			result);
 }
 public void testBug277204c() throws JavaModelException {
 	ASTResult result = this.buildMarkedAST(
 			"/Converter15/src/a/X.java",
-			"package a;\n" +
-			"public class X {\n" +
-			"    [*1*]Object [*2*]x[*2*], [*3*]Local[*3*];[*1*]  \n" +
-			"}\n");
+			"""
+				package a;
+				public class X {
+				    [*1*]Object [*2*]x[*2*], [*3*]Local[*3*];[*1*] \s
+				}
+				""");
 
 	assertASTResult(
-			"===== AST =====\n" +
-			"package a;\n" +
-			"public class X {\n" +
-			"  [*1*]Object [*2*]x[*2*], [*3*]Local[*3*];[*1*]\n" +
-			"}\n" +
-			"\n" +
-			"===== Details =====\n" +
-			"1:FIELD_DECLARATION,[32,16],,,[N/A]\n" +
-			"2:VARIABLE_DECLARATION_FRAGMENT,[39,1],,,[VARIABLE,La/X;.x)Ljava/lang/Object;,]\n" +
-			"2:SIMPLE_NAME,[39,1],,,[VARIABLE,La/X;.x)Ljava/lang/Object;,]\n" +
-			"3:VARIABLE_DECLARATION_FRAGMENT,[42,5],,,[VARIABLE,La/X;.Local)Ljava/lang/Object;,]\n" +
-			"3:SIMPLE_NAME,[42,5],,,[VARIABLE,La/X;.Local)Ljava/lang/Object;,]\n" +
-			"===== Problems =====\n" +
-			"No problem",
+			"""
+				===== AST =====
+				package a;
+				public class X {
+				  [*1*]Object [*2*]x[*2*], [*3*]Local[*3*];[*1*]
+				}
+				
+				===== Details =====
+				1:FIELD_DECLARATION,[32,16],,,[N/A]
+				2:VARIABLE_DECLARATION_FRAGMENT,[39,1],,,[VARIABLE,La/X;.x)Ljava/lang/Object;,]
+				2:SIMPLE_NAME,[39,1],,,[VARIABLE,La/X;.x)Ljava/lang/Object;,]
+				3:VARIABLE_DECLARATION_FRAGMENT,[42,5],,,[VARIABLE,La/X;.Local)Ljava/lang/Object;,]
+				3:SIMPLE_NAME,[42,5],,,[VARIABLE,La/X;.Local)Ljava/lang/Object;,]
+				===== Problems =====
+				No problem""",
 			result);
 }
 public void testBug277204d() throws JavaModelException {
 	ASTResult result = this.buildMarkedAST(
 			"/Converter15/src/a/X.java",
-			"package a;\n" +
-			"public class X {\n" +
-			"    [*1*]Object [*2*]x[*2*], [*3*]Local[*3*][*1*]  \n" +
-			"}\n");
+			"""
+				package a;
+				public class X {
+				    [*1*]Object [*2*]x[*2*], [*3*]Local[*3*][*1*] \s
+				}
+				""");
 
 	assertASTResult(
-			"===== AST =====\n" +
-			"package a;\n" +
-			"public class X {\n" +
-			"  [*1*]Object [*2*]x[*2*], [*3*]Local[*3*];[*1*]\n" +
-			"}\n" +
-			"\n" +
-			"===== Details =====\n" +
-			"1:FIELD_DECLARATION,[32,15],,MALFORMED|RECOVERED,[N/A]\n" +
-			"2:VARIABLE_DECLARATION_FRAGMENT,[39,1],,,[VARIABLE,La/X;.x)Ljava/lang/Object;,]\n" +
-			"2:SIMPLE_NAME,[39,1],,,[VARIABLE,La/X;.x)Ljava/lang/Object;,]\n" +
-			"3:VARIABLE_DECLARATION_FRAGMENT,[42,5],,,[VARIABLE,La/X;.Local)Ljava/lang/Object;,]\n" +
-			"3:SIMPLE_NAME,[42,5],,,[VARIABLE,La/X;.Local)Ljava/lang/Object;,]\n" +
-			"===== Problems =====\n" +
-			"1. ERROR in /Converter15/src/a/X.java (at line 3)\n" +
-			"	Object x, Local  \n" +
-			"	          ^^^^^\n" +
-			"Syntax error, insert \";\" to complete ClassBodyDeclarations\n",
+			"""
+				===== AST =====
+				package a;
+				public class X {
+				  [*1*]Object [*2*]x[*2*], [*3*]Local[*3*];[*1*]
+				}
+				
+				===== Details =====
+				1:FIELD_DECLARATION,[32,15],,MALFORMED|RECOVERED,[N/A]
+				2:VARIABLE_DECLARATION_FRAGMENT,[39,1],,,[VARIABLE,La/X;.x)Ljava/lang/Object;,]
+				2:SIMPLE_NAME,[39,1],,,[VARIABLE,La/X;.x)Ljava/lang/Object;,]
+				3:VARIABLE_DECLARATION_FRAGMENT,[42,5],,,[VARIABLE,La/X;.Local)Ljava/lang/Object;,]
+				3:SIMPLE_NAME,[42,5],,,[VARIABLE,La/X;.Local)Ljava/lang/Object;,]
+				===== Problems =====
+				1. ERROR in /Converter15/src/a/X.java (at line 3)
+					Object x, Local \s
+					          ^^^^^
+				Syntax error, insert ";" to complete ClassBodyDeclarations
+				""",
 			result);
 }
 public void testBug277204e() throws JavaModelException {
 	ASTResult result = this.buildMarkedAST(
 			"/Converter15/src/a/X.java",
-			"package a;\n" +
-			"public class X {\n" +
-			"	{\n" +
-			"        class Local {\n" +
-			"                [*1*]Object [*2*]x[*2*],\n" +
-			"                [*3*]Local[*3*]  \n" +
-			"        [*1*]}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package a;
+				public class X {
+					{
+				        class Local {
+				                [*1*]Object [*2*]x[*2*],
+				                [*3*]Local[*3*] \s
+				        [*1*]}
+					}
+				}
+				""");
 
 	assertASTResult(
-			"===== AST =====\n" +
-			"package a;\n" +
-			"public class X {\n" +
-			"{\n" +
-			"class Local {\n" +
-			"      [*1*]Object [*2*]x[*2*], [*3*]Local[*3*];[*1*]\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"\n" +
-			"===== Details =====\n" +
-			"1:FIELD_DECLARATION,[69,42],,MALFORMED,[N/A]\n" +
-			"2:VARIABLE_DECLARATION_FRAGMENT,[76,1],,,[VARIABLE,La/X$45$Local;.x)Ljava/lang/Object;,]\n" +
-			"2:SIMPLE_NAME,[76,1],,,[VARIABLE,La/X$45$Local;.x)Ljava/lang/Object;,]\n" +
-			"3:VARIABLE_DECLARATION_FRAGMENT,[95,5],,,[VARIABLE,La/X$45$Local;.Local)Ljava/lang/Object;,]\n" +
-			"3:SIMPLE_NAME,[95,5],,,[VARIABLE,La/X$45$Local;.Local)Ljava/lang/Object;,]\n" +
-			"===== Problems =====\n" +
-			"1. ERROR in /Converter15/src/a/X.java (at line 6)\n" +
-			"	Local  \n" +
-			"	^^^^^\n" +
-			"Syntax error, insert \";\" to complete ClassBodyDeclarations\n",
+			"""
+				===== AST =====
+				package a;
+				public class X {
+				{
+				class Local {
+				      [*1*]Object [*2*]x[*2*], [*3*]Local[*3*];[*1*]
+				    }
+				  }
+				}
+				
+				===== Details =====
+				1:FIELD_DECLARATION,[69,42],,MALFORMED,[N/A]
+				2:VARIABLE_DECLARATION_FRAGMENT,[76,1],,,[VARIABLE,La/X$45$Local;.x)Ljava/lang/Object;,]
+				2:SIMPLE_NAME,[76,1],,,[VARIABLE,La/X$45$Local;.x)Ljava/lang/Object;,]
+				3:VARIABLE_DECLARATION_FRAGMENT,[95,5],,,[VARIABLE,La/X$45$Local;.Local)Ljava/lang/Object;,]
+				3:SIMPLE_NAME,[95,5],,,[VARIABLE,La/X$45$Local;.Local)Ljava/lang/Object;,]
+				===== Problems =====
+				1. ERROR in /Converter15/src/a/X.java (at line 6)
+					Local \s
+					^^^^^
+				Syntax error, insert ";" to complete ClassBodyDeclarations
+				""",
 			result);
 }
 

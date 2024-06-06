@@ -33,40 +33,42 @@ public static Test suite() {
  */
 public void testPrimarySuper() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	static Bar x;								\n" +
-		"	public class InnerBar {						\n" +
-		"		InnerBar(Bar x) {						\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"	public class SubInnerBar extends InnerBar {	\n" +
-		"		SubInnerBar(Bar x) {					\n" +
-		"			primary().super(1, 2, i);			\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				static Bar x;							\t
+				public class InnerBar {					\t
+					InnerBar(Bar x) {					\t
+					}									\t
+				}										\t
+				public class SubInnerBar extends InnerBar {\t
+					SubInnerBar(Bar x) {				\t
+						primary().super(1, 2, i);		\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"super(1, 2,",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  public class InnerBar {\n" +
-		"    InnerBar(Bar x) {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public class SubInnerBar extends InnerBar {\n" +
-		"    SubInnerBar(Bar x) {\n" +
-		"      primary().super(1, 2, <CompleteOnName:>, i);\n" +
-		"    }\n" +
-		"  }\n" +
-		"  static Bar x;\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  public class InnerBar {
+			    InnerBar(Bar x) {
+			    }
+			  }
+			  public class SubInnerBar extends InnerBar {
+			    SubInnerBar(Bar x) {
+			      primary().super(1, 2, <CompleteOnName:>, i);
+			    }
+			  }
+			  static Bar x;
+			  <clinit>() {
+			  }
+			  Bar() {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
@@ -82,40 +84,42 @@ public void testPrimarySuper() {
  */
 public void testPrimaryThis() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	static Bar x;								\n" +
-		"	public class InnerBar {						\n" +
-		"		InnerBar(Bar x) {						\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"	public class SubInnerBar extends InnerBar {	\n" +
-		"		SubInnerBar(Bar x) {					\n" +
-		"			primary().this(1, 2, i);			\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				static Bar x;							\t
+				public class InnerBar {					\t
+					InnerBar(Bar x) {					\t
+					}									\t
+				}										\t
+				public class SubInnerBar extends InnerBar {\t
+					SubInnerBar(Bar x) {				\t
+						primary().this(1, 2, i);		\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"this(1, 2,",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  public class InnerBar {\n" +
-		"    InnerBar(Bar x) {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public class SubInnerBar extends InnerBar {\n" +
-		"    SubInnerBar(Bar x) {\n" +
-		"      primary().this(1, 2, <CompleteOnName:>, i);\n" +
-		"    }\n" +
-		"  }\n" +
-		"  static Bar x;\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  public class InnerBar {
+			    InnerBar(Bar x) {
+			    }
+			  }
+			  public class SubInnerBar extends InnerBar {
+			    SubInnerBar(Bar x) {
+			      primary().this(1, 2, <CompleteOnName:>, i);
+			    }
+			  }
+			  static Bar x;
+			  <clinit>() {
+			  }
+			  Bar() {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
@@ -131,22 +135,24 @@ public void testPrimaryThis() {
  */
 public void testSuper() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	Bar() {									\n" +
-		"		super(1, 2, i);						\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				Bar() {								\t
+					super(1, 2, i);					\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"super(1, 2,",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"    super(1, 2, <CompleteOnName:>, i);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			    super(1, 2, <CompleteOnName:>, i);
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
@@ -162,22 +168,24 @@ public void testSuper() {
  */
 public void testThis() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	Bar() {									\n" +
-		"		this(1, 2, i);						\n" +
-		"	}										\n" +
-		"}											\n",
+		"""
+			class Bar {							\t
+				Bar() {								\t
+					this(1, 2, i);					\t
+				}									\t
+			}										\t
+			""",
 		// completeBehind:
 		"this(1, 2,",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"    this(1, 2, <CompleteOnName:>, i);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			    this(1, 2, <CompleteOnName:>, i);
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
@@ -191,40 +199,42 @@ public void testThis() {
  */
 public void testWrapperNameSuper() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	static Bar x;								\n" +
-		"	public class InnerBar {						\n" +
-		"		InnerBar(Bar x) {						\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"	public class SubInnerBar extends InnerBar {	\n" +
-		"		SubInnerBar() {							\n" +
-		"			Bar.super(fred().xyz);				\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				static Bar x;							\t
+				public class InnerBar {					\t
+					InnerBar(Bar x) {					\t
+					}									\t
+				}										\t
+				public class SubInnerBar extends InnerBar {\t
+					SubInnerBar() {						\t
+						Bar.super(fred().xyz);			\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"fred().x",
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  public class InnerBar {\n" +
-		"    InnerBar(Bar x) {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public class SubInnerBar extends InnerBar {\n" +
-		"    SubInnerBar() {\n" +
-		"      Bar.super(<CompleteOnMemberAccess:fred().x>);\n" +
-		"    }\n" +
-		"  }\n" +
-		"  static Bar x;\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  public class InnerBar {
+			    InnerBar(Bar x) {
+			    }
+			  }
+			  public class SubInnerBar extends InnerBar {
+			    SubInnerBar() {
+			      Bar.super(<CompleteOnMemberAccess:fred().x>);
+			    }
+			  }
+			  static Bar x;
+			  <clinit>() {
+			  }
+			  Bar() {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"x",
 		// expectedReplacedSource:
@@ -238,40 +248,42 @@ public void testWrapperNameSuper() {
  */
 public void testWrapperNameThis() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	static Bar x;								\n" +
-		"	public class InnerBar {						\n" +
-		"		InnerBar(Bar x) {						\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"	public class SubInnerBar extends InnerBar {	\n" +
-		"		SubInnerBar() {							\n" +
-		"			Bar.this(fred().xyz);				\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				static Bar x;							\t
+				public class InnerBar {					\t
+					InnerBar(Bar x) {					\t
+					}									\t
+				}										\t
+				public class SubInnerBar extends InnerBar {\t
+					SubInnerBar() {						\t
+						Bar.this(fred().xyz);			\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"fred().x",
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  public class InnerBar {\n" +
-		"    InnerBar(Bar x) {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public class SubInnerBar extends InnerBar {\n" +
-		"    SubInnerBar() {\n" +
-		"      Bar.this(<CompleteOnMemberAccess:fred().x>);\n" +
-		"    }\n" +
-		"  }\n" +
-		"  static Bar x;\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  public class InnerBar {
+			    InnerBar(Bar x) {
+			    }
+			  }
+			  public class SubInnerBar extends InnerBar {
+			    SubInnerBar() {
+			      Bar.this(<CompleteOnMemberAccess:fred().x>);
+			    }
+			  }
+			  static Bar x;
+			  <clinit>() {
+			  }
+			  Bar() {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"x",
 		// expectedReplacedSource:
@@ -285,40 +297,42 @@ public void testWrapperNameThis() {
  */
 public void testWrapperPrimarySuper() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	static Bar x;								\n" +
-		"	public class InnerBar {						\n" +
-		"		InnerBar(Bar x) {						\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"	public class SubInnerBar extends InnerBar {	\n" +
-		"		SubInnerBar(Bar x) {					\n" +
-		"			primary().super(fred().xyz);			\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				static Bar x;							\t
+				public class InnerBar {					\t
+					InnerBar(Bar x) {					\t
+					}									\t
+				}										\t
+				public class SubInnerBar extends InnerBar {\t
+					SubInnerBar(Bar x) {				\t
+						primary().super(fred().xyz);		\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"fred().x",
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  public class InnerBar {\n" +
-		"    InnerBar(Bar x) {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public class SubInnerBar extends InnerBar {\n" +
-		"    SubInnerBar(Bar x) {\n" +
-		"      primary().super(<CompleteOnMemberAccess:fred().x>);\n" +
-		"    }\n" +
-		"  }\n" +
-		"  static Bar x;\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  public class InnerBar {
+			    InnerBar(Bar x) {
+			    }
+			  }
+			  public class SubInnerBar extends InnerBar {
+			    SubInnerBar(Bar x) {
+			      primary().super(<CompleteOnMemberAccess:fred().x>);
+			    }
+			  }
+			  static Bar x;
+			  <clinit>() {
+			  }
+			  Bar() {
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"x",
 		// expectedReplacedSource:
@@ -332,22 +346,24 @@ public void testWrapperPrimarySuper() {
  */
 public void testWrapperSuper() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	Bar() {										\n" +
-		"		super(fred().xyz);						\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				Bar() {									\t
+					super(fred().xyz);					\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"x",
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"    super(<CompleteOnMemberAccess:fred().x>);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			    super(<CompleteOnMemberAccess:fred().x>);
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"x",
 		// expectedReplacedSource:
@@ -361,22 +377,24 @@ public void testWrapperSuper() {
  */
 public void testWrapperThis() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	Bar() {										\n" +
-		"		this(fred().xyz);							\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				Bar() {									\t
+					this(fred().xyz);						\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"x",
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"    this(<CompleteOnMemberAccess:fred().x>);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			    this(<CompleteOnMemberAccess:fred().x>);
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"x",
 		// expectedReplacedSource:

@@ -123,11 +123,13 @@ protected void writeFiles(String[] sources) {
  */
 public void test001() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" * Completion on empty tag name:\n" +
-		" * 	@\n" +
-		" */\n" +
-		"package javadoc;\n";
+		"""
+		/**
+		 * Completion on empty tag name:
+		 * 	@
+		 */
+		package javadoc;
+		""";
 	completeInJavadoc("/Completion/src/javadoc/package-info.java", source, true, "@");
 	assertResults(
 		"author[JAVADOC_BLOCK_TAG]{@author, null, null, author, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -145,22 +147,26 @@ public void test001() throws JavaModelException {
 
 public void test002() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" * Completion on impossible tag name:\n" +
-		" * 	@deprec\n" +
-		" */\n" +
-		"package javadoc;\n";
+		"""
+		/**
+		 * Completion on impossible tag name:
+		 * 	@deprec
+		 */
+		package javadoc;
+		""";
 	completeInJavadoc("/Completion/src/javadoc/package-info.java", source, true, "@deprec");
 	assertResults("");
 }
 
 public void test003() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" * Completion on one letter:\n" +
-		" * 	@a\n" +
-		" */\n" +
-		"package javadoc;\n";
+		"""
+		/**
+		 * Completion on one letter:
+		 * 	@a
+		 */
+		package javadoc;
+		""";
 	completeInJavadoc("/Completion/src/javadoc/package-info.java", source, true, "@a");
 	assertResults(
 		"author[JAVADOC_BLOCK_TAG]{@author, null, null, author, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -169,11 +175,13 @@ public void test003() throws JavaModelException {
 
 public void test004() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" * Completion with several letters:\n" +
-		" * 	@ser\n" +
-		" */\n" +
-		"package javadoc;\n";
+		"""
+		/**
+		 * Completion with several letters:
+		 * 	@ser
+		 */
+		package javadoc;
+		""";
 	completeInJavadoc("/Completion/src/javadoc/package-info.java", source, true, "@ser");
 	assertResults(
 		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -182,11 +190,13 @@ public void test004() throws JavaModelException {
 
 public void test005() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" * Completion on full tag name:\n" +
-		" * 	@since\n" +
-		" */\n" +
-		"package javadoc;\n";
+		"""
+		/**
+		 * Completion on full tag name:
+		 * 	@since
+		 */
+		package javadoc;
+		""";
 	completeInJavadoc("/Completion/src/javadoc/package-info.java", source, true, "@since");
 	assertResults(
 		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -195,10 +205,12 @@ public void test005() throws JavaModelException {
 
 public void test006() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" * Completion on @ inside text\n" +
-		" */\n" +
-		"package javadoc;\n";
+		"""
+		/**
+		 * Completion on @ inside text
+		 */
+		package javadoc;
+		""";
 	completeInJavadoc("/Completion/src/javadoc/package-info.java", source, true, "@");
 	assertResults(
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -210,10 +222,12 @@ public void test006() throws JavaModelException {
 
 public void test007() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" * Completion on @d inside text\n" +
-		" */\n" +
-		"package javadoc;\n";
+		"""
+		/**
+		 * Completion on @d inside text
+		 */
+		package javadoc;
+		""";
 	completeInJavadoc("/Completion/src/javadoc/package-info.java", source, true, "@d");
 	assertResults(
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -225,11 +239,13 @@ public void test007() throws JavaModelException {
  */
 public void test010() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" * Completion after:\n" +
-		" * 	@see Obj\n" +
-		" */\n" +
-		"package javadoc.tags;\n";
+		"""
+		/**
+		 * Completion after:
+		 * 	@see Obj
+		 */
+		package javadoc.tags;
+		""";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "Obj");
 	assertResults(
 		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNR+"}"
@@ -238,11 +254,13 @@ public void test010() throws JavaModelException {
 
 public void test011() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" * Completion after:\n" +
-		" * 	@see BasicTestRef\n" +
-		" */\n" +
-		"package javadoc.tags;\n";
+		"""
+		/**
+		 * Completion after:
+		 * 	@see BasicTestRef
+		 */
+		package javadoc.tags;
+		""";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "BasicTestRef");
 	assertResults(
 		"BasicTestReferences[TYPE_REF]{org.eclipse.jdt.core.tests.BasicTestReferences, org.eclipse.jdt.core.tests, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, null, null, "+this.positions+R_DRICNR+"}"
@@ -251,12 +269,14 @@ public void test011() throws JavaModelException {
 
 public void test012() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" * Completion after:\n" +
-		" * 	@see org.eclipse.jdt.core.tests.BasicTestRef\n" +
-		" * 		Note: JDT-UI failed on this one\n" +
-		" */\n" +
-		"package javadoc.tags;\n";
+		"""
+		/**
+		 * Completion after:
+		 * 	@see org.eclipse.jdt.core.tests.BasicTestRef
+		 * 		Note: JDT-UI failed on this one
+		 */
+		package javadoc.tags;
+		""";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "org.eclipse.jdt.core.tests.BasicTestRef");
 	assertResults(
 		"BasicTestReferences[TYPE_REF]{org.eclipse.jdt.core.tests.BasicTestReferences, org.eclipse.jdt.core.tests, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, null, null, "+this.positions+R_DRICQNR+"}"
@@ -265,12 +285,14 @@ public void test012() throws JavaModelException {
 
 public void test013() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" * Completion after:\n" +
-		" * 	@see java.la\n" +
-		" * 		Note: JDT-UI fails on this one\n" +
-		" */\n" +
-		"package javadoc.tags;\n";
+		"""
+		/**
+		 * Completion after:
+		 * 	@see java.la
+		 * 		Note: JDT-UI fails on this one
+		 */
+		package javadoc.tags;
+		""";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "java.la");
 	assertResults(
 		"java.lang.annotation[PACKAGE_REF]{java.lang.annotation, java.lang.annotation, null, null, null, "+this.positions+R_DRICQNR+"}\n" +
@@ -280,11 +302,13 @@ public void test013() throws JavaModelException {
 
 public void test014() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" * Completion after:\n" +
-		" * 	@see pack.Bin\n" +
-		" */\n" +
-		"package javadoc.tags;\n";
+		"""
+		/**
+		 * Completion after:
+		 * 	@see pack.Bin
+		 */
+		package javadoc.tags;
+		""";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "pack.Bin");
 	assertSortedResults(
 		"Bin1[TYPE_REF]{pack.Bin1, pack, Lpack.Bin1;, null, null, "+this.positions+R_DRICQNR+"}\n" +
@@ -297,12 +321,14 @@ public void test014() throws JavaModelException {
 
 public void test015() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" * Completion after:\n" +
-		" * 	@see I\n" +
-		" * 		Note: completion list shoud not include base types.\n" +
-		" */\n" +
-		"package javadoc.tags;\n";
+		"""
+		/**
+		 * Completion after:
+		 * 	@see I
+		 * 		Note: completion list shoud not include base types.
+		 */
+		package javadoc.tags;
+		""";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "I");
 	assertSortedResults(
 		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DRICUNR+"}\n" +
@@ -317,22 +343,26 @@ public void test015() throws JavaModelException {
  */
 public void test020() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" * Completion after:\n" +
-		" * 	@see BasicTestReferences#FIE\n" +
-		" */\n" +
-		"package javadoc.tags;\n";
+		"""
+		/**
+		 * Completion after:
+		 * 	@see BasicTestReferences#FIE
+		 */
+		package javadoc.tags;
+		""";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "FIE");
 	assertResults("");
 }
 
 public void test021() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" * Completion after:\n" +
-		" * 	@see org.eclipse.jdt.core.tests.BasicTestReferences#FIE\n" +
-		" */\n" +
-		"package javadoc.tags;\n";
+		"""
+		/**
+		 * Completion after:
+		 * 	@see org.eclipse.jdt.core.tests.BasicTestReferences#FIE
+		 */
+		package javadoc.tags;
+		""";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "FIE");
 	assertResults(
 		"FIELD[FIELD_REF]{FIELD, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, I, FIELD, null, "+this.positions+R_DRICNR+"}"
@@ -342,16 +372,19 @@ public void test021() throws JavaModelException {
 public void test022() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/tags/package-info.java",
-			"/**\n" +
-			" * Completion after:\n" +
-			" * 	@see OtherTypes#bar\n" +
-			" */\n" +
-			"package javadoc.tags;\n",
+			"""
+				/**
+				 * Completion after:
+				 * 	@see OtherTypes#bar
+				 */
+				package javadoc.tags;
+				""",
 		"/Completion/src/javadoc/tags/OtherTypes.java",
-			"package javadoc.tags;\n" +
-			"public class OtherTypes {\n" +
-			"	int bar;\n" +
-			"}"
+			"""
+				package javadoc.tags;
+				public class OtherTypes {
+					int bar;
+				}"""
 	};
 	completeInJavadoc(sources, true, "bar");
 	assertResults(
@@ -361,22 +394,26 @@ public void test022() throws JavaModelException {
 
 public void test023() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" * Completion after:\n" +
-		" * 	@see BasicTestReferences#\n" +
-		" */\n" +
-		"package javadoc.tags;\n";
+		"""
+		/**
+		 * Completion after:
+		 * 	@see BasicTestReferences#
+		 */
+		package javadoc.tags;
+		""";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "#", 0); // empty token
 	assertResults("");
 }
 
 public void test024() throws JavaModelException {
 	String source =
-		"/**\n" +
-		" * Completion after:\n" +
-		" * 	@see org.eclipse.jdt.core.tests.BasicTestReferences#\n" +
-		" */\n" +
-		"package javadoc.tags;\n";
+		"""
+		/**
+		 * Completion after:
+		 * 	@see org.eclipse.jdt.core.tests.BasicTestReferences#
+		 */
+		package javadoc.tags;
+		""";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "#", 0); // empty token
 	assertResults(
 		"FIELD[FIELD_REF]{FIELD, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, I, FIELD, null, "+this.positions+R_DRICNR+"}\n" +
@@ -398,17 +435,20 @@ public void test024() throws JavaModelException {
 public void test025() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/tags/package-info.java",
-			"/**\n" +
-			" * Completion after:\n" +
-			" * 	@see OtherTypes#\n" +
-			" */\n" +
-			"package javadoc.tags;\n",
+			"""
+				/**
+				 * Completion after:
+				 * 	@see OtherTypes#
+				 */
+				package javadoc.tags;
+				""",
 		"/Completion/src/javadoc/tags/OtherTypes.java",
-			"package javadoc.tags;\n" +
-			"public class OtherTypes {\n" +
-			"	int foo;\n" +
-			"	Object obj;\n" +
-			"}"
+			"""
+				package javadoc.tags;
+				public class OtherTypes {
+					int foo;
+					Object obj;
+				}"""
 	};
 	completeInJavadoc(sources, true, "#", 0); // empty token
 	assertResults(
@@ -435,16 +475,18 @@ public void test025() throws JavaModelException {
 public void test030() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/tags/package-info.java",
-			"/**\n" +
-			" * Completion after:\n" +
-			" * 	@see OtherTypes#meth\n" +
-			" */\n" +
-			"package javadoc.tags;",
+			"""
+				/**
+				 * Completion after:
+				 * 	@see OtherTypes#meth
+				 */
+				package javadoc.tags;""",
 		"/Completion/src/javadoc/tags/OtherTypes.java",
-			"package javadoc.tags;\n" +
-			"public class OtherTypes {\n" +
-			"	void method() {};\n" +
-			"}"
+			"""
+				package javadoc.tags;
+				public class OtherTypes {
+					void method() {};
+				}"""
 	};
 	completeInJavadoc(sources, true, "meth");
 	assertResults(
@@ -454,17 +496,19 @@ public void test030() throws JavaModelException {
 public void test031() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/tags/package-info.java",
-			"/**\n" +
-			" * Completion after:\n" +
-			" * 	@see OtherTypes#\n" +
-			" */\n" +
-			"package javadoc.tags;",
+			"""
+				/**
+				 * Completion after:
+				 * 	@see OtherTypes#
+				 */
+				package javadoc.tags;""",
 		"/Completion/src/javadoc/tags/OtherTypes.java",
-			"package javadoc.tags;\n" +
-			"public class OtherTypes {\n" +
-			"	void method() {};\n" +
-			"	void foo() {};\n" +
-			"}"
+			"""
+				package javadoc.tags;
+				public class OtherTypes {
+					void method() {};
+					void foo() {};
+				}"""
 	};
 	completeInJavadoc(sources, true, "#", 0); // empty token
 	assertResults(
@@ -491,17 +535,20 @@ public void test031() throws JavaModelException {
 public void test040() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/tags/package-info.java",
-			"/**\n" +
-			" * Completion after:\n" +
-			" * 	@see OtherTypes#O\n" +
-			" */\n" +
-			"package javadoc.tags;\n",
+			"""
+				/**
+				 * Completion after:
+				 * 	@see OtherTypes#O
+				 */
+				package javadoc.tags;
+				""",
 		"/Completion/src/javadoc/tags/OtherTypes.java",
-			"package javadoc.tags;\n" +
-			"public class OtherTypes {\n" +
-			"	void method() {};\n" +
-			"	void foo() {};\n" +
-			"}"
+			"""
+				package javadoc.tags;
+				public class OtherTypes {
+					void method() {};
+					void foo() {};
+				}"""
 	};
 	completeInJavadoc(sources, true, "O", 2); // 2nd occurence
 	assertResults(
@@ -511,17 +558,20 @@ public void test040() throws JavaModelException {
 public void test041() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/tags/package-info.java",
-			"/**\n" +
-			" * Completion after:\n" +
-			" * 	@see OtherTypes#O\n" +
-			" */\n" +
-			"package javadoc.tags;\n",
+			"""
+				/**
+				 * Completion after:
+				 * 	@see OtherTypes#O
+				 */
+				package javadoc.tags;
+				""",
 		"/Completion/src/javadoc/tags/OtherTypes.java",
-			"package javadoc.tags;\n" +
-			"public class OtherTypes {\n" +
-			"	OtherTypes(int x) {};\n" +
-			"	OtherTypes(Object obj, String str) {};\n" +
-			"}"
+			"""
+				package javadoc.tags;
+				public class OtherTypes {
+					OtherTypes(int x) {};
+					OtherTypes(Object obj, String str) {};
+				}"""
 	};
 	completeInJavadoc(sources, true, "O", 2); // 2nd occurence
 	assertResults(

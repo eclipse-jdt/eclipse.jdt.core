@@ -552,11 +552,12 @@ public void testLocalVariableMemento4() throws Exception {
 		createJavaProject("P1", new String[] {"src"}, new String[] {getExternalJCLPathString("1.5")}, "bin", "1.5");
 		createFile(
 			"/P1/src/X.java",
-			"public class X<T> {\n" +
-			"  void foo() {\n" +
-			"    X<String> var = null;\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X<T> {
+				  void foo() {
+				    X<String> var = null;
+				  }
+				}"""
 		);
 		ILocalVariable localVar = getLocalVariable(getCompilationUnit("/P1/src/X.java"), "var", "var");
 		String memento = localVar.getHandleIdentifier();
@@ -976,11 +977,12 @@ public void testBug573147() throws CoreException, IOException {
 		createJavaProject("Test`", new String[] {"src"}, null, "bin", "1.8", false);
 		createFile(
 				"/Test`/src/X.java",
-				"public class X<T> {\n" +
-				"  void foo() {\n" +
-				"    X<String> var = null;\n" +
-				"  }\n" +
-				"}"
+				"""
+					public class X<T> {
+					  void foo() {
+					    X<String> var = null;
+					  }
+					}"""
 			);
 		ILocalVariable localVar = getLocalVariable(getCompilationUnit("/Test`/src/X.java"), "var", "var");
 		String memento = localVar.getHandleIdentifier();

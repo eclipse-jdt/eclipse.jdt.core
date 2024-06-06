@@ -65,10 +65,11 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, jarFilePath);
 
 			JavaIndexer.generateIndexForJar(jarFilePath, indexFilePath);
 			assertTrue(new File(indexFilePath).exists());
@@ -86,10 +87,11 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, jarFilePath);
 			JavaIndexer.generateIndexForJar(jarFilePath, indexFilePath);
 			assertTrue("Could not delete the index file", new File(indexFilePath).delete());
 			assertTrue("Could not delete the jar file", new File(jarFilePath).delete());
@@ -105,10 +107,11 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, jarFilePath);
 			JavaIndexer.generateIndexForJar(jarFilePath, indexFilePath);
 			long modified = new File(indexFilePath).lastModified();
 
@@ -144,10 +147,11 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, jarFilePath);
 			JavaIndexer.generateIndexForJar(jarFilePath, indexFilePath);
 			long modified = new File(indexFilePath).lastModified();
 			IJavaProject p = createJavaProject("P");
@@ -188,10 +192,11 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 			IJavaProject p = createJavaProject("P");
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, fullJarPath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, fullJarPath);
 			p.getProject().refreshLocal(1, null);
 			JavaIndexer.generateIndexForJar(fullJarPath, indexFilePath);
 			long modified = new File(indexFilePath).lastModified();
@@ -231,22 +236,25 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, jarFilePath);
 			JavaIndexer.generateIndexForJar(jarFilePath, indexFilePath);
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}",
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}""",
 					"pkg/NewTest.java",
-					"package pkg;\n" +
-					"public class NewTest {\n" +
-					"  protected NewTest(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class NewTest {
+						  protected NewTest(int i) {}
+						}"""}, jarFilePath);
 			IJavaProject p = createJavaProject("P");
 			Path libPath = new Path(jarFilePath);
 			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.INDEX_LOCATION_ATTRIBUTE_NAME, "file:///"+indexFilePath);
@@ -269,10 +277,11 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, jarFilePath);
 			IJavaProject p = createJavaProject("P");
 			Path libPath = new Path(jarFilePath);
 			new File(indexFilePath).delete();
@@ -297,10 +306,11 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, jarFilePath);
 
 			new File(indexFilePath).delete();
 
@@ -343,9 +353,11 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"protected Test(int i) {}\n" + "}"
+					"""
+						package pkg;
+						public class Test {
+						protected Test(int i) {}
+						}"""
 					},jarFilePath);
 			JavaIndexer.generateIndexForJar(jarFilePath, indexFilePath);
 
@@ -384,10 +396,11 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, jarFilePath);
 
 			File indexFile = new File(indexFilePath);
 			indexFile.delete();
@@ -428,10 +441,11 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, jarFilePath);
 			JavaIndexer.generateIndexForJar(jarFilePath, indexFilePath);
 			IJavaProject p = createJavaProject("P");
 			createExternalFolder("externalLib");
@@ -459,10 +473,11 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, jarFilePath);
 
 			IJavaProject p = createJavaProject("P");
 			indexFilePath = p.getProject().getLocation().append("Test.index").toFile().getAbsolutePath();
@@ -507,10 +522,11 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, jarFilePath);
 			JavaIndexer.generateIndexForJar(jarFilePath, indexFilePath);
 			File f = new File(indexFilePath);
 			long modified = f.lastModified();
@@ -559,22 +575,25 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, jarFilePath);
 			JavaIndexer.generateIndexForJar(jarFilePath, indexFilePath);
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}",
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}""",
 					"pkg/NewTest.java",
-					"package pkg;\n" +
-					"public class NewTest {\n" +
-					"  protected NewTest(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class NewTest {
+						  protected NewTest(int i) {}
+						}"""}, jarFilePath);
 			IJavaProject p = createJavaProject("P");
 			Path libPath = new Path(jarFilePath);
 
@@ -616,22 +635,25 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 			IJavaProject p = createJavaProject("P");
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, fullJarPath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, fullJarPath);
 			JavaIndexer.generateIndexForJar(fullJarPath, indexFilePath);
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}",
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}""",
 					"pkg/NewTest.java",
-					"package pkg;\n" +
-					"public class NewTest {\n" +
-					"  protected NewTest(int i) {}\n" +
-					"}"}, fullJarPath);
+					"""
+						package pkg;
+						public class NewTest {
+						  protected NewTest(int i) {}
+						}"""}, fullJarPath);
 			p.getProject().refreshLocal(1, null);
 			Path libPath = new Path(jarFilePath);
 
@@ -667,10 +689,11 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, jarFilePath);
 			JavaIndexer.generateIndexForJar(jarFilePath, indexFilePath);
 
 			IJavaProject p1 = createJavaProject("P1");
@@ -735,10 +758,11 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, jarFilePath);
 			JavaIndexer.generateIndexForJar(jarFilePath, indexFilePath);
 			long modified = new File(indexFilePath).lastModified();
 
@@ -788,10 +812,11 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, jarFilePath);
 
 			JavaIndexer.generateIndexForJar(jarFilePath, indexFilePath);
 			Util.zipFiles(new File[]{new File(indexFilePath)}, indexZipPath);
@@ -835,10 +860,11 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, jarFilePath);
 
 			IProject indexProj = createProject("ForIndex");
 			indexFilePath = indexProj.getProject().getLocation().append("Test.index").toFile().getAbsolutePath();
@@ -895,10 +921,11 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
-					"package pkg;\n" +
-					"public class Test {\n" +
-					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
+					"""
+						package pkg;
+						public class Test {
+						  protected Test(int i) {}
+						}"""}, jarFilePath);
 
 			JavaIndexer.generateIndexForJar(jarFilePath, indexFilePath);
 			assertTrue(new File(indexFilePath).exists());

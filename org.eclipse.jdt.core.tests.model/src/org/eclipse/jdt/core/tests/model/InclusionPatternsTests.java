@@ -60,9 +60,10 @@ public void testAddInclusionOnCompilationUnit() throws CoreException {
 	createFolder("/P/src/p");
 	createFile(
 		"/P/src/p/A.java",
-		"package p;\n" +
-		"public class A {\n" +
-		"}"
+		"""
+			package p;
+			public class A {
+			}"""
 	);
 
 	clearDeltas();
@@ -70,9 +71,10 @@ public void testAddInclusionOnCompilationUnit() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
-		"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" +
-		"	ResourceDelta(/P/.classpath)[*]"
+		"""
+			P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}
+				src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}
+				ResourceDelta(/P/.classpath)[*]"""
 	);
 
 	IPackageFragment pkg = getPackage("/P/src/p");
@@ -100,9 +102,10 @@ public void testAddInclusionOnFolderUnderProject() throws CoreException {
 
 		assertDeltas(
 			"Unexpected deltas",
-			"P1[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
-			"	<project root>[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" +
-			"	ResourceDelta(/P1/.classpath)[*]"
+			"""
+				P1[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}
+					<project root>[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}
+					ResourceDelta(/P1/.classpath)[*]"""
 		);
 
 		IPackageFragmentRoot root = getPackageFragmentRoot("/P1");
@@ -113,9 +116,10 @@ public void testAddInclusionOnFolderUnderProject() throws CoreException {
 
 		assertResourceNamesEqual(
 			"Unexpected non-java resources of project",
-			".classpath\n" +
-			".project\n" +
-			".settings",
+			"""
+				.classpath
+				.project
+				.settings""",
 			javaProject.getNonJavaResources());
 	} finally {
 		deleteProject("P1");
@@ -134,9 +138,10 @@ public void testAddInclusionOnPackage() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
-		"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" +
-		"	ResourceDelta(/P/.classpath)[*]"
+		"""
+			P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}
+				src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}
+				ResourceDelta(/P/.classpath)[*]"""
 	);
 
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
@@ -163,20 +168,22 @@ public void testAddToIncludedFolder() throws CoreException {
 	createFile("/P/src/p/my.txt", "");
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN}\n" +
-		"		p[*]: {CONTENT}\n" +
-		"			ResourceDelta(/P/src/p/my.txt)[+]"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN}
+					p[*]: {CONTENT}
+						ResourceDelta(/P/src/p/my.txt)[+]"""
 	);
 
 	clearDeltas();
 	deleteFile("/P/src/p/my.txt");
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN}\n" +
-		"		p[*]: {CONTENT}\n" +
-		"			ResourceDelta(/P/src/p/my.txt)[-]"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN}
+					p[*]: {CONTENT}
+						ResourceDelta(/P/src/p/my.txt)[-]"""
 	);
 }
 /*
@@ -191,18 +198,20 @@ public void testCreateIncludedCompilationUnit() throws CoreException {
 	clearDeltas();
 	pkg.createCompilationUnit(
 		"A.java",
-		"package p;\n" +
-		"public class A {\n" +
-		"}",
+		"""
+			package p;
+			public class A {
+			}""",
 		false,
 		null);
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN}\n" +
-		"		p[*]: {CHILDREN}\n" +
-		"			A.java[+]: {}"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN}
+					p[*]: {CHILDREN}
+						A.java[+]: {}"""
 	);
 
 	assertSortedElementsEqual(
@@ -228,9 +237,10 @@ public void testCreateIncludedPackage() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN}\n" +
-		"		p[+]: {}"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN}
+					p[+]: {}"""
 	);
 
 	assertSortedElementsEqual(
@@ -254,17 +264,19 @@ public void testCreateResourceIncludedCompilationUnit() throws CoreException {
 	clearDeltas();
 	createFile(
 		"/P/src/p/A.java",
-		"package p;\n" +
-		"public class A {\n" +
-		"}"
+		"""
+			package p;
+			public class A {
+			}"""
 	);
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN}\n" +
-		"		p[*]: {CHILDREN}\n" +
-		"			A.java[+]: {}"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN}
+					p[*]: {CHILDREN}
+						A.java[+]: {}"""
 	);
 
 	IPackageFragment pkg = getPackage("/P/src/p");
@@ -290,18 +302,20 @@ public void testCreateResourceIncludedCompilationUnit2() throws CoreException {
 	clearDeltas();
 	createFile(
 		"/P/src/p1/p2/p3/A.java",
-		"package p1.p2.p3;\n" +
-		"public class A {\n" +
-		"}"
+		"""
+			package p1.p2.p3;
+			public class A {
+			}"""
 	);
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN | CONTENT}\n" +
-		"		p1.p2.p3[*]: {CHILDREN}\n" +
-		"			A.java[+]: {}\n" +
-		"		ResourceDelta(/P/src/p1)[*]"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN | CONTENT}
+					p1.p2.p3[*]: {CHILDREN}
+						A.java[+]: {}
+					ResourceDelta(/P/src/p1)[*]"""
 	);
 
 	IPackageFragment pkg = getPackage("/P/src/p1/p2/p3");
@@ -327,9 +341,10 @@ public void testCreateResourceIncludedPackage() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN}\n" +
-		"		p[+]: {}"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN}
+					p[+]: {}"""
 	);
 
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
@@ -357,10 +372,11 @@ public void testCreateResourceIncludedPackage2() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN | CONTENT}\n" +
-		"		p1.p2.p3[+]: {}\n" +
-		"		ResourceDelta(/P/src/p1)[*]"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN | CONTENT}
+					p1.p2.p3[+]: {}
+					ResourceDelta(/P/src/p1)[*]"""
 	);
 
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
@@ -386,10 +402,11 @@ public void testDefaultPackageProjectIsSource() throws CoreException {
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P");
 	assertElementDescendants(
 		"Unexpected descendants of root",
-		"<project root>\n" +
-		"  <default> (...)\n" +
-		"    A.java\n" +
-		"      class A",
+		"""
+			<project root>
+			  <default> (...)
+			    A.java
+			      class A""",
 		root);
 }
 /**
@@ -403,18 +420,20 @@ public void testIncludeCUOnly01() throws CoreException {
 	createFolder("/P/src/p1/p2");
 	createFile(
 		"/P/src/p1/p2/X.java",
-		"package p1.p2;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1.p2;
+			public class X {
+			}"""
 	);
 	ICompilationUnit workingCopy = null;
 	try {
 		ProblemRequestor problemRequestor = new ProblemRequestor();
 		workingCopy = getWorkingCopy(
 			"/P/src/Y.java",
-			"import p1.p2.X;\n" +
-			"public class Y extends X {\n" +
-			"}",
+			"""
+				import p1.p2.X;
+				public class Y extends X {
+				}""",
 			null/*primary owner*/,
 			problemRequestor
 		);
@@ -434,18 +453,20 @@ public void testIncludeCUOnly01_new() throws CoreException {
 	createFolder("/P/src/p1/p2");
 	createFile(
 		"/P/src/p1/p2/X.java",
-		"package p1.p2;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1.p2;
+			public class X {
+			}"""
 	);
 	ICompilationUnit workingCopy = null;
 	try {
 		ProblemRequestor problemRequestor = new ProblemRequestor();
 		workingCopy = getWorkingCopy(
 			"/P/src/Y.java",
-			"import p1.p2.X;\n" +
-			"public class Y extends X {\n" +
-			"}",
+			"""
+				import p1.p2.X;
+				public class Y extends X {
+				}""",
 			newWorkingCopyOwner(problemRequestor)
 		);
 		assertProblems(
@@ -477,18 +498,20 @@ public void testIncludeCUOnly02() throws CoreException {
 	createFolder("/P/src/p1/p2/p3");
 	createFile(
 		"/P/src/p1/p2/p3/X.java",
-		"package p1.p2.p3;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1.p2.p3;
+			public class X {
+			}"""
 	);
 	ICompilationUnit workingCopy = null;
 	try {
 		ProblemRequestor problemRequestor = new ProblemRequestor();
 		workingCopy = getWorkingCopy(
 			"/P/src/Y.java",
-			"import p1.p2.p3.X;\n" +
-			"public class Y extends X {\n" +
-			"}",
+			"""
+				import p1.p2.p3.X;
+				public class Y extends X {
+				}""",
 			null/*primary owner*/,
 			problemRequestor
 		);
@@ -508,18 +531,20 @@ public void testIncludeCUOnly02_new() throws CoreException {
 	createFolder("/P/src/p1/p2/p3");
 	createFile(
 		"/P/src/p1/p2/p3/X.java",
-		"package p1.p2.p3;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1.p2.p3;
+			public class X {
+			}"""
 	);
 	ICompilationUnit workingCopy = null;
 	try {
 		ProblemRequestor problemRequestor = new ProblemRequestor();
 		workingCopy = getWorkingCopy(
 			"/P/src/Y.java",
-			"import p1.p2.p3.X;\n" +
-			"public class Y extends X {\n" +
-			"}",
+			"""
+				import p1.p2.p3.X;
+				public class Y extends X {
+				}""",
 			newWorkingCopyOwner(problemRequestor)
 		);
 		assertProblems(
@@ -540,9 +565,10 @@ public void testIsOnClasspath1() throws CoreException {
 	createFolder("/P/src/p");
 	IFile file = createFile(
 		"/P/src/p/A.java",
-		"package p;\n" +
-		"public class A {\n" +
-		"}"
+		"""
+			package p;
+			public class A {
+			}"""
 	);
 	assertTrue("Resource should not be on classpath", !this.project.isOnClasspath(file));
 
@@ -559,9 +585,10 @@ public void testIsOnClasspath2() throws CoreException {
 	createFolder("/P/src/p");
 	IFile file = createFile(
 		"/P/src/p/A.java",
-		"package p;\n" +
-		"public class A {\n" +
-		"}"
+		"""
+			package p;
+			public class A {
+			}"""
 	);
 	assertTrue("Resource should be on classpath", this.project.isOnClasspath(file));
 
@@ -602,11 +629,12 @@ public void testMoveFolderContainingPackage1() throws CoreException {
 	getFolder("/P/src/p1").move(new Path("/P/p1"), false, null);
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN | CONTENT}\n" +
-		"	src[*]: {CHILDREN | CONTENT}\n" +
-		"		p1.p2[-]: {}\n" +
-		"		ResourceDelta(/P/src/p1)[-]\n" +
-		"	ResourceDelta(/P/p1)[+]"
+		"""
+			P[*]: {CHILDREN | CONTENT}
+				src[*]: {CHILDREN | CONTENT}
+					p1.p2[-]: {}
+					ResourceDelta(/P/src/p1)[-]
+				ResourceDelta(/P/p1)[+]"""
 	);
 }
 /*
@@ -621,11 +649,12 @@ public void testMoveFolderContainingPackage2() throws CoreException {
 	getFolder("/P//p1").move(new Path("/P/src/p1"), false, null);
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN | CONTENT}\n" +
-		"	src[*]: {CHILDREN | CONTENT}\n" +
-		"		p1.p2[+]: {}\n" +
-		"		ResourceDelta(/P/src/p1)[+]\n" +
-		"	ResourceDelta(/P/p1)[-]"
+		"""
+			P[*]: {CHILDREN | CONTENT}
+				src[*]: {CHILDREN | CONTENT}
+					p1.p2[+]: {}
+					ResourceDelta(/P/src/p1)[+]
+				ResourceDelta(/P/p1)[-]"""
 	);
 }
 /*
@@ -657,10 +686,11 @@ public void testNestedSourceFolder2() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src1/src2[*]: {CHILDREN}\n" +
-		"		<default>[*]: {CHILDREN}\n" +
-		"			A.java[+]: {}"
+		"""
+			P[*]: {CHILDREN}
+				src1/src2[*]: {CHILDREN}
+					<default>[*]: {CHILDREN}
+						A.java[+]: {}"""
 	);
 }
 /*
@@ -676,9 +706,10 @@ public void testNestedSourceFolder3() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src1/src2[*]: {CONTENT}\n" +
-		"		ResourceDelta(/P/src1/src2/readme.txt)[+]"
+		"""
+			P[*]: {CHILDREN}
+				src1/src2[*]: {CONTENT}
+					ResourceDelta(/P/src1/src2/readme.txt)[+]"""
 	);
 }
 /*
@@ -694,9 +725,10 @@ public void testNestedSourceFolder4() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src1/src2[*]: {CHILDREN}\n" +
-		"		p[+]: {}"
+		"""
+			P[*]: {CHILDREN}
+				src1/src2[*]: {CHILDREN}
+					p[+]: {}"""
 	);
 }
 /*
@@ -712,9 +744,10 @@ public void testNestedSourceFolder5() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src1[*]: {CHILDREN}\n" +
-		"		p[+]: {}"
+		"""
+			P[*]: {CHILDREN}
+				src1[*]: {CHILDREN}
+					p[+]: {}"""
 	);
 }
 /*
@@ -731,11 +764,12 @@ public void testNestedSourceFolder6() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src1[*]: {CHILDREN}\n" +
-		"		p[-]: {MOVED_TO(p [in src1/src2 [in P]])}\n" +
-		"	src1/src2[*]: {CHILDREN}\n" +
-		"		p[+]: {MOVED_FROM(p [in src1 [in P]])}"
+		"""
+			P[*]: {CHILDREN}
+				src1[*]: {CHILDREN}
+					p[-]: {MOVED_TO(p [in src1/src2 [in P]])}
+				src1/src2[*]: {CHILDREN}
+					p[+]: {MOVED_FROM(p [in src1 [in P]])}"""
 	);
 }
 /*
@@ -747,9 +781,10 @@ public void testRemoveInclusionOnCompilationUnit() throws CoreException {
 	createFolder("/P/src/p");
 	createFile(
 		"/P/src/p/A.java",
-		"package p;\n" +
-		"public class A {\n" +
-		"}"
+		"""
+			package p;
+			public class A {
+			}"""
 	);
 
 	clearDeltas();
@@ -757,9 +792,10 @@ public void testRemoveInclusionOnCompilationUnit() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
-		"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" +
-		"	ResourceDelta(/P/.classpath)[*]"
+		"""
+			P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}
+				src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}
+				ResourceDelta(/P/.classpath)[*]"""
 	);
 
 	IPackageFragment pkg = getPackage("/P/src/p");
@@ -787,9 +823,10 @@ public void testRemoveInclusionOnPackage() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
-		"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" +
-		"	ResourceDelta(/P/.classpath)[*]"
+		"""
+			P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}
+				src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}
+				ResourceDelta(/P/.classpath)[*]"""
 	);
 
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
@@ -812,9 +849,10 @@ public void testRenameIncludedCompilationUnit() throws CoreException {
 	createFolder("/P/src/p");
 	IFile file = createFile(
 		"/P/src/p/A.java",
-		"package p;\n" +
-		"public class A {\n" +
-		"}"
+		"""
+			package p;
+			public class A {
+			}"""
 	);
 
 	clearDeltas();
@@ -822,11 +860,12 @@ public void testRenameIncludedCompilationUnit() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN}\n" +
-		"		p[*]: {CHILDREN | CONTENT}\n" +
-		"			A.java[-]: {}\n" +
-		"			ResourceDelta(/P/src/p/B.java)[+]"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN}
+					p[*]: {CHILDREN | CONTENT}
+						A.java[-]: {}
+						ResourceDelta(/P/src/p/B.java)[+]"""
 	);
 
 	IPackageFragment pkg = getPackage("/P/src/p");
@@ -855,10 +894,11 @@ public void testRenameIncludedPackage1() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN | CONTENT}\n" +
-		"		p[-]: {}\n" +
-		"		ResourceDelta(/P/src/q)[+]"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN | CONTENT}
+					p[-]: {}
+					ResourceDelta(/P/src/q)[+]"""
 	);
 
 	assertSortedElementsEqual(
@@ -882,9 +922,10 @@ public void testRenameIncludedPackage2() throws CoreException {
 	IPackageFragment pkg = root.createPackageFragment("p", false, null);
 	createFile(
 		"/P/src/p/X.java",
-		"package p;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p;
+			public class X {
+			}"""
 	);
 
 	clearDeltas();
@@ -892,10 +933,11 @@ public void testRenameIncludedPackage2() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN | CONTENT}\n" +
-		"		p[-]: {}\n" +
-		"		ResourceDelta(/P/src/q)[+]"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN | CONTENT}
+					p[-]: {}
+					ResourceDelta(/P/src/q)[+]"""
 	);
 
 	assertSortedElementsEqual(
@@ -917,9 +959,10 @@ public void testRenameResourceIncludedCompilationUnit() throws CoreException {
 	createFolder("/P/src/p");
 	IFile file = createFile(
 		"/P/src/p/A.java",
-		"package p;\n" +
-		"public class A {\n" +
-		"}"
+		"""
+			package p;
+			public class A {
+			}"""
 	);
 
 	clearDeltas();
@@ -927,11 +970,12 @@ public void testRenameResourceIncludedCompilationUnit() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN}\n" +
-		"		p[*]: {CHILDREN | CONTENT}\n" +
-		"			A.java[-]: {}\n" +
-		"			ResourceDelta(/P/src/p/B.java)[+]"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN}
+					p[*]: {CHILDREN | CONTENT}
+						A.java[-]: {}
+						ResourceDelta(/P/src/p/B.java)[+]"""
 	);
 
 	IPackageFragment pkg = getPackage("/P/src/p");
@@ -960,10 +1004,11 @@ public void testRenameResourceIncludedPackage() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN | CONTENT}\n" +
-		"		p[-]: {}\n" +
-		"		ResourceDelta(/P/src/q)[+]"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN | CONTENT}
+					p[-]: {}
+					ResourceDelta(/P/src/q)[+]"""
 	);
 
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
@@ -1016,9 +1061,10 @@ public void testSearchWithIncludedCompilationUnit1() throws CoreException {
 	createFolder("/P/src/p");
 	createFile(
 		"/P/src/p/A.java",
-		"package p;\n" +
-		"public class A {\n" +
-		"}"
+		"""
+			package p;
+			public class A {
+			}"""
 	);
 
 	JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
@@ -1041,9 +1087,10 @@ public void testSearchWithIncludedCompilationUnit2() throws CoreException {
 	createFolder("/P/src/p");
 	createFile(
 		"/P/src/p/A.java",
-		"package p;\n" +
-		"public class A {\n" +
-		"}"
+		"""
+			package p;
+			public class A {
+			}"""
 	);
 
 	setClasspath(new String[] {"/P/src", "**/B.java"});
@@ -1067,9 +1114,10 @@ public void testSearchWithIncludedPackage1() throws CoreException {
 	createFolder("/P/src/p");
 	createFile(
 		"/P/src/p/A.java",
-		"package p;\n" +
-		"public class A {\n" +
-		"}"
+		"""
+			package p;
+			public class A {
+			}"""
 	);
 	setClasspath(new String[] {"/P/src", "p/"});
 
@@ -1094,9 +1142,10 @@ public void testSearchWithIncludedPackage2() throws CoreException {
 	createFolder("/P/src/p");
 	createFile(
 		"/P/src/p/A.java",
-		"package p;\n" +
-		"public class A {\n" +
-		"}"
+		"""
+			package p;
+			public class A {
+			}"""
 	);
 	IProject p = this.project.getProject();
 	p.close(null);
@@ -1124,9 +1173,10 @@ public void testTrailingSlash() throws CoreException {
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	assertSortedElementsEqual(
 		"Unexpected children of root",
-		"a [in src [in P]]\n" +
-		"a.b [in src [in P]]\n" +
-		"a.b.c [in src [in P]]",
+		"""
+			a [in src [in P]]
+			a.b [in src [in P]]
+			a.b.c [in src [in P]]""",
 		root.getChildren());
 }
 }

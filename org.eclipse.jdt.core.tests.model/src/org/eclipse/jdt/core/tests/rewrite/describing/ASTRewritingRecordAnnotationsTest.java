@@ -81,22 +81,22 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("public record X() {\n");
-		buf.append("	static String myObject = \"Foo\";\n");
-		buf.append("	public void foo() {\n");
-		buf.append("		String myString = (@Annot String) myObject;\n");
-		buf.append("		String myString1 = (@Annot1 @Annot String) myObject;\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n");
-		buf.append("@interface Annot {}\n");
-		buf.append("@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n");
-		buf.append("@interface Annot1 {}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			import java.lang.annotation.ElementType;
+			public record X() {
+				static String myObject = "Foo";
+				public void foo() {
+					String myString = (@Annot String) myObject;
+					String myString1 = (@Annot1 @Annot String) myObject;
+				}
+			}
+			@java.lang.annotation.Target(value = {ElementType.TYPE_USE})
+			@interface Annot {}
+			@java.lang.annotation.Target(value = {ElementType.TYPE_USE})
+			@interface Annot1 {}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
@@ -127,21 +127,22 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((ASTNode)annotations.get(0), markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("public record X() {\n");
-		buf.append("	static String myObject = \"Foo\";\n");
-		buf.append("	public void foo() {\n");
-		buf.append("		String myString = (@Annot @Annot2 String) myObject;\n");
-		buf.append("		String myString1 = (@Annot2 String) myObject;\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n");
-		buf.append("@interface Annot {}\n");
-		buf.append("@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n");
-		buf.append("@interface Annot1 {}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			import java.lang.annotation.ElementType;
+			public record X() {
+				static String myObject = "Foo";
+				public void foo() {
+					String myString = (@Annot @Annot2 String) myObject;
+					String myString1 = (@Annot2 String) myObject;
+				}
+			}
+			@java.lang.annotation.Target(value = {ElementType.TYPE_USE})
+			@interface Annot {}
+			@java.lang.annotation.Target(value = {ElementType.TYPE_USE})
+			@interface Annot1 {}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testWildcardTypeArgumentAnnotations() throws Exception {
@@ -149,29 +150,29 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("public record X() {\n");
-		buf.append("	public record Helper<T>() {\n");
-		buf.append("	}\n");
-		buf.append("	public record Base() {\n");
-		buf.append("	}\n");
-		buf.append("	public static void UnboundedWildcard1 (Helper<@Annot ?> x) {\n");
-		buf.append("	}\n");
-		buf.append("	public static void UnboundedWildcard2 (Helper<@Annot1 @Annot ?> x) {\n");
-		buf.append("	}\n");
-		buf.append("	public static void BoundedWildcard1 (Helper<@Annot ? extends Base> x) {\n");
-		buf.append("	}\n");
-		buf.append("	public static void BoundedWildcard2 (Helper<@Annot1 @Annot ? extends Base> x) {\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot {}\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot1 {}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			import java.lang.annotation.ElementType;
+			public record X() {
+				public record Helper<T>() {
+				}
+				public record Base() {
+				}
+				public static void UnboundedWildcard1 (Helper<@Annot ?> x) {
+				}
+				public static void UnboundedWildcard2 (Helper<@Annot1 @Annot ?> x) {
+				}
+				public static void BoundedWildcard1 (Helper<@Annot ? extends Base> x) {
+				}
+				public static void BoundedWildcard2 (Helper<@Annot1 @Annot ? extends Base> x) {
+				}
+			}
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot {}
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot1 {}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
@@ -222,28 +223,29 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((MarkerAnnotation) wildcardType2.annotations().get(0), markerAnnotation2, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("public record X() {\n");
-		buf.append("	public record Helper<T>() {\n");
-		buf.append("	}\n");
-		buf.append("	public record Base() {\n");
-		buf.append("	}\n");
-		buf.append("	public static void UnboundedWildcard1 (Helper<@Annot @Annot2 ?> x) {\n");
-		buf.append("	}\n");
-		buf.append("	public static void UnboundedWildcard2 (Helper<@Annot2 ?> x) {\n");
-		buf.append("	}\n");
-		buf.append("	public static void BoundedWildcard1 (Helper<@Annot @Annot2 ? extends Base> x) {\n");
-		buf.append("	}\n");
-		buf.append("	public static void BoundedWildcard2 (Helper<@Annot2 ? extends Base> x) {\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot {}\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot1 {}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			import java.lang.annotation.ElementType;
+			public record X() {
+				public record Helper<T>() {
+				}
+				public record Base() {
+				}
+				public static void UnboundedWildcard1 (Helper<@Annot @Annot2 ?> x) {
+				}
+				public static void UnboundedWildcard2 (Helper<@Annot2 ?> x) {
+				}
+				public static void BoundedWildcard1 (Helper<@Annot @Annot2 ? extends Base> x) {
+				}
+				public static void BoundedWildcard2 (Helper<@Annot2 ? extends Base> x) {
+				}
+			}
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot {}
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot1 {}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testWildcardBoudAnnotation() throws Exception {
@@ -251,20 +253,20 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
+		String str = """
+			public record X() {
+				public record Helper<T>() {
+				}
+				public record Base() {
+				}
+				public static void foo1 (Helper<? extends @Annot Base> x) {
+				}
+				public static void foo2 (Helper<? extends @Annot1 @Annot Base> x) {
+				}
+			}
+			""";
 
-		buf.append("public record X() {\n");
-		buf.append("	public record Helper<T>() {\n");
-		buf.append("	}\n");
-		buf.append("	public record Base() {\n");
-		buf.append("	}\n");
-		buf.append("	public static void foo1 (Helper<? extends @Annot Base> x) {\n");
-		buf.append("	}\n");
-		buf.append("	public static void foo2 (Helper<? extends @Annot1 @Annot Base> x) {\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
@@ -295,18 +297,19 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((MarkerAnnotation) simpleType.annotations().get(0), markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuilder();
-		buf.append("public record X() {\n");
-		buf.append("	public record Helper<T>() {\n");
-		buf.append("	}\n");
-		buf.append("	public record Base() {\n");
-		buf.append("	}\n");
-		buf.append("	public static void foo1 (Helper<? extends @Annot @Annot2 Base> x) {\n");
-		buf.append("	}\n");
-		buf.append("	public static void foo2 (Helper<? extends @Annot2 Base> x) {\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public record X() {
+				public record Helper<T>() {
+				}
+				public record Base() {
+				}
+				public static void foo1 (Helper<? extends @Annot @Annot2 Base> x) {
+				}
+				public static void foo2 (Helper<? extends @Annot2 Base> x) {
+				}
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testTypeParameterBoundAnnotations() throws Exception {
@@ -314,26 +317,26 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
+		String str = """
+			import java.lang.annotation.ElementType;
+			
+			public record X() {
+				public record Base() {
+				}
+				public <X extends @Annot Base> void foo1 (X x) {
+				}
+				public <X extends @Annot1 @Annot Base> void foo2 (X x) {
+				}
+			}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)\s
+			@interface Annot {}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)\s
+			@interface Annot1 {}
+			""";
 
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("\n");
-		buf.append("public record X() {\n");
-		buf.append("	public record Base() {\n");
-		buf.append("	}\n");
-		buf.append("	public <X extends @Annot Base> void foo1 (X x) {\n");
-		buf.append("	}\n");
-		buf.append("	public <X extends @Annot1 @Annot Base> void foo2 (X x) {\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE) \n");
-		buf.append("@interface Annot {}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE) \n");
-		buf.append("@interface Annot1 {}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
@@ -358,24 +361,25 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((MarkerAnnotation) simpleType.annotations().get(0), markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuilder();
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("\n");
-		buf.append("public record X() {\n");
-		buf.append("	public record Base() {\n");
-		buf.append("	}\n");
-		buf.append("	public <X extends @Annot @Annot2 Base> void foo1 (X x) {\n");
-		buf.append("	}\n");
-		buf.append("	public <X extends @Annot2 Base> void foo2 (X x) {\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE) \n");
-		buf.append("@interface Annot {}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE) \n");
-		buf.append("@interface Annot1 {}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			import java.lang.annotation.ElementType;
+			
+			public record X() {
+				public record Base() {
+				}
+				public <X extends @Annot @Annot2 Base> void foo1 (X x) {
+				}
+				public <X extends @Annot2 Base> void foo2 (X x) {
+				}
+			}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)\s
+			@interface Annot {}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)\s
+			@interface Annot1 {}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testTypeArgumentsParameterizedClassesAnnotations() throws Exception {
@@ -383,25 +387,25 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
+		String str = """
+			import java.lang.annotation.ElementType;
+			
+			public record X() {
+				public record Helper <T1, T2>() {
+				}
+				public void foo() {
+					Helper<@Annot String, @Annot @Annot1 String> x;
+				}
+			}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)\s
+			@interface Annot {}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)\s
+			@interface Annot1 {}
+			""";
 
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("\n");
-		buf.append("public record X() {\n");
-		buf.append("	public record Helper <T1, T2>() {\n");
-		buf.append("	}\n");
-		buf.append("	public void foo() {\n");
-		buf.append("		Helper<@Annot String, @Annot @Annot1 String> x;\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE) \n");
-		buf.append("@interface Annot {}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE) \n");
-		buf.append("@interface Annot1 {}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
@@ -428,23 +432,24 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.remove((ASTNode) simpleType.annotations().get(0), null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuilder();
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("\n");
-		buf.append("public record X() {\n");
-		buf.append("	public record Helper <T1, T2>() {\n");
-		buf.append("	}\n");
-		buf.append("	public void foo() {\n");
-		buf.append("		Helper<@Annot3 @Annot2 String, String> x;\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE) \n");
-		buf.append("@interface Annot {}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE) \n");
-		buf.append("@interface Annot1 {}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			import java.lang.annotation.ElementType;
+			
+			public record X() {
+				public record Helper <T1, T2>() {
+				}
+				public void foo() {
+					Helper<@Annot3 @Annot2 String, String> x;
+				}
+			}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)\s
+			@interface Annot {}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)\s
+			@interface Annot1 {}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testTypeArgumentsMethodInvocation() throws Exception {
@@ -452,33 +457,33 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
+		String str = """
+			import java.lang.annotation.ElementType;
+			
+			public record X() {
+				public record Bar() {
+				}
+			\t
+				public record Helper() {
+					public <T> void foo() {
+					}
+				}
+			\t
+				public void zoo() {
+					Helper o = new Helper();
+					o.<@Annot Bar>foo();
+					o.<@Annot @Annot1 Bar>foo();
+				}
+			}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)\s
+			@interface Annot {}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)\s
+			@interface Annot1 {}
+			""";
 
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("\n");
-		buf.append("public record X() {\n");
-		buf.append("	public record Bar() {\n");
-		buf.append("	}\n");
-		buf.append("	\n");
-		buf.append("	public record Helper() {\n");
-		buf.append("		public <T> void foo() {\n");
-		buf.append("		}\n");
-		buf.append("	}\n");
-		buf.append("	\n");
-		buf.append("	public void zoo() {\n");
-		buf.append("		Helper o = new Helper();\n");
-		buf.append("		o.<@Annot Bar>foo();\n");
-		buf.append("		o.<@Annot @Annot1 Bar>foo();\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE) \n");
-		buf.append("@interface Annot {}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE) \n");
-		buf.append("@interface Annot1 {}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
@@ -503,31 +508,32 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((MarkerAnnotation)simpleType.annotations().get(0), markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuilder();
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("\n");
-		buf.append("public record X() {\n");
-		buf.append("	public record Bar() {\n");
-		buf.append("	}\n");
-		buf.append("	\n");
-		buf.append("	public record Helper() {\n");
-		buf.append("		public <T> void foo() {\n");
-		buf.append("		}\n");
-		buf.append("	}\n");
-		buf.append("	\n");
-		buf.append("	public void zoo() {\n");
-		buf.append("		Helper o = new Helper();\n");
-		buf.append("		o.<@Annot @Annot2 Bar>foo();\n");
-		buf.append("		o.<@Annot2 Bar>foo();\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE) \n");
-		buf.append("@interface Annot {}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE) \n");
-		buf.append("@interface Annot1 {}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			import java.lang.annotation.ElementType;
+			
+			public record X() {
+				public record Bar() {
+				}
+			\t
+				public record Helper() {
+					public <T> void foo() {
+					}
+				}
+			\t
+				public void zoo() {
+					Helper o = new Helper();
+					o.<@Annot @Annot2 Bar>foo();
+					o.<@Annot2 Bar>foo();
+				}
+			}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)\s
+			@interface Annot {}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)\s
+			@interface Annot1 {}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testClassInheritenceAnnotations() throws Exception {
@@ -535,26 +541,26 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
+		String str = """
+			import java.lang.annotation.ElementType;
+			
+			public record X() {
+				public interface Helper<T> {
+				}
+				public class Foo1<T> implements @Annot Helper<T> {
+				}
+				public class Foo2<T> implements @Annot @Annot1 Helper<T> {
+				}
+			}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot {}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot1 {}
+			""";
 
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("\n");
-		buf.append("public record X() {\n");
-		buf.append("	public interface Helper<T> {\n");
-		buf.append("	}\n");
-		buf.append("	public class Foo1<T> implements @Annot Helper<T> {\n");
-		buf.append("	}\n");
-		buf.append("	public class Foo2<T> implements @Annot @Annot1 Helper<T> {\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot {}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot1 {}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
@@ -579,24 +585,25 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((MarkerAnnotation) simpleType.annotations().get(0), markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuilder();
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("\n");
-		buf.append("public record X() {\n");
-		buf.append("	public interface Helper<T> {\n");
-		buf.append("	}\n");
-		buf.append("	public class Foo1<T> implements @Annot @Annot2 Helper<T> {\n");
-		buf.append("	}\n");
-		buf.append("	public class Foo2<T> implements @Annot2 Helper<T> {\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot {}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot1 {}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			import java.lang.annotation.ElementType;
+			
+			public record X() {
+				public interface Helper<T> {
+				}
+				public class Foo1<T> implements @Annot @Annot2 Helper<T> {
+				}
+				public class Foo2<T> implements @Annot2 Helper<T> {
+				}
+			}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot {}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot1 {}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testTypeTests() throws Exception {
@@ -604,29 +611,29 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
+		String str = """
+			import java.lang.annotation.ElementType;
+			
+			public record X() {
+				public record Helper() {
+				}
+			\t
+				public void foo() {
+				Helper a = new @Annot Helper();
+				boolean x = true;
+				x = a instanceof @Annot Helper;
+				x = a instanceof @Annot @Annot1 Helper;
+				}
+			}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot {}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot1 {}
+			""";
 
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("\n");
-		buf.append("public record X() {\n");
-		buf.append("	public record Helper() {\n");
-		buf.append("	}\n");
-		buf.append("	\n");
-		buf.append("	public void foo() {\n");
-		buf.append("	Helper a = new @Annot Helper();\n");
-		buf.append("	boolean x = true;\n");
-		buf.append("	x = a instanceof @Annot Helper;\n");
-		buf.append("	x = a instanceof @Annot @Annot1 Helper;\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot {}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot1 {}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
@@ -654,27 +661,28 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((MarkerAnnotation) simpleType.annotations().get(0), markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuilder();
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("\n");
-		buf.append("public record X() {\n");
-		buf.append("	public record Helper() {\n");
-		buf.append("	}\n");
-		buf.append("	\n");
-		buf.append("	public void foo() {\n");
-		buf.append("	Helper a = new @Annot Helper();\n");
-		buf.append("	boolean x = true;\n");
-		buf.append("	x = a instanceof @Annot @Annot2 Helper;\n");
-		buf.append("	x = a instanceof @Annot2 Helper;\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot {}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot1 {}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			import java.lang.annotation.ElementType;
+			
+			public record X() {
+				public record Helper() {
+				}
+			\t
+				public void foo() {
+				Helper a = new @Annot Helper();
+				boolean x = true;
+				x = a instanceof @Annot @Annot2 Helper;
+				x = a instanceof @Annot2 Helper;
+				}
+			}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot {}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot1 {}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testConstructorInvocation() throws Exception {
@@ -682,25 +690,25 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append(" \n");
-		buf.append("public record X() {\n");
-		buf.append("	public record Helper() {\n");
-		buf.append("	}	\n");
-		buf.append("	public void foo() {\n");
-		buf.append("		Helper obj = new @Annot Helper();\n");
-		buf.append("		obj = new @Annot @Annot1 Helper();\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot {}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot1 {}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			import java.lang.annotation.ElementType;
+			\s
+			public record X() {
+				public record Helper() {
+				}\t
+				public void foo() {
+					Helper obj = new @Annot Helper();
+					obj = new @Annot @Annot1 Helper();
+				}
+			}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot {}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot1 {}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
@@ -729,24 +737,25 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((MarkerAnnotation) simpleType.annotations().get(0), markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuilder();
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append(" \n");
-		buf.append("public record X() {\n");
-		buf.append("	public record Helper() {\n");
-		buf.append("	}	\n");
-		buf.append("	public void foo() {\n");
-		buf.append("		Helper obj = new @Annot @Annot2 Helper();\n");
-		buf.append("		obj = new @Annot2 Helper();\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot {}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot1 {}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			import java.lang.annotation.ElementType;
+			\s
+			public record X() {
+				public record Helper() {
+				}\t
+				public void foo() {
+					Helper obj = new @Annot @Annot2 Helper();
+					obj = new @Annot2 Helper();
+				}
+			}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot {}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot1 {}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testConstructorDeclaration() throws Exception {
@@ -754,23 +763,23 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("\n");
-		buf.append("public record X() {\n");
-		buf.append("	@Annot X {\n");
-		buf.append("	}\n");
-		buf.append("	@Annot @Annot1 X (int x) {\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot {}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot1 {}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			import java.lang.annotation.ElementType;
+			
+			public record X() {
+				@Annot X {
+				}
+				@Annot @Annot1 X (int x) {
+				}
+			}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot {}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot1 {}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
@@ -791,23 +800,24 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((MarkerAnnotation) methodDeclaration.modifiers().get(0), markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuilder();
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("\n");
-		buf.append("public record X() {\n");
-		buf.append("	@Annot\n");
-		buf.append("    @Annot2 X {\n");
-		buf.append("	}\n");
-		buf.append("	@Annot2 X (int x) {\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot {}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE)\n");
-		buf.append("@interface Annot1 {}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			import java.lang.annotation.ElementType;
+			
+			public record X() {
+				@Annot
+			    @Annot2 X {
+				}
+				@Annot2 X (int x) {
+				}
+			}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot {}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)
+			@interface Annot1 {}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testRewriteInsertAPIAnnotation() throws Exception {
@@ -815,25 +825,25 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
+		String str = """
+			import java.lang.annotation.ElementType;
+			
+			public record X() {
+				public record Helper <T1, T2>() {
+				}
+				public void foo() {
+					Helper<@Annot @Annot1 String> x;
+				}
+			}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)\s
+			@interface Annot {}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)\s
+			@interface Annot1 {}
+			""";
 
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("\n");
-		buf.append("public record X() {\n");
-		buf.append("	public record Helper <T1, T2>() {\n");
-		buf.append("	}\n");
-		buf.append("	public void foo() {\n");
-		buf.append("		Helper<@Annot @Annot1 String> x;\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE) \n");
-		buf.append("@interface Annot {}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE) \n");
-		buf.append("@interface Annot1 {}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
@@ -865,23 +875,24 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.getListRewrite(simpleType, SimpleType.ANNOTATIONS_PROPERTY).insertBefore(markerAnnotation, (MarkerAnnotation) simpleType.annotations().get(1), null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuilder();
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("\n");
-		buf.append("public record X() {\n");
-		buf.append("	public record Helper <T1, T2>() {\n");
-		buf.append("	}\n");
-		buf.append("	public void foo() {\n");
-		buf.append("		Helper<@Annot2 @Annot3 @Annot @Annot5 @Annot1 @Annot4 String> x;\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE) \n");
-		buf.append("@interface Annot {}\n");
-		buf.append("\n");
-		buf.append("@java.lang.annotation.Target (ElementType.TYPE_USE) \n");
-		buf.append("@interface Annot1 {}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			import java.lang.annotation.ElementType;
+			
+			public record X() {
+				public record Helper <T1, T2>() {
+				}
+				public void foo() {
+					Helper<@Annot2 @Annot3 @Annot @Annot5 @Annot1 @Annot4 String> x;
+				}
+			}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)\s
+			@interface Annot {}
+			
+			@java.lang.annotation.Target (ElementType.TYPE_USE)\s
+			@interface Annot1 {}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testEmptyListInsertAnnotation() throws Exception {
@@ -889,16 +900,16 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public record X() {\n");
-		buf.append("	static String myObject = \"Foo\";\n");
-		buf.append("	public void foo() {\n");
-		buf.append("		String myString = (String) myObject;\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public record X() {
+				static String myObject = "Foo";
+				public void foo() {
+					String myString = (String) myObject;
+				}
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
@@ -915,15 +926,16 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.getListRewrite(simpleType, SimpleType.ANNOTATIONS_PROPERTY).insertLast(markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public record X() {\n");
-		buf.append("	static String myObject = \"Foo\";\n");
-		buf.append("	public void foo() {\n");
-		buf.append("		String myString = (@Annot String) myObject;\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public record X() {
+				static String myObject = "Foo";
+				public void foo() {
+					String myString = (@Annot String) myObject;
+				}
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testNameQualifiedTypeAnnotations() throws Exception {
@@ -931,41 +943,43 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test406469.bug", false, null);
-		String contents = "package test406469.bug;\n" +
-				"import java.lang.annotation.*;\n" +
-				"public record X() {\n" +
-				"	@Target(ElementType.TYPE_USE)\n" +
-				"	@Retention(RetentionPolicy.RUNTIME)\n" +
-				"	@Documented\n" +
-				"	static @interface NonNull { }\n" +
-				"	class Inner {}\n" +
-				"	\n" +
-				"	/**\n" +
-				" 	* @param arg  \n" +
-				" 	*/\n" +
-				"	test406469.bug.@NonNull IOException foo(\n" +
-				"			test406469.bug.@NonNull FileNotFoundException arg)\n" +
-				"		throws test406469.bug.@NonNull EOFException {\n" +
-				"		try {\n" +
-				"			test406469.bug.@NonNull IOError e = new test406469.bug.IOError();\n" +
-				"			throw e;\n" +
-				"		} catch (test406469.bug.@NonNull IOError e) {\n" +
-				"		}\n" +
-				"		return null;\n" +
-				"	} \n" +
-				"	test406469.bug.@NonNull X.@NonNull Inner fInner;\n" +
-				"} \n" +
-				"@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {} \n" +
-				"\n" +
-				"class Outer {\n" +
-				"	public class Inner {\n" +
-				"		public class Deeper {}\n" +
-				"	}\n" +
-				"}\n" +
-				"class IOException extends Exception {private static final long serialVersionUID=10001L;}\n" +
-				"class FileNotFoundException extends Exception{private static final long serialVersionUID=10002L;}\n" +
-				"class EOFException extends Exception{private static final long serialVersionUID=10003L;}\n" +
-				"class IOError extends Exception{private static final long serialVersionUID=10004L;}\n";
+		String contents = """
+			package test406469.bug;
+			import java.lang.annotation.*;
+			public record X() {
+				@Target(ElementType.TYPE_USE)
+				@Retention(RetentionPolicy.RUNTIME)
+				@Documented
+				static @interface NonNull { }
+				class Inner {}
+			\t
+				/**
+			 	* @param arg \s
+			 	*/
+				test406469.bug.@NonNull IOException foo(
+						test406469.bug.@NonNull FileNotFoundException arg)
+					throws test406469.bug.@NonNull EOFException {
+					try {
+						test406469.bug.@NonNull IOError e = new test406469.bug.IOError();
+						throw e;
+					} catch (test406469.bug.@NonNull IOError e) {
+					}
+					return null;
+				}\s
+				test406469.bug.@NonNull X.@NonNull Inner fInner;
+			}\s
+			@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}\s
+			
+			class Outer {
+				public class Inner {
+					public class Deeper {}
+				}
+			}
+			class IOException extends Exception {private static final long serialVersionUID=10001L;}
+			class FileNotFoundException extends Exception{private static final long serialVersionUID=10002L;}
+			class EOFException extends Exception{private static final long serialVersionUID=10003L;}
+			class IOError extends Exception{private static final long serialVersionUID=10004L;}
+			""";
 		StringBuilder buf = new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 		CompilationUnit astRoot= createAST(cu, /* resolve */ true, false);
@@ -1009,41 +1023,43 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace(classInstanceCreation.getType(), nameQualifiedType, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		String contentsmodified = "package test406469.bug;\n" +
-				"import java.lang.annotation.*;\n" +
-				"public record X() {\n" +
-				"	@Target(ElementType.TYPE_USE)\n" +
-				"	@Retention(RetentionPolicy.RUNTIME)\n" +
-				"	@Documented\n" +
-				"	static @interface NonNull { }\n" +
-				"	class Inner {}\n" +
-				"	\n" +
-				"	/**\n" +
-				" 	* @param arg  \n" +
-				" 	*/\n" +
-				"	test406469.bug.@Marker IOException foo(\n" +
-				"			test406469.bug.FileNotFoundException arg)\n" +
-				"		throws test406469.bug.@NonNull @Marker EOFException {\n" +
-				"		try {\n" +
-				"			test406469.bug.@NonNull IOError e = new test406469.bug.@Marker IOError();\n" +
-				"			throw e;\n" +
-				"		} catch (test406469.bug.@NonNull IOError e) {\n" +
-				"		}\n" +
-				"		return null;\n" +
-				"	} \n" +
-				"	test406469.bug.@NonNull X.@NonNull Inner fInner;\n" +
-				"} \n" +
-				"@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {} \n" +
-				"\n" +
-				"class Outer {\n" +
-				"	public class Inner {\n" +
-				"		public class Deeper {}\n" +
-				"	}\n" +
-				"}\n" +
-				"class IOException extends Exception {private static final long serialVersionUID=10001L;}\n" +
-				"class FileNotFoundException extends Exception{private static final long serialVersionUID=10002L;}\n" +
-				"class EOFException extends Exception{private static final long serialVersionUID=10003L;}\n" +
-				"class IOError extends Exception{private static final long serialVersionUID=10004L;}\n";
+		String contentsmodified = """
+			package test406469.bug;
+			import java.lang.annotation.*;
+			public record X() {
+				@Target(ElementType.TYPE_USE)
+				@Retention(RetentionPolicy.RUNTIME)
+				@Documented
+				static @interface NonNull { }
+				class Inner {}
+			\t
+				/**
+			 	* @param arg \s
+			 	*/
+				test406469.bug.@Marker IOException foo(
+						test406469.bug.FileNotFoundException arg)
+					throws test406469.bug.@NonNull @Marker EOFException {
+					try {
+						test406469.bug.@NonNull IOError e = new test406469.bug.@Marker IOError();
+						throw e;
+					} catch (test406469.bug.@NonNull IOError e) {
+					}
+					return null;
+				}\s
+				test406469.bug.@NonNull X.@NonNull Inner fInner;
+			}\s
+			@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}\s
+			
+			class Outer {
+				public class Inner {
+					public class Deeper {}
+				}
+			}
+			class IOException extends Exception {private static final long serialVersionUID=10001L;}
+			class FileNotFoundException extends Exception{private static final long serialVersionUID=10002L;}
+			class EOFException extends Exception{private static final long serialVersionUID=10003L;}
+			class IOError extends Exception{private static final long serialVersionUID=10004L;}
+			""";
 		assertEqualString(preview, contentsmodified);
 	}
 
@@ -1052,27 +1068,31 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test407364.bug", false, null);
-		String contents =  "package test0002;\n" +
-				 "import java.lang.annotation.Target;\n" +
-				 "public record X() {\n" +
-				 "	public static void main(String[] args) {\n" +
-				 "		Outer outer = new Outer();\n" +
-				 "		Outer.@Marker1 Inner first = outer.new Inner();\n" +
-				 "		Outer.@Marker2 Inner second = outer.new Inner() ;\n" +
-				 "		Outer.Inner.@Marker1 Deeper deeper = second.new Deeper();\n" +
-				 "		Outer.Inner.Deeper deeper2 =  second.new Deeper();\n" +
-				 "	}\n" + "}\n" + "class Outer {\n" +
-				 "	public class Inner {\n" +
-				 "		public class Deeper {\n" +
-				 "		}\n" +
-				 "	}\n" +
-				 "}\n" +
-				 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				 "@interface Marker {}\n" +
-				 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				 "@interface Marker1 {}\n" +
-				 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				 "@interface Marker2 {}\n";
+		String contents =  """
+			package test0002;
+			import java.lang.annotation.Target;
+			public record X() {
+				public static void main(String[] args) {
+					Outer outer = new Outer();
+					Outer.@Marker1 Inner first = outer.new Inner();
+					Outer.@Marker2 Inner second = outer.new Inner() ;
+					Outer.Inner.@Marker1 Deeper deeper = second.new Deeper();
+					Outer.Inner.Deeper deeper2 =  second.new Deeper();
+				}
+			}
+			class Outer {
+				public class Inner {
+					public class Deeper {
+					}
+				}
+			}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker1 {}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			""";
 
 		StringBuilder buf = new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
@@ -1120,27 +1140,31 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace(variableDeclarationStatement.getType(), nameQualifiedType, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		String contentsmodified = "package test0002;\n" +
-				 "import java.lang.annotation.Target;\n" +
-				 "public record X() {\n" +
-				 "	public static void main(String[] args) {\n" +
-				 "		Outer outer = new Outer();\n" +
-				 "		Outer.@NewMarker Inner first = outer.new Inner();\n" +
-				 "		Outer.Inner second = outer.new Inner() ;\n" +
-				 "		Outer.Inner.@Marker1 @NewMarker Deeper deeper = second.new Deeper();\n" +
-				 "		Outer.Inner.@NewMarker Deeper deeper2 =  second.new Deeper();\n" +
-				 "	}\n" + "}\n" + "class Outer {\n" +
-				 "	public class Inner {\n" +
-				 "		public class Deeper {\n" +
-				 "		}\n" +
-				 "	}\n" +
-				 "}\n" +
-				 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				 "@interface Marker {}\n" +
-				 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				 "@interface Marker1 {}\n" +
-				 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				 "@interface Marker2 {}\n";
+		String contentsmodified = """
+			package test0002;
+			import java.lang.annotation.Target;
+			public record X() {
+				public static void main(String[] args) {
+					Outer outer = new Outer();
+					Outer.@NewMarker Inner first = outer.new Inner();
+					Outer.Inner second = outer.new Inner() ;
+					Outer.Inner.@Marker1 @NewMarker Deeper deeper = second.new Deeper();
+					Outer.Inner.@NewMarker Deeper deeper2 =  second.new Deeper();
+				}
+			}
+			class Outer {
+				public class Inner {
+					public class Deeper {
+					}
+				}
+			}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker1 {}
+			@Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker2 {}
+			""";
 		assertEqualString(preview, contentsmodified);
 	}
 }

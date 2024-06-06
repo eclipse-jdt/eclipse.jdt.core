@@ -224,14 +224,15 @@ public class DebugEvaluationTest extends EvaluationTest {
 public void test002() throws Exception {
 	try {
 		String sourceA002 =
-			"public class A002 {\n" +
-			"  public int foo() {\n" +
-			"    return 2;\n" +
-			"  }\n" +
-			"  public String toString() {\n" +
-			"    return \"hello\";\n" +
-			"  }\n" +
-			"}";
+			"""
+			public class A002 {
+			  public int foo() {
+			    return 2;
+			  }
+			  public String toString() {
+			    return "hello";
+			  }
+			}""";
 		compileAndDeploy(sourceA002, "A002");
 		String userCode =
 			"new A002().foo();";
@@ -272,14 +273,15 @@ public void test002() throws Exception {
 public void test003() throws Exception {
 	try {
 		String sourceA003 =
-			"public class A003 {\n" +
-			"  public int foo() {\n" +
-			"    return 2;\n" +
-			"  }\n" +
-			"  public String toString() {\n" +
-			"    return \"hello\";\n" +
-			"  }\n" +
-			"}";
+			"""
+			public class A003 {
+			  public int foo() {
+			    return 2;
+			  }
+			  public String toString() {
+			    return "hello";
+			  }
+			}""";
 		compileAndDeploy(sourceA003, "A003");
 		String userCode =
 			"new A003().foo();";
@@ -317,11 +319,12 @@ public void test003() throws Exception {
  */
 public void test004() throws Exception {
 	String userCode =
-		"java.lang.Thread thread = new Thread() {\n" +
-		"  public String toString() {\n" +
-		"    return \"my thread\";\n" +
-		"  }\n" +
-		"};";
+		"""
+		java.lang.Thread thread = new Thread() {
+		  public String toString() {
+		    return "my thread";
+		  }
+		};""";
 	JDIStackFrame stackFrame = new JDIStackFrame(
 		this.jdiVM,
 		this,
@@ -520,12 +523,13 @@ public void test010() throws Exception {
 			"}";
 		compileAndDeploy(sourceA010, "A010");
 		String userCode =
-			"A010 a = new A010() {\n" +
-			"  public String toString() {\n" +
-			"    return \"my object\";\n" +
-			"  }\n" +
-			"};\n" +
-			"a.foo();";
+			"""
+			A010 a = new A010() {
+			  public String toString() {
+			    return "my object";
+			  }
+			};
+			a.foo();""";
 		JDIStackFrame stackFrame = new JDIStackFrame(
 			this.jdiVM,
 			this,
@@ -552,9 +556,11 @@ public void test010() throws Exception {
  */
 public void test011() throws Exception {
 	String userCode =
-		"String s = \"s\";\n" +
-		"java.util.Vector v = new java.util.Vector();\n" +
-		"v.addElement(s);\n";
+		"""
+		String s = "s";
+		java.util.Vector v = new java.util.Vector();
+		v.addElement(s);
+		""";
 	JDIStackFrame stackFrame = new JDIStackFrame(
 		this.jdiVM,
 		this,
@@ -575,9 +581,10 @@ public void test011() throws Exception {
  */
 public void _test012() throws Exception {
 	String userCode =
-		"java.util.GregorianCalendar cal = new java.util.GregorianCalendar();\n" +
-		"java.util.Date date = cal.getGregorianChange();\n" +
-		"System.out.println(\"Old date =\t\" + date.toString());";
+		"""
+		java.util.GregorianCalendar cal = new java.util.GregorianCalendar();
+		java.util.Date date = cal.getGregorianChange();
+		System.out.println("Old date =	" + date.toString());""";
 	JDIStackFrame stackFrame = new JDIStackFrame(
 		this.jdiVM,
 		this,
@@ -587,9 +594,10 @@ public void _test012() throws Exception {
 	char[] snippet = "date = new java.util.Date();".toCharArray();
 	evaluate(stackFrame, requestor, snippet);
 	requestor = new DebugRequestor();
-	userCode = "System.out.println(\"new date =\t\" + date.toString());\n" +
-				"System.out.println(\"cal.getGregorianChange() =\t\" + cal.getGregorianChange());\n" +
-				"return date.after(cal.getGregorianChange());";
+	userCode = """
+		System.out.println("new date =	" + date.toString());
+		System.out.println("cal.getGregorianChange() =	" + cal.getGregorianChange());
+		return date.after(cal.getGregorianChange());""";
 	snippet = userCode.toCharArray();
 	evaluate(stackFrame, requestor, snippet);
 	assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
@@ -705,38 +713,39 @@ public void test017() throws Exception {
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet =
-		("class Eratosthenes {\n"
-			+ "    int[] primeNumbers;\n"
-			+ "\n"
-			+ "    public Eratosthenes(int n) {\n"
-			+ "        primeNumbers = new int[n + 1];\n"
-			+ "\n"
-			+ "        for (int i = 2; i <= n; i++) {\n"
-			+ "            primeNumbers[i] = i;\n"
-			+ "        }\n"
-			+ "        int p = 2;\n"
-			+ "        while (p * p <= n) {\n"
-			+ "            int j = 2 * p;\n"
-			+ "            while (j <= n) {\n"
-			+ "                primeNumbers[j] = 0;\n"
-			+ "                j += p;\n"
-			+ "            }\n"
-			+ "            do {\n"
-			+ "                p++;\n"
-			+ "            } while (primeNumbers[p] == 1);\n"
-			+ "        }\n"
-			+ "    }\n"
-			+ "}\n"
-			+ "int[] primes = new Eratosthenes(10).primeNumbers;\n"
-			+ "int i = 0;\n"
-			+ "int max = primes.length;\n"
-			+ "int j = 0;\n"
-			+ "for (; i < max && j != 3; i++) {\n"
-			+ " if (primes[i] != 0) {\n"
-			+ "     j++;\n"
-			+ " }\n"
-			+ "}\n"
-			+ "return primes[i-1];").toCharArray();
+		("""
+			class Eratosthenes {
+			    int[] primeNumbers;
+			
+			    public Eratosthenes(int n) {
+			        primeNumbers = new int[n + 1];
+			
+			        for (int i = 2; i <= n; i++) {
+			            primeNumbers[i] = i;
+			        }
+			        int p = 2;
+			        while (p * p <= n) {
+			            int j = 2 * p;
+			            while (j <= n) {
+			                primeNumbers[j] = 0;
+			                j += p;
+			            }
+			            do {
+			                p++;
+			            } while (primeNumbers[p] == 1);
+			        }
+			    }
+			}
+			int[] primes = new Eratosthenes(10).primeNumbers;
+			int i = 0;
+			int max = primes.length;
+			int j = 0;
+			for (; i < max && j != 3; i++) {
+			 if (primes[i] != 0) {
+			     j++;
+			 }
+			}
+			return primes[i-1];""").toCharArray();
 	evaluate(stackFrame, requestor, snippet);
 	assertTrue(
 		"Should get one result but got " + (requestor.resultIndex + 1),
@@ -831,17 +840,18 @@ public void test019() throws Exception {
 public void test020() throws Exception {
 	try {
 		String sourceA =
-			"public class A {\n"
-				+ "\tObject o = null;\n"
-				+ "\tpublic int foo() {\n"
-				+ "\t\treturn 2;\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "\tpublic Object bar2() {\n"
-				+ "\t\treturn new Object();\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A {
+				Object o = null;
+				public int foo() {
+					return 2;
+				}
+				public void bar() {
+				}
+				public Object bar2() {
+					return new Object();
+				}
+			}""";
 		compileAndDeploy(sourceA, "A");
 
 		String userCode = "new A().bar();";
@@ -875,17 +885,18 @@ public void test020() throws Exception {
 public void test021() throws Exception {
 	try {
 		String sourceA21 =
-			"public class A21 {\n"
-				+ "\tObject o = null;\n"
-				+ "\tpublic int foo() {\n"
-				+ "\t\treturn 2;\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "\tpublic Object bar2() {\n"
-				+ "\t\treturn \"toto\";\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A21 {
+				Object o = null;
+				public int foo() {
+					return 2;
+				}
+				public void bar() {
+				}
+				public Object bar2() {
+					return "toto";
+				}
+			}""";
 		compileAndDeploy(sourceA21, "A21");
 
 		String userCode = "new A21().bar();";
@@ -922,23 +933,25 @@ public void test021() throws Exception {
 public void test022() throws Exception {
 	try {
 		String sourceB22 =
-			"public class B22 {\n"
-				+ "\tpublic String s = null;\n"
-				+ "}";
+			"""
+			public class B22 {
+				public String s = null;
+			}""";
 		compileAndDeploy(sourceB22, "B22");
 
 		String sourceA22 =
-			"public class A22 {\n"
-				+ "\tpublic B22 b = new B22();\n"
-				+ "\tpublic int foo() {\n"
-				+ "\t\treturn 2;\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "\tpublic Object bar2() {\n"
-				+ "\t\treturn \"toto\";\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A22 {
+				public B22 b = new B22();
+				public int foo() {
+					return 2;
+				}
+				public void bar() {
+				}
+				public Object bar2() {
+					return "toto";
+				}
+			}""";
 		compileAndDeploy(sourceA22, "A22");
 
 		String userCode = "new A22().bar();";
@@ -982,28 +995,31 @@ public void test022() throws Exception {
 public void test023() throws Exception {
 	try {
 		String sourceC23 =
-			"public class C23 {\n"
-				+ "\tpublic String c = null;\n"
-				+ "}";
+			"""
+			public class C23 {
+				public String c = null;
+			}""";
 		compileAndDeploy(sourceC23, "C23");
 		String sourceB23 =
-			"public class B23 {\n"
-				+ "\tpublic C23 c = new C23();\n"
-				+ "}";
+			"""
+			public class B23 {
+				public C23 c = new C23();
+			}""";
 		compileAndDeploy(sourceB23, "B23");
 
 		String sourceA23 =
-			"public class A23 {\n"
-				+ "\tpublic B23 b = new B23();\n"
-				+ "\tpublic int foo() {\n"
-				+ "\t\treturn 2;\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "\tpublic Object bar2() {\n"
-				+ "\t\treturn \"toto\";\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A23 {
+				public B23 b = new B23();
+				public int foo() {
+					return 2;
+				}
+				public void bar() {
+				}
+				public Object bar2() {
+					return "toto";
+				}
+			}""";
 		compileAndDeploy(sourceA23, "A23");
 
 		String userCode = "new A23().bar();";
@@ -1048,30 +1064,33 @@ public void test023() throws Exception {
 public void test024() throws Exception {
 	try {
 		String sourceC24 =
-			"public class C24 {\n"
-				+ "\tpublic int[] tab = {1,2,3,4,5};\n"
-				+ "}";
+			"""
+			public class C24 {
+				public int[] tab = {1,2,3,4,5};
+			}""";
 		compileAndDeploy(sourceC24, "C24");
 
 
 		String sourceB24 =
-			"public class B24 {\n"
-				+ "\tpublic C24 c = new C24();\n"
-				+ "}";
+			"""
+			public class B24 {
+				public C24 c = new C24();
+			}""";
 		compileAndDeploy(sourceB24, "B24");
 
 		String sourceA24 =
-			"public class A24 {\n"
-				+ "\tpublic B24 b = new B24();\n"
-				+ "\tpublic int foo() {\n"
-				+ "\t\treturn 2;\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "\tpublic Object bar2() {\n"
-				+ "\t\treturn \"toto\";\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A24 {
+				public B24 b = new B24();
+				public int foo() {
+					return 2;
+				}
+				public void bar() {
+				}
+				public Object bar2() {
+					return "toto";
+				}
+			}""";
 		compileAndDeploy(sourceA24, "A24");
 
 		String userCode = "new A24().bar();";
@@ -1116,17 +1135,18 @@ public void test024() throws Exception {
 public void test025() throws Exception {
 	try {
 		String sourceA25 =
-			"public class A25 {\n"
-				+ "\tpublic String[] tabString = new String[2];\n"
-				+ "\tpublic int foo() {\n"
-				+ "\t\treturn 2;\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "\tpublic Object bar2() {\n"
-				+ "\t\treturn \"toto\";\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A25 {
+				public String[] tabString = new String[2];
+				public int foo() {
+					return 2;
+				}
+				public void bar() {
+				}
+				public Object bar2() {
+					return "toto";
+				}
+			}""";
 		compileAndDeploy(sourceA25, "A25");
 
 		String userCode = "new A25().bar();";
@@ -1169,13 +1189,14 @@ public void test025() throws Exception {
 public void test026() throws Exception {
 	try {
 		String sourceA26 =
-			"public class A26 {\n"
-				+ "\tpublic int foo() {\n"
-				+ "\t\treturn 2;\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A26 {
+				public int foo() {
+					return 2;
+				}
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA26, "A26");
 
 		String userCode = "new A26().bar();";
@@ -1190,9 +1211,10 @@ public void test026() throws Exception {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet =
-			("int[] tab = new int[1];\n"
-			+ "tab[0] = foo();\n"
-			+ "tab[0]").toCharArray();
+			("""
+				int[] tab = new int[1];
+				tab[0] = foo();
+				tab[0]""").toCharArray();
 		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
@@ -1212,20 +1234,21 @@ public void test026() throws Exception {
 public void test027() throws Exception {
 	try {
 		String sourceA27 =
-			"public class A27 {\n"
-				+ "\tpublic int foo() {\n"
-				+ "\t\treturn 2;\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "\tpublic int bar2(int i) {\n"
-				+ "\t\tif (i == 2) {\n"
-				+ "\t\t\treturn 3;\n"
-				+ "\t\t} else {\n"
-				+ "\t\t\treturn 4;\n"
-				+ "\t\t}\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A27 {
+				public int foo() {
+					return 2;
+				}
+				public void bar() {
+				}
+				public int bar2(int i) {
+					if (i == 2) {
+						return 3;
+					} else {
+						return 4;
+					}
+				}
+			}""";
 		compileAndDeploy(sourceA27, "A27");
 
 		String userCode = "new A27().bar();";
@@ -1240,11 +1263,12 @@ public void test027() throws Exception {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet =
-			("int[] tab = new int[] { 1, 2, 3, 4, 5};\n"
-			+ "switch(foo()) {\n"
-			+ "case 1 : return -1;\n"
-			+ "case 2 : return tab[bar2(foo())];\n"
-			+ "default: return -5;}").toCharArray();
+			("""
+				int[] tab = new int[] { 1, 2, 3, 4, 5};
+				switch(foo()) {
+				case 1 : return -1;
+				case 2 : return tab[bar2(foo())];
+				default: return -5;}""").toCharArray();
 		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
@@ -1264,20 +1288,21 @@ public void test027() throws Exception {
 public void test028() throws Exception {
 	try {
 		String sourceA28 =
-			"public class A28 {\n"
-				+ "\tpublic int foo() {\n"
-				+ "\t\treturn 2;\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "\tpublic int bar2(int i) {\n"
-				+ "\t\tif (i == 2) {\n"
-				+ "\t\t\treturn 3;\n"
-				+ "\t\t} else {\n"
-				+ "\t\t\treturn 4;\n"
-				+ "\t\t}\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A28 {
+				public int foo() {
+					return 2;
+				}
+				public void bar() {
+				}
+				public int bar2(int i) {
+					if (i == 2) {
+						return 3;
+					} else {
+						return 4;
+					}
+				}
+			}""";
 		compileAndDeploy(sourceA28, "A28");
 
 		String userCode = "new A28().bar();";
@@ -1292,13 +1317,14 @@ public void test028() throws Exception {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet =
-			("int[] tab = new int[] { 1, 2, 3, 4, 5};\n"
-			+ "int i =3;\n"
-			+ "switch(foo()) {\n"
-			+ "case 0 : return -1;\n"
-			+ "case 1 : return tab[bar2(foo())];\n"
-			+ "}\n"
-			+ "return tab[i++];").toCharArray();
+			("""
+				int[] tab = new int[] { 1, 2, 3, 4, 5};
+				int i =3;
+				switch(foo()) {
+				case 0 : return -1;
+				case 1 : return tab[bar2(foo())];
+				}
+				return tab[i++];""").toCharArray();
 		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
@@ -1318,20 +1344,21 @@ public void test028() throws Exception {
 public void test029() throws Exception {
 	try {
 		String sourceA29 =
-			"public class A29 {\n"
-				+ "\tpublic int foo() {\n"
-				+ "\t\treturn 2;\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "\tpublic int bar2(int i) {\n"
-				+ "\t\tif (i == 2) {\n"
-				+ "\t\t\treturn 3;\n"
-				+ "\t\t} else {\n"
-				+ "\t\t\treturn 4;\n"
-				+ "\t\t}\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A29 {
+				public int foo() {
+					return 2;
+				}
+				public void bar() {
+				}
+				public int bar2(int i) {
+					if (i == 2) {
+						return 3;
+					} else {
+						return 4;
+					}
+				}
+			}""";
 		compileAndDeploy(sourceA29, "A29");
 
 		String userCode = "new A29().bar();";
@@ -1346,13 +1373,14 @@ public void test029() throws Exception {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet =
-			("int[] tab = new int[] { 1, 2, 3, 4, 5};\n"
-			+ "int i =3;\n"
-			+ "switch(foo()) {\n"
-			+ "case 0 : return -1;\n"
-			+ "case 1 : return tab[bar2(foo())];\n"
-			+ "}\n"
-			+ "return tab[++i];").toCharArray();
+			("""
+				int[] tab = new int[] { 1, 2, 3, 4, 5};
+				int i =3;
+				switch(foo()) {
+				case 0 : return -1;
+				case 1 : return tab[bar2(foo())];
+				}
+				return tab[++i];""").toCharArray();
 		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
@@ -1372,20 +1400,21 @@ public void test029() throws Exception {
 public void test030() throws Exception {
 	try {
 		String sourceA30 =
-			"public class A30 {\n"
-				+ "\tpublic int foo() {\n"
-				+ "\t\treturn 2;\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "\tpublic int bar2(int i) {\n"
-				+ "\t\tif (i == 2) {\n"
-				+ "\t\t\treturn 3;\n"
-				+ "\t\t} else {\n"
-				+ "\t\t\treturn 4;\n"
-				+ "\t\t}\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A30 {
+				public int foo() {
+					return 2;
+				}
+				public void bar() {
+				}
+				public int bar2(int i) {
+					if (i == 2) {
+						return 3;
+					} else {
+						return 4;
+					}
+				}
+			}""";
 		compileAndDeploy(sourceA30, "A30");
 
 		String userCode = "new A30().bar();";
@@ -1400,17 +1429,18 @@ public void test030() throws Exception {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet =
-			("try {\n"
-			+ "int[] tab = new int[] { 1, 2, 3, 4};\n"
-			+ "int i =3;\n"
-			+ "switch(foo()) {\n"
-			+ "case 0 : return -1;\n"
-			+ "case 1 : return tab[bar2(foo())];\n"
-			+ "}\n"
-			+ "return tab[++i];"
-			+ "} catch(ArrayIndexOutOfBoundsException e) {\n"
-			+ "return -2;\n"
-			+ "}").toCharArray();
+			("""
+				try {
+				int[] tab = new int[] { 1, 2, 3, 4};
+				int i =3;
+				switch(foo()) {
+				case 0 : return -1;
+				case 1 : return tab[bar2(foo())];
+				}
+				return tab[++i];\
+				} catch(ArrayIndexOutOfBoundsException e) {
+				return -2;
+				}""").toCharArray();
 		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
@@ -1430,11 +1460,12 @@ public void test030() throws Exception {
 public void test031() throws Exception {
 	try {
 		String sourceA31 =
-			"public class A31 {\n"
-				+ "\tprivate int i = 2;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A31 {
+				private int i = 2;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA31, "A31");
 
 		String userCode = "new A31().bar();";
@@ -1468,19 +1499,21 @@ public void test031() throws Exception {
 public void test032() throws Exception {
 	try {
 		String sourceA32 =
-			"public class A32 {\n"
-				+ "\tprivate int i = 2;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A32 {
+				private int i = 2;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA32, "A32");
 
 		String sourceB32 =
-			"public class B32 {\n"
-				+ "\tprivate int j = 2;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class B32 {
+				private int j = 2;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceB32, "B32");
 
 		String userCode = "new A32().bar();";
@@ -1524,11 +1557,12 @@ public void test032() throws Exception {
 public void test033() throws Exception {
 	try {
 		String sourceA33 =
-			"public class A33 {\n"
-				+ "\tprivate long l = 2000000L;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A33 {
+				private long l = 2000000L;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA33, "A33");
 
 		String userCode = "new A33().bar();";
@@ -1543,15 +1577,16 @@ public void test033() throws Exception {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet =
-			("try {\n" +
-			"Class c = Class.forName(\"A33\");\n" +
-			"java.lang.reflect.Field field = c.getDeclaredField(\"l\");\n" +
-			"field.setAccessible(true);\n" +
-			"java.lang.reflect.Constructor constr = c.getConstructor(new Class[] {});\n" +
-			"Object o = constr.newInstance(new Object[]{});\n" +
-			"System.out.println(field.getInt(o));\n" +
-			"} catch(Exception e) {}\n" +
-			"return l;").toCharArray();
+			("""
+				try {
+				Class c = Class.forName("A33");
+				java.lang.reflect.Field field = c.getDeclaredField("l");
+				field.setAccessible(true);
+				java.lang.reflect.Constructor constr = c.getConstructor(new Class[] {});
+				Object o = constr.newInstance(new Object[]{});
+				System.out.println(field.getInt(o));
+				} catch(Exception e) {}
+				return l;""").toCharArray();
 		final Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
 
@@ -1585,11 +1620,12 @@ public void test033() throws Exception {
 public void test034() throws Exception {
 	try {
 		String sourceA34 =
-			"public class A34 {\n"
-				+ "\tprivate long l = 2000000L;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A34 {
+				private long l = 2000000L;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA34, "A34");
 
 		String userCode = "new A34().bar();";
@@ -1619,11 +1655,12 @@ public void test034() throws Exception {
 public void test035() throws Exception {
 	try {
 		String sourceA35 =
-			"public class A35 {\n"
-				+ "\tstatic private int i = 2;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A35 {
+				static private int i = 2;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA35, "A35");
 
 		String userCode = "new A35().bar();";
@@ -1657,11 +1694,12 @@ public void test035() throws Exception {
 public void test036() throws Exception {
 	try {
 		String sourceA36 =
-			"public class A36 {\n"
-				+ "\tprivate long l = 2000000L;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A36 {
+				private long l = 2000000L;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA36, "A36");
 
 		String userCode = "new A36().bar();";
@@ -1691,11 +1729,12 @@ public void test036() throws Exception {
 public void test037() throws Exception {
 	try {
 		String sourceA37 =
-			"public class A37 {\n"
-				+ "\tprivate long l = 2000000L;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A37 {
+				private long l = 2000000L;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA37, "A37");
 
 		String userCode = "new A37().bar();";
@@ -1725,11 +1764,12 @@ public void test037() throws Exception {
 public void test038() throws Exception {
 	try {
 		String sourceA38 =
-			"public class A38 {\n"
-				+ "\tprivate long l = 2000000L;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A38 {
+				private long l = 2000000L;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA38, "A38");
 
 		String userCode = "new A38().bar();";
@@ -1757,11 +1797,12 @@ public void test038() throws Exception {
 public void test039() throws Exception {
 	try {
 		String sourceA39 =
-			"public class A39 {\n"
-				+ "\tstatic private int i = 2;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A39 {
+				static private int i = 2;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA39, "A39");
 
 		String userCode = "new A39().bar();";
@@ -1789,11 +1830,12 @@ public void test039() throws Exception {
 public void test040() throws Exception {
 	try {
 		String sourceA40 =
-			"public class A40 {\n"
-				+ "\tstatic private int[] tab = new int[] {1, 2};\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A40 {
+				static private int[] tab = new int[] {1, 2};
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA40, "A40");
 
 		String userCode = "new A40().bar();";
@@ -1821,11 +1863,12 @@ public void test040() throws Exception {
 public void test041() throws Exception {
 	try {
 		String sourceA41 =
-			"public class A41 {\n"
-				+ "\tstatic private final int[] tab = new int[] {1, 2};\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A41 {
+				static private final int[] tab = new int[] {1, 2};
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA41, "A41");
 
 		String userCode = "new A41().bar();";
@@ -1853,11 +1896,12 @@ public void test041() throws Exception {
 public void test042() throws Exception {
 	try {
 		String sourceA42 =
-			"public class A42 {\n"
-				+ "\tstatic private int Counter = 0;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A42 {
+				static private int Counter = 0;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA42, "A42");
 
 		String userCode = "new A42().bar();";
@@ -1885,11 +1929,12 @@ public void test042() throws Exception {
 public void test043() throws Exception {
 	try {
 		String sourceA43 =
-			"public class A43 {\n"
-				+ "\tstatic private int Counter = 0;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A43 {
+				static private int Counter = 0;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA43, "A43");
 
 		String userCode = "new A43().bar();";
@@ -1917,11 +1962,12 @@ public void test043() throws Exception {
 public void test044() throws Exception {
 	try {
 		String sourceA44 =
-			"public class A44 {\n"
-				+ "\tstatic private int Counter = 0;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A44 {
+				static private int Counter = 0;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA44, "A44");
 
 		String userCode = "new A44().bar();";
@@ -1949,11 +1995,12 @@ public void test044() throws Exception {
 public void test045() throws Exception {
 	try {
 		String sourceA45 =
-			"public class A45 {\n"
-				+ "\tstatic private int Counter = 0;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A45 {
+				static private int Counter = 0;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA45, "A45");
 
 		String userCode = "new A45().bar();";
@@ -1981,11 +2028,12 @@ public void test045() throws Exception {
 public void test046() throws Exception {
 	try {
 		String sourceA46 =
-			"public class A46 {\n"
-				+ "\tstatic protected int Counter = 0;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A46 {
+				static protected int Counter = 0;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA46, "A46");
 
 		String userCode = "new A46().bar();";
@@ -2013,12 +2061,13 @@ public void test046() throws Exception {
 public void test047() throws Exception {
 	try {
 		String sourceA47 =
-			"public class A47 {\n"
-				+ "\tstatic private A47 instance = new A47();\n"
-				+ "\tstatic private int Counter = 2;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A47 {
+				static private A47 instance = new A47();
+				static private int Counter = 2;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA47, "A47");
 
 		String userCode = "new A47().bar();";
@@ -2047,12 +2096,13 @@ public void test047() throws Exception {
 public void test048() throws Exception {
 	try {
 		String sourceA48 =
-			"public class A48 {\n"
-				+ "\tstatic private A48 instance = new A48();\n"
-				+ "\tstatic private int Counter = 2;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A48 {
+				static private A48 instance = new A48();
+				static private int Counter = 2;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA48, "A48");
 
 		String userCode = "new A48().bar();";
@@ -2081,12 +2131,13 @@ public void test048() throws Exception {
 public void test049() throws Exception {
 	try {
 		String sourceA49 =
-			"public class A49 {\n"
-				+ "\tstatic private A49 instance = new A49();\n"
-				+ "\tstatic private int Counter = 2;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A49 {
+				static private A49 instance = new A49();
+				static private int Counter = 2;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA49, "A49");
 
 		String userCode = "new A49().bar();";
@@ -2115,12 +2166,13 @@ public void test049() throws Exception {
 public void test050() throws Exception {
 	try {
 		String sourceA50 =
-			"public class A50 {\n"
-				+ "\tstatic private A50 instance = new A50();\n"
-				+ "\tstatic private int Counter = 2;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A50 {
+				static private A50 instance = new A50();
+				static private int Counter = 2;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA50, "A50");
 
 		String userCode = "new A50().bar();";
@@ -2149,12 +2201,13 @@ public void test050() throws Exception {
 public void test051() throws Exception {
 	try {
 		String sourceA51 =
-			"public class A51 {\n"
-				+ "\tstatic private A51 instance = new A51();\n"
-				+ "\tstatic private int Counter = 2;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A51 {
+				static private A51 instance = new A51();
+				static private int Counter = 2;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA51, "A51");
 
 		String userCode = "new A51().bar();";
@@ -2183,12 +2236,13 @@ public void test051() throws Exception {
 public void test052() throws Exception {
 	try {
 		String sourceA52 =
-			"public class A52 {\n"
-				+ "\tstatic private A52 instance = new A52();\n"
-				+ "\tstatic private int Counter = 2;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A52 {
+				static private A52 instance = new A52();
+				static private int Counter = 2;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA52, "A52");
 
 		String userCode = "new A52().bar();";
@@ -2217,12 +2271,13 @@ public void test052() throws Exception {
 public void test053() throws Exception {
 	try {
 		String sourceA53 =
-			"public class A53 {\n"
-				+ "\tstatic private A53 instance = new A53();\n"
-				+ "\tstatic private int Counter = 2;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A53 {
+				static private A53 instance = new A53();
+				static private int Counter = 2;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA53, "A53");
 
 		String userCode = "new A53().bar();";
@@ -2251,12 +2306,13 @@ public void test053() throws Exception {
 public void test054() throws Exception {
 	try {
 		String sourceA54 =
-			"public class A54 {\n"
-				+ "\tstatic private A54 instance = new A54();\n"
-				+ "\tstatic private long Counter = 2L;\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A54 {
+				static private A54 instance = new A54();
+				static private long Counter = 2L;
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA54, "A54");
 
 		String userCode = "new A54().bar();";
@@ -2284,13 +2340,14 @@ public void test054() throws Exception {
 public void test055() throws Exception {
 	try {
 		String sourceA55 =
-			"public class A55 {\n"
-				+ "\tprivate int foo() {;\n"
-				+ "\t\treturn 3;\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A55 {
+				private int foo() {;
+					return 3;
+				}
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA55, "A55");
 
 		String userCode = "new A55().bar();";
@@ -2318,13 +2375,14 @@ public void test055() throws Exception {
 public void test056() throws Exception {
 	try {
 		String sourceA56 =
-			"public class A56 {\n"
-				+ "\tprivate Integer foo() {;\n"
-				+ "\t\treturn new Integer(3);\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A56 {
+				private Integer foo() {;
+					return new Integer(3);
+				}
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA56, "A56");
 
 		String userCode = "new A56().bar();";
@@ -2352,13 +2410,14 @@ public void test056() throws Exception {
 public void test057() throws Exception {
 	try {
 		String sourceA57 =
-			"public class A57 {\n"
-				+ "\tprivate Integer foo(int i) {;\n"
-				+ "\t\treturn new Integer(i);\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A57 {
+				private Integer foo(int i) {;
+					return new Integer(i);
+				}
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA57, "A57");
 
 		String userCode = "new A57().bar();";
@@ -2386,13 +2445,14 @@ public void test057() throws Exception {
 public void test058() throws Exception {
 	try {
 		String sourceA58 =
-			"public class A58 {\n"
-				+ "\tprivate Integer foo(int i, int[] tab) {;\n"
-				+ "\t\treturn new Integer(i + tab.length);\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A58 {
+				private Integer foo(int i, int[] tab) {;
+					return new Integer(i + tab.length);
+				}
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA58, "A58");
 
 		String userCode = "new A58().bar();";
@@ -2420,13 +2480,14 @@ public void test058() throws Exception {
 public void test059() throws Exception {
 	try {
 		String sourceA59 =
-			"public class A59 {\n"
-				+ "\tprivate Integer foo(int i, Object[][] tab) {;\n"
-				+ "\t\treturn new Integer(i + tab.length);\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A59 {
+				private Integer foo(int i, Object[][] tab) {;
+					return new Integer(i + tab.length);
+				}
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA59, "A59");
 
 		String userCode = "new A59().bar();";
@@ -2454,16 +2515,17 @@ public void test059() throws Exception {
 public void test060() throws Exception {
 	try {
 		String sourceA60 =
-			"public class A60 {\n"
-				+ "\tprivate int i;\n"
-				+ "\tpublic A60() {;\n"
-				+ "\t}\n"
-				+ "\tprivate A60(int i) {;\n"
-				+ "\t\tthis.i = i;\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A60 {
+				private int i;
+				public A60() {;
+				}
+				private A60(int i) {;
+					this.i = i;
+				}
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA60, "A60");
 
 		String userCode = "new A60().bar();";
@@ -2491,16 +2553,17 @@ public void test060() throws Exception {
 public void test061() throws Exception {
 	try {
 		String sourceA61 =
-			"public class A61 {\n"
-				+ "\tprivate int i;\n"
-				+ "\tpublic A61() {;\n"
-				+ "\t}\n"
-				+ "\tprivate A61(int[] tab) {;\n"
-				+ "\t\tthis.i = tab.length;\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A61 {
+				private int i;
+				public A61() {;
+				}
+				private A61(int[] tab) {;
+					this.i = tab.length;
+				}
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy(sourceA61, "A61");
 
 		String userCode = "new A61().bar();";
@@ -2528,10 +2591,11 @@ public void test061() throws Exception {
 public void test062() throws Exception {
 	try {
 		String sourceA62 =
-			"public class A62 {\n" +
-			"  public static void bar() {\n" +
-			"  }\n" +
-			"}";
+			"""
+			public class A62 {
+			  public static void bar() {
+			  }
+			}""";
 		compileAndDeploy(sourceA62, "A62");
 
 		String userCode = "new A62().bar();";
@@ -2756,10 +2820,11 @@ public void test063() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	try {
 		String sourceA63 =
-			"public class A63 {\n" +
-			"  public static void bar() {\n" +
-			"  }\n" +
-			"}";
+			"""
+			public class A63 {
+			  public static void bar() {
+			  }
+			}""";
 		compileAndDeploy15(sourceA63, "A63");
 
 		String userCode = "new A63().bar();";
@@ -2767,12 +2832,13 @@ public void test063() throws Exception {
 			new JDIStackFrame(this.jdiVM, this, userCode, "A63", "bar", -1);
 
 		DebugRequestor requestor = new DebugRequestor();
-		char[] snippet = ("int[] tab = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9 };\n" +
-				"int sum = 0;\n" +
-				"for (int i : tab) {\n" +
-				"	sum += i;\n" +
-				"}\n" +
-				"sum").toCharArray();
+		char[] snippet = ("""
+			int[] tab = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9 };
+			int sum = 0;
+			for (int i : tab) {
+				sum += i;
+			}
+			sum""").toCharArray();
 		Map compilerOpts = getCompilerOptions();
 		compilerOpts.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 		compilerOpts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
@@ -2806,16 +2872,17 @@ public void test065() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	try {
 		String sourceA65 =
-			"public class A65<T> {\n"
-				+ "\tprivate int i;\n"
-				+ "\tpublic <U>A65() {;\n"
-				+ "\t}\n"
-				+ "\tprivate <U>A65(int i) {;\n"
-				+ "\t\tthis.i = i;\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A65<T> {
+				private int i;
+				public <U>A65() {;
+				}
+				private <U>A65(int i) {;
+					this.i = i;
+				}
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy15(sourceA65, "A65");
 
 		String userCode = "new <Object>A65<Object>().bar();";
@@ -2856,16 +2923,17 @@ public void test066() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	try {
 		String sourceA66 =
-			"public class A66 {\n"
-				+ "\tprivate int i;\n"
-				+ "\tpublic A66() {;\n"
-				+ "\t}\n"
-				+ "\tprivate <U> int foo(int i) {;\n"
-				+ "\t\treturn i;\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A66 {
+				private int i;
+				public A66() {;
+				}
+				private <U> int foo(int i) {;
+					return i;
+				}
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy15(sourceA66, "A66");
 
 		String userCode = "new A66().bar();";
@@ -2906,19 +2974,20 @@ public void test067() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	try {
 		String sourceA67 =
-			"import java.util.List;\n" +
-			"public class A67<T> {\n" +
-			"	public static String toString(List<?> list) {\n" +
-			"		StringBuilder builder = new StringBuilder(\"{\");\n" +
-			"		for (Object o : list) {" +
-			"			builder.append(o);\n" +
-			"		}\n" +
-			"		builder.append(\"}\");\n" +
-			"		return String.valueOf(builder);\n" +
-			"	}\n" +
-			"	public void bar() {\n" +
-			"	}\n" +
-			"}";
+			"""
+			import java.util.List;
+			public class A67<T> {
+				public static String toString(List<?> list) {
+					StringBuilder builder = new StringBuilder("{");
+					for (Object o : list) {\
+						builder.append(o);
+					}
+					builder.append("}");
+					return String.valueOf(builder);
+				}
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy15(sourceA67, "A67");
 
 		String userCode = "new A67<Object>().bar();";
@@ -2926,11 +2995,12 @@ public void test067() {
 			new JDIStackFrame(this.jdiVM, this, userCode, "A67", "bar", -1);
 
 		DebugRequestor requestor = new DebugRequestor();
-		char[] snippet = ("java.util.ArrayList<String> list = new java.util.ArrayList<String>();\n" +
-				"list.add(\"Test\");\n" +
-				"list.add(\"Hello\");\n" +
-				"list.add(\"World\");\n" +
-				"return A67.toString(list);").toCharArray();
+		char[] snippet = ("""
+			java.util.ArrayList<String> list = new java.util.ArrayList<String>();
+			list.add("Test");
+			list.add("Hello");
+			list.add("World");
+			return A67.toString(list);""").toCharArray();
 		try {
 			this.context.evaluate(
 				snippet,
@@ -2963,26 +3033,28 @@ public void test068() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	try {
 		String sourceSuperA68 =
-			"public class SuperA68 {\n"
-				+ "\tprivate int i;\n"
-				+ "\tpublic SuperA68() {\n"
-				+ "\t}\n"
-				+ "\tpublic <U> int foo(int i) {;\n"
-				+ "\t\treturn i;\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class SuperA68 {
+				private int i;
+				public SuperA68() {
+				}
+				public <U> int foo(int i) {;
+					return i;
+				}
+			}""";
 		compileAndDeploy15(sourceSuperA68, "SuperA68");
 		String sourceA68 =
-			"public class A68 extends SuperA68 {\n"
-				+ "\tprivate int i;\n"
-				+ "\tpublic A68() {\n"
-				+ "\t}\n"
-				+ "\tpublic <U> int foo(int i) {\n"
-				+ "\t\treturn i;\n"
-				+ "\t}\n"
-				+ "\tpublic void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public class A68 extends SuperA68 {
+				private int i;
+				public A68() {
+				}
+				public <U> int foo(int i) {
+					return i;
+				}
+				public void bar() {
+				}
+			}""";
 		compileAndDeploy15(sourceA68, "A68");
 
 		String userCode = "new A68().bar();";
@@ -3023,18 +3095,19 @@ public void test069() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	try {
 		String sourceA69 =
-			"public enum A69 {\n"
-				+ "\tA(2), B(1);\n"
-				+ "\tprivate int i;\n"
-				+ "\tprivate A69(int i) {\n"
-				+ "\t\tthis.i = i;\n"
-				+ "\t}\n"
-				+ "\tpublic String toString() {\n"
-				+ "\t\treturn String.valueOf(this.i);\n"
-				+ "\t}\n"
-				+ "\tpublic static void bar() {\n"
-				+ "\t}\n"
-				+ "}";
+			"""
+			public enum A69 {
+				A(2), B(1);
+				private int i;
+				private A69(int i) {
+					this.i = i;
+				}
+				public String toString() {
+					return String.valueOf(this.i);
+				}
+				public static void bar() {
+				}
+			}""";
 		compileAndDeploy15(sourceA69, "A69");
 
 		String userCode = "A69.bar();";

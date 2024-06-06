@@ -70,75 +70,103 @@ public class AnnotationDependencyTests extends BuilderTests {
 	}
 
 	private void addAnnotationType() {
-		String annoCode = "package p1;\n"
-			+ "@interface Anno {\n"
-			+ "String value();\n"
-			+ "}\n";
+		String annoCode = """
+			package p1;
+			@interface Anno {
+			String value();
+			}
+			""";
 		env.addClass(this.srcRoot, "p1", "Anno", annoCode);
-		annoCode = "package p1;\n"
-			+ "@interface AnnoInt {\n"
-			+ "int value();\n"
-			+ "}\n";
+		annoCode = """
+			package p1;
+			@interface AnnoInt {
+			int value();
+			}
+			""";
 		env.addClass(this.srcRoot, "p1", "AnnoInt", annoCode);
-		annoCode = "package p1;\n"
-			+ "@interface AnnoBoolean {\n"
-			+ "boolean value();\n"
-			+ "}\n";
+		annoCode = """
+			package p1;
+			@interface AnnoBoolean {
+			boolean value();
+			}
+			""";
 		env.addClass(this.srcRoot, "p1", "AnnoBoolean", annoCode);
-		annoCode = "package p1;\n"
-			+ "@interface AnnoByte {\n"
-			+ "byte value();\n"
-			+ "}\n";
+		annoCode = """
+			package p1;
+			@interface AnnoByte {
+			byte value();
+			}
+			""";
 		env.addClass(this.srcRoot, "p1", "AnnoByte", annoCode);
-		annoCode = "package p1;\n"
-			+ "@interface AnnoChar {\n"
-			+ "char value();\n"
-			+ "}\n";
+		annoCode = """
+			package p1;
+			@interface AnnoChar {
+			char value();
+			}
+			""";
 		env.addClass(this.srcRoot, "p1", "AnnoChar", annoCode);
-		annoCode = "package p1;\n"
-			+ "@interface AnnoShort {\n"
-			+ "short value();\n"
-			+ "}\n";
+		annoCode = """
+			package p1;
+			@interface AnnoShort {
+			short value();
+			}
+			""";
 		env.addClass(this.srcRoot, "p1", "AnnoShort", annoCode);
-		annoCode = "package p1;\n"
-			+ "@interface AnnoDouble {\n"
-			+ "double value();\n"
-			+ "}\n";
+		annoCode = """
+			package p1;
+			@interface AnnoDouble {
+			double value();
+			}
+			""";
 		env.addClass(this.srcRoot, "p1", "AnnoDouble", annoCode);
-		annoCode = "package p1;\n"
-			+ "@interface AnnoFloat {\n"
-			+ "float value();\n"
-			+ "}\n";
+		annoCode = """
+			package p1;
+			@interface AnnoFloat {
+			float value();
+			}
+			""";
 		env.addClass(this.srcRoot, "p1", "AnnoFloat", annoCode);
-		annoCode = "package p1;\n"
-			+ "@interface AnnoLong {\n"
-			+ "long value();\n"
-			+ "}\n";
+		annoCode = """
+			package p1;
+			@interface AnnoLong {
+			long value();
+			}
+			""";
 		env.addClass(this.srcRoot, "p1", "AnnoLong", annoCode);
-		annoCode = "package p1;\n"
-			+ "@interface AnnoStringArray {\n"
-			+ "String[] value();\n"
-			+ "}\n";
+		annoCode = """
+			package p1;
+			@interface AnnoStringArray {
+			String[] value();
+			}
+			""";
 		env.addClass(this.srcRoot, "p1", "AnnoStringArray", annoCode);
-		annoCode = "package p1;\n"
-			+ "@interface AnnoAnnotation {\n"
-			+ "AnnoLong value();\n"
-			+ "}\n";
+		annoCode = """
+			package p1;
+			@interface AnnoAnnotation {
+			AnnoLong value();
+			}
+			""";
 		env.addClass(this.srcRoot, "p1", "AnnoAnnotation", annoCode);
-		annoCode = "package p1;\n"
-			+ "enum E {\n"
-			+ "A, B, C\n"
-			+ "}\n";
+		annoCode = """
+			package p1;
+			enum E {
+			A, B, C
+			}
+			""";
 		env.addClass(this.srcRoot, "p1", "E", annoCode);
-		annoCode = "package p1;\n"
-			+ "@interface AnnoEnum {\n"
-			+ "E value();\n"
-			+ "}\n";
+		annoCode = """
+			package p1;
+			@interface AnnoEnum {
+			E value();
+			}
+			""";
 		env.addClass(this.srcRoot, "p1", "AnnoEnum", annoCode);
-		annoCode = "package p1;\n"
-			+ "@interface AnnoClass {\n"
-			+ "Class<?> value();\n"
-			+ "}\n";
+		annoCode = """
+			package p1;
+			@interface AnnoClass {
+			Class<?> value();
+			}
+			""";
 		env.addClass(this.srcRoot, "p1", "AnnoClass", annoCode);
 	}
 
@@ -163,16 +191,26 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@Anno(\"A1\")" + "\n"
-			+ "public class A {}";
-		String a2Code = "package p1; " + "\n"
-			+ "@Anno(\"A2\")" + "\n"
-			+ "public class A {}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@Anno("A1")\
+			
+			public class A {}""";
+		String a2Code = """
+			package p1; \
+			
+			@Anno("A2")\
+			
+			public class A {}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -197,20 +235,34 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testFieldAnnotationDependency() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "public class A {" + "\n"
-			+ "  @Anno(\"A1\")" + "\n"
-			+ "  protected int f;" + "\n"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "public class A {" + "\n"
-			+ "  @Anno(\"A2\")" + "\n"
-			+ "  protected int f;" + "\n"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			public class A {\
+			
+			  @Anno("A1")\
+			
+			  protected int f;\
+			
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			public class A {\
+			
+			  @Anno("A2")\
+			
+			  protected int f;\
+			
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -235,20 +287,34 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testMethodAnnotationDependency() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "public class A {" + "\n"
-			+ "  @Anno(\"A1\")" + "\n"
-			+ "  protected int f() { return 0; }" + "\n"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "public class A {" + "\n"
-			+ "  @Anno(\"A2\")" + "\n"
-			+ "  protected int f() { return 0; }" + "\n"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			public class A {\
+			
+			  @Anno("A1")\
+			
+			  protected int f() { return 0; }\
+			
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			public class A {\
+			
+			  @Anno("A2")\
+			
+			  protected int f() { return 0; }\
+			
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -274,20 +340,34 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testInnerTypeAnnotationDependency() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "public class A {" + "\n"
-			+ "  @Anno(\"A1\")" + "\n"
-			+ "  public class X { }" + "\n"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "public class A {" + "\n"
-			+ "  @Anno(\"A2\")" + "\n"
-			+ "  public class X { }" + "\n"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			public class A {\
+			
+			  @Anno("A1")\
+			
+			  public class X { }\
+			
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			public class A {\
+			
+			  @Anno("A2")\
+			
+			  public class X { }\
+			
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -312,15 +392,24 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testUnrelatedTypeAnnotationDependency() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@Anno(\"A1\")" + "\n"
-			+ "public class A {}";
-		String a2Code = "package p1; " + "\n"
-			+ "@Anno(\"A2\")" + "\n"
-			+ "public class A {}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@Anno("A1")\
+			
+			public class A {}""";
+		String a2Code = """
+			package p1; \
+			
+			@Anno("A2")\
+			
+			public class A {}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -343,8 +432,10 @@ public class AnnotationDependencyTests extends BuilderTests {
 		String notypes = "@question.SimpleAnnotation(\"foo\") package notypes;";
 		String question = "package question;";
 		String deprecatedQuestion = "@Deprecated package question;";
-		String SimpleAnnotation = "package question; " + "\n"
-			+ "public @interface SimpleAnnotation { String value(); }";
+		String SimpleAnnotation = """
+			package question; \
+			
+			public @interface SimpleAnnotation { String value(); }""";
 
 		IPath notypesPath = env.addClass( this.srcRoot, "notypes", "package-info", notypes );
 		env.addClass( this.srcRoot, "question", "package-info", question );
@@ -366,25 +457,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency2() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@Anno(\"A1\")" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@Anno(\"A1\")" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@Anno("A1")\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@Anno("A1")\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -406,25 +507,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency3() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoInt(24)" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoInt(24)" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoInt(24)\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoInt(24)\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -446,25 +557,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency4() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoByte(3)" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoByte(3)" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoByte(3)\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoByte(3)\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -486,25 +607,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency5() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoBoolean(true)" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoBoolean(true)" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoBoolean(true)\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoBoolean(true)\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -526,25 +657,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency6() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoChar('c')" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoChar('c')" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoChar('c')\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoChar('c')\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -566,25 +707,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency7() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoDouble(1.0)" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoDouble(1.0)" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoDouble(1.0)\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoDouble(1.0)\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -606,25 +757,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency8() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoFloat(1.0f)" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoFloat(1.0f)" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoFloat(1.0f)\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoFloat(1.0f)\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -646,25 +807,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency9() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoLong(1L)" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoLong(1L)" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoLong(1L)\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoLong(1L)\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -686,25 +857,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency10() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoShort(3)" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoShort(3)" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoShort(3)\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoShort(3)\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -726,25 +907,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency11() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoStringArray({\"A1\",\"A2\"})" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoStringArray({\"A1\",\"A2\"})" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoStringArray({"A1","A2"})\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoStringArray({"A1","A2"})\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -766,25 +957,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency12() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoAnnotation(@AnnoLong(3))" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoAnnotation(@AnnoLong(3))" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoAnnotation(@AnnoLong(3))\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoAnnotation(@AnnoLong(3))\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -806,25 +1007,33 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency13() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoEnum(E.A)\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoEnum(E.A)\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoEnum(E.A)
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoEnum(E.A)
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -846,25 +1055,33 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency14() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoClass(Object.class)\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoClass(Object.class)\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoClass(Object.class)
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoClass(Object.class)
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -886,25 +1103,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency15() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@Anno(\"A1\")" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@Anno(\"A2\")" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@Anno("A1")\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@Anno("A2")\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -926,25 +1153,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency16() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoInt(3)" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoInt(4)" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoInt(3)\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoInt(4)\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -966,25 +1203,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency17() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoByte(3)" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoByte(4)" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoByte(3)\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoByte(4)\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -1006,25 +1253,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency18() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoBoolean(true)" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoBoolean(false)" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoBoolean(true)\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoBoolean(false)\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -1046,25 +1303,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency19() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoChar('c')" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoChar('d')" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoChar('c')\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoChar('d')\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -1086,25 +1353,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency20() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoDouble(1.0)" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoDouble(2.0)" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoDouble(1.0)\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoDouble(2.0)\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -1126,25 +1403,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency21() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoFloat(1.0f)" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoFloat(2.0f)" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoFloat(1.0f)\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoFloat(2.0f)\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -1166,25 +1453,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency22() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoLong(1L)" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoLong(2L)" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoLong(1L)\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoLong(2L)\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -1206,25 +1503,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency23() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoShort(3)" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoShort(5)" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoShort(3)\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoShort(5)\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -1246,25 +1553,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency24() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoStringArray({\"A1\",\"A2\"})" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoStringArray({\"A2\",\"A1\"})" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoStringArray({"A1","A2"})\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoStringArray({"A2","A1"})\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -1286,25 +1603,35 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency25() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoAnnotation(@AnnoLong(3))" + "\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoAnnotation(@AnnoLong(4))" + "\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoAnnotation(@AnnoLong(3))\
+			
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoAnnotation(@AnnoLong(4))\
+			
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -1326,25 +1653,33 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency26() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoEnum(E.A)\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoEnum(E.C)\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoEnum(E.A)
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoEnum(E.C)
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -1366,25 +1701,33 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 */
 	public void testTypeAnnotationDependency27() throws Exception
 	{
-		String a1Code = "package p1; " + "\n"
-			+ "@AnnoClass(Object.class)\n"
-			+ "public class A {\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String a2Code = "package p1; " + "\n"
-			+ "@AnnoClass(String.class)\n"
-			+ "public class A {\n"
-			+ "\n"
-			+ "    public void foo() {\n"
-			+ "        System.out.println(\"test\");"
-			+ "    }"
-			+ "}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B {" + "\n"
-			+ "  public A a;" + "\n"
-			+ "}";
+		String a1Code = """
+			package p1; \
+			
+			@AnnoClass(Object.class)
+			public class A {
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String a2Code = """
+			package p1; \
+			
+			@AnnoClass(String.class)
+			public class A {
+			
+			    public void foo() {
+			        System.out.println("test");\
+			    }\
+			}""";
+		String bCode = """
+			package p1; \
+			
+			public class B {\
+			
+			  public A a;\
+			
+			}""";
 
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
@@ -1407,16 +1750,18 @@ public class AnnotationDependencyTests extends BuilderTests {
 		// prepare the project:
 		setupProjectForNullAnnotations();
 
-		String test1Code = "package p1;\n"	+
-			"public class Test1 {\n" +
-			"    public void foo() {\n" +
-			"        new Test2().bar(null);\n" +
-			"    }\n" +
-			"}";
-		String test2Code = "package p1;\n" +
-			"public class Test2 {\n" +
-			"    public void bar(String str) {}\n" +
-			"}";
+		String test1Code = """
+			package p1;
+			public class Test1 {
+			    public void foo() {
+			        new Test2().bar(null);
+			    }
+			}""";
+		String test2Code = """
+			package p1;
+			public class Test2 {
+			    public void bar(String str) {}
+			}""";
 
 		IPath test1Path = env.addClass( this.srcRoot, "p1", "Test1", test1Code );
 		env.addClass( this.srcRoot, "p1", "Test2", test2Code );
@@ -1425,11 +1770,12 @@ public class AnnotationDependencyTests extends BuilderTests {
 		expectingNoProblems();
 
 		// edit Test2 to add @NonNull annotation (changes number of annotations)
-		String test2CodeB = "package p1;\n" +
-			"import org.eclipse.jdt.annotation.NonNull;\n" +
-			"public class Test2 {\n" +
-			"    public void bar(@NonNull String str) {}\n" +
-			"}";
+		String test2CodeB = """
+			package p1;
+			import org.eclipse.jdt.annotation.NonNull;
+			public class Test2 {
+			    public void bar(@NonNull String str) {}
+			}""";
 		env.addClass( this.srcRoot, "p1", "Test2", test2CodeB );
 		incrementalBuild( this.projectPath );
 		expectingProblemsFor(test1Path,
@@ -1439,11 +1785,12 @@ public class AnnotationDependencyTests extends BuilderTests {
 		expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.Test2" });
 
 		// fix error by changing to @Nullable (change is only in an annotation name)
-		String test2CodeC = "package p1;\n" +
-			"import org.eclipse.jdt.annotation.Nullable;\n" +
-			"public class Test2 {\n" +
-			"    public void bar(@Nullable String str) {}\n" +
-			"}";
+		String test2CodeC = """
+			package p1;
+			import org.eclipse.jdt.annotation.Nullable;
+			public class Test2 {
+			    public void bar(@Nullable String str) {}
+			}""";
 		env.addClass( this.srcRoot, "p1", "Test2", test2CodeC );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
@@ -1458,18 +1805,20 @@ public class AnnotationDependencyTests extends BuilderTests {
 		// prepare the project:
 		setupProjectForNullAnnotations();
 
-		String test1Code = "package p1;\n" +
-			"import org.eclipse.jdt.annotation.NonNull;\n" +
-			"public class Test1 {\n" +
-			"    public @NonNull Object foo() {\n" +
-			"        return new Test2().bar();\n" +
-			"    }\n" +
-			"}";
-		String test2Code = "package p1;\n" +
-			"import org.eclipse.jdt.annotation.NonNull;\n" +
-			"public class Test2 {\n" +
-			"    public @NonNull Object bar() { return this; }\n" +
-			"}";
+		String test1Code = """
+			package p1;
+			import org.eclipse.jdt.annotation.NonNull;
+			public class Test1 {
+			    public @NonNull Object foo() {
+			        return new Test2().bar();
+			    }
+			}""";
+		String test2Code = """
+			package p1;
+			import org.eclipse.jdt.annotation.NonNull;
+			public class Test2 {
+			    public @NonNull Object bar() { return this; }
+			}""";
 
 		IPath test1Path = env.addClass( this.srcRoot, "p1", "Test1", test1Code );
 		env.addClass( this.srcRoot, "p1", "Test2", test2Code );
@@ -1478,11 +1827,12 @@ public class AnnotationDependencyTests extends BuilderTests {
 		expectingNoProblems();
 
 		// edit Test2 to replace annotation
-		String test2CodeB = "package p1;\n" +
-			"import org.eclipse.jdt.annotation.Nullable;\n" +
-			"public class Test2 {\n" +
-			"    public @Nullable Object bar() { return null; }\n" +
-			"}";
+		String test2CodeB = """
+			package p1;
+			import org.eclipse.jdt.annotation.Nullable;
+			public class Test2 {
+			    public @Nullable Object bar() { return null; }
+			}""";
 		env.addClass( this.srcRoot, "p1", "Test2", test2CodeB );
 		incrementalBuild( this.projectPath );
 		expectingProblemsFor(test1Path,
@@ -1492,10 +1842,11 @@ public class AnnotationDependencyTests extends BuilderTests {
 		expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.Test2" });
 
 		// remove annotation, error changes from can be null to unknown nullness
-		String test2CodeC = "package p1;\n" +
-			"public class Test2 {\n" +
-			"    public Object bar() { return null; }\n" +
-			"}";
+		String test2CodeC = """
+			package p1;
+			public class Test2 {
+			    public Object bar() { return null; }
+			}""";
 		env.addClass( this.srcRoot, "p1", "Test2", test2CodeC );
 		incrementalBuild( this.projectPath );
 		expectingProblemsFor(test1Path,
@@ -1519,27 +1870,29 @@ public class AnnotationDependencyTests extends BuilderTests {
 		// prepare the project:
 		setupProjectForNullAnnotations();
 
-		String test1Code = "package p1;\n" +
-			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
-			"@NonNullByDefault\n" +
-			"public class Test1 {\n" +
-			"    public void doStuff(int i) {\n" +
-			"    }\n" +
-			"}";
+		String test1Code = """
+			package p1;
+			import org.eclipse.jdt.annotation.NonNullByDefault;
+			@NonNullByDefault
+			public class Test1 {
+			    public void doStuff(int i) {
+			    }
+			}""";
 		env.addClass( this.srcRoot, "p1", "Test1", test1Code );
 		fullBuild( this.projectPath );
 		expectingNoProblems();
 
 		// add Test2
-		String test2Code = "package p1;\n" +
-			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
-			"@NonNullByDefault\n" +
-			"public class Test2 extends Test1{\n" +
-			"	@Override\n" +
-			"    public void doStuff(int i) {\n" +
-			"		 super.doStuff(i);\n" +
-			"    }\n" +
-			"}";
+		String test2Code = """
+			package p1;
+			import org.eclipse.jdt.annotation.NonNullByDefault;
+			@NonNullByDefault
+			public class Test2 extends Test1{
+				@Override
+			    public void doStuff(int i) {
+					 super.doStuff(i);
+			    }
+			}""";
 		env.addClass( this.srcRoot, "p1", "Test2", test2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
@@ -1548,13 +1901,14 @@ public class AnnotationDependencyTests extends BuilderTests {
 		expectingUniqueCompiledClasses(new String[] { "p1.Test2" });
 
 		// edit Test2 to delete annotation
-		test2Code = "package p1;\n" +
-			"public class Test2 extends Test1{\n" +
-			"	@Override\n" +
-			"    public void doStuff(int i) {\n" +
-			"		 super.doStuff(i);\n" +
-			"    }\n" +
-			"}";
+		test2Code = """
+			package p1;
+			public class Test2 extends Test1{
+				@Override
+			    public void doStuff(int i) {
+					 super.doStuff(i);
+			    }
+			}""";
 		env.addClass( this.srcRoot, "p1", "Test2", test2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
@@ -1575,14 +1929,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		 fullBuild( this.projectPath );
 		 expectingNoProblems();
 
-		 String nullTestCode = "package p1;\n" +
-				 "import org.eclipse.jdt.annotation.NonNull;\n" +
-				 "public class NullTest {\n" +
-				 "	public static TestEnum bla() {\n" +
-				 "		@NonNull final TestEnum t = TestEnum.FOO;\n" +
-				 "		return t;\n" +
-				 "	}\n" +
-				 "}";
+		 String nullTestCode = """
+			package p1;
+			import org.eclipse.jdt.annotation.NonNull;
+			public class NullTest {
+				public static TestEnum bla() {
+					@NonNull final TestEnum t = TestEnum.FOO;
+					return t;
+				}
+			}""";
 		 env.addClass( this.srcRoot, "p1", "NullTest", nullTestCode );
 		 incrementalBuild( this.projectPath );
 		 expectingNoProblems();
@@ -1608,14 +1963,16 @@ public class AnnotationDependencyTests extends BuilderTests {
 		 incrementalBuild( this.projectPath );
 		 expectingNoProblems();
 
-		 String nullTestCode = "package p1;\n" +
-				 "import org.eclipse.jdt.annotation.NonNull;\n" +
-				 "public class NullTest {\n" +
-				 "	public static TestEnum bla(X x) {\n" +
-				 "		@NonNull final TestEnum t = x.f;\n" +
-				 "		return t;\n" +
-				 "	}\n" +
-				 "}\n";
+		 String nullTestCode = """
+			package p1;
+			import org.eclipse.jdt.annotation.NonNull;
+			public class NullTest {
+				public static TestEnum bla(X x) {
+					@NonNull final TestEnum t = x.f;
+					return t;
+				}
+			}
+			""";
 		 IPath test1Path = env.addClass( this.srcRoot, "p1", "NullTest", nullTestCode );
 		 incrementalBuild( this.projectPath );
 
@@ -1638,27 +1995,30 @@ public class AnnotationDependencyTests extends BuilderTests {
 		 fullBuild( this.projectPath );
 		 expectingNoProblems();
 
-		 String testEnumCode = "package p1;\n" +
-				 "enum TestEnum {\n" +
-				 "	FOO;\n" +
-				 "	public static A a;" +
-				 "};\n";
+		 String testEnumCode = """
+			package p1;
+			enum TestEnum {
+				FOO;
+				public static A a;\
+			};
+			""";
 		 env.addClass( this.srcRoot, "p1", "TestEnum", testEnumCode );
 		 incrementalBuild( this.projectPath );
 		 expectingNoProblems();
 
-		 String nullTestCode = "package p1;\n" +
-				 "import org.eclipse.jdt.annotation.NonNull;\n" +
-				 "public class NullTest {\n" +
-				 "	public static TestEnum bla() {\n" +
-				 "		@NonNull final TestEnum t = TestEnum.FOO;\n" +
-				 "		return t;\n" +
-				 "	}\n" +
-				 "	public A testint() {\n" +
-				 "	@NonNull A a = TestEnum.a;\n" +
-				 "		return a;\n" +
-				 "	}\n" +
-				 "}";
+		 String nullTestCode = """
+			package p1;
+			import org.eclipse.jdt.annotation.NonNull;
+			public class NullTest {
+				public static TestEnum bla() {
+					@NonNull final TestEnum t = TestEnum.FOO;
+					return t;
+				}
+				public A testint() {
+				@NonNull A a = TestEnum.a;
+					return a;
+				}
+			}""";
 		 IPath test1Path = env.addClass( this.srcRoot, "p1", "NullTest", nullTestCode );
 		 incrementalBuild( this.projectPath );
 		 expectingProblemsFor(test1Path,

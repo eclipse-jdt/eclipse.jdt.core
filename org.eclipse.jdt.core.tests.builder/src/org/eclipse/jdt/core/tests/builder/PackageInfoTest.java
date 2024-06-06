@@ -106,31 +106,33 @@ public void test002() throws JavaModelException {
 	env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 	env.addClass(root, "testcase", "Main", //$NON-NLS-1$ //$NON-NLS-2$
-		"package testcase;\n" +
-		"\n" +
-		"public class Main {\n" +
-		"    public static void main(String[] argv) throws Exception {\n" +
-		"		Package pkg = Package.getPackage(\"testcase\");\n" +
-		"		System.out.print(pkg.getAnnotation(TestAnnotation.class));\n" +
-		"		pkg = Class.forName(\"testcase.package-info\").getPackage();\n" +
-		"		System.out.print(pkg.getAnnotation(TestAnnotation.class));\n" +
-		"    }\n" +
-		"}"
+		"""
+			package testcase;
+			
+			public class Main {
+			    public static void main(String[] argv) throws Exception {
+					Package pkg = Package.getPackage("testcase");
+					System.out.print(pkg.getAnnotation(TestAnnotation.class));
+					pkg = Class.forName("testcase.package-info").getPackage();
+					System.out.print(pkg.getAnnotation(TestAnnotation.class));
+			    }
+			}"""
 	);
 
 	env.addClass(root, "testcase", "TestAnnotation", //$NON-NLS-1$ //$NON-NLS-2$
-		"package testcase;\n" +
-		"\n" +
-		"import static java.lang.annotation.ElementType.PACKAGE;\n" +
-		"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" +
-		"\n" +
-		"import java.lang.annotation.Retention;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"\n" +
-		"@Target(PACKAGE)\n" +
-		"@Retention(RUNTIME)\n" +
-		"public @interface TestAnnotation {\n" +
-		"}"
+		"""
+			package testcase;
+			
+			import static java.lang.annotation.ElementType.PACKAGE;
+			import static java.lang.annotation.RetentionPolicy.RUNTIME;
+			
+			import java.lang.annotation.Retention;
+			import java.lang.annotation.Target;
+			
+			@Target(PACKAGE)
+			@Retention(RUNTIME)
+			public @interface TestAnnotation {
+			}"""
 	);
 
 	env.addFile(root, "testcase/package-info.java", //$NON-NLS-1$
@@ -187,18 +189,22 @@ public void test004() throws JavaModelException {
 	env.addPackage(otherRoot, "my.foo");
 
 	env.addFile(root, "my/foo/package-info.java", //$NON-NLS-1$
-		"/**\n" +
-		"* A demo package for foo.\n" +
-		"*/\n" +
-		"package my.foo;\n"
+		"""
+			/**
+			* A demo package for foo.
+			*/
+			package my.foo;
+			"""
 	);
 
 	IPath otherPackageInfoPath = env.addFile(otherRoot,
 		"my/foo/package-info.java", //$NON-NLS-1$
-		"/**\n" +
-		"* A demo package for foo.\n" +
-		"*/\n" +
-		"package my.foo;\n"
+		"""
+			/**
+			* A demo package for foo.
+			*/
+			package my.foo;
+			"""
 	);
 
 	incrementalBuild(projectPath);
@@ -224,10 +230,12 @@ public void test258145() throws JavaModelException {
 
 	env.addPackage(root, "my.foo");
 	env.addFile(root, "my/foo/package-info.java", //$NON-NLS-1$
-		"/**\n" +
-		"* A demo package for foo.\n" +
-		"*/\n" +
-		"package my.foo;\n"
+		"""
+			/**
+			* A demo package for foo.
+			*/
+			package my.foo;
+			"""
 	);
 
 	fullBuild(projectPath);
@@ -236,10 +244,12 @@ public void test258145() throws JavaModelException {
 
 	IPath otherPackageInfoPath = env.addFile(otherRoot,
 		"my/foo/package-info.java", //$NON-NLS-1$
-		"/**\n" +
-		"* A demo package for foo.\n" +
-		"*/\n" +
-		"package my.foo;\n"
+		"""
+			/**
+			* A demo package for foo.
+			*/
+			package my.foo;
+			"""
 	);
 
 	incrementalBuild(projectPath);
@@ -314,22 +324,25 @@ public void testBug372012() throws JavaModelException {
 	setupProjectForNullAnnotations(projectPath);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.ERROR);
-	String test1Code = "package p1;\n"	+
-		"public class Test1 {\n" +
-		"    public void foo() {\n" +
-		"        new Test2().bar(\"\");\n" +
-		"    }\n" +
-		"	 class Test1Inner{}\n" +
-		"}";
-	String test2Code = "package p1;\n" +
-		"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
-		"public class Test2 {\n" +
-		"    public void bar(String str) {}\n" +
-		"}";
-	String test3Code = "package p1;\n" +
-			"public class Test3 {\n" +
-			"    public void bar(String str) {}\n" +
-			"}";
+	String test1Code = """
+		package p1;
+		public class Test1 {
+		    public void foo() {
+		        new Test2().bar("");
+		    }
+			 class Test1Inner{}
+		}""";
+	String test2Code = """
+		package p1;
+		@org.eclipse.jdt.annotation.NonNullByDefault
+		public class Test2 {
+		    public void bar(String str) {}
+		}""";
+	String test3Code = """
+		package p1;
+		public class Test3 {
+		    public void bar(String str) {}
+		}""";
 
 	IPath test1Path = env.addClass(srcRoot, "p1", "Test1", test1Code);
 	env.addClass(srcRoot, "p1", "Test2", test2Code);
@@ -371,18 +384,20 @@ public void testBug372012a() throws JavaModelException {
 	setupProjectForNullAnnotations(projectPath);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.ERROR);
-	String test1Code = "package p1;\n"	+
-		"public class Test1 {\n" +
-		"    public void foo() {\n" +
-		"        new Test2().bar(\"\");\n" +
-		"    }\n" +
-		"	 class Test1Inner{}\n" +
-		"}";
-	String test2Code = "package p1;\n" +
-		"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
-		"public class Test2 {\n" +
-		"    public void bar(String str) {}\n" +
-		"}";
+	String test1Code = """
+		package p1;
+		public class Test1 {
+		    public void foo() {
+		        new Test2().bar("");
+		    }
+			 class Test1Inner{}
+		}""";
+	String test2Code = """
+		package p1;
+		@org.eclipse.jdt.annotation.NonNullByDefault
+		public class Test2 {
+		    public void bar(String str) {}
+		}""";
 
 	IPath test1Path = env.addClass(srcRoot, "p1", "Test1", test1Code);
 	env.addClass(srcRoot, "p1", "Test2", test2Code);
@@ -394,14 +409,15 @@ public void testBug372012a() throws JavaModelException {
 			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src/p1> range : <8,10> category : <90> severity : <2>]");
 
 	// add default annotation to Test1
-	test1Code = "package p1;\n"	+
-			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
-			"public class Test1 {\n" +
-			"    public void foo() {\n" +
-			"        new Test2().bar(\"\");\n" +
-			"    }\n" +
-			"	 class Test1Inner{}\n" +
-			"}";
+	test1Code = """
+		package p1;
+		@org.eclipse.jdt.annotation.NonNullByDefault
+		public class Test1 {
+		    public void foo() {
+		        new Test2().bar("");
+		    }
+			 class Test1Inner{}
+		}""";
 	env.addClass(srcRoot, "p1", "Test1", test1Code);
 	incrementalBuild(projectPath);
 	// should have only one marker
@@ -430,17 +446,19 @@ public void testBug372012b() throws JavaModelException {
 	setupProjectForNullAnnotations(projectPath);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.ERROR);
-	String test1Code = "package p1;\n"	+
-		"public class Test1 {\n" +
-		"    public void foo() {\n" +
-		"        new Test2().bar(\"\");\n" +
-		"    }\n" +
-		"	 class Test1Inner{}\n" +
-		"}";
-	String test2Code = "package p1;\n" +
-		"public class Test2 {\n" +
-		"    public void bar(String str) {}\n" +
-		"}";
+	String test1Code = """
+		package p1;
+		public class Test1 {
+		    public void foo() {
+		        new Test2().bar("");
+		    }
+			 class Test1Inner{}
+		}""";
+	String test2Code = """
+		package p1;
+		public class Test2 {
+		    public void bar(String str) {}
+		}""";
 
 	IPath test1Path = env.addClass(srcRoot, "p1", "Test1", test1Code);
 	env.addClass(srcRoot, "p1", "Test2", test2Code);
@@ -452,14 +470,15 @@ public void testBug372012b() throws JavaModelException {
 			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src/p1> range : <8,10> category : <90> severity : <2>]");
 
 	// add default annotation to Test1
-	test1Code = "package p1;\n"	+
-			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
-			"public class Test1 {\n" +
-			"    public void foo() {\n" +
-			"        new Test2().bar(\"\");\n" +
-			"    }\n" +
-			"	 class Test1Inner{}\n" +
-			"}";
+	test1Code = """
+		package p1;
+		@org.eclipse.jdt.annotation.NonNullByDefault
+		public class Test1 {
+		    public void foo() {
+		        new Test2().bar("");
+		    }
+			 class Test1Inner{}
+		}""";
 	env.addClass(srcRoot, "p1", "Test1", test1Code);
 	incrementalBuild(projectPath);
 	// should have only one marker
@@ -488,17 +507,19 @@ public void testBug372012c() throws JavaModelException {
 	setupProjectForNullAnnotations(projectPath);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.ERROR);
-	String test1Code = "package p1;\n"	+
-		"public class Test1 {\n" +
-		"    public void foo() {\n" +
-		"        new Test2().bar(\"\");\n" +
-		"    }\n" +
-		"	 class Test1Inner{}\n" +
-		"}";
-	String test2Code = "package p1;\n" +
-		"public class Test2 {\n" +
-		"    public void bar(String str) {}\n" +
-		"}";
+	String test1Code = """
+		package p1;
+		public class Test1 {
+		    public void foo() {
+		        new Test2().bar("");
+		    }
+			 class Test1Inner{}
+		}""";
+	String test2Code = """
+		package p1;
+		public class Test2 {
+		    public void bar(String str) {}
+		}""";
 	// add package-info.java with default annotation
 	String packageInfoCode = "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 		"package p1;\n";
@@ -564,22 +585,24 @@ public void testBug374063() throws JavaModelException {
 	setupProjectForNullAnnotations(projectPath);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.ERROR);
-	String test1Code = "package p1;\n"	+
-		"public class Test1 {\n" +
-		"    public String output(List<Integer> integers) {\n" +
-		"        return \"\";\n" +
-		"    }\n" +
-		"	 public void output(List<Double> doubles) {}\n" +
-		"}";
+	String test1Code = """
+		package p1;
+		public class Test1 {
+		    public String output(List<Integer> integers) {
+		        return "";
+		    }
+			 public void output(List<Double> doubles) {}
+		}""";
 
 	env.addClass(srcRoot, "p1", "Test1", test1Code);
 
 	fullBuild(projectPath);
 	// resource for compile errors should be Test1 and not p1
 	expectingProblemsFor(projectPath,
-			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src/p1> range : <8,10> category : <90> severity : <2>]\n" +
-			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]\n" +
-			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <58,62> category : <40> severity : <2>]");
+			"""
+				Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src/p1> range : <8,10> category : <90> severity : <2>]
+				Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]
+				Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <58,62> category : <40> severity : <2>]""");
 
 	// add package-info.java with default annotation
 	String packageInfoCode = "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
@@ -605,22 +628,24 @@ public void testBug382960() throws JavaModelException, CoreException {
 	// prepare the project:
 	setupProjectForNullAnnotations(projectPath);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
-	String test1Code = "package p1;\n" +
-						"public class Test1 {\n" +
-						"    public String output(List<Integer> integers) {\n" +
-						"        return \"\";\n" +
-						"    }\n" +
-						"	 public void output(List<Double> doubles) {}\n" +
-						"}";
+	String test1Code = """
+		package p1;
+		public class Test1 {
+		    public String output(List<Integer> integers) {
+		        return "";
+		    }
+			 public void output(List<Double> doubles) {}
+		}""";
 
 	env.addClass(srcRoot, "p1", "Test1", test1Code);
 	String packageInfoCode = "package p1;\n";
 	env.addClass(srcRoot, "p1", "package-info", packageInfoCode);
 	fullBuild(projectPath);
 	expectingProblemsFor(projectPath,
-			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src/p1/package-info.java> range : <8,10> category : <90> severity : <2>]\n" +
-			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]\n" +
-			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <58,62> category : <40> severity : <2>]");
+			"""
+				Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src/p1/package-info.java> range : <8,10> category : <90> severity : <2>]
+				Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]
+				Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <58,62> category : <40> severity : <2>]""");
 
 	packageInfoCode = "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 					   "package p1;\n";
@@ -662,14 +687,16 @@ public void testBug525469() throws JavaModelException {
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.ERROR);
 
-	String test1Code = "package p1;\n"	+
-		"public class Test1 {\n" +
-		"}";
+	String test1Code = """
+		package p1;
+		public class Test1 {
+		}""";
 	env.addClass(srcRoot1, "p1", "Test1", test1Code);
 
-	String otherClassCode = "package p2;\n"	+
-		"public class OtherClass {\n" +
-		"}";
+	String otherClassCode = """
+		package p2;
+		public class OtherClass {
+		}""";
 	env.addClass(srcRoot1, "p2", "OtherClass", otherClassCode);
 
 	String packageInfoCode2 = "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
@@ -678,9 +705,10 @@ public void testBug525469() throws JavaModelException {
 
 	fullBuild(projectPath);
 
-	String test2Code = "package p1;\n"	+
-		"public class Test2 {\n" +
-		"}";
+	String test2Code = """
+		package p1;
+		public class Test2 {
+		}""";
 
 	env.addClass(srcRoot2, "p1", "Test2", test2Code);
 	incrementalBuild(projectPath);

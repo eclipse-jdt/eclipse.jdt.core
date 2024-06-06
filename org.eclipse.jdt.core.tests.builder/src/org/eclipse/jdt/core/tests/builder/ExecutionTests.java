@@ -42,13 +42,15 @@ public class ExecutionTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p1", "Hello", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class Hello {\n"+ //$NON-NLS-1$
-			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-			"      System.out.print(\"Hello world\");\n"+ //$NON-NLS-1$
-			"   }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class Hello {
+			   public static void main(String args[]) {
+			      System.out.print("Hello world");
+			   }
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild(projectPath);
 		expectingNoProblems();
@@ -67,13 +69,15 @@ public class ExecutionTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		IPath helloPath = env.addClass(root, "p1", "Hello", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class Hello {\n"+ //$NON-NLS-1$
-			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-			"      System.out.println(\"Hello world\")\n"+ //$NON-NLS-1$
-			"   }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class Hello {
+			   public static void main(String args[]) {
+			      System.out.println("Hello world")
+			   }
+			}
+			""" //$NON-NLS-1$
+					);
 		// public static void main(String args[]) {
 		//    System.out.println("Hello world") <-- missing ";"
 		// }

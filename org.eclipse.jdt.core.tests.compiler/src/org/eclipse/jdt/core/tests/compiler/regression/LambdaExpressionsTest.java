@@ -55,17 +55,19 @@ public void test001() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"  int add(int x, int y);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"  public static void main(String[] args) {\n" +
-				"    I i = (x, y) -> {\n" +
-				"      return x + y;\n" +
-				"    };\n" +
-				"    System.out.println(i.add(1234, 5678));\n" +
-				"  }\n" +
-				"}\n",
+				"""
+					interface I {
+					  int add(int x, int y);
+					}
+					public class X {
+					  public static void main(String[] args) {
+					    I i = (x, y) -> {
+					      return x + y;
+					    };
+					    System.out.println(i.add(1234, 5678));
+					  }
+					}
+					""",
 			},
 			"6912"
 			);
@@ -74,17 +76,19 @@ public void test002() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface Greetings {\n" +
-				"  void greet(String head, String tail);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"  public static void main(String[] args) {\n" +
-				"    Greetings g = (x, y) -> {\n" +
-				"      System.out.println(x + y);\n" +
-				"    };\n" +
-				"    g.greet(\"Hello, \", \"World!\");\n" +
-				"  }\n" +
-				"}\n",
+				"""
+					interface Greetings {
+					  void greet(String head, String tail);
+					}
+					public class X {
+					  public static void main(String[] args) {
+					    Greetings g = (x, y) -> {
+					      System.out.println(x + y);
+					    };
+					    g.greet("Hello, ", "World!");
+					  }
+					}
+					""",
 			},
 			"Hello, World!"
 			);
@@ -94,25 +98,29 @@ public void test003() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"  void foo(int x, int y);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"  public static void main(String[] args) {\n" +
-				"    BinaryOperator<String> binOp = (x,y) -> { return x+y; };\n" +
-				"    System.out.println(\"SUCCESS\");\n" +
-				"    // System.out.println(binOp.apply(\"SUCC\", \"ESS\")); // when lambdas run\n" +
-				"  }\n" +
-				"}\n",
+				"""
+					interface I {
+					  void foo(int x, int y);
+					}
+					public class X {
+					  public static void main(String[] args) {
+					    BinaryOperator<String> binOp = (x,y) -> { return x+y; };
+					    System.out.println("SUCCESS");
+					    // System.out.println(binOp.apply("SUCC", "ESS")); // when lambdas run
+					  }
+					}
+					""",
 				"BiFunction.java",
-				"@FunctionalInterface\n" +
-				"public interface BiFunction<T, U, R> {\n" +
-				"    R apply(T t, U u);\n" +
-				"}",
+				"""
+					@FunctionalInterface
+					public interface BiFunction<T, U, R> {
+					    R apply(T t, U u);
+					}""",
 				"BinaryOperator.java",
-				"@FunctionalInterface\n" +
-				"public interface BinaryOperator<T> extends BiFunction<T,T,T> {\n" +
-				"}"
+				"""
+					@FunctionalInterface
+					public interface BinaryOperator<T> extends BiFunction<T,T,T> {
+					}"""
 			},
 			"SUCCESS");
 }
@@ -121,52 +129,60 @@ public void test004() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"  void foo(int x, int y);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"  public static void main(String[] args) {\n" +
-				"    BinaryOperator binOp = (x,y) -> { return x+y; };\n" +
-				"    System.out.println(\"SUCCESS\");\n" +
-				"    // System.out.println(binOp.apply(\"SUCC\", \"ESS\")); // when lambdas run\n" +
-				"  }\n" +
-				"}\n",
+				"""
+					interface I {
+					  void foo(int x, int y);
+					}
+					public class X {
+					  public static void main(String[] args) {
+					    BinaryOperator binOp = (x,y) -> { return x+y; };
+					    System.out.println("SUCCESS");
+					    // System.out.println(binOp.apply("SUCC", "ESS")); // when lambdas run
+					  }
+					}
+					""",
 				"BiFunction.java",
-				"@FunctionalInterface\n" +
-				"public interface BiFunction<T, U, R> {\n" +
-				"    R apply(T t, U u);\n" +
-				"}",
+				"""
+					@FunctionalInterface
+					public interface BiFunction<T, U, R> {
+					    R apply(T t, U u);
+					}""",
 				"BinaryOperator.java",
-				"@FunctionalInterface\n" +
-				"public interface BinaryOperator<T> extends BiFunction<T,T,T> {\n" +
-				"}"
+				"""
+					@FunctionalInterface
+					public interface BinaryOperator<T> extends BiFunction<T,T,T> {
+					}"""
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 6)\n" +
-			"	BinaryOperator binOp = (x,y) -> { return x+y; };\n" +
-			"	^^^^^^^^^^^^^^\n" +
-			"BinaryOperator is a raw type. References to generic type BinaryOperator<T> should be parameterized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
-			"	BinaryOperator binOp = (x,y) -> { return x+y; };\n" +
-			"	                                         ^^^\n" +
-			"The operator + is undefined for the argument type(s) java.lang.Object, java.lang.Object\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 6)
+					BinaryOperator binOp = (x,y) -> { return x+y; };
+					^^^^^^^^^^^^^^
+				BinaryOperator is a raw type. References to generic type BinaryOperator<T> should be parameterized
+				----------
+				2. ERROR in X.java (at line 6)
+					BinaryOperator binOp = (x,y) -> { return x+y; };
+					                                         ^^^
+				The operator + is undefined for the argument type(s) java.lang.Object, java.lang.Object
+				----------
+				""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
 public void test005() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	String id(String s);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		I i = (s) -> s;\n" +
-				"		System.out.println(i.id(\"Hello\"));\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					interface I {
+						String id(String s);
+					}
+					public class X {
+						public static void main(String[] args) {
+							I i = (s) -> s;
+							System.out.println(i.id("Hello"));
+						}
+					}
+					"""
 			},
 			"Hello");
 }
@@ -175,15 +191,17 @@ public void test006() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	String id(String s);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		I i = (s) -> s + s;\n" +
-				"		System.out.println(i.id(\"Hello\"));\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					interface I {
+						String id(String s);
+					}
+					public class X {
+						public static void main(String[] args) {
+							I i = (s) -> s + s;
+							System.out.println(i.id("Hello"));
+						}
+					}
+					"""
 			},
 			"HelloHello");
 }
@@ -192,15 +210,17 @@ public void test007() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void print(String s);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		I i = (s) -> System.out.println(s);\n" +
-				"		i.print(\"Hello\");\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					interface I {
+						void print(String s);
+					}
+					public class X {
+						public static void main(String[] args) {
+							I i = (s) -> System.out.println(s);
+							i.print("Hello");
+						}
+					}
+					"""
 			},
 			"Hello");
 }
@@ -209,15 +229,17 @@ public void test008() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	String print(String s);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		I i = (s) -> new String(s).toUpperCase();\n" +
-				"		System.out.println(i.print(\"Hello\"));\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					interface I {
+						String print(String s);
+					}
+					public class X {
+						public static void main(String[] args) {
+							I i = (s) -> new String(s).toUpperCase();
+							System.out.println(i.print("Hello"));
+						}
+					}
+					"""
 			},
 			"HELLO");
 }
@@ -226,15 +248,17 @@ public void test009() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	String print(String s);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		I i = (s) -> new String(s);\n" +
-				"		System.out.println(i.print(\"Hello\"));\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					interface I {
+						String print(String s);
+					}
+					public class X {
+						public static void main(String[] args) {
+							I i = (s) -> new String(s);
+							System.out.println(i.print("Hello"));
+						}
+					}
+					"""
 			},
 			"Hello");
 }
@@ -243,15 +267,17 @@ public void test010() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	int unbox(Integer i);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		I i = (s) -> s;\n" +
-				"		System.out.println(i.unbox(new Integer(1234)));\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					interface I {
+						int unbox(Integer i);
+					}
+					public class X {
+						public static void main(String[] args) {
+							I i = (s) -> s;
+							System.out.println(i.unbox(new Integer(1234)));
+						}
+					}
+					"""
 			},
 			"1234");
 }
@@ -260,15 +286,17 @@ public void test011() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	Integer box(int i);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		I i = (s) -> s;\n" +
-				"		System.out.println(i.box(1234));\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					interface I {
+						Integer box(int i);
+					}
+					public class X {
+						public static void main(String[] args) {
+							I i = (s) -> s;
+							System.out.println(i.box(1234));
+						}
+					}
+					"""
 			},
 			"1234");
 }
@@ -277,20 +305,21 @@ public void test012() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	X subType();\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		I i = () -> new Y();\n" +
-				"		System.out.println(i.subType());\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y extends X {\n" +
-				"    public String toString() {\n" +
-				"        return \"Some Y\";\n" +
-				"    }\n" +
-				"}"
+				"""
+					interface I {
+						X subType();
+					}
+					public class X {
+						public static void main(String[] args) {
+							I i = () -> new Y();
+							System.out.println(i.subType());
+						}
+					}
+					class Y extends X {
+					    public String toString() {
+					        return "Some Y";
+					    }
+					}"""
 			},
 			"Some Y");
 }
@@ -299,21 +328,23 @@ public void test013() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"    void foo(String s);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        int in = 12345678;\n" +
-				"        I i = (s) -> {\n" +
-				"            I j = (s2) -> {\n" +
-				"                System.out.println(s + s2 + in);  \n" +
-				"            };\n" +
-				"            j.foo(\"Number=\");\n" +
-				"        };\n" +
-				"        i.foo(\"The \");\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					interface I {
+					    void foo(String s);
+					}
+					public class X {
+					    public static void main(String [] args) {
+					        int in = 12345678;
+					        I i = (s) -> {
+					            I j = (s2) -> {
+					                System.out.println(s + s2 + in); \s
+					            };
+					            j.foo("Number=");
+					        };
+					        i.foo("The ");
+					    }
+					}
+					"""
 			},
 			"The Number=12345678");
 }
@@ -321,49 +352,53 @@ public void test014() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	void doit();\n" +
-					"}\n" +
-					"public class X {\n" +
-					"  public static void nonmain(String[] args) {\n" +
-					"    int var = 2;\n" +
-					"    I x2 = () -> {\n" +
-					"      System.out.println(\"Argc = \" + args.length);\n" +
-					"      for (int i = 0; i < args.length; i++) {\n" +
-					"          System.out.println(\"Argv[\" + i + \"] = \" + args[i]);\n" +
-					"      }\n" +
-					"    };\n" +
-					"    x2.doit();\n" +
-					"    var=2;\n" +
-					"  }\n" +
-					"  public static void main(String[] args) {\n" +
-					"      nonmain(new String[] {\"Hello! \", \"World!\" });\n" +
-					"  }\n" +
-					"}" ,
+					"""
+						interface I {
+							void doit();
+						}
+						public class X {
+						  public static void nonmain(String[] args) {
+						    int var = 2;
+						    I x2 = () -> {
+						      System.out.println("Argc = " + args.length);
+						      for (int i = 0; i < args.length; i++) {
+						          System.out.println("Argv[" + i + "] = " + args[i]);
+						      }
+						    };
+						    x2.doit();
+						    var=2;
+						  }
+						  public static void main(String[] args) {
+						      nonmain(new String[] {"Hello! ", "World!" });
+						  }
+						}""" ,
 				},
-				"Argc = 2\n" +
-				"Argv[0] = Hello! \n" +
-				"Argv[1] = World!");
+				"""
+					Argc = 2
+					Argv[0] = Hello!\s
+					Argv[1] = World!""");
 }
 public void test015() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	void doit();\n" +
-					"}\n" +
-					"public class X {\n" +
-					"  public static void main(String[] args) {\n" +
-					"    try {\n" +
-					"      new java.io.File((String) null).getCanonicalPath();\n" +
-					"    } catch (NullPointerException | java.io.IOException ioe) {\n" +
-					"      I x2 = () -> {\n" +
-					"        System.out.println(ioe.getMessage()); // OK: args is not re-assignment since declaration/first assignment\n" +
-					"      };\n" +
-					"      x2.doit();\n" +
-					"    };\n"+
-					"  }\n" +
-					"}\n"
+					"""
+						interface I {
+							void doit();
+						}
+						public class X {
+						  public static void main(String[] args) {
+						    try {
+						      new java.io.File((String) null).getCanonicalPath();
+						    } catch (NullPointerException | java.io.IOException ioe) {
+						      I x2 = () -> {
+						        System.out.println(ioe.getMessage()); // OK: args is not re-assignment since declaration/first assignment
+						      };
+						      x2.doit();
+						    };
+						  }
+						}
+						"""
 				},
 				"null");
 }
@@ -371,22 +406,24 @@ public void test016() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	void doit();\n" +
-					"}\n" +
-					"public class X {\n" +
-					"  public static void main(String[] args) {\n" +
-					"    java.util.List<String> list = new java.util.ArrayList<>();\n" +
-					"    list.add(\"SomeString\");\n" +
-					"    for (String s : list) {\n" +
-					"      I x2 = () -> {\n" +
-					"        System.out.println(s); // OK: args is not re-assignment since declaration/first assignment\n" +
-					"      };\n" +
-					"      x2.doit();\n" +
-					"    };\n" +
-					"  }\n" +
-					"\n" +
-					"}\n" ,
+					"""
+						interface I {
+							void doit();
+						}
+						public class X {
+						  public static void main(String[] args) {
+						    java.util.List<String> list = new java.util.ArrayList<>();
+						    list.add("SomeString");
+						    for (String s : list) {
+						      I x2 = () -> {
+						        System.out.println(s); // OK: args is not re-assignment since declaration/first assignment
+						      };
+						      x2.doit();
+						    };
+						  }
+						
+						}
+						""" ,
 				},
 				"SomeString");
 }
@@ -395,22 +432,24 @@ public void test017() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"  void foo(int x, int y);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"  public static void main(String[] args) {\n" +
-					"    BinaryOperator<String> binOp = (x,y) -> { return x+y; }; \n" +
-					"    System.out.println(binOp.apply(\"SUCC\", \"ESS\")); // when lambdas run\n" +
-					"  }\n" +
-					"}\n" +
-					"@FunctionalInterface\n" +
-					"interface BiFunction<T, U, R> { \n" +
-					"    R apply(T t, U u);\n" +
-					"}\n" +
-					"@FunctionalInterface \n" +
-					"interface BinaryOperator<T> extends BiFunction<T,T,T> { \n" +
-					"}\n",
+					"""
+						interface I {
+						  void foo(int x, int y);
+						}
+						public class X {
+						  public static void main(String[] args) {
+						    BinaryOperator<String> binOp = (x,y) -> { return x+y; };\s
+						    System.out.println(binOp.apply("SUCC", "ESS")); // when lambdas run
+						  }
+						}
+						@FunctionalInterface
+						interface BiFunction<T, U, R> {\s
+						    R apply(T t, U u);
+						}
+						@FunctionalInterface\s
+						interface BinaryOperator<T> extends BiFunction<T,T,T> {\s
+						}
+						""",
 				},
 				"SUCCESS");
 }
@@ -419,19 +458,21 @@ public void test018() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	X [][][] copy (short x);\n" +
-					"}\n" +
-					"public class X  {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		I i = X[][][]::new;\n" +
-					"       I j = X[][][]::new;\n" +
-					"		X[][][] x = i.copy((short) 631);\n" +
-					"		System.out.println(x.length);\n" +
-					"       x = j.copy((short) 136);\n" +
-					"		System.out.println(x.length);\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							X [][][] copy (short x);
+						}
+						public class X  {
+							public static void main(String[] args) {
+								I i = X[][][]::new;
+						       I j = X[][][]::new;
+								X[][][] x = i.copy((short) 631);
+								System.out.println(x.length);
+						       x = j.copy((short) 136);
+								System.out.println(x.length);
+							}
+						}
+						""",
 				},
 				"631\n" +
 				"136");
@@ -441,19 +482,21 @@ public void test019() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	X [][][] copy (int x);\n" +
-					"}\n" +
-					"public class X  {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		I i = X[][][]::new;\n" +
-					"       I j = X[][][]::new;\n" +
-					"		X[][][] x = i.copy(631);\n" +
-					"		System.out.println(x.length);\n" +
-					"       x = j.copy(136);\n" +
-					"		System.out.println(x.length);\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							X [][][] copy (int x);
+						}
+						public class X  {
+							public static void main(String[] args) {
+								I i = X[][][]::new;
+						       I j = X[][][]::new;
+								X[][][] x = i.copy(631);
+								System.out.println(x.length);
+						       x = j.copy(136);
+								System.out.println(x.length);
+							}
+						}
+						""",
 				},
 				"631\n" +
 				"136");
@@ -463,19 +506,21 @@ public void test020() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	X [][][] copy (Integer x);\n" +
-					"}\n" +
-					"public class X  {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		I i = X[][][]::new;\n" +
-					"       I j = X[][][]::new;\n" +
-					"		X[][][] x = i.copy(631);\n" +
-					"		System.out.println(x.length);\n" +
-					"       x = j.copy(136);\n" +
-					"		System.out.println(x.length);\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							X [][][] copy (Integer x);
+						}
+						public class X  {
+							public static void main(String[] args) {
+								I i = X[][][]::new;
+						       I j = X[][][]::new;
+								X[][][] x = i.copy(631);
+								System.out.println(x.length);
+						       x = j.copy(136);
+								System.out.println(x.length);
+							}
+						}
+						""",
 				},
 				"631\n" +
 				"136");
@@ -485,19 +530,21 @@ public void test021() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	X [][][] copy (Integer x);\n" +
-					"}\n" +
-					"public class X  {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		I i = X[][][]::new;\n" +
-					"       I j = X[][][]::new;\n" +
-					"		X[][][] x = i.copy(new Integer(631));\n" +
-					"		System.out.println(x.length);\n" +
-					"       x = j.copy(new Integer((short)136));\n" +
-					"		System.out.println(x.length);\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							X [][][] copy (Integer x);
+						}
+						public class X  {
+							public static void main(String[] args) {
+								I i = X[][][]::new;
+						       I j = X[][][]::new;
+								X[][][] x = i.copy(new Integer(631));
+								System.out.println(x.length);
+						       x = j.copy(new Integer((short)136));
+								System.out.println(x.length);
+							}
+						}
+						""",
 				},
 				"631\n" +
 				"136");
@@ -507,32 +554,34 @@ public void test022() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"    Object copy(int [] ia);\n" +
-					"}\n" +
-					"interface J {\n" +
-					"	int [] copy(int [] ia);\n" +
-					"}\n" +
-					"public class X  {\n" +
-					"    public static void main(String [] args) {\n" +
-					"        I i = int[]::<String>clone;\n" +
-					"        int [] x = new int [] { 10, 20, 30 };\n" +
-					"        int [] y = (int []) i.copy(x);\n" +
-					"        if (x == y || x.length != y.length || x[0] != y[0] || x[1] != y[1] || x[2] != y[2]) {\n" +
-					"        	System.out.println(\"Broken\");\n" +
-					"        } else {\n" +
-					"        	System.out.println(\"OK\");\n" +
-					"        }\n" +
-					"        J j = int []::clone;\n" +
-					"        y = null;\n" +
-					"        y = j.copy(x);\n" +
-					"        if (x == y || x.length != y.length || x[0] != y[0] || x[1] != y[1] || x[2] != y[2]) {\n" +
-					"        	System.out.println(\"Broken\");\n" +
-					"        } else {\n" +
-					"        	System.out.println(\"OK\");\n" +
-					"        }\n" +
-					"    }\n" +
-					"}\n" ,
+					"""
+						interface I {
+						    Object copy(int [] ia);
+						}
+						interface J {
+							int [] copy(int [] ia);
+						}
+						public class X  {
+						    public static void main(String [] args) {
+						        I i = int[]::<String>clone;
+						        int [] x = new int [] { 10, 20, 30 };
+						        int [] y = (int []) i.copy(x);
+						        if (x == y || x.length != y.length || x[0] != y[0] || x[1] != y[1] || x[2] != y[2]) {
+						        	System.out.println("Broken");
+						        } else {
+						        	System.out.println("OK");
+						        }
+						        J j = int []::clone;
+						        y = null;
+						        y = j.copy(x);
+						        if (x == y || x.length != y.length || x[0] != y[0] || x[1] != y[1] || x[2] != y[2]) {
+						        	System.out.println("Broken");
+						        } else {
+						        	System.out.println("OK");
+						        }
+						    }
+						}
+						""" ,
 				},
 				"OK\n" +
 				"OK");
@@ -542,17 +591,19 @@ public void test023() {
 this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"    Object copy(int [] ia);\n" +
-					"}\n" +
-					"\n" +
-					"public class X  {\n" +
-					"    public static void main(String [] args) {\n" +
-					"        I i = int[]::<String>clone;\n" +
-					"        int [] ia = (int []) i.copy(new int[10]);\n" +
-					"        System.out.println(ia.length);\n" +
-					"    }\n" +
-					"}\n",
+					"""
+						interface I {
+						    Object copy(int [] ia);
+						}
+						
+						public class X  {
+						    public static void main(String [] args) {
+						        I i = int[]::<String>clone;
+						        int [] ia = (int []) i.copy(new int[10]);
+						        System.out.println(ia.length);
+						    }
+						}
+						""",
 				},
 				"10");
 }
@@ -561,23 +612,25 @@ public void test024() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"    YBase copy(Y ia);\n" +
-					"}\n" +
-					"public class X  {\n" +
-					"    public static void main(String [] args) {\n" +
-					"        I i = Y::<String>copy;\n" +
-					"        YBase yb = i.copy(new Y());\n" +
-					"        System.out.println(yb.getClass());\n" +
-					"    }\n" +
-					"}\n" +
-					"class YBase {\n" +
-					"	public YBase copy() {\n" +
-					"		return this;\n" +
-					"	}\n" +
-					"}\n" +
-					"class Y extends YBase {\n" +
-					"}\n",
+					"""
+						interface I {
+						    YBase copy(Y ia);
+						}
+						public class X  {
+						    public static void main(String [] args) {
+						        I i = Y::<String>copy;
+						        YBase yb = i.copy(new Y());
+						        System.out.println(yb.getClass());
+						    }
+						}
+						class YBase {
+							public YBase copy() {
+								return this;
+							}
+						}
+						class Y extends YBase {
+						}
+						""",
 				},
 				"class Y");
 }
@@ -586,15 +639,17 @@ public void test025() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"    int foo(int [] ia);\n" +
-					"}\n" +
-					"public class X  {\n" +
-					"    public static void main(String [] args) {\n" +
-					"        I i = int[]::<String>hashCode;\n" +
-					"        i.foo(new int[10]);\n" +
-					"    }\n" +
-					"}\n",
+					"""
+						interface I {
+						    int foo(int [] ia);
+						}
+						public class X  {
+						    public static void main(String [] args) {
+						        I i = int[]::<String>hashCode;
+						        i.foo(new int[10]);
+						    }
+						}
+						""",
 				},
 				"");
 }
@@ -603,89 +658,97 @@ public void test026() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	Integer foo(int x, int y);\n" +
-					"}\n" +
-					"class Y {\n" +
-					"	int foo(int x, int y) {\n" +
-					"		System.out.println(\"Y.foo(\" + x + \",\" + y + \")\");\n" +
-					"		return foo(x, y);\n" +
-					"	}\n" +
-					"}\n" +
-					"public class X extends Y {\n" +
-					"	int foo(int x, int y) {\n" +
-					"		System.out.println(\"X.foo(\" + x + \",\" + y + \")\");\n" +
-					"		return x + y;\n" +
-					"	}\n" +
-					"	void goo() {\n" +
-					"		I i = super::foo;\n" +
-					"		System.out.println(i.foo(1234, 4321));\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new X().goo();\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							Integer foo(int x, int y);
+						}
+						class Y {
+							int foo(int x, int y) {
+								System.out.println("Y.foo(" + x + "," + y + ")");
+								return foo(x, y);
+							}
+						}
+						public class X extends Y {
+							int foo(int x, int y) {
+								System.out.println("X.foo(" + x + "," + y + ")");
+								return x + y;
+							}
+							void goo() {
+								I i = super::foo;
+								System.out.println(i.foo(1234, 4321));
+							}
+							public static void main(String[] args) {
+								new X().goo();
+							}
+						}
+						""",
 				},
-				"Y.foo(1234,4321)\n" +
-				"X.foo(1234,4321)\n" +
-				"5555");
+				"""
+					Y.foo(1234,4321)
+					X.foo(1234,4321)
+					5555""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406589, [1.8][compiler][codegen] super call misdispatched
 public void test027() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	int foo(int x, int y);\n" +
-					"}\n" +
-					"interface J {\n" +
-					"	default int foo(int x, int y) {\n" +
-					"		System.out.println(\"I.foo(\" + x + \",\" + y + \")\");\n" +
-					"		return x + y;\n" +
-					"	}\n" +
-					"}\n" +
-					"public class X implements J {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		I i = new X().f();\n" +
-					"		System.out.println(i.foo(1234, 4321));\n" +
-					"		i = new X().g();\n" +
-					"		try {\n" +
-					"			System.out.println(i.foo(1234, 4321));\n" +
-					"		} catch (Throwable e) {\n" +
-					"			System.out.println(e.getMessage());\n" +
-					"		}\n" +
-					"	}\n" +
-					"	I f() {\n" +
-					"		return J.super::foo;\n" +
-					"	}\n" +
-					"	I g() {\n" +
-					"		return new X()::foo;\n" +
-					"	}\n" +
-					"	public int foo(int x, int y) {\n" +
-					"		throw new RuntimeException(\"Exception\");\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							int foo(int x, int y);
+						}
+						interface J {
+							default int foo(int x, int y) {
+								System.out.println("I.foo(" + x + "," + y + ")");
+								return x + y;
+							}
+						}
+						public class X implements J {
+							public static void main(String[] args) {
+								I i = new X().f();
+								System.out.println(i.foo(1234, 4321));
+								i = new X().g();
+								try {
+									System.out.println(i.foo(1234, 4321));
+								} catch (Throwable e) {
+									System.out.println(e.getMessage());
+								}
+							}
+							I f() {
+								return J.super::foo;
+							}
+							I g() {
+								return new X()::foo;
+							}
+							public int foo(int x, int y) {
+								throw new RuntimeException("Exception");
+							}
+						}
+						""",
 				},
-				"I.foo(1234,4321)\n" +
-				"5555\n" +
-				"Exception");
+				"""
+					I.foo(1234,4321)
+					5555
+					Exception""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406584, Bug 406584 - [1.8][compiler][codegen] ClassFormatError: Invalid method signature
 public void test028() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"    Object copy();\n" +
-					"}\n" +
-					"public class X  {\n" +
-					"    public static void main(String [] args) {\n" +
-					"    	int [] x = new int[] { 0xdeadbeef, 0xfeedface };\n" +
-					"    	I i = x::<String>clone;\n" +
-					"       System.out.println(Integer.toHexString(((int []) i.copy())[0]));\n" +
-					"       System.out.println(Integer.toHexString(((int []) i.copy())[1]));\n" +
-					"    }\n" +
-					"}\n",
+					"""
+						interface I {
+						    Object copy();
+						}
+						public class X  {
+						    public static void main(String [] args) {
+						    	int [] x = new int[] { 0xdeadbeef, 0xfeedface };
+						    	I i = x::<String>clone;
+						       System.out.println(Integer.toHexString(((int []) i.copy())[0]));
+						       System.out.println(Integer.toHexString(((int []) i.copy())[1]));
+						    }
+						}
+						""",
 				},
 				"deadbeef\n" +
 				"feedface");
@@ -695,60 +758,65 @@ public void test029() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	X.Y.Z makexyz(int val);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	public static void main(String args []) {\n" +
-					"		new X().new Y().new Z().new P().goo();\n" +
-					"	}\n" +
-					"	class Y {\n" +
-					"		class Z {\n" +
-					"			Z(int val) {\n" +
-					"				System.out.println(Integer.toHexString(val));\n" +
-					"			}	\n" +
-					"			Z() {\n" +
-					"			}\n" +
-					"			class P {\n" +
-					"				void goo() {\n" +
-					"					I i = Z::new;\n" +
-					"					i.makexyz(0xdeadbeef);\n" +
-					"				}\n" +
-					"				I i = Z::new;\n" +
-					"				{ i.makexyz(0xfeedface); }\n" +
-					"			}\n" +
-					"		}\n" +
-					"		I i = Z::new;\n" +
-					"		{ i.makexyz(0xbeeffeed); }\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							X.Y.Z makexyz(int val);
+						}
+						public class X {
+							public static void main(String args []) {
+								new X().new Y().new Z().new P().goo();
+							}
+							class Y {
+								class Z {
+									Z(int val) {
+										System.out.println(Integer.toHexString(val));
+									}\t
+									Z() {
+									}
+									class P {
+										void goo() {
+											I i = Z::new;
+											i.makexyz(0xdeadbeef);
+										}
+										I i = Z::new;
+										{ i.makexyz(0xfeedface); }
+									}
+								}
+								I i = Z::new;
+								{ i.makexyz(0xbeeffeed); }
+							}
+						}
+						""",
 				},
-				"beeffeed\n" +
-				"feedface\n" +
-				"deadbeef");
+				"""
+					beeffeed
+					feedface
+					deadbeef""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial
 public void test030() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	X.Y makeY();\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	public class Y {\n" +
-					"       public String toString() {\n" +
-					"           return \"class Y\";\n" +
-					"   }\n" +
-					"	}\n" +
-					"	void foo() {\n" +
-					"		I i = Y::new;\n" +
-					"		System.out.println(i.makeY());\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new X().foo();\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							X.Y makeY();
+						}
+						public class X {
+							public class Y {
+						       public String toString() {
+						           return "class Y";
+						   }
+							}
+							void foo() {
+								I i = Y::new;
+								System.out.println(i.makeY());
+							}
+							public static void main(String[] args) {
+								new X().foo();
+							}
+						}
+						""",
 				},
 				"class Y");
 }
@@ -757,32 +825,34 @@ public void test031() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	X.Y makeY(int x);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	class Y {\n" +
-					"		String state; \n" +
-					"		Y(int x) {\n" +
-					"			state = Integer.toHexString(x);\n" +
-					"		}\n" +
-					"		public String toString() {\n" +
-					"			return state;\n" +
-					"		}\n" +
-					"	}\n" +
-					"	class Z extends Y {\n" +
-					"		Z(int x) {\n" +
-					"			super(x);\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new X().f();\n" +
-					"	}\n" +
-					"	void f() {\n" +
-					"		I i = Y::new;\n" +
-					"		System.out.println(i.makeY(0xdeadbeef));\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							X.Y makeY(int x);
+						}
+						public class X {
+							class Y {
+								String state;\s
+								Y(int x) {
+									state = Integer.toHexString(x);
+								}
+								public String toString() {
+									return state;
+								}
+							}
+							class Z extends Y {
+								Z(int x) {
+									super(x);
+								}
+							}
+							public static void main(String[] args) {
+								new X().f();
+							}
+							void f() {
+								I i = Y::new;
+								System.out.println(i.makeY(0xdeadbeef));
+							}
+						}
+						""",
 				},
 				"deadbeef");
 }
@@ -791,32 +861,34 @@ public void test032() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	X.Y makeY(int x);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	class Y {\n" +
-					"		String state; \n" +
-					"		Y(int x) {\n" +
-					"			state = Integer.toHexString(x);\n" +
-					"		}\n" +
-					"		public String toString() {\n" +
-					"			return state;\n" +
-					"		}\n" +
-					"	}\n" +
-					"	class Z extends Y {\n" +
-					"		Z(int x) {\n" +
-					"			super(x);\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new X().f();\n" +
-					"	}\n" +
-					"	void f() {\n" +
-					"		I i = Z::new;\n" +
-					"		System.out.println(i.makeY(0xdeadbeef));\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							X.Y makeY(int x);
+						}
+						public class X {
+							class Y {
+								String state;\s
+								Y(int x) {
+									state = Integer.toHexString(x);
+								}
+								public String toString() {
+									return state;
+								}
+							}
+							class Z extends Y {
+								Z(int x) {
+									super(x);
+								}
+							}
+							public static void main(String[] args) {
+								new X().f();
+							}
+							void f() {
+								I i = Z::new;
+								System.out.println(i.makeY(0xdeadbeef));
+							}
+						}
+						""",
 				},
 				"deadbeef");
 }
@@ -825,35 +897,37 @@ public void test033() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	X.Y.Z makeY(int x);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	class Y {\n" +
-					"		Y() {\n" +
-					"		}\n" +
-					"		class Z {\n" +
-					"			String state;\n" +
-					"			Z(int x) {\n" +
-					"				state = Integer.toHexString(x);\n" +
-					"			}\n" +
-					"			public String toString() {\n" +
-					"				return state;\n" +
-					"			}\n" +
-					"		}\n" +
-					"	}\n" +
-					"	class YS extends Y {\n" +
-					"		YS() {\n" +
-					"		}\n" +
-					"		void f() {\n" +
-					"			I i = Z::new;\n" +
-					"			System.out.println(i.makeY(0xbeefface));\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new X().new YS().f();\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							X.Y.Z makeY(int x);
+						}
+						public class X {
+							class Y {
+								Y() {
+								}
+								class Z {
+									String state;
+									Z(int x) {
+										state = Integer.toHexString(x);
+									}
+									public String toString() {
+										return state;
+									}
+								}
+							}
+							class YS extends Y {
+								YS() {
+								}
+								void f() {
+									I i = Z::new;
+									System.out.println(i.makeY(0xbeefface));
+								}
+							}
+							public static void main(String[] args) {
+								new X().new YS().f();
+							}
+						}
+						""",
 				},
 				"beefface");
 }
@@ -862,20 +936,22 @@ public void test034() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"    int foo();\n" +
-					"}\n" +
-					"public class X {\n" +
-					"    int f = 1234;\n" +
-					"    void foo() {\n" +
-					"        int x = 4321;\n" +
-					"        I i = () -> x + f;\n" +
-					"        System.out.println(i.foo());\n" +
-					"    }\n" +
-					"    public static void main(String[] args) {\n" +
-					"		new X().foo();\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+						    int foo();
+						}
+						public class X {
+						    int f = 1234;
+						    void foo() {
+						        int x = 4321;
+						        I i = () -> x + f;
+						        System.out.println(i.foo());
+						    }
+						    public static void main(String[] args) {
+								new X().foo();
+							}
+						}
+						""",
 				},
 				"5555");
 }
@@ -884,25 +960,27 @@ public void test035() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	void foo(int p, int q);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"   int f;\n" +
-					"	void foo(int outerp) {\n" +
-					"       int locouter;\n" +
-					"		I i = (int p, int q)  -> {\n" +
-					"			class Local {\n" +
-					"				void foo() {\n" +
-					"               }\n" +
-					"			};\n" +
-					"			new Local();\n" +
-					"		};\n" +
-					"   }\n" +
-					"	public static void main(String[] args) {\n" +
-					"		System.out.println(\"OK\");\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							void foo(int p, int q);
+						}
+						public class X {
+						   int f;
+							void foo(int outerp) {
+						       int locouter;
+								I i = (int p, int q)  -> {
+									class Local {
+										void foo() {
+						               }
+									};
+									new Local();
+								};
+						   }
+							public static void main(String[] args) {
+								System.out.println("OK");
+							}
+						}
+						""",
 				},
 				"OK");
 }
@@ -911,47 +989,49 @@ public void test036() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"    String foo(String x, String y);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"    String xf = \"Lambda \";\n" +
-					"    String x() {\n" +
-					"    	String xl = \"code \";\n" +
-					"    	class Y {\n" +
-					"			String yf = \"generation \";\n" +
-					"			String y () {\n" +
-					"				String yl = \"with \";\n" +
-					"				class Z {\n" +
-					"					String zf = \"instance \";\n" +
-					"					String z () {\n" +
-					"						String zl = \"and \";\n" +
-					"						class P {\n" +
-					"							String pf = \"local \";\n" +
-					"							String p () {\n" +
-					"								String pl = \"capture \";\n" +
-					"								I i = (x1, y1) -> {\n" +
-					"									return (((I) ((x2, y2) -> {\n" +
-					"										return ( ((I) ((x3, y3) -> {\n" +
-					"											return xf + xl + yf + yl + zf + zl + pf + pl + x3 + y3;\n" +
-					"										})).foo(\"works \", \"fine \") + x2 + y2);\n" +
-					"									})).foo(\"in \", \"the \") + x1 + y1);\n" +
-					"								};\n" +
-					"								return i.foo(\"eclipse \", \"compiler \");\n" +
-					"							}\n" +
-					"						}\n" +
-					"						return new P().p();\n" +
-					"					}\n" +
-					"				}\n" +
-					"				return new Z().z();\n" +
-					"			}\n" +
-					"    	}\n" +
-					"    	return new Y().y();\n" +
-					"    }\n" +
-					"    public static void main(String[] args) {\n" +
-					"	System.out.println(new X().x());\n" +
-					"    }\n" +
-					"}\n",
+					"""
+						interface I {
+						    String foo(String x, String y);
+						}
+						public class X {
+						    String xf = "Lambda ";
+						    String x() {
+						    	String xl = "code ";
+						    	class Y {
+									String yf = "generation ";
+									String y () {
+										String yl = "with ";
+										class Z {
+											String zf = "instance ";
+											String z () {
+												String zl = "and ";
+												class P {
+													String pf = "local ";
+													String p () {
+														String pl = "capture ";
+														I i = (x1, y1) -> {
+															return (((I) ((x2, y2) -> {
+																return ( ((I) ((x3, y3) -> {
+																	return xf + xl + yf + yl + zf + zl + pf + pl + x3 + y3;
+																})).foo("works ", "fine ") + x2 + y2);
+															})).foo("in ", "the ") + x1 + y1);
+														};
+														return i.foo("eclipse ", "compiler ");
+													}
+												}
+												return new P().p();
+											}
+										}
+										return new Z().z();
+									}
+						    	}
+						    	return new Y().y();
+						    }
+						    public static void main(String[] args) {
+							System.out.println(new X().x());
+						    }
+						}
+						""",
 				},
 				"Lambda code generation with instance and local capture works fine in the eclipse compiler");
 }
@@ -960,48 +1040,50 @@ public void test037() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"    String foo(String x, String y);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"    String xf = \"Lambda \";\n" +
-					"    String x() {\n" +
-					"    	String xl = \"code \";\n" +
-					"    	class Y {\n" +
-					"			String yf = \"generation \";\n" +
-					"			String y () {\n" +
-					"				String yl = \"with \";\n" +
-					"				class Z {\n" +
-					"					String zf = \"instance \";\n" +
-					"					String z () {\n" +
-					"						String zl = \"and \";\n" +
-					"						class P {\n" +
-					"							String pf = \"local \";\n" +
-					"							String p () {\n" +
-					"								String pl = \"capture \";\n" +
-					"								I i = (x1, y1) -> {\n" +
-					"									return (((I) ((x2, y2) -> {\n" +
-					"										return ( ((I) ((x3, y3) -> {\n" +
-					"                                           String exclaim = \"!\";\n" +
-					"											return xf + xl + yf + yl + zf + zl + pf + pl + x3 + y3 + x2 + y2 + x1 + y1 + exclaim;\n" +
-					"										})).foo(\"works \", \"fine \"));\n" +
-					"									})).foo(\"in \", \"the \"));\n" +
-					"								};\n" +
-					"								return i.foo(\"eclipse \", \"compiler \");\n" +
-					"							}\n" +
-					"						}\n" +
-					"						return new P().p();\n" +
-					"					}\n" +
-					"				}\n" +
-					"				return new Z().z();\n" +
-					"			}\n" +
-					"    	}\n" +
-					"    	return new Y().y();\n" +
-					"    }\n" +
-					"    public static void main(String[] args) {\n" +
-					"	System.out.println(new X().x());\n" +
-					"    }\n" +
-					"}\n",
+					"""
+						interface I {
+						    String foo(String x, String y);
+						}
+						public class X {
+						    String xf = "Lambda ";
+						    String x() {
+						    	String xl = "code ";
+						    	class Y {
+									String yf = "generation ";
+									String y () {
+										String yl = "with ";
+										class Z {
+											String zf = "instance ";
+											String z () {
+												String zl = "and ";
+												class P {
+													String pf = "local ";
+													String p () {
+														String pl = "capture ";
+														I i = (x1, y1) -> {
+															return (((I) ((x2, y2) -> {
+																return ( ((I) ((x3, y3) -> {
+						                                           String exclaim = "!";
+																	return xf + xl + yf + yl + zf + zl + pf + pl + x3 + y3 + x2 + y2 + x1 + y1 + exclaim;
+																})).foo("works ", "fine "));
+															})).foo("in ", "the "));
+														};
+														return i.foo("eclipse ", "compiler ");
+													}
+												}
+												return new P().p();
+											}
+										}
+										return new Z().z();
+									}
+						    	}
+						    	return new Y().y();
+						    }
+						    public static void main(String[] args) {
+							System.out.println(new X().x());
+						    }
+						}
+						""",
 				},
 				"Lambda code generation with instance and local capture works fine in the eclipse compiler !");
 }
@@ -1010,19 +1092,21 @@ public void test038() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"}\n" +
-					"interface J {\n" +
-					"}\n" +
-					"public class X implements I, J {\n" +
-					"	public static void main( String [] args) { \n" +
-					"		f(new X());\n" +
-					"	}\n" +
-					"	static void f(Object o) {\n" +
-					"		X x = (X & I & J) o;\n" +
-					"       System.out.println(\"OK\");\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+						}
+						interface J {
+						}
+						public class X implements I, J {
+							public static void main( String [] args) {\s
+								f(new X());
+							}
+							static void f(Object o) {
+								X x = (X & I & J) o;
+						       System.out.println("OK");
+							}
+						}
+						""",
 				},
 				"OK");
 }
@@ -1061,25 +1145,27 @@ public void test041() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	X makeX(int x);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	class Z {\n" +
-					"		void f() {\n" +
-					"			I i = X::new;\n" +
-					"			i.makeX(123456);\n" +
-					"		}\n" +
-					"	}\n" +
-					"	private X(int x) {\n" +
-					"		System.out.println(x);\n" +
-					"	}\n" +
-					"	X() {\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new X().new Z().f();\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							X makeX(int x);
+						}
+						public class X {
+							class Z {
+								void f() {
+									I i = X::new;
+									i.makeX(123456);
+								}
+							}
+							private X(int x) {
+								System.out.println(x);
+							}
+							X() {
+							}
+							public static void main(String[] args) {
+								new X().new Z().f();
+							}
+						}
+						""",
 				},
 				"123456");
 }
@@ -1088,37 +1174,39 @@ public void test042() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	X makeX(int x);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	class Y extends X {\n" +
-					"		class Z {\n" +
-					"			void f() {\n" +
-					"				I i = X::new;\n" +
-					"				i.makeX(123456);\n" +
-					"				i = Y::new;\n" +
-					"				i.makeX(987654);\n" +
-					"			}\n" +
-					"		}\n" +
-					"		private Y(int y) {\n" +
-					"			System.out.println(\"Y(\" + y + \")\");\n" +
-					"		}\n" +
-					"		private Y() {\n" +
-					"			\n" +
-					"		}\n" +
-					"	}\n" +
-					"	private X(int x) {\n" +
-					"		System.out.println(\"X(\" + x + \")\");\n" +
-					"	}\n" +
-					"\n" +
-					"	X() {\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new X().new Y().new Z().f();\n" +
-					"	}\n" +
-					"\n" +
-					"}\n",
+					"""
+						interface I {
+							X makeX(int x);
+						}
+						public class X {
+							class Y extends X {
+								class Z {
+									void f() {
+										I i = X::new;
+										i.makeX(123456);
+										i = Y::new;
+										i.makeX(987654);
+									}
+								}
+								private Y(int y) {
+									System.out.println("Y(" + y + ")");
+								}
+								private Y() {
+								\t
+								}
+							}
+							private X(int x) {
+								System.out.println("X(" + x + ")");
+							}
+						
+							X() {
+							}
+							public static void main(String[] args) {
+								new X().new Y().new Z().f();
+							}
+						
+						}
+						""",
 				},
 				"X(123456)\n" +
 				"Y(987654)");
@@ -1128,48 +1216,51 @@ public void test043() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	X makeX(int x);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	class Y extends X {\n" +
-					"		class Z extends X {\n" +
-					"			void f() {\n" +
-					"				I i = X::new;\n" +
-					"				i.makeX(123456);\n" +
-					"				i = Y::new;\n" +
-					"				i.makeX(987654);\n" +
-					"               i = Z::new;\n" +
-					"               i.makeX(456789);\n" +
-					"			}\n" +
-					"       	private Z(int z) {\n" +
-					"				System.out.println(\"Z(\" + z + \")\");\n" +
-					"			}\n" +
-					"           Z() {\n" +
-					"           }\n" +
-					"       }\n" +
-					"		private Y(int y) {\n" +
-					"			System.out.println(\"Y(\" + y + \")\");\n" +
-					"		}\n" +
-					"		private Y() {\n" +
-					"			\n" +
-					"		}\n" +
-					"	}\n" +
-					"	private X(int x) {\n" +
-					"		System.out.println(\"X(\" + x + \")\");\n" +
-					"	}\n" +
-					"\n" +
-					"	X() {\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new X().new Y().new Z().f();\n" +
-					"	}\n" +
-					"\n" +
-					"}\n",
+					"""
+						interface I {
+							X makeX(int x);
+						}
+						public class X {
+							class Y extends X {
+								class Z extends X {
+									void f() {
+										I i = X::new;
+										i.makeX(123456);
+										i = Y::new;
+										i.makeX(987654);
+						               i = Z::new;
+						               i.makeX(456789);
+									}
+						       	private Z(int z) {
+										System.out.println("Z(" + z + ")");
+									}
+						           Z() {
+						           }
+						       }
+								private Y(int y) {
+									System.out.println("Y(" + y + ")");
+								}
+								private Y() {
+								\t
+								}
+							}
+							private X(int x) {
+								System.out.println("X(" + x + ")");
+							}
+						
+							X() {
+							}
+							public static void main(String[] args) {
+								new X().new Y().new Z().f();
+							}
+						
+						}
+						""",
 				},
-				"X(123456)\n" +
-				"Y(987654)\n" +
-				"Z(456789)");
+				"""
+					X(123456)
+					Y(987654)
+					Z(456789)""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
 public void test044() {
@@ -1178,150 +1269,159 @@ public void test044() {
 			JavacHasABug.JavacBugFixed_901,
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	X makeX(int x);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	void foo() {\n" +
-					"		int local;\n" +
-					"		class Y extends X {\n" +
-					"			class Z extends X {\n" +
-					"				void f() {\n" +
-					"					I i = X::new;\n" +
-					"					i.makeX(123456);\n" +
-					"					i = Y::new;\n" +
-					"					i.makeX(987654);\n" +
-					"					i = Z::new;\n" +
-					"					i.makeX(456789);\n" +
-					"				}\n" +
-					"				private Z(int z) {\n" +
-					"					System.out.println(\"Z(\" + z + \")\");\n" +
-					"				}\n" +
-					"				Z() {}\n" +
-					"			}\n" +
-					"			private Y(int y) {\n" +
-					"				System.out.println(\"Y(\" + y + \")\");\n" +
-					"			}\n" +
-					"			private Y() {\n" +
-					"			}\n" +
-					"		}\n" +
-					"		new Y().new Z().f();\n" +
-					"	}\n" +
-					"	private X(int x) {\n" +
-					"		System.out.println(\"X(\" + x + \")\");\n" +
-					"	}\n" +
-					"\n" +
-					"	X() {\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new X().foo();\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							X makeX(int x);
+						}
+						public class X {
+							void foo() {
+								int local;
+								class Y extends X {
+									class Z extends X {
+										void f() {
+											I i = X::new;
+											i.makeX(123456);
+											i = Y::new;
+											i.makeX(987654);
+											i = Z::new;
+											i.makeX(456789);
+										}
+										private Z(int z) {
+											System.out.println("Z(" + z + ")");
+										}
+										Z() {}
+									}
+									private Y(int y) {
+										System.out.println("Y(" + y + ")");
+									}
+									private Y() {
+									}
+								}
+								new Y().new Z().f();
+							}
+							private X(int x) {
+								System.out.println("X(" + x + ")");
+							}
+						
+							X() {
+							}
+							public static void main(String[] args) {
+								new X().foo();
+							}
+						}
+						""",
 				},
-				"X(123456)\n" +
-				"Y(987654)\n" +
-				"Z(456789)");
+				"""
+					X(123456)
+					Y(987654)
+					Z(456789)""");
 }
 public void test045() {
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	X makeX(int x);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	I i = (x) -> {\n" +
-					"		class Y extends X {\n" +
-					"			private Y (int y) {\n" +
-					"				System.out.println(y);\n" +
-					"			}\n" +
-					"			Y() {\n" +
-					"			}\n" +
-					"			void f() {\n" +
-					"				I i = X::new;\n" +
-					"				i.makeX(123456);\n" +
-					"				i = X.Y::new;\n" +
-					"				i.makeX(987654);\n" +
-					"			}\n" +
-					"		}\n" +
-					"		return null; \n" +
-					"	};\n" +
-					"	private X(int x) {\n" +
-					"		System.out.println(x);\n" +
-					"	}\n" +
-					"	X() {\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new X().new Y().f();\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							X makeX(int x);
+						}
+						public class X {
+							I i = (x) -> {
+								class Y extends X {
+									private Y (int y) {
+										System.out.println(y);
+									}
+									Y() {
+									}
+									void f() {
+										I i = X::new;
+										i.makeX(123456);
+										i = X.Y::new;
+										i.makeX(987654);
+									}
+								}
+								return null;\s
+							};
+							private X(int x) {
+								System.out.println(x);
+							}
+							X() {
+							}
+							public static void main(String[] args) {
+								new X().new Y().f();
+							}
+						}
+						""",
 				},
-				"----------\n" +
-				"1. WARNING in X.java (at line 6)\n" +
-				"	class Y extends X {\n" +
-				"	      ^\n" +
-				"The type Y is never used locally\n" +
-				"----------\n" +
-				"2. WARNING in X.java (at line 7)\n" +
-				"	private Y (int y) {\n" +
-				"	        ^^^^^^^^^\n" +
-				"The constructor Y(int) is never used locally\n" +
-				"----------\n" +
-				"3. WARNING in X.java (at line 10)\n" +
-				"	Y() {\n" +
-				"	^^^\n" +
-				"The constructor Y() is never used locally\n" +
-				"----------\n" +
-				"4. WARNING in X.java (at line 13)\n" +
-				"	I i = X::new;\n" +
-				"	  ^\n" +
-				"The local variable i is hiding a field from type X\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 15)\n" +
-				"	i = X.Y::new;\n" +
-				"	    ^^^\n" +
-				"X.Y cannot be resolved to a type\n" +
-				"----------\n" +
-				"6. ERROR in X.java (at line 27)\n" +
-				"	new X().new Y().f();\n" +
-				"	            ^\n" +
-				"X.Y cannot be resolved to a type\n" +
-				"----------\n");
+				"""
+					----------
+					1. WARNING in X.java (at line 6)
+						class Y extends X {
+						      ^
+					The type Y is never used locally
+					----------
+					2. WARNING in X.java (at line 7)
+						private Y (int y) {
+						        ^^^^^^^^^
+					The constructor Y(int) is never used locally
+					----------
+					3. WARNING in X.java (at line 10)
+						Y() {
+						^^^
+					The constructor Y() is never used locally
+					----------
+					4. WARNING in X.java (at line 13)
+						I i = X::new;
+						  ^
+					The local variable i is hiding a field from type X
+					----------
+					5. ERROR in X.java (at line 15)
+						i = X.Y::new;
+						    ^^^
+					X.Y cannot be resolved to a type
+					----------
+					6. ERROR in X.java (at line 27)
+						new X().new Y().f();
+						            ^
+					X.Y cannot be resolved to a type
+					----------
+					""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406760, [1.8][compiler][codegen] "VerifyError: Bad type on operand stack" with qualified super method references
 public void test046() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	String doit();\n" +
-					"}\n" +
-					"public class X extends B {\n" +
-					"	class Y {\n" +
-					"		class Z {\n" +
-					"			void f() {\n" +
-					"				\n" +
-					"				 I i = X.super::toString; // Verify error\n" +
-					"				 System.out.println(i.doit());\n" +
-					"				 i = X.this::toString; // This call gets dispatched OK.\n" +
-					"				 System.out.println(i.doit());\n" +
-					"			}\n" +
-					"		}\n" +
-					"	}\n" +
-					"	\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new X().new Y().new Z().f(); \n" +
-					"	}\n" +
-					"	\n" +
-					"	public String toString() {\n" +
-					"		return \"X's toString\";\n" +
-					"	}\n" +
-					"}\n" +
-					"class B {\n" +
-					"	public String toString() {\n" +
-					"		return \"B's toString\";\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							String doit();
+						}
+						public class X extends B {
+							class Y {
+								class Z {
+									void f() {
+									\t
+										 I i = X.super::toString; // Verify error
+										 System.out.println(i.doit());
+										 i = X.this::toString; // This call gets dispatched OK.
+										 System.out.println(i.doit());
+									}
+								}
+							}
+						\t
+							public static void main(String[] args) {
+								new X().new Y().new Z().f();\s
+							}
+						\t
+							public String toString() {
+								return "X's toString";
+							}
+						}
+						class B {
+							public String toString() {
+								return "B's toString";
+							}
+						}
+						""",
 				},
 				"B\'s toString\n" +
 				"X\'s toString");
@@ -1330,83 +1430,91 @@ public void test047() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	void foo(int x, int y);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		long lng = 1234;\n" +
-					"		double d = 1234.5678;\n" +
-					"		I i = (x, y) -> {\n" +
-					"			System.out.println(\"long = \" + lng);\n" +
-					"			System.out.println(\"args length = \" + args.length);\n" +
-					"			System.out.println(\"double = \" + d);\n" +
-					"			System.out.println(\"x = \" + x);\n" +
-					"			System.out.println(\"y = \" + y);\n" +
-					"		};\n" +
-					"		i.foo(9876, 4321);\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							void foo(int x, int y);
+						}
+						public class X {
+							public static void main(String[] args) {
+								long lng = 1234;
+								double d = 1234.5678;
+								I i = (x, y) -> {
+									System.out.println("long = " + lng);
+									System.out.println("args length = " + args.length);
+									System.out.println("double = " + d);
+									System.out.println("x = " + x);
+									System.out.println("y = " + y);
+								};
+								i.foo(9876, 4321);
+							}
+						}
+						""",
 				},
-				"long = 1234\n" +
-				"args length = 0\n" +
-				"double = 1234.5678\n" +
-				"x = 9876\n" +
-				"y = 4321");
+				"""
+					long = 1234
+					args length = 0
+					double = 1234.5678
+					x = 9876
+					y = 4321""");
 }
 public void test048() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I<T, J> {\n" +
-					"	void foo(T x, J y);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		long lng = 1234;\n" +
-					"		double d = 1234.5678;\n" +
-					"		I<Object, Object> i = (x, y) -> {\n" +
-					"			System.out.println(\"long = \" + lng);\n" +
-					"			System.out.println(\"args length = \" + args.length);\n" +
-					"			System.out.println(\"double = \" + d);\n" +
-					"			System.out.println(\"x = \" + x);\n" +
-					"			System.out.println(\"y = \" + y);\n" +
-					"		};\n" +
-					"		i.foo(9876, 4321);\n" +
-					"		\n" +
-					"		I<String, String> i2 = (x, y) -> {\n" +
-					"			System.out.println(x);\n" +
-					"			System.out.println(y);\n" +
-					"		};\n" +
-					"		i2.foo(\"Hello !\",  \"World\");\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I<T, J> {
+							void foo(T x, J y);
+						}
+						public class X {
+							public static void main(String[] args) {
+								long lng = 1234;
+								double d = 1234.5678;
+								I<Object, Object> i = (x, y) -> {
+									System.out.println("long = " + lng);
+									System.out.println("args length = " + args.length);
+									System.out.println("double = " + d);
+									System.out.println("x = " + x);
+									System.out.println("y = " + y);
+								};
+								i.foo(9876, 4321);
+							\t
+								I<String, String> i2 = (x, y) -> {
+									System.out.println(x);
+									System.out.println(y);
+								};
+								i2.foo("Hello !",  "World");
+							}
+						}
+						""",
 				},
-				"long = 1234\n" +
-				"args length = 0\n" +
-				"double = 1234.5678\n" +
-				"x = 9876\n" +
-				"y = 4321\n" +
-				"Hello !\n" +
-				"World");
+				"""
+					long = 1234
+					args length = 0
+					double = 1234.5678
+					x = 9876
+					y = 4321
+					Hello !
+					World""");
 }
 public void test049() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I<T, J> {\n" +
-					"	void foo(X x, T t, J j);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		I<String, String> i = X::foo;\n" +
-					"		i.foo(new X(), \"Hello\", \"World!\");\n" +
-					"	}\n" +
-					"	void foo(String s, String t) {\n" +
-					"		System.out.println(s);\n" +
-					"		System.out.println(t);\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I<T, J> {
+							void foo(X x, T t, J j);
+						}
+						public class X {
+							public static void main(String[] args) {
+								I<String, String> i = X::foo;
+								i.foo(new X(), "Hello", "World!");
+							}
+							void foo(String s, String t) {
+								System.out.println(s);
+								System.out.println(t);
+							}
+						}
+						""",
 				},
 				"Hello\n" +
 				"World!");
@@ -1416,57 +1524,60 @@ public void test050() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	void foo(int x, int y);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	static private void add(int x, int y) {\n" +
-					"		System.out.println(x + y);\n" +
-					"	}\n" +
-					"	private void multiply(int x, int y) {\n" +
-					"		System.out.println(x * y);\n" +
-					"	}\n" +
-					"	static class Y {\n" +
-					"		static private void subtract(int x, int y) {\n" +
-					"			System.out.println(x - y);\n" +
-					"		}\n" +
-					"		private void divide (int x, int y) {\n" +
-					"			System.out.println(x / y);\n" +
-					"		}\n" +
-					"		static void doy() {\n" +
-					"			I i = X::add;\n" +
-					"			i.foo(1234, 12);\n" +
-					"			i = new X()::multiply;\n" +
-					"			i.foo(12, 20);\n" +
-					"			i = Y::subtract;\n" +
-					"			i.foo(123,  13);\n" +
-					"			i = new Y()::divide;\n" +
-					"			i.foo(99, 9);\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		I i = X::add;\n" +
-					"		i.foo(1234, 12);\n" +
-					"		i = new X()::multiply;\n" +
-					"		i.foo(12, 20);\n" +
-					"		i = Y::subtract;\n" +
-					"		i.foo(123,  13);\n" +
-					"		i = new Y()::divide;\n" +
-					"		i.foo(99, 9);\n" +
-					"		Y.subtract(10,  7);\n" +
-					"		Y.doy();\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						interface I {
+							void foo(int x, int y);
+						}
+						public class X {
+							static private void add(int x, int y) {
+								System.out.println(x + y);
+							}
+							private void multiply(int x, int y) {
+								System.out.println(x * y);
+							}
+							static class Y {
+								static private void subtract(int x, int y) {
+									System.out.println(x - y);
+								}
+								private void divide (int x, int y) {
+									System.out.println(x / y);
+								}
+								static void doy() {
+									I i = X::add;
+									i.foo(1234, 12);
+									i = new X()::multiply;
+									i.foo(12, 20);
+									i = Y::subtract;
+									i.foo(123,  13);
+									i = new Y()::divide;
+									i.foo(99, 9);
+								}
+							}
+							public static void main(String[] args) {
+								I i = X::add;
+								i.foo(1234, 12);
+								i = new X()::multiply;
+								i.foo(12, 20);
+								i = Y::subtract;
+								i.foo(123,  13);
+								i = new Y()::divide;
+								i.foo(99, 9);
+								Y.subtract(10,  7);
+								Y.doy();
+							}
+						}
+						""",
 				},
-				"1246\n" +
-				"240\n" +
-				"110\n" +
-				"11\n" +
-				"3\n" +
-				"1246\n" +
-				"240\n" +
-				"110\n" +
-				"11");
+				"""
+					1246
+					240
+					110
+					11
+					3
+					1246
+					240
+					110
+					11""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
 public void test051() {
@@ -1475,38 +1586,41 @@ public void test051() {
 			JavacHasABug.JavacBugFixed_901,
 			new String[] {
 					"p2/B.java",
-					"package p2;\n" +
-					"import p1.*;\n" +
-					"interface I {\n" +
-					"	void foo();\n" +
-					"}\n" +
-					"interface J {\n" +
-					"	void foo();\n" +
-					"}\n" +
-					"public class B extends A {\n" +
-					"	class Y {\n" +
-					"		void g() {\n" +
-					"			I i = B::foo;\n" +
-					"			i.foo();\n" +
-					"			J j = new B()::goo;\n" +
-					"			j.foo();\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new B().new Y().g();\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package p2;
+						import p1.*;
+						interface I {
+							void foo();
+						}
+						interface J {
+							void foo();
+						}
+						public class B extends A {
+							class Y {
+								void g() {
+									I i = B::foo;
+									i.foo();
+									J j = new B()::goo;
+									j.foo();
+								}
+							}
+							public static void main(String[] args) {
+								new B().new Y().g();
+							}
+						}
+						""",
 					"p1/A.java",
-					"package p1;\n" +
-					"import p2.*;\n" +
-					"public class A {\n" +
-					"	protected static void foo() {\n" +
-					"	    System.out.println(\"A's static foo\");\n" +
-					"	}\n" +
-					"	protected void goo() {\n" +
-					"	    System.out.println(\"A's instance goo\");\n" +
-					"	}\n" +
-					"}"
+					"""
+						package p1;
+						import p2.*;
+						public class A {
+							protected static void foo() {
+							    System.out.println("A's static foo");
+							}
+							protected void goo() {
+							    System.out.println("A's instance goo");
+							}
+						}"""
 				},
 				"A\'s static foo\n" +
 				"A\'s instance goo");
@@ -1516,27 +1630,29 @@ public void test052() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"	void foo(int x);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	void foo() {\n" +
-					"		int local = 10;\n" +
-					"		class Y {\n" +
-					"			void foo(int x) {\n" +
-					"				System.out.println(local);\n" +
-					"			}\n" +
-					"			void goo() {\n" +
-					"				I i = this::foo;\n" +
-					"				i.foo(10);\n" +
-					"			}\n" +
-					"		}\n" +
-					"		new Y().goo();\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new X().foo();\n" +
-					"	}\n" +
-					"}\n"
+					"""
+						interface I {
+							void foo(int x);
+						}
+						public class X {
+							void foo() {
+								int local = 10;
+								class Y {
+									void foo(int x) {
+										System.out.println(local);
+									}
+									void goo() {
+										I i = this::foo;
+										i.foo(10);
+									}
+								}
+								new Y().goo();
+							}
+							public static void main(String[] args) {
+								new X().foo();
+							}
+						}
+						"""
 				},
 				"10");
 }
@@ -1545,47 +1661,52 @@ public void test053() {
 	  this.runConformTest(
 	    new String[] {
 	      "X.java",
-	      "import java.util.*;\n" +
-	      "public class X {\n" +
-	      "  public static <E> void printItem(E value, int index) {\n" +
-	      "    String output = String.format(\"%d -> %s\", index, value);\n" +
-	      "    System.out.println(output);\n" +
-	      "  }\n" +
-	      "  public static void main(String[] argv) {\n" +
-	      "    List<String> list = Arrays.asList(\"A\",\"B\",\"C\");\n" +
-	      "    eachWithIndex(list,X::printItem);\n" +
-	      "  }\n" +
-	      "  interface ItemWithIndexVisitor<E> {\n" +
-	      "    public void visit(E item, int index);\n" +
-	      "  }\n" +
-	      "  public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {\n" +
-	      "    for (int i = 0; i < list.size(); i++) {\n" +
-	      "         visitor.visit(list.get(i), i);\n" +
-	      "    }\n" +
-	      "  }\n" +
-	      "}\n"
+	      """
+			import java.util.*;
+			public class X {
+			  public static <E> void printItem(E value, int index) {
+			    String output = String.format("%d -> %s", index, value);
+			    System.out.println(output);
+			  }
+			  public static void main(String[] argv) {
+			    List<String> list = Arrays.asList("A","B","C");
+			    eachWithIndex(list,X::printItem);
+			  }
+			  interface ItemWithIndexVisitor<E> {
+			    public void visit(E item, int index);
+			  }
+			  public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {
+			    for (int i = 0; i < list.size(); i++) {
+			         visitor.visit(list.get(i), i);
+			    }
+			  }
+			}
+			"""
 	    },
-	    "0 -> A\n" +
-	    "1 -> B\n" +
-	    "2 -> C");
+	    """
+			0 -> A
+			1 -> B
+			2 -> C""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406847, [1.8] lambda code compiles but then produces IncompatibleClassChangeError when run
 public void test054() {
 	  this.runConformTest(
 	    new String[] {
 	      "X.java",
-	      "import java.util.*;\n" +
-	      "public class X {\n" +
-	      "  public static <E> void printItem(E value) {}\n" +
-	      "  public static void main(String[] argv) {\n" +
-	      "    List<String> list = null;\n" +
-	      "    eachWithIndex(list, X::printItem);\n" +
-	      "  }\n" +
-	      "  interface ItemWithIndexVisitor<E> {\n" +
-	      "    public void visit(E item);\n" +
-	      "  }\n" +
-	      "  public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {}\n" +
-	      "}\n"
+	      """
+			import java.util.*;
+			public class X {
+			  public static <E> void printItem(E value) {}
+			  public static void main(String[] argv) {
+			    List<String> list = null;
+			    eachWithIndex(list, X::printItem);
+			  }
+			  interface ItemWithIndexVisitor<E> {
+			    public void visit(E item);
+			  }
+			  public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {}
+			}
+			"""
 	    },
 	    "");
 }
@@ -1593,18 +1714,20 @@ public void test055() {
 	  this.runConformTest(
 	    new String[] {
 	      "X.java",
-	      "interface I {\n" +
-		  "	void foo(int i);\n" +
-		  "}\n" +
-		  "public class X {\n" +
-		  "	public static void main(String[] args) {\n" +
-		  "		X x = new X();\n" +
-		  "		I i = x::foo;\n" +
-		  "	}\n" +
-		  "	int foo(int x) {\n" +
-		  "		return x;\n" +
-		  "	}\n" +
-		  "}\n"
+	      """
+			interface I {
+				void foo(int i);
+			}
+			public class X {
+				public static void main(String[] args) {
+					X x = new X();
+					I i = x::foo;
+				}
+				int foo(int x) {
+					return x;
+				}
+			}
+			"""
 	    },
 	    "");
 }
@@ -1613,61 +1736,66 @@ public void test056() {
 	  this.runConformTest(
 	    new String[] {
 	      "X.java",
-	      "interface I {\n" +
-		  "	void foo(int i);\n" +
-		  "}\n" +
-		  "public class X {\n" +
-		  "	public static void main(String[] args) {\n" +
-		  "		X x = null;\n" +
-		  "		try {\n" +
-		  "			I i = x::foo;\n" +
-		  "			i.foo(10);\n" +
-		  "		} catch (NullPointerException npe) {\n" +
-		  "			System.out.println(npe.getMessage());\n" +
-		  "		}\n" +
-		  "	}\n" +
-		  "	int foo(int x) {\n" +
-		  "		return x;\n" +
-		  "	}\n" +
-		  "}\n"
+	      """
+			interface I {
+				void foo(int i);
+			}
+			public class X {
+				public static void main(String[] args) {
+					X x = null;
+					try {
+						I i = x::foo;
+						i.foo(10);
+					} catch (NullPointerException npe) {
+						System.out.println(npe.getMessage());
+					}
+				}
+				int foo(int x) {
+					return x;
+				}
+			}
+			"""
 	    },
 	    expected);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=410114, [1.8] CCE when trying to parse method reference expression with inappropriate type arguments
 public void test057() {
-	String source = "interface I {\n" +
-			"    void foo(Y<String> y);\n" +
-			"}\n" +
-			"public class Y<T> {\n" +
-			"    class Z<K> {\n" +
-			"        Z(Y<String> y) {\n" +
-			"            System.out.println(\"Y<T>.Z<K>:: new\");\n" +
-			"        }\n" +
-			"        public void bar() {\n" +
-			"            I i = Y<String>.Z<Integer>::<String> new;\n" +
-			"            i.foo(new Y<String>());\n" +
-			"            i = Y<String>.Z<Integer>:: new;\n" +
-			"            i.foo(new Y<String>());\n" +
-			"            i = Y.Z:: new;\n" +
-			"            i.foo(new Y<String>());\n" +
-			"        }\n" +
-			"    }\n" +
-			"	public void foo() {\n" +
-		    "		Z<String> z = new Z<String>(null);\n" +
-			"		z.bar();\n" +
-		    "	}\n" +
-		    "	public static void main(String[] args) {\n" +
-		    "		Y<String> y = new Y<String>();\n" +
-		    "		y.foo();\n" +
-		    "	}\n" +
-			"}\n";
+	String source = """
+		interface I {
+		    void foo(Y<String> y);
+		}
+		public class Y<T> {
+		    class Z<K> {
+		        Z(Y<String> y) {
+		            System.out.println("Y<T>.Z<K>:: new");
+		        }
+		        public void bar() {
+		            I i = Y<String>.Z<Integer>::<String> new;
+		            i.foo(new Y<String>());
+		            i = Y<String>.Z<Integer>:: new;
+		            i.foo(new Y<String>());
+		            i = Y.Z:: new;
+		            i.foo(new Y<String>());
+		        }
+		    }
+			public void foo() {
+				Z<String> z = new Z<String>(null);
+				z.bar();
+			}
+			public static void main(String[] args) {
+				Y<String> y = new Y<String>();
+				y.foo();
+			}
+		}
+		""";
 this.runConformTest(
 	new String[]{"Y.java",
 				source},
-				"Y<T>.Z<K>:: new\n" +
-				"Y<T>.Z<K>:: new\n" +
-				"Y<T>.Z<K>:: new\n" +
-				"Y<T>.Z<K>:: new");
+				"""
+					Y<T>.Z<K>:: new
+					Y<T>.Z<K>:: new
+					Y<T>.Z<K>:: new
+					Y<T>.Z<K>:: new""");
 }
 // Bug 411273 - [1.8][compiler] Bogus error about unhandled exceptions for unchecked exceptions thrown by method reference.
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=411273
@@ -1675,14 +1803,16 @@ public void test058() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		F1 f = X::foo;\n" +
-				"		System.out.println(\"Hello, World\");\n" +
-				"	}\n" +
-				"    static int foo (int x) throws NumberFormatException { return 0; }\n" +
-				"}\n" +
-				"interface F1 { int X(int x);}\n"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							F1 f = X::foo;
+							System.out.println("Hello, World");
+						}
+					    static int foo (int x) throws NumberFormatException { return 0; }
+					}
+					interface F1 { int X(int x);}
+					"""
 			},
 			"Hello, World"
 			);
@@ -1714,17 +1844,19 @@ public void test421536() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"interface I {\n" +
-			"	I foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			I i = () -> null;\n" +
-			"		} catch (NullPointerException npe) {}\n" +
-			"       System.out.println(\"OK\");\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface I {
+					I foo();
+				}
+				public class X {
+					public static void main(String[] args) {
+						try {
+							I i = () -> null;
+						} catch (NullPointerException npe) {}
+				       System.out.println("OK");
+					}
+				}
+				"""
 		},
 		"OK",
 		customOptions);
@@ -1737,18 +1869,20 @@ public void test421536a() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"   public static void foo() {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			I i = X::foo;\n" +
-			"		} catch (NullPointerException npe) {}\n" +
-			"       System.out.println(\"OK\");\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface I {
+					void foo();
+				}
+				public class X {
+				   public static void foo() {}
+					public static void main(String[] args) {
+						try {
+							I i = X::foo;
+						} catch (NullPointerException npe) {}
+				       System.out.println("OK");
+					}
+				}
+				"""
 		},
 		"OK",
 		customOptions);
@@ -1759,19 +1893,21 @@ public void test421607() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"interface I {\n" +
-			"	public void foo();\n" +
-			"}\n" +
-			"class C implements I {\n" +
-			"	public void foo() {\n" +
-			"		System.out.println(\"You will get here\");\n" +
-			"	}\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		((C & I) (I) new C()).foo();\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface I {
+					public void foo();
+				}
+				class C implements I {
+					public void foo() {
+						System.out.println("You will get here");
+					}
+				}
+				public class X {
+					public static void main(String[] args) {
+						((C & I) (I) new C()).foo();
+					}
+				}
+				"""
 		},
 		"You will get here");
 }
@@ -1781,22 +1917,24 @@ public void test421712() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"interface F {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"interface I {\n" +
-			"	default void foo() {\n" +
-			"		F f = () -> {\n" +
-			"		};\n" +
-			"   System.out.println(\"Lambda instantiated\");\n" +
-			"	}\n" +
-			"}\n" +
-			"public class X implements I {\n" +
-			"	public static void main(String argv[]) {\n" +
-			"		X x = new X();\n" +
-			"		x.foo();\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface F {
+					void foo();
+				}
+				interface I {
+					default void foo() {
+						F f = () -> {
+						};
+				   System.out.println("Lambda instantiated");
+					}
+				}
+				public class X implements I {
+					public static void main(String argv[]) {
+						X x = new X();
+						x.foo();
+					}
+				}
+				"""
 		},
 		"Lambda instantiated");
 }
@@ -1807,15 +1945,17 @@ public void test422515() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" +
-					"    public static void main(String[] args) throws InterruptedException {\n" +
-					"        final int[] result = { 0 };\n" +
-					"        Thread t = new Thread(() -> result[0] = 42);\n" +
-					"        t.start();\n" +
-					"        t.join();\n" +
-					"        System.out.println(result[0]);\n" +
-					"    }\n" +
-					"}\n"
+					"""
+						public class X {
+						    public static void main(String[] args) throws InterruptedException {
+						        final int[] result = { 0 };
+						        Thread t = new Thread(() -> result[0] = 42);
+						        t.start();
+						        t.join();
+						        System.out.println(result[0]);
+						    }
+						}
+						"""
 			},
 			"42"
 		);
@@ -1826,18 +1966,20 @@ public void test422515a() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" +
-					"    public static void main(String[] args) throws InterruptedException {\n" +
-					"        final int[] result= { 0 };\n" +
-					"        final int x = args.length + 42;\n" +
-					"        Thread t = new Thread(() -> {\n" +
-					"            result[0]= x;\n" +
-					"        });\n" +
-					"        t.start();\n" +
-					"        t.join();\n" +
-					"        System.out.println(result[0]);\n" +
-					"    }\n" +
-					"}\n"
+					"""
+						public class X {
+						    public static void main(String[] args) throws InterruptedException {
+						        final int[] result= { 0 };
+						        final int x = args.length + 42;
+						        Thread t = new Thread(() -> {
+						            result[0]= x;
+						        });
+						        t.start();
+						        t.join();
+						        System.out.println(result[0]);
+						    }
+						}
+						"""
 			},
 			"42"
 		);
@@ -1848,17 +1990,19 @@ public void test422800() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" +
-					"    private String fField; // must be here; can be used or unused\n" +
-					"    public void foo(Integer arg) {\n" +
-					"        new Thread(() -> {\n" +
-					"            arg.intValue();\n" +
-					"        });\n" +
-					"    }\n" +
-					"    public static void main(String [] args) {\n" +
-					"	     System.out.println(\"OK\");\n" +
-					"    }\n" +
-					"}\n"
+					"""
+						public class X {
+						    private String fField; // must be here; can be used or unused
+						    public void foo(Integer arg) {
+						        new Thread(() -> {
+						            arg.intValue();
+						        });
+						    }
+						    public static void main(String [] args) {
+							     System.out.println("OK");
+						    }
+						}
+						"""
 			},
 			"OK"
 		);
@@ -1869,15 +2013,17 @@ public void test421927() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I { \n" +
-					"	int foo();\n" +
-					"}\n" +
-					"public class X {\n" +
-					"    static I i  = (I & java.io.Serializable) () -> 42;\n" +
-					"    public static void main(String args[]) {\n" +
-					"        System.out.println(i.foo());\n" +
-					"    }\n" +
-					"}\n"
+					"""
+						interface I {\s
+							int foo();
+						}
+						public class X {
+						    static I i  = (I & java.io.Serializable) () -> 42;
+						    public static void main(String args[]) {
+						        System.out.println(i.foo());
+						    }
+						}
+						"""
 			},
 			"42");
 }
@@ -1886,16 +2032,18 @@ public void testReferenceExpressionInference1() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"interface I<E> {\n" +
-			"	E foo(E e);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	<T> T print(I<T> i) { return null; }\n" +
-			"	void test() {\n" +
-			"		String s = print(this::bar);" +
-			"	}\n" +
-			"	<S> S bar(S s) { return s; }\n" +
-			"}\n"
+			"""
+				interface I<E> {
+					E foo(E e);
+				}
+				public class X {
+					<T> T print(I<T> i) { return null; }
+					void test() {
+						String s = print(this::bar);\
+					}
+					<S> S bar(S s) { return s; }
+				}
+				"""
 		});
 }
 
@@ -1903,17 +2051,19 @@ public void testReferenceExpressionInference2() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"interface I<E,F> {\n" +
-			"	F foo(E e);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	<S,T,U> I<S,U> compose(I<S,T> i1, I<T,U> i2) { return null; }\n" +
-			"	void test() {\n" +
-			"		I<X,String> x2s = compose(this::bar, this::i2s);" +
-			"	}\n" +
-			"	String i2s (Integer i) { return i.toString(); }\n" +
-			"	<V,W extends Number> W bar(V v) { return null; }\n" +
-			"}\n"
+			"""
+				interface I<E,F> {
+					F foo(E e);
+				}
+				public class X {
+					<S,T,U> I<S,U> compose(I<S,T> i1, I<T,U> i2) { return null; }
+					void test() {
+						I<X,String> x2s = compose(this::bar, this::i2s);\
+					}
+					String i2s (Integer i) { return i.toString(); }
+					<V,W extends Number> W bar(V v) { return null; }
+				}
+				"""
 		});
 }
 
@@ -1942,41 +2092,47 @@ public void testReferenceExpressionInference3b() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"interface I<E,F> {\n" +
-			"	F foo(E e);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	<S,T,U> I<S,U> compose(I<S,T> i1, I<T,U> i2) { return null; }\n" +
-			"	void test() {\n" +
-			"		I<X,String> x2s = compose(this::bar, this::i2s);\n" +
-			"	}\n" +
-			"	<Z> Z i2s (Integer i) { return null; }\n" +
-			"	<V,W extends Number> W bar(V v) { return null; }\n" +
-			"}\n"
+			"""
+				interface I<E,F> {
+					F foo(E e);
+				}
+				public class X {
+					<S,T,U> I<S,U> compose(I<S,T> i1, I<T,U> i2) { return null; }
+					void test() {
+						I<X,String> x2s = compose(this::bar, this::i2s);
+					}
+					<Z> Z i2s (Integer i) { return null; }
+					<V,W extends Number> W bar(V v) { return null; }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	I<X,String> x2s = compose(this::bar, this::i2s);\n" +
-		"	                                     ^^^^^^^^^\n" +
-		"The type X does not define i2s(Object) that is applicable here\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				I<X,String> x2s = compose(this::bar, this::i2s);
+				                                     ^^^^^^^^^
+			The type X does not define i2s(Object) that is applicable here
+			----------
+			""");
 }
 public void testLambdaInference1() {
 	  this.runConformTest(
 	    new String[] {
 	      "X.java",
-	      "import java.util.*;\n" +
-	      "public class X {\n" +
-	      "  public static void main(String[] argv) {\n" +
-	      "    List<String> list = null;\n" +
-	      "    eachWithIndex(list, s -> print(s));\n" +
-	      "  }\n" +
-	      "  static void print(String s) {}\n" +
-	      "  interface ItemWithIndexVisitor<E> {\n" +
-	      "    public void visit(E item);\n" +
-	      "  }\n" +
-	      "  public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {}\n" +
-	      "}\n"
+	      """
+			import java.util.*;
+			public class X {
+			  public static void main(String[] argv) {
+			    List<String> list = null;
+			    eachWithIndex(list, s -> print(s));
+			  }
+			  static void print(String s) {}
+			  interface ItemWithIndexVisitor<E> {
+			    public void visit(E item);
+			  }
+			  public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {}
+			}
+			"""
 	    },
 	    "");
 }
@@ -1985,21 +2141,23 @@ public void testLambdaInference2() {
 	  this.runConformTest(
 	    new String[] {
 	      "X.java",
-	      "import java.util.*;\n" +
-	      "class A {}\n" +
-	      "class B extends A {\n" +
-	      "	void bar() {}\n" +
-	      "}\n" +
-	      "public class X {\n" +
-	      "  public static void main(String[] argv) {\n" +
-	      "    someWithIndex(getList(), (B b) -> b.bar());\n" +
-	      "  }\n" +
-	      "  interface ItemWithIndexVisitor<E> {\n" +
-	      "    public void visit(E item);\n" +
-	      "  }\n" +
-	      "  public static <G> void someWithIndex(List<G> list, ItemWithIndexVisitor<G> visitor) {}\n" +
-	      "  static <I extends A> List<I> getList() { return null; }\n" +
-	      "}\n"
+	      """
+			import java.util.*;
+			class A {}
+			class B extends A {
+				void bar() {}
+			}
+			public class X {
+			  public static void main(String[] argv) {
+			    someWithIndex(getList(), (B b) -> b.bar());
+			  }
+			  interface ItemWithIndexVisitor<E> {
+			    public void visit(E item);
+			  }
+			  public static <G> void someWithIndex(List<G> list, ItemWithIndexVisitor<G> visitor) {}
+			  static <I extends A> List<I> getList() { return null; }
+			}
+			"""
 	    },
 	    "");
 }
@@ -2008,25 +2166,27 @@ public void testBug419048_1() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.*;\n" +
-			"import java.util.stream.*;\n" +
-			"public class X {\n" +
-			"	public void test() {\n" +
-			"		 List<Person> roster = new ArrayList<>();\n" +
-			"        \n" +
-			"        Map<String, Person> map = \n" +
-			"            roster\n" +
-			"                .stream()\n" +
-			"                .collect(\n" +
-			"                    Collectors.toMap(\n" +
-			"                        p -> p.getLast(),\n" +
-			"                        p -> p\n" +
-			"                    ));\n" +
-			"	}\n" +
-			"}\n" +
-			"class Person {\n" +
-			"  public String getLast() { return null; }\n" +
-			"}\n"
+			"""
+				import java.util.*;
+				import java.util.stream.*;
+				public class X {
+					public void test() {
+						 List<Person> roster = new ArrayList<>();
+				       \s
+				        Map<String, Person> map =\s
+				            roster
+				                .stream()
+				                .collect(
+				                    Collectors.toMap(
+				                        p -> p.getLast(),
+				                        p -> p
+				                    ));
+					}
+				}
+				class Person {
+				  public String getLast() { return null; }
+				}
+				"""
 		});
 }
 
@@ -2034,26 +2194,28 @@ public void testBug419048_2() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.*;\n" +
-			"import java.util.function.*;\n" +
-			"import java.util.stream.*;\n" +
-			"public class X {\n" +
-			"	public void test() {\n" +
-			"		 List<Person> roster = new ArrayList<>();\n" +
-			"        \n" +
-			"        Map<String, Person> map = \n" +
-			"            roster\n" +
-			"                .stream()\n" +
-			"                .collect(\n" +
-			"                    Collectors.toMap(\n" +
-			"                        Person::getLast,\n" +
-			"                        Function.identity()\n" +
-			"                    ));\n" +
-			"	}\n" +
-			"}\n" +
-			"class Person {\n" +
-			"  public String getLast() { return null; }\n" +
-			"}\n"
+			"""
+				import java.util.*;
+				import java.util.function.*;
+				import java.util.stream.*;
+				public class X {
+					public void test() {
+						 List<Person> roster = new ArrayList<>();
+				       \s
+				        Map<String, Person> map =\s
+				            roster
+				                .stream()
+				                .collect(
+				                    Collectors.toMap(
+				                        Person::getLast,
+				                        Function.identity()
+				                    ));
+					}
+				}
+				class Person {
+				  public String getLast() { return null; }
+				}
+				"""
 		});
 }
 
@@ -2061,30 +2223,32 @@ public void testBug419048_3() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.*;\n" +
-			"import java.util.function.*;\n" +
-			"import java.util.stream.*;\n" +
-			"public class X {\n" +
-			"	public void test() {\n" +
-			"		 List<Person> roster = new ArrayList<>();\n" +
-			"        \n" +
-			"        Map<String, Person> map = \n" +
-			"            roster\n" +
-			"                .stream()\n" +
-			"                .collect(\n" +
-			"                    Collectors.toMap(\n" +
-			"                        new Function<Person, String>() {\n" +
-			"                            public String apply(Person p) { \n" +
-			"                                return p.getLast(); \n" +
-			"                            } \n" +
-			"                        },\n" +
-			"                        Function.identity()\n" +
-			"                    ));\n" +
-			"	}\n" +
-			"}\n" +
-			"class Person {\n" +
-			"  public String getLast() { return null; }\n" +
-			"}\n"
+			"""
+				import java.util.*;
+				import java.util.function.*;
+				import java.util.stream.*;
+				public class X {
+					public void test() {
+						 List<Person> roster = new ArrayList<>();
+				       \s
+				        Map<String, Person> map =\s
+				            roster
+				                .stream()
+				                .collect(
+				                    Collectors.toMap(
+				                        new Function<Person, String>() {
+				                            public String apply(Person p) {\s
+				                                return p.getLast();\s
+				                            }\s
+				                        },
+				                        Function.identity()
+				                    ));
+					}
+				}
+				class Person {
+				  public String getLast() { return null; }
+				}
+				"""
 		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424226,  [1.8] Cannot use static method from an interface in static method reference
@@ -2092,23 +2256,25 @@ public void test424226() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public void fun1() {\n" +
-			"		FI fi = I::staticMethod; \n" +
-			"	}\n" +
-			"   public static void main(String [] args) {\n" +
-			"       System.out.println(\"OK\");\n" +
-			"   }\n" +
-			"}\n" +
-			"@FunctionalInterface\n" +
-			"interface FI {\n" +
-			"	void foo();	\n" +
-			"}\n" +
-			"interface I {\n" +
-			"	static FI staticMethod() {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					public void fun1() {
+						FI fi = I::staticMethod;\s
+					}
+				   public static void main(String [] args) {
+				       System.out.println("OK");
+				   }
+				}
+				@FunctionalInterface
+				interface FI {
+					void foo();\t
+				}
+				interface I {
+					static FI staticMethod() {
+						return null;
+					}
+				}
+				"""
 		}, "OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=423684, [1.8][compiler] IllegalAccessError using functional consumer calling inherited method
@@ -2116,119 +2282,134 @@ public void test423684() {
 	runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"import mypackage.MyPublicClass;\n" +
-			"public class Test {\n" +
-			"    public static void main(String[] args) {\n" +
-			"        doesWork();\n" +
-			"        doesNotWork();\n" +
-			"    }\n" +
-			"    public static void doesNotWork() {\n" +
-			"        MyPublicClass victim = new MyPublicClass();\n" +
-			"        List<String> items = Arrays.asList(\"first\", \"second\", \"third\");\n" +
-			"        items.forEach(victim::doSomething); //illegal access error here\n" +
-			"    }\n" +
-			"    public static void doesWork() {\n" +
-			"        MyPublicClass victim = new MyPublicClass();\n" +
-			"        List<String> items = Arrays.asList(\"first\", \"second\", \"third\");\n" +
-			"        for (String item : items) {\n" +
-			"            victim.doSomething(item);\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				import java.util.Arrays;
+				import java.util.List;
+				import mypackage.MyPublicClass;
+				public class Test {
+				    public static void main(String[] args) {
+				        doesWork();
+				        doesNotWork();
+				    }
+				    public static void doesNotWork() {
+				        MyPublicClass victim = new MyPublicClass();
+				        List<String> items = Arrays.asList("first", "second", "third");
+				        items.forEach(victim::doSomething); //illegal access error here
+				    }
+				    public static void doesWork() {
+				        MyPublicClass victim = new MyPublicClass();
+				        List<String> items = Arrays.asList("first", "second", "third");
+				        for (String item : items) {
+				            victim.doSomething(item);
+				        }
+				    }
+				}
+				""",
 			"mypackage/MyPublicClass.java",
-			"package mypackage;\n" +
-			"class MyPackagePrivateBaseClass {\n" +
-			"    public void doSomething(String input) {\n" +
-			"        System.out.println(input);\n" +
-			"    }\n" +
-			"}\n" +
-			"public class MyPublicClass extends MyPackagePrivateBaseClass {\n" +
-			"}\n"
+			"""
+				package mypackage;
+				class MyPackagePrivateBaseClass {
+				    public void doSomething(String input) {
+				        System.out.println(input);
+				    }
+				}
+				public class MyPublicClass extends MyPackagePrivateBaseClass {
+				}
+				"""
 		},
-		"first\n" +
-		"second\n" +
-		"third\n" +
-		"first\n" +
-		"second\n" +
-		"third");
+		"""
+			first
+			second
+			third
+			first
+			second
+			third""");
 }
 public void testBug424742() {
 	runNegativeTest(
 		new String[] {
 			"TestInlineLambdaArray.java",
-			"package two.test;\n" +
-			"\n" +
-			"class TestInlineLambdaArray {\n" +
-			"	TestInlineLambdaArray h = new TestInlineLambdaArray(x -> x++);	// [9]\n" +
-			"	public TestInlineLambda(FI fi) {}\n" +
-			"}\n" +
-			"\n" +
-			"interface FI {\n" +
-			"		void foo();\n" +
-			"}\n"
+			"""
+				package two.test;
+				
+				class TestInlineLambdaArray {
+					TestInlineLambdaArray h = new TestInlineLambdaArray(x -> x++);	// [9]
+					public TestInlineLambda(FI fi) {}
+				}
+				
+				interface FI {
+						void foo();
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in TestInlineLambdaArray.java (at line 4)\n" +
-		"	TestInlineLambdaArray h = new TestInlineLambdaArray(x -> x++);	// [9]\n" +
-		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The constructor TestInlineLambdaArray((<no type> x) -> {}) is undefined\n" +
-		"----------\n" +
-		"2. ERROR in TestInlineLambdaArray.java (at line 5)\n" +
-		"	public TestInlineLambda(FI fi) {}\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Return type for the method is missing\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in TestInlineLambdaArray.java (at line 4)
+				TestInlineLambdaArray h = new TestInlineLambdaArray(x -> x++);	// [9]
+				                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			The constructor TestInlineLambdaArray((<no type> x) -> {}) is undefined
+			----------
+			2. ERROR in TestInlineLambdaArray.java (at line 5)
+				public TestInlineLambda(FI fi) {}
+				       ^^^^^^^^^^^^^^^^^^^^^^^
+			Return type for the method is missing
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424589, [1.8][compiler] NPE in TypeSystem.getUnannotatedType
 public void test424589() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.List;\n" +
-			"import java.util.Collection;\n" +
-			"import java.util.function.Supplier;\n" +
-			"import java.util.Set;\n" +
-			"public class X {\n" +
-			"    public static <T, Y extends Collection<T>>\n" +
-			"        Y foo(Supplier<Y> y) {\n" +
-			"            return null;\n" +
-			"    }  \n" +
-			"    public static void main(String[] args) {\n" +
-			"        Set<Z> x = foo(Set::new);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.util.List;
+				import java.util.Collection;
+				import java.util.function.Supplier;
+				import java.util.Set;
+				public class X {
+				    public static <T, Y extends Collection<T>>
+				        Y foo(Supplier<Y> y) {
+				            return null;
+				    } \s
+				    public static void main(String[] args) {
+				        Set<Z> x = foo(Set::new);
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" +
-		"	Set<Z> x = foo(Set::new);\n" +
-		"	    ^\n" +
-		"Z cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 11)\n" +
-		"	Set<Z> x = foo(Set::new);\n" +
-		"	               ^^^\n" +
-		"Cannot instantiate the type Set\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 11)
+				Set<Z> x = foo(Set::new);
+				    ^
+			Z cannot be resolved to a type
+			----------
+			2. ERROR in X.java (at line 11)
+				Set<Z> x = foo(Set::new);
+				               ^^^
+			Cannot instantiate the type Set
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425152, [1.8] [compiler] NPE in LambdaExpression.analyzeCode
 public void test425152() {
 	runConformTest(
 		new String[] {
 			"Main.java",
-			"interface Base { \n" +
-			"	Base get(int x);\n" +
-			"}\n" +
-			"class Main {\n" +
-			"    <T> Base foo(Base b) { \n" +
-			"        return null; \n" +
-			"     }\n" +
-			"    void bar(Base b) { }\n" +
-			"    void testCase() {\n" +
-			"        bar(foo((int p)->null));\n" +
-			"     }\n" +
-			"}\n"
+			"""
+				interface Base {\s
+					Base get(int x);
+				}
+				class Main {
+				    <T> Base foo(Base b) {\s
+				        return null;\s
+				     }
+				    void bar(Base b) { }
+				    void testCase() {
+				        bar(foo((int p)->null));
+				     }
+				}
+				"""
 		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
@@ -2236,44 +2417,50 @@ public void test425512() throws Exception {
 	this.runNegativeTest(
 		new String[] {
 				"X.java",
-				"import java.io.Serializable;\n" +
-				"public class X  {\n" +
-				"    public static void main(String argv[]) {\n" +
-				"    	int [] a = (int [] & Cloneable & Serializable) new int[5];\n" +
-				"       System.out.println(a.length);\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					import java.io.Serializable;
+					public class X  {
+					    public static void main(String argv[]) {
+					    	int [] a = (int [] & Cloneable & Serializable) new int[5];
+					       System.out.println(a.length);
+					    }
+					}
+					""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	int [] a = (int [] & Cloneable & Serializable) new int[5];\n" +
-		"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Arrays are not allowed in intersection cast operator\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				int [] a = (int [] & Cloneable & Serializable) new int[5];
+				            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Arrays are not allowed in intersection cast operator
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424628, [1.8][compiler] Multiple method references to inherited method throws LambdaConversionException
 public void test424628() throws Exception {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static interface Consumer<T> {\n" +
-				"        void accept(T t);\n" +
-				"    }\n" +
-				"    \n" +
-				"    public static class Base {\n" +
-				"        public void method () { System.out.println(123); }\n" +
-				"    }\n" +
-				"    public static class Foo extends Base {}\n" +
-				"    public static class Bar extends Base {}\n" +
-				"\n" +
-				"    public static void main (String[] args) {\n" +
-				"        Consumer<Foo> foo = Foo::method;\n" +
-				"        Consumer<Bar> bar = Bar::method;\n" +
-				"        foo.accept(new Foo());\n" +
-		        "        bar.accept(new Bar());\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					public class X {
+					    public static interface Consumer<T> {
+					        void accept(T t);
+					    }
+					   \s
+					    public static class Base {
+					        public void method () { System.out.println(123); }
+					    }
+					    public static class Foo extends Base {}
+					    public static class Bar extends Base {}
+					
+					    public static void main (String[] args) {
+					        Consumer<Foo> foo = Foo::method;
+					        Consumer<Bar> bar = Bar::method;
+					        foo.accept(new Foo());
+					        bar.accept(new Bar());
+					    }
+					}
+					""",
 		},
 		"123\n123");
 }
@@ -2282,18 +2469,20 @@ public void test425712() throws Exception {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    {\n" +
-				"        bar( () -> (char) 0); // [1]\n" +
-				"    }\n" +
-				"    void bar(FB fb) { }\n" +
-				"    public static void main(String[] args) {\n" +
-				"		System.out.println(\"OK\");\n" +
-				"	}\n" +
-				"}\n" +
-				"interface FB {\n" +
-				"	byte foo();\n" +
-				"}\n",
+				"""
+					public class X {
+					    {
+					        bar( () -> (char) 0); // [1]
+					    }
+					    void bar(FB fb) { }
+					    public static void main(String[] args) {
+							System.out.println("OK");
+						}
+					}
+					interface FB {
+						byte foo();
+					}
+					""",
 		},
 		"OK");
 }
@@ -2302,18 +2491,20 @@ public void test426074() throws Exception {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"interface Functional<T> {\n" +
-				"    void foo(T t);\n" +
-				"}\n" +
-				"interface I { }\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"    	Functional<? extends X> f = (Functional<? extends X> & I) (X c) -> {\n" +
-				"    		System.out.println(\"main\");\n" +
-				"    	};\n" +
-				"    	f.foo(null);\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					interface Functional<T> {
+					    void foo(T t);
+					}
+					interface I { }
+					public class X {
+						public static void main(String[] args) {
+					    	Functional<? extends X> f = (Functional<? extends X> & I) (X c) -> {
+					    		System.out.println("main");
+					    	};
+					    	f.foo(null);
+					    }
+					}
+					""",
 		},
 		"main");
 }
@@ -2322,12 +2513,14 @@ public void test426411() throws Exception {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"import java.io.Serializable;\n" +
-				"public class X {\n" +
-				"	public static void main(String argv[]) throws Exception {\n" +
-				"		((Serializable & AutoCloseable) (() -> {})).close();\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					import java.io.Serializable;
+					public class X {
+						public static void main(String argv[]) throws Exception {
+							((Serializable & AutoCloseable) (() -> {})).close();
+						}
+					}
+					""",
 		},
 		"");
 }
@@ -2336,13 +2529,15 @@ public void test426411b() throws Exception {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"import java.io.Serializable;\n" +
-				"interface AnotherAutoCloseable extends AutoCloseable {}\n" +
-				"public class X {\n" +
-				"	public static void main(String argv[]) throws Exception {\n" +
-				"		((Serializable & AnotherAutoCloseable) (() -> {})).close();\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					import java.io.Serializable;
+					interface AnotherAutoCloseable extends AutoCloseable {}
+					public class X {
+						public static void main(String argv[]) throws Exception {
+							((Serializable & AnotherAutoCloseable) (() -> {})).close();
+						}
+					}
+					""",
 		},
 		"");
 }
@@ -2351,12 +2546,14 @@ public void test426411c() throws Exception {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"import java.io.Serializable;\n" +
-				"public class X {\n" +
-				"	public static void main(String argv[]) throws Exception {\n" +
-				"		((AutoCloseable & Serializable) (() -> {})).close();\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					import java.io.Serializable;
+					public class X {
+						public static void main(String argv[]) throws Exception {
+							((AutoCloseable & Serializable) (() -> {})).close();
+						}
+					}
+					""",
 		},
 		"");
 }
@@ -2365,13 +2562,15 @@ public void test426411d() throws Exception {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"import java.io.Serializable;\n" +
-				"interface AnotherAutoCloseable extends AutoCloseable {}\n" +
-				"public class X {\n" +
-				"	public static void main(String argv[]) throws Exception {\n" +
-				"		((AnotherAutoCloseable & Serializable) (() -> {})).close();\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					import java.io.Serializable;
+					interface AnotherAutoCloseable extends AutoCloseable {}
+					public class X {
+						public static void main(String argv[]) throws Exception {
+							((AnotherAutoCloseable & Serializable) (() -> {})).close();
+						}
+					}
+					""",
 		},
 		"");
 }
@@ -2380,17 +2579,19 @@ public void test426411e() throws Exception {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"import java.io.Serializable;\n" +
-				"interface I {}\n" +
-				"interface J extends I {\n" +
-				"   static final int xyz = 99;\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String argv[]) throws Exception {\n" +
-				"		J j = new J() {};\n" +
-				"		System.out.println(((I & J) j).xyz);\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					import java.io.Serializable;
+					interface I {}
+					interface J extends I {
+					   static final int xyz = 99;
+					}
+					public class X {
+						public static void main(String argv[]) throws Exception {
+							J j = new J() {};
+							System.out.println(((I & J) j).xyz);
+						}
+					}
+					""",
 		},
 		"99");
 }
@@ -2399,17 +2600,19 @@ public void test426411f() throws Exception {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"import java.io.Serializable;\n" +
-				"interface I {}\n" +
-				"interface J extends I {\n" +
-				"   final int xyz = 99;\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String argv[]) throws Exception {\n" +
-				"		J j = new J() {};\n" +
-				"		System.out.println(((I & J) j).xyz);\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					import java.io.Serializable;
+					interface I {}
+					interface J extends I {
+					   final int xyz = 99;
+					}
+					public class X {
+						public static void main(String argv[]) throws Exception {
+							J j = new J() {};
+							System.out.println(((I & J) j).xyz);
+						}
+					}
+					""",
 		},
 		"99");
 }
@@ -2418,25 +2621,27 @@ public void test426086() throws Exception {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"interface Functional {\n" +
-				"    Long square(Integer a);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"    static class Base {\n" +
-				"    	 private Long square(Integer a) {\n" +
-				"             return Long.valueOf(a*a);\n" +
-				"         } \n" +
-				"    }\n" +
-				"    static class SubClass extends Base {\n" +
-				"        public Long callSquare(Integer i) {\n" +
-				"            Functional fi = SubClass.super::square;\n" +
-				"            return fi.square(i);\n" +
-				"        }\n" +
-				"    }\n" +
-				"    public static void main(String argv[]) throws Exception {\n" +
-				"    	System.out.println(new SubClass().callSquare(-3));\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					interface Functional {
+					    Long square(Integer a);
+					}
+					public class X {
+					    static class Base {
+					    	 private Long square(Integer a) {
+					             return Long.valueOf(a*a);
+					         }\s
+					    }
+					    static class SubClass extends Base {
+					        public Long callSquare(Integer i) {
+					            Functional fi = SubClass.super::square;
+					            return fi.square(i);
+					        }
+					    }
+					    public static void main(String argv[]) throws Exception {
+					    	System.out.println(new SubClass().callSquare(-3));
+					    }
+					}
+					""",
 		},
 		"9");
 }
@@ -2445,25 +2650,27 @@ public void test426086a() throws Exception {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"interface Functional {\n" +
-				"    Long square(Integer a);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"    static class Base {\n" +
-				"    	 private Long square(Integer a) {\n" +
-				"             return Long.valueOf(a*a);\n" +
-				"         } \n" +
-				"    }\n" +
-				"    static class SubClass extends Base {\n" +
-				"        public Long callSquare(Integer i) {\n" +
-				"            Functional fi = super::square;\n" +
-				"            return fi.square(i);\n" +
-				"        }\n" +
-				"    }\n" +
-				"    public static void main(String argv[]) throws Exception {\n" +
-				"    	System.out.println(new SubClass().callSquare(-3));\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					interface Functional {
+					    Long square(Integer a);
+					}
+					public class X {
+					    static class Base {
+					    	 private Long square(Integer a) {
+					             return Long.valueOf(a*a);
+					         }\s
+					    }
+					    static class SubClass extends Base {
+					        public Long callSquare(Integer i) {
+					            Functional fi = super::square;
+					            return fi.square(i);
+					        }
+					    }
+					    public static void main(String argv[]) throws Exception {
+					    	System.out.println(new SubClass().callSquare(-3));
+					    }
+					}
+					""",
 		},
 		"9");
 }
@@ -2473,150 +2680,164 @@ public void test406744a() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void foo(Integer a1, Integer a2, String a3);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	static void m(Number a1, Object... rest) {\n" +
-				"		System.out.println(a1);\n" +
-				"		print(rest);\n" +
-				"	}\n" +
-				"	static void print (Object [] o) {\n" +
-				"		for (int i = 0; i < o.length; i++)\n" +
-				"			System.out.println(o[i]);\n" +
-				"	}\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String [] args) {\n" +
-				"		I i = Y::m;\n" +
-				"		i.foo(10, 20, \"10, 20\");\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						void foo(Integer a1, Integer a2, String a3);
+					}
+					class Y {
+						static void m(Number a1, Object... rest) {
+							System.out.println(a1);
+							print(rest);
+						}
+						static void print (Object [] o) {
+							for (int i = 0; i < o.length; i++)
+								System.out.println(o[i]);
+						}
+					}
+					public class X {
+						public static void main(String [] args) {
+							I i = Y::m;
+							i.foo(10, 20, "10, 20");
+						}
+					}
+					""",
 			},
-			"10\n" +
-			"20\n" +
-			"10, 20"
+			"""
+				10
+				20
+				10, 20"""
 			);
 }
 public void test406744b() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	int foo(Integer a1, Integer a2, String a3);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	static int m(Number a1, Object... rest) {\n" +
-				"		System.out.println(a1);\n" +
-				"		print(rest);\n" +
-				"		return 1;\n" +
-				"	}\n" +
-				"	static void print (Object [] o) {\n" +
-				"		for (int i = 0; i < o.length; i++)\n" +
-				"			System.out.println(o[i]);\n" +
-				"	}\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String [] args) {\n" +
-				"		I i = Y::m;\n" +
-				"		i.foo(10, 20, \"10, 20\");\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						int foo(Integer a1, Integer a2, String a3);
+					}
+					class Y {
+						static int m(Number a1, Object... rest) {
+							System.out.println(a1);
+							print(rest);
+							return 1;
+						}
+						static void print (Object [] o) {
+							for (int i = 0; i < o.length; i++)
+								System.out.println(o[i]);
+						}
+					}
+					public class X {
+						public static void main(String [] args) {
+							I i = Y::m;
+							i.foo(10, 20, "10, 20");
+						}
+					}
+					""",
 			},
-			"10\n" +
-			"20\n" +
-			"10, 20"
+			"""
+				10
+				20
+				10, 20"""
 			);
 }
 public void test406744c() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void foo(Integer a1, Integer a2, String a3);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	 Y(Number a1, Object... rest) {\n" +
-				"		System.out.println(a1);\n" +
-				"		print(rest);\n" +
-				"	}\n" +
-				"	static void m(Number a1, Object... rest) {\n" +
-				"		System.out.println(a1);\n" +
-				"		print(rest);\n" +
-				"	}\n" +
-				"	static void print (Object [] o) {\n" +
-				"		for (int i = 0; i < o.length; i++)\n" +
-				"			System.out.println(o[i]);\n" +
-				"	}\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String [] args) {\n" +
-				"		I i = Y::new;\n" +
-				"		i.foo(10, 20, \"10, 20\");\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						void foo(Integer a1, Integer a2, String a3);
+					}
+					class Y {
+						 Y(Number a1, Object... rest) {
+							System.out.println(a1);
+							print(rest);
+						}
+						static void m(Number a1, Object... rest) {
+							System.out.println(a1);
+							print(rest);
+						}
+						static void print (Object [] o) {
+							for (int i = 0; i < o.length; i++)
+								System.out.println(o[i]);
+						}
+					}
+					public class X {
+						public static void main(String [] args) {
+							I i = Y::new;
+							i.foo(10, 20, "10, 20");
+						}
+					}
+					""",
 			},
-			"10\n" +
-			"20\n" +
-			"10, 20"
+			"""
+				10
+				20
+				10, 20"""
 			);
 }
 public void test406744d() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void foo(int a1, Integer a2, String a3);\n" +
-				"}\n" +
-				"interface Y {\n" +
-				"	static void m(float a1, Object... rest) {\n" +
-				"		System.out.println(a1);\n" +
-				"		print(rest);\n" +
-				"	}\n" +
-				"	static void print (Object [] o) {\n" +
-				"		for (int i = 0; i < o.length; i++)\n" +
-				"			System.out.println(o[i]);\n" +
-				"	}\n" +
-				"}\n" +
-				"public interface X extends Y{\n" +
-				"	public static void main(String [] args) {\n" +
-				"		I i = Y::m;\n" +
-				"		i.foo(10, 20, \"10, 20\");\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						void foo(int a1, Integer a2, String a3);
+					}
+					interface Y {
+						static void m(float a1, Object... rest) {
+							System.out.println(a1);
+							print(rest);
+						}
+						static void print (Object [] o) {
+							for (int i = 0; i < o.length; i++)
+								System.out.println(o[i]);
+						}
+					}
+					public interface X extends Y{
+						public static void main(String [] args) {
+							I i = Y::m;
+							i.foo(10, 20, "10, 20");
+						}
+					}
+					""",
 			},
-			"10.0\n" +
-			"20\n" +
-			"10, 20"
+			"""
+				10.0
+				20
+				10, 20"""
 			);
 }
 public void test406744e() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	String method(int a);\n" +
-				"}\n" +
-				"class C {\n" +
-				"	static String foo(Integer... i) {\n" +
-				"		return \"foo\";\n" +
-				"	}\n" +
-				"	static String goo(Integer bi, Integer... i) {\n" +
-				"		return \"bar\";\n" +
-				"	}\n" +
-				"	public void foo() {\n" +
-				"		I i;\n" +
-				"		i = C::foo;\n" +
-				"		System.out.println(i.method(0));\n" +
-				"		i = C::goo;\n" +
-				"		System.out.println(i.method(0));\n" +
-				"	}\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String argv[])   {\n" +
-				"		new C().foo();\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						String method(int a);
+					}
+					class C {
+						static String foo(Integer... i) {
+							return "foo";
+						}
+						static String goo(Integer bi, Integer... i) {
+							return "bar";
+						}
+						public void foo() {
+							I i;
+							i = C::foo;
+							System.out.println(i.method(0));
+							i = C::goo;
+							System.out.println(i.method(0));
+						}
+					}
+					public class X {
+						public static void main(String argv[])   {
+							new C().foo();
+						}
+					}
+					""",
 			},
 			"foo\n" +
 			"bar"
@@ -2626,99 +2847,107 @@ public void test406744f() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void foo(Integer a1, Integer a2, String a3);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	void m(Number a1, Object... rest) {\n" +
-				"		System.out.println(a1);\n" +
-				"		print(rest);\n" +
-				"	}\n" +
-				"	static void print (Object [] o) {\n" +
-				"		for (int i = 0; i < o.length; i++)\n" +
-				"			System.out.println(o[i]);\n" +
-				"	}\n" +
-				"}\n" +
-				"public class X extends Y {\n" +
-				"	static void print (Object [] o) {\n" +
-				"		for (int i = 0; i < o.length; i++)\n" +
-				"			System.out.println(o[i]);\n" +
-				"	}\n" +
-				"	public static void main(String [] args) {\n" +
-				"		new X().foo();\n" +
-				"	}\n" +
-				"	void foo() {\n" +
-				"		I i = super::m;\n" +
-				"		i.foo(10, 20, \"10, 20\");\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						void foo(Integer a1, Integer a2, String a3);
+					}
+					class Y {
+						void m(Number a1, Object... rest) {
+							System.out.println(a1);
+							print(rest);
+						}
+						static void print (Object [] o) {
+							for (int i = 0; i < o.length; i++)
+								System.out.println(o[i]);
+						}
+					}
+					public class X extends Y {
+						static void print (Object [] o) {
+							for (int i = 0; i < o.length; i++)
+								System.out.println(o[i]);
+						}
+						public static void main(String [] args) {
+							new X().foo();
+						}
+						void foo() {
+							I i = super::m;
+							i.foo(10, 20, "10, 20");
+						}
+					}
+					""",
 			},
-			"10\n" +
-			"20\n" +
-			"10, 20"
+			"""
+				10
+				20
+				10, 20"""
 			);
 }
 public void test406744g() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void foo(Integer a1, Integer a2, String a3);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	static void print (Object [] o) {\n" +
-				"		for (int i = 0; i < o.length; i++)\n" +
-				"			System.out.println(o[i]);\n" +
-				"	}\n" +
-				"}\n" +
-				"public class X extends Y {\n" +
-				"	private void m(Number a1, Object... rest) {\n" +
-				"		System.out.println(a1);\n" +
-				"		print(rest);\n" +
-				"	}\n" +
-				"	static void print (Object [] o) {\n" +
-				"		for (int i = 0; i < o.length; i++)\n" +
-				"			System.out.println(o[i]);\n" +
-				"	}\n" +
-				"	public static void main(String [] args) {\n" +
-				"		new X().foo();\n" +
-				"	}\n" +
-				"	void foo() {\n" +
-				"		I i = this::m;\n" +
-				"		i.foo(10, 20, \"10, 20\");\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						void foo(Integer a1, Integer a2, String a3);
+					}
+					class Y {
+						static void print (Object [] o) {
+							for (int i = 0; i < o.length; i++)
+								System.out.println(o[i]);
+						}
+					}
+					public class X extends Y {
+						private void m(Number a1, Object... rest) {
+							System.out.println(a1);
+							print(rest);
+						}
+						static void print (Object [] o) {
+							for (int i = 0; i < o.length; i++)
+								System.out.println(o[i]);
+						}
+						public static void main(String [] args) {
+							new X().foo();
+						}
+						void foo() {
+							I i = this::m;
+							i.foo(10, 20, "10, 20");
+						}
+					}
+					""",
 			},
-			"10\n" +
-			"20\n" +
-			"10, 20"
+			"""
+				10
+				20
+				10, 20"""
 			);
 }
 public void test406744h() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void foo(int [] ia);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	void m(Object... rest) {\n" +
-				"		System.out.println(\"Hello \" + rest.length);\n" +
-				"	}\n" +
-				"	static void print (Object [] o) {\n" +
-				"		for (int i = 0; i < o.length; i++)\n" +
-				"			System.out.println(o[i]);\n" +
-				"	}\n" +
-				"}\n" +
-				"public class X extends Y {\n" +
-				"	public static void main(String [] args) {\n" +
-				"		new X().foo();\n" +
-				"	}\n" +
-				"	void foo() {\n" +
-				"		I i = super::m;\n" +
-				"		i.foo(new int [0]);\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						void foo(int [] ia);
+					}
+					class Y {
+						void m(Object... rest) {
+							System.out.println("Hello " + rest.length);
+						}
+						static void print (Object [] o) {
+							for (int i = 0; i < o.length; i++)
+								System.out.println(o[i]);
+						}
+					}
+					public class X extends Y {
+						public static void main(String [] args) {
+							new X().foo();
+						}
+						void foo() {
+							I i = super::m;
+							i.foo(new int [0]);
+						}
+					}
+					""",
 			},
 			"Hello 1"
 			);
@@ -2727,32 +2956,34 @@ public void test406744i() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void foo(int [] ia);\n" +
-				"}\n" +
-				"interface I1 {\n" +
-				"	void foo(int [] ia);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	void m(Object... rest) {\n" +
-				"		System.out.println(\"Hello \" + rest.length);\n" +
-				"	}\n" +
-				"	static void print (Object [] o) {\n" +
-				"		for (int i = 0; i < o.length; i++)\n" +
-				"			System.out.println(o[i]);\n" +
-				"	}\n" +
-				"}\n" +
-				"public class X extends Y {\n" +
-				"	public static void main(String [] args) {\n" +
-				"		new X().foo();\n" +
-				"	}\n" +
-				"	void foo() {\n" +
-				"		I i = super::m;\n" +
-				"		i.foo(new int [0]);\n" +
-				"		I1 i1 = super::m;\n" +
-				"		i1.foo(new int [0]);\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						void foo(int [] ia);
+					}
+					interface I1 {
+						void foo(int [] ia);
+					}
+					class Y {
+						void m(Object... rest) {
+							System.out.println("Hello " + rest.length);
+						}
+						static void print (Object [] o) {
+							for (int i = 0; i < o.length; i++)
+								System.out.println(o[i]);
+						}
+					}
+					public class X extends Y {
+						public static void main(String [] args) {
+							new X().foo();
+						}
+						void foo() {
+							I i = super::m;
+							i.foo(new int [0]);
+							I1 i1 = super::m;
+							i1.foo(new int [0]);
+						}
+					}
+					""",
 			},
 			"Hello 1\n" +
 			"Hello 1"
@@ -2762,31 +2993,33 @@ public void test406744j() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void foo(int [] ia);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	void m(Object... rest) {\n" +
-				"		I i = this::n;\n" +
-				"		i.foo(new int [0]);\n" +
-				"	}\n" +
-				"	void n(Object... rest) {\n" +
-				"		System.out.println(\"Hello \" + rest.length);\n" +
-				"	}\n" +
-				"	static void print (Object [] o) {\n" +
-				"		for (int i = 0; i < o.length; i++)\n" +
-				"			System.out.println(o[i]);\n" +
-				"	}\n" +
-				"}\n" +
-				"public class X extends Y {\n" +
-				"	public static void main(String [] args) {\n" +
-				"		new X().foo();\n" +
-				"	}\n" +
-				"	void foo() {\n" +
-				"		I i = super::m;\n" +
-				"		i.foo(new int [0]);\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						void foo(int [] ia);
+					}
+					class Y {
+						void m(Object... rest) {
+							I i = this::n;
+							i.foo(new int [0]);
+						}
+						void n(Object... rest) {
+							System.out.println("Hello " + rest.length);
+						}
+						static void print (Object [] o) {
+							for (int i = 0; i < o.length; i++)
+								System.out.println(o[i]);
+						}
+					}
+					public class X extends Y {
+						public static void main(String [] args) {
+							new X().foo();
+						}
+						void foo() {
+							I i = super::m;
+							i.foo(new int [0]);
+						}
+					}
+					""",
 			},
 			"Hello 1"
 			);
@@ -2795,30 +3028,32 @@ public void test406744k() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void foo(int [] ia);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	static void m(Object... rest) {\n" +
-				"		System.out.println(\"Hello \" + rest.length);\n" +
-				"	}\n" +
-				"	static void print (Object [] o) {\n" +
-				"		for (int i = 0; i < o.length; i++)\n" +
-				"			System.out.println(o[i]);\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y1 extends Y { }\n" +
-				"public class X {\n" +
-				"	public static void main(String [] args) {\n" +
-				"		new X().foo();\n" +
-				"	}\n" +
-				"	void foo() {\n" +
-				"		I i = Y::m;\n" +
-				"		i.foo(new int [0]);\n" +
-				"		i = Y1::m;\n" +
-				"		i.foo(new int [0]);\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						void foo(int [] ia);
+					}
+					class Y {
+						static void m(Object... rest) {
+							System.out.println("Hello " + rest.length);
+						}
+						static void print (Object [] o) {
+							for (int i = 0; i < o.length; i++)
+								System.out.println(o[i]);
+						}
+					}
+					class Y1 extends Y { }
+					public class X {
+						public static void main(String [] args) {
+							new X().foo();
+						}
+						void foo() {
+							I i = Y::m;
+							i.foo(new int [0]);
+							i = Y1::m;
+							i.foo(new int [0]);
+						}
+					}
+					""",
 			},
 			"Hello 1\n" +
 			"Hello 1"
@@ -2828,18 +3063,20 @@ public void test406744l() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void foo(Integer i);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	static void foo(int ... x) {\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		I i = X::foo;\n" +
-				"		i.foo(1);\n" +
-				"		System.out.println(\"Hello\");\n" +
-				"}\n" +
-				"}\n",
+				"""
+					interface I {
+						void foo(Integer i);
+					}
+					public class X {
+						static void foo(int ... x) {
+						}
+						public static void main(String[] args) {
+							I i = X::foo;
+							i.foo(1);
+							System.out.println("Hello");
+					}
+					}
+					""",
 			},
 			"Hello"
 			);
@@ -2848,18 +3085,20 @@ public void test406744m() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void foo(int i);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	static void foo(int ... x) {\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		I i = X::foo;\n" +
-				"		i.foo(1);\n" +
-				"		System.out.println(\"Hello\");\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						void foo(int i);
+					}
+					public class X {
+						static void foo(int ... x) {
+						}
+						public static void main(String[] args) {
+							I i = X::foo;
+							i.foo(1);
+							System.out.println("Hello");
+						}
+					}
+					""",
 			},
 			"Hello"
 			);
@@ -2868,26 +3107,28 @@ public void test406744n() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void foo(Integer i);\n" +
-				"}\n" +
-				"class Base {\n" +
-				"	void foo(Object ...objects) {\n" +
-				"		System.out.println(\"Ok\");\n" +
-				"	}\n" +
-				"}\n" +
-				"public class X extends Base {\n" +
-				"	void foo(Object... objects) {\n" +
-				"		throw new RuntimeException();\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		new X().goo();\n" +
-				"	}\n" +
-				"	void goo() {\n" +
-				"		I i = super::foo;\n" +
-				"		i.foo(10);\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						void foo(Integer i);
+					}
+					class Base {
+						void foo(Object ...objects) {
+							System.out.println("Ok");
+						}
+					}
+					public class X extends Base {
+						void foo(Object... objects) {
+							throw new RuntimeException();
+						}
+						public static void main(String[] args) {
+							new X().goo();
+						}
+						void goo() {
+							I i = super::foo;
+							i.foo(10);
+						}
+					}
+					""",
 			},
 			"Ok"
 			);
@@ -2896,20 +3137,22 @@ public void test406744o() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void foo(int x);\n" +
-				"}\n" +
-				"class Base {\n" +
-				"	public void foo(int ...is) {\n" +
-				"		System.out.println(\"foo\");\n" +
-				"	}\n" +
-				"}\n" +
-				"public class X extends Base {\n" +
-				"	public static void main( String[] args ) {\n" +
-				"		I i = new X()::foo;\n" +
-				"		i.foo(10);\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						void foo(int x);
+					}
+					class Base {
+						public void foo(int ...is) {
+							System.out.println("foo");
+						}
+					}
+					public class X extends Base {
+						public static void main( String[] args ) {
+							I i = new X()::foo;
+							i.foo(10);
+						}
+					}
+					""",
 			},
 			"foo"
 			);
@@ -2918,23 +3161,25 @@ public void test406744p() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void foo(int x);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	private void foo(int ...is) {\n" +
-				"		System.out.println(\"foo\");\n" +
-				"	}\n" +
-				"	public static void main(String[] args ) {\n" +
-				"		new X().new Y().foo();\n" +
-				"	}\n" +
-				"	class Y extends X {\n" +
-				"		void foo() {\n" +
-				"			I i = new X()::foo;\n" +
-				"			i.foo(10);\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						void foo(int x);
+					}
+					public class X {
+						private void foo(int ...is) {
+							System.out.println("foo");
+						}
+						public static void main(String[] args ) {
+							new X().new Y().foo();
+						}
+						class Y extends X {
+							void foo() {
+								I i = new X()::foo;
+								i.foo(10);
+							}
+						}
+					}
+					""",
 			},
 			"foo"
 			);
@@ -2943,25 +3188,27 @@ public void test406744q() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void foo(int x);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	public static void foo(int ...is) {\n" +
-				"		System.out.println(\"Y.foo\");\n" +
-				"	}\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void foo(int ...is) {\n" +
-				"		System.out.println(\"X.foo\");\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		I i = X::foo;\n" +
-				"		i.foo(10);\n" +
-				"		i = Y::foo;\n" +
-				"		i.foo(20);\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						void foo(int x);
+					}
+					class Y {
+						public static void foo(int ...is) {
+							System.out.println("Y.foo");
+						}
+					}
+					public class X {
+						public static void foo(int ...is) {
+							System.out.println("X.foo");
+						}
+						public static void main(String[] args) {
+							I i = X::foo;
+							i.foo(10);
+							i = Y::foo;
+							i.foo(20);
+						}
+					}
+					""",
 			},
 			"X.foo\n" +
 			"Y.foo"
@@ -2971,18 +3218,20 @@ public void test406744r() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void foo(int t, int [] ia);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void foo(Integer i, int ...is) {\n" +
-				"		System.out.println(\"Y.foo\");\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		I i = X::foo;\n" +
-				"		i.foo(10, null);\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						void foo(int t, int [] ia);
+					}
+					public class X {
+						public static void foo(Integer i, int ...is) {
+							System.out.println("Y.foo");
+						}
+						public static void main(String[] args) {
+							I i = X::foo;
+							i.foo(10, null);
+						}
+					}
+					""",
 			},
 			"Y.foo"
 			);
@@ -2991,23 +3240,25 @@ public void test406744s() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	X foo(int x);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	class Y extends X {\n" +
-				"		Y(int ... x) {\n" +
-				"			System.out.println(\"Y::Y\");\n" +
-				"		}\n" +
-				"	}\n" +
-				"	public static void main(String[] args ) {\n" +
-				"		new X().goo();\n" +
-				"	}\n" +
-				"	void goo() {\n" +
-				"		I i = Y::new;\n" +
-				"		i.foo(10);\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						X foo(int x);
+					}
+					public class X {
+						class Y extends X {
+							Y(int ... x) {
+								System.out.println("Y::Y");
+							}
+						}
+						public static void main(String[] args ) {
+							new X().goo();
+						}
+						void goo() {
+							I i = Y::new;
+							i.foo(10);
+						}
+					}
+					""",
 			},
 			"Y::Y"
 			);
@@ -3016,24 +3267,26 @@ public void test406744t() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	X foo(int x);\n" +
-				"}\n" +
-				"public class X<T> {\n" +
-				"	class Y extends X {\n" +
-				"	    Y(int ... x) {\n" +
-				"		    System.out.println(\"Y::Y\");\n" +
-				"	    }\n" +
-				"	}\n" +
-				"	public static void main(String[] args ) {\n" +
-				"		System.out.println(\"Hello\");\n" +
-				"		new X().goo();\n" +
-				"	}\n" +
-				"	void goo() {\n" +
-				"		I i = Y::new;\n" +
-				"		i.foo(10);\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						X foo(int x);
+					}
+					public class X<T> {
+						class Y extends X {
+						    Y(int ... x) {
+							    System.out.println("Y::Y");
+						    }
+						}
+						public static void main(String[] args ) {
+							System.out.println("Hello");
+							new X().goo();
+						}
+						void goo() {
+							I i = Y::new;
+							i.foo(10);
+						}
+					}
+					""",
 			},
 			"Hello\n" +
 			"Y::Y"
@@ -3043,24 +3296,26 @@ public void test406744u() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	X<String> foo(int x);\n" +
-				"}\n" +
-				"public class X<T> {  \n" +
-				"	class Y extends X<String> {\n" +
-				"	    Y(int ... x) {\n" +
-				"		    System.out.println(\"Y::Y\"); \n" +
-				"	    }\n" +
-				"	}\n" +
-				"	public static void main(String[] args ) {\n" +
-				"		System.out.println(\"Hello\");\n" +
-			"		new X<String>().goo();  \n" +
-				"	}\n" +
-				"	void goo() {\n" +
-				"		I i = Y::new;\n" +
-				"		i.foo(10); \n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						X<String> foo(int x);
+					}
+					public class X<T> { \s
+						class Y extends X<String> {
+						    Y(int ... x) {
+							    System.out.println("Y::Y");\s
+						    }
+						}
+						public static void main(String[] args ) {
+							System.out.println("Hello");
+							new X<String>().goo(); \s
+						}
+						void goo() {
+							I i = Y::new;
+							i.foo(10);\s
+						}
+					}
+					""",
 			},
 			"Hello\n" +
 			"Y::Y"
@@ -3070,24 +3325,26 @@ public void test406744v() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	X foo();\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	private X(int ... is) {\n" +
-				"		System.out.println(\"X::X\");\n" +
-				"	}\n" +
-				"	\n" +
-				"	public static void main(String[] args) {\n" +
-				"		new X().new Y().goo();\n" +
-				"	}\n" +
-				"	public class Y {\n" +
-				"		public void goo() {\n" +
-				"			I i = X::new; \n" +
-				"			i.foo();\n" +
-				"		} \n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {
+						X foo();
+					}
+					public class X {
+						private X(int ... is) {
+							System.out.println("X::X");
+						}
+					\t
+						public static void main(String[] args) {
+							new X().new Y().goo();
+						}
+						public class Y {
+							public void goo() {
+								I i = X::new;\s
+								i.foo();
+							}\s
+						}
+					}
+					""",
 			},
 			"X::X\n" +
 			"X::X"
@@ -3097,38 +3354,42 @@ public void test406744w() {
 	this.runConformTest(
 			new String[] {
 				"p2/B.java",
-				"package p2;\n" +
-				"import p1.*;\n" +
-				"interface I {\n" +
-				"	void foo(int x);\n" +
-				"}\n" +
-				"interface J {\n" +
-				"	void foo(int x);\n" +
-				"}\n" +
-				"public class B extends A {\n" +
-				"	class Y {\n" +
-				"		void g() {\n" +
-				"			I i = B::foo;\n" +
-				"			i.foo(10);\n" +
-				"			J j = new B()::goo;\n" +
-				"			j.foo(10);\n" +
-				"		}\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		new B().new Y().g();\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					package p2;
+					import p1.*;
+					interface I {
+						void foo(int x);
+					}
+					interface J {
+						void foo(int x);
+					}
+					public class B extends A {
+						class Y {
+							void g() {
+								I i = B::foo;
+								i.foo(10);
+								J j = new B()::goo;
+								j.foo(10);
+							}
+						}
+						public static void main(String[] args) {
+							new B().new Y().g();
+						}
+					}
+					""",
 				"p1/A.java",
-				"package p1;\n" +
-				"import p2.*;\n" +
-				"public class A {\n" +
-				"	protected static void foo(int ... is) {\n" +
-				"	    System.out.println(\"A's static foo\");\n" +
-				"	}\n" +
-				"	protected void goo(int ... is) {\n" +
-				"	    System.out.println(\"A's instance goo\");\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package p1;
+					import p2.*;
+					public class A {
+						protected static void foo(int ... is) {
+						    System.out.println("A's static foo");
+						}
+						protected void goo(int ... is) {
+						    System.out.println("A's instance goo");
+						}
+					}
+					"""
 			},
 			"A\'s static foo\n" +
 			"A\'s instance goo"
@@ -3138,23 +3399,25 @@ public void test406744x() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	void foo(int x);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	class Y {\n" +
-				"		void goo() {\n" +
-				"			I i = X::goo;\n" +
-				"			i.foo(10);\n" +
-				"		}\n" +
-				"	}\n" +
-				"	private static void goo(Integer i) {\n" +
-				"		System.out.println(i);\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		 new X().new Y().goo(); \n" +
-				"	}\n" +
-				"}\n"
+				"""
+					interface I {
+						void foo(int x);
+					}
+					public class X {
+						class Y {
+							void goo() {
+								I i = X::goo;
+								i.foo(10);
+							}
+						}
+						private static void goo(Integer i) {
+							System.out.println(i);
+						}
+						public static void main(String[] args) {
+							 new X().new Y().goo();\s
+						}
+					}
+					"""
 			},
 			"10"
 			);
@@ -3164,18 +3427,20 @@ public void test427483() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.TreeSet;\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		new TreeSet<>((String qn1, String qn2) -> {\n" +
-				"			boolean b = true;\n" +
-				"			System.out.println(b); // ok\n" +
-				"			if (b) {\n" +
-				"			} // Eclipse says: b cannot be resolved or is not a field\n" +
-				"			return qn1.compareTo(qn2);\n" +
-				"		});\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.util.TreeSet;
+					public class X {
+						public static void main(String[] args) {
+							new TreeSet<>((String qn1, String qn2) -> {
+								boolean b = true;
+								System.out.println(b); // ok
+								if (b) {
+								} // Eclipse says: b cannot be resolved or is not a field
+								return qn1.compareTo(qn2);
+							});
+						}
+					}
+					"""
 			},
 			""
 			);
@@ -3185,26 +3450,28 @@ public void test427627() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" +
-				"import java.util.List;\n" +
-				"public class X {\n" +
-				"  public static void main(String[] args) {\n" +
-				"    Runnable r = () -> {\n" +
-				"      List<SourceKey> keys = new ArrayList<>();\n" +
-				"\n" +
-				"      associate(\"Test\", keys.toArray(new SourceKey[keys.size()]));\n" +
-				"    };\n" +
-				"    r.run();\n" +
-				"  }\n" +
-				"  private static void associate(String o, SourceKey... keys) {\n" +
-				"	  System.out.println(o);\n" +
-				"	  System.out.println(keys.length);\n" +
-				"  }\n" +
-				"  public class SourceKey {\n" +
-				"    public SourceKey(Object source, Object key) {\n" +
-				"    }\n" +
-				"  }\n" +
-				"}\n"
+				"""
+					import java.util.ArrayList;
+					import java.util.List;
+					public class X {
+					  public static void main(String[] args) {
+					    Runnable r = () -> {
+					      List<SourceKey> keys = new ArrayList<>();
+					
+					      associate("Test", keys.toArray(new SourceKey[keys.size()]));
+					    };
+					    r.run();
+					  }
+					  private static void associate(String o, SourceKey... keys) {
+						  System.out.println(o);
+						  System.out.println(keys.length);
+					  }
+					  public class SourceKey {
+					    public SourceKey(Object source, Object key) {
+					    }
+					  }
+					}
+					"""
 			},
 			"Test\n0"
 			);
@@ -3214,18 +3481,20 @@ public void test427744() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {   \n" +
-				"    public static void main(String argv[]) {\n" +
-				"        int i = ((I) (x) -> { return 999; }).foo(true ? 0 : (Comparable) null);\n" +
-				"        System.out.println(i);\n" +
-				"    }\n" +
-				"    interface I {\n" +
-				"        int foo (Comparable arg); \n" +
-				"        default int foo (Object arg) { \n" +
-				"            return 0;\n" +
-				"        }\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					public class X {  \s
+					    public static void main(String argv[]) {
+					        int i = ((I) (x) -> { return 999; }).foo(true ? 0 : (Comparable) null);
+					        System.out.println(i);
+					    }
+					    interface I {
+					        int foo (Comparable arg);\s
+					        default int foo (Object arg) {\s
+					            return 0;
+					        }
+					    }
+					}
+					"""
 			},
 			"999"
 			);
@@ -3235,24 +3504,26 @@ public void test427962() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.function.Function;\n" +
-				"import java.util.function.IntFunction;\n" +
-				"import java.util.stream.Stream;\n" +
-				"import java.util.stream.IntStream;\n" +
-				"public class X {\n" +
-				"  static <A, B> Stream<B> objmap(Function<A, B> p1, A[] p2) {return Stream.of(p2).map(p1);}\n" +
-				"  static <B> Stream<B> intmap(IntFunction<B> p1, int[] p2) {return IntStream.of(p2).mapToObj(p1);}\n" +
-				"  public static void main(String[] args) {\n" +
-				"    Integer[] p12 = {1, 2, 3};\n" +
-				"    int[] p22 = {1, 2, 3};\n" +
-				"    //works\n" +
-				"    String[] a11 = objmap(String::valueOf, p12).<String> toArray(String[]::new);\n" +
-				"    String[] a21 = intmap(String::valueOf, p22).<String> toArray(String[]::new);\n" +
-				"    //does not work\n" +
-				"    String[] a12 = objmap(String::valueOf, p12).toArray(String[]::new);\n" +
-				"    String[] a22 = intmap(String::valueOf, p22).toArray(String[]::new);\n" +
-				"  }\n" +
-				"}\n"
+				"""
+					import java.util.function.Function;
+					import java.util.function.IntFunction;
+					import java.util.stream.Stream;
+					import java.util.stream.IntStream;
+					public class X {
+					  static <A, B> Stream<B> objmap(Function<A, B> p1, A[] p2) {return Stream.of(p2).map(p1);}
+					  static <B> Stream<B> intmap(IntFunction<B> p1, int[] p2) {return IntStream.of(p2).mapToObj(p1);}
+					  public static void main(String[] args) {
+					    Integer[] p12 = {1, 2, 3};
+					    int[] p22 = {1, 2, 3};
+					    //works
+					    String[] a11 = objmap(String::valueOf, p12).<String> toArray(String[]::new);
+					    String[] a21 = intmap(String::valueOf, p22).<String> toArray(String[]::new);
+					    //does not work
+					    String[] a12 = objmap(String::valueOf, p12).toArray(String[]::new);
+					    String[] a22 = intmap(String::valueOf, p22).toArray(String[]::new);
+					  }
+					}
+					"""
 			},
 			""
 			);
@@ -3262,16 +3533,18 @@ public void test428112() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.Arrays;\n" +
-				"import java.util.Locale;\n" +
-				"import java.util.stream.Collectors;\n" +
-				"import java.util.stream.Stream;\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(Locale.lookup(Stream.of( \"de\", \"*-CH\" ).map(Locale.LanguageRange::new).collect(Collectors.toList()), \n" +
-				"                                   Arrays.asList(Locale.getAvailableLocales())));\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.util.Arrays;
+					import java.util.Locale;
+					import java.util.stream.Collectors;
+					import java.util.stream.Stream;
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(Locale.lookup(Stream.of( "de", "*-CH" ).map(Locale.LanguageRange::new).collect(Collectors.toList()),\s
+					                                   Arrays.asList(Locale.getAvailableLocales())));
+						}
+					}
+					"""
 			},
 			"de"
 			);
@@ -3281,13 +3554,15 @@ public void test428003() { // extracted small test
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.Arrays;\n" +
-				"public class X {\n" +
-				"    public static void main(String[] args) {\n" +
-				"        Arrays.sort(args, (String x, String y) -> x.length() - y.length());\n" +
-				"        Arrays.sort(args, (x, y) -> Integer.compare(x.length(), y.length()));\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.util.Arrays;
+					public class X {
+					    public static void main(String[] args) {
+					        Arrays.sort(args, (String x, String y) -> x.length() - y.length());
+					        Arrays.sort(args, (x, y) -> Integer.compare(x.length(), y.length()));
+					    }
+					}
+					"""
 			},
 			""
 			);
@@ -3297,43 +3572,46 @@ public void test428003a() { // full test case
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.Arrays;\n" +
-				"public class X {\n" +
-				"    public static void main(String[] args) {\n" +
-				"        String[] words = {\"java\", \"interface\", \"lambda\", \"expression\" };\n" +
-				"        Arrays.sort(words, (String word1, String word2) -> {\n" +
-				"                    if (word1.length() < word2.length())\n" +
-				"                        return -1;\n" +
-				"                    else if (word1.length() > word2.length())\n" +
-				"                        return 1;\n" +
-				"                    else\n" +
-				"                        return 0;\n" +
-				"                  });\n" +
-				"        for (String word : words)\n" +
-				"            System.out.println(word);\n" +
-				"        words = new String [] {\"java\", \"interface\", \"lambda\", \"expression\" };\n" +
-				"        Arrays.sort(words, (word1, word2) -> Integer.compare(word1.length(), word2.length()));\n" +
-				"        for (String word : words)\n" +
-				"            System.out.println(word);\n" +
-				"        words = new String [] {\"java\", \"interface\", \"lambda\", \"expression\" };\n" +
-				"        Arrays.sort(words, (String word1, String word2) -> Integer.compare(word1.length(), word2.length()));\n" +
-				"        for (String word : words)\n" +
-				"            System.out.println(word);\n" +
-				"      }\n" +
-				"  }\n"
+				"""
+					import java.util.Arrays;
+					public class X {
+					    public static void main(String[] args) {
+					        String[] words = {"java", "interface", "lambda", "expression" };
+					        Arrays.sort(words, (String word1, String word2) -> {
+					                    if (word1.length() < word2.length())
+					                        return -1;
+					                    else if (word1.length() > word2.length())
+					                        return 1;
+					                    else
+					                        return 0;
+					                  });
+					        for (String word : words)
+					            System.out.println(word);
+					        words = new String [] {"java", "interface", "lambda", "expression" };
+					        Arrays.sort(words, (word1, word2) -> Integer.compare(word1.length(), word2.length()));
+					        for (String word : words)
+					            System.out.println(word);
+					        words = new String [] {"java", "interface", "lambda", "expression" };
+					        Arrays.sort(words, (String word1, String word2) -> Integer.compare(word1.length(), word2.length()));
+					        for (String word : words)
+					            System.out.println(word);
+					      }
+					  }
+					"""
 			},
-			"java\n" +
-			"lambda\n" +
-			"interface\n" +
-			"expression\n" +
-			"java\n" +
-			"lambda\n" +
-			"interface\n" +
-			"expression\n" +
-			"java\n" +
-			"lambda\n" +
-			"interface\n" +
-			"expression"
+			"""
+				java
+				lambda
+				interface
+				expression
+				java
+				lambda
+				interface
+				expression
+				java
+				lambda
+				interface
+				expression"""
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428261, [1.8][compiler] Incorrect error: No enclosing instance of the type X is accessible in scope
@@ -3341,22 +3619,24 @@ public void test428261() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	X foo(int a);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		String s = \"Blah\";\n" +
-				"		class Local extends X {\n" +
-				"			Local(int a) {\n" +
-				"				System.out.println(a);\n" +
-				"				System.out.println(s);\n" +
-				"			}\n" +
-				"		}\n" +
-				"		I i = Local::new; // Incorrect error here.\n" +
-				"       i.foo(10);\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					interface I {
+						X foo(int a);
+					}
+					public class X {
+						public static void main(String[] args) {
+							String s = "Blah";
+							class Local extends X {
+								Local(int a) {
+									System.out.println(a);
+									System.out.println(s);
+								}
+							}
+							I i = Local::new; // Incorrect error here.
+					       i.foo(10);
+						}
+					}
+					"""
 			},
 			"10\n" +
 			"Blah"
@@ -3369,23 +3649,25 @@ public void test428261a() {
 			JavacHasABug.JavacBugFixed_901,
 			new String[] {
 				"X.java",
-				"interface I {\n" +
-				"	X foo(int a);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	void goo() {\n" +
-				"		class Local extends X {\n" +
-				"			Local(int a) {\n" +
-				"				System.out.println(a);\n" +
-				"			}\n" +
-				"		}\n" +
-				"		I i = Local::new;\n" +
-				"       i.foo(10);\n" +
-				"	}\n" +
-				"   public static void main(String [] args) {\n" +
-				"        new X().goo();\n" +
-				"   }\n" +
-				"}\n"
+				"""
+					interface I {
+						X foo(int a);
+					}
+					public class X {
+						void goo() {
+							class Local extends X {
+								Local(int a) {
+									System.out.println(a);
+								}
+							}
+							I i = Local::new;
+					       i.foo(10);
+						}
+					   public static void main(String [] args) {
+					        new X().goo();
+					   }
+					}
+					"""
 			},
 			"10");
 }
@@ -3394,19 +3676,21 @@ public void test428552() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.io.*;\n" +
-				"public class X {\n" +
-				"	interface Example extends Serializable {\n" +
-				"		String convert(Object o);\n" +
-				"	}\n" +
-				"	public static void main(String[] args) throws IOException {\n" +
-				"		Example e=Object::toString;\n" +
-				"		try(ObjectOutputStream os=new ObjectOutputStream(new ByteArrayOutputStream())) {\n" +
-				"			os.writeObject(e);\n" +
-				"		}\n" +
-				"       System.out.println(\"No exception !\");\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.io.*;
+					public class X {
+						interface Example extends Serializable {
+							String convert(Object o);
+						}
+						public static void main(String[] args) throws IOException {
+							Example e=Object::toString;
+							try(ObjectOutputStream os=new ObjectOutputStream(new ByteArrayOutputStream())) {
+								os.writeObject(e);
+							}
+					       System.out.println("No exception !");
+						}
+					}
+					"""
 			},
 			"No exception !",
 			null,
@@ -3418,29 +3702,31 @@ public void test428642() {
 	this.runConformTest(
 			new String[] {
 				"QuickSerializedLambdaTest.java",
-				"import java.io.*;\n" +
-				"import java.util.function.IntConsumer;\n" +
-				"public class QuickSerializedLambdaTest {\n" +
-				"	interface X extends IntConsumer,Serializable{}\n" +
-				"	public static void main(String[] args) throws IOException, ClassNotFoundException {\n" +
-				"		X x1 = i -> System.out.println(i);// lambda expression\n" +
-				"		X x2 = System::exit; // method reference\n" +
-				"		ByteArrayOutputStream debug=new ByteArrayOutputStream();\n" +
-				"		try(ObjectOutputStream oo=new ObjectOutputStream(debug))\n" +
-				"		{\n" +
-				"			oo.writeObject(x1);\n" +
-				"			oo.writeObject(x2);\n" +
-				"		}\n" +
-				"		try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray())))\n" +
-				"		{\n" +
-				"			X x=(X)oi.readObject();\n" +
-				"			x.accept(42);// shall print 42\n" +
-				"			x=(X)oi.readObject();\n" +
-				"			x.accept(0);// shall exit\n" +
-				"		}\n" +
-				"		throw new AssertionError(\"should not reach this point\");\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.io.*;
+					import java.util.function.IntConsumer;
+					public class QuickSerializedLambdaTest {
+						interface X extends IntConsumer,Serializable{}
+						public static void main(String[] args) throws IOException, ClassNotFoundException {
+							X x1 = i -> System.out.println(i);// lambda expression
+							X x2 = System::exit; // method reference
+							ByteArrayOutputStream debug=new ByteArrayOutputStream();
+							try(ObjectOutputStream oo=new ObjectOutputStream(debug))
+							{
+								oo.writeObject(x1);
+								oo.writeObject(x2);
+							}
+							try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray())))
+							{
+								X x=(X)oi.readObject();
+								x.accept(42);// shall print 42
+								x=(X)oi.readObject();
+								x.accept(0);// shall exit
+							}
+							throw new AssertionError("should not reach this point");
+						}
+					}
+					"""
 			},
 			"42",
 			null,
@@ -3452,18 +3738,20 @@ public void test429112() {
 	this.runConformTest(
 			new String[] {
 				"ArrayConstructorReference.java",
-				"import java.io.Serializable;\n" +
-				"import java.util.function.IntFunction;\n" +
-				"public class ArrayConstructorReference {\n" +
-				"  interface IF extends IntFunction<Object>, Serializable {}\n" +
-				"  public static void main(String[] args) {\n" +
-				"    IF factory=String[][][]::new;\n" +
-				"    Object o = factory.apply(10);\n" +
-				"    System.out.println(o.getClass());\n" +
-				"    String [][][] sa = (String [][][]) o;\n" +
-				"    System.out.println(sa.length);\n" +
-				"  }\n" +
-				"}\n"
+				"""
+					import java.io.Serializable;
+					import java.util.function.IntFunction;
+					public class ArrayConstructorReference {
+					  interface IF extends IntFunction<Object>, Serializable {}
+					  public static void main(String[] args) {
+					    IF factory=String[][][]::new;
+					    Object o = factory.apply(10);
+					    System.out.println(o.getClass());
+					    String [][][] sa = (String [][][]) o;
+					    System.out.println(sa.length);
+					  }
+					}
+					"""
 			},
 			"class [[[Ljava.lang.String;\n" +
 			"10");
@@ -3473,18 +3761,20 @@ public void test429112a() {
 	this.runConformTest(
 			new String[] {
 				"ArrayConstructorReference.java",
-				"import java.io.Serializable;\n" +
-				"import java.util.function.IntFunction;\n" +
-				"public class ArrayConstructorReference {\n" +
-				"  interface IF extends IntFunction<Object>, Serializable {}\n" +
-				"  public static void main(String[] args) {\n" +
-				"    IF factory=java.util.function.IntFunction[][][]::new;\n" +
-				"    Object o = factory.apply(10);\n" +
-				"    System.out.println(o.getClass());\n" +
-				"    java.util.function.IntFunction[][][] sa = (java.util.function.IntFunction[][][]) o;\n" +
-				"    System.out.println(sa.length);\n" +
-				"  }\n" +
-				"}\n"
+				"""
+					import java.io.Serializable;
+					import java.util.function.IntFunction;
+					public class ArrayConstructorReference {
+					  interface IF extends IntFunction<Object>, Serializable {}
+					  public static void main(String[] args) {
+					    IF factory=java.util.function.IntFunction[][][]::new;
+					    Object o = factory.apply(10);
+					    System.out.println(o.getClass());
+					    java.util.function.IntFunction[][][] sa = (java.util.function.IntFunction[][][]) o;
+					    System.out.println(sa.length);
+					  }
+					}
+					"""
 			},
 			"class [[[Ljava.util.function.IntFunction;\n" +
 			"10");
@@ -3494,18 +3784,20 @@ public void test429112b() {
 	this.runConformTest(
 			new String[] {
 				"ArrayConstructorReference.java",
-				"import java.io.Serializable;\n" +
-				"import java.util.function.IntFunction;\n" +
-				"public class ArrayConstructorReference {\n" +
-				"  interface IF extends IntFunction<Object>, Serializable {}\n" +
-				"  public static void main(String[] args) {\n" +
-				"    IF factory=java.util.function.IntFunction[]::new;\n" +
-				"    Object o = factory.apply(10);\n" +
-				"    System.out.println(o.getClass());\n" +
-				"    java.util.function.IntFunction[] sa = (java.util.function.IntFunction[]) o;\n" +
-				"    System.out.println(sa.length);\n" +
-				"  }\n" +
-				"}\n"
+				"""
+					import java.io.Serializable;
+					import java.util.function.IntFunction;
+					public class ArrayConstructorReference {
+					  interface IF extends IntFunction<Object>, Serializable {}
+					  public static void main(String[] args) {
+					    IF factory=java.util.function.IntFunction[]::new;
+					    Object o = factory.apply(10);
+					    System.out.println(o.getClass());
+					    java.util.function.IntFunction[] sa = (java.util.function.IntFunction[]) o;
+					    System.out.println(sa.length);
+					  }
+					}
+					"""
 			},
 			"class [Ljava.util.function.IntFunction;\n" +
 			"10");
@@ -3515,18 +3807,20 @@ public void test429112c() {
 	this.runConformTest(
 			new String[] {
 				"ArrayConstructorReference.java",
-				"import java.io.Serializable;\n" +
-				"import java.util.function.IntFunction;\n" +
-				"public class ArrayConstructorReference {\n" +
-				"  interface IF extends IntFunction<Object>, Serializable {}\n" +
-				"  public static void main(String[] args) {\n" +
-				"    IF factory=String[]::new;\n" +
-				"    Object o = factory.apply(10);\n" +
-				"    System.out.println(o.getClass());\n" +
-				"    String [] sa = (String []) o;\n" +
-				"    System.out.println(sa.length);\n" +
-				"  }\n" +
-				"}\n"
+				"""
+					import java.io.Serializable;
+					import java.util.function.IntFunction;
+					public class ArrayConstructorReference {
+					  interface IF extends IntFunction<Object>, Serializable {}
+					  public static void main(String[] args) {
+					    IF factory=String[]::new;
+					    Object o = factory.apply(10);
+					    System.out.println(o.getClass());
+					    String [] sa = (String []) o;
+					    System.out.println(sa.length);
+					  }
+					}
+					"""
 			},
 			"class [Ljava.lang.String;\n" +
 			"10");
@@ -3538,15 +3832,17 @@ public void test428857() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.Arrays;\n" +
-				"import java.util.List;\n" +
-				"import java.util.function.Function;\n" +
-				"public class X {\n" +
-				"    public static void main (String[] args) {\n" +
-				"        Function<List<String>, String> func = List::toString;\n" +
-				"        System.out.println(func.apply(Arrays.asList(\"a\", \"b\")));\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.util.Arrays;
+					import java.util.List;
+					import java.util.function.Function;
+					public class X {
+					    public static void main (String[] args) {
+					        Function<List<String>, String> func = List::toString;
+					        System.out.println(func.apply(Arrays.asList("a", "b")));
+					    }
+					}
+					"""
 			},
 			"[a, b]",
 			customOptions);
@@ -3558,19 +3854,21 @@ public void test428857a() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"import java.util.ArrayList;\n" +
-			"import java.util.function.Function;\n" +
-			"interface I {\n" +
-			"    List<String> getList();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"    public static void main (String[] args) {\n" +
-			"        I i = ArrayList::new;\n" +
-			"        System.out.println(i.getList());\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.util.Arrays;
+				import java.util.List;
+				import java.util.ArrayList;
+				import java.util.function.Function;
+				interface I {
+				    List<String> getList();
+				}
+				public class X {
+				    public static void main (String[] args) {
+				        I i = ArrayList::new;
+				        System.out.println(i.getList());
+				    }
+				}
+				"""
 		},
 		"[]",
 		customOptions);
@@ -3582,19 +3880,21 @@ public void test428857b() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"import java.util.ArrayList;\n" +
-			"import java.util.function.Function;\n" +
-			"interface I {\n" +
-			"    ArrayList<String> getList();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"    public static void main (String[] args) {\n" +
-			"        I i = ArrayList::new;\n" +
-			"        System.out.println(i.getList());\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.util.Arrays;
+				import java.util.List;
+				import java.util.ArrayList;
+				import java.util.function.Function;
+				interface I {
+				    ArrayList<String> getList();
+				}
+				public class X {
+				    public static void main (String[] args) {
+				        I i = ArrayList::new;
+				        System.out.println(i.getList());
+				    }
+				}
+				"""
 		},
 		"[]",
 		customOptions);
@@ -3606,16 +3906,18 @@ public void test428857c() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.Arrays;\n" +
-				"import java.util.List;\n" +
-				"import java.util.function.Function;\n" +
-				"import java.util.ArrayList;\n" +
-				"public class X {\n" +
-				"    public static void main (String[] args) {\n" +
-				"        Function<ArrayList<String>, String> func = List::toString;\n" +
-				"        System.out.println(func.apply(new ArrayList<>(Arrays.asList(\"a\", \"b\"))));\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.util.Arrays;
+					import java.util.List;
+					import java.util.function.Function;
+					import java.util.ArrayList;
+					public class X {
+					    public static void main (String[] args) {
+					        Function<ArrayList<String>, String> func = List::toString;
+					        System.out.println(func.apply(new ArrayList<>(Arrays.asList("a", "b"))));
+					    }
+					}
+					"""
 			},
 			"[a, b]",
 			customOptions);
@@ -3625,21 +3927,23 @@ public void test429763() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.function.Function;\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"       try {\n" +
-				"		    final int i = new Test<Integer>().test((Byte b) -> (int) b);\n" +
-				"       } catch (NullPointerException e) {\n" +
-				"            System.out.println(\"NPE\");\n" +
-				"       }\n" +
-				"	}\n" +
-				"	static class Test<R> {\n" +
-				"		<T> R test(Function<T,R> f) {\n" +
-				"			return null;\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.util.function.Function;
+					public class X {
+						public static void main(String[] args) {
+					       try {
+							    final int i = new Test<Integer>().test((Byte b) -> (int) b);
+					       } catch (NullPointerException e) {
+					            System.out.println("NPE");
+					       }
+						}
+						static class Test<R> {
+							<T> R test(Function<T,R> f) {
+								return null;
+							}
+						}
+					}
+					"""
 			},
 			"NPE");
 }
@@ -3648,17 +3952,19 @@ public void test429763a() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.function.Function;\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		// does not compile\n" +
-				"		new Test<Integer>().test((Byte b) -> (int) b);\n" +
-				"	}\n" +
-				"	static class Test<R> {\n" +
-				"		<T> void test(Function<T,R> f) {\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.util.function.Function;
+					public class X {
+						public static void main(String[] args) {
+							// does not compile
+							new Test<Integer>().test((Byte b) -> (int) b);
+						}
+						static class Test<R> {
+							<T> void test(Function<T,R> f) {
+							}
+						}
+					}
+					"""
 			},
 			"");
 }
@@ -3667,21 +3973,23 @@ public void test429759() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.function.Function;\n" +
-				"import java.util.function.Supplier;\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		final int i = new Test<Integer>().test(\"\", (String s) -> 1);\n" +
-				"	}\n" +
-				"	static class Test<R> {\n" +
-				"		<T> R test(T t, Supplier<R> s) {\n" +
-				"			return s.get();\n" +
-				"		}\n" +
-				"		<T> R test(T t, Function<T, R> f) {\n" +
-				"			return f.apply(t);\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.util.function.Function;
+					import java.util.function.Supplier;
+					public class X {
+						public static void main(String[] args) {
+							final int i = new Test<Integer>().test("", (String s) -> 1);
+						}
+						static class Test<R> {
+							<T> R test(T t, Supplier<R> s) {
+								return s.get();
+							}
+							<T> R test(T t, Function<T, R> f) {
+								return f.apply(t);
+							}
+						}
+					}
+					"""
 			},
 			"");
 }
@@ -3690,22 +3998,24 @@ public void test429948() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.function.Supplier;\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		execute(() -> {\n" +
-				"			executeInner(() -> {\n" +
-				"			});\n" +
-				"			return null;\n" +
-				"		});\n" +
-				"		System.out.println(\"done\");\n" +
-				"	}\n" +
-				"	static <R> R execute(Supplier<R> supplier) {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"	static void executeInner(Runnable callback) {\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.util.function.Supplier;
+					public class X {
+						public static void main(String[] args) {
+							execute(() -> {
+								executeInner(() -> {
+								});
+								return null;
+							});
+							System.out.println("done");
+						}
+						static <R> R execute(Supplier<R> supplier) {
+							return null;
+						}
+						static void executeInner(Runnable callback) {
+						}
+					}
+					"""
 			},
 			"done");
 }
@@ -3714,24 +4024,26 @@ public void test429969() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.Arrays;\n" +
-				"import java.util.Optional;\n" +
-				"public class X {\n" +
-				"    public static void main(String[] args) {\n" +
-				"        final String s = Arrays.asList(\"done\").stream().reduce(null, (s1,s2) -> {\n" +
-				"                // THE FOLLOWING LINE CAUSES THE PROBLEM\n" +
-				"                require(s1 != null || s2 != null, \"both strings are null\");\n" +
-				"                    return (s1 != null) ? s1 : s2;\n" +
-				"            }, (s1,s2) -> (s1 != null) ? s1 : s2);\n" +
-				"	\n" +
-				"        System.out.println(s);\n" +
-				"    }\n" +
-				"    static void require(boolean condition, String msg) throws RuntimeException {\n" +
-				"        if (!condition) {\n" +
-				"            throw new RuntimeException(msg);\n" +
-				"        }\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.util.Arrays;
+					import java.util.Optional;
+					public class X {
+					    public static void main(String[] args) {
+					        final String s = Arrays.asList("done").stream().reduce(null, (s1,s2) -> {
+					                // THE FOLLOWING LINE CAUSES THE PROBLEM
+					                require(s1 != null || s2 != null, "both strings are null");
+					                    return (s1 != null) ? s1 : s2;
+					            }, (s1,s2) -> (s1 != null) ? s1 : s2);
+					\t
+					        System.out.println(s);
+					    }
+					    static void require(boolean condition, String msg) throws RuntimeException {
+					        if (!condition) {
+					            throw new RuntimeException(msg);
+					        }
+					    }
+					}
+					"""
 			},
 			"done");
 }
@@ -3740,24 +4052,26 @@ public void test430015() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.reflect.Method;\n" +
-				"import java.lang.reflect.Parameter;\n" +
-				"import java.util.Arrays;\n" +
-				"import java.util.function.IntConsumer;\n" +
-				"public class X {\n" +
-				"    IntConsumer xx(int a) {\n" +
-				"        return i -> { };\n" +
-				"    }\n" +
-				"    public static void main(String[] args) {\n" +
-				"        Method[] methods = X.class.getDeclaredMethods();\n" +
-				"        for (Method method : methods) {\n" +
-				"        	if (method.getName().contains(\"lambda\")) {\n" +
-				"         		Parameter[] parameters = method.getParameters();\n" +
-				"        		System.out.println(Arrays.asList(parameters));\n" +
-				"        	}\n" +
-				"        }\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.lang.reflect.Method;
+					import java.lang.reflect.Parameter;
+					import java.util.Arrays;
+					import java.util.function.IntConsumer;
+					public class X {
+					    IntConsumer xx(int a) {
+					        return i -> { };
+					    }
+					    public static void main(String[] args) {
+					        Method[] methods = X.class.getDeclaredMethods();
+					        for (Method method : methods) {
+					        	if (method.getName().contains("lambda")) {
+					         		Parameter[] parameters = method.getParameters();
+					        		System.out.println(Arrays.asList(parameters));
+					        	}
+					        }
+					    }
+					}
+					"""
 			},
 			"[int arg0]");
 }
@@ -3766,31 +4080,33 @@ public void test430040() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        System.out.println(\"OK\");\n" +
-				"    }\n" +
-				"    class Observable<T> {}\n" +
-				"    class ObservableValue<T> {}\n" +
-				"    interface InvalidationListener {\n" +
-				"        public void invalidated(Observable observable);\n" +
-				"    }\n" +
-				"    public interface ChangeListener<T> {\n" +
-				"        void changed(ObservableValue<? extends T> observable, T oldValue, T newValue);\n" +
-				"    }\n" +
-				"    static class ExpressionHelper<T> {}\n" +
-				"    public static <T> ExpressionHelper<T> addListener(ExpressionHelper<T> helper, ObservableValue<T> observable, InvalidationListener listener) {\n" +
-				"        return helper;\n" +
-				"    }\n" +
-				"    public static <T> ExpressionHelper<T> addListener(ExpressionHelper<T> helper, ObservableValue<T> observable, ChangeListener<? super T> listener) {\n" +
-				"        return helper;\n" +
-				"    }\n" +
-				"    private ExpressionHelper<Object> helper;\n" +
-				"    public void junk() {\n" +
-				"        helper = (ExpressionHelper<Object>) addListener(helper, null, (Observable o) -> {throw new RuntimeException();});\n" +
-				"        helper = addListener(helper, null, (Observable o) -> {throw new RuntimeException();});\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String [] args) {
+					        System.out.println("OK");
+					    }
+					    class Observable<T> {}
+					    class ObservableValue<T> {}
+					    interface InvalidationListener {
+					        public void invalidated(Observable observable);
+					    }
+					    public interface ChangeListener<T> {
+					        void changed(ObservableValue<? extends T> observable, T oldValue, T newValue);
+					    }
+					    static class ExpressionHelper<T> {}
+					    public static <T> ExpressionHelper<T> addListener(ExpressionHelper<T> helper, ObservableValue<T> observable, InvalidationListener listener) {
+					        return helper;
+					    }
+					    public static <T> ExpressionHelper<T> addListener(ExpressionHelper<T> helper, ObservableValue<T> observable, ChangeListener<? super T> listener) {
+					        return helper;
+					    }
+					    private ExpressionHelper<Object> helper;
+					    public void junk() {
+					        helper = (ExpressionHelper<Object>) addListener(helper, null, (Observable o) -> {throw new RuntimeException();});
+					        helper = addListener(helper, null, (Observable o) -> {throw new RuntimeException();});
+					    }
+					}
+					"""
 			},
 			"OK");
 }
@@ -3799,34 +4115,36 @@ public void test430043() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.io.File;\n" +
-				"import java.io.IOException;\n" +
-				"import java.io.StringReader;\n" +
-				"import java.nio.file.Files;\n" +
-				"import java.text.MessageFormat;\n" +
-				"import java.util.*;\n" +
-				"import java.util.function.Function;\n" +
-				"import java.util.jar.Attributes;\n" +
-				"import java.util.jar.JarFile;\n" +
-				"import java.util.jar.Manifest;\n" +
-				"public class X<T>  {\n" +
-				"    public X(String name, String description, String id, Class<T> valueType, String[] fallbackIDs, Function<Map<String, ? super Object>, T> defaultValueFunction, boolean requiresUserSetting, Function<String, T> stringConverter) {\n" +
-				"    }\n" +
-				"    public static final X<String> NAME  =\n" +
-				"            new X<>(\n" +
-				"                    null,\n" +
-				"                    null,\n" +
-				"                    null,\n" +
-				"                    String.class,\n" +
-				"                    null,\n" +
-				"                    params -> {throw new IllegalArgumentException(\"junk14\");},\n" +
-				"                    true,\n" +
-				"                    s -> s\n" +
-				"            );\n" +
-				"     public static void main(String [] args) {\n" +
-				"         System.out.println(\"OK\");\n" +
-				"     }\n" +
-				"}\n"
+				"""
+					import java.io.File;
+					import java.io.IOException;
+					import java.io.StringReader;
+					import java.nio.file.Files;
+					import java.text.MessageFormat;
+					import java.util.*;
+					import java.util.function.Function;
+					import java.util.jar.Attributes;
+					import java.util.jar.JarFile;
+					import java.util.jar.Manifest;
+					public class X<T>  {
+					    public X(String name, String description, String id, Class<T> valueType, String[] fallbackIDs, Function<Map<String, ? super Object>, T> defaultValueFunction, boolean requiresUserSetting, Function<String, T> stringConverter) {
+					    }
+					    public static final X<String> NAME  =
+					            new X<>(
+					                    null,
+					                    null,
+					                    null,
+					                    String.class,
+					                    null,
+					                    params -> {throw new IllegalArgumentException("junk14");},
+					                    true,
+					                    s -> s
+					            );
+					     public static void main(String [] args) {
+					         System.out.println("OK");
+					     }
+					}
+					"""
 			},
 			"OK");
 }
@@ -3835,18 +4153,20 @@ public void test430035() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.function.Consumer;\n" +
-				"public class X {\n" +
-				"    interface StringConsumer extends Consumer<String> {\n" +
-				"        void accept(String t);\n" +
-				"    }\n" +
-				"    public static void main(String... x) {\n" +
-				"      StringConsumer c = s->System.out.println(\"m(\"+s+')');\n" +
-				"      c.accept(\"direct call\");\n" +
-				"      Consumer<String> c4b=c;\n" +
-				"      c4b.accept(\"bridge method\");\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.util.function.Consumer;
+					public class X {
+					    interface StringConsumer extends Consumer<String> {
+					        void accept(String t);
+					    }
+					    public static void main(String... x) {
+					      StringConsumer c = s->System.out.println("m("+s+')');
+					      c.accept("direct call");
+					      Consumer<String> c4b=c;
+					      c4b.accept("bridge method");
+					    }
+					}
+					"""
 			},
 			"m(direct call)\n" +
 			"m(bridge method)");
@@ -3856,19 +4176,21 @@ public void test430035a() { // test reference expressions requiring bridges.
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.function.Consumer;\n" +
-				"public class X {\n" +
-				"    interface StringConsumer extends Consumer<String> {\n" +
-				"        void accept(String t);\n" +
-				"    }\n" +
-				"    static void m(String s) { System.out.println(\"m(\"+s+\")\"); } \n" +
-				"    public static void main(String... x) {\n" +
-				"      StringConsumer c = X::m;\n" +
-				"      c.accept(\"direct call\");\n" +
-				"      Consumer<String> c4b=c;\n" +
-				"      c4b.accept(\"bridge method\");\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.util.function.Consumer;
+					public class X {
+					    interface StringConsumer extends Consumer<String> {
+					        void accept(String t);
+					    }
+					    static void m(String s) { System.out.println("m("+s+")"); }\s
+					    public static void main(String... x) {
+					      StringConsumer c = X::m;
+					      c.accept("direct call");
+					      Consumer<String> c4b=c;
+					      c4b.accept("bridge method");
+					    }
+					}
+					"""
 			},
 			"m(direct call)\n" +
 			"m(bridge method)");
@@ -3878,57 +4200,63 @@ public void test430035b() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I<T> {\n" +
-				"	void foo(T t);\n" +
-				"}\n" +
-				"interface J<T> {\n" +
-				"	void foo(T t);\n" +
-				"}\n" +
-				"interface K extends I<String>, J<String> {\n" +
-				"}\n" +
-				"public class X {\n" +
-				"    public static void main(String... x) {\n" +
-				"      K k = s -> System.out.println(\"m(\"+s+')');\n" +
-				"      k.foo(\"direct call\");\n" +
-				"      J<String> j = k;\n" +
-				"      j.foo(\"bridge method\");\n" +
-				"      I<String> i = k;\n" +
-				"      i.foo(\"bridge method\");\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					interface I<T> {
+						void foo(T t);
+					}
+					interface J<T> {
+						void foo(T t);
+					}
+					interface K extends I<String>, J<String> {
+					}
+					public class X {
+					    public static void main(String... x) {
+					      K k = s -> System.out.println("m("+s+')');
+					      k.foo("direct call");
+					      J<String> j = k;
+					      j.foo("bridge method");
+					      I<String> i = k;
+					      i.foo("bridge method");
+					    }
+					}
+					"""
 			},
-			"m(direct call)\n" +
-			"m(bridge method)\n" +
-			"m(bridge method)");
+			"""
+				m(direct call)
+				m(bridge method)
+				m(bridge method)""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
 public void test430035c() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I<T> {\n" +
-				"	void foo(String t, T u);\n" +
-				"}\n" +
-				"interface J<T> {\n" +
-				"	void foo(T t, String u);\n" +
-				"}\n" +
-				"interface K extends I<String>, J<String> {\n" +
-				"	void foo(String t, String u);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"    public static void main(String... x) {\n" +
-				"      K k = (s, u) -> System.out.println(\"m(\"+ s + u + ')');\n" +
-				"      k.foo(\"direct\", \" call\");\n" +
-				"      J<String> j = k;\n" +
-				"      j.foo(\"bridge\",  \" method(j)\");\n" +
-				"      I<String> i = k;\n" +
-				"      i.foo(\"bridge\",  \" method(i)\");\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					interface I<T> {
+						void foo(String t, T u);
+					}
+					interface J<T> {
+						void foo(T t, String u);
+					}
+					interface K extends I<String>, J<String> {
+						void foo(String t, String u);
+					}
+					public class X {
+					    public static void main(String... x) {
+					      K k = (s, u) -> System.out.println("m("+ s + u + ')');
+					      k.foo("direct", " call");
+					      J<String> j = k;
+					      j.foo("bridge",  " method(j)");
+					      I<String> i = k;
+					      i.foo("bridge",  " method(i)");
+					    }
+					}
+					"""
 			},
-			"m(direct call)\n" +
-			"m(bridge method(j))\n" +
-			"m(bridge method(i))");
+			"""
+				m(direct call)
+				m(bridge method(j))
+				m(bridge method(i))""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
 public void test430035d() { // 8b131 complains of ambiguity.
@@ -3937,28 +4265,31 @@ public void test430035d() { // 8b131 complains of ambiguity.
 			EclipseHasABug.EclipseBug510528,
 			new String[] {
 				"X.java",
-				"interface I<T> {\n" +
-				"	void foo(String t, T u);\n" +
-				"}\n" +
-				"interface J<T> {\n" +
-				"	void foo(T t, String u);\n" +
-				"}\n" +
-				"interface K extends I<String>, J<String> {\n" +
-				"}\n" +
-				"public class X {\n" +
-				"    public static void main(String... x) {\n" +
-				"      K k = (s, u) -> System.out.println(\"m(\"+ s + u + ')');\n" +
-				"      k.foo(\"direct\", \" call\");\n" +
-				"      J<String> j = k;\n" +
-				"      j.foo(\"bridge\",  \" method(j)\");\n" +
-				"      I<String> i = k;\n" +
-				"      i.foo(\"bridge\",  \" method(i)\");\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					interface I<T> {
+						void foo(String t, T u);
+					}
+					interface J<T> {
+						void foo(T t, String u);
+					}
+					interface K extends I<String>, J<String> {
+					}
+					public class X {
+					    public static void main(String... x) {
+					      K k = (s, u) -> System.out.println("m("+ s + u + ')');
+					      k.foo("direct", " call");
+					      J<String> j = k;
+					      j.foo("bridge",  " method(j)");
+					      I<String> i = k;
+					      i.foo("bridge",  " method(i)");
+					    }
+					}
+					"""
 			},
-			"m(direct call)\n" +
-			"m(bridge method(j))\n" +
-			"m(bridge method(i))");
+			"""
+				m(direct call)
+				m(bridge method(j))
+				m(bridge method(i))""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
 public void test430035e() { // 8b131 complains of ambiguity in call.
@@ -3967,76 +4298,84 @@ public void test430035e() { // 8b131 complains of ambiguity in call.
 			EclipseHasABug.EclipseBug510528,
 			new String[] {
 				"X.java",
-				"interface I<T> {\n" +
-				"	Object foo(String t, T u);\n" +
-				"}\n" +
-				"interface J<T> {\n" +
-				"	String foo(T t, String u);\n" +
-				"}\n" +
-				"interface K extends I<String>, J<String> {\n" +
-				"}\n" +
-				"public class X {\n" +
-				"    public static void main(String... x) {\n" +
-				"      K k = (s, u) -> s + u;\n" +
-				"      System.out.println(k.foo(\"direct\", \" call\"));\n" +
-				"      J<String> j = k;\n" +
-				"      System.out.println(j.foo(\"bridge\",  \" method(j)\"));\n" +
-				"      I<String> i = k;\n" +
-				"      System.out.println(i.foo(\"bridge\",  \" method(i)\"));\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					interface I<T> {
+						Object foo(String t, T u);
+					}
+					interface J<T> {
+						String foo(T t, String u);
+					}
+					interface K extends I<String>, J<String> {
+					}
+					public class X {
+					    public static void main(String... x) {
+					      K k = (s, u) -> s + u;
+					      System.out.println(k.foo("direct", " call"));
+					      J<String> j = k;
+					      System.out.println(j.foo("bridge",  " method(j)"));
+					      I<String> i = k;
+					      System.out.println(i.foo("bridge",  " method(i)"));
+					    }
+					}
+					"""
 			},
-			"direct call\n" +
-			"bridge method(j)\n" +
-			"bridge method(i)");
+			"""
+				direct call
+				bridge method(j)
+				bridge method(i)""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
 public void test430035f() { // ensure co-variant return emits a bridge request.
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I<T> {\n" +
-				"	Object foo(String t, String u);\n" +
-				"}\n" +
-				"interface J<T> {\n" +
-				"	String foo(String t, String u);\n" +
-				"}\n" +
-				"interface K extends I<String>, J<String> {\n" +
-				"}\n" +
-				"public class X {\n" +
-				"    public static void main(String... x) {\n" +
-				"      K k = (s, u) -> s + u;\n" +
-				"      System.out.println(k.foo(\"direct\", \" call\"));\n" +
-				"      J<String> j = k;\n" +
-				"      System.out.println(j.foo(\"bridge\",  \" method(j)\"));\n" +
-				"      I<String> i = k;\n" +
-				"      System.out.println(i.foo(\"bridge\",  \" method(i)\"));\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					interface I<T> {
+						Object foo(String t, String u);
+					}
+					interface J<T> {
+						String foo(String t, String u);
+					}
+					interface K extends I<String>, J<String> {
+					}
+					public class X {
+					    public static void main(String... x) {
+					      K k = (s, u) -> s + u;
+					      System.out.println(k.foo("direct", " call"));
+					      J<String> j = k;
+					      System.out.println(j.foo("bridge",  " method(j)"));
+					      I<String> i = k;
+					      System.out.println(i.foo("bridge",  " method(i)"));
+					    }
+					}
+					"""
 			},
-			"direct call\n" +
-			"bridge method(j)\n" +
-			"bridge method(i)");
+			"""
+				direct call
+				bridge method(j)
+				bridge method(i)""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430241,  [1.8][compiler] Raw return type results in incorrect covariant return bridge request to LambdaMetaFactory
 public void test430241() { // ensure raw return type variant does not emit a bridge request.
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface K extends I, J {\n" +
-				"}\n" +
-				"interface I {\n" +
-				"    Comparable<Integer> foo();\n" +
-				"}\n" +
-				"interface J {\n" +
-				"    Comparable foo();\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		K k = () -> null;\n" +
-				"		System.out.println(k.foo());\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					interface K extends I, J {
+					}
+					interface I {
+					    Comparable<Integer> foo();
+					}
+					interface J {
+					    Comparable foo();
+					}
+					public class X {
+						public static void main(String[] args) {
+							K k = () -> null;
+							System.out.println(k.foo());
+						}
+					}
+					"""
 			},
 			"null");
 }
@@ -4045,17 +4384,19 @@ public void test430310() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface Func1<T1, R> {\n" +
-				"        R apply(T1 v1);\n" +
-				"        void other();\n" +
-				"}\n" +
-				"@FunctionalInterface // spurious error: F1<T, R> is not a functional interface\n" +
-				"public interface X<T1, R> extends Func1<T1, R> {\n" +
-				"	default void other() {}\n" +
-				"   public static void main(String [] args) {\n" +
-				"       System.out.println(\"OK\");\n" +
-				"   }\n" +
-				"}\n"
+				"""
+					interface Func1<T1, R> {
+					        R apply(T1 v1);
+					        void other();
+					}
+					@FunctionalInterface // spurious error: F1<T, R> is not a functional interface
+					public interface X<T1, R> extends Func1<T1, R> {
+						default void other() {}
+					   public static void main(String [] args) {
+					       System.out.println("OK");
+					   }
+					}
+					"""
 			},
 			"OK");
 }
@@ -4064,14 +4405,16 @@ public void test430310a() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"@FunctionalInterface\n" +
-				"public interface X<T1, T2, R> {\n" +
-				"    R apply(T1 v1, T2 v2);\n" +
-				"    default void other() {}\n" +
-				"    public static void main(String[] args) {\n" +
-				"        System.out.println(\"OK\");\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					@FunctionalInterface
+					public interface X<T1, T2, R> {
+					    R apply(T1 v1, T2 v2);
+					    default void other() {}
+					    public static void main(String[] args) {
+					        System.out.println("OK");
+					    }
+					}
+					"""
 			},
 			"OK");
 }
@@ -4080,22 +4423,24 @@ public void test430310b() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I1 {\n" +
-				"	int foo(String s);\n" +
-				"}\n" +
-				"@FunctionalInterface\n" +
-				"interface A1 extends I1 {\n" +
-				"	@Override\n" +
-				"	default int foo(String s) {\n" +
-				"		return -1;\n" +
-				"	}\n" +
-				"	int foo(java.io.Serializable s);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(\"OK\");\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					interface I1 {
+						int foo(String s);
+					}
+					@FunctionalInterface
+					interface A1 extends I1 {
+						@Override
+						default int foo(String s) {
+							return -1;
+						}
+						int foo(java.io.Serializable s);
+					}
+					public class X {
+						public static void main(String[] args) {
+							System.out.println("OK");
+						}
+					}
+					"""
 			},
 			"OK");
 }
@@ -4104,22 +4449,24 @@ public void test430310c() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I2 {\n" +
-				"	int foo(String s);\n" +
-				"}\n" +
-				"@FunctionalInterface\n" +
-				"interface A2 extends I2 {\n" +
-				"	@Override\n" +
-				"	default int foo(String s) {\n" +
-				"		return -1;\n" +
-				"	}\n" +
-				"	int bar(java.io.Serializable s);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(\"OK\");\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					interface I2 {
+						int foo(String s);
+					}
+					@FunctionalInterface
+					interface A2 extends I2 {
+						@Override
+						default int foo(String s) {
+							return -1;
+						}
+						int bar(java.io.Serializable s);
+					}
+					public class X {
+						public static void main(String[] args) {
+							System.out.println("OK");
+						}
+					}
+					"""
 			},
 			"OK");
 }
@@ -4128,18 +4475,20 @@ public void test432619() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.function.BiConsumer;\n" +
-			"public interface X<E extends Exception> {\n" +
-			"	static void foo() {\n" +
-			"	    BiConsumer<double[][], Double> biConsumer2 = Re2::accumulate;\n" +
-			"	}\n" +
-			"	static class Re2 {\n" +
-			"	    static void accumulate(double[][] container, Double value) {}\n" +
-			"	}\n" +
-			"   public static void main(String [] args) {\n" +
-			"       System.out.println(\"OK\");\n" +
-			"   }\n" +
-			"}\n"
+			"""
+				import java.util.function.BiConsumer;
+				public interface X<E extends Exception> {
+					static void foo() {
+					    BiConsumer<double[][], Double> biConsumer2 = Re2::accumulate;
+					}
+					static class Re2 {
+					    static void accumulate(double[][] container, Double value) {}
+					}
+				   public static void main(String [] args) {
+				       System.out.println("OK");
+				   }
+				}
+				"""
 		},
 		"OK");
 }
@@ -4148,37 +4497,39 @@ public void test432619a() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"StreamInterface.java",
-			"import java.util.Map;\n" +
-			"import java.util.stream.Collector;\n" +
-			"public interface StreamInterface<E extends Exception> {\n" +
-			"	static class DoubleCo {\n" +
-			"		private static class Re2 {\n" +
-			"			static <K, E extends Exception> Map<K, double[]> internalToMapToList2() {\n" +
-			"				Collector<Double, double[][], double[][]> toContainer1 = Collector.of(\n" +
-			"				//The method supply() from the type StreamInterface.DoubleCo.Re2 should be accessed in a static way\n" +
-			"				  StreamInterface.DoubleCo.Re2::supply,\n" +
-			"				  //The method accumulate(double[][], Double) from the type StreamInterface.DoubleCo.Re2 should be accessed in a static way\n" +
-			"				  StreamInterface.DoubleCo.Re2::accumulate,\n" +
-			"				  //The method combine(double[][], double[][]) from the type StreamInterface.DoubleCo.Re2 should be accessed in a static way\n" +
-			"				  StreamInterface.DoubleCo.Re2::combine);\n" +
-			"				Collector<Double, double[][], double[][]> toContainer2 =\n" +
-			"				//All 3 from above:\n" +
-			"				  Collector.of(DoubleCo.Re2::supply, DoubleCo.Re2::accumulate, DoubleCo.Re2::combine);\n" +
-			"				return null;\n" +
-			"			}\n" +
-			"			private static double[][] supply() {\n" +
-			"				return new double[64][];\n" +
-			"			}\n" +
-			"			private static void accumulate(double[][] container, Double value) {}\n" +
-			"			private static double[][] combine(double[][] container, double[][] containerRight) {\n" +
-			"				return new double[container.length + containerRight.length][];\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"     public static void main(String [] args) {\n" +
-			"         System.out.println(\"OK\");\n" +
-			"     }\n" +
-			"}\n"
+			"""
+				import java.util.Map;
+				import java.util.stream.Collector;
+				public interface StreamInterface<E extends Exception> {
+					static class DoubleCo {
+						private static class Re2 {
+							static <K, E extends Exception> Map<K, double[]> internalToMapToList2() {
+								Collector<Double, double[][], double[][]> toContainer1 = Collector.of(
+								//The method supply() from the type StreamInterface.DoubleCo.Re2 should be accessed in a static way
+								  StreamInterface.DoubleCo.Re2::supply,
+								  //The method accumulate(double[][], Double) from the type StreamInterface.DoubleCo.Re2 should be accessed in a static way
+								  StreamInterface.DoubleCo.Re2::accumulate,
+								  //The method combine(double[][], double[][]) from the type StreamInterface.DoubleCo.Re2 should be accessed in a static way
+								  StreamInterface.DoubleCo.Re2::combine);
+								Collector<Double, double[][], double[][]> toContainer2 =
+								//All 3 from above:
+								  Collector.of(DoubleCo.Re2::supply, DoubleCo.Re2::accumulate, DoubleCo.Re2::combine);
+								return null;
+							}
+							private static double[][] supply() {
+								return new double[64][];
+							}
+							private static void accumulate(double[][] container, Double value) {}
+							private static double[][] combine(double[][] container, double[][] containerRight) {
+								return new double[container.length + containerRight.length][];
+							}
+						}
+					}
+				     public static void main(String [] args) {
+				         System.out.println("OK");
+				     }
+				}
+				"""
 		},
 		"OK");
 }
@@ -4187,19 +4538,21 @@ public void test432682() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.Optional;\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Optional<String> userName = Optional.of(\"sa\");\n" +
-			"		Optional<String> password = Optional.of(\"sa\");\n" +
-			"		boolean isValid = userName.flatMap(u -> {\n" +
-			"			return password.map(p -> {\n" +
-			"				return u.equals(\"sa\") && p.equals(\"sa\");\n" +
-			"			});\n" +
-			"		}).orElse(false);\n" +
-			"		System.out.println(isValid);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.Optional;
+				public class X {
+					public static void main(String[] args) {
+						Optional<String> userName = Optional.of("sa");
+						Optional<String> password = Optional.of("sa");
+						boolean isValid = userName.flatMap(u -> {
+							return password.map(p -> {
+								return u.equals("sa") && p.equals("sa");
+							});
+						}).orElse(false);
+						System.out.println(isValid);
+					}
+				}
+				"""
 		},
 		"true");
 }
@@ -4208,19 +4561,21 @@ public void test432520() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void withProvider(Provider<String> provider) { }\n" +
-			"	public static void main(String [] args) {\n" +
-			"		withProvider(() -> \"user\");\n" +
-			"	}\n" +
-			"}\n" +
-			"interface ParentProvider<T> {\n" +
-			"	T get();\n" +
-			"}\n" +
-			"// if you remove the extends clause everything works fine\n" +
-			"interface Provider<T> extends ParentProvider<T> {\n" +
-			"	T get();\n" +
-			"}\n"
+			"""
+				public class X {
+					public static void withProvider(Provider<String> provider) { }
+					public static void main(String [] args) {
+						withProvider(() -> "user");
+					}
+				}
+				interface ParentProvider<T> {
+					T get();
+				}
+				// if you remove the extends clause everything works fine
+				interface Provider<T> extends ParentProvider<T> {
+					T get();
+				}
+				"""
 		},
 		"");
 }
@@ -4229,13 +4584,15 @@ public void test432625() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.stream.Stream;\n" +
-			"public class X {\n" +
-			"    public static void main(String[] args) {\n" +
-			"        Stream<?> stream = Stream.of(\"A\");\n" +
-			"        stream.map(x -> (String) x);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.util.stream.Stream;
+				public class X {
+				    public static void main(String[] args) {
+				        Stream<?> stream = Stream.of("A");
+				        stream.map(x -> (String) x);
+				    }
+				}
+				"""
 		},
 		"");
 }
@@ -4244,101 +4601,111 @@ public void test430766() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" +
-				"import java.util.Comparator;\n" +
-				"import java.util.List;\n" +
-				"public class X {\n" +
-				"	static class Person {\n" +
-			    "		private String email;\n" +
-			    "		public Person(String email) {\n" +
-			    "			this.email = email;\n" +
-			    "		}\n" +
-			    "		public String getEmail() {\n" +
-			    "			return email;" +
-			    "		}\n" +
-			    "	}\n" +
-			    "	public static void main(String[] args) {\n" +
-			    "		List<Person> persons = new ArrayList<Person>();\n" +
-			    "		persons.add(new Person(\"joe.smith@gmail.com\"));\n" +
-			    "		persons.add(new Person(\"alice.smith@gmail.com\"));\n" +
-			    "		persons.sort(Comparator.comparing(Comparator.nullsLast(Person::getEmail)));\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					import java.util.ArrayList;
+					import java.util.Comparator;
+					import java.util.List;
+					public class X {
+						static class Person {
+							private String email;
+							public Person(String email) {
+								this.email = email;
+							}
+							public String getEmail() {
+								return email;\
+							}
+						}
+						public static void main(String[] args) {
+							List<Person> persons = new ArrayList<Person>();
+							persons.add(new Person("joe.smith@gmail.com"));
+							persons.add(new Person("alice.smith@gmail.com"));
+							persons.sort(Comparator.comparing(Comparator.nullsLast(Person::getEmail)));
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 17)\n" +
-			"	persons.sort(Comparator.comparing(Comparator.nullsLast(Person::getEmail)));\n" +
-			"	                                             ^^^^^^^^^\n" +
-			"The method nullsLast(Comparator<? super T>) in the type Comparator is not applicable for the arguments (Person::getEmail)\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 17)\n" +
-			"	persons.sort(Comparator.comparing(Comparator.nullsLast(Person::getEmail)));\n" +
-			"	                                                       ^^^^^^^^^^^^^^^^\n" +
-			"The type X.Person does not define getEmail(T, T) that is applicable here\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 17)
+					persons.sort(Comparator.comparing(Comparator.nullsLast(Person::getEmail)));
+					                                             ^^^^^^^^^
+				The method nullsLast(Comparator<? super T>) in the type Comparator is not applicable for the arguments (Person::getEmail)
+				----------
+				2. ERROR in X.java (at line 17)
+					persons.sort(Comparator.comparing(Comparator.nullsLast(Person::getEmail)));
+					                                                       ^^^^^^^^^^^^^^^^
+				The type X.Person does not define getEmail(T, T) that is applicable here
+				----------
+				""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430766, [1.8] Internal compiler error.
 public void test430766a() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" +
-				"import java.util.Comparator;\n" +
-				"import java.util.List;\n" +
-				"import java.io.Serializable;\n" +
-				"public class X {\n" +
-				"	static class Person {\n" +
-			    "		private String email;\n" +
-			    "		public Person(String email) {\n" +
-			    "			this.email = email;\n" +
-			    "		}\n" +
-			    "		public String getEmail() {\n" +
-			    "			return email;" +
-			    "		}\n" +
-			    "	public static <T extends Runnable,V extends Serializable> int isRunnable(T first, V second) {\n" +
-		        "		return (second instanceof Runnable) ? 1 : 0;\n" +
-		        "	}\n" +
-			    "	}\n" +
-			    "	public static void main(String[] args) {\n" +
-			    "		List<Person> persons = new ArrayList<Person>();\n" +
-			    "		persons.add(new Person(\"joe.smith@gmail.com\"));\n" +
-			    "		persons.add(new Person(\"alice.smith@gmail.com\"));\n" +
-			    "		persons.sort(Comparator.comparing(Comparator.nullsLast(Person::<Runnable>isRunnable)));\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					import java.util.ArrayList;
+					import java.util.Comparator;
+					import java.util.List;
+					import java.io.Serializable;
+					public class X {
+						static class Person {
+							private String email;
+							public Person(String email) {
+								this.email = email;
+							}
+							public String getEmail() {
+								return email;\
+							}
+						public static <T extends Runnable,V extends Serializable> int isRunnable(T first, V second) {
+							return (second instanceof Runnable) ? 1 : 0;
+						}
+						}
+						public static void main(String[] args) {
+							List<Person> persons = new ArrayList<Person>();
+							persons.add(new Person("joe.smith@gmail.com"));
+							persons.add(new Person("alice.smith@gmail.com"));
+							persons.sort(Comparator.comparing(Comparator.nullsLast(Person::<Runnable>isRunnable)));
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 21)\n" +
-			"	persons.sort(Comparator.comparing(Comparator.nullsLast(Person::<Runnable>isRunnable)));\n" +
-			"	                                             ^^^^^^^^^\n" +
-			"The method nullsLast(Comparator<? super T>) in the type Comparator is not applicable for the arguments (Person::<Runnable>isRunnable)\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 21)\n" +
-			"	persons.sort(Comparator.comparing(Comparator.nullsLast(Person::<Runnable>isRunnable)));\n" +
-			"	                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The type X.Person does not define isRunnable(T, T) that is applicable here\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 21)
+					persons.sort(Comparator.comparing(Comparator.nullsLast(Person::<Runnable>isRunnable)));
+					                                             ^^^^^^^^^
+				The method nullsLast(Comparator<? super T>) in the type Comparator is not applicable for the arguments (Person::<Runnable>isRunnable)
+				----------
+				2. ERROR in X.java (at line 21)
+					persons.sort(Comparator.comparing(Comparator.nullsLast(Person::<Runnable>isRunnable)));
+					                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				The type X.Person does not define isRunnable(T, T) that is applicable here
+				----------
+				""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=431190, [1.8] VerifyError when using a method reference
 public void test431190() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"Java8VerifyError.java",
-			"public class Java8VerifyError {\n" +
-			"    public static class Foo {\n" +
-			"        public Object get() {\n" +
-			"            return new Object();\n" +
-			"        }\n" +
-			"    }\n" +
-			"    @FunctionalInterface\n" +
-			"    public static interface Provider<T> {\n" +
-			"        public T get();\n" +
-			"    }\n" +
-			"    public static void main(String[] args) {\n" +
-			"        Provider<Foo> f = () -> new Foo();\n" +
-			"        Provider<Provider<Object>> meta = () -> f.get()::get;\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class Java8VerifyError {
+				    public static class Foo {
+				        public Object get() {
+				            return new Object();
+				        }
+				    }
+				    @FunctionalInterface
+				    public static interface Provider<T> {
+				        public T get();
+				    }
+				    public static void main(String[] args) {
+				        Provider<Foo> f = () -> new Foo();
+				        Provider<Provider<Object>> meta = () -> f.get()::get;
+				    }
+				}
+				"""
 		},
 		"");
 }
@@ -4347,21 +4714,22 @@ public void test431514() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"class X {\n" +
-				"	void fun1(int x) {\n" +
-				"		class Local {\n" +
-				"			FI test= () -> {\n" +
-				"				try {\n" +
-				"				} catch (Exception e) {\n" +
-				"					int x;\n" +
-				"				};\n" +
-				"			};\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n" +
-				"interface FI {\n" +
-				"	void foo();\n" +
-				"}"
+				"""
+					class X {
+						void fun1(int x) {
+							class Local {
+								FI test= () -> {
+									try {
+									} catch (Exception e) {
+										int x;
+									};
+								};
+							}
+						}
+					}
+					interface FI {
+						void foo();
+					}"""
 		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=431514 [1.8] Incorrect compilation error in lambda expression
@@ -4369,22 +4737,23 @@ public void test431514a() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	void fun1(int x) {\n" +
-			"		class Local {\n" +
-			"			class L1 { }\n" +
-			"			int y;\n" +
-			"			FI test= () -> {\n" +
-			"				class L1 { } \n" +
-			"				int y; \n" +
-			"			};\n" +
-			"		}\n" +
-			"	}\n" +
-			"	\n" +
-			"}\n" +
-			"interface FI {\n" +
-			"	void foo();\n" +
-			"}"
+			"""
+				class X {
+					void fun1(int x) {
+						class Local {
+							class L1 { }
+							int y;
+							FI test= () -> {
+								class L1 { }\s
+								int y;\s
+							};
+						}
+					}
+				\t
+				}
+				interface FI {
+					void foo();
+				}"""
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432531 [1.8] VerifyError with anonymous subclass inside of lambda expression in the superclass constructor call
@@ -4392,19 +4761,20 @@ public void test432531() {
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"import java.util.function.Supplier;\n" +
-			"class E {\n" +
-			"	E(Supplier<Object> factory) { }\n" +
-			"}\n" +
-			"public class Y extends E {\n" +
-			"	Y() {\n" +
-			"		super(() -> new Object() {\n" +
-			"		});\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new Y();\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.util.function.Supplier;
+				class E {
+					E(Supplier<Object> factory) { }
+				}
+				public class Y extends E {
+					Y() {
+						super(() -> new Object() {
+						});
+					}
+					public static void main(String[] args) {
+						new Y();
+					}
+				}"""
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=434297 [1.8] NPE in LamdaExpression.analyseCode with lamda expression nested in a conditional expression
@@ -4412,27 +4782,28 @@ public void test434297() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"import java.util.Collection;\n" +
-			"import java.util.Collections;\n" +
-			"import java.util.Comparator;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"  }\n" +
-			"  public void bla() {\n" +
-			"    boolean b = Boolean.TRUE.booleanValue();\n" +
-			"    List<String> c1 = new ArrayList<>();\n" +
-			"    Collections.sort(c1, b ? null : new Bar(new ArrayList<>(),Comparator.nullsLast((a,e) -> {return 0;})));\n" +
-			"  }\n" +
-			"  private static class Bar implements Comparator<String>{\n" +
-			"	  public <T> Bar(Collection<T> col, Comparator<T> comp) { }\n" +
-			"	@Override\n" +
-			"	public int compare(String o1, String o2) {\n" +
-			"		return 0;\n" +
-			"	}\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				import java.util.Collection;
+				import java.util.Collections;
+				import java.util.Comparator;
+				import java.util.List;
+				public class X {
+				  public static void main(String[] args) {
+				  }
+				  public void bla() {
+				    boolean b = Boolean.TRUE.booleanValue();
+				    List<String> c1 = new ArrayList<>();
+				    Collections.sort(c1, b ? null : new Bar(new ArrayList<>(),Comparator.nullsLast((a,e) -> {return 0;})));
+				  }
+				  private static class Bar implements Comparator<String>{
+					  public <T> Bar(Collection<T> col, Comparator<T> comp) { }
+					@Override
+					public int compare(String o1, String o2) {
+						return 0;
+					}
+				  }
+				}"""
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=436542 : Eclipse 4.4 compiler generates "bad class file" according to javac
@@ -4440,36 +4811,37 @@ public void test436542() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"Utility.java",
-			"import java.util.Collection;\n" +
-			"import java.util.List;\n" +
-			"import java.util.function.Function;\n" +
-			"import java.util.stream.Collectors;\n" +
-			"public class Utility {\n" +
-			"    public static void main(String[] args) {\n" +
-			"        System.out.println(\"Success\");\n" +
-			"    }\n" +
-			"    public static <T, R> List<R> mapList(Collection<T> original, Function<T, R> func) {\n" +
-			"        return original.stream().map(func).collect(Collectors.toList());\n" +
-			"    }\n" +
-			"    public static <S, T> void bindMap(List<T> dest, ObservableList<S> src, Function<S, T> func) {\n" +
-			"        dest.addAll(mapList(src, func));\n" +
-			"        src.addListener((ListChangeListener<S>) changes -> {\n" +
-			"            for (int i = changes.getFrom(); i < changes.getTo(); i++)\n" +
-			"                dest.set(i, func.apply(src.get(i)));\n" +
-			"        });\n" +
-			"    }\n" +
-			"    public interface ObservableList<E> extends List<E> {\n" +
-			"        public void addListener(ListChangeListener<? super E> listener);\n" +
-			"    }\n" +
-			"    @FunctionalInterface\n" +
-			"    public interface ListChangeListener<E> {\n" +
-			"        public abstract static class Change<E> {\n" +
-			"            public abstract int getFrom();\n" +
-			"            public abstract int getTo();\n" +
-			"        }\n" +
-			"        public void onChanged(Change<? extends E> c);\n" +
-			"    }\n" +
-			"}",
+			"""
+				import java.util.Collection;
+				import java.util.List;
+				import java.util.function.Function;
+				import java.util.stream.Collectors;
+				public class Utility {
+				    public static void main(String[] args) {
+				        System.out.println("Success");
+				    }
+				    public static <T, R> List<R> mapList(Collection<T> original, Function<T, R> func) {
+				        return original.stream().map(func).collect(Collectors.toList());
+				    }
+				    public static <S, T> void bindMap(List<T> dest, ObservableList<S> src, Function<S, T> func) {
+				        dest.addAll(mapList(src, func));
+				        src.addListener((ListChangeListener<S>) changes -> {
+				            for (int i = changes.getFrom(); i < changes.getTo(); i++)
+				                dest.set(i, func.apply(src.get(i)));
+				        });
+				    }
+				    public interface ObservableList<E> extends List<E> {
+				        public void addListener(ListChangeListener<? super E> listener);
+				    }
+				    @FunctionalInterface
+				    public interface ListChangeListener<E> {
+				        public abstract static class Change<E> {
+				            public abstract int getFrom();
+				            public abstract int getTo();
+				        }
+				        public void onChanged(Change<? extends E> c);
+				    }
+				}""",
 		},
 		"Success",
 		Util.concatWithClassLibs(new String[]{OUTPUT_DIR}, false),
@@ -4496,24 +4868,26 @@ public void test439515() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"interface Fun<T, R> {\n" +
-			"	R apply(T arg);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	int size() {\n" +
-			"		return -1;\n" +
-			"	}\n" +
-			"	int size(Object arg) {\n" +
-			"		return 0;\n" +
-			"	}\n" +
-			"	int size(X arg) {\n" +
-			"		return 1;\n" +
-			"	}\n" +
-			"	public static void main(String args[]) {\n" +
-			"		Fun<X, Integer> f1 = X::size;\n" +
-			"		System.out.println(f1.apply(new X()));\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface Fun<T, R> {
+					R apply(T arg);
+				}
+				public class X {
+					int size() {
+						return -1;
+					}
+					int size(Object arg) {
+						return 0;
+					}
+					int size(X arg) {
+						return 1;
+					}
+					public static void main(String args[]) {
+						Fun<X, Integer> f1 = X::size;
+						System.out.println(f1.apply(new X()));
+					}
+				}
+				"""
 	    },
 	    "-1");
 }
@@ -4523,24 +4897,26 @@ public void test439515a() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"interface Fun<T, R> {\n" +
-			"	R apply(T arg);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	static int size() {\n" +
-			"		return -1;\n" +
-			"	}\n" +
-			"	static int size(Object arg) {\n" +
-			"		return 0;\n" +
-			"	}\n" +
-			"	static int size(X arg) {\n" +
-			"		return 1;\n" +
-			"	}\n" +
-			"	public static void main(String args[]) {\n" +
-			"		Fun<X, Integer> f1 = X::size;\n" +
-			"		System.out.println(f1.apply(new X()));\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface Fun<T, R> {
+					R apply(T arg);
+				}
+				public class X {
+					static int size() {
+						return -1;
+					}
+					static int size(Object arg) {
+						return 0;
+					}
+					static int size(X arg) {
+						return 1;
+					}
+					public static void main(String args[]) {
+						Fun<X, Integer> f1 = X::size;
+						System.out.println(f1.apply(new X()));
+					}
+				}
+				"""
 	    },
 	    "1");
 }
@@ -4549,26 +4925,28 @@ public void test438534() {
 	this.runConformTest(
 		new String[] {
 			"ByteCodeTest.java",
-			"import java.lang.reflect.Method;\n" +
-			"import java.security.AccessController;\n" +
-			"import java.security.PrivilegedAction;\n" +
-			"import java.util.Collections;\n" +
-			"import java.util.Comparator;\n" +
-			"public class ByteCodeTest {\n" +
-			"  public static class BrokenByteCode {\n" +
-			"    public void hello() {\n" +
-			"      Collections.sort(Collections.<String> emptyList(), Comparator.comparing((String data) -> data.length()));\n" +
-			"    }\n" +
-			"  }\n" +
-			"  public static void main(String[] args) {\n" +
-			"    for (Method method : AccessController.doPrivileged((PrivilegedAction<Method[]>) () -> BrokenByteCode.class.getDeclaredMethods())) {\n" +
-			"      method.getGenericExceptionTypes();\n" +
-			"      method.getGenericParameterTypes();\n" +
-			"      method.getGenericReturnType();\n" +
-			"    }\n" +
-			"    System.out.println(\"SUCCESS\");\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.lang.reflect.Method;
+				import java.security.AccessController;
+				import java.security.PrivilegedAction;
+				import java.util.Collections;
+				import java.util.Comparator;
+				public class ByteCodeTest {
+				  public static class BrokenByteCode {
+				    public void hello() {
+				      Collections.sort(Collections.<String> emptyList(), Comparator.comparing((String data) -> data.length()));
+				    }
+				  }
+				  public static void main(String[] args) {
+				    for (Method method : AccessController.doPrivileged((PrivilegedAction<Method[]>) () -> BrokenByteCode.class.getDeclaredMethods())) {
+				      method.getGenericExceptionTypes();
+				      method.getGenericParameterTypes();
+				      method.getGenericReturnType();
+				    }
+				    System.out.println("SUCCESS");
+				  }
+				}
+				"""
 	    },
 	    "SUCCESS");
 }
@@ -4577,17 +4955,18 @@ public void test440152() {
 	this.runConformTest(
 		new String[] {
 			"Foo.java",
-			"import java.util.function.Function;\n" +
-			"interface Foo {void alpha(Bar pBar);}\n" +
-			"class Bar {Object bravo() {return null;}}\n" +
-			"class Test {\n" +
-			"  Test(Function pFunction) {\n" +
-			"    class Baz {public Baz(Object pObj) {pFunction.apply(pObj);}}\n" +
-			"    delta(pBar -> charlie(new Baz(pBar.bravo())));\n" +
-			"  }\n" +
-			"  void charlie(Object pRemovals) {}\n" +
-			"  void delta(Foo pListener) {}\n" +
-			"}"
+			"""
+				import java.util.function.Function;
+				interface Foo {void alpha(Bar pBar);}
+				class Bar {Object bravo() {return null;}}
+				class Test {
+				  Test(Function pFunction) {
+				    class Baz {public Baz(Object pObj) {pFunction.apply(pObj);}}
+				    delta(pBar -> charlie(new Baz(pBar.bravo())));
+				  }
+				  void charlie(Object pRemovals) {}
+				  void delta(Foo pListener) {}
+				}"""
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=440152 [codegen]"Missing code implementation in the compiler" on cascaded inner class references
@@ -4595,26 +4974,28 @@ public void test440152a() {
 	this.runConformTest(
 		new String[] {
 			"Foo.java",
-			"import java.util.function.Function;\n" +
-			"interface Foo {void alpha(Bar pBar);}\n" +
-			"class Bar {Object bravo() {return null;}}\n" +
-			"class Test {\n" +
-			"	Test(Function pFunction) {\n" +
-			"	    class Baz {\n" +
-			"	    	public Baz(Object pObj) {\n" +
-			"	    	}\n" +
-			"	    	class NestedBaz extends Baz {\n" +
-			"	    		NestedBaz(Object pObj) {\n" +
-			"	    			super(pObj);\n" +
-			"	    			pFunction.apply(pObj);\n" +
-			"	    		}\n" +
-			"	    	}\n" +
-			"	    	}\n" +
-			"	    delta(pBar -> charlie(new Baz(pBar).new NestedBaz(pBar.bravo())));\n" +
-			"	  }\n" +
-			"	  void charlie(Object pRemovals) {}\n" +
-			"	  void delta(Foo pListener) {}\n" +
-			"}\n"
+			"""
+				import java.util.function.Function;
+				interface Foo {void alpha(Bar pBar);}
+				class Bar {Object bravo() {return null;}}
+				class Test {
+					Test(Function pFunction) {
+					    class Baz {
+					    	public Baz(Object pObj) {
+					    	}
+					    	class NestedBaz extends Baz {
+					    		NestedBaz(Object pObj) {
+					    			super(pObj);
+					    			pFunction.apply(pObj);
+					    		}
+					    	}
+					    	}
+					    delta(pBar -> charlie(new Baz(pBar).new NestedBaz(pBar.bravo())));
+					  }
+					  void charlie(Object pRemovals) {}
+					  void delta(Foo pListener) {}
+				}
+				"""
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432110,  [1.8][compiler] nested lambda type incorrectly inferred vs javac
@@ -4622,23 +5003,25 @@ public void test432110() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.function.Function;\n" +
-			"public interface X {\n" +
-			"    default void test() {\n" +
-			"        testee().flatMap(_warning_ -> {\n" +
-			"            return result().map(s -> 0);\n" +
-			"        });\n" +
-			"    }\n" +
-			"    Either<Integer, Integer> testee();\n" +
-			"    Either<Integer, String> result();\n" +
-			"    static interface Either<L, R> {\n" +
-			"        <U> Either<L, U> flatMap(Function<? super R, Either<L, U>> mapper);\n" +
-			"        <U> Either<L, U> map(Function<? super R, U> mapper);\n" +
-			"    }\n" +
-			"    public static void main(String [] args) {\n" +
-			"        System.out.println(\"OK\");\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				import java.util.function.Function;
+				public interface X {
+				    default void test() {
+				        testee().flatMap(_warning_ -> {
+				            return result().map(s -> 0);
+				        });
+				    }
+				    Either<Integer, Integer> testee();
+				    Either<Integer, String> result();
+				    static interface Either<L, R> {
+				        <U> Either<L, U> flatMap(Function<? super R, Either<L, U>> mapper);
+				        <U> Either<L, U> map(Function<? super R, U> mapper);
+				    }
+				    public static void main(String [] args) {
+				        System.out.println("OK");
+				    }
+				}
+				""",
 		},
 		"OK");
 }
@@ -4647,25 +5030,27 @@ public void test441929() {
 	this.runNegativeTest(
 		new String[] {
 			"Y.java",
-			"public class Y {\n" +
-			"    @FunctionalInterface\n" +
-			"    interface X {\n" +
-			"        public void x();\n" +
-			"    }\n" +
-			"    public void z(X x) {\n" +
-			"    }\n" +
-			"    public <T> void test() {\n" +
-			"        z(() -> {\n" +
-			"            try {\n" +
-			"                @SuppressWarnings(\"unchecked\")   // (1)\n" +
-			"                Class<? extends T> klass = (Class<? extends T>) Class.forName(\"java.lang.Object\");   // (2)\n" +
-			"                System.out.println(klass.getName());\n" +
-			"            } catch (Exception e) {\n" +
-			"                e.printStackTrace();\n" +
-			"            }\n" +
-			"        });\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class Y {
+				    @FunctionalInterface
+				    interface X {
+				        public void x();
+				    }
+				    public void z(X x) {
+				    }
+				    public <T> void test() {
+				        z(() -> {
+				            try {
+				                @SuppressWarnings("unchecked")   // (1)
+				                Class<? extends T> klass = (Class<? extends T>) Class.forName("java.lang.Object");   // (2)
+				                System.out.println(klass.getName());
+				            } catch (Exception e) {
+				                e.printStackTrace();
+				            }
+				        });
+				    }
+				}
+				""",
 		},
 		"");
 }
@@ -4674,99 +5059,108 @@ public void test437781() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.function.Consumer;\n" +
-			"import java.util.function.Function;\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new X().visit( System.out::println );\n" +
-			"	}\n" +
-			"	public boolean visit(Function<Integer, Boolean> func) {\n" +
-			"		System.out.println(\"Function\");\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	public void visit(Consumer<Integer> func) {\n" +
-			"		System.out.println(\"Consumer\");\n" +
-			"	}	\n" +
-			"}\n"
+			"""
+				import java.util.function.Consumer;
+				import java.util.function.Function;
+				public class X {
+					public static void main(String[] args) {
+						new X().visit( System.out::println );
+					}
+					public boolean visit(Function<Integer, Boolean> func) {
+						System.out.println("Function");
+						return true;
+					}
+					public void visit(Consumer<Integer> func) {
+						System.out.println("Consumer");
+					}\t
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	new X().visit( System.out::println );\n" +
-		"	        ^^^^^\n" +
-		"The method visit(Function<Integer,Boolean>) is ambiguous for the type X\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	new X().visit( System.out::println );\n" +
-		"	               ^^^^^^^^^^^^^^^^^^^\n" +
-		"The type of println(Object) from the type PrintStream is void, this is incompatible with the descriptor\'s return type: Boolean\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				new X().visit( System.out::println );
+				        ^^^^^
+			The method visit(Function<Integer,Boolean>) is ambiguous for the type X
+			----------
+			2. ERROR in X.java (at line 5)
+				new X().visit( System.out::println );
+				               ^^^^^^^^^^^^^^^^^^^
+			The type of println(Object) from the type PrintStream is void, this is incompatible with the descriptor's return type: Boolean
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=443889, [1.8][compiler] Lambdas get compiled to duplicate methods
 public void test443889() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.function.BiConsumer;\n" +
-			"import java.util.function.Consumer;\n" +
-			"public class X {\n" +
-			"    public interface CurryBiConsumer<T, U> extends BiConsumer<T, U> {\n" +
-			"        default public CurryConsumer<U> curryFirst(T t) {\n" +
-			"            return (u) -> accept(t, u);\n" +
-			"        }\n" +
-			"        default public CurryConsumer<T> currySecond(U u) {\n" +
-			"            return (t) -> accept(t, u);\n" +
-			"        }\n" +
-			"    }\n" +
-			"    public interface CurryConsumer<T> extends Consumer<T> {\n" +
-			"        default public Runnable curry(T t) {\n" +
-			"            return () -> accept(t);\n" +
-			"        }\n" +
-			"    }\n" +
-			"    static void execute(Runnable r) {\n" +
-			"        System.out.println(\"BEFORE\");\n" +
-			"        r.run();\n" +
-			"        System.out.println(\"AFTER\");\n" +
-			"    }\n" +
-			"    static void display(String str, int count) {\n" +
-			"        System.out.println(\"DISP: \" + str + \" \" + count);\n" +
-			"    }\n" +
-			"    public static void main(String[] args) {\n" +
-			"        CurryBiConsumer<String, Integer> bc = X::display;\n" +
-			"        execute(bc.curryFirst(\"Salomon\").curry(42));\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.util.function.BiConsumer;
+				import java.util.function.Consumer;
+				public class X {
+				    public interface CurryBiConsumer<T, U> extends BiConsumer<T, U> {
+				        default public CurryConsumer<U> curryFirst(T t) {
+				            return (u) -> accept(t, u);
+				        }
+				        default public CurryConsumer<T> currySecond(U u) {
+				            return (t) -> accept(t, u);
+				        }
+				    }
+				    public interface CurryConsumer<T> extends Consumer<T> {
+				        default public Runnable curry(T t) {
+				            return () -> accept(t);
+				        }
+				    }
+				    static void execute(Runnable r) {
+				        System.out.println("BEFORE");
+				        r.run();
+				        System.out.println("AFTER");
+				    }
+				    static void display(String str, int count) {
+				        System.out.println("DISP: " + str + " " + count);
+				    }
+				    public static void main(String[] args) {
+				        CurryBiConsumer<String, Integer> bc = X::display;
+				        execute(bc.curryFirst("Salomon").curry(42));
+				    }
+				}
+				"""
 		},
-		"BEFORE\n" +
-		"DISP: Salomon 42\n" +
-		"AFTER");
+		"""
+			BEFORE
+			DISP: Salomon 42
+			AFTER""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=441907, [1.8][compiler] Eclipse 4.4.x compiler generics bugs with streams and lambdas
 public void test441907() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.*;\n" +
-			"import java.util.function.Predicate;\n" +
-			"import java.util.stream.Stream;\n" +
-			"public class X {\n" +
-			"  public static class FooBar<V> {\n" +
-			"  }\n" +
-			"  public interface FooBarred {\n" +
-			"    public <V> boolean hasFooBar(final FooBar<V> fooBar);\n" +
-			"  }\n" +
-			"  public interface Widget extends FooBarred {\n" +
-			"  }\n" +
-			"  public static void test() {\n" +
-			"    Set<FooBar<?>> foobars = new HashSet<>();\n" +
-			"    Set<Widget> widgets = new HashSet<>();\n" +
-			"    Stream<X.FooBar<?>> s = null;\n" +
-			"    FooBarred fb = null;\n" +
-			"    fb.hasFooBar((FooBar<?>) null);\n" +
-			"    boolean anyWidgetHasFooBar = widgets.stream().anyMatch(\n" +
-			"        widget -> foobars.stream().anyMatch(widget::hasFooBar)\n" +
-			"        );\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.util.*;
+				import java.util.function.Predicate;
+				import java.util.stream.Stream;
+				public class X {
+				  public static class FooBar<V> {
+				  }
+				  public interface FooBarred {
+				    public <V> boolean hasFooBar(final FooBar<V> fooBar);
+				  }
+				  public interface Widget extends FooBarred {
+				  }
+				  public static void test() {
+				    Set<FooBar<?>> foobars = new HashSet<>();
+				    Set<Widget> widgets = new HashSet<>();
+				    Stream<X.FooBar<?>> s = null;
+				    FooBarred fb = null;
+				    fb.hasFooBar((FooBar<?>) null);
+				    boolean anyWidgetHasFooBar = widgets.stream().anyMatch(
+				        widget -> foobars.stream().anyMatch(widget::hasFooBar)
+				        );
+				  }
+				}
+				"""
 		},
 		"");
 }
@@ -4775,26 +5169,28 @@ public void test444773() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"import java.util.List;\n" +
-			"import java.util.Optional;\n" +
-			" \n" +
-			"public class X {\n" +
-			"  static class Container {\n" +
-			"    final private String s;\n" +
-			"    public Container(String s) { this.s = s; }\n" +
-			"  }\n" +
-			" \n" +
-			"  public static void main(String[] args) {\n" +
-			"    final List<Container> list = new ArrayList<>();\n" +
-			"    final Optional<String> optStr = Optional.of(\"foo\");\n" +
-			"    list.add(new Container(optStr.orElseThrow(() -> new IllegalStateException()))); // Error here\n" +
-			" \n" +
-			"    // This will work:\n" +
-			"    final String s = optStr.orElseThrow(IllegalStateException::new);\n" +
-			"    list.add(new Container(s));	\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.util.ArrayList;
+				import java.util.List;
+				import java.util.Optional;
+				\s
+				public class X {
+				  static class Container {
+				    final private String s;
+				    public Container(String s) { this.s = s; }
+				  }
+				\s
+				  public static void main(String[] args) {
+				    final List<Container> list = new ArrayList<>();
+				    final Optional<String> optStr = Optional.of("foo");
+				    list.add(new Container(optStr.orElseThrow(() -> new IllegalStateException()))); // Error here
+				\s
+				    // This will work:
+				    final String s = optStr.orElseThrow(IllegalStateException::new);
+				    list.add(new Container(s));\t
+				  }
+				}
+				"""
 		},
 		"");
 }
@@ -4803,26 +5199,28 @@ public void test444772() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"import java.util.List;\n" +
-			"import java.util.Optional;\n" +
-			" \n" +
-			"public class X {\n" +
-			"  static class Container {\n" +
-			"    final private String s;\n" +
-			"    public Container(String s) { this.s = s; }\n" +
-			"  }\n" +
-			" \n" +
-			"  public static void main(String[] args) {\n" +
-			"    final List<Container> list = new ArrayList<>();\n" +
-			"    final Optional<String> optStr = Optional.of(\"foo\");\n" +
-			"    list.add(new Container(optStr.orElseThrow(IllegalStateException::new))); // Error here\n" +
-			" \n" +
-			"    // This will work:\n" +
-			"    final String s = optStr.orElseThrow(IllegalStateException::new);\n" +
-			"    list.add(new Container(s));	\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.util.ArrayList;
+				import java.util.List;
+				import java.util.Optional;
+				\s
+				public class X {
+				  static class Container {
+				    final private String s;
+				    public Container(String s) { this.s = s; }
+				  }
+				\s
+				  public static void main(String[] args) {
+				    final List<Container> list = new ArrayList<>();
+				    final Optional<String> optStr = Optional.of("foo");
+				    list.add(new Container(optStr.orElseThrow(IllegalStateException::new))); // Error here
+				\s
+				    // This will work:
+				    final String s = optStr.orElseThrow(IllegalStateException::new);
+				    list.add(new Container(s));\t
+				  }
+				}
+				"""
 		},
 		"");
 }
@@ -4865,41 +5263,43 @@ public void test444785() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.Serializable;\n" +
-			"import java.util.function.Function;\n" +
-			"public interface X {\n" +
-			"	@FunctionalInterface\n" +
-			"	static interface Function1<T1, R> extends Function<T1, R>, Serializable {\n" +
-			"		@Override\n" +
-			"		R apply(T1 t1);\n" +
-			"	}\n" +
-			"	@FunctionalInterface\n" +
-			"	static interface Function6<T1, T2, T3, T4, T5, T6, R> extends Serializable {\n" +
-			"		R apply(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6);\n" +
-			"		default Function1<T1, Function1<T2, Function1<T3, Function1<T4, Function1<T5, Function1<T6, R>>>>>> curried() {\n" +
-			"			return t1 -> t2 -> t3 -> t4 -> t5 -> t6 -> apply(t1, t2, t3, t4, t5, t6);\n" +
-			"		}\n" +
-			"		default Function1<Tuple6<T1, T2, T3, T4, T5, T6>, R> tupled() {\n" +
-			"			return t -> apply(t._1, t._2, t._3, t._4, t._5, t._6);\n" +
-			"		}\n" +
-			"	}\n" +
-			"	static final class Tuple6<T1, T2, T3, T4, T5, T6> {\n" +
-			"		public final T1 _1;\n" +
-			"		public final T2 _2;\n" +
-			"		public final T3 _3;\n" +
-			"		public final T4 _4;\n" +
-			"		public final T5 _5;\n" +
-			"		public final T6 _6;\n" +
-			"		public Tuple6(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6) {\n" +
-			"			this._1 = t1;\n" +
-			"			this._2 = t2;\n" +
-			"			this._3 = t3;\n" +
-			"			this._4 = t4;\n" +
-			"			this._5 = t5;\n" +
-			"			this._6 = t6;\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.io.Serializable;
+				import java.util.function.Function;
+				public interface X {
+					@FunctionalInterface
+					static interface Function1<T1, R> extends Function<T1, R>, Serializable {
+						@Override
+						R apply(T1 t1);
+					}
+					@FunctionalInterface
+					static interface Function6<T1, T2, T3, T4, T5, T6, R> extends Serializable {
+						R apply(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6);
+						default Function1<T1, Function1<T2, Function1<T3, Function1<T4, Function1<T5, Function1<T6, R>>>>>> curried() {
+							return t1 -> t2 -> t3 -> t4 -> t5 -> t6 -> apply(t1, t2, t3, t4, t5, t6);
+						}
+						default Function1<Tuple6<T1, T2, T3, T4, T5, T6>, R> tupled() {
+							return t -> apply(t._1, t._2, t._3, t._4, t._5, t._6);
+						}
+					}
+					static final class Tuple6<T1, T2, T3, T4, T5, T6> {
+						public final T1 _1;
+						public final T2 _2;
+						public final T3 _3;
+						public final T4 _4;
+						public final T5 _5;
+						public final T6 _6;
+						public Tuple6(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6) {
+							this._1 = t1;
+							this._2 = t2;
+							this._3 = t3;
+							this._4 = t4;
+							this._5 = t5;
+							this._6 = t6;
+						}
+					}
+				}
+				"""
 		},
 		"");
 }
@@ -4909,23 +5309,25 @@ public void test447119() {
 	runner.testFiles =
 			new String[] {
 				"X.java",
-				"import java.lang.reflect.Method;\n" +
-				"import java.lang.reflect.Parameter;\n" +
-				"import java.util.Arrays;\n" +
-				"import java.util.function.Function;\n" +
-				"import java.util.List;\n" +
-				"public class X {\n" +
-				"    private static List<String> foo(List<String> x){return x;}\n" +
-				"    public static void main(String[] args) {\n" +
-				"        Function<List<String>,List<String>> f = i -> { return i; };\n" +
-				"        Method[] methods = X.class.getDeclaredMethods();\n" +
-				"        for (Method m : methods) {\n" +
-				"        	if (m.getName().contains(\"lambda\")) {\n" +
-				"        		System.out.println(\"- \" + m.getGenericReturnType() + \" \" + m.getName() + \"(\" + Arrays.asList(m.getGenericParameterTypes()) + \")\");\n" +
-				"        	}\n" +
-				"        }\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.lang.reflect.Method;
+					import java.lang.reflect.Parameter;
+					import java.util.Arrays;
+					import java.util.function.Function;
+					import java.util.List;
+					public class X {
+					    private static List<String> foo(List<String> x){return x;}
+					    public static void main(String[] args) {
+					        Function<List<String>,List<String>> f = i -> { return i; };
+					        Method[] methods = X.class.getDeclaredMethods();
+					        for (Method m : methods) {
+					        	if (m.getName().contains("lambda")) {
+					        		System.out.println("- " + m.getGenericReturnType() + " " + m.getName() + "(" + Arrays.asList(m.getGenericParameterTypes()) + ")");
+					        	}
+					        }
+					    }
+					}
+					"""
 			};
 	runner.expectedOutputString =
 			"- interface java.util.List lambda$0([interface java.util.List])";
@@ -4938,23 +5340,25 @@ public void test447119a() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.reflect.Method;\n" +
-				"import java.lang.reflect.Parameter;\n" +
-				"import java.util.Arrays;\n" +
-				"import java.util.function.Function;\n" +
-				"import java.util.List;\n" +
-				"public class X {\n" +
-				"    private static List<String> foo(List<String> x){return x;}\n" +
-				"    public static void main(String[] args) {\n" +
-				"        Function<List<String>,List<String>> f = X::foo;\n" +
-				"        Method[] methods = X.class.getDeclaredMethods();\n" +
-				"        for (Method m : methods) {\n" +
-				"        	if (m.getName().contains(\"lambda\")) {\n" +
-				"        		System.out.println(\"- \" + m.getGenericReturnType() + \" \" + m.getName() + \"(\" + Arrays.asList(m.getGenericParameterTypes()) + \")\");\n" +
-				"        	}\n" +
-				"        }\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.lang.reflect.Method;
+					import java.lang.reflect.Parameter;
+					import java.util.Arrays;
+					import java.util.function.Function;
+					import java.util.List;
+					public class X {
+					    private static List<String> foo(List<String> x){return x;}
+					    public static void main(String[] args) {
+					        Function<List<String>,List<String>> f = X::foo;
+					        Method[] methods = X.class.getDeclaredMethods();
+					        for (Method m : methods) {
+					        	if (m.getName().contains("lambda")) {
+					        		System.out.println("- " + m.getGenericReturnType() + " " + m.getName() + "(" + Arrays.asList(m.getGenericParameterTypes()) + ")");
+					        	}
+					        }
+					    }
+					}
+					"""
 			},
 			"");
 }
@@ -4964,25 +5368,27 @@ public void test447119b() {
 	runner.testFiles =
 			new String[] {
 				"X.java",
-				"import java.lang.reflect.Method;\n" +
-				"import java.lang.reflect.Parameter;\n" +
-				"import java.util.Arrays;\n" +
-				"import java.util.function.Function;\n" +
-				"import java.util.List;\n" +
-				"import java.io.Serializable;" +
-				"public class X {\n" +
-				"    private static interface SerializableFunction<A, R> extends Function<A, R>, Serializable { }" +
-				"    private static List<String> foo(List<String> x){return x;}\n" +
-				"    public static void main(String[] args) {\n" +
-				"        SerializableFunction<List<String>, List<String>> f = i -> { return i; };\n" +
-				"        Method[] methods = X.class.getDeclaredMethods();\n" +
-				"        for (Method m : methods) {\n" +
-				"        	if (m.getName().contains(\"lambda\")) {\n" +
-				"        		System.out.println(\"- \" + m.getGenericReturnType() + \" \" + m.getName() + \"(\" + Arrays.asList(m.getGenericParameterTypes()) + \")\");\n" +
-				"        	}\n" +
-				"        }\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.lang.reflect.Method;
+					import java.lang.reflect.Parameter;
+					import java.util.Arrays;
+					import java.util.function.Function;
+					import java.util.List;
+					import java.io.Serializable;\
+					public class X {
+					    private static interface SerializableFunction<A, R> extends Function<A, R>, Serializable { }\
+					    private static List<String> foo(List<String> x){return x;}
+					    public static void main(String[] args) {
+					        SerializableFunction<List<String>, List<String>> f = i -> { return i; };
+					        Method[] methods = X.class.getDeclaredMethods();
+					        for (Method m : methods) {
+					        	if (m.getName().contains("lambda")) {
+					        		System.out.println("- " + m.getGenericReturnType() + " " + m.getName() + "(" + Arrays.asList(m.getGenericParameterTypes()) + ")");
+					        	}
+					        }
+					    }
+					}
+					"""
 			};
 	runner.expectedOutputString =
 			"- interface java.util.List lambda$0([interface java.util.List])";
@@ -4995,25 +5401,27 @@ public void test447119c() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.reflect.Method;\n" +
-				"import java.lang.reflect.Parameter;\n" +
-				"import java.util.Arrays;\n" +
-				"import java.util.function.Function;\n" +
-				"import java.util.List;\n" +
-				"import java.io.Serializable;" +
-				"public class X {\n" +
-				"    private static interface SerializableFunction<A, R> extends Function<A, R>, Serializable { }" +
-				"    private static List<String> foo(List<String> x){return x;}\n" +
-				"    public static void main(String[] args) {\n" +
-				"        SerializableFunction<List<String>, List<String>> f = X::foo;\n" +
-				"        Method[] methods = X.class.getDeclaredMethods();\n" +
-				"        for (Method m : methods) {\n" +
-				"        	if (m.getName().contains(\"foo\")) {\n" +
-				"        		System.out.println(\"- \" + m.getGenericReturnType() + \" \" + m.getName() + \"(\" + Arrays.asList(m.getGenericParameterTypes()) + \")\");\n" +
-				"        	}\n" +
-				"        }\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.lang.reflect.Method;
+					import java.lang.reflect.Parameter;
+					import java.util.Arrays;
+					import java.util.function.Function;
+					import java.util.List;
+					import java.io.Serializable;\
+					public class X {
+					    private static interface SerializableFunction<A, R> extends Function<A, R>, Serializable { }\
+					    private static List<String> foo(List<String> x){return x;}
+					    public static void main(String[] args) {
+					        SerializableFunction<List<String>, List<String>> f = X::foo;
+					        Method[] methods = X.class.getDeclaredMethods();
+					        for (Method m : methods) {
+					        	if (m.getName().contains("foo")) {
+					        		System.out.println("- " + m.getGenericReturnType() + " " + m.getName() + "(" + Arrays.asList(m.getGenericParameterTypes()) + ")");
+					        	}
+					        }
+					    }
+					}
+					"""
 			},
 			"- java.util.List<java.lang.String> foo([java.util.List<java.lang.String>])");
 }
@@ -5022,43 +5430,46 @@ public void test447119d() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.io.ObjectStreamClass;\n" +
-				"import java.io.Serializable;\n" +
-				"import java.lang.invoke.SerializedLambda;\n" +
-				"import java.lang.reflect.Method;\n" +
-				"import java.util.List;\n" +
-				"import java.util.function.Function;\n" +
-				"import java.util.ArrayList;\n" +
-				"import java.util.Collections;\n" +
-				"import java.util.Comparator;\n" +
-				"public class X {\n" +
-				"	private static interface SerializableFunction<A, R> extends Function<A, R>, Serializable { }\n" +
-				"	private static List<String> noop(List<String> l) { return l; }\n" +
-				"	public static void main(String[] args) throws Exception {\n" +
-				"		SerializableFunction<List<String>, List<String>> f = X::noop;\n" +
-				"		Method invokeWriteReplaceMethod = ObjectStreamClass.class.getDeclaredMethod(\"invokeWriteReplace\", Object.class);\n" +
-				"		invokeWriteReplaceMethod.setAccessible(true);\n" +
-				"		SerializedLambda l = (SerializedLambda)invokeWriteReplaceMethod.invoke(ObjectStreamClass.lookupAny(f.getClass()), f);\n" +
-				"		System.out.println(\"Lambda binds to: \" + l.getImplClass() + \".\" + l.getImplMethodName());\n" +
-				"		System.out.println(\"Methods (with generics):\");\n" +
-				"		List<String> list = new ArrayList<String>();\n" +
-				"		for(Method m : X.class.getDeclaredMethods()) {\n" +
-				"			if(m.getName().equals(\"main\")) continue;\n" +
-				"			if(m.getName().contains(\"deserializeLambda\")) continue;\n" +
-				"			list.add(\"- \" + m.getGenericReturnType() + \" \" + m.getName() + \"(\" + m.getGenericParameterTypes()[0] + \")\");\n" +
-				"		}\n" +
-				"		Collections.sort(list, new Comparator<String>() {\n" +
-				"			public int compare(String s1, String s2) {\n" +
-				"				return s1.compareTo(s2);\n" +
-			    "			}\n" +
-				"		});\n" +
-				"		System.out.println(list.toString());\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.io.ObjectStreamClass;
+					import java.io.Serializable;
+					import java.lang.invoke.SerializedLambda;
+					import java.lang.reflect.Method;
+					import java.util.List;
+					import java.util.function.Function;
+					import java.util.ArrayList;
+					import java.util.Collections;
+					import java.util.Comparator;
+					public class X {
+						private static interface SerializableFunction<A, R> extends Function<A, R>, Serializable { }
+						private static List<String> noop(List<String> l) { return l; }
+						public static void main(String[] args) throws Exception {
+							SerializableFunction<List<String>, List<String>> f = X::noop;
+							Method invokeWriteReplaceMethod = ObjectStreamClass.class.getDeclaredMethod("invokeWriteReplace", Object.class);
+							invokeWriteReplaceMethod.setAccessible(true);
+							SerializedLambda l = (SerializedLambda)invokeWriteReplaceMethod.invoke(ObjectStreamClass.lookupAny(f.getClass()), f);
+							System.out.println("Lambda binds to: " + l.getImplClass() + "." + l.getImplMethodName());
+							System.out.println("Methods (with generics):");
+							List<String> list = new ArrayList<String>();
+							for(Method m : X.class.getDeclaredMethods()) {
+								if(m.getName().equals("main")) continue;
+								if(m.getName().contains("deserializeLambda")) continue;
+								list.add("- " + m.getGenericReturnType() + " " + m.getName() + "(" + m.getGenericParameterTypes()[0] + ")");
+							}
+							Collections.sort(list, new Comparator<String>() {
+								public int compare(String s1, String s2) {
+									return s1.compareTo(s2);
+								}
+							});
+							System.out.println(list.toString());
+						}
+					}
+					"""
 			},
-			"Lambda binds to: X.noop\n" +
-			"Methods (with generics):\n" +
-			"[- java.util.List<java.lang.String> noop(java.util.List<java.lang.String>)]",
+			"""
+				Lambda binds to: X.noop
+				Methods (with generics):
+				[- java.util.List<java.lang.String> noop(java.util.List<java.lang.String>)]""",
 			null,
 			true,
 			(isJRE9Plus
@@ -5071,23 +5482,25 @@ public void test447119e() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.reflect.Method;\n" +
-				"import java.lang.reflect.Parameter;\n" +
-				"import java.util.Arrays;\n" +
-				"import java.util.function.Function;\n" +
-				"import java.util.List;\n" +
-				"public class X implements java.io.Serializable {\n" +
-				"    private static List<String> foo(List<String> x){return x;}\n" +
-				"    public static void main(String[] args) {\n" +
-				"        Function<List<String>,List<String>> f = X::foo;\n" +
-				"        Method[] methods = X.class.getDeclaredMethods();\n" +
-				"        for (Method m : methods) {\n" +
-				"        	if (m.getName().contains(\"lambda\")) {\n" +
-				"        		System.out.println(\"- \" + m.getGenericReturnType() + \" \" + m.getName() + \"(\" + Arrays.asList(m.getGenericParameterTypes()) + \")\");\n" +
-				"        	}\n" +
-				"        }\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.lang.reflect.Method;
+					import java.lang.reflect.Parameter;
+					import java.util.Arrays;
+					import java.util.function.Function;
+					import java.util.List;
+					public class X implements java.io.Serializable {
+					    private static List<String> foo(List<String> x){return x;}
+					    public static void main(String[] args) {
+					        Function<List<String>,List<String>> f = X::foo;
+					        Method[] methods = X.class.getDeclaredMethods();
+					        for (Method m : methods) {
+					        	if (m.getName().contains("lambda")) {
+					        		System.out.println("- " + m.getGenericReturnType() + " " + m.getName() + "(" + Arrays.asList(m.getGenericParameterTypes()) + ")");
+					        	}
+					        }
+					    }
+					}
+					"""
 			},
 			"");
 }
@@ -5096,55 +5509,57 @@ public void test432605() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"import java.util.HashMap;\n" +
-			"import java.util.function.Function;\n" +
-			"import java.util.function.Supplier;\n" +
-			"import java.util.stream.Collector;\n" +
-			"import java.util.stream.Collectors;\n" +
-			"import java.util.stream.Stream;\n" +
-			"public class X {\n" +
-			"static <T, E extends Exception, K, L, M> M terminalAsMapToList(\n" +
-			"    Function<? super T, ? extends K> classifier,\n" +
-			"    Function<HashMap<K, L>, M> intoMap,\n" +
-			"    Function<ArrayList<T>, L> intoList,\n" +
-			"    Supplier<Stream<T>> supplier,\n" +
-			"    Class<E> classOfE) throws E {\n" +
-			"  	return terminalAsCollected(\n" +
-			"  	  classOfE,\n" +
-			"  	  Collectors.collectingAndThen(\n" +
-			"  	    Collectors.groupingBy(\n" +
-			"  	      classifier,\n" +
-			"  	      HashMap<K, L>::new,\n" +
-			"  	      Collectors.collectingAndThen(\n" +
-			"  	      	// The type ArrayList<T> does not define add(ArrayList<T>, Object) that is applicable here\n" +
-			"  	      	// from ArrayList<T>::add:\n" +
-			"  	        Collector.of(ArrayList<T>::new, ArrayList<T>::add, (ArrayList<T> left, ArrayList<T> right) -> { \n" +
-			"  		        left.addAll(right);\n" +
-			"  		        return left;\n" +
-			"  	        }),\n" +
-			"  	        intoList)),\n" +
-			"  	    intoMap),\n" +
-			"  	  supplier);\n" +
-			"  }\n" +
-			"	static <E extends Exception, T, M> M terminalAsCollected(\n" +
-			"    Class<E> class1,\n" +
-			"    Collector<T, ?, M> collector,\n" +
-			"    Supplier<Stream<T>> supplier) throws E {\n" +
-			"  	try(Stream<T> s = supplier.get()) {\n" +
-			"  		return s.collect(collector);\n" +
-			"  	} catch(RuntimeException e) {\n" +
-			"  		throw unwrapCause(class1, e);\n" +
-			"  	}\n" +
-			"  }\n" +
-			"	static <E extends Exception> E unwrapCause(Class<E> classOfE, RuntimeException e) throws E {\n" +
-			"		Throwable cause = e.getCause();\n" +
-			"		if(classOfE.isInstance(cause) == false) {\n" +
-			"			throw e;\n" +
-			"		}\n" +
-			"		throw classOfE.cast(cause);\n" +
-			"}\n" +
-			"}\n"
+			"""
+				import java.util.ArrayList;
+				import java.util.HashMap;
+				import java.util.function.Function;
+				import java.util.function.Supplier;
+				import java.util.stream.Collector;
+				import java.util.stream.Collectors;
+				import java.util.stream.Stream;
+				public class X {
+				static <T, E extends Exception, K, L, M> M terminalAsMapToList(
+				    Function<? super T, ? extends K> classifier,
+				    Function<HashMap<K, L>, M> intoMap,
+				    Function<ArrayList<T>, L> intoList,
+				    Supplier<Stream<T>> supplier,
+				    Class<E> classOfE) throws E {
+				  	return terminalAsCollected(
+				  	  classOfE,
+				  	  Collectors.collectingAndThen(
+				  	    Collectors.groupingBy(
+				  	      classifier,
+				  	      HashMap<K, L>::new,
+				  	      Collectors.collectingAndThen(
+				  	      	// The type ArrayList<T> does not define add(ArrayList<T>, Object) that is applicable here
+				  	      	// from ArrayList<T>::add:
+				  	        Collector.of(ArrayList<T>::new, ArrayList<T>::add, (ArrayList<T> left, ArrayList<T> right) -> {\s
+				  		        left.addAll(right);
+				  		        return left;
+				  	        }),
+				  	        intoList)),
+				  	    intoMap),
+				  	  supplier);
+				  }
+					static <E extends Exception, T, M> M terminalAsCollected(
+				    Class<E> class1,
+				    Collector<T, ?, M> collector,
+				    Supplier<Stream<T>> supplier) throws E {
+				  	try(Stream<T> s = supplier.get()) {
+				  		return s.collect(collector);
+				  	} catch(RuntimeException e) {
+				  		throw unwrapCause(class1, e);
+				  	}
+				  }
+					static <E extends Exception> E unwrapCause(Class<E> classOfE, RuntimeException e) throws E {
+						Throwable cause = e.getCause();
+						if(classOfE.isInstance(cause) == false) {
+							throw e;
+						}
+						throw classOfE.cast(cause);
+				}
+				}
+				"""
 	},
 	"");
 }
@@ -5153,21 +5568,23 @@ public void testreduced432605() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"import java.util.HashMap;\n" +
-			"import java.util.function.Function;\n" +
-			"import java.util.stream.Collector;\n" +
-			"import java.util.stream.Collectors;\n" +
-			"public class X {\n" +
-			"    static <T, K, L, M> void foo() {\n" +
-			"	Collector<T, ?, M> cat = \n" +
-			"            Collectors.collectingAndThen(\n" +
-			"		Collectors.groupingBy((Function<? super T, ? extends K>) null, \n" +
-			"				HashMap<K, L>::new, \n" +
-			"				(Collector<T, ArrayList<T>, L>) null), \n" +
-			"				(Function<HashMap<K, L>, M>) null);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.ArrayList;
+				import java.util.HashMap;
+				import java.util.function.Function;
+				import java.util.stream.Collector;
+				import java.util.stream.Collectors;
+				public class X {
+				    static <T, K, L, M> void foo() {
+					Collector<T, ?, M> cat =\s
+				            Collectors.collectingAndThen(
+						Collectors.groupingBy((Function<? super T, ? extends K>) null,\s
+								HashMap<K, L>::new,\s
+								(Collector<T, ArrayList<T>, L>) null),\s
+								(Function<HashMap<K, L>, M>) null);
+					}
+				}
+				"""
 	},
 	"");
 }
@@ -5176,19 +5593,21 @@ public void test448802() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.Optional;\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Optional<String> userName = Optional.of(\"sa\");\n" +
-			"		Optional<String> password = Optional.of(\"sa\");\n" +
-			"		boolean isValid = userName.flatMap((String u) -> {\n" +
-			"			return password.map((String p) -> {\n" +
-			"				return u.equals(\"sa\") && p.equals(\"sa\");\n" +
-			"			});\n" +
-			"		}).orElse(false);\n" +
-			"		System.out.println(isValid);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.Optional;
+				public class X {
+					public static void main(String[] args) {
+						Optional<String> userName = Optional.of("sa");
+						Optional<String> password = Optional.of("sa");
+						boolean isValid = userName.flatMap((String u) -> {
+							return password.map((String p) -> {
+								return u.equals("sa") && p.equals("sa");
+							});
+						}).orElse(false);
+						System.out.println(isValid);
+					}
+				}
+				"""
 		},
 		"true");
 }
@@ -5200,31 +5619,32 @@ public void test449063() {
 		false,
 		new String[] {
 			"Test.java",
-			"import java.io.Serializable;\n" +
-			"import java.lang.invoke.SerializedLambda;\n" +
-			"import java.lang.reflect.Method;\n" +
-			"import java.lang.reflect.Type;\n" +
-			"public class Test {\n" +
-			"    public static interface Map<IN, OUT> {\n" +
-			"        public OUT map(IN in);\n" +
-			"    }\n" +
-			"    public static class Tuple<T1, T2> {\n" +
-			"        private T1 field1;\n" +
-			"        private T2 field2;\n" +
-			"    }\n" +
-			"    public static void main(String[] strings) throws Exception {\n" +
-			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();\n" +
-			"        for(Method m : Test.class.getDeclaredMethods()) {\n" +
-			"        // Use the type information stored in signature\n" +
-			"            if (m.getName().contains(\"lambda\")) {\n" +
-			"              System.out.println(m.getGenericReturnType());\n" +
-			"              for (Type t : m.getGenericParameterTypes()) {\n" +
-			"                  System.out.println(t);\n" +
-			"              }\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"}"
+			"""
+				import java.io.Serializable;
+				import java.lang.invoke.SerializedLambda;
+				import java.lang.reflect.Method;
+				import java.lang.reflect.Type;
+				public class Test {
+				    public static interface Map<IN, OUT> {
+				        public OUT map(IN in);
+				    }
+				    public static class Tuple<T1, T2> {
+				        private T1 field1;
+				        private T2 field2;
+				    }
+				    public static void main(String[] strings) throws Exception {
+				        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();
+				        for(Method m : Test.class.getDeclaredMethods()) {
+				        // Use the type information stored in signature
+				            if (m.getName().contains("lambda")) {
+				              System.out.println(m.getGenericReturnType());
+				              for (Type t : m.getGenericParameterTypes()) {
+				                  System.out.println(t);
+				              }
+				            }
+				        }
+				    }
+				}"""
 			},
 		null,
 		customOptions,
@@ -5245,62 +5665,63 @@ public void test449063a() {
 		false,
 		new String[] {
 			"Test.java",
-			"import java.io.Serializable;\n" +
-			"import java.lang.invoke.SerializedLambda;\n" +
-			"import java.lang.reflect.Method;\n" +
-			"import java.lang.reflect.Type;\n" +
-			"public class Test {\n" +
-			"    public static interface Map<IN, OUT> extends Serializable {\n" +
-			"        public OUT map(IN in);\n" +
-			"    }\n" +
-			"    public static class Tuple<T1, T2> {\n" +
-			"        private T1 field1;\n" +
-			"        private T2 field2;\n" +
-			"    }\n" +
-			"    public static void main(String[] strings) throws Exception {\n" +
-			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();\n" +
-			"        SerializedLambda sl = getSerializedLambda(map);      \n" +
-			"        Method m = getLambdaMethod(sl);\n" +
-			"        // Use the type information stored in signature\n" +
-			"        System.out.println(m.getGenericReturnType());\n" +
-			"        for (Type t : m.getGenericParameterTypes()) {\n" +
-			"            System.out.println(t);\n" +
-			"        }\n" +
-			"    }\n" +
-			"    public static Method getLambdaMethod(SerializedLambda lambda) throws Exception {\n" +
-			"        String implClassName = lambda.getImplClass().replace(\'/\', \'.\');\n" +
-			"        Class<?> implClass = Class.forName(implClassName);\n" +
-			"        String lambdaName = lambda.getImplMethodName();\n" +
-			"        for (Method m : implClass.getDeclaredMethods()) {\n" +
-			"            if (m.getName().equals(lambdaName)) {\n" +
-			"                return m;\n" +
-			"            }\n" +
-			"        }\n" +
-			"        throw new Exception(\"Lambda Method not found\");\n" +
-			"    }\n" +
-			"    public static SerializedLambda getSerializedLambda(Object function) throws Exception {\n" +
-			"        if (function == null || !(function instanceof java.io.Serializable)) {\n" +
-			"            throw new IllegalArgumentException();\n" +
-			"        }\n" +
-			"        for (Class<?> clazz = function.getClass(); clazz != null; clazz = clazz.getSuperclass()) {\n" +
-			"            try {\n" +
-			"                Method replaceMethod = clazz.getDeclaredMethod(\"writeReplace\");\n" +
-			"                replaceMethod.setAccessible(true);\n" +
-			"                Object serializedForm = replaceMethod.invoke(function);\n" +
-			"                if (serializedForm instanceof SerializedLambda) {\n" +
-			"                    return (SerializedLambda) serializedForm;\n" +
-			"                }\n" +
-			"            }\n" +
-			"            catch (NoSuchMethodError e) {\n" +
-			"                // fall through the loop and try the next class\n" +
-			"            }\n" +
-			"            catch (Throwable t) {\n" +
-			"                throw new RuntimeException(\"Error while extracting serialized lambda\", t);\n" +
-			"            }\n" +
-			"        }\n" +
-			"        throw new Exception(\"writeReplace method not found\");\n" +
-			"    }\n" +
-			"}"
+			"""
+				import java.io.Serializable;
+				import java.lang.invoke.SerializedLambda;
+				import java.lang.reflect.Method;
+				import java.lang.reflect.Type;
+				public class Test {
+				    public static interface Map<IN, OUT> extends Serializable {
+				        public OUT map(IN in);
+				    }
+				    public static class Tuple<T1, T2> {
+				        private T1 field1;
+				        private T2 field2;
+				    }
+				    public static void main(String[] strings) throws Exception {
+				        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();
+				        SerializedLambda sl = getSerializedLambda(map);     \s
+				        Method m = getLambdaMethod(sl);
+				        // Use the type information stored in signature
+				        System.out.println(m.getGenericReturnType());
+				        for (Type t : m.getGenericParameterTypes()) {
+				            System.out.println(t);
+				        }
+				    }
+				    public static Method getLambdaMethod(SerializedLambda lambda) throws Exception {
+				        String implClassName = lambda.getImplClass().replace('/', '.');
+				        Class<?> implClass = Class.forName(implClassName);
+				        String lambdaName = lambda.getImplMethodName();
+				        for (Method m : implClass.getDeclaredMethods()) {
+				            if (m.getName().equals(lambdaName)) {
+				                return m;
+				            }
+				        }
+				        throw new Exception("Lambda Method not found");
+				    }
+				    public static SerializedLambda getSerializedLambda(Object function) throws Exception {
+				        if (function == null || !(function instanceof java.io.Serializable)) {
+				            throw new IllegalArgumentException();
+				        }
+				        for (Class<?> clazz = function.getClass(); clazz != null; clazz = clazz.getSuperclass()) {
+				            try {
+				                Method replaceMethod = clazz.getDeclaredMethod("writeReplace");
+				                replaceMethod.setAccessible(true);
+				                Object serializedForm = replaceMethod.invoke(function);
+				                if (serializedForm instanceof SerializedLambda) {
+				                    return (SerializedLambda) serializedForm;
+				                }
+				            }
+				            catch (NoSuchMethodError e) {
+				                // fall through the loop and try the next class
+				            }
+				            catch (Throwable t) {
+				                throw new RuntimeException("Error while extracting serialized lambda", t);
+				            }
+				        }
+				        throw new Exception("writeReplace method not found");
+				    }
+				}"""
 			},
 		null,
 		customOptions,
@@ -5320,31 +5741,32 @@ public void test449063b() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.io.Serializable;\n" +
-			"import java.lang.invoke.SerializedLambda;\n" +
-			"import java.lang.reflect.Method;\n" +
-			"import java.lang.reflect.Type;\n" +
-			"public class Test {\n" +
-			"    public static interface Map<IN, OUT> {\n" +
-			"        public OUT map(IN in);\n" +
-			"    }\n" +
-			"    public static class Tuple<T1, T2> {\n" +
-			"        private T1 field1;\n" +
-			"        private T2 field2;\n" +
-			"    }\n" +
-			"    public static void main(String[] strings) throws Exception {\n" +
-			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();\n" +
-			"        for(Method m : Test.class.getDeclaredMethods()) {\n" +
-			"        // Use the type information stored in signature\n" +
-			"            if (m.getName().contains(\"lambda\")) {\n" +
-			"              System.out.println(m.getGenericReturnType());\n" +
-			"              for (Type t : m.getGenericParameterTypes()) {\n" +
-			"                  System.out.println(t);\n" +
-			"              }\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"}"
+			"""
+				import java.io.Serializable;
+				import java.lang.invoke.SerializedLambda;
+				import java.lang.reflect.Method;
+				import java.lang.reflect.Type;
+				public class Test {
+				    public static interface Map<IN, OUT> {
+				        public OUT map(IN in);
+				    }
+				    public static class Tuple<T1, T2> {
+				        private T1 field1;
+				        private T2 field2;
+				    }
+				    public static void main(String[] strings) throws Exception {
+				        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();
+				        for(Method m : Test.class.getDeclaredMethods()) {
+				        // Use the type information stored in signature
+				            if (m.getName().contains("lambda")) {
+				              System.out.println(m.getGenericReturnType());
+				              for (Type t : m.getGenericParameterTypes()) {
+				                  System.out.println(t);
+				              }
+				            }
+				        }
+				    }
+				}"""
 			},
 			"class Test$Tuple\n" +
 			"class Test$Tuple",
@@ -5357,62 +5779,63 @@ public void test449063c() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.io.Serializable;\n" +
-			"import java.lang.invoke.SerializedLambda;\n" +
-			"import java.lang.reflect.Method;\n" +
-			"import java.lang.reflect.Type;\n" +
-			"public class Test {\n" +
-			"    public static interface Map<IN, OUT> extends Serializable {\n" +
-			"        public OUT map(IN in);\n" +
-			"    }\n" +
-			"    public static class Tuple<T1, T2> {\n" +
-			"        private T1 field1;\n" +
-			"        private T2 field2;\n" +
-			"    }\n" +
-			"    public static void main(String[] strings) throws Exception {\n" +
-			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();\n" +
-			"        SerializedLambda sl = getSerializedLambda(map);      \n" +
-			"        Method m = getLambdaMethod(sl);\n" +
-			"        // Use the type information stored in signature\n" +
-			"        System.out.println(m.getGenericReturnType());\n" +
-			"        for (Type t : m.getGenericParameterTypes()) {\n" +
-			"            System.out.println(t);\n" +
-			"        }\n" +
-			"    }\n" +
-			"    public static Method getLambdaMethod(SerializedLambda lambda) throws Exception {\n" +
-			"        String implClassName = lambda.getImplClass().replace(\'/\', \'.\');\n" +
-			"        Class<?> implClass = Class.forName(implClassName);\n" +
-			"        String lambdaName = lambda.getImplMethodName();\n" +
-			"        for (Method m : implClass.getDeclaredMethods()) {\n" +
-			"            if (m.getName().equals(lambdaName)) {\n" +
-			"                return m;\n" +
-			"            }\n" +
-			"        }\n" +
-			"        throw new Exception(\"Lambda Method not found\");\n" +
-			"    }\n" +
-			"    public static SerializedLambda getSerializedLambda(Object function) throws Exception {\n" +
-			"        if (function == null || !(function instanceof java.io.Serializable)) {\n" +
-			"            throw new IllegalArgumentException();\n" +
-			"        }\n" +
-			"        for (Class<?> clazz = function.getClass(); clazz != null; clazz = clazz.getSuperclass()) {\n" +
-			"            try {\n" +
-			"                Method replaceMethod = clazz.getDeclaredMethod(\"writeReplace\");\n" +
-			"                replaceMethod.setAccessible(true);\n" +
-			"                Object serializedForm = replaceMethod.invoke(function);\n" +
-			"                if (serializedForm instanceof SerializedLambda) {\n" +
-			"                    return (SerializedLambda) serializedForm;\n" +
-			"                }\n" +
-			"            }\n" +
-			"            catch (NoSuchMethodError e) {\n" +
-			"                // fall through the loop and try the next class\n" +
-			"            }\n" +
-			"            catch (Throwable t) {\n" +
-			"                throw new RuntimeException(\"Error while extracting serialized lambda\", t);\n" +
-			"            }\n" +
-			"        }\n" +
-			"        throw new Exception(\"writeReplace method not found\");\n" +
-			"    }\n" +
-			"}"
+			"""
+				import java.io.Serializable;
+				import java.lang.invoke.SerializedLambda;
+				import java.lang.reflect.Method;
+				import java.lang.reflect.Type;
+				public class Test {
+				    public static interface Map<IN, OUT> extends Serializable {
+				        public OUT map(IN in);
+				    }
+				    public static class Tuple<T1, T2> {
+				        private T1 field1;
+				        private T2 field2;
+				    }
+				    public static void main(String[] strings) throws Exception {
+				        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();
+				        SerializedLambda sl = getSerializedLambda(map);     \s
+				        Method m = getLambdaMethod(sl);
+				        // Use the type information stored in signature
+				        System.out.println(m.getGenericReturnType());
+				        for (Type t : m.getGenericParameterTypes()) {
+				            System.out.println(t);
+				        }
+				    }
+				    public static Method getLambdaMethod(SerializedLambda lambda) throws Exception {
+				        String implClassName = lambda.getImplClass().replace('/', '.');
+				        Class<?> implClass = Class.forName(implClassName);
+				        String lambdaName = lambda.getImplMethodName();
+				        for (Method m : implClass.getDeclaredMethods()) {
+				            if (m.getName().equals(lambdaName)) {
+				                return m;
+				            }
+				        }
+				        throw new Exception("Lambda Method not found");
+				    }
+				    public static SerializedLambda getSerializedLambda(Object function) throws Exception {
+				        if (function == null || !(function instanceof java.io.Serializable)) {
+				            throw new IllegalArgumentException();
+				        }
+				        for (Class<?> clazz = function.getClass(); clazz != null; clazz = clazz.getSuperclass()) {
+				            try {
+				                Method replaceMethod = clazz.getDeclaredMethod("writeReplace");
+				                replaceMethod.setAccessible(true);
+				                Object serializedForm = replaceMethod.invoke(function);
+				                if (serializedForm instanceof SerializedLambda) {
+				                    return (SerializedLambda) serializedForm;
+				                }
+				            }
+				            catch (NoSuchMethodError e) {
+				                // fall through the loop and try the next class
+				            }
+				            catch (Throwable t) {
+				                throw new RuntimeException("Error while extracting serialized lambda", t);
+				            }
+				        }
+				        throw new Exception("writeReplace method not found");
+				    }
+				}"""
 			},
 			"class Test$Tuple\n" +
 			"class Test$Tuple",
@@ -5425,32 +5848,33 @@ public void test449063d() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.io.Serializable;\n" +
-			"import java.lang.invoke.SerializedLambda;\n" +
-			"import java.lang.reflect.Method;\n" +
-			"import java.lang.reflect.Type;\n" +
-			"public class Test {\n" +
-			"    public static interface Map<IN, OUT> {\n" +
-			"        public OUT map(IN in);\n" +
-			"    }\n" +
-			"    public static Tuple<Integer, String> noop(Tuple<String, Double> t){return null;}\n" +
-			"    public static class Tuple<T1, T2> {\n" +
-			"        private T1 field1;\n" +
-			"        private T2 field2;\n" +
-			"    }\n" +
-			"    public static void main(String[] strings) throws Exception {\n" +
-			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = Test::noop;\n" +
-			"        for(Method m : Test.class.getDeclaredMethods()) {\n" +
-			"        // Use the type information stored in signature\n" +
-			"            if (m.getName().contains(\"lambda\")) {\n" +
-			"              System.out.println(m.getGenericReturnType());\n" +
-			"              for (Type t : m.getGenericParameterTypes()) {\n" +
-			"                  System.out.println(t);\n" +
-			"              }\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"}"
+			"""
+				import java.io.Serializable;
+				import java.lang.invoke.SerializedLambda;
+				import java.lang.reflect.Method;
+				import java.lang.reflect.Type;
+				public class Test {
+				    public static interface Map<IN, OUT> {
+				        public OUT map(IN in);
+				    }
+				    public static Tuple<Integer, String> noop(Tuple<String, Double> t){return null;}
+				    public static class Tuple<T1, T2> {
+				        private T1 field1;
+				        private T2 field2;
+				    }
+				    public static void main(String[] strings) throws Exception {
+				        Map<Tuple<String, Double>, Tuple<Integer, String>> map = Test::noop;
+				        for(Method m : Test.class.getDeclaredMethods()) {
+				        // Use the type information stored in signature
+				            if (m.getName().contains("lambda")) {
+				              System.out.println(m.getGenericReturnType());
+				              for (Type t : m.getGenericParameterTypes()) {
+				                  System.out.println(t);
+				              }
+				            }
+				        }
+				    }
+				}"""
 			},
 			"",
 			customOptions);
@@ -5462,63 +5886,64 @@ public void test449063e() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.io.Serializable;\n" +
-			"import java.lang.invoke.SerializedLambda;\n" +
-			"import java.lang.reflect.Method;\n" +
-			"import java.lang.reflect.Type;\n" +
-			"public class Test {\n" +
-			"    public static interface Map<IN, OUT> extends Serializable {\n" +
-			"        public OUT map(IN in);\n" +
-			"    }\n" +
-			"    public static Tuple<Integer, String> noop(Tuple<String, Double> t){return null;}\n" +
-			"    public static class Tuple<T1, T2> {\n" +
-			"        private T1 field1;\n" +
-			"        private T2 field2;\n" +
-			"    }\n" +
-			"    public static void main(String[] strings) throws Exception {\n" +
-			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = Test::noop;\n" +
-			"        SerializedLambda sl = getSerializedLambda(map);      \n" +
-			"        Method m = getLambdaMethod(sl);\n" +
-			"        // Use the type information stored in signature\n" +
-			"        System.out.println(m.getGenericReturnType());\n" +
-			"        for (Type t : m.getGenericParameterTypes()) {\n" +
-			"            System.out.println(t);\n" +
-			"        }\n" +
-			"    }\n" +
-			"    public static Method getLambdaMethod(SerializedLambda lambda) throws Exception {\n" +
-			"        String implClassName = lambda.getImplClass().replace(\'/\', \'.\');\n" +
-			"        Class<?> implClass = Class.forName(implClassName);\n" +
-			"        String lambdaName = lambda.getImplMethodName();\n" +
-			"        for (Method m : implClass.getDeclaredMethods()) {\n" +
-			"            if (m.getName().equals(lambdaName)) {\n" +
-			"                return m;\n" +
-			"            }\n" +
-			"        }\n" +
-			"        throw new Exception(\"Lambda Method not found\");\n" +
-			"    }\n" +
-			"    public static SerializedLambda getSerializedLambda(Object function) throws Exception {\n" +
-			"        if (function == null || !(function instanceof java.io.Serializable)) {\n" +
-			"            throw new IllegalArgumentException();\n" +
-			"        }\n" +
-			"        for (Class<?> clazz = function.getClass(); clazz != null; clazz = clazz.getSuperclass()) {\n" +
-			"            try {\n" +
-			"                Method replaceMethod = clazz.getDeclaredMethod(\"writeReplace\");\n" +
-			"                replaceMethod.setAccessible(true);\n" +
-			"                Object serializedForm = replaceMethod.invoke(function);\n" +
-			"                if (serializedForm instanceof SerializedLambda) {\n" +
-			"                    return (SerializedLambda) serializedForm;\n" +
-			"                }\n" +
-			"            }\n" +
-			"            catch (NoSuchMethodError e) {\n" +
-			"                // fall through the loop and try the next class\n" +
-			"            }\n" +
-			"            catch (Throwable t) {\n" +
-			"                throw new RuntimeException(\"Error while extracting serialized lambda\", t);\n" +
-			"            }\n" +
-			"        }\n" +
-			"        throw new Exception(\"writeReplace method not found\");\n" +
-			"    }\n" +
-			"}"
+			"""
+				import java.io.Serializable;
+				import java.lang.invoke.SerializedLambda;
+				import java.lang.reflect.Method;
+				import java.lang.reflect.Type;
+				public class Test {
+				    public static interface Map<IN, OUT> extends Serializable {
+				        public OUT map(IN in);
+				    }
+				    public static Tuple<Integer, String> noop(Tuple<String, Double> t){return null;}
+				    public static class Tuple<T1, T2> {
+				        private T1 field1;
+				        private T2 field2;
+				    }
+				    public static void main(String[] strings) throws Exception {
+				        Map<Tuple<String, Double>, Tuple<Integer, String>> map = Test::noop;
+				        SerializedLambda sl = getSerializedLambda(map);     \s
+				        Method m = getLambdaMethod(sl);
+				        // Use the type information stored in signature
+				        System.out.println(m.getGenericReturnType());
+				        for (Type t : m.getGenericParameterTypes()) {
+				            System.out.println(t);
+				        }
+				    }
+				    public static Method getLambdaMethod(SerializedLambda lambda) throws Exception {
+				        String implClassName = lambda.getImplClass().replace('/', '.');
+				        Class<?> implClass = Class.forName(implClassName);
+				        String lambdaName = lambda.getImplMethodName();
+				        for (Method m : implClass.getDeclaredMethods()) {
+				            if (m.getName().equals(lambdaName)) {
+				                return m;
+				            }
+				        }
+				        throw new Exception("Lambda Method not found");
+				    }
+				    public static SerializedLambda getSerializedLambda(Object function) throws Exception {
+				        if (function == null || !(function instanceof java.io.Serializable)) {
+				            throw new IllegalArgumentException();
+				        }
+				        for (Class<?> clazz = function.getClass(); clazz != null; clazz = clazz.getSuperclass()) {
+				            try {
+				                Method replaceMethod = clazz.getDeclaredMethod("writeReplace");
+				                replaceMethod.setAccessible(true);
+				                Object serializedForm = replaceMethod.invoke(function);
+				                if (serializedForm instanceof SerializedLambda) {
+				                    return (SerializedLambda) serializedForm;
+				                }
+				            }
+				            catch (NoSuchMethodError e) {
+				                // fall through the loop and try the next class
+				            }
+				            catch (Throwable t) {
+				                throw new RuntimeException("Error while extracting serialized lambda", t);
+				            }
+				        }
+				        throw new Exception("writeReplace method not found");
+				    }
+				}"""
 			},
 			(reflectNestedClassUseDollar
 			? "Test$Tuple<java.lang.Integer, java.lang.String>\n" +
@@ -5534,31 +5959,32 @@ public void test449063f() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.io.Serializable;\n" +
-			"import java.lang.reflect.Method;\n" +
-			"import java.lang.reflect.Type;\n" +
-			"public class Test implements Serializable{\n" +
-			"    public static interface Map<IN, OUT> {\n" +
-			"        public OUT map(IN in);\n" +
-			"    }\n" +
-			"    public static Tuple<Integer, String> noop(Tuple<String, Double> t){return null;}\n" +
-			"    public static class Tuple<T1, T2> {\n" +
-			"        private T1 field1;\n" +
-			"        private T2 field2;\n" +
-			"    }\n" +
-			"    public static void main(String[] strings) throws Exception {\n" +
-			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = Test::noop;\n" +
-			"        for(Method m : Test.class.getDeclaredMethods()) {\n" +
-			"        // Use the type information stored in signature\n" +
-			"            if (m.getName().contains(\"lambda\")) {\n" +
-			"              System.out.println(m.getGenericReturnType());\n" +
-			"              for (Type t : m.getGenericParameterTypes()) {\n" +
-			"                  System.out.println(t);\n" +
-			"              }\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"}"
+			"""
+				import java.io.Serializable;
+				import java.lang.reflect.Method;
+				import java.lang.reflect.Type;
+				public class Test implements Serializable{
+				    public static interface Map<IN, OUT> {
+				        public OUT map(IN in);
+				    }
+				    public static Tuple<Integer, String> noop(Tuple<String, Double> t){return null;}
+				    public static class Tuple<T1, T2> {
+				        private T1 field1;
+				        private T2 field2;
+				    }
+				    public static void main(String[] strings) throws Exception {
+				        Map<Tuple<String, Double>, Tuple<Integer, String>> map = Test::noop;
+				        for(Method m : Test.class.getDeclaredMethods()) {
+				        // Use the type information stored in signature
+				            if (m.getName().contains("lambda")) {
+				              System.out.println(m.getGenericReturnType());
+				              for (Type t : m.getGenericParameterTypes()) {
+				                  System.out.println(t);
+				              }
+				            }
+				        }
+				    }
+				}"""
 			},
 			"",
 			customOptions);
@@ -5568,55 +5994,57 @@ public void test445949() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.function.Consumer;\n" +
-			"public class X {\n" +
-			"	void methodInFirstLevel(int y) {\n" +
-			"		class Second {\n" +
-			"			int t = y;\n" +
-			"			Consumer<Integer> myConsumer1 = (z) -> {\n" +
-			"				System.out.println(\"z = \" + z);\n" +
-			"				System.out.println(\"y = \" + y);\n" +
-			"				System.out.println(\"t = \" + t);\n" +
-			"			};\n" +
-			"			Consumer<Integer> myConsumer2 = (y) -> {\n" +
-			"				System.out.println(\"y = \" + y);\n" +
-			"				System.out.println(\"t = \" + t);\n" +
-			"			};\n" +
-			"			void foo( int y) {\n" +
-			"				System.out.println(\"y = \" + y);\n" +
-			"			}\n" +
-			"			class Third {\n" +
-			"				Consumer<Integer> myConsumer3 = (y) -> {\n" +
-			"					System.out.println(\"y = \" + y);\n" +
-			"				};\n" +
-			"			}\n" +
-			"			void bar(int y) {\n" +
-			"				new Third().myConsumer3.accept(y);\n" +
-			"			}\n" +
-			" 		}\n" +
-			"		new Second().myConsumer1.accept(10);\n" +
-			"		new Second().myConsumer2.accept(20);\n" +
-			"		new Second().foo(30);\n" +
-			"		new Second().bar(40);\n" +
-			"		\n" +
-			"	}\n" +
-			"	void foo() {\n" +
-			"  		Consumer<Integer> myConsumer2 = (y) -> {\n" +
-			"		class Inner {\n" +
-			"	  	Consumer<Integer> myConsumer4 = (y) -> { \n" +
-			"		class InnerMost {\n" +
-			"		Consumer<Integer> myConsumer3 = (y /*error without fix*/) -> {};\n" +
-			"		}\n" +
-			"	  	};\n" +
-			"		}\n" +
-			"		new Inner().myConsumer4.accept(10);\n" +
-			"	};\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new X().methodInFirstLevel(5);\n" +
-			"		new X().foo();\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.function.Consumer;
+				public class X {
+					void methodInFirstLevel(int y) {
+						class Second {
+							int t = y;
+							Consumer<Integer> myConsumer1 = (z) -> {
+								System.out.println("z = " + z);
+								System.out.println("y = " + y);
+								System.out.println("t = " + t);
+							};
+							Consumer<Integer> myConsumer2 = (y) -> {
+								System.out.println("y = " + y);
+								System.out.println("t = " + t);
+							};
+							void foo( int y) {
+								System.out.println("y = " + y);
+							}
+							class Third {
+								Consumer<Integer> myConsumer3 = (y) -> {
+									System.out.println("y = " + y);
+								};
+							}
+							void bar(int y) {
+								new Third().myConsumer3.accept(y);
+							}
+				 		}
+						new Second().myConsumer1.accept(10);
+						new Second().myConsumer2.accept(20);
+						new Second().foo(30);
+						new Second().bar(40);
+					\t
+					}
+					void foo() {
+				  		Consumer<Integer> myConsumer2 = (y) -> {
+						class Inner {
+					  	Consumer<Integer> myConsumer4 = (y) -> {\s
+						class InnerMost {
+						Consumer<Integer> myConsumer3 = (y /*error without fix*/) -> {};
+						}
+					  	};
+						}
+						new Inner().myConsumer4.accept(10);
+					};
+					}
+					public static void main(String[] args) {
+						new X().methodInFirstLevel(5);
+						new X().foo();
+					}
+				}
+				"""
 	},
 	"z = 10\ny = 5\nt = 5\ny = 20\nt = 5\ny = 30\ny = 40");
 }
@@ -5625,66 +6053,74 @@ public void test445949a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.function.Consumer;\n" +
-			"class X {\n" +
-			"	void foo(int y) {\n" +
-			"		Consumer<Integer> c1 = (y)-> {};\n" +
-			"	}\n" +
-			"	void foo2() {\n" +
-			"		int y;\n" +
-			"		Consumer<Integer> c1 = (y)-> {};\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.function.Consumer;
+				class X {
+					void foo(int y) {
+						Consumer<Integer> c1 = (y)-> {};
+					}
+					void foo2() {
+						int y;
+						Consumer<Integer> c1 = (y)-> {};
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	Consumer<Integer> c1 = (y)-> {};\n" +
-		"	                        ^\n" +
-		"Lambda expression's parameter y cannot redeclare another local variable defined in an enclosing scope. \n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	Consumer<Integer> c1 = (y)-> {};\n" +
-		"	                        ^\n" +
-		"Lambda expression's parameter y cannot redeclare another local variable defined in an enclosing scope. \n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				Consumer<Integer> c1 = (y)-> {};
+				                        ^
+			Lambda expression's parameter y cannot redeclare another local variable defined in an enclosing scope.\s
+			----------
+			2. ERROR in X.java (at line 8)
+				Consumer<Integer> c1 = (y)-> {};
+				                        ^
+			Lambda expression's parameter y cannot redeclare another local variable defined in an enclosing scope.\s
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=456395, can't compile the Java8 code
 public void test456395() {
 	this.runConformTest(
 			new String[] {
 			"Test.java",
-			"import java.io.*;\n" +
-			"import java.util.*;\n" +
-			"import java.util.stream.*;\n" +
-			"import static java.util.stream.Collectors.*;\n" +
-			"public class Test {\n" +
-			"   public static void main(String[] args) throws IOException {\n" +
-			"      Stream<Locale> locales = Stream.of(Locale.getAvailableLocales());\n" +
-			"      locales = Stream.of(Locale.getAvailableLocales());\n" +
-			"      Map<String, Set<String>> countryToLanguages = locales.collect(\n" +
-			"         groupingBy(Locale::getDisplayCountry, \n" +
-			"            mapping(Locale::getDisplayLanguage,\n" +
-			"               toSet())));\n" +
-			"   }\n" +
-			"}\n"});
+			"""
+				import java.io.*;
+				import java.util.*;
+				import java.util.stream.*;
+				import static java.util.stream.Collectors.*;
+				public class Test {
+				   public static void main(String[] args) throws IOException {
+				      Stream<Locale> locales = Stream.of(Locale.getAvailableLocales());
+				      locales = Stream.of(Locale.getAvailableLocales());
+				      Map<String, Set<String>> countryToLanguages = locales.collect(
+				         groupingBy(Locale::getDisplayCountry,\s
+				            mapping(Locale::getDisplayLanguage,
+				               toSet())));
+				   }
+				}
+				"""});
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=459305
 public void test459305() {
 	this.runConformTest(
 			new String[] {
 			"X.java",
-			"import java.io.Serializable;\n" +
-			"import java.util.function.BiConsumer;\n" +
-			"import java.util.function.Consumer;\n" +
-			"public class X {\n" +
-			"   public static void main(String[] args) {\n" +
-			"      foo(arg1 -> bar(X::baz));\n" +
-			"   }\n" +
-			"   private static <A1> void foo(Consumer<A1> c) { c.accept(null); }\n" +
-			"   private static void baz(String s1, String s2) { System.out.println(s1 + \"::\" + s2); }\n" +
-			"   private static void bar(VoidMethodRef2<String, String> mr2) { mr2.accept(\"one\", \"two\"); }\n" +
-			"   private static interface VoidMethodRef2<A1, A2> extends BiConsumer<A1, A2>, Serializable {}\n" +
-			"}\n"},
+			"""
+				import java.io.Serializable;
+				import java.util.function.BiConsumer;
+				import java.util.function.Consumer;
+				public class X {
+				   public static void main(String[] args) {
+				      foo(arg1 -> bar(X::baz));
+				   }
+				   private static <A1> void foo(Consumer<A1> c) { c.accept(null); }
+				   private static void baz(String s1, String s2) { System.out.println(s1 + "::" + s2); }
+				   private static void bar(VoidMethodRef2<String, String> mr2) { mr2.accept("one", "two"); }
+				   private static interface VoidMethodRef2<A1, A2> extends BiConsumer<A1, A2>, Serializable {}
+				}
+				"""},
 			"one::two");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=467825 Missing code implementation in the compiler
@@ -5692,20 +6128,22 @@ public void test467825() {
 	this.runConformTest(
 		new String[] {
 			"Main.java",
-			"import java.util.function.Function;\n" +
-			"public class Main {\n" +
-			"    public Function<String, String> f(int x) {\n" +
-			"    	class A {\n" +
-			"    		void g() {\n" +
-			"    	        System.out.println(x);\n" +
-			"    		}\n" +
-			"    	}\n" +
-			"        return s -> {\n" +
-			"        	A a = new A();\n" +
-			"            return s;\n" +
-			"        };\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.util.function.Function;
+				public class Main {
+				    public Function<String, String> f(int x) {
+				    	class A {
+				    		void g() {
+				    	        System.out.println(x);
+				    		}
+				    	}
+				        return s -> {
+				        	A a = new A();
+				            return s;
+				        };
+				    }
+				}
+				"""
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=467825 Missing code implementation in the compiler
@@ -5713,28 +6151,30 @@ public void test467825a() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.util.function.Function;\n" +
-			"interface Foo {void alpha(Bar pBar);}\n" +
-			"class Bar {Object bravo() {return null;}}\n" +
-			"class Test {\n" +
-			"	Foo foo(Function pFunction) {\n" +
-			"	    class Baz {\n" +
-			"	    	public Baz(Object pObj) {\n" +
-			"	    	}\n" +
-			"	    	class NestedBaz extends Baz {\n" +
-			"	    		NestedBaz(Object pObj) {\n" +
-			"	    			super(pObj);\n" +
-			"	    			pFunction.apply(pObj);\n" +
-			"	    		}\n" +
-			"	    	}\n" +
-			"	    }\n" +
-			"	    return pBar -> {\n" +
-			"	    		Object o = new Baz(pBar).new NestedBaz(pBar.bravo());\n" +
-			"	    	};\n" +
-			"	  }\n" +
-			"	  void charlie(Object pRemovals) {}\n" +
-			"	  void delta(Foo pListener) {}\n" +
-			"}\n"
+			"""
+				import java.util.function.Function;
+				interface Foo {void alpha(Bar pBar);}
+				class Bar {Object bravo() {return null;}}
+				class Test {
+					Foo foo(Function pFunction) {
+					    class Baz {
+					    	public Baz(Object pObj) {
+					    	}
+					    	class NestedBaz extends Baz {
+					    		NestedBaz(Object pObj) {
+					    			super(pObj);
+					    			pFunction.apply(pObj);
+					    		}
+					    	}
+					    }
+					    return pBar -> {
+					    		Object o = new Baz(pBar).new NestedBaz(pBar.bravo());
+					    	};
+					  }
+					  void charlie(Object pRemovals) {}
+					  void delta(Foo pListener) {}
+				}
+				"""
 	});
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=461004 Multiple spurious errors compiling FunctionalJava project
@@ -5744,26 +6184,28 @@ public void test461004() {
 		JavacHasABug.JavacBugFixed_901,
 		new String[] {
 			"Ice.java",
-			"import java.util.function.BiPredicate;\n" +
-			"import java.util.function.Function;\n" +
-			"class Ice {\n" +
-			"  static <T> BiPredicate<T, T> create(BiPredicate<? super T, ? super T> fn) {\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"  static <T, K> BiPredicate<T, T> create(Function<? super T, ? super K> map) {\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"  void someMethod(BiPredicate<String, String> b) {}\n" +
-			"  void method() {\n" +
-			"    BiPredicate<String, String> eq = String::equalsIgnoreCase;\n" +
-			"    // these all compile:\n" +
-			"    BiPredicate<String, String> ok1 = create( eq );\n" +
-			"    BiPredicate<String, String> ok2 = create( (a, b) -> true );\n" +
-			"    BiPredicate<String, String> ok3 = create( String::valueOf );\n" +
-			"    // this causes an internal compiler error, ArrayIndexOutOfBoundsException: 1\n" +
-			"    someMethod(create( String::equalsIgnoreCase ));\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.util.function.BiPredicate;
+				import java.util.function.Function;
+				class Ice {
+				  static <T> BiPredicate<T, T> create(BiPredicate<? super T, ? super T> fn) {
+				    return null;
+				  }
+				  static <T, K> BiPredicate<T, T> create(Function<? super T, ? super K> map) {
+				    return null;
+				  }
+				  void someMethod(BiPredicate<String, String> b) {}
+				  void method() {
+				    BiPredicate<String, String> eq = String::equalsIgnoreCase;
+				    // these all compile:
+				    BiPredicate<String, String> ok1 = create( eq );
+				    BiPredicate<String, String> ok2 = create( (a, b) -> true );
+				    BiPredicate<String, String> ok3 = create( String::valueOf );
+				    // this causes an internal compiler error, ArrayIndexOutOfBoundsException: 1
+				    someMethod(create( String::equalsIgnoreCase ));
+				  }
+				}
+				"""
 	}, null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=478533 [compiler][1.8][lambda] check visibility of target context is broken
@@ -5771,30 +6213,34 @@ public void test478533() {
 	this.runConformTest(
 		new String[] {
 			"test/BugDemonstrator.java",
-			"package test;\n" +
-			"import test.subpackage.B;\n" +
-			"public class BugDemonstrator {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		// OK\n" +
-			"		invoke(new B() {\n" +
-			"			public String invoke(Integer input) {\n" +
-			"				return null;\n" +
-			"			}\n" +
-			"		});\n" +
-			"		// ERROR\n" +
-			"		invoke((Integer i) -> { // Error is here: The type A<Object,Integer> from the descriptor computed for the target context is not visible here.\n" +
-			"			return null;\n" +
-			"		});\n" +
-			"	}\n" +
-			"	private static String invoke(B b) {\n" +
-			"		return b.invoke(1);\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				package test;
+				import test.subpackage.B;
+				public class BugDemonstrator {
+					public static void main(String[] args) {
+						// OK
+						invoke(new B() {
+							public String invoke(Integer input) {
+								return null;
+							}
+						});
+						// ERROR
+						invoke((Integer i) -> { // Error is here: The type A<Object,Integer> from the descriptor computed for the target context is not visible here.
+							return null;
+						});
+					}
+					private static String invoke(B b) {
+						return b.invoke(1);
+					}
+				}
+				""",
 			"test/subpackage/A.java",
-			"package test.subpackage;\n" +
-			"interface A<I> {\n" +
-			"	String invoke(I input);\n" +
-			"}\n",
+			"""
+				package test.subpackage;
+				interface A<I> {
+					String invoke(I input);
+				}
+				""",
 			"test/subpackage/B.java",
 			"package test.subpackage;\n" +
 			"public interface B extends A<Integer> {}\n"
@@ -5805,64 +6251,73 @@ public void test478533a() {
 	this.runNegativeTest(
 		new String[] {
 			"test/BugDemonstrator.java",
-			"package test;\n" +
-			"import test.subpackage.C;\n" +
-			"public class BugDemonstrator {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		C c = new C();\n" +
-			"		c.invoke((Integer i) -> { \n" +
-			"			return null;\n" +
-			"		}, 2);\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				package test;
+				import test.subpackage.C;
+				public class BugDemonstrator {
+					public static void main(String[] args) {
+						C c = new C();
+						c.invoke((Integer i) -> {\s
+							return null;
+						}, 2);
+					}
+				}
+				""",
 			"test/subpackage/A.java",
-			"package test.subpackage;\n" +
-			"public interface A<I> {\n" +
-			"	String invoke(I input);\n" +
-			"}\n",
+			"""
+				package test.subpackage;
+				public interface A<I> {
+					String invoke(I input);
+				}
+				""",
 			"test/subpackage/B.java",
 			"package test.subpackage;\n" +
 			"interface B extends A<Integer> {}\n" ,
 			"test/subpackage/C.java",
-			"package test.subpackage;\n" +
-			"public class C {\n" +
-			"	public String invoke(B b, Integer input) {\n" +
-			"		return b.invoke(input);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package test.subpackage;
+				public class C {
+					public String invoke(B b, Integer input) {
+						return b.invoke(input);
+					}
+				}
+				"""
 	},
-	"----------\n" +
-	"1. ERROR in test\\BugDemonstrator.java (at line 6)\n" +
-	"	c.invoke((Integer i) -> { \n" +
-	"	         ^^^^^^^^^^^^^^\n" +
-	"The type B from the descriptor computed for the target context is not visible here.  \n" +
-	"----------\n");
+	"""
+		----------
+		1. ERROR in test\\BugDemonstrator.java (at line 6)
+			c.invoke((Integer i) -> {\s
+			         ^^^^^^^^^^^^^^
+		The type B from the descriptor computed for the target context is not visible here. \s
+		----------
+		""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=477263 [1.8][compiler] No enclosing instance of the type Outer is accessible in scope for method reference
 public void test477263() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.util.function.Function;\n" +
-			"public interface Test<T> {\n" +
-			"    static <K> void test(Function<?, ? extends K> function) {\n" +
-			"        class Outer {\n" +
-			"        	Outer(K k) {}\n" +
-			"            class Inner {\n" +
-			"                public Inner(K k) {}\n" +
-			"                private void method(K k) {\n" +
-			"                    System.out.println(function.apply(null));\n" +
-			"                    Function<K, Inner> f = Inner::new;\n" +
-			"                    Function<K, Outer> f2 = Outer::new;\n" +
-			"                }\n" +
-			"            }\n" +
-			"        }\n" +
-			"        new Outer(null).new Inner(null).method(null);\n" +
-			"    }\n" +
-			"    public static void main(String[] args) {\n" +
-			"		Test.test((k) -> \"Success\");\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.util.function.Function;
+				public interface Test<T> {
+				    static <K> void test(Function<?, ? extends K> function) {
+				        class Outer {
+				        	Outer(K k) {}
+				            class Inner {
+				                public Inner(K k) {}
+				                private void method(K k) {
+				                    System.out.println(function.apply(null));
+				                    Function<K, Inner> f = Inner::new;
+				                    Function<K, Outer> f2 = Outer::new;
+				                }
+				            }
+				        }
+				        new Outer(null).new Inner(null).method(null);
+				    }
+				    public static void main(String[] args) {
+						Test.test((k) -> "Success");
+					}
+				}"""
 	},
 	"Success");
 }
@@ -5873,35 +6328,36 @@ public void test477263a() {
 		JavacHasABug.JavacBug8144673,
 		new String[] {
 			"X.java",
-			"interface I {\n" +
-			"	X makeX(int x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		int local = 10;\n" +
-			"		class Y extends X {\n" +
-			"			class Z extends X  {\n" +
-			"				private Z(int z) {\n" +
-			"				}\n" +
-			"				private Z() {}\n" +
-			"			}\n" +
-			"			private Y(int y) {\n" +
-			"				System.out.println(y);\n" +
-			"			}\n" +
-			"			 Y() {\n" +
-			"			}\n" +
-			"		}\n" +
-			"		I i = Y :: new;\n" +
-			"		i.makeX(local);\n" +
-			"	}\n" +
-			"	private X(int x) {\n" +
-			"	}\n" +
-			"	X() {\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new X().foo();\n" +
-			"	}\n" +
-			"}"
+			"""
+				interface I {
+					X makeX(int x);
+				}
+				public class X {
+					void foo() {
+						int local = 10;
+						class Y extends X {
+							class Z extends X  {
+								private Z(int z) {
+								}
+								private Z() {}
+							}
+							private Y(int y) {
+								System.out.println(y);
+							}
+							 Y() {
+							}
+						}
+						I i = Y :: new;
+						i.makeX(local);
+					}
+					private X(int x) {
+					}
+					X() {
+					}
+					public static void main(String[] args) {
+						new X().foo();
+					}
+				}"""
 	},
 	"10");
 }
@@ -5910,40 +6366,41 @@ public void test477263b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"interface I {\n" +
-			"	X makeX(int x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		int local = 10;\n" +
-			"		class Y extends X {\n" +
-			"			class Z extends X  {\n" +
-			"				private Z(int z) {\n" +
-			"					System.out.println(local);\n" +
-			"				}\n" +
-			"				void f(int in) {\n" +
-			"					I i2 = Z::new;\n" +
-			"					i2.makeX(in);\n" +
-			"				}\n" +
-			"				private Z() {}\n" +
-			"			}\n" +
-			"			private Y(int y) {\n" +
-			"				System.out.println(\"Y\");\n" +
-			"			}\n" +
-			"			 Y() {\n" +
-			"			}\n" +
-			"		}\n" +
-			"		new Y().new Z().f(0);\n" +
-			"	}\n" +
-			"	private X(int x) {\n" +
-			"		System.out.println(x);\n" +
-			"	}\n" +
-			"	X() {\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new X().foo();\n" +
-			"	}\n" +
-			"}"
+			"""
+				interface I {
+					X makeX(int x);
+				}
+				public class X {
+					void foo() {
+						int local = 10;
+						class Y extends X {
+							class Z extends X  {
+								private Z(int z) {
+									System.out.println(local);
+								}
+								void f(int in) {
+									I i2 = Z::new;
+									i2.makeX(in);
+								}
+								private Z() {}
+							}
+							private Y(int y) {
+								System.out.println("Y");
+							}
+							 Y() {
+							}
+						}
+						new Y().new Z().f(0);
+					}
+					private X(int x) {
+						System.out.println(x);
+					}
+					X() {
+					}
+					public static void main(String[] args) {
+						new X().foo();
+					}
+				}"""
 	},
 	"10");
 }
@@ -5951,65 +6408,71 @@ public void testBug487586() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"\n" +
-			"interface Calculator {\n" +
-			"    public int calculate(int a, int b);\n" +
-			"}\n" +
-			"\n" +
-			"interface Sumator {\n" +
-			"    public int test();\n" +
-			"\n" +
-			"    public int test3(int a, int b);\n" +
-			"}\n" +
-			"\n" +
-			"// intersection of both types\n" +
-			"interface Both extends Sumator, Calculator {\n" +
-			"\n" +
-			"}\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"    Calculator test = (Calculator & Sumator) (a, b) -> a + b;\n" +
-			"    System.out.println(test.calculate(2, 3));\n" +
-			"\n" +
-			"    Sumator sumator = (Calculator & Sumator) (a, b) -> a + b; // does compile, but throws an Exception\n" +
-			"    sumator.test();\n" +
-			"\n" +
-			"    Both both = (Both) (a, b) -> a + b; // does not compile\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				
+				interface Calculator {
+				    public int calculate(int a, int b);
+				}
+				
+				interface Sumator {
+				    public int test();
+				
+				    public int test3(int a, int b);
+				}
+				
+				// intersection of both types
+				interface Both extends Sumator, Calculator {
+				
+				}
+				public class X {
+				  public static void main(String[] args) {
+				    Calculator test = (Calculator & Sumator) (a, b) -> a + b;
+				    System.out.println(test.calculate(2, 3));
+				
+				    Sumator sumator = (Calculator & Sumator) (a, b) -> a + b; // does compile, but throws an Exception
+				    sumator.test();
+				
+				    Both both = (Both) (a, b) -> a + b; // does not compile
+				  }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 18)\n" +
-		"	Calculator test = (Calculator & Sumator) (a, b) -> a + b;\n" +
-		"	                                         ^^^^^^^^^^^^^^^\n" +
-		"The target type of this expression must be a functional interface\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 21)\n" +
-		"	Sumator sumator = (Calculator & Sumator) (a, b) -> a + b; // does compile, but throws an Exception\n" +
-		"	                                         ^^^^^^^^^^^^^^^\n" +
-		"The target type of this expression must be a functional interface\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 24)\n" +
-		"	Both both = (Both) (a, b) -> a + b; // does not compile\n" +
-		"	                   ^^^^^^^^^^^^^^^\n" +
-		"The target type of this expression must be a functional interface\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 18)
+				Calculator test = (Calculator & Sumator) (a, b) -> a + b;
+				                                         ^^^^^^^^^^^^^^^
+			The target type of this expression must be a functional interface
+			----------
+			2. ERROR in X.java (at line 21)
+				Sumator sumator = (Calculator & Sumator) (a, b) -> a + b; // does compile, but throws an Exception
+				                                         ^^^^^^^^^^^^^^^
+			The target type of this expression must be a functional interface
+			----------
+			3. ERROR in X.java (at line 24)
+				Both both = (Both) (a, b) -> a + b; // does not compile
+				                   ^^^^^^^^^^^^^^^
+			The target type of this expression must be a functional interface
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=452587 Java 8: Method references to the same method do not share BootstrapMethod
 public void testBug452587() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			" public class Test {\n" +
-			"    public static void main(String[] args) {\n" +
-			"      Runnable m = Test::m;\n" +
-			"      Runnable n = Test::m;\n" +
-			"      Runnable o = Test::m;\n" +
-			"      Runnable p = Test::m;\n" +
-			"      Runnable q = Test::m;\n" +
-			"    }\n" +
-			"    public static void m() {}\n" +
-			"  }\n"
+			"""
+				 public class Test {
+				    public static void main(String[] args) {
+				      Runnable m = Test::m;
+				      Runnable n = Test::m;
+				      Runnable o = Test::m;
+				      Runnable p = Test::m;
+				      Runnable q = Test::m;
+				    }
+				    public static void m() {}
+				  }
+				"""
 	});
 	IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "Test.class", IClassFileReader.ALL);
 	BootstrapMethodsAttribute bootstrapMethodsAttribute = null;
@@ -6029,32 +6492,33 @@ public void testBug485529() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"interface I {\n" +
-			"	X makeX(int x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"		class Y extends X {\n" +
-			"			class Z extends X  {\n" +
-			"				private Z(int z) {\n" +
-			"				}\n" +
-			"				private Z() {}\n" +
-			"			}\n" +
-			"			private Y(int y) {\n" +
-			"			}\n" +
-			"			 Y() {\n" +
-			"			}\n" +
-			"		}\n" +
-			"		I i = Y :: new;\n" +
-			"	private X(int x) {\n" +
-			"	}\n" +
-			"	\n" +
-			"	X() {\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new X();\n" +
-			"		\n" +
-			"	}\n" +
-			"}"
+			"""
+				interface I {
+					X makeX(int x);
+				}
+				public class X {
+						class Y extends X {
+							class Z extends X  {
+								private Z(int z) {
+								}
+								private Z() {}
+							}
+							private Y(int y) {
+							}
+							 Y() {
+							}
+						}
+						I i = Y :: new;
+					private X(int x) {
+					}
+				\t
+					X() {
+					}
+					public static void main(String[] args) {
+						new X();
+					\t
+					}
+				}"""
 	},
 	"");
 }
@@ -6063,75 +6527,81 @@ public void testBug479284() {
 	runNegativeTest(
 		new String[] {
 			"BadInferenceMars451.java",
-			"package bug.report;\n" +
-			"import java.util.ArrayList;\n" +
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"import java.util.Map;\n" +
-			"import java.util.function.BinaryOperator;\n" +
-			"import java.util.function.Function;\n" +
-			"import java.util.stream.Collectors;\n" +
-			"/**\n" +
-			" * Problem is valid on Version: Mars.1 Release (4.5.1) Build id: 20150924-1200\n" +
-			" */\n" +
-			"public class BadInferenceMars451 {\n" +
-			"	public static Map<Object, List<X>> BadInferenceMars451Casus1() {\n" +
-			"		List<X> stuff = new ArrayList<>();\n" +
-			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451::sum));\n" +
-			"	}\n" +
-			"	public static Map<Object, List<X>> BadInferenceMars451Casus1Fixed1() {\n" +
-			"		List<X> stuff = new ArrayList<>();\n" +
-			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), (BinaryOperator<List<X>>) BadInferenceMars451::sum));\n" +
-			"	}\n" +
-			"	public static Map<Object, List<X>> BadInferenceMars451Casus1Fixed2() {\n" +
-			"		List<X> stuff = new ArrayList<>();\n" +
-			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.<X> asList(t), BadInferenceMars451::sum));\n" +
-			"	}\n" +
-			"	/* \n" +
-			"	 * Uncomment this to see eclipse crash at build\n" +
-			"	 * this doesnt work but it should not crash the ide\n" +
-			"	 */ \n" +
-			"	public static Map<Object, List<X>> BadInferenceMars451Casus1Crash() {\n" +
-			"		List<X> stuff = new ArrayList<>();\n" +
-			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451<X>::sum));\n" +
-			"	}\n" +
-			"	public static <T> List<T> sum(List<T> l1, List<T> l2) {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	public static class X {\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package bug.report;
+				import java.util.ArrayList;
+				import java.util.Arrays;
+				import java.util.List;
+				import java.util.Map;
+				import java.util.function.BinaryOperator;
+				import java.util.function.Function;
+				import java.util.stream.Collectors;
+				/**
+				 * Problem is valid on Version: Mars.1 Release (4.5.1) Build id: 20150924-1200
+				 */
+				public class BadInferenceMars451 {
+					public static Map<Object, List<X>> BadInferenceMars451Casus1() {
+						List<X> stuff = new ArrayList<>();
+						return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451::sum));
+					}
+					public static Map<Object, List<X>> BadInferenceMars451Casus1Fixed1() {
+						List<X> stuff = new ArrayList<>();
+						return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), (BinaryOperator<List<X>>) BadInferenceMars451::sum));
+					}
+					public static Map<Object, List<X>> BadInferenceMars451Casus1Fixed2() {
+						List<X> stuff = new ArrayList<>();
+						return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.<X> asList(t), BadInferenceMars451::sum));
+					}
+					/*\s
+					 * Uncomment this to see eclipse crash at build
+					 * this doesnt work but it should not crash the ide
+					 */\s
+					public static Map<Object, List<X>> BadInferenceMars451Casus1Crash() {
+						List<X> stuff = new ArrayList<>();
+						return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451<X>::sum));
+					}
+					public static <T> List<T> sum(List<T> l1, List<T> l2) {
+						return null;
+					}
+					public static class X {
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in BadInferenceMars451.java (at line 31)\n" +
-		"	return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451<X>::sum));\n" +
-		"	                                                                                           ^^^^^^^^^^^^^^^^^^^\n" +
-		"The type BadInferenceMars451 is not generic; it cannot be parameterized with arguments <BadInferenceMars451.X>\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in BadInferenceMars451.java (at line 31)
+				return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451<X>::sum));
+				                                                                                           ^^^^^^^^^^^^^^^^^^^
+			The type BadInferenceMars451 is not generic; it cannot be parameterized with arguments <BadInferenceMars451.X>
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=491139 Lambda that redefines a default method with generics
 public void testBug491139() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"public class Test {\n" +
-			"	interface Foo<T> {\n" +
-			"			default String bar(String s) {\n" +
-			"			return (\"default : \" + s);\n" +
-			"		}\n" +
-			"		String bar(T t);\n" +
-			"	}\n" +
-			"	public String testLambdaRedefiningADefault() {\n" +
-			"		Foo<String> foo =\n" +
-			"		    (t) -> {\n" +
-			"		      return \"lambda : \" + t;\n" +
-			"		  };\n" +
-			"		return (((Foo)foo).bar(\"String\"));\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(new Test().testLambdaRedefiningADefault());\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class Test {
+					interface Foo<T> {
+							default String bar(String s) {
+							return ("default : " + s);
+						}
+						String bar(T t);
+					}
+					public String testLambdaRedefiningADefault() {
+						Foo<String> foo =
+						    (t) -> {
+						      return "lambda : " + t;
+						  };
+						return (((Foo)foo).bar("String"));
+					}
+					public static void main(String[] args) {
+						System.out.println(new Test().testLambdaRedefiningADefault());
+					}
+				}
+				"""
 	},
 	"lambda : String");
 }
@@ -6140,25 +6610,26 @@ public void test489631() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.util.ArrayList;\n" +
-			"import java.util.List;\n" +
-			"interface I { int getLength(); }\n" +
-			"public class Test {\n" +
-			"	public void test() {\n" +
-			"		class A<T> {\n" +
-			"			List<T> l;\n" +
-			"			public A(List<T> l) {\n" +
-			"				this.l = l;\n" +
-			"			}\n" +
-			"		}\n" +
-			"		List<Integer> list = new ArrayList<>();\n" +
-			"		I i = () -> new A<>(list).l.size();\n" +
-			"		System.out.println(i.getLength());\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new Test().test();\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				import java.util.List;
+				interface I { int getLength(); }
+				public class Test {
+					public void test() {
+						class A<T> {
+							List<T> l;
+							public A(List<T> l) {
+								this.l = l;
+							}
+						}
+						List<Integer> list = new ArrayList<>();
+						I i = () -> new A<>(list).l.size();
+						System.out.println(i.getLength());
+					}
+					public static void main(String[] args) {
+						new Test().test();
+					}
+				}"""
 	},
 	"0");
 }
@@ -6167,32 +6638,33 @@ public void test489631a() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.util.ArrayList;\n" +
-			"import java.util.List;\n" +
-			"interface I { int getLength(); }\n" +
-			"public class Test {\n" +
-			"	public void test() {\n" +
-			"		class A<T> {\n" +
-			"			List<T> l;\n" +
-			"			public A(List<T> l) {\n" +
-			"				this.l = l;\n" +
-			"			}\n" +
-			"			class B {\n" +
-			"				List<Integer> iL;\n" +
-			"				public B(List<Integer> l) {\n" +
-			"					// super(l);\n" +
-			"					this.iL = l;\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"		List<Integer> list = new ArrayList<>();\n" +
-			"		I i = () -> new A<>(list).new B(list).iL.size();\n" +
-			"		System.out.println(i.getLength());\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new Test().test();\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				import java.util.List;
+				interface I { int getLength(); }
+				public class Test {
+					public void test() {
+						class A<T> {
+							List<T> l;
+							public A(List<T> l) {
+								this.l = l;
+							}
+							class B {
+								List<Integer> iL;
+								public B(List<Integer> l) {
+									// super(l);
+									this.iL = l;
+								}
+							}
+						}
+						List<Integer> list = new ArrayList<>();
+						I i = () -> new A<>(list).new B(list).iL.size();
+						System.out.println(i.getLength());
+					}
+					public static void main(String[] args) {
+						new Test().test();
+					}
+				}"""
 	},
 	"0");
 }
@@ -6202,17 +6674,18 @@ public void test476859() {
 	runner.testFiles =
 		new String[] {
 			"Test.java",
-			"import java.lang.reflect.Method;\n" +
-			"import java.util.function.Function;\n" +
-			"public class Test {\n" +
-			"  public static void main(String[] args) {\n" +
-			"    final Function<Void,Method> f = __ -> {\n" +
-			"    	class Dummy{}\n" +
-			"      return new Dummy(){}.getClass().getEnclosingMethod();\n" +
-			"    };\n" +
-			"    System.out.println(f.apply(null));\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.lang.reflect.Method;
+				import java.util.function.Function;
+				public class Test {
+				  public static void main(String[] args) {
+				    final Function<Void,Method> f = __ -> {
+				    	class Dummy{}
+				      return new Dummy(){}.getClass().getEnclosingMethod();
+				    };
+				    System.out.println(f.apply(null));
+				  }
+				}"""
 		};
 	runner.expectedOutputString =
 		"public static void Test.main(java.lang.String[])";
@@ -6226,28 +6699,30 @@ public void test476859a() {
 	runner.testFiles =
 		new String[] {
 			"Test.java",
-			"import java.lang.reflect.Method;\n" +
-			"import java.util.function.Function;\n" +
-			"public class Test {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	  \n" +
-			"    final Function<Void,Method> f = __ -> {\n" +
-			"    	class Dummy{}\n" +
-			"      return new Dummy(){}.getClass().getEnclosingMethod();\n" +
-			"    };\n" +
-			"    System.out.println(f.apply(null));\n" +
-			"    new AnotherClass().foo();\n" +
-			"  }\n" +
-			"}\n" +
-			"class AnotherClass {\n" +
-			"	void foo() {\n" +
-			"		final Function<Void,Method> f = __ -> {\n" +
-			"	    	class Dummy{}\n" +
-			"	      return new Dummy(){}.getClass().getEnclosingMethod();\n" +
-			"	    };\n" +
-			"	    System.out.println(f.apply(null));\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.lang.reflect.Method;
+				import java.util.function.Function;
+				public class Test {
+				  public static void main(String[] args) {
+					 \s
+				    final Function<Void,Method> f = __ -> {
+				    	class Dummy{}
+				      return new Dummy(){}.getClass().getEnclosingMethod();
+				    };
+				    System.out.println(f.apply(null));
+				    new AnotherClass().foo();
+				  }
+				}
+				class AnotherClass {
+					void foo() {
+						final Function<Void,Method> f = __ -> {
+					    	class Dummy{}
+					      return new Dummy(){}.getClass().getEnclosingMethod();
+					    };
+					    System.out.println(f.apply(null));
+					}
+				}
+				"""
 		};
 	runner.expectedOutputString =
 		"public static void Test.main(java.lang.String[])\n" +
@@ -6288,36 +6763,39 @@ public void test500374() {
 	this.runConformTest(
 		new String[] {
 			"client/Client.java",
-			"package client;\n" +
-			"import lib.Sub;\n" +
-			"public class Client {\n" +
-			"    public static void main(String[] args) throws Throwable {\n" +
-			"        Sub s1 = new Sub();\n" +
-			"        doSomething(() -> s1.m());\n" +
-			"        doSomething(s1::m);\n" +
-			"    }\n" +
-			"    interface Aaa {\n" +
-			"        Object f() throws Throwable;\n" +
-			"    }\n" +
-			"    public static void doSomething(Aaa a) throws Throwable {\n" +
-			"        System.out.println(\"Done\");\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				package client;
+				import lib.Sub;
+				public class Client {
+				    public static void main(String[] args) throws Throwable {
+				        Sub s1 = new Sub();
+				        doSomething(() -> s1.m());
+				        doSomething(s1::m);
+				    }
+				    interface Aaa {
+				        Object f() throws Throwable;
+				    }
+				    public static void doSomething(Aaa a) throws Throwable {
+				        System.out.println("Done");
+				    }
+				}
+				""",
 			"lib/Sub.java",
 			"package lib;\n" +
 			"public class Sub extends Base<Sub> {}",
 			"lib/Base.java",
-			"package lib;\n" +
-			"class Base<T> {\n" +
-			"    public T m() {\n" +
-			"        System.out.println(\"m\");\n" +
-			"        return thisInstance();\n" +
-			"    }\n" +
-			"    @SuppressWarnings(\"unchecked\")\n" +
-			"    T thisInstance() {\n" +
-			"        return (T) this;\n" +
-			"    }\n" +
-			"}"
+			"""
+				package lib;
+				class Base<T> {
+				    public T m() {
+				        System.out.println("m");
+				        return thisInstance();
+				    }
+				    @SuppressWarnings("unchecked")
+				    T thisInstance() {
+				        return (T) this;
+				    }
+				}"""
 	},
 	"Done\n" +
 	"Done");
@@ -6327,38 +6805,41 @@ public void test500374a() {
 	this.runConformTest(
 		new String[] {
 			"client/Client.java",
-			"package client;\n" +
-			"import java.lang.invoke.MethodHandle;\n" +
-			"import java.lang.invoke.MethodHandles;\n" +
-			"import java.lang.invoke.MethodType;\n" +
-			"import lib.Sub;\n" +
-			"public class Client {\n" +
-			"    public static void main(String[] args) throws Throwable {\n" +
-			"        MethodHandle mh = MethodHandles.lookup().findVirtual(Sub.class, \"m\", MethodType.methodType(Object.class));\n" +
-			"        doSomething(mh::invoke);\n" +
-			"    }\n" +
-			"    interface Aaa {\n" +
-			"        Object f() throws Throwable;\n" +
-			"    }\n" +
-			"    public static void doSomething(Aaa a) throws Throwable {\n" +
-			"        System.out.println(\"Done\");\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				package client;
+				import java.lang.invoke.MethodHandle;
+				import java.lang.invoke.MethodHandles;
+				import java.lang.invoke.MethodType;
+				import lib.Sub;
+				public class Client {
+				    public static void main(String[] args) throws Throwable {
+				        MethodHandle mh = MethodHandles.lookup().findVirtual(Sub.class, "m", MethodType.methodType(Object.class));
+				        doSomething(mh::invoke);
+				    }
+				    interface Aaa {
+				        Object f() throws Throwable;
+				    }
+				    public static void doSomething(Aaa a) throws Throwable {
+				        System.out.println("Done");
+				    }
+				}
+				""",
 			"lib/Sub.java",
 			"package lib;\n" +
 			"public class Sub extends Base<Sub> {}",
 			"lib/Base.java",
-			"package lib;\n" +
-			"class Base<T> {\n" +
-			"    public T m() {\n" +
-			"        System.out.println(\"m\");\n" +
-			"        return thisInstance();\n" +
-			"    }\n" +
-			"    @SuppressWarnings(\"unchecked\")\n" +
-			"    T thisInstance() {\n" +
-			"        return (T) this;\n" +
-			"    }\n" +
-			"}"
+			"""
+				package lib;
+				class Base<T> {
+				    public T m() {
+				        System.out.println("m");
+				        return thisInstance();
+				    }
+				    @SuppressWarnings("unchecked")
+				    T thisInstance() {
+				        return (T) this;
+				    }
+				}"""
 	},
 	"Done");
 }
@@ -6391,27 +6872,29 @@ public void testBug502871() {
 			"}\n" +
 			"",
 		},
-		"----------\n" +
-		"1. WARNING in test\\GryoMapper.java (at line 11)\n" +
-		"	public void addCustom(Generic c) {\n" +
-		"	                      ^^^^^^^\n" +
-		"Generic is a raw type. References to generic type Generic<A> should be parameterized\n" +
-		"----------\n" +
-		"2. WARNING in test\\GryoMapper.java (at line 12)\n" +
-		"	addOrOverrideRegistration(() -> GryoTypeReg.of(c));\n" +
-		"	                                ^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: Unchecked invocation of(Generic) of the generic method of(Generic<E>) of type GryoMapper.GryoTypeReg\n" +
-		"----------\n" +
-		"3. WARNING in test\\GryoMapper.java (at line 12)\n" +
-		"	addOrOverrideRegistration(() -> GryoTypeReg.of(c));\n" +
-		"	                                ^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: The expression of type GryoMapper.GryoTypeReg needs unchecked conversion to conform to GryoMapper.GryoTypeReg<Object>\n" +
-		"----------\n" +
-		"4. WARNING in test\\GryoMapper.java (at line 12)\n" +
-		"	addOrOverrideRegistration(() -> GryoTypeReg.of(c));\n" +
-		"	                                               ^\n" +
-		"Type safety: The expression of type Generic needs unchecked conversion to conform to Generic<Object>\n" +
-		"----------\n"
+		"""
+			----------
+			1. WARNING in test\\GryoMapper.java (at line 11)
+				public void addCustom(Generic c) {
+				                      ^^^^^^^
+			Generic is a raw type. References to generic type Generic<A> should be parameterized
+			----------
+			2. WARNING in test\\GryoMapper.java (at line 12)
+				addOrOverrideRegistration(() -> GryoTypeReg.of(c));
+				                                ^^^^^^^^^^^^^^^^^
+			Type safety: Unchecked invocation of(Generic) of the generic method of(Generic<E>) of type GryoMapper.GryoTypeReg
+			----------
+			3. WARNING in test\\GryoMapper.java (at line 12)
+				addOrOverrideRegistration(() -> GryoTypeReg.of(c));
+				                                ^^^^^^^^^^^^^^^^^
+			Type safety: The expression of type GryoMapper.GryoTypeReg needs unchecked conversion to conform to GryoMapper.GryoTypeReg<Object>
+			----------
+			4. WARNING in test\\GryoMapper.java (at line 12)
+				addOrOverrideRegistration(() -> GryoTypeReg.of(c));
+				                                               ^
+			Type safety: The expression of type Generic needs unchecked conversion to conform to Generic<Object>
+			----------
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=490469 Internal compiler error: java.lang.NullPointerException at org.eclipse.jdt.internal.compiler.ast.LambdaExpression.analyseCode(LambdaExpression.java:512)
@@ -6419,31 +6902,33 @@ public void testBUg490469() {
 	this.runConformTest(
 		new String[] {
 			"AbstractClientProxy.java",
-			"import java.util.function.Supplier;\n" +
-			"public abstract class AbstractClientProxy {\n" +
-			"	protected <T> T getRemoteObject(String url, Class<T> responseType, Object... urlVariables) {\n" +
-			"		return handleException(this.bindGet(REST::getForObject, url, responseType, urlVariables));\n" +
-			"	}\n" +
-			"	private <T> T handleException(Supplier<T> s){\n" +
-			"		T t = null;\n" +
-			"		try{\n" +
-			"			t= s.get();\n" +
-			"		}catch(Exception e){\n" +
-			"		}\n" +
-			"		return t;\n" +
-			"	}\n" +
-			"	private  <T> Supplier<T> bindGet(GetFunc fn, String url, Class<T> responseType, Object... uriVariables) {\n" +
-			"		return () -> fn.invoke(url, responseType, uriVariables);\n" +
-			"	}\n" +
-			"}\n" +
-			"class REST {\n" +
-			"	static <T> T getForObject(String url, Class<T> respType, Object... vars) {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}\n" +
-			"interface GetFunc {\n" +
-			"	<T> T invoke(String url, Class<T> responseType, Object... uriVariables);\n" +
-			"}\n"
+			"""
+				import java.util.function.Supplier;
+				public abstract class AbstractClientProxy {
+					protected <T> T getRemoteObject(String url, Class<T> responseType, Object... urlVariables) {
+						return handleException(this.bindGet(REST::getForObject, url, responseType, urlVariables));
+					}
+					private <T> T handleException(Supplier<T> s){
+						T t = null;
+						try{
+							t= s.get();
+						}catch(Exception e){
+						}
+						return t;
+					}
+					private  <T> Supplier<T> bindGet(GetFunc fn, String url, Class<T> responseType, Object... uriVariables) {
+						return () -> fn.invoke(url, responseType, uriVariables);
+					}
+				}
+				class REST {
+					static <T> T getForObject(String url, Class<T> respType, Object... vars) {
+						return null;
+					}
+				}
+				interface GetFunc {
+					<T> T invoke(String url, Class<T> responseType, Object... uriVariables);
+				}
+				"""
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=509804 Incorrect Enclosing Method Attribute generated for anonymous class in lambda after method reference
@@ -6452,20 +6937,22 @@ public void test509804() {
 	runner.testFiles =
 		new String[] {
 			"Test.java",
-			"import java.lang.reflect.Method;\n" +
-			"import java.util.function.Supplier;\n" +
-			"public enum Test {\n" +
-			"	A(Object::new),\n" +
-			"	B(() -> new Object(){}),\n" +
-			"	;\n" +
-			"	private final Supplier<Object> s;\n" +
-			"	Test(Supplier<Object> e){\n" +
-			"		this.s = e;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) throws NoSuchMethodException, SecurityException {\n" +
-			"		System.out.println(B.s.get().getClass().getEnclosingMethod());\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.lang.reflect.Method;
+				import java.util.function.Supplier;
+				public enum Test {
+					A(Object::new),
+					B(() -> new Object(){}),
+					;
+					private final Supplier<Object> s;
+					Test(Supplier<Object> e){
+						this.s = e;
+					}
+					public static void main(String[] args) throws NoSuchMethodException, SecurityException {
+						System.out.println(B.s.get().getClass().getEnclosingMethod());
+					}
+				}
+				"""
 		};
 	runner.expectedOutputString =
 			"null";
@@ -6477,23 +6964,25 @@ public void testBug514105() {
 	runConformTest(
 		new String[] {
 			"FunctionalInterfaceBug.java",
-			"import java.util.function.Function;\n" +
-			"import java.util.function.UnaryOperator;\n" +
-			"\n" +
-			"@FunctionalInterface\n" +
-			"interface BaseFunction<S, T> extends Function<S, T> {\n" +
-			"\n" +
-			"    T foo(final S s);\n" +
-			"\n" +
-			"    default T apply(final S s) {\n" +
-			"        return null;\n" +
-			"    }\n" +
-			"}\n" +
-			"\n" +
-			"@FunctionalInterface\n" +
-			"interface SubFunction<T> extends UnaryOperator<T>, BaseFunction<T, T> {\n" +
-			"}\n" +
-			"public class FunctionalInterfaceBug {}\n"
+			"""
+				import java.util.function.Function;
+				import java.util.function.UnaryOperator;
+				
+				@FunctionalInterface
+				interface BaseFunction<S, T> extends Function<S, T> {
+				
+				    T foo(final S s);
+				
+				    default T apply(final S s) {
+				        return null;
+				    }
+				}
+				
+				@FunctionalInterface
+				interface SubFunction<T> extends UnaryOperator<T>, BaseFunction<T, T> {
+				}
+				public class FunctionalInterfaceBug {}
+				"""
 		});
 }
 public void testBug515473() {
@@ -6530,32 +7019,34 @@ public void testBug517299() {
 	runConformTest(
 		new String[] {
 			"example/FooTest.java",
-			"package example;\n" +
-			"import java.util.function.Consumer;\n" +
-			"import foo.Foo;\n" +
-			"public class FooTest {\n" +
-			"	public void test() {\n" +
-			"		Foo.Bar foo = new Foo.Bar();\n" +
-			"		foo.print(\"direct\");\n" +
-			"		invoke(foo::print, \"methodReference\");\n" +
-			"	}\n" +
-			"	private static void invoke(Consumer<String> method, String name) {\n" +
-			"		method.accept(name);\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new FooTest().test();\n" +
-			"	}\n" +
-			"}",
+			"""
+				package example;
+				import java.util.function.Consumer;
+				import foo.Foo;
+				public class FooTest {
+					public void test() {
+						Foo.Bar foo = new Foo.Bar();
+						foo.print("direct");
+						invoke(foo::print, "methodReference");
+					}
+					private static void invoke(Consumer<String> method, String name) {
+						method.accept(name);
+					}
+					public static void main(String[] args) {
+						new FooTest().test();
+					}
+				}""",
 			"foo/Foo.java",
-			"package foo;\n" +
-			"public abstract class Foo {\n" +
-			"	public static class Bar extends Baz {}\n" +
-			"	static class Baz {\n" +
-			"		public final void print(String name) {\n" +
-			"			System.out.println(\"Baz.print called - \"+name);\n" +
-			"		}\n" +
-			"	}\n" +
-			"}"
+			"""
+				package foo;
+				public abstract class Foo {
+					public static class Bar extends Baz {}
+					static class Baz {
+						public final void print(String name) {
+							System.out.println("Baz.print called - "+name);
+						}
+					}
+				}"""
 		},
 		"Baz.print called - direct\n" +
 		"Baz.print called - methodReference"
@@ -6565,24 +7056,25 @@ public void testBug521808() {
 	runConformTest(
 		new String[] {
 			"Z.java",
-			"interface FI1 {\n" +
-			"	Object m(Integer... s);\n" +
-			"}\n" +
-			"interface FI2<T> {\n" +
-			"	Object m(T... arg);\n" +
-			"}\n" +
-			"public class Z {\n" +
-			"	static Object m(FI1 fi, Integer v1, Integer v2) {\n" +
-			"		return fi.m(v1, v2);\n" +
-			"	}\n" +
-			"	static <V extends Integer> Object m(FI2<V> fi, V v1, V v2) {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	public static void main(String argv[]) {\n" +
-			"		Object obj = m((FI1) (Integer... is) -> is[0] + is[1], 3, 4);\n" +
-			"		obj = m((Integer... is) -> is[0] + is[1], 3, 4); // Javac compiles, ECJ won't\n" +
-			"	}\n" +
-			"}",
+			"""
+				interface FI1 {
+					Object m(Integer... s);
+				}
+				interface FI2<T> {
+					Object m(T... arg);
+				}
+				public class Z {
+					static Object m(FI1 fi, Integer v1, Integer v2) {
+						return fi.m(v1, v2);
+					}
+					static <V extends Integer> Object m(FI2<V> fi, V v1, V v2) {
+						return null;
+					}
+					public static void main(String argv[]) {
+						Object obj = m((FI1) (Integer... is) -> is[0] + is[1], 3, 4);
+						obj = m((Integer... is) -> is[0] + is[1], 3, 4); // Javac compiles, ECJ won't
+					}
+				}""",
 		}
 	);
 }
@@ -6590,15 +7082,17 @@ public void testBug522469() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<R> {\n" +
-			"\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I<?> i = (X<?> x) -> \"\";\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I<T> {\n" +
-			"	String m(X<? extends T> x);\n" +
-			"}\n"
+			"""
+				public class X<R> {
+				
+					public static void main(String[] args) {
+						I<?> i = (X<?> x) -> "";
+					}
+				}
+				interface I<T> {
+					String m(X<? extends T> x);
+				}
+				"""
 		}
 	);
 }
@@ -6606,21 +7100,22 @@ public void testBug517951() {
 	runConformTest(
 		new String[] {
 			"Minimal.java",
-			"public class Minimal {\n" +
-			"    public void iCrash() {\n" +
-			"        try {\n" +
-			"            System.out.println(\"Body can't be empty\");\n" +
-			"        } finally {\n" +
-			"            consumes(sneaky()::withVarargs);\n" +
-			"        }\n" +
-			"    }\n" +
-			"    public static void main(String[] args) {\n" +
-			"		new Minimal().iCrash();\n" +
-			"	}\n" +
-			"    private Minimal sneaky() { return this; }\n" +
-			"    private void withVarargs(String... test) {}\n" +
-			"    private void consumes(Runnable r) {}\n" +
-			"}"
+			"""
+				public class Minimal {
+				    public void iCrash() {
+				        try {
+				            System.out.println("Body can't be empty");
+				        } finally {
+				            consumes(sneaky()::withVarargs);
+				        }
+				    }
+				    public static void main(String[] args) {
+						new Minimal().iCrash();
+					}
+				    private Minimal sneaky() { return this; }
+				    private void withVarargs(String... test) {}
+				    private void consumes(Runnable r) {}
+				}"""
 		},
 		"Body can't be empty"
 	);
@@ -6629,23 +7124,24 @@ public void testBug517951a() {
 	runConformTest(
 		new String[] {
 			"Snippet.java",
-			"import java.nio.file.Files;\n" +
-			"import java.nio.file.Paths;\n" +
-			"import java.util.function.Consumer;\n" +
-			"public class Snippet {\n" +
-			"	void postError( String fmt, Object ... args ) {\n" +
-			"	}\n" +
-			"	public boolean test(Consumer<String> postError ) {\n" +
-			"		return false;\n" +
-			"	}\n" +
-			"	void func() {\n" +
-			"		try( java.io.InputStream istr = Files.newInputStream( Paths.get( \"\" ) )){\n" +
-			"		} catch( Exception e ) {\n" +
-			"		} finally {\n" +
-			"			test( this::postError);\n" +
-			"		}\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.nio.file.Files;
+				import java.nio.file.Paths;
+				import java.util.function.Consumer;
+				public class Snippet {
+					void postError( String fmt, Object ... args ) {
+					}
+					public boolean test(Consumer<String> postError ) {
+						return false;
+					}
+					void func() {
+						try( java.io.InputStream istr = Files.newInputStream( Paths.get( "" ) )){
+						} catch( Exception e ) {
+						} finally {
+							test( this::postError);
+						}
+					}
+				}"""
 		}
 	);
 }
@@ -6653,29 +7149,30 @@ public void testBug517951b() {
 	runConformTest(
 		new String[] {
 			"Element.java",
-			"public class Element\n" +
-			"{\n" +
-			"    Operation operation = new Operation(Element::new);\n" +
-			"    public Element(Integer matrix)\n" +
-			"    {\n" +
-			"    		//...\n" +
-			"    }\n" +
-			"    public Element(Operation... operation)\n" +
-			"    {\n" +
-			"    		//...\n" +
-			"    }\n" +
-			"}\n" +
-			"class Operation\n" +
-			"{\n" +
-			"    public Operation(Factory factory)\n" +
-			"    {\n" +
-			"        //...\n" +
-			"    }\n" +
-			"}\n" +
-			"interface Factory\n" +
-			"{\n" +
-			"    Element create(Operation... operations);\n" +
-			"}"
+			"""
+				public class Element
+				{
+				    Operation operation = new Operation(Element::new);
+				    public Element(Integer matrix)
+				    {
+				    		//...
+				    }
+				    public Element(Operation... operation)
+				    {
+				    		//...
+				    }
+				}
+				class Operation
+				{
+				    public Operation(Factory factory)
+				    {
+				        //...
+				    }
+				}
+				interface Factory
+				{
+				    Element create(Operation... operations);
+				}"""
 		}
 	);
 }
@@ -6683,31 +7180,34 @@ public void testBug517951c() {
 	runConformTest(
 		new String[] {
 			"npetest/NpeTest.java",
-			"package npetest;\n" +
-			"public class NpeTest {\n" +
-			"    public NpeTestScheduler scheduler;\n" +
-			"    private void doIt(Object... params) {\n" +
-			"        try {\n" +
-			"            System.out.println(\"Done\");\n" +
-			"        }\n" +
-			"        finally {\n" +
-			"            scheduler.schedule(this::doIt);\n" +
-			"        }\n" +
-			"    }\n" +
-			"}",
+			"""
+				package npetest;
+				public class NpeTest {
+				    public NpeTestScheduler scheduler;
+				    private void doIt(Object... params) {
+				        try {
+				            System.out.println("Done");
+				        }
+				        finally {
+				            scheduler.schedule(this::doIt);
+				        }
+				    }
+				}""",
 			"npetest/NpeTestIf.java",
-			"package npetest;\n" +
-			"@FunctionalInterface\n" +
-			"public interface NpeTestIf {\n" +
-			"    void doSomething(Object... params);\n" +
-			"}",
+			"""
+				package npetest;
+				@FunctionalInterface
+				public interface NpeTestIf {
+				    void doSomething(Object... params);
+				}""",
 			"npetest/NpeTestScheduler.java",
-			"package npetest;\n" +
-			"public class NpeTestScheduler {\n" +
-			"    public void schedule(NpeTestIf what) {\n" +
-			"        what.doSomething();\n" +
-			"    }\n" +
-			"}"
+			"""
+				package npetest;
+				public class NpeTestScheduler {
+				    public void schedule(NpeTestIf what) {
+				        what.doSomething();
+				    }
+				}"""
 		}
 	);
 }
@@ -6716,44 +7216,46 @@ public void testBug521818() {
 	runner.testFiles =
 		new String[] {
 			"test/Main.java",
-			"package test;\n" +
-			"class C {}\n" +
-			"class D {\n" +
-			"	<T extends C & Runnable> D(int i, T t) {" +
-			"		System.out.println(\"D\");\n" +
-			"}\n" +
-			"}\n" +
-			"interface Goo {\n" +
-			"    <T extends C & Runnable> String m(T p);\n" +
-			"}\n" +
-			"class A {\n" +
-			"    public static <K extends Runnable> String bar(K a) {\n" +
-			"		System.out.println(\"Bar\");\n" +
-			"       return null;\n" +
-			"    }\n" +
-			"    public static <K extends Runnable> D baz(int i, K a) {\n" +
-			"		System.out.println(\"Baz\");\n" +
-			"       return null;\n" +
-			"    }\n"+
-			"}\n" +
-			"interface Foo<Z extends C & Runnable> {\n" +
-			"	D get(int i, Z z);\n" +
-			"}\n" +
-			"public class Main  {\n" +
-			"    public static void main(String[] args) {\n" +
-			"    	Foo<? extends C> h = A::baz;\n" +
-			"    	h.get(0,  null);\n" +
-			"    	Foo<? extends C> h2 = D::new;\n" +
-			"    	h2.get(0,  null);\n" +
-			"    	Goo g = A::bar;\n" +
-			"    	g.m(null);\n" +
-			"    } \n" +
-			"}"
+			"""
+				package test;
+				class C {}
+				class D {
+					<T extends C & Runnable> D(int i, T t) {\
+						System.out.println("D");
+				}
+				}
+				interface Goo {
+				    <T extends C & Runnable> String m(T p);
+				}
+				class A {
+				    public static <K extends Runnable> String bar(K a) {
+						System.out.println("Bar");
+				       return null;
+				    }
+				    public static <K extends Runnable> D baz(int i, K a) {
+						System.out.println("Baz");
+				       return null;
+				    }
+				}
+				interface Foo<Z extends C & Runnable> {
+					D get(int i, Z z);
+				}
+				public class Main  {
+				    public static void main(String[] args) {
+				    	Foo<? extends C> h = A::baz;
+				    	h.get(0,  null);
+				    	Foo<? extends C> h2 = D::new;
+				    	h2.get(0,  null);
+				    	Goo g = A::bar;
+				    	g.m(null);
+				    }\s
+				}"""
 		};
 	runner.expectedOutputString =
-		"Baz\n" +
-		"D\n" +
-		"Bar";
+		"""
+			Baz
+			D
+			Bar""";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.JavacGeneratesIncorrectCode; // similar to fixed https://bugs.openjdk.java.net/browse/JDK-8058112
 	runner.runConformTest();
@@ -6762,85 +7264,97 @@ public void testBug522469a() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.List;\n" +
-			"public class X<R> {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I<?> i = (X<?> x) -> \"\";\n" +
-			"		J<?, Y> j = (C<?, Y> y) -> \"\";\n" +
-			"		J<?, Y> j2 = (C<? extends Object, Y> y) -> \"\";\n" +
-			"		J<? extends Object, Y> j3 = (C<?, Y> y) -> \"\";\n" +
-			"		J<? extends Object, Y> j4 = (C<? extends Object, Y> y) -> \"\";\n" +
-			"		J<?, Y> j5 = (C<?, Z> y) -> \"\";\n" +
-			"		K<? extends List<?>> k = (D<? extends List<?>> d) -> \"\";\n" +
-			"	}\n" +
-			"}\n" +
-			"class C<T, U> {}\n" +
-			"class D<T extends List<T>> {}\n" +
-			"class Z {}\n" +
-			"class Y extends Z {}\n" +
-			"interface I<T> {\n" +
-			"	String m(X<? extends T> x);\n" +
-			"}\n" +
-			"interface J<R, S extends Z> {\n" +
-			"	String m(C<? extends R, S> ya);\n" +
-			"}\n" +
-			"interface K<R extends List<R>> {\n" +
-			"	String m(D<? extends R> d);\n" +
-			"}"
+			"""
+				import java.util.List;
+				public class X<R> {
+					public static void main(String[] args) {
+						I<?> i = (X<?> x) -> "";
+						J<?, Y> j = (C<?, Y> y) -> "";
+						J<?, Y> j2 = (C<? extends Object, Y> y) -> "";
+						J<? extends Object, Y> j3 = (C<?, Y> y) -> "";
+						J<? extends Object, Y> j4 = (C<? extends Object, Y> y) -> "";
+						J<?, Y> j5 = (C<?, Z> y) -> "";
+						K<? extends List<?>> k = (D<? extends List<?>> d) -> "";
+					}
+				}
+				class C<T, U> {}
+				class D<T extends List<T>> {}
+				class Z {}
+				class Y extends Z {}
+				interface I<T> {
+					String m(X<? extends T> x);
+				}
+				interface J<R, S extends Z> {
+					String m(C<? extends R, S> ya);
+				}
+				interface K<R extends List<R>> {
+					String m(D<? extends R> d);
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	J<?, Y> j5 = (C<?, Z> y) -> \"\";\n" +
-		"	             ^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from J<Object,Z> to J<?,Y>\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 10)\n" +
-		"	K<? extends List<?>> k = (D<? extends List<?>> d) -> \"\";\n" +
-		"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				J<?, Y> j5 = (C<?, Z> y) -> "";
+				             ^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from J<Object,Z> to J<?,Y>
+			----------
+			2. ERROR in X.java (at line 10)
+				K<? extends List<?>> k = (D<? extends List<?>> d) -> "";
+				                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			The target type of this expression is not a well formed parameterized type due to bound(s) mismatch
+			----------
+			""");
 }
 public void testBug522469b() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"class C<T> {}\n" +
-			"public class X  {\n" +
-			"    interface I<T> {\n" +
-			"        void foo(C<? super Long> l);\n" +
-			"    }\n" +
-			"    public static void run() {\n" +
-			"        I<String> i = (C<? super Number> l) -> {};\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				class C<T> {}
+				public class X  {
+				    interface I<T> {
+				        void foo(C<? super Long> l);
+				    }
+				    public static void run() {
+				        I<String> i = (C<? super Number> l) -> {};
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	I<String> i = (C<? super Number> l) -> {};\n" +
-		"	               ^\n" +
-		"Lambda expression's parameter l is expected to be of type C<? super Long>\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				I<String> i = (C<? super Number> l) -> {};
+				               ^
+			Lambda expression's parameter l is expected to be of type C<? super Long>
+			----------
+			""");
 }
 public void testBug529199() {
 	runConformTest(
 		new String[] {
 			"p2/Test.java",
-			"package p2;\n" +
-			"public class Test {\n" +
-			"   public static void main(String... args) {\n" +
-			"       p1.B.m(); // ok\n" +
-			"       Runnable r = p1.B::m; r.run(); // runtime error\n" +
-			"   }\n" +
-			"}",
+			"""
+				package p2;
+				public class Test {
+				   public static void main(String... args) {
+				       p1.B.m(); // ok
+				       Runnable r = p1.B::m; r.run(); // runtime error
+				   }
+				}""",
 			"p1/A.java",
-			"package p1;\n" +
-			"class A {\n" +
-			"   public static void m() { System.out.println(\"A.m\"); }\n" +
-			"}\n",
+			"""
+				package p1;
+				class A {
+				   public static void m() { System.out.println("A.m"); }
+				}
+				""",
 			"p1/B.java",
-			"package p1;\n" +
-			"public class B extends A {\n" +
-			"}\n"
+			"""
+				package p1;
+				public class B extends A {
+				}
+				"""
 		},
 		"A.m\n" +
 		"A.m"
@@ -6850,28 +7364,33 @@ public void testBug553885a() {
 	runConformTest(
 			new String[] {
 					"p2/Test.java",
-						"package p2;\n" +
-						"import java.util.Optional;\n" +
-						"import p1.B;\n" +
-						"import p1.BImpl;\n" +
-						"\n" +
-						"public class Test {\n" +
-						"    public static void main(String[] args) {\n" +
-						"        Optional<Integer> map = Optional.of(new BImpl()).map(B::amount);\n" +
-						"        System.out.print(map);\n" +
-						"    }\n" +
-						"}",
+						"""
+							package p2;
+							import java.util.Optional;
+							import p1.B;
+							import p1.BImpl;
+							
+							public class Test {
+							    public static void main(String[] args) {
+							        Optional<Integer> map = Optional.of(new BImpl()).map(B::amount);
+							        System.out.print(map);
+							    }
+							}""",
 					"p1/A.java",
-							"package p1;\n" +
-							"interface A {\n" +
-							"    default int amount() {\n" +
-							"        return 0;\n" +
-							"    }\n" +
-							"}\n",
+							"""
+								package p1;
+								interface A {
+								    default int amount() {
+								        return 0;
+								    }
+								}
+								""",
 					"p1/B.java",
-							"package p1;\n" +
-							"public interface B extends A {}\n" +
-							"\n",
+							"""
+								package p1;
+								public interface B extends A {}
+								
+								""",
 					"p1/BImpl.java",
 							"package p1;\n" +
 							"public class BImpl implements B {}\n",
@@ -6896,16 +7415,20 @@ public void testBug553885b() {
 						"    }\n" +
 						"}",
 					"p1/A.java",
-							"package p1;\n" +
-							"interface A {\n" +
-							"    default int amount() {\n" +
-							"        return 0;\n" +
-							"    }\n" +
-							"}\n",
+							"""
+								package p1;
+								interface A {
+								    default int amount() {
+								        return 0;
+								    }
+								}
+								""",
 					"p1/B.java",
-							"package p1;\n" +
-							"public interface B extends A {}\n" +
-							"\n",
+							"""
+								package p1;
+								public interface B extends A {}
+								
+								""",
 					"p1/BImpl.java",
 							"package p1;\n" +
 							"public class BImpl implements B {}\n",
@@ -6918,29 +7441,34 @@ public void testBug553885c() {
 	runConformTest(
 			new String[] {
 					"p2/Test.java",
-						"package p2;\n" +
-						"import java.util.Optional;\n" +
-						"import p1.B;\n" +
-						"import p1.BImpl;\n" +
-						"\n" +
-						"public class Test {\n" +
-						"    public static void main(String[] args) {\n" +
-						"        B b = new BImpl();\n" +
-						"        Optional<Integer> map = Optional.of(b).map(B::amount);\n" +
-						"        System.out.print(map);\n" +
-						"    }\n" +
-						"}",
+						"""
+							package p2;
+							import java.util.Optional;
+							import p1.B;
+							import p1.BImpl;
+							
+							public class Test {
+							    public static void main(String[] args) {
+							        B b = new BImpl();
+							        Optional<Integer> map = Optional.of(b).map(B::amount);
+							        System.out.print(map);
+							    }
+							}""",
 					"p1/A.java",
-							"package p1;\n" +
-							"class A {\n" +
-							"    public int amount() {\n" +
-							"        return 0;\n" +
-							"    }\n" +
-							"}\n",
+							"""
+								package p1;
+								class A {
+								    public int amount() {
+								        return 0;
+								    }
+								}
+								""",
 					"p1/B.java",
-							"package p1;\n" +
-							"public class B extends A {}\n" +
-							"\n",
+							"""
+								package p1;
+								public class B extends A {}
+								
+								""",
 					"p1/BImpl.java",
 							"package p1;\n" +
 							"public class BImpl extends B {}\n",
@@ -6953,20 +7481,21 @@ public void testBug521182() {
 	runConformTest(
 		new String[] {
 			"MethodRef.java",
-			"import java.util.function.Supplier;\n" +
-			"public class MethodRef {\n" +
-			"  public static void m(Supplier<?> s) {\n" +
-			"  }\n" +
-			"  public static void main(String[] args) {\n" +
-			"    Object ref = null;\n" +
-			"	 try {\n" +
-			"    	m(ref::toString);\n" +
-			"	    System.out.println(\"A NPE should have been thrown !!!!!\");\n" +
-			"	 } catch (NullPointerException e) {\n" +
-			"		System.out.println(\"Success\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.function.Supplier;
+				public class MethodRef {
+				  public static void m(Supplier<?> s) {
+				  }
+				  public static void main(String[] args) {
+				    Object ref = null;
+					 try {
+				    	m(ref::toString);
+					    System.out.println("A NPE should have been thrown !!!!!");
+					 } catch (NullPointerException e) {
+						System.out.println("Success");
+					 }
+				  }
+				}"""
 		},
 		"Success");
 }
@@ -6974,21 +7503,22 @@ public void testBug521182a() {
 	runConformTest(
 		new String[] {
 			"MethodRef.java",
-			"import java.util.function.Supplier;\n" +
-			"public class MethodRef {\n" +
-			"	Object field = null;\n" +
-			"  public static void m(Supplier<?> s) {\n" +
-			"  }\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 try {\n" +
-			"		MethodRef ref = new MethodRef();\n" +
-			"    	m(ref.field::toString);\n" +
-			"	    System.out.println(\"A NPE should have been thrown !!!!!\");\n" +
-			"	 } catch (NullPointerException e) {\n" +
-			"		System.out.println(\"Success\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.function.Supplier;
+				public class MethodRef {
+					Object field = null;
+				  public static void m(Supplier<?> s) {
+				  }
+				  public static void main(String[] args) {
+					 try {
+						MethodRef ref = new MethodRef();
+				    	m(ref.field::toString);
+					    System.out.println("A NPE should have been thrown !!!!!");
+					 } catch (NullPointerException e) {
+						System.out.println("Success");
+					 }
+				  }
+				}"""
 		},
 		"Success");
 }
@@ -6996,22 +7526,23 @@ public void testBug521182b() {
 	runConformTest(
 		new String[] {
 			"MethodRef.java",
-			"import java.util.function.Supplier;\n" +
-			"public class MethodRef {\n" +
-			"  public static void m(Supplier<?> s) {\n" +
-			"  }\n" +
-			"  public static Object get() {\n" +
-			"	 return null;\n" +
-			"  }\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 try {\n" +
-			"    	m(get()::toString);\n" +
-			"	    System.out.println(\"A NPE should have been thrown !!!!!\");\n" +
-			"	 } catch (NullPointerException e) {\n" +
-			"		System.out.println(\"Success\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.function.Supplier;
+				public class MethodRef {
+				  public static void m(Supplier<?> s) {
+				  }
+				  public static Object get() {
+					 return null;
+				  }
+				  public static void main(String[] args) {
+					 try {
+				    	m(get()::toString);
+					    System.out.println("A NPE should have been thrown !!!!!");
+					 } catch (NullPointerException e) {
+						System.out.println("Success");
+					 }
+				  }
+				}"""
 		},
 		"Success");
 }
@@ -7021,24 +7552,26 @@ public void testBug516833() {
 	this.runConformTest(
 		new String[] {
 			"ParameterTest.java",
-			"import java.lang.reflect.Method;\n" +
-			"import java.lang.reflect.Parameter;\n" +
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"public class ParameterTest {\n" +
-			"	void foo(String s, List<String> s1) {\n" +
-			"		s1.stream().filter(p -> p.equals(s));\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		for (Method m : ParameterTest.class.getDeclaredMethods()) {\n" +
-			"			if (m.getName().contains(\"lambda\")) {\n" +
-			"				Parameter[] params = m.getParameters();\n" +
-			"				System.out.println(Arrays.asList(params));\n" +
-			"			}\n" +
-			"			\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.lang.reflect.Method;
+				import java.lang.reflect.Parameter;
+				import java.util.Arrays;
+				import java.util.List;
+				public class ParameterTest {
+					void foo(String s, List<String> s1) {
+						s1.stream().filter(p -> p.equals(s));
+					}
+					public static void main(String[] args) {
+						for (Method m : ParameterTest.class.getDeclaredMethods()) {
+							if (m.getName().contains("lambda")) {
+								Parameter[] params = m.getParameters();
+								System.out.println(Arrays.asList(params));
+							}
+						\t
+						}
+					}
+				}
+				"""
 		},
 		"[java.lang.String arg0, java.lang.String arg1]", options);
 }
@@ -7110,68 +7643,72 @@ public void testBug540520() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
 			"Run.java",
-			"import java.util.ArrayList;\n" +
-			"import java.util.HashMap;\n" +
-			"import java.util.List;\n" +
-			"import java.util.Map;\n" +
-			"import java.util.stream.Collectors;\n" +
-			"\n" +
-			"public class Run {\n" +
-			"\n" +
-			"	public static void main(String[] args) {\n" +
-			"		\n" +
-			"		List<TypeDeptCount> list = new ArrayList<>();\n" +
-			"		for(int i=0;i<10;i++) {\n" +
-			"			TypeDeptCount ty = new TypeDeptCount();\n" +
-			"			ty.setCykbbm(\"10\"+i);\n" +
-			"			ty.setCount(i);\n" +
-			"		}\n" +
-			"        List<Map<String, Object>> datas = list.stream().collect(Collectors.groupingBy(TypeDeptCount::getType))\n" +
-			"                .entrySet().stream().map(item -> item.getValue().stream().reduce(new HashMap<String, Object>() {\n" +
-			"                    private static final long serialVersionUID = 1L;\n" +
-			"                    {\n" +
-			"                        put(\"count\", 0);\n" +
-			"                        put(\"type\", item.getKey());\n" +
-			"                    }\n" +
-			"                }, (data1, val) -> {\n" +
-			"                    data1.put(val.getCykbbm(), val.getCount());\n" +
-			"                    data1.put(\"count\", (Integer) data1.get(\"count\") + val.getCount());\n" +
-			"                    return data1;\n" +
-			"                }, (data1, data2) -> {\n" +
-			"                    data2.put(\"count\", (Integer) data1.get(\"count\") + (Integer) data2.get(\"count\"));\n" +
-			"                    data1.putAll(data2);\n" +
-			"                    return data1;\n" +
-			"                })).sorted((item1, item2) -> (Integer) item2.get(\"count\") - (Integer) item1.get(\"count\"))\n" +
-			"                .collect(Collectors.toList());\n" +
-			"        System.out.println(datas);\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				import java.util.ArrayList;
+				import java.util.HashMap;
+				import java.util.List;
+				import java.util.Map;
+				import java.util.stream.Collectors;
+				
+				public class Run {
+				
+					public static void main(String[] args) {
+					\t
+						List<TypeDeptCount> list = new ArrayList<>();
+						for(int i=0;i<10;i++) {
+							TypeDeptCount ty = new TypeDeptCount();
+							ty.setCykbbm("10"+i);
+							ty.setCount(i);
+						}
+				        List<Map<String, Object>> datas = list.stream().collect(Collectors.groupingBy(TypeDeptCount::getType))
+				                .entrySet().stream().map(item -> item.getValue().stream().reduce(new HashMap<String, Object>() {
+				                    private static final long serialVersionUID = 1L;
+				                    {
+				                        put("count", 0);
+				                        put("type", item.getKey());
+				                    }
+				                }, (data1, val) -> {
+				                    data1.put(val.getCykbbm(), val.getCount());
+				                    data1.put("count", (Integer) data1.get("count") + val.getCount());
+				                    return data1;
+				                }, (data1, data2) -> {
+				                    data2.put("count", (Integer) data1.get("count") + (Integer) data2.get("count"));
+				                    data1.putAll(data2);
+				                    return data1;
+				                })).sorted((item1, item2) -> (Integer) item2.get("count") - (Integer) item1.get("count"))
+				                .collect(Collectors.toList());
+				        System.out.println(datas);
+					}
+				}
+				""",
 			"TypeDeptCount.java",
-			"public class TypeDeptCount {\n" +
-			"\n" +
-			"    private String type;\n" +
-			"    private String cykbbm;\n" +
-			"    private Integer count;\n" +
-			"    \n" +
-			"	public String getType() {\n" +
-			"		return type;\n" +
-			"	}\n" +
-			"	public void setType(String type) {\n" +
-			"		this.type = type;\n" +
-			"	}\n" +
-			"	public String getCykbbm() {\n" +
-			"		return cykbbm;\n" +
-			"	}\n" +
-			"	public void setCykbbm(String cykbbm) {\n" +
-			"		this.cykbbm = cykbbm;\n" +
-			"	}\n" +
-			"	public Integer getCount() {\n" +
-			"		return count;\n" +
-			"	}\n" +
-			"	public void setCount(Integer count) {\n" +
-			"		this.count = count;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class TypeDeptCount {
+				
+				    private String type;
+				    private String cykbbm;
+				    private Integer count;
+				   \s
+					public String getType() {
+						return type;
+					}
+					public void setType(String type) {
+						this.type = type;
+					}
+					public String getCykbbm() {
+						return cykbbm;
+					}
+					public void setCykbbm(String cykbbm) {
+						this.cykbbm = cykbbm;
+					}
+					public Integer getCount() {
+						return count;
+					}
+					public void setCount(Integer count) {
+						this.count = count;
+					}
+				}
+				"""
 		};
 	runner.runConformTest();
 }
@@ -7179,28 +7716,30 @@ public void testBug540631() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
 			"EclipseCompileBug.java",
-			"public enum EclipseCompileBug {\n" +
-			"	/*\n" +
-			"	 * Next line fails with these errors in Eclipse, works with javac:\n" +
-			"	 * <li>Test cannot be resolved to a type\n" +
-			"	 * <li>Cannot reference a field before it is defined\n" +
-			"	 */\n" +
-			"	Test(Test::new);\n" +
-			"\n" +
-			"	@FunctionalInterface\n" +
-			"    public interface IConstructor<T extends Object> {\n" +
-			"        T apply();\n" +
-			"    }\n" +
-			"\n" +
-			"    private final IConstructor<?> constructor;\n" +
-			"	private EclipseCompileBug (IConstructor<?> newObj) {\n" +
-			"		constructor = newObj;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public static class Test {\n" +
-			"		\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public enum EclipseCompileBug {
+					/*
+					 * Next line fails with these errors in Eclipse, works with javac:
+					 * <li>Test cannot be resolved to a type
+					 * <li>Cannot reference a field before it is defined
+					 */
+					Test(Test::new);
+				
+					@FunctionalInterface
+				    public interface IConstructor<T extends Object> {
+				        T apply();
+				    }
+				
+				    private final IConstructor<?> constructor;
+					private EclipseCompileBug (IConstructor<?> newObj) {
+						constructor = newObj;
+					}
+				\t
+					public static class Test {
+					\t
+					}
+				}
+				"""
 		};
 	runner.runConformTest();
 }
@@ -7210,35 +7749,37 @@ public void testBug562324() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"\n" +
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"import java.util.Set;\n" +
-			"import java.util.function.Function;\n" +
-			"import java.util.stream.Collector;\n" +
-			"\n" +
-			"public class X  {\n" +
-			"\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			List<String> taskNames = Arrays.asList(\"First\", \"Second\", \"Third\");\n" +
-			"			\n" +
-			"			// To avoid the ClassFormatError at run-time, declare this variable with type 'Set<Y>'\n" +
-			"			var services = taskNames.stream().collect(X.toSet(name -> new Y(){}));\n" +
-			"\n" +
-			"			String[] names = services.stream().map(e -> e).toArray(String[] :: new);\n" +
-			"		} catch (RuntimeException re) {\n" +
-			"			System.out.print(re.getMessage());\n" +
-			"		}\n" +
-			"	}\n" +
-			"    public static <T, U>\n" +
-			"    Collector<T, ?, Set<U>> toSet(Function<? super T, ? extends U> valueMapper) {\n" +
-			"    	throw new RuntimeException(\"it runs\");\n" +
-			"    }\n" +
-			"\n" +
-			"}\n" +
-			"\n" +
-			"abstract class Y{}\n"
+			"""
+				
+				import java.util.Arrays;
+				import java.util.List;
+				import java.util.Set;
+				import java.util.function.Function;
+				import java.util.stream.Collector;
+				
+				public class X  {
+				
+					public static void main(String[] args) {
+						try {
+							List<String> taskNames = Arrays.asList("First", "Second", "Third");
+						\t
+							// To avoid the ClassFormatError at run-time, declare this variable with type 'Set<Y>'
+							var services = taskNames.stream().collect(X.toSet(name -> new Y(){}));
+				
+							String[] names = services.stream().map(e -> e).toArray(String[] :: new);
+						} catch (RuntimeException re) {
+							System.out.print(re.getMessage());
+						}
+					}
+				    public static <T, U>
+				    Collector<T, ?, Set<U>> toSet(Function<? super T, ? extends U> valueMapper) {
+				    	throw new RuntimeException("it runs");
+				    }
+				
+				}
+				
+				abstract class Y{}
+				"""
 		},
 		"it runs");
 }
@@ -7246,36 +7787,38 @@ public void testBug562324b() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"\n" +
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"import java.util.Set;\n" +
-			"import java.util.function.Function;\n" +
-			"import java.util.stream.Collector;\n" +
-			"\n" +
-			"public class X  {\n" +
-			"\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			List<String> taskNames = Arrays.asList(\"First\", \"Second\", \"Third\");\n" +
-			"			\n" +
-			"			// To avoid the ClassFormatError at run-time, declare this variable with type 'Set<Y>'\n" +
-			"			;\n" +
-			"\n" +
-			"			String[] names = taskNames.stream().collect(X.toSet(name -> new Y(){}))\n" +
-			"								.stream().map(e -> e).toArray(String[] :: new);\n" +
-			"		} catch (RuntimeException re) {\n" +
-			"			System.out.print(re.getMessage());\n" +
-			"		}\n" +
-			"	}\n" +
-			"    public static <T, U>\n" +
-			"    Collector<T, ?, Set<U>> toSet(Function<? super T, ? extends U> valueMapper) {\n" +
-			"    	throw new RuntimeException(\"it runs\");\n" +
-			"    }\n" +
-			"\n" +
-			"}\n" +
-			"\n" +
-			"abstract class Y{}\n"
+			"""
+				
+				import java.util.Arrays;
+				import java.util.List;
+				import java.util.Set;
+				import java.util.function.Function;
+				import java.util.stream.Collector;
+				
+				public class X  {
+				
+					public static void main(String[] args) {
+						try {
+							List<String> taskNames = Arrays.asList("First", "Second", "Third");
+						\t
+							// To avoid the ClassFormatError at run-time, declare this variable with type 'Set<Y>'
+							;
+				
+							String[] names = taskNames.stream().collect(X.toSet(name -> new Y(){}))
+												.stream().map(e -> e).toArray(String[] :: new);
+						} catch (RuntimeException re) {
+							System.out.print(re.getMessage());
+						}
+					}
+				    public static <T, U>
+				    Collector<T, ?, Set<U>> toSet(Function<? super T, ? extends U> valueMapper) {
+				    	throw new RuntimeException("it runs");
+				    }
+				
+				}
+				
+				abstract class Y{}
+				"""
 		},
 		"it runs");
 }
@@ -7283,35 +7826,36 @@ public void testBug576152() {
 	runConformTest(
 			new String[] {
 					"Example.java",
-					"\n"
-					+ "import java.util.function.Supplier;\n"
-					+ "\n"
-					+ "public class Example {\n"
-					+ "    Example() {\n"
-					+ "        inspect(this::singleMethod);\n"
-					+ "        inspect(this::overloadedMethod);\n"
-					+ "    }\n"
-					+ "    void inspect(Inspector... inspectors) { }\n"
-					+ "    void singleMethod(byte[] input, int offset, int len) { }\n"
-					+ "    void overloadedMethod() { }\n"
-					+ "    void overloadedMethod(byte[] input, int offset, int len) { }\n"
-					+ "\n"
-					+ "    public static void main(String[] args) {\n"
-					+ "    	String s1 = hoge1(String::new);\n"
-					+ "    	String s2 = hoge2(String::new);	// Error. See the attached file.\n"
-					+ "    }\n"
-					+ "    static <T> T hoge1(Supplier<T> sup) {\n"
-					+ "    	return null;\n"
-					+ "    }\n"
-					+ "    static <T> T hoge2(Supplier<T>... sup) {\n"
-					+ "    	return null;\n"
-					+ "    }\n"
-					+ "}\n"
-					+ "\n"
-					+ "@FunctionalInterface\n"
-					+ "interface Inspector {\n"
-					+ "    void update(byte[] input, int offset, int len);\n"
-					+ "}"
+					"""
+						
+						import java.util.function.Supplier;
+						
+						public class Example {
+						    Example() {
+						        inspect(this::singleMethod);
+						        inspect(this::overloadedMethod);
+						    }
+						    void inspect(Inspector... inspectors) { }
+						    void singleMethod(byte[] input, int offset, int len) { }
+						    void overloadedMethod() { }
+						    void overloadedMethod(byte[] input, int offset, int len) { }
+						
+						    public static void main(String[] args) {
+						    	String s1 = hoge1(String::new);
+						    	String s2 = hoge2(String::new);	// Error. See the attached file.
+						    }
+						    static <T> T hoge1(Supplier<T> sup) {
+						    	return null;
+						    }
+						    static <T> T hoge2(Supplier<T>... sup) {
+						    	return null;
+						    }
+						}
+						
+						@FunctionalInterface
+						interface Inspector {
+						    void update(byte[] input, int offset, int len);
+						}"""
 			}
 			);
 }
@@ -7319,25 +7863,27 @@ public void testBug529197_001() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    int var = 0;\n" +
-				"\n" +
-				"    public static void main(String[] args) {\n" +
-				"       X x = new X();\n" +
-				"       x.new Inner();\n" +
-				"    }\n" +
-				"\n" +
-				"    public class Inner {\n" +
-				"        public Inner(Runnable r) {\n" +
-				"        	System.out.println(\"SUCCESS\"); \n" +
-				"        }\n" +
-				"        public Inner() {\n" +
-				"            this(() -> {\n" +
-				"                var = 1;\n" +
-				"            });\n" +
-				"        }\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					public class X {
+					    int var = 0;
+					
+					    public static void main(String[] args) {
+					       X x = new X();
+					       x.new Inner();
+					    }
+					
+					    public class Inner {
+					        public Inner(Runnable r) {
+					        	System.out.println("SUCCESS");\s
+					        }
+					        public Inner() {
+					            this(() -> {
+					                var = 1;
+					            });
+					        }
+					    }
+					}
+					""",
 			},
 			"SUCCESS"
 			);
@@ -7346,25 +7892,27 @@ public void testBug529197_002() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    int var = 0;\n" +
-				"\n" +
-				"    public static void main(String[] args) {\n" +
-				"       X x = new X();\n" +
-				"       x.new Inner();\n" +
-				"    }\n" +
-				"\n" +
-				"    public class Inner {\n" +
-				"        public Inner(Runnable r) {\n" +
-				"        	System.out.println(\"SUCCESS\"); \n" +
-				"        }\n" +
-				"        public Inner() {\n" +
-				"            this(() -> {\n" +
-				"                var = 1;\n" +
-				"            });\n" +
-				"        }\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					public class X {
+					    int var = 0;
+					
+					    public static void main(String[] args) {
+					       X x = new X();
+					       x.new Inner();
+					    }
+					
+					    public class Inner {
+					        public Inner(Runnable r) {
+					        	System.out.println("SUCCESS");\s
+					        }
+					        public Inner() {
+					            this(() -> {
+					                var = 1;
+					            });
+					        }
+					    }
+					}
+					""",
 			},
 			"SUCCESS"
 			);
@@ -7373,28 +7921,30 @@ public void testBug529197_003() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"class Struct { String component; }\n" +
-				"public class X {\n" +
-				"    Struct struct = new Struct();\n" +
-				"\n" +
-				"    public static void main(String[] args) {\n" +
-				"       X x = new X();\n" +
-				"       x.new Inner();\n" +
-				"       System.out.println(x.struct.component);\n" +
-				"    }\n" +
-				"\n" +
-				"    public class Inner {\n" +
-				"        public Inner(Runnable r) {\n" +
-				"        	r.run();\n" +
-				"        	System.out.print(\"SUCCESS\"); \n" +
-				"        }\n" +
-				"        public Inner() {\n" +
-				"            this(() -> {\n" +
-				"                struct.component = \".run\";\n" +
-				"            });\n" +
-				"        }\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					class Struct { String component; }
+					public class X {
+					    Struct struct = new Struct();
+					
+					    public static void main(String[] args) {
+					       X x = new X();
+					       x.new Inner();
+					       System.out.println(x.struct.component);
+					    }
+					
+					    public class Inner {
+					        public Inner(Runnable r) {
+					        	r.run();
+					        	System.out.print("SUCCESS");\s
+					        }
+					        public Inner() {
+					            this(() -> {
+					                struct.component = ".run";
+					            });
+					        }
+					    }
+					}
+					""",
 			},
 			"SUCCESS.run"
 			);
@@ -7404,33 +7954,35 @@ public void testIssue756() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.reflect.GenericSignatureFormatError;\n" +
-				"import java.lang.reflect.Method;\n" +
-				"import java.util.function.Supplier;\n" +
-				"\n" +
-				"public class X<T> {\n" +
-				"    public X(T... elements) {\n" +
-				"    	System.out.println();\n" +
-				"    }\n" +
-				"\n" +
-				"    public static Supplier<? extends X<Object>> supplier() {\n" +
-				"        return X<Object>::new;\n" +
-				"    }\n" +
-				"\n" +
-				"    public static void main(String[] args) {\n" +
-				"		boolean OK = true;\n" +
-				"    	for (Method m : X.class.getDeclaredMethods()) {\n" +
-				"			try {\n" +
-				"				m.getGenericReturnType();\n" +
-				"			} catch (GenericSignatureFormatError e) {\n" +
-				"				System.out.println(\"Oops, bad signature in class file\");\n" +
-				"				OK = false;\n" +
-				"			}\n" +
-				"		}\n" +
-				"    	if (OK)\n" +
-				"    		System.out.println(\"All clear!\");\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.lang.reflect.GenericSignatureFormatError;
+					import java.lang.reflect.Method;
+					import java.util.function.Supplier;
+					
+					public class X<T> {
+					    public X(T... elements) {
+					    	System.out.println();
+					    }
+					
+					    public static Supplier<? extends X<Object>> supplier() {
+					        return X<Object>::new;
+					    }
+					
+					    public static void main(String[] args) {
+							boolean OK = true;
+					    	for (Method m : X.class.getDeclaredMethods()) {
+								try {
+									m.getGenericReturnType();
+								} catch (GenericSignatureFormatError e) {
+									System.out.println("Oops, bad signature in class file");
+									OK = false;
+								}
+							}
+					    	if (OK)
+					    		System.out.println("All clear!");
+						}
+					}
+					"""
 			},
 			"All clear!"
 			);
@@ -7441,46 +7993,48 @@ public void test577466() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import static java.util.function.Function.identity;\n" +
-				"import java.util.Map;\n" +
-				"import java.util.concurrent.ConcurrentHashMap;\n" +
-				"import java.util.stream.Collectors;\n" +
-				"import java.util.stream.Stream;\n" +
-				"\n" +
-				"public class X {\n" +
-				"\n" +
-				"    private static final Map<Class<?>, Map<String, I>> LOOKUP = new ConcurrentHashMap<>();\n" +
-				"\n" +
-				"    @SuppressWarnings(\"unchecked\")\n" +
-				"    static <E extends Enum<E> & I> E lookupLiteral(Class<E> enumType, String literal) {\n" +
-				"        return (E) LOOKUP.computeIfAbsent(enumType, t ->\n" +
-				"            Stream.of(enumType.getEnumConstants()).collect(Collectors.<E, String, I>toMap(E::getLiteral, identity()))\n" +
-				"        ).get(literal);\n" +
-				"    }\n" +
-				" \n" +
-				"    public static void main(String[] args) {\n" +
-				"        System.out.println(X.lookupLiteral(EN.class, \"a\"));\n" +
-				"    }\n" +
-				"\n" +
-				"    interface I {\n" +
-				"        String getLiteral();\n" +
-				"    }\n" +
-				"\n" +
-				"    enum EN implements I { \n" +
-				"        A(\"a\");\n" +
-				"\n" +
-				"        final String literal;\n" +
-				"\n" +
-				"        EN(String literal) {\n" +
-				"            this.literal = literal;\n" +
-				"        }\n" +
-				"\n" +
-				"        @Override\n" +
-				"        public String getLiteral() {\n" +
-				"            return literal;\n" +
-				"        }\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import static java.util.function.Function.identity;
+					import java.util.Map;
+					import java.util.concurrent.ConcurrentHashMap;
+					import java.util.stream.Collectors;
+					import java.util.stream.Stream;
+					
+					public class X {
+					
+					    private static final Map<Class<?>, Map<String, I>> LOOKUP = new ConcurrentHashMap<>();
+					
+					    @SuppressWarnings("unchecked")
+					    static <E extends Enum<E> & I> E lookupLiteral(Class<E> enumType, String literal) {
+					        return (E) LOOKUP.computeIfAbsent(enumType, t ->
+					            Stream.of(enumType.getEnumConstants()).collect(Collectors.<E, String, I>toMap(E::getLiteral, identity()))
+					        ).get(literal);
+					    }
+					\s
+					    public static void main(String[] args) {
+					        System.out.println(X.lookupLiteral(EN.class, "a"));
+					    }
+					
+					    interface I {
+					        String getLiteral();
+					    }
+					
+					    enum EN implements I {\s
+					        A("a");
+					
+					        final String literal;
+					
+					        EN(String literal) {
+					            this.literal = literal;
+					        }
+					
+					        @Override
+					        public String getLiteral() {
+					            return literal;
+					        }
+					    }
+					}
+					"""
 
 			},
 			"A"
@@ -7492,31 +8046,33 @@ public void test570511_comment2() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.function.Supplier;\n" +
-				"\n" +
-				"  public class X {\n" +
-				"\n" +
-				"    public static void main(String[] args) {\n" +
-				"        System.out.println(getValue(Size.S));\n" +
-				"    }\n" +
-				"\n" +
-				"    enum Size implements Supplier<String> {\n" +
-				"        S, M, L;\n" +
-				"\n" +
-				"        @Override\n" +
-				"        public String get() {\n" +
-				"            return \"Size: \" + toString();\n" +
-				"        }\n" +
-				"    }\n" +
-				"\n" +
-				"    public static <V extends Enum<?> & Supplier<String>> String getValue(V t) {\n" +
-				"        return valueOf(t::get);\n" +
-				"    }\n" +
-				"\n" +
-				"    public static String valueOf(Supplier<String> id) {\n" +
-				"        return id.get();\n" +
-				"    }\n" +
-				"  }\n"
+				"""
+					import java.util.function.Supplier;
+					
+					  public class X {
+					
+					    public static void main(String[] args) {
+					        System.out.println(getValue(Size.S));
+					    }
+					
+					    enum Size implements Supplier<String> {
+					        S, M, L;
+					
+					        @Override
+					        public String get() {
+					            return "Size: " + toString();
+					        }
+					    }
+					
+					    public static <V extends Enum<?> & Supplier<String>> String getValue(V t) {
+					        return valueOf(t::get);
+					    }
+					
+					    public static String valueOf(Supplier<String> id) {
+					        return id.get();
+					    }
+					  }
+					"""
 			},
 			"Size: S"
 			);
@@ -7526,22 +8082,24 @@ public void test483219_comment_0() {
 	this.runConformTest(
 			new String[] {
 				"Intersection.java",
-				"public class Intersection {\n" +
-				"  interface I {\n" +
-				"  }\n" +
-				"  interface J {\n" +
-				"    void foo();\n" +
-				"  }\n" +
-				"\n" +
-				"  static <T extends I & J> void bar(T t) {\n" +
-				"      Runnable r = t::foo;\n" +
-				"  } \n" +
-				"  \n" +
-				"  public static void main(String[] args) {\n" +
-				"    class A implements I, J { public void foo() {} }\n" +
-				"    bar(new A());\n" +
-				"  }\n" +
-				"}\n"
+				"""
+					public class Intersection {
+					  interface I {
+					  }
+					  interface J {
+					    void foo();
+					  }
+					
+					  static <T extends I & J> void bar(T t) {
+					      Runnable r = t::foo;
+					  }\s
+					 \s
+					  public static void main(String[] args) {
+					    class A implements I, J { public void foo() {} }
+					    bar(new A());
+					  }
+					}
+					"""
 
 			},
 			""
@@ -7552,62 +8110,64 @@ public void test483219_comment_1() {
 	this.runConformTest(
 			new String[] {
 				"Main.java",
-				"import java.util.Arrays;\n" +
-				"import java.util.Comparator;\n" +
-				"import java.util.List;\n" +
-				"\n" +
-				"import static java.util.stream.Collectors.toList;\n" +
-				"\n" +
-				"public class Main {\n" +
-				"\n" +
-				"\n" +
-				"    public static void main(String[] args) {\n" +
-				"        Main main = new Main();\n" +
-				"        main.toInfoListError(Arrays.asList(new Base()));\n" +
-				"    }\n" +
-				"\n" +
-				"    public <H extends B & A> List<Info> toInfoListError(List<H> list) {\n" +
-				"        Comparator<B> byNameComparator = (B b1, B b2) -> b1.getB().compareToIgnoreCase(b2.getB());\n" +
-				"        return list.stream().sorted(byNameComparator).map(Info::new).collect(toList());\n" +
-				"    }\n" +
-				"\n" +
-				"    public <H extends B & A> List<Info> toInfoListWorks(List<H> list) {\n" +
-				"        Comparator<B> byNameComparator = (B b1, B b2) -> b1.getB().compareToIgnoreCase(b2.getB());\n" +
-				"        return list.stream().sorted(byNameComparator).map(s -> new Info(s)).collect(toList());\n" +
-				"    }\n" +
-				"}\n" +
-				"\n" +
-				"interface B {\n" +
-				"    public String getB();\n" +
-				"}\n" +
-				"\n" +
-				"interface A {\n" +
-				"    public long getA();\n" +
-				"}\n" +
-				"\n" +
-				"class Info {\n" +
-				"\n" +
-				"    private final long a;\n" +
-				"    private final String b;\n" +
-				"\n" +
-				"    <H extends A & B> Info(H h) {\n" +
-				"        a = h.getA();\n" +
-				"        b = h.getB();\n" +
-				"    }\n" +
-				"}\n" +
-				"\n" +
-				"class Base implements A, B {\n" +
-				"\n" +
-				"    @Override\n" +
-				"    public long getA() {\n" +
-				"        return 7L;\n" +
-				"    }\n" +
-				"\n" +
-				"    @Override\n" +
-				"    public String getB() {\n" +
-				"        return \"hello\";\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.util.Arrays;
+					import java.util.Comparator;
+					import java.util.List;
+					
+					import static java.util.stream.Collectors.toList;
+					
+					public class Main {
+					
+					
+					    public static void main(String[] args) {
+					        Main main = new Main();
+					        main.toInfoListError(Arrays.asList(new Base()));
+					    }
+					
+					    public <H extends B & A> List<Info> toInfoListError(List<H> list) {
+					        Comparator<B> byNameComparator = (B b1, B b2) -> b1.getB().compareToIgnoreCase(b2.getB());
+					        return list.stream().sorted(byNameComparator).map(Info::new).collect(toList());
+					    }
+					
+					    public <H extends B & A> List<Info> toInfoListWorks(List<H> list) {
+					        Comparator<B> byNameComparator = (B b1, B b2) -> b1.getB().compareToIgnoreCase(b2.getB());
+					        return list.stream().sorted(byNameComparator).map(s -> new Info(s)).collect(toList());
+					    }
+					}
+					
+					interface B {
+					    public String getB();
+					}
+					
+					interface A {
+					    public long getA();
+					}
+					
+					class Info {
+					
+					    private final long a;
+					    private final String b;
+					
+					    <H extends A & B> Info(H h) {
+					        a = h.getA();
+					        b = h.getB();
+					    }
+					}
+					
+					class Base implements A, B {
+					
+					    @Override
+					    public long getA() {
+					        return 7L;
+					    }
+					
+					    @Override
+					    public String getB() {
+					        return "hello";
+					    }
+					}
+					"""
 			},
 			""
 			);
@@ -7618,39 +8178,41 @@ public void test483219_comment_2a() {
 	this.runConformTest(
 			new String[] {
 				"MethodHandleTest.java",
-				"import java.awt.Component;\n" +
-				"import java.util.Collection;\n" +
-				"import java.util.Collections;\n" +
-				"\n" +
-				"public class MethodHandleTest {\n" +
-				"    public static void main(String... args) {\n" +
-				"        new MethodHandleTest().run();\n" +
-				"    }\n" +
-				"\n" +
-				"    private void run() {\n" +
-				"        ComponentWithSomeMethod myComp = new ComponentWithSomeMethod();\n" +
-				"        new Caller<ComponentWithSomeMethod>().callSomeMethod(Collections.singletonList(myComp));\n" +
-				"    }\n" +
-				"\n" +
-				"    private interface HasSomeMethod {\n" +
-				"        void someMethod();\n" +
-				"    }\n" +
-				"\n" +
-				"    static class ComponentWithSomeMethod extends Component implements HasSomeMethod {\n" +
-				"        @Override\n" +
-				"        public void someMethod() {\n" +
-				"            System.out.println(\"Some method\");\n" +
-				"        }\n" +
-				"    }\n" +
-				"\n" +
-				"    class Caller<T extends Component & HasSomeMethod> {\n" +
-				"        public void callSomeMethod(Collection<T> components) {\n" +
-				"            components.forEach(HasSomeMethod::someMethod); //  <-- crashes\n" +
-				"//          components.forEach(comp -> comp.someMethod());     <-- works fine\n" +
-				"\n" +
-				"        }\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.awt.Component;
+					import java.util.Collection;
+					import java.util.Collections;
+					
+					public class MethodHandleTest {
+					    public static void main(String... args) {
+					        new MethodHandleTest().run();
+					    }
+					
+					    private void run() {
+					        ComponentWithSomeMethod myComp = new ComponentWithSomeMethod();
+					        new Caller<ComponentWithSomeMethod>().callSomeMethod(Collections.singletonList(myComp));
+					    }
+					
+					    private interface HasSomeMethod {
+					        void someMethod();
+					    }
+					
+					    static class ComponentWithSomeMethod extends Component implements HasSomeMethod {
+					        @Override
+					        public void someMethod() {
+					            System.out.println("Some method");
+					        }
+					    }
+					
+					    class Caller<T extends Component & HasSomeMethod> {
+					        public void callSomeMethod(Collection<T> components) {
+					            components.forEach(HasSomeMethod::someMethod); //  <-- crashes
+					//          components.forEach(comp -> comp.someMethod());     <-- works fine
+					
+					        }
+					    }
+					}
+					"""
 
 			},
 			"Some method"
@@ -7661,35 +8223,37 @@ public void test483219_comment_2b() {
 	this.runConformTest(
 			new String[] {
 				"Foo.java",
-				"import java.util.stream.Stream;\n" +
-				"public final class Foo\n" +
-				"{\n" +
-				"    private interface X\n" +
-				"    {\n" +
-				"        default void x()\n" +
-				"        {\n" +
-				"        }\n" +
-				"    }\n" +
-				"\n" +
-				"    private enum E1\n" +
-				"        implements X\n" +
-				"    {\n" +
-				"        INSTANCE,\n" +
-				"        ;\n" +
-				"    }\n" +
-				"\n" +
-				"    private enum E2\n" +
-				"        implements X\n" +
-				"    {\n" +
-				"        INSTANCE,\n" +
-				"        ;\n" +
-				"    }\n" +
-				"\n" +
-				"    public static void main(final String... args)\n" +
-				"    {\n" +
-				"        Stream.of(E1.INSTANCE, E2.INSTANCE).forEach(X::x);\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.util.stream.Stream;
+					public final class Foo
+					{
+					    private interface X
+					    {
+					        default void x()
+					        {
+					        }
+					    }
+					
+					    private enum E1
+					        implements X
+					    {
+					        INSTANCE,
+					        ;
+					    }
+					
+					    private enum E2
+					        implements X
+					    {
+					        INSTANCE,
+					        ;
+					    }
+					
+					    public static void main(final String... args)
+					    {
+					        Stream.of(E1.INSTANCE, E2.INSTANCE).forEach(X::x);
+					    }
+					}
+					"""
 			},
 			""
 			);
@@ -7699,26 +8263,28 @@ public void test483219_comment_3() {
 	this.runConformTest(
 			new String[] {
 				"SortedInterfacesTest.java",
-				"import java.util.function.Consumer;\n" +
-				"public class SortedInterfacesTest {\n" +
-				"   <T> void forAll(Consumer<T> consumer, T... values) { }\n" +
-				"\n" +
-				"   public void secondTest() {\n" +
-				"       forAll(Picture::draw, new MyPicture(), new Universal());\n" +
-				"   }\n" +
-				"\n" +
-				"   interface Shape { void draw(); }\n" +
-				"   interface Marker { }\n" +
-				"   interface Picture { void draw(); }\n" +
-				"\n" +
-				"   class MyShape implements Marker, Shape { public void draw() { } }\n" +
-				"   class MyPicture implements Marker, Picture { public void draw() { } }\n" +
-				"   class Universal implements Marker, Picture, Shape { public void draw() { } }\n" +
-				"\n" +
-				"   public static void main(String[] args) {\n" +
-				"       new SortedInterfacesTest().secondTest();\n" +
-				"   }\n" +
-				"}\n"
+				"""
+					import java.util.function.Consumer;
+					public class SortedInterfacesTest {
+					   <T> void forAll(Consumer<T> consumer, T... values) { }
+					
+					   public void secondTest() {
+					       forAll(Picture::draw, new MyPicture(), new Universal());
+					   }
+					
+					   interface Shape { void draw(); }
+					   interface Marker { }
+					   interface Picture { void draw(); }
+					
+					   class MyShape implements Marker, Shape { public void draw() { } }
+					   class MyPicture implements Marker, Picture { public void draw() { } }
+					   class Universal implements Marker, Picture, Shape { public void draw() { } }
+					
+					   public static void main(String[] args) {
+					       new SortedInterfacesTest().secondTest();
+					   }
+					}
+					"""
 			},
 			""
 			);
@@ -7730,31 +8296,33 @@ public void testGHIssue1048() {
 	this.runConformTest(
 			new String[] {
 				"Reproducer.java",
-				"import java.io.IOException;\n" +
-				"import java.io.Serializable;\n" +
-				"import java.lang.reflect.Method;\n" +
-				"import java.util.Optional;\n" +
-				"import java.util.stream.Stream;\n" +
-				"public class Reproducer {\n" +
-				"    public static void main(String[] args) {\n" +
-				"        try {\n" +
-				"            new Reproducer().testClassWithStreamAndOptional2();\n" +
-				"        } catch (IOException e) {\n" +
-				"            e.printStackTrace();\n" +
-				"        }\n" +
-				"    }\n" +
-				"    private void testClassWithStreamAndOptional2() throws IOException {\n" +
-				"        Class<?> c = this.getClass();\n" +
-				"        for (Method m : c.getDeclaredMethods()) {\n" +
-				"            if (m.isSynthetic())\n" +
-				"                System.out.println(m.getGenericReturnType());\n" +
-				"        }\n" +
-				"    }\n" +
-				"    private Stream<Serializable> doMyStuff() {\n" +
-				"        Stream<Serializable> s = Stream.empty(); \n" +
-				"        return Optional.ofNullable(s).orElseGet(Stream::of);\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					import java.io.IOException;
+					import java.io.Serializable;
+					import java.lang.reflect.Method;
+					import java.util.Optional;
+					import java.util.stream.Stream;
+					public class Reproducer {
+					    public static void main(String[] args) {
+					        try {
+					            new Reproducer().testClassWithStreamAndOptional2();
+					        } catch (IOException e) {
+					            e.printStackTrace();
+					        }
+					    }
+					    private void testClassWithStreamAndOptional2() throws IOException {
+					        Class<?> c = this.getClass();
+					        for (Method m : c.getDeclaredMethods()) {
+					            if (m.isSynthetic())
+					                System.out.println(m.getGenericReturnType());
+					        }
+					    }
+					    private Stream<Serializable> doMyStuff() {
+					        Stream<Serializable> s = Stream.empty();\s
+					        return Optional.ofNullable(s).orElseGet(Stream::of);
+					    }
+					}
+					"""
 			},
 			"interface java.util.stream.Stream"
 			);
@@ -7765,27 +8333,29 @@ public void testGHIssue1054() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.invoke.MethodHandle;\n" +
-				"interface FI {\n" +
-				"    Object invokeMethodReference(String s, char c1, char c2) throws Throwable;\n" +
-				"}\n" +
-				"public class X {\n" +
-				"    private static MethodHandle createMethodHandle() {\n" +
-				"    	return null;\n" +
-				"    }\n" +
-				"    public static void run() throws Throwable {\n" +
-				"        MethodHandle ms = createMethodHandle(); \n" +
-				"        FI fi = ms::invoke;\n" +
-				"        fi.invokeMethodReference(\"\", (char)0, (char)0);\n" +
-				"    }\n" +
-				"    public static void main(String [] args) throws Throwable {\n" +
-				"        try { \n" +
-				"            run();\n" +
-				"        } catch(NullPointerException npe) {\n" +
-				"            System.out.println(\"NPE as expected\");\n" +
-				"        }\n" +
-				"    }\n" +
-				"}\n"},
+				"""
+					import java.lang.invoke.MethodHandle;
+					interface FI {
+					    Object invokeMethodReference(String s, char c1, char c2) throws Throwable;
+					}
+					public class X {
+					    private static MethodHandle createMethodHandle() {
+					    	return null;
+					    }
+					    public static void run() throws Throwable {
+					        MethodHandle ms = createMethodHandle();\s
+					        FI fi = ms::invoke;
+					        fi.invokeMethodReference("", (char)0, (char)0);
+					    }
+					    public static void main(String [] args) throws Throwable {
+					        try {\s
+					            run();
+					        } catch(NullPointerException npe) {
+					            System.out.println("NPE as expected");
+					        }
+					    }
+					}
+					"""},
 			"NPE as expected"
 			);
 }
@@ -7796,27 +8366,29 @@ public void testGHIssue1054_2() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.invoke.MethodHandle;\n" +
-				"interface FI {\n" +
-				"    <T extends Object & Runnable> Object invokeMethodReference(Object o, T t2) throws Throwable;\n" +
-				"}\n" +
-				"public class X {\n" +
-				"    private static MethodHandle createMethodHandle() {\n" +
-				"    	return null;\n" +
-				"    }\n" +
-				"    public static void run() throws Throwable {\n" +
-				"        MethodHandle ms = createMethodHandle(); \n" +
-				"        FI fi = ms::invoke;\n" +
-				"        fi.invokeMethodReference(null, ()-> {}); \n" +
-				"    }\n" +
-				"    public static void main(String[] args) throws Throwable {\n" +
-				"    	try {\n" +
-				"    		run();\n" +
-				"    	} catch (NullPointerException npe) {\n" +
-				"    		System.out.println(\"NPE as expected\");\n" +
-				"    	}\n" +
-				"	}\n" +
-				"}\n"},
+				"""
+					import java.lang.invoke.MethodHandle;
+					interface FI {
+					    <T extends Object & Runnable> Object invokeMethodReference(Object o, T t2) throws Throwable;
+					}
+					public class X {
+					    private static MethodHandle createMethodHandle() {
+					    	return null;
+					    }
+					    public static void run() throws Throwable {
+					        MethodHandle ms = createMethodHandle();\s
+					        FI fi = ms::invoke;
+					        fi.invokeMethodReference(null, ()-> {});\s
+					    }
+					    public static void main(String[] args) throws Throwable {
+					    	try {
+					    		run();
+					    	} catch (NullPointerException npe) {
+					    		System.out.println("NPE as expected");
+					    	}
+						}
+					}
+					"""},
 			"NPE as expected"
 			);
 }
@@ -7827,36 +8399,38 @@ public void testGHIssue975() {
 	this.runConformTest(
 			new String[] {
 				"Test.java",
-				"import java.lang.reflect.*;\n" +
-				"\n" +
-				"public class Test {\n" +
-				"    static class Capturing<T> {\n" +
-				"        protected Capturing() {\n" +
-				"            ParameterizedType paramT = (ParameterizedType) getClass().getGenericSuperclass();\n" +
-				"            Type t = paramT.getActualTypeArguments()[0];\n" +
-				"\n" +
-				"            if (t instanceof TypeVariable) {\n" +
-				"                System.out.println(\"Found expected type\");\n" +
-				"            } else {\n" +
-				"                throw new AssertionError(\"Unexpected type: \" + t);\n" +
-				"            }\n" +
-				"        }\n" +
-				"    }\n" +
-				"\n" +
-				"    static void run(Runnable r) {\n" +
-				"        r.run();\n" +
-				"    }\n" +
-				"\n" +
-				"    public static <T> void main(String... args) {\n" +
-				"        class Local {\n" +
-				"            <M> void runTest() {\n" +
-				"                run(() -> new Capturing<M>() {});\n" +
-				"            }\n" +
-				"        }\n" +
-				"\n" +
-				"        new Local().runTest();\n" +
-				"    }\n" +
-				"}\n"},
+				"""
+					import java.lang.reflect.*;
+					
+					public class Test {
+					    static class Capturing<T> {
+					        protected Capturing() {
+					            ParameterizedType paramT = (ParameterizedType) getClass().getGenericSuperclass();
+					            Type t = paramT.getActualTypeArguments()[0];
+					
+					            if (t instanceof TypeVariable) {
+					                System.out.println("Found expected type");
+					            } else {
+					                throw new AssertionError("Unexpected type: " + t);
+					            }
+					        }
+					    }
+					
+					    static void run(Runnable r) {
+					        r.run();
+					    }
+					
+					    public static <T> void main(String... args) {
+					        class Local {
+					            <M> void runTest() {
+					                run(() -> new Capturing<M>() {});
+					            }
+					        }
+					
+					        new Local().runTest();
+					    }
+					}
+					"""},
 			"Found expected type"
 			);
 }
@@ -7866,18 +8440,20 @@ public void testGHIssue625() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.io.Serializable;\n" +
-				"import java.util.Optional;\n" +
-				"\n" +
-				"public class X {\n" +
-				"	 public static void main(String[] argv) {\n" +
-				"	        System.out.println(dummy(\"foo\"));\n" +
-				"	    }\n" +
-				"	\n" +
-				"	    static <T extends Serializable & CharSequence> int dummy(T value) {\n" +
-				"	        return Optional.ofNullable(value).map(CharSequence::length).orElse(0);\n" +
-				"	    }\n" +
-				"}\n"},
+				"""
+					import java.io.Serializable;
+					import java.util.Optional;
+					
+					public class X {
+						 public static void main(String[] argv) {
+						        System.out.println(dummy("foo"));
+						    }
+					\t
+						    static <T extends Serializable & CharSequence> int dummy(T value) {
+						        return Optional.ofNullable(value).map(CharSequence::length).orElse(0);
+						    }
+					}
+					"""},
 			"3"
 			);
 }
@@ -7888,32 +8464,34 @@ public void testBug551882() {
 	this.runConformTest(
 			new String[] {
 				"Foo.java",
-				"class X {\n" +
-				"}\n" +
-				"\n" +
-				"interface Y {\n" +
-				"	void foo();\n" +
-				"}\n" +
-				"\n" +
-				"class Z extends X implements Y {\n" +
-				"\n" +
-				"	@Override\n" +
-				"	public void foo() {\n" +
-				"	}\n" +
-				"	\n" +
-				"}\n" +
-				"public class Foo {\n" +
-				"\n" +
-				"	<T extends X & Y> void run(T t) {\n" +
-				"		Runnable r = t::foo;\n" +
-				"		r.run();\n" +
-				"	}\n" +
-				"	\n" +
-				"	public static void main(String[] args) {\n" +
-				"		new Foo().run(new Z() {});\n" +
-				"	}\n" +
-				"\n" +
-				"}\n"},
+				"""
+					class X {
+					}
+					
+					interface Y {
+						void foo();
+					}
+					
+					class Z extends X implements Y {
+					
+						@Override
+						public void foo() {
+						}
+					\t
+					}
+					public class Foo {
+					
+						<T extends X & Y> void run(T t) {
+							Runnable r = t::foo;
+							r.run();
+						}
+					\t
+						public static void main(String[] args) {
+							new Foo().run(new Z() {});
+						}
+					
+					}
+					"""},
 			""
 			);
 }
@@ -7924,29 +8502,31 @@ public void testBug511958() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.function.Consumer;\n" +
-				"@SuppressWarnings(\"all\")\n" +
-				"public class X {\n" +
-				"  private final String text = \"Bug?\";\n" +
-				"  public static void main(String[] args) {\n" +
-				"    new X().doIt();\n" +
-				"  }\n" +
-				"  \n" +
-				"  private void doIt() {\n" +
-				"    new Sub();\n" +
-				"  }\n" +
-				"  private class Super<T> {\n" +
-				"	  public Super(String s) {}\n" +
-				"    public Super(Consumer<T> consumer) {\n" +
-				"    }\n" +
-				"  }\n" +
-				"  private class Sub extends Super<String> {\n" +
-				"    public Sub() {\n" +
-				"      super(s -> System.out.println(text));  \n" +
-				"    }\n" +
-				"    \n" +
-				"  }\n" +
-				"}\n"},
+				"""
+					import java.util.function.Consumer;
+					@SuppressWarnings("all")
+					public class X {
+					  private final String text = "Bug?";
+					  public static void main(String[] args) {
+					    new X().doIt();
+					  }
+					 \s
+					  private void doIt() {
+					    new Sub();
+					  }
+					  private class Super<T> {
+						  public Super(String s) {}
+					    public Super(Consumer<T> consumer) {
+					    }
+					  }
+					  private class Sub extends Super<String> {
+					    public Sub() {
+					      super(s -> System.out.println(text)); \s
+					    }
+					   \s
+					  }
+					}
+					"""},
 			""
 			);
 }
@@ -7957,17 +8537,19 @@ public void testGH1060() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(new X().foo());\n" +
-				"	}\n" +
-				"	\n" +
-				"	String foo() {\n" +
-				"		return java.time.format.DateTimeFormatter\n" +
-				"				.ofPattern(\"yyyyMMddHHmmss.SSS000\")\n" +
-				"				.format(java.time.format.DateTimeFormatter.ofPattern(\"dd.MM.yyyy HHmmss\").parse(\"30.03.2021 112430\", java.time.LocalDateTime::from));\n" +
-				"	}\n" +
-				"}\n"},
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(new X().foo());
+						}
+					\t
+						String foo() {
+							return java.time.format.DateTimeFormatter
+									.ofPattern("yyyyMMddHHmmss.SSS000")
+									.format(java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy HHmmss").parse("30.03.2021 112430", java.time.LocalDateTime::from));
+						}
+					}
+					"""},
 			"20210330112430.000000"
 			);
 }
@@ -7978,19 +8560,21 @@ public void testBug546161() {
 	this.runConformTest(
 			new String[] {
 				"Main.java",
-				"public class Main {\n" +
-				"    public static void main(String[] args) {\n" +
-				"    	((Widget<?>) new Widget<>()).addListener(evt -> {});\n" +
-				"    }\n" +
-				"}\n" +
-				"\n" +
-				"class Widget<E extends CharSequence> {\n" +
-				"    void addListener(Listener<? super E> listener) {}\n" +
-				"}\n" +
-				"\n" +
-				"interface Listener<E extends CharSequence> {\n" +
-				"    void m(E event);\n" +
-				"}\n"},
+				"""
+					public class Main {
+					    public static void main(String[] args) {
+					    	((Widget<?>) new Widget<>()).addListener(evt -> {});
+					    }
+					}
+					
+					class Widget<E extends CharSequence> {
+					    void addListener(Listener<? super E> listener) {}
+					}
+					
+					interface Listener<E extends CharSequence> {
+					    void m(E event);
+					}
+					"""},
 			""
 			);
 }
@@ -8000,65 +8584,67 @@ public void testBug547231() {
 	this.runConformTest(
 			new String[] {
 				"Problematic.java",
-				"import java.io.IOException;\n" +
-				"import java.nio.file.Path;\n" +
-				"import java.util.Collections;\n" +
-				"import java.util.Set;\n" +
-				"import java.util.function.Consumer;\n" +
-				"import java.util.logging.Level;\n" +
-				"import java.util.logging.Logger;\n" +
-				"\n" +
-				"public class Problematic {\n" +
-				"\n" +
-				"        Logger LOGGER = Logger.getLogger(Problematic.class.getName());\n" +
-				"\n" +
-				"        @FunctionalInterface\n" +
-				"        private interface ThrowingConsumer<T, E extends Throwable> {\n" +
-				"                void accept(T t) throws E;\n" +
-				"        }\n" +
-				"\n" +
-				"        private class FileAsset {\n" +
-				"                public FileAsset move(String path) throws IOException {\n" +
-				"                        System.out.println(path);\n" +
-				"                        return null;\n" +
-				"                }\n" +
-				"\n" +
-				"                public Path getPath() {\n" +
-				"                        return null;\n" +
-				"                }\n" +
-				"        }\n" +
-				"\n" +
-				"        static <T, E extends Exception> void process(Consumer<Consumer<T>> code, ThrowingConsumer<T, E> throwingConsumer)\n" +
-				"                        throws E {\n" +
-				"                code.accept(t -> {\n" +
-				"                        try {\n" +
-				"                                throwingConsumer.accept(t);\n" +
-				"                        } catch (Exception e) {\n" +
-				"                                e.printStackTrace();\n" +
-				"                        }\n" +
-				"                });\n" +
-				"        }\n" +
-				"\n" +
-				"        public void execute(String path) throws IOException {\n" +
-				"                Set<FileAsset> set = Collections.singleton(new FileAsset());\n" +
-				"                process(set::forEach, (a) -> {\n" +
-				"                        process(set::forEach, (b) -> {\n" +
-				"                                process(set::forEach, (c) -> {\n" +
-				"                                        c.move(path);\n" +
-				"\n" +
-				"                                        // produces error: Unhandled exception type IOException\n" +
-				"                                        LOGGER.log(Level.FINE, () -> \"Moved \" + c.getPath() + \" to \" + a);\n" +
-				"\n" +
-				"                                        // no error\n" +
-				"                                         LOGGER.log(Level.FINE, \"Moved \" + c.getPath() + \" to \" + a);\n" +
-				"                                });\n" +
-				"                        });\n" +
-				"                });\n" +
-				"        }\n" +
-				"        public static void main(String [] args) {\n" +
-				"            System.out.println(\"OK\");\n" +
-				"        }\n" +
-				"}\n"},
+				"""
+					import java.io.IOException;
+					import java.nio.file.Path;
+					import java.util.Collections;
+					import java.util.Set;
+					import java.util.function.Consumer;
+					import java.util.logging.Level;
+					import java.util.logging.Logger;
+					
+					public class Problematic {
+					
+					        Logger LOGGER = Logger.getLogger(Problematic.class.getName());
+					
+					        @FunctionalInterface
+					        private interface ThrowingConsumer<T, E extends Throwable> {
+					                void accept(T t) throws E;
+					        }
+					
+					        private class FileAsset {
+					                public FileAsset move(String path) throws IOException {
+					                        System.out.println(path);
+					                        return null;
+					                }
+					
+					                public Path getPath() {
+					                        return null;
+					                }
+					        }
+					
+					        static <T, E extends Exception> void process(Consumer<Consumer<T>> code, ThrowingConsumer<T, E> throwingConsumer)
+					                        throws E {
+					                code.accept(t -> {
+					                        try {
+					                                throwingConsumer.accept(t);
+					                        } catch (Exception e) {
+					                                e.printStackTrace();
+					                        }
+					                });
+					        }
+					
+					        public void execute(String path) throws IOException {
+					                Set<FileAsset> set = Collections.singleton(new FileAsset());
+					                process(set::forEach, (a) -> {
+					                        process(set::forEach, (b) -> {
+					                                process(set::forEach, (c) -> {
+					                                        c.move(path);
+					
+					                                        // produces error: Unhandled exception type IOException
+					                                        LOGGER.log(Level.FINE, () -> "Moved " + c.getPath() + " to " + a);
+					
+					                                        // no error
+					                                         LOGGER.log(Level.FINE, "Moved " + c.getPath() + " to " + a);
+					                                });
+					                        });
+					                });
+					        }
+					        public static void main(String [] args) {
+					            System.out.println("OK");
+					        }
+					}
+					"""},
 			"OK"
 			);
 }
@@ -8069,17 +8655,19 @@ public void testBug546161_2() {
 	this.runConformTest(
 			new String[] {
 				"Main.java",
-				"public class Main {\n" +
-				"    public static void main(String[] args) {\n" +
-				"    	new Widget<>().addListener(evt -> {});\n" +
-				"    }\n" +
-				"}\n" +
-				"class Widget<E extends CharSequence> {\n" +
-				"    void addListener(Listener<? super E> listener) {}\n" +
-				"}\n" +
-				"interface Listener<E extends CharSequence> {\n" +
-				"    void m(E event);\n" +
-				"}\n"},
+				"""
+					public class Main {
+					    public static void main(String[] args) {
+					    	new Widget<>().addListener(evt -> {});
+					    }
+					}
+					class Widget<E extends CharSequence> {
+					    void addListener(Listener<? super E> listener) {}
+					}
+					interface Listener<E extends CharSequence> {
+					    void m(E event);
+					}
+					"""},
 			""
 			);
 }
@@ -8090,68 +8678,71 @@ public void testBug574269() {
 	this.runConformTest(
 			new String[] {
 				"Test.java",
-				"import java.util.List;\n" +
-				"\n" +
-				"public class Test {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(\"Testing with explicit type\");\n" +
-				"		MyGroup group = new MyGroup();\n" +
-				"\n" +
-				"		System.out.println(\"  Testing lambda\");\n" +
-				"		if (group.getPersons().stream().anyMatch(p -> p.isFoo())) {}\n" +
-				"		System.out.println(\"  Lambda is good\");\n" +
-				"		\n" +
-				"		System.out.println(\"  Testing method reference\");\n" +
-				"		if (group.getPersons().stream().anyMatch(Test.Person::isFoo)) {}\n" +
-				"		System.out.println(\"  Method reference is good\");\n" +
-				"\n" +
-				"		System.out.println(\"Testing with wildcard\");\n" +
-				"		Group<?> group2 = new MyGroup();\n" +
-				"\n" +
-				"		System.out.println(\"  Testing lambda\");\n" +
-				"		if (group2.getPersons().stream().anyMatch(p -> p.isFoo())) {}\n" +
-				"		System.out.println(\"  Lambda is good\");\n" +
-				"		\n" +
-				"		System.out.println(\"  Testing method reference\");\n" +
-				"		if (group2.getPersons().stream().anyMatch(Test.Person::isFoo)) {}\n" +
-				"		System.out.println(\"  Method reference is good\");\n" +
-				"	}\n" +
-				"\n" +
-				"	interface Group<T extends Person> {\n" +
-				"		List<T> getPersons();\n" +
-				"	}\n" +
-				"\n" +
-				"	interface Person {\n" +
-				"		boolean isFoo();\n" +
-				"	}\n" +
-				"\n" +
-				"	static class MyGroup implements Group<MyPerson> {\n" +
-				"\n" +
-				"		@Override\n" +
-				"		public List<MyPerson> getPersons() {\n" +
-				"			return List.of();\n" +
-				"		}\n" +
-				"	}\n" +
-				"\n" +
-				"	static class MyPerson implements Person {\n" +
-				"\n" +
-				"		@Override\n" +
-				"		public boolean isFoo() {\n" +
-				"			return true;\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"},
-			"Testing with explicit type\n" +
-			"  Testing lambda\n" +
-			"  Lambda is good\n" +
-			"  Testing method reference\n" +
-			"  Method reference is good\n" +
-			"Testing with wildcard\n" +
-			"  Testing lambda\n" +
-			"  Lambda is good\n" +
-			"  Testing method reference\n" +
-			"  Method reference is good"
+				"""
+					import java.util.List;
+					
+					public class Test {
+					
+						public static void main(String[] args) {
+							System.out.println("Testing with explicit type");
+							MyGroup group = new MyGroup();
+					
+							System.out.println("  Testing lambda");
+							if (group.getPersons().stream().anyMatch(p -> p.isFoo())) {}
+							System.out.println("  Lambda is good");
+						\t
+							System.out.println("  Testing method reference");
+							if (group.getPersons().stream().anyMatch(Test.Person::isFoo)) {}
+							System.out.println("  Method reference is good");
+					
+							System.out.println("Testing with wildcard");
+							Group<?> group2 = new MyGroup();
+					
+							System.out.println("  Testing lambda");
+							if (group2.getPersons().stream().anyMatch(p -> p.isFoo())) {}
+							System.out.println("  Lambda is good");
+						\t
+							System.out.println("  Testing method reference");
+							if (group2.getPersons().stream().anyMatch(Test.Person::isFoo)) {}
+							System.out.println("  Method reference is good");
+						}
+					
+						interface Group<T extends Person> {
+							List<T> getPersons();
+						}
+					
+						interface Person {
+							boolean isFoo();
+						}
+					
+						static class MyGroup implements Group<MyPerson> {
+					
+							@Override
+							public List<MyPerson> getPersons() {
+								return List.of();
+							}
+						}
+					
+						static class MyPerson implements Person {
+					
+							@Override
+							public boolean isFoo() {
+								return true;
+							}
+						}
+					}
+					"""},
+			"""
+				Testing with explicit type
+				  Testing lambda
+				  Lambda is good
+				  Testing method reference
+				  Method reference is good
+				Testing with wildcard
+				  Testing lambda
+				  Lambda is good
+				  Testing method reference
+				  Method reference is good"""
 			);
 }
 
@@ -8161,42 +8752,44 @@ public void testBug574269_2() {
 	this.runConformTest(
 			new String[] {
 				"TestX.java",
-				"import java.util.List;\n" +
-				"\n" +
-				"public class TestX {\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Group<MyPerson> group1 = new MyGroup();\n" +
-				"		group1.getPersons().stream().anyMatch(TestX.Person::isFoo);\n" +
-				"		System.out.println(\"Method reference is good\");\n" +
-				"		\n" +
-				"		Group<?> group2 = new MyGroup();\n" +
-				"		group2.getPersons().stream().anyMatch(TestX.Person::isFoo);\n" +
-				"		System.out.println(\"Method reference is not bad\");\n" +
-				"	}\n" +
-				"\n" +
-				"	interface Group<T extends Person> {\n" +
-				"		List<T> getPersons();\n" +
-				"	}\n" +
-				"\n" +
-				"	interface Person {\n" +
-				"		boolean isFoo();\n" +
-				"	}\n" +
-				"\n" +
-				"	static class MyGroup implements Group<MyPerson> {\n" +
-				"		@Override\n" +
-				"		public List<MyPerson> getPersons() {\n" +
-				"			return List.of();\n" +
-				"		}\n" +
-				"	}\n" +
-				"\n" +
-				"	static class MyPerson implements Person {\n" +
-				"		@Override\n" +
-				"		public boolean isFoo() {\n" +
-				"			return true;\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"},
+				"""
+					import java.util.List;
+					
+					public class TestX {
+					
+						public static void main(String[] args) {
+							Group<MyPerson> group1 = new MyGroup();
+							group1.getPersons().stream().anyMatch(TestX.Person::isFoo);
+							System.out.println("Method reference is good");
+						\t
+							Group<?> group2 = new MyGroup();
+							group2.getPersons().stream().anyMatch(TestX.Person::isFoo);
+							System.out.println("Method reference is not bad");
+						}
+					
+						interface Group<T extends Person> {
+							List<T> getPersons();
+						}
+					
+						interface Person {
+							boolean isFoo();
+						}
+					
+						static class MyGroup implements Group<MyPerson> {
+							@Override
+							public List<MyPerson> getPersons() {
+								return List.of();
+							}
+						}
+					
+						static class MyPerson implements Person {
+							@Override
+							public boolean isFoo() {
+								return true;
+							}
+						}
+					}
+					"""},
 			"Method reference is good\n" +
 			"Method reference is not bad"
 			);
@@ -8208,35 +8801,37 @@ public void testBug570511() {
 	this.runConformTest(
 			new String[] {
 				"T.java",
-				"// ---------------------------------------------------------------\n" +
-				"import java.util.function.Consumer;\n" +
-				"\n" +
-				"public class T {\n" +
-				"    public static void main(String[] args) {\n" +
-				"        new T().test(new X());\n" +
-				"    }\n" +
-				"\n" +
-				"    void test(I<?> i) {\n" +
-				"        i.m(\"a\", \"b\", this::m);\n" +
-				"    }\n" +
-				"\n" +
-				"    void m(I<?> i) {\n" +
-				"        System.out.println(\"T.m\");\n" +
-				"    }\n" +
-				"}\n" +
-				"\n" +
-				"interface I<C extends I<C>> {\n" +
-				"    C m(Object key, Object value, Consumer<? super C> consumer);\n" +
-				"}\n" +
-				"\n" +
-				"class X implements I<X> {\n" +
-				"    @Override\n" +
-				"    public X m(Object key, Object value, Consumer<? super X> consumer) {\n" +
-				"        consumer.accept(this);\n" +
-				"        System.out.println(\"X.m\");\n" +
-				"        return null;\n" +
-				"    }\n" +
-				"}\n"},
+				"""
+					// ---------------------------------------------------------------
+					import java.util.function.Consumer;
+					
+					public class T {
+					    public static void main(String[] args) {
+					        new T().test(new X());
+					    }
+					
+					    void test(I<?> i) {
+					        i.m("a", "b", this::m);
+					    }
+					
+					    void m(I<?> i) {
+					        System.out.println("T.m");
+					    }
+					}
+					
+					interface I<C extends I<C>> {
+					    C m(Object key, Object value, Consumer<? super C> consumer);
+					}
+					
+					class X implements I<X> {
+					    @Override
+					    public X m(Object key, Object value, Consumer<? super X> consumer) {
+					        consumer.accept(this);
+					        System.out.println("X.m");
+					        return null;
+					    }
+					}
+					"""},
 			"T.m\n" +
 			"X.m"
 			);
@@ -8248,34 +8843,36 @@ public void testBug577719() {
 	this.runConformTest(
 			new String[] {
 				"WeirdCleanupAndCallSiteInitializationException.java",
-				"import java.util.stream.Stream;\n" +
-				"\n" +
-				"public class WeirdCleanupAndCallSiteInitializationException {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		B b = () -> new A() {\n" +
-				"		};\n" +
-				"		A a = get();\n" +
-				"		System.out.println(\"done\");\n" +
-				"	}\n" +
-				"\n" +
-				"	public static A get(B<?>... sources) {\n" +
-				"		return Stream.of(sources) //\n" +
-				"				.map(B::getT) //\n" +
-				"				.filter(A::exists_testOpen) //\n" +
-				"				.findFirst() //\n" +
-				"				.orElse(null);\n" +
-				"	}\n" +
-				"\n" +
-				"	public interface B<T extends A> extends A {\n" +
-				"		T getT();\n" +
-				"	}\n" +
-				"\n" +
-				"	public interface A {\n" +
-				"		default boolean exists_testOpen() {\n" +
-				"			return true;\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"},
+				"""
+					import java.util.stream.Stream;
+					
+					public class WeirdCleanupAndCallSiteInitializationException {
+						public static void main(String[] args) {
+							B b = () -> new A() {
+							};
+							A a = get();
+							System.out.println("done");
+						}
+					
+						public static A get(B<?>... sources) {
+							return Stream.of(sources) //
+									.map(B::getT) //
+									.filter(A::exists_testOpen) //
+									.findFirst() //
+									.orElse(null);
+						}
+					
+						public interface B<T extends A> extends A {
+							T getT();
+						}
+					
+						public interface A {
+							default boolean exists_testOpen() {
+								return true;
+							}
+						}
+					}
+					"""},
 			"done"
 			);
 }
@@ -8286,34 +8883,36 @@ public void testBug577719_2() {
 	this.runConformTest(
 			new String[] {
 				"WeirdCleanupAndCallSiteInitializationException.java",
-				"import java.util.stream.Stream;\n" +
-				"\n" +
-				"public class WeirdCleanupAndCallSiteInitializationException {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		B b = () -> new A() {\n" +
-				"		};\n" +
-				"		A a = get();\n" +
-				"		System.out.println(\"done\");\n" +
-				"	}\n" +
-				"\n" +
-				"	public static A get(B<?>... sources) {\n" +
-				"		return Stream.of(sources) //\n" +
-				"				.map(B::getT) //\n" +
-				"				.filter(x -> x.exists_testOpen()) //\n" +
-				"				.findFirst() //\n" +
-				"				.orElse(null);\n" +
-				"	}\n" +
-				"\n" +
-				"	public interface B<T extends A> extends A {\n" +
-				"		T getT();\n" +
-				"	}\n" +
-				"\n" +
-				"	public interface A {\n" +
-				"		default boolean exists_testOpen() {\n" +
-				"			return true;\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"},
+				"""
+					import java.util.stream.Stream;
+					
+					public class WeirdCleanupAndCallSiteInitializationException {
+						public static void main(String[] args) {
+							B b = () -> new A() {
+							};
+							A a = get();
+							System.out.println("done");
+						}
+					
+						public static A get(B<?>... sources) {
+							return Stream.of(sources) //
+									.map(B::getT) //
+									.filter(x -> x.exists_testOpen()) //
+									.findFirst() //
+									.orElse(null);
+						}
+					
+						public interface B<T extends A> extends A {
+							T getT();
+						}
+					
+						public interface A {
+							default boolean exists_testOpen() {
+								return true;
+							}
+						}
+					}
+					"""},
 			"done"
 			);
 }
@@ -8324,64 +8923,68 @@ public void testGH1162() {
 	this.runNegativeTest(
 			new String[] {
 				"X11.java",
-				"import java.io.IOException;\n" +
-				"import java.nio.file.Path;\n" +
-				"import java.util.function.Consumer;\n" +
-				"import java.util.stream.Stream;\n" +
-				"\n" +
-				"public class X11 {\n" +
-				"\n" +
-				"	public X11 parse() throws IOException {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"	\n" +
-				"	Stream<Path> list() throws IOException {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"\n" +
-				"	public void foo() throws IOException {\n" +
-				"\n" +
-				"		throwingConsumer((Path barDir) -> {\n" +
-				"			try (final Stream<Path> files = list()) {\n" +
-				"				throwingConsumer((Path file) -> {\n" +
-				"					final X11 document;// = parse();\n" +
-				"					document = parse();\n" +
-				"				});\n" +
-				"			}\n" +
-				"		});\n" +
-				"	}\n" +
-				"	public void goo() throws IOException {\n" +
-				"\n" +
-				"		throwingConsumer((Path barDir) -> {\n" +
-				"			try (final Stream<Path> files = list()) {\n" +
-				"				throwingConsumer((Path file) -> {\n" +
-				"					final X11 document = parse();\n" +
-				"				});\n" +
-				"			}\n" +
-				"		});\n" +
-				"	}\n" +
-				"\n" +
-				"	public static <T, X extends Throwable> ThrowingConsumer<T, X> throwingConsumer(\n" +
-				"			final ThrowingConsumer<T, X> consumer) {\n" +
-				"		return consumer;\n" +
-				"	}\n" +
-				"}\n" +
-				"\n" +
-				"\n" +
-				"interface ThrowingConsumer<T, X extends Throwable> extends Consumer<T> {\n" +
-				"\n" +
-				"	void tryAccept(T t) throws X;\n" +
-				"\n" +
-				"	default void accept(final T t) {\n" +
-				"		tryAccept(t);\n" +
-				"	}\n" +
-				"}\n"},
-			"----------\n" +
-			"1. ERROR in X11.java (at line 50)\n" +
-			"	tryAccept(t);\n" +
-			"	^^^^^^^^^^^^\n" +
-			"Unhandled exception type X\n" +
-			"----------\n");
+				"""
+					import java.io.IOException;
+					import java.nio.file.Path;
+					import java.util.function.Consumer;
+					import java.util.stream.Stream;
+					
+					public class X11 {
+					
+						public X11 parse() throws IOException {
+							return null;
+						}
+					\t
+						Stream<Path> list() throws IOException {
+							return null;
+						}
+					
+						public void foo() throws IOException {
+					
+							throwingConsumer((Path barDir) -> {
+								try (final Stream<Path> files = list()) {
+									throwingConsumer((Path file) -> {
+										final X11 document;// = parse();
+										document = parse();
+									});
+								}
+							});
+						}
+						public void goo() throws IOException {
+					
+							throwingConsumer((Path barDir) -> {
+								try (final Stream<Path> files = list()) {
+									throwingConsumer((Path file) -> {
+										final X11 document = parse();
+									});
+								}
+							});
+						}
+					
+						public static <T, X extends Throwable> ThrowingConsumer<T, X> throwingConsumer(
+								final ThrowingConsumer<T, X> consumer) {
+							return consumer;
+						}
+					}
+					
+					
+					interface ThrowingConsumer<T, X extends Throwable> extends Consumer<T> {
+					
+						void tryAccept(T t) throws X;
+					
+						default void accept(final T t) {
+							tryAccept(t);
+						}
+					}
+					"""},
+			"""
+				----------
+				1. ERROR in X11.java (at line 50)
+					tryAccept(t);
+					^^^^^^^^^^^^
+				Unhandled exception type X
+				----------
+				""");
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1162
 // Eclipse incorrectly requires catch for nested sneaky throws; OpenJDK compiles with no problem
@@ -8389,53 +8992,57 @@ public void testGH1162_2() {
 	this.runNegativeTest(
 			new String[] {
 				"X11.java",
-				"import java.io.IOException;\n" +
-				"import java.nio.file.Path;\n" +
-				"import java.util.function.Consumer;\n" +
-				"import java.util.stream.Stream;\n" +
-				"\n" +
-				"public class X11 {\n" +
-				"\n" +
-				"	public X11 parse() throws IOException {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"	\n" +
-				"	Stream<Path> list() throws IOException {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"\n" +
-				"	public void foo() throws IOException {\n" +
-				"\n" +
-				"		throwingConsumer(() -> {\n" +
-				"			try (final Stream<Path> files = list()) {\n" +
-				"				throwingConsumer(() -> {\n" +
-				"					final X11 document;// = parse();\n" +
-				"					document = parse();\n" +
-				"				});\n" +
-				"			}\n" +
-				"		});\n" +
-				"	}\n" +
-				"	public static <T, X extends Throwable> ThrowingConsumer<T, X> throwingConsumer(\n" +
-				"			final ThrowingConsumer<T, X> consumer) {\n" +
-				"		return consumer;\n" +
-				"	}\n" +
-				"}\n" +
-				"\n" +
-				"\n" +
-				"interface ThrowingConsumer<T, X extends Throwable> extends Consumer<T> {\n" +
-				"\n" +
-				"	void tryAccept() throws X;\n" +
-				"\n" +
-				"	default void accept(final T t) {\n" +
-				"		tryAccept();\n" +
-				"	}\n" +
-				"}\n"},
-			"----------\n" +
-			"1. ERROR in X11.java (at line 39)\n" +
-			"	tryAccept();\n" +
-			"	^^^^^^^^^^^\n" +
-			"Unhandled exception type X\n" +
-			"----------\n");
+				"""
+					import java.io.IOException;
+					import java.nio.file.Path;
+					import java.util.function.Consumer;
+					import java.util.stream.Stream;
+					
+					public class X11 {
+					
+						public X11 parse() throws IOException {
+							return null;
+						}
+					\t
+						Stream<Path> list() throws IOException {
+							return null;
+						}
+					
+						public void foo() throws IOException {
+					
+							throwingConsumer(() -> {
+								try (final Stream<Path> files = list()) {
+									throwingConsumer(() -> {
+										final X11 document;// = parse();
+										document = parse();
+									});
+								}
+							});
+						}
+						public static <T, X extends Throwable> ThrowingConsumer<T, X> throwingConsumer(
+								final ThrowingConsumer<T, X> consumer) {
+							return consumer;
+						}
+					}
+					
+					
+					interface ThrowingConsumer<T, X extends Throwable> extends Consumer<T> {
+					
+						void tryAccept() throws X;
+					
+						default void accept(final T t) {
+							tryAccept();
+						}
+					}
+					"""},
+			"""
+				----------
+				1. ERROR in X11.java (at line 39)
+					tryAccept();
+					^^^^^^^^^^^
+				Unhandled exception type X
+				----------
+				""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=576252
 // Open declaration / Javadoc popup is confused by overloaded method with method reference
@@ -8443,19 +9050,21 @@ public void testBug576252() {
 	this.runConformTest(
 			new String[] {
 				"LambdaTest.java",
-				"public class LambdaTest {\n" +
-				"	public static void method(String value) {\n" +
-				"		System.out.print(\"para\");\n" +
-				"	}\n" +
-				"\n" +
-				"	public static void method(java.util.function.Supplier<String> supplier) {\n" +
-				"		System.out.print(supplier.get());\n" +
-				"	}\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"		LambdaTest.method(LambdaTest.class::toString);\n" +
-				"	}\n" +
-				"}\n"},
+				"""
+					public class LambdaTest {
+						public static void method(String value) {
+							System.out.print("para");
+						}
+					
+						public static void method(java.util.function.Supplier<String> supplier) {
+							System.out.print(supplier.get());
+						}
+					
+						public static void main(String[] args) {
+							LambdaTest.method(LambdaTest.class::toString);
+						}
+					}
+					"""},
 			"class LambdaTest");
 }
 

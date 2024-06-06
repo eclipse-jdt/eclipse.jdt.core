@@ -47,10 +47,12 @@ public class ArrayTest extends AbstractRegressionTest {
 public void test001() {
 	this.runConformTest(new String[] {
 		"p/X.java",
-		"package p;\n" +
-		"public class X {\n" +
-		"  int[] x= new int[] {,};\n" +
-		"}\n",
+		"""
+			package p;
+			public class X {
+			  int[] x= new int[] {,};
+			}
+			""",
 	});
 }
 
@@ -61,12 +63,13 @@ public void test002() {
 	this.runConformTest(
 		new String[] {
 			"A.java",
-			"public class A {\n" +
-			"    public static void main(String[] args) {\n" +
-			"        float[] tab = new float[] {-0.0f};\n" +
-			"        System.out.print(tab[0]);\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class A {
+				    public static void main(String[] args) {
+				        float[] tab = new float[] {-0.0f};
+				        System.out.print(tab[0]);
+				    }
+				}""",
 		},
 		"-0.0");
 }
@@ -77,12 +80,13 @@ public void test003() {
 	this.runConformTest(
 		new String[] {
 			"A.java",
-			"public class A {\n" +
-			"    public static void main(String[] args) {\n" +
-			"        float[] tab = new float[] {0.0f};\n" +
-			"        System.out.print(tab[0]);\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class A {
+				    public static void main(String[] args) {
+				        float[] tab = new float[] {0.0f};
+				        System.out.print(tab[0]);
+				    }
+				}""",
 		},
 		"0.0");
 }
@@ -93,12 +97,13 @@ public void test004() {
 	this.runConformTest(
 		new String[] {
 			"A.java",
-			"public class A {\n" +
-			"    public static void main(String[] args) {\n" +
-			"        int[] tab = new int[] {-0};\n" +
-			"        System.out.print(tab[0]);\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class A {
+				    public static void main(String[] args) {
+				        int[] tab = new int[] {-0};
+				        System.out.print(tab[0]);
+				    }
+				}""",
 		},
 		"0");
 }
@@ -109,12 +114,14 @@ public void test005() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	 private static final Object X[] = new Object[]{null,null};\n" +
-			"    public static void main(String[] args) {\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X {
+					 private static final Object X[] = new Object[]{null,null};
+				    public static void main(String[] args) {
+						System.out.println("SUCCESS");
+				    }
+				}
+				""",
 		},
 		"SUCCESS");
 
@@ -127,13 +134,15 @@ public void test005() throws Exception {
 			ClassFileBytesDisassembler.DETAILED);
 
 	String expectedOutput =
-		"  static {};\n" +
-		"    0  iconst_2\n" +
-		"    1  anewarray java.lang.Object [3]\n" +
-		"    4  putstatic X.X : java.lang.Object[] [9]\n" +
-		"    7  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 2]\n";
+		"""
+		  static {};
+		    0  iconst_2
+		    1  anewarray java.lang.Object [3]
+		    4  putstatic X.X : java.lang.Object[] [9]
+		    7  return
+		      Line numbers:
+		        [pc: 0, line: 2]
+		""";
 
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
@@ -150,18 +159,21 @@ public void test006() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		char[][][] array = new char[][][10];\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					void foo() {
+						char[][][] array = new char[][][10];
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	char[][][] array = new char[][][10];\n" +
-		"	                                ^^\n" +
-		"Cannot specify an array dimension after an empty dimension\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				char[][][] array = new char[][][10];
+				                                ^^
+			Cannot specify an array dimension after an empty dimension
+			----------
+			""");
 }
 /**
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=85203
@@ -170,18 +182,20 @@ public void test007() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	static long lfield;\n" +
-			"	\n" +
-			"	public static void main(String[] args) {\n" +
-			"		lfield = args.length;\n" +
-			"		lfield = args(args).length;\n" +
-			"		\n" +
-			"	}\n" +
-			"	static String[] args(String[] args) {\n" +
-			"		return args;\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					static long lfield;
+				\t
+					public static void main(String[] args) {
+						lfield = args.length;
+						lfield = args(args).length;
+					\t
+					}
+					static String[] args(String[] args) {
+						return args;
+					}
+				}
+				""",
 		},
 		"");
 }
@@ -192,15 +206,17 @@ public void test008() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public String getTexts(int i) [] {\n" +
-			"		String[] texts = new String[1];\n" +
-			"		return texts; \n" +
-			"	}\n" +
-			"    public static void main(String[] args) {\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X {
+					public String getTexts(int i) [] {
+						String[] texts = new String[1];
+						return texts;\s
+					}
+				    public static void main(String[] args) {
+						System.out.println("SUCCESS");
+				    }
+				}
+				""",
 		},
 		"SUCCESS");
 }
@@ -210,40 +226,48 @@ public void test009() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		X x = { 10, zork() };\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					void foo() {
+						X x = { 10, zork() };
+					}
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	X x = { 10, zork() };\n" +
-		"	      ^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from int[] to X\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	X x = { 10, zork() };\n" +
-		"	            ^^^^\n" +
-		"The method zork() is undefined for the type X\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				X x = { 10, zork() };
+				      ^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from int[] to X
+			----------
+			2. ERROR in X.java (at line 3)
+				X x = { 10, zork() };
+				            ^^^^
+			The method zork() is undefined for the type X
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=124101
 public void test010() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	\n" +
-			"	int i = {};\n" +
-			"}\n",
+			"""
+				public class X {
+				\t
+					int i = {};
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	int i = {};\n" +
-		"	        ^^\n" +
-		"Type mismatch: cannot convert from Object[] to int\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				int i = {};
+				        ^^
+			Type mismatch: cannot convert from Object[] to int
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148807 - variation
 public void test011() throws Exception {
@@ -254,48 +278,51 @@ public void test011() throws Exception {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		try {\n" +
-				"			Object[][] all = new String[1][];\n" +
-				"			all[0] = new Object[0];\n" +
-				"		} catch (ArrayStoreException e) {\n" +
-				"			System.out.println(\"SUCCESS\");\n" +
-				"		}\n" +
-				"	}\n" +
-				"}", // =================
+				"""
+					public class X {
+						public static void main(String[] args) {
+							try {
+								Object[][] all = new String[1][];
+								all[0] = new Object[0];
+							} catch (ArrayStoreException e) {
+								System.out.println("SUCCESS");
+							}
+						}
+					}""", // =================
 			},
 			"SUCCESS");
 		String expectedOutput =
-			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
-			"  // Stack: 3, Locals: 2\n" +
-			"  public static void main(java.lang.String[] args);\n" +
-			"     0  iconst_1\n" +
-			"     1  anewarray java.lang.String[] [16]\n" +
-			"     4  astore_1 [all]\n" +
-			"     5  aload_1 [all]\n" +
-			"     6  iconst_0\n" +
-			"     7  iconst_0\n" +
-			"     8  anewarray java.lang.Object [3]\n" +
-			"    11  aastore\n" +
-			"    12  goto 24\n" +
-			"    15  astore_1 [e]\n" +
-			"    16  getstatic java.lang.System.out : java.io.PrintStream [18]\n" +
-			"    19  ldc <String \"SUCCESS\"> [24]\n" +
-			"    21  invokevirtual java.io.PrintStream.println(java.lang.String) : void [26]\n" +
-			"    24  return\n" +
-			"      Exception Table:\n" +
-			"        [pc: 0, pc: 12] -> 15 when : java.lang.ArrayStoreException\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 4]\n" +
-			"        [pc: 5, line: 5]\n" +
-			"        [pc: 12, line: 6]\n" +
-			"        [pc: 16, line: 7]\n" +
-			"        [pc: 24, line: 9]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 25] local: args index: 0 type: java.lang.String[]\n" +
-			"        [pc: 5, pc: 12] local: all index: 1 type: java.lang.Object[][]\n" +
-			"        [pc: 16, pc: 24] local: e index: 1 type: java.lang.ArrayStoreException\n";
+			"""
+			  // Method descriptor #15 ([Ljava/lang/String;)V
+			  // Stack: 3, Locals: 2
+			  public static void main(java.lang.String[] args);
+			     0  iconst_1
+			     1  anewarray java.lang.String[] [16]
+			     4  astore_1 [all]
+			     5  aload_1 [all]
+			     6  iconst_0
+			     7  iconst_0
+			     8  anewarray java.lang.Object [3]
+			    11  aastore
+			    12  goto 24
+			    15  astore_1 [e]
+			    16  getstatic java.lang.System.out : java.io.PrintStream [18]
+			    19  ldc <String "SUCCESS"> [24]
+			    21  invokevirtual java.io.PrintStream.println(java.lang.String) : void [26]
+			    24  return
+			      Exception Table:
+			        [pc: 0, pc: 12] -> 15 when : java.lang.ArrayStoreException
+			      Line numbers:
+			        [pc: 0, line: 4]
+			        [pc: 5, line: 5]
+			        [pc: 12, line: 6]
+			        [pc: 16, line: 7]
+			        [pc: 24, line: 9]
+			      Local variable table:
+			        [pc: 0, pc: 25] local: args index: 0 type: java.lang.String[]
+			        [pc: 5, pc: 12] local: all index: 1 type: java.lang.Object[][]
+			        [pc: 16, pc: 24] local: e index: 1 type: java.lang.ArrayStoreException
+			""";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -318,38 +345,41 @@ public void test012() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.Map;\n" +
-			"\n" +
-			"public class X {\n" +
-			"	Map fValueMap;\n" +
-			"\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" +
-			"	public Object[][] getAllChoices() {\n" +
-			"		Object[][] all = new String[this.fValueMap.size()][];\n" +
-			"		return all;\n" +
-			"	}\n" +
-			"}", // =================,
+			"""
+				import java.util.Map;
+				
+				public class X {
+					Map fValueMap;
+				
+					public static void main(String[] args) {
+						System.out.println("SUCCESS");
+					}
+					public Object[][] getAllChoices() {
+						Object[][] all = new String[this.fValueMap.size()][];
+						return all;
+					}
+				}""", // =================,
 		},
 		"SUCCESS");
 	String expectedOutput =
-	"  // Method descriptor #35 ()[[Ljava/lang/Object;\n" +
-	"  // Stack: 1, Locals: 2\n" +
-	"  public java.lang.Object[][] getAllChoices();\n" +
-	"     0  aload_0 [this]\n" +
-	"     1  getfield X.fValueMap : java.util.Map [36]\n" +
-	"     4  invokeinterface java.util.Map.size() : int [38] [nargs: 1]\n" +
-	"     9  anewarray java.lang.String[] [44]\n" +
-	"    12  astore_1 [all]\n" +
-	"    13  aload_1 [all]\n" +
-	"    14  areturn\n" +
-	"      Line numbers:\n" +
-	"        [pc: 0, line: 10]\n" +
-	"        [pc: 13, line: 11]\n" +
-	"      Local variable table:\n" +
-	"        [pc: 0, pc: 15] local: this index: 0 type: X\n" +
-	"        [pc: 13, pc: 15] local: all index: 1 type: java.lang.Object[][]\n";
+	"""
+		  // Method descriptor #35 ()[[Ljava/lang/Object;
+		  // Stack: 1, Locals: 2
+		  public java.lang.Object[][] getAllChoices();
+		     0  aload_0 [this]
+		     1  getfield X.fValueMap : java.util.Map [36]
+		     4  invokeinterface java.util.Map.size() : int [38] [nargs: 1]
+		     9  anewarray java.lang.String[] [44]
+		    12  astore_1 [all]
+		    13  aload_1 [all]
+		    14  areturn
+		      Line numbers:
+		        [pc: 0, line: 10]
+		        [pc: 13, line: 11]
+		      Local variable table:
+		        [pc: 0, pc: 15] local: this index: 0 type: X
+		        [pc: 13, pc: 15] local: all index: 1 type: java.lang.Object[][]
+		""";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -369,39 +399,42 @@ public void test013() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    String[] m(String arg) {\n" +
-			"        System.out.println(argument + argument);\n" +
-			"        return new String[] { argument + argument, argument/*no problem*/ };\n" +
-			"    }\n" +
-			"}", // =================
+			"""
+				public class X {
+				    String[] m(String arg) {
+				        System.out.println(argument + argument);
+				        return new String[] { argument + argument, argument/*no problem*/ };
+				    }
+				}""", // =================
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	System.out.println(argument + argument);\n" +
-		"	                   ^^^^^^^^\n" +
-		"argument cannot be resolved to a variable\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	System.out.println(argument + argument);\n" +
-		"	                              ^^^^^^^^\n" +
-		"argument cannot be resolved to a variable\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
-		"	return new String[] { argument + argument, argument/*no problem*/ };\n" +
-		"	                      ^^^^^^^^\n" +
-		"argument cannot be resolved to a variable\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 4)\n" +
-		"	return new String[] { argument + argument, argument/*no problem*/ };\n" +
-		"	                                 ^^^^^^^^\n" +
-		"argument cannot be resolved to a variable\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 4)\n" +
-		"	return new String[] { argument + argument, argument/*no problem*/ };\n" +
-		"	                                           ^^^^^^^^\n" +
-		"argument cannot be resolved to a variable\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				System.out.println(argument + argument);
+				                   ^^^^^^^^
+			argument cannot be resolved to a variable
+			----------
+			2. ERROR in X.java (at line 3)
+				System.out.println(argument + argument);
+				                              ^^^^^^^^
+			argument cannot be resolved to a variable
+			----------
+			3. ERROR in X.java (at line 4)
+				return new String[] { argument + argument, argument/*no problem*/ };
+				                      ^^^^^^^^
+			argument cannot be resolved to a variable
+			----------
+			4. ERROR in X.java (at line 4)
+				return new String[] { argument + argument, argument/*no problem*/ };
+				                                 ^^^^^^^^
+			argument cannot be resolved to a variable
+			----------
+			5. ERROR in X.java (at line 4)
+				return new String[] { argument + argument, argument/*no problem*/ };
+				                                           ^^^^^^^^
+			argument cannot be resolved to a variable
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247307
 // Check return type of array#clone()
@@ -415,18 +448,22 @@ public void test014() throws Exception {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	void foo(long[] longs) throws Exception {\n" +
-				"		long[] other = longs.clone();\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						void foo(long[] longs) throws Exception {
+							long[] other = longs.clone();
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	long[] other = longs.clone();\n" +
-			"	               ^^^^^^^^^^^^^\n" +
-			"Type mismatch: cannot convert from Object to long[]\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					long[] other = longs.clone();
+					               ^^^^^^^^^^^^^
+				Type mismatch: cannot convert from Object to long[]
+				----------
+				""",
 			null,
 			true,
 			optionsMap);
@@ -440,11 +477,13 @@ public void test015() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo(long[] longs) throws Exception {\n" +
-			"		long[] other = longs.clone();\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					void foo(long[] longs) throws Exception {
+						long[] other = longs.clone();
+					}
+				}
+				""",
 		},
 		"");
 }
@@ -454,11 +493,13 @@ public void test016() throws Exception {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	void foo(long[] longs) throws Exception {\n" +
-				"		Object other = longs.clone();\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						void foo(long[] longs) throws Exception {
+							Object other = longs.clone();
+						}
+					}
+					""",
 			},
 			"");
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
@@ -470,26 +511,30 @@ public void test016() throws Exception {
 			ClassFileBytesDisassembler.DETAILED);
 
 	String expectedOutput =	new CompilerOptions(getCompilerOptions()).sourceLevel <= ClassFileConstants.JDK1_4
-		?	"  // Method descriptor #15 ([J)V\n" +
-			"  // Stack: 1, Locals: 3\n" +
-			"  void foo(long[] longs) throws java.lang.Exception;\n" +
-			"    0  aload_1 [longs]\n" +
-			"    1  invokevirtual java.lang.Object.clone() : java.lang.Object [19]\n" +
-			"    4  astore_2 [other]\n" +
-			"    5  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 3]\n" +
-			"        [pc: 5, line: 4]\n"
-		:	"  // Method descriptor #15 ([J)V\n" +
-			"  // Stack: 1, Locals: 3\n" +
-			"  void foo(long[] longs) throws java.lang.Exception;\n" +
-			"    0  aload_1 [longs]\n" +
-			"    1  invokevirtual long[].clone() : java.lang.Object [19]\n" +
-			"    4  astore_2 [other]\n" +
-			"    5  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 3]\n" +
-			"        [pc: 5, line: 4]\n";
+		?	"""
+			  // Method descriptor #15 ([J)V
+			  // Stack: 1, Locals: 3
+			  void foo(long[] longs) throws java.lang.Exception;
+			    0  aload_1 [longs]
+			    1  invokevirtual java.lang.Object.clone() : java.lang.Object [19]
+			    4  astore_2 [other]
+			    5  return
+			      Line numbers:
+			        [pc: 0, line: 3]
+			        [pc: 5, line: 4]
+			"""
+		:	"""
+			  // Method descriptor #15 ([J)V
+			  // Stack: 1, Locals: 3
+			  void foo(long[] longs) throws java.lang.Exception;
+			    0  aload_1 [longs]
+			    1  invokevirtual long[].clone() : java.lang.Object [19]
+			    4  astore_2 [other]
+			    5  return
+			      Line numbers:
+			        [pc: 0, line: 3]
+			        [pc: 5, line: 4]
+			""";
 
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
@@ -513,11 +558,13 @@ public void test017() throws Exception {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	void foo(long[] longs) throws Exception {\n" +
-				"		Object other = longs.clone();\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						void foo(long[] longs) throws Exception {
+							Object other = longs.clone();
+						}
+					}
+					""",
 			},
 			"",
 			null,
@@ -534,16 +581,18 @@ public void test017() throws Exception {
 			ClassFileBytesDisassembler.DETAILED);
 
 	String expectedOutput =
-		"  // Method descriptor #15 ([J)V\n" +
-		"  // Stack: 1, Locals: 3\n" +
-		"  void foo(long[] longs) throws java.lang.Exception;\n" +
-		"    0  aload_1 [longs]\n" +
-		"    1  invokevirtual java.lang.Object.clone() : java.lang.Object [19]\n" +
-		"    4  astore_2 [other]\n" +
-		"    5  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 3]\n" +
-		"        [pc: 5, line: 4]\n";
+		"""
+		  // Method descriptor #15 ([J)V
+		  // Stack: 1, Locals: 3
+		  void foo(long[] longs) throws java.lang.Exception;
+		    0  aload_1 [longs]
+		    1  invokevirtual java.lang.Object.clone() : java.lang.Object [19]
+		    4  astore_2 [other]
+		    5  return
+		      Line numbers:
+		        [pc: 0, line: 3]
+		        [pc: 5, line: 4]
+		""";
 
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
@@ -561,25 +610,29 @@ public void test018() throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<p> {\n" +
-			"	void foo(p.O[] elems)  {\n" +
-			"	}\n" +
-			"   void bar() {\n" +
-			"        foo(new Object[0]);\n" +
-			"   }\n" +
-			"}\n",
+			"""
+				public class X<p> {
+					void foo(p.O[] elems)  {
+					}
+				   void bar() {
+				        foo(new Object[0]);
+				   }
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	void foo(p.O[] elems)  {\n" +
-		"	         ^^^^^\n" +
-		"Illegal qualified access from the type parameter p\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	foo(new Object[0]);\n" +
-		"	^^^\n" +
-		"The method foo(Object[]) is undefined for the type X<p>\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				void foo(p.O[] elems)  {
+				         ^^^^^
+			Illegal qualified access from the type parameter p
+			----------
+			2. ERROR in X.java (at line 5)
+				foo(new Object[0]);
+				^^^
+			The method foo(Object[]) is undefined for the type X<p>
+			----------
+			""");
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=409247 - [1.8][compiler] Verify error with code allocating multidimensional array
@@ -587,12 +640,14 @@ public void test019() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X [][][] x = new X[10][10][];\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						X [][][] x = new X[10][10][];
+						System.out.println("SUCCESS");
+					}
+				}
+				""",
 		},
 		"SUCCESS");
 }

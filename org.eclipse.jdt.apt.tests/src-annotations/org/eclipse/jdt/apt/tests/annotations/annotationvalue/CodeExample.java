@@ -17,14 +17,16 @@ public class CodeExample {
 	public static final String PACKAGE_TRIGGER = "trigger";
 	public static final String TRIGGER_CLASS = "Trigger";
 	public static final String TRIGGER_CODE =
-		"package trigger; \n" +
-		"\n" +
-		"@MyTrigger \n" +
-		"public class Trigger {}";
+		"""
+		package trigger;\s
+		
+		@MyTrigger\s
+		public class Trigger {}""";
 
 	public static final String MYTRIGGER_CLASS = "MyTrigger";
 	public static final String MYTRIGGER_CODE =
-		"package trigger; \n" +
-		"\n" +
-		"public @interface MyTrigger {}";
+		"""
+		package trigger;\s
+		
+		public @interface MyTrigger {}""";
 }

@@ -173,33 +173,39 @@ public void runComplianceParserTest(
 public void test0001() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"import static aaa.BBB.*;\n" +
-		"public class X {\n" +
-		"}\n"
+		"""
+			import static aaa.BBB.*;
+			public class X {
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	import static aaa.BBB.*;\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, static imports are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	import static aaa.BBB.*;\n" +
-		"	              ^^^\n" +
-		"The import aaa cannot be resolved\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			import static aaa.BBB.*;
+			^^^^^^^^^^^^^^^^^^^^^^^^
+		Syntax error, static imports are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 1)
+			import static aaa.BBB.*;
+			              ^^^
+		The import aaa cannot be resolved
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	import static aaa.BBB.*;\n" +
-		"	              ^^^\n" +
-		"The import aaa cannot be resolved\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			import static aaa.BBB.*;
+			              ^^^
+		The import aaa cannot be resolved
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -211,33 +217,39 @@ public void test0001() {
 public void test0002() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"import static aaa.BBB.CCC;\n" +
-		"public class X {\n" +
-		"}\n"
+		"""
+			import static aaa.BBB.CCC;
+			public class X {
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	import static aaa.BBB.CCC;\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, static imports are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	import static aaa.BBB.CCC;\n" +
-		"	              ^^^\n" +
-		"The import aaa cannot be resolved\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			import static aaa.BBB.CCC;
+			^^^^^^^^^^^^^^^^^^^^^^^^^^
+		Syntax error, static imports are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 1)
+			import static aaa.BBB.CCC;
+			              ^^^
+		The import aaa cannot be resolved
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	import static aaa.BBB.CCC;\n" +
-		"	              ^^^\n" +
-		"The import aaa cannot be resolved\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			import static aaa.BBB.CCC;
+			              ^^^
+		The import aaa cannot be resolved
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -280,36 +292,42 @@ public void test0003() {
 public void test0004() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	void foo(){\n" +
-		"		for(String o: c) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class X {
+				void foo(){
+					for(String o: c) {
+					}
+				}
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	for(String o: c) {\n" +
-		"	    ^^^^^^^^^^^\n" +
-		"Syntax error, \'for each\' statements are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	for(String o: c) {\n" +
-		"	              ^\n" +
-		"c cannot be resolved to a variable\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 3)
+			for(String o: c) {
+			    ^^^^^^^^^^^
+		Syntax error, 'for each' statements are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 3)
+			for(String o: c) {
+			              ^
+		c cannot be resolved to a variable
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	for(String o: c) {\n" +
-		"	              ^\n" +
-		"c cannot be resolved to a variable\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 3)
+			for(String o: c) {
+			              ^
+		c cannot be resolved to a variable
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -321,34 +339,40 @@ public void test0004() {
 public void test0005() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	void foo(Z ... arg){\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class X {
+				void foo(Z ... arg){
+				}
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	void foo(Z ... arg){\n" +
-		"	         ^^^^^^^^^\n" +
-		"Syntax error, varargs are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	void foo(Z ... arg){\n" +
-		"	         ^\n" +
-		"Z cannot be resolved to a type\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			void foo(Z ... arg){
+			         ^^^^^^^^^
+		Syntax error, varargs are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 2)
+			void foo(Z ... arg){
+			         ^
+		Z cannot be resolved to a type
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	void foo(Z ... arg){\n" +
-		"	         ^\n" +
-		"Z cannot be resolved to a type\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			void foo(Z ... arg){
+			         ^
+		Z cannot be resolved to a type
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -365,32 +389,36 @@ public void test0006() {
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extends String, T2> extends Y {\n" +
-		"	                ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extends String, T2> extends Y {\n" +
-		"	                                               ^\n" +
-		"Y cannot be resolved to a type\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X <T1 extends String, T2> extends Y {
+			                ^^^^^^^^^^^^^^^^^^^^^
+		Syntax error, type parameters are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 1)
+			public class X <T1 extends String, T2> extends Y {
+			                                               ^
+		Y cannot be resolved to a type
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. WARNING in X.java (at line 1)\n" +
-		"	public class X <T1 extends String, T2> extends Y {\n" +
-		"	                           ^^^^^^\n" +
-		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extends String, T2> extends Y {\n" +
-		"	                                               ^\n" +
-		"Y cannot be resolved to a type\n" +
-		"----------\n";
+		"""
+		----------
+		1. WARNING in X.java (at line 1)
+			public class X <T1 extends String, T2> extends Y {
+			                           ^^^^^^
+		The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended
+		----------
+		2. ERROR in X.java (at line 1)
+			public class X <T1 extends String, T2> extends Y {
+			                                               ^
+		Y cannot be resolved to a type
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -407,32 +435,36 @@ public void test0007() {
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public interface X <T1 extends String, T2> extends Y {\n" +
-		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	public interface X <T1 extends String, T2> extends Y {\n" +
-		"	                                                   ^\n" +
-		"Y cannot be resolved to a type\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public interface X <T1 extends String, T2> extends Y {
+			                    ^^^^^^^^^^^^^^^^^^^^^
+		Syntax error, type parameters are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 1)
+			public interface X <T1 extends String, T2> extends Y {
+			                                                   ^
+		Y cannot be resolved to a type
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. WARNING in X.java (at line 1)\n" +
-		"	public interface X <T1 extends String, T2> extends Y {\n" +
-		"	                               ^^^^^^\n" +
-		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	public interface X <T1 extends String, T2> extends Y {\n" +
-		"	                                                   ^\n" +
-		"Y cannot be resolved to a type\n" +
-		"----------\n";
+		"""
+		----------
+		1. WARNING in X.java (at line 1)
+			public interface X <T1 extends String, T2> extends Y {
+			                               ^^^^^^
+		The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended
+		----------
+		2. ERROR in X.java (at line 1)
+			public interface X <T1 extends String, T2> extends Y {
+			                                                   ^
+		Y cannot be resolved to a type
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -444,34 +476,40 @@ public void test0007() {
 public void test0008() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	public <T1 extends String, T2> int foo(){\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class X {
+				public <T1 extends String, T2> int foo(){
+				}
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public <T1 extends String, T2> int foo(){\n" +
-		"	        ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			public <T1 extends String, T2> int foo(){
+			        ^^^^^^^^^^^^^^^^^^^^^
+		Syntax error, type parameters are only available if source level is 1.5 or greater
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
-		"	public <T1 extends String, T2> int foo(){\n" +
-		"	                   ^^^^^^\n" +
-		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	public <T1 extends String, T2> int foo(){\n" +
-		"	                                   ^^^^^\n" +
-		"This method must return a result of type int\n" +
-		"----------\n";
+		"""
+		----------
+		1. WARNING in X.java (at line 2)
+			public <T1 extends String, T2> int foo(){
+			                   ^^^^^^
+		The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended
+		----------
+		2. ERROR in X.java (at line 2)
+			public <T1 extends String, T2> int foo(){
+			                                   ^^^^^
+		This method must return a result of type int
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -483,27 +521,33 @@ public void test0008() {
 public void test0009() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	public <T1 extends String, T2> X(){\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class X {
+				public <T1 extends String, T2> X(){
+				}
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public <T1 extends String, T2> X(){\n" +
-		"	        ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			public <T1 extends String, T2> X(){
+			        ^^^^^^^^^^^^^^^^^^^^^
+		Syntax error, type parameters are only available if source level is 1.5 or greater
+		----------
+		""";
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
-		"	public <T1 extends String, T2> X(){\n" +
-		"	                   ^^^^^^\n" +
-		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" +
-		"----------\n";
+		"""
+		----------
+		1. WARNING in X.java (at line 2)
+			public <T1 extends String, T2> X(){
+			                   ^^^^^^
+		The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended
+		----------
+		""";
 
 	if(this.complianceLevel < ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(testFiles, expected13ProblemLog);
@@ -536,269 +580,279 @@ public void testPatternsInCase() {
 	};
 
 	String expectedProblemLogFrom1_1_6 =
-					"----------\n" +
-					"1. ERROR in X.java (at line 4)\n" +
-					"	switch (o) {\n" +
-					"	        ^\n" +
-					"Cannot switch on a value of type Object. Only convertible int values or enum variables are permitted\n" +
-					"----------\n" +
-					"2. ERROR in X.java (at line 5)\n" +
-					"	case X x, null:\n" +
-					"	^^^^^^^^^^^^^^\n" +
-					"Multi-constant case labels supported from Java 14 onwards only\n" +
-					"----------\n" +
-					"3. ERROR in X.java (at line 5)\n" +
-					"	case X x, null:\n" +
-					"	     ^^^\n" +
-					"The Java feature 'Type Patterns' is only available with source level 16 and above\n" +
-					"----------\n" +
-					"4. ERROR in X.java (at line 5)\n" +
-					"	case X x, null:\n" +
-					"	     ^^^\n" +
-					"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
-					"----------\n" +
-					"5. ERROR in X.java (at line 5)\n" +
-					"	case X x, null:\n" +
-					"	          ^^^^\n" +
-					"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
-					"----------\n" +
-					"6. ERROR in X.java (at line 5)\n" +
-					"	case X x, null:\n" +
-					"	          ^^^^\n" +
-					"Cannot mix pattern with other case labels\n" +
-					"----------\n" +
-					"7. ERROR in X.java (at line 5)\n" +
-					"	case X x, null:\n" +
-					"	          ^^^^\n" +
-					"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
-					"----------\n" +
-					"8. ERROR in X.java (at line 7)\n" +
-					"	case String s, default :\n" +
-					"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Multi-constant case labels supported from Java 14 onwards only\n" +
-					"----------\n" +
-					"9. ERROR in X.java (at line 7)\n" +
-					"	case String s, default :\n" +
-					"	     ^^^^^^^^\n" +
-					"The Java feature 'Type Patterns' is only available with source level 16 and above\n" +
-					"----------\n" +
-					"10. ERROR in X.java (at line 7)\n" +
-					"	case String s, default :\n" +
-					"	     ^^^^^^^^\n" +
-					"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
-					"----------\n" +
-					"11. ERROR in X.java (at line 7)\n" +
-					"	case String s, default :\n" +
-					"	               ^^^^^^^\n" +
-					"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
-					"----------\n" +
-					"12. ERROR in X.java (at line 7)\n" +
-					"	case String s, default :\n" +
-					"	               ^^^^^^^\n" +
-					"Cannot mix pattern with other case labels\n" +
-					"----------\n" +
-					"13. ERROR in X.java (at line 7)\n" +
-					"	case String s, default :\n" +
-					"	               ^^^^^^^\n" +
-					"A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default' \n" +
-					"----------\n";
+					"""
+		----------
+		1. ERROR in X.java (at line 4)
+			switch (o) {
+			        ^
+		Cannot switch on a value of type Object. Only convertible int values or enum variables are permitted
+		----------
+		2. ERROR in X.java (at line 5)
+			case X x, null:
+			^^^^^^^^^^^^^^
+		Multi-constant case labels supported from Java 14 onwards only
+		----------
+		3. ERROR in X.java (at line 5)
+			case X x, null:
+			     ^^^
+		The Java feature 'Type Patterns' is only available with source level 16 and above
+		----------
+		4. ERROR in X.java (at line 5)
+			case X x, null:
+			     ^^^
+		The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above
+		----------
+		5. ERROR in X.java (at line 5)
+			case X x, null:
+			          ^^^^
+		The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above
+		----------
+		6. ERROR in X.java (at line 5)
+			case X x, null:
+			          ^^^^
+		Cannot mix pattern with other case labels
+		----------
+		7. ERROR in X.java (at line 5)
+			case X x, null:
+			          ^^^^
+		A null case label has to be either the only expression in a case label or the first expression followed only by a default
+		----------
+		8. ERROR in X.java (at line 7)
+			case String s, default :
+			^^^^^^^^^^^^^^^^^^^^^^
+		Multi-constant case labels supported from Java 14 onwards only
+		----------
+		9. ERROR in X.java (at line 7)
+			case String s, default :
+			     ^^^^^^^^
+		The Java feature 'Type Patterns' is only available with source level 16 and above
+		----------
+		10. ERROR in X.java (at line 7)
+			case String s, default :
+			     ^^^^^^^^
+		The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above
+		----------
+		11. ERROR in X.java (at line 7)
+			case String s, default :
+			               ^^^^^^^
+		The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above
+		----------
+		12. ERROR in X.java (at line 7)
+			case String s, default :
+			               ^^^^^^^
+		Cannot mix pattern with other case labels
+		----------
+		13. ERROR in X.java (at line 7)
+			case String s, default :
+			               ^^^^^^^
+		A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default'\s
+		----------
+		""";
 
 	String expectedProblemLogFrom7_13 =
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	switch (o) {\n" +
-			"	        ^\n" +
-			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	case X x, null:\n" +
-			"	^^^^^^^^^^^^^^\n" +
-			"Multi-constant case labels supported from Java 14 onwards only\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	case X x, null:\n" +
-			"	     ^^^\n" +
-			"The Java feature 'Type Patterns' is only available with source level 16 and above\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 5)\n" +
-			"	case X x, null:\n" +
-			"	     ^^^\n" +
-			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 5)\n" +
-			"	case X x, null:\n" +
-			"	          ^^^^\n" +
-			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 5)\n" +
-			"	case X x, null:\n" +
-			"	          ^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 5)\n" +
-			"	case X x, null:\n" +
-			"	          ^^^^\n" +
-			"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
-			"----------\n" +
-			"8. ERROR in X.java (at line 7)\n" +
-			"	case String s, default :\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Multi-constant case labels supported from Java 14 onwards only\n" +
-			"----------\n" +
-			"9. ERROR in X.java (at line 7)\n" +
-			"	case String s, default :\n" +
-			"	     ^^^^^^^^\n" +
-			"The Java feature 'Type Patterns' is only available with source level 16 and above\n" +
-			"----------\n" +
-			"10. ERROR in X.java (at line 7)\n" +
-			"	case String s, default :\n" +
-			"	     ^^^^^^^^\n" +
-			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
-			"----------\n" +
-			"11. ERROR in X.java (at line 7)\n" +
-			"	case String s, default :\n" +
-			"	               ^^^^^^^\n" +
-			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
-			"----------\n" +
-			"12. ERROR in X.java (at line 7)\n" +
-			"	case String s, default :\n" +
-			"	               ^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"13. ERROR in X.java (at line 7)\n" +
-			"	case String s, default :\n" +
-			"	               ^^^^^^^\n" +
-			"A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default' \n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 4)
+			switch (o) {
+			        ^
+		Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted
+		----------
+		2. ERROR in X.java (at line 5)
+			case X x, null:
+			^^^^^^^^^^^^^^
+		Multi-constant case labels supported from Java 14 onwards only
+		----------
+		3. ERROR in X.java (at line 5)
+			case X x, null:
+			     ^^^
+		The Java feature 'Type Patterns' is only available with source level 16 and above
+		----------
+		4. ERROR in X.java (at line 5)
+			case X x, null:
+			     ^^^
+		The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above
+		----------
+		5. ERROR in X.java (at line 5)
+			case X x, null:
+			          ^^^^
+		The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above
+		----------
+		6. ERROR in X.java (at line 5)
+			case X x, null:
+			          ^^^^
+		Cannot mix pattern with other case labels
+		----------
+		7. ERROR in X.java (at line 5)
+			case X x, null:
+			          ^^^^
+		A null case label has to be either the only expression in a case label or the first expression followed only by a default
+		----------
+		8. ERROR in X.java (at line 7)
+			case String s, default :
+			^^^^^^^^^^^^^^^^^^^^^^
+		Multi-constant case labels supported from Java 14 onwards only
+		----------
+		9. ERROR in X.java (at line 7)
+			case String s, default :
+			     ^^^^^^^^
+		The Java feature 'Type Patterns' is only available with source level 16 and above
+		----------
+		10. ERROR in X.java (at line 7)
+			case String s, default :
+			     ^^^^^^^^
+		The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above
+		----------
+		11. ERROR in X.java (at line 7)
+			case String s, default :
+			               ^^^^^^^
+		The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above
+		----------
+		12. ERROR in X.java (at line 7)
+			case String s, default :
+			               ^^^^^^^
+		Cannot mix pattern with other case labels
+		----------
+		13. ERROR in X.java (at line 7)
+			case String s, default :
+			               ^^^^^^^
+		A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default'\s
+		----------
+		""";
 
 	String expectedProblemLogFrom14_15 =
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	switch (o) {\n" +
-			"	        ^\n" +
-			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	case X x, null:\n" +
-			"	     ^^^\n" +
-			"The Java feature 'Type Patterns' is only available with source level 16 and above\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	case X x, null:\n" +
-			"	     ^^^\n" +
-			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 5)\n" +
-			"	case X x, null:\n" +
-			"	          ^^^^\n" +
-			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 5)\n" +
-			"	case X x, null:\n" +
-			"	          ^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 5)\n" +
-			"	case X x, null:\n" +
-			"	          ^^^^\n" +
-			"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 7)\n" +
-			"	case String s, default :\n" +
-			"	     ^^^^^^^^\n" +
-			"The Java feature 'Type Patterns' is only available with source level 16 and above\n" +
-			"----------\n" +
-			"8. ERROR in X.java (at line 7)\n" +
-			"	case String s, default :\n" +
-			"	     ^^^^^^^^\n" +
-			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
-			"----------\n" +
-			"9. ERROR in X.java (at line 7)\n" +
-			"	case String s, default :\n" +
-			"	               ^^^^^^^\n" +
-			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
-			"----------\n" +
-			"10. ERROR in X.java (at line 7)\n" +
-			"	case String s, default :\n" +
-			"	               ^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"11. ERROR in X.java (at line 7)\n" +
-			"	case String s, default :\n" +
-			"	               ^^^^^^^\n" +
-			"A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default' \n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 4)
+			switch (o) {
+			        ^
+		Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted
+		----------
+		2. ERROR in X.java (at line 5)
+			case X x, null:
+			     ^^^
+		The Java feature 'Type Patterns' is only available with source level 16 and above
+		----------
+		3. ERROR in X.java (at line 5)
+			case X x, null:
+			     ^^^
+		The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above
+		----------
+		4. ERROR in X.java (at line 5)
+			case X x, null:
+			          ^^^^
+		The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above
+		----------
+		5. ERROR in X.java (at line 5)
+			case X x, null:
+			          ^^^^
+		Cannot mix pattern with other case labels
+		----------
+		6. ERROR in X.java (at line 5)
+			case X x, null:
+			          ^^^^
+		A null case label has to be either the only expression in a case label or the first expression followed only by a default
+		----------
+		7. ERROR in X.java (at line 7)
+			case String s, default :
+			     ^^^^^^^^
+		The Java feature 'Type Patterns' is only available with source level 16 and above
+		----------
+		8. ERROR in X.java (at line 7)
+			case String s, default :
+			     ^^^^^^^^
+		The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above
+		----------
+		9. ERROR in X.java (at line 7)
+			case String s, default :
+			               ^^^^^^^
+		The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above
+		----------
+		10. ERROR in X.java (at line 7)
+			case String s, default :
+			               ^^^^^^^
+		Cannot mix pattern with other case labels
+		----------
+		11. ERROR in X.java (at line 7)
+			case String s, default :
+			               ^^^^^^^
+		A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default'\s
+		----------
+		""";
 
 	String expectedProblemLogFrom16_20 =
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	switch (o) {\n" +
-			"	        ^\n" +
-			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	case X x, null:\n" +
-			"	     ^^^\n" +
-			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	case X x, null:\n" +
-			"	          ^^^^\n" +
-			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 5)\n" +
-			"	case X x, null:\n" +
-			"	          ^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 5)\n" +
-			"	case X x, null:\n" +
-			"	          ^^^^\n" +
-			"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 7)\n" +
-			"	case String s, default :\n" +
-			"	     ^^^^^^^^\n" +
-			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 7)\n" +
-			"	case String s, default :\n" +
-			"	               ^^^^^^^\n" +
-			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
-			"----------\n" +
-			"8. ERROR in X.java (at line 7)\n" +
-			"	case String s, default :\n" +
-			"	               ^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"9. ERROR in X.java (at line 7)\n" +
-			"	case String s, default :\n" +
-			"	               ^^^^^^^\n" +
-			"A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default' \n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 4)
+			switch (o) {
+			        ^
+		Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted
+		----------
+		2. ERROR in X.java (at line 5)
+			case X x, null:
+			     ^^^
+		The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above
+		----------
+		3. ERROR in X.java (at line 5)
+			case X x, null:
+			          ^^^^
+		The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above
+		----------
+		4. ERROR in X.java (at line 5)
+			case X x, null:
+			          ^^^^
+		Cannot mix pattern with other case labels
+		----------
+		5. ERROR in X.java (at line 5)
+			case X x, null:
+			          ^^^^
+		A null case label has to be either the only expression in a case label or the first expression followed only by a default
+		----------
+		6. ERROR in X.java (at line 7)
+			case String s, default :
+			     ^^^^^^^^
+		The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above
+		----------
+		7. ERROR in X.java (at line 7)
+			case String s, default :
+			               ^^^^^^^
+		The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above
+		----------
+		8. ERROR in X.java (at line 7)
+			case String s, default :
+			               ^^^^^^^
+		Cannot mix pattern with other case labels
+		----------
+		9. ERROR in X.java (at line 7)
+			case String s, default :
+			               ^^^^^^^
+		A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default'\s
+		----------
+		""";
 
 	String expectedProblemLogFrom21 =
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case X x, null:\n" +
-			"	          ^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	case X x, null:\n" +
-			"	          ^^^^\n" +
-			"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 7)\n" +
-			"	case String s, default :\n" +
-			"	               ^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 7)\n" +
-			"	case String s, default :\n" +
-			"	               ^^^^^^^\n" +
-			"A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default' \n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 5)
+			case X x, null:
+			          ^^^^
+		Cannot mix pattern with other case labels
+		----------
+		2. ERROR in X.java (at line 5)
+			case X x, null:
+			          ^^^^
+		A null case label has to be either the only expression in a case label or the first expression followed only by a default
+		----------
+		3. ERROR in X.java (at line 7)
+			case String s, default :
+			               ^^^^^^^
+		Cannot mix pattern with other case labels
+		----------
+		4. ERROR in X.java (at line 7)
+			case String s, default :
+			               ^^^^^^^
+		A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default'\s
+		----------
+		""";
 
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) {  // before switching on strings
 		runNegativeTest(
@@ -826,53 +880,59 @@ public void testPatternsInCase() {
 public void test0010() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	Z<Y1, Y2> var;\n" +
-		"}\n"
+		"""
+			public class X {
+				Z<Y1, Y2> var;
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	Z<Y1, Y2> var;\n" +
-		"	^\n" +
-		"Z cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	Z<Y1, Y2> var;\n" +
-		"	  ^^^^^^\n" +
-		"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 2)\n" +
-		"	Z<Y1, Y2> var;\n" +
-		"	  ^^\n" +
-		"Y1 cannot be resolved to a type\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 2)\n" +
-		"	Z<Y1, Y2> var;\n" +
-		"	      ^^\n" +
-		"Y2 cannot be resolved to a type\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			Z<Y1, Y2> var;
+			^
+		Z cannot be resolved to a type
+		----------
+		2. ERROR in X.java (at line 2)
+			Z<Y1, Y2> var;
+			  ^^^^^^
+		Syntax error, parameterized types are only available if source level is 1.5 or greater
+		----------
+		3. ERROR in X.java (at line 2)
+			Z<Y1, Y2> var;
+			  ^^
+		Y1 cannot be resolved to a type
+		----------
+		4. ERROR in X.java (at line 2)
+			Z<Y1, Y2> var;
+			      ^^
+		Y2 cannot be resolved to a type
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	Z<Y1, Y2> var;\n" +
-		"	^\n" +
-		"Z cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	Z<Y1, Y2> var;\n" +
-		"	  ^^\n" +
-		"Y1 cannot be resolved to a type\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 2)\n" +
-		"	Z<Y1, Y2> var;\n" +
-		"	      ^^\n" +
-		"Y2 cannot be resolved to a type\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			Z<Y1, Y2> var;
+			^
+		Z cannot be resolved to a type
+		----------
+		2. ERROR in X.java (at line 2)
+			Z<Y1, Y2> var;
+			  ^^
+		Y1 cannot be resolved to a type
+		----------
+		3. ERROR in X.java (at line 2)
+			Z<Y1, Y2> var;
+			      ^^
+		Y2 cannot be resolved to a type
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -884,50 +944,56 @@ public void test0010() {
 public void test0011() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	public X(){\n" +
-		"		<Y1, Y2>this(null);\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class X {
+				public X(){
+					<Y1, Y2>this(null);
+				}
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	<Y1, Y2>this(null);\n" +
-		"	 ^^^^^^\n" +
-		"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	<Y1, Y2>this(null);\n" +
-		"	 ^^\n" +
-		"Y1 cannot be resolved to a type\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 3)\n" +
-		"	<Y1, Y2>this(null);\n" +
-		"	     ^^\n" +
-		"Y2 cannot be resolved to a type\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 3)
+			<Y1, Y2>this(null);
+			 ^^^^^^
+		Syntax error, parameterized types are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 3)
+			<Y1, Y2>this(null);
+			 ^^
+		Y1 cannot be resolved to a type
+		----------
+		3. ERROR in X.java (at line 3)
+			<Y1, Y2>this(null);
+			     ^^
+		Y2 cannot be resolved to a type
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	<Y1, Y2>this(null);\n" +
-		"	 ^^\n" +
-		"Y1 cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	<Y1, Y2>this(null);\n" +
-		"	     ^^\n" +
-		"Y2 cannot be resolved to a type\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 3)\n" +
-		"	<Y1, Y2>this(null);\n" +
-		"	        ^^^^^^^^^^^\n" +
-		"The constructor X(null) is undefined\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 3)
+			<Y1, Y2>this(null);
+			 ^^
+		Y1 cannot be resolved to a type
+		----------
+		2. ERROR in X.java (at line 3)
+			<Y1, Y2>this(null);
+			     ^^
+		Y2 cannot be resolved to a type
+		----------
+		3. ERROR in X.java (at line 3)
+			<Y1, Y2>this(null);
+			        ^^^^^^^^^^^
+		The constructor X(null) is undefined
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -939,26 +1005,30 @@ public void test0011() {
 public void test0012() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    assert true;\n" +
-		"  }\n" +
-		"}\n" +
-		"\n"
+		"""
+			public class X {
+			  void foo() {
+			    assert true;
+			  }
+			}
+			
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	assert true;\n" +
-		"	^^^^^^\n" +
-		"\'assert\' should not be used as an identifier, since it is a reserved keyword from source level 1.4 on\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	assert true;\n" +
-		"	^^^^^^\n" +
-		"Syntax error on token \"assert\", AssignmentOperator expected after this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. WARNING in X.java (at line 3)
+			assert true;
+			^^^^^^
+		'assert' should not be used as an identifier, since it is a reserved keyword from source level 1.4 on
+		----------
+		2. ERROR in X.java (at line 3)
+			assert true;
+			^^^^^^
+		Syntax error on token "assert", AssignmentOperator expected after this token
+		----------
+		""";
 	String expected14ProblemLog =
 		"";
 
@@ -975,44 +1045,50 @@ public void test0012() {
 public void test0013() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"import static aaa.*\n" +
-		"public class X {\n" +
-		"}\n" +
-		"\n"
+		"""
+			import static aaa.*
+			public class X {
+			}
+			
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	import static aaa.*\n" +
-		"	^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, static imports are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	import static aaa.*\n" +
-		"	              ^^^\n" +
-		"The import aaa cannot be resolved\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 1)\n" +
-		"	import static aaa.*\n" +
-		"	                  ^\n" +
-		"Syntax error on token \"*\", ; expected after this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			import static aaa.*
+			^^^^^^^^^^^^^^^^^
+		Syntax error, static imports are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 1)
+			import static aaa.*
+			              ^^^
+		The import aaa cannot be resolved
+		----------
+		3. ERROR in X.java (at line 1)
+			import static aaa.*
+			                  ^
+		Syntax error on token "*", ; expected after this token
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	import static aaa.*\n" +
-		"	              ^^^\n" +
-		"The import aaa cannot be resolved\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	import static aaa.*\n" +
-		"	                  ^\n" +
-		"Syntax error on token \"*\", ; expected after this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			import static aaa.*
+			              ^^^
+		The import aaa cannot be resolved
+		----------
+		2. ERROR in X.java (at line 1)
+			import static aaa.*
+			                  ^
+		Syntax error on token "*", ; expected after this token
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1045,12 +1121,14 @@ public void test0014() {
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public enum X \n" +
-		"	            ^\n" +
-		"Syntax error on token \"X\", { expected after this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public enum X\s
+			            ^
+		Syntax error on token "X", { expected after this token
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1062,37 +1140,43 @@ public void test0014() {
 public void test0015() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	void foo(){\n" +
-		"		for(String o: c) {\n" +
-		"			#\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class X {
+				void foo(){
+					for(String o: c) {
+						#
+					}
+				}
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	for(String o: c) {\n" +
-		"	    ^^^^^^^^^^^\n" +
-		"Syntax error, \'for each\' statements are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 3)
+			for(String o: c) {
+			    ^^^^^^^^^^^
+		Syntax error, 'for each' statements are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 4)
+			#
+			^
+		Syntax error on token "Invalid Character", delete this token
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 4)
+			#
+			^
+		Syntax error on token "Invalid Character", delete this token
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1104,45 +1188,51 @@ public void test0015() {
 public void test0016() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	void foo(Z ... arg){\n" +
-		"	}\n" +
-		"	#\n" +
-		"}\n"
+		"""
+			public class X {
+				void foo(Z ... arg){
+				}
+				#
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	void foo(Z ... arg){\n" +
-		"	         ^^^^^^^^^\n" +
-		"Syntax error, varargs are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	void foo(Z ... arg){\n" +
-		"	         ^\n" +
-		"Z cannot be resolved to a type\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			void foo(Z ... arg){
+			         ^^^^^^^^^
+		Syntax error, varargs are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 2)
+			void foo(Z ... arg){
+			         ^
+		Z cannot be resolved to a type
+		----------
+		3. ERROR in X.java (at line 4)
+			#
+			^
+		Syntax error on token "Invalid Character", delete this token
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	void foo(Z ... arg){\n" +
-		"	         ^\n" +
-		"Z cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			void foo(Z ... arg){
+			         ^
+		Z cannot be resolved to a type
+		----------
+		2. ERROR in X.java (at line 4)
+			#
+			^
+		Syntax error on token "Invalid Character", delete this token
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1154,48 +1244,54 @@ public void test0016() {
 public void test0017() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X <T1 extends String, T2> extends Y {\n" +
-		"	#\n" +
-		"}\n"
+		"""
+			public class X <T1 extends String, T2> extends Y {
+				#
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extends String, T2> extends Y {\n" +
-		"	                ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extends String, T2> extends Y {\n" +
-		"	                                               ^\n" +
-		"Y cannot be resolved to a type\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 2)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X <T1 extends String, T2> extends Y {
+			                ^^^^^^^^^^^^^^^^^^^^^
+		Syntax error, type parameters are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 1)
+			public class X <T1 extends String, T2> extends Y {
+			                                               ^
+		Y cannot be resolved to a type
+		----------
+		3. ERROR in X.java (at line 2)
+			#
+			^
+		Syntax error on token "Invalid Character", delete this token
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. WARNING in X.java (at line 1)\n" +
-		"	public class X <T1 extends String, T2> extends Y {\n" +
-		"	                           ^^^^^^\n" +
-		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extends String, T2> extends Y {\n" +
-		"	                                               ^\n" +
-		"Y cannot be resolved to a type\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 2)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. WARNING in X.java (at line 1)
+			public class X <T1 extends String, T2> extends Y {
+			                           ^^^^^^
+		The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended
+		----------
+		2. ERROR in X.java (at line 1)
+			public class X <T1 extends String, T2> extends Y {
+			                                               ^
+		Y cannot be resolved to a type
+		----------
+		3. ERROR in X.java (at line 2)
+			#
+			^
+		Syntax error on token "Invalid Character", delete this token
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1207,40 +1303,46 @@ public void test0017() {
 public void test0018() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	public <T1 extends String, T2> int foo(){\n" +
-		"	}\n" +
-		"	#\n" +
-		"}\n"
+		"""
+			public class X {
+				public <T1 extends String, T2> int foo(){
+				}
+				#
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public <T1 extends String, T2> int foo(){\n" +
-		"	        ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			public <T1 extends String, T2> int foo(){
+			        ^^^^^^^^^^^^^^^^^^^^^
+		Syntax error, type parameters are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 4)
+			#
+			^
+		Syntax error on token "Invalid Character", delete this token
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
-		"	public <T1 extends String, T2> int foo(){\n" +
-		"	                   ^^^^^^\n" +
-		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. WARNING in X.java (at line 2)
+			public <T1 extends String, T2> int foo(){
+			                   ^^^^^^
+		The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended
+		----------
+		2. ERROR in X.java (at line 4)
+			#
+			^
+		Syntax error on token "Invalid Character", delete this token
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1252,64 +1354,70 @@ public void test0018() {
 public void test0019() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	Z<Y1, Y2> var;\n" +
-		"	#\n" +
-		"}\n"
+		"""
+			public class X {
+				Z<Y1, Y2> var;
+				#
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	Z<Y1, Y2> var;\n" +
-		"	^\n" +
-		"Z cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	Z<Y1, Y2> var;\n" +
-		"	  ^^^^^^\n" +
-		"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 2)\n" +
-		"	Z<Y1, Y2> var;\n" +
-		"	  ^^\n" +
-		"Y1 cannot be resolved to a type\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 2)\n" +
-		"	Z<Y1, Y2> var;\n" +
-		"	      ^^\n" +
-		"Y2 cannot be resolved to a type\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 3)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			Z<Y1, Y2> var;
+			^
+		Z cannot be resolved to a type
+		----------
+		2. ERROR in X.java (at line 2)
+			Z<Y1, Y2> var;
+			  ^^^^^^
+		Syntax error, parameterized types are only available if source level is 1.5 or greater
+		----------
+		3. ERROR in X.java (at line 2)
+			Z<Y1, Y2> var;
+			  ^^
+		Y1 cannot be resolved to a type
+		----------
+		4. ERROR in X.java (at line 2)
+			Z<Y1, Y2> var;
+			      ^^
+		Y2 cannot be resolved to a type
+		----------
+		5. ERROR in X.java (at line 3)
+			#
+			^
+		Syntax error on token "Invalid Character", delete this token
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	Z<Y1, Y2> var;\n" +
-		"	^\n" +
-		"Z cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	Z<Y1, Y2> var;\n" +
-		"	  ^^\n" +
-		"Y1 cannot be resolved to a type\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 2)\n" +
-		"	Z<Y1, Y2> var;\n" +
-		"	      ^^\n" +
-		"Y2 cannot be resolved to a type\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 3)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			Z<Y1, Y2> var;
+			^
+		Z cannot be resolved to a type
+		----------
+		2. ERROR in X.java (at line 2)
+			Z<Y1, Y2> var;
+			  ^^
+		Y1 cannot be resolved to a type
+		----------
+		3. ERROR in X.java (at line 2)
+			Z<Y1, Y2> var;
+			      ^^
+		Y2 cannot be resolved to a type
+		----------
+		4. ERROR in X.java (at line 3)
+			#
+			^
+		Syntax error on token "Invalid Character", delete this token
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1321,39 +1429,45 @@ public void test0019() {
 public void test0020() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    assert true;\n" +
-		"    #\n" +
-		"  }\n" +
-		"}\n" +
-		"\n"
+		"""
+			public class X {
+			  void foo() {
+			    assert true;
+			    #
+			  }
+			}
+			
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	assert true;\n" +
-		"	^^^^^^\n" +
-		"\'assert\' should not be used as an identifier, since it is a reserved keyword from source level 1.4 on\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	assert true;\n" +
-		"	^^^^^^\n" +
-		"Syntax error on token \"assert\", AssignmentOperator expected after this token\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. WARNING in X.java (at line 3)
+			assert true;
+			^^^^^^
+		'assert' should not be used as an identifier, since it is a reserved keyword from source level 1.4 on
+		----------
+		2. ERROR in X.java (at line 3)
+			assert true;
+			^^^^^^
+		Syntax error on token "assert", AssignmentOperator expected after this token
+		----------
+		3. ERROR in X.java (at line 4)
+			#
+			^
+		Syntax error on token "Invalid Character", delete this token
+		----------
+		""";
 	String expected14ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 4)
+			#
+			^
+		Syntax error on token "Invalid Character", delete this token
+		----------
+		""";
 
 	String expected15ProblemLog =
 		expected14ProblemLog;
@@ -1369,39 +1483,45 @@ public void test0020() {
 public void test0021() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"import staic aaa.*;\n" +
-		"public class X {\n" +
-		"}\n" +
-		"\n"
+		"""
+			import staic aaa.*;
+			public class X {
+			}
+			
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	import staic aaa.*;\n" +
-		"	       ^^^^^\n" +
-		"The import staic cannot be resolved\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	import staic aaa.*;\n" +
-		"	             ^^^\n" +
-		"Syntax error on token \"aaa\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			import staic aaa.*;
+			       ^^^^^
+		The import staic cannot be resolved
+		----------
+		2. ERROR in X.java (at line 1)
+			import staic aaa.*;
+			             ^^^
+		Syntax error on token "aaa", delete this token
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	import staic aaa.*;\n" +
-		"	       ^^^^^\n" +
-		"Syntax error on token \"staic\", static expected\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	import staic aaa.*;\n" +
-		"	       ^^^^^\n" +
-		"The import staic cannot be resolved\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			import staic aaa.*;
+			       ^^^^^
+		Syntax error on token "staic", static expected
+		----------
+		2. ERROR in X.java (at line 1)
+			import staic aaa.*;
+			       ^^^^^
+		The import staic cannot be resolved
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1414,44 +1534,50 @@ public void test0021() {
 public void test0022() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"import static aaa.*.*;\n" +
-		"public class X {\n" +
-		"}\n" +
-		"\n"
+		"""
+			import static aaa.*.*;
+			public class X {
+			}
+			
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	import static aaa.*.*;\n" +
-		"	^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, static imports are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	import static aaa.*.*;\n" +
-		"	              ^^^\n" +
-		"The import aaa cannot be resolved\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 1)\n" +
-		"	import static aaa.*.*;\n" +
-		"	                   ^^\n" +
-		"Syntax error on tokens, delete these tokens\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			import static aaa.*.*;
+			^^^^^^^^^^^^^^^^^
+		Syntax error, static imports are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 1)
+			import static aaa.*.*;
+			              ^^^
+		The import aaa cannot be resolved
+		----------
+		3. ERROR in X.java (at line 1)
+			import static aaa.*.*;
+			                   ^^
+		Syntax error on tokens, delete these tokens
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	import static aaa.*.*;\n" +
-		"	              ^^^\n" +
-		"The import aaa cannot be resolved\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	import static aaa.*.*;\n" +
-		"	                  ^\n" +
-		"Syntax error on token \"*\", Identifier expected\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			import static aaa.*.*;
+			              ^^^
+		The import aaa cannot be resolved
+		----------
+		2. ERROR in X.java (at line 1)
+			import static aaa.*.*;
+			                  ^
+		Syntax error on token "*", Identifier expected
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1463,29 +1589,35 @@ public void test0022() {
 public void test0023() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"import static for;\n" +
-		"public class X {\n" +
-		"}\n" +
-		"\n"
+		"""
+			import static for;
+			public class X {
+			}
+			
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	import static for;\n" +
-		"	       ^^^^^^^^^^\n" +
-		"Syntax error on tokens, Name expected instead\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			import static for;
+			       ^^^^^^^^^^
+		Syntax error on tokens, Name expected instead
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	import static for;\n" +
-			"	              ^^^\n" +
-			"Syntax error on token \"for\", invalid Name\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 1)
+			import static for;
+			              ^^^
+		Syntax error on token "for", invalid Name
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1499,29 +1631,35 @@ public void test0023() {
 public void _test0024() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"import static {aaa};\n" +
-		"public class X {\n" +
-		"}\n" +
-		"\n"
+		"""
+			import static {aaa};
+			public class X {
+			}
+			
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	import static {aaa};\n" +
-		"	       ^^^^^^^^^^^^\n" +
-		"Syntax error on tokens, Name expected instead\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			import static {aaa};
+			       ^^^^^^^^^^^^
+		Syntax error on tokens, Name expected instead
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	import static {aaa};\n" +
-		"	              ^^^^^\n" +
-		"Syntax error on tokens, Name expected instead\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			import static {aaa};
+			              ^^^^^
+		Syntax error on tokens, Name expected instead
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1542,22 +1680,26 @@ public void test0025() {
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in x\\X.java (at line 2)\n" +
-		"	static aaa.*;\n" +
-		"	^^^^^^\n" +
-		"Syntax error on token \"static\", import expected\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in x\\X.java (at line 2)
+			static aaa.*;
+			^^^^^^
+		Syntax error on token "static", import expected
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in x\\X.java (at line 1)\n" +
-		"	package x;\n" +
-		"	         ^\n" +
-		"Syntax error on token \";\", import expected after this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in x\\X.java (at line 1)
+			package x;
+			         ^
+		Syntax error on token ";", import expected after this token
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1569,47 +1711,53 @@ public void test0025() {
 public void test0026() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	void foo(){\n" +
-		"		for(Object o ? c){\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n"
+		"""
+			public class X {
+				void foo(){
+					for(Object o ? c){
+					}
+				}
+			}
+			
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	for(Object o ? c){\n" +
-		"	    ^^^^^^\n" +
-		"Syntax error on token \"Object\", ( expected\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	for(Object o ? c){\n" +
-		"	           ^^^\n" +
-		"Syntax error on token(s), misplaced construct(s)\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 3)\n" +
-		"	for(Object o ? c){\n" +
-		"	                ^\n" +
-		"Syntax error, insert \"AssignmentOperator Expression\" to complete Assignment\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 3)\n" +
-		"	for(Object o ? c){\n" +
-		"	                ^\n" +
-		"Syntax error, insert \"; ; ) Statement\" to complete BlockStatements\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 3)
+			for(Object o ? c){
+			    ^^^^^^
+		Syntax error on token "Object", ( expected
+		----------
+		2. ERROR in X.java (at line 3)
+			for(Object o ? c){
+			           ^^^
+		Syntax error on token(s), misplaced construct(s)
+		----------
+		3. ERROR in X.java (at line 3)
+			for(Object o ? c){
+			                ^
+		Syntax error, insert "AssignmentOperator Expression" to complete Assignment
+		----------
+		4. ERROR in X.java (at line 3)
+			for(Object o ? c){
+			                ^
+		Syntax error, insert "; ; ) Statement" to complete BlockStatements
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	for(Object o ? c){\n" +
-		"	             ^\n" +
-		"Syntax error on token \"?\", : expected\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 3)
+			for(Object o ? c){
+			             ^
+		Syntax error on token "?", : expected
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1621,13 +1769,15 @@ public void test0026() {
 public void test0027() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	void foo(){\n" +
-		"		for(Object o : switch){\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n"
+		"""
+			public class X {
+				void foo(){
+					for(Object o : switch){
+					}
+				}
+			}
+			
+			"""
 	};
 
 	String expected13ProblemLog =
@@ -1651,12 +1801,14 @@ public void test0027() {
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	for(Object o : switch){\n" +
-		"	               ^^^^^^\n" +
-		"Syntax error on token \"switch\", invalid Expression\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 3)
+			for(Object o : switch){
+			               ^^^^^^
+		Syntax error on token "switch", invalid Expression
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1668,50 +1820,56 @@ public void test0027() {
 public void test0028() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	void foo(int ... ){\n" +
-		"	}\n" +
-		"}\n" +
-		"\n"
+		"""
+			public class X {
+				void foo(int ... ){
+				}
+			}
+			
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X {\n" +
-		"	               ^\n" +
-		"Syntax error, insert \"}\" to complete ClassBody\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	void foo(int ... ){\n" +
-		"	             ^^^\n" +
-		"Syntax error on token \"...\", invalid VariableDeclaratorId\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error on token \"}\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X {
+			               ^
+		Syntax error, insert "}" to complete ClassBody
+		----------
+		2. ERROR in X.java (at line 2)
+			void foo(int ... ){
+			             ^^^
+		Syntax error on token "...", invalid VariableDeclaratorId
+		----------
+		3. ERROR in X.java (at line 4)
+			}
+			^
+		Syntax error on token "}", delete this token
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X {\n" +
-		"	               ^\n" +
-		"Syntax error, insert \"}\" to complete ClassBody\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	void foo(int ... ){\n" +
-		"	             ^^^\n" +
-		"Syntax error on token \"...\", VariableDeclaratorId expected after this token\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error on token \"}\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X {
+			               ^
+		Syntax error, insert "}" to complete ClassBody
+		----------
+		2. ERROR in X.java (at line 2)
+			void foo(int ... ){
+			             ^^^
+		Syntax error on token "...", VariableDeclaratorId expected after this token
+		----------
+		3. ERROR in X.java (at line 4)
+			}
+			^
+		Syntax error on token "}", delete this token
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1723,50 +1881,56 @@ public void test0028() {
 public void test0029() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	void foo(int ... for){\n" +
-		"	}\n" +
-		"}\n" +
-		"\n"
+		"""
+			public class X {
+				void foo(int ... for){
+				}
+			}
+			
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X {\n" +
-		"	               ^\n" +
-		"Syntax error, insert \"}\" to complete ClassBody\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	void foo(int ... for){\n" +
-		"	             ^^^^^^^\n" +
-		"Syntax error on tokens, VariableDeclaratorId expected instead\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error on token \"}\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X {
+			               ^
+		Syntax error, insert "}" to complete ClassBody
+		----------
+		2. ERROR in X.java (at line 2)
+			void foo(int ... for){
+			             ^^^^^^^
+		Syntax error on tokens, VariableDeclaratorId expected instead
+		----------
+		3. ERROR in X.java (at line 4)
+			}
+			^
+		Syntax error on token "}", delete this token
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X {\n" +
-		"	               ^\n" +
-		"Syntax error, insert \"}\" to complete ClassBody\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	void foo(int ... for){\n" +
-		"	                 ^^^\n" +
-		"Syntax error on token \"for\", invalid VariableDeclaratorId\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error on token \"}\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X {
+			               ^
+		Syntax error, insert "}" to complete ClassBody
+		----------
+		2. ERROR in X.java (at line 2)
+			void foo(int ... for){
+			                 ^^^
+		Syntax error on token "for", invalid VariableDeclaratorId
+		----------
+		3. ERROR in X.java (at line 4)
+			}
+			^
+		Syntax error on token "}", delete this token
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1778,50 +1942,56 @@ public void test0029() {
 public void _test0030() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	void foo(int .. aaa){\n" +
-		"	}\n" +
-		"}\n" +
-		"\n"
+		"""
+			public class X {
+				void foo(int .. aaa){
+				}
+			}
+			
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X {\n" +
-		"	               ^\n" +
-		"Syntax error, insert \"}\" to complete ClassBody\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	void foo(int .. aaa){\n" +
-		"	             ^^\n" +
-		"Syntax error on tokens, delete these tokens\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error on token \"}\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X {
+			               ^
+		Syntax error, insert "}" to complete ClassBody
+		----------
+		2. ERROR in X.java (at line 2)
+			void foo(int .. aaa){
+			             ^^
+		Syntax error on tokens, delete these tokens
+		----------
+		3. ERROR in X.java (at line 4)
+			}
+			^
+		Syntax error on token "}", delete this token
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X {\n" +
-		"	               ^\n" +
-		"Syntax error, insert \"}\" to complete ClassBody\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	void foo(int .. aaa){\n" +
-		"	             ^^\n" +
-		"Syntax error on tokens, delete these tokens\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error on token \"}\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X {
+			               ^
+		Syntax error, insert "}" to complete ClassBody
+		----------
+		2. ERROR in X.java (at line 2)
+			void foo(int .. aaa){
+			             ^^
+		Syntax error on tokens, delete these tokens
+		----------
+		3. ERROR in X.java (at line 4)
+			}
+			^
+		Syntax error on token "}", delete this token
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1833,55 +2003,61 @@ public void _test0030() {
 public void test0031() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	void foo(int ... aaa bbb){\n" +
-		"	}\n" +
-		"}\n" +
-		"\n"
+		"""
+			public class X {
+				void foo(int ... aaa bbb){
+				}
+			}
+			
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X {\n" +
-		"	               ^\n" +
-		"Syntax error, insert \"}\" to complete ClassBody\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	void foo(int ... aaa bbb){\n" +
-		"	         ^^^^^^^^^^^\n" +
-		"Syntax error, varargs are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 2)\n" +
-		"	void foo(int ... aaa bbb){\n" +
-		"	             ^^^^^^^\n" +
-		"Syntax error on token(s), misplaced construct(s)\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 4)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error on token \"}\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X {
+			               ^
+		Syntax error, insert "}" to complete ClassBody
+		----------
+		2. ERROR in X.java (at line 2)
+			void foo(int ... aaa bbb){
+			         ^^^^^^^^^^^
+		Syntax error, varargs are only available if source level is 1.5 or greater
+		----------
+		3. ERROR in X.java (at line 2)
+			void foo(int ... aaa bbb){
+			             ^^^^^^^
+		Syntax error on token(s), misplaced construct(s)
+		----------
+		4. ERROR in X.java (at line 4)
+			}
+			^
+		Syntax error on token "}", delete this token
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X {\n" +
-		"	               ^\n" +
-		"Syntax error, insert \"}\" to complete ClassBody\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	void foo(int ... aaa bbb){\n" +
-		"	                     ^^^\n" +
-		"Syntax error on token \"bbb\", delete this token\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error on token \"}\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X {
+			               ^
+		Syntax error, insert "}" to complete ClassBody
+		----------
+		2. ERROR in X.java (at line 2)
+			void foo(int ... aaa bbb){
+			                     ^^^
+		Syntax error on token "bbb", delete this token
+		----------
+		3. ERROR in X.java (at line 4)
+			}
+			^
+		Syntax error on token "}", delete this token
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1893,43 +2069,49 @@ public void test0031() {
 public void _test0032() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X <T1 extends String, T2 extends Y {\n" +
-		"	\n" +
-		"}\n"
+		"""
+			public class X <T1 extends String, T2 extends Y {
+			\t
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extends String, T2 extends Y {\n" +
-		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error on token(s), misplaced construct(s)\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extends String, T2 extends Y {\n" +
-		"	                                              ^\n" +
-		"Y cannot be resolved to a type\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X <T1 extends String, T2 extends Y {
+			               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		Syntax error on token(s), misplaced construct(s)
+		----------
+		2. ERROR in X.java (at line 1)
+			public class X <T1 extends String, T2 extends Y {
+			                                              ^
+		Y cannot be resolved to a type
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. WARNING in X.java (at line 1)\n" +
-		"	public class X <T1 extends String, T2 extends Y {\n" +
-		"	                           ^^^^^^\n" +
-		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extends String, T2 extends Y {\n" +
-		"	                                              ^\n" +
-		"Syntax error, insert \">\" to complete ReferenceType1\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extends String, T2 extends Y {\n" +
-		"	                                              ^\n" +
-		"Y cannot be resolved to a type\n" +
-		"----------\n";
+		"""
+		----------
+		1. WARNING in X.java (at line 1)
+			public class X <T1 extends String, T2 extends Y {
+			                           ^^^^^^
+		The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended
+		----------
+		2. ERROR in X.java (at line 1)
+			public class X <T1 extends String, T2 extends Y {
+			                                              ^
+		Syntax error, insert ">" to complete ReferenceType1
+		----------
+		3. ERROR in X.java (at line 1)
+			public class X <T1 extends String, T2 extends Y {
+			                                              ^
+		Y cannot be resolved to a type
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1941,33 +2123,39 @@ public void _test0032() {
 public void test0033() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X T1 extends String, T2> extends Y {\n" +
-		"	\n" +
-		"}\n"
+		"""
+			public class X T1 extends String, T2> extends Y {
+			\t
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X T1 extends String, T2> extends Y {\n" +
-		"	               ^^\n" +
-		"Syntax error on token \"T1\", delete this token\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	public class X T1 extends String, T2> extends Y {\n" +
-		"	                          ^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error on tokens, delete these tokens\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X T1 extends String, T2> extends Y {
+			               ^^
+		Syntax error on token "T1", delete this token
+		----------
+		2. ERROR in X.java (at line 1)
+			public class X T1 extends String, T2> extends Y {
+			                          ^^^^^^^^^^^^^^^^^^^
+		Syntax error on tokens, delete these tokens
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X T1 extends String, T2> extends Y {\n" +
-		"	             ^\n" +
-		"Syntax error on token \"X\", < expected after this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X T1 extends String, T2> extends Y {
+			             ^
+		Syntax error on token "X", < expected after this token
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1979,9 +2167,11 @@ public void test0033() {
 public void test0034() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X <T1 extnds String, T2> extends Y {\n" +
-		"	\n" +
-		"}\n"
+		"""
+			public class X <T1 extnds String, T2> extends Y {
+			\t
+			}
+			"""
 	};
 
 	String expected13ProblemLog = """
@@ -2007,17 +2197,19 @@ public void test0034() {
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extnds String, T2> extends Y {\n" +
-		"	                   ^^^^^^\n" +
-		"Syntax error on token \"extnds\", extends expected\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extnds String, T2> extends Y {\n" +
-		"	                   ^^^^^^\n" +
-		"extnds cannot be resolved to a type\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X <T1 extnds String, T2> extends Y {
+			                   ^^^^^^
+		Syntax error on token "extnds", extends expected
+		----------
+		2. ERROR in X.java (at line 1)
+			public class X <T1 extnds String, T2> extends Y {
+			                   ^^^^^^
+		extnds cannot be resolved to a type
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -2029,28 +2221,34 @@ public void test0034() {
 public void test0035() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X <T1 extends for, T2> extends Y {\n" +
-		"	\n" +
-		"}\n"
+		"""
+			public class X <T1 extends for, T2> extends Y {
+			\t
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extends for, T2> extends Y {\n" +
-		"	               ^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error on tokens, delete these tokens\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X <T1 extends for, T2> extends Y {
+			               ^^^^^^^^^^^^^^^^^^^^
+		Syntax error on tokens, delete these tokens
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extends for, T2> extends Y {\n" +
-		"	                           ^^^\n" +
-		"Syntax error on token \"for\", invalid ReferenceType\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X <T1 extends for, T2> extends Y {
+			                           ^^^
+		Syntax error on token "for", invalid ReferenceType
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -2062,39 +2260,45 @@ public void test0035() {
 public void test0036() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	public <T1 extends String, T2> foo(){\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class X {
+				public <T1 extends String, T2> foo(){
+				}
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public <T1 extends String, T2> foo(){\n" +
-		"	        ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	public <T1 extends String, T2> foo(){\n" +
-		"	                               ^^^^^\n" +
-		"Return type for the method is missing\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			public <T1 extends String, T2> foo(){
+			        ^^^^^^^^^^^^^^^^^^^^^
+		Syntax error, type parameters are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 2)
+			public <T1 extends String, T2> foo(){
+			                               ^^^^^
+		Return type for the method is missing
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
-		"	public <T1 extends String, T2> foo(){\n" +
-		"	                   ^^^^^^\n" +
-		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	public <T1 extends String, T2> foo(){\n" +
-		"	                               ^^^^^\n" +
-		"Return type for the method is missing\n" +
-		"----------\n";
+		"""
+		----------
+		1. WARNING in X.java (at line 2)
+			public <T1 extends String, T2> foo(){
+			                   ^^^^^^
+		The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended
+		----------
+		2. ERROR in X.java (at line 2)
+			public <T1 extends String, T2> foo(){
+			                               ^^^^^
+		Return type for the method is missing
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -2106,44 +2310,50 @@ public void test0036() {
 public void test0037() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	public <T1 extnds String, T2> int foo(){\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class X {
+				public <T1 extnds String, T2> int foo(){
+				}
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public <T1 extnds String, T2> int foo(){\n" +
-		"	       ^^^\n" +
-		"Syntax error on token(s), misplaced construct(s)\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	public <T1 extnds String, T2> int foo(){\n" +
-		"	        ^^\n" +
-		"T1 cannot be resolved to a type\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 2)\n" +
-		"	public <T1 extnds String, T2> int foo(){\n" +
-		"	                            ^\n" +
-		"Syntax error on token \">\", ; expected\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			public <T1 extnds String, T2> int foo(){
+			       ^^^
+		Syntax error on token(s), misplaced construct(s)
+		----------
+		2. ERROR in X.java (at line 2)
+			public <T1 extnds String, T2> int foo(){
+			        ^^
+		T1 cannot be resolved to a type
+		----------
+		3. ERROR in X.java (at line 2)
+			public <T1 extnds String, T2> int foo(){
+			                            ^
+		Syntax error on token ">", ; expected
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public <T1 extnds String, T2> int foo(){\n" +
-		"	        ^^\n" +
-		"T1 cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	public <T1 extnds String, T2> int foo(){\n" +
-		"	           ^^^^^^\n" +
-		"Syntax error on token \"extnds\", extends expected\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			public <T1 extnds String, T2> int foo(){
+			        ^^
+		T1 cannot be resolved to a type
+		----------
+		2. ERROR in X.java (at line 2)
+			public <T1 extnds String, T2> int foo(){
+			           ^^^^^^
+		Syntax error on token "extnds", extends expected
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -2155,34 +2365,40 @@ public void test0037() {
 public void test0038() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	public <T1 extends String T2> int foo(){\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class X {
+				public <T1 extends String T2> int foo(){
+				}
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public <T1 extends String T2> int foo(){\n" +
-		"	       ^^^^^^^^^^^\n" +
-		"Syntax error on token(s), misplaced construct(s)\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	public <T1 extends String T2> int foo(){\n" +
-		"	                            ^\n" +
-		"Syntax error on token \">\", ; expected\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			public <T1 extends String T2> int foo(){
+			       ^^^^^^^^^^^
+		Syntax error on token(s), misplaced construct(s)
+		----------
+		2. ERROR in X.java (at line 2)
+			public <T1 extends String T2> int foo(){
+			                            ^
+		Syntax error on token ">", ; expected
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public <T1 extends String T2> int foo(){\n" +
-		"	                          ^^\n" +
-		"Syntax error on token \"T2\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			public <T1 extends String T2> int foo(){
+			                          ^^
+		Syntax error on token "T2", delete this token
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -2194,38 +2410,44 @@ public void test0038() {
 public void test0039() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	Z Y1, Y2> var;\n" +
-		"}\n"
+		"""
+			public class X {
+				Z Y1, Y2> var;
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	Z Y1, Y2> var;\n" +
-		"	^\n" +
-		"Z cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	Z Y1, Y2> var;\n" +
-		"	        ^\n" +
-		"Syntax error on token \">\", , expected\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			Z Y1, Y2> var;
+			^
+		Z cannot be resolved to a type
+		----------
+		2. ERROR in X.java (at line 2)
+			Z Y1, Y2> var;
+			        ^
+		Syntax error on token ">", , expected
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	Z Y1, Y2> var;\n" +
-		"	^\n" +
-		"Z cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	Z Y1, Y2> var;\n" +
-		"	        ^\n" +
-		"Syntax error on token \">\", , expected\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			Z Y1, Y2> var;
+			^
+		Z cannot be resolved to a type
+		----------
+		2. ERROR in X.java (at line 2)
+			Z Y1, Y2> var;
+			        ^
+		Syntax error on token ">", , expected
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -2237,38 +2459,44 @@ public void test0039() {
 public void test0040() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	Z <Y1, Y2 var;\n" +
-		"}\n"
+		"""
+			public class X {
+				Z <Y1, Y2 var;
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	Z <Y1, Y2 var;\n" +
-		"	  ^^^^^^^\n" +
-		"Syntax error on token(s), misplaced construct(s)\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	Z <Y1, Y2 var;\n" +
-		"	       ^^\n" +
-		"Y2 cannot be resolved to a type\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			Z <Y1, Y2 var;
+			  ^^^^^^^
+		Syntax error on token(s), misplaced construct(s)
+		----------
+		2. ERROR in X.java (at line 2)
+			Z <Y1, Y2 var;
+			       ^^
+		Y2 cannot be resolved to a type
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	Z <Y1, Y2 var;\n" +
-		"	       ^^\n" +
-		"Syntax error, insert \">\" to complete ReferenceType1\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	Z <Y1, Y2 var;\n" +
-		"	       ^^\n" +
-		"Y2 cannot be resolved to a type\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			Z <Y1, Y2 var;
+			       ^^
+		Syntax error, insert ">" to complete ReferenceType1
+		----------
+		2. ERROR in X.java (at line 2)
+			Z <Y1, Y2 var;
+			       ^^
+		Y2 cannot be resolved to a type
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -2280,28 +2508,34 @@ public void test0040() {
 public void test0041() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	Z <Y1, for Y2> var;\n" +
-		"}\n"
+		"""
+			public class X {
+				Z <Y1, for Y2> var;
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	Z <Y1, for Y2> var;\n" +
-		"	  ^^^^^^^^^^^^\n" +
-		"Syntax error on tokens, delete these tokens\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			Z <Y1, for Y2> var;
+			  ^^^^^^^^^^^^
+		Syntax error on tokens, delete these tokens
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	Z <Y1, for Y2> var;\n" +
-		"	       ^^^\n" +
-		"Syntax error on token \"for\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			Z <Y1, for Y2> var;
+			       ^^^
+		Syntax error on token "for", delete this token
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -2313,29 +2547,31 @@ public void test0041() {
 public void test0042() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"void ___eval() {\n" +
-		"	new Runnable() {\n" +
-		"		int ___run() throws Throwable {\n" +
-		"			return blah;\n" +
-		"		}\n" +
-		"		private String blarg;\n" +
-		"		public void run() {\n" +
-		"		}\n" +
-		"	};\n" +
-		"}\n" +
-		"public class X {\n" +
-		"	private static int x;\n" +
-		"	private String blah;\n" +
-		"	public static void main(String[] args) {\n" +
-		"	}\n" +
-		"	public void hello() {\n" +
-		"	}\n" +
-		"	public boolean blah() {\n" +
-		"		return false;\n" +
-		"	}\n" +
-		"	public void foo() {\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			void ___eval() {
+				new Runnable() {
+					int ___run() throws Throwable {
+						return blah;
+					}
+					private String blarg;
+					public void run() {
+					}
+				};
+			}
+			public class X {
+				private static int x;
+				private String blah;
+				public static void main(String[] args) {
+				}
+				public void hello() {
+				}
+				public boolean blah() {
+					return false;
+				}
+				public void foo() {
+				}
+			}
+			"""
 	};
 
 	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK22) ?
@@ -2402,17 +2638,19 @@ public void test0043() {
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in x\\X.java (at line 3)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error on token \"}\", delete this token\n" +
-		"----------\n" +
-		"2. ERROR in x\\X.java (at line 4)\n" +
-		"	public static void foo(){}\n" +
-		"	                         ^\n" +
-		"Syntax error, insert \"}\" to complete ClassBody\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in x\\X.java (at line 3)
+			}
+			^
+		Syntax error on token "}", delete this token
+		----------
+		2. ERROR in x\\X.java (at line 4)
+			public static void foo(){}
+			                         ^
+		Syntax error, insert "}" to complete ClassBody
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
@@ -2432,49 +2670,55 @@ public void test0043() {
 public void test0044() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	public <T> X(T t){\n" +
-		"		System.out.println(t);\n" +
-		"	}\n" +
-		"	}\n" +
-		"	public static void main(String[] args) {\n" +
-		"		class Local extends X {\n" +
-		"			Local() {\n" +
-		"				<String>super(\"SUCCESS\");\n" +
-		"			}\n" +
-		"		}\n" +
-		"		new Local();\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class X {
+				public <T> X(T t){
+					System.out.println(t);
+				}
+				}
+				public static void main(String[] args) {
+					class Local extends X {
+						Local() {
+							<String>super("SUCCESS");
+						}
+					}
+					new Local();
+				}
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public <T> X(T t){\n" +
-		"	        ^\n" +
-		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error on token \"}\", delete this token\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 9)\n" +
-		"	<String>super(\"SUCCESS\");\n" +
-		"	 ^^^^^^\n" +
-		"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			public <T> X(T t){
+			        ^
+		Syntax error, type parameters are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 5)
+			}
+			^
+		Syntax error on token "}", delete this token
+		----------
+		3. ERROR in X.java (at line 9)
+			<String>super("SUCCESS");
+			 ^^^^^^
+		Syntax error, parameterized types are only available if source level is 1.5 or greater
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error on token \"}\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 5)
+			}
+			^
+		Syntax error on token "}", delete this token
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -2489,22 +2733,26 @@ public void test0044() {
 public void test0045() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	public void foo(){\n" +
-		"	}\n" +
-		"	}\n" +
-		"	public void bar() {\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class X {
+				public void foo(){
+				}
+				}
+				public void bar() {
+				}
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error on token \"}\", delete this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 4)
+			}
+			^
+		Syntax error on token "}", delete this token
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
@@ -2524,18 +2772,21 @@ public void test0045() {
 public void test0046() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public @interface X {\n" +
-		"	String annName();\n" +
-		"}"
+		"""
+			public @interface X {
+				String annName();
+			}"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public @interface X {\n" +
-		"	                  ^\n" +
-		"Syntax error, annotation declarations are only available if source level is 1.5 or greater\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			public @interface X {
+			                  ^
+		Syntax error, annotation declarations are only available if source level is 1.5 or greater
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
@@ -2561,18 +2812,20 @@ public void test0047() {
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in A.java (at line 1)\n" +
-		"	public @interface A {}\n" +
-		"	                  ^\n" +
-		"Syntax error, annotation declarations are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	@A public class X {\n" +
-		"	^^\n" +
-		"Syntax error, annotations are only available if source level is 1.5 or greater\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in A.java (at line 1)
+			public @interface A {}
+			                  ^
+		Syntax error, annotation declarations are only available if source level is 1.5 or greater
+		----------
+		----------
+		1. ERROR in X.java (at line 1)
+			@A public class X {
+			^^
+		Syntax error, annotations are only available if source level is 1.5 or greater
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
@@ -2588,29 +2841,35 @@ public void test0047() {
 public void test0048() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	void foo(X ... arg[]){\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class X {
+				void foo(X ... arg[]){
+				}
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	void foo(X ... arg[]){\n" +
-		"	         ^^^^^^^^^\n" +
-		"Syntax error, varargs are only available if source level is 1.5 or greater\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			void foo(X ... arg[]){
+			         ^^^^^^^^^
+		Syntax error, varargs are only available if source level is 1.5 or greater
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	void foo(X ... arg[]){\n" +
-		"	               ^^^\n" +
-		"Extended dimensions are illegal for a variable argument\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			void foo(X ... arg[]){
+			               ^^^
+		Extended dimensions are illegal for a variable argument
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -2622,37 +2881,41 @@ public void test0048() {
 public void test0049() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"@interface MyAnn {\n" +
-		"	String value1() default \"\";\n" +
-		"	String value2();\n" +
-		"}\n" +
-		"class ZZZ {}		\n" +
-		"public @MyAnn(\"\",\"\") class Test {		\n" +
-		"}\n"
+		"""
+			@interface MyAnn {
+				String value1() default "";
+				String value2();
+			}
+			class ZZZ {}	\t
+			public @MyAnn("","") class Test {	\t
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	@interface MyAnn {\n" +
-		"	           ^^^^^\n" +
-		"Syntax error, annotation declarations are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 6)\n" +
-		"	public @MyAnn(\"\",\"\") class Test {		\n" +
-		"	              ^^\n" +
-		"Syntax error, insert \")\" to complete Modifier\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 6)\n" +
-		"	public @MyAnn(\"\",\"\") class Test {		\n" +
-		"	              ^^\n" +
-		"The attribute value is undefined for the annotation type MyAnn\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 6)\n" +
-		"	public @MyAnn(\"\",\"\") class Test {		\n" +
-		"	                           ^^^^\n" +
-		"The public type Test must be defined in its own file\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 1)
+			@interface MyAnn {
+			           ^^^^^
+		Syntax error, annotation declarations are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 6)
+			public @MyAnn("","") class Test {	\t
+			              ^^
+		Syntax error, insert ")" to complete Modifier
+		----------
+		3. ERROR in X.java (at line 6)
+			public @MyAnn("","") class Test {	\t
+			              ^^
+		The attribute value is undefined for the annotation type MyAnn
+		----------
+		4. ERROR in X.java (at line 6)
+			public @MyAnn("","") class Test {	\t
+			                           ^^^^
+		The public type Test must be defined in its own file
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 	String token = (this.complianceLevel >= ClassFileConstants.JDK21) ? "." : "<";
@@ -2684,50 +2947,58 @@ public void test0049() {
 public void test0050() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	void foo(List<String>... args) {}\n" +
-		"}\n"
+		"""
+			public class X {
+				void foo(List<String>... args) {}
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	void foo(List<String>... args) {}\n" +
-		"	         ^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, varargs are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	void foo(List<String>... args) {}\n" +
-		"	         ^^^^\n" +
-		"List cannot be resolved to a type\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 2)\n" +
-		"	void foo(List<String>... args) {}\n" +
-		"	              ^^^^^^\n" +
-		"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			void foo(List<String>... args) {}
+			         ^^^^^^^^^^^^^^^^^^^^
+		Syntax error, varargs are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 2)
+			void foo(List<String>... args) {}
+			         ^^^^
+		List cannot be resolved to a type
+		----------
+		3. ERROR in X.java (at line 2)
+			void foo(List<String>... args) {}
+			              ^^^^^^
+		Syntax error, parameterized types are only available if source level is 1.5 or greater
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	void foo(List<String>... args) {}\n" +
-		"	         ^^^^\n" +
-		"List cannot be resolved to a type\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			void foo(List<String>... args) {}
+			         ^^^^
+		List cannot be resolved to a type
+		----------
+		""";
 	String expected17ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	void foo(List<String>... args) {}\n" +
-		"	         ^^^^\n" +
-		"List cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 2)\n" +
-		"	void foo(List<String>... args) {}\n" +
-		"	                         ^^^^\n" +
-		"Type safety: Potential heap pollution via varargs parameter args\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			void foo(List<String>... args) {}
+			         ^^^^
+		List cannot be resolved to a type
+		----------
+		2. WARNING in X.java (at line 2)
+			void foo(List<String>... args) {}
+			                         ^^^^
+		Type safety: Potential heap pollution via varargs parameter args
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -2740,38 +3011,44 @@ public void test0050() {
 public void test0051() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	void foo(java.util.List2<String>... args) {}\n" +
-		"}\n"
+		"""
+			public class X {
+				void foo(java.util.List2<String>... args) {}
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	void foo(java.util.List2<String>... args) {}\n" +
-		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, varargs are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	void foo(java.util.List2<String>... args) {}\n" +
-		"	         ^^^^^^^^^^^^^^^\n" +
-		"java.util.List2 cannot be resolved to a type\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 2)\n" +
-		"	void foo(java.util.List2<String>... args) {}\n" +
-		"	                         ^^^^^^\n" +
-		"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			void foo(java.util.List2<String>... args) {}
+			         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		Syntax error, varargs are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 2)
+			void foo(java.util.List2<String>... args) {}
+			         ^^^^^^^^^^^^^^^
+		java.util.List2 cannot be resolved to a type
+		----------
+		3. ERROR in X.java (at line 2)
+			void foo(java.util.List2<String>... args) {}
+			                         ^^^^^^
+		Syntax error, parameterized types are only available if source level is 1.5 or greater
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	void foo(java.util.List2<String>... args) {}\n" +
-		"	         ^^^^^^^^^^^^^^^\n" +
-		"java.util.List2 cannot be resolved to a type\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			void foo(java.util.List2<String>... args) {}
+			         ^^^^^^^^^^^^^^^
+		java.util.List2 cannot be resolved to a type
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -2784,58 +3061,66 @@ public void test0051() {
 public void test0052() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	void foo1() {\n" +
-		"		class Y  {\n" +
-		"		}\n" +
-		"		void foo2() {\n" +
-		"		}\n" +
-		"		class Z<T> { \n" +
-		"		}\n" +
-		"	}\n" +
-		"} \n"
+		"""
+			public class X {
+				void foo1() {
+					class Y  {
+					}
+					void foo2() {
+					}
+					class Z<T> {\s
+					}
+				}
+			}\s
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	void foo2() {\n" +
-		"	^^^^\n" +
-		"Syntax error on token \"void\", new expected\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	class Z<T> { \n" +
-		"	^^^^^\n" +
-		"Syntax error on token \"class\", invalid AssignmentOperator\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 7)\n" +
-		"	class Z<T> { \n" +
-		"	         ^\n" +
-		"Syntax error on token \">\", ; expected\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 5)
+			void foo2() {
+			^^^^
+		Syntax error on token "void", new expected
+		----------
+		2. ERROR in X.java (at line 7)
+			class Z<T> {\s
+			^^^^^
+		Syntax error on token "class", invalid AssignmentOperator
+		----------
+		3. ERROR in X.java (at line 7)
+			class Z<T> {\s
+			         ^
+		Syntax error on token ">", ; expected
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	void foo2() {\n" +
-		"	^^^^\n" +
-		"Syntax error on token \"void\", new expected\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 6)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error, insert \";\" to complete Statement\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 5)
+			void foo2() {
+			^^^^
+		Syntax error on token "void", new expected
+		----------
+		2. ERROR in X.java (at line 6)
+			}
+			^
+		Syntax error, insert ";" to complete Statement
+		----------
+		""";
 
 	String expectedJ14ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	void foo2() {\n" +
-		"	^^^^\n" +
-		"Syntax error on token \"void\", record expected\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 5)
+			void foo2() {
+			^^^^
+		Syntax error on token "void", record expected
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -2848,25 +3133,29 @@ public void test0052() {
 public void test0053() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	public static void main(String[] args) {\n" +
-		"		assert true;\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class X {
+				public static void main(String[] args) {
+					assert true;
+				}
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	assert true;\n" +
-		"	^^^^^^\n" +
-		"\'assert\' should not be used as an identifier, since it is a reserved keyword from source level 1.4 on\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	assert true;\n" +
-		"	^^^^^^\n" +
-		"Syntax error on token \"assert\", AssignmentOperator expected after this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. WARNING in X.java (at line 3)
+			assert true;
+			^^^^^^
+		'assert' should not be used as an identifier, since it is a reserved keyword from source level 1.4 on
+		----------
+		2. ERROR in X.java (at line 3)
+			assert true;
+			^^^^^^
+		Syntax error on token "assert", AssignmentOperator expected after this token
+		----------
+		""";
 	String expected14ProblemLog =
 		"";
 
@@ -2883,20 +3172,24 @@ public void test0053() {
 public void test0054() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	public static void main(String[] args) {\n" +
-		"		try (int i = 0) {};\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class X {
+				public static void main(String[] args) {
+					try (int i = 0) {};
+				}
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	try (int i = 0) {};\n" +
-		"	     ^^^^^^^^^\n" +
-		"Resource specification not allowed here for source level below 1.7\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 3)
+			try (int i = 0) {};
+			     ^^^^^^^^^
+		Resource specification not allowed here for source level below 1.7
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
@@ -2904,12 +3197,14 @@ public void test0054() {
 		expected14ProblemLog;
 
 	String expected17ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	try (int i = 0) {};\n" +
-		"	     ^^^\n" +
-		"The resource type int does not implement java.lang.AutoCloseable\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in X.java (at line 3)
+			try (int i = 0) {};
+			     ^^^
+		The resource type int does not implement java.lang.AutoCloseable
+		----------
+		""";
 	runComplianceParserTest(
 		testFiles,
 		expected13ProblemLog,
@@ -2925,27 +3220,31 @@ public void test0055() {
 	}
 	String[] testFiles = new String[] {
 		"X.java",
-		"import java.io.*;\n" +
-		"public class X {\n" +
-		"	public static void main(String[] args) {\n" +
-		"		try {\n" +
-		"			System.out.println();\n" +
-		"			Reader r = new FileReader(args[0]);\n" +
-		"			r.read();\n" +
-		"		} catch(IOException | RuntimeException e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			import java.io.*;
+			public class X {
+				public static void main(String[] args) {
+					try {
+						System.out.println();
+						Reader r = new FileReader(args[0]);
+						r.read();
+					} catch(IOException | RuntimeException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			"""
 	};
 
 	String expected13ProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	} catch(IOException | RuntimeException e) {\n" +
-			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Multi-catch parameters are not allowed for source level below 1.7\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 8)
+			} catch(IOException | RuntimeException e) {
+			        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		Multi-catch parameters are not allowed for source level below 1.7
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
@@ -2963,41 +3262,45 @@ public void test0055() {
 public void test0056() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	public static void main(String[] args) {\n" +
-		"		try {\n" +
-		"			throw new DaughterOfFoo();\n"+
-		"		} catch(Foo e) {\n" +
-		"			try {\n" +
-		"				throw e;\n" +
-		"			} catch (SonOfFoo e1) {\n" +
-		"			 	e1.printStackTrace();\n" +
-		"			} catch (Foo e1) {}\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"+
-		"class Foo extends Exception {}\n"+
-		"class SonOfFoo extends Foo {}\n"+
-		"class DaughterOfFoo extends Foo {}\n"
+		"""
+			public class X {
+				public static void main(String[] args) {
+					try {
+						throw new DaughterOfFoo();
+					} catch(Foo e) {
+						try {
+							throw e;
+						} catch (SonOfFoo e1) {
+						 	e1.printStackTrace();
+						} catch (Foo e1) {}
+					}
+				}
+			}
+			class Foo extends Exception {}
+			class SonOfFoo extends Foo {}
+			class DaughterOfFoo extends Foo {}
+			"""
 	};
 
 	String expected13ProblemLog =
-			"----------\n" +
-			"1. WARNING in X.java (at line 14)\n" +
-			"	class Foo extends Exception {}\n" +
-			"	      ^^^\n" +
-			"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 15)\n" +
-			"	class SonOfFoo extends Foo {}\n" +
-			"	      ^^^^^^^^\n" +
-			"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 16)\n" +
-			"	class DaughterOfFoo extends Foo {}\n" +
-			"	      ^^^^^^^^^^^^^\n" +
-			"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" +
-			"----------\n";
+			"""
+		----------
+		1. WARNING in X.java (at line 14)
+			class Foo extends Exception {}
+			      ^^^
+		The serializable class Foo does not declare a static final serialVersionUID field of type long
+		----------
+		2. WARNING in X.java (at line 15)
+			class SonOfFoo extends Foo {}
+			      ^^^^^^^^
+		The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long
+		----------
+		3. WARNING in X.java (at line 16)
+			class DaughterOfFoo extends Foo {}
+			      ^^^^^^^^^^^^^
+		The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
@@ -3005,27 +3308,29 @@ public void test0056() {
 		expected14ProblemLog;
 
 	String expected17ProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	} catch (SonOfFoo e1) {\n" +
-			"	         ^^^^^^^^\n" +
-			"Unreachable catch block for SonOfFoo. This exception is never thrown from the try statement body\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 14)\n" +
-			"	class Foo extends Exception {}\n" +
-			"	      ^^^\n" +
-			"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 15)\n" +
-			"	class SonOfFoo extends Foo {}\n" +
-			"	      ^^^^^^^^\n" +
-			"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" +
-			"----------\n" +
-			"4. WARNING in X.java (at line 16)\n" +
-			"	class DaughterOfFoo extends Foo {}\n" +
-			"	      ^^^^^^^^^^^^^\n" +
-			"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 8)
+			} catch (SonOfFoo e1) {
+			         ^^^^^^^^
+		Unreachable catch block for SonOfFoo. This exception is never thrown from the try statement body
+		----------
+		2. WARNING in X.java (at line 14)
+			class Foo extends Exception {}
+			      ^^^
+		The serializable class Foo does not declare a static final serialVersionUID field of type long
+		----------
+		3. WARNING in X.java (at line 15)
+			class SonOfFoo extends Foo {}
+			      ^^^^^^^^
+		The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long
+		----------
+		4. WARNING in X.java (at line 16)
+			class DaughterOfFoo extends Foo {}
+			      ^^^^^^^^^^^^^
+		The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long
+		----------
+		""";
 	runComplianceParserTest(
 		testFiles,
 		expected13ProblemLog,
@@ -3041,18 +3346,22 @@ public void test0057() {
 	}
 	String[] testFiles = new String[] {
 		"X.java",
-		"interface I {\n" +
-		"  public default void foo() { System.out.println(); }\n" +
-		"}\n"
+		"""
+			interface I {
+			  public default void foo() { System.out.println(); }
+			}
+			"""
 	};
 
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public default void foo() { System.out.println(); }\n" +
-			"	                    ^^^^^\n" +
-			"Default methods are allowed only at source level 1.8 or above\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 2)
+			public default void foo() { System.out.println(); }
+			                    ^^^^^
+		Default methods are allowed only at source level 1.8 or above
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -3070,21 +3379,25 @@ public void test0058() {
 	}
 	String[] testFiles = new String[] {
 		"X.java",
-		"interface I {\n" +
-		"  void foo(int p);\n" +
-		"}\n" +
-		"public class X {\n" +
-		"  I i = System::exit;\n" +
-		"}\n"
+		"""
+			interface I {
+			  void foo(int p);
+			}
+			public class X {
+			  I i = System::exit;
+			}
+			"""
 	};
 
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	I i = System::exit;\n" +
-			"	      ^^^^^^^^^^^^\n" +
-			"Method references are allowed only at source level 1.8 or above\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 5)
+			I i = System::exit;
+			      ^^^^^^^^^^^^
+		Method references are allowed only at source level 1.8 or above
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -3102,30 +3415,34 @@ public void test0059() {
 	}
 	String[] testFiles = new String[] {
 		"X.java",
-		"interface I {\n" +
-		"  void foo(int p);\n" +
-		"}\n" +
-		"class Y {\n" +
-		"   static void goo(int x) {\n" +
-		"   }\n" +
-		"}\n" +
-		"public class X extends Y {\n" +
-		"  I i = super::goo;\n" +
-		"}\n"
+		"""
+			interface I {
+			  void foo(int p);
+			}
+			class Y {
+			   static void goo(int x) {
+			   }
+			}
+			public class X extends Y {
+			  I i = super::goo;
+			}
+			"""
 	};
 
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	I i = super::goo;\n" +
-			"	      ^^^^^^^^^^\n" +
-			"Method references are allowed only at source level 1.8 or above\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 9)\n" +
-			"	I i = super::goo;\n" +
-			"	      ^^^^^^^^^^\n" +
-			"The method goo(int) from the type Y should be accessed in a static way \n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 9)
+			I i = super::goo;
+			      ^^^^^^^^^^
+		Method references are allowed only at source level 1.8 or above
+		----------
+		2. ERROR in X.java (at line 9)
+			I i = super::goo;
+			      ^^^^^^^^^^
+		The method goo(int) from the type Y should be accessed in a static way\s
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -3143,25 +3460,29 @@ public void test0060() {
 	}
 	String[] testFiles = new String[] {
 		"X.java",
-		"interface I {\n" +
-		"  void foo(int p);\n" +
-		"}\n" +
-		"class Y {\n" +
-		"   void goo(int x) {\n" +
-		"   }\n" +
-		"}\n" +
-		"public class X extends Y {\n" +
-		"  I i = new Y()::goo;\n" +
-		"}\n"
+		"""
+			interface I {
+			  void foo(int p);
+			}
+			class Y {
+			   void goo(int x) {
+			   }
+			}
+			public class X extends Y {
+			  I i = new Y()::goo;
+			}
+			"""
 	};
 
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	I i = new Y()::goo;\n" +
-			"	      ^^^^^^^^^^^^\n" +
-			"Method references are allowed only at source level 1.8 or above\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 9)
+			I i = new Y()::goo;
+			      ^^^^^^^^^^^^
+		Method references are allowed only at source level 1.8 or above
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -3179,27 +3500,31 @@ public void test0061() {
 	}
 	String[] testFiles = new String[] {
 		"X.java",
-		"interface I {\n" +
-		"  void foo(int p);\n" +
-		"}\n" +
-		"class Y {\n" +
-		"   void goo(int x) {\n" +
-		"   }\n" +
-		"   Y() {}\n" +
-		"   Y(int x) {}\n" +
-		"}\n" +
-		"public class X extends Y {\n" +
-		"  I i = Y::new;\n" +
-		"}\n"
+		"""
+			interface I {
+			  void foo(int p);
+			}
+			class Y {
+			   void goo(int x) {
+			   }
+			   Y() {}
+			   Y(int x) {}
+			}
+			public class X extends Y {
+			  I i = Y::new;
+			}
+			"""
 	};
 
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
-			"	I i = Y::new;\n" +
-			"	      ^^^^^^\n" +
-			"Constructor references are allowed only at source level 1.8 or above\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 11)
+			I i = Y::new;
+			      ^^^^^^
+		Constructor references are allowed only at source level 1.8 or above
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -3217,21 +3542,25 @@ public void test0062() {
 	}
 	String[] testFiles = new String[] {
 		"X.java",
-		"interface I {\n" +
-		"  int foo(int p);\n" +
-		"}\n" +
-		"public class X {\n" +
-		"  I i = p -> 10 + 20 + 30;\n" +
-		"}\n"
+		"""
+			interface I {
+			  int foo(int p);
+			}
+			public class X {
+			  I i = p -> 10 + 20 + 30;
+			}
+			"""
 	};
 
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	I i = p -> 10 + 20 + 30;\n" +
-			"	      ^^^^^^^^^^^^^^^^^\n" +
-			"Lambda expressions are allowed only at source level 1.8 or above\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 5)
+			I i = p -> 10 + 20 + 30;
+			      ^^^^^^^^^^^^^^^^^
+		Lambda expressions are allowed only at source level 1.8 or above
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -3249,35 +3578,39 @@ public void test0063() {
 	}
 	String[] testFiles = new String[] {
 		"X.java",
-		"interface I {\n" +
-		"  int foo(int p);\n" +
-		"}\n" +
-		"public class X<T> {\n" +
-		"  I i = X<String>::foo;\n" +
-		"  I i2 = (p) -> 10;\n" +
-		"  public static int foo(int p) {\n" +
-		"	return p;\n" +
-		"  }\n" +
-		"}\n"
+		"""
+			interface I {
+			  int foo(int p);
+			}
+			public class X<T> {
+			  I i = X<String>::foo;
+			  I i2 = (p) -> 10;
+			  public static int foo(int p) {
+				return p;
+			  }
+			}
+			"""
 	};
 
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	I i = X<String>::foo;\n" +
-			"	      ^^^^^^^^^^^^^^\n" +
-			"Method references are allowed only at source level 1.8 or above\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	I i = X<String>::foo;\n" +
-			"	      ^^^^^^^^^^^^^^\n" +
-			"The method foo(int) from the type X<String> should be accessed in a static way \n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	I i2 = (p) -> 10;\n" +
-			"	       ^^^^^^^^^\n" +
-			"Lambda expressions are allowed only at source level 1.8 or above\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 5)
+			I i = X<String>::foo;
+			      ^^^^^^^^^^^^^^
+		Method references are allowed only at source level 1.8 or above
+		----------
+		2. ERROR in X.java (at line 5)
+			I i = X<String>::foo;
+			      ^^^^^^^^^^^^^^
+		The method foo(int) from the type X<String> should be accessed in a static way\s
+		----------
+		3. ERROR in X.java (at line 6)
+			I i2 = (p) -> 10;
+			       ^^^^^^^^^
+		Lambda expressions are allowed only at source level 1.8 or above
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -3295,17 +3628,20 @@ public void test0064() {
 	}
 	String[] source = new String[] {
 		"X.java",
-		"class X {\n" +
-		"	void foo(X this){}\n" +
-		"}"
+		"""
+			class X {
+				void foo(X this){}
+			}"""
 	};
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	void foo(X this){}\n" +
-			"	           ^^^^\n" +
-			"Explicit declaration of 'this' parameter is allowed only at source level 1.8 or above\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 2)
+			void foo(X this){}
+			           ^^^^
+		Explicit declaration of 'this' parameter is allowed only at source level 1.8 or above
+		----------
+		""";
 	runComplianceParserTest(
 			source,
 			expectedProblemLog,
@@ -3322,54 +3658,59 @@ public void testBug391201() {
 	}
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	@Marker int foo(@Marker int p) {\n" +
-		"		@Marker int i = 0;\n" +
-		"		return i;\n" +
-		"	}\n" +
-		"	@Marker\n" +
-		"	class Y {}\n" +
-		"	@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-		"	@interface Marker {}" +
-		"}",
+		"""
+			public class X {
+				@Marker int foo(@Marker int p) {
+					@Marker int i = 0;
+					return i;
+				}
+				@Marker
+				class Y {}
+				@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+				@interface Marker {}\
+			}""",
 		"java/lang/annotation/ElementType.java",
-		"package java.lang.annotation;\n" +
-		"public enum ElementType {\n" +
-		"    TYPE,\n" +
-		"    FIELD,\n" +
-		"    METHOD,\n" +
-		"    PARAMETER,\n" +
-		"    CONSTRUCTOR,\n" +
-		"    LOCAL_VARIABLE,\n" +
-		"    ANNOTATION_TYPE,\n" +
-		"    PACKAGE,\n" +
-		"    TYPE_PARAMETER,\n" +
-		"    TYPE_USE\n" +
-		"}\n"
+		"""
+			package java.lang.annotation;
+			public enum ElementType {
+			    TYPE,
+			    FIELD,
+			    METHOD,
+			    PARAMETER,
+			    CONSTRUCTOR,
+			    LOCAL_VARIABLE,
+			    ANNOTATION_TYPE,
+			    PACKAGE,
+			    TYPE_PARAMETER,
+			    TYPE_USE
+			}
+			"""
 	};
 
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	@Marker int foo(@Marker int p) {\n" +
-			"	^^^^^^^\n" +
-			"Syntax error, type annotations are available only when source level is at least 1.8\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 2)\n" +
-			"	@Marker int foo(@Marker int p) {\n" +
-			"	                ^^^^^^^\n" +
-			"Syntax error, type annotations are available only when source level is at least 1.8\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 3)\n" +
-			"	@Marker int i = 0;\n" +
-			"	^^^^^^^\n" +
-			"Syntax error, type annotations are available only when source level is at least 1.8\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 6)\n" +
-			"	@Marker\n" +
-			"	^^^^^^^\n" +
-			"Syntax error, type annotations are available only when source level is at least 1.8\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 2)
+			@Marker int foo(@Marker int p) {
+			^^^^^^^
+		Syntax error, type annotations are available only when source level is at least 1.8
+		----------
+		2. ERROR in X.java (at line 2)
+			@Marker int foo(@Marker int p) {
+			                ^^^^^^^
+		Syntax error, type annotations are available only when source level is at least 1.8
+		----------
+		3. ERROR in X.java (at line 3)
+			@Marker int i = 0;
+			^^^^^^^
+		Syntax error, type annotations are available only when source level is at least 1.8
+		----------
+		4. ERROR in X.java (at line 6)
+			@Marker
+			^^^^^^^
+		Syntax error, type annotations are available only when source level is at least 1.8
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -3385,46 +3726,50 @@ public void testBug399773() {
 		return;
 	String[] testFiles = new String[] {
 		"X.java",
-		"interface I {\n" +
-		"	void doit();\n" +
-		"	default void doitalso () {}\n" +
-		"}\n" +
-		"interface J {\n" +
-		"	void doit();\n" +
-		"	default void doitalso () {}\n" +
-		"}\n" +
-		"public class X {\n" +
-		"	Object p = (I & J) () -> {};\n" +
-		"}\n" ,
+		"""
+			interface I {
+				void doit();
+				default void doitalso () {}
+			}
+			interface J {
+				void doit();
+				default void doitalso () {}
+			}
+			public class X {
+				Object p = (I & J) () -> {};
+			}
+			""" ,
 	};
 
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	default void doitalso () {}\n" +
-			"	             ^^^^^^^^^^^\n" +
-			"Default methods are allowed only at source level 1.8 or above\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	default void doitalso () {}\n" +
-			"	             ^^^^^^^^^^^\n" +
-			"Default methods are allowed only at source level 1.8 or above\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 10)\n" +
-			"	Object p = (I & J) () -> {};\n" +
-			"	            ^^^^^\n" +
-			"Additional bounds are not allowed in cast operator at source levels below 1.8\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 10)\n" +
-			"	Object p = (I & J) () -> {};\n" +
-			"	                   ^^^^^\n" +
-			"Lambda expressions are allowed only at source level 1.8 or above\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 10)\n" +
-			"	Object p = (I & J) () -> {};\n" +
-			"	                   ^^^^^\n" +
-			"The target type of this expression must be a functional interface\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 3)
+			default void doitalso () {}
+			             ^^^^^^^^^^^
+		Default methods are allowed only at source level 1.8 or above
+		----------
+		2. ERROR in X.java (at line 7)
+			default void doitalso () {}
+			             ^^^^^^^^^^^
+		Default methods are allowed only at source level 1.8 or above
+		----------
+		3. ERROR in X.java (at line 10)
+			Object p = (I & J) () -> {};
+			            ^^^^^
+		Additional bounds are not allowed in cast operator at source levels below 1.8
+		----------
+		4. ERROR in X.java (at line 10)
+			Object p = (I & J) () -> {};
+			                   ^^^^^
+		Lambda expressions are allowed only at source level 1.8 or above
+		----------
+		5. ERROR in X.java (at line 10)
+			Object p = (I & J) () -> {};
+			                   ^^^^^
+		The target type of this expression must be a functional interface
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -3441,20 +3786,24 @@ public void testBug399778() {
 		return;
 	String[] testFiles = new String[] {
 		"X.java",
-		"import java.util.Arrays;\n" +
-		"import java.util.List;\n" +
-		"public class X  {\n" +
-		"		List<String> l = null == null ? Arrays.asList() : Arrays.asList(\"Hello\",\"world\");\n" +
-		"}\n",
+		"""
+			import java.util.Arrays;
+			import java.util.List;
+			public class X  {
+					List<String> l = null == null ? Arrays.asList() : Arrays.asList("Hello","world");
+			}
+			""",
 	};
 
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	List<String> l = null == null ? Arrays.asList() : Arrays.asList(\"Hello\",\"world\");\n" +
-			"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type mismatch: cannot convert from List<capture#1-of ? extends Object> to List<String>\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 4)
+			List<String> l = null == null ? Arrays.asList() : Arrays.asList("Hello","world");
+			                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		Type mismatch: cannot convert from List<capture#1-of ? extends Object> to List<String>
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -3472,20 +3821,24 @@ public void testBug399778a() {
 		return;
 	String[] testFiles = new String[] {
 		"X.java",
-		"import java.util.Arrays;\n" +
-		"import java.util.List;\n" +
-		"public class X  {\n" +
-		"		List<String> l = (List<String>) (null == null ? Arrays.asList() : Arrays.asList(\"Hello\",\"world\"));\n" +
-		"}\n",
+		"""
+			import java.util.Arrays;
+			import java.util.List;
+			public class X  {
+					List<String> l = (List<String>) (null == null ? Arrays.asList() : Arrays.asList("Hello","world"));
+			}
+			""",
 	};
 
 	String expectedProblemLog =
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	List<String> l = (List<String>) (null == null ? Arrays.asList() : Arrays.asList(\"Hello\",\"world\"));\n" +
-			"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety: Unchecked cast from List<capture#1-of ? extends Object> to List<String>\n" +
-			"----------\n";
+			"""
+		----------
+		1. WARNING in X.java (at line 4)
+			List<String> l = (List<String>) (null == null ? Arrays.asList() : Arrays.asList("Hello","world"));
+			                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		Type safety: Unchecked cast from List<capture#1-of ? extends Object> to List<String>
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -3504,35 +3857,39 @@ public void testBug399780() {
 	}
 	String[] testFiles = new String[] {
 		"I.java",
-		"interface I {\n" +
-		"  public static void foo1() { System.out.println(); }\n" +
-		"  public static void foo2();\n" +
-		"  public abstract static void foo3();\n" +
-		"}\n"
+		"""
+			interface I {
+			  public static void foo1() { System.out.println(); }
+			  public static void foo2();
+			  public abstract static void foo3();
+			}
+			"""
 	};
 
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in I.java (at line 2)\n" +
-			"	public static void foo1() { System.out.println(); }\n" +
-			"	                   ^^^^^^\n" +
-			"Static methods are allowed in interfaces only at source level 1.8 or above\n" +
-			"----------\n" +
-			"2. ERROR in I.java (at line 2)\n" +
-			"	public static void foo1() { System.out.println(); }\n" +
-			"	                   ^^^^^^\n" +
-			"Illegal modifier for the interface method foo1; only public & abstract are permitted\n" +
-			"----------\n" +
-			"3. ERROR in I.java (at line 3)\n" +
-			"	public static void foo2();\n" +
-			"	                   ^^^^^^\n" +
-			"Illegal modifier for the interface method foo2; only public & abstract are permitted\n" +
-			"----------\n" +
-			"4. ERROR in I.java (at line 4)\n" +
-			"	public abstract static void foo3();\n" +
-			"	                            ^^^^^^\n" +
-			"Illegal modifier for the interface method foo3; only public & abstract are permitted\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in I.java (at line 2)
+			public static void foo1() { System.out.println(); }
+			                   ^^^^^^
+		Static methods are allowed in interfaces only at source level 1.8 or above
+		----------
+		2. ERROR in I.java (at line 2)
+			public static void foo1() { System.out.println(); }
+			                   ^^^^^^
+		Illegal modifier for the interface method foo1; only public & abstract are permitted
+		----------
+		3. ERROR in I.java (at line 3)
+			public static void foo2();
+			                   ^^^^^^
+		Illegal modifier for the interface method foo2; only public & abstract are permitted
+		----------
+		4. ERROR in I.java (at line 4)
+			public abstract static void foo3();
+			                            ^^^^^^
+		Illegal modifier for the interface method foo3; only public & abstract are permitted
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -3548,20 +3905,22 @@ public void testBug399780() {
 public void testBug399781() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"   int _;\n" +
-		"	void foo(){\n" +
-		"		int _   = 3;\n" +
-        "		int _123 = 4;\n" +
-        "		int a_   = 5;\n" +
-		"	}\n" +
-        "   void goo(int _) {}\n" +
-		"   void zoo() {\n" +
-        "      try {\n" +
-		"      } catch (Exception _) {\n" +
-        "      }\n" +
-		"   }\n" +
-		"}\n",
+		"""
+			public class X {
+			   int _;
+				void foo(){
+					int _   = 3;
+					int _123 = 4;
+					int a_   = 5;
+				}
+			   void goo(int _) {}
+			   void zoo() {
+			      try {
+			      } catch (Exception _) {
+			      }
+			   }
+			}
+			""",
 	};
 	String problemLog = null;
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
@@ -3692,81 +4051,87 @@ public void test406846() {
 
 	String[] testFiles = new String[] {
 		"X.java",
-		"import java.util.*;\n" +
-		"public class X {\n" +
-		"  public static <E> void printItem(E value, int index) {\n" +
-		"    String output = String.format(\"%d -> %s\", index, value);\n" +
-		"    System.out.println(output);\n" +
-		"  }\n" +
-		"  public static void main(String[] argv) {\n" +
-		"    List<String> list = Arrays.asList(\"A\",\"B\",\"C\");\n" +
-		"    eachWithIndex(list,X::printItem);\n" +
-		"  }\n" +
-		"  interface ItemWithIndexVisitor<E> {\n" +
-		"    public void visit(E item, int index);\n" +
-		"  }\n" +
-		"  public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {\n" +
-		"    for (int i = 0; i < list.size(); i++) {\n" +
-		"         visitor.visit(list.get(i), i);\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			import java.util.*;
+			public class X {
+			  public static <E> void printItem(E value, int index) {
+			    String output = String.format("%d -> %s", index, value);
+			    System.out.println(output);
+			  }
+			  public static void main(String[] argv) {
+			    List<String> list = Arrays.asList("A","B","C");
+			    eachWithIndex(list,X::printItem);
+			  }
+			  interface ItemWithIndexVisitor<E> {
+			    public void visit(E item, int index);
+			  }
+			  public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {
+			    for (int i = 0; i < list.size(); i++) {
+			         visitor.visit(list.get(i), i);
+			    }
+			  }
+			}
+			""",
 	};
 
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	eachWithIndex(list,X::printItem);\n" +
-			"	                   ^^^^^^^^^^^^\n" +
-			"Method references are allowed only at source level 1.8 or above\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 9)
+			eachWithIndex(list,X::printItem);
+			                   ^^^^^^^^^^^^
+		Method references are allowed only at source level 1.8 or above
+		----------
+		""";
 	String expected1314ProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	public static <E> void printItem(E value, int index) {\n" +
-			"	               ^\n" +
-			"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	String output = String.format(\"%d -> %s\", index, value);\n" +
-			"	                       ^^^^^^\n" +
-			"The method format(String, Object[]) in the type String is not applicable for the arguments (String, int, E)\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 8)\n" +
-			"	List<String> list = Arrays.asList(\"A\",\"B\",\"C\");\n" +
-			"	     ^^^^^^\n" +
-			"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 8)\n" +
-			"	List<String> list = Arrays.asList(\"A\",\"B\",\"C\");\n" +
-			"	                           ^^^^^^\n" +
-			"The method asList(T[]) in the type Arrays is not applicable for the arguments (String, String, String)\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 9)\n" +
-			"	eachWithIndex(list,X::printItem);\n" +
-			"	                   ^^^^^^^^^^^^\n" +
-			"Method references are allowed only at source level 1.8 or above\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 11)\n" +
-			"	interface ItemWithIndexVisitor<E> {\n" +
-			"	                               ^\n" +
-			"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 14)\n" +
-			"	public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {\n" +
-			"	               ^\n" +
-			"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
-			"----------\n" +
-			"8. ERROR in X.java (at line 14)\n" +
-			"	public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {\n" +
-			"	                                          ^\n" +
-			"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
-			"----------\n" +
-			"9. ERROR in X.java (at line 14)\n" +
-			"	public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {\n" +
-			"	                                                                        ^\n" +
-			"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 3)
+			public static <E> void printItem(E value, int index) {
+			               ^
+		Syntax error, type parameters are only available if source level is 1.5 or greater
+		----------
+		2. ERROR in X.java (at line 4)
+			String output = String.format("%d -> %s", index, value);
+			                       ^^^^^^
+		The method format(String, Object[]) in the type String is not applicable for the arguments (String, int, E)
+		----------
+		3. ERROR in X.java (at line 8)
+			List<String> list = Arrays.asList("A","B","C");
+			     ^^^^^^
+		Syntax error, parameterized types are only available if source level is 1.5 or greater
+		----------
+		4. ERROR in X.java (at line 8)
+			List<String> list = Arrays.asList("A","B","C");
+			                           ^^^^^^
+		The method asList(T[]) in the type Arrays is not applicable for the arguments (String, String, String)
+		----------
+		5. ERROR in X.java (at line 9)
+			eachWithIndex(list,X::printItem);
+			                   ^^^^^^^^^^^^
+		Method references are allowed only at source level 1.8 or above
+		----------
+		6. ERROR in X.java (at line 11)
+			interface ItemWithIndexVisitor<E> {
+			                               ^
+		Syntax error, type parameters are only available if source level is 1.5 or greater
+		----------
+		7. ERROR in X.java (at line 14)
+			public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {
+			               ^
+		Syntax error, type parameters are only available if source level is 1.5 or greater
+		----------
+		8. ERROR in X.java (at line 14)
+			public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {
+			                                          ^
+		Syntax error, parameterized types are only available if source level is 1.5 or greater
+		----------
+		9. ERROR in X.java (at line 14)
+			public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {
+			                                                                        ^
+		Syntax error, parameterized types are only available if source level is 1.5 or greater
+		----------
+		""";
 
 	runComplianceParserTest(
 			testFiles,
@@ -3787,17 +4152,19 @@ public void test401850() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X<T> {\n" +
-				"   static void foo(Object o) {\n" +
-				"	   System.out.println(\"foo(Object)\");\n" +
-				"   }\n" +
-				"   static void foo(X<String> o) {\n" +
-				"	   System.out.println(\"foo(X<String>)\");\n" +
-				"   }\n" +
-				"   public static void main(String[] args) { \n" +
-				"      foo(new X<>()); \n" +
-				"   } \n" +
-				"}\n",
+				"""
+					public class X<T> {
+					   static void foo(Object o) {
+						   System.out.println("foo(Object)");
+					   }
+					   static void foo(X<String> o) {
+						   System.out.println("foo(X<String>)");
+					   }
+					   public static void main(String[] args) {\s
+					      foo(new X<>());\s
+					   }\s
+					}
+					""",
 			},
 			this.complianceLevel == ClassFileConstants.JDK1_7 ? "foo(Object)" : "foo(X<String>)");
 }
@@ -3809,53 +4176,60 @@ public void test429110() {
 	this.runNegativeTest(
 			new String[] {
 				"java/lang/annotation/ElementType.java",
-				"package java.lang.annotation;\n" +
-				"public enum ElementType {\n" +
-				"    TYPE,\n" +
-				"    FIELD,\n" +
-				"    METHOD,\n" +
-				"    PARAMETER,\n" +
-				"    CONSTRUCTOR,\n" +
-				"    LOCAL_VARIABLE,\n" +
-				"    ANNOTATION_TYPE,\n" +
-				"    PACKAGE,\n" +
-				"    TYPE_PARAMETER,\n" +
-				"    TYPE_USE\n" +
-				"}\n",
+				"""
+					package java.lang.annotation;
+					public enum ElementType {
+					    TYPE,
+					    FIELD,
+					    METHOD,
+					    PARAMETER,
+					    CONSTRUCTOR,
+					    LOCAL_VARIABLE,
+					    ANNOTATION_TYPE,
+					    PACKAGE,
+					    TYPE_PARAMETER,
+					    TYPE_USE
+					}
+					""",
 				"X.java",
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"import java.util.List;\n" +
-				"public class X {\n" +
-				"	@Target(ElementType.TYPE_USE)\n" +
-				"	static @interface NonNull { }\n" +
-				"	List<@NonNull String> foo(List<@NonNull String> arg) {\n" +
-				"		return arg;\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Target;
+					import java.util.List;
+					public class X {
+						@Target(ElementType.TYPE_USE)
+						static @interface NonNull { }
+						List<@NonNull String> foo(List<@NonNull String> arg) {
+							return arg;
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	List<@NonNull String> foo(List<@NonNull String> arg) {\n" +
-			"	     ^^^^^^^^\n" +
-			"Syntax error, type annotations are available only when source level is at least 1.8\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	List<@NonNull String> foo(List<@NonNull String> arg) {\n" +
-			"	                               ^^^^^^^^\n" +
-			"Syntax error, type annotations are available only when source level is at least 1.8\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					List<@NonNull String> foo(List<@NonNull String> arg) {
+					     ^^^^^^^^
+				Syntax error, type annotations are available only when source level is at least 1.8
+				----------
+				2. ERROR in X.java (at line 7)
+					List<@NonNull String> foo(List<@NonNull String> arg) {
+					                               ^^^^^^^^
+				Syntax error, type annotations are available only when source level is at least 1.8
+				----------
+				""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=421477: [1.8][compiler] strange error message for default method in class
 public void test421477() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  default void f() {\n" +
-				"  }\n" +
-				"  default X() {}\n" +
-				"}",
+				"""
+					public class X {
+					  default void f() {
+					  }
+					  default X() {}
+					}""",
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 2)\n" +
@@ -3876,30 +4250,34 @@ public void test428605() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"interface X {\n" +
-				"       default void f() {\n" +
-				"       }\n" +
-				"       static void g() {\n" +
-				"       }\n" +
-				"} \n"
+				"""
+					interface X {
+					       default void f() {
+					       }
+					       static void g() {
+					       }
+					}\s
+					"""
 			},
 			(this.complianceLevel < ClassFileConstants.JDK1_8 ?
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	default void f() {\n" +
-			"	             ^^^\n" +
-			"Default methods are allowed only at source level 1.8 or above\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	static void g() {\n" +
-			"	            ^^^\n" +
-			"Static methods are allowed in interfaces only at source level 1.8 or above\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	static void g() {\n" +
-			"	            ^^^\n" +
-			"Illegal modifier for the interface method g; only public & abstract are permitted\n" +
-			"----------\n" :
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					default void f() {
+					             ^^^
+				Default methods are allowed only at source level 1.8 or above
+				----------
+				2. ERROR in X.java (at line 4)
+					static void g() {
+					            ^^^
+				Static methods are allowed in interfaces only at source level 1.8 or above
+				----------
+				3. ERROR in X.java (at line 4)
+					static void g() {
+					            ^^^
+				Illegal modifier for the interface method g; only public & abstract are permitted
+				----------
+				""" :
 			""));
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=440285
@@ -3909,71 +4287,78 @@ public void testBug440285() {
 		return;
 	runNegativeTest(new String [] {
 		"X.java",
-		"import java.util.function.Function;\n" +
-		"class Y{}\n" +
-		"class Z{}\n" +
-		"public class X {\n" +
-		"	Function<Integer, int[]> m1 = int[]::<Y, Z>new;\n" +
-		"	Function<Integer, int[]> m2 = int[]::<Y>new;\n" +
-		"}",},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	Function<Integer, int[]> m1 = int[]::<Y, Z>new;\n" +
-		"	                                      ^^^^\n" +
-		"Type arguments are not allowed here\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 6)\n" +
-		"	Function<Integer, int[]> m2 = int[]::<Y>new;\n" +
-		"	                                      ^\n" +
-		"Type arguments are not allowed here\n" +
-		"----------\n");
+		"""
+			import java.util.function.Function;
+			class Y{}
+			class Z{}
+			public class X {
+				Function<Integer, int[]> m1 = int[]::<Y, Z>new;
+				Function<Integer, int[]> m2 = int[]::<Y>new;
+			}""",},
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				Function<Integer, int[]> m1 = int[]::<Y, Z>new;
+				                                      ^^^^
+			Type arguments are not allowed here
+			----------
+			2. ERROR in X.java (at line 6)
+				Function<Integer, int[]> m2 = int[]::<Y>new;
+				                                      ^
+			Type arguments are not allowed here
+			----------
+			""");
 }
 public void testBug531714_001() {
 	if (this.complianceLevel >= ClassFileConstants.JDK12)
 		return;
 	String[] testFiles = 			new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	static int twice(int i) {\n" +
-			"		int tw = switch (i) {\n" +
-			"			case 0 -> i * 0;\n" +
-			"			case 1 -> 2;\n" +
-			"			default -> 3;\n" +
-			"		};\n" +
-			"		return tw;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.print(twice(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					static int twice(int i) {
+						int tw = switch (i) {
+							case 0 -> i * 0;
+							case 1 -> 2;
+							default -> 3;
+						};
+						return tw;
+					}
+					public static void main(String[] args) {
+						System.out.print(twice(3));
+					}
+				}
+				""",
 	};
 
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	int tw = switch (i) {\n" +
-			"			case 0 -> i * 0;\n" +
-			"			case 1 -> 2;\n" +
-			"			default -> 3;\n" +
-			"		};\n" +
-			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Switch Expressions are supported from Java 14 onwards only\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case 0 -> i * 0;\n" +
-			"	^^^^^^\n" +
-			"Arrow in case statement supported from Java 14 onwards only\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	case 1 -> 2;\n" +
-			"	^^^^^^\n" +
-			"Arrow in case statement supported from Java 14 onwards only\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 6)\n" +
-			"	default -> 3;\n" +
-			"	^^^^^^^\n" +
-			"Arrow in case statement supported from Java 14 onwards only\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 3)
+			int tw = switch (i) {
+					case 0 -> i * 0;
+					case 1 -> 2;
+					default -> 3;
+				};
+			         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		Switch Expressions are supported from Java 14 onwards only
+		----------
+		2. ERROR in X.java (at line 4)
+			case 0 -> i * 0;
+			^^^^^^
+		Arrow in case statement supported from Java 14 onwards only
+		----------
+		3. ERROR in X.java (at line 5)
+			case 1 -> 2;
+			^^^^^^
+		Arrow in case statement supported from Java 14 onwards only
+		----------
+		4. ERROR in X.java (at line 6)
+			default -> 3;
+			^^^^^^^
+		Arrow in case statement supported from Java 14 onwards only
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -3989,38 +4374,42 @@ public void testBug531714_002() {
 		return;
 	String[] testFiles = new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	static int twice(int i) {\n" +
-			"		switch (i) {\n" +
-			"			case 0 -> i * 0;\n" +
-			"			case 1 -> 2;\n" +
-			"			default -> 3;\n" +
-			"		}\n" +
-			"		return 0;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.print(twice(3));\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					static int twice(int i) {
+						switch (i) {
+							case 0 -> i * 0;
+							case 1 -> 2;
+							default -> 3;
+						}
+						return 0;
+					}
+					public static void main(String[] args) {
+						System.out.print(twice(3));
+					}
+				}
+				""",
 	};
 
 	String expectedProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case 0 -> i * 0;\n" +
-			"	^^^^^^\n" +
-			"Arrow in case statement supported from Java 14 onwards only\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	case 1 -> 2;\n" +
-			"	^^^^^^\n" +
-			"Arrow in case statement supported from Java 14 onwards only\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	default -> 3;\n" +
-			"	^^^^^^^\n" +
-			"Arrow in case statement supported from Java 14 onwards only\n" +
-			"----------\n";
+			"""
+		----------
+		1. ERROR in X.java (at line 4)
+			case 0 -> i * 0;
+			^^^^^^
+		Arrow in case statement supported from Java 14 onwards only
+		----------
+		2. ERROR in X.java (at line 5)
+			case 1 -> 2;
+			^^^^^^
+		Arrow in case statement supported from Java 14 onwards only
+		----------
+		3. ERROR in X.java (at line 6)
+			default -> 3;
+			^^^^^^^
+		Arrow in case statement supported from Java 14 onwards only
+		----------
+		""";
 
 	runComplianceParserTest(
 		testFiles,
@@ -4036,18 +4425,20 @@ public void testBug531714_002() {
 public void testIssue2008() {
 	String[] testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	public X(){\n" +
-        "	}\n" +
-		"   void _() {\n" +
-		"       _();\n" +
-		"   }\n" +
-		"       public static void main(String [] args) {\n" +
-		"           System.out.println(\"OK\");\n" +
-		"       }\n" +
-		"   class _ {\n" +
-		"   }\n" +
-		"}\n"
+		"""
+			public class X {
+				public X(){
+				}
+			   void _() {
+			       _();
+			   }
+			       public static void main(String [] args) {
+			           System.out.println("OK");
+			       }
+			   class _ {
+			   }
+			}
+			"""
 	};
 
 	String expectedProblemLogUpto1_7 = "";

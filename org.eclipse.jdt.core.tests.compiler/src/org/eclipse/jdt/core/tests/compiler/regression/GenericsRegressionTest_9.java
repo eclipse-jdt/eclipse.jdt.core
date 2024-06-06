@@ -39,29 +39,31 @@ public void testBug488663_001() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public Y<String> bar() {\n" +
-			"		Y<String> y = new Y<>() {\n" +
-			"			@Override\n" +
-			"			public void foo(String s) {\n" +
-			"				this.s = s;\n" +
-			"	 		}\n" +
-			"		};\n" +
-			"		return y;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Y<String> y = new X().bar();\n" +
-			"		y.foo(\"Done\");\n" +
-			"		y.print();\n" +
-			"	}\n" +
-			"}\n" +
-			"abstract class Y<T> {\n" +
-			"	String s;\n" +
-			"	public abstract void foo(String s);\n" +
-			"	public void print() {\n" +
-			"		System.out.println(this.s);\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public Y<String> bar() {
+						Y<String> y = new Y<>() {
+							@Override
+							public void foo(String s) {
+								this.s = s;
+					 		}
+						};
+						return y;
+					}
+					public static void main(String[] args) {
+						Y<String> y = new X().bar();
+						y.foo("Done");
+						y.print();
+					}
+				}
+				abstract class Y<T> {
+					String s;
+					public abstract void foo(String s);
+					public void print() {
+						System.out.println(this.s);
+					}
+				}
+				""",
 		},
 		"Done");
 }
@@ -71,41 +73,44 @@ public void testBug488663_002() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public Y<String> bar() {\n" +
-			"		Y<String> y = new Y<>() {\n" +
-			"			@Override\n" +
-			"			public void foo(T t) {\n" +
-			"				this.s = t;\n" +
-			"			}\n" +
-			"		};\n" +
-			"		return y;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Y<String> y = new X().bar();\n" +
-			"		y.foo(\"Done\");\n" +
-			"		y.print();\n" +
-			"	}\n" +
-			"}\n" +
-			"abstract class Y<T> {\n" +
-			"	T s;\n" +
-			"	public abstract void foo(T t);\n" +
-			"	public void print() {\n" +
-			"		System.out.println(this.s);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					public Y<String> bar() {
+						Y<String> y = new Y<>() {
+							@Override
+							public void foo(T t) {
+								this.s = t;
+							}
+						};
+						return y;
+					}
+					public static void main(String[] args) {
+						Y<String> y = new X().bar();
+						y.foo("Done");
+						y.print();
+					}
+				}
+				abstract class Y<T> {
+					T s;
+					public abstract void foo(T t);
+					public void print() {
+						System.out.println(this.s);
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	Y<String> y = new Y<>() {\n" +
-		"	                  ^^^^^\n" +
-		"The type new Y<String>(){} must implement the inherited abstract method Y<String>.foo(String)\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	public void foo(T t) {\n" +
-		"	                ^\n" +
-		"T cannot be resolved to a type\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				Y<String> y = new Y<>() {
+				                  ^^^^^
+			The type new Y<String>(){} must implement the inherited abstract method Y<String>.foo(String)
+			----------
+			2. ERROR in X.java (at line 5)
+				public void foo(T t) {
+				                ^
+			T cannot be resolved to a type
+			----------
+			""");
 }
 
 // diamond operator instantiation of denotable anonymous types with different type params
@@ -113,16 +118,18 @@ public void testBug488663_003() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {	\n" +
-			"@SuppressWarnings(\"unused\") \n" +
-			"	public static void main(String[] args) {\n" +
-			"		Y<?> y1 = new Y<>(){};\n" +
-			"		Y<String> y2 = new Y<>(){};\n" +
-			"		Y<? extends String> y3 = new Y<>() {};\n" +
-			"		Y<? super String> y4 = new Y<>() {};\n" +
-			"	}\n" +
-			"}\n" +
-			"class Y<T> {}\n",
+			"""
+				public class X {\t
+				@SuppressWarnings("unused")\s
+					public static void main(String[] args) {
+						Y<?> y1 = new Y<>(){};
+						Y<String> y2 = new Y<>(){};
+						Y<? extends String> y3 = new Y<>() {};
+						Y<? super String> y4 = new Y<>() {};
+					}
+				}
+				class Y<T> {}
+				""",
 		},
 		"");
 }
@@ -132,17 +139,19 @@ public void testBug488663_004() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {	\n" +
-			"@SuppressWarnings(\"unused\") \n" +
-			"	public static void main(String[] args) {\n" +
-			"		Y<?> y1 = new X().new Y<>(){};\n" +
-			"		Y<String> y2 = new X().new Y<>(){};\n" +
-			"		Y<? extends String> y3 = new X().new Y<>() {};\n" +
-			"		Y<? super String> y4 = new X().new Y<>() {};\n" +
-			"	}\n" +
-			"\n" +
-			"	class Y<T> {}\n" +
-			"}\n",
+			"""
+				public class X {\t
+				@SuppressWarnings("unused")\s
+					public static void main(String[] args) {
+						Y<?> y1 = new X().new Y<>(){};
+						Y<String> y2 = new X().new Y<>(){};
+						Y<? extends String> y3 = new X().new Y<>() {};
+						Y<? super String> y4 = new X().new Y<>() {};
+					}
+				
+					class Y<T> {}
+				}
+				""",
 		},
 		"");
 }
@@ -152,22 +161,26 @@ public void testBug488663_005() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"interface I {}\n" +
-				"interface J{}\n" +
-				"class Y<T extends I & J> {}\n" +
-				"\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Y<?> y = new Y<>() {};\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					interface I {}
+					interface J{}
+					class Y<T extends I & J> {}
+					
+					public class X {
+						public static void main(String[] args) {
+							Y<?> y = new Y<>() {};
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	Y<?> y = new Y<>() {};\n" +
-			"	             ^\n" +
-			"Type Y<I & J> inferred for Y<>, is not valid for an anonymous class with '<>'\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					Y<?> y = new Y<>() {};
+					             ^
+				Type Y<I & J> inferred for Y<>, is not valid for an anonymous class with '<>'
+				----------
+				""");
 
 }
 
@@ -176,23 +189,27 @@ public void testBug488663_006() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class Y<T> {\n" +
-				"   Y(T x) {}\n" +
-				"}\n" +
-				"\n" +
-				"class X {\n" +
-				"  public static void main(String[] args) {\n" +
-				"	  Y<? extends Integer> fi = null;\n" +
-				"	  Y<?> f = new Y<>(fi){};\n" +
-				"  }\n" +
-				"}\n",
+				"""
+					class Y<T> {
+					   Y(T x) {}
+					}
+					
+					class X {
+					  public static void main(String[] args) {
+						  Y<? extends Integer> fi = null;
+						  Y<?> f = new Y<>(fi){};
+					  }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	Y<?> f = new Y<>(fi){};\n" +
-			"	             ^\n" +
-			"Type Y<Y<capture#1-of ? extends Integer>> inferred for Y<>, is not valid for an anonymous class with '<>'\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 8)
+					Y<?> f = new Y<>(fi){};
+					             ^
+				Type Y<Y<capture#1-of ? extends Integer>> inferred for Y<>, is not valid for an anonymous class with '<>'
+				----------
+				""");
 
 }
 // instantiate an interface using the anonymous diamond
@@ -200,27 +217,28 @@ public void testBug488663_007() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	String name;\n" +
-			"	public X(String name) {\n" +
-			"		this.name = name;\n" +
-			"	}\n" +
-			"	String name() {\n" +
-			"		return this.name;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X x = new X(\"Success\");\n" +
-			"		I<X> i = new I<>() {\n" +
-			"			public String toString(X x1) {\n" +
-			"				return x1.name();\n" +
-			"			}\n" +
-			"		};\n" +
-			"		System.out.println(i.toString(x));\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I<T> {\n" +
-			"	String toString(T t);\n" +
-			"}"
+			"""
+				public class X {
+					String name;
+					public X(String name) {
+						this.name = name;
+					}
+					String name() {
+						return this.name;
+					}
+					public static void main(String[] args) {
+						X x = new X("Success");
+						I<X> i = new I<>() {
+							public String toString(X x1) {
+								return x1.name();
+							}
+						};
+						System.out.println(i.toString(x));
+					}
+				}
+				interface I<T> {
+					String toString(T t);
+				}"""
 		},
 		"Success");
 }
@@ -229,29 +247,30 @@ public void testBug488663_008() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	String name;\n" +
-			"	public X(String name) {\n" +
-			"		this.name = name;\n" +
-			"	}\n" +
-			"	<T> void print(T o, I<T> converter) {\n" +
-			"		System.out.println(converter.toString(o));\n" +
-			"	}\n" +
-			"	String name() {\n" +
-			"		return this.name;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X x = new X(\"Success\");\n" +
-			"		x.print(x, new I<>() {\n" +
-			"			public String toString(X x1) {\n" +
-			"				return x1.name();\n" +
-			"			}\n" +
-			"		});\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I<T> {\n" +
-			"	String toString(T t);\n" +
-			"}"
+			"""
+				public class X {
+					String name;
+					public X(String name) {
+						this.name = name;
+					}
+					<T> void print(T o, I<T> converter) {
+						System.out.println(converter.toString(o));
+					}
+					String name() {
+						return this.name;
+					}
+					public static void main(String[] args) {
+						X x = new X("Success");
+						x.print(x, new I<>() {
+							public String toString(X x1) {
+								return x1.name();
+							}
+						});
+					}
+				}
+				interface I<T> {
+					String toString(T t);
+				}"""
 		},
 		"Success");
 }
@@ -260,30 +279,32 @@ public void testBug488663_009() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	String name;\n" +
-			"	public X(String name) {\n" +
-			"		this.name = name;\n" +
-			"	}\n" +
-			"	<T> void print(T o, I<T> converter) {\n" +
-			"		System.out.println(converter.toString(o));\n" +
-			"	}\n" +
-			"	String name() {\n" +
-			"		return this.name;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X x = new X(\"Success\");\n" +
-			"		x.print(x, new Z<>() {\n" +
-			"			public String toString(X x1) {\n" +
-			"				return x1.name();\n" +
-			"			}\n" +
-			"		});\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I<T> {\n" +
-			"	String toString(T t);\n" +
-			"}\n" +
-			"abstract class Z<T> implements I<T> {}\n"
+			"""
+				public class X {
+					String name;
+					public X(String name) {
+						this.name = name;
+					}
+					<T> void print(T o, I<T> converter) {
+						System.out.println(converter.toString(o));
+					}
+					String name() {
+						return this.name;
+					}
+					public static void main(String[] args) {
+						X x = new X("Success");
+						x.print(x, new Z<>() {
+							public String toString(X x1) {
+								return x1.name();
+							}
+						});
+					}
+				}
+				interface I<T> {
+					String toString(T t);
+				}
+				abstract class Z<T> implements I<T> {}
+				"""
 		},
 		"Success");
 }
@@ -292,24 +313,25 @@ public void testBug488663_010() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	String name;\n" +
-			"	public X(String name) {\n" +
-			"		this.name = name;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Y<String> y = new Y<>(() -> System.out.println(\"Done\")) {\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n" +
-			"interface J {\n" +
-			"	void doSomething();\n" +
-			"}\n" +
-			"class Y<T> {\n" +
-			"	public Y(J j) {\n" +
-			"		j.doSomething();\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					String name;
+					public X(String name) {
+						this.name = name;
+					}
+					public static void main(String[] args) {
+						Y<String> y = new Y<>(() -> System.out.println("Done")) {
+						};
+					}
+				}
+				interface J {
+					void doSomething();
+				}
+				class Y<T> {
+					public Y(J j) {
+						j.doSomething();
+					}
+				}""",
 		},
 		"Done");
 }
@@ -318,27 +340,28 @@ public void testBug488663_011() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	String name;\n" +
-			"	public X(String name) {\n" +
-			"		this.name = name;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Y<String> y = new Y<>(Y::foo) {\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n" +
-			"interface J {\n" +
-			"	void doSomething();\n" +
-			"}\n" +
-			"class Y<T> {\n" +
-			"	public Y(J j) {\n" +
-			"		j.doSomething();\n" +
-			"	}\n" +
-			"	static void foo() {\n" +
-			"		System.out.println(\"Done\");\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					String name;
+					public X(String name) {
+						this.name = name;
+					}
+					public static void main(String[] args) {
+						Y<String> y = new Y<>(Y::foo) {
+						};
+					}
+				}
+				interface J {
+					void doSomething();
+				}
+				class Y<T> {
+					public Y(J j) {
+						j.doSomething();
+					}
+					static void foo() {
+						System.out.println("Done");
+					}
+				}""",
 		},
 		"Done");
 }
@@ -347,31 +370,32 @@ public void testBug488663_012() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	String name;\n" +
-			"	public X(String name) {\n" +
-			"		this.name = name;\n" +
-			"	}\n" +
-			"	String name() {\n" +
-			"		return this.name;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Y<String> y = new Y<>(\"Done\", new I<>() {\n" +
-			"				public void doSomething(String s) {\n" +
-			"					System.out.println(s);\n" +
-			"				}\n" +
-			"			}){\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I<T> {\n" +
-			"	void doSomething(T t);\n" +
-			"}\n" +
-			"class Y<T> {\n" +
-			"	public Y(T t, I<T> i) {\n" +
-			"		i.doSomething(t);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					String name;
+					public X(String name) {
+						this.name = name;
+					}
+					String name() {
+						return this.name;
+					}
+					public static void main(String[] args) {
+						Y<String> y = new Y<>("Done", new I<>() {
+								public void doSomething(String s) {
+									System.out.println(s);
+								}
+							}){
+						};
+					}
+				}
+				interface I<T> {
+					void doSomething(T t);
+				}
+				class Y<T> {
+					public Y(T t, I<T> i) {
+						i.doSomething(t);
+					}
+				}""",
 		},
 		"Done");
 }
@@ -382,34 +406,37 @@ public void testBug488663_013() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	String name;\n" +
-			"	public X(String name) {\n" +
-			"		this.name = name;\n" +
-			"	}\n" +
-			"	String name() {\n" +
-			"		return this.name;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X x = new X(\"Success\");\n" +
-			"		I<X> i = new I<X>() {\n" +
-			"			public String toString(X x1) {\n" +
-			"				return x1.name();\n" +
-			"			}\n" +
-			"		};\n" +
-			"		System.out.println(i.toString(x));\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I<T> {\n" +
-			"	String toString(T t);\n" +
-			"}"
+			"""
+				public class X {
+					String name;
+					public X(String name) {
+						this.name = name;
+					}
+					String name() {
+						return this.name;
+					}
+					public static void main(String[] args) {
+						X x = new X("Success");
+						I<X> i = new I<X>() {
+							public String toString(X x1) {
+								return x1.name();
+							}
+						};
+						System.out.println(i.toString(x));
+					}
+				}
+				interface I<T> {
+					String toString(T t);
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" +
-		"	I<X> i = new I<X>() {\n" +
-		"	             ^\n" +
-		"Redundant specification of type arguments <X>\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 11)
+				I<X> i = new I<X>() {
+				             ^
+			Redundant specification of type arguments <X>
+			----------
+			""",
 		null, true, options);
 }
 // All non-private methods of an anonymous class instantiated with '<>' must be treated as being annotated with @override
@@ -417,183 +444,206 @@ public void testBug488663_014() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	String name;\n" +
-			"	public X(String name) {\n" +
-			"		this.name = name;\n" +
-			"	}\n" +
-			"	<T> void print(T o, I<T> converter) {\n" +
-			"		System.out.println(converter.toString(o));\n" +
-			"	}\n" +
-			"	String name() {\n" +
-			"		return this.name;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X x = new X(\"asdasfd\");\n" +
-			"		x.print(x, new Z<>() {\n" +
-			"			public String toString(String s) {\n" +
-			"				return s;\n" +
-			"			}\n" +
-			"		});\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I<T> {\n" +
-			"	String toString(T t);\n" +
-			"}\n" +
-			"class Z<T> implements I<T> {\n" +
-			"	public String toString(T t) {\n" +
-			"		return \"\";\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					String name;
+					public X(String name) {
+						this.name = name;
+					}
+					<T> void print(T o, I<T> converter) {
+						System.out.println(converter.toString(o));
+					}
+					String name() {
+						return this.name;
+					}
+					public static void main(String[] args) {
+						X x = new X("asdasfd");
+						x.print(x, new Z<>() {
+							public String toString(String s) {
+								return s;
+							}
+						});
+					}
+				}
+				interface I<T> {
+					String toString(T t);
+				}
+				class Z<T> implements I<T> {
+					public String toString(T t) {
+						return "";
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 15)\n" +
-		"	public String toString(String s) {\n" +
-		"	              ^^^^^^^^^^^^^^^^^^\n" +
-		"The method toString(String) of type new Z<X>(){} must override or implement a supertype method\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 15)
+				public String toString(String s) {
+				              ^^^^^^^^^^^^^^^^^^
+			The method toString(String) of type new Z<X>(){} must override or implement a supertype method
+			----------
+			""");
 }
 // Inaccessible type inferred for anonymous diamond is an error
 public void testBug488663_015() {
 	this.runNegativeTest(
 		new String[] {
 			"Test.java",
-			"public class Test<T> {\n" +
-			"	private static class Inner {" +
-			"		public Inner(){}\n" +
-			"	}\n" +
-			"	<R> void print(I<R> i) {}\n" +
-			"	public Inner get() {\n" +
-			"		return new Inner();\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class Test<T> {
+					private static class Inner {\
+						public Inner(){}
+					}
+					<R> void print(I<R> i) {}
+					public Inner get() {
+						return new Inner();
+					}
+				}
+				""",
 			"Z.java",
-			"class Z<T> implements I<T> {\n" +
-			"	public Z(T t1) {}\n" +
-			"	public String toString (T t) {\n" +
-			"		return t.toString();\n" +
-			"	}\n" +
-			"}",
+			"""
+				class Z<T> implements I<T> {
+					public Z(T t1) {}
+					public String toString (T t) {
+						return t.toString();
+					}
+				}""",
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Test<String> t = new Test<>();\n" +
-			"		t.print(new Z<>(t.get()) {\n" +
-			"			\n" +
-			"		});\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I<T> {\n" +
-			"	String toString();\n" +
-			"}"
+			"""
+				public class X {
+					public static void main(String[] args) {
+						Test<String> t = new Test<>();
+						t.print(new Z<>(t.get()) {
+						\t
+						});
+					}
+				}
+				interface I<T> {
+					String toString();
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	t.print(new Z<>(t.get()) {\n" +
-		"	            ^^^^^^^^^^^^\n" +
-		"The type Test$Inner is not visible\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				t.print(new Z<>(t.get()) {
+				            ^^^^^^^^^^^^
+			The type Test$Inner is not visible
+			----------
+			""");
 }
 // Inaccessible type inferred for anonymous diamond is an error - interface case
 public void testBug488663_016() {
 	this.runNegativeTest(
 		new String[] {
 			"Test.java",
-			"public class Test<T> {\n" +
-			"	private static class Inner {" +
-			"		public Inner(){}\n" +
-			"	}\n" +
-			"	<R extends Inner> void print(I<R> i) {}\n" +
-			"	public Inner get() {\n" +
-			"		return new Inner();\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class Test<T> {
+					private static class Inner {\
+						public Inner(){}
+					}
+					<R extends Inner> void print(I<R> i) {}
+					public Inner get() {
+						return new Inner();
+					}
+				}
+				""",
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Test<String> t = new Test<>();\n" +
-			"		t.print(new I<>() {\n" +
-			"			public String toString() {\n" +
-			"				return \"\";\n" +
-			"			}\n" +
-			"		});\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I<T> {\n" +
-			"	String toString();\n" +
-			"}"
+			"""
+				public class X {
+					public static void main(String[] args) {
+						Test<String> t = new Test<>();
+						t.print(new I<>() {
+							public String toString() {
+								return "";
+							}
+						});
+					}
+				}
+				interface I<T> {
+					String toString();
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	t.print(new I<>() {\n" +
-		"	            ^^^^^\n" +
-		"The type Test$Inner is not visible\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				t.print(new I<>() {
+				            ^^^^^
+			The type Test$Inner is not visible
+			----------
+			""");
 }
 // All non-private methods of an anonymous class instantiated with '<>' must be treated as being annotated with @override
 public void testBug517926() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	String name;\n" +
-			"	public X(String name) {\n" +
-			"		this.name = name;\n" +
-			"	}\n" +
-			"	<T> void print(T o, I<T> converter) {\n" +
-			"		System.out.println(converter.toString(o));\n" +
-			"	}\n" +
-			"	String name() {\n" +
-			"		return this.name;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X x = new X(\"asdasfd\");\n" +
-			"		x.print(x, new I<>() {\n" +
-			"			public String name() {return null;}\n" +
-			"			public String toString(X xx) {\n" +
-			"				return xx.toString();\n" +
-			"			}\n" +
-			"		});\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I<T> {\n" +
-			"private String name() {return null;}" +
-			"	String toString(T t);\n" +
-			"default String getName() {return name();}" +
-			"}",
+			"""
+				public class X {
+					String name;
+					public X(String name) {
+						this.name = name;
+					}
+					<T> void print(T o, I<T> converter) {
+						System.out.println(converter.toString(o));
+					}
+					String name() {
+						return this.name;
+					}
+					public static void main(String[] args) {
+						X x = new X("asdasfd");
+						x.print(x, new I<>() {
+							public String name() {return null;}
+							public String toString(X xx) {
+								return xx.toString();
+							}
+						});
+					}
+				}
+				interface I<T> {
+				private String name() {return null;}\
+					String toString(T t);
+				default String getName() {return name();}\
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 15)\n" +
-		"	public String name() {return null;}\n" +
-		"	              ^^^^^^\n" +
-		"The method name() of type new I<X>(){} must override or implement a supertype method\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 15)
+				public String name() {return null;}
+				              ^^^^^^
+			The method name() of type new I<X>(){} must override or implement a supertype method
+			----------
+			""");
 }
 public void testBug521815a() {
 	runNegativeTest(
 			new String[] {
 					"a/b/X.java",
-					"package a.b;\n" +
-					"interface I{\n" +
-					"    public static class Inner { }\n" +
-					"}\n" +
-					"class Cl {\n" +
-					"    public static class Inner {}\n" +
-					"}\n" +
-					"public class X extends Cl implements I {}\n",
+					"""
+						package a.b;
+						interface I{
+						    public static class Inner { }
+						}
+						class Cl {
+						    public static class Inner {}
+						}
+						public class X extends Cl implements I {}
+						""",
 					"a/Y.java",
-					"package p;\n" +
-					"import static a.b.X.Inner;\n" +
-					"public class Y {;\n" +
-					"	Inner t;\n" +
-					"}\n"
+					"""
+						package p;
+						import static a.b.X.Inner;
+						public class Y {;
+							Inner t;
+						}
+						"""
 			},
-			"----------\n" +
-			"1. ERROR in a\\Y.java (at line 4)\n" +
-			"	Inner t;\n" +
-			"	^^^^^\n" +
-			"The type Inner is ambiguous\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in a\\Y.java (at line 4)
+					Inner t;
+					^^^^^
+				The type Inner is ambiguous
+				----------
+				""");
 }
 public void testBug521815b() {
 	if (this.complianceLevel <= ClassFileConstants.JDK1_8) {
@@ -602,71 +652,87 @@ public void testBug521815b() {
 	runNegativeTest(
 			new String[] {
 					"a/b/X.java",
-					"package a.b;\n" +
-					"interface I{\n" +
-					"    public static class Inner { }\n" +
-					"}\n" +
-					"class Cl {\n" +
-					"    public static class Inner {}\n" +
-					"}\n" +
-					"public class X extends Cl implements I {}\n",
+					"""
+						package a.b;
+						interface I{
+						    public static class Inner { }
+						}
+						class Cl {
+						    public static class Inner {}
+						}
+						public class X extends Cl implements I {}
+						""",
 					"a/Y.java",
-					"package p;\n" +
-					"import static a.b.X.Inner;\n" +
-					"public class Y {;\n" +
-					"}\n"
+					"""
+						package p;
+						import static a.b.X.Inner;
+						public class Y {;
+						}
+						"""
 			},
-			"----------\n" +
-			"1. WARNING in a\\Y.java (at line 2)\n" +
-			"	import static a.b.X.Inner;\n" +
-			"	              ^^^^^^^^^^^\n" +
-			"The import a.b.X.Inner is never used\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in a\\Y.java (at line 2)
+					import static a.b.X.Inner;
+					              ^^^^^^^^^^^
+				The import a.b.X.Inner is never used
+				----------
+				""");
 }
 public void testBug533644() {
 	runConformTest(
 		new String[] {
 			"q/JobDetail.java",
-			"package q;\n" +
-			"import java.io.Serializable;\n" +
-			"public interface JobDetail extends Serializable, Cloneable { }\n",
+			"""
+				package q;
+				import java.io.Serializable;
+				public interface JobDetail extends Serializable, Cloneable { }
+				""",
 			"q/Scheduler.java",
-			"package q;\n" +
-			"import java.util.Map;\n" +
-			"import java.util.Set;\n" +
-			"public interface Scheduler {\n" +
-			"    void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> triggersAndJobs, boolean replace) throws SchedulerException;\n" +
-			"}\n",
+			"""
+				package q;
+				import java.util.Map;
+				import java.util.Set;
+				public interface Scheduler {
+				    void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> triggersAndJobs, boolean replace) throws SchedulerException;
+				}
+				""",
 			"q/SchedulerException.java",
-			"package q;\n" +
-			"public class SchedulerException extends Exception {\n" +
-			"    private static final long serialVersionUID = 174841398690789156L;\n" +
-			"}\n",
+			"""
+				package q;
+				public class SchedulerException extends Exception {
+				    private static final long serialVersionUID = 174841398690789156L;
+				}
+				""",
 			"q/Trigger.java",
-			"package q;\n" +
-			"import java.io.Serializable;\n" +
-			"public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {\n" +
-			"    public static final long serialVersionUID = -3904243490805975570L;\n" +
-			"}\n"
+			"""
+				package q;
+				import java.io.Serializable;
+				public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
+				    public static final long serialVersionUID = -3904243490805975570L;
+				}
+				"""
 		});
 	Runner runner = new Runner();
 	runner.shouldFlushOutputDirectory = false;
 	runner.testFiles = new String[] {
 			"ForwardingScheduler.java",
-			"import java.util.Map;\n" +
-			"import java.util.Set;\n" +
-			"\n" +
-			"import q.JobDetail;\n" +
-			"import q.Scheduler;\n" +
-			"import q.SchedulerException;\n" +
-			"import q.Trigger;\n" +
-			"\n" +
-			"public class ForwardingScheduler implements Scheduler {\n" +
-			"  @Override\n" +
-			"  public void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> triggersAndJobs, boolean replace)\n" +
-			"      throws SchedulerException {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.util.Map;
+				import java.util.Set;
+				
+				import q.JobDetail;
+				import q.Scheduler;
+				import q.SchedulerException;
+				import q.Trigger;
+				
+				public class ForwardingScheduler implements Scheduler {
+				  @Override
+				  public void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> triggersAndJobs, boolean replace)
+				      throws SchedulerException {
+				  }
+				}
+				"""
 	};
 	runner.runConformTest();
 }
@@ -679,20 +745,22 @@ public void testBug551913_001() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	int foo() {\n" +
-			"		java.util.HashSet<String> a = new java.util.HashSet<>();\n" +
-			"		java.util.HashSet<String> b = new java.util.HashSet<String>(a) {\n" +
-			"			private static final long serialVersionUID = 1L;\n" +
-			"			public int x() {return 10;}\n" +
-			"		};\n" +
-			"		return 10;\n" +
-			"	}\n\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X abc= new X();\n" +
-			"		System.out.println(abc.foo());" +
-			"	}" +
-			"}",
+			"""
+				public class X {
+					int foo() {
+						java.util.HashSet<String> a = new java.util.HashSet<>();
+						java.util.HashSet<String> b = new java.util.HashSet<String>(a) {
+							private static final long serialVersionUID = 1L;
+							public int x() {return 10;}
+						};
+						return 10;
+					}
+				
+					public static void main(String[] args) {
+						X abc= new X();
+						System.out.println(abc.foo());\
+					}\
+				}""",
 		},"10", options);
 }
 // As All non-private methods of an anonymous class instantiated with '<>' must be treated as being annotated with @override,
@@ -704,22 +772,25 @@ public void testBug551913_002() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		java.util.HashSet<String> a = new java.util.HashSet<>();\n" +
-			"		java.util.HashSet<String> b = new java.util.HashSet<String>(a) {\n" +
-			"			private static final long serialVersionUID = 1L;\n" +
-			"			public String toString() {return null;}\n" +
-			"		};\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					void foo() {
+						java.util.HashSet<String> a = new java.util.HashSet<>();
+						java.util.HashSet<String> b = new java.util.HashSet<String>(a) {
+							private static final long serialVersionUID = 1L;
+							public String toString() {return null;}
+						};
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	java.util.HashSet<String> b = new java.util.HashSet<String>(a) {\n" +
-		"	                                            ^^^^^^^\n" +
-		"Redundant specification of type arguments <String>\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				java.util.HashSet<String> b = new java.util.HashSet<String>(a) {
+				                                            ^^^^^^^
+			Redundant specification of type arguments <String>
+			----------
+			""",
 		null, true, options);
 }
 
@@ -731,23 +802,26 @@ public void testBug551913_003() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		java.util.HashSet<String> a = new java.util.HashSet<>();\n" +
-			"		java.util.HashSet<String> b = new java.util.HashSet<String>(a) {\n" +
-			"			private static final long serialVersionUID = 1L;\n" +
-			"			public String toString() {return asString();}\n" +
-			"           private String asString() { return null;}\n" +
-			"		};\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					void foo() {
+						java.util.HashSet<String> a = new java.util.HashSet<>();
+						java.util.HashSet<String> b = new java.util.HashSet<String>(a) {
+							private static final long serialVersionUID = 1L;
+							public String toString() {return asString();}
+				           private String asString() { return null;}
+						};
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	java.util.HashSet<String> b = new java.util.HashSet<String>(a) {\n" +
-		"	                                            ^^^^^^^\n" +
-		"Redundant specification of type arguments <String>\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				java.util.HashSet<String> b = new java.util.HashSet<String>(a) {
+				                                            ^^^^^^^
+			Redundant specification of type arguments <String>
+			----------
+			""",
 		null, true, options);
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1506
@@ -758,16 +832,17 @@ public void testBug551913_004() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		java.util.HashSet<String> a = new java.util.HashSet<>();\n" +
-			"		java.util.HashSet<String> b = new java.util.HashSet<String>(a) {\n" +
-			"			private static final long serialVersionUID = 1L;\n" +
-			"			public String toString() {return asString();}\n" +
-			"           public String asString() { return null;}\n" +
-			"		};\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					void foo() {
+						java.util.HashSet<String> a = new java.util.HashSet<>();
+						java.util.HashSet<String> b = new java.util.HashSet<String>(a) {
+							private static final long serialVersionUID = 1L;
+							public String toString() {return asString();}
+				           public String asString() { return null;}
+						};
+					}
+				}""",
 		},
 		"",
 		null, true, options);
@@ -780,27 +855,29 @@ public void testGH1506() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.util.Arrays;\n" +
-			"import java.util.Iterator;\n" +
-			"\n" +
-			"public class X {\n" +
-			"\n" +
-			"	public Iterable<File> getStackFramesClassesLocations(Object element) {\n" +
-			"		return new Iterable<File>() {\n" +
-			"			@Override\n" +
-			"			public Iterator<File> iterator() {\n" +
-			"				return Arrays.stream(new Object[0]) //\n" +
-			"						.map(frame -> getClassesLocation(frame)) //\n" +
-			"						.iterator();\n" +
-			"			}\n" +
-			"			\n" +
-			"			File getClassesLocation(Object frame) {\n" +
-			"				return null;\n" +
-			"			}\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				import java.io.File;
+				import java.util.Arrays;
+				import java.util.Iterator;
+				
+				public class X {
+				
+					public Iterable<File> getStackFramesClassesLocations(Object element) {
+						return new Iterable<File>() {
+							@Override
+							public Iterator<File> iterator() {
+								return Arrays.stream(new Object[0]) //
+										.map(frame -> getClassesLocation(frame)) //
+										.iterator();
+							}
+						\t
+							File getClassesLocation(Object frame) {
+								return null;
+							}
+						};
+					}
+				}
+				""",
 		},
 		"",
 		null, true, options);
@@ -813,34 +890,38 @@ public void testGH1506_2() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.util.Arrays;\n" +
-			"import java.util.Iterator;\n" +
-			"\n" +
-			"public class X {\n" +
-			"\n" +
-			"	public Iterable<File> getStackFramesClassesLocations(Object element) {\n" +
-			"		return new Iterable<File>() {\n" +
-			"			@Override\n" +
-			"			public Iterator<File> iterator() {\n" +
-			"				return Arrays.stream(new Object[0]) //\n" +
-			"						.map(frame -> getClassesLocation(frame)) //\n" +
-			"						.iterator();\n" +
-			"			}\n" +
-			"			\n" +
-			"			private File getClassesLocation(Object frame) {\n" +
-			"				return null;\n" +
-			"			}\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				import java.io.File;
+				import java.util.Arrays;
+				import java.util.Iterator;
+				
+				public class X {
+				
+					public Iterable<File> getStackFramesClassesLocations(Object element) {
+						return new Iterable<File>() {
+							@Override
+							public Iterator<File> iterator() {
+								return Arrays.stream(new Object[0]) //
+										.map(frame -> getClassesLocation(frame)) //
+										.iterator();
+							}
+						\t
+							private File getClassesLocation(Object frame) {
+								return null;
+							}
+						};
+					}
+				}
+				""",
 		},
-		"----------\n"
-		+ "1. ERROR in X.java (at line 8)\n"
-		+ "	return new Iterable<File>() {\n"
-		+ "	           ^^^^^^^^\n"
-		+ "Redundant specification of type arguments <File>\n"
-		+ "----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 8)
+				return new Iterable<File>() {
+				           ^^^^^^^^
+			Redundant specification of type arguments <File>
+			----------
+			""",
 		null, true, options);
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1506
@@ -851,26 +932,30 @@ public void testGH1506_3() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<E> {\n" +
-			"    static class AX<T>{}\n" +
-			"    X(E e) {}\n" +
-			"    X() {}\n" +
-			"    public static void main(String[] args) {\n" +
-			"    	X<? extends AX> x5 = new X<AX<String>>(new AX<String>() { private void foo() {} });\n" +
-			"	}\n" +
-			"} \n",
+			"""
+				public class X<E> {
+				    static class AX<T>{}
+				    X(E e) {}
+				    X() {}
+				    public static void main(String[] args) {
+				    	X<? extends AX> x5 = new X<AX<String>>(new AX<String>() { private void foo() {} });
+					}
+				}\s
+				""",
 		},
-		"----------\n"
-		+ "1. WARNING in X.java (at line 6)\n"
-		+ "	X<? extends AX> x5 = new X<AX<String>>(new AX<String>() { private void foo() {} });\n"
-		+ "	            ^^\n"
-		+ "X.AX is a raw type. References to generic type X.AX<T> should be parameterized\n"
-		+ "----------\n"
-		+ "2. WARNING in X.java (at line 6)\n"
-		+ "	X<? extends AX> x5 = new X<AX<String>>(new AX<String>() { private void foo() {} });\n"
-		+ "	                                                                       ^^^^^\n"
-		+ "The method foo() from the type new X.AX<String>(){} is never used locally\n"
-		+ "----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 6)
+				X<? extends AX> x5 = new X<AX<String>>(new AX<String>() { private void foo() {} });
+				            ^^
+			X.AX is a raw type. References to generic type X.AX<T> should be parameterized
+			----------
+			2. WARNING in X.java (at line 6)
+				X<? extends AX> x5 = new X<AX<String>>(new AX<String>() { private void foo() {} });
+				                                                                       ^^^^^
+			The method foo() from the type new X.AX<String>(){} is never used locally
+			----------
+			""",
 		null, true, options);
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1506
@@ -881,26 +966,30 @@ public void testGH1506_4() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<E> {\n" +
-			"    static class AX<T>{}\n" +
-			"    X(E e) {}\n" +
-			"    X() {}\n" +
-			"    public static void main(String[] args) {\n" +
-			"    	X<? extends AX> x5 = new X<AX<String>>(new AX<String>() { public void foo() {} });\n" +
-			"	}\n" +
-			"} \n",
+			"""
+				public class X<E> {
+				    static class AX<T>{}
+				    X(E e) {}
+				    X() {}
+				    public static void main(String[] args) {
+				    	X<? extends AX> x5 = new X<AX<String>>(new AX<String>() { public void foo() {} });
+					}
+				}\s
+				""",
 		},
-		"----------\n"
-		+ "1. WARNING in X.java (at line 6)\n"
-		+ "	X<? extends AX> x5 = new X<AX<String>>(new AX<String>() { public void foo() {} });\n"
-		+ "	            ^^\n"
-		+ "X.AX is a raw type. References to generic type X.AX<T> should be parameterized\n"
-		+ "----------\n"
-		+ "2. WARNING in X.java (at line 6)\n"
-		+ "	X<? extends AX> x5 = new X<AX<String>>(new AX<String>() { public void foo() {} });\n"
-		+ "	                                                                      ^^^^^\n"
-		+ "The method foo() from the type new X.AX<String>(){} is never used locally\n"
-		+ "----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 6)
+				X<? extends AX> x5 = new X<AX<String>>(new AX<String>() { public void foo() {} });
+				            ^^
+			X.AX is a raw type. References to generic type X.AX<T> should be parameterized
+			----------
+			2. WARNING in X.java (at line 6)
+				X<? extends AX> x5 = new X<AX<String>>(new AX<String>() { public void foo() {} });
+				                                                                      ^^^^^
+			The method foo() from the type new X.AX<String>(){} is never used locally
+			----------
+			""",
 		null, true, options);
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1560
@@ -947,12 +1036,14 @@ public void testGH1560() {
 			}
 			""",
 		},
-		"----------\n"
-		+ "1. ERROR in X.java (at line 30)\n"
-		+ "	l.addListChangeListener(event -> event.diff.accept(new ListDiffVisitor<MMenuElement>() {})); // <> should not be recommended here!!!\n"
-		+ "	^\n"
-		+ "The local variable l may not have been initialized\n"
-		+ "----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 30)
+				l.addListChangeListener(event -> event.diff.accept(new ListDiffVisitor<MMenuElement>() {})); // <> should not be recommended here!!!
+				^
+			The local variable l may not have been initialized
+			----------
+			""",
 		null, true, options);
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1560
@@ -999,12 +1090,14 @@ public void testGH1560_2() {
 			}
 			""",
 		},
-		"----------\n"
-		+ "1. ERROR in X.java (at line 30)\n"
-		+ "	l.addListChangeListener(event -> event.diff.accept(new ListDiffVisitor<>() {})); // non-denotable type error\n"
-		+ "	                                                       ^^^^^^^^^^^^^^^\n"
-		+ "Type X.ListDiffVisitor<capture#1-of ? extends X.MMenuElement> inferred for ListDiffVisitor<>, is not valid for an anonymous class with '<>'\n"
-		+ "----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 30)
+				l.addListChangeListener(event -> event.diff.accept(new ListDiffVisitor<>() {})); // non-denotable type error
+				                                                       ^^^^^^^^^^^^^^^
+			Type X.ListDiffVisitor<capture#1-of ? extends X.MMenuElement> inferred for ListDiffVisitor<>, is not valid for an anonymous class with '<>'
+			----------
+			""",
 		null, true, options);
 }
 public static Class<GenericsRegressionTest_9> testClass() {

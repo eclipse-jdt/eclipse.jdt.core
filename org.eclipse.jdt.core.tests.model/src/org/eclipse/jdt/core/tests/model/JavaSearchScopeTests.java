@@ -85,9 +85,10 @@ public void testSources() throws CoreException {
 		IJavaProject project = createJavaProject("P");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" +
-			"	/P\n" +
-			"]",
+			"""
+				JavaSearchScope on [
+					/P
+				]""",
 			scope);
 	} finally {
 		deleteProject("P");
@@ -121,10 +122,11 @@ public void testApplicationLibrairiesJarAndClassFolder() throws CoreException {
 		createFolder("/P/classfolder");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" +
-			"	/P/classfolder\n" +
-			"	/P/internal.jar\n" +
-			"]",
+			"""
+				JavaSearchScope on [
+					/P/classfolder
+					/P/internal.jar
+				]""",
 			scope);
 	} finally {
 		deleteProject("P");
@@ -135,10 +137,11 @@ public void testApplicationLibrairiesNonExistingJarAndClassFolder() throws CoreE
 		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"/P/internal.jar", "/P/classfolder"}, "bin");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" +
-			"	/P/classfolder\n" +
-			"	/P/internal.jar\n" +
-			"]",
+			"""
+				JavaSearchScope on [
+					/P/classfolder
+					/P/internal.jar
+				]""",
 			scope);
 	} finally {
 		deleteProject("P");
@@ -155,9 +158,10 @@ public void testApplicationLibrairiesClasspathVariable() throws CoreException {
 		createFile("/P/lib.jar", new byte[0]);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" +
-			"	/P/lib.jar\n" +
-			"]",
+			"""
+				JavaSearchScope on [
+					/P/lib.jar
+				]""",
 			scope);
 	} finally {
 		deleteProject("P");
@@ -170,9 +174,10 @@ public void testApplicationLibrairiesNonExistingClasspathVariable() throws CoreE
 		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"TEST_LIB"}, "");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" +
-			"	/P/lib.jar\n" +
-			"]",
+			"""
+				JavaSearchScope on [
+					/P/lib.jar
+				]""",
 			scope);
 	} finally {
 		deleteProject("P");
@@ -189,9 +194,10 @@ public void testApplicationLibrairiesClasspathContainer() throws CoreException {
 		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" +
-			"	/P/lib.jar\n" +
-			"]",
+			"""
+				JavaSearchScope on [
+					/P/lib.jar
+				]""",
 			scope);
 	} finally {
 		deleteProject("P");
@@ -218,9 +224,10 @@ public void testSystemLibraries() throws CoreException {
 		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SYSTEM_LIBRARIES);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" +
-			"	/P/lib.jar\n" +
-			"]",
+			"""
+				JavaSearchScope on [
+					/P/lib.jar
+				]""",
 			scope);
 	} finally {
 		deleteProject("P");
@@ -236,10 +243,11 @@ public void testSourcesOrDirectReferencedProjects() throws CoreException {
 		IJavaProject project = createJavaProject("P2", new String[] {"src"}, new String[] {}, new String[] {"/P1"}, "bin");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" +
-			"	/P1\n" +
-			"	/P2/src\n" +
-			"]",
+			"""
+				JavaSearchScope on [
+					/P1
+					/P2/src
+				]""",
 			scope);
 	} finally {
 		deleteProject("P1");
@@ -257,10 +265,11 @@ public void testSourcesOrContainerReferencedProjects() throws CoreException {
 		IJavaProject project = createJavaProject("P2", new String[] {"src"}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "bin");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" +
-			"	/P1\n" +
-			"	/P2/src\n" +
-			"]",
+			"""
+				JavaSearchScope on [
+					/P1
+					/P2/src
+				]""",
 			scope);
 	} finally {
 		deleteProject("P1");
@@ -883,21 +892,24 @@ public void testBug101022() throws CoreException {
 		IJavaProject project = createJavaProject("P1", new String[] {"src", "test", "test2"}, "bin");
 		createFile(
 			"/P1/src/Test.java",
-			"public class Test {\n" +
-			"	protected void foo() {}\n" +
-			"}"
+			"""
+				public class Test {
+					protected void foo() {}
+				}"""
 		);
 		createFile(
 			"/P1/test/Test.java",
-			"public class Test {\n" +
-			"	protected void foo() {}\n" +
-			"}"
+			"""
+				public class Test {
+					protected void foo() {}
+				}"""
 		);
 		createFile(
 			"/P1/test2/Test.java",
-			"public class Test {\n" +
-			"	protected void foo() {}\n" +
-			"}"
+			"""
+				public class Test {
+					protected void foo() {}
+				}"""
 		);
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFolder("/P1/test"));
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {root});
@@ -927,15 +939,17 @@ public void testBug101426() throws CoreException {
 		);
 		createFile(
 			"/P1/test/Test.java",
-			"public class Test {\n" +
-			"	ITest test;\n" +
-			"}"
+			"""
+				public class Test {
+					ITest test;
+				}"""
 		);
 		createFile(
 			"/P1/test2/Test.java",
-			"public class Test2 {\n" +
-			"	ITest test;\n" +
-			"}"
+			"""
+				public class Test2 {
+					ITest test;
+				}"""
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -960,9 +974,10 @@ public void testBug101777() throws CoreException {
 		IJavaProject project = createJavaProject("P1");
 		createFile(
 			"/P1/Test.java",
-			"public class Test {\n" +
-			"	public static void main(String[] args) {}\n" +
-			"}"
+			"""
+				public class Test {
+					public static void main(String[] args) {}
+				}"""
 		);
 		IPackageFragment[] fragments = project.getPackageFragments();
 		IPackageFragment defaultFragment = null;
@@ -1006,9 +1021,10 @@ public void testBug119203() throws CoreException {
 		);
 		createFile(
 			"/P1/src/X.java",
-			"public class X {\n" +
-			"	Test test;\n" +
-			"}"
+			"""
+				public class X {
+					Test test;
+				}"""
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project });
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1038,9 +1054,10 @@ public void testBug179199() throws CoreException {
 		);
 		createFile(
 			"/P1/src/X.java",
-			"public class X {\n" +
-			"	Test test;\n" +
-			"}"
+			"""
+				public class X {
+					Test test;
+				}"""
 		);
 		waitUntilIndexesReady();
 

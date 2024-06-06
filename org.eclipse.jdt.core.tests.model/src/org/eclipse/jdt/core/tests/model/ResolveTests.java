@@ -98,18 +98,19 @@ public void testAmbiguousMethod1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;\n"+
-		"public class Test {\n" +
-		"  void foo(Test1 t) {}\n" +
-		"  void foo(Test2 t) {}\n" +
-		"  void bar(Object o) {\n" +
-		"    foo(o);\n" +
-		"  }\n" +
-		"}\n" +
-		"class Test1 {\n" +
-		"}\n" +
-		"class Test2 {\n" +
-		"}"
+		"""
+			package test;
+			public class Test {
+			  void foo(Test1 t) {}
+			  void foo(Test2 t) {}
+			  void bar(Object o) {
+			    foo(o);
+			  }
+			}
+			class Test1 {
+			}
+			class Test2 {
+			}"""
 	);
 
 	String str = this.workingCopies[0].getSource();
@@ -325,14 +326,16 @@ public void testConstructor3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/p/Type.java",
-		"package test.p;\n" +
-		"public class Type {\n" +
-		"  void foo() {\n" +
-		"    new AClass(unknown) {};\n" +
-		"  }\n" +
-		"}\n" +
-		"class AClass {\n" +
-		"}\n"
+		"""
+			package test.p;
+			public class Type {
+			  void foo() {
+			    new AClass(unknown) {};
+			  }
+			}
+			class AClass {
+			}
+			"""
 	);
 	IJavaElement[] elements = codeSelect(this.workingCopies[0], "AClass(unknown)", "AClass");
 	assertElementsEqual(
@@ -348,15 +351,17 @@ public void testConstructor4() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/p/Type.java",
-		"package test.p;\n" +
-		"public class Type {\n" +
-		"  void foo() {\n" +
-		"    new AClass(unknown) {};\n" +
-		"  }\n" +
-		"}\n" +
-		"class AClass {\n" +
-		"  public AClass(Object o) {}\n" +
-		"}\n"
+		"""
+			package test.p;
+			public class Type {
+			  void foo() {
+			    new AClass(unknown) {};
+			  }
+			}
+			class AClass {
+			  public AClass(Object o) {}
+			}
+			"""
 	);
 	IJavaElement[] elements = codeSelect(this.workingCopies[0], "AClass(unknown)", "AClass");
 	assertElementsEqual(
@@ -373,12 +378,14 @@ public void testConstructor5() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/Test.java",
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    new ResolveConstructorCall2();\n" +
-		"  }\n" +
-		"}\n" +
-		"\n"
+		"""
+			public class Test {
+			  void foo() {
+			    new ResolveConstructorCall2();
+			  }
+			}
+			
+			"""
 	);
 	IJavaElement[] elements = codeSelect(this.workingCopies[0], "ResolveConstructorCall2", "ResolveConstructorCall2");
 	assertElementsEqual(
@@ -395,12 +402,14 @@ public void testConstructor6() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/Test.java",
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    new ResolveConstructorCall3();\n" +
-		"  }\n" +
-		"}\n" +
-		"\n"
+		"""
+			public class Test {
+			  void foo() {
+			    new ResolveConstructorCall3();
+			  }
+			}
+			
+			"""
 	);
 	IJavaElement[] elements = codeSelect(this.workingCopies[0], "ResolveConstructorCall3", "ResolveConstructorCall3");
 	assertElementsEqual(
@@ -453,9 +462,11 @@ public void testEmptyCU1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/Test.java",
-		"//this CU must contain only an unknown type name" +
-		"Unknown\n" +
-		"\n"
+		"""
+			//this CU must contain only an unknown type name\
+			Unknown
+			
+			"""
 	);
 
 	IJavaElement[] elements = codeSelect(this.workingCopies[0], "Unknown", "Unknown");
@@ -715,13 +726,15 @@ public void testLocalClass8() throws JavaModelException {
 	// select the default constructor of a local class
 	IJavaElement[] elements = select(
 			"/Resolve/src/test/Test.java",
-			"package test;\n" +
-			"public class Test\n" +
-			"  void foo() {\n" +
-			"    class LocalClass {}\n" +
-			"    Object o = new LocalClass();\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class Test
+				  void foo() {
+				    class LocalClass {}
+				    Object o = new LocalClass();
+				  }
+				}
+				""",
 			"LocalClass");
 
 	assertElementsEqual(
@@ -743,12 +756,13 @@ public void testLocalClass9() throws CoreException, IOException {
 			"libsrc.zip",
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    class Y {\n" +
-				"    }\n" +
-				"  }\n" +
-				"}"
+				"""
+					public class X {
+					  void foo() {
+					    class Y {
+					    }
+					  }
+					}"""
 			},
 			"1.4");
 		IClassFile classFile = getClassFile("P", "/P/lib.jar", "", "X.class");
@@ -1118,18 +1132,20 @@ public void testMethodWithIncorrectParameter() throws JavaModelException {
 public void testMethodWithIncorrectParameter2() throws JavaModelException {
 	IJavaElement[] elements = select(
 			"/Resolve/src/test/Test.java",
-			"package test;\n" +
-			"public class Test\n" +
-			"  void called(String arg) {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    new Object() {\n" +
-			"      void bar() {\n" +
-			"        called(zzz);\n" +
-			"      }\n" +
-			"    };\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class Test
+				  void called(String arg) {
+				  }
+				  void foo() {
+				    new Object() {
+				      void bar() {
+				        called(zzz);
+				      }
+				    };
+				  }
+				}
+				""",
 			"called");
 
 	assertElementsEqual(
@@ -1272,12 +1288,13 @@ public void testUnicode2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/B.java",
-		"package test;\n"+
-		"public class \\u0042 {\n" +
-		"  void foo() {\n" +
-		"    \\u0042 var = null;\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;
+			public class \\u0042 {
+			  void foo() {
+			    \\u0042 var = null;
+			  }
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("42");
@@ -1295,10 +1312,11 @@ public void testUnicode3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/B.java",
-		"package test;\n"+
-		"public class \\u0042 {\n" +
-		"  void foo() {\n" +
-		"    \\u004");
+		"""
+			package test;
+			public class \\u0042 {
+			  void foo() {
+			    \\u004""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("4");
@@ -1390,24 +1408,25 @@ public void testMethodInAnonymous1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/Test2.java",
-			"public class Test2 {\n" +
-			"\n" +
-			"    private void foo(boolean v) {\n" +
-			"    }\n" +
-			"\n" +
-			"    void function(boolean v) {\n" +
-			"        new Object() {\n" +
-			"            public void run() {\n" +
-			"                if (false) {\n" +
-			"                } else {\n" +
-			"                    foo(false); // <-- right-click, open declaration fails\n" +
-			"                }\n" +
-			"            }\n" +
-			"        };\n" +
-			"        new Object() {  public void run() {   } };\n" +
-			"        if (v) {}\n" +
-			"    }\n" +
-			"}");
+			"""
+				public class Test2 {
+				
+				    private void foo(boolean v) {
+				    }
+				
+				    void function(boolean v) {
+				        new Object() {
+				            public void run() {
+				                if (false) {
+				                } else {
+				                    foo(false); // <-- right-click, open declaration fails
+				                }
+				            }
+				        };
+				        new Object() {  public void run() {   } };
+				        if (v) {}
+				    }
+				}""");
 
 	String str = this.workingCopies[0].getSource();
 	String selectAt = "foo(false)";
@@ -1438,22 +1457,24 @@ public void testDuplicateLocals1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	void foo() {\n" +
-		"		int x = 0;\n" +
-		"		TestString x = null;\n" +
-		"		x.bar;\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+				void foo() {
+					int x = 0;
+					TestString x = null;
+					x.bar;
+				}
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src/test/TestString.java",
-		"package test;"+
-		"public class TestString {\n" +
-		"	public void bar() {\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;\
+			public class TestString {
+				public void bar() {
+				}
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("x");
@@ -1477,26 +1498,28 @@ public void testDuplicateLocals2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"        public static void main(String[] args) {\n" +
-		"                int x = 2;\n" +
-		"                try {\n" +
-		"                \n" +
-		"                } catch(TestException x) {\n" +
-		"                        x.bar();\n" +
-		"                } catch(Exception e) {\n" +
-		"                }\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			        public static void main(String[] args) {
+			                int x = 2;
+			                try {
+			               \s
+			                } catch(TestException x) {
+			                        x.bar();
+			                } catch(Exception e) {
+			                }
+			        }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src/test/TestException.java",
-		"package test;"+
-		"public class TestException extends Exception {\n" +
-		"	public void bar() {\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;\
+			public class TestException extends Exception {
+				public void bar() {
+				}
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("x.");
@@ -1519,23 +1542,25 @@ public void testDuplicateLocals3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"        public static void main(String[] args) {\n" +
-		"                int x = x = 0;\n" +
-		"                if (true) {\n" +
-		"                        TestString x = x = null;\n" +
-		"                }\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			        public static void main(String[] args) {
+			                int x = x = 0;
+			                if (true) {
+			                        TestString x = x = null;
+			                }
+			        }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src/test/TestString.java",
-		"package test;"+
-		"public class TestString {\n" +
-		"	public void bar() {\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;\
+			public class TestString {
+				public void bar() {
+				}
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("x");
@@ -1558,25 +1583,27 @@ public void testDuplicateLocals4() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"        public static void main(String[] args) {\n" +
-		"                for (int x = 0; x < 10; x++) {\n" +
-		"                        for (TestString x = null; x.bar() < 5;)  {\n" +
-		"                                // do something\n" +
-		"                        }\n" +
-		"                }\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			        public static void main(String[] args) {
+			                for (int x = 0; x < 10; x++) {
+			                        for (TestString x = null; x.bar() < 5;)  {
+			                                // do something
+			                        }
+			                }
+			        }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src/test/TestString.java",
-		"package test;"+
-		"public class TestString {\n" +
-		"	public int bar() {\n" +
-		"		return 0;\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;\
+			public class TestString {
+				public int bar() {
+					return 0;
+				}
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("x");
@@ -1599,25 +1626,27 @@ public void testDuplicateLocals5() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"        public static void main(String[] args) {\n" +
-		"                for (int x = 0; x < 10; x++) {\n" +
-		"                        for (TestString x = null; x.bar() < 5;)  {\n" +
-		"                                x.bar(); // do something\n" +
-		"                        }\n" +
-		"                }\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			        public static void main(String[] args) {
+			                for (int x = 0; x < 10; x++) {
+			                        for (TestString x = null; x.bar() < 5;)  {
+			                                x.bar(); // do something
+			                        }
+			                }
+			        }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src/test/TestString.java",
-		"package test;"+
-		"public class TestString {\n" +
-		"	public int bar() {\n" +
-		"		return 0;\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;\
+			public class TestString {
+				public int bar() {
+					return 0;
+				}
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("x");
@@ -1640,34 +1669,36 @@ public void testDuplicateLocalsType1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"     class Local {\n" +
-		"        public void foo() {}\n" +
-		"     }\n" +
-		"     {\n" +
-		"        class Local {\n" +
-		"                Local(int i) {\n" +
-		"                        this.init(i);\n" +
-		"                }\n" +
-		"				 void init(int i) {}\n" +
-		"                public void bar() {}\n" +
-		"        }\n" +
-		"        Local l = new Local(0);\n" +
-		"        l.bar();\n" +
-		"     }\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			     class Local {
+			        public void foo() {}
+			     }
+			     {
+			        class Local {
+			                Local(int i) {
+			                        this.init(i);
+			                }
+							 void init(int i) {}
+			                public void bar() {}
+			        }
+			        Local l = new Local(0);
+			        l.bar();
+			     }
+			  }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src/test/TestString.java",
-		"package test;"+
-		"public class TestString {\n" +
-		"	public int bar() {\n" +
-		"		return 0;\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;\
+			public class TestString {
+				public int bar() {
+					return 0;
+				}
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("bar");
@@ -1685,38 +1716,40 @@ public void testDuplicateLocalsType2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"        void foo() {\n" +
-		"                class Local {\n" +
-		"                        void foo() {\n" +
-		"                        }\n" +
-		"                }\n" +
-		"                {\n" +
-		"                        class Local {\n" +
-		"                               Local(int i) {\n" +
-		"                                       this.init(i);\n" +
-		"                                       this.bar();\n" +
-		"                               }\n" +
-		"				 				void init(int i) {}\n" +
-		"                        		void bar() {\n" +
-		"                        		}\n" +
-		"                        }\n" +
-		"                        Local l = new Local(0);\n" +
-		"                }\n" +
-		"                Local l = new Local();\n" +
-		"                l.foo();\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			        void foo() {
+			                class Local {
+			                        void foo() {
+			                        }
+			                }
+			                {
+			                        class Local {
+			                               Local(int i) {
+			                                       this.init(i);
+			                                       this.bar();
+			                               }
+							 				void init(int i) {}
+			                        		void bar() {
+			                        		}
+			                        }
+			                        Local l = new Local(0);
+			                }
+			                Local l = new Local();
+			                l.foo();
+			        }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src/test/TestString.java",
-		"package test;"+
-		"public class TestString {\n" +
-		"	public int bar() {\n" +
-		"		return 0;\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;\
+			public class TestString {
+				public int bar() {
+					return 0;
+				}
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("foo");
@@ -2050,9 +2083,11 @@ public void testDuplicateTypeDeclaration7() throws CoreException, IOException {
 	try {
 		String[] pathAndContents = new String[] {
 			"test/p/Type.java",
-			"package test.p;"+
-			"public class Type {\n" +
-			"}\n"
+			"""
+				package test.p;\
+				public class Type {
+				}
+				"""
 		};
 
 		addLibrary(jarName, srcName, pathAndContents, JavaCore.VERSION_1_4);
@@ -2060,16 +2095,20 @@ public void testDuplicateTypeDeclaration7() throws CoreException, IOException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/Test.java",
-			"package test;"+
-			"import test.p.Type;"+
-			"public class Test {\n" +
-			"}\n");
+			"""
+				package test;\
+				import test.p.Type;\
+				public class Test {
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/p/Type.java",
-			"package test.p;"+
-			"public class Type {\n" +
-			"}\n");
+			"""
+				package test.p;\
+				public class Type {
+				}
+				""");
 
 		String str = this.workingCopies[0].getSource();
 		int start = str.lastIndexOf("Type");
@@ -2090,25 +2129,31 @@ public void testDuplicateTypeDeclaration8() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    test.p1.Type t = new test.p1.Type();\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    test.p1.Type t = new test.p1.Type();
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src/test/p1/Type.java",
-		"package test.p1;"+
-		"public class Type {\n" +
-		"  public Type(int i) {}\n" +
-		"}\n");
+		"""
+			package test.p1;\
+			public class Type {
+			  public Type(int i) {}
+			}
+			""");
 
 	this.workingCopies[2] = getWorkingCopy(
 		"/Resolve/src/test/p2/Type.java",
-		"package test.p2;"+
-		"public class Type {\n" +
-		"}\n");
+		"""
+			package test.p2;\
+			public class Type {
+			}
+			""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("Type");
@@ -2237,18 +2282,22 @@ public void testTypeInsideConstructor() throws JavaModelException {
 	try {
 		imported = getWorkingCopy(
 				"/Resolve/src/test/AType.java",
-				"public class AType {\n" +
-				"	public class Sub {\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					public class AType {
+						public class Sub {
+						}
+					}
+					""");
 
 		IJavaElement[] elements = select(
 				"/Resolve/src/test/Test.java",
-				"public class Test<\n" +
-				"	void foo() {\n" +
-				"	  new Test.Sub();\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class Test<
+						void foo() {
+						  new Test.Sub();
+						}
+					}
+					""",
 				"Test");
 
 		assertElementsEqual(
@@ -2268,16 +2317,20 @@ public void testMemberTypeInImport() throws JavaModelException {
 	try {
 		imported = getWorkingCopy(
 				"/Resolve/src/test/AType.java",
-				"public class AType {\n" +
-				"	public class Sub {\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					public class AType {
+						public class Sub {
+						}
+					}
+					""");
 
 		IJavaElement[] elements = select(
 				"/Resolve/src/test/Test.java",
-				"import test.AType.Sub;\n" +
-				"public class Test\n" +
-				"}\n",
+				"""
+					import test.AType.Sub;
+					public class Test
+					}
+					""",
 				"Sub");
 
 		assertElementsEqual(
@@ -2297,16 +2350,20 @@ public void testSingleNameInImport() throws JavaModelException {
 	try {
 		aType = getWorkingCopy(
 				"/Resolve/src/zzz/AType.java",
-				"package zzz;\n" +
-				"public class AType {\n" +
-				"}\n");
+				"""
+					package zzz;
+					public class AType {
+					}
+					""");
 
 		IJavaElement[] elements = select(
 				"/Resolve/src/test/Test.java",
-				"package test;\n" +
-				"import zzz.*;\n" +
-				"public class Test\n" +
-				"}\n",
+				"""
+					package test;
+					import zzz.*;
+					public class Test
+					}
+					""",
 				"zzz");
 
 		assertElementsEqual(
@@ -2340,12 +2397,14 @@ public void testSecondaryTypes() throws JavaModelException {
 public void testSelectOnCursor1() throws JavaModelException {
 	ICompilationUnit cu = getWorkingCopy(
 			"/Resolve/src/AType.java",
-			"public class AType {\n" +
-			"  public void doLoad(){}\n" +
-			"  public void foo() {\n" +
-			"    doLoad();\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				public class AType {
+				  public void doLoad(){}
+				  public void foo() {
+				    doLoad();
+				  }
+				}
+				""");
 
 	String str = cu.getSource();
 	// perform code select between 'd' and 'o'
@@ -2362,13 +2421,14 @@ public void testSelectOnCursor1() throws JavaModelException {
 public void testSelectOnCursor2() throws JavaModelException {
 	ICompilationUnit cu = getWorkingCopy(
 			"/Resolve/src/AType.java",
-			"public class X {\n" +
-			"        Object o;\n" +
-			"\n" +
-			"        String foo() {\n" +
-			"                return \"aaa\n" +
-			"        }\n" +
-			"}n");
+			"""
+				public class X {
+				        Object o;
+				
+				        String foo() {
+				                return "aaa
+				        }
+				}n""");
 
 	String str = cu.getSource();
 
@@ -2391,15 +2451,19 @@ public void testWorkingCopyOrder1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/p/Type.java",
-		"package test.p;\n" +
-		"public class Type {\n" +
-		"}\n"
+		"""
+			package test.p;
+			public class Type {
+			}
+			"""
 	);
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src2/test/p/Type.java",
-		"package test.p;\n" +
-		"public class Type {\n" +
-		"}\n"
+		"""
+			package test.p;
+			public class Type {
+			}
+			"""
 	);
 	IJavaProject javaProject = getJavaProject("Resolve");
 	IType foundType = javaProject.findType("test.p", "Type", this.wcOwner);
@@ -2419,17 +2483,21 @@ public void testWorkingCopyOrder2() throws Exception {
 	try {
 		String[] pathAndContents = new String[] {
 			"test/p/Type.java",
-			"package test.p;\n" +
-			"public class Type {\n" +
-			"}\n"
+			"""
+				package test.p;
+				public class Type {
+				}
+				"""
 		};
 		addLibrary(jarName, srcName, pathAndContents, JavaCore.VERSION_1_4);
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/p/Type.java",
-			"package test.p;\n" +
-			"public class Type {\n" +
-			"}\n"
+			"""
+				package test.p;
+				public class Type {
+				}
+				"""
 		);
 		IJavaProject javaProject = getJavaProject("Resolve");
 		IType foundType = javaProject.findType("test.p", "Type", this.wcOwner);
@@ -2445,14 +2513,15 @@ public void testWorkingCopyOrder2() throws Exception {
 public void testInvalidField1() throws JavaModelException {
 	ICompilationUnit cu = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;"+
-		"public class Event {\n" +
-		"        public int x;\n" +
-		"\n" +
-		"        public void handle(Event e) {\n" +
-		"                e.x.eee.foo();\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Event {
+			        public int x;
+			
+			        public void handle(Event e) {
+			                e.x.eee.foo();
+			        }
+			}""");
 	String str = cu.getSource();
 
 	int start = str.indexOf("eee") + "e".length();
@@ -2468,14 +2537,15 @@ public void testInvalidField1() throws JavaModelException {
 public void testInvalidField2() throws JavaModelException {
 	ICompilationUnit cu = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;"+
-		"public class Event {\n" +
-		"        public int x;\n" +
-		"\n" +
-		"        public void handle(Event e) {\n" +
-		"                this.x.eee.foo();\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Event {
+			        public int x;
+			
+			        public void handle(Event e) {
+			                this.x.eee.foo();
+			        }
+			}""");
 	String str = cu.getSource();
 
 	int start = str.indexOf("eee") + "e".length();
@@ -2491,14 +2561,15 @@ public void testInvalidField2() throws JavaModelException {
 public void testInvalidField3() throws JavaModelException {
 	ICompilationUnit cu = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;"+
-		"public class Event {\n" +
-		"        public int x;\n" +
-		"\n" +
-		"        public void handle(Event e) {\n" +
-		"                e.x.e.foo();\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Event {
+			        public int x;
+			
+			        public void handle(Event e) {
+			                e.x.e.foo();
+			        }
+			}""");
 	String str = cu.getSource();
 
 	int start = str.indexOf("foo") + "fo".length();
@@ -2514,14 +2585,15 @@ public void testInvalidField3() throws JavaModelException {
 public void testInvalidField4() throws JavaModelException {
 	ICompilationUnit cu = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;"+
-		"public class Event {\n" +
-		"        public int x;\n" +
-		"\n" +
-		"        public void handle(Event e) {\n" +
-		"                this.x.e.foo();\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Event {
+			        public int x;
+			
+			        public void handle(Event e) {
+			                this.x.e.foo();
+			        }
+			}""");
 	String str = cu.getSource();
 
 	int start = str.indexOf("foo") + "fo".length();
@@ -2537,14 +2609,15 @@ public void testInvalidField4() throws JavaModelException {
 public void testInvalidMethod1() throws JavaModelException {
 	ICompilationUnit cu = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;"+
-		"public class Event {\n" +
-		"        public int x;\n" +
-		"\n" +
-		"        public void handle(Event e) {\n" +
-		"                e.x.e().foo();\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Event {
+			        public int x;
+			
+			        public void handle(Event e) {
+			                e.x.e().foo();
+			        }
+			}""");
 	String str = cu.getSource();
 
 	int start = str.indexOf("foo") + "fo".length();
@@ -2560,14 +2633,15 @@ public void testInvalidMethod1() throws JavaModelException {
 public void testInvalidMethod2() throws JavaModelException {
 	ICompilationUnit cu = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;"+
-		"public class Event {\n" +
-		"        public int x;\n" +
-		"\n" +
-		"        public void handle(Event e) {\n" +
-		"                this.x.e().foo();\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Event {
+			        public int x;
+			
+			        public void handle(Event e) {
+			                this.x.e().foo();
+			        }
+			}""");
 	String str = cu.getSource();
 
 	int start = str.indexOf("foo") + "fo".length();
@@ -2586,18 +2660,22 @@ public void testInterfaceX() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Bug.java",
-		"package test;\n"+
-		"public class Bug {\n" +
-		"  void foo() {}\n" +
-		"  protected interface Proto {}\n" +
-		"}\n");
+		"""
+			package test;
+			public class Bug {
+			  void foo() {}
+			  protected interface Proto {}
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src/Type.java",
-		"import test.Bug;\n"+
-		"import test.Bug.*;\n"+
-		"class Type extends Bug implements Proto {\n" +
-		"}\n");
+		"""
+			import test.Bug;
+			import test.Bug.*;
+			class Type extends Bug implements Proto {
+			}
+			""");
 
 	String str = this.workingCopies[1].getSource();
 	int start = str.lastIndexOf("Proto");
@@ -2638,10 +2716,12 @@ public void testCodeSelectInHybrid1415Projects() throws CoreException, IOExcepti
 	try {
 		String[] pathAndContents = new String[] {
 			"TestSuite.java",
-			"public class TestSuite {\n" +
-			"    public TestSuite(final Class<? extends TestCase> p) {}\n" +
-			"}\n" +
-			"class TestCase {}\n"
+			"""
+				public class TestSuite {
+				    public TestSuite(final Class<? extends TestCase> p) {}
+				}
+				class TestCase {}
+				"""
 		};
 
 		addLibrary(jarName, srcName, pathAndContents, JavaCore.VERSION_1_5);
@@ -2649,11 +2729,13 @@ public void testCodeSelectInHybrid1415Projects() throws CoreException, IOExcepti
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/Test.java",
-			"public class TextEditTests extends TestCase {\n" +
-			"	{\n" +
-			"		new TestSuite(TextEditTests.class);\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				public class TextEditTests extends TestCase {
+					{
+						new TestSuite(TextEditTests.class);
+					}
+				}
+				""");
 
 
 		String str = this.workingCopies[0].getSource();
@@ -2675,11 +2757,12 @@ public void testMethodParameter() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	void foo(int x) {\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+				void foo(int x) {
+				}
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("x");
@@ -2698,16 +2781,18 @@ public void testConstantInLocal() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/Test2.java",
-			"class X {\n" +
-			"    public static void main(String[] args) {\n" +
-			"        class Local {\n" +
-			"            private static final long CONSTANT = 1L; // code select fails\n" +
-			"        }\n" +
-			"        new X() {\n" +
-			"            private static final long FINAL = 1L; // code select fails\n" +
-			"        };\n" +
-			"    }\n" +
-			"}\n");
+			"""
+				class X {
+				    public static void main(String[] args) {
+				        class Local {
+				            private static final long CONSTANT = 1L; // code select fails
+				        }
+				        new X() {
+				            private static final long FINAL = 1L; // code select fails
+				        };
+				    }
+				}
+				""");
 
 	String str = this.workingCopies[0].getSource();
 	String selectAt = "FINAL";

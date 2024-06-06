@@ -56,12 +56,13 @@ public class InMemoryCompilationTest extends TestCase {
 	public void testInMemoryCompilationStaticMethod()
 			throws ReflectiveOperationException, IllegalArgumentException, SecurityException {
 		String absClassName = "my.pkg.MyClass";
-		String sourceCode = "package my.pkg;" + //
-				"public class MyClass {" + //
-				"    public static String getText() {" + //
-				"        return \"Hello world\";" + //
-				"    }" + //
-				"}";
+		String sourceCode = """
+			package my.pkg;\
+			public class MyClass {\
+			    public static String getText() {\
+			        return "Hello world";\
+			    }\
+			}""";
 
 		Class<?> compiledClass = compile(absClassName, sourceCode);
 		Method method = compiledClass.getMethod("getText");
@@ -73,12 +74,13 @@ public class InMemoryCompilationTest extends TestCase {
 	public void testInMemoryCompilationInheritedMethod()
 			throws ReflectiveOperationException, IllegalArgumentException, SecurityException {
 		String absClassName = "my.pkg.MyClass";
-		String sourceCode = "package my.pkg;" + //
-				"public class MyClass implements java.util.function.Supplier<String> {" + //
-				"    public String get() {" + //
-				"        return \"Hello world\";" + //
-				"    }" + //
-				"}";
+		String sourceCode = """
+			package my.pkg;\
+			public class MyClass implements java.util.function.Supplier<String> {\
+			    public String get() {\
+			        return "Hello world";\
+			    }\
+			}""";
 
 		Class<?> compiledClass = compile(absClassName, sourceCode);
 		@SuppressWarnings("unchecked")

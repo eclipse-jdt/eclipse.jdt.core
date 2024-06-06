@@ -103,14 +103,16 @@ public void checkParse(
 public void test01() {
 
 	String s =
-		"public class X {							\n"+
-		"	int fX;         						\n"+
-		"	void foo() {   							\n"+
-		"		fX = 0;  							\n"+
-		"	}			  							\n"+
-		"	public void bar() {						\n"+
-		"	}										\n"+
-		"}											\n";
+		"""
+		public class X {						\t
+			int fX;         					\t
+			void foo() {   						\t
+				fX = 0;  						\t
+			}			  						\t
+			public void bar() {					\t
+			}									\t
+		}										\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
 		"";
@@ -124,21 +126,25 @@ public void test01() {
 public void test02() {
 
 	String s =
-		"public class X {							\n"+
-		"	int fX;         						\n"+
-		"	void foo() {   							\n"+
-		"		fX = 0;  							\n"+
-		"	public void bar() {						\n"+
-		"	}										\n"+
-		"}											\n";
+		"""
+		public class X {						\t
+			int fX;         					\t
+			void foo() {   						\t
+				fX = 0;  						\t
+			public void bar() {					\t
+			}									\t
+		}										\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n" +
-		"1. ERROR in <test2> (at line 4)\n" +
-		"	fX = 0;  							\n" +
-		"	      ^\n" +
-		"Syntax error, insert \"}\" to complete MethodBody\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test2> (at line 4)
+			fX = 0;  						\t
+			      ^
+		Syntax error, insert "}" to complete MethodBody
+		----------
+		""";
 
 	String testName = "<test2>";
 	checkParse(
@@ -149,26 +155,30 @@ public void test02() {
 public void test03() {
 
 	String s =
-		"public class X {							\n"+
-		"	int fX;         						\n"+
-		"	void foo()   							\n"+
-		"		fX = 0;  							\n"+
-		"	public void bar() {						\n"+
-		"	}										\n"+
-		"}											\n";
+		"""
+		public class X {						\t
+			int fX;         					\t
+			void foo()   						\t
+				fX = 0;  						\t
+			public void bar() {					\t
+			}									\t
+		}										\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n" +
-		"1. ERROR in <test3> (at line 3)\n" +
-		"	void foo()   							\n" +
-		"	         ^\n" +
-		"Syntax error on token \")\", { expected after this token\n" +
-		"----------\n" +
-		"2. ERROR in <test3> (at line 4)\n" +
-		"	fX = 0;  							\n" +
-		"	      ^\n" +
-		"Syntax error, insert \"}\" to complete MethodBody\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test3> (at line 3)
+			void foo()   						\t
+			         ^
+		Syntax error on token ")", { expected after this token
+		----------
+		2. ERROR in <test3> (at line 4)
+			fX = 0;  						\t
+			      ^
+		Syntax error, insert "}" to complete MethodBody
+		----------
+		""";
 
 	String testName = "<test3>";
 	checkParse(
@@ -179,22 +189,26 @@ public void test03() {
 public void test04() {
 
 	String s =
-		"public class X {							\n"+
-		"	int fX;         						\n"+
-		"	void foo()   							\n"+
-		"		fX = 0;  							\n"+
-		"	} 			  							\n"+
-		"	public void bar() {						\n"+
-		"	}										\n"+
-		"}											\n";
+		"""
+		public class X {						\t
+			int fX;         					\t
+			void foo()   						\t
+				fX = 0;  						\t
+			} 			  						\t
+			public void bar() {					\t
+			}									\t
+		}										\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n" +
-		"1. ERROR in <test4> (at line 3)\n" +
-		"	void foo()   							\n" +
-		"	         ^\n" +
-		"Syntax error on token \")\", { expected after this token\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test4> (at line 3)
+			void foo()   						\t
+			         ^
+		Syntax error on token ")", { expected after this token
+		----------
+		""";
 
 	String testName = "<test4>";
 	checkParse(
@@ -205,22 +219,26 @@ public void test04() {
 public void test05() {
 
 	String s =
-		"public class X {							\n"+
-		"	int fX;         						\n"+
-		"	void foo() {  							\n"+
-		"		if(true){  							\n"+
-		"	} 			  							\n"+
-		"	public void bar() {						\n"+
-		"	}										\n"+
-		"}											\n";
+		"""
+		public class X {						\t
+			int fX;         					\t
+			void foo() {  						\t
+				if(true){  						\t
+			} 			  						\t
+			public void bar() {					\t
+			}									\t
+		}										\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n" +
-		"1. ERROR in <test5> (at line 4)\n" +
-		"	if(true){  							\n" +
-		"	        ^\n" +
-		"Syntax error, insert \"}\" to complete Statement\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test5> (at line 4)
+			if(true){  						\t
+			        ^
+		Syntax error, insert "}" to complete Statement
+		----------
+		""";
 
 	String testName = "<test5>";
 	checkParse(
@@ -231,23 +249,27 @@ public void test05() {
 public void test06() {
 
 	String s =
-		"public class X {							\n"+
-		"	int fX;         						\n"+
-		"	void foo() {  							\n"+
-		"		if(true){  							\n"+
-		"	} 			  							\n"+
-		"	//comment								\n"+
-		"	public void bar() {						\n"+
-		"	}										\n"+
-		"}											\n";
+		"""
+		public class X {						\t
+			int fX;         					\t
+			void foo() {  						\t
+				if(true){  						\t
+			} 			  						\t
+			//comment							\t
+			public void bar() {					\t
+			}									\t
+		}										\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n" +
-		"1. ERROR in <test6> (at line 4)\n" +
-		"	if(true){  							\n" +
-		"	        ^\n" +
-		"Syntax error, insert \"}\" to complete Statement\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test6> (at line 4)
+			if(true){  						\t
+			        ^
+		Syntax error, insert "}" to complete Statement
+		----------
+		""";
 
 	String testName = "<test6>";
 	checkParse(
@@ -258,23 +280,27 @@ public void test06() {
 public void test07() {
 
 	String s =
-		"public class X {							\n"+
-		"	int fX;         						\n"+
-		"	void foo() {  							\n"+
-		"		if(true){  							\n"+
-		"	} 			  							\n"+
-		"	System.out.println();					\n"+
-		"	public void bar() {						\n"+
-		"	}										\n"+
-		"}											\n";
+		"""
+		public class X {						\t
+			int fX;         					\t
+			void foo() {  						\t
+				if(true){  						\t
+			} 			  						\t
+			System.out.println();				\t
+			public void bar() {					\t
+			}									\t
+		}										\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n" +
-		"1. ERROR in <test7> (at line 6)\n" +
-		"	System.out.println();					\n" +
-		"	                    ^\n" +
-		"Syntax error, insert \"}\" to complete MethodBody\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test7> (at line 6)
+			System.out.println();				\t
+			                    ^
+		Syntax error, insert "}" to complete MethodBody
+		----------
+		""";
 
 	String testName = "<test7>";
 	checkParse(
@@ -285,21 +311,25 @@ public void test07() {
 public void test08() {
 
 	String s =
-		"public class X {							\n"+
-		"	int fX;         						\n"+
-		"	void foo() {  							\n"+
-		"		if(true){  							\n"+
-		"	} 			  							\n"+
-		"	public int bar;							\n"+
-		"}											\n";
+		"""
+		public class X {						\t
+			int fX;         					\t
+			void foo() {  						\t
+				if(true){  						\t
+			} 			  						\t
+			public int bar;						\t
+		}										\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n" +
-		"1. ERROR in <test8> (at line 4)\n" +
-		"	if(true){  							\n" +
-		"	        ^\n" +
-		"Syntax error, insert \"}\" to complete Statement\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test8> (at line 4)
+			if(true){  						\t
+			        ^
+		Syntax error, insert "}" to complete Statement
+		----------
+		""";
 
 	String testName = "<test8>";
 	checkParse(
@@ -310,22 +340,26 @@ public void test08() {
 public void test09() {
 
 	String s =
-		"public class X {							\n"+
-		"	int fX;         						\n"+
-		"	void foo() {  							\n"+
-		"		if(true){  							\n"+
-		"	} 			  							\n"+
-		"	//comment	  							\n"+
-		"	public int bar;							\n"+
-		"}											\n";
+		"""
+		public class X {						\t
+			int fX;         					\t
+			void foo() {  						\t
+				if(true){  						\t
+			} 			  						\t
+			//comment	  						\t
+			public int bar;						\t
+		}										\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n" +
-		"1. ERROR in <test9> (at line 4)\n" +
-		"	if(true){  							\n" +
-		"	        ^\n" +
-		"Syntax error, insert \"}\" to complete Statement\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test9> (at line 4)
+			if(true){  						\t
+			        ^
+		Syntax error, insert "}" to complete Statement
+		----------
+		""";
 
 	String testName = "<test9>";
 	checkParse(
@@ -336,22 +370,26 @@ public void test09() {
 public void test10() {
 
 	String s =
-		"public class X {							\n"+
-		"	int fX;         						\n"+
-		"	void foo() {  							\n"+
-		"		if(true){  							\n"+
-		"	} 			  							\n"+
-		"	System.out.println();					\n"+
-		"	public int bar;							\n"+
-		"}											\n";
+		"""
+		public class X {						\t
+			int fX;         					\t
+			void foo() {  						\t
+				if(true){  						\t
+			} 			  						\t
+			System.out.println();				\t
+			public int bar;						\t
+		}										\t
+		""";
 
 	String expectedSyntaxErrorDiagnosis =
-		"----------\n" +
-		"1. ERROR in <test10> (at line 6)\n" +
-		"	System.out.println();					\n" +
-		"	                    ^\n" +
-		"Syntax error, insert \"}\" to complete MethodBody\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in <test10> (at line 6)
+			System.out.println();				\t
+			                    ^
+		Syntax error, insert "}" to complete MethodBody
+		----------
+		""";
 
 	String testName = "<test10>";
 	checkParse(

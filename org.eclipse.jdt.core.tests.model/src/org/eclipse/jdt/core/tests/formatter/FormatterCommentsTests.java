@@ -773,34 +773,42 @@ public void testLineComments01() throws JavaModelException {
 public void testLineComments02() throws JavaModelException {
 	useOldCommentWidthCounting();
 	String source =
-		"public class X02 {\r\n" +
-		"	int field; // This is a long comment that should be split in multiple line comments in case the line comment formatting is enabled\r\n" +
-		"}\r\n";
+		"""
+		public class X02 {\r
+			int field; // This is a long comment that should be split in multiple line comments in case the line comment formatting is enabled\r
+		}\r
+		""";
 	formatSource(source,
-		"public class X02 {\n" +
-		"	int field; // This is a long comment that should be split in multiple line\n" +
-		"				// comments in case the line comment formatting is enabled\n" +
-		"}\n",
+		"""
+			public class X02 {
+				int field; // This is a long comment that should be split in multiple line
+							// comments in case the line comment formatting is enabled
+			}
+			""",
 		false /* do not repeat */
 	);
 }
 public void testLineComments02b() throws JavaModelException {
 	useOldCommentWidthCounting();
 	String source =
-		"public interface X02b {\r\n" +
-		"\r\n" +
-		"	int foo(); // This is a long comment that should be split in multiple line comments in case the line comment formatting is enabled\r\n" +
-		"\r\n" +
-		"	int bar();\r\n" +
-		"}\r\n";
+		"""
+		public interface X02b {\r
+		\r
+			int foo(); // This is a long comment that should be split in multiple line comments in case the line comment formatting is enabled\r
+		\r
+			int bar();\r
+		}\r
+		""";
 	formatSource(source,
-		"public interface X02b {\n" +
-		"\n" +
-		"	int foo(); // This is a long comment that should be split in multiple line\n" +
-		"				// comments in case the line comment formatting is enabled\n" +
-		"\n" +
-		"	int bar();\n" +
-		"}\n",
+		"""
+			public interface X02b {
+			
+				int foo(); // This is a long comment that should be split in multiple line
+							// comments in case the line comment formatting is enabled
+			
+				int bar();
+			}
+			""",
 		false /* do not repeat */
 	);
 }
@@ -820,42 +828,46 @@ public void testLineComments06() throws JavaModelException {
 public void testLineComments07() throws JavaModelException {
 	useOldCommentWidthCounting();
 	String source =
-		"package test.comments.line;\r\n" +
-		"\r\n" +
-		"public class X07 {\r\n" +
-		"\r\n" +
-		"boolean inTitle;\r\n" +
-		"boolean inMetaTag;\r\n" +
-		"boolean inStyle;\r\n" +
-		"boolean inImg;\r\n" +
-		"\r\n" +
-		"void foo(String tagName) {\r\n" +
-		"    inTitle = tagName.equalsIgnoreCase(\"<title\"); // keep track if in <TITLE>\r\n" +
-		"    inMetaTag = tagName.equalsIgnoreCase(\"<META\"); // keep track if in <META>\r\n" +
-		"    inStyle = tagName.equalsIgnoreCase(\"<STYLE\"); // keep track if in <STYLE>\r\n" +
-		"    inImg = tagName.equalsIgnoreCase(\"<img\");     // keep track if in <IMG>\r\n" +
-		"}\r\n" +
-		"}\r\n";
+		"""
+		package test.comments.line;\r
+		\r
+		public class X07 {\r
+		\r
+		boolean inTitle;\r
+		boolean inMetaTag;\r
+		boolean inStyle;\r
+		boolean inImg;\r
+		\r
+		void foo(String tagName) {\r
+		    inTitle = tagName.equalsIgnoreCase("<title"); // keep track if in <TITLE>\r
+		    inMetaTag = tagName.equalsIgnoreCase("<META"); // keep track if in <META>\r
+		    inStyle = tagName.equalsIgnoreCase("<STYLE"); // keep track if in <STYLE>\r
+		    inImg = tagName.equalsIgnoreCase("<img");     // keep track if in <IMG>\r
+		}\r
+		}\r
+		""";
 	formatSource(source,
-		"package test.comments.line;\r\n" +
-		"\r\n" +
-		"public class X07 {\r\n" +
-		"\r\n" +
-		"	boolean inTitle;\r\n" +
-		"	boolean inMetaTag;\r\n" +
-		"	boolean inStyle;\r\n" +
-		"	boolean inImg;\r\n" +
-		"\r\n" +
-		"	void foo(String tagName) {\r\n" +
-		"		inTitle = tagName.equalsIgnoreCase(\"<title\"); // keep track if in\r\n" +
-		"														// <TITLE>\r\n" +
-		"		inMetaTag = tagName.equalsIgnoreCase(\"<META\"); // keep track if in\r\n" +
-		"														// <META>\r\n" +
-		"		inStyle = tagName.equalsIgnoreCase(\"<STYLE\"); // keep track if in\r\n" +
-		"														// <STYLE>\r\n" +
-		"		inImg = tagName.equalsIgnoreCase(\"<img\"); // keep track if in <IMG>\r\n" +
-		"	}\r\n" +
-		"}\r\n",
+		"""
+			package test.comments.line;\r
+			\r
+			public class X07 {\r
+			\r
+				boolean inTitle;\r
+				boolean inMetaTag;\r
+				boolean inStyle;\r
+				boolean inImg;\r
+			\r
+				void foo(String tagName) {\r
+					inTitle = tagName.equalsIgnoreCase("<title"); // keep track if in\r
+																	// <TITLE>\r
+					inMetaTag = tagName.equalsIgnoreCase("<META"); // keep track if in\r
+																	// <META>\r
+					inStyle = tagName.equalsIgnoreCase("<STYLE"); // keep track if in\r
+																	// <STYLE>\r
+					inImg = tagName.equalsIgnoreCase("<img"); // keep track if in <IMG>\r
+				}\r
+			}\r
+			""",
 		false /* do not repeat */
 	);
 }
@@ -872,17 +884,21 @@ public void testLineComments11() throws JavaModelException {
 	useOldCommentWidthCounting();
 	this.formatterPrefs.comment_line_length = 40;
 	String source =
-		"package test.comments.line;\r\n" +
-		"\r\n" +
-		"public class X11 { // This comment will go____over the max line length\r\n" +
-		"}\r\n";
+		"""
+		package test.comments.line;\r
+		\r
+		public class X11 { // This comment will go____over the max line length\r
+		}\r
+		""";
 	formatSource(source,
-		"package test.comments.line;\r\n" +
-		"\r\n" +
-		"public class X11 { // This comment will\r\n" +
-		"					// go____over the\r\n" +
-		"					// max line length\r\n" +
-		"}\r\n",
+		"""
+			package test.comments.line;\r
+			\r
+			public class X11 { // This comment will\r
+								// go____over the\r
+								// max line length\r
+			}\r
+			""",
 		false /* do not repeat */
 	);
 }
@@ -952,29 +968,33 @@ public void testBlockComments12() throws JavaModelException {
 public void testBlockComments13() throws JavaModelException {
 	setPageWidth80();
 	String source =
-		"package test.comments.block;\r\n" +
-		"\r\n" +
-		"public class X13 {\r\n" +
-		"\r\n" +
-		"protected void handleWarningToken(String token, boolean isEnabling) {\r\n" +
-		"	if (token.equals(\"pkgDefaultMethod___\") || token.equals(\"packageDefaultMethod___\")/*_backward_ _compatible_*/ ) {\r\n" +
-		"	}\r\n" +
-		"}\r\n" +
-		"}\r\n";
+		"""
+		package test.comments.block;\r
+		\r
+		public class X13 {\r
+		\r
+		protected void handleWarningToken(String token, boolean isEnabling) {\r
+			if (token.equals("pkgDefaultMethod___") || token.equals("packageDefaultMethod___")/*_backward_ _compatible_*/ ) {\r
+			}\r
+		}\r
+		}\r
+		""";
 	// Difference with old formatter:
 	// 1) split comment block starts one tab before to avoid possible words over the max line length
 	//		note that in this peculiar this was not necessary as even the first word is over the max line length!
 	formatSource(source,
-		"package test.comments.block;\n" +
-		"\n" +
-		"public class X13 {\n" +
-		"\n" +
-		"	protected void handleWarningToken(String token, boolean isEnabling) {\n" +
-		"		if (token.equals(\"pkgDefaultMethod___\") || token.equals(\n" +
-		"				\"packageDefaultMethod___\")/* _backward_ _compatible_ */ ) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test.comments.block;
+			
+			public class X13 {
+			
+				protected void handleWarningToken(String token, boolean isEnabling) {
+					if (token.equals("pkgDefaultMethod___") || token.equals(
+							"packageDefaultMethod___")/* _backward_ _compatible_ */ ) {
+					}
+				}
+			}
+			"""
 	);
 }
 public void testBlockComments14() throws JavaModelException {
@@ -1255,153 +1275,165 @@ public void testSnippet01() {
 	setComplianceLevel(CompilerOptions.VERSION_18);
 	this.formatterPrefs.comment_line_length = 40;
 	String source =
-		"/**\n" +
-		" * Code sample:" +
-		" * {@snippet lang=java :\n" +
-		" *   public static void main(String... args) {\n" +
-		" *       for (var arg : args) {                 // @highlight  type=italic regex = \"\\barg\\b\"\n" +
-		" *           if (!arg.isBlank()) {  System.out.println(arg);    }\n" +
-		" *       }                                      // @end\n" +
-		" *   }\n" +
-		" *   } OK?\n" +
-		" */" +
-		"class Test{}";
+		"""
+		/**
+		 * Code sample:\
+		 * {@snippet lang=java :
+		 *   public static void main(String... args) {
+		 *       for (var arg : args) {                 // @highlight  type=italic regex = "\\barg\\b"
+		 *           if (!arg.isBlank()) {  System.out.println(arg);    }
+		 *       }                                      // @end
+		 *   }
+		 *   } OK?
+		 */\
+		class Test{}""";
 	formatSource(source,
-		"/**\n" +
-		" * Code sample: *\n" +
-		" * {@snippet lang = java :\n" +
-		" * public static void main(String... args) {\n" +
-		" * 	for (var arg : args) {                 // @highlight type = italic regex = \"\\barg\\b\"\n" +
-		" * 		if (!arg.isBlank()) {\n" +
-		" * 			System.out.println(arg);\n" +
-		" * 		}\n" +
-		" * 	}                                      // @end\n" +
-		" * }\n" +
-		" * }\n" +
-		" * OK?\n" +
-		" */\n" +
-		"class Test {\n" +
-		"}"
+		"""
+			/**
+			 * Code sample: *
+			 * {@snippet lang = java :
+			 * public static void main(String... args) {
+			 * 	for (var arg : args) {                 // @highlight type = italic regex = "\\barg\\b"
+			 * 		if (!arg.isBlank()) {
+			 * 			System.out.println(arg);
+			 * 		}
+			 * 	}                                      // @end
+			 * }
+			 * }
+			 * OK?
+			 */
+			class Test {
+			}"""
 	);
 }
 public void testSnippet02() {
 	setComplianceLevel(CompilerOptions.VERSION_18);
 	this.formatterPrefs.insert_space_before_assignment_operator = false;
 	String source =
-		"/**\n" +
-		" * Here are the configuration properties:\n" +
-		" * {@snippet file=\"config.properties\" id=\"testtest\"  \n" +
-		" * lang  = properties}\n" +
-		" */\n" +
-		"public class T {}";
+		"""
+		/**
+		 * Here are the configuration properties:
+		 * {@snippet file="config.properties" id="testtest" \s
+		 * lang  = properties}
+		 */
+		public class T {}""";
 	formatSource(source,
-		"/**\n" +
-		" * Here are the configuration properties:\n" +
-		" * {@snippet file= \"config.properties\" id= \"testtest\" lang= properties}\n" +
-		" */\n" +
-		"public class T {\n" +
-		"}"
+		"""
+			/**
+			 * Here are the configuration properties:
+			 * {@snippet file= "config.properties" id= "testtest" lang= properties}
+			 */
+			public class T {
+			}"""
 	);
 }
 public void testSnippet03() {
 	setComplianceLevel(CompilerOptions.VERSION_18);
 	this.formatterPrefs.insert_space_after_assignment_operator = false;
 	String source =
-		"/**\n" +
-		" * Here are the configuration properties:\n" +
-		" * {@snippet id=\"test   test\"   lang  = properties:\n" +
-		" *   config1=value1;\n" +
-		" *   config2=value2;\n" +
-		" * }\n" +
-		" */\n" +
-		"public class T {}";
+		"""
+		/**
+		 * Here are the configuration properties:
+		 * {@snippet id="test   test"   lang  = properties:
+		 *   config1=value1;
+		 *   config2=value2;
+		 * }
+		 */
+		public class T {}""";
 	formatSource(source,
-		"/**\n" +
-		" * Here are the configuration properties:\n" +
-		" * {@snippet id =\"test   test\" lang =properties:\n" +
-		" *   config1=value1;\n" +
-		" *   config2=value2;\n" +
-		" * }\n" +
-		" */\n" +
-		"public class T {\n" +
-		"}"
+		"""
+			/**
+			 * Here are the configuration properties:
+			 * {@snippet id ="test   test" lang =properties:
+			 *   config1=value1;
+			 *   config2=value2;
+			 * }
+			 */
+			public class T {
+			}"""
 	);
 }
 public void testSnippet04() {
 	setComplianceLevel(CompilerOptions.VERSION_18);
 	String source =
-		"/**\n" +
-		" * Here are the configuration properties:\n" +
-		" * {@snippet  id=\"test   test\"  \n" +
-		" * :\n" +
-		" *   config1=value1;\n" +
-		" *   config2=value2;\n" +
-		" * }\n" +
-		" */\n" +
-		"public class T {}";
+		"""
+		/**
+		 * Here are the configuration properties:
+		 * {@snippet  id="test   test" \s
+		 * :
+		 *   config1=value1;
+		 *   config2=value2;
+		 * }
+		 */
+		public class T {}""";
 	formatSource(source,
-		"/**\n" +
-		" * Here are the configuration properties:\n" +
-		" * {@snippet id = \"test   test\" :\n" +
-		" * config1 = value1;\n" +
-		" * config2 = value2;\n" +
-		" * }\n" +
-		" */\n" +
-		"public class T {\n" +
-		"}"
+		"""
+			/**
+			 * Here are the configuration properties:
+			 * {@snippet id = "test   test" :
+			 * config1 = value1;
+			 * config2 = value2;
+			 * }
+			 */
+			public class T {
+			}"""
 	);
 }
 public void testSnippet05() {
 	setComplianceLevel(CompilerOptions.VERSION_18);
 	this.formatterPrefs.insert_space_before_assignment_operator = false;
 	String source =
-		"/**\n" +
-		" * Here are the configuration properties:\n" +
-		" * {@snippet\n" +
-		" *  id=\"testtest\" \n" +
-		" *  lang='java' :\n" +
-		" *   // @replace region substring='value		'	replacement=\"value:	\" \n" +
-		" *   config1=\"value		1\";\n" +
-		" *   config2=\"value		2\";\n" +
-		" *   // @end\n" +
-		" * } */\n" +
-		"public class T {}";
+		"""
+		/**
+		 * Here are the configuration properties:
+		 * {@snippet
+		 *  id="testtest"\s
+		 *  lang='java' :
+		 *   // @replace region substring='value		'	replacement="value:	"\s
+		 *   config1="value		1";
+		 *   config2="value		2";
+		 *   // @end
+		 * } */
+		public class T {}""";
 	formatSource(source,
-		"/**\n" +
-		" * Here are the configuration properties:\n" +
-		" * {@snippet id= \"testtest\" lang= 'java' :\n" +
-		" * // @replace region substring= 'value		' replacement= \"value:	\"\n" +
-		" * config1= \"value		1\";\n" +
-		" * config2= \"value		2\";\n" +
-		" * // @end\n" +
-		" * }\n" +
-		" */\n" +
-		"public class T {\n" +
-		"}"
+		"""
+			/**
+			 * Here are the configuration properties:
+			 * {@snippet id= "testtest" lang= 'java' :
+			 * // @replace region substring= 'value		' replacement= "value:	"
+			 * config1= "value		1";
+			 * config2= "value		2";
+			 * // @end
+			 * }
+			 */
+			public class T {
+			}"""
 	);
 }
 public void testSnippet06() {
 	setComplianceLevel(CompilerOptions.VERSION_18);
 	this.formatterPrefs.insert_space_after_assignment_operator = false;
 	String source =
-		"/**\n" +
-		" * {@snippet :\n" +
-		" *   // @replace substring	=	'value		' replacement=\"value:	\" :\n" +
-		" *   config1=\"value		1\";\n" +
-		" *   config2=\"value		2\";\n" +
-		" * }\n" +
-		" */\n" +
-		"public class T {}";
+		"""
+		/**
+		 * {@snippet :
+		 *   // @replace substring	=	'value		' replacement="value:	" :
+		 *   config1="value		1";
+		 *   config2="value		2";
+		 * }
+		 */
+		public class T {}""";
 	formatSource(source,
-		"/**\n" +
-		" * {@snippet :\n" +
-		" * // @replace substring ='value		' replacement =\"value:	\" :\n" +
-		" * config1 =\"value		1\";\n" +
-		" * config2 =\"value		2\";\n" +
-		" * }\n" +
-		" */\n" +
-		"public class T {\n" +
-		"}"
+		"""
+			/**
+			 * {@snippet :
+			 * // @replace substring ='value		' replacement ="value:	" :
+			 * config1 ="value		1";
+			 * config2 ="value		2";
+			 * }
+			 */
+			public class T {
+			}"""
 	);
 }
 public void testJoinLineComment01() {

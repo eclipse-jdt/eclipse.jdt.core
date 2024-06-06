@@ -83,17 +83,21 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IProject project = setupTest();
 		IPath srcRoot = getSourcePath();
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.Annotation;\n" +
-			"@Annotation(z=(byte)49,\n" +
-			"				  b=(byte)49,\n" +
-			"				  s=(byte)49,\n" +
-			"				  i=(byte)49,\n" +
-			"                 l=(byte)49,\n" +
-			"	 	 	      f=(byte)49,\n" +
-			"			      d=(byte)49,\n" +
-			"				  c=(byte)49)\n\n" +
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.Annotation;
+			@Annotation(z=(byte)49,
+							  b=(byte)49,
+							  s=(byte)49,
+							  i=(byte)49,
+			                 l=(byte)49,
+				 	 	      f=(byte)49,
+						      d=(byte)49,
+							  c=(byte)49)
+			
+			public class Test {}
+			""";
 
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
@@ -109,17 +113,21 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IProject project = setupTest();
 		IPath srcRoot = getSourcePath();
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotation;\n" +
-			"@RefAnnotation(z=(byte)49,\n" +
-			"				  b=(byte)49,\n" +
-			"				  s=(byte)49,\n" +
-			"				  i=(byte)49,\n" +
-			"                 l=(byte)49,\n" +
-			"	 	 	      f=(byte)49,\n" +
-			"			      d=(byte)49,\n" +
-			"				  c=(byte)49)\n\n" +
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotation;
+			@RefAnnotation(z=(byte)49,
+							  b=(byte)49,
+							  s=(byte)49,
+							  i=(byte)49,
+			                 l=(byte)49,
+				 	 	      f=(byte)49,
+						      d=(byte)49,
+							  c=(byte)49)
+			
+			public class Test {}
+			""";
 
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
@@ -139,17 +147,21 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.Annotation;\n" +
-			"@Annotation(z=(short)49,\n" +
-			"				  b=(short)49,\n" +
-			"				  s=(short)49,\n" +
-			"				  i=(short)49,\n" +
-			"                 l=(short)49,\n" +
-			"	 	 	      f=(short)49,\n" +
-			"			      d=(short)49,\n" +
-			"				  c=(short)49)\n\n" +
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.Annotation;
+			@Annotation(z=(short)49,
+							  b=(short)49,
+							  s=(short)49,
+							  i=(short)49,
+			                 l=(short)49,
+				 	 	      f=(short)49,
+						      d=(short)49,
+							  c=(short)49)
+			
+			public class Test {}
+			""";
 
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
@@ -166,17 +178,21 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotation;\n" +
-			"@RefAnnotation(z=(short)49,\n"+
-			"				  b=(short)49,\n" +
-			"				  s=(short)49,\n" +
-			"				  i=(short)49,\n" +
-			"                 l=(short)49,\n" +
-			"	 	 	      f=(short)49,\n" +
-			"			      d=(short)49,\n" +
-			"				  c=(short)49)\n\n" +
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotation;
+			@RefAnnotation(z=(short)49,
+							  b=(short)49,
+							  s=(short)49,
+							  i=(short)49,
+			                 l=(short)49,
+				 	 	      f=(short)49,
+						      d=(short)49,
+							  c=(short)49)
+			
+			public class Test {}
+			""";
 
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
@@ -196,17 +212,21 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.Annotation;\n" +
-			"@Annotation(z='1',\n" +
-			"                 b='1',\n" +
-			"				  s='1',\n" +
-			"				  i='1',\n" +
-			"                 l='1',\n" +
-			"	 	 	      f='1',\n" +
-			"			      d='1',\n" +
-			"				  c='1')\n\n" +
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.Annotation;
+			@Annotation(z='1',
+			                 b='1',
+							  s='1',
+							  i='1',
+			                 l='1',
+				 	 	      f='1',
+						      d='1',
+							  c='1')
+			
+			public class Test {}
+			""";
 
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
@@ -226,17 +246,21 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotation;\n" +
-			"@RefAnnotation(z='1',\n" +
-			"				  b='1',\n" +
-			"				  s='1',\n" +
-			"				  i='1',\n" +
-			"                 l='1',\n" +
-			"	 	 	      f='1',\n" +
-			"			      d='1',\n" +
-			"				  c='1')\n\n" +
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotation;
+			@RefAnnotation(z='1',
+							  b='1',
+							  s='1',
+							  i='1',
+			                 l='1',
+				 	 	      f='1',
+						      d='1',
+							  c='1')
+			
+			public class Test {}
+			""";
 
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
@@ -256,17 +280,21 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.Annotation;\n" +
-			"@Annotation(z=49,\n" +
-			"				  b=49,\n" +
-			"				  s=49,\n" +
-			"				  i=49,\n" +
-			"                 l=49,\n" +
-			"	 	 	      f=49,\n" +
-			"			      d=49,\n" +
-			"				  c=49)\n\n" +
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.Annotation;
+			@Annotation(z=49,
+							  b=49,
+							  s=49,
+							  i=49,
+			                 l=49,
+				 	 	      f=49,
+						      d=49,
+							  c=49)
+			
+			public class Test {}
+			""";
 
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
@@ -286,17 +314,21 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotation;\n" +
-			"@RefAnnotation(z=49,\n" +
-			"				  b=49,\n" +
-			"				  s=49,\n" +
-			"				  i=49,\n" +
-			"                 l=49,\n" +
-			"	 	 	      f=49,\n" +
-			"			      d=49,\n" +
-			"				  c=49)\n\n" +
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotation;
+			@RefAnnotation(z=49,
+							  b=49,
+							  s=49,
+							  i=49,
+			                 l=49,
+				 	 	      f=49,
+						      d=49,
+							  c=49)
+			
+			public class Test {}
+			""";
 
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
@@ -316,17 +348,20 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.Annotation;\n" +
-			"@Annotation(z=49l,\n" +
-			"				  c=49l,\n" +
-			"				  b=49l,\n" +
-			"				  s=49l,\n" +
-			"				  i=49l,\n" +
-			"				  l=49l,\n" +
-			"	 	 	      f=49l,\n" +
-			"			      d=49l)\n" +
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.Annotation;
+			@Annotation(z=49l,
+							  c=49l,
+							  b=49l,
+							  s=49l,
+							  i=49l,
+							  l=49l,
+				 	 	      f=49l,
+						      d=49l)
+			public class Test {}
+			""";
 
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
@@ -354,17 +389,20 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotation;\n" +
-			"@RefAnnotation(z=49l,\n" +
-			"				  c=49l,\n" +
-			"				  b=49l,\n" +
-			"				  s=49l,\n" +
-			"				  i=49l,\n" +
-			"				  l=49l,\n" +
-			"	 	 	      f=49l,\n" +
-			"			      d=49l)\n" +
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotation;
+			@RefAnnotation(z=49l,
+							  c=49l,
+							  b=49l,
+							  s=49l,
+							  i=49l,
+							  l=49l,
+				 	 	      f=49l,
+						      d=49l)
+			public class Test {}
+			""";
 
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
@@ -392,17 +430,20 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.Annotation;\n" +
-			"@Annotation(z=49f,\n" +
-			"				  c=49f,\n" +
-			"				  b=49f,\n" +
-			"				  s=49f,\n" +
-			"				  i=49f,\n" +
-			"				  l=49f,\n" +
-			"				  f=49f,\n" +
-			"			      d=49f)\n" +
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.Annotation;
+			@Annotation(z=49f,
+							  c=49f,
+							  b=49f,
+							  s=49f,
+							  i=49f,
+							  l=49f,
+							  f=49f,
+						      d=49f)
+			public class Test {}
+			""";
 
 		IPath testPath = env.addClass(
 				srcRoot,
@@ -436,17 +477,20 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotation;\n" +
-			"@RefAnnotation(z=49f,\n" +
-			"				  c=49f,\n" +
-			"				  b=49f,\n" +
-			"				  s=49f,\n" +
-			"				  i=49f,\n" +
-			"				  l=49f,\n" +
-			"				  f=49f,\n" +
-			"			      d=49f)\n" +
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotation;
+			@RefAnnotation(z=49f,
+							  c=49f,
+							  b=49f,
+							  s=49f,
+							  i=49f,
+							  l=49f,
+							  f=49f,
+						      d=49f)
+			public class Test {}
+			""";
 
 		IPath testPath = env.addClass(
 				srcRoot,
@@ -480,17 +524,20 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.Annotation;\n" +
-			"@Annotation(z=49d," +
-			"				  c=49d,\n" +
-			"				  b=49d,\n" +
-			"				  s=49d,\n" +
-			"				  i=49d,\n" +
-			"				  l=49d,\n" +
-			"				  f=49d,\n" +
-			"			      d=49d)\n" +
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.Annotation;
+			@Annotation(z=49d,\
+							  c=49d,
+							  b=49d,
+							  s=49d,
+							  i=49d,
+							  l=49d,
+							  f=49d,
+						      d=49d)
+			public class Test {}
+			""";
 
 		IPath testPath = env.addClass(srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
@@ -522,17 +569,20 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotation;\n" +
-			"@RefAnnotation(z=49d,\n" +
-			"				  c=49d,\n" +
-			"				  b=49d,\n" +
-			"				  s=49d,\n" +
-			"				  i=49d,\n" +
-			"				  l=49d,\n" +
-			"				  f=49d,\n" +
-			"			      d=49d)\n" +
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotation;
+			@RefAnnotation(z=49d,
+							  c=49d,
+							  b=49d,
+							  s=49d,
+							  i=49d,
+							  l=49d,
+							  f=49d,
+						      d=49d)
+			public class Test {}
+			""";
 
 		IPath testPath = env.addClass(srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
@@ -564,17 +614,21 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.AnnotationWithArray;\n" +
-			"@AnnotationWithArray(booleans=true,\n" +
-			"				  bytes=(byte)49,\n" +
-			"				  shorts=(short)49,\n" +
-			"				  ints=49,\n" +
-			"                 longs=49,\n" +
-			"	 	 	      floats=49,\n" +
-			"			      doubles=49,\n" +
-			"				  chars='1')\n\n" +
-			"public class Test {}\n" ;
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.AnnotationWithArray;
+			@AnnotationWithArray(booleans=true,
+							  bytes=(byte)49,
+							  shorts=(short)49,
+							  ints=49,
+			                 longs=49,
+				 	 	      floats=49,
+						      doubles=49,
+							  chars='1')
+			
+			public class Test {}
+			""" ;
 
 		env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
@@ -591,17 +645,21 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotationWithArray;\n" +
-			"@RefAnnotationWithArray(booleans=true,\n" +
-			"				  bytes=(byte)49,\n" +
-			"				  shorts=(short)49,\n" +
-			"				  ints=49,\n" +
-			"                 longs=49,\n" +
-			"	 	 	      floats=49,\n" +
-			"			      doubles=49,\n" +
-			"				  chars='1')\n\n" +
-			"public class Test {}\n" ;
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotationWithArray;
+			@RefAnnotationWithArray(booleans=true,
+							  bytes=(byte)49,
+							  shorts=(short)49,
+							  ints=49,
+			                 longs=49,
+				 	 	      floats=49,
+						      doubles=49,
+							  chars='1')
+			
+			public class Test {}
+			""" ;
 
 		env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
@@ -618,17 +676,21 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.AnnotationWithArray;\n" +
-			"@AnnotationWithArray(booleans={true, true },\n" +
-			"				  bytes=  {(byte)49, 50}, \n" +
-			"				  shorts= {(byte)49, 50},\n" +
-			"				  ints=   {(byte)49, 50},\n" +
-			"                 longs=  {(byte)49, 50},\n" +
-			"	 	 	      floats= {(byte)49, 50},\n" +
-			"			      doubles={(byte)49, 50},\n" +
-			"				  chars=  {'1','2'})\n\n" +
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.AnnotationWithArray;
+			@AnnotationWithArray(booleans={true, true },
+							  bytes=  {(byte)49, 50},\s
+							  shorts= {(byte)49, 50},
+							  ints=   {(byte)49, 50},
+			                 longs=  {(byte)49, 50},
+				 	 	      floats= {(byte)49, 50},
+						      doubles={(byte)49, 50},
+							  chars=  {'1','2'})
+			
+			public class Test {}
+			""";
 
 		env.addClass(
 				srcRoot,
@@ -649,17 +711,21 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotationWithArray;\n" +
-			"@RefAnnotationWithArray(booleans={true, true },\n" +
-			"				  bytes=  {(byte)49, 50}, \n" +
-			"				  shorts= {(byte)49, 50},\n" +
-			"				  ints=   {(byte)49, 50},\n" +
-			"                 longs=  {(byte)49, 50},\n" +
-			"	 	 	      floats= {(byte)49, 50},\n" +
-			"			      doubles={(byte)49, 50},\n" +
-			"				  chars=  {'1','2'})\n\n" +
-			"public class Test {}\n" ;
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotationWithArray;
+			@RefAnnotationWithArray(booleans={true, true },
+							  bytes=  {(byte)49, 50},\s
+							  shorts= {(byte)49, 50},
+							  ints=   {(byte)49, 50},
+			                 longs=  {(byte)49, 50},
+				 	 	      floats= {(byte)49, 50},
+						      doubles={(byte)49, 50},
+							  chars=  {'1','2'})
+			
+			public class Test {}
+			""" ;
 
 		env.addClass(
 				srcRoot,
@@ -678,18 +744,22 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.AnnotationWithArray;\n" +
-			"@AnnotationWithArray(booleans={true, true },\n" +
-			"				  bytes=  {(byte)49, 50}, \n" +
-			"				  shorts= {(byte)49, 50},\n" +
-			"				  ints=   {(byte)49, 50},\n" +
-			"                 longs=  {(byte)49, 50},\n" +
-			"	 	 	      floats= {(byte)49, 50},\n" +
-			"			      doubles={(byte)49, 50},\n" +
-			"				  chars=  {'1','2'},\n" +
-			"                 str=true)\n\n" +
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.AnnotationWithArray;
+			@AnnotationWithArray(booleans={true, true },
+							  bytes=  {(byte)49, 50},\s
+							  shorts= {(byte)49, 50},
+							  ints=   {(byte)49, 50},
+			                 longs=  {(byte)49, 50},
+				 	 	      floats= {(byte)49, 50},
+						      doubles={(byte)49, 50},
+							  chars=  {'1','2'},
+			                 str=true)
+			
+			public class Test {}
+			""";
 
 		env.addClass(
 				srcRoot,
@@ -710,18 +780,22 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotationWithArray;\n" +
-			"@RefAnnotationWithArray(booleans={true, true },\n" +
-			"				  bytes=  {(byte)49, 50}, \n" +
-			"				  shorts= {(byte)49, 50},\n" +
-			"				  ints=   {(byte)49, 50},\n" +
-			"                 longs=  {(byte)49, 50},\n" +
-			"	 	 	      floats= {(byte)49, 50},\n" +
-			"			      doubles={(byte)49, 50},\n" +
-			"				  chars=  {'1','2'},\n" +
-			"                 str=true)\n\n" +
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotationWithArray;
+			@RefAnnotationWithArray(booleans={true, true },
+							  bytes=  {(byte)49, 50},\s
+							  shorts= {(byte)49, 50},
+							  ints=   {(byte)49, 50},
+			                 longs=  {(byte)49, 50},
+				 	 	      floats= {(byte)49, 50},
+						      doubles={(byte)49, 50},
+							  chars=  {'1','2'},
+			                 str=true)
+			
+			public class Test {}
+			""";
 
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
@@ -738,10 +812,13 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String content =
-			"package sample; \n\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotation;\n" +
-			"@RefAnnotation()\n"+
-			"public class Test {}\n";
+			"""
+			package sample;\s
+			
+			import org.eclipse.jdt.apt.tests.annotations.valueconversion.RefAnnotation;
+			@RefAnnotation()
+			public class Test {}
+			""";
 
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );

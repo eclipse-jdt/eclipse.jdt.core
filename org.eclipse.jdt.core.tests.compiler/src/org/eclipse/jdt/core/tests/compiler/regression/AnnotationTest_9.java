@@ -35,75 +35,91 @@ public class AnnotationTest_9 extends AbstractComparableTest {
 	    runConformTest(
 	        new String[] {
 	                "p/A.java",
-	                "package p;\n" +
-	                "@java.lang.annotation.Target({\n" +
-	                "    java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.METHOD})\n" +
-	                "@Deprecated\n" +
-	                "public @interface A {}\n",
+	                """
+						package p;
+						@java.lang.annotation.Target({
+						    java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.METHOD})
+						@Deprecated
+						public @interface A {}
+						""",
 	        },"");
 	    runConformTest(
             new String[] {
                     "X.java",
-                    "import p.A;\n" +
-                    "class X {\n" +
-                    "  @A void foo() {}\n" +
-                    "}\n",
+                    """
+						import p.A;
+						class X {
+						  @A void foo() {}
+						}
+						""",
             },"", null, false, null);
 	}
     public void testBug521054a() throws Exception {
     	this.runNegativeTest(
     		new String[] {
     				"X.java",
-    				"public @interface X {\n" +
-    				"	String value(X this);\n" +
-    				"}\n",
+    				"""
+						public @interface X {
+							String value(X this);
+						}
+						""",
     		},
-    		"----------\n" +
-    		"1. ERROR in X.java (at line 2)\n" +
-    		"	String value(X this);\n" +
-    		"	       ^^^^^^^^^^^^^\n" +
-    		"Annotation attributes cannot have parameters\n" +
-    		"----------\n",
+    		"""
+				----------
+				1. ERROR in X.java (at line 2)
+					String value(X this);
+					       ^^^^^^^^^^^^^
+				Annotation attributes cannot have parameters
+				----------
+				""",
     		null, true);
     }
     public void testBug521054b() throws Exception {
     	this.runNegativeTest(
     		new String[] {
     				"X.java",
-    				"@java.lang.annotation.Repeatable(Container.class)\n" +
-    				"public @interface X {\n" +
-    				"	String value();\n" +
-    				"}\n" +
-    				"@interface Container {\n" +
-    				"	X[] value(Container this);\n" +
-    				"}\n",
+    				"""
+						@java.lang.annotation.Repeatable(Container.class)
+						public @interface X {
+							String value();
+						}
+						@interface Container {
+							X[] value(Container this);
+						}
+						""",
     		},
-    		"----------\n" +
-    		"1. ERROR in X.java (at line 6)\n" +
-    		"	X[] value(Container this);\n" +
-    		"	    ^^^^^^^^^^^^^^^^^^^^^\n" +
-    		"Annotation attributes cannot have parameters\n" +
-    		"----------\n",
+    		"""
+				----------
+				1. ERROR in X.java (at line 6)
+					X[] value(Container this);
+					    ^^^^^^^^^^^^^^^^^^^^^
+				Annotation attributes cannot have parameters
+				----------
+				""",
     		null, true);
     }
     public void testBug521054c() throws Exception {
     	this.runNegativeTest(
     		new String[] {
     				"X.java",
-    				"@java.lang.annotation.Repeatable(Container.class)\n" +
-    				"public @interface X {\n" +
-    				"	String value(X this, int i);\n" +
-    				"}\n" +
-    				"@interface Container {\n" +
-    				"	X[] value();\n" +
-    				"}\n",
+    				"""
+						@java.lang.annotation.Repeatable(Container.class)
+						public @interface X {
+							String value(X this, int i);
+						}
+						@interface Container {
+							X[] value();
+						}
+						""",
     		},
-    		"----------\n" +
-    		"1. ERROR in X.java (at line 3)\n" +
-    		"	String value(X this, int i);\n" +
-    		"	       ^^^^^^^^^^^^^^^^^^^^\n" +
-    		"Annotation attributes cannot have parameters\n" +
-    		"----------\n",
+    		"""
+				----------
+				1. ERROR in X.java (at line 3)
+					String value(X this, int i);
+					       ^^^^^^^^^^^^^^^^^^^^
+				Annotation attributes cannot have parameters
+				----------
+				""",
     		null, true);
     }
 	public void testGH1654() {

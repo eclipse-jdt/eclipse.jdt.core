@@ -74,10 +74,11 @@ public class BuilderTests extends TestBase
 		// first runs; but on its final round it then generates a new Java type
 		// that is annotated with @FinalRoundTestTrigger.
 		env.addClass(root, "t", "Foo",
-				"package t;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FinalRoundTestTrigger;\n" +
-				"@FinalRoundTestTrigger\n" +
-				"public class Foo {}"
+				"""
+					package t;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FinalRoundTestTrigger;
+					@FinalRoundTestTrigger
+					public class Foo {}"""
 		);
 		AptConfig.setEnabled(jproj, true);
 
@@ -104,9 +105,10 @@ public class BuilderTests extends TestBase
 		IPath root = projPath.append("src");
 
 		env.addClass(root, "", "Base",
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.InheritedTrigger;\n" +
-				"@InheritedTrigger(0)\n" +
-				"public class Base {}"
+				"""
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.InheritedTrigger;
+					@InheritedTrigger(0)
+					public class Base {}"""
 		);
 
 		// Because Sub extends Base, it should be treated as if it were annotated with InheritedTrigger
@@ -128,9 +130,10 @@ public class BuilderTests extends TestBase
 		// Modify base class and verify that both base and subclass get processed
 		InheritedAnnoProc.clearProcessedElements();
 		env.addClass(root, "", "Base",
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.InheritedTrigger;\n" +
-				"@InheritedTrigger(1)\n" +
-				"public class Base {}"
+				"""
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.InheritedTrigger;
+					@InheritedTrigger(1)
+					public class Base {}"""
 		);
 		incrementalBuild();
 		expectingNoProblems();
@@ -143,9 +146,10 @@ public class BuilderTests extends TestBase
 		// Modify subclass and verify that it gets processed
 		InheritedAnnoProc.clearProcessedElements();
 		env.addClass(root, "", "Sub",
-				"public class Sub extends Base {\n" +
-				" // this line is new\n" +
-				"}"
+				"""
+					public class Sub extends Base {
+					 // this line is new
+					}"""
 		);
 		incrementalBuild();
 		expectingNoProblems();
@@ -171,22 +175,26 @@ public class BuilderTests extends TestBase
 		IPath root = projPath.append("src");
 
 		env.addClass(root, "test295948", "FooEvent",
-				"package test295948;\n" +
-				"public class FooEvent {\n" +
-				"    public interface Handler {\n" +
-				"        void handle(FooEvent event);\n" +
-				"    }\n" +
-				"}\n" +
-				"\n"
+				"""
+					package test295948;
+					public class FooEvent {
+					    public interface Handler {
+					        void handle(FooEvent event);
+					    }
+					}
+					
+					"""
 		);
 
 		IPath fooImplClass = env.addClass(root, "test295948", "FooImpl",
-				"package test295948;\n" +
-				"public class FooImpl implements FooEvent.Handler {\n" +
-				"    @Override\n" +
-				"    public void handle(FooEvent event) {\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					package test295948;
+					public class FooImpl implements FooEvent.Handler {
+					    @Override
+					    public void handle(FooEvent event) {
+					    }
+					}
+					"""
 		);
 
 		AptConfig.setEnabled(jproj, true);
@@ -283,19 +291,21 @@ public class BuilderTests extends TestBase
 			ProcessorTestStatus.reset();
 
 			env.addClass(root, "test", "Foo",
-					"package test;\n" +
-					"import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;\n" +
-			        "@GenClass6(name = \"FooGen\", pkg = \"test\")\n" +
-				    "public class Foo {\n" +
-			        "    public Bar bar;\n" +
-				    "}");
+					"""
+						package test;
+						import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;
+						@GenClass6(name = "FooGen", pkg = "test")
+						public class Foo {
+						    public Bar bar;
+						}""");
 			env.addClass(root, "test", "Bar",
-					"package test;\n" +
-					"import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;\n" +
-			        "@GenClass6(name = \"BarGen\", pkg = \"test\")\n" +
-				    "public class Bar {\n" +
-			        "    public Foo foo;\n" +
-				    "}");
+					"""
+						package test;
+						import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;
+						@GenClass6(name = "BarGen", pkg = "test")
+						public class Bar {
+						    public Foo foo;
+						}""");
 			AptConfig.setEnabled(jproj, true);
 
 			fullBuild();
@@ -327,20 +337,22 @@ public class BuilderTests extends TestBase
 			ProcessorTestStatus.reset();
 
 			env.addClass(root, "test", "Foo",
-					"package test;\n" +
-							"import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;\n" +
-							"import org.eclipse.jdt.apt.pluggable.tests.annotations.Message6;\n" +
-							"import javax.tools.Diagnostic.Kind;\n" +
-							"@GenClass6(name = \"FooGen\", pkg = \"test\", rounds = 2)\n" +
-							"@Message6(text = \"APT message\", value = Kind.ERROR)\n" +
-							"public class Foo extends FooGen {\n" +
-							"    public Bar bar;\n" +
-					"}");
+					"""
+						package test;
+						import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;
+						import org.eclipse.jdt.apt.pluggable.tests.annotations.Message6;
+						import javax.tools.Diagnostic.Kind;
+						@GenClass6(name = "FooGen", pkg = "test", rounds = 2)
+						@Message6(text = "APT message", value = Kind.ERROR)
+						public class Foo extends FooGen {
+						    public Bar bar;
+						}""");
 			env.addClass(root, "test", "Bar",
-					"package test;\n" +
-							"public class Bar {\n" +
-							"    public Foo foo;\n" +
-					"}");
+					"""
+						package test;
+						public class Bar {
+						    public Foo foo;
+						}""");
 			AptConfig.setEnabled(jproj, true);
 
 			fullBuild();
@@ -405,12 +417,13 @@ public class BuilderTests extends TestBase
 			env.addClass(root, null, "module-info", "module example {requires annotations;}");
 
 			env.addClass(root, "test", "Foo",
-					"package test;\n" +
-					"import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;\n" +
-			        "@GenClass6(name = \"ImmutableFoo\", pkg = \"test\")\n" +
-				    "public class Foo {\n" +
-			        "    public void f(ImmutableFoo o) { }\n" +
-				    "}");
+					"""
+						package test;
+						import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;
+						@GenClass6(name = "ImmutableFoo", pkg = "test")
+						public class Foo {
+						    public void f(ImmutableFoo o) { }
+						}""");
 			AptConfig.setEnabled(jproj, true);
 
 			fullBuild();

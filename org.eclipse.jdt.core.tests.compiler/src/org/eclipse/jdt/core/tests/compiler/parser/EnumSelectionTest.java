@@ -21,14 +21,16 @@ public EnumSelectionTest(String testName) {
 public void test0001() {
 
 	String str =
-		"public class X {		\n" +
-		"  void foo() {								\n" +
-		"    switch(e) {  							\n" +
-		"      case A:								\n" +
-		"        break;								\n" +
-		"    }        								\n" +
-		"  }        								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  void foo() {							\t
+		    switch(e) {  						\t
+		      case A:							\t
+		        break;							\t
+		    }        							\t
+		  }        							\t
+		}										\t
+		""";
 
 	String selectionStartBehind = "case ";
 	String selectionEndBehind = "A";
@@ -36,17 +38,19 @@ public void test0001() {
 	String expectedCompletionNodeToString = "<SelectOnName:A>";
 	String completionIdentifier = "A";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    {\n" +
-		"      switch (e) {\n" +
-		"      case <SelectOnName:A> :\n" +
-		"      }\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    {
+		      switch (e) {
+		      case <SelectOnName:A> :
+		      }
+		    }
+		  }
+		}
+		""";
 	String expectedReplacedSource = "A";
 	String testName = "<select test>";
 

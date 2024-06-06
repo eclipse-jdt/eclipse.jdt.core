@@ -138,10 +138,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void test002() throws CoreException {
 		try {
 			this.editFile("P1/src/module-info.java",
-							"module M1 {\n" +
-							"	exports com.greetings;\n" +
-							"	requires java.base;\n" +
-							"}");
+							"""
+								module M1 {
+									exports com.greetings;
+									requires java.base;
+								}""");
 			this.createFile("P1/src/com/greetings/Greet.java", "package com.greetings; public class Greet {}\n");
 			waitForManualRefresh();
 			this.currentProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -155,15 +156,17 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void test003() throws CoreException {
 		try {
 			this.editFile("P1/src/module-info.java",
-					"module M1 {\n" +
-							"	exports com.greetings;\n" +
-					"}");
+					"""
+						module M1 {
+							exports com.greetings;
+						}""");
 			this.editFile("P1/src/com/greetings/Main.java",
-					"package com.greetings;\n" +
-					"public class Main {\n" +
-					"	public static void main(String[] args) {\n" +
-					"	}\n" +
-					"}");
+					"""
+						package com.greetings;
+						public class Main {
+							public static void main(String[] args) {
+							}
+						}""");
 			waitForManualRefresh();
 			this.currentProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = this.currentProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -176,16 +179,18 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void test004() throws CoreException {
 		try {
 			this.editFile("P1/src/module-info.java",
-					"module M1 {\n" +
-					"	exports com.greetings;\n" +
-					"	requires java.base;\n" +
-					"}");
+					"""
+						module M1 {
+							exports com.greetings;
+							requires java.base;
+						}""");
 			this.editFile("P1/src/com/greetings/Main.java",
-					"package com.greetings;\n" +
-					"import java.sql.Connection;\n" +
-					"public class Main {\n" +
-					"	public Connection con = null;\n" +
-					"}");
+					"""
+						package com.greetings;
+						import java.sql.Connection;
+						public class Main {
+							public Connection con = null;
+						}""");
 			waitForManualRefresh();
 			this.currentProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = this.currentProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -201,11 +206,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void test005() throws CoreException {
 		try {
 			this.editFile("P1/src/module-info.java",
-					"module M1 {\n" +
-					"	exports com.greetings;\n" +
-					"	requires java.base;\n" +
-					"	requires java.sql;\n" +
-					"}");
+					"""
+						module M1 {
+							exports com.greetings;
+							requires java.base;
+							requires java.sql;
+						}""");
 			waitForManualRefresh();
 			this.currentProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = this.currentProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -221,16 +227,18 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void _test006() throws CoreException {
 		try {
 			this.editFile("P1/src/module-info.java",
-					"module M1 {\n" +
-					"	exports com.greetings;\n" +
-					"	requires java.base;\n" +
-					"	requires java.sql;\n" +
-					"	requires java.idontexist;\n" +
-					"}");
+					"""
+						module M1 {
+							exports com.greetings;
+							requires java.base;
+							requires java.sql;
+							requires java.idontexist;
+						}""");
 			this.editFile("P1/src/com/greetings/Main.java",
-					"package com.greetings;\n" +
-					"public class Main {\n" +
-					"}");
+					"""
+						package com.greetings;
+						public class Main {
+						}""");
 			waitForManualRefresh();
 			this.currentProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = this.currentProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -250,30 +258,34 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		newPath[old.length] = projectEntry;
 		project.setRawClasspath(newPath, null);
 		this.editFile("P1/src/module-info.java",
-				"module M1 {\n" +
-				"	exports com.greetings;\n" +
-				"	requires java.base;\n" +
-				"}");
+				"""
+					module M1 {
+						exports com.greetings;
+						requires java.base;
+					}""");
 		this.editFile("P1/src/com/greetings/Main.java",
-				"package com.greetings;\n" +
-				"public class Main {\n" +
-				"	public static void main(String[] args) {\n" +
-				"	}\n" +
-				"}");
+				"""
+					package com.greetings;
+					public class Main {
+						public static void main(String[] args) {
+						}
+					}""");
 		this.createFile("P2/src/module-info.java",
-				"module M2 {\n" +
-				"	exports org.astro;\n" +
-				"	requires M1;\n" +
-				"}");
+				"""
+					module M2 {
+						exports org.astro;
+						requires M1;
+					}""");
 		this.createFolder("P2/src/org/astro");
 		this.createFile("P2/src/org/astro/Test.java",
-				"package org.astro;\n" +
-				"import com.greetings.Main;\n" +
-				"public class Test {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Main.main(args);\n" +
-				"	}\n" +
-				"}");
+				"""
+					package org.astro;
+					import com.greetings.Main;
+					public class Test {
+						public static void main(String[] args) {
+							Main.main(args);
+						}
+					}""");
 		return project;
 	}
 	/*
@@ -284,14 +296,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			IJavaProject project = setupP2();
 			this.editFile("P1/src/module-info.java",
-					"module M1 {\n" +
-					"	exports com.greetings;\n" +
-					"}");
+					"""
+						module M1 {
+							exports com.greetings;
+						}""");
 			this.editFile("P2/src/module-info.java",
-					"module M2 {\n" +
-					"	exports org.astro;\n" +
-					"	//requires M1;\n" +
-					"}");
+					"""
+						module M2 {
+							exports org.astro;
+							//requires M1;
+						}""");
 			waitForManualRefresh();
 			project.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -314,14 +328,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			IJavaProject project = setupP2();
 			this.editFile("P1/src/module-info.java",
-					"module M1 {\n" +
-					"	//exports com.greetings;\n" +
-					"}");
+					"""
+						module M1 {
+							//exports com.greetings;
+						}""");
 			this.editFile("P2/src/module-info.java",
-					"module M2 {\n" +
-					"	exports org.astro;\n" +
-					"	requires M1;\n" +
-					"}");
+					"""
+						module M2 {
+							exports org.astro;
+							requires M1;
+						}""");
 			waitForManualRefresh();
 			project.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -343,14 +359,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			IJavaProject project = setupP2();
 			this.editFile("P1/src/module-info.java",
-					"module M1 {\n" +
-					"	exports com.greetings;\n" +
-					"}");
+					"""
+						module M1 {
+							exports com.greetings;
+						}""");
 			this.editFile("P2/src/module-info.java",
-					"module M2 {\n" +
-					"	exports org.astro;\n" +
-					"	requires M1;\n" +
-					"}");
+					"""
+						module M2 {
+							exports org.astro;
+							requires M1;
+						}""");
 			waitForManualRefresh();
 			project.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -369,14 +387,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			IJavaProject project = setupP2();
 			this.editFile("P1/src/module-info.java",
-					"module M1 {\n" +
-					"	exports com.greetings to org.main;\n" +
-					"}");
+					"""
+						module M1 {
+							exports com.greetings to org.main;
+						}""");
 			this.editFile("P2/src/module-info.java",
-					"module M2 {\n" +
-					"	exports org.astro;\n" +
-					"	requires M1;\n" +
-					"}");
+					"""
+						module M2 {
+							exports org.astro;
+							requires M1;
+						}""");
 			waitForManualRefresh();
 			project.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -401,19 +421,21 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		newPath[old.length] = projectEntry;
 		project.setRawClasspath(newPath, null);
 		this.createFile("P3/src/module-info.java",
-				"module M3 {\n" +
-				"	exports org.main;\n" +
-				"	requires M2;\n" +
-				"}");
+				"""
+					module M3 {
+						exports org.main;
+						requires M2;
+					}""");
 		this.createFolder("P3/src/org/main");
 		this.createFile("P3/src/org/main/TestMain.java",
-				"package org.main;\n" +
-				"import com.greetings.*;\n" +
-				"public class TestMain {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Main.main(args);\n" +
-				"	}\n" +
-				"}");
+				"""
+					package org.main;
+					import com.greetings.*;
+					public class TestMain {
+						public static void main(String[] args) {
+							Main.main(args);
+						}
+					}""");
 		return project;
 	}
 	/*
@@ -424,9 +446,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void test011() throws Exception {
 		try {
 			this.editFile("P1/src/module-info.java",
-					"module M1 {\n" +
-					"	exports com.greetings;\n" +
-					"}");
+					"""
+						module M1 {
+							exports com.greetings;
+						}""");
 			IJavaProject p2 = setupP2();
 			IJavaProject p3 = setupP3();
 			waitForManualRefresh();
@@ -450,16 +473,18 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void test012() throws Exception {
 		try {
 			this.editFile("P1/src/module-info.java",
-					"module M1 {\n" +
-					"	exports com.greetings to M2;\n" +
-					"}");
+					"""
+						module M1 {
+							exports com.greetings to M2;
+						}""");
 			IJavaProject p2 = setupP2();
 			IJavaProject p3 = setupP3();
 			this.editFile("P2/src/module-info.java",
-					"module M2 {\n" +
-					"	exports org.astro;\n" +
-					"	requires M1;\n" +
-					"}");
+					"""
+						module M2 {
+							exports org.astro;
+							requires M1;
+						}""");
 			waitForManualRefresh();
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -485,10 +510,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject p2 = setupP2();
 			IJavaProject p3 = setupP3();
 			this.editFile("P2/src/module-info.java",
-					"module M2 {\n" +
-					"	exports org.astro;\n" +
-					"	requires transitive M1;\n" +
-					"}");
+					"""
+						module M2 {
+							exports org.astro;
+							requires transitive M1;
+						}""");
 			waitForManualRefresh();
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -506,16 +532,18 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void test014() throws Exception {
 		try {
 			this.editFile("P1/src/module-info.java",
-					"module M1 {\n" +
-					"	exports com.greetings to M2;\n" +
-					"}");
+					"""
+						module M1 {
+							exports com.greetings to M2;
+						}""");
 			IJavaProject p2 = setupP2();
 			IJavaProject p3 = setupP3();
 			this.editFile("P2/src/module-info.java",
-					"module M2 {\n" +
-					"	exports org.astro;\n" +
-					"	requires transitive M1;\n" +
-					"}");
+					"""
+						module M2 {
+							exports org.astro;
+							requires transitive M1;
+						}""");
 			waitForManualRefresh();
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -530,15 +558,17 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void test015() throws CoreException, IOException {
 		try {
 			this.editFile("P1/src/module-info.java",
-					"module M1 {\n" +
-					"	exports com.greetings to M2;\n" +
-					"}");
+					"""
+						module M1 {
+							exports com.greetings to M2;
+						}""");
 			IJavaProject p2 = setupP2();
 			this.editFile("P2/src/module-info.java",
-					"module M2 {\n" +
-					"	exports org.astro;\n" +
-					"	requires transitive M1;\n" +
-					"}");
+					"""
+						module M2 {
+							exports org.astro;
+							requires transitive M1;
+						}""");
 			waitForManualRefresh();
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IFolder folder = getFolder("P1/src");
@@ -571,19 +601,21 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			IJavaProject p2 = setupP2();
 			this.editFile("P2/src/module-info.java",
-					"module M2 {\n" +
-					"	exports org.astro;\n" +
-					"	requires java.base;\n" +
-					"	requires transitive M1;\n" +
-					"}");
+					"""
+						module M2 {
+							exports org.astro;
+							requires java.base;
+							requires transitive M1;
+						}""");
 			waitForManualRefresh();
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", "",  markers);
 			this.editFile("P2/src/module-info.java",
-					"module M2 {\n" +
-					"	exports org.astro;\n" +
-					"}");
+					"""
+						module M2 {
+							exports org.astro;
+						}""");
 			waitForManualRefresh();
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
 			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -603,19 +635,21 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			IJavaProject p2 = setupP2();
 			this.editFile("P2/src/module-info.java",
-					"module M2 {\n" +
-					"	exports org.astro;\n" +
-					"	requires java.base;\n" +
-					"	requires transitive M1;\n" +
-					"}");
+					"""
+						module M2 {
+							exports org.astro;
+							requires java.base;
+							requires transitive M1;
+						}""");
 			waitForManualRefresh();
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", "",  markers);
 			this.editFile("P1/src/module-info.java",
-					"module M1 {\n" +
-					"	requires java.base;\n" +
-					"}");
+					"""
+						module M1 {
+							requires java.base;
+						}""");
 			waitForManualRefresh();
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
 			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -626,10 +660,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		} finally {
 			deleteProject("P2");
 			this.editFile("P1/src/module-info.java",
-					"module M1 {\n" +
-					"	exports com.greetings;\n" +
-					"	requires java.base;\n" +
-					"}");
+					"""
+						module M1 {
+							exports com.greetings;
+							requires java.base;
+						}""");
 		}
 	}
 	/*
@@ -642,11 +677,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			final String encoding = "UTF-8".equals(wkspEncoding) ? "Cp1252" : "UTF-8";
 			IJavaProject p2 = setupP2();
 			this.editFile("P2/src/module-info.java",
-					"module M2 {\n" +
-					"	exports org.astro;\n" +
-					"	requires java.base;\n" +
-					"	requires transitive M1;\n" +
-					"}");
+					"""
+						module M2 {
+							exports org.astro;
+							requires java.base;
+							requires transitive M1;
+						}""");
 			waitForManualRefresh();
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -673,10 +709,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void _test019() throws CoreException, IOException {
 		try {
 			this.editFile("P1/src/module-info.java",
-					"module M1 {\n" +
-					"	exports com.greetings;\n" +
-					"	requires java.base;\n" +
-					"}");
+					"""
+						module M1 {
+							exports com.greetings;
+							requires java.base;
+						}""");
 			waitForManualRefresh();
 			this.currentProject.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = this.currentProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -685,19 +722,21 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			long old = bin.getLocalTimeStamp();
 			waitForManualRefresh();
 			this.editFile("P1/src/module-info.java",
-					"module M1 {\n" +
-					"	exports com.greetings;\n" +
-					"}");
+					"""
+						module M1 {
+							exports com.greetings;
+						}""");
 			this.currentProject.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
 			long latest = getFile("P1/bin/com/greetings/Main.class").getLocalTimeStamp();
 			assertTrue("Should not have been recompiled", old == latest);
 		} finally {
 			deleteProject("P2");
 			this.editFile("P1/src/module-info.java",
-					"module M1 {\n" +
-					"	exports com.greetings;\n" +
-					"	requires java.base;\n" +
-					"}");
+					"""
+						module M1 {
+							exports com.greetings;
+							requires java.base;
+						}""");
 		}
 	}
 	public void testConvertToModule() throws CoreException, IOException {
@@ -774,14 +813,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}"
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -790,15 +831,18 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 					"src/module-info.java",
-					"module com.greetings {\n" +
-					"	requires org.astro;\n" +
-					"	exports com.greetings;\n" +
-					"	provides org.astro.World with com.greetings.MyWorld;\n" +
-					"}",
+					"""
+						module com.greetings {
+							requires org.astro;
+							exports com.greetings;
+							provides org.astro.World with com.greetings.MyWorld;
+						}""",
 					"src/com/greetings/MyWorld.java",
-					"package com.greetings;\n" +
-					"import org.astro.World;\n"	+
-					"public abstract class MyWorld implements World { }\n"
+					"""
+						package com.greetings;
+						import org.astro.World;
+						public abstract class MyWorld implements World { }
+						"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -814,14 +858,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}"
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -830,11 +876,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 					"src/module-info.java",
-					"module com.greetings {\n" +
-					"	requires org.astro;\n" +
-					"	exports com.greetings;\n" +
-					"	provides org.astro.World with com.greetings.MyWorld;\n" +
-					"}",
+					"""
+						module com.greetings {
+							requires org.astro;
+							exports com.greetings;
+							provides org.astro.World with com.greetings.MyWorld;
+						}""",
 					"src/com/greetings/MyWorld.java",
 					"package com.greetings;\n" +
 					"public class MyWorld { }\n"
@@ -853,14 +900,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -869,20 +918,22 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"	provides org.astro.World with com.greetings.MyWorld;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+						provides org.astro.World with com.greetings.MyWorld;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public MyWorld(String name) { }\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public MyWorld(String name) { }
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -898,14 +949,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -914,20 +967,22 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"	provides org.astro.World with com.greetings.MyWorld;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+						provides org.astro.World with com.greetings.MyWorld;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	MyWorld() { }\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						MyWorld() { }
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -943,14 +998,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -959,20 +1016,22 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"	provides org.astro.World with com.greetings.MyWorld;\n" +
-				"	provides org.astro.World with com.greetings.MyWorld;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+						provides org.astro.World with com.greetings.MyWorld;
+						provides org.astro.World with com.greetings.MyWorld;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -988,14 +1047,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -1004,21 +1065,23 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"	provides org.astro.World with com.greetings.MyWorld.Nested;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+						provides org.astro.World with com.greetings.MyWorld.Nested;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld {\n" +
-				"	public static class Nested implements World {\n" +
-				"		public String name() {\n" +
-				"			return \" My World!!\";\n" +
-				"		}\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld {
+						public static class Nested implements World {
+							public String name() {
+								return " My World!!";
+							}
+						}
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1033,14 +1096,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -1049,21 +1114,23 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"	provides org.astro.World with com.greetings.MyWorld.Nested;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+						provides org.astro.World with com.greetings.MyWorld.Nested;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld {\n" +
-				"	public class Nested implements World {\n" +
-				"		public String name() {\n" +
-				"			return \" My World!!\";\n" +
-				"		}\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld {
+						public class Nested implements World {
+							public String name() {
+								return " My World!!";
+							}
+						}
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1079,18 +1146,21 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}",
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}""",
 				"src/org/astro/AstroWorld.java",
-				"package org.astro;\n" +
-				"public class AstroWorld implements World{\n" +
-				"}"
+				"""
+					package org.astro;
+					public class AstroWorld implements World{
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -1099,10 +1169,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	provides org.astro.World with org.astro.AstroWorld;\n" +
-				"}"
+				"""
+					module com.greetings {
+						requires org.astro;
+						provides org.astro.World with org.astro.AstroWorld;
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1118,14 +1189,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -1134,27 +1207,30 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"	provides org.astro.World with com.greetings.MyImpl;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+						provides org.astro.World with com.greetings.MyImpl;
+					}""",
 				"src/com/greetings/MyImpl.java",
-				"package com.greetings;\n" +
-				"public class MyImpl {\n" +
-				"	public static MyWorld provider() {\n" +
-				"		return new MyWorld(\"Name\");\n" +
-				"	}\n" +
-				"}",
+				"""
+					package com.greetings;
+					public class MyImpl {
+						public static MyWorld provider() {
+							return new MyWorld("Name");
+						}
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public MyWorld(String name) { }\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public MyWorld(String name) { }
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1169,48 +1245,54 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			setupModuleProject("org.astro", sources, true);
 			sources = new String[] {
 				"src/module-info.java",
-				"module other.mod {\n" +
-				"	requires org.astro;\n" +
-				"	exports org.impl;\n" +
-				"}",
+				"""
+					module other.mod {
+						requires org.astro;
+						exports org.impl;
+					}""",
 				"src/org/impl/MyWorld.java",
-				"package org.impl;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package org.impl;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			setupModuleProject("other.mod", sources, true);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	requires transitive other.mod;\n" +
-				"	exports com.greetings;\n" +
-				"	provides org.astro.World with com.greetings.MyImpl;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						requires transitive other.mod;
+						exports com.greetings;
+						provides org.astro.World with com.greetings.MyImpl;
+					}""",
 				"src/com/greetings/MyImpl.java",
-				"package com.greetings;\n" +
-				"import org.impl.MyWorld;\n" +
-				"public class MyImpl {\n" +
-				"	public static MyWorld provider() {\n" +
-				"		return new MyWorld();\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.impl.MyWorld;
+					public class MyImpl {
+						public static MyWorld provider() {
+							return new MyWorld();
+						}
+					}"""
 			};
 			IJavaProject p3 = setupModuleProject("com.greetings", src, true);
 			p3.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1226,47 +1308,53 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			setupModuleProject("org.astro", sources, true);
 			sources = new String[] {
 				"src/module-info.java",
-				"module other.mod {\n" +
-				"	requires org.astro;\n" +
-				"}",
+				"""
+					module other.mod {
+						requires org.astro;
+					}""",
 				"src/org/impl/MyWorld.java",
-				"package org.impl;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package org.impl;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			setupModuleProject("other.mod", sources, true);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	requires other.mod;\n" +
-				"	exports com.greetings;\n" +
-				"	provides org.astro.World with com.greetings.MyImpl;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						requires other.mod;
+						exports com.greetings;
+						provides org.astro.World with com.greetings.MyImpl;
+					}""",
 				"src/com/greetings/MyImpl.java",
-				"package com.greetings;\n" +
-				"import org.impl.MyWorld;\n" +
-				"public class MyImpl {\n" +
-				"	public static MyWorld provider() {\n" +
-				"		return new MyWorld();\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.impl.MyWorld;
+					public class MyImpl {
+						public static MyWorld provider() {
+							return new MyWorld();
+						}
+					}"""
 			};
 			IJavaProject p3 = setupModuleProject("com.greetings", src, true);
 			p3.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1282,14 +1370,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -1298,26 +1388,29 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"	provides org.astro.World with com.greetings.MyImpl;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+						provides org.astro.World with com.greetings.MyImpl;
+					}""",
 				"src/com/greetings/MyImpl.java",
-				"package com.greetings;\n" +
-				"public class MyImpl {\n" +
-				"	public static MyWorld provider() {\n" +
-				"		return new MyWorld(\"Name\");\n" +
-				"	}\n" +
-				"}",
+				"""
+					package com.greetings;
+					public class MyImpl {
+						public static MyWorld provider() {
+							return new MyWorld("Name");
+						}
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"public class MyWorld {\n" +
-				"	public MyWorld(String name) { }\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					public class MyWorld {
+						public MyWorld(String name) { }
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1332,14 +1425,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -1348,19 +1443,21 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"	provides org.astro.World with com.greetings.MyWorld, com.greetings.MyWorld;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+						provides org.astro.World with com.greetings.MyWorld, com.greetings.MyWorld;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1376,10 +1473,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	exports com.greetings;\n" +
-				"	provides com.greetings.MyEnum with com.greetings.MyEnum;\n" +
-				"}",
+				"""
+					module com.greetings {
+						exports com.greetings;
+						provides com.greetings.MyEnum with com.greetings.MyEnum;
+					}""",
 				"src/com/greetings/MyEnum.java",
 				"package com.greetings;\n" +
 				"public enum MyEnum {}"
@@ -1399,14 +1497,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -1415,11 +1515,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"	provides org.astro.World with com.greetings.MyEnum;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+						provides org.astro.World with com.greetings.MyEnum;
+					}""",
 				"src/com/greetings/MyEnum.java",
 				"package com.greetings;\n" +
 				"public enum MyEnum implements org.astro.World {}"
@@ -1438,14 +1539,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -1454,19 +1557,21 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"	provides org.astro.World with com.greetings.MyWorld;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+						provides org.astro.World with com.greetings.MyWorld;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1482,9 +1587,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	exports com.greetings;\n" +
-				"}"
+				"""
+					module com.greetings {
+						exports com.greetings;
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src);
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1499,9 +1605,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	exports java.util;\n" +
-				"}"
+				"""
+					module com.greetings {
+						exports java.util;
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src);
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1516,9 +1623,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	exports java.util;\n" +
-				"}",
+				"""
+					module com.greetings {
+						exports java.util;
+					}""",
 				"src/java/util/Wrong.java",
 				"package java.util;\n" +
 				"public class Wrong {}\n"
@@ -1538,15 +1646,17 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1561,31 +1671,35 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro to com.greetings, com.greetings;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro to com.greetings, com.greetings;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1603,14 +1717,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro to com.greetings;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro to com.greetings;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -1619,18 +1735,20 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1653,14 +1771,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			setupModuleProject("some.mod", sources);
 			sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro to some.mod;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro to some.mod;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -1669,18 +1789,20 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1702,14 +1824,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro to some.mod;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro to some.mod;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1731,14 +1855,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			setupModuleProject("some.mod", sources);
 			sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro to some.mod;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro to some.mod;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1755,30 +1881,34 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			setupModuleProject("org.astro", sources);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
@@ -1801,39 +1931,44 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			setupModuleProject("some.mod", sources);
 			sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			setupModuleProject("org.astro", sources);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			this.editFile("com.greetings/src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	requires some.mod;\n" +
-				"	exports com.greetings;\n" +
-				"}");
+				"""
+					module com.greetings {
+						requires org.astro;
+						requires some.mod;
+						exports com.greetings;
+					}""");
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", "",  markers);
@@ -1849,38 +1984,43 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
 			sources = new String[] {
 				"src/module-info.java",
-				"module some.mod {\n" +
-				"	requires transitive org.astro;\n" +
-				"}"
+				"""
+					module some.mod {
+						requires transitive org.astro;
+					}"""
 			};
 			setupModuleProject("some.mod", sources, new IClasspathEntry[]{dep});
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires some.mod;\n" +
-				"	exports com.greetings;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires some.mod;
+						exports com.greetings;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
@@ -1898,45 +2038,51 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module some.mod {\n" +
-				"	requires transitive org.astro;\n" +
-				"}"
+				"""
+					module some.mod {
+						requires transitive org.astro;
+					}"""
 			};
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			setupModuleProject("some.mod", sources, new IClasspathEntry[]{dep});
 			sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires some.mod;\n" +
-				"	exports com.greetings;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires some.mod;
+						exports com.greetings;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			this.editFile("some.mod/src/module-info.java",
-				"module some.mod {\n" +
-				"	requires org.astro;\n" +
-				"}");
+				"""
+					module some.mod {
+						requires org.astro;
+					}""");
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
@@ -1955,45 +2101,51 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module some.mod {\n" +
-				"	requires org.astro;\n" +
-				"}"
+				"""
+					module some.mod {
+						requires org.astro;
+					}"""
 			};
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			setupModuleProject("some.mod", sources, new IClasspathEntry[]{dep});
 			sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires some.mod;\n" +
-				"	exports com.greetings;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires some.mod;
+						exports com.greetings;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			this.editFile("some.mod/src/module-info.java",
-				"module some.mod {\n" +
-				"	requires transitive org.astro;\n" +
-				"}");
+				"""
+					module some.mod {
+						requires transitive org.astro;
+					}""");
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", "",  markers);
@@ -2007,38 +2159,43 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
 			sources = new String[] {
 				"src/module-info.java",
-				"module some.mod {\n" +
-				"	requires org.astro;\n" +
-				"}"
+				"""
+					module some.mod {
+						requires org.astro;
+					}"""
 			};
 			setupModuleProject("some.mod", sources, new IClasspathEntry[]{dep});
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires some.mod;\n" +
-				"	exports com.greetings;\n" +
-				"}"
+				"""
+					module com.greetings {
+						requires some.mod;
+						exports com.greetings;
+					}"""
 			};
 
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			editFile("org.astro/src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"	requires com.greetings;\n" +
-					"}");
+					"""
+						module org.astro {
+							exports org.astro;
+							requires com.greetings;
+						}""");
 			waitForAutoBuild();
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			assertTrue("Should detect cycle", p2.hasClasspathCycle(null));
@@ -2052,37 +2209,42 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
 			sources = new String[] {
 				"src/module-info.java",
-				"module some.mod {\n" +
-				"	requires transitive org.astro;\n" +
-				"}"
+				"""
+					module some.mod {
+						requires transitive org.astro;
+					}"""
 			};
 			setupModuleProject("some.mod", sources, new IClasspathEntry[]{dep});
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires some.mod;\n" +
-				"	exports com.greetings;\n" +
-				"}"
+				"""
+					module com.greetings {
+						requires some.mod;
+						exports com.greetings;
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			editFile("org.astro/src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"	requires transitive com.greetings;\n" +
-				"}");
+				"""
+					module org.astro {
+						exports org.astro;
+						requires transitive com.greetings;
+					}""");
 			waitForAutoBuild();
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			assertTrue("Should detect cycle", p2.hasClasspathCycle(null));
@@ -2096,14 +2258,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}"
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}"""
 				};
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			IJavaProject p1 = setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
@@ -2113,9 +2277,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			this.deleteFile("org.astro/src/module-info.java");
 			this.createFile(
 					"org.astro/src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}");
+					"""
+						module org.astro {
+							exports org.astro;
+						}""");
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		} finally {
 			deleteProject("org.astro");
@@ -2125,46 +2290,52 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}",
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}""",
 				"othersrc/org/astro/OtherWorld.java",
-				"package org.astro;\n" +
-				"import org.astro.World;\n" +
-				"public interface OtherWorld {\n" +
-				"	default public String name() {\n" +
-				"		return \" Other World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package org.astro;
+					import org.astro.World;
+					public interface OtherWorld {
+						default public String name() {
+							return " Other World!!";
+						}
+					}"""
 			};
 			setupModuleProject("org.astro", new String[]{"src", "othersrc"}, sources, null);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}",
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}""",
 				"othersrc/com/greetings/AnotherWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.OtherWorld;\n" +
-				"public class AnotherWorld implements OtherWorld {\n" +
-				"	public String name() {\n" +
-				"		return \" Another World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.OtherWorld;
+					public class AnotherWorld implements OtherWorld {
+						public String name() {
+							return " Another World!!";
+						}
+					}"""
 			};
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			IJavaProject p2 = setupModuleProject("com.greetings", new String[]{"src", "othersrc"}, src, new IClasspathEntry[] { dep });
@@ -2180,50 +2351,57 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}",
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}""",
 				"othersrc/org/astro/OtherWorld.java",
-				"package org.astro;\n" +
-				"import org.astro.World;\n" +
-				"public interface OtherWorld {\n" +
-				"	default public String name() {\n" +
-				"		return \" Other World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package org.astro;
+					import org.astro.World;
+					public interface OtherWorld {
+						default public String name() {
+							return " Other World!!";
+						}
+					}"""
 			};
 			setupModuleProject("org.astro", new String[]{"src", "othersrc"}, sources, null);
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}",
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}""",
 				"othersrc/module-info.java",
-				"module com.greetings1 {\n" +
-				"	requires org.astro;\n" +
-				"}",
+				"""
+					module com.greetings1 {
+						requires org.astro;
+					}""",
 				"othersrc/com/greetings/AnotherWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.OtherWorld;\n" +
-				"public class AnotherWorld implements OtherWorld {\n" +
-				"	public String name() {\n" +
-				"		return \" Another World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.OtherWorld;
+					public class AnotherWorld implements OtherWorld {
+						public String name() {
+							return " Another World!!";
+						}
+					}"""
 			};
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			IJavaProject p2 = setupModuleProject("com.greetings", new String[]{"src", "othersrc"}, src, new IClasspathEntry[] { dep });
@@ -2244,22 +2422,25 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}",
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}""",
 				"othersrc/org/astro/OtherWorld.java",
-				"package org.astro;\n" +
-				"import org.astro.World;\n" +
-				"public interface OtherWorld {\n" +
-				"	default public String name() {\n" +
-				"		return \" Other World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package org.astro;
+					import org.astro.World;
+					public interface OtherWorld {
+						default public String name() {
+							return " Other World!!";
+						}
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", new String[]{"src", "othersrc"}, sources, null);
 			this.createFile("org.astro/othersrc/module-info.java",
@@ -2281,26 +2462,30 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}",
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}""",
 				"othersrc/module-info.java",
-				"module org.astro1 {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro1 {
+						exports org.astro;
+					}""",
 				"othersrc/org/astro/OtherWorld.java",
-				"package org.astro;\n" +
-				"import org.astro.World;\n" +
-				"public interface OtherWorld {\n" +
-				"	default public String name() {\n" +
-				"		return \" Other World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package org.astro;
+					import org.astro.World;
+					public interface OtherWorld {
+						default public String name() {
+							return " Other World!!";
+						}
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", new String[]{"src", "othersrc"}, sources, null);
 			waitForAutoBuild();
@@ -2317,14 +2502,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}"
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -2333,29 +2520,32 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 					"src/module-info.java",
-					"import org.astro.World;\n" +
-					"import com.greetings.*;\n" +
-					"module com.greetings {\n" +
-					"	requires org.astro;\n" +
-					"	exports com.greetings;\n" +
-					"	provides World with MyWorld, AnotherWorld;\n" +
-					"}",
+					"""
+						import org.astro.World;
+						import com.greetings.*;
+						module com.greetings {
+							requires org.astro;
+							exports com.greetings;
+							provides World with MyWorld, AnotherWorld;
+						}""",
 					"src/com/greetings/MyWorld.java",
-					"package com.greetings;\n" +
-					"import org.astro.World;\n"	+
-					"public class MyWorld implements World {\n" +
-					"	public String name() {\n" +
-					"		return \" My World!!\";\n" +
-					"	}\n" +
-					"}",
+					"""
+						package com.greetings;
+						import org.astro.World;
+						public class MyWorld implements World {
+							public String name() {
+								return " My World!!";
+							}
+						}""",
 					"src/com/greetings/AnotherWorld.java",
-					"package com.greetings;\n" +
-					"import org.astro.World;\n"	+
-					"public class AnotherWorld implements World {\n" +
-					"	public String name() {\n" +
-					"		return \" Another World!!\";\n" +
-					"	}\n" +
-					"}"
+					"""
+						package com.greetings;
+						import org.astro.World;
+						public class AnotherWorld implements World {
+							public String name() {
+								return " Another World!!";
+							}
+						}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -2370,14 +2560,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}"
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -2386,20 +2578,22 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 					"src/module-info.java",
-					"import org.astro.World;\n" +
-					"module com.greetings {\n" +
-					"	requires org.astro;\n" +
-					"	exports com.greetings;\n" +
-					"	provides World with com.greetings.MyWorld;\n" +
-					"}",
+					"""
+						import org.astro.World;
+						module com.greetings {
+							requires org.astro;
+							exports com.greetings;
+							provides World with com.greetings.MyWorld;
+						}""",
 					"src/com/greetings/MyWorld.java",
-					"package com.greetings;\n" +
-					"import org.astro.World;\n"	+
-					"public class MyWorld implements World {\n" +
-					"	public String name() {\n" +
-					"		return \" My World!!\";\n" +
-					"	}\n" +
-					"}"
+					"""
+						package com.greetings;
+						import org.astro.World;
+						public class MyWorld implements World {
+							public String name() {
+								return " My World!!";
+							}
+						}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -2415,9 +2609,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	opens com.greetings;\n" +
-				"}"
+				"""
+					module com.greetings {
+						opens com.greetings;
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src);
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -2432,23 +2627,27 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"src/module-info.java",
 				"module org.astro {}",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"    public String name();\n" +
-				"}\n"
+				"""
+					package org.astro;
+					public interface World {
+					    public String name();
+					}
+					"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", src);
 			src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	opens org.astro;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						opens org.astro;
+					}""",
 				"src/test/Test.java",
-				"package test;\n" +
-				"public class Test {\n" +
-				"	org.astro.World w = null;\n" +
-				"}"
+				"""
+					package test;
+					public class Test {
+						org.astro.World w = null;
+					}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute(IClasspathAttribute.MODULE, "true");
 			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
@@ -2468,15 +2667,17 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	opens org.astro;\n" +
-				"	opens org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						opens org.astro;
+						opens org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -2491,31 +2692,35 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	opens org.astro to com.greetings, com.greetings;\n" +
-				"}",
+				"""
+					module org.astro {
+						opens org.astro to com.greetings, com.greetings;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -2533,14 +2738,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	opens org.astro to some.mod;\n" +
-				"}",
+				"""
+					module org.astro {
+						opens org.astro to some.mod;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -2555,14 +2762,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"open module org.astro {\n" +
-				"	opens org.astro to some.mod;\n" +
-				"}",
+				"""
+					open module org.astro {
+						opens org.astro to some.mod;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -2577,16 +2786,18 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"	uses org.astro.World;\n" +
-				"	uses org.astro.World;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+						uses org.astro.World;
+						uses org.astro.World;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -2601,10 +2812,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	exports com.greetings;\n" +
-				"	uses com.greetings.MyEnum;\n" +
-				"}",
+				"""
+					module com.greetings {
+						exports com.greetings;
+						uses com.greetings.MyEnum;
+					}""",
 				"src/com/greetings/MyEnum.java",
 				"package com.greetings;\n" +
 				"public enum MyEnum {}"
@@ -2623,9 +2835,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires java.sql;\n" +
-				"}"};
+				"""
+					module com.greetings {
+						requires java.sql;
+					}"""};
 			setupModuleProject("com.greetings", src);
 			this.workingCopies = new ICompilationUnit[1];
 			char[] sourceChars = src[1].toCharArray();
@@ -2644,9 +2857,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires java.sq;\n" +
-				"}"};
+				"""
+					module com.greetings {
+						requires java.sq;
+					}"""};
 			setupModuleProject("com.greetings", src);
 			this.workingCopies = new ICompilationUnit[1];
 			char[] sourceChars = src[1].toCharArray();
@@ -2654,12 +2868,14 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			this.workingCopies[0] = getCompilationUnit("/com.greetings/src/module-info.java").getWorkingCopy(this.wcOwner, null);
 			assertProblems(
 					"Unexpected problems",
-					"----------\n" +
-					"1. ERROR in /com.greetings/src/module-info.java (at line 2)\n" +
-					"	requires java.sq;\n" +
-					"	         ^^^^^^^\n" +
-					"java.sq cannot be resolved to a module\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in /com.greetings/src/module-info.java (at line 2)
+							requires java.sq;
+							         ^^^^^^^
+						java.sq cannot be resolved to a module
+						----------
+						""",
 					this.problemRequestor);
 		} finally {
 			deleteProject("com.greetings");
@@ -2724,10 +2940,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			newClasspath[rawClasspath.length] = desktop;
 			project.setRawClasspath(newClasspath, null);
 			this.createFile("Test01/src/module-info.java",
-					"module org.eclipse {\n" +
-					"	requires java.desktop;\n" +
-					"	requires java.base;\n" +
-					"}");
+					"""
+						module org.eclipse {
+							requires java.desktop;
+							requires java.base;
+						}""");
 			waitForManualRefresh();
 			waitForAutoBuild();
 			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -2739,11 +2956,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			cu.getWorkingCopy(this.wcOwner, null);
 			markers = project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 			editFile("Test01/src/module-info.java",
-					"//Just touching \n" +
-					"module org.eclipse {\n" +
-					"	requires java.desktop;\n" +
-					"	requires java.base;\n" +
-					"}");
+					"""
+						//Just touching\s
+						module org.eclipse {
+							requires java.desktop;
+							requires java.base;
+						}""");
 			project.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 			markers = project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 			assertMarkers("unexpected markers", "", markers);
@@ -2755,52 +2973,54 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module Test {\n" +
-				"	exports p;\n" +
-				"	requires java.sql;\n" +
-				"	provides java.sql.Driver with p.C;\n" +
-				"}",
+				"""
+					module Test {
+						exports p;
+						requires java.sql;
+						provides java.sql.Driver with p.C;
+					}""",
 				"src/p/C.java",
-				"package p;\n" +
-				"import java.lang.SecurityManager;\n" +
-				"import java.sql.Connection;\n" +
-				"import java.sql.Driver;\n" +
-				"import java.sql.DriverPropertyInfo;\n" +
-				"import java.sql.SQLException;\n" +
-				"import java.sql.SQLFeatureNotSupportedException;\n" +
-				"import java.util.Properties;\n" +
-				"import java.util.logging.Logger;\n" +
-				"public class C implements Driver {\n" +
-				"	SecurityManager s;\n" +
-				"	@Override\n" +
-				"	public boolean acceptsURL(String arg0) throws SQLException {\n" +
-				"		return false;\n" +
-				"	}\n" +
-				"	@Override\n" +
-				"	public Connection connect(String arg0, Properties arg1) throws SQLException {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"	@Override\n" +
-				"	public int getMajorVersion() {\n" +
-				"		return 0;\n" +
-				"	}\n" +
-				"	@Override\n" +
-				"	public int getMinorVersion() {\n" +
-				"		return 0;\n" +
-				"	}\n" +
-				"	@Override\n" +
-				"	public Logger getParentLogger() throws SQLFeatureNotSupportedException {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"	@Override\n" +
-				"	public DriverPropertyInfo[] getPropertyInfo(String arg0, Properties arg1) throws SQLException {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"	@Override\n" +
-				"	public boolean jdbcCompliant() {\n" +
-				"		return false;\n" +
-				"	} \n" +
-				"}"
+				"""
+					package p;
+					import java.lang.SecurityManager;
+					import java.sql.Connection;
+					import java.sql.Driver;
+					import java.sql.DriverPropertyInfo;
+					import java.sql.SQLException;
+					import java.sql.SQLFeatureNotSupportedException;
+					import java.util.Properties;
+					import java.util.logging.Logger;
+					public class C implements Driver {
+						SecurityManager s;
+						@Override
+						public boolean acceptsURL(String arg0) throws SQLException {
+							return false;
+						}
+						@Override
+						public Connection connect(String arg0, Properties arg1) throws SQLException {
+							return null;
+						}
+						@Override
+						public int getMajorVersion() {
+							return 0;
+						}
+						@Override
+						public int getMinorVersion() {
+							return 0;
+						}
+						@Override
+						public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+							return null;
+						}
+						@Override
+						public DriverPropertyInfo[] getPropertyInfo(String arg0, Properties arg1) throws SQLException {
+							return null;
+						}
+						@Override
+						public boolean jdbcCompliant() {
+							return false;
+						}\s
+					}"""
 			};
 			setupModuleProject("Test", src);
 			this.workingCopies = new ICompilationUnit[1];
@@ -2820,14 +3040,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}",
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}""",
 					"src/org/astro/Foo.java",
 					"package org.astro;\n" +
 					"public @interface Foo {}"
@@ -2839,22 +3061,24 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 					"src/module-info.java",
-					"import org.astro.Foo;\n" +
-					"import org.astro.World;\n" +
-					"@Foo\n" +
-					"module com.greetings {\n" +
-					"	requires org.astro;\n" +
-					"	exports com.greetings;\n" +
-					"	provides World with com.greetings.MyWorld;\n" +
-					"}",
+					"""
+						import org.astro.Foo;
+						import org.astro.World;
+						@Foo
+						module com.greetings {
+							requires org.astro;
+							exports com.greetings;
+							provides World with com.greetings.MyWorld;
+						}""",
 					"src/com/greetings/MyWorld.java",
-					"package com.greetings;\n" +
-					"import org.astro.World;\n"	+
-					"public class MyWorld implements World {\n" +
-					"	public String name() {\n" +
-					"		return \" My World!!\";\n" +
-					"	}\n" +
-					"}"
+					"""
+						package com.greetings;
+						import org.astro.World;
+						public class MyWorld implements World {
+							public String name() {
+								return " My World!!";
+							}
+						}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -2869,14 +3093,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}",
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}""",
 					"src/org/astro/Foo.java",
 					"package org.astro;\n" +
 					"public @interface Foo {}"
@@ -2888,22 +3114,24 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 					"src/module-info.java",
-					"import org.astro.Foo;\n" +
-					"import org.astro.World;\n" +
-					"@Foo @Bar\n" +
-					"module com.greetings {\n" +
-					"	requires org.astro;\n" +
-					"	exports com.greetings;\n" +
-					"	provides World with com.greetings.MyWorld;\n" +
-					"}",
+					"""
+						import org.astro.Foo;
+						import org.astro.World;
+						@Foo @Bar
+						module com.greetings {
+							requires org.astro;
+							exports com.greetings;
+							provides World with com.greetings.MyWorld;
+						}""",
 					"src/com/greetings/MyWorld.java",
-					"package com.greetings;\n" +
-					"import org.astro.World;\n"	+
-					"public class MyWorld implements World {\n" +
-					"	public String name() {\n" +
-					"		return \" My World!!\";\n" +
-					"	}\n" +
-					"}"
+					"""
+						package com.greetings;
+						import org.astro.World;
+						public class MyWorld implements World {
+							public String name() {
+								return " My World!!";
+							}
+						}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -2919,14 +3147,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}",
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}""",
 					"src/org/astro/Foo.java",
 					"package org.astro;\n" +
 					"public @interface Foo {}"
@@ -2938,22 +3168,24 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 					"src/module-info.java",
-					"import org.astro.Foo;\n" +
-					"import org.astro.World;\n" +
-					"@Foo\n" +
-					"private static module com.greetings {\n" +
-					"	requires org.astro;\n" +
-					"	exports com.greetings;\n" +
-					"	provides World with com.greetings.MyWorld;\n" +
-					"}",
+					"""
+						import org.astro.Foo;
+						import org.astro.World;
+						@Foo
+						private static module com.greetings {
+							requires org.astro;
+							exports com.greetings;
+							provides World with com.greetings.MyWorld;
+						}""",
 					"src/com/greetings/MyWorld.java",
-					"package com.greetings;\n" +
-					"import org.astro.World;\n"	+
-					"public class MyWorld implements World {\n" +
-					"	public String name() {\n" +
-					"		return \" My World!!\";\n" +
-					"	}\n" +
-					"}"
+					"""
+						package com.greetings;
+						import org.astro.World;
+						public class MyWorld implements World {
+							public String name() {
+								return " My World!!";
+							}
+						}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -2969,20 +3201,23 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}",
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}""",
 					"src/org/astro/Foo.java",
-					"package org.astro;\n" +
-					"import java.lang.annotation.ElementType;\n" +
-					"import java.lang.annotation.Target;\n" +
-					"@Target(ElementType.MODULE)\n" +
-					"public @interface Foo {}"
+					"""
+						package org.astro;
+						import java.lang.annotation.ElementType;
+						import java.lang.annotation.Target;
+						@Target(ElementType.MODULE)
+						public @interface Foo {}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -2991,22 +3226,24 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 					"src/module-info.java",
-					"import org.astro.Foo;\n" +
-					"import org.astro.World;\n" +
-					"@Foo\n" +
-					"module com.greetings {\n" +
-					"	requires org.astro;\n" +
-					"	exports com.greetings;\n" +
-					"	provides World with com.greetings.MyWorld;\n" +
-					"}",
+					"""
+						import org.astro.Foo;
+						import org.astro.World;
+						@Foo
+						module com.greetings {
+							requires org.astro;
+							exports com.greetings;
+							provides World with com.greetings.MyWorld;
+						}""",
 					"src/com/greetings/MyWorld.java",
-					"package com.greetings;\n" +
-					"import org.astro.World;\n"	+
-					"public class MyWorld implements World {\n" +
-					"	public String name() {\n" +
-					"		return \" My World!!\";\n" +
-					"	}\n" +
-					"}"
+					"""
+						package com.greetings;
+						import org.astro.World;
+						public class MyWorld implements World {
+							public String name() {
+								return " My World!!";
+							}
+						}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -3021,20 +3258,23 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}",
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}""",
 					"src/org/astro/Foo.java",
-					"package org.astro;\n" +
-					"import java.lang.annotation.ElementType;\n" +
-					"import java.lang.annotation.Target;\n" +
-					"@Target({ElementType.TYPE_PARAMETER, ElementType.TYPE})\n" +
-					"public @interface Foo {}"
+					"""
+						package org.astro;
+						import java.lang.annotation.ElementType;
+						import java.lang.annotation.Target;
+						@Target({ElementType.TYPE_PARAMETER, ElementType.TYPE})
+						public @interface Foo {}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -3043,22 +3283,24 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				false/*not exported*/);
 			String[] src = new String[] {
 					"src/module-info.java",
-					"import org.astro.Foo;\n" +
-					"import org.astro.World;\n" +
-					"@Foo\n" +
-					"module com.greetings {\n" +
-					"	requires org.astro;\n" +
-					"	exports com.greetings;\n" +
-					"	provides World with com.greetings.MyWorld;\n" +
-					"}",
+					"""
+						import org.astro.Foo;
+						import org.astro.World;
+						@Foo
+						module com.greetings {
+							requires org.astro;
+							exports com.greetings;
+							provides World with com.greetings.MyWorld;
+						}""",
 					"src/com/greetings/MyWorld.java",
-					"package com.greetings;\n" +
-					"import org.astro.World;\n"	+
-					"public class MyWorld implements World {\n" +
-					"	public String name() {\n" +
-					"		return \" My World!!\";\n" +
-					"	}\n" +
-					"}"
+					"""
+						package com.greetings;
+						import org.astro.World;
+						public class MyWorld implements World {
+							public String name() {
+								return " My World!!";
+							}
+						}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -3074,9 +3316,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	requires java.sql;\n" +
-					"}"
+					"""
+						module org.astro {
+							requires java.sql;
+						}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			waitForAutoBuild();
@@ -3098,22 +3341,25 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}"
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
 			String[] src = new String[] {
 					"src/module-info.java",
-					"module com.greetings {\n" +
-					"	requires org.astro;\n" +
-					"}"
+					"""
+						module com.greetings {
+							requires org.astro;
+						}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			waitForAutoBuild();
@@ -3138,19 +3384,24 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources1 = {
 								"src/module-info.java",
-								"module mod.one { \n" +
-								"	exports pm;\n" +
-								"}",
+								"""
+									module mod.one {\s
+										exports pm;
+									}""",
 								"src/impl/Other.java",
-								"package impl;\n" +
-								"public class Other {\n" +
-								"}\n",
+								"""
+									package impl;
+									public class Other {
+									}
+									""",
 								"src/pm/C1.java",
-								"package pm;\n" +
-								"import impl.Other;\n" +
-								"public class C1 extends Other {\n" +
-								"	public void m1(Other o) {}\n" +
-								"}\n"
+								"""
+									package pm;
+									import impl.Other;
+									public class C1 extends Other {
+										public void m1(Other o) {}
+									}
+									"""
 							};
 			IJavaProject p1 = setupModuleProject("mod.one", sources1);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -3161,21 +3412,26 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			String[] sources2 = {
 								"src/module-info.java",
-								"module mod.two { \n" +
-								"	requires mod.one;\n" +
-								"}",
+								"""
+									module mod.two {\s
+										requires mod.one;
+									}""",
 								"src/impl/Other.java",
-								"package impl;\n" +
-								"public class Other {\n" +
-								"}\n",
+								"""
+									package impl;
+									public class Other {
+									}
+									""",
 								"src/po/Client.java",
-								"package po;\n" +
-								"import pm.C1;\n" +
-								"public class Client {\n" +
-								"    void test1(C1 one) {\n" +
-								"        one.m1(one);\n" +
-								"    }\n" +
-								"}\n"
+								"""
+									package po;
+									import pm.C1;
+									public class Client {
+									    void test1(C1 one) {
+									        one.m1(one);
+									    }
+									}
+									"""
 							};
 			IJavaProject p2 = setupModuleProject("mod.two", sources2, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
@@ -3199,24 +3455,31 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources1 = {
 						"src/module-info.java",
-						"module mod.one { \n" +
-						"	exports pm;\n" +
-						"}",
+						"""
+							module mod.one {\s
+								exports pm;
+							}""",
 						"src/impl/SomeImpl.java",
-						"package impl;\n" +
-								"public class SomeImpl {\n" +
-						"}\n",
+						"""
+							package impl;
+							public class SomeImpl {
+							}
+							""",
 						"src/pm/C1.java",
-						"package pm;\n" +
-						"import impl.SomeImpl;\n" +
-						"public class C1 {\n" +
-						"	public void m1(SomeImpl o) {}\n" +
-						"}\n",
+						"""
+							package pm;
+							import impl.SomeImpl;
+							public class C1 {
+								public void m1(SomeImpl o) {}
+							}
+							""",
 						"src/pm/Other.java",
-						"package pm;\n" +
-								"import impl.SomeImpl;\n" +
-								"public class Other extends SomeImpl {\n" +
-						"}\n"
+						"""
+							package pm;
+							import impl.SomeImpl;
+							public class Other extends SomeImpl {
+							}
+							"""
 					};
 			IJavaProject p1 = setupModuleProject("mod.one", sources1);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -3227,9 +3490,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			String[] sources2 = {
 						"src/module-info.java",
-						"module mod.two { \n" +
-						"	requires mod.one;\n" +
-						"}",
+						"""
+							module mod.two {\s
+								requires mod.one;
+							}""",
 						"src/impl/SomeImpl.java",
 						"package impl;\n" +
 								"public class SomeImpl {\n" + // pseudo-conflict to same named, but inaccessible class from mod.one
@@ -3266,14 +3530,17 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources1 = {
 					"src/module-info.java",
-					"module mod.one { \n" +
-					"	exports pm;\n" +
-					"}",
+					"""
+						module mod.one {\s
+							exports pm;
+						}""",
 					"src/pm/C1.java",
-					"package pm;\n" +
-					"class C1 {\n" +
-					"	public void test() {}\n" +
-					"}\n"
+					"""
+						package pm;
+						class C1 {
+							public void test() {}
+						}
+						"""
 			};
 			IJavaProject p1 = setupModuleProject("mod.one", sources1);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -3284,14 +3551,17 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			String[] sources2 = {
 					"src/module-info.java",
-					"module mod.two { \n" +
-					"	requires mod.one;\n" +
-					"}",
+					"""
+						module mod.two {\s
+							requires mod.one;
+						}""",
 					"src/pm/sub/C2.java",
-					"package pm.sub;\n" +
-					"class C2 {\n" +
-					"	public void foo() {}\n" +
-					"}\n",
+					"""
+						package pm.sub;
+						class C2 {
+							public void foo() {}
+						}
+						""",
 					"src/po/Client.java",
 					"package po;\n" +
 					"import pm.*;\n" + // package is exported but type C1 is not public
@@ -3310,17 +3580,19 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			this.workingCopies[2] = getCompilationUnit("/mod.two/src/po/Client.java").getWorkingCopy(this.wcOwner, null);
 			assertProblems(
 					"Unexpected problems",
-					"----------\n" +
-					"1. ERROR in /mod.two/src/po/Client.java (at line 4)\n" +
-					"	void test1(C1 one) {\n" +
-					"	           ^^\n" +
-					"The type C1 is not visible\n" +
-					"----------\n" +
-					"2. ERROR in /mod.two/src/po/Client.java (at line 5)\n" +
-					"	one.test();\n" +
-					"	^^^\n" +
-					"The type C1 is not visible\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in /mod.two/src/po/Client.java (at line 4)
+							void test1(C1 one) {
+							           ^^
+						The type C1 is not visible
+						----------
+						2. ERROR in /mod.two/src/po/Client.java (at line 5)
+							one.test();
+							^^^
+						The type C1 is not visible
+						----------
+						""",
 					this.problemRequestor);
 
 			String expectedError = "The type C1 is not visible\n" +
@@ -3343,9 +3615,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module some.mod {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module some.mod {
+						exports org.astro;
+					}""",
 				"src/org/astro/Test.java",
 				"package org.astro;\n" +
 				"public class Test { }"
@@ -3354,31 +3627,35 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			setupModuleProject("some.mod", sources, new IClasspathEntry[]{dep});
 			sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires some.mod;\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires some.mod;
+						requires org.astro;
+						exports com.greetings;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
@@ -3386,11 +3663,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers",
-					// reported against both 'requires' directives & against the import:
-					"The package org.astro is accessible from more than one module: org.astro, some.mod\n" +
-					"The package org.astro is accessible from more than one module: org.astro, some.mod\n" +
-					"The package org.astro is accessible from more than one module: org.astro, some.mod\n" +
-					"World cannot be resolved to a type",
+					"""
+						The package org.astro is accessible from more than one module: org.astro, some.mod
+						The package org.astro is accessible from more than one module: org.astro, some.mod
+						The package org.astro is accessible from more than one module: org.astro, some.mod
+						World cannot be resolved to a type""",
 					markers);
 		} finally {
 			deleteProject("org.astro");
@@ -3409,15 +3686,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			JavaCore.setOptions(newOptions);
 			String[] sources = new String[] {
 					"src/java/util/Map___.java",
-					"package java.util;\n" +
-					"abstract class Map___ implements java.util.Map {\n" +
-					"  Map___() {\n" +
-					"    super();\n" +
-					"  }\n" +
-					"  Object[] ___run() throws Throwable {\n" +
-					"    return entrySet().toArray();\n" +
-					"  }\n" +
-					"}"
+					"""
+						package java.util;
+						abstract class Map___ implements java.util.Map {
+						  Map___() {
+						    super();
+						  }
+						  Object[] ___run() throws Throwable {
+						    return entrySet().toArray();
+						  }
+						}"""
 			};
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			IJavaProject p1= setupModuleProject("debugger_project", sources, new IClasspathEntry[]{dep});
@@ -3439,15 +3717,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"src/module-info.java",
 					"module Test {}\n",
 					"src/java/util/Map___.java",
-					"package java.util;\n" +
-					"abstract class Map___ implements java.util.Map {\n" +
-					"  Map___() {\n" +
-					"    super();\n" +
-					"  }\n" +
-					"  Object[] ___run() throws Throwable {\n" +
-					"    return entrySet().toArray();\n" +
-					"  }\n" +
-					"}"
+					"""
+						package java.util;
+						abstract class Map___ implements java.util.Map {
+						  Map___() {
+						    super();
+						  }
+						  Object[] ___run() throws Throwable {
+						    return entrySet().toArray();
+						  }
+						}"""
 			};
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			IJavaProject p1= setupModuleProject("debugger_project", sources, new IClasspathEntry[]{dep});
@@ -3455,9 +3734,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers",
-					"The package java.util conflicts with a package accessible from another module: java.base\n" +
-					"The package java.util is accessible from more than one module: Test, java.base\n" +
-					"The method entrySet() is undefined for the type Map___",
+					"""
+						The package java.util conflicts with a package accessible from another module: java.base
+						The package java.util is accessible from more than one module: Test, java.base
+						The method entrySet() is undefined for the type Map___""",
 					markers);
 
 			Hashtable<String, String> newOptions=new Hashtable<>(javaCoreOptions);
@@ -3478,15 +3758,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 					"src/java/util/Map___.java",
-					"package java.util;\n" +
-					"abstract class Map___ implements java.util.Map {\n" +
-					"  Map___() {\n" +
-					"    super();\n" +
-					"  }\n" +
-					"  Object[] ___run() throws Throwable {\n" +
-					"    return entrySet().toArray();\n" +
-					"  }\n" +
-					"}"
+					"""
+						package java.util;
+						abstract class Map___ implements java.util.Map {
+						  Map___() {
+						    super();
+						  }
+						  Object[] ___run() throws Throwable {
+						    return entrySet().toArray();
+						  }
+						}"""
 			};
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			IJavaProject p1= setupModuleProject("debugger_project", sources, new IClasspathEntry[]{dep});
@@ -3496,9 +3777,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers",
-					"The package java.util conflicts with a package accessible from another module: java.base\n" +
-					"The package java.util is accessible from more than one module: <unnamed>, java.base\n" +
-					"The method entrySet() is undefined for the type Map___",
+					"""
+						The package java.util conflicts with a package accessible from another module: java.base
+						The package java.util is accessible from more than one module: <unnamed>, java.base
+						The method entrySet() is undefined for the type Map___""",
 					markers);
 		} finally {
 			deleteProject("debugger_project");
@@ -3512,36 +3794,41 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	exports com.greetings;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports com.greetings;
+					}""",
 				"src/org/astro/Test.java",
-				"package org.astro;\n" +
-				"public class Test {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}",
+				"""
+					package org.astro;
+					public class Test {
+						public String name() {
+							return " My World!!";
+						}
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"public class MyWorld implements org.astro.World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					public class MyWorld implements org.astro.World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -3565,21 +3852,24 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports bundle.org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports bundle.org.astro;
+					}""",
 				"src/bundle/org/astro/World.java",
-				"package bundle.org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package bundle.org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
 			sources = new String[] {
 					"src/module-info.java",
-					"module other.mod {\n" +
-					"	exports bundle.org;\n" +
-					"}",
+					"""
+						module other.mod {
+							exports bundle.org;
+						}""",
 					"src/bundle/org/astro.java",
 					"package bundle.org;\n" +
 					"public class astro {}"
@@ -3587,18 +3877,20 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			setupModuleProject("other.mod", sources, new IClasspathEntry[]{dep});
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	requires other.mod;\n" +
-				"	exports com.greetings;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						requires other.mod;
+						exports com.greetings;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"public class MyWorld implements bundle.org.astro.World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					public class MyWorld implements bundle.org.astro.World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -3621,14 +3913,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports bundle.org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports bundle.org.astro;
+					}""",
 				"src/bundle/org/astro/World.java",
-				"package bundle.org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package bundle.org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
 			sources = new String[] {
@@ -3642,18 +3936,20 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			setupModuleProject("other.mod", sources, new IClasspathEntry[]{dep});
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	requires other.mod;\n" +
-				"	exports com.greetings;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						requires other.mod;
+						exports com.greetings;
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"public class MyWorld implements bundle.org.astro.World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					public class MyWorld implements bundle.org.astro.World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -3671,9 +3967,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module some.mod {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module some.mod {
+						exports org.astro;
+					}""",
 				"src/org/astro/Test.java",
 				"package org.astro;\n" +
 				"public class Test { }"
@@ -3682,25 +3979,28 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject p1 = setupModuleProject("some.mod", sources, new IClasspathEntry[]{dep});
 			sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p2 = setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
 			String[] src = new String[] {
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"import org.astro.World;\n" +
-				"public class MyWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import org.astro.World;
+					public class MyWorld implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath(), null, false,
@@ -3730,31 +4030,35 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
 			String[] src = new String[] {
 				"src/org/astro/Test.java",
-				"package org.astro;\n" +
-				"public class Test {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}",
+				"""
+					package org.astro;
+					public class Test {
+						public String name() {
+							return " My World!!";
+						}
+					}""",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"public class MyWorld implements org.astro.World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					public class MyWorld implements org.astro.World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath(), null, false,
@@ -3780,21 +4084,24 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports bundle.org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports bundle.org.astro;
+					}""",
 				"src/bundle/org/astro/World.java",
-				"package bundle.org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package bundle.org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
 			sources = new String[] {
 					"src/module-info.java",
-					"module other.mod {\n" +
-					"	exports bundle.org;\n" +
-					"}",
+					"""
+						module other.mod {
+							exports bundle.org;
+						}""",
 					"src/bundle/org/astro.java",
 					"package bundle.org;\n" +
 					"public class astro {}"
@@ -3802,12 +4109,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject p2 = setupModuleProject("other.mod", sources, new IClasspathEntry[]{dep});
 			String[] src = new String[] {
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"public class MyWorld implements bundle.org.astro.World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					public class MyWorld implements bundle.org.astro.World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath(), null, false,
@@ -3834,21 +4142,24 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports bundle.org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports bundle.org.astro;
+					}""",
 				"src/bundle/org/astro/World.java",
-				"package bundle.org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package bundle.org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
 			sources = new String[] {
 					"src/module-info.java",
-					"module other.mod {\n" +
-					"	exports bundle.org;\n" +
-					"}",
+					"""
+						module other.mod {
+							exports bundle.org;
+						}""",
 					"src/bundle/org/astro.java",
 					"package bundle.org;\n" +
 					"public class astro {}"
@@ -3859,12 +4170,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"package bundle.org;\n" +
 				"public class Test {}",
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"public class MyWorld implements bundle.org.astro.World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					public class MyWorld implements bundle.org.astro.World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath(), null, false,
@@ -3894,14 +4206,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports bundle.org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports bundle.org.astro;
+					}""",
 				"src/bundle/org/astro/World.java",
-				"package bundle.org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package bundle.org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
 			sources = new String[] {
@@ -3915,12 +4229,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject p2 = setupModuleProject("other.mod", sources, new IClasspathEntry[]{dep});
 			String[] src = new String[] {
 				"src/com/greetings/MyWorld.java",
-				"package com.greetings;\n" +
-				"public class MyWorld implements bundle.org.astro.World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					public class MyWorld implements bundle.org.astro.World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath(), null, false,
@@ -3968,10 +4283,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			Util.createJar(
 					new String[] {
 						"test/src/org/astro/World.java", //$NON-NLS-1$
-						"package org.astro;\n" +
-						"public interface World {\n" +
-						"	public String name();\n" +
-						"}",
+						"""
+							package org.astro;
+							public interface World {
+								public String name();
+							}""",
 					},
 					null,
 					new HashMap<>(),
@@ -3979,18 +4295,20 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					getExternalResourcePath(libPath));
 			String[] src = new String[] {
 					"src/module-info.java",
-					"module com.greetings {\n" +
-					"	requires test;\n" +
-					"	exports com.greetings;\n" +
-					"}",
+					"""
+						module com.greetings {
+							requires test;
+							exports com.greetings;
+						}""",
 					"src/com/greetings/MyWorld.java",
-					"package com.greetings;\n" +
-					"import org.astro.World;\n"	+
-					"public class MyWorld implements World {\n" +
-					"	public String name() {\n" +
-					"		return \" My World!!\";\n" +
-					"	}\n" +
-					"}"
+					"""
+						package com.greetings;
+						import org.astro.World;
+						public class MyWorld implements World {
+							public String name() {
+								return " My World!!";
+							}
+						}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			IClasspathEntry dep = JavaCore.newLibraryEntry(new Path(getExternalResourcePath(libPath)), null, null, ClasspathEntry.NO_ACCESS_RULES,
@@ -4030,17 +4348,19 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			assertNoErrors();
 			String[] src = new String[] {
 					"src/module-info.java",
-					"module com.greetings {\n" +
-					"	requires junit; // This should not be resolved\n" +
-					"	exports com.greetings;\n" +
-					"}",
+					"""
+						module com.greetings {
+							requires junit; // This should not be resolved
+							exports com.greetings;
+						}""",
 					"src/com/greetings/Test.java",
-					"package com.greetings;\n" +
-					"public class Test {\n" +
-					"	public String name() {\n" +
-					"		return \" My World!!\";\n" +
-					"	}\n" +
-					"}"
+					"""
+						package com.greetings;
+						public class Test {
+							public String name() {
+								return " My World!!";
+							}
+						}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "false");
 			IClasspathEntry dep = JavaCore.newLibraryEntry(p1.getProject().findMember("lib/junit.jar").getFullPath(), null, null,
@@ -4067,16 +4387,18 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 					"src/module-info.java",
-					"module com.greetings {\n" +
-					"	exports com.greetings;\n" +
-					"}",
+					"""
+						module com.greetings {
+							exports com.greetings;
+						}""",
 					"src/com/greetings/Test.java",
-					"package com.greetings;\n" +
-					"public class Test {\n" +
-					"	public String name() {\n" +
-					"		return \" My World!!\";\n" +
-					"	}\n" +
-					"}"
+					"""
+						package com.greetings;
+						public class Test {
+							public String name() {
+								return " My World!!";
+							}
+						}"""
 			};
 			IJavaProject p1 = setupModuleProject("test", src);
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -4084,17 +4406,19 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			Util.zip(rootDir, getExternalResourcePath(libPath));
 			src = new String[] {
 					"src/module-info.java",
-					"module test_automodules {\n" +
-					"	requires com.greetings;\n" +
-					"}",
+					"""
+						module test_automodules {
+							requires com.greetings;
+						}""",
 					"src/test/Main.java",
-					"package test;\n" +
-					"import com.greetings.Test;\n" +
-					"public class Main {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		System.out.println(new Test().name());\n" +
-					"	}\n" +
-					"}"
+					"""
+						package test;
+						import com.greetings.Test;
+						public class Main {
+							public static void main(String[] args) {
+								System.out.println(new Test().name());
+							}
+						}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			IClasspathEntry dep = JavaCore.newLibraryEntry(new Path(getExternalResourcePath(libPath)), null, null,
@@ -4120,16 +4444,18 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 					"src/module-info.java",
-					"module test {\n" +
-					"	exports com.greetings;\n" +
-					"}",
+					"""
+						module test {
+							exports com.greetings;
+						}""",
 					"src/com/greetings/Test.java",
-					"package com.greetings;\n" +
-					"public class Test {\n" +
-					"	public String name() {\n" +
-					"		return \" My World!!\";\n" +
-					"	}\n" +
-					"}"
+					"""
+						package com.greetings;
+						public class Test {
+							public String name() {
+								return " My World!!";
+							}
+						}"""
 			};
 			IJavaProject p1 = setupModuleProject("test", src);
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -4137,17 +4463,19 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			Util.zip(rootDir, getExternalResourcePath(libPath));
 			src = new String[] {
 					"src/module-info.java",
-					"module test_automodules {\n" +
-					"	requires test;\n" +
-					"}",
+					"""
+						module test_automodules {
+							requires test;
+						}""",
 					"src/test/Main.java",
-					"package test;\n" +
-					"import com.greetings.Test;\n" +
-					"public class Main {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		System.out.println(new Test().name());\n" +
-					"	}\n" +
-					"}"
+					"""
+						package test;
+						import com.greetings.Test;
+						public class Main {
+							public static void main(String[] args) {
+								System.out.println(new Test().name());
+							}
+						}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "false");
 			IClasspathEntry dep = JavaCore.newLibraryEntry(new Path(getExternalResourcePath(libPath)), null, null,
@@ -4172,21 +4500,23 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}"
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", src);
 			src = new String[] {
 				"src/org/greetings/Test.java",
-				"package org.greetings;\n" +
-				"import  org.astro.World;\n" +
-				"public class Test implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package org.greetings;
+					import  org.astro.World;
+					public class Test implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
 			IJavaProject p2 = setupModuleProject("test", src, new IClasspathEntry[] {dep});
@@ -4195,18 +4525,20 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			Util.zip(rootDir, getExternalResourcePath(libPath));
 			src = new String[] {
 				"src/module-info.java",
-				"module test_automodules {\n" +
-				"	requires test;\n" +
-				"}",
+				"""
+					module test_automodules {
+						requires test;
+					}""",
 				"src/test/Main.java",
-				"package test;\n" +
-				"import org.greetings.Test;\n" +
-				"public class Main {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		org.astro.World world = new Test();\n" +
-				"		System.out.println(world.name());\n" +
-				"	}\n" +
-				"}"
+				"""
+					package test;
+					import org.greetings.Test;
+					public class Main {
+						public static void main(String[] args) {
+							org.astro.World world = new Test();
+							System.out.println(world.name());
+						}
+					}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			dep = JavaCore.newLibraryEntry(new Path(getExternalResourcePath(libPath)), null, null,
@@ -4238,25 +4570,28 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}"
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", src);
 			src = new String[] {
 				"src/com/greetings/Test.java",
-				"package com.greetings;\n" +
-				"import  org.astro.World;\n" +
-				"public class Test implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import  org.astro.World;
+					public class Test implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
 			IJavaProject p2 = setupModuleProject("test", src, new IClasspathEntry[] {dep});
@@ -4265,19 +4600,21 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			Util.zip(rootDir, getExternalResourcePath(libPath));
 			src = new String[] {
 				"src/module-info.java",
-				"module test_automodules {\n" +
-				"	requires test;\n" +
-				"}",
+				"""
+					module test_automodules {
+						requires test;
+					}""",
 				"src/test/Main.java",
-				"package test;\n" +
-				"import com.greetings.Test;\n" +
-				"import org.astro.*;\n" +
-				"public class Main {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		World world = new Test();\n" +
-				"		System.out.println(world.name());\n" +
-				"	}\n" +
-				"}"
+				"""
+					package test;
+					import com.greetings.Test;
+					import org.astro.*;
+					public class Main {
+						public static void main(String[] args) {
+							World world = new Test();
+							System.out.println(world.name());
+						}
+					}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			dep = JavaCore.newLibraryEntry(new Path(getExternalResourcePath(libPath)), null, null,
@@ -4311,21 +4648,23 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}"
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", src);
 			src = new String[] {
 				"src/com/greetings/Test.java",
-				"package com.greetings;\n" +
-				"import  org.astro.World;\n" +
-				"public class Test implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					import  org.astro.World;
+					public class Test implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
 			IJavaProject p2 = setupModuleProject("test", src, new IClasspathEntry[] {dep});
@@ -4334,18 +4673,20 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			Util.zip(rootDir, getExternalResourcePath(libPath));
 			src = new String[] {
 				"src/module-info.java",
-				"module test_automodules {\n" +
-				"	requires test;\n" +
-				"}",
+				"""
+					module test_automodules {
+						requires test;
+					}""",
 				"src/test/Main.java",
-				"package test;\n" +
-				"import com.greetings.Test;\n" +
-				"public class Main {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		org.astro.World world = new Test();\n" +
-				"		System.out.println(world.name());\n" +
-				"	}\n" +
-				"}"
+				"""
+					package test;
+					import com.greetings.Test;
+					public class Main {
+						public static void main(String[] args) {
+							org.astro.World world = new Test();
+							System.out.println(world.name());
+						}
+					}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			dep = JavaCore.newLibraryEntry(new Path(getExternalResourcePath(libPath)), null, null,
@@ -4391,9 +4732,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			}
 			createFolder("/Project2/src/pack2");
 			createFile("/Project2/src/pack2/Class2.java",
-					"package pack2;\n" +
-					"import pack1.Class1;\n" +
-					"public class Class2 extends Class1 {}\n");
+					"""
+						package pack2;
+						import pack1.Class1;
+						public class Class2 extends Class1 {}
+						""");
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", "", markers);
@@ -4407,15 +4750,17 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module test_automodules {\n" +
-				"	requires java.sql;\n" +
-				"}",
+				"""
+					module test_automodules {
+						requires java.sql;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"import some.pack.Type;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					import some.pack.Type;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", src);
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -4431,33 +4776,37 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/bundle/org/SomeClass.java",
 					"package bundle.org;\n" +
 					"public class SomeClass {}",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}"
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", src);
 			src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-					"	requires org.astro;\n" +
-					"	exports bundle.org;\n" +
-					"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports bundle.org;
+					}""",
 				"src/bundle/org/SomeWorld.java",
-				"package bundle.org;\n" +
-				"import  org.astro.World;\n" +
-				"public class SomeWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" Some World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package bundle.org;
+					import  org.astro.World;
+					public class SomeWorld implements World {
+						public String name() {
+							return " Some World!!";
+						}
+					}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
@@ -4465,20 +4814,22 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			src = new String[] {
 				"src/module-info.java",
-				"module test {\n" +
-				"	exports test;\n" +
-				"	requires org.astro;\n" +
-				"	requires com.greetings;\n" +
-				"}",
+				"""
+					module test {
+						exports test;
+						requires org.astro;
+						requires com.greetings;
+					}""",
 				"src/test/Main.java",
-				"package test;\n" +
-				"import bundle.org.SomeWorld;\n" +
-				"public class Main {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		org.astro.World world = new SomeWorld();\n" +
-				"		System.out.println(world.name());\n" +
-				"	}\n" +
-				"}"
+				"""
+					package test;
+					import bundle.org.SomeWorld;
+					public class Main {
+						public static void main(String[] args) {
+							org.astro.World world = new SomeWorld();
+							System.out.println(world.name());
+						}
+					}"""
 			};
 			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
 			IJavaProject p3 = setupModuleProject("test", src, new IClasspathEntry[] {dep, dep2});
@@ -4497,33 +4848,37 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/bundle/org/SomeClass.java",
 					"package bundle.org;\n" +
 					"public class SomeClass {}",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}"
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", src);
 			src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-					"	requires org.astro;\n" +
-					"	exports bundle.org;\n" +
-					"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports bundle.org;
+					}""",
 				"src/bundle/org/SomeWorld.java",
-				"package bundle.org;\n" +
-				"import  org.astro.World;\n" +
-				"public class SomeWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" Some World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package bundle.org;
+					import  org.astro.World;
+					public class SomeWorld implements World {
+						public String name() {
+							return " Some World!!";
+						}
+					}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
@@ -4531,19 +4886,21 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			src = new String[] {
 				"src/module-info.java",
-				"module test {\n" +
-				"	exports test;\n" +
-				"	requires com.greetings;\n" +
-				"}",
+				"""
+					module test {
+						exports test;
+						requires com.greetings;
+					}""",
 				"src/test/Main.java",
-				"package test;\n" +
-				"import bundle.org.SomeWorld;\n" +
-				"public class Main {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		org.astro.World world = new SomeWorld();\n" +
-				"		System.out.println(world.name());\n" +
-				"	}\n" +
-				"}"
+				"""
+					package test;
+					import bundle.org.SomeWorld;
+					public class Main {
+						public static void main(String[] args) {
+							org.astro.World world = new SomeWorld();
+							System.out.println(world.name());
+						}
+					}"""
 			};
 			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
 			IJavaProject p3 = setupModuleProject("test", src, new IClasspathEntry[] {dep, dep2});
@@ -4563,34 +4920,38 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"	exports bundle.org to com.greetings;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+							exports bundle.org to com.greetings;
+						}""",
 					"src/bundle/org/SomeClass.java",
 					"package bundle.org;\n" +
 					"public class SomeClass {}",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}"
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", src);
 			src = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-					"	requires org.astro;\n" +
-					"	exports bundle.org;\n" +
-					"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						exports bundle.org;
+					}""",
 				"src/bundle/org/SomeWorld.java",
-				"package bundle.org;\n" +
-				"import  org.astro.World;\n" +
-				"public class SomeWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" Some World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package bundle.org;
+					import  org.astro.World;
+					public class SomeWorld implements World {
+						public String name() {
+							return " Some World!!";
+						}
+					}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
@@ -4604,20 +4965,22 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			src = new String[] {
 				"src/module-info.java",
-				"module test {\n" +
-				"	exports test;\n" +
-				"	requires org.astro;\n" +
-				"	requires com.greetings;\n" +
-				"}",
+				"""
+					module test {
+						exports test;
+						requires org.astro;
+						requires com.greetings;
+					}""",
 				"src/test/Main.java",
-				"package test;\n" +
-				"import bundle.org.SomeWorld;\n" +
-				"public class Main {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		org.astro.World world = new SomeWorld();\n" +
-				"		System.out.println(world.name());\n" +
-				"	}\n" +
-				"}"
+				"""
+					package test;
+					import bundle.org.SomeWorld;
+					public class Main {
+						public static void main(String[] args) {
+							org.astro.World world = new SomeWorld();
+							System.out.println(world.name());
+						}
+					}"""
 			};
 			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
 			IJavaProject p3 = setupModuleProject("test", src, new IClasspathEntry[] {dep, dep2});
@@ -4636,9 +4999,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			// Setup project PSources1:
 			String[] src = new String[] {
 					"src/module-info.java",
-					"module PSources1 {\n" +
-					"	//exports p.q;\n" +
-					"}",
+					"""
+						module PSources1 {
+							//exports p.q;
+						}""",
 					"src2/p/q/SomeClass.java",
 					"package p.q;\n" +
 					"public class SomeClass {}",
@@ -4648,9 +5012,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			// Edit PSources1/src/module-info.java:
 			String infoSrc =
-					"module PSources1 {\n" +
-					"	exports p.q;\n" +
-					"}";
+					"""
+				module PSources1 {
+					exports p.q;
+				}""";
 			String infoPath = "/PSources1/src/module-info.java";
 			editFile(infoPath, infoSrc);
 			this.workingCopies = new ICompilationUnit[1];
@@ -4667,14 +5032,17 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			// Setup project PClient2:
 			String[] src2 = new String[] {
 					"src/module-info.java",
-					"module PClient2 {\n" +
-					"	requires PSources1;\n" +
-					"}",
+					"""
+						module PClient2 {
+							requires PSources1;
+						}""",
 					"src/x/Client.java",
-					"package x;\n" +
-					"public class Client {\n" +
-					"	p.q.SomeClass f;\n" +
-					"\n}",
+					"""
+						package x;
+						public class Client {
+							p.q.SomeClass f;
+						
+						}""",
 			};
 			setupModuleProject("PClient2", src2);
 			getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
@@ -4710,36 +5078,44 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 					"src/module-info.java",
-					"module mod.one { \n" +
-					"	exports pm;\n" +
-					"}",
+					"""
+						module mod.one {\s
+							exports pm;
+						}""",
 					"src/impl/Other.java",
-					"package impl;\n" +
-					"public class Other {\n" +
-					"    public void privateMethod() {}" +
-					"}\n",
+					"""
+						package impl;
+						public class Other {
+						    public void privateMethod() {}\
+						}
+						""",
 					"src/pm/C1.java",
-					"package pm;\n" +
-					"import impl.Other;\n" +
-					"public class C1 extends Other {\n" +
-					"}\n"
+					"""
+						package pm;
+						import impl.Other;
+						public class C1 extends Other {
+						}
+						"""
 			};
 			IJavaProject p1 = setupModuleProject("mod.one", src);
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 
 			String[] src2 = new String[] {
 					"src/module-info.java",
-					"module mod.two { \n" +
-					"	requires mod.one;\n" +
-					"}",
+					"""
+						module mod.two {\s
+							requires mod.one;
+						}""",
 					"src/po/Client.java",
-					"package po;\n" +
-					"import pm.C1;\n" +
-					"public class Client {\n" +
-					"    void test1(C1 one) {\n" +
-					"        one.privateMethod(); // ecj: The method privateMethod() is undefined for the type C1\n" +
-					"    }\n" +
-					"}\n"
+					"""
+						package po;
+						import pm.C1;
+						public class Client {
+						    void test1(C1 one) {
+						        one.privateMethod(); // ecj: The method privateMethod() is undefined for the type C1
+						    }
+						}
+						"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
@@ -4760,10 +5136,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 //					"	exports org.astro to com.greetings;\n" + // this export will be added via add-exports
 					"}",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}"
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}"""
 			};
 			IJavaProject p1 = setupModuleProject("morg.astro", sources);
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
@@ -4773,18 +5150,20 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 															false/*not exported*/);
 			String[] src = new String[] {
 					"src/module-info.java",
-					"module com.greetings {\n" +
-					"	requires morg.astro;\n" +
-					"	exports com.greetings;\n" +
-					"}",
+					"""
+						module com.greetings {
+							requires morg.astro;
+							exports com.greetings;
+						}""",
 					"src/com/greetings/MyWorld.java",
-					"package com.greetings;\n" +
-					"import org.astro.World;\n" +
-					"public class MyWorld implements World {\n" +
-					"	public String name() {\n" +
-					"		return \" My World!!\";\n" +
-					"	}\n" +
-					"}"
+					"""
+						package com.greetings;
+						import org.astro.World;
+						public class MyWorld implements World {
+							public String name() {
+								return " My World!!";
+							}
+						}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -4804,10 +5183,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 //					"	exports org.eclipse to com.greetings;\n" + // this export will be added via add-exports
 					"}",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}",
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}""",
 					"src/org/eclipse/Planet.java",
 					"package org.eclipse;\n" +
 					"public class Planet {}\n"
@@ -4821,19 +5201,21 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 															false/*not exported*/);
 			String[] src = new String[] {
 					"src/module-info.java",
-					"module com.greetings {\n" +
-					"	requires morg.astro;\n" +
-					"	exports com.greetings;\n" +
-					"}",
+					"""
+						module com.greetings {
+							requires morg.astro;
+							exports com.greetings;
+						}""",
 					"src/com/greetings/MyWorld.java",
-					"package com.greetings;\n" +
-					"import org.astro.World;\n" +
-					"public class MyWorld implements World {\n" +
-					"	org.eclipse.Planet planet;\n" +
-					"	public String name() {\n" +
-					"		return \" My World!!\";\n" +
-					"	}\n" +
-					"}"
+					"""
+						package com.greetings;
+						import org.astro.World;
+						public class MyWorld implements World {
+							org.eclipse.Planet planet;
+							public String name() {
+								return " My World!!";
+							}
+						}"""
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -4861,11 +5243,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 			createSourceFiles(p, new String[] {
 					"src/Foo.java",
-					"import com.sun.imageio.plugins.png.PNGImageReader;\n" +
-					"\n" +
-					"public class Foo {\n" +
-					"	PNGImageReader r;\n" +
-					"}\n"
+					"""
+						import com.sun.imageio.plugins.png.PNGImageReader;
+						
+						public class Foo {
+							PNGImageReader r;
+						}
+						"""
 			});
 			p.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -4895,33 +5279,39 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			// org.astro defines the "real" org.astro.World:
 			String[] sources = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}"
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}"""
 			};
 			IJavaProject p = setupModuleProject("org.astro", sources);
 
 			// build mod.one with a private copy of org.astro.World:
 			String[] src1 = new String[] {
 					"src/module-info.java",
-					"module mod.one {\n" +
-					"	exports one.p;\n" +
-					"}\n",
+					"""
+						module mod.one {
+							exports one.p;
+						}
+						""",
 					"src/org/astro/World.java",
 					"package org.astro;\n" +
 					"public interface World { public String name(); }\n",
 					"src/one/p/C.java",
-					"package one.p;\n" +
-					"public class C {\n" +
-					"	public void test(org.astro.World w) {\n" +
-					"		System.out.println(w.name());\n" +
-					"	}\n" +
-					"}\n"
+					"""
+						package one.p;
+						public class C {
+							public void test(org.astro.World w) {
+								System.out.println(w.name());
+							}
+						}
+						"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			IClasspathEntry dep = JavaCore.newProjectEntry(p.getPath(), null, false,
@@ -4942,17 +5332,19 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			// com.greetings depends on both other modules:
 			String[] src2 = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires org.astro;\n" +
-				"	requires mod.one;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires org.astro;
+						requires mod.one;
+					}""",
 				"src/com/greetings/MyTest.java",
-				"package com.greetings;\n" +
-				"public class MyTest {\n" +
-				"	public void test(one.p.C c, org.astro.World w) {\n" +
-				"		c.test(w);\n" +
-				"	}\n" +
-				"}"
+				"""
+					package com.greetings;
+					public class MyTest {
+						public void test(one.p.C c, org.astro.World w) {
+							c.test(w);
+						}
+					}"""
 			};
 			IClasspathEntry dep1 = JavaCore.newProjectEntry(p.getPath(), null, false,
 															new IClasspathAttribute[] {new ClasspathAttribute("module", "true")},
@@ -4990,25 +5382,28 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}"
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", src);
 			src = new String[] {
 				"src/org/eclipse/pack1/SomeWorld.java",
-				"package org.eclipse.pack1;\n" +
-				"import  org.astro.World;\n" +
-				"public class SomeWorld implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" Some World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package org.eclipse.pack1;
+					import  org.astro.World;
+					public class SomeWorld implements World {
+						public String name() {
+							return " Some World!!";
+						}
+					}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
@@ -5016,20 +5411,22 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			src = new String[] {
 				"src/module-info.java",
-				"module test {\n" +
-				"	exports test;\n" +
-				"	requires com.greetings;\n" +
-				"	requires org.astro;\n" +
-				"}",
+				"""
+					module test {
+						exports test;
+						requires com.greetings;
+						requires org.astro;
+					}""",
 				"src/test/Main.java",
-				"package test;\n" +
-				"import org.eclipse.pack1.SomeWorld;\n" +
-				"public class Main {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		org.astro.World world = new SomeWorld();\n" +
-				"		System.out.println(world.name());\n" +
-				"	}\n" +
-				"}"
+				"""
+					package test;
+					import org.eclipse.pack1.SomeWorld;
+					public class Main {
+						public static void main(String[] args) {
+							org.astro.World world = new SomeWorld();
+							System.out.println(world.name());
+						}
+					}"""
 			};
 			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
 			IJavaProject p3 = setupModuleProject("test", src, new IClasspathEntry[] {dep, dep2});
@@ -5051,45 +5448,50 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	exports org.astro;\n" +
-				"}",
+				"""
+					module org.astro {
+						exports org.astro;
+					}""",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", src);
 			src = new String[] {
 				"src/org/eclipse/pack/Test.java",
-				"package org.eclipse.pack;\n" +
-				"import org.astro.World;\n" +
-				"public class Test implements World {\n" +
-				"	public String name() {\n" +
-				"		return \" My World!!\";\n" +
-				"	}\n" +
-				"}"
+				"""
+					package org.eclipse.pack;
+					import org.astro.World;
+					public class Test implements World {
+						public String name() {
+							return " My World!!";
+						}
+					}"""
 			};
 			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
 			IJavaProject p2 = setupModuleProject("test", src, new IClasspathEntry[] {dep});
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			src = new String[] {
 				"src/module-info.java",
-				"module test_automodules {\n" +
-				"	requires bin;\n" +
-				"	requires org.astro;\n" +
-				"}",
+				"""
+					module test_automodules {
+						requires bin;
+						requires org.astro;
+					}""",
 				"src/test/Main.java",
-				"package test;\n" +
-				"import org.eclipse.pack.Test;\n" +
-				"import org.astro.*;\n" +
-				"public class Main {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		World world = new Test();\n" +
-				"		System.out.println(world.name());\n" +
-				"	}\n" +
-				"}"
+				"""
+					package test;
+					import org.eclipse.pack.Test;
+					import org.astro.*;
+					public class Main {
+						public static void main(String[] args) {
+							World world = new Test();
+							System.out.println(world.name());
+						}
+					}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			dep = JavaCore.newLibraryEntry(p2.getProject().findMember("bin").getFullPath(), null, null,
@@ -5123,28 +5525,31 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"	exports org.astro;\n" +
 				"}",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public interface World {\n" +
-				"	public String name();\n" +
-				"}"
+				"""
+					package org.astro;
+					public interface World {
+						public String name();
+					}"""
 			};
 			IClasspathEntry modDep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			IJavaProject p1 = setupModuleProject("mod.one", src, new IClasspathEntry[] {modDep});
 
 			src = new String[] {
 					"src/module-info.java",
-					"module mod.two {\n" +
-					"	requires mod.one;\n" +
-					"	exports test;\n" +
-					"}",
+					"""
+						module mod.two {
+							requires mod.one;
+							exports test;
+						}""",
 					"src/test/Test.java",
-					"package test;\n" +
-					"import org.astro.World;\n" +
-					"public class Test implements World {\n" +
-					"	public String name() {\n" +
-					"		return \" My World!!\";\n" +
-					"	}\n" +
-					"}"
+					"""
+						package test;
+						import org.astro.World;
+						public class Test implements World {
+							public String name() {
+								return " My World!!";
+							}
+						}"""
 			};
 			IJavaProject p2 = setupModuleProject("mod.two", src, new IClasspathEntry[] {modDep});
 
@@ -5187,22 +5592,25 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		IJavaProject javaProject = null;
 		try {
 			String src =
-					"import java.*;\n" +
-					"public class X {\n" +
-					"    public static void main(String[] args) {\n" +
-					"        System.out.println(true);\n" +
-					"    }\n" +
-					"}";
+					"""
+				import java.*;
+				public class X {
+				    public static void main(String[] args) {
+				        System.out.println(true);
+				    }
+				}""";
 			javaProject = createJava9Project("Test");
 			this.problemRequestor.initialize(src.toCharArray());
 			getWorkingCopy("/Test/src/X.java", src, true);
 			assertProblems("should have not problems",
-					"----------\n" +
-					"1. ERROR in /Test/src/X.java (at line 1)\n" +
-					"	import java.*;\n" +
-					"	       ^^^^\n" +
-					"The package java is not accessible\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in /Test/src/X.java (at line 1)
+							import java.*;
+							       ^^^^
+						The package java is not accessible
+						----------
+						""",
 					this.problemRequestor);
 		} finally {
 			if (javaProject != null)
@@ -5234,21 +5642,24 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				srcMod);
 			createFolder("mod.one/src/q");
 			String srcX =
-				"package q;\n" +
-				"public class X {\n" +
-				"	p.a.X f;\n" +
-				"}";
+				"""
+				package q;
+				public class X {
+					p.a.X f;
+				}""";
 			createFile("/mod.one/src/q/X.java", srcX);
 
 			this.problemRequestor.initialize(srcMod.toCharArray());
 			getWorkingCopy("/mod.one/module-info.java", srcMod, true);
 			assertProblems("module-info should have one warning",
-					"----------\n" +
-					"1. WARNING in /mod.one/module-info.java (at line 2)\n" +
-					"	requires lib.x;\n" +
-					"	         ^^^^^\n" +
-					"Name of automatic module \'lib.x\' is unstable, it is derived from the module\'s file name.\n" +
-					"----------\n",
+					"""
+						----------
+						1. WARNING in /mod.one/module-info.java (at line 2)
+							requires lib.x;
+							         ^^^^^
+						Name of automatic module 'lib.x' is unstable, it is derived from the module's file name.
+						----------
+						""",
 					this.problemRequestor);
 
 			this.problemRequestor.initialize(srcX.toCharArray());
@@ -5295,10 +5706,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				srcMod);
 			createFolder("mod.one/src/q");
 			String srcX =
-				"package q;\n" +
-				"public class X {\n" +
-				"	p.a.X f;\n" +
-				"}";
+				"""
+				package q;
+				public class X {
+					p.a.X f;
+				}""";
 			createFile("/mod.one/src/q/X.java", srcX);
 
 			this.problemRequestor.initialize(srcMod.toCharArray());
@@ -5347,10 +5759,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				srcMod);
 			createFolder("mod.one/src/q");
 			String srcX =
-				"package q;\n" +
-				"public class X {\n" +
-				"	p.a.X f;\n" +
-				"}";
+				"""
+				package q;
+				public class X {
+					p.a.X f;
+				}""";
 			createFile("/mod.one/src/q/X.java", srcX);
 			auto.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 
@@ -5411,10 +5824,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			createFile("/mod.one/src/module-info.java", srcMod);
 			createFolder("mod.one/src/p/q/api");
 			String srcX =
-				"package p.q.api;\n" +
-				"public class X {\n" +
-				"	p.a.X f;\n" +
-				"}";
+				"""
+				package p.q.api;
+				public class X {
+					p.a.X f;
+				}""";
 			createFile("/mod.one/src/p/q/api/X.java", srcX);
 
 			// second source module:
@@ -5422,9 +5836,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			addClasspathEntry(javaProject2, JavaCore.newProjectEntry(new Path("/mod.one"), null, false, attributes, false));
 			addClasspathEntry(javaProject2, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, attributes, false));
 			String srcMod2 =
-				"module mod.two { \n" +
-				"	requires mod.one;\n" +
-				"}";
+				"""
+				module mod.two {\s
+					requires mod.one;
+				}""";
 			createFile("/mod.two/src/module-info.java", srcMod2);
 			createFolder("mod.two/src/p/q");
 			String srcY =
@@ -5486,18 +5901,20 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			addClasspathEntry(javaProject, JavaCore.newProjectEntry(auto.getPath(), null, false, attributes, false));
 
 			String srcMod =
-				"@SuppressWarnings(\"module\")\n" +
-				"module mod.one { \n" +
-				"	requires auto;\n" +
-				"}";
+				"""
+				@SuppressWarnings("module")
+				module mod.one {\s
+					requires auto;
+				}""";
 			createFile("/mod.one/src/module-info.java",
 				srcMod);
 			createFolder("mod.one/src/q");
 			String srcX =
-				"package q;\n" +
-				"public class X {\n" +
-				"	p.a.X f;\n" +
-				"}";
+				"""
+				package q;
+				public class X {
+					p.a.X f;
+				}""";
 			createFile("/mod.one/src/q/X.java", srcX);
 			auto.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 
@@ -5540,9 +5957,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			javaProject.setOption(JavaCore.COMPILER_PB_UNSTABLE_AUTO_MODULE_NAME, JavaCore.ERROR);
 
 			String srcMod =
-				"module mod.one { \n" +
-				"	requires auto;\n" +
-				"}";
+				"""
+				module mod.one {\s
+					requires auto;
+				}""";
 			createFile("/mod.one/src/module-info.java",
 				srcMod);
 			auto.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -5550,12 +5968,14 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			this.problemRequestor.initialize(srcMod.toCharArray());
 			getWorkingCopy("/mod.one/module-info.java", srcMod, true);
 			assertProblems("module-info should have only one error",
-					"----------\n" +
-					"1. ERROR in /mod.one/module-info.java (at line 2)\n" +
-					"	requires auto;\n" +
-					"	         ^^^^\n" +
-					"Name of automatic module \'auto\' is unstable, it is derived from the module\'s file name.\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in /mod.one/module-info.java (at line 2)
+							requires auto;
+							         ^^^^
+						Name of automatic module 'auto' is unstable, it is derived from the module's file name.
+						----------
+						""",
 					this.problemRequestor);
 		} finally {
 			if (javaProject != null)
@@ -5574,12 +5994,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"module org.astro {\n" + // no exports
 				"}",
 				"src/org/astro/World.java",
-				"package org.astro;\n" +
-				"public class World {\n" +
-				"	public String name() { return \"world\"; }\n" +
-				"	void internalTest() { }\n" +
-				"	public org.astro.test.WorldTest test;\n" +
-				"}",
+				"""
+					package org.astro;
+					public class World {
+						public String name() { return "world"; }
+						void internalTest() { }
+						public org.astro.test.WorldTest test;
+					}""",
 			};
 			createSourceFiles(mainProject, sources);
 
@@ -5591,13 +6012,15 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			addClasspathEntry(patchProject, JavaCore.newProjectEntry(new Path("/org.astro"), null, false, attributes, false));
 			String[] patchSources = {
 				"src/org/astro/test/WorldTest.java",
-				"package org.astro.test;\n" +
-				"import org.astro.*;\n" +
-				"public class WorldTest {\n" +
-				"	void testWorld(World w) {\n" +
-				"		w.name();\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					package org.astro.test;
+					import org.astro.*;
+					public class WorldTest {
+						void testWorld(World w) {
+							w.name();
+						}
+					}
+					""",
 				"src/org/astro/Test2.java",
 				"package org.astro;\n" +
 				"class Test2 {\n" +
@@ -5628,10 +6051,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			cu.getWorkingCopy(this.wcOwner, null);
 			assertProblems(
 				"Unexpected problems",
-				"----------\n" +
-				"1. ERROR in /org.astro/src/org/astro/World.java\n" +
-				"org.astro.test cannot be resolved to a type\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in /org.astro/src/org/astro/World.java
+					org.astro.test cannot be resolved to a type
+					----------
+					""",
 				this.problemRequestor);
 
 		} finally {
@@ -5651,12 +6076,14 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			String[] patchSources = {
 				"src/org/astro/Test2.java",
-				"package org.astro;\n" +
-				"class Test2 {\n" +
-				"	int test(jdk.internal.misc.Unsafe unsafe) {\n" +
-				"		return unsafe.addressSize();\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					package org.astro;
+					class Test2 {
+						int test(jdk.internal.misc.Unsafe unsafe) {
+							return unsafe.addressSize();
+						}
+					}
+					""",
 				"src2/jdk/internal/misc/Test3.java",
 				"package jdk.internal.misc;\n" +
 				"class Test3 {\n" +
@@ -5707,9 +6134,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			String[] patchSources = {
 				"src/p/a/Test2.java",
-				"package p.a;\n" +
-				"class Test2 extends X {\n" +
-				"}\n"
+				"""
+					package p.a;
+					class Test2 extends X {
+					}
+					"""
 			};
 			createSourceFiles(patchProject, patchSources);
 
@@ -5746,15 +6175,19 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"	requires java.sql;\n" + // not included
 				"}\n",
 				"src/org/astro/Test2.java",
-				"package org.astro;\n" +
-				"class Test2 {\n" +
-				"	java.awt.Window window;\n" +
-				"}\n",
+				"""
+					package org.astro;
+					class Test2 {
+						java.awt.Window window;
+					}
+					""",
 				"src2/org/astro/Test3.java",
-				"package org.astro;\n" +
-				"class Test3 {\n" +
-				"	java.awt.datatransfer.Clipboard clippy;\n" +
-				"}\n"
+				"""
+					package org.astro;
+					class Test3 {
+						java.awt.datatransfer.Clipboard clippy;
+					}
+					"""
 			};
 			createSourceFiles(project, sources);
 
@@ -5769,10 +6202,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			cu.getWorkingCopy(this.wcOwner, null);
 			assertProblems(
 				"Unexpected problems",
-				"----------\n" +
-				"1. ERROR in /org.astro/src/module-info.java\n" +
-				"java.sql cannot be resolved to a module\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in /org.astro/src/module-info.java
+					java.sql cannot be resolved to a module
+					----------
+					""",
 				this.problemRequestor);
 
 			this.problemRequestor.reset();
@@ -5807,22 +6242,28 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			String[] sources = {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	requires java.base;\n" +
-				"	requires java.desktop;\n" +
-				"	requires java.datatransfer;\n" +
-				"	requires java.sql;\n" +
-				"}\n",
+				"""
+					module org.astro {
+						requires java.base;
+						requires java.desktop;
+						requires java.datatransfer;
+						requires java.sql;
+					}
+					""",
 				"src/org/astro/Test2.java",
-				"package org.astro;\n" +
-				"class Test2 {\n" +
-				"	java.awt.Window window;\n" +
-				"}\n",
+				"""
+					package org.astro;
+					class Test2 {
+						java.awt.Window window;
+					}
+					""",
 				"src2/org/astro/Test3.java",
-				"package org.astro;\n" +
-				"class Test3 {\n" +
-				"	java.awt.datatransfer.Clipboard clippy;\n" +
-				"}\n"
+				"""
+					package org.astro;
+					class Test3 {
+						java.awt.datatransfer.Clipboard clippy;
+					}
+					"""
 			};
 			createSourceFiles(project, sources);
 
@@ -5870,12 +6311,14 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			String[] sources = {
 				"src/org/astro/ProblemWithPostConstruct.java",
-				"package org.astro;\n" +
-				"import javax.annotation.PostConstruct;\n" +
-				"\n" +
-				"public class ProblemWithPostConstruct {\n" +
-				"	@PostConstruct void init() {}\n" +
-				"}\n"
+				"""
+					package org.astro;
+					import javax.annotation.PostConstruct;
+					
+					public class ProblemWithPostConstruct {
+						@PostConstruct void init() {}
+					}
+					"""
 			};
 			createSourceFiles(project, sources);
 
@@ -5892,13 +6335,15 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			cu.getWorkingCopy(this.wcOwner, null);
 			assertProblems(
 				"Unexpected problems",
-				"----------\n" +
-				"1. ERROR in /org.astro/src/org/astro/ProblemWithPostConstruct.java\n" +
-				"The import javax.annotation.PostConstruct cannot be resolved\n" +
-				"----------\n" +
-				"2. ERROR in /org.astro/src/org/astro/ProblemWithPostConstruct.java\n" +
-				"PostConstruct cannot be resolved to a type\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in /org.astro/src/org/astro/ProblemWithPostConstruct.java
+					The import javax.annotation.PostConstruct cannot be resolved
+					----------
+					2. ERROR in /org.astro/src/org/astro/ProblemWithPostConstruct.java
+					PostConstruct cannot be resolved to a type
+					----------
+					""",
 				this.problemRequestor);
 		} finally {
 			this.deleteProject("org.astro");
@@ -5997,9 +6442,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject p1 = setupModuleProject("mod.one",
 				new String[] {
 					"src/module-info.java",
-					"module mod.one {\n" +
-					"	exports p1;\n" +
-					"}\n",
+					"""
+						module mod.one {
+							exports p1;
+						}
+						""",
 					"src/p1/API.java",
 					"package p1;\n" +
 					"public class API {}\n"
@@ -6008,15 +6455,19 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IClasspathEntry[] deps = { JavaCore.newLibraryEntry(p1.getOutputLocation(), null, null, null, attr, false) };
 			String[] sources2 = new String[] {
 				"src/module-info.java",
-				"module mod.two {\n" +
-				"	requires mod.one;\n" +
-				"}\n",
+				"""
+					module mod.two {
+						requires mod.one;
+					}
+					""",
 				"src/client/Client.java",
-				"package client;\n" +
-				"import p1.API;\n" +
-				"public class Client {\n" +
-				"	API api;\n" +
-				"}\n"
+				"""
+					package client;
+					import p1.API;
+					public class Client {
+						API api;
+					}
+					"""
 			};
 			IJavaProject p2 = setupModuleProject("mod.two", sources2, deps);
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -6214,15 +6665,19 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject jnlp = createJava9ProjectWithJREAttributes("jnlp", new String[] {"src"}, jreAttribs);
 			createFolder("jnlp/src/javax/jnlp");
 			createFile("jnlp/src/javax/jnlp/UnavailableServiceException.java",
-						"package javax.jnlp;\n" +
-						"@SuppressWarnings(\"serial\")\n" +
-						"public class UnavailableServiceException extends Exception {\n" +
-						"}\n");
+						"""
+							package javax.jnlp;
+							@SuppressWarnings("serial")
+							public class UnavailableServiceException extends Exception {
+							}
+							""");
 			createFile("jnlp/src/javax/jnlp/ServiceManager.java",
-						"package javax.jnlp;\n" +
-						"public class ServiceManager {\n" +
-						"	public static void lookup(String s) throws UnavailableServiceException {}\n" +
-						"}\n");
+						"""
+							package javax.jnlp;
+							public class ServiceManager {
+								public static void lookup(String s) throws UnavailableServiceException {}
+							}
+							""");
 
 			// non-modular project consuming the non-modular jnlp, instead of the module from the JRE:
 			IJavaProject p1 = createJava9ProjectWithJREAttributes("nonmod1", new String[] {"src"}, jreAttribs);
@@ -6230,21 +6685,23 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			createFolder("nonmod1/src/test");
 			createFile("nonmod1/src/test/Test.java",
-						"package test;\n" +
-						"import javax.jnlp.ServiceManager;\n" +
-						"import javax.jnlp.UnavailableServiceException;\n" +
-						"\n" +
-						"public class Test {\n" +
-						"\n" +
-						"    void init() {\n" +
-						"        try {\n" +
-						"            ServiceManager.lookup(\"\");\n" +
-						"        } catch (final UnavailableServiceException e) {\n" +
-						"            e.printStackTrace();\n" +
-						"        }\n" +
-						"\n" +
-						"    }\n" +
-						"}\n");
+						"""
+							package test;
+							import javax.jnlp.ServiceManager;
+							import javax.jnlp.UnavailableServiceException;
+							
+							public class Test {
+							
+							    void init() {
+							        try {
+							            ServiceManager.lookup("");
+							        } catch (final UnavailableServiceException e) {
+							            e.printStackTrace();
+							        }
+							
+							    }
+							}
+							""");
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			assertNoErrors();
 
@@ -6281,28 +6738,32 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			addClasspathEntry(javaProject, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, attributes, false));
 
 			String srcMod =
-				"module mod1 {\n" +
-				"	exports com.mod1.pack1;\n" +
-				"	requires automod;\n" +
-				"}";
+				"""
+				module mod1 {
+					exports com.mod1.pack1;
+					requires automod;
+				}""";
 			createFile("/mod1/src/module-info.java",
 				srcMod);
 			createFolder("/mod1/src/com/mod1/pack1");
 			String srcX =
-				"package com.mod1.pack1;\n" +
-				"public class Dummy {\n" +
-				"}";
+				"""
+				package com.mod1.pack1;
+				public class Dummy {
+				}""";
 			createFile("/mod1/src/com/mod1/pack1/Dummy.java", srcX);
 
 			this.problemRequestor.initialize(srcMod.toCharArray());
 			getWorkingCopy("/mod1/src/module-info.java", srcMod, true);
 			assertProblems("module-info should have exactly one warning",
-					"----------\n" +
-					"1. WARNING in /mod1/src/module-info.java (at line 3)\n" +
-					"	requires automod;\n" +
-					"	         ^^^^^^^\n" +
-					"Name of automatic module \'automod\' is unstable, it is derived from the module\'s file name.\n" +
-					"----------\n",
+					"""
+						----------
+						1. WARNING in /mod1/src/module-info.java (at line 3)
+							requires automod;
+							         ^^^^^^^
+						Name of automatic module 'automod' is unstable, it is derived from the module's file name.
+						----------
+						""",
 					this.problemRequestor);
 
 			this.problemRequestor.initialize(srcX.toCharArray());
@@ -6432,21 +6893,23 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject javaProject = createJava9ProjectWithJREAttributes("mod1", new String[] {"src"}, attrs);
 
 			String srcMod =
-				"module mod1 {\n" +
-				"	exports com.mod1.pack1;\n" +
-				"	requires jdk.rmic;\n" +
-				"}";
+				"""
+				module mod1 {
+					exports com.mod1.pack1;
+					requires jdk.rmic;
+				}""";
 			createFile("/mod1/src/module-info.java",
 				srcMod);
 			createFolder("/mod1/src/com/mod1/pack1");
 			String srcX =
-				"package com.mod1.pack1;\n" +
-				"import sun.rmi.rmic.Main;\n" +
-				"public class Dummy {\n" +
-				"	String test() {\n" +
-				"		return Main.getString(\"in\");\n" +
-				"	}\n" +
-				"}";
+				"""
+				package com.mod1.pack1;
+				import sun.rmi.rmic.Main;
+				public class Dummy {
+					String test() {
+						return Main.getString("in");
+					}
+				}""";
 			createFile("/mod1/src/com/mod1/pack1/Dummy.java", srcX);
 
 			this.problemRequestor.initialize(srcMod.toCharArray());
@@ -6483,10 +6946,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			createJava9ProjectWithJREAttributes("mod1", new String[] {"src"}, attrs);
 
 			String srcMod1 =
-				"module mod1 {\n" +
-				"	exports com.mod1.pack1;\n" +
-				"	requires jdk.rmic;\n" +
-				"}";
+				"""
+				module mod1 {
+					exports com.mod1.pack1;
+					requires jdk.rmic;
+				}""";
 			createFile("/mod1/src/module-info.java",
 				srcMod1);
 			createFolder("/mod1/src/com/mod1/pack1");
@@ -6501,21 +6965,23 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			createJava9Project("mod2", new String[] {"src"});
 
 			String srcMod2 =
-				"module mod2 {\n" +
-				"	exports com.mod2.pack1;\n" +
-				"	requires jdk.rmic;\n" +
-				"}";
+				"""
+				module mod2 {
+					exports com.mod2.pack1;
+					requires jdk.rmic;
+				}""";
 			createFile("/mod2/src/module-info.java",
 				srcMod2);
 			createFolder("/mod2/src/com/mod2/pack1");
 			String srcX2 =
-				"package com.mod2.pack1;\n" +
-				"import sun.rmi.rmic.Main;\n" +
-				"public class Dummy {\n" +
-				"	String test() {\n" +
-				"		return Main.getString(\"in\");\n" +
-				"	}\n" +
-				"}";
+				"""
+				package com.mod2.pack1;
+				import sun.rmi.rmic.Main;
+				public class Dummy {
+					String test() {
+						return Main.getString("in");
+					}
+				}""";
 			createFile("/mod2/src/com/mod2/pack1/Dummy.java", srcX2);
 
 			// check first:
@@ -6530,17 +6996,19 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			this.problemRequestor.initialize(srcX2.toCharArray());
 			getWorkingCopy("/mod2/src/com/mod2/pack1/Dummy.java", srcX2, true);
 			assertProblems("Dummy in mod2 should have problems",
-					"----------\n" +
-					"1. ERROR in /mod2/src/com/mod2/pack1/Dummy.java (at line 2)\n" +
-					"	import sun.rmi.rmic.Main;\n" +
-					"	       ^^^^^^^^^^^^^^^^^\n" +
-					"The type sun.rmi.rmic.Main is not accessible\n" +
-					"----------\n" +
-					"2. ERROR in /mod2/src/com/mod2/pack1/Dummy.java (at line 5)\n" +
-					"	return Main.getString(\"in\");\n" +
-					"	       ^^^^\n" +
-					"Main cannot be resolved\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in /mod2/src/com/mod2/pack1/Dummy.java (at line 2)
+							import sun.rmi.rmic.Main;
+							       ^^^^^^^^^^^^^^^^^
+						The type sun.rmi.rmic.Main is not accessible
+						----------
+						2. ERROR in /mod2/src/com/mod2/pack1/Dummy.java (at line 5)
+							return Main.getString("in");
+							       ^^^^
+						Main cannot be resolved
+						----------
+						""",
 					this.problemRequestor);
 
 			// check both in a combined build
@@ -6562,45 +7030,51 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"import p.MyAbstractDriver;\n" +
-				"import p.MyAbstractDriverWithProvider;\n" +
-				"import p.MyDriverInf;\n" +
-				"import p.MyInfWithProvider;\n" +
-				"module test {\n" +
-				"	requires java.sql;\n" +
-				"	provides java.sql.Driver with MyDriverInf, MyAbstractDriver, MyInfWithProvider, MyAbstractDriverWithProvider;" +
-				"}",
+				"""
+					import p.MyAbstractDriver;
+					import p.MyAbstractDriverWithProvider;
+					import p.MyDriverInf;
+					import p.MyInfWithProvider;
+					module test {
+						requires java.sql;
+						provides java.sql.Driver with MyDriverInf, MyAbstractDriver, MyInfWithProvider, MyAbstractDriverWithProvider;\
+					}""",
 				"src/p/MyDriverInf.java",
 				"package p;\n" +
 				"public interface MyDriverInf extends java.sql.Driver { }",
 				"src/p/MyAbstractDriver.java",
-				"package p;\n" +
-				"public abstract class MyAbstractDriver {\n" +
-				"	public MyAbstractDriver() { }\n" +
-				"}",
+				"""
+					package p;
+					public abstract class MyAbstractDriver {
+						public MyAbstractDriver() { }
+					}""",
 				"src/p/MyInfWithProvider.java",
-				"package p;\n" +
-				"public interface MyInfWithProvider {\n" +
-				"	public static java.sql.Driver provider() {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					package p;
+					public interface MyInfWithProvider {
+						public static java.sql.Driver provider() {
+							return null;
+						}
+					}
+					""",
 				"src/p/MyAbstractDriverWithProvider.java",
-				"package p;\n" +
-				"public abstract class MyAbstractDriverWithProvider {\n" +
-				"	public static java.sql.Driver provider() {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"}"
+				"""
+					package p;
+					public abstract class MyAbstractDriverWithProvider {
+						public static java.sql.Driver provider() {
+							return null;
+						}
+					}"""
 			};
 			IJavaProject p1 = setupModuleProject("test", sources);
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			super.sortMarkers(markers);
 			assertMarkers("Unexpected markers",
-				"Invalid service implementation, the type p.MyAbstractDriver is abstract\n" +
-				"Invalid service implementation, the type p.MyDriverInf is abstract\n" +
-				"Type mismatch: cannot convert from MyAbstractDriver to Driver"
+				"""
+					Invalid service implementation, the type p.MyAbstractDriver is abstract
+					Invalid service implementation, the type p.MyDriverInf is abstract
+					Type mismatch: cannot convert from MyAbstractDriver to Driver"""
 				, markers);
 		} finally {
 			deleteProject("test");
@@ -6631,10 +7105,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				srcMod);
 			createFolder("/mod1/src/com/mod1/pack1");
 			String srcX =
-				"package com.mod1.pack1;\n" +
-				"import org.junit.Assert;\n" +
-				"public class Dummy extends Assert {\n" +
-				"}";
+				"""
+				package com.mod1.pack1;
+				import org.junit.Assert;
+				public class Dummy extends Assert {
+				}""";
 			createFile("/mod1/src/com/mod1/pack1/Dummy.java", srcX);
 
 			this.problemRequestor.initialize(srcMod.toCharArray());
@@ -6647,17 +7122,19 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			this.problemRequestor.initialize(srcX.toCharArray());
 			getWorkingCopy("/mod1/src/com/mod1/pack1/Dummy.java", srcX, true);
 			assertProblems("X should have errors because Assert should not be visible",
-					"----------\n" +
-					"1. ERROR in /mod1/src/com/mod1/pack1/Dummy.java (at line 2)\n" +
-					"	import org.junit.Assert;\n" +
-					"	       ^^^^^^^^^^^^^^^^\n" +
-					"The type org.junit.Assert is not accessible\n" +
-					"----------\n" +
-					"2. ERROR in /mod1/src/com/mod1/pack1/Dummy.java (at line 3)\n" +
-					"	public class Dummy extends Assert {\n" +
-					"	                           ^^^^^^\n" +
-					"Assert cannot be resolved to a type\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in /mod1/src/com/mod1/pack1/Dummy.java (at line 2)
+							import org.junit.Assert;
+							       ^^^^^^^^^^^^^^^^
+						The type org.junit.Assert is not accessible
+						----------
+						2. ERROR in /mod1/src/com/mod1/pack1/Dummy.java (at line 3)
+							public class Dummy extends Assert {
+							                           ^^^^^^
+						Assert cannot be resolved to a type
+						----------
+						""",
 					this.problemRequestor);
 
 			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -6697,15 +7174,19 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p1.setRawClasspath(rawClasspath, null);
 			createFolder("/mod.one/src/p1");
 			createFile("/mod.one/src/module-info.java",
-					"module mod.one {\n" +
-					"	exports p1;\n" +
-					"	requires java.desktop;\n" +
-					"}\n");
+					"""
+						module mod.one {
+							exports p1;
+							requires java.desktop;
+						}
+						""");
 			createFile("/mod.one/src/p1/X.java",
-					"package p1;\n" +
-							"public class X {\n"
-							+ "    java.awt.Image im = null;\n"
-							+ "}\n");
+					"""
+						package p1;
+						public class X {
+						    java.awt.Image im = null;
+						}
+						""");
 
 			waitForManualRefresh();
 			waitForAutoBuild();
@@ -6743,18 +7224,22 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p1.setRawClasspath(rawClasspath, null);
 			createFolder("/mod.one/src/p1");
 			createFile("/mod.one/src/module-info.java",
-					"module mod.one {\n" +
-					"	exports p1;\n" +
-					"	requires java.desktop;\n" +
-					"}\n");
+					"""
+						module mod.one {
+							exports p1;
+							requires java.desktop;
+						}
+						""");
 			createFile("/mod.one/src/p1/X.java",
-					"package p1;\n" +
-					"import java.awt.*;\n" +
-					"public abstract class X extends Image {\n" +
-					"	public Graphics foo() {\n" +
-					"		return getGraphics();\n" +
-					"	}\n"
-					+ "}\n");
+					"""
+						package p1;
+						import java.awt.*;
+						public abstract class X extends Image {
+							public Graphics foo() {
+								return getGraphics();
+							}
+						}
+						""");
 
 			waitForManualRefresh();
 			waitForAutoBuild();
@@ -6795,10 +7280,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p1.setRawClasspath(rawClasspath, null);
 			createFolder("/unnamed/src/p1");
 			createFile("/unnamed/src/p1/X.java",
-					"package p1;\n" +
-							"public class X {\n"
-							+ "    java.awt.Image im = null;\n"
-							+ "}\n");
+					"""
+						package p1;
+						public class X {
+						    java.awt.Image im = null;
+						}
+						""");
 
 			waitForManualRefresh();
 			waitForAutoBuild();
@@ -6833,14 +7320,17 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			createFolder("/Project1/src/p1");
 			createFolder("/Project1/src-tests/p1");
 			createFile("/Project1/src/module-info.java",
-					"module m1 {\n" +
-					"	exports p1;\n" +
-					"}");
+					"""
+						module m1 {
+							exports p1;
+						}""");
 			createFile("/Project1/src/p1/P1Class.java",
-					"package p1;\n" +
-					"\n" +
-					"public class P1Class {\n"+
-					"}\n"
+					"""
+						package p1;
+						
+						public class P1Class {
+						}
+						"""
 					);
 			createFile("/Project1/src/p1/Production1.java",
 					"package p1;\n" +
@@ -6854,10 +7344,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					""
 					);
 			createFile("/Project1/src-tests/p1/T1Class.java",
-					"package p1;\n" +
-					"\n" +
-					"public class T1Class {\n"+
-					"}\n"
+					"""
+						package p1;
+						
+						public class T1Class {
+						}
+						"""
 					);
 			createFile("/Project1/src-tests/p1/Test1.java",
 					"package p1;\n" +
@@ -6886,14 +7378,17 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			createFolder("/Project2/src/p2");
 			createFolder("/Project2/src-tests/p2");
 			createFile("/Project2/src/module-info.java",
-					"module m2 {\n" +
-					"	requires m1;\n" +
-					"}");
+					"""
+						module m2 {
+							requires m1;
+						}""");
 			createFile("/Project2/src/p2/P2Class.java",
-					"package p2;\n" +
-					"\n" +
-					"public class P2Class {\n"+
-					"}\n"
+					"""
+						package p2;
+						
+						public class P2Class {
+						}
+						"""
 					);
 			createFile("/Project2/src/p2/Production2.java",
 					"package p2;\n" +
@@ -6912,10 +7407,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					""
 					);
 			createFile("/Project2/src-tests/p2/T2Class.java",
-					"package p2;\n" +
-					"\n" +
-					"public class T2Class {\n"+
-					"}\n"
+					"""
+						package p2;
+						
+						public class T2Class {
+						}
+						"""
 					);
 			createFile("/Project2/src-tests/p2/Test2.java",
 					"package p2;\n" +
@@ -6943,9 +7440,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers2 = project2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers2);
 			assertMarkers("Unexpected markers",
-					"The import p1.T1Class cannot be resolved\n" +
-					"T1Class cannot be resolved to a type\n" +
-					"T2Class cannot be resolved to a type",
+					"""
+						The import p1.T1Class cannot be resolved
+						T1Class cannot be resolved to a type
+						T2Class cannot be resolved to a type""",
 					markers2);
 		} finally {
 			if (project1 != null)
@@ -6966,13 +7464,15 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			// (not a problem during IDE builds)
 			String[] sources = {
 				"javax/xml/bind/JAXBContext.java",
-				"package javax.xml.bind;\n" +
-				"public abstract class JAXBContext {\n" +
-				"	public static JAXBContext newInstance( String contextPath )\n" +
-				"		throws JAXBException {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					package javax.xml.bind;
+					public abstract class JAXBContext {
+						public static JAXBContext newInstance( String contextPath )
+							throws JAXBException {
+							return null;
+						}
+					}
+					""",
 				"javax/xml/bind/JAXBException.java",
 				"package javax.xml.bind;\n" +
 				"public class JAXBException extends Exception {}\n"
@@ -6984,17 +7484,19 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			createFolder("/Project1/src/p1");
 			createFile("/Project1/src/p1/ImportJAXBType.java",
-					"package p1;\n" +
-					"\n" +
-					"import javax.xml.bind.JAXBContext;\n" +
-					"\n" +
-					"public class ImportJAXBType {\n" +
-					"\n" +
-					"	public static void main(String[] args) throws Exception {\n" +
-					"		JAXBContext context = JAXBContext.newInstance(\"\");\n" +
-					"	}\n" +
-					"\n" +
-					"}\n"
+					"""
+						package p1;
+						
+						import javax.xml.bind.JAXBContext;
+						
+						public class ImportJAXBType {
+						
+							public static void main(String[] args) throws Exception {
+								JAXBContext context = JAXBContext.newInstance("");
+							}
+						
+						}
+						"""
 					);
 
 			project1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -7016,12 +7518,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			createFolder("/Bug527569/src/p1");
 			createFile("/Bug527569/src/p1/X.java",
-					"package p1;\n" +
-					"public class X {\n" +
-					"	public java.lang.MatchException getException() {\n" +
-					"		return null;\n" +
-					"	}\n" +
-					"}");
+					"""
+						package p1;
+						public class X {
+							public java.lang.MatchException getException() {
+								return null;
+							}
+						}""");
 
 			waitForManualRefresh();
 			waitForAutoBuild();
@@ -7038,12 +7541,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			createFolder("/Bug527569/src/p1");
 			createFile("/Bug527569/src/p1/X.java",
-					"package p1;\n" +
-					"public class X {\n" +
-					"	public java.lang.MatchException getException() {\n" +
-					"		return null;\n" +
-					"	}\n" +
-					"}");
+					"""
+						package p1;
+						public class X {
+							public java.lang.MatchException getException() {
+								return null;
+							}
+						}""");
 
 			waitForManualRefresh();
 			waitForAutoBuild();
@@ -7067,12 +7571,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			createFolder("/Bug527569/src/p1");
 			createFile("/Bug527569/src/p1/X.java",
-					"package p1;\n" +
-					"public class X {\n" +
-					"	public java.lang.MatchException getException() {\n" +
-					"		return null;\n" +
-					"	}\n" +
-					"}");
+					"""
+						package p1;
+						public class X {
+							public java.lang.MatchException getException() {
+								return null;
+							}
+						}""");
 
 			waitForManualRefresh();
 			waitForAutoBuild();
@@ -7091,12 +7596,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			createFolder("/Bug527569/src/p1");
 			createFile("/Bug527569/src/p1/X.java",
-					"package p1;\n" +
-					"public class X {\n" +
-					"	public java.lang.Compiler getCompiler() {\n" +
-					"		return null;\n" +
-					"	}\n" +
-					"}");
+					"""
+						package p1;
+						public class X {
+							public java.lang.Compiler getCompiler() {
+								return null;
+							}
+						}""");
 
 			waitForManualRefresh();
 			waitForAutoBuild();
@@ -7120,12 +7626,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			createFolder("/Bug527569/src/p1");
 			createFile("/Bug527569/src/p1/X.java",
-					"package p1;\n" +
-					"public class X {\n" +
-					"	public java.lang.Compiler getCompiler() {\n" +
-					"		return null;\n" +
-					"	}\n" +
-					"}");
+					"""
+						package p1;
+						public class X {
+							public java.lang.Compiler getCompiler() {
+								return null;
+							}
+						}""");
 
 			waitForManualRefresh();
 			waitForAutoBuild();
@@ -7159,10 +7666,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			Util.createJar(
 					new String[] {
 						"test/src/org/astro/World.java", //$NON-NLS-1$
-						"package org.astro;\n" +
-						"public interface World {\n" +
-						"	public String name();\n" +
-						"}",
+						"""
+							package org.astro;
+							public interface World {
+								public String name();
+							}""",
 					},
 					null,
 					new HashMap<>(),
@@ -7170,18 +7678,20 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					getExternalResourcePath(libPath));
 			String[] src = new String[] {
 					"src/module-info.java",
-					"module com.greetings {\n" +
-					"	requires transitive test;\n" +
-					"	exports com.greetings;\n" +
-					"}",
+					"""
+						module com.greetings {
+							requires transitive test;
+							exports com.greetings;
+						}""",
 					"src/com/greetings/MyWorld.java",
-					"package com.greetings;\n" +
-					"import org.astro.World;\n"	+
-					"public class MyWorld {\n" +
-					"	public World name() {\n" +
-					"		return null;\n" +
-					"	}\n" +
-					"}"
+					"""
+						package com.greetings;
+						import org.astro.World;
+						public class MyWorld {
+							public World name() {
+								return null;
+							}
+						}"""
 			};
 			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
 			IClasspathEntry dep = JavaCore.newLibraryEntry(new Path(getExternalResourcePath(libPath)), null, null, ClasspathEntry.NO_ACCESS_RULES,
@@ -7259,9 +7769,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] src = new String[] {
 					"src/test/Test.java",
-					"package test;\n" +
-					"public class Test {\n" +
-					"}"
+					"""
+						package test;
+						public class Test {
+						}"""
 			};
 			IJavaProject p2 = setupModuleProject("Bug540904", src, new IClasspathEntry[] {  });
 			IFile file = getFile("/Bug540904/link.jar");
@@ -7281,10 +7792,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			createSourceFiles(common,
 					new String[] {
 						"src/main/java/module-info.java",
-						"module org.sheepy.common {\n" +
-						"	requires transitive org.eclipse.emf.common;\n" +
-						"	requires transitive org.eclipse.emf.ecore;\n" +
-						"}\n"
+						"""
+							module org.sheepy.common {
+								requires transitive org.eclipse.emf.common;
+								requires transitive org.eclipse.emf.ecore;
+							}
+							"""
 					});
 			IFolder libs = createFolder("/Bug540788.common/libs");
 			String emfCommonLocation = libs.getLocation()+"/org.eclipse.emf.common.jar";
@@ -7292,9 +7805,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			Util.createJar(
 					new String[] {
 							"src/org/eclipse/emf/common/Foo.java",
-							"package org.eclipse.emf.common;\n" +
-							"public interface Foo {\n" +
-							"}",
+							"""
+								package org.eclipse.emf.common;
+								public interface Foo {
+								}""",
 					},
 					null,
 					new HashMap<>(),
@@ -7307,9 +7821,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			Util.createJar(
 					new String[] {
 						"src/org/eclipse/emf/ecore/EObject.java",
-						"package org.eclipse.emf.ecore;\n" +
-						"public interface EObject {\n" +
-						"}",
+						"""
+							package org.eclipse.emf.ecore;
+							public interface EObject {
+							}""",
 					},
 					null,
 					new HashMap<>(),
@@ -7321,19 +7836,25 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			createSourceFiles(vulkan,
 					new String[] {
 						"src/main/java/module-info.java",
-						"module org.sheepy.vulkan {\n" +
-						"	requires transitive org.sheepy.common;\n" +
-						"	exports org.sheepy.vulkan.model.resource;\n" +
-						"}\n",
+						"""
+							module org.sheepy.vulkan {
+								requires transitive org.sheepy.common;
+								exports org.sheepy.vulkan.model.resource;
+							}
+							""",
 						"src/main/java/org/sheepy/vulkan/model/resource/Resource.java",
-						"package org.sheepy.vulkan.model.resource;\n" +
-						"import org.eclipse.emf.ecore.EObject;\n" +
-						"public interface Resource extends EObject {\n" +
-						"}\n",
+						"""
+							package org.sheepy.vulkan.model.resource;
+							import org.eclipse.emf.ecore.EObject;
+							public interface Resource extends EObject {
+							}
+							""",
 						"src/main/java/org/sheepy/vulkan/model/resource/VulkanBuffer.java",
-						"package org.sheepy.vulkan.model.resource;\n" +
-						"public interface VulkanBuffer extends Resource {\n" +
-						"}\n",
+						"""
+							package org.sheepy.vulkan.model.resource;
+							public interface VulkanBuffer extends Resource {
+							}
+							""",
 					});
 			addModularProjectEntry(vulkan, common);
 			addModularLibraryEntry(vulkan, emfCommonPath, null);
@@ -7343,15 +7864,19 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			createSourceFiles(vulkan_demo,
 					new String[] {
 						"src/main/java/module-info.java",
-						"module org.sheepy.vulkan.demo {\n" +
-						"	exports org.sheepy.vulkan.demo.model;\n" +
-						"	requires org.sheepy.vulkan;\n" +
-						"}\n",
+						"""
+							module org.sheepy.vulkan.demo {
+								exports org.sheepy.vulkan.demo.model;
+								requires org.sheepy.vulkan;
+							}
+							""",
 						"src/main/java/org/sheepy/vulkan/demo/model/UniformBuffer.java",
-						"package org.sheepy.vulkan.demo.model;\n" +
-						"import org.sheepy.vulkan.model.resource.VulkanBuffer;\n" +
-						"public interface UniformBuffer extends VulkanBuffer {\n" +
-						"}\n",
+						"""
+							package org.sheepy.vulkan.demo.model;
+							import org.sheepy.vulkan.model.resource.VulkanBuffer;
+							public interface UniformBuffer extends VulkanBuffer {
+							}
+							""",
 					});
 			addModularProjectEntry(vulkan_demo, vulkan);
 			addModularProjectEntry(vulkan_demo, common);
@@ -7397,11 +7922,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 						"public class T1 {}\n"
 					});
 			IJavaProject unnamed = createJava9Project("unnamed", new String[] { "src" });
-			String testSource = "package test;\n" +
-			"import org.p1.T1;\n" +
-			"public class Test {\n" +
-			"	T1 t1;\n" +
-			"}\n";
+			String testSource = """
+				package test;
+				import org.p1.T1;
+				public class Test {
+					T1 t1;
+				}
+				""";
 			createSourceFiles(unnamed,
 					new String[] {
 						"src/test/Test.java",
@@ -7424,17 +7951,19 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			getCompilationUnit("/unnamed/src/test/Test.java").getWorkingCopy(this.wcOwner, null);
 			assertProblems(
 					"Unexpected problems",
-					"----------\n" +
-					"1. ERROR in /unnamed/src/test/Test.java (at line 2)\n" +
-					"	import org.p1.T1;\n" +
-					"	       ^^^^^^\n" +
-					"The package org.p1 is accessible from more than one module: m1, m2, m3\n" +
-					"----------\n" +
-					"2. ERROR in /unnamed/src/test/Test.java (at line 4)\n" +
-					"	T1 t1;\n" +
-					"	^^\n" +
-					"T1 cannot be resolved to a type\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in /unnamed/src/test/Test.java (at line 2)
+							import org.p1.T1;
+							       ^^^^^^
+						The package org.p1 is accessible from more than one module: m1, m2, m3
+						----------
+						2. ERROR in /unnamed/src/test/Test.java (at line 4)
+							T1 t1;
+							^^
+						T1 cannot be resolved to a type
+						----------
+						""",
 					this.problemRequestor);
 		} finally {
 			deleteProject("m1");
@@ -7462,31 +7991,36 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			addClasspathEntry(project, libraryEntry, 1); // right after src and before jrt-fs.jar
 
 			String testSource =
-					"package com.ztest;\n" +
-					"import javax.xml.transform.Transformer;\n" +
-					"\n" +
-					"public class TestApp {\n" +
-					"	Transformer ts;\n" +
-					"	javax.xml.transform.Result result;\n" +
-					"}\n";
+					"""
+				package com.ztest;
+				import javax.xml.transform.Transformer;
+				
+				public class TestApp {
+					Transformer ts;
+					javax.xml.transform.Result result;
+				}
+				""";
 			createFolder("/ztest/src/com/ztest");
 			createFile("/ztest/src/com/ztest/TestApp.java", testSource);
 			String test2Source =
-					"package com.ztest;\n" +
-					"import javax.xml.transform.*;\n" +
-					"public class Test2 {\n" +
-					"	Transformer ts;\n" +
-					"}\n";
+					"""
+				package com.ztest;
+				import javax.xml.transform.*;
+				public class Test2 {
+					Transformer ts;
+				}
+				""";
 			createFile("/ztest/src/com/ztest/Test2.java", test2Source);
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected Markers",
-					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" +
-					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" +
-					"Transformer cannot be resolved to a type\n" +
-					"Transformer cannot be resolved to a type\n" +
-					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml",
+					"""
+						The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml
+						The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml
+						Transformer cannot be resolved to a type
+						Transformer cannot be resolved to a type
+						The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml""",
 					markers);
 
 			char[] sourceChars = testSource.toCharArray();
@@ -7494,22 +8028,24 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			getCompilationUnit("/ztest/src/com/ztest/TestApp.java").getWorkingCopy(this.wcOwner, null);
 			assertProblems(
 					"Unexpected problems",
-					"----------\n" +
-					"1. ERROR in /ztest/src/com/ztest/TestApp.java (at line 2)\n" +
-					"	import javax.xml.transform.Transformer;\n" +
-					"	       ^^^^^^^^^^^^^^^^^^^\n" +
-					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" +
-					"----------\n" +
-					"2. ERROR in /ztest/src/com/ztest/TestApp.java (at line 5)\n" +
-					"	Transformer ts;\n" +
-					"	^^^^^^^^^^^\n" +
-					"Transformer cannot be resolved to a type\n" +
-					"----------\n" +
-					"3. ERROR in /ztest/src/com/ztest/TestApp.java (at line 6)\n" +
-					"	javax.xml.transform.Result result;\n" +
-					"	^^^^^^^^^^^^^^^^^^^\n" +
-					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in /ztest/src/com/ztest/TestApp.java (at line 2)
+							import javax.xml.transform.Transformer;
+							       ^^^^^^^^^^^^^^^^^^^
+						The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml
+						----------
+						2. ERROR in /ztest/src/com/ztest/TestApp.java (at line 5)
+							Transformer ts;
+							^^^^^^^^^^^
+						Transformer cannot be resolved to a type
+						----------
+						3. ERROR in /ztest/src/com/ztest/TestApp.java (at line 6)
+							javax.xml.transform.Result result;
+							^^^^^^^^^^^^^^^^^^^
+						The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml
+						----------
+						""",
 					this.problemRequestor);
 
 			sourceChars = test2Source.toCharArray();
@@ -7517,17 +8053,19 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			getCompilationUnit("/ztest/src/com/ztest/Test2.java").getWorkingCopy(this.wcOwner, null);
 			assertProblems(
 					"Unexpected problems",
-					"----------\n" +
-					"1. ERROR in /ztest/src/com/ztest/Test2.java (at line 2)\n" +
-					"	import javax.xml.transform.*;\n" +
-					"	       ^^^^^^^^^^^^^^^^^^^\n" +
-					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" +
-					"----------\n" +
-					"2. ERROR in /ztest/src/com/ztest/Test2.java (at line 4)\n" +
-					"	Transformer ts;\n" +
-					"	^^^^^^^^^^^\n" +
-					"Transformer cannot be resolved to a type\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in /ztest/src/com/ztest/Test2.java (at line 2)
+							import javax.xml.transform.*;
+							       ^^^^^^^^^^^^^^^^^^^
+						The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml
+						----------
+						2. ERROR in /ztest/src/com/ztest/Test2.java (at line 4)
+							Transformer ts;
+							^^^^^^^^^^^
+						Transformer cannot be resolved to a type
+						----------
+						""",
 					this.problemRequestor);
 		} finally {
 			deleteProject("ztest");
@@ -7552,31 +8090,36 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			addClasspathEntry(project, libraryEntry, 2); // DIFFERENCE HERE: place xml-apis.jar AFTER jrt-fs.jar
 
 			String testSource =
-					"package com.ztest;\n" +
-					"import javax.xml.transform.Transformer;\n" +
-					"\n" +
-					"public class TestApp {\n" +
-					"	Transformer ts;\n" +
-					"	javax.xml.transform.Result result;\n" +
-					"}\n";
+					"""
+				package com.ztest;
+				import javax.xml.transform.Transformer;
+				
+				public class TestApp {
+					Transformer ts;
+					javax.xml.transform.Result result;
+				}
+				""";
 			createFolder("/ztest/src/com/ztest");
 			createFile("/ztest/src/com/ztest/TestApp.java", testSource);
 			String test2Source =
-					"package com.ztest;\n" +
-					"import javax.xml.transform.*;\n" +
-					"public class Test2 {\n" +
-					"	Transformer ts;\n" +
-					"}\n";
+					"""
+				package com.ztest;
+				import javax.xml.transform.*;
+				public class Test2 {
+					Transformer ts;
+				}
+				""";
 			createFile("/ztest/src/com/ztest/Test2.java", test2Source);
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected Markers",
-					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" +
-					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" +
-					"Transformer cannot be resolved to a type\n" +
-					"Transformer cannot be resolved to a type\n" +
-					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml",
+					"""
+						The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml
+						The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml
+						Transformer cannot be resolved to a type
+						Transformer cannot be resolved to a type
+						The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml""",
 					markers);
 
 			char[] sourceChars = testSource.toCharArray();
@@ -7584,22 +8127,24 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			getCompilationUnit("/ztest/src/com/ztest/TestApp.java").getWorkingCopy(this.wcOwner, null);
 			assertProblems(
 					"Unexpected problems",
-					"----------\n" +
-					"1. ERROR in /ztest/src/com/ztest/TestApp.java (at line 2)\n" +
-					"	import javax.xml.transform.Transformer;\n" +
-					"	       ^^^^^^^^^^^^^^^^^^^\n" +
-					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" +
-					"----------\n" +
-					"2. ERROR in /ztest/src/com/ztest/TestApp.java (at line 5)\n" +
-					"	Transformer ts;\n" +
-					"	^^^^^^^^^^^\n" +
-					"Transformer cannot be resolved to a type\n" +
-					"----------\n" +
-					"3. ERROR in /ztest/src/com/ztest/TestApp.java (at line 6)\n" +
-					"	javax.xml.transform.Result result;\n" +
-					"	^^^^^^^^^^^^^^^^^^^\n" +
-					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in /ztest/src/com/ztest/TestApp.java (at line 2)
+							import javax.xml.transform.Transformer;
+							       ^^^^^^^^^^^^^^^^^^^
+						The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml
+						----------
+						2. ERROR in /ztest/src/com/ztest/TestApp.java (at line 5)
+							Transformer ts;
+							^^^^^^^^^^^
+						Transformer cannot be resolved to a type
+						----------
+						3. ERROR in /ztest/src/com/ztest/TestApp.java (at line 6)
+							javax.xml.transform.Result result;
+							^^^^^^^^^^^^^^^^^^^
+						The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml
+						----------
+						""",
 					this.problemRequestor);
 
 			sourceChars = test2Source.toCharArray();
@@ -7607,17 +8152,19 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			getCompilationUnit("/ztest/src/com/ztest/Test2.java").getWorkingCopy(this.wcOwner, null);
 			assertProblems(
 					"Unexpected problems",
-					"----------\n" +
-					"1. ERROR in /ztest/src/com/ztest/Test2.java (at line 2)\n" +
-					"	import javax.xml.transform.*;\n" +
-					"	       ^^^^^^^^^^^^^^^^^^^\n" +
-					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" +
-					"----------\n" +
-					"2. ERROR in /ztest/src/com/ztest/Test2.java (at line 4)\n" +
-					"	Transformer ts;\n" +
-					"	^^^^^^^^^^^\n" +
-					"Transformer cannot be resolved to a type\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in /ztest/src/com/ztest/Test2.java (at line 2)
+							import javax.xml.transform.*;
+							       ^^^^^^^^^^^^^^^^^^^
+						The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml
+						----------
+						2. ERROR in /ztest/src/com/ztest/Test2.java (at line 4)
+							Transformer ts;
+							^^^^^^^^^^^
+						Transformer cannot be resolved to a type
+						----------
+						""",
 					this.problemRequestor);
 		} finally {
 			deleteProject("ztest");
@@ -7645,21 +8192,25 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			addClasspathEntry(project, libraryEntry, 1); // right after src and before jrt-fs.jar
 
 			String testSource =
-					"package com.ztest;\n" +
-					"import javax.xml.transform.Transformer;\n" +
-					"\n" +
-					"public class TestApp {\n" +
-					"	Transformer ts;\n" +
-					"	javax.xml.transform.Result result;\n" +
-					"}\n";
+					"""
+				package com.ztest;
+				import javax.xml.transform.Transformer;
+				
+				public class TestApp {
+					Transformer ts;
+					javax.xml.transform.Result result;
+				}
+				""";
 			createFolder("/ztest/src/com/ztest");
 			createFile("/ztest/src/com/ztest/TestApp.java", testSource);
 			String test2Source =
-					"package com.ztest;\n" +
-					"import javax.xml.transform.*;\n" +
-					"public class Test2 {\n" +
-					"	Transformer ts;\n" +
-					"}\n";
+					"""
+				package com.ztest;
+				import javax.xml.transform.*;
+				public class Test2 {
+					Transformer ts;
+				}
+				""";
 			createFile("/ztest/src/com/ztest/Test2.java", test2Source);
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			assertNoErrors();
@@ -7689,36 +8240,42 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			createFolder("/bug/src/test/platform");
 			createFile("/bug/src/test/platform/Context.java",
-					"package test.platform;\n" +
-					"\n" +
-					"import java.net.URI;\n" +
-					"\n" +
-					"public interface Context {\n" +
-					"	public URI getURI();\n" +
-					"}\n");
+					"""
+						package test.platform;
+						
+						import java.net.URI;
+						
+						public interface Context {
+							public URI getURI();
+						}
+						""");
 			createFile("/bug/src/test/platform/AbstractContext.java",
-					"package test.platform;\n" +
-					"\n" +
-					"import java.net.URI;\n" +
-					"import java.util.*;\n" +
-					"import test.*;\n" +
-					"\n" +
-					"public abstract class AbstractContext implements Context {\n" +
-					"	Iterable<URI> uris = new ArrayList<URI>();\n" +
-					"	Application application;\n" +
-					"}\n");
+					"""
+						package test.platform;
+						
+						import java.net.URI;
+						import java.util.*;
+						import test.*;
+						
+						public abstract class AbstractContext implements Context {
+							Iterable<URI> uris = new ArrayList<URI>();
+							Application application;
+						}
+						""");
 			String testSource =
-					"package test;\n" +
-					"\n" +
-					"import java.io.*;\n" +
-					"import java.net.*;\n" +
-					"import java.util.*;\n" +
-					"\n" +
-					"import test.platform.*;\n" +
-					"\n" +
-					"public interface Application // extends Foo\n" +
-					"{\n" +
-					"}\n";
+					"""
+				package test;
+				
+				import java.io.*;
+				import java.net.*;
+				import java.util.*;
+				
+				import test.platform.*;
+				
+				public interface Application // extends Foo
+				{
+				}
+				""";
 			String testPath = "/bug/src/test/Application.java";
 			createFile(testPath, testSource);
 			// first compile: no error:
@@ -7729,41 +8286,45 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			getCompilationUnit(testPath).getWorkingCopy(this.wcOwner, null);
 			assertProblems(
 					"Unexpected problems",
-					"----------\n" +
-					"1. WARNING in /bug/src/test/Application.java (at line 3)\n" +
-					"	import java.io.*;\n" +
-					"	       ^^^^^^^\n" +
-					"The import java.io is never used\n" +
-					"----------\n" +
-					"2. WARNING in /bug/src/test/Application.java (at line 4)\n" +
-					"	import java.net.*;\n" +
-					"	       ^^^^^^^^\n" +
-					"The import java.net is never used\n" +
-					"----------\n" +
-					"3. WARNING in /bug/src/test/Application.java (at line 5)\n" +
-					"	import java.util.*;\n" +
-					"	       ^^^^^^^^^\n" +
-					"The import java.util is never used\n" +
-					"----------\n" +
-					"4. WARNING in /bug/src/test/Application.java (at line 7)\n" +
-					"	import test.platform.*;\n" +
-					"	       ^^^^^^^^^^^^^\n" +
-					"The import test.platform is never used\n" +
-					"----------\n",
+					"""
+						----------
+						1. WARNING in /bug/src/test/Application.java (at line 3)
+							import java.io.*;
+							       ^^^^^^^
+						The import java.io is never used
+						----------
+						2. WARNING in /bug/src/test/Application.java (at line 4)
+							import java.net.*;
+							       ^^^^^^^^
+						The import java.net is never used
+						----------
+						3. WARNING in /bug/src/test/Application.java (at line 5)
+							import java.util.*;
+							       ^^^^^^^^^
+						The import java.util is never used
+						----------
+						4. WARNING in /bug/src/test/Application.java (at line 7)
+							import test.platform.*;
+							       ^^^^^^^^^^^^^
+						The import test.platform is never used
+						----------
+						""",
 					this.problemRequestor);
 			// introduce error:
 			String testSourceEdited =
-					"package test;\n" +
-					"\n" +
-					"import java.io.*;\n" +
-					"import java.net.*;\n" +
-					"import java.util.*;\n" +
-					"\n" +
-					"import test.platform.*;\n" +
-					"\n" +
-					"public interface Application extends Foo\n" +
-					"{\n" +
-					"}\n";
+					"""
+				package test;
+				
+				import java.io.*;
+				import java.net.*;
+				import java.util.*;
+				
+				import test.platform.*;
+				
+				public interface Application extends Foo
+				{
+				}
+				""";
 			editFile(testPath, testSourceEdited);
 			java10Project.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 			IMarker[] markers = java10Project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -7786,9 +8347,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		IJavaProject current = createJava9Project("current");
 		try {
 			createFile("other/src/module-info.java",
-					"module other {\n" +
-					"	exports other.p;\n" +
-					"}\n");
+					"""
+						module other {
+							exports other.p;
+						}
+						""");
 			createFolder("other/src/other/p");
 			createFile("other/src/other/p/C.java",
 					"package other.p;\n" +
@@ -7801,17 +8364,21 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			String test1path = "current/src/current/Test1.java";
 			String test1source =
-					"package current;\n" +
-					"import other.p.C;\n" +
-					"public class Test1 {\n" +
-					"}\n";
+					"""
+				package current;
+				import other.p.C;
+				public class Test1 {
+				}
+				""";
 			createFile(test1path, test1source);
 			String test2path = "current/src/current/Test2.java";
 			String test2source =
-					"package current;\n" +
-					"public class Test2 {\n" +
-					"	other.p.C c;\n" +
-					"}\n";
+					"""
+				package current;
+				public class Test2 {
+					other.p.C c;
+				}
+				""";
 			createFile(test2path, test2source);
 
 			getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
@@ -7826,23 +8393,27 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			this.problemRequestor.initialize(sourceChars);
 			getCompilationUnit(test1path).getWorkingCopy(this.wcOwner, null);
 			assertProblems("unexpected problems",
-					"----------\n" +
-					"1. ERROR in /current/src/current/Test1.java (at line 2)\n" +
-					"	import other.p.C;\n" +
-					"	       ^^^^^^^^^\n" +
-					"The type other.p.C is not accessible\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in /current/src/current/Test1.java (at line 2)
+							import other.p.C;
+							       ^^^^^^^^^
+						The type other.p.C is not accessible
+						----------
+						""",
 					this.problemRequestor);
 			sourceChars = test2source.toCharArray();
 			this.problemRequestor.initialize(sourceChars);
 			getCompilationUnit(test2path).getWorkingCopy(this.wcOwner, null);
 			assertProblems("unexpected problems",
-					"----------\n" +
-					"1. ERROR in /current/src/current/Test2.java (at line 3)\n" +
-					"	other.p.C c;\n" +
-					"	^^^^^^^^^\n" +
-					"The type other.p.C is not accessible\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in /current/src/current/Test2.java (at line 3)
+							other.p.C c;
+							^^^^^^^^^
+						The type other.p.C is not accessible
+						----------
+						""",
 					this.problemRequestor);
 		} finally {
 			deleteProject(other);
@@ -7857,19 +8428,25 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			createFolder("m.a/src/a/foo");
 			createFile("m.a/src/a/foo/Bar.java", "package a.foo;\n public class Bar {}\n");
 			createFile("m.a/src/module-info.java",
-					"module m.a {\n" +
-					"	exports a.foo to m.b;\n" +
-					"}\n");
+					"""
+						module m.a {
+							exports a.foo to m.b;
+						}
+						""");
 			createFile("m.b/src/module-info.java",
-					"module m.b {\n" +
-					"	requires m.a;\n" +
-					"	exports b;\n" +
-					"}\n");
+					"""
+						module m.b {
+							requires m.a;
+							exports b;
+						}
+						""");
 			createFolder("m.b/src/b");
 			createFile("m.b/src/b/Boo.java",
-					"package b;\n" +
-					"import a.foo.Bar;\n" +
-					"public class Boo extends Bar {}\n");
+					"""
+						package b;
+						import a.foo.Bar;
+						public class Boo extends Bar {}
+						""");
 			addModularProjectEntry(pb, pa);
 
 			IClasspathAttribute[] forceExport = {
@@ -7880,11 +8457,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			addModularProjectEntry(test, pb);
 
 			String testSource =
-					"import a.foo.Bar;\n" +
-					"import b.Boo;\n" +
-					"public class Test {\n" +
-					"	Bar b = new Boo();\n" +
-					"}\n";
+					"""
+				import a.foo.Bar;
+				import b.Boo;
+				public class Test {
+					Bar b = new Boo();
+				}
+				""";
 			String testPath = "test/src/Test.java";
 			createFile(testPath, testSource);
 			getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
@@ -7912,14 +8491,18 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			createFolder("pj1/src/p");
 			createFile("pj1/src/p/Missing.java",
-					"package p;\n" +
-					"public class Missing {\n" +
-					"	public void miss() {}\n" +
-					"}\n");
+					"""
+						package p;
+						public class Missing {
+							public void miss() {}
+						}
+						""");
 			createFile("pj1/src/module-info.java",
-					"module pj1 {\n" +
-					"	exports p;\n" +
-					"}\n");
+					"""
+						module pj1 {
+							exports p;
+						}
+						""");
 
 			createFolder("pj2/src/q");
 			createFile("pj2/src/q/API.java",
@@ -7929,10 +8512,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"package q;\n" +
 					"public class API2 extends API {}\n");
 			createFile("pj2/src/module-info.java",
-					"module pj2 {\n" +
-					"	requires pj1;\n" +
-					"	exports q;\n" +
-					"}\n");
+					"""
+						module pj2 {
+							requires pj1;
+							exports q;
+						}
+						""");
 			getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 
 			deleteFile("pj1/bin/p/Missing.class");
@@ -7942,18 +8527,22 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			createFile("ptest/src/p/r/P.java", "package p.r;\n public class P {}\n");
 			createFolder("ptest/src/t");
 			createFile("ptest/src/t/Test1.java",
-					"package t;\n" +
-					"import q.API2;\n" +
-					"public class Test1 {\n" +
-					"	void m(API2 a) {\n" +
-					"		a.miss();\n" +
-					"	}\n" +
-					"}\n");
+					"""
+						package t;
+						import q.API2;
+						public class Test1 {
+							void m(API2 a) {
+								a.miss();
+							}
+						}
+						""");
 			String test2Path = "ptest/src/t/Test2.java";
 			String test2Content =
-					"package t;\n" +
-					"import p.Missing;\n" +
-					"public class Test2 {}\n";
+					"""
+				package t;
+				import p.Missing;
+				public class Test2 {}
+				""";
 			createFile(test2Path, test2Content);
 			ptest.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 			IMarker[] markers = ptest.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -7966,12 +8555,14 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			this.problemRequestor.initialize(test2Content.toCharArray());
 			getCompilationUnit(test2Path).getWorkingCopy(this.wcOwner, null);
 			assertProblems("unexpected problems",
-					"----------\n" +
-					"1. ERROR in /ptest/src/t/Test2.java (at line 2)\n" +
-					"	import p.Missing;\n" +
-					"	       ^^^^^^^^^\n" +
-					"The import p.Missing cannot be resolved\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in /ptest/src/t/Test2.java (at line 2)
+							import p.Missing;
+							       ^^^^^^^^^
+						The import p.Missing cannot be resolved
+						----------
+						""",
 					this.problemRequestor);
 		} finally {
 			deleteProject(pj1);
@@ -8008,13 +8599,15 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			createFolder("p/src/pp");
 			String testPath = "p/src/pp/Test.java";
 			String testSource =
-					"package pp;\n" +
-					"import p2.C2;\n" +
-					"public class Test {\n" +
-					"	void test(C2 c2) {\n" +
-					"		c2.m(Integer.valueOf(1));\n" +
-					"	}\n" +
-					"}\n";
+					"""
+				package pp;
+				import p2.C2;
+				public class Test {
+					void test(C2 c2) {
+						c2.m(Integer.valueOf(1));
+					}
+				}
+				""";
 			createFile(testPath, testSource);
 
 			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
@@ -8069,11 +8662,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"}\n");
 			createFolder("p/src/pkg");
 			createFile("p/src/pkg/Test.java",
-					"package pkg;\n" +
-					"import p2.C2;\n" +
-					"public class Test {\n" +
-					"	void test(C2 c) {}\n" +
-					"}\n");
+					"""
+						package pkg;
+						import p2.C2;
+						public class Test {
+							void test(C2 c) {}
+						}
+						""");
 
 			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 			assertNoErrors();
@@ -8099,57 +8694,71 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IPath wJarPath = new Path(wJarLocation);
 			Util.createJar(new String[] {
 						"external/W.java",
-						"public class W {\n" +
-						"	public static void main(String... args) {}\n" +
-						"}\n"
+						"""
+							public class W {
+								public static void main(String... args) {}
+							}
+							"""
 					}, wJarLocation, "9");
 
 			// ------ X ------
 			addModularLibraryEntry(x, wJarPath, null);
 			createFolder("X/src/com/example/x");
 			createFile("X/src/com/example/x/X.java",
-					"package com.example.x;\n" +
-					"public class X {\n" +
-					"    public static void main(String[] args) { \n" +
-					"        System.out.println(\"X\");\n" +
-					"    }\n" +
-					"}\n");
+					"""
+						package com.example.x;
+						public class X {
+						    public static void main(String[] args) {\s
+						        System.out.println("X");
+						    }
+						}
+						""");
 			createFile("X/src/module-info.java",
-					"open module com.example.x {\n" +
-					"    exports com.example.x;\n" +
-					"    requires w;\n" +
-					"}\n");
+					"""
+						open module com.example.x {
+						    exports com.example.x;
+						    requires w;
+						}
+						""");
 
 			// ------ Y ------
 			addModularLibraryEntry(y, wJarPath, null);
 			addModularProjectEntry(y, x);
 			createFolder("Y/src/com/example/y");
 			createFile("Y/src/com/example/y/Y.java",
-					"package com.example.y;\n" +
-					"public class Y {\n" +
-					"    public static void main(String[] args) { \n" +
-					"        System.out.println(\"Y\");\n" +
-					"    }\n" +
-					"}\n");
+					"""
+						package com.example.y;
+						public class Y {
+						    public static void main(String[] args) {\s
+						        System.out.println("Y");
+						    }
+						}
+						""");
 			createFile("Y/src/module-info.java",
-					"open module com.example.y {\n" +
-					"    exports com.example.y;\n" +
-					"    requires com.example.x;\n" +
-					"}\n");
+					"""
+						open module com.example.y {
+						    exports com.example.y;
+						    requires com.example.x;
+						}
+						""");
 
 			// ------ N ------
 			createFolder("N/src/com/example/n");
 			createFile("N/src/com/example/n/N.java",
-					"package com.example.n;\n" +
-					"public class N {\n" +
-					"    public static void main(String[] args) { \n" +
-					"        System.out.println(\"N\");\n" +
-					"    } \n" +
-					"}\n");
+					"""
+						package com.example.n;
+						public class N {
+						    public static void main(String[] args) {\s
+						        System.out.println("N");
+						    }\s
+						}
+						""");
 			createFile("N/src/module-info.java",
-					"open module n {\n" +
-					"    exports com.example.n;\n" +
-					"}\n");
+					"""
+						open module n {
+						    exports com.example.n;
+						}
+						""");
 
 			// ------ M ------
 			// insert new entries before JRE:
@@ -8165,21 +8774,25 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			createFolder("M/src/m");
 			String mSource =
-					"package m;\n" +
-					"import com.example.n.N;\n" +
-					"public class M {\n" +
-					"    public static void main(String[] args) {\n" +
-					"        System.out.println(\"M\");\n" +
-					"        N.main(null);\n" +
-					"    }\n" +
-					"}\n";
+					"""
+				package m;
+				import com.example.n.N;
+				public class M {
+				    public static void main(String[] args) {
+				        System.out.println("M");
+				        N.main(null);
+				    }
+				}
+				""";
 			String mPath = "M/src/m/M.java";
 			createFile(mPath, mSource);
 			createFile("M/src/module-info.java",
-					"open module m {\n" +
-					"    requires n;\n" +
-					"    requires w;\n" +
-					"}\n");
+					"""
+						open module m {
+						    requires n;
+						    requires w;
+						}
+						""");
 
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			assertNoErrors();
@@ -8229,19 +8842,23 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			createFolder("p/src/test");
 			String testPath = "p/src/test/Test.java";
 			String testSource =
-					"package test;\n" +
-					"import org.test.Root;\n" +
-					"public class Test {\n" +
-					"    public static void main(String[] args) { \n" +
-					"        System.out.println(new Root());\n" +
-					"    }\n" +
-					"}\n";
+					"""
+				package test;
+				import org.test.Root;
+				public class Test {
+				    public static void main(String[] args) {\s
+				        System.out.println(new Root());
+				    }
+				}
+				""";
 			createFile(testPath, testSource);
 			createFile("p/src/module-info.java",
-					"module test {\n" +
-					"    requires auto1Lib;\n" +
-					"    requires auto2Lib;\n" +
-					"}\n");
+					"""
+						module test {
+						    requires auto1Lib;
+						    requires auto2Lib;
+						}
+						""");
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			assertNoErrors();
 
@@ -8265,32 +8882,40 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			createFolder("A/src/com/a");
 			createFile("A/src/com/a/A.java",
-				"package com.a;\n" +
-				"\n" +
-				"public class A {}\n");
+				"""
+					package com.a;
+					
+					public class A {}
+					""");
 			createFile("A/src/module-info.java",
-				"open module com.a {\n" +
-				"	exports com.a;\n" +
-				"}\n");
+				"""
+					open module com.a {
+						exports com.a;
+					}
+					""");
 
 			addModularProjectEntry(prjB, prjA);
 			createFolder("B/src/com/a/b");
 			String bPath = "B/src/com/a/b/B.java";
 			String bSource =
-				"package com.a.b;\n" +
-				"import com.a.A;\n" +
-				"public class B {\n" +
-				"	\n" +
-				"	public static void main(String[] args) {\n" +
-				"		A a = new A();\n" +
-				"		System.out.println(a);\n" +
-				"	}\n" +
-				"}\n";
+				"""
+				package com.a.b;
+				import com.a.A;
+				public class B {
+				\t
+					public static void main(String[] args) {
+						A a = new A();
+						System.out.println(a);
+					}
+				}
+				""";
 			createFile(bPath, bSource);
 			createFile("B/src/module-info.java",
-				"open module com.a.b {\n" +
-				"	requires com.a;\n" +
-				"}\n");
+				"""
+					open module com.a.b {
+						requires com.a;
+					}
+					""");
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			assertNoErrors();
 
@@ -8345,11 +8970,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		String outputDirectory = Util.getOutputDirectory();
 		try {
-			String testSource = "public class X {\n" +
-								"	public java.util.stream.Stream<String> emptyStream() {\n" +
-								"		return null;\n" +
-								"	}\n" +
-								"}";
+			String testSource = """
+				public class X {
+					public java.util.stream.Stream<String> emptyStream() {
+						return null;
+					}
+				}""";
 			String mPath = "p/src/X.java";
 			createFile(mPath,
 					testSource);
@@ -8379,11 +9005,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		String outputDirectory = Util.getOutputDirectory();
 		try {
-			String testSource = "public class X {\n" +
-								"	public java.util.stream.Stream<String> emptyStream() {\n" +
-								"		return null;\n" +
-								"	}\n" +
-								"}";
+			String testSource = """
+				public class X {
+					public java.util.stream.Stream<String> emptyStream() {
+						return null;
+					}
+				}""";
 			String mPath = "p/src/X.java";
 			createFile(mPath,
 					testSource);
@@ -8410,11 +9037,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		String outputDirectory = Util.getOutputDirectory();
 		try {
-			String testSource = "public class X {\n" +
-								"	public java.util.stream.Stream<String> emptyStream() {\n" +
-								"		return null;\n" +
-								"	}\n" +
-								"}";
+			String testSource = """
+				public class X {
+					public java.util.stream.Stream<String> emptyStream() {
+						return null;
+					}
+				}""";
 			String mPath = "p/src/X.java";
 			createFile(mPath,
 					testSource);
@@ -8442,11 +9070,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		String outputDirectory = Util.getOutputDirectory();
 		try {
-			String testSource = "public class X {\n" +
-								"	public java.lang.MatchException getException() {\n" +
-								"		return null;\n" +
-								"	}\n" +
-								"}";
+			String testSource = """
+				public class X {
+					public java.lang.MatchException getException() {
+						return null;
+					}
+				}""";
 			String mPath = "p/src/X.java";
 			createFile(mPath,
 					testSource);
@@ -8474,16 +9103,18 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		String outputDirectory = Util.getOutputDirectory();
 		try {
-			String testSource = "interface I {\n" +
-								"  int add(int x, int y);\n" +
-								"}\n" +
-								"public class X {\n" +
-								"  public static void main(String[] args) {\n" +
-								"    I i = (x, y) -> {\n" +
-								"      return x + y;\n" +
-								"    };\n" +
-								"  }\n" +
-								"}\n";
+			String testSource = """
+				interface I {
+				  int add(int x, int y);
+				}
+				public class X {
+				  public static void main(String[] args) {
+				    I i = (x, y) -> {
+				      return x + y;
+				    };
+				  }
+				}
+				""";
 			String mPath = "p/src/X.java";
 			createFile(mPath,
 					testSource);
@@ -8512,18 +9143,19 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		String outputDirectory = Util.getOutputDirectory();
 		try {
-			String testSource = "import java.io.*;\n" +
-								"public class X {\n" +
-								"	public static void main(String[] args) {\n" +
-								"		try {\n" +
-								"			System.out.println();\n" +
-								"			Reader r = new FileReader(args[0]);\n" +
-								"			r.read();\n" +
-								"		} catch(IOException | FileNotFoundException e) {\n" +
-								"			e.printStackTrace();\n" +
-								"		}\n" +
-								"	}\n" +
-								"}";
+			String testSource = """
+				import java.io.*;
+				public class X {
+					public static void main(String[] args) {
+						try {
+							System.out.println();
+							Reader r = new FileReader(args[0]);
+							r.read();
+						} catch(IOException | FileNotFoundException e) {
+							e.printStackTrace();
+						}
+					}
+				}""";
 			String mPath = "p/src/X.java";
 			createFile(mPath,
 					testSource);
@@ -8552,9 +9184,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		String outputDirectory = Util.getOutputDirectory();
 		try {
-			String testSource = "module mod.one { \n" +
-								"	requires java.base;\n" +
-								"}";
+			String testSource = """
+				module mod.one {\s
+					requires java.base;
+				}""";
 			String mPath = "p/src/module-info.java";
 			createFile(mPath,
 					testSource);
@@ -8582,9 +9215,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		String outputDirectory = Util.getOutputDirectory();
 		try {
-			String testSource = "module mod.one { \n" +
-								"	requires java.base;\n" +
-								"}";
+			String testSource = """
+				module mod.one {\s
+					requires java.base;
+				}""";
 			String mPath = "p/src/module-info.java";
 			createFile(mPath,
 					testSource);
@@ -8611,9 +9245,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		String outputDirectory = Util.getOutputDirectory();
 		try {
-			String testSource = "module mod.one { \n" +
-					"	requires java.base;\n" +
-					"}";
+			String testSource = """
+				module mod.one {\s
+					requires java.base;
+				}""";
 			String mPath = "p/src/module-info.java";
 			createFile(mPath,
 					testSource);
@@ -8654,12 +9289,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"public class Module {}\n");
 			createFile(
 					"p/src/foo/X.java",
-					"package foo;\n" +
-					"public class X { \n" +
-					"	public Module getModule(String name) {\n" +
-					"		return null;\n" +
-					"	}\n" +
-					"}");
+					"""
+						package foo;
+						public class X {\s
+							public Module getModule(String name) {
+								return null;
+							}
+						}""");
 			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 			waitForAutoBuild();
 			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -8692,12 +9328,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		String outputDirectory = Util.getOutputDirectory();
 		try {
-			String testSource = "import javax.lang.model.*;\n" +
-								"public class X {\n" +
-								"	public static void main(String[] args) {\n" +
-								"		SourceVersion version = SourceVersion.RELEASE_16;\n" +
-								"	}\n" +
-								"}";
+			String testSource = """
+				import javax.lang.model.*;
+				public class X {
+					public static void main(String[] args) {
+						SourceVersion version = SourceVersion.RELEASE_16;
+					}
+				}""";
 			String mPath = "p/src/X.java";
 			createFile(mPath,
 					testSource);
@@ -8726,12 +9363,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		String outputDirectory = Util.getOutputDirectory();
 		try {
-			String testSource = "\n" +
-								"public class X {\n" +
-								"	public static void main(String[] args) {\n" +
-								"		Integer.toUnsignedString(1, 1);\n" +
-								"	}\n" +
-								"}";
+			String testSource = """
+				
+				public class X {
+					public static void main(String[] args) {
+						Integer.toUnsignedString(1, 1);
+					}
+				}""";
 			String mPath = "p/src/X.java";
 			createFile(mPath,
 					testSource);
@@ -8756,19 +9394,23 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			// focus project has no module-info, to trigger path where LE#knownPackages is not empty when processing add-reads
 			String[] sources = new String[] {
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"import p.C;\n" +
-					"public class World {\n" +
-					"	C f;\n" +
-					"}\n"
+					"""
+						package org.astro;
+						import p.C;
+						public class World {
+							C f;
+						}
+						"""
 			};
 			IJavaProject p = setupModuleProject("org.astro", sources);
 
 			Util.createJar(new String[] {
 					"/lib/src/module-info.java",
-					"module lib {\n" +
-					"	exports p;\n" +
-					"}\n",
+					"""
+						module lib {
+							exports p;
+						}
+						""",
 					"/lib/src/p/C.java",
 					"package p;\n" +
 					"public class C {}\n",
@@ -8800,22 +9442,28 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			IJavaProject p = setupModuleProject("org.astro", new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	requires lib;\n" +
-					"}\n",
+					"""
+						module org.astro {
+							requires lib;
+						}
+						""",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"import p.C;\n" +
-					"public class World {\n" +
-					"	C f;\n" +
-					"}\n"
+					"""
+						package org.astro;
+						import p.C;
+						public class World {
+							C f;
+						}
+						"""
 			});
 
 			IJavaProject lib = setupModuleProject("lib", new String[] {
 					"src/module-info.java",
-					"module lib {\n" +
-					"	exports p;\n" +
-					"}\n",
+					"""
+						module lib {
+							exports p;
+						}
+						""",
 					"src/p/C.java",
 					"package p;\n" +
 					"public class C {}\n",
@@ -8847,11 +9495,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String moduleinfopath = "A/src/module-info.java";
 			String moduleinfosrc =
-				"/**\n" +
-				" * The {@link java.nio.file.FileSystems#newFileSystem FileSystems.newFileSystem(URI.create(\"jrt:/\"))}\n" +
-				" */\n" +
-				"module modulartest11 {\n" +
-				"}\n";
+				"""
+				/**
+				 * The {@link java.nio.file.FileSystems#newFileSystem FileSystems.newFileSystem(URI.create("jrt:/"))}
+				 */
+				module modulartest11 {
+				}
+				""";
 			createFile(moduleinfopath, moduleinfosrc);
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			assertNoErrors();
@@ -8882,23 +9532,29 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			// ---1---
 			createFolder("B/src/b");
 			createFile("B/src/b/Class1.java",
-				"package b;\n" +
-				"import java.sql.Connection;\n" +
-				"public class Class1 {\n" +
-				"	Connection connection;\n" +
-				"}\n");
+				"""
+					package b;
+					import java.sql.Connection;
+					public class Class1 {
+						Connection connection;
+					}
+					""");
 			createFile("B/src/b/Class2.java",
-				"package b;\n" +
-				"import java.sql.Connection;\n" +
-				"public class Class2 {\n" +
-				"	Connection connection;\n" +
-				"}\n");
+				"""
+					package b;
+					import java.sql.Connection;
+					public class Class2 {
+						Connection connection;
+					}
+					""");
 			// ---2---
 			createFile("B/src/module-info.java",
-				"module B {\n" +
-				"	requires java.sql;\n" +
-				"	requires A;\n" +
-				"}\n");
+				"""
+					module B {
+						requires java.sql;
+						requires A;
+					}
+					""");
 			String bPath = "B/src/b/Class3.java";
 			String bSource =
 				"package b;\n" + // <= this triggered createPackage in an inconsistent state
@@ -8929,14 +9585,18 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		IJavaProject prjD = createJava9Project("D");
 		try {
 			createFile("A/src/module-info.java",
-				"module A {\n" +
-				" exports p1.p2;\n" +
-				"}\n");
+				"""
+					module A {
+					 exports p1.p2;
+					}
+					""");
 			createFolder("A/src/p1/p2");
 			createFile("A/src/p1/p2/X.java",
-					"package p1.p2;\n" +
-					"public class X {\n" +
-					"}\n");
+					"""
+						package p1.p2;
+						public class X {
+						}
+						""");
 
 			addModularProjectEntry(prjB, prjA);
 			addModularProjectEntry(prjD, prjA);
@@ -8944,47 +9604,61 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			addModularProjectEntry(prjD, prjC);
 
 			createFile("B/src/module-info.java",
-					"module B {\n" +
-						" requires A;\n" +
-						" exports p1;\n" +
-					"}\n");
+					"""
+						module B {
+						 requires A;
+						 exports p1;
+						}
+						""");
 			createFolder("B/src/p1");
 			createFile("B/src/p1/Y.java",
-				"package p1;\n" +
-				"import p1.p2.X;\n" +
-				"public class Y {\n" +
-				"	private void f(X x) {}\n" +
-				"}\n");
+				"""
+					package p1;
+					import p1.p2.X;
+					public class Y {
+						private void f(X x) {}
+					}
+					""");
 
 			createFile("C/src/module-info.java",
-					"module C {\n" +
-					" exports p1.p2;\n" +
-					"}\n");
+					"""
+						module C {
+						 exports p1.p2;
+						}
+						""");
 			createFolder("C/src/p1/p2");
 			createFile("C/src/p1/p2/X.java",
-					"package p1.p2;\n" +
-					"public class X {\n" +
-					"}\n");
+					"""
+						package p1.p2;
+						public class X {
+						}
+						""");
 
 			createFile("D/src/module-info.java",
-					"module D {\n" +
-						" requires B;\n" +
-						" requires C;\n" +
-					"}\n");
+					"""
+						module D {
+						 requires B;
+						 requires C;
+						}
+						""");
 
 			createFolder("D/src/usage");
 			createFile("D/src/usage/AAA.java",
-					"package usage;\n" +
-					"import p1.Y;\n" +
-					"public class AAA {\n" +
-					" Y y;\n" +
-					"}\n");
+					"""
+						package usage;
+						import p1.Y;
+						public class AAA {
+						 Y y;
+						}
+						""");
 			createFile("D/src/usage/Usage.java",
-					"package usage;\n" +
-					"import p1.p2.X;\n" +
-					"public class Usage {\n" +
-					" X x;\n" +
-					"}\n");
+					"""
+						package usage;
+						import p1.p2.X;
+						public class Usage {
+						 X x;
+						}
+						""");
 
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			assertNoErrors();
@@ -9011,13 +9685,17 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			// ---1---
 			createFolder("B/src/pack/b");
 			createFile("B/src/pack/b/Usage.java",
-				"package pack.b;\n" +
-				"public class Usage {\n" +
-				"}\n");
+				"""
+					package pack.b;
+					public class Usage {
+					}
+					""");
 			createFile("B/src/module-info.java",
-					"module B {\n" +
-					" requires A;\n" +
-					"}\n");
+					"""
+						module B {
+						 requires A;
+						}
+						""");
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			assertNoErrors();
 		} finally {
@@ -9050,12 +9728,14 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			addClasspathEntry(project, libraryEntry, 1); // right after src and before jrt-fs.jar
 
 			String testSource =
-					"package com.ztest;\n" +
-					"import org.apache.xerces.parsers.SAXParser;\n" +
-					"\n" +
-					"public class MySAXParser extends SAXParser {\n" +
-					"	static final long serialVersionUID = 0;\n" +
-					"}\n";
+					"""
+				package com.ztest;
+				import org.apache.xerces.parsers.SAXParser;
+				
+				public class MySAXParser extends SAXParser {
+					static final long serialVersionUID = 0;
+				}
+				""";
 			createFolder("/ztest/src/com/ztest");
 			createFile("/ztest/src/com/ztest/MySAXParser.java", testSource);
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -9090,12 +9770,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			createFolder("/Issue23/src/p1");
 			createFile("/Issue23/src/p1/X.java",
-					"package p1;\n" +
-					"public class X {\n" +
-					"	public java.util.stream.Stream<String> emptyStream() {\n" +
-					"		return null;\n" +
-					"	}\n" +
-					"}");
+					"""
+						package p1;
+						public class X {
+							public java.util.stream.Stream<String> emptyStream() {
+								return null;
+							}
+						}""");
 
 			waitForManualRefresh();
 			waitForAutoBuild();

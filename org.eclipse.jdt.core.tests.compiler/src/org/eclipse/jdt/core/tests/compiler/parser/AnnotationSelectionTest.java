@@ -32,10 +32,12 @@ public void test0001() {
 
 	String completionIdentifier = "MyAnn";
 	String expectedUnitDisplayString =
-		"public @<SelectOnType:MyAnn> class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public @<SelectOnType:MyAnn> class X {
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "MyAnn";
 	String testName = "<select type>";
 
@@ -67,10 +69,12 @@ public void test0002() {
 
 	String completionIdentifier = "MyAnn";
 	String expectedUnitDisplayString =
-		"public @<SelectOnType:MyAnn> class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public @<SelectOnType:MyAnn> class X {
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "MyAnn";
 	String testName = "<select type>";
 
@@ -102,10 +106,12 @@ public void test0003() {
 
 	String completionIdentifier = "ZZ";
 	String expectedUnitDisplayString =
-		"public @<SelectOnType:MyAnn.ZZ> class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public @<SelectOnType:MyAnn.ZZ> class X {
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "MyAnn.ZZ";
 	String testName = "<select type>";
 
@@ -137,10 +143,12 @@ public void test0004() {
 
 	String completionIdentifier = "ZZ";
 	String expectedUnitDisplayString =
-		"public @<SelectOnType:MyAnn.ZZ> class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public @<SelectOnType:MyAnn.ZZ> class X {
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "MyAnn.ZZ";
 	String testName = "<select type>";
 
@@ -173,10 +181,12 @@ public void _test0005() {
 
 	String completionIdentifier = "ZZ";
 	String expectedUnitDisplayString =
-		"public @<SelectOnType:MyAnn.ZZ> class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public @<SelectOnType:MyAnn.ZZ> class X {
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "MyAnn.ZZ";
 	String testName = "<select type>";
 
@@ -199,10 +209,12 @@ public void _test0005() {
 public void test0006() {
 
 	String str =
-		"public  class X {" +
-		"  public @MyAnn void foo() {" +
-		"  }" +
-		"}											\n";
+		"""
+		public  class X {\
+		  public @MyAnn void foo() {\
+		  }\
+		}										\t
+		""";
 
 	String selection = "MyAnn";
 
@@ -210,12 +222,14 @@ public void test0006() {
 
 	String completionIdentifier = "MyAnn";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  public @<SelectOnType:MyAnn> void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  public @<SelectOnType:MyAnn> void foo() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "MyAnn";
 	String testName = "<select type>";
 
@@ -238,10 +252,12 @@ public void test0006() {
 public void test0007() {
 
 	String str =
-		"public  class X {" +
-		"  public @MyAnn void foo(" +
-		"  " +
-		"}											\n";
+		"""
+		public  class X {\
+		  public @MyAnn void foo(\
+		  \
+		}										\t
+		""";
 
 	String selection = "MyAnn";
 
@@ -249,12 +265,14 @@ public void test0007() {
 
 	String completionIdentifier = "MyAnn";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  public @<SelectOnType:MyAnn> void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  public @<SelectOnType:MyAnn> void foo() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "MyAnn";
 	String testName = "<select type>";
 
@@ -277,9 +295,11 @@ public void test0007() {
 public void test0008() {
 
 	String str =
-		"public  class X {" +
-		"  public @MyAnn Object var;" +
-		"}											\n";
+		"""
+		public  class X {\
+		  public @MyAnn Object var;\
+		}										\t
+		""";
 
 	String selection = "MyAnn";
 
@@ -287,11 +307,13 @@ public void test0008() {
 
 	String completionIdentifier = "MyAnn";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public @<SelectOnType:MyAnn> Object var;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public @<SelectOnType:MyAnn> Object var;
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "MyAnn";
 	String testName = "<select type>";
 
@@ -314,9 +336,11 @@ public void test0008() {
 public void test0009() {
 
 	String str =
-		"public class X {" +
-		"  public @MyAnn Object var" +
-		"}											\n";
+		"""
+		public class X {\
+		  public @MyAnn Object var\
+		}										\t
+		""";
 
 	String selection = "MyAnn";
 
@@ -324,11 +348,13 @@ public void test0009() {
 
 	String completionIdentifier = "MyAnn";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public @<SelectOnType:MyAnn> Object var;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public @<SelectOnType:MyAnn> Object var;
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "MyAnn";
 	String testName = "<select type>";
 
@@ -352,10 +378,12 @@ public void test0009() {
 public void test0010() {
 
 	String str =
-		"public class X {" +
-		"  public void foo(@MyAnn int i) {" +
-		"  }" +
-		"}											\n";
+		"""
+		public class X {\
+		  public void foo(@MyAnn int i) {\
+		  }\
+		}										\t
+		""";
 
 	String selection = "MyAnn";
 
@@ -363,12 +391,14 @@ public void test0010() {
 
 	String completionIdentifier = "MyAnn";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  public void foo(@<SelectOnType:MyAnn> int i) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  public void foo(@<SelectOnType:MyAnn> int i) {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "MyAnn";
 	String testName = "<select type>";
 
@@ -391,10 +421,12 @@ public void test0010() {
 public void test0011() {
 
 	String str =
-		"public class X {" +
-		"  public @MyAnn class Y {" +
-		"  }" +
-		"}											\n";
+		"""
+		public class X {\
+		  public @MyAnn class Y {\
+		  }\
+		}										\t
+		""";
 
 	String selection = "MyAnn";
 
@@ -402,14 +434,16 @@ public void test0011() {
 
 	String completionIdentifier = "MyAnn";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public @<SelectOnType:MyAnn> class Y {\n" +
-		"    public Y() {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public @<SelectOnType:MyAnn> class Y {
+		    public Y() {
+		    }
+		  }
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "MyAnn";
 	String testName = "<select type>";
 
@@ -432,11 +466,13 @@ public void test0011() {
 public void test0012() {
 
 	String str =
-		"public class X {" +
-		"  public void foo() {" +
-		"    @MyAnn int i;" +
-		"  }" +
-		"}											\n";
+		"""
+		public class X {\
+		  public void foo() {\
+		    @MyAnn int i;\
+		  }\
+		}										\t
+		""";
 
 	String selection = "MyAnn";
 
@@ -444,13 +480,15 @@ public void test0012() {
 
 	String completionIdentifier = "MyAnn";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  public void foo() {\n" +
-		"    @<SelectOnType:MyAnn> int i;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  public void foo() {
+		    @<SelectOnType:MyAnn> int i;
+		  }
+		}
+		""";
 	String expectedReplacedSource = "MyAnn";
 	String testName = "<select type>";
 
@@ -482,10 +520,12 @@ public void test0013() {
 
 	String completionIdentifier = "MyAnn";
 	String expectedUnitDisplayString =
-		"public @<SelectOnType:MyAnn>() class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public @<SelectOnType:MyAnn>() class X {
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "MyAnn";
 	String testName = "<select type>";
 
@@ -517,10 +557,12 @@ public void test0014() {
 
 	String completionIdentifier = "MyAnn";
 	String expectedUnitDisplayString =
-		"public @<SelectOnType:MyAnn>(A.B) class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public @<SelectOnType:MyAnn>(A.B) class X {
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "MyAnn";
 	String testName = "<select type>";
 
@@ -552,10 +594,12 @@ public void test0015() {
 
 	String completionIdentifier = "MyAnn";
 	String expectedUnitDisplayString =
-		"public @<SelectOnType:MyAnn>(value = \"\") class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public @<SelectOnType:MyAnn>(value = "") class X {
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "MyAnn";
 	String testName = "<select type>";
 
@@ -587,10 +631,12 @@ public void test0016() {
 
 	String completionIdentifier = "MyAnn";
 	String expectedUnitDisplayString =
-		"public @<SelectOnType:MyAnn>(value1 = \"\",value2 = \"\") class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public @<SelectOnType:MyAnn>(value1 = "",value2 = "") class X {
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "MyAnn";
 	String testName = "<select type>";
 
@@ -622,10 +668,12 @@ public void test0017() {
 
 	String completionIdentifier = "value1";
 	String expectedUnitDisplayString =
-		"public @MyAnn(<SelectOnName:value1>,value2 = \"\") class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public @MyAnn(<SelectOnName:value1>,value2 = "") class X {
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "value1";
 	String testName = "<select type>";
 

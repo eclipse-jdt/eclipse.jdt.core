@@ -1307,16 +1307,18 @@ public class ASTConverterJavadocTest_15 extends ConverterTestSetup {
 				"}");
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
-			"package javadoc;\n" +
-			"public class X {\n" +
-			"	/** \n" +
-			"	 * @see test1.one.two/ \n" +
-			"	 * {@link test1.one.two/} \n" +
-			"	 * {@linkplain test1.one.two/} \n" +
-			"	 */ \n" +
-			"	public static void foo(Object object) {\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package javadoc;
+				public class X {
+					/**\s
+					 * @see test1.one.two/\s
+					 * {@link test1.one.two/}\s
+					 * {@linkplain test1.one.two/}\s
+					 */\s
+					public static void foo(Object object) {
+					}
+				}
+				"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -1347,14 +1349,16 @@ public class ASTConverterJavadocTest_15 extends ConverterTestSetup {
 				"}");
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
-			"package javadoc;\n" +
-			"public class X {\n" +
-			"	/** \n" +
-			"	 * @see test1.one.two/javadoc.X#foo \n" +
-			"	 */ \n" +
-			"	public static void foo(Object object) {\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package javadoc;
+				public class X {
+					/**\s
+					 * @see test1.one.two/javadoc.X#foo\s
+					 */\s
+					public static void foo(Object object) {
+					}
+				}
+				"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -1385,14 +1389,16 @@ public class ASTConverterJavadocTest_15 extends ConverterTestSetup {
 				"}");
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
-			"package javadoc;\n" +
-			"public class X {\n" +
-			"	/** \n" +
-			"	 * @see test1.one.two/javadoc.X \n" +
-			"	 */ \n" +
-			"	public static void foo(Object object) {\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package javadoc;
+				public class X {
+					/**\s
+					 * @see test1.one.two/javadoc.X\s
+					 */\s
+					public static void foo(Object object) {
+					}
+				}
+				"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {

@@ -42,13 +42,14 @@ public static Test suite() {
 public void test0001_block_scope() throws JavaModelException {
 	CompletionResult result = complete(
         "/Completion/src3/test0001/Test.java",
-        "package test0001;\n" +
-        "\n" +
-        "public class Test {\n" +
-        "	void x() {\n" +
-        "		va\n" +
-        "	}\n" +
-        "}",
+        """
+			package test0001;
+			
+			public class Test {
+				void x() {
+					va
+				}
+			}""",
     	"va");
 
     assertResults(
@@ -63,15 +64,16 @@ public void test0001_block_scope() throws JavaModelException {
 public void test0001a_block_scope_switch() throws JavaModelException {
 	CompletionResult result = complete(
         "/Completion/src3/test0001/Test.java",
-        "package test0001;\n" +
-        "\n" +
-        "public class Test {\n" +
-        "	void x(int a) {\n" +
-        "		switch(a) {\n" +
-        "		case 1: 	va\n" +
-        "		}\n" +
-        "	}\n" +
-        "}",
+        """
+			package test0001;
+			
+			public class Test {
+				void x(int a) {
+					switch(a) {
+					case 1: 	va
+					}
+				}
+			}""",
     	"va");
 
     assertResults(
@@ -86,13 +88,14 @@ public void test0001a_block_scope_switch() throws JavaModelException {
 public void test0002_block_scope_final() throws JavaModelException {
 	CompletionResult result = complete(
         "/Completion/src3/test0002/Test.java",
-        "package test0002;\n" +
-        "\n" +
-        "public class Test {\n" +
-        "	void x() {\n" +
-        "		final va\n" +
-        "	}\n" +
-        "}",
+        """
+			package test0002;
+			
+			public class Test {
+				void x() {
+					final va
+				}
+			}""",
     	"va");
 
     assertResults(
@@ -107,13 +110,14 @@ public void test0002_block_scope_final() throws JavaModelException {
 public void test0003_inside_for() throws JavaModelException {
 	CompletionResult result = complete(
         "/Completion/src3/test0003/Test.java",
-        "package test0003;\n" +
-        "\n" +
-        "public class Test {\n" +
-        "	void x() {\n" +
-        "		for(va\n" +
-        "	}\n" +
-        "}",
+        """
+			package test0003;
+			
+			public class Test {
+				void x() {
+					for(va
+				}
+			}""",
     	"va");
 
     assertResults(
@@ -128,13 +132,14 @@ public void test0003_inside_for() throws JavaModelException {
 public void test0004_inside_for_final() throws JavaModelException {
 	CompletionResult result = complete(
         "/Completion/src3/test0004/Test.java",
-        "package test0004;\n" +
-        "\n" +
-        "public class Test {\n" +
-        "	void x() {\n" +
-        "		for(final va\n" +
-        "	}\n" +
-        "}",
+        """
+			package test0004;
+			
+			public class Test {
+				void x() {
+					for(final va
+				}
+			}""",
     	"va");
 
     assertResults(
@@ -149,13 +154,14 @@ public void test0004_inside_for_final() throws JavaModelException {
 public void test0005_inside_try() throws JavaModelException {
 	CompletionResult result = complete(
         "/Completion/src3/test0005/Test.java",
-        "package test0005;\n" +
-        "\n" +
-        "public class Test {\n" +
-        "	void x() {\n" +
-        "		try(va\n" +
-        "	}\n" +
-        "}",
+        """
+			package test0005;
+			
+			public class Test {
+				void x() {
+					try(va
+				}
+			}""",
     	"va");
 
     assertResults(
@@ -170,13 +176,14 @@ public void test0005_inside_try() throws JavaModelException {
 public void test0006_inside_try_final() throws JavaModelException {
 	CompletionResult result = complete(
         "/Completion/src3/test0006/Test.java",
-        "package test0006;\n" +
-        "\n" +
-        "public class Test {\n" +
-        "	void x() {\n" +
-        "		try(final va\n" +
-        "	}\n" +
-        "}",
+        """
+			package test0006;
+			
+			public class Test {
+				void x() {
+					try(final va
+				}
+			}""",
     	"va");
 
     assertResults(
@@ -192,13 +199,14 @@ public void test0006_inside_try_final() throws JavaModelException {
 public void test0007_not_inside_expression() throws JavaModelException {
 	CompletionResult result = complete(
         "/Completion/src3/test0007/Test.java",
-        "package test0007;\n" +
-        "\n" +
-        "public class Test {\n" +
-        "	void x() {\n" +
-        "		int a = 2 + \n" +
-        "	}\n" +
-        "}",
+        """
+			package test0007;
+			
+			public class Test {
+				void x() {
+					int a = 2 +\s
+				}
+			}""",
     	"+ ");
 
     assertResults(
@@ -212,11 +220,11 @@ public void test0007_not_inside_expression() throws JavaModelException {
 public void test0008_not_in_class_scope() throws JavaModelException {
 	CompletionResult result = complete(
         "/Completion/src3/test0008/Test.java",
-        "package test0008;\n" +
-        "\n" +
-        "public class Test { \n" +
-
-        "}",
+        """
+			package test0008;
+			
+			public class Test {\s
+			}""",
     	"{");
 
     assertResults(
@@ -229,12 +237,13 @@ public void test0008_not_in_class_scope() throws JavaModelException {
 	public void test0009_in_formal_param_lists() throws JavaModelException {
 		CompletionResult result = complete(
 	        "/Completion/src3/test0009/Test.java",
-	        "package test0009;\n" +
-	        "\n" +
-	        "public class Test {\n" +
-	        "	void x( ) {\n" +
-	        "	}\n" +
-	        "}",
+	        """
+				package test0009;
+				
+				public class Test {
+					void x( ) {
+					}
+				}""",
 	    	"x(");
 
 	    assertResults(
@@ -247,17 +256,18 @@ public void test0008_not_in_class_scope() throws JavaModelException {
 public void testbug_529556_missing_type_info_on_vars() throws JavaModelException {
 	CompletionResult result = complete(
 	        "/Completion/src3/test0001/Test.java",
-	        "package test0001;\n" +
-	        "\n" +
-	        "public class Test {\n" +
-	        "   private class Dummy {\n" +
-	        "		public void a_method() {/n"+
-	        "	}\n" +
-	        "	void x() {\n" +
-	        "		var x = new Dummy();\n" +
-	        "		x.a\n" +
-	        "	}\n" +
-	        "}",
+	        """
+				package test0001;
+				
+				public class Test {
+				   private class Dummy {
+						public void a_method() {/n\
+					}
+					void x() {
+						var x = new Dummy();
+						x.a
+					}
+				}""",
 	    	"x.a");
 		assertResults(
 			"a_method[METHOD_REF]{a_method(), Ltest0001.Test$Dummy;, ()V, a_method, null, " + (R_DEFAULT + 30) + "}",
@@ -266,13 +276,14 @@ public void testbug_529556_missing_type_info_on_vars() throws JavaModelException
 public void testBug532476a() throws JavaModelException {
 	CompletionResult result = complete(
 	        "/Completion/src3/p/X.java",
-	        "package p;\n" +
-	        "public class X {\n" +
-	        "   public static void main(String[] args) {\n" +
-	        "		var i_jk = 0;\n" +
-	        "		System.out.println(i_);/n"+
-	        "	}\n" +
-	        "}",
+	        """
+				package p;
+				public class X {
+				   public static void main(String[] args) {
+						var i_jk = 0;
+						System.out.println(i_);/n\
+					}
+				}""",
 	    	"i_");
 		assertResults(
 			"i_jk[LOCAL_VARIABLE_REF]{i_jk, null, I, i_jk, null, " + (R_DEFAULT + 22) + "}",
@@ -281,14 +292,15 @@ public void testBug532476a() throws JavaModelException {
 public void testBug532476b() throws JavaModelException {
 	CompletionResult result = complete(
 	        "/Completion/src3/p/X.java",
-	        "package p;\n" +
-	        "public class X {\n" +
-	        "   public static void main(String[] args) {\n" +
-	        "		for (var i_jkl : args) {\n" +
-	        "			System.out.println(i_);/n"+
-	        "		}\n" +
-	        "	}\n" +
-	        "}",
+	        """
+				package p;
+				public class X {
+				   public static void main(String[] args) {
+						for (var i_jkl : args) {
+							System.out.println(i_);/n\
+						}
+					}
+				}""",
 	    	"i_");
 		assertResults(
 			"i_jkl[LOCAL_VARIABLE_REF]{i_jkl, null, Ljava.lang.String;, i_jkl, null, "  + (R_DEFAULT + 22) + "}",
@@ -297,12 +309,13 @@ public void testBug532476b() throws JavaModelException {
 public void testBug532476c() throws JavaModelException {
 	CompletionResult result = complete(
 	        "/Completion/src3/p/X.java",
-	        "package p;\n" +
-	        "public class X {\n" +
-	        "   public static void main(String[] args) {\n" +
-	        "		for (var i_jkl = 0; i_ " +
-	        "	}\n" +
-	        "}",
+	        """
+				package p;
+				public class X {
+				   public static void main(String[] args) {
+						for (var i_jkl = 0; i_ \
+					}
+				}""",
 	    	"i_");
 		assertResults(
 				"i_jkl[LOCAL_VARIABLE_REF]{i_jkl, null, I, i_jkl, null, " + (R_DEFAULT + 22) + "}",
@@ -311,12 +324,13 @@ public void testBug532476c() throws JavaModelException {
 public void testBug532476d() throws JavaModelException {
 	CompletionResult result = complete(
 	        "/Completion/src3/p/X.java",
-	        "package p;\n" +
-	        "public class X {\n" +
-	        "   public static void main(String[] args) {\n" +
-	        "		for (var i_jkl = 0; ; i_ " +
-	        "	}\n" +
-	        "}",
+	        """
+				package p;
+				public class X {
+				   public static void main(String[] args) {
+						for (var i_jkl = 0; ; i_ \
+					}
+				}""",
 	    	"i_");
 		assertResults(
 				"i_jkl[LOCAL_VARIABLE_REF]{i_jkl, null, I, i_jkl, null, " + (R_DEFAULT + 22) + "}",
@@ -325,14 +339,15 @@ public void testBug532476d() throws JavaModelException {
 public void testBug532476e() throws JavaModelException {
 	CompletionResult result = complete(
 	        "/Completion/src3/p/X.java",
-	        "package p;\n" +
-	        "public class X {\n" +
-	        "   public static void main(String[] args) {\n" +
-	        "		for (var i_jkl : args) {\n" +
-	        "			System.out.println(i_jkl.fin);/n"+
-	        "		}\n" +
-	        "	}\n" +
-	        "}",
+	        """
+				package p;
+				public class X {
+				   public static void main(String[] args) {
+						for (var i_jkl : args) {
+							System.out.println(i_jkl.fin);/n\
+						}
+					}
+				}""",
 	    	"i_jkl.fin");
 		assertResults(
 			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, " + (R_DEFAULT + 30) + "}",
