@@ -2426,6 +2426,20 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(EitherOrMultiPattern node) {
+		if (!DOMASTUtil.isPatternSupported(node.getAST())) {
+			return false;
+		}
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+
+		int pos = rewriteRequiredNode(node, EitherOrMultiPattern.PATTERNS_PROPERTY);
+		rewriteNodeList(node, EitherOrMultiPattern.PATTERNS_PROPERTY, pos, Util.EMPTY_STRING, ", "); //$NON-NLS-1$
+		return false;
+	}
+
+	@Override
 	public boolean visit(ReturnStatement node) {
 		try {
 			this.beforeRequiredSpaceIndex = getScanner().getTokenEndOffset(TerminalTokens.TokenNamereturn, node.getStartPosition());
