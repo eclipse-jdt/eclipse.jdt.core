@@ -47,7 +47,6 @@ import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
-import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.osgi.service.prefs.BackingStoreException;
 
@@ -1289,7 +1288,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		TextEdit edit = imports.rewriteImports(null);
 
-		assertEquals(0, ((MultiTextEdit) edit).getChildrenSize());
+		assertEquals(0, edit.getChildrenSize());
 	}
 
 	public void testAddImportWithCommentBetweenImportsAndType() throws Exception {

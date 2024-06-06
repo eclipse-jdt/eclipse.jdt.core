@@ -79,7 +79,7 @@ public class DOMFinder extends ASTVisitor {
 		ISourceRange range = null;
 		if (this.element instanceof IMember && !(this.element instanceof IInitializer)
 				&& !(this.element instanceof LambdaMethod) && !(this.element instanceof org.eclipse.jdt.internal.core.LambdaExpression))
-			range = ((IMember) this.element).getNameRange();
+			range = this.element.getNameRange();
 		else if (this.element instanceof ITypeParameter || this.element instanceof ILocalVariable)
 			range = this.element.getNameRange();
 		else

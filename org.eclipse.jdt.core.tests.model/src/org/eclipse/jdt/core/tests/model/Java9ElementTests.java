@@ -984,7 +984,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			assertNotNull("module", modTest);
 			assertEquals("module name", "test", modTest.getElementName());
 			IJavaElement root = parentChain(modTest, new int[] { COMPILATION_UNIT, PACKAGE_FRAGMENT, PACKAGE_FRAGMENT_ROOT });
-			String rootPath = ((IPackageFragmentRoot) root).getPath().toString();
+			String rootPath = root.getPath().toString();
 			assertEquals("package fragment root path", "/Test/src", rootPath);
 
 			// search source module in project dependency:
@@ -992,7 +992,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			assertNotNull("module", modZero);
 			assertEquals("module name", "mod.zero", modZero.getElementName());
 			root = parentChain(modZero, new int[] { COMPILATION_UNIT, PACKAGE_FRAGMENT, PACKAGE_FRAGMENT_ROOT });
-			rootPath = ((IPackageFragmentRoot) root).getPath().toString();
+			rootPath = root.getPath().toString();
 			assertEquals("package fragment root path", "/mod.zero/src", rootPath);
 
 			// search binary module in jar dependency:
@@ -1000,7 +1000,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			assertNotNull("module", modOne);
 			assertEquals("module name", "mod.one", modOne.getElementName());
 			root = parentChain(modOne, new int[] { CLASS_FILE, PACKAGE_FRAGMENT, PACKAGE_FRAGMENT_ROOT });
-			rootPath = ((IPackageFragmentRoot) root).getPath().toString();
+			rootPath = root.getPath().toString();
 			assertEquals("package fragment root path", "/Test/mod.one.jar", rootPath);
 
 			IModuleDescription notSuchModule = javaProject.findModule("does.not.exist", null);

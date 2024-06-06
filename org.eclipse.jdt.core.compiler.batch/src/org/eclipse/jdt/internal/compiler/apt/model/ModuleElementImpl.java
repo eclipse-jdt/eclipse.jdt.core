@@ -175,7 +175,7 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 	}
 	@Override
 	protected AnnotationBinding[] getAnnotationBindings() {
-		return ((ModuleBinding) this._binding).getAnnotations();
+		return this._binding.getAnnotations();
 	}
 
 	abstract class PackageDirectiveImpl {

@@ -59,13 +59,13 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
 		switch( binding.getKind() )
 		{
 		case IBinding.TYPE:
-			instances = ((ITypeBinding)binding).getAnnotations();
+			instances = binding.getAnnotations();
 			break;
 		case IBinding.METHOD:
-			instances = ((IMethodBinding)binding).getAnnotations();
+			instances = binding.getAnnotations();
 			break;
 		case IBinding.VARIABLE:
-			instances = ((IVariableBinding)binding).getAnnotations();
+			instances = binding.getAnnotations();
 			break;
 		case IBinding.PACKAGE:
 			// TODO: support package annotation

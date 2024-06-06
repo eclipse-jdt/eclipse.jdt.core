@@ -9346,7 +9346,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, statement2.getNodeType());
 		Expression expression2 = ((ExpressionStatement) statement2).getExpression();
 		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression2.getNodeType());
-		ITypeBinding typeBinding = ((MethodInvocation) expression2).resolveTypeBinding();
+		ITypeBinding typeBinding = expression2.resolveTypeBinding();
 		assertTrue("Not a capture", typeBinding.isCapture());
 		assertNull("No binary type", typeBinding.getBinaryName());
 	}

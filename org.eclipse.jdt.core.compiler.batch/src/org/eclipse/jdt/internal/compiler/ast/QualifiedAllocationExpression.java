@@ -125,7 +125,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			boolean analyseResources = currentScope.compilerOptions().analyseResourceLeaks;
 			boolean hasResourceWrapperType = analyseResources
 						&& this.resolvedType instanceof ReferenceBinding
-						&& ((ReferenceBinding)this.resolvedType).hasTypeBit(TypeIds.BitWrapperCloseable);
+						&& this.resolvedType.hasTypeBit(TypeIds.BitWrapperCloseable);
 			for (int i = 0, count = this.arguments.length; i < count; i++) {
 				flowInfo = this.arguments[i].analyseCode(currentScope, flowContext, flowInfo);
 				if (analyseResources && !hasResourceWrapperType) { // allocation of wrapped closeables is analyzed specially

@@ -1327,7 +1327,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			// common check for both parts:
 			Consumer<IBinding> validateBinding = (IBinding binding) -> {
 				assertTrue("Not ModuleBinding", binding instanceof IModuleBinding);
-				IAnnotationBinding[] annotations = ((IModuleBinding) binding).getAnnotations();
+				IAnnotationBinding[] annotations = binding.getAnnotations();
 				assertEquals("Number of annotations",  1, annotations.length);
 				assertEquals("Annotation type", "Deprecated", annotations[0].getAnnotationType().getName());
 			};

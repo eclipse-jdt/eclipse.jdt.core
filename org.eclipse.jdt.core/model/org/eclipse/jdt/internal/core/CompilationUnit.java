@@ -159,7 +159,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	}
 	// underlying resource is null in the case of a working copy on a class file in a jar
 	if (underlyingResource != null)
-		unitInfo.timestamp = ((IFile)underlyingResource).getModificationStamp();
+		unitInfo.timestamp = underlyingResource.getModificationStamp();
 
 	// compute other problems if needed
 	CompilationUnitDeclaration compilationUnitDeclaration = null;
@@ -1377,7 +1377,7 @@ protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean 
  */
 protected void updateTimeStamp(CompilationUnit original) throws JavaModelException {
 	long timeStamp =
-		((IFile) original.getResource()).getModificationStamp();
+		original.getResource().getModificationStamp();
 	if (timeStamp == IResource.NULL_STAMP) {
 		throw new JavaModelException(
 			new JavaModelStatus(IJavaModelStatusConstants.INVALID_RESOURCE));

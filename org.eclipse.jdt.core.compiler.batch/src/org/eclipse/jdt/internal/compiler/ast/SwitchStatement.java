@@ -243,7 +243,7 @@ public class SwitchStatement extends Expression {
 			TypeBinding ref = SwitchStatement.this.expression.resolvedType;
 			if (!(ref instanceof ReferenceBinding))
 				return;
-			RecordComponentBinding[] comps = ((ReferenceBinding)ref).components();
+			RecordComponentBinding[] comps = ref.components();
 			if (comps == null || comps.length <= i) // safety-net for incorrect code.
 				return;
 			if (this.next == null)
@@ -425,12 +425,12 @@ public class SwitchStatement extends Expression {
 						this.scope.enclosingCase = this.cases[caseIndex]; // record entering in a switch case block
 						caseIndex++;
 						if (prevCaseStmtIndex == i - 1) {
-							if (((CaseStatement) this.statements[prevCaseStmtIndex]).containsPatternVariable())
+							if (this.statements[prevCaseStmtIndex].containsPatternVariable())
 								this.scope.problemReporter().illegalFallthroughFromAPattern(this.statements[prevCaseStmtIndex]);
 						}
 						prevCaseStmtIndex = i;
 						if (fallThroughState == FALLTHROUGH && complaintLevel <= NOT_COMPLAINED) {
-							if (((CaseStatement) statement).containsPatternVariable())
+							if (statement.containsPatternVariable())
 								this.scope.problemReporter().IllegalFallThroughToPattern(this.scope.enclosingCase);
 							else if ((statement.bits & ASTNode.DocumentedFallthrough) == 0) { // the case is not fall-through protected by a line comment
 								this.scope.problemReporter().possibleFallThroughCase(this.scope.enclosingCase);

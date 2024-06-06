@@ -224,12 +224,12 @@ public class QualifiedType extends AnnotatableType {
 	ASTNode clone0(AST target) {
 		QualifiedType result = new QualifiedType(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setQualifier((Type) ((ASTNode) getQualifier()).clone(target));
+		result.setQualifier((Type) getQualifier().clone(target));
 		if (this.ast.apiLevel >= AST.JLS8_INTERNAL) {
 			result.annotations().addAll(
 					ASTNode.copySubtrees(target, annotations()));
 		}
-		result.setName((SimpleName) ((ASTNode) getName()).clone(target));
+		result.setName((SimpleName) getName().clone(target));
 		return result;
 	}
 

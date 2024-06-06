@@ -28,7 +28,6 @@ import org.eclipse.jdt.core.dom.IExtendedModifier;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.Modifier;
@@ -76,7 +75,7 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
 		else if( _astNode instanceof SingleVariableDeclaration )
 			modBits = ((SingleVariableDeclaration)_astNode).getModifiers();
 		else{
-			ASTNode parent = ((VariableDeclarationFragment)_astNode).getParent();
+			ASTNode parent = _astNode.getParent();
 			if( _astNode instanceof BodyDeclaration )
 				modBits = ((BodyDeclaration)parent).getModifiers();
 		}
@@ -148,7 +147,7 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
 			extendsMods = ((SingleVariableDeclaration)_astNode).modifiers();
 			break;
 		case ASTNode.VARIABLE_DECLARATION_FRAGMENT:
-			final ASTNode parent = ((VariableDeclarationFragment)_astNode).getParent();
+			final ASTNode parent = _astNode.getParent();
 			if( parent instanceof BodyDeclaration )
 				extendsMods = ((BodyDeclaration)parent).modifiers();
 			break;

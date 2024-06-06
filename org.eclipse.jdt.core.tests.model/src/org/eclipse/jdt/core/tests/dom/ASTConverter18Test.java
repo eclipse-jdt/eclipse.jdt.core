@@ -1098,7 +1098,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		MethodDeclaration method = (MethodDeclaration) node;
 		Type receiver = method.getReceiverType();
 		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, receiver.getNodeType());
-		assertEquals("Incorrect receiver signature", "@Marker @Marker2 X", ((SimpleType) receiver).toString());
+		assertEquals("Incorrect receiver signature", "@Marker @Marker2 X", receiver.toString());
 		assertEquals("Incorrect annotations on receiver", 2, ((SimpleType) receiver).annotations().size());
 		assertNull("Incorrect receiver qualfier", method.getReceiverQualifier());
 	}
@@ -1126,7 +1126,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		MethodDeclaration method = innerType.getMethods()[0];
 		Type receiver = method.getReceiverType();
 		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, receiver.getNodeType());
-		assertEquals("Incorrect receiver signature", "@Marker @Marker2 X", ((SimpleType) receiver).toString());
+		assertEquals("Incorrect receiver signature", "@Marker @Marker2 X", receiver.toString());
 		assertEquals("Incorrect annotations on receiver", 2, ((SimpleType) receiver).annotations().size());
 		assertNotNull("Incorrect receiver qualfier", method.getReceiverQualifier());
 		assertEquals("Incorrect receiver qualfier", "X", method.getReceiverQualifier().getFullyQualifiedName());
@@ -2097,12 +2097,12 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		MethodDeclaration method = (MethodDeclaration) node;
 		Type receiver = method.getReceiverType();
 		assertEquals("Not a qualified type", ASTNode.QUALIFIED_TYPE, receiver.getNodeType());
-		assertEquals("Incorrect receiver", "@A X.@B Y", ((QualifiedType) receiver).toString());
+		assertEquals("Incorrect receiver", "@A X.@B Y", receiver.toString());
 		assertEquals("Incorrect method signature", "public Z(@A X.@B Y Y.this,String str){\n}\n", method.toString());
 
 		method = (MethodDeclaration) type.bodyDeclarations().get(1);
 		receiver = method.getReceiverType();
-		assertEquals("Incorrect receiver", "@A X.@B Y.@C Z", ((QualifiedType) receiver).toString());
+		assertEquals("Incorrect receiver", "@A X.@B Y.@C Z", receiver.toString());
 		assertEquals("Incorrect method signature", "public void foo(@A X.@B Y.@C Z this,String str){\n}\n", method.toString());
 	}
 	public void testParameterizedReceiverType() throws JavaModelException {
@@ -3857,8 +3857,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		VariableDeclaration variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
 		IVariableBinding variableBinding = variableDeclaration.resolveBinding();
 		IMethodBinding methodBinding = lambdaExpression.resolveMethodBinding();
-		String methodKey = ((IBinding) methodBinding).getKey();
-		String variableKey = ((IBinding) variableBinding).getKey();
+		String methodKey = methodBinding.getKey();
+		String variableKey = variableBinding.getKey();
 		assertTrue(variableKey.regionMatches(0, methodKey, 0, methodKey.length()));
 
 		fragments = field[1].fragments();
@@ -3868,7 +3868,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
 		variableBinding = variableDeclaration.resolveBinding();
 
-		assertNotSame(variableKey.intern(), ((IBinding) variableBinding).getKey().intern());
+		assertNotSame(variableKey.intern(), variableBinding.getKey().intern());
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=420458

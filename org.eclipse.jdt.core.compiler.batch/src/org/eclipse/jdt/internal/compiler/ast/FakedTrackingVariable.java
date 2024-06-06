@@ -430,13 +430,13 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		if (flowInfo.reachMode() != FlowInfo.REACHABLE)
 			return;
 		// client has checked that the resolvedType is an AutoCloseable, hence the following cast is safe:
-		if (((ReferenceBinding)allocation.resolvedType).hasTypeBit(TypeIds.BitResourceFreeCloseable)) {
+		if (allocation.resolvedType.hasTypeBit(TypeIds.BitResourceFreeCloseable)) {
 			// remove unnecessary attempts (closeable is not relevant)
 			if (allocation.closeTracker != null) {
 				allocation.closeTracker.withdraw();
 				allocation.closeTracker = null;
 			}
-		} else if (((ReferenceBinding)allocation.resolvedType).hasTypeBit(TypeIds.BitWrapperCloseable)) {
+		} else if (allocation.resolvedType.hasTypeBit(TypeIds.BitWrapperCloseable)) {
 			boolean isWrapper = true;
 			if (allocation.arguments != null &&  allocation.arguments.length > 0) {
 				// find the wrapped resource represented by its tracking var:
@@ -511,7 +511,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			return flowInfo;
 		}
 		// client has checked that the resolvedType is an AutoCloseable, hence the following cast is safe:
-		if (((ReferenceBinding)acquisition.resolvedType).hasTypeBit(TypeIds.BitResourceFreeCloseable)
+		if (acquisition.resolvedType.hasTypeBit(TypeIds.BitResourceFreeCloseable)
 				&& !isBlacklistedMethod(acquisition)) {
 			// remove unnecessary attempts (closeable is not relevant)
 			if (acquisition.closeTracker != null) {
@@ -1093,7 +1093,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	/** Answer wither the given type binding is a subtype of java.lang.AutoCloseable. */
 	public static boolean isAnyCloseable(TypeBinding typeBinding) {
 		return typeBinding instanceof ReferenceBinding
-			&& ((ReferenceBinding)typeBinding).hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable);
+			&& typeBinding.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable);
 	}
 
 	/** Answer wither the given type binding is a subtype of java.lang.AutoCloseable. */

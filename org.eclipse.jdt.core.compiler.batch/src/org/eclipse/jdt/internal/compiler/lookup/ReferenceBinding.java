@@ -1599,7 +1599,7 @@ protected boolean isSubTypeOfRTL(TypeBinding other) {
 		return (lower != null && isSubtypeOf(lower, false));
 	}
 	if (other instanceof ReferenceBinding) {
-		TypeBinding[] intersecting = ((ReferenceBinding) other).getIntersectingTypes();
+		TypeBinding[] intersecting = other.getIntersectingTypes();
 		if (intersecting != null) {
 			for (TypeBinding binding : intersecting) {
 				if (!isSubtypeOf(binding, false))

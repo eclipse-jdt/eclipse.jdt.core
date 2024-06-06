@@ -981,7 +981,7 @@ protected IType resolveTypeByLocation(char[] packageName, char[] typeName, int a
 	IType type= null;
 
 	// TODO (david) post 3.0 should remove isOpen check, and investigate reusing ICompilationUnit#getElementAt. may need to optimize #getElementAt to remove recursions
-	if (this.openable instanceof CompilationUnit && ((CompilationUnit)this.openable).isOpen()) {
+	if (this.openable instanceof CompilationUnit && this.openable.isOpen()) {
 		CompilationUnit wc = (CompilationUnit) this.openable;
 		try {
 			if(((packageName == null || packageName.length == 0) && wc.getPackageDeclarations().length == 0) ||

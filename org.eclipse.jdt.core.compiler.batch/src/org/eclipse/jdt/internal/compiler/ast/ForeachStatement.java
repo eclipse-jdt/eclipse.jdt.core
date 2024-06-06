@@ -457,9 +457,9 @@ public class ForeachStatement extends Statement {
 		if (collectionType.isArrayType()) { // for(E e : E[])
 			return ((ArrayBinding) collectionType).elementsType();
 		} else if (collectionType instanceof ReferenceBinding) {
-			ReferenceBinding iterableType = ((ReferenceBinding)collectionType).findSuperTypeOriginatingFrom(T_JavaLangIterable, false /*Iterable is not a class*/);
+			ReferenceBinding iterableType = collectionType.findSuperTypeOriginatingFrom(T_JavaLangIterable, false /*Iterable is not a class*/);
 			if (iterableType == null && isTargetJsr14) {
-				iterableType = ((ReferenceBinding)collectionType).findSuperTypeOriginatingFrom(T_JavaUtilCollection, false /*Iterable is not a class*/);
+				iterableType = collectionType.findSuperTypeOriginatingFrom(T_JavaUtilCollection, false /*Iterable is not a class*/);
 			}
 			if (iterableType == null) return null;
 
@@ -570,22 +570,22 @@ public class ForeachStatement extends Statement {
 					this.collection.computeConversion(this.scope, expectedCollectionType, collectionType);
 				}
 			} else if (collectionType instanceof ReferenceBinding) {
-				ReferenceBinding iterableType = ((ReferenceBinding)collectionType).findSuperTypeOriginatingFrom(T_JavaLangIterable, false /*Iterable is not a class*/);
+				ReferenceBinding iterableType = collectionType.findSuperTypeOriginatingFrom(T_JavaLangIterable, false /*Iterable is not a class*/);
 				if (iterableType == null && isTargetJsr14) {
-					iterableType = ((ReferenceBinding)collectionType).findSuperTypeOriginatingFrom(T_JavaUtilCollection, false /*Iterable is not a class*/);
+					iterableType = collectionType.findSuperTypeOriginatingFrom(T_JavaUtilCollection, false /*Iterable is not a class*/);
 				}
 				checkIterable: {
 					if (iterableType == null) break checkIterable;
 
 					this.iteratorReceiverType = collectionType.erasure();
 					if (isTargetJsr14) {
-						if (((ReferenceBinding)this.iteratorReceiverType).findSuperTypeOriginatingFrom(T_JavaUtilCollection, false) == null) {
+						if (this.iteratorReceiverType.findSuperTypeOriginatingFrom(T_JavaUtilCollection, false) == null) {
 							this.iteratorReceiverType = iterableType; // handle indirect inheritance thru variable secondary bound
 							this.collection.computeConversion(this.scope, iterableType, collectionType);
 						} else {
 							this.collection.computeConversion(this.scope, collectionType, collectionType);
 						}
-					} else if (((ReferenceBinding)this.iteratorReceiverType).findSuperTypeOriginatingFrom(T_JavaLangIterable, false) == null) {
+					} else if (this.iteratorReceiverType.findSuperTypeOriginatingFrom(T_JavaLangIterable, false) == null) {
 						this.iteratorReceiverType = iterableType; // handle indirect inheritance thru variable secondary bound
 						this.collection.computeConversion(this.scope, iterableType, collectionType);
 					} else {

@@ -431,7 +431,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 							SourceRefElement candidate = null;
 							do {
 								// check name range
-								range = ((IField)child).getNameRange();
+								range = child.getNameRange();
 								if (position <= range.getOffset() + range.getLength()) {
 									candidate = child;
 								} else {

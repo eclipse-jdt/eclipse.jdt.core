@@ -910,7 +910,7 @@ public Object[] getEmulationPath(ReferenceBinding targetEnclosingType, boolean o
 			if (enclosingArgument != null) {
 				FieldBinding syntheticField = sourceType.getSyntheticField(enclosingArgument);
 				if (syntheticField != null) {
-					if (TypeBinding.equalsEquals(syntheticField.type, targetEnclosingType) || (!onlyExactMatch && ((ReferenceBinding)syntheticField.type).findSuperTypeOriginatingFrom(targetEnclosingType) != null))
+					if (TypeBinding.equalsEquals(syntheticField.type, targetEnclosingType) || (!onlyExactMatch && syntheticField.type.findSuperTypeOriginatingFrom(targetEnclosingType) != null))
 						return new Object[] { syntheticField };
 				}
 			}
