@@ -70,7 +70,7 @@ public class TypeLiteral extends Expression {
 	 * The type; lazily initialized; defaults to a unspecified,
 	 * legal type.
 	 */
-	private Type type = null;
+	private volatile Type type;
 
 	/**
 	 * Creates a new AST node for a type literal owned by the given

@@ -98,7 +98,7 @@ public class ArrayCreation extends Expression {
 	 * The array type; lazily initialized; defaults to a unspecified,
 	 * legal array type.
 	 */
-	private ArrayType arrayType = null;
+	private volatile ArrayType arrayType;
 
 	/**
 	 * The list of dimension expressions (element type:

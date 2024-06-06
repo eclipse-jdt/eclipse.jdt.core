@@ -459,7 +459,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 				codeStream.stmtInPreConContext = statement.inPreConstructorContext;
 				statement.generateCode(this.scope, codeStream);
 				codeStream.stmtInPreConContext = false;
-				if (!this.compilationResult.hasErrors() && codeStream.stackDepth != 0) {
+				if (!this.compilationResult.hasErrors() && (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)) {
 					this.scope.problemReporter().operandStackSizeInappropriate(this);
 				}
 			}
@@ -601,7 +601,6 @@ public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 		return;
 	}
 	parser.parse(this, unit, false);
-	this.containsSwitchWithTry = parser.switchWithTry;
 }
 
 @Override
@@ -748,6 +747,11 @@ private void markPreConstructorContext(Statement[] stmts, int prologueLength) {
 		public boolean visit(TypeDeclaration typeDeclaration, BlockScope skope) {
 			typeDeclaration.inPreConstructorContext = true;
 			return false;
+		}
+		@Override
+		public boolean visit(LambdaExpression lambda, BlockScope skope) {
+			lambda.inPreConstructorContext = true;
+			return true;
 		}
 	}
 	for (int i = 0; i <= prologueLength; ++i) {

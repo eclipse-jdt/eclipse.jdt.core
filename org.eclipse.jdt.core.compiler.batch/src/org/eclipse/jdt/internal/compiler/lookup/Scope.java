@@ -2233,8 +2233,10 @@ public abstract class Scope {
 						for (ImportBinding importBinding : imports) {
 							if (importBinding.isStatic() && !importBinding.onDemand) {
 								if (CharOperation.equals(importBinding.getSimpleName(), name)) {
-									if (unitScope.resolveSingleImport(importBinding, Binding.TYPE | Binding.FIELD | Binding.METHOD) != null && importBinding.resolvedImport instanceof FieldBinding) {
-										foundField = (FieldBinding) importBinding.resolvedImport;
+									if (unitScope.resolveSingleImport(importBinding, Binding.TYPE | Binding.FIELD | Binding.METHOD) != null
+											&& importBinding.getResolvedImport() instanceof FieldBinding resolvedField)
+									{
+										foundField = resolvedField;
 										ImportReference importReference = importBinding.reference;
 										if (importReference != null && needResolve) {
 											importReference.bits |= ASTNode.Used;
@@ -2259,7 +2261,7 @@ public abstract class Scope {
 						ReferenceBinding sourceCodeReceiver = null;
 						for (ImportBinding importBinding : imports) {
 							if (importBinding.isStatic() && importBinding.onDemand) {
-								Binding resolvedImport = importBinding.resolvedImport;
+								Binding resolvedImport = importBinding.getResolvedImport();
 								if (resolvedImport instanceof ReferenceBinding) {
 									ReferenceBinding importedReferenceBinding = (ReferenceBinding) resolvedImport;
 									FieldBinding temp = findField(importedReferenceBinding, name, invocationSite, needResolve);
@@ -2745,7 +2747,7 @@ public abstract class Scope {
 				boolean skipOnDemand = false; // set to true when matched static import of method name so stop looking for on demand methods
 				for (ImportBinding importBinding : imports) {
 					if (importBinding.isStatic()) {
-						Binding resolvedImport = importBinding.resolvedImport;
+						Binding resolvedImport = importBinding.getResolvedImport();
 						MethodBinding possible = null;
 						if (importBinding.onDemand) {
 							if (!skipOnDemand && resolvedImport instanceof ReferenceBinding) {
@@ -2909,8 +2911,8 @@ public abstract class Scope {
 	}
 	public final ReferenceBinding getJavaLangNoClassDefFoundError() {
 		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_NOCLASSDEFERROR);
-		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_NOCLASSDEFERROR, this);
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_NOCLASSDEFFOUNDERROR);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_NOCLASSDEFFOUNDERROR, this);
 	}
 	public final ReferenceBinding getJavaLangNoSuchFieldError() {
 		CompilationUnitScope unitScope = compilationUnitScope();
@@ -3519,13 +3521,14 @@ public abstract class Scope {
 				if (cachedBinding instanceof ImportBinding) { // single type import cached in faultInImports(), replace it in the cache with the type
 					ImportBinding importBinding = (ImportBinding) cachedBinding;
 					ImportReference importReference = importBinding.reference;
-					if (importReference != null && !isUnnecessarySamePackageImport(importBinding.resolvedImport, unitScope)) {
+					Binding resolvedImport = importBinding.getResolvedImport();
+					if (importReference != null && !isUnnecessarySamePackageImport(resolvedImport, unitScope)) {
 						importReference.bits |= ASTNode.Used;
 					}
 					if (cachedBinding instanceof ImportConflictBinding)
 						typeOrPackageCache.put(name, cachedBinding = ((ImportConflictBinding) cachedBinding).conflictingTypeBinding); // already know its visible
 					else
-						typeOrPackageCache.put(name, cachedBinding = importBinding.resolvedImport); // already know its visible
+						typeOrPackageCache.put(name, cachedBinding = resolvedImport); // already know its visible
 				}
 				if ((mask & Binding.TYPE) != 0) {
 					if (foundType != null && foundType.problemId() != ProblemReasons.NotVisible && cachedBinding.problemId() != ProblemReasons.Ambiguous)
@@ -3549,7 +3552,7 @@ public abstract class Scope {
 							if (resolvedImport == null) continue nextImport;
 							if (resolvedImport instanceof TypeBinding) {
 								ImportReference importReference = importBinding.reference;
-								if (importReference != null && !isUnnecessarySamePackageImport(importBinding.resolvedImport, unitScope))
+								if (importReference != null && !isUnnecessarySamePackageImport(importBinding.getResolvedImport(), unitScope))
 									importReference.bits |= ASTNode.Used;
 								return resolvedImport; // already know its visible
 							}
@@ -3581,7 +3584,7 @@ public abstract class Scope {
 				ReferenceBinding type = null;
 				for (ImportBinding someImport : imports) {
 					if (someImport.onDemand) {
-						Binding resolvedImport = someImport.resolvedImport;
+						Binding resolvedImport = someImport.getResolvedImport();
 						ReferenceBinding temp = null;
 						if (resolvedImport instanceof PackageBinding) {
 							temp = findType(name, (PackageBinding) resolvedImport, currentPackage);
@@ -4842,115 +4845,134 @@ public abstract class Scope {
 		// see if they are equal after substitution of type variables (do the type variables have to be equal to be considered an override???)
 		if (receiverType != null)
 			receiverType = receiverType instanceof CaptureBinding ? receiverType : (ReferenceBinding) receiverType.erasure();
-		nextSpecific : for (int i = 0; i < visibleSize; i++) {
-			MethodBinding current = moreSpecific[i];
-			if (current != null) {
-				ReferenceBinding[] mostSpecificExceptions = null;
-				MethodBinding original = current.original();
-				boolean shouldIntersectExceptions = original.declaringClass.isAbstract() && original.thrownExceptions != Binding.NO_EXCEPTIONS; // only needed when selecting from interface methods
-				for (int j = 0; j < visibleSize; j++) {
-					MethodBinding next = moreSpecific[j];
-					if (next == null || i == j) continue;
-					MethodBinding original2 = next.original();
-					if (TypeBinding.equalsEquals(original.declaringClass, original2.declaringClass))
-						break nextSpecific; // duplicates thru substitution
 
-					if (!original.isAbstract()) {
-						if (original2.isAbstract() || original2.isDefaultMethod())
-							continue; // only compare current against other concrete methods
+		boolean hasConsideredNullContract = false;
+		// perform 1 or 2 attempts, the second being the safety net, in case considering null contracts may have prevented finding a solution.
+		for (int attempt = 0; attempt < 2; attempt++) {
+			nextSpecific : for (int i = 0; i < visibleSize; i++) {
+				MethodBinding current = moreSpecific[i];
+				if (current != null) {
+					ReferenceBinding[] mostSpecificExceptions = null;
+					MethodBinding original = current.original();
+					boolean shouldIntersectExceptions = original.declaringClass.isAbstract() && original.thrownExceptions != Binding.NO_EXCEPTIONS; // only needed when selecting from interface methods
+					for (int j = 0; j < visibleSize; j++) {
+						MethodBinding next = moreSpecific[j];
+						if (next == null || i == j) continue;
+						MethodBinding original2 = next.original();
+						if (TypeBinding.equalsEquals(original.declaringClass, original2.declaringClass))
+							break nextSpecific; // duplicates thru substitution
 
-						original2 = original.findOriginalInheritedMethod(original2);
-						if (original2 == null)
-							continue nextSpecific; // current's declaringClass is not a subtype of next's declaringClass
-						if (current.hasSubstitutedParameters() || original.typeVariables != Binding.NO_TYPE_VARIABLES) {
-							if (!environment().methodVerifier().isParameterSubsignature(original, original2))
+						if (!original.isAbstract()) {
+							if (original2.isAbstract() || original2.isDefaultMethod())
+								continue; // only compare current against other concrete methods
+
+							original2 = original.findOriginalInheritedMethod(original2);
+							if (original2 == null)
+								continue nextSpecific; // current's declaringClass is not a subtype of next's declaringClass
+							if (current.hasSubstitutedParameters() || original.typeVariables != Binding.NO_TYPE_VARIABLES) {
+								if (!environment().methodVerifier().isParameterSubsignature(original, original2))
+									continue nextSpecific; // current does not override next
+							}
+						} else if (receiverType != null) { // should not be null if original isAbstract, but be safe
+							TypeBinding superType = receiverType.findSuperTypeOriginatingFrom(original.declaringClass.erasure());
+							if (TypeBinding.equalsEquals(original.declaringClass, superType) || !(superType instanceof ReferenceBinding)) {
+								// keep original
+							} else {
+								// must find inherited method with the same substituted variables
+								MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(original.selector, argumentTypes.length);
+								for (MethodBinding superMethod : superMethods) {
+									if (superMethod.original() == original) {
+										original = superMethod;
+										break;
+									}
+								}
+							}
+							superType = receiverType.findSuperTypeOriginatingFrom(original2.declaringClass.erasure());
+							if (TypeBinding.equalsEquals(original2.declaringClass, superType) || !(superType instanceof ReferenceBinding)) {
+								// keep original2
+							} else {
+								// must find inherited method with the same substituted variables
+								MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(original2.selector, argumentTypes.length);
+								for (MethodBinding superMethod : superMethods) {
+									if (superMethod.original() == original2) {
+										original2 = superMethod;
+										break;
+									}
+								}
+							}
+							if (original.typeVariables != Binding.NO_TYPE_VARIABLES)
+								original2 = original.computeSubstitutedMethod(original2, environment());
+							if (original2 == null || !original.areParameterErasuresEqual(original2))
 								continue nextSpecific; // current does not override next
-						}
-					} else if (receiverType != null) { // should not be null if original isAbstract, but be safe
-						TypeBinding superType = receiverType.findSuperTypeOriginatingFrom(original.declaringClass.erasure());
-						if (TypeBinding.equalsEquals(original.declaringClass, superType) || !(superType instanceof ReferenceBinding)) {
-							// keep original
-						} else {
-							// must find inherited method with the same substituted variables
-							MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(original.selector, argumentTypes.length);
-							for (MethodBinding superMethod : superMethods) {
-								if (superMethod.original() == original) {
-									original = superMethod;
-									break;
-								}
-							}
-						}
-						superType = receiverType.findSuperTypeOriginatingFrom(original2.declaringClass.erasure());
-						if (TypeBinding.equalsEquals(original2.declaringClass, superType) || !(superType instanceof ReferenceBinding)) {
-							// keep original2
-						} else {
-							// must find inherited method with the same substituted variables
-							MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(original2.selector, argumentTypes.length);
-							for (MethodBinding superMethod : superMethods) {
-								if (superMethod.original() == original2) {
-									original2 = superMethod;
-									break;
-								}
-							}
-						}
-						if (original.typeVariables != Binding.NO_TYPE_VARIABLES)
-							original2 = original.computeSubstitutedMethod(original2, environment());
-						if (original2 == null || !original.areParameterErasuresEqual(original2))
-							continue nextSpecific; // current does not override next
-						if (TypeBinding.notEquals(original.returnType, original2.returnType)) {
-							if (next.original().typeVariables != Binding.NO_TYPE_VARIABLES) {
-								if (original.returnType.erasure().findSuperTypeOriginatingFrom(original2.returnType.erasure()) == null)
+							if (TypeBinding.notEquals(original.returnType, original2.returnType)) {
+								if (next.original().typeVariables != Binding.NO_TYPE_VARIABLES) {
+									if (original.returnType.erasure().findSuperTypeOriginatingFrom(original2.returnType.erasure()) == null)
+										continue nextSpecific;
+								} else if (!current.returnType.isCompatibleWith(next.returnType)) {
 									continue nextSpecific;
-							} else if (!current.returnType.isCompatibleWith(next.returnType)) {
+								}
+								// continue with original 15.12.2.5
+							}
+							if (attempt == 0
+									&& compilerOptions().isAnnotationBasedNullAnalysisEnabled
+									&& j > i // don't go backwards
+									&& NullAnnotationMatching.hasMoreSpecificNullness(next, current))
+							{
+								// In this case we want to prefer 'next' among equivalent methods.
+								// (the case where JLS 15.12.2.5 says "...is chosen arbitrarily...")
+								// To try if 'next' matches all criteria, skip outer loop to j (after increment):
+								i = j -1 ;
+								hasConsideredNullContract = true;
 								continue nextSpecific;
 							}
-							// continue with original 15.12.2.5
-						}
-						if (shouldIntersectExceptions && original2.declaringClass.isInterface()) {
-							if (current.thrownExceptions != next.thrownExceptions) {
-								if (next.thrownExceptions == Binding.NO_EXCEPTIONS) {
-									mostSpecificExceptions = Binding.NO_EXCEPTIONS;
-								} else {
-									if (mostSpecificExceptions == null) {
-										mostSpecificExceptions = current.thrownExceptions;
-									}
-									int mostSpecificLength = mostSpecificExceptions.length;
-									ReferenceBinding[] nextExceptions = getFilteredExceptions(next);
-									int nextLength = nextExceptions.length;
-									SimpleSet temp = new SimpleSet(mostSpecificLength);
-									boolean changed = false;
-									nextException : for (int t = 0; t < mostSpecificLength; t++) {
-										ReferenceBinding exception = mostSpecificExceptions[t];
-										for (int s = 0; s < nextLength; s++) {
-											ReferenceBinding nextException = nextExceptions[s];
-											if (exception.isCompatibleWith(nextException)) {
-												temp.add(exception);
-												continue nextException;
-											} else if (nextException.isCompatibleWith(exception)) {
-												temp.add(nextException);
-												changed = true;
-												continue nextException;
-											} else {
-												changed = true;
+							if (shouldIntersectExceptions && original2.declaringClass.isInterface()) {
+								if (current.thrownExceptions != next.thrownExceptions) {
+									if (next.thrownExceptions == Binding.NO_EXCEPTIONS) {
+										mostSpecificExceptions = Binding.NO_EXCEPTIONS;
+									} else {
+										if (mostSpecificExceptions == null) {
+											mostSpecificExceptions = current.thrownExceptions;
+										}
+										int mostSpecificLength = mostSpecificExceptions.length;
+										ReferenceBinding[] nextExceptions = getFilteredExceptions(next);
+										int nextLength = nextExceptions.length;
+										SimpleSet temp = new SimpleSet(mostSpecificLength);
+										boolean changed = false;
+										nextException : for (int t = 0; t < mostSpecificLength; t++) {
+											ReferenceBinding exception = mostSpecificExceptions[t];
+											for (int s = 0; s < nextLength; s++) {
+												ReferenceBinding nextException = nextExceptions[s];
+												if (exception.isCompatibleWith(nextException)) {
+													temp.add(exception);
+													continue nextException;
+												} else if (nextException.isCompatibleWith(exception)) {
+													temp.add(nextException);
+													changed = true;
+													continue nextException;
+												} else {
+													changed = true;
+												}
 											}
 										}
-									}
-									if (changed) {
-										mostSpecificExceptions = temp.elementSize == 0 ? Binding.NO_EXCEPTIONS : new ReferenceBinding[temp.elementSize];
-										temp.asArray(mostSpecificExceptions);
+										if (changed) {
+											mostSpecificExceptions = temp.elementSize == 0 ? Binding.NO_EXCEPTIONS : new ReferenceBinding[temp.elementSize];
+											temp.asArray(mostSpecificExceptions);
+										}
 									}
 								}
 							}
 						}
 					}
+					if (mostSpecificExceptions != null && mostSpecificExceptions != current.thrownExceptions) {
+						return new MostSpecificExceptionMethodBinding(current, mostSpecificExceptions);
+					}
+					return current;
 				}
-				if (mostSpecificExceptions != null && mostSpecificExceptions != current.thrownExceptions) {
-					return new MostSpecificExceptionMethodBinding(current, mostSpecificExceptions);
-				}
-				return current;
 			}
+			if (!hasConsideredNullContract)
+				break;
+			// otherwise retry without considering null contracts
 		}
-
 		return new ProblemMethodBinding(visible[0], visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
 	}
 
@@ -5379,7 +5401,9 @@ public abstract class Scope {
 						}
 				}
 			}
-			staticFactory.returnType = environment.createParameterizedType(genericType, Scope.substitute(substitution, genericType.typeVariables()), originalEnclosingType);
+			staticFactory.returnType = environment.createParameterizedType(genericType,
+					Scope.substitute(substitution, genericType.typeVariables()),
+					(ReferenceBinding) Scope.substitute(substitution, originalEnclosingType));
 			staticFactory.parameters = Scope.substitute(substitution, method.parameters);
 			staticFactory.thrownExceptions = Scope.substitute(substitution, method.thrownExceptions);
 			if (staticFactory.thrownExceptions == null) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -603,6 +603,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return true;
 		}
 
+		protected boolean mustRemoveEndKeywordWhenEmpty() {
+			return false;
+		}
+
 		private int rewriteList(
 				ASTNode parent,
 				StructuralPropertyDescriptor property,
@@ -760,6 +764,17 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						}
 						currPos= end;
 						prevEnd= currEnd;
+						// if all removed and we are removing last item - we must remove end keyword
+						if (mustRemoveEndKeywordWhenEmpty() && nextIndex == total && lastNonDelete == -1 && endKeyword != null && endKeyword.length() > 0) {
+							try {
+								TokenScanner scanner = getScanner();
+								int tempOffset = scanner.getNextEndOffset(currPos, true);
+								doTextRemove(currPos, tempOffset - currPos, editGroup);
+								currPos = tempOffset;
+							} catch (CoreException e) {
+								// ignore
+							}
+						}
 						separatorState= NEW;
 					}
 				} else { // replaced or unchanged
@@ -837,6 +852,13 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		public final int rewriteList(ASTNode parent, StructuralPropertyDescriptor property, int offset, String keyword, String endKeyword, String separator) {
 			this.constantSeparator= separator;
 			return rewriteList(parent, property, keyword, endKeyword, offset);
+		}
+	}
+
+	class ResourcesListRewriter extends ListRewriter {
+		@Override
+		protected boolean mustRemoveEndKeywordWhenEmpty() {
+			return true;
 		}
 	}
 
@@ -1360,6 +1382,14 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		RewriteEvent event= getEvent(parent, property);
 		if (event != null && event.getChangeKind() != RewriteEvent.UNCHANGED) {
 			return new ListRewriter().rewriteList(parent, property, pos, keyword, endKeyword, separator);
+		}
+		return doVisit(parent, property, pos);
+	}
+
+	private int rewriteResourcesNodeList(ASTNode parent, StructuralPropertyDescriptor property, int pos, String keyword, String endKeyword, String separator) {
+		RewriteEvent event= getEvent(parent, property);
+		if (event != null && event.getChangeKind() != RewriteEvent.UNCHANGED) {
+			return new ResourcesListRewriter().rewriteList(parent, property, pos, keyword, endKeyword, separator);
 		}
 		return doVisit(parent, property, pos);
 	}
@@ -2310,7 +2340,23 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		} else {
 			startPos= getPosAfterLeftBrace(node.getStartPosition());
 		}
-		int startIndent= getIndent(node.getStartPosition()) + 1;
+		// for a try-with-resources body, the start of the block may be on the line of the
+		// last resource statement which means it could already be indented and so we
+		// must use the base indent of the try statement to indent the body correctly
+		boolean needParentIndent= false;
+		if (node.getLocationInParent() == TryStatement.BODY_PROPERTY) {
+			TryStatement parent= (TryStatement)node.getParent();
+			if (!parent.resources().isEmpty()) {
+				List<Expression> resources= parent.resources();
+				int lastResourcePos= resources.get(resources.size() - 1).getStartPosition();
+				int lastResourceLine= getLineInformation().getLineOfOffset(lastResourcePos);
+				int blockLine= getLineInformation().getLineOfOffset(node.getStartPosition());
+				if (blockLine == lastResourceLine) {
+					needParentIndent= true;
+				}
+			}
+		}
+		int startIndent= needParentIndent ? (getIndent(node.getParent().getStartPosition()) + 1) : getIndent(node.getStartPosition()) + 1;
 		rewriteParagraphList(node, Block.STATEMENTS_PROPERTY, startPos, startIndent, 0, 1);
 		return false;
 	}
@@ -2376,6 +2422,20 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		int pos = rewriteRequiredNode(node, RecordPattern.PATTERN_TYPE_PROPERTY);
 		rewriteNodeList(node, RecordPattern.PATTERNS_PROPERTY, pos, Util.EMPTY_STRING, ", "); //$NON-NLS-1$
+		return false;
+	}
+
+	@Override
+	public boolean visit(EitherOrMultiPattern node) {
+		if (!DOMASTUtil.isPatternSupported(node.getAST())) {
+			return false;
+		}
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+
+		int pos = rewriteRequiredNode(node, EitherOrMultiPattern.PATTERNS_PROPERTY);
+		rewriteNodeList(node, EitherOrMultiPattern.PATTERNS_PROPERTY, pos, Util.EMPTY_STRING, ", "); //$NON-NLS-1$
 		return false;
 	}
 
@@ -4018,13 +4078,12 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				int indent= getIndent(node.getStartPosition());
 				String prefix= this.formatter.TRY_RESOURCES.getPrefix(indent);
 				String newParen = this.formatter.TRY_RESOURCES_PAREN.getPrefix(indent) + "("; //$NON-NLS-1$
-				pos= rewriteNodeList(node, desc, getPosAfterTry(pos), newParen, ")", ";" + prefix); //$NON-NLS-1$ //$NON-NLS-2$
+				pos= rewriteResourcesNodeList(node, desc, getPosAfterTry(pos), newParen, ")", ";" + prefix); //$NON-NLS-1$ //$NON-NLS-2$
 
 			} else {
 				pos= doVisit(node, desc, pos);
 			}
 		}
-
 		pos= rewriteRequiredNode(node, TryStatement.BODY_PROPERTY);
 
 		if (isChanged(node, TryStatement.CATCH_CLAUSES_PROPERTY)) {

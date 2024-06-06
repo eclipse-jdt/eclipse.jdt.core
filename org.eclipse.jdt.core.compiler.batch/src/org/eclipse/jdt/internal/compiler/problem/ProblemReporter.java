@@ -699,6 +699,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.NotOwningResourceField:
 		case IProblem.OwningFieldInNonResourceClass:
 		case IProblem.OwningFieldShouldImplementClose:
+		case IProblem.StaticResourceField:
 			return CompilerOptions.InsufficientResourceManagement;
 		case IProblem.OverrideReducingParamterOwning:
 		case IProblem.OverrideAddingReturnOwning:
@@ -1347,6 +1348,7 @@ public void operandStackSizeInappropriate(ASTNode location) {
 		ProblemSeverities.Warning,
 		location.sourceStart,
 		location.sourceEnd);
+	throw new AssertionError("Anomalous/Inconsistent operand stack!"); //$NON-NLS-1$
 }
 public void bytecodeExceeds64KLimit(LambdaExpression location) {
 	bytecodeExceeds64KLimit(location.binding, location.sourceStart, location.diagnosticsSourceEnd());
@@ -2027,6 +2029,8 @@ String deprecatedSinceValue(Supplier<AnnotationBinding[]> annotations) {
 		ReferenceContext contextSave = this.referenceContext;
 		try {
 			for (AnnotationBinding annotationBinding : annotations.get()) {
+				if (annotationBinding == null)
+					continue;
 				if (annotationBinding.getAnnotationType().id == TypeIds.T_JavaLangDeprecated) {
 					for (ElementValuePair elementValuePair : annotationBinding.getElementValuePairs()) {
 						if (CharOperation.equals(elementValuePair.getName(), TypeConstants.SINCE) && elementValuePair.value instanceof StringConstant)
@@ -6424,6 +6428,8 @@ public boolean expressionNonNullComparison(Expression expr, boolean checkForNull
 			return false;
 		}
 		// fall through to bottom
+	} else if (expr instanceof LambdaExpression) {
+		// not very useful code, but humor the user
 	} else {
 		needImplementation(expr); // want to see if we get here
 		return false;
@@ -8106,6 +8112,15 @@ public void resourceHasToImplementAutoCloseable(TypeBinding binding, ASTNode ref
 			new String[] {new String(binding.shortReadableName())},
 			reference.sourceStart,
 			reference.sourceEnd);
+}
+public void resourceNotAValue(NameReference node) {
+	String[] arguments = { node.toString() };
+	this.handle(
+			IProblem.ResourceIsNotAValue,
+			arguments,
+			arguments,
+			node.sourceStart,
+			node.sourceEnd);
 }
 private int retrieveClosingAngleBracketPosition(int start) {
 	if (this.referenceContext == null) return start;
@@ -10326,6 +10341,14 @@ public void shouldMarkFieldAsOwning(ASTNode location) {
 		args,
 		location.sourceStart,
 		location.sourceEnd);
+}
+public void staticResourceField(FieldDeclaration fieldDeclaration) {
+	this.handle(
+		IProblem.StaticResourceField,
+		NoArgument,
+		NoArgument,
+		fieldDeclaration.sourceStart,
+		fieldDeclaration.sourceEnd);
 }
 public void shouldImplementAutoCloseable(ASTNode location) {
 	char[] name = this.options.owningAnnotationName[this.options.owningAnnotationName.length-1];

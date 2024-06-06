@@ -78,13 +78,13 @@ public class MemberValuePair extends ASTNode {
 	 * The member name; lazily initialized; defaults to a unspecified,
 	 * legal name.
 	 */
-	private SimpleName name = null;
+	private volatile SimpleName name;
 
 	/**
 	 * The value; lazily initialized; defaults to a unspecified,
 	 * legal expression.
 	 */
-	private Expression value = null;
+	private volatile Expression value;
 
 	/**
 	 * Creates a new AST node for a member value pair owned by the given

@@ -74,7 +74,7 @@ public class ExpressionStatement extends Statement {
 	 * The expression; lazily initialized; defaults to a unspecified, but legal,
 	 * expression.
 	 */
-	private Expression expression = null;
+	private volatile Expression expression;
 
 	/**
 	 * Creates a new unparented expression statement node owned by the given

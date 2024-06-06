@@ -141,7 +141,7 @@ public abstract class Engine implements ITypeRequestor {
 
 		if (unit != null) {
 			environment.buildTypeBindings(unit, accessRestriction);
-			environment.completeTypeBindings(unit, true);
+			environment.completeTypeBindings(unit, true, false /* no annotations */);
 		}
 	}
 
@@ -164,7 +164,7 @@ public abstract class Engine implements ITypeRequestor {
 				this.onDemandImportsCache[this.onDemandImportCacheCount++] =
 					importBinding;
 			} else {
-				if(!(importBinding.resolvedImport instanceof MethodBinding) ||
+				if(!(importBinding.getResolvedImport() instanceof MethodBinding) ||
 						importBinding instanceof ImportConflictBinding) {
 					if(this.importsCache == null) {
 						this.importsCache = new char[length - i][][];
@@ -232,7 +232,7 @@ public abstract class Engine implements ITypeRequestor {
 
 		for (int i = 0; i < this.onDemandImportCacheCount; i++) {
 			ImportBinding importBinding = this.onDemandImportsCache[i];
-			Binding resolvedImport = importBinding.resolvedImport;
+			Binding resolvedImport = importBinding.getResolvedImport();
 
 			char[][] importName = importBinding.compoundName;
 			char[] importFlatName = CharOperation.concatWith(importName, '.');
@@ -273,9 +273,7 @@ public abstract class Engine implements ITypeRequestor {
 				for (int j = 0; j < this.onDemandImportCacheCount; j++) {
 					if(i != j) {
 						ImportBinding conflictingImportBinding = this.onDemandImportsCache[j];
-						if(conflictingImportBinding.resolvedImport instanceof ReferenceBinding) {
-							ReferenceBinding refBinding =
-								(ReferenceBinding) conflictingImportBinding.resolvedImport;
+						if(conflictingImportBinding.getResolvedImport() instanceof ReferenceBinding refBinding) {
 							if (refBinding.getMemberType(typeName) != null) {
 								return true;
 							}

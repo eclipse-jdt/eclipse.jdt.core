@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -951,6 +951,21 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		return false;
 	}
 
+	@Override
+	public boolean visit(EitherOrMultiPattern node) {
+		if (DOMASTUtil.isEitherOrMultiPatternSupported(node.getAST())) {
+			int size = 1;
+			for (Pattern pattern : node.patterns()) {
+				visitPattern(pattern);
+				if (size < node.patterns().size()) {
+					this.result.append(", ");//$NON-NLS-1$
+				}
+				size++;
+			}
+		}
+		return false;
+	}
+
 	private boolean visitPattern(Pattern node) {
 		if (node instanceof RecordPattern) {
 			return visit((RecordPattern) node);
@@ -1175,6 +1190,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			StructuralPropertyDescriptor desc = level < JLS9_INTERNAL ? INTERNAL_TRY_STATEMENT_RESOURCES_PROPERTY : TryStatement.RESOURCES2_PROPERTY;
 			visitList(node, desc, String.valueOf(';'), String.valueOf('('), String.valueOf(')'));
 		}
+		this.result.append(' ');
 		getChildNode(node, TryStatement.BODY_PROPERTY).accept(this);
 		this.result.append(' ');
 		visitList(node, TryStatement.CATCH_CLAUSES_PROPERTY, null);

@@ -2068,6 +2068,10 @@ void setSourceStart(int sourceStart);
 	int OverrideReducingParamterOwning = Internal + 1266;
 	/** @since 3.37 */
 	int OverrideAddingReturnOwning = Internal + 1267;
+	/** @since 3.38 */
+	int StaticResourceField = Internal + 1268;
+	/** @since 3.38 */
+	int ResourceIsNotAValue = Internal + 1269;
 
 	// terminally
 	/** @since 3.14 */

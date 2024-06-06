@@ -147,7 +147,21 @@ protected String potentialLeakOrCloseNotShownAtExit(String resourceName) {
 protected String potentialOrDefiniteLeak(String string) {
 	return "Resource leak: '"+string+"' is never closed\n";
 }
-
+protected String fieldDeclPrefix() {
+	return "@org.eclipse.jdt.annotation.Owning "; // intentionally no linebreak
+}
+/** Override to add annotation to some tests from the super class. */
+@Override
+protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
+	testFiles = addAnnotationSources(testFiles);
+	super.runConformTest(testFiles, expectedOutput, customOptions);
+}
+/** Override to add annotation to some tests from the super class. */
+@Override
+protected void runLeakTest(String[] testFiles, String expectedCompileError, Map options) {
+	testFiles = addAnnotationSources(testFiles);
+	super.runLeakTest(testFiles, expectedCompileError, options);
+}
 private void runLeakTestWithAnnotations(String[] testFiles, String expectedProblems, Map<String, String> options) {
 	runLeakTestWithAnnotations(testFiles, expectedProblems, options, true);
 }
@@ -160,13 +174,17 @@ private void runLeakTestWithAnnotations(String[] testFiles, String expectedProbl
 	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.INFO);
 	if (options.get(CompilerOptions.OPTION_ReportInsufficientResourceManagement).equals(CompilerOptions.IGNORE))
 		options.put(CompilerOptions.OPTION_ReportInsufficientResourceManagement, CompilerOptions.INFO);
-	int length = testFiles.length;
-	System.arraycopy(testFiles, 0, testFiles = new String[length+4], 4, length);
-	testFiles[0] = OWNING_JAVA;
-	testFiles[1] = OWNING_CONTENT;
-	testFiles[2] = NOTOWNING_JAVA;
-	testFiles[3] = NOTOWNING_CONTENT;
+	testFiles = addAnnotationSources(testFiles);
 	runLeakTest(testFiles, expectedProblems, options, shouldFlushOutputDirectory);
+}
+private String[] addAnnotationSources(String[] testFiles) {
+	int length = testFiles.length;
+	System.arraycopy(testFiles, 0, testFiles = new String[length+4], 0, length);
+	testFiles[length+0] = OWNING_JAVA;
+	testFiles[length+1] = OWNING_CONTENT;
+	testFiles[length+2] = NOTOWNING_JAVA;
+	testFiles[length+3] = NOTOWNING_CONTENT;
+	return testFiles;
 }
 
 @Override
@@ -1459,5 +1477,240 @@ public void testConsumingMethodUse_binary() {
 			""",
 			null,
 			false);
-	}
+}
+public void testGH2207_2() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
+	runLeakTestWithAnnotations(
+		new String[] {
+			"ResourceLeakTest.java",
+			"""
+			import org.eclipse.jdt.annotation.Owning;
+
+			class RC implements AutoCloseable {
+				public void close() {}
+			}
+			interface ResourceProducer {
+				@Owning RC newResource();
+			}
+			public class ResourceLeakTest {
+
+				public void test() {
+					consumerOK(() -> new RC());
+				}
+				void consumerOK(ResourceProducer producer) {
+					try (RC ac = producer.newResource()) {
+						System.out.println(ac);
+					}
+				}
+				void consumerNOK(ResourceProducer producer) {
+					RC ac = producer.newResource();
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in ResourceLeakTest.java (at line 20)
+			RC ac = producer.newResource();
+			   ^^
+		Resource leak: \'ac\' is never closed
+		----------
+		""",
+		options);
+}
+public void testGH2207_3() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
+	runLeakTestWithAnnotations(
+		new String[] {
+			"ResourceLeakTest.java",
+			"""
+			import org.eclipse.jdt.annotation.NotOwning;
+
+			class RC implements AutoCloseable {
+				public void close() {}
+			}
+			interface ResourceProducer {
+				@NotOwning RC newResource();
+			}
+			public class ResourceLeakTest {
+
+				public void test(@NotOwning RC rcParm) {
+					consumer(() -> new RC());
+					consumer(() -> rcParm);
+				}
+				void consumer(ResourceProducer producer) {
+					RC ac = producer.newResource();
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in ResourceLeakTest.java (at line 12)
+			consumer(() -> new RC());
+			               ^^^^^^^^
+		Resource leak: \'<unassigned Closeable value>\' is never closed
+		----------
+		""",
+		options);
+}
+public void testGH2207_4() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
+	runLeakTestWithAnnotations(
+		new String[] {
+			"ResourceLeakTest.java",
+			"""
+			import org.eclipse.jdt.annotation.NotOwning;
+
+			class RC implements AutoCloseable {
+				public void close() {}
+			}
+			interface ResourceProducer {
+				@NotOwning RC newResource();
+			}
+			public class ResourceLeakTest {
+
+				public void test(@NotOwning RC rcParm) {
+					consumer(() -> new RC());
+					consumer(() -> rcParm);
+				}
+				void consumer(ResourceProducer producer) {
+					RC ac = producer.newResource();
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in ResourceLeakTest.java (at line 12)
+			consumer(() -> new RC());
+			               ^^^^^^^^
+		Resource leak: \'<unassigned Closeable value>\' is never closed
+		----------
+		""",
+		options);
+}
+public void testGH2161_staticBlock() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
+	runLeakTestWithAnnotations(
+		new String[] {
+			"ClassWithStatics.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+			class RC implements AutoCloseable {
+				public void close() {}
+			}
+			public class ClassWithStatics {
+
+				private static AutoCloseable f1;
+				protected static @Owning AutoCloseable f2;
+				public static @NotOwning AutoCloseable f3;
+				static @SuppressWarnings("resource") @Owning AutoCloseable fSilent;
+
+				static {
+					f1 = new RC();
+					System.out.print(f1); // avoid unused warning
+					f2 = new RC();
+					f3 = new RC();
+					fSilent = new RC();
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. INFO in ClassWithStatics.java (at line 7)
+			private static AutoCloseable f1;
+			                             ^^
+		It is not recommended to hold a resource in a static field
+		----------
+		2. INFO in ClassWithStatics.java (at line 8)
+			protected static @Owning AutoCloseable f2;
+			                                       ^^
+		It is not recommended to hold a resource in a static field
+		----------
+		3. INFO in ClassWithStatics.java (at line 9)
+			public static @NotOwning AutoCloseable f3;
+			                                       ^^
+		It is not recommended to hold a resource in a static field
+		----------
+		4. ERROR in ClassWithStatics.java (at line 13)
+			f1 = new RC();
+			     ^^^^^^^^
+		Mandatory close of resource \'<unassigned Closeable value>\' has not been shown
+		----------
+		5. ERROR in ClassWithStatics.java (at line 16)
+			f3 = new RC();
+			     ^^^^^^^^
+		Resource leak: \'<unassigned Closeable value>\' is never closed
+		----------
+		""",
+		options);
+}
+public void testGH2161_initializers() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
+	runLeakTestWithAnnotations(
+		new String[] {
+			"ClassWithStatics.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+			import java.io.StringWriter;
+			class RC implements AutoCloseable {
+				public void close() {}
+			}
+			public class ClassWithStatics {
+
+				private static AutoCloseable f1 = new RC();
+				protected static @Owning AutoCloseable f2 = new RC();
+				public static @NotOwning AutoCloseable f3 = new RC();
+				static @SuppressWarnings("resource") @Owning AutoCloseable fSilent = new RC();
+				static StringWriter sw = new StringWriter(); // no reason to complain: white listed
+
+				static {
+					System.out.print(f1); // avoid unused warning :)
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. INFO in ClassWithStatics.java (at line 8)
+			private static AutoCloseable f1 = new RC();
+			                             ^^
+		It is not recommended to hold a resource in a static field
+		----------
+		2. INFO in ClassWithStatics.java (at line 9)
+			protected static @Owning AutoCloseable f2 = new RC();
+			                                       ^^
+		It is not recommended to hold a resource in a static field
+		----------
+		3. INFO in ClassWithStatics.java (at line 10)
+			public static @NotOwning AutoCloseable f3 = new RC();
+			                                       ^^
+		It is not recommended to hold a resource in a static field
+		----------
+		""",
+		options);
+}
 }

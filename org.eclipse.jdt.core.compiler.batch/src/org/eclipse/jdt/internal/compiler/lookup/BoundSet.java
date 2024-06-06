@@ -393,6 +393,9 @@ class BoundSet {
 	}
 
 	public void addBound(TypeBound bound, LookupEnvironment environment) {
+		if (InferenceContext18.DEBUG) {
+			System.out.println("Adding "+bound); //$NON-NLS-1$
+		}
 
 		if (bound.relation == ReductionResult.SUBTYPE && bound.right.id == TypeIds.T_JavaLangObject)
 			return;
@@ -719,6 +722,15 @@ class BoundSet {
 				}
 			}
 		}
+		if (InferenceContext18.DEBUG) {
+			if (!this.captures.isEmpty()) {
+				for (Entry<ParameterizedTypeBinding, ParameterizedTypeBinding> entry : this.captures.entrySet()) {
+					System.out.println("Dropping capture bound " + //$NON-NLS-1$
+								String.valueOf(entry.getKey().shortReadableName()) +
+								"=capture("+String.valueOf(entry.getKey().shortReadableName())+")"); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			}
+		}
 		this.captures.clear();
 		return true;
 	}
@@ -770,6 +782,12 @@ class BoundSet {
 			InferenceVariable alpha = boundLeft.left;
 			TypeBinding left = boundRight.left; // no substitution since S inference variable and (S != α) per precondition
 			TypeBinding right = boundRight.right.substituteInferenceVariable(alpha, u);
+			// FIXME: the following looks good by common sense, be it for performance reasons,
+			//        but it creates regressions in GenericTypeTest (4), GenericsRegressionTest (1), GenericsRegressionTest_1_8 (1)
+			//        Note that it would "fix" DubiousOutcomeTest.testGH1591
+			//        See also the 'speculative addition' in ConstraintTypeFormula.reduce()
+//			if (TypeBinding.equalsEquals(right, boundRight.right))
+//				return null; // no new information
 			return ConstraintTypeFormula.create(left, right, ReductionResult.SAME, boundLeft.isSoft||boundRight.isSoft);
 		}
 		return null;
@@ -973,9 +991,13 @@ class BoundSet {
 	 */
 	public boolean reduceOneConstraint(InferenceContext18 context, ConstraintFormula currentConstraint) throws InferenceFailureException {
 		Object result = currentConstraint.reduce(context);
+		if (InferenceContext18.DEBUG_FINE) {
+			System.out.println("Reduced\t"+currentConstraint+"\n  to   \t"+result); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		if (result == ReductionResult.FALSE) {
 			if (InferenceContext18.DEBUG) {
-				System.out.println("Couldn't reduce constraint "+currentConstraint+ " in\n"+context); //$NON-NLS-1$ //$NON-NLS-2$
+				if (!InferenceContext18.DEBUG_FINE)
+					System.out.println("Couldn't reduce constraint "+currentConstraint+ " in\n"+context); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			return false;
 		}
@@ -1137,11 +1159,16 @@ class BoundSet {
 		for (TypeBound bound : flattened) {
 			buf.append('\t').append(bound.toString()).append('\n');
 		}
-		buf.append("Capture Bounds:\n"); //$NON-NLS-1$
-		for (Entry<ParameterizedTypeBinding, ParameterizedTypeBinding> entry : this.captures.entrySet()) {
-			String lhs = String.valueOf(((TypeBinding)entry.getKey()).shortReadableName());
-			String rhs = String.valueOf(((TypeBinding)entry.getValue()).shortReadableName());
-			buf.append('\t').append(lhs).append(" = capt(").append(rhs).append(")\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		buf.append("Capture Bounds:"); //$NON-NLS-1$
+		if (this.captures.isEmpty()) {
+			buf.append(" <empty>\n"); //$NON-NLS-1$
+		} else {
+			buf.append('\n');
+			for (Entry<ParameterizedTypeBinding, ParameterizedTypeBinding> entry : this.captures.entrySet()) {
+				String lhs = String.valueOf(((TypeBinding)entry.getKey()).shortReadableName());
+				String rhs = String.valueOf(((TypeBinding)entry.getValue()).shortReadableName());
+				buf.append('\t').append(lhs).append(" = capt(").append(rhs).append(")\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 		}
 		return buf.toString();
 	}

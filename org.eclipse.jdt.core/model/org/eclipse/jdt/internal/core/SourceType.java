@@ -1018,6 +1018,6 @@ public boolean isLambda() {
 }
 @Override
 public boolean isImplicitlyDeclared() throws JavaModelException {
-	return (this.getFlags() & ExtraCompilerModifiers.AccUnnamed) != 0;
+	return (this.getFlags() & ExtraCompilerModifiers.AccImplicitlyDeclared) != 0;
 }
 }

@@ -134,16 +134,12 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		assertEquals("Type Pattern", typePattern.getNodeType(), ASTNode.TYPE_PATTERN);
 		SingleVariableDeclaration patternVariable = ((TypePattern)typePattern).getPatternVariable();
 		assertEquals("Type Pattern Integer", "Integer", patternVariable.getType().toString());
-		SingleVariableDeclaration patternVariable2 = ((TypePattern)typePattern).patternVariables().get(0);
-		assertEquals(patternVariable, patternVariable2);
 
 		SwitchCase caseString = (SwitchCase) statements.get(2);
 		typePattern = (Expression)caseString.expressions().get(0);
 		assertEquals("Type Pattern", typePattern.getNodeType(), ASTNode.TYPE_PATTERN);
 		patternVariable = ((TypePattern)typePattern).getPatternVariable();
 		assertEquals("Type Pattern Integer", "String", patternVariable.getType().toString());
-		patternVariable2 = ((TypePattern)typePattern).patternVariables().get(0);
-		assertEquals(patternVariable, patternVariable2);
 
 		SwitchCase caseDefault = (SwitchCase) statements.get(4);
 		assertTrue("Default case", caseDefault.isDefault());
@@ -183,8 +179,6 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		Pattern pattern = ((GuardedPattern)guardedPattern).getPattern();
 		SingleVariableDeclaration patternVariable = ((TypePattern)pattern).getPatternVariable();
 		assertEquals("Type Pattern Integer", "Integer", patternVariable.getType().toString());
-		SingleVariableDeclaration patternVariable2 = ((TypePattern)pattern).patternVariables().get(0);
-		assertEquals(patternVariable, patternVariable2);
 		Expression expression = ((GuardedPattern)guardedPattern).getExpression();
 		Expression expression2 = ((ParenthesizedExpression)expression).getExpression();
 		assertEquals("Infix expression", "i.intValue() > 10", expression2.toString());
@@ -196,8 +190,6 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		pattern = ((GuardedPattern)guardedPattern).getPattern();
 		patternVariable = ((TypePattern)pattern).getPatternVariable();
 		assertEquals("Type Pattern String", "String", patternVariable.getType().toString());
-		patternVariable2 = ((TypePattern)pattern).patternVariables().get(0);
-		assertEquals(patternVariable, patternVariable2);
 		expression = ((GuardedPattern)guardedPattern).getExpression();
 		assertEquals("Infix expression", "s.equals(\"ff\")",expression.toString());
 

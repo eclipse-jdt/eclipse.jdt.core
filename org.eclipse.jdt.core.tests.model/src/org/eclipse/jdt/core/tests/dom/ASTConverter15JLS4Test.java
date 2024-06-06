@@ -1189,7 +1189,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 				"        double y = Double.parseDouble(args[1]);\n" +
 				"\n" +
 				"        for (X op : X.values())\n" +
-				"            System.out.println(x + \" \" + op + \" \" + y + \" = \" + op.eval(x, y));\n" +
+				"            System.out.println(op.eval(x, y));\n" +
 				"	}", source);
 		node = getASTNode(compilationUnit, 0, 1);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());

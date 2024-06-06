@@ -109,9 +109,11 @@ public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowCon
 	}
 	if (options.isAnnotationBasedResourceAnalysisEnabled
 			&& this.binding != null
-			&& this.binding.type.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable))
+			&& FakedTrackingVariable.isCloseableNotWhiteListed(this.binding.type))
 	{
-		if ((this.binding.tagBits & TagBits.AnnotationOwning) == 0) {
+		if (this.binding.isStatic()) {
+			initializationScope.problemReporter().staticResourceField(this);
+		} else if ((this.binding.tagBits & TagBits.AnnotationOwning) == 0) {
 			initializationScope.problemReporter().shouldMarkFieldAsOwning(this);
 		} else if (!this.binding.declaringClass.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) {
 			initializationScope.problemReporter().shouldImplementAutoCloseable(this);

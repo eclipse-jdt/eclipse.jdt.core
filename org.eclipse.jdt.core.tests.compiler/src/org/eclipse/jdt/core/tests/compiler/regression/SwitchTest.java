@@ -3394,7 +3394,121 @@ public void testIssue2190() throws Exception {
 	"BB\n"
 	+ "AA");
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1777
+// [Enhanced switch] Compiler fails to complain about non-exhaustive switch
+public void testIssue1777() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK21)
+		return;
 
+	this.runNegativeTest(new String[] {
+		"X.java",
+		"""
+		public class X {
+			public static void main(String argv[]) {
+				Color c = Color.getColor();
+				try {
+					switch (c) {
+		                case null -> System.out.println("Null");
+						case R -> System.out.print("R");
+						case Y -> System.out.println("Y");
+					};
+				} catch (MatchException e) {
+					System.out.print("OK!");
+				} catch (Exception e) {
+					System.out.print("NOT OK: " + e);
+				}
+				System.out.print("END");
+			}
+		}
+		enum Color {
+			R, Y, B;
+			public static Color getColor() {
+				return B;
+			}
+		}
+		""",
+	},
+	"----------\n"
+	+ "1. ERROR in X.java (at line 5)\n"
+	+ "	switch (c) {\n"
+	+ "	        ^\n"
+	+ "An enhanced switch statement should be exhaustive; a default label expected\n"
+	+ "----------\n");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1777
+// [Enhanced switch] Compiler fails to complain about non-exhaustive switch
+public void testIssue1777_2() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK21)
+		return;
+
+	this.runConformTest(new String[] {
+		"X.java",
+		"""
+		public class X {
+			public static void main(String argv[]) {
+				Color c = Color.getColor();
+				try {
+					switch (c) {
+		                case null -> System.out.println("Null");
+						case R -> System.out.print("R");
+						case Y -> System.out.println("Y");
+						case B -> System.out.print("B");
+					};
+				} catch (MatchException e) {
+					System.out.print("OK!");
+				} catch (Exception e) {
+					System.out.print("NOT OK: " + e);
+				}
+				System.out.print("END");
+			}
+		}
+		enum Color {
+			R, Y, B;
+			public static Color getColor() {
+				return B;
+			}
+		}
+		""",
+	},
+	"BEND");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1777
+// [Enhanced switch] Compiler fails to complain about non-exhaustive switch
+public void testIssue1777_3() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK21)
+		return;
+
+	this.runConformTest(new String[] {
+		"X.java",
+		"""
+		public class X {
+			public static void main(String argv[]) {
+				Color c = Color.getColor();
+				try {
+					switch (c) {
+		                default -> System.out.print("Default");
+						case R -> System.out.print("R");
+						case Y -> System.out.println("Y");
+					};
+				} catch (MatchException e) {
+					System.out.print("OK!");
+				} catch (Exception e) {
+					System.out.print("NOT OK: " + e);
+				}
+				System.out.print("END");
+			}
+		}
+		enum Color {
+			R, Y, B;
+			public static Color getColor() {
+				return B;
+			}
+		}
+		""",
+	},
+	"DefaultEND");
+}
 public static Class testClass() {
 	return SwitchTest.class;
 }

@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 
 /**
- * Represents an unnamed class as defined in JEP 463
+ * Represents an implicitly declared class as defined in JEP 463
  */
 public class ImplicitTypeDeclaration extends TypeDeclaration {
 

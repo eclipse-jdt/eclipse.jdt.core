@@ -18,6 +18,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -77,6 +79,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.core.Member;
 
 import junit.framework.Test;
 
@@ -2910,4 +2913,27 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			deleteFolder("/P/src/p");
 		}
 	}
+
+	public void testCorrectMethodFoundWithEqualSimpleName() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/MyIF.java",
+			"""
+			interface MyIF {
+			    public void query(Foo.InnerKey fk, Bar.InnerKey bk, String s);
+			    public void query/*here*/(Bar.InnerKey fk, Bar.InnerKey bk, String s);
+			}
+			class Foo {
+			    static class InnerKey  { }
+			}
+			class Bar {
+			    static class InnerKey { }
+			}
+			""");
+		IType interfaceType = this.workingCopies[0].getType("MyIF");
+		IMethod secondMethod = interfaceType.getMethods()[1];
+		assertTrue("Wrong method selected", secondMethod.getParameterTypes()[0].contains("Bar"));
+		IMethod[] matchingMethods = Member.findMethods(secondMethod, interfaceType.getMethods());
+		assertArrayEquals(new IMethod[] { secondMethod }, matchingMethods);
+	}
+
 }

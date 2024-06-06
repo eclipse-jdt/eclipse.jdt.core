@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.LocalVariable;
@@ -237,20 +238,17 @@ class VariableBinding implements IVariableBinding {
 		SimpleName localName = localVar.getName();
 		int nameStart = localName.getStartPosition();
 		int nameLength = localName.getLength();
-		int sourceStart;
-		int sourceLength;
+		int sourceStart = localVar.getStartPosition();
+		int sourceLength = localVar.getLength();
 		int modifiers = 0;
-		if (localVar instanceof SingleVariableDeclaration) {
-			sourceStart = localVar.getStartPosition();
-			sourceLength = localVar.getLength();
-			final SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) localVar;
+		if (localVar instanceof SingleVariableDeclaration singleVariableDeclaration) {
 			modifiers = singleVariableDeclaration.getModifiers();
-		} else {
-			ASTNode node = localVar.getParent();
-			sourceStart = node.getStartPosition();
-			sourceLength = node.getLength();
-			VariableDeclarationFragment fragment = (VariableDeclarationFragment) localVar;
+		} else if (localVar instanceof VariableDeclarationFragment fragment) {
 			final ASTNode parent = fragment.getParent();
+			if (!(parent instanceof LambdaExpression)) {
+				sourceStart = parent.getStartPosition();
+				sourceLength = parent.getLength();
+			}
 			switch (parent.getNodeType()) {
 				case ASTNode.VARIABLE_DECLARATION_EXPRESSION :
 					VariableDeclarationExpression expression = (VariableDeclarationExpression) parent;
@@ -267,7 +265,13 @@ class VariableBinding implements IVariableBinding {
 			}
 		}
 		int sourceEnd = sourceStart+sourceLength-1;
-		char[] typeSig = Signature.createTypeSignature(this.binding.type.signableName(), true).toCharArray();
+		TypeBinding signableType = this.binding.type;
+		if (signableType.isAnonymousType()) {
+			signableType = signableType.superInterfaces() != null && signableType.superInterfaces().length == 1 ?
+					signableType.superInterfaces()[0] :
+					signableType.superclass();
+		}
+		char[] typeSig = Signature.createTypeSignature(signableType.signableName(), true).toCharArray();
 		JavaElement parent = null;
 		IMethodBinding declaringMethod = getDeclaringMethod();
 		if (this.binding instanceof RecordComponentBinding) {

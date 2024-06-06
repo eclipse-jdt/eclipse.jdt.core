@@ -438,10 +438,7 @@ public void setAnnotations(AnnotationBinding[] annotations, boolean forceStore) 
 	this.declaringClass.storeAnnotations(this, annotations, forceStore);
 }
 public FieldDeclaration sourceField() {
-	SourceTypeBinding sourceType;
-	try {
-		sourceType = (SourceTypeBinding) this.declaringClass;
-	} catch (ClassCastException e) {
+	if (!(this.declaringClass instanceof SourceTypeBinding sourceType)) {
 		return null;
 	}
 

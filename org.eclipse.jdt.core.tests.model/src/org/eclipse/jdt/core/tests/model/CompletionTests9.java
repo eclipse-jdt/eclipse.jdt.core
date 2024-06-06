@@ -1680,4 +1680,84 @@ public void testBug573632d() throws Exception {
 		deleteProject(project1);
 	}
 }
+public void testGH2169() throws CoreException {
+	IJavaProject project1 = createJava9Project("Completion9_1");
+	IJavaProject project2 = createJava9Project("Completion9_2");
+	IJavaProject project3 = createJava9Project("Completion9_3");
+	try {
+		project1.open(null);
+		createType("/Completion9_1/src/", "pack11", "X11");
+		createFile("/Completion9_1/src/module-info.java",
+				"module first {\n" +
+				"	requires transitive second;\n" +
+				"	requires transitive third;\n" +
+				"	requires transitive java.base;\n" +
+				"}\n");
+		String fileContent =
+				"package pack0;\n" +
+				"import java.util\n" +
+				"public class Main {\n" +
+				"}\n";
+		String completeBehind = "import java.util";
+		createFolder("/Completion9_1/src/pack0");
+		String filePath = "/Completion9_1/src/pack0/Main.java";
+		createFile(filePath, fileContent);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		project2.open(null);
+		createType("/Completion9_2/src/", "java.utilities", "X21");
+
+		createFile("/Completion9_2/src/module-info.java",
+				"module second { \n" +
+				"	requires transitive java.base;\n" +
+				"	requires transitive third;\n" +
+				"	exports java.utilities;\n" +
+				"}\n");
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		project3.open(null);
+		createType("/Completion9_3/src/", "java/utils/", "X31");
+
+		createFile("/Completion9_3/src/module-info.java",
+				"module third {\n" +
+				"	requires transitive first;\n" + // yep, cycle here
+				"	exports java.utils;\n" +
+				"}\n");
+		addClasspathEntry(project3, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		project1.close(); // sync
+		project2.close();
+		project3.close();
+		project3.open(null);
+		project2.open(null);
+		project1.open(null);
+
+		int cursorLocation = fileContent.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		ICompilationUnit unit = getCompilationUnit(filePath);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "java.util.concurrent[PACKAGE_REF]{java.util.concurrent.*;, java.util.concurrent, null, null, 49}\n" +
+				"java.util.concurrent.atomic[PACKAGE_REF]{java.util.concurrent.atomic.*;, java.util.concurrent.atomic, null, null, 49}\n" +
+				"java.util.concurrent.locks[PACKAGE_REF]{java.util.concurrent.locks.*;, java.util.concurrent.locks, null, null, 49}\n" +
+				"java.util.function[PACKAGE_REF]{java.util.function.*;, java.util.function, null, null, 49}\n" +
+				"java.util.jar[PACKAGE_REF]{java.util.jar.*;, java.util.jar, null, null, 49}\n" +
+				"java.util.logging[PACKAGE_REF]{java.util.logging.*;, java.util.logging, null, null, 49}\n" +
+				"java.util.prefs[PACKAGE_REF]{java.util.prefs.*;, java.util.prefs, null, null, 49}\n" +
+				"java.util.random[PACKAGE_REF]{java.util.random.*;, java.util.random, null, null, 49}\n" +
+				"java.util.regex[PACKAGE_REF]{java.util.regex.*;, java.util.regex, null, null, 49}\n" +
+				"java.util.spi[PACKAGE_REF]{java.util.spi.*;, java.util.spi, null, null, 49}\n" +
+				"java.util.stream[PACKAGE_REF]{java.util.stream.*;, java.util.stream, null, null, 49}\n" +
+				"java.util.zip[PACKAGE_REF]{java.util.zip.*;, java.util.zip, null, null, 49}\n" +
+				"java.utilities[PACKAGE_REF]{java.utilities.*;, java.utilities, null, null, 49}\n" +
+				"java.utils[PACKAGE_REF]{java.utils.*;, java.utils, null, null, 49}\n" +
+				"java.util[PACKAGE_REF]{java.util.*;, java.util, null, null, 53}";
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+		deleteProject(project2);
+		deleteProject(project3);
+	}
+}
 }

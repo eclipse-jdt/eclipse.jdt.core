@@ -484,7 +484,7 @@ public void notifySourceElementRequestor(
 					} else {
 						notifySourceElementRequestor(importRef, false);
 					}
-				} else if (node instanceof TypeDeclaration) {
+				} else if (node instanceof TypeDeclaration && !new String(parsedUnit.getFileName()).endsWith(TypeConstants.MODULE_INFO_FILE_NAME_STRING)) {
 					notifySourceElementRequestor((TypeDeclaration)node, true, null, currentPackage);
 				} else if (node instanceof ModuleDeclaration) {
 					notifySourceElementRequestor(parsedUnit.moduleDeclaration);
@@ -720,7 +720,7 @@ protected void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boo
 					? (currentModifiers & ExtraCompilerModifiers.AccJustFlag) | ClassFileConstants.AccDeprecated
 					: currentModifiers & ExtraCompilerModifiers.AccJustFlag;
 			typeInfo.modifiers |= currentModifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed);
-			typeInfo.modifiers |= typeDeclaration instanceof ImplicitTypeDeclaration ? ExtraCompilerModifiers.AccUnnamed : 0;
+			typeInfo.modifiers |= typeDeclaration instanceof ImplicitTypeDeclaration ? ExtraCompilerModifiers.AccImplicitlyDeclared : 0;
 			typeInfo.name = typeDeclaration.name;
 			typeInfo.nameSourceStart = isEnumInit ? typeDeclaration.allocation.enumConstant.sourceStart : typeDeclaration.sourceStart;
 			typeInfo.nameSourceEnd = sourceEnd(typeDeclaration);

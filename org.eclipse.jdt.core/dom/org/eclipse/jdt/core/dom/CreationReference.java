@@ -74,7 +74,7 @@ public class CreationReference extends MethodReference {
 	/**
 	 * The type; lazily initialized; defaults to an unspecified type.
 	 */
-	private Type type = null;
+	private volatile Type type;
 
 	/**
 	 * Creates a new AST node for an CreationReference declaration owned

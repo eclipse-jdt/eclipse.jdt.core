@@ -1049,6 +1049,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.targetPlatform\" value=\"1.5\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.unusedLocal\" value=\"optimize out\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.useStringConcatFactory\" value=\"enabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.validateOperandStack\" value=\"enabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.compliance\" value=\"1.5\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.debug.lineNumber\" value=\"generate\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.debug.localVariable\" value=\"do not generate\"/>\n" +
@@ -13527,6 +13528,36 @@ public void testGitHub1122(){
 		+ "",
 		true);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2434
+// Cannot read field "declaringClass" because "this.methodDeclaration.binding" is null
+public void testGH2434(){
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "	static {\n"
+				+ "		String a = \"Blah\";\n"
+				+ "		if (a != null) {\n"
+				+ "				String c = a;\n"
+				+ "				if (c != null) {\n"
+				+ "					String[] bundles = new String [0];\n"
+				+ "					for (String bundle : bundles) {\n"
+				+ "						if (bundle == null)\n"
+				+ "							bundle = null;\n"
+				+ "					}\n"
+				+ "				}\n"
+				+ "		}\n"
+				+ "	}\n"
+				+ "}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -d \"" + OUTPUT_DIR + "\" -O -Xxxx -O -Jxyz -Xtyu -Jyu",
+		"",
+        "",
+        true);
+}
+
 public void testGitHub2176WarningEnabled(){
 	this.runConformTest(
 		new String[] {
