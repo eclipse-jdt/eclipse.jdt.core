@@ -5044,7 +5044,7 @@ public void testBug151500a() throws Exception {
 						"}"
 				},
 				p.getProject().getLocation().append("lib151500.jar").toOSString(),
-				new String[]{getExternalJCLPathString("1.3")},
+				null,
 				"1.3");
 
 		refresh(p);
@@ -5103,7 +5103,7 @@ public void testBug151500b() throws Exception {
 						"}"
 				},
 				p.getProject().getLocation().append("lib151500.jar").toOSString(),
-				new String[]{getExternalJCLPathString("1.3")},
+				null,
 				"1.3");
 
 		refresh(p);
@@ -5162,7 +5162,7 @@ public void testBug151500c() throws Exception {
 						"}"
 				},
 				p.getProject().getLocation().append("lib151500.jar").toOSString(),
-				new String[]{getExternalJCLPathString("1.3")},
+				null,
 				"1.3");
 
 		refresh(p);
