@@ -40,12 +40,11 @@ import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.declaration.TypeParameterDeclaration;
 import com.sun.mirror.type.DeclaredType;
 import com.sun.mirror.type.InterfaceType;
-import com.sun.mirror.type.ReferenceType;
 import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.DeclarationVisitor;
 
 public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
-	implements TypeDeclaration, DeclaredType, ReferenceType, EclipseMirrorType
+	implements TypeDeclaration, DeclaredType, EclipseMirrorType
 {
 	// jdt core compiler add a field to a type with the following name when there is a hierachy problem with the type.
 	private static final String HAS_INCONSISTENT_TYPE_HIERACHY = "has inconsistent hierarchy"; //$NON-NLS-1$
