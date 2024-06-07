@@ -135,7 +135,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 							ParameterizedGenericMethodBinding substitute = inferFromArgumentTypes(scope, originalMethod, arguments, parameters, inferenceContext);
 							if (substitute != null && substitute.returnType.isCompatibleWith(expectedType)) {
 								// Do not use the new solution if it results in incompatibilities in parameter types
-								if ((scope.parameterCompatibilityLevel(substitute, arguments, false)) > Scope.NOT_COMPATIBLE) {
+								if ((scope.parameterCompatibilityLevel(substitute, arguments, false)) > Scope.NOT_COMPATIBLE) { // don't worry about NEEDS_MISSING_TYPE in 1.7 context
 									methodSubstitute = substitute;
 								} else {
 									inferenceContext = oldContext;

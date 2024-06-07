@@ -4164,6 +4164,10 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 			problemConstructor = (ProblemMethodBinding) targetConstructor;
 			contradictoryNullAnnotationsInferred(problemConstructor.closestMatch, statement);
 			return;
+		case ProblemReasons.MissingTypeInSignature:
+			problemConstructor = (ProblemMethodBinding) targetConstructor;
+			missingTypeInConstructor(statement, problemConstructor.closestMatch);
+			return;
 		case ProblemReasons.NoError : // 0
 		default :
 			needImplementation(statement); // want to fail to see why we were here...
@@ -4784,6 +4788,10 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method, Scope s
 		case ProblemReasons.ContradictoryNullAnnotations:
 			problemMethod = (ProblemMethodBinding) method;
 			contradictoryNullAnnotationsInferred(problemMethod.closestMatch, messageSend);
+			return;
+		case ProblemReasons.MissingTypeInSignature:
+			problemMethod = (ProblemMethodBinding) method;
+			missingTypeInMethod(messageSend, problemMethod.closestMatch);
 			return;
 		case ProblemReasons.NoError : // 0
 		default :

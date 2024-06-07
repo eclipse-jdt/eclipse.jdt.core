@@ -108,6 +108,7 @@ public abstract class Scope {
 	public final static int COMPATIBLE = 0;
 	public final static int AUTOBOX_COMPATIBLE = 1;
 	public final static int VARARGS_COMPATIBLE = 2;
+	public final static int NEEDS_MISSING_TYPE = -2;
 
 	/* Type Compatibilities */
 	public static final int EQUAL_OR_MORE_SPECIFIC = -1;
@@ -871,13 +872,16 @@ public abstract class Scope {
 		}
 
 
-		if ((parameterCompatibilityLevel(method, arguments, tiebreakingVarargsMethods)) > NOT_COMPATIBLE) {
+		int level = parameterCompatibilityLevel(method, arguments, tiebreakingVarargsMethods);
+		if (level > NOT_COMPATIBLE) {
 			if (method.hasPolymorphicSignature(this)) {
 				// generate polymorphic method and set polymorphic tagbits as well
 				method.tagBits |= TagBits.AnnotationPolymorphicSignature;
 				return this.environment().createPolymorphicMethod(method, arguments, this);
 			}
 			return method;
+		} else if (level == NEEDS_MISSING_TYPE) {
+			return new ProblemMethodBinding(method, method.selector, method.parameters, ProblemReasons.MissingTypeInSignature);
 		}
 		// if method is generic and type arguments have been supplied, only then answer a problem
 		// of ParameterizedMethodTypeMismatch, else a non-generic method was invoked using type arguments
@@ -1764,6 +1768,8 @@ public abstract class Scope {
 						if (candidatesCount == 0)
 							candidates = new MethodBinding[foundSize];
 						candidates[candidatesCount++] = compatibleMethod;
+					} else if (compatibleMethod.problemId() == ProblemReasons.MissingTypeInSignature) {
+						return compatibleMethod; // use this method for error message to give a hint about the missing type
 					} else if (problemMethod == null) {
 						problemMethod = compatibleMethod;
 					}
@@ -2495,6 +2501,8 @@ public abstract class Scope {
 				if (compatibleMethod != null) {
 					if (compatibleMethod.isValidBinding())
 						compatible[compatibleIndex++] = compatibleMethod;
+					else if (compatibleMethod.problemId() == ProblemReasons.MissingTypeInSignature)
+						return compatibleMethod; // use this method for error message to give a hint about the missing type
 					else if (problemMethod == null)
 						problemMethod = compatibleMethod;
 				}
@@ -4648,6 +4656,10 @@ public abstract class Scope {
 		int compatibleCount = 0;
 		for (int i = 0; i < visibleSize; i++)
 			if ((compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argumentTypes, invocationSite)) != NOT_COMPATIBLE) {
+				if (compatibilityLevels[i] == NEEDS_MISSING_TYPE) {
+					// cannot conclusively select any candidate, use the method with missing types in the error message
+					return new ProblemMethodBinding(visible[i], visible[i].selector, visible[i].parameters, ProblemReasons.Ambiguous);
+				}
 				if (i != compatibleCount) {
 					visible[compatibleCount] = visible[i];
 					compatibilityLevels[compatibleCount] = compatibilityLevels[i];
@@ -5161,8 +5173,8 @@ public abstract class Scope {
 			TypeBinding arg = (tiebreakingVarargsMethods && (i == (argLength - 1))) ? ((ArrayBinding)arguments[i]).elementsType() : arguments[i];
 			if (TypeBinding.notEquals(arg,param)) {
 				int newLevel = parameterCompatibilityLevel(arg, param, env, tiebreakingVarargsMethods, method);
-				if (newLevel == NOT_COMPATIBLE)
-					return NOT_COMPATIBLE;
+				if (newLevel < COMPATIBLE)
+					return newLevel;
 				if (newLevel > level)
 					level = newLevel;
 			}
@@ -5193,6 +5205,8 @@ public abstract class Scope {
 		// only called if env.options.sourceLevel >= ClassFileConstants.JDK1_5
 		if (arg == null || param == null)
 			return NOT_COMPATIBLE;
+		if ((param.tagBits & TagBits.HasMissingType) != 0)
+			return NEEDS_MISSING_TYPE;
 		if (arg instanceof PolyTypeBinding && !((PolyTypeBinding) arg).expression.isPertinentToApplicability(param, method)) {
 			if (arg.isPotentiallyCompatibleWith(param, this))
 				return COMPATIBLE;
