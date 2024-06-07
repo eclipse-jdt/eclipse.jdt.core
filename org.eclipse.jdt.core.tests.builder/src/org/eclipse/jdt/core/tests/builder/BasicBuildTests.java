@@ -15,13 +15,35 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
 
 import junit.framework.*;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.IJavaProject;
@@ -29,11 +51,15 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.CompilerConfiguration;
+import org.eclipse.jdt.internal.compiler.ICompilerFactory;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -697,11 +723,10 @@ public class BasicBuildTests extends BuilderTests {
 		}
 	}
 
-	public void testCustomCompiler() throws JavaModelException {
-		final String CUSTOM_COMPILER_KEY = AbstractImageBuilder.class.getSimpleName() + ".compiler";
-		final String CUSTOM_COMPILER_VALUE = MockCompiler.class.getName();
+	public void testCustomCompilerFactory() throws JavaModelException {
+		final String CUSTOM_COMPILER_VALUE = MockCompilerFactory.class.getName();
 		try {
-			System.setProperty(CUSTOM_COMPILER_KEY, CUSTOM_COMPILER_VALUE);
+			System.setProperty(AbstractImageBuilder.COMPILER_FACTORY_KEY, CUSTOM_COMPILER_VALUE);
 			IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 			env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
@@ -712,12 +737,14 @@ public class BasicBuildTests extends BuilderTests {
 			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 			IPath path = env.addClass(root, "p1", "Hello", //$NON-NLS-1$ //$NON-NLS-2$
-					"package p1;\n"+ //$NON-NLS-1$
-					"public class Hello {\n"+ //$NON-NLS-1$
-					"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-					"      System.out.println(\"Hello world\");\n"+ //$NON-NLS-1$
-					"   }\n"+ //$NON-NLS-1$
-					"}\n" //$NON-NLS-1$
+					"""
+					package p1;
+					public class Hello {
+					   public static void main(String args[]) {
+					      System.out.println(\"Hello world\");
+					   }
+					}
+					"""
 					);
 
 			fullBuild(projectPath);
@@ -727,15 +754,139 @@ public class BasicBuildTests extends BuilderTests {
 					"Problem : Compilation error from MockCompiler [ resource : </Project/src/p1/Hello.java> range : <0,1> category : <60> severity : <2>]"
 				);
 		} finally {
-			System.clearProperty(CUSTOM_COMPILER_KEY);
+			System.clearProperty(AbstractImageBuilder.COMPILER_FACTORY_KEY);
 		}
 	}
 
-	public void testFallbackForProblematicCompiler() throws JavaModelException {
-		final String CUSTOM_COMPILER_KEY = AbstractImageBuilder.class.getSimpleName() + ".compiler";
-		final String CUSTOM_COMPILER_VALUE = "x.y.NotFoundCompiler";
+	public void testCustomerCompilerFactoryWithAP() throws Exception {
+		final String CUSTOM_COMPILER_VALUE = MockCompilerFactory.class.getName();
+		List<CompilerConfiguration> configs = new ArrayList<>();
+		Consumer<Compiler> listener = (compiler) -> {
+			if (compiler instanceof MockCompiler mockCompiler) {
+				configs.add(mockCompiler.compilerConfig);
+			}
+		};
 		try {
-			System.setProperty(CUSTOM_COMPILER_KEY, CUSTOM_COMPILER_VALUE);
+			MockCompilerFactory.addListener(listener);
+			System.setProperty(AbstractImageBuilder.COMPILER_FACTORY_KEY, CUSTOM_COMPILER_VALUE);
+			File projectRoot = copyFiles("autoValueSnippet", true);
+			IPath dotProjectPath = new org.eclipse.core.runtime.Path(new File(projectRoot, IProjectDescription.DESCRIPTION_FILE_NAME).getAbsolutePath());
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			IProjectDescription descriptor = workspace.loadProjectDescription(dotProjectPath);
+			String projectName = descriptor.getName();
+			IProject project = workspace.getRoot().getProject(projectName);
+			project.create(descriptor, new NullProgressMonitor());
+			project.open(IResource.NONE, new NullProgressMonitor());
+
+			// full build
+			project.build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			// It creates compiler 4 times (MAIN full build, TEST full build, MAIN incremental build, TEST incremental build)
+			assertEquals(4, configs.size());
+			CompilerConfiguration config = configs.get(0);
+			List<String> processorPaths = config.annotationProcessorPaths();
+			assertEquals(2, processorPaths.size());
+			assertTrue(processorPaths.get(0).endsWith("auto-value-1.6.5.jar"));
+			assertTrue(processorPaths.get(1).endsWith("auto-value-annotations-1.6.5.jar"));
+
+			List<String> generatedSourcePaths = config.generatedSourcePaths();
+			assertEquals(1, generatedSourcePaths.size());
+			assertTrue(generatedSourcePaths.get(0).endsWith(".apt_generated"));
+
+			List<String> sourcePaths = config.sourcepaths();
+			assertEquals(2, sourcePaths.size());
+			assertTrue(sourcePaths.get(0).endsWith("src"));
+			assertTrue(sourcePaths.get(1).endsWith(".apt_generated"));
+
+			List<String> classPaths = config.classpaths();
+			assertEquals(2, classPaths.size());
+			assertTrue(classPaths.get(0).endsWith("bin"));
+			assertTrue(classPaths.get(1).endsWith("auto-value-annotations-1.6.5.jar"));
+
+			List<String> moduleSourcePaths = config.moduleSourcepaths();
+			assertEquals(0, moduleSourcePaths.size());
+
+			List<String> modulePaths = config.modulepaths();
+			assertEquals(0, modulePaths.size());
+
+			Map<File, File> sourceOutputMapping = config.sourceOutputMapping();
+			assertEquals(2, sourceOutputMapping.size());
+
+			IFile aptGeneratedFile = project.getFile(".apt_generated/AutoValue_Outer.java");
+			assertFalse("The default APT generation should be disabled for custom compiler", aptGeneratedFile.exists());
+		} finally {
+			MockCompilerFactory.removeListener(listener);
+			System.clearProperty(AbstractImageBuilder.COMPILER_FACTORY_KEY);
+		}
+	}
+
+	private File copyFiles(String path, boolean reimportIfExists) throws IOException {
+		File from = new File(getSourceProjectDirectory(), path);
+		File to = new File(getWorkingProjectDirectory(), path);
+		if (to.exists()) {
+			if (!reimportIfExists) {
+				return to;
+			}
+			if (to.isFile()) {
+				Files.delete(to.toPath());
+			} else {
+				deleteDirectory(to.toPath());
+			}
+		}
+
+		if (from.isDirectory()) {
+			copyDirectory(from.toPath(), to.toPath());
+		} else {
+			Files.copy(from.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		}
+
+		return to;
+	}
+
+	private File getSourceProjectDirectory() {
+		return new File("resources");
+	}
+
+	private File getWorkingProjectDirectory() throws IOException {
+		File dir = new File("target", "workingProjects");
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+		return dir;
+	}
+
+	private static void deleteDirectory(Path path) throws IOException {
+		Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				Files.delete(file);
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+				Files.delete(dir);
+				return FileVisitResult.CONTINUE;
+			}
+		});
+	}
+
+	private static void copyDirectory(Path sourceDirectory, Path targetDirectory) throws IOException {
+		Files.walk(sourceDirectory)
+				.forEach(sourcePath -> {
+					Path targetPath = targetDirectory.resolve(sourceDirectory.relativize(sourcePath));
+					try {
+						Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+					} catch (IOException e) {
+						// ignore
+					}
+				});
+	}
+
+	public void testFallbackForProblematicCompilerFactory() throws JavaModelException {
+		final String CUSTOM_COMPILER_VALUE = "x.y.NotFoundCompilerFactory";
+		try {
+			System.setProperty(AbstractImageBuilder.COMPILER_FACTORY_KEY, CUSTOM_COMPILER_VALUE);
 			IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 			env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
@@ -746,12 +897,14 @@ public class BasicBuildTests extends BuilderTests {
 			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 			IPath path = env.addClass(root, "p1", "Hello", //$NON-NLS-1$ //$NON-NLS-2$
-					"package p1;\n"+ //$NON-NLS-1$
-					"public class Hello {\n"+ //$NON-NLS-1$
-					"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-					"      int unUsedVarable;\n"+ //$NON-NLS-1$
-					"   }\n"+ //$NON-NLS-1$
-					"}\n" //$NON-NLS-1$
+					"""
+					package p1;
+					public class Hello {
+					   public static void main(String args[]) {
+					      int unUsedVarable;
+					   }
+					}
+					"""
 					);
 
 			fullBuild(projectPath);
@@ -762,16 +915,39 @@ public class BasicBuildTests extends BuilderTests {
 					"Problem : The value of the local variable unUsedVarable is not used [ resource : </Project/src/p1/Hello.java> range : <87,100> category : <120> severity : <1>]"
 				);
 		} finally {
-			System.clearProperty(CUSTOM_COMPILER_KEY);
+			System.clearProperty(AbstractImageBuilder.COMPILER_FACTORY_KEY);
 		}
 	}
 
-	public static class MockCompiler extends org.eclipse.jdt.internal.compiler.Compiler {
-		private CompilerConfiguration compilerConfig;
+	public static class MockCompilerFactory implements ICompilerFactory {
+		static Set<Consumer<Compiler>> listeners = new HashSet<>();
+
+		@Override
+		public Compiler newCompiler(INameEnvironment environment, IErrorHandlingPolicy policy,
+				CompilerConfiguration compilerConfig, ICompilerRequestor requestor, IProblemFactory problemFactory) {
+			Compiler compiler = new MockCompiler(environment, policy, compilerConfig, requestor, problemFactory);
+			for (Consumer<Compiler> listener : listeners) {
+				listener.accept(compiler);
+			}
+
+			return compiler;
+		}
+
+		static void addListener(Consumer<Compiler> listener) {
+			listeners.add(listener);
+		}
+
+		static void removeListener(Consumer<Compiler> listener) {
+			listeners.remove(listener);
+		}
+	}
+
+	static class MockCompiler extends org.eclipse.jdt.internal.compiler.Compiler {
+		CompilerConfiguration compilerConfig;
 
 		public MockCompiler(INameEnvironment environment, IErrorHandlingPolicy policy, CompilerConfiguration compilerConfig,
 				ICompilerRequestor requestor, IProblemFactory problemFactory) {
-			super(environment, policy, compilerConfig.getOptions(), requestor, problemFactory);
+			super(environment, policy, new CompilerOptions(compilerConfig.compilerOptions()), requestor, problemFactory);
 			this.compilerConfig = compilerConfig;
 		}
 

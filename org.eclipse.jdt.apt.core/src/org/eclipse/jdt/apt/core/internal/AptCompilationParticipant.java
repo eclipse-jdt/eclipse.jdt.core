@@ -249,7 +249,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 		}
 
 		IFolder folder = generatedSourceFolderManager.getFolder();
-		return folder == null ? null : new String[] { folder.getLocation().toOSString() };
+		return folder == null || folder.getLocation() == null ? null : new String[] { folder.getLocation().toOSString() };
 	}
 
 	@Override

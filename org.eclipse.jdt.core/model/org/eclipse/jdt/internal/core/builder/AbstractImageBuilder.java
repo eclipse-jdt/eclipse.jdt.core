@@ -23,7 +23,6 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -64,7 +63,6 @@ protected LinkedHashSet<SourceFile> problemSourceFiles;
 protected boolean compiledAllAtOnce;
 
 private boolean inCompiler;
-private boolean useDefaultCompiler = true;
 
 protected boolean keepStoringProblemMarkers;
 protected Map<SourceFile, AnnotationBinding[]> filesWithAnnotations = null;
@@ -88,6 +86,7 @@ public final static Integer S_INFO = Integer.valueOf(IMarker.SEVERITY_INFO);
 public final static Integer P_HIGH = Integer.valueOf(IMarker.PRIORITY_HIGH);
 public final static Integer P_NORMAL = Integer.valueOf(IMarker.PRIORITY_NORMAL);
 public final static Integer P_LOW = Integer.valueOf(IMarker.PRIORITY_LOW);
+public final static String COMPILER_FACTORY_KEY = "AbstractImageBuilder.compilerFactory"; //$NON-NLS-1$
 private final CompilationGroup compilationGroup;
 
 protected AbstractImageBuilder(JavaBuilder javaBuilder, boolean buildStarting, State newState, CompilationGroup compilationGroup) {
@@ -576,39 +575,34 @@ protected Compiler newCompiler() {
 	CompilerOptions compilerOptions = new CompilerOptions(projectOptions);
 	compilerOptions.performMethodsFullRecovery = true;
 	compilerOptions.performStatementsRecovery = true;
-	Compiler newCompiler = null;
-	String compilerClassName = System.getProperty(AbstractImageBuilder.class.getSimpleName() + ".compiler"); //$NON-NLS-1$
-	if (compilerClassName != null) {
+
+	ICompilerFactory compilerFactory = null;
+	String compilerFactoryClassName = System.getProperty(COMPILER_FACTORY_KEY);
+	if (compilerFactoryClassName != null) {
 		try {
-			Class<? extends Compiler> compilerClass = (Class<? extends Compiler>) Class.forName(compilerClassName);
-			Constructor<? extends Compiler> constructor = compilerClass.getDeclaredConstructor(
-				INameEnvironment.class,
-				IErrorHandlingPolicy.class,
-				CompilerConfiguration.class,
-				ICompilerRequestor.class,
-				IProblemFactory.class);
-			newCompiler = constructor.newInstance(this.nameEnvironment,
-				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
-				prepareCompilerConfiguration(compilerOptions),
-				this,
-				ProblemFactory.getProblemFactory(Locale.getDefault()));
-			this.useDefaultCompiler = false;
+			Class<? extends ICompilerFactory> compilerFactoryClass = (Class<? extends ICompilerFactory>) Class.forName(compilerFactoryClassName);
+			Constructor<? extends ICompilerFactory> constructor = compilerFactoryClass.getDeclaredConstructor();
+			compilerFactory = constructor.newInstance();
 		} catch (ClassNotFoundException e) {
-			ILog.get().error("Could not load class " + compilerClassName, e); //$NON-NLS-1$
+			ILog.get().error("Could not load class " + compilerFactoryClassName, e); //$NON-NLS-1$
 		} catch (NoSuchMethodException e) {
-			ILog.get().error("Couldn't find compatible constructor " + compilerClassName); //$NON-NLS-1$
+			ILog.get().error("Couldn't find compatible constructor " + compilerFactoryClassName); //$NON-NLS-1$
 		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | InvocationTargetException e) {
-			ILog.get().error("Failed invoking constructor " + compilerClassName); //$NON-NLS-1$
+			ILog.get().error("Failed invoking constructor " + compilerFactoryClassName); //$NON-NLS-1$
 		}
 	}
-	if (newCompiler == null) {
-		newCompiler = new Compiler(
+
+	if (compilerFactory == null) {
+		compilerFactory = new DefaultCompilerFactory();
+	}
+
+	Compiler newCompiler = compilerFactory.newCompiler(
 			this.nameEnvironment,
 			DefaultErrorHandlingPolicies.proceedWithAllProblems(),
-			compilerOptions,
+			prepareCompilerConfiguration(compilerOptions),
 			this,
 			ProblemFactory.getProblemFactory(Locale.getDefault()));
-	}
+
 	CompilerOptions options = newCompiler.options;
 	// temporary code to allow the compiler to revert to a single thread
 	String setting = System.getProperty("jdt.compiler.useSingleThread"); //$NON-NLS-1$
@@ -627,69 +621,90 @@ protected Compiler newCompiler() {
 }
 
 private CompilerConfiguration prepareCompilerConfiguration(CompilerOptions options) {
-	CompilerConfiguration configuration = new CompilerConfiguration();
-	configuration.setOptions(options);
-	List<String> annotationProcessorPaths = new ArrayList<>();
-	List<String> generatedSourcePaths = new ArrayList<>();
-	boolean isTest = this.compilationGroup == CompilationGroup.TEST;
-	if (this.javaBuilder.participants != null) {
-		for (CompilationParticipant participant : this.javaBuilder.participants) {
-			if (participant.isAnnotationProcessor()) {
-				String[] paths = participant.getAnnotationProcessorPaths(this.javaBuilder.javaProject, isTest);
-				if (paths != null) {
-					annotationProcessorPaths.addAll(Arrays.asList(paths));
-				}
-				String[] generatedSrc = participant.getGeneratedSourcePaths(this.javaBuilder.javaProject, isTest);
-				if (generatedSrc != null) {
-					generatedSourcePaths.addAll(Arrays.asList(generatedSrc));
+	try {
+		List<String> annotationProcessorPaths = new ArrayList<>();
+		List<String> generatedSourcePaths = new ArrayList<>();
+		boolean isTest = this.compilationGroup == CompilationGroup.TEST;
+		if (this.javaBuilder.participants != null) {
+			for (CompilationParticipant participant : this.javaBuilder.participants) {
+				if (participant.isAnnotationProcessor()) {
+					String[] paths = participant.getAnnotationProcessorPaths(this.javaBuilder.javaProject, isTest);
+					if (paths != null) {
+						annotationProcessorPaths.addAll(Arrays.asList(paths));
+					}
+					String[] generatedSrc = participant.getGeneratedSourcePaths(this.javaBuilder.javaProject, isTest);
+					if (generatedSrc != null) {
+						generatedSourcePaths.addAll(Arrays.asList(generatedSrc));
+					}
 				}
 			}
 		}
-	}
-	configuration.setAnnotationProcessorPaths(annotationProcessorPaths);
-	configuration.setGeneratedSourcePaths(generatedSourcePaths);
-	ClasspathLocation[] classpathLocations = this.nameEnvironment.binaryLocations;
-	List<String> classpaths = new ArrayList<>();
-	List<String> modulepaths = new ArrayList<>();
-	for (ClasspathLocation location : classpathLocations) {
-		if (location instanceof ClasspathDirectory cpDirectory) {
-			String filepath = cpDirectory.binaryFolder.getLocation().toFile().getAbsolutePath();
-			if (cpDirectory.isOnModulePath && !modulepaths.contains(filepath)) {
-				modulepaths.add(filepath);
-			} else if (!cpDirectory.isOnModulePath && !classpaths.contains(filepath)) {
-				classpaths.add(filepath);
-			}
-		} else if (location instanceof ClasspathJar cpJar) {
-			String filepath = cpJar.zipFilename;
-			if (cpJar.isOnModulePath && !modulepaths.contains(filepath)) {
-				modulepaths.add(filepath);
-			} else if (!cpJar.isOnModulePath && !classpaths.contains(filepath)) {
-				classpaths.add(filepath);
-			}
-		}
-	}
-	configuration.setClasspaths(classpaths);
-	configuration.setModulepaths(modulepaths);
 
-	Map<File, File> sourceOutputMapping = new HashMap<>();
-	List<String> sourcepaths = new ArrayList<>();
-	List<String> moduleSourcepaths = new ArrayList<>();
-	ClasspathMultiDirectory[] srcLocations = this.nameEnvironment.sourceLocations;
-	for (ClasspathMultiDirectory sourceLocation : srcLocations) {
-		File sourceFolder = sourceLocation.sourceFolder.getLocation().toFile();
-		File outputFolder = sourceLocation.binaryFolder.getLocation().toFile();
-		sourceOutputMapping.put(sourceFolder, outputFolder);
-		String sourcepath = sourceFolder.getAbsolutePath();
-		if (sourceLocation.isOnModulePath && !moduleSourcepaths.contains(sourcepath)) {
-			moduleSourcepaths.add(sourcepath);
-		} else if (!sourceLocation.isOnModulePath && !sourcepaths.contains(sourcepath)) {
-			sourcepaths.add(sourcepath);
+		ClasspathLocation[] classpathLocations = this.nameEnvironment.binaryLocations;
+		Set<String> classpaths = new LinkedHashSet<>();
+		Set<String> modulepaths = new LinkedHashSet<>();
+		for (ClasspathLocation location : classpathLocations) {
+			if (location instanceof ClasspathDirectory cpDirectory) {
+				IPath binaryLocation = cpDirectory.binaryFolder.getLocation();
+				if (binaryLocation == null) {
+					continue;
+				}
+
+				String filepath = binaryLocation.toFile().getAbsolutePath();
+				if (cpDirectory.isOnModulePath) {
+					modulepaths.add(filepath);
+				} else {
+					classpaths.add(filepath);
+				}
+			} else if (location instanceof ClasspathJar cpJar) {
+				String filepath = cpJar.zipFilename;
+				if (cpJar.isOnModulePath) {
+					modulepaths.add(filepath);
+				} else {
+					classpaths.add(filepath);
+				}
+			}
 		}
+
+		Map<File, File> sourceOutputMapping = new HashMap<>();
+		Set<String> sourcepaths = new LinkedHashSet<>();
+		Set<String> moduleSourcepaths = new LinkedHashSet<>();
+		ClasspathMultiDirectory[] srcLocations = this.nameEnvironment.sourceLocations;
+		for (ClasspathMultiDirectory sourceLocation : srcLocations) {
+			IPath sourcepath = sourceLocation.sourceFolder.getLocation();
+			if (sourcepath == null) {
+				continue;
+			}
+
+			File sourceFolder = sourcepath.toFile();
+			IPath binarypath = sourceLocation.binaryFolder.getLocation();
+			if (binarypath != null) {
+				File outputFolder = binarypath.toFile();
+				sourceOutputMapping.put(sourceFolder, outputFolder);
+			}
+
+			String absoluteSourcepath = sourceFolder.getAbsolutePath();
+			if (sourceLocation.isOnModulePath) {
+				moduleSourcepaths.add(absoluteSourcepath);
+			} else {
+				sourcepaths.add(absoluteSourcepath);
+			}
+		}
+
+		return new CompilerConfiguration(
+				new ArrayList<>(sourcepaths),
+				new ArrayList<>(moduleSourcepaths),
+				new ArrayList<>(classpaths),
+				new ArrayList<>(modulepaths),
+				annotationProcessorPaths,
+				generatedSourcePaths,
+				sourceOutputMapping,
+				options.getMap());
+	} catch (Exception e) {
+		ILog.get().error("Failed computing compiler configuration " + e); //$NON-NLS-1$
+		return new CompilerConfiguration(
+				null, null, null, null, null, null, null, options.getMap());
 	}
-	configuration.setSourceOutputMapping(sourceOutputMapping);
-	configuration.setSourcepaths(sourcepaths);
-	configuration.setModuleSourcepaths(moduleSourcepaths);
-	return configuration;
 }
 
 protected CompilationParticipantResult[] notifyParticipants(SourceFile[] unitsAboutToCompile) {
@@ -762,9 +777,10 @@ protected void processAnnotations(CompilationParticipantResult[] results) {
 		results[i].reset(foundAnnotations ? this.filesWithAnnotations.get(results[i].sourceFile) : null);
 	}
 
+	boolean isEcjUsed = Compiler.class.equals(this.compiler.getClass());
 	// even if no files have annotations, must still tell every annotation processor in case the file used to have them
 	for (CompilationParticipant participant : this.javaBuilder.participants)
-		if (this.useDefaultCompiler && participant.isAnnotationProcessor())
+		if (isEcjUsed && participant.isAnnotationProcessor())
 			participant.processAnnotations(results);
 	processAnnotationResults(results);
 }
