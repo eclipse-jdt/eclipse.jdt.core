@@ -142,7 +142,7 @@ public class JavacBindingResolver extends BindingResolver {
 			variableBindings.putIfAbsent(newInstance.getKey(), newInstance);
 			return variableBindings.get(newInstance.getKey());
 		}
-		
+
 		public IBinding getBinding(final Symbol owner, final com.sun.tools.javac.code.Type type) {
 			if (owner instanceof final PackageSymbol other) {
 				return getPackageBinding(other);
@@ -159,7 +159,7 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 
 	}
-	public final Bindings bindings = new Bindings(); 
+	public final Bindings bindings = new Bindings();
 
 	public JavacBindingResolver(IJavaProject javaProject, JavacTask javacTask, Context context, JavacConverter converter) {
 		this.javac = javacTask;
@@ -231,7 +231,7 @@ public class JavacBindingResolver extends BindingResolver {
 		// TODO fields, methods, variables...
 		return Optional.empty();
 	}
-	
+
 	@Override
 	ITypeBinding resolveType(Type type) {
 		resolve();
@@ -260,7 +260,7 @@ public class JavacBindingResolver extends BindingResolver {
 		if (jcTree instanceof JCAnnotatedType annotated && annotated.type != null) {
 			return this.bindings.getTypeBinding(annotated.type);
 		}
-		
+
 //			return this.flowResult.stream().map(env -> env.enclClass)
 //				.filter(Objects::nonNull)
 //				.map(decl -> decl.type)
@@ -299,7 +299,7 @@ public class JavacBindingResolver extends BindingResolver {
 		return null;
 	}
 
-	
+
 	@Override
 	ITypeBinding resolveType(TypeDeclaration type) {
 		resolve();
@@ -430,7 +430,7 @@ public class JavacBindingResolver extends BindingResolver {
 						this.bindings.getMethodBinding(jcExpr.constructor.type.asMethodType(), (MethodSymbol)jcExpr.constructor) :
 				null;
 	}
-	
+
 	@Override
 	IMethodBinding resolveConstructor(SuperConstructorInvocation expression) {
 		resolve();
@@ -468,7 +468,7 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 		return null;
 	}
-	
+
 	IBinding resolveNameToJavac(Name name, JCTree tree) {
 		if (tree instanceof JCIdent ident && ident.sym != null) {
 			return this.bindings.getBinding(ident.sym, ident.type != null ? ident.type : ident.sym.type);
@@ -505,7 +505,7 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 		return null;
 	}
-	
+
 	@Override
 	IVariableBinding resolveVariable(VariableDeclaration variable) {
 		resolve();
@@ -533,7 +533,7 @@ public class JavacBindingResolver extends BindingResolver {
 		if (expr instanceof SimpleName name) {
 			IBinding binding = resolveName(name);
 			// binding can be null when the code has syntax errors
-			if (binding != null && binding.isRecovered() && !this.isRecoveringBindings) {
+			if (binding == null || (binding.isRecovered() && !this.isRecoveringBindings)) {
 				return null;
 			}
 			switch (binding) {
@@ -651,7 +651,7 @@ public class JavacBindingResolver extends BindingResolver {
 			}) //
 			.collect(Collectors.toList());
 	}
-	
+
 	IModuleBinding resolveModule(ModuleDeclaration module) {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(module);
@@ -660,7 +660,7 @@ public class JavacBindingResolver extends BindingResolver {
 			if( o instanceof ModuleType mt ) {
 				return this.bindings.getModuleBinding(mt);
 			}
-		} 
+		}
 		return null;
 	}
 
@@ -749,7 +749,7 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 		return this.bindings.getTypeBinding(type);
 	}
-	
+
 	@Override
 	IAnnotationBinding resolveAnnotation(Annotation annotation) {
 		resolve();
