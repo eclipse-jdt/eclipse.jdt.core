@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
 
+import com.sun.tools.javac.parser.UnicodeReader;
 import com.sun.tools.javac.tree.DCTree;
 import com.sun.tools.javac.tree.DCTree.DCAuthor;
 import com.sun.tools.javac.tree.DCTree.DCBlockTag;
@@ -49,22 +51,47 @@ import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.JCDiagnostic;
 
 class JavadocConverter {
-	
+
 	private final AST ast;
 	private final JavacConverter javacConverter;
 	private final DCDocComment docComment;
 	private final int initialOffset;
 	private final int endOffset;
-	
+
 	final private Set<JCDiagnostic> diagnostics = new HashSet<>();
+
+	private static Field UNICODE_READER_CLASS_OFFSET_FIELD = null;
+	static {
+		try {
+			Class<UnicodeReader> unicodeReaderClass = (Class<UnicodeReader>) Class.forName("com.sun.tools.javac.parser.UnicodeReader");
+			UNICODE_READER_CLASS_OFFSET_FIELD = unicodeReaderClass.getDeclaredField("offset");
+			UNICODE_READER_CLASS_OFFSET_FIELD.setAccessible(true);
+		} catch (Exception e) {
+			// do nothing, leave null
+		}
+	}
 
 	JavadocConverter(JavacConverter javacConverter, DCDocComment docComment) {
 		this.javacConverter = javacConverter;
 		this.ast = javacConverter.ast;
 		this.docComment = docComment;
-		this.initialOffset = this.javacConverter.rawText.substring(0, docComment.getSourcePosition(0)).lastIndexOf("/**");
-		int offsetEnd = this.docComment.getSourcePosition(this.docComment.getEndPosition());
-		this.endOffset = offsetEnd + this.javacConverter.rawText.substring(offsetEnd).indexOf("*/") + "*/".length();
+
+		int startPos = -1;
+		if (UNICODE_READER_CLASS_OFFSET_FIELD != null) {
+			try {
+				startPos = UNICODE_READER_CLASS_OFFSET_FIELD.getInt(docComment.comment);
+			} catch (Exception e) {
+				ILog.get().warn("could not reflexivly access doc comment offset");
+			}
+		} else {
+			startPos = docComment.getSourcePosition(0) >= 0 ? docComment.getSourcePosition(0) : docComment.comment.getSourcePos(0);
+		}
+
+		if (startPos < 0) {
+			throw new IllegalArgumentException("Doc comment has no start position");
+		}
+		this.initialOffset = startPos;
+		this.endOffset = startPos + this.javacConverter.rawText.substring(startPos).indexOf("*/") + "*/".length();
 	}
 
 	private void commonSettings(ASTNode res, DCTree javac) {
@@ -112,7 +139,7 @@ class JavadocConverter {
 		}
 		return res;
 	}
-	
+
 	Set<JCDiagnostic> getDiagnostics() {
         return diagnostics;
     }
@@ -203,7 +230,7 @@ class JavadocConverter {
 		}
 		return Optional.of(res);
 	}
-	
+
 	private Name toName(JCTree expression, int parentOffset) {
 		Name n = this.javacConverter.toName(expression, (dom, javac) -> {
 			int start = parentOffset + javac.getStartPosition();
@@ -222,7 +249,7 @@ class JavadocConverter {
 		}
 		return n;
 	}
-	
+
 	private void cleanNameQualifierLocations(QualifiedName qn) {
 		Name qualifier = qn.getQualifier();
 		if( qualifier != null ) {
@@ -232,7 +259,7 @@ class JavadocConverter {
 			}
 		}
 	}
-	
+
 	private IDocElement convertElement(DCTree javac) {
 		if (javac instanceof DCText text) {
 			//JavaDocTextElement res = this.ast.newJavaDocTextElement();
