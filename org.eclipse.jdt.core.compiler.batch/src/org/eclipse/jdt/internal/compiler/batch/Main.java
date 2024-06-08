@@ -27,8 +27,10 @@
  *								Bug 408815 - [batch][null] Add CLI option for COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS
  *     Jesper S Moller   - Contributions for
  *								bug 407297 - [1.8][compiler] Control generation of parameter names by option
- *    Mat Booth - Contribution for bug 405176
- *    Frits Jalvingh - fix for bug 533830.
+ *     Mat Booth - Contribution for bug 405176
+ *     Frits Jalvingh - fix for bug 533830.
+ *     Salesforce - Contribution for
+ *								https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2529
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -3889,7 +3891,7 @@ protected void handleWarningToken(String token, boolean isEnabling) {
 protected void handleErrorToken(String token, boolean isEnabling) {
 	handleErrorOrWarningToken(token, isEnabling, ProblemSeverities.Error);
 }
-private void setSeverity(String compilerOptions, int severity, boolean isEnabling) {
+protected void setSeverity(String compilerOptions, int severity, boolean isEnabling) {
 	if (isEnabling) {
 		switch(severity) {
 			case ProblemSeverities.Error :
