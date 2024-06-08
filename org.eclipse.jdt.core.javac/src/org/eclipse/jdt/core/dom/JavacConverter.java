@@ -1820,7 +1820,7 @@ class JavacConverter {
 		if (javac instanceof JCVariableDecl jcVariableDecl) {
 			VariableDeclarationFragment fragment = createVariableDeclarationFragment(jcVariableDecl);
 			List<ASTNode> sameStartPosition = new ArrayList<>();
-			if( parent instanceof Block decl) {
+			if (parent instanceof Block decl && jcVariableDecl.vartype != null) {
 				decl.statements().stream().filter(x -> x instanceof VariableDeclarationStatement)
 				.filter(x -> ((VariableDeclarationStatement)x).getType().getStartPosition() == jcVariableDecl.vartype.getStartPosition())
 				.forEach(x -> sameStartPosition.add((ASTNode)x));
