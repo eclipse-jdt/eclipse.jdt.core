@@ -498,7 +498,8 @@ public class JavacBindingResolver extends BindingResolver {
 	IVariableBinding resolveVariable(EnumConstantDeclaration enumConstant) {
 		resolve();
 		if (this.converter.domToJavac.get(enumConstant) instanceof JCVariableDecl decl) {
-			if (!decl.type.isErroneous() || this.isRecoveringBindings) {
+			// the decl.type can be null when there are syntax errors
+			if ((decl.type != null && !decl.type.isErroneous()) || this.isRecoveringBindings) {
 				return this.bindings.getVariableBinding(decl.sym);
 			}
 		}
@@ -509,7 +510,8 @@ public class JavacBindingResolver extends BindingResolver {
 	IVariableBinding resolveVariable(VariableDeclaration variable) {
 		resolve();
 		if (this.converter.domToJavac.get(variable) instanceof JCVariableDecl decl) {
-			if (!decl.type.isErroneous() || this.isRecoveringBindings) {
+			// the decl.type can be null when there are syntax errors
+			if ((decl.type != null && !decl.type.isErroneous()) || this.isRecoveringBindings) {
 				return this.bindings.getVariableBinding(decl.sym);
 			}
 		}
@@ -530,7 +532,8 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		if (expr instanceof SimpleName name) {
 			IBinding binding = resolveName(name);
-			if (binding.isRecovered() && !this.isRecoveringBindings) {
+			// binding can be null when the code has syntax errors
+			if (binding != null && binding.isRecovered() && !this.isRecoveringBindings) {
 				return null;
 			}
 			switch (binding) {
