@@ -94,6 +94,7 @@ public static Test suite() {
 	standardTests.add(InitializationTests.class);
 	standardTests.add(ResourceLeakTests.class);
 	standardTests.add(PackageBindingTest.class);
+	standardTests.add(NameEnvironmentAnswerListenerTest.class);
 
 	// add all javadoc tests
 	for (int i=0, l=JavadocTest.ALL_CLASSES.size(); i<l; i++) {
