@@ -552,7 +552,12 @@ public class JavacBindingResolver extends BindingResolver {
 			return this.bindings.getTypeBinding(jcExpr.type);
 		}
 		if (jcTree instanceof JCVariableDecl jcVariableDecl) {
-			return this.bindings.getTypeBinding(jcVariableDecl.type);
+
+			if (jcVariableDecl.type != null) {
+				return this.bindings.getTypeBinding(jcVariableDecl.type);
+			} else {
+				return null;
+			}
 		}
 		return null;
 	}
