@@ -454,6 +454,7 @@ public void test004() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test005() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
 	this.runConformTest(
 			new String[] {
 					"p/OtherFoo.java", //-----------------------------------------------------------------------
@@ -510,6 +511,7 @@ public void test005() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test006() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
 	this.runConformTest(
 			new String[] {
 					"p/OtherFoo.java", //-----------------------------------------------------------------------
@@ -572,6 +574,7 @@ public void test006() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test007() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
 	this.runConformTest(
 			new String[] {
 					"p/OtherFoo.java", //-----------------------------------------------------------------------
@@ -8814,6 +8817,7 @@ public void testBug576735() {
 	runner.runNegativeTest();
 }
 public void testMissingClassNeededForOverloadResolution() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
 			"p1/A.java",
@@ -8876,7 +8880,7 @@ public void testMissingClassNeededForOverloadResolution() {
 	runner.runNegativeTest();
 }
 public void testMissingClassNeededForOverloadResolution_varargs1() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses varargs
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
 	runner.testFiles = new String[] {
@@ -8948,7 +8952,7 @@ public void testMissingClassNeededForOverloadResolution_varargs1() {
 	runner.runNegativeTest();
 }
 public void testMissingClassNeededForOverloadResolution_varargs2() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses varargs
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
 			"p1/A.java",
