@@ -18,7 +18,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.IBuffer;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.ISourceRange;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeRoot;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.SourceRange;
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
@@ -52,24 +68,27 @@ protected static boolean areSimilarMethods(
 			for (int i = 0; i < params1Length; i++) {
 				String typeErasureParam1Signature = Signature.getTypeErasure(params1[i]);
 				String typeErasureParam2Signature = Signature.getTypeErasure(params2[i]);
+				String simpleName1 =
+					simpleNames1 == null ?
+						Signature.getSimpleName(Signature.toString(typeErasureParam1Signature)) :
+						simpleNames1[i];
+				String simpleName2 = Signature.getSimpleName(Signature.toString(typeErasureParam2Signature));
+				if (!simpleName1.equals(simpleName2)) {
+					return false;
+				}
 				String param1Qualifier = Signature.getSignatureQualifier(typeErasureParam1Signature);
 				String param2Qualifier = Signature.getSignatureQualifier(typeErasureParam2Signature);
-				if (!param1Qualifier.isEmpty() && !param2Qualifier.isEmpty()) {
-					// both qualified -> compare qualified type
-					String qualifiedType1 = Signature.toString(typeErasureParam1Signature);
-					String qualifiedType2 = Signature.toString(typeErasureParam2Signature);
-					if (!Objects.equals(qualifiedType1, qualifiedType2)) {
-						return false;
-					}
-				} else { // at least 1 unqualified name -> only compare simple names
-					String simpleName1 =
-						simpleNames1 == null ?
-							Signature.getSimpleName(Signature.toString(typeErasureParam1Signature)) :
-							simpleNames1[i];
-					String simpleName2 = Signature.getSimpleName(Signature.toString(typeErasureParam2Signature));
-					if (!simpleName1.equals(simpleName2)) {
-						return false;
-					}
+				if (param1Qualifier.isEmpty() || param2Qualifier.isEmpty()
+					|| Objects.equals(param1Qualifier, param2Qualifier)) {
+					continue;
+				}
+				// qualifier can have multiple forms, particularly for nested types:
+				// * mypackage.Outer.Inner.Innest
+				// * Outer.Inner.Innest (if Outer is is imported)
+				// * Inner.Innest (if Inner is imported)
+				// so we compare the suffix
+				if (!(param1Qualifier.endsWith('.' + param2Qualifier) || param2Qualifier.endsWith('.' + param1Qualifier))) {
+					return false;
 				}
 			}
 			return true;
@@ -77,6 +96,7 @@ protected static boolean areSimilarMethods(
 	}
 	return false;
 }
+
 /**
  * Converts a field constant from the compiler's representation
  * to the Java Model constant representation (Number or String).
