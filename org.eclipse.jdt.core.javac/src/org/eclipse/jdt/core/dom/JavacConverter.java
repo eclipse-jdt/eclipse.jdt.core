@@ -128,6 +128,8 @@ import com.sun.tools.javac.util.Position.LineMap;
 @SuppressWarnings("unchecked")
 class JavacConverter {
 
+	private static final String ERROR = "<error>";
+	private static final String FAKE_IDENTIFIER = new String(RecoveryScanner.FAKE_IDENTIFIER);
 	public final AST ast;
 	private final JCCompilationUnit javacCompilationUnit;
 	private final Context context;
@@ -372,7 +374,7 @@ class JavacConverter {
 			JCExpression faExpression = fieldAccess.getExpression();
 			SimpleName n = (SimpleName)convertName(fieldAccess.getIdentifier());
 			if (n == null) {
-				n = this.ast.newSimpleName("NOT_SET");
+				n = this.ast.newSimpleName(FAKE_IDENTIFIER);
 			}
 			commonSettings(n, fieldAccess);
 
@@ -380,9 +382,14 @@ class JavacConverter {
 			QualifiedName res = this.ast.newQualifiedName(qualifier, n);
 			commonSettings(res, fieldAccess.getExpression());
 			extraSettings.accept(res, fieldAccess);
-			// fix name position according to qualifier position
-			int nameIndex = this.rawText.indexOf(fieldAccess.getIdentifier().toString(), qualifier.getStartPosition() + qualifier.getLength());
-			n.setSourceRange(nameIndex, fieldAccess.getIdentifier().toString().length());
+			// don't calculate source range if the identifier is not valid.
+			if (!fieldAccess.getIdentifier().contentEquals(FAKE_IDENTIFIER)
+					&& !fieldAccess.getIdentifier().contentEquals(ERROR)) {
+				// fix name position according to qualifier position
+				int nameIndex = this.rawText.indexOf(fieldAccess.getIdentifier().toString(),
+						qualifier.getStartPosition() + qualifier.getLength());
+				n.setSourceRange(nameIndex, fieldAccess.getIdentifier().toString().length());
+			}
 			return res;
 		}
 		if (expression instanceof JCAnnotatedType jcat) {
@@ -722,7 +729,7 @@ class JavacConverter {
 		String methodDeclName = getMethodDeclName(javac, parent, parent instanceof RecordDeclaration);
 		boolean methodDeclNameMatchesInit = Objects.equals(methodDeclName, Names.instance(this.context).init.toString());
 		boolean javacNameMatchesInit = javacName.equals("<init>");
-		boolean javacNameMatchesError = javacName.equals("<error>");
+		boolean javacNameMatchesError = javacName.equals(ERROR);
 		boolean javacNameMatchesInitAndMethodNameMatchesTypeName = javacNameMatchesInit && methodDeclName.equals(getNodeName(parent));
 		boolean isConstructor = methodDeclNameMatchesInit || javacNameMatchesInitAndMethodNameMatchesTypeName;
 		res.setConstructor(isConstructor);
@@ -1133,7 +1140,7 @@ class JavacConverter {
 				SimpleName qualifiedName = (SimpleName)convertName(fieldAccess.getIdentifier());
 				if (qualifiedName == null) {
 					// when there are syntax errors where the statement is not completed.
-					qualifiedName = this.ast.newSimpleName(new String(RecoveryScanner.FAKE_IDENTIFIER));
+					qualifiedName = this.ast.newSimpleName(FAKE_IDENTIFIER);
 				}
 				QualifiedName res = this.ast.newQualifiedName(qualifierName, qualifiedName);
 				commonSettings(res, javac);
@@ -1568,10 +1575,10 @@ class JavacConverter {
 					}
 				}
 			}
-			return this.ast.newSimpleName(new String(RecoveryScanner.FAKE_IDENTIFIER));
+			return this.ast.newSimpleName(FAKE_IDENTIFIER);
 		}
 		ILog.get().error("Unsupported " + javac + " of type" + (javac == null ? "null" : javac.getClass()));
-		return this.ast.newSimpleName(new String(RecoveryScanner.FAKE_IDENTIFIER));
+		return this.ast.newSimpleName(FAKE_IDENTIFIER);
 	}
 
 	private Pattern convert(JCPattern jcPattern) {
@@ -2381,7 +2388,7 @@ class JavacConverter {
 		}
 		if (javac instanceof JCErroneous || javac == null /* when there are syntax errors */) {
 			// returning null could result in upstream errors, so return a fake type
-			return this.ast.newSimpleType(this.ast.newSimpleName(new String(RecoveryScanner.FAKE_IDENTIFIER)));
+			return this.ast.newSimpleType(this.ast.newSimpleName(FAKE_IDENTIFIER));
 		}
 		throw new UnsupportedOperationException("Not supported yet, type " + javac + " of class" + javac.getClass());
 	}
@@ -2658,7 +2665,7 @@ class JavacConverter {
 
 	private Name convertName(com.sun.tools.javac.util.Name javac) {
 		if (javac == null || Objects.equals(javac, Names.instance(this.context).error) || Objects.equals(javac, Names.instance(this.context).empty)) {
-			return null;
+			return this.ast.newSimpleName(FAKE_IDENTIFIER);
 		}
 		String nameString = javac.toString();
 		int lastDot = nameString.lastIndexOf(".");
