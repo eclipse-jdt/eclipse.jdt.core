@@ -148,11 +148,23 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 							.map(t ->
 								t instanceof TypeVar typeVar ? Signature.C_TYPE_VARIABLE + typeVar.tsym.name.toString() + ";" : // check whether a better constructor exists for it
 								type.isBinary() ?
-										Signature.createTypeSignature(t.toString(), true) :
-										Signature.createTypeSignature(t.tsym.name.toString(), false))
+											Signature.createTypeSignature(resolveTypeName(t, true), true)
+											: Signature.createTypeSignature(resolveTypeName(t, false), false))
 							.toArray(String[]::new));
 		}
 		return null;
+	}
+
+	private String resolveTypeName(com.sun.tools.javac.code.Type type, boolean binary) {
+		if (binary) {
+			TypeSymbol sym = type.asElement();
+			if (sym != null) {
+				return sym.getQualifiedName().toString();
+			}
+			return type.toString(); // this will emit the string representation of the type which might include
+									// information which cannot be converted to a type signature.
+		}
+		return type.asElement().toString();
 	}
 
 	@Override
