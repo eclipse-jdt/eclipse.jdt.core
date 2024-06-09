@@ -5968,4 +5968,58 @@ public void testBug521362_emptyFile() {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + out + File.separator + "module-info.class", "module-info", expectedOutput);
 	}
+
+	public void testPatchModuleSingle() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out1 = OUTPUT_DIR + File.separator + "bin1";
+		String src1 = OUTPUT_DIR + File.separator + "src1";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, src1,
+				"module-info.java",
+				"module mod.one { \n" + // no exports!
+				"}");
+		writeFileCollecting(files, src1 + File.separator + "test1",
+				"A.java",
+				"package test1;\n" +
+				"public class A {}");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("-d " + out1 )
+			.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ");
+		runConformModuleTest(
+				files,
+				buffer,
+				"",
+				"",
+				false);
+
+		files.clear();
+		String out2 = "bin2";
+		String src2 = OUTPUT_DIR + File.separator + "src2";
+		writeFileCollecting(files, src2 + File.separator + "test2",
+				"B.java",
+				"package test2;\n" +
+				"import test1.A;\n" +
+				"class B extends A {}");
+		buffer = new StringBuilder();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out2 )
+			.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --patch-module mod.one=\"").append(src2).append("\" ")
+			.append(" --module-path \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append(File.pathSeparatorChar)
+			.append(out1)
+			.append("\" ");
+		runConformModuleTest(
+				files,
+				buffer,
+				"",
+				"",
+				false);
+	}
 }

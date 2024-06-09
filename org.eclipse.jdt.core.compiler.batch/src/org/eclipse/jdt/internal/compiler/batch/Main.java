@@ -1368,6 +1368,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	private List<String> addonReads = Collections.EMPTY_LIST;
 	public Set<String> rootModules = Collections.EMPTY_SET;
 	public Set<String> limitedModules;
+	private Map<String,String> patchModules; // <module>=<file>(<pathsep><file>)*
 
 	public Locale compilerLocale;
 	public CompilerOptions compilerOptions; // read-only
@@ -1840,6 +1841,7 @@ public void configure(String[] argv) {
 	final int INSIDE_RELEASE = 30;
 	final int INSIDE_LIMIT_MODULES = 31;
 	final int INSIDE_MODULE_VERSION = 32;
+	final int INSIDE_PATCH_MODULE = 33;
 
 	final int DEFAULT = 0;
 	ArrayList<String> bootclasspaths = new ArrayList<>(DEFAULT_SIZE_CLASSPATH);
@@ -2147,6 +2149,10 @@ public void configure(String[] argv) {
 				}
 				if (currentArg.equals("--limit-modules")) { //$NON-NLS-1$
 					mode = INSIDE_LIMIT_MODULES;
+					continue;
+				}
+				if (currentArg.equals("--patch-module")) { //$NON-NLS-1$
+					mode = INSIDE_PATCH_MODULE;
 					continue;
 				}
 				if (currentArg.equals("--module-version")) { //$NON-NLS-1$
@@ -2785,6 +2791,20 @@ public void configure(String[] argv) {
 					this.limitedModules.add(tokenizer.nextToken().trim());
 				}
 				continue;
+			case INSIDE_PATCH_MODULE:
+				mode = DEFAULT;
+				String[] toks = currentArg.split("="); //$NON-NLS-1$
+				if (toks.length == 2) {
+					if (this.patchModules == null) {
+						this.patchModules = new HashMap<>();
+					}
+					if (this.patchModules.put(toks[0].trim(), toks[1].trim()) != null) {
+						throw new IllegalArgumentException(this.bind("configure.duplicatePatchModule", toks[0].trim())); //$NON-NLS-1$
+					}
+				} else {
+					throw new IllegalArgumentException(this.bind("configure.invalidSyntaxPatchModule", currentArg)); //$NON-NLS-1$
+				}
+				continue;
 			case INSIDE_MODULE_VERSION:
 				mode = DEFAULT;
 				this.moduleVersion = validateModuleVersion(currentArg);
@@ -3402,9 +3422,22 @@ public CompilationUnit[] getCompilationUnits() {
 						return null;
 					};
 				}
+				String modName = this.modNames[i];
+				if (modName == null && this.patchModules != null) {
+					// does this source file patch an existing module?
+					patchEntries: for (Entry<String, String> entry : this.patchModules.entrySet()) {
+						StringTokenizer tokenizer = new StringTokenizer(entry.getValue(), File.pathSeparator);
+						while (tokenizer.hasMoreTokens()) {
+							if (fileName.startsWith(tokenizer.nextToken()+File.separator)) {
+								modName = entry.getKey();
+								break patchEntries;
+							}
+						}
+					}
+				}
 				units[i] = new CompilationUnit(null, fileName, encoding, this.destinationPaths[i],
 						shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, fileName.toCharArray()),
-						this.modNames[i], annotationPathProvider);
+						modName, annotationPathProvider);
 			}
 		}
 	}
