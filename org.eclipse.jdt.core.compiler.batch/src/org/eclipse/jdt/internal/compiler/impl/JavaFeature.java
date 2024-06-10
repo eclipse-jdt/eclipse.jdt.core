@@ -86,6 +86,10 @@ public enum JavaFeature {
 			Messages.bind(Messages.primitives_in_patterns),
 			new char[][] {},
 			true),
+	MODULE_IMPORTS(ClassFileConstants.JDK23,
+			Messages.bind(Messages.module_imports),
+			CharOperation.NO_CHAR_CHAR,
+			true)
     ;
 
 	final long compliance;
