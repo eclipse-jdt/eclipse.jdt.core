@@ -130,9 +130,9 @@ public final class Messages {
 	public static String record_patterns;
 	public static String unnamed_patterns_and_vars;
 	public static String implicit_classes_and_instance_main_methods;
-	public static String string_templates;
 	public static String statements_before_super;
 	public static String module_imports;
+	public static String primitives_in_patterns;
 
 	static {
 		initializeMessages(BUNDLE_NAME, Messages.class);

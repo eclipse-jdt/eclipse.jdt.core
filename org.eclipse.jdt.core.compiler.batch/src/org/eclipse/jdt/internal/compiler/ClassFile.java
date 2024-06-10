@@ -201,10 +201,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 	public static final String ENUMDESC_OF = "EnumDesc.of"; //$NON-NLS-1$
 	public static final String CLASSDESC = "ClassDesc"; //$NON-NLS-1$
 	public static final String CLASSDESC_OF = "ClassDesc.of"; //$NON-NLS-1$
-	public static final String PROCESS_STRING = "process"; //$NON-NLS-1$
-	public static final String NEW_STRING_TEMPLATE = "newStringTemplate"; //$NON-NLS-1$
 	public static final String[] BOOTSTRAP_METHODS = { ALTMETAFACTORY_STRING, METAFACTORY_STRING, BOOTSTRAP_STRING,
-			TYPESWITCH_STRING, ENUMSWITCH_STRING, CONCAT_CONSTANTS, INVOKE_STRING, ENUMDESC_OF, CLASSDESC, CLASSDESC_OF, PROCESS_STRING, NEW_STRING_TEMPLATE};
+			TYPESWITCH_STRING, ENUMSWITCH_STRING, CONCAT_CONSTANTS, INVOKE_STRING, ENUMDESC_OF, CLASSDESC, CLASSDESC_OF};
 	/**
 	 * INTERNAL USE-ONLY
 	 * Request the creation of a ClassFile compatible representation of a problematic type

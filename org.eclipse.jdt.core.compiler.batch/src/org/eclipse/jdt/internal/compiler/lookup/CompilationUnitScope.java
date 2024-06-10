@@ -235,7 +235,6 @@ void checkAndSetImports() {
 
 	// allocate the import array, add java.lang.* by default
 	ImportBinding[] defaultImports = getDefaultImports();
-	boolean importProcessor = defaultImports.length == 2;
 	final int numberOfStatements = this.referenceContext.imports.length;
 	int numberOfImports = numberOfStatements + defaultImports.length;
 	for (int i = 0; i < numberOfStatements; i++) {
@@ -243,23 +242,12 @@ void checkAndSetImports() {
 		if ((importReference.bits & ASTNode.OnDemand) != 0 && !importReference.isStatic()) {
 			if (CharOperation.equals(TypeConstants.JAVA_LANG, importReference.tokens)) {
 				numberOfImports--;
-				if (!importProcessor)
-					break;
-			}
-		}
-		if (importProcessor && (importReference.bits & ASTNode.OnDemand) == 0 && importReference.isStatic()){
-			if (CharOperation.equals(TypeConstants.JAVA_LANG_STRING_TEMPLATE_STR, importReference.tokens)) {
-				numberOfImports--;
 			}
 		}
 	}
 	ImportBinding[] resolvedImports = new ImportBinding[numberOfImports];
 	resolvedImports[0] = defaultImports[0];
 	int index = 1;
-	if (importProcessor) {
-		resolvedImports[1] = defaultImports[1];
-		index = 2;
-	}
 
 	Predicate<ImportReference> isStaticImport = ImportReference::isStatic;
 	Predicate<ImportReference> isNotStaticImport = Predicate.not(isStaticImport);
@@ -463,8 +451,6 @@ void faultInImports() {
 			break;
 		}
 	}
-	ImportBinding[] defaultImports = getDefaultImports();
-	boolean importProcessor = defaultImports.length == 2;
 	// allocate the import array, add java.lang.* by default
 	int numberOfImports = numberOfStatements + 2;
 	for (int i = 0; i < numberOfStatements; i++) {
@@ -472,25 +458,12 @@ void faultInImports() {
 		if ((importReference.bits & ASTNode.OnDemand) != 0 && !importReference.isStatic()) {
 			if (CharOperation.equals(TypeConstants.JAVA_LANG, importReference.tokens)) {
 				numberOfImports--;
-				if (!importProcessor)
-					break;
-			}
-		}
-		if (importProcessor && (importReference.bits & ASTNode.OnDemand) == 0 && importReference.isStatic()){
-			if (CharOperation.equals(TypeConstants.JAVA_LANG_STRING_TEMPLATE_STR, importReference.tokens)) {
-				numberOfImports--;
 			}
 		}
 	}
 	this.tempImports = new ImportBinding[numberOfImports];
-	if (importProcessor) {
-		this.tempImports[0] = defaultImports[0];
-		this.tempImports[1] = defaultImports[1];
-		this.importPtr = 2;
-	} else {
-		this.tempImports[0] = defaultImports[0];
-		this.importPtr = 1;
-	}
+	this.tempImports[0] = getDefaultImports()[0];
+	this.importPtr = 1;
 
 	CompilerOptions compilerOptions = compilerOptions();
 	boolean inJdtDebugCompileMode = compilerOptions.enableJdtDebugCompileMode;
@@ -795,39 +768,7 @@ ImportBinding[] getDefaultImports() {
 		BinaryTypeBinding missingObject = this.environment.createMissingType(null, TypeConstants.JAVA_LANG_OBJECT);
 		importBinding = missingObject.fPackage;
 	}
-	ImportBinding[] allImports = null;
-	if (this.environment.globalOptions.complianceLevel >= ClassFileConstants.JDK21) {
-		ImportBinding ibinding = new ImportBinding(TypeConstants.JAVA_LANG_STRING_TEMPLATE_STR, false, importBinding, null) {
-			@Override
-			public boolean isStatic() {
-				return true;
-			}
-			@Override
-			public int getResolvedBindingKind() {
-				return Binding.FIELD; // avoid resolving during faultInImports()
-			}
-			@Override
-			public Binding getResolvedImport() {
-				// resolve lazily:
-				Binding resolvedImport = super.getResolvedImport();
-				if (resolvedImport instanceof PackageBinding) { // package was past into the constructor, need to dig deeper now:
-					ReferenceBinding templateSTR = (ReferenceBinding) ((PackageBinding) resolvedImport).getTypeOrPackage(TypeConstants.JAVA_LANG_STRING_TEMPLATE_STR[2], module(), false);
-					if (templateSTR != null) {
-						FieldBinding fieldBinding = templateSTR.getField("STR".toCharArray(), true); //$NON-NLS-1$
-						if (fieldBinding != null)
-							return setResolvedImport(fieldBinding);
-					}
-				}
-				return resolvedImport;
-			}
-		};
-		allImports = new ImportBinding[] {
-				new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null), ibinding};
-	}
-	if (allImports == null){
-		allImports = new ImportBinding[] {new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null)};
-	}
-	return this.environment.root.defaultImports = allImports;
+	return this.environment.root.defaultImports = new ImportBinding[] {new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null)};
 }
 // NOT Public API
 public final Binding getImport(char[][] compoundName, boolean onDemand, boolean isStaticImport) {

@@ -78,18 +78,14 @@ public enum JavaFeature {
 			Messages.bind(Messages.implicit_classes_and_instance_main_methods),
 			new char[][] {},
 			true),
-	STRING_TEMPLATES(ClassFileConstants.JDK23,
-			Messages.bind(Messages.string_templates),
-			new char[][] {},
-			true),
 	STATEMENTS_BEFORE_SUPER(ClassFileConstants.JDK23,
 			Messages.bind(Messages.statements_before_super),
 			new char[][] {},
 			true),
-	MODULE_IMPORTS(ClassFileConstants.JDK23,
-			Messages.bind(Messages.module_imports),
-			CharOperation.NO_CHAR_CHAR,
-			true)
+	PRIMITIVES_IN_PATTERNS(ClassFileConstants.JDK23,
+			Messages.bind(Messages.primitives_in_patterns),
+			new char[][] {},
+			true),
     ;
 
 	final long compliance;
