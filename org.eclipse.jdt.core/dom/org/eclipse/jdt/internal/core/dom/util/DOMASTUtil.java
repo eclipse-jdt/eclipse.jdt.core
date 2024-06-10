@@ -24,7 +24,7 @@ public class DOMASTUtil {
 
 	/**
 	 * Validates if the given <code>AST</code> supports the provided <code>nodeType</code>. This API checks for node
-	 * types supported from JLS 14 onwards and will return <code>true></code> for nodes added before JLS14.
+	 * types supported from JLS 14 onwards and will return <code>true</code> for nodes added before JLS14.
 	 *
 	 * @param ast
 	 *            the AST to be evaluated
@@ -42,7 +42,7 @@ public class DOMASTUtil {
 	/**
 	 * Validates if the given <code>apiLevel</code> and <code>previewEnabled</code> supports the provided
 	 * <code>nodeType</code>. This API checks for node types supported from JLS 14 onwards and will return
-	 * <code>true></code> for nodes added before JLS14.
+	 * <code>true</code> for nodes added before JLS14.
 	 *
 	 * @param apiLevel
 	 *            the level to be checked
@@ -83,7 +83,7 @@ public class DOMASTUtil {
 	/**
 	 * Validates if the given <code>apiLevel</code> and <code>previewEnabled</code> supports the provided
 	 * <code>nodeType</code>. This API checks for node types supported from JLS 14 onwards and will return
-	 * <code>true></code> for nodes added before JLS14.
+	 * <code>true</code> for nodes added before JLS14.
 	 *
 	 * @param ast
 	 *            the AST to be evaluated
@@ -107,7 +107,7 @@ public class DOMASTUtil {
 	/**
 	 * Validates if the given <code>apiLevel</code> and <code>previewEnabled</code> supports the provided
 	 * <code>nodeType</code>. This API checks for node types supported from JLS 14 onwards and will return
-	 * <code>true></code> for nodes added before JLS14.
+	 * <code>true</code> for nodes added before JLS14.
 	 *
 	 * @param apiLevel
 	 *            the level to be checked
@@ -133,7 +133,7 @@ public class DOMASTUtil {
 	/**
 	 * Validates if the given <code>apiLevel</code> and <code>previewEnabled</code> supports the provided
 	 * <code>nodeType</code>. This API checks for node types supported from JLS 14 onwards and will return
-	 * <code>true></code> for nodes added before JLS14.
+	 * <code>true</code> for nodes added before JLS14.
 	 *
 	 * @param apiLevel
 	 *            the level to be checked
