@@ -296,19 +296,11 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		return this.resolver.bindings.getTypeBinding(this.methodSymbol.getReturnType());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public ITypeBinding[] getExceptionTypes() {
-		ASTNode node = this.resolver.findNode(this.methodSymbol);
-		if (node == null) { // initializer?
-			return new ITypeBinding[0];
-		}
-		if (node.getAST().apiLevel() >= AST.JLS8 && node instanceof MethodDeclaration method) {
-			return ((List<Type>)method.thrownExceptionTypes()).stream()
-				.map(Type::resolveBinding)
+		return this.methodSymbol.getThrownTypes().stream() //
+				.map(this.resolver.bindings::getTypeBinding) //
 				.toArray(ITypeBinding[]::new);
-		}
-		return new ITypeBinding[0];
 	}
 
 	@Override
