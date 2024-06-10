@@ -40,6 +40,7 @@ import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.DiagnosticSource;
 import com.sun.tools.javac.util.JCDiagnostic;
+import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Position;
 
 public class JavacProblemConverter {
@@ -128,7 +129,10 @@ public class JavacProblemConverter {
 			DiagnosticSource source = jcDiagnostic.getDiagnosticSource();
 			JavaFileObject fileObject = source.getFile();
 			CharSequence charContent = fileObject.getCharContent(true);
-			ScannerFactory scannerFactory = ScannerFactory.instance(new Context());
+			Context scanContext = new Context();
+			ScannerFactory scannerFactory = ScannerFactory.instance(scanContext);
+			Log log = Log.instance(scanContext);
+			log.useSource(fileObject);
 			Scanner javacScanner = scannerFactory.newScanner(charContent, true);
 			Token t = javacScanner.token();
 			while (t != null && t.kind != TokenKind.EOF && t.endPos <= preferedOffset) {
