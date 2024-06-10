@@ -25,7 +25,6 @@ import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -95,7 +94,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
-		return this.type.getAnnotationMirrors().stream()
+		return this.typeSymbol.getAnnotationMirrors().stream()
 				.map(am -> this.resolver.bindings.getAnnotationBinding(am, this))
 				.toArray(IAnnotationBinding[]::new);
 	}
