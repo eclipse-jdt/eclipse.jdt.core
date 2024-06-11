@@ -57,6 +57,7 @@ import com.sun.tools.javac.tree.JCTree.JCMemberReference;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCModuleDecl;
+import com.sun.tools.javac.tree.JCTree.JCNewArray;
 import com.sun.tools.javac.tree.JCTree.JCNewClass;
 import com.sun.tools.javac.tree.JCTree.JCPackageDecl;
 import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
@@ -240,6 +241,10 @@ public class JavacBindingResolver extends BindingResolver {
 			return resolveType(parameterized);
 		}
 		resolve();
+		if (type.getParent() instanceof ArrayCreation arrayCreation) {
+			JCTree jcArrayCreation = this.converter.domToJavac.get(arrayCreation);
+			return this.bindings.getTypeBinding(((JCNewArray)jcArrayCreation).type);
+		}
 		JCTree jcTree = this.converter.domToJavac.get(type);
 		if (jcTree instanceof JCIdent ident && ident.type != null) {
 			if (ident.type instanceof PackageType) {

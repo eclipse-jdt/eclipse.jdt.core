@@ -1649,10 +1649,20 @@ class JavacConverter {
 	private ArrayInitializer createArrayInitializerFromJCNewArray(JCNewArray jcNewArray) {
 		ArrayInitializer initializer = this.ast.newArrayInitializer();
 		commonSettings(initializer, jcNewArray);
-		if( jcNewArray.getInitializers().size() > 0 ) {
-			commonSettings(initializer, jcNewArray.getInitializers().get(0));
+		if (!jcNewArray.getInitializers().isEmpty()) {
+			jcNewArray.getInitializers().stream().map(this::convertExpression).forEach(initializer.expressions()::add);
+			this.rawText.charAt(0);
+			int start = ((Expression)initializer.expressions().getFirst()).getStartPosition() - 1;
+			while (start >= 0 && this.rawText.charAt(start) != '{') {
+				start--;
+			}
+			Expression lastExpr = (Expression)initializer.expressions().getLast();
+			int end = lastExpr.getStartPosition() + lastExpr.getLength() + 1;
+			while (end < this.rawText.length() && this.rawText.charAt(end) != '}') {
+				end++;
+			}
+			initializer.setSourceRange(start, end - start);
 		}
-		jcNewArray.getInitializers().stream().map(this::convertExpression).forEach(initializer.expressions()::add);
 		return initializer;
 	}
 
