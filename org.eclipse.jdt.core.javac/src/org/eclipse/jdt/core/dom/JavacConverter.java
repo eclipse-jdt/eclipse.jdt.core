@@ -1146,6 +1146,30 @@ class JavacConverter {
 				commonSettings(res, javac);
 				return res;
 			}
+			useQualifiedName: if (fieldAccess.getExpression() instanceof JCFieldAccess parentFieldAccess) {
+				JCFieldAccess cursor = parentFieldAccess;
+				if (Objects.equals(Names.instance(this.context)._class, cursor.getIdentifier())
+						|| Objects.equals(Names.instance(this.context)._this, cursor.getIdentifier())
+						|| Objects.equals(Names.instance(this.context)._super, cursor.getIdentifier())) {
+					break useQualifiedName;
+				}
+				while (cursor.getExpression() instanceof JCFieldAccess newParent) {
+					cursor = newParent;
+					if (Objects.equals(Names.instance(this.context)._class, cursor.getIdentifier())
+							|| Objects.equals(Names.instance(this.context)._this, cursor.getIdentifier())
+							|| Objects.equals(Names.instance(this.context)._super, cursor.getIdentifier())) {
+						break useQualifiedName;
+					}
+				}
+
+				if (cursor.getExpression() instanceof JCIdent oldestIdentifier
+						&& !Objects.equals(Names.instance(this.context)._class, oldestIdentifier.getName())
+						&& !Objects.equals(Names.instance(this.context)._this, oldestIdentifier.getName())
+						&& !Objects.equals(Names.instance(this.context)._super, oldestIdentifier.getName())) {
+					// all segments are simple names
+					return convertQualifiedName(fieldAccess);
+				}
+			}
 			FieldAccess res = this.ast.newFieldAccess();
 			commonSettings(res, javac);
 			res.setExpression(convertExpression(fieldAccess.getExpression()));
@@ -1556,6 +1580,29 @@ class JavacConverter {
 			return res;
 		}
 		return null;
+	}
+
+	/**
+	 * precondition: you've checked all the segments are identifier that can be used in a qualified name
+	 */
+	private Name convertQualifiedName(JCFieldAccess fieldAccess) {
+		JCExpression parent = fieldAccess.getExpression();
+		Name parentName;
+		if (parent instanceof JCFieldAccess parentFieldAccess) {
+			parentName = convertQualifiedName(parentFieldAccess);
+		} else if (parent instanceof JCIdent parentIdent) {
+			parentName = convertName(parentIdent.getName());
+		} else {
+			throw new IllegalArgumentException("Unrecognized javac AST node type: " + parent.getClass().getCanonicalName());
+		}
+		commonSettings(parentName, parent);
+		SimpleName segmentName = (SimpleName)convertName(fieldAccess.getIdentifier());
+		int endPos = fieldAccess.getEndPosition(this.javacCompilationUnit.endPositions);
+		int startPos = endPos - fieldAccess.getIdentifier().length();
+		segmentName.setSourceRange(startPos, fieldAccess.getIdentifier().length());
+		QualifiedName res = this.ast.newQualifiedName(parentName, segmentName);
+		commonSettings(res, fieldAccess);
+		return res;
 	}
 
 	private Expression convertExpression(JCExpression javac) {
