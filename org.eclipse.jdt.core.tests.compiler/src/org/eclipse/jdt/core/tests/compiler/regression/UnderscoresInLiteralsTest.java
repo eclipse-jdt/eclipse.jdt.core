@@ -28,7 +28,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 		super(name);
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_7);
+		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 	}
 
 	public static Class testClass() {
@@ -394,9 +394,9 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 	}
 	public void test022() {
 		Map customedOptions = getCompilerOptions();
-		customedOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
-		customedOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
-		customedOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+		customedOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+		customedOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+		customedOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",

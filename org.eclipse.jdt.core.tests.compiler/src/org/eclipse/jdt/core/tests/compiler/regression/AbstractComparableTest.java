@@ -97,7 +97,7 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 	    "}";
 
 	public static Test buildComparableTestSuite(Class evaluationTestClass) {
-		Test suite = buildMinimalComplianceTestSuite(evaluationTestClass, F_1_5);
+		Test suite = buildMinimalComplianceTestSuite(evaluationTestClass, F_1_8);
 		TESTS_COUNTERS.put(evaluationTestClass.getName(), Integer.valueOf(suite.countTestCases()));
 		return suite;
 	}

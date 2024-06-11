@@ -25,7 +25,7 @@ public class SuppressWarningsTest extends AbstractBatchCompilerTest {
 	}
 
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_5);
+		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 	}
 
 	public static Class testClass() {
@@ -56,7 +56,7 @@ public class SuppressWarningsTest extends AbstractBatchCompilerTest {
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "p/SuppressTest.java\""
 			+ " -warn:+unused -warn:+boxing "
-			+ " -1.5 -g -preserveAllLocals"
+			+ " -1.8 -g -preserveAllLocals"
 			+ " -d \"" + OUTPUT_DIR + "\" ",
 			"", "", true, null);
 	}
@@ -77,7 +77,7 @@ public class SuppressWarningsTest extends AbstractBatchCompilerTest {
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "p/SuppressTest.java\""
 			+ " -warn:+unused -warn:+boxing "
-			+ " -1.5 -g -preserveAllLocals"
+			+ " -1.8 -g -preserveAllLocals"
 			+ " -d \"" + OUTPUT_DIR + "\" ",
 			"", "", true, null);
 	}
@@ -97,7 +97,7 @@ public class SuppressWarningsTest extends AbstractBatchCompilerTest {
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "p/SuppressTest.java\""
 			+ " -warn:+unused -warn:+boxing "
-			+ " -1.5 -g -preserveAllLocals"
+			+ " -1.8 -g -preserveAllLocals"
 			+ " -d \"" + OUTPUT_DIR + "\" ",
 			"",
 			"----------\n" +

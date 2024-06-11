@@ -40,13 +40,13 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 public class AnnotationDietRecoveryTest extends AbstractCompilerTest {
 	private static final boolean CHECK_ALL_PARSE = true;
 	public static boolean optimizeStringLiterals = false;
-	public static long sourceLevel = ClassFileConstants.JDK1_3; //$NON-NLS-1$
+	public static long sourceLevel = ClassFileConstants.JDK1_8; //$NON-NLS-1$
 
 public AnnotationDietRecoveryTest(String testName){
 	super(testName);
 }
 public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_5);
+	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 }
 public static Class testClass() {
 	return AnnotationDietRecoveryTest.class;
@@ -57,9 +57,9 @@ public static Class testClass() {
 @Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
 	return options;
 }
 

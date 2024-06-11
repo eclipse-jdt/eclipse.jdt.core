@@ -29,7 +29,7 @@ public TryStatement17Test(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_7);
+	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 }
 public void test001() {
 	this.runNegativeTest(

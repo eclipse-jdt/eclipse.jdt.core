@@ -79,7 +79,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 //		TESTS_RANGE = new int[] { 21, 50 };
 //	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_5);
+		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 	}
 
 	public static Class testClass() {

@@ -1145,9 +1145,9 @@ public class DependencyTests extends BuilderTests {
 	}
 
 	public void testTypeVariable() throws JavaModelException {
-		if ((AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_1_5) == 0) return;
+		if ((AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_1_8) == 0) return;
 
-		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$
+		IPath projectPath = env.addProject("Project", "1.8"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		// remove old package fragment root so that names don't collide

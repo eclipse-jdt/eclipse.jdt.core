@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class ConcurrentBatchCompilerTest extends BatchCompilerTest {
 
 	public static Test suite() {
-		return buildUniqueComplianceTestSuite(testClass(), ClassFileConstants.JDK1_6);
+		return buildUniqueComplianceTestSuite(testClass(), ClassFileConstants.JDK1_8);
 	}
 	public static Class testClass() {
 		return ConcurrentBatchCompilerTest.class;
@@ -147,7 +147,7 @@ public class ConcurrentBatchCompilerTest extends BatchCompilerTest {
 								""
 							},
 					        "\"" + OUTPUT_DIR +  File.separator + "org/eclipse/jdt/internal/launching/CompositeId.java\""
-				            + " -1.5 -g -preserveAllLocals"
+				            + " -1.8 -g -preserveAllLocals"
 				            + " -proceedOnError -d \"" + OUTPUT_DIR + "\"",
 							"",
 							"",
@@ -189,7 +189,7 @@ public class ConcurrentBatchCompilerTest extends BatchCompilerTest {
 								"}\n"
 							},
 					        "\"" + OUTPUT_DIR +  File.separator + "test01/X.java\""
-				            + " -1.5 -g -preserveAllLocals -err:+resource"
+				            + " -1.8 -g -preserveAllLocals -err:+resource"
 				            + " -proceedOnError -d \"" + OUTPUT_DIR + "\"",
 				            "",
 							errorOutput.toString(),

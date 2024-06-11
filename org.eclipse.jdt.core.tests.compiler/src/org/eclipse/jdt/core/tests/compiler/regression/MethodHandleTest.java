@@ -28,7 +28,7 @@ public class MethodHandleTest extends AbstractRegressionTest {
 		super(name);
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_7);
+		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 	}
 
 	public static Class testClass() {

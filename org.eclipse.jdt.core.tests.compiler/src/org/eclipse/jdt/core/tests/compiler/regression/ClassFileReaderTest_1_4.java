@@ -29,7 +29,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	}
 
 	public static Test suite() {
-		return buildUniqueComplianceTestSuite(testClass(), ClassFileConstants.JDK1_4);
+		return buildUniqueComplianceTestSuite(testClass(), ClassFileConstants.JDK1_8);
 	}
 	public static Class testClass() {
 		return ClassFileReaderTest_1_4.class;
@@ -2604,7 +2604,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"public interface I {\n" +
 			"}";
 		String expectedOutput =
-			"// Compiled from I.java (version 1.2 : 46.0, no super bit)\n" +
+			"// Compiled from I.java (version 1.8 : 52.0, no super bit)\n" +
 			"public abstract interface I {\n" +
 			"  Constant pool:\n" +
 			"    constant #1 class: #2 I\n" +

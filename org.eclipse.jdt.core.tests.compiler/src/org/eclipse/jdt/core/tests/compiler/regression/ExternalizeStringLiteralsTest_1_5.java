@@ -32,7 +32,7 @@ public ExternalizeStringLiteralsTest_1_5(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildUniqueComplianceTestSuite(testClass(), ClassFileConstants.JDK1_5);
+	return buildUniqueComplianceTestSuite(testClass(), ClassFileConstants.JDK1_8);
 }
 
 public void test001() {

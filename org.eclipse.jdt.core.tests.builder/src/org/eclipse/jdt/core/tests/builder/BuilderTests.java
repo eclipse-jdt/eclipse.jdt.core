@@ -548,13 +548,11 @@ public class BuilderTests extends TestCase {
 			LeakTestsBefore9.class,
 		};
 		List<Class<?>> list = new ArrayList<>(Arrays.asList(classes));
-		if (matchesCompliance(F_1_5)) {
+		if (matchesCompliance(F_1_8)) {
 			list.add(Java50Tests.class);
 			list.add(PackageInfoTest.class);
 			list.add(ParticipantBuildTests.class);
 			list.add(AnnotationDependencyTests.class);
-		}
-		if (matchesCompliance(F_1_8)) {
 			list.add(Bug544921Test.class);
 		}
 		if (matchesCompliance(F_9)) {
