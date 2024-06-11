@@ -583,12 +583,9 @@ protected Compiler newCompiler() {
 			Class<? extends ICompilerFactory> compilerFactoryClass = (Class<? extends ICompilerFactory>) Class.forName(compilerFactoryClassName);
 			Constructor<? extends ICompilerFactory> constructor = compilerFactoryClass.getDeclaredConstructor();
 			compilerFactory = constructor.newInstance();
-		} catch (ClassNotFoundException e) {
-			ILog.get().error("Could not load class " + compilerFactoryClassName, e); //$NON-NLS-1$
-		} catch (NoSuchMethodException e) {
-			ILog.get().error("Couldn't find compatible constructor " + compilerFactoryClassName); //$NON-NLS-1$
-		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | InvocationTargetException e) {
-			ILog.get().error("Failed invoking constructor " + compilerFactoryClassName); //$NON-NLS-1$
+		} catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+				| IllegalArgumentException | InstantiationException | InvocationTargetException e) {
+			ILog.get().error("Failed to initialize the custom compiler factory - " + compilerFactoryClassName, e); //$NON-NLS-1$
 		}
 	}
 
@@ -623,7 +620,7 @@ protected Compiler newCompiler() {
 private CompilerConfiguration prepareCompilerConfiguration(CompilerOptions options) {
 	try {
 		List<String> annotationProcessorPaths = new ArrayList<>();
-		List<String> generatedSourcePaths = new ArrayList<>();
+		List<IContainer> generatedSourcePaths = new ArrayList<>();
 		boolean isTest = this.compilationGroup == CompilationGroup.TEST;
 		if (this.javaBuilder.participants != null) {
 			for (CompilationParticipant participant : this.javaBuilder.participants) {
@@ -632,7 +629,7 @@ private CompilerConfiguration prepareCompilerConfiguration(CompilerOptions optio
 					if (paths != null) {
 						annotationProcessorPaths.addAll(Arrays.asList(paths));
 					}
-					String[] generatedSrc = participant.getGeneratedSourcePaths(this.javaBuilder.javaProject, isTest);
+					IContainer[] generatedSrc = participant.getGeneratedSourcePaths(this.javaBuilder.javaProject, isTest);
 					if (generatedSrc != null) {
 						generatedSourcePaths.addAll(Arrays.asList(generatedSrc));
 					}
@@ -641,67 +638,49 @@ private CompilerConfiguration prepareCompilerConfiguration(CompilerOptions optio
 		}
 
 		ClasspathLocation[] classpathLocations = this.nameEnvironment.binaryLocations;
-		Set<String> classpaths = new LinkedHashSet<>();
-		Set<String> modulepaths = new LinkedHashSet<>();
+		Set<Either<IContainer, String>> classpaths = new LinkedHashSet<>();
+		Set<Either<IContainer, String>> modulepaths = new LinkedHashSet<>();
 		for (ClasspathLocation location : classpathLocations) {
 			if (location instanceof ClasspathDirectory cpDirectory) {
-				IPath binaryLocation = cpDirectory.binaryFolder.getLocation();
-				if (binaryLocation == null) {
-					continue;
-				}
-
-				String filepath = binaryLocation.toFile().getAbsolutePath();
 				if (cpDirectory.isOnModulePath) {
-					modulepaths.add(filepath);
+					modulepaths.add(Either.forLeft(cpDirectory.binaryFolder));
 				} else {
-					classpaths.add(filepath);
+					classpaths.add(Either.forLeft(cpDirectory.binaryFolder));
 				}
 			} else if (location instanceof ClasspathJar cpJar) {
 				String filepath = cpJar.zipFilename;
 				if (cpJar.isOnModulePath) {
-					modulepaths.add(filepath);
+					modulepaths.add(Either.forRight(filepath));
 				} else {
-					classpaths.add(filepath);
+					classpaths.add(Either.forRight(filepath));
 				}
 			}
 		}
 
-		Map<File, File> sourceOutputMapping = new HashMap<>();
-		Set<String> sourcepaths = new LinkedHashSet<>();
-		Set<String> moduleSourcepaths = new LinkedHashSet<>();
+		Map<IContainer, IContainer> sourceOutputMapping = new HashMap<>();
+		Set<IContainer> sourcepaths = new LinkedHashSet<>();
+		Set<IContainer> moduleSourcepaths = new LinkedHashSet<>();
 		ClasspathMultiDirectory[] srcLocations = this.nameEnvironment.sourceLocations;
 		for (ClasspathMultiDirectory sourceLocation : srcLocations) {
-			IPath sourcepath = sourceLocation.sourceFolder.getLocation();
-			if (sourcepath == null) {
-				continue;
-			}
-
-			File sourceFolder = sourcepath.toFile();
-			IPath binarypath = sourceLocation.binaryFolder.getLocation();
-			if (binarypath != null) {
-				File outputFolder = binarypath.toFile();
-				sourceOutputMapping.put(sourceFolder, outputFolder);
-			}
-
-			String absoluteSourcepath = sourceFolder.getAbsolutePath();
+			sourceOutputMapping.put(sourceLocation.sourceFolder, sourceLocation.binaryFolder);
 			if (sourceLocation.isOnModulePath) {
-				moduleSourcepaths.add(absoluteSourcepath);
+				moduleSourcepaths.add(sourceLocation.sourceFolder);
 			} else {
-				sourcepaths.add(absoluteSourcepath);
+				sourcepaths.add(sourceLocation.sourceFolder);
 			}
 		}
 
 		return new CompilerConfiguration(
-				new ArrayList<>(sourcepaths),
-				new ArrayList<>(moduleSourcepaths),
-				new ArrayList<>(classpaths),
-				new ArrayList<>(modulepaths),
+				List.copyOf(sourcepaths),
+				List.copyOf(moduleSourcepaths),
+				List.copyOf(classpaths),
+				List.copyOf(modulepaths),
 				annotationProcessorPaths,
 				generatedSourcePaths,
 				sourceOutputMapping,
 				options.getMap());
 	} catch (Exception e) {
-		ILog.get().error("Failed computing compiler configuration " + e); //$NON-NLS-1$
+		ILog.get().error("Failed computing compiler configuration", e); //$NON-NLS-1$
 		return new CompilerConfiguration(
 				null, null, null, null, null, null, null, options.getMap());
 	}
@@ -778,10 +757,12 @@ protected void processAnnotations(CompilationParticipantResult[] results) {
 	}
 
 	boolean isEcjUsed = Compiler.class.equals(this.compiler.getClass());
-	// even if no files have annotations, must still tell every annotation processor in case the file used to have them
-	for (CompilationParticipant participant : this.javaBuilder.participants)
-		if (isEcjUsed && participant.isAnnotationProcessor())
-			participant.processAnnotations(results);
+	if (isEcjUsed) {
+		// even if no files have annotations, must still tell every annotation processor in case the file used to have them
+		for (CompilationParticipant participant : this.javaBuilder.participants)
+			if (participant.isAnnotationProcessor())
+				participant.processAnnotations(results);
+	}
 	processAnnotationResults(results);
 }
 

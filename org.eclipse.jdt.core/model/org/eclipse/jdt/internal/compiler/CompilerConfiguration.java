@@ -13,9 +13,10 @@
 
 package org.eclipse.jdt.internal.compiler;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
+
+import org.eclipse.core.resources.IContainer;
 
 /**
  * This class encapsulates the standard compiler options that can be
@@ -28,25 +29,24 @@ import java.util.Map;
  * like Javac to compile Java files.
  *
  * @since 3.38
- * @noextend This class is not intended to be subclassed by clients.
  */
-public record CompilerConfiguration(
+public final record CompilerConfiguration(
 		/**
 		 * List of file paths where the compiler can find source files.
 		 */
-		List<String> sourcepaths,
+		List<IContainer> sourcepaths,
 		/**
 		 * List of file paths where the compiler can find source files for modules.
 		 */
-		List<String> moduleSourcepaths,
+		List<IContainer> moduleSourcepaths,
 		/**
 		 * List of file paths where the compiler can find user class files and annotation processors.
 		 */
-		List<String> classpaths,
+		List<Either<IContainer, String>> classpaths,
 		/**
 		 * List of file paths where the compiler can find modules.
 		 */
-		List<String> modulepaths,
+		List<Either<IContainer, String>> modulepaths,
 		/**
 		 * Location to search for annotation processors.
 		 */
@@ -54,11 +54,11 @@ public record CompilerConfiguration(
 		/**
 		 * Locations to place generated source files.
 		 */
-		List<String> generatedSourcePaths,
+		List<IContainer> generatedSourcePaths,
 		/**
 		 * The mapping of source files to output directories.
 		 */
-		Map<File, File> sourceOutputMapping,
+		Map<IContainer, IContainer> sourceOutputMapping,
 		/**
 		 * The compiler options used to control the compilation behavior.
 		 * See {@link org.eclipse.jdt.internal.compiler.impl.CompilerOptions} for a list of available options.

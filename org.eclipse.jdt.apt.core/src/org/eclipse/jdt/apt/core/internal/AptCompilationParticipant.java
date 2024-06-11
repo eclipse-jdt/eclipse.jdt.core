@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -237,7 +238,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 	}
 
 	@Override
-	public String[] getGeneratedSourcePaths(IJavaProject project, boolean isTest) {
+	public IContainer[] getGeneratedSourcePaths(IJavaProject project, boolean isTest) {
 		AptProject aptProject = AptPlugin.getAptProject(project);
 		if (aptProject == null) {
 			return null;
@@ -249,7 +250,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 		}
 
 		IFolder folder = generatedSourceFolderManager.getFolder();
-		return folder == null || folder.getLocation() == null ? null : new String[] { folder.getLocation().toOSString() };
+		return folder == null? null : new IContainer[] { folder };
 	}
 
 	@Override

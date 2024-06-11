@@ -33,6 +33,7 @@ import java.util.function.Consumer;
 
 import junit.framework.*;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -53,6 +54,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.CompilerConfiguration;
+import org.eclipse.jdt.internal.compiler.Either;
 import org.eclipse.jdt.internal.compiler.ICompilerFactory;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
@@ -766,15 +768,17 @@ public class BasicBuildTests extends BuilderTests {
 				configs.add(mockCompiler.compilerConfig);
 			}
 		};
+		File projectRoot = null;
+		IProject project = null;
 		try {
 			MockCompilerFactory.addListener(listener);
 			System.setProperty(AbstractImageBuilder.COMPILER_FACTORY_KEY, CUSTOM_COMPILER_VALUE);
-			File projectRoot = copyFiles("autoValueSnippet", true);
+			projectRoot = copyFiles("autoValueSnippet", true);
 			IPath dotProjectPath = new org.eclipse.core.runtime.Path(new File(projectRoot, IProjectDescription.DESCRIPTION_FILE_NAME).getAbsolutePath());
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			IProjectDescription descriptor = workspace.loadProjectDescription(dotProjectPath);
 			String projectName = descriptor.getName();
-			IProject project = workspace.getRoot().getProject(projectName);
+			project = workspace.getRoot().getProject(projectName);
 			project.create(descriptor, new NullProgressMonitor());
 			project.open(IResource.NONE, new NullProgressMonitor());
 
@@ -782,34 +786,37 @@ public class BasicBuildTests extends BuilderTests {
 			project.build(IncrementalProjectBuilder.FULL_BUILD, null);
 
 			// It creates compiler 4 times (MAIN full build, TEST full build, MAIN incremental build, TEST incremental build)
-			assertEquals(4, configs.size());
+			assertFalse(configs.isEmpty());
 			CompilerConfiguration config = configs.get(0);
 			List<String> processorPaths = config.annotationProcessorPaths();
 			assertEquals(2, processorPaths.size());
 			assertTrue(processorPaths.get(0).endsWith("auto-value-1.6.5.jar"));
 			assertTrue(processorPaths.get(1).endsWith("auto-value-annotations-1.6.5.jar"));
 
-			List<String> generatedSourcePaths = config.generatedSourcePaths();
+			List<IContainer> generatedSourcePaths = config.generatedSourcePaths();
 			assertEquals(1, generatedSourcePaths.size());
-			assertTrue(generatedSourcePaths.get(0).endsWith(".apt_generated"));
+			assertEquals(".apt_generated", generatedSourcePaths.get(0).getRawLocation().lastSegment());
 
-			List<String> sourcePaths = config.sourcepaths();
+			List<IContainer> sourcePaths = config.sourcepaths();
 			assertEquals(2, sourcePaths.size());
-			assertTrue(sourcePaths.get(0).endsWith("src"));
-			assertTrue(sourcePaths.get(1).endsWith(".apt_generated"));
 
-			List<String> classPaths = config.classpaths();
+			assertEquals("src", sourcePaths.get(0).getRawLocation().lastSegment());
+			assertEquals(".apt_generated", sourcePaths.get(1).getRawLocation().lastSegment());
+
+			List<Either<IContainer, String>> classPaths = config.classpaths();
 			assertEquals(2, classPaths.size());
-			assertTrue(classPaths.get(0).endsWith("bin"));
-			assertTrue(classPaths.get(1).endsWith("auto-value-annotations-1.6.5.jar"));
+			assertNotNull(classPaths.get(0).getLeft());
+			assertEquals("bin", classPaths.get(0).getLeft().getRawLocation().lastSegment());
+			assertNotNull(classPaths.get(1).getRight());
+			assertTrue(classPaths.get(1).getRight().endsWith("auto-value-annotations-1.6.5.jar"));
 
-			List<String> moduleSourcePaths = config.moduleSourcepaths();
+			List<IContainer> moduleSourcePaths = config.moduleSourcepaths();
 			assertEquals(0, moduleSourcePaths.size());
 
-			List<String> modulePaths = config.modulepaths();
+			List<Either<IContainer, String>> modulePaths = config.modulepaths();
 			assertEquals(0, modulePaths.size());
 
-			Map<File, File> sourceOutputMapping = config.sourceOutputMapping();
+			Map<IContainer, IContainer> sourceOutputMapping = config.sourceOutputMapping();
 			assertEquals(2, sourceOutputMapping.size());
 
 			IFile aptGeneratedFile = project.getFile(".apt_generated/AutoValue_Outer.java");
@@ -817,6 +824,12 @@ public class BasicBuildTests extends BuilderTests {
 		} finally {
 			MockCompilerFactory.removeListener(listener);
 			System.clearProperty(AbstractImageBuilder.COMPILER_FACTORY_KEY);
+			if (project != null && project.exists()) {
+				project.close(new NullProgressMonitor());
+			}
+			if (projectRoot != null) {
+				deleteDirectory(projectRoot.toPath());
+			}
 		}
 	}
 

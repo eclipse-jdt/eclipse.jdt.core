@@ -20,6 +20,7 @@ package org.eclipse.jdt.core.compiler;
 import java.io.ByteArrayInputStream;
 import java.util.Optional;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.jdt.core.IJavaProject;
 
 /**
@@ -177,7 +178,7 @@ public String[] getAnnotationProcessorPaths(IJavaProject project, boolean isTest
  * @since 3.38
  * @noreference Provisional API for experimental support for an alternative compiler. This method is not intended to be referenced by clients.
  */
-public String[] getGeneratedSourcePaths(IJavaProject project, boolean isTest) {
+public IContainer[] getGeneratedSourcePaths(IJavaProject project, boolean isTest) {
 	return null;
 }
 
