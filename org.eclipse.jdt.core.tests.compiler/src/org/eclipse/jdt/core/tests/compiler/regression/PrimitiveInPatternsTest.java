@@ -26,12 +26,43 @@ import junit.framework.Test;
 
 public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 23");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 23 -Xlint:-preview");
 	private static final String[] VMARGS = new String[] {"--enable-preview"};
+
+	private static final String[] PRIMITIVES = { "boolean", "byte", "char", "short", "int", "long", "float", "double" };
+	private static final String[] BOXES = { "Boolean", "Byte", "Character", "Short", "Integer", "Long", "Float", "Double" };
+	// note: Character.MAX_VALUE doesn't play well with stream handling around TestVerifier, so we avoid non-ascii chars during print():
+	private static final String[] MAXVALUES = { "true", "Byte.MAX_VALUE", "'z'", "Short.MAX_VALUE", "Integer.MAX_VALUE", "Long.MAX_VALUE", "Float.MAX_VALUE", "Double.MAX_VALUE" };
+	private static final String[] GOODVALUES = { "true", "49", "'1'", "49", "49", "49L", "49.0f", "49.0d" }; // 49 ~ '1'
+	private static final String[] NEGVALUES = { "false", "-1", "'-'", "-1", "-1", "-1L", "-1.0f", "-1.0d" };
+	private static final boolean[] IS_NUMERICAL = { false, true, false, true, true, true, true, true };
+	private static String MAX_VALUES_STRING = "true|127|z|32767|2147483647|9223372036854775807|3.4028235E38|1.7976931348623157E308|";
+	/**
+	 * Test programs may use the following placeholders, which are filled in by this method:
+	 * <ul>
+	 * <li>PRIM a primitive type
+	 * <li>BOX the corresponding boxing type
+	 * <li>NEGVAL a value of that type signaling failure
+	 * <li>VAL a regular value
+	 * </ul>
+	 * @param template the template with placeholders
+	 * @param idx index into {@link #PRIMITIVES} etc.
+	 * @return the program snippet with placeholders filled in.
+	 */
+	private static String fillIn(String template, int idx) {
+		return template.replaceAll("PRIM", PRIMITIVES[idx]).replaceAll("BOX", BOXES[idx])
+						.replace("NEGVAL", NEGVALUES[idx]).replace("VAL", GOODVALUES[idx]);
+	}
+	/** like {@link #fillIn(String, int)}, but may use {@link #MAXVALUES} if 'maxValue' is true. */
+	private static String fillInMax(String template, int idx, boolean useMax) {
+		return template.replaceAll("PRIM", PRIMITIVES[idx]).replaceAll("BOX", BOXES[idx])
+						.replace("NEGVAL", NEGVALUES[idx]).replace("VAL", useMax ? MAXVALUES[idx] : GOODVALUES[idx]);
+	}
+
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test037" };
+//		TESTS_NAMES = new String[] { "testIdentity" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -142,208 +173,69 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	// https://cr.openjdk.org/~abimpoudis/instanceof/jep455-20240424/specs/instanceof-jls.html#jls-5.1.2
 	// 5.7 Testing Contexts
 	// Identity Conversion
-	public void test001() {
-		runConformTest(new String[] {
-			"X.java",
+	public void testIdentity() {
+		StringBuilder methods = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		String methodTmpl =
 				"""
-				public class X {
-					public static byte foo(byte b) {
-						if (b instanceof byte) {
-							return b;
+					public static PRIM fooPRIM(PRIM v) {
+						if (v instanceof PRIM) {
+							return v;
 						}
-						return -1;
+						return NEGVAL;
 					}
-					public static void main(String[] args) {
-						byte b = 1;
-						System.out.println(X.foo(b));
-					}
-				}
+				""";
+		String callTmpl =
 				"""
-			},
-			"1");
+						PRIM vPRIM = VAL;
+						System.out.print(X.fooPRIM(vPRIM));
+						System.out.print('|');
+				""";
+		// for all primitive types:
+		for (int i = 0; i < PRIMITIVES.length; i++) {
+			methods.append(fillIn(methodTmpl, i));
+			calls.append(fillInMax(callTmpl, i, true));
+		}
+		StringBuilder classX = new StringBuilder("public class X {\n");
+		classX.append(methods.toString());
+		classX.append("public static void main(String[] args) {\n");
+		classX.append(calls);
+		classX.append("}}\n");
+		runConformTest(new String[] { "X.java", classX.toString() }, MAX_VALUES_STRING);
 	}
-	public void test002() {
-		runConformTest(new String[] {
-			"X.java",
+	public void testIdentityPattern() {
+		StringBuilder methods = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		String methodTmpl =
 				"""
-				public class X {
-					public static byte foo(byte b) {
-						if (b instanceof byte bb) {
-							return bb;
+					public static PRIM fooPRIM(PRIM v) {
+						if (v instanceof PRIM vv) {
+							return vv;
 						}
-						return -1;
+						return NEGVAL;
 					}
-					public static void main(String[] args) {
-						byte b = 1;
-						System.out.println(X.foo(b));
-					}
-				}
+				""";
+		String callTmpl =
 				"""
-			},
-			"1");
-	}
-	public void test003() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static int foo(int i) {
-						if (i instanceof int) {
-							return i;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						int i = 1;
-						System.out.println(X.foo(i));
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test004() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static int foo(int i) {
-						if (i instanceof int) {
-							return i;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						int i = 1;
-						System.out.println(X.foo(i));
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test005() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static long foo(long l) {
-						if (l instanceof long) {
-							return l;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						long l = 1L;
-						System.out.println(X.foo(l));
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test006() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static long foo(long l) {
-						if (l instanceof long ll) {
-							return ll;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						long l = 1L;
-						System.out.println(X.foo(l));
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test007() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(float f) {
-						if (f instanceof float) {
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						float f = 1.0f;
-						System.out.println(X.foo(f));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test008() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(float f) {
-						if (f instanceof float ff) {
-							return ff;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						float f = 1.0f;
-						System.out.println(X.foo(f));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test009() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo(double d) {
-						if (d instanceof double) {
-							return d;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						double d = 1.0;
-						System.out.println(X.foo(d));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test010() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo(double d) {
-						if (d instanceof double dd) {
-							return dd;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						double d = 1.0;
-						System.out.println(X.foo(d));
-					}
-				}
-				"""
-			},
-			"1.0");
+						PRIM vPRIM = VAL;
+						System.out.print(X.fooPRIM(vPRIM));
+						System.out.print('|');
+				""";
+		// for all primitive types:
+		for (int i = 0; i < PRIMITIVES.length; i++) {
+			methods.append(fillIn(methodTmpl, i));
+			calls.append(fillInMax(callTmpl, i, true));
+		}
+		StringBuilder classX = new StringBuilder("public class X {\n");
+		classX.append(methods.toString());
+		classX.append("public static void main(String[] args) {\n");
+		classX.append(calls);
+		classX.append("}}\n");
+		runConformTest(new String[] { "X.java", classX.toString() }, MAX_VALUES_STRING);
 	}
 
-	public void test011() {
+	public void testIdentity_functionLhs() {
+		// one sample should suffice here:
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -367,2942 +259,803 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void test012() {
-		runConformTest(new String[] {
-			"X.java",
+
+	public void testIdentityPattern_functionLhs() {
+		StringBuilder methods = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		String methodTmpl =
 				"""
-				public class X {
-					public static byte foo() {
-						if (bar() instanceof byte b) {
-							return b;
+					public static PRIM fooPRIM() {
+						if (barPRIM() instanceof PRIM vv) {
+							return vv;
 						}
-						return -1;
+						return NEGVAL;
 					}
-					public static byte bar() {
-						byte b = 1;
-						return b;
+					public static PRIM barPRIM() {
+						return VAL;
 					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
+				""";
+		String callTmpl =
 				"""
-			},
-			"1");
+						System.out.print(X.fooPRIM());
+						System.out.print('|');
+				""";
+		// for all primitive types:
+		for (int i = 0; i < PRIMITIVES.length; i++) {
+			methods.append(fillIn(methodTmpl, i));
+			calls.append(fillIn(callTmpl, i));
+		}
+		StringBuilder classX = new StringBuilder("public class X {\n");
+		classX.append(methods.toString());
+		classX.append("public static void main(String[] args) {\n");
+		classX.append(calls);
+		classX.append("}}\n");
+		runConformTest(new String[] { "X.java", classX.toString() },
+			"true|49|1|49|49|49|49.0|49.0|");
 	}
-	public void test013() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static int foo() {
-						if (bar() instanceof int) {
-							int i = (int) bar();
-							return i;
-						}
-						return -1;
-					}
-					public static int bar() {
-						int i = 1;
-						return i;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test014() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static int foo() {
-						if (bar() instanceof int i) {
-							return i;
-						}
-						return -1;
-					}
-					public static int bar() {
-						int i = 1;
-						return i;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test015() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static long foo() {
-						if (bar() instanceof long) {
-							long l = (long) bar();
-							return l;
-						}
-						return -1;
-					}
-					public static long bar() {
-						return 1L;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test016() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static long foo() {
-						if (bar() instanceof long l) {
-							return l;
-						}
-						return -1;
-					}
-					public static long bar() {
-						return 1L;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test017() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo() {
-						if (bar() instanceof float) {
-							float f = (float) bar();
-							return f;
-						}
-						return -1;
-					}
-					public static float bar() {
-						float f = 1.0f;
-						return f;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test018() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo() {
-						if (bar() instanceof float f) {
-							return f;
-						}
-						return -1;
-					}
-					public static float bar() {
-						float f = 1.0f;
-						return f;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test019() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo() {
-						if (bar() instanceof double) {
-							double d = (double) bar();
-							return d;
-						}
-						return -1;
-					}
-					public static double bar() {
-						double d = 1.0d;
-						return d;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test020() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo() {
-						if (bar() instanceof double) {
-							double d = (double) bar();
-							return d;
-						}
-						return -1;
-					}
-					public static double bar() {
-						double d = 1.0d;
-						return d;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
+
 	// Widening primitive conversions
-	public void test021() {
-		runConformTest(new String[] {
-			"X.java",
+	// 5.1.2: [...] exact widening primitive conversion [...]. Such a conversion can be one of the following:
+	// * from an integral type to another integral type
+	// * from byte, short, or char to a floating-point type
+	// * from int to double
+	// * from float to double
+	// inexact widening conversions:
+	// * from int to float, or from long to float, or from long to double
+	private void testWideningFrom(String from, int idx, boolean useMax, String expectedOut) {
+		assert from.equals(PRIMITIVES[idx]) : "mismatch between from and idx";
+		// example (from="long", idx=5, useMax=false, ...):
+		//	public class X {
+		//		public static float foofloat(long v) {
+		//			if (v instanceof float) {
+		//				float vv = (float) v;
+		//				return vv;
+		//			}
+		//			return -1.0f;
+		//		}
+		//		public static double foodouble(long v) {
+		//			if (v instanceof double) {
+		//				double vv = (double) v;
+		//				return vv;
+		//			}
+		//			return -1.0d;
+		//		}
+		//		public static void main(String[] args) {
+		//			long v = 49L;
+		//			System.out.print(X.foofloat(v));
+		//			System.out.print('|');
+		//			System.out.print(X.foodouble(v));
+		//			System.out.print('|');
+		//	}}
+
+		StringBuilder methods = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		String methodTmpl =
 				"""
-				public class X {
-					public static short foo(byte b) {
-						if (b instanceof short) {
-							short s = (short)b;
-							return s;
+					public static PRIM fooPRIM(FROM v) {
+						if (v instanceof PRIM) {
+							PRIM vv = (PRIM) v;
+							return vv;
 						}
-						return -1;
+						return NEGVAL;
 					}
-					public static void main(String[] args) {
-						byte b = 1;
-						System.out.println(X.foo(b));
-					}
-				}
+				""";
+		String callTmpl =
 				"""
-			},
-			"1");
+						System.out.print(X.fooPRIM(v));
+						System.out.print('|');
+				""";
+		// for all numerical primitive types "greater" than 'from':
+		for (int i = idx+1; i < PRIMITIVES.length; i++) {
+			if (!IS_NUMERICAL[i]) continue;
+			methods.append(fillIn(methodTmpl.replace("FROM", from), i));
+			calls.append(fillIn(callTmpl, i));
+		}
+		StringBuilder classX = new StringBuilder("public class X {\n");
+		classX.append(methods.toString());
+		classX.append("public static void main(String[] args) {\n");
+		classX.append(fillInMax("PRIM v = VAL;\n", idx, useMax));
+		classX.append(calls);
+		classX.append("}}\n");
+		runConformTest(new String[] { "X.java", classX.toString() }, expectedOut);
 	}
-	public void test022() {
-		runConformTest(new String[] {
-			"X.java",
+	private void testWideningFrom_pattern(String from, int idx, boolean useMax, String expectedOut) {
+		assert from.equals(PRIMITIVES[idx]) : "mismatch between from and idx";
+		// example (from="long", idx=5, useMax=false, ..):
+		//	public class X {
+		//		public static float foofloat() {
+		//			if (bar() instanceof float vv) {
+		//				return vv;
+		//			}
+		//			return -1.0f;
+		//		}
+		//		public static double foodouble() {
+		//			if (bar() instanceof double vv) {
+		//				return vv;
+		//			}
+		//			return -1.0d;
+		//		}
+		//		static long bar() {
+		//			return 49L;
+		//		}
+		//		public static void main(String[] args) {
+		//			System.out.print(X.foofloat());
+		//			System.out.print('|');
+		//			System.out.print(X.foodouble());
+		//			System.out.print('|');
+		//		}
+		//	}
+
+		StringBuilder methods = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		String methodTmpl =
 				"""
-				public class X {
-					public static short foo(byte b) {
-						if (b instanceof short s) {
-							return s;
+					public static PRIM fooPRIM() {
+						if (bar() instanceof PRIM vv) {
+							return vv;
 						}
-						return -1;
+						return NEGVAL;
 					}
-					public static void main(String[] args) {
-						byte b = 1;
-						System.out.println(X.foo(b));
+				""";
+		String methodBar = fillInMax("""
+					static PRIM bar() {
+						return VAL;
 					}
-				}
+					""",
+					idx, useMax);
+		String callTmpl =
 				"""
-			},
-			"1");
+						System.out.print(X.fooPRIM());
+						System.out.print('|');
+				""";
+		// for all numerical primitive types "greater" than 'from':
+		for (int i = idx+1; i < PRIMITIVES.length; i++) {
+			if (!IS_NUMERICAL[i]) continue;
+			methods.append(fillIn(methodTmpl, i));
+			calls.append(fillIn(callTmpl, i));
+		}
+		StringBuilder classX = new StringBuilder("public class X {\n");
+		classX.append(methods.toString());
+		classX.append(methodBar);
+		classX.append("public static void main(String[] args) {\n");
+		classX.append(calls);
+		classX.append("}}\n");
+		runConformTest(new String[] { "X.java", classX.toString() }, expectedOut);
 	}
-	public void test023() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static int foo(byte b) {
-						if (b instanceof int) {
-							int i = (int)b;
-							return i;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						byte b = 1;
-						System.out.println(X.foo(b));
-					}
-				}
-				"""
-			},
-			"1");
+	private void testWideningFrom_both(String prim, int idx, boolean useMax, String expectedOut) {
+		testWideningFrom(prim, idx, useMax, expectedOut);
+		testWideningFrom_pattern(prim, idx, useMax, expectedOut);
 	}
-	public void test024() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static int foo(byte b) {
-						if (b instanceof int i) {
-							return i;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						byte b = 1;
-						System.out.println(X.foo(b));
-					}
-				}
-				"""
-			},
-			"1");
+	public void testWideningByte() {
+		testWideningFrom_both("byte", 1, false, "49|49|49|49.0|49.0|");
+		testWideningFrom_both("byte", 1, true, "127|127|127|127.0|127.0|");
 	}
-	public void test025() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static long foo(byte b) {
-						if (b instanceof long) {
-							long l = (long)b;
-							return l;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						byte b = 1;
-						System.out.println(X.foo(b));
-					}
-				}
-				"""
-			},
-			"1");
+	public void testWideningChar() {
+		testWideningFrom_both("char", 2, false, "49|49|49|49.0|49.0|"); // '1'
+		testWideningFrom_both("char", 2, true, "122|122|122|122.0|122.0|"); // 'z'
 	}
-	public void test026() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static long foo(byte b) {
-						if (b instanceof long l) {
-							return l;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						byte b = 1;
-						System.out.println(X.foo(b));
-					}
-				}
-				"""
-			},
-			"1");
+	public void testWideningShort() {
+		testWideningFrom_both("short", 3, false, "49|49|49.0|49.0|");
+		testWideningFrom_both("short", 3, true, "32767|32767|32767.0|32767.0|");
 	}
-	public void test027() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(byte b) {
-						if (b instanceof float) {
-							float f = (float)b;
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						byte b = 1;
-						System.out.println(X.foo(b));
-					}
-				}
-				"""
-			},
-			"1.0");
+	public void testWideningInt() {
+		testWideningFrom_both("int", 4, false, "49|49.0|49.0|");
+		// max-int -> float is not exact
+		testWideningFrom_both("int", 4, true, "2147483647|-1.0|"+String.valueOf((double) Integer.MAX_VALUE)+'|');
 	}
-	public void test028() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(byte b) {
-						if (b instanceof float f) {
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						byte b = 1;
-						System.out.println(X.foo(b));
-					}
-				}
-				"""
-			},
-			"1.0");
+	public void testWideningLong() {
+		testWideningFrom_both("long", 5, false, "49.0|49.0|");
+		// max-long -> float/double is not exact
+		testWideningFrom_both("long", 5, true, "-1.0|-1.0|");
 	}
-	public void test029() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo(byte b) {
-						if (b instanceof double) {
-							double d = (double)b;
-							return d;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						byte b = 1;
-						System.out.println(X.foo(b));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test030() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo(byte b) {
-						if (b instanceof double d) {
-							return d;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						byte b = 1;
-						System.out.println(X.foo(b));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test031() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static int foo(short s) {
-						if (s instanceof int) {
-							int i = (int) s;
-							return i;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						short s = 1;
-						System.out.println(X.foo(s));
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test032() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static int foo(short s) {
-						if (s instanceof int i) {
-							return i;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						short s = 1;
-						System.out.println(X.foo(s));
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test033() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static long foo(short s) {
-						if (s instanceof long) {
-							long l = (long)s;
-							return l;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						short s = 1;
-						System.out.println(X.foo(s));
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test034() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static long foo(short s) {
-						if (s instanceof long l) {
-							return l;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						short s = 1;
-						System.out.println(X.foo(s));
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test035() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(short s) {
-						if (s instanceof float) {
-							float f = (float)s;
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						short s = 1;
-						System.out.println(X.foo(s));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test036() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(short s) {
-						if (s instanceof float f) {
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						short s = 1;
-						System.out.println(X.foo(s));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test037() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo(short s) {
-						if (s instanceof double) {
-							double d = (double)s;
-							return d;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						short s = 1;
-						System.out.println(X.foo(s));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test038() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo(short s) {
-						if (s instanceof double d) {
-							return d;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						short s = 1;
-						System.out.println(X.foo(s));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test039() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static int foo(char c) {
-						if (c instanceof int) {
-							int i = (int) c;
-							return i;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						char c = 1;
-						System.out.println(X.foo(c));
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test040() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static int foo(char c) {
-						if (c instanceof int i) {
-							return i;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						char c = 1;
-						System.out.println(X.foo(c));
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test041() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static long foo(char c) {
-						if (c instanceof long) {
-							long l = (long)c;
-							return l;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						char c = 1;
-						System.out.println(X.foo(c));
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test042() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static long foo(char c) {
-						if (c instanceof long l) {
-							return l;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						char c = 1;
-						System.out.println(X.foo(c));
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test043() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(char c) {
-						if (c instanceof float) {
-							float f = (float)c;
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						char c = 1;
-						System.out.println(X.foo(c));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test044() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(char c) {
-						if (c instanceof float f) {
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						char c = 1;
-						System.out.println(X.foo(c));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test045() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo(char c) {
-						if (c instanceof double) {
-							double d = (double)c;
-							return d;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						char c = 1;
-						System.out.println(X.foo(c));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test046() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo(char c) {
-						if (c instanceof double d) {
-							return d;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						char c = 1;
-						System.out.println(X.foo(c));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test047() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static long foo(int i) {
-						if (i instanceof long) {
-							long l = (long)i;
-							return l;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						int i = 1;
-						System.out.println(X.foo(i));
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test048() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static long foo(int i) {
-						if (i instanceof long l) {
-							return l;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						int i = 1;
-						System.out.println(X.foo(i));
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test049() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(int i) {
-						if (i instanceof float) {
-							float f = (float)i;
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						int i = 1;
-						System.out.println(X.foo(i));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test050() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(int i) {
-						if (i instanceof float f) {
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						int i = 1;
-						System.out.println(X.foo(i));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test051() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo(int i) {
-						if (i instanceof double) {
-							double d = (double)i;
-							return d;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						int i = 1;
-						System.out.println(X.foo(i));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test052() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo(int i) {
-						if (i instanceof double d) {
-							return d;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						int i = 1;
-						System.out.println(X.foo(i));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test053() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(long l) {
-						if (l instanceof float) {
-							float f = (float)l;
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						long l = 1;
-						System.out.println(X.foo(l));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test054() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(long l) {
-						if (l instanceof float f) {
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						long l = 1;
-						System.out.println(X.foo(l));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test055() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo(long l) {
-						if (l instanceof double) {
-							double d = (double)l;
-							return d;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						long l = 1;
-						System.out.println(X.foo(l));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test056() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo(long l) {
-						if (l instanceof double d) {
-							return d;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						long l = 1;
-						System.out.println(X.foo(l));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test057() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo(float f) {
-						if (f instanceof double) {
-							double d = (double)f;
-							return d;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						float f = 1.0f;
-						System.out.println(X.foo(f));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test058() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo(float f) {
-						if (f instanceof double d) {
-							return d;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						float f = 1.0f;
-						System.out.println(X.foo(f));
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test059() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(int i) {
-						if (i instanceof float) {
-							float f = (float)i;
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						int i = 1234567890;
-						System.out.println(X.foo(i));
-					}
-				}
-				"""
-			},
-			"-1.0");
-	}
-	public void test060() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(int i) {
-						if (i instanceof float f) {
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						int i = 1234567890;
-						System.out.println(X.foo(i));
-					}
-				}
-				"""
-			},
-			"-1.0");
-	}
-	public void test061() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(int i) {
-						if (i instanceof float) {
-							float f = (float)i;
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						int i = Integer.MAX_VALUE;
-						System.out.println(X.foo(i));
-					}
-				}
-				"""
-			},
-			"-1.0");
-	}
-	public void test062() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(int i) {
-						if (i instanceof float f) {
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						int i = Integer.MAX_VALUE;
-						System.out.println(X.foo(i));
-					}
-				}
-				"""
-			},
-			"-1.0");
+	public void testWideningFloat() {
+		testWideningFrom_both("float", 6, false, "49.0|");
+		testWideningFrom_both("float", 6, true, String.valueOf((double) Float.MAX_VALUE)+"|");
 	}
 
-	// Widening with functions
-	public void test063() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static short foo() {
-						if (getByte() instanceof short) {
-							short s = (short) getByte();
-							return s;
-						}
-						return -1;
-					}
-					public static byte getByte() {
-						return 1;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test064() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static short foo() {
-						if (getByte() instanceof short s) {
-							return s;
-						}
-						return -1;
-					}
-					public static byte getByte() {
-						return 1;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test065() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static int foo() {
-						if (getByte()  instanceof int) {
-							int i = (int)getByte() ;
-							return i;
-						}
-						return -1;
-					}
-					public static byte getByte() {
-						return 1;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test066() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static int foo() {
-						if (getByte()  instanceof int i) {
-							return i;
-						}
-						return -1;
-					}
-					public static byte getByte() {
-						return 1;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test067() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static long foo() {
-						if (getByte()  instanceof long) {
-							long l = (long)getByte() ;
-							return l;
-						}
-						return -1;
-					}
-					public static byte getByte() {
-						return 1;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test068() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static long foo() {
-						if (getByte()  instanceof long l) {
-							return l;
-						}
-						return -1;
-					}
-					public static byte getByte() {
-						return 1;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1");
-	}
-	public void test069() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo() {
-						if (getByte() instanceof float) {
-							float f = (float)getByte() ;
-							return f;
-						}
-						return -1;
-					}
-					public static byte getByte() {
-						return 1;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test070() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo() {
-						if (getByte()  instanceof float f) {
-							return f;
-						}
-						return -1;
-					}
-					public static byte getByte() {
-						return 1;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test071() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo() {
-						if (getByte()  instanceof double) {
-							double d = (double)getByte() ;
-							return d;
-						}
-						return -1;
-					}
-					public static byte getByte() {
-						return 1;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test072() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double foo() {
-						if (getByte()  instanceof double d) {
-							return d;
-						}
-						return -1;
-					}
-					public static byte getByte() {
-						return 1;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.foo());
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test073() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static int fooInt() {
-						if (getShort() instanceof int) {
-							int i = (int) getShort();
-							return i;
-						}
-						return -1;
-					}
-					public static long fooLong() {
-						if (getShort() instanceof long) {
-							long l = (long)getShort();
-							return l;
-						}
-						return -1;
-					}
-					public static float fooFloat() {
-						if (getShort() instanceof float) {
-							float f = (float)getShort();
-							return f;
-						}
-						return -1;
-					}
-					public static double fooDouble() {
-						if (getShort() instanceof double) {
-							double d = (double)getShort();
-							return d;
-						}
-						return -1;
-					}
-					public static short getShort() {
-						return 1;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.fooInt());
-						System.out.println(X.fooLong());
-						System.out.println(X.fooFloat());
-						System.out.println(X.fooDouble());
-					}
-				}
-				"""
-			},
-			"1\n"
-			+ "1\n"
-			+ "1.0\n"
-			+ "1.0");
-	}
-	public void test074() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static int fooInt() {
-						if (getShort() instanceof int i) {
-							return i;
-						}
-						return -1;
-					}
-					public static long fooLong() {
-						if (getShort() instanceof long l) {
-							return l;
-						}
-						return -1;
-					}
-					public static float fooFloat() {
-						if (getShort() instanceof float f) {
-							return f;
-						}
-						return -1;
-					}
-					public static double fooDouble() {
-						if (getShort() instanceof double d) {
-							return d;
-						}
-						return -1;
-					}
-					public static short getShort() {
-						return 1;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.fooInt());
-						System.out.println(X.fooLong());
-						System.out.println(X.fooFloat());
-						System.out.println(X.fooDouble());
-					}
-				}
-				"""
-			},
-			"1\n"
-			+ "1\n"
-			+ "1.0\n"
-			+ "1.0");
-	}
-	public void test075() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static int fooInt() {
-						if (getChar() instanceof int) {
-							int i = (int) getChar();
-							return i;
-						}
-						return -1;
-					}
-					public static long fooLong() {
-						if (getChar() instanceof long) {
-							long l = (long)getChar();
-							return l;
-						}
-						return -1;
-					}
-					public static float fooFloat() {
-						if (getChar() instanceof float) {
-							float f = (float)getChar();
-							return f;
-						}
-						return -1;
-					}
-					public static double fooDouble() {
-						if (getChar() instanceof double) {
-							double d = (double)getChar();
-							return d;
-						}
-						return -1;
-					}
-					public static char getChar() {
-						return (char)1;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.fooInt());
-						System.out.println(X.fooLong());
-						System.out.println(X.fooFloat());
-						System.out.println(X.fooDouble());
-					}
-				}
-				"""
-			},
-			"1\n"
-			+ "1\n"
-			+ "1.0\n"
-			+ "1.0");
-	}
-	public void test076() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static int fooInt() {
-						if (getChar() instanceof int i) {
-							return i;
-						}
-						return -1;
-					}
-					public static long fooLong() {
-						if (getChar() instanceof long l) {
-							return l;
-						}
-						return -1;
-					}
-					public static float fooFloat() {
-						if (getChar() instanceof float f) {
-							return f;
-						}
-						return -1;
-					}
-					public static double fooDouble() {
-						if (getChar() instanceof double d) {
-							return d;
-						}
-						return -1;
-					}
-					public static char getChar() {
-						return (char)1;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.fooInt());
-						System.out.println(X.fooLong());
-						System.out.println(X.fooFloat());
-						System.out.println(X.fooDouble());
-					}
-				}
-				"""
-			},
-			"1\n"
-			+ "1\n"
-			+ "1.0\n"
-			+ "1.0");
-	}
-	public void test077() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static long fooLong() {
-						if (getInt() instanceof long) {
-							long l = (long)getInt();
-							return l;
-						}
-						return -1;
-					}
-					public static float fooFloat() {
-						if (getInt() instanceof float) {
-							float f = (float)getInt();
-							return f;
-						}
-						return -1;
-					}
-					public static double fooDouble() {
-						if (getInt() instanceof double) {
-							double d = (double)getInt();
-							return d;
-						}
-						return -1;
-					}
-					public static int getInt() {
-						return 1;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.fooLong());
-						System.out.println(X.fooFloat());
-						System.out.println(X.fooDouble());
-					}
-				}
-				"""
-			},
-			"1\n"
-			+ "1.0\n"
-			+ "1.0");
-	}
-	public void test078() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static long fooLong() {
-						if (getInt() instanceof long l) {
-							return l;
-						}
-						return -1;
-					}
-					public static float fooFloat() {
-						if (getInt() instanceof float f) {
-							return f;
-						}
-						return -1;
-					}
-					public static double fooDouble() {
-						if (getInt() instanceof double d) {
-							return d;
-						}
-						return -1;
-					}
-					public static int getInt() {
-						return 1;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.fooLong());
-						System.out.println(X.fooFloat());
-						System.out.println(X.fooDouble());
-					}
-				}
-				"""
-			},
-			"1\n"
-			+ "1.0\n"
-			+ "1.0");
-	}
-	public void test079() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float fooFloat() {
-						if (getLong() instanceof float) {
-							float f = (float)getLong();
-							return f;
-						}
-						return -1;
-					}
-					public static double fooDouble() {
-						if (getLong() instanceof double) {
-							double d = (double) getLong();
-							return d;
-						}
-						return -1;
-					}
-					public static long getLong() {
-						return 1L;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.fooFloat());
-						System.out.println(X.fooDouble());
-					}
-				}
-				"""
-			},
-			"1.0\n"
-			+ "1.0");
-	}
-
-	public void test080() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float fooFloat() {
-						if (getLong() instanceof float f) {
-							return f;
-						}
-						return -1;
-					}
-					public static double fooDouble() {
-						if (getLong() instanceof double d) {
-							return d;
-						}
-						return -1;
-					}
-					public static long getLong() {
-						return 1L;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.fooFloat());
-						System.out.println(X.fooDouble());
-					}
-				}
-				"""
-			},
-			"1.0\n"
-			+ "1.0");
-	}
-	public void test081() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double fooDouble() {
-						if (getFloat() instanceof double) {
-							double d = (double) getFloat();
-							return d;
-						}
-						return -1;
-					}
-					public static float getFloat() {
-						return 1.0f;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.fooDouble());
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test082() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static double fooDouble() {
-						if (getFloat() instanceof double d) {
-							return d;
-						}
-						return -1;
-					}
-					public static float getFloat() {
-						return 1.0f;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.fooDouble());
-					}
-				}
-				"""
-			},
-			"1.0");
-	}
-	public void test083() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(int i) {
-						if (i instanceof float) {
-							float f = (float)i;
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						int i = 1234567890;
-						System.out.println(X.foo(i));
-					}
-				}
-				"""
-			},
-			"-1.0");
-	}
-	public void test084() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(int i) {
-						if (i instanceof float f) {
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						int i = 1234567890;
-						System.out.println(X.foo(i));
-					}
-				}
-				"""
-			},
-			"-1.0");
-	}
-	public void test085() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(int i) {
-						if (i instanceof float) {
-							float f = (float)i;
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						int i = Integer.MAX_VALUE;
-						System.out.println(X.foo(i));
-					}
-				}
-				"""
-			},
-			"-1.0");
-	}
-	public void test086() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static float foo(int i) {
-						if (i instanceof float f) {
-							return f;
-						}
-						return -1;
-					}
-					public static void main(String[] args) {
-						int i = Integer.MAX_VALUE;
-						System.out.println(X.foo(i));
-					}
-				}
-				"""
-			},
-			"-1.0");
-	}
 	// Narrowing Primitive Double
+	private void testNarrowingFrom(String from, int idx, boolean useMax, String expectedOut) {
+		assert from.equals(PRIMITIVES[idx]) : "mismatch between from and idx";
+		// example (from="short", idx=3, useMax=false):
+		//	public class X {
+		//		public static byte foobyte(short v) {
+		//			if (v instanceof byte) {
+		//				byte vv = (byte) v;
+		//				return vv;
+		//			}
+		//			return -1;
+		//		}
+		//		public static char foochar(short v) {
+		//			if (v instanceof char) {
+		//				char vv = (char) v;
+		//				return vv;
+		//			}
+		//			return '-';
+		//		}
+		//		static void print(Object o) {
+		//			if (o instanceof Character && ((int)((char) o) > 127))
+		//				System.out.print((int)((char) o)); // avoid char encoding issues
+		//			else
+		//				System.out.print(o);
+		//			System.out.print('|');
+		//		}
+		//		public static void main(String[] args) {
+		//			short v = 49;
+		//			print(X.foobyte(v));
+		//			print(X.foochar(v));
+		//		}
+		//	}
 
-	public void test087() {
-		runConformTest(new String[] {
-			"X.java",
+		StringBuilder methods = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		String methodTmpl =
 				"""
-				public class X {
-					public static byte d2b(double d) {
-						if (d instanceof byte) {
-							byte r = (byte) d;
-							return r;
+					public static PRIM fooPRIM(FROM v) {
+						if (v instanceof PRIM) {
+							PRIM vv = (PRIM) v;
+							return vv;
 						}
-						return 0;
+						return NEGVAL;
 					}
-					public static short d2s(double d) {
-						if (d instanceof short) {
-							short r = (short) d;
-							return r;
-						}
-						return 0;
-					}
-					public static char d2c(double d) {
-						if (d instanceof char) {
-							char r = (char) d;
-							return r;
-						}
-						return 0;
-					}
-					public static int d2i(double d) {
-						if (d instanceof int) {
-							int r = (int) d;
-							return r;
-						}
-						return 0;
-					}
-					public static long d2l(double d) {
-						if (d instanceof long) {
-							long r = (long) d;
-							return r;
-						}
-						return 0;
-					}
-					public static float d2f(double d) {
-						if (d instanceof float) {
-							float r = (float) d;
-							return r;
-						}
-						return 0;
-					}
-					public static void main(String[] args) {
-						double d = 49;
-						System.out.println(X.d2b(d));
-						System.out.println(X.d2s(d));
-						System.out.println(X.d2c(d));
-						System.out.println(X.d2i(d));
-						System.out.println(X.d2l(d));
-						System.out.println(X.d2f(d));
-					}
+				""";
+		String methodPrint = """
+				static void print(Object o) {
+					if (o instanceof Character && ((int)((char) o) > 127))
+						System.out.print((int)((char) o)); // avoid char encoding issues
+					else
+						System.out.print(o);
+					System.out.print('|');
 				}
+				""";
+		String callTmpl =
 				"""
-			},
-			"49\n" +
-			"49\n" +
-			"1\n" +
-			"49\n" +
-			"49\n" +
-			"49.0");
+						print(X.fooPRIM(v));
+				""";
+		// for all primitive types "smaller" than 'from' (except for boolean):
+		for (int i = 1; i < idx; i++) {
+			methods.append(fillIn(methodTmpl.replace("FROM", from), i));
+			calls.append(fillIn(callTmpl, i));
+		}
+		StringBuilder classX = new StringBuilder("public class X {\n");
+		classX.append(methods.toString());
+		classX.append(methodPrint);
+		classX.append("public static void main(String[] args) {\n");
+		classX.append(fillInMax("PRIM v = VAL;\n", idx, useMax));
+		classX.append(calls);
+		classX.append("}}\n");
+		runConformTest(new String[] { "X.java", classX.toString() }, expectedOut);
 	}
-	public void test088() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte d2b(double d) {
-						if (d instanceof byte r) {
-							return r;
-						}
-						return 0;
-					}
-					public static short d2s(double d) {
-						if (d instanceof short r) {
-							return r;
-						}
-						return 0;
-					}
-					public static char d2c(double d) {
-						if (d instanceof char r) {
-							return r;
-						}
-						return 0;
-					}
-					public static int d2i(double d) {
-						if (d instanceof int r) {
-							return r;
-						}
-						return 0;
-					}
-					public static long d2l(double d) {
-						if (d instanceof long r) {
-							return r;
-						}
-						return 0;
-					}
-					public static float d2f(double d) {
-						if (d instanceof float r) {
-							return r;
-						}
-						return 0;
-					}
-					public static void main(String[] args) {
-						double d = 49;
-						System.out.println(X.d2b(d));
-						System.out.println(X.d2s(d));
-						System.out.println(X.d2c(d));
-						System.out.println(X.d2i(d));
-						System.out.println(X.d2l(d));
-						System.out.println(X.d2f(d));
-					}
-				}
-				"""
-			},
-			"49\n" +
-			"49\n" +
-			"1\n" +
-			"49\n" +
-			"49\n" +
-			"49.0");
-	}
+	private void testNarrowingFrom_pattern(String from, int idx, boolean useMax, String expectedOut) {
+		assert from.equals(PRIMITIVES[idx]) : "mismatch between from and idx";
+		// example (from="short", idx=3, useMax=false, ...):
+		//	public class X {
+		//		public static byte foobyte() {
+		//			if (bar() instanceof byte vv) {
+		//				return vv;
+		//			}
+		//			return -1;
+		//		}
+		//		public static char foochar() {
+		//			if (bar() instanceof char vv) {
+		//				return vv;
+		//			}
+		//			return '-';
+		//		}
+		//		static short bar() {
+		//			return 49;
+		//		}
+		//		static void print(Object o) {
+		//			if (o instanceof Character && (int)((char) o) > 127)
+		//				System.out.print((int)((char) o)); // avoid char encoding issues
+		//			else
+		//				System.out.print(o);
+		//			System.out.print('|');
+		//		}
+		//		public static void main(String[] args) {
+		//			print(X.foobyte());
+		//			print(X.foochar());
+		//		}
+		//	}
 
-	public void test089() {
-		runConformTest(new String[] {
-			"X.java",
+		StringBuilder methods = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		String methodTmpl =
 				"""
-				public class X {
-					public static byte d2b() {
-						if (getDouble() instanceof byte) {
-							byte r = (byte) getDouble();
-							return r;
+					public static PRIM fooPRIM() {
+						if (bar() instanceof PRIM vv) {
+							return vv;
 						}
-						return 0;
+						return NEGVAL;
 					}
-					public static short d2s() {
-						if (getDouble() instanceof short) {
-							short r = (short) getDouble();
-							return r;
-						}
-						return 0;
-					}
-					public static char d2c() {
-						if (getDouble() instanceof char) {
-							char r = (char) getDouble();
-							return r;
-						}
-						return 0;
-					}
-					public static int d2i() {
-						if (getDouble() instanceof int) {
-							int r = (int) getDouble();
-							return r;
-						}
-						return 0;
-					}
-					public static long d2l() {
-						if (getDouble() instanceof long) {
-							long r = (long) getDouble();
-							return r;
-						}
-						return 0;
-					}
-					public static float d2f() {
-						if (getDouble() instanceof float) {
-							float r = (float) getDouble();
-							return r;
-						}
-						return 0;
-					}
-					private static double getDouble() {
-						return 49;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.d2b());
-						System.out.println(X.d2s());
-						System.out.println(X.d2c());
-						System.out.println(X.d2i());
-						System.out.println(X.d2l());
-						System.out.println(X.d2f());
-					}
+				""";
+		String methodBar = fillInMax("""
+				static PRIM bar() {
+					return VAL;
 				}
+				""",
+				idx, useMax);
+		String methodPrint = """
+				static void print(Object o) {
+					if (o instanceof Character && ((int)((char) o) > 127))
+						System.out.print((int)((char) o)); // avoid char encoding issues
+					else
+						System.out.print(o);
+					System.out.print('|');
+				}
+				""";
+		String callTmpl =
 				"""
-			},
-			"49\n" +
-			"49\n" +
-			"1\n" +
-			"49\n" +
-			"49\n" +
-			"49.0");
+						print(X.fooPRIM());
+				""";
+		// for all primitive types "smaller" than 'from' (except for boolean):
+		for (int i = 1; i < idx; i++) {
+			methods.append(fillIn(methodTmpl, i));
+			calls.append(fillIn(callTmpl, i));
+		}
+		StringBuilder classX = new StringBuilder("public class X {\n");
+		classX.append(methods.toString());
+		classX.append(methodBar);
+		classX.append(methodPrint);
+		classX.append("public static void main(String[] args) {\n");
+		classX.append(calls);
+		classX.append("}}\n");
+		runConformTest(new String[] { "X.java", classX.toString() }, expectedOut);
 	}
-	public void test090() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte d2b() {
-						if (getDouble() instanceof byte r) {
-							return r;
-						}
-						return 0;
-					}
-					public static short d2s() {
-						if (getDouble() instanceof short r) {
-							return r;
-						}
-						return 0;
-					}
-					public static char d2c() {
-						if (getDouble() instanceof char r) {
-							return r;
-						}
-						return 0;
-					}
-					public static int d2i() {
-						if (getDouble() instanceof int r) {
-							return r;
-						}
-						return 0;
-					}
-					public static long d2l() {
-						if (getDouble() instanceof long r) {
-							return r;
-						}
-						return 0;
-					}
-					public static float d2f() {
-						if (getDouble() instanceof float r) {
-							return r;
-						}
-						return 0;
-					}
-					private static double getDouble() {
-						return 49;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.d2b());
-						System.out.println(X.d2s());
-						System.out.println(X.d2c());
-						System.out.println(X.d2i());
-						System.out.println(X.d2l());
-						System.out.println(X.d2f());
-					}
-				}
-				"""
-			},
-			"49\n" +
-			"49\n" +
-			"1\n" +
-			"49\n" +
-			"49\n" +
-			"49.0");
+	private void testNarrowingFrom_both(String prim, int idx, boolean useMax, String expectedOut) {
+		testNarrowingFrom(prim, idx, useMax, expectedOut);
+		testNarrowingFrom_pattern(prim, idx, useMax, expectedOut);
+	}
+	public void testNarrowingDouble() {
+		testNarrowingFrom_both("double", 7, false, "49|1|49|49|49|49.0|");
+		testNarrowingFrom_both("double", 7, true, "-1|-|-1|-1|-1|-1.0|");
+	}
+	public void testNarrowingFloat() {
+		testNarrowingFrom_both("float", 6, false, "49|1|49|49|49|");
+		testNarrowingFrom_both("float", 6, true, "-1|-|-1|-1|-1|");
+	}
+	public void testNarrowingLong() {
+		testNarrowingFrom_both("long", 5, false, "49|1|49|49|");
+		testNarrowingFrom_both("long", 5, true, "-1|-|-1|-1|");
+	}
+	public void testNarrowingInt() {
+		testNarrowingFrom_both("int", 4, false, "49|1|49|");
+		testNarrowingFrom_both("int", 4, true, "-1|-|-1|");
+	}
+	public void testNarrowingShort() {
+		testNarrowingFrom_both("short", 3, false, "49|1|");
+		testNarrowingFrom_both("short", 3, true, "-1|32767|");
+	}
+	public void testNarrowingChar() {
+		testNarrowingFrom_both("char", 2, false, "49|"); // '1'
 	}
 
-
-	//Narrowing float
-	public void test091() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte f2b(float f) {
-						if (f instanceof byte) {
-							byte r = (byte) f;
-							return r;
-						}
-						return 0;
-					}
-					public static short f2s(float f) {
-						if (f instanceof short) {
-							short r = (short) f;
-							return r;
-						}
-						return 0;
-					}
-					public static char f2c(float f) {
-						if (f instanceof char) {
-							char r = (char) f;
-							return r;
-						}
-						return 0;
-					}
-					public static int f2i(float f) {
-						if (f instanceof int) {
-							int r = (int) f;
-							return r;
-						}
-						return 0;
-					}
-					public static long f2l(float f) {
-						if (f instanceof long) {
-							long r = (long) f;
-							return r;
-						}
-						return 0;
-					}
-					public static float f2f(float f) {
-						if (f instanceof float) {
-							float r = (float) f;
-							return r;
-						}
-						return 0;
-					}
-					public static void main(String[] args) {
-						float f = 49;
-						System.out.println(X.f2b(f));
-						System.out.println(X.f2s(f));
-						System.out.println(X.f2c(f));
-						System.out.println(X.f2i(f));
-						System.out.println(X.f2l(f));
-						System.out.println(X.f2f(f));
-
-					}
-				}
-				"""
-			},
-				"49\n" +
-				"49\n" +
-				"1\n" +
-				"49\n" +
-				"49\n" +
-				"49.0");
-	}
-	public void test092() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte f2b(float f) {
-						if (f instanceof byte r) {
-							return r;
-						}
-						return 0;
-					}
-					public static short f2s(float f) {
-						if (f instanceof short r) {
-							return r;
-						}
-						return 0;
-					}
-					public static char f2c(float f) {
-						if (f instanceof char r) {
-							return r;
-						}
-						return 0;
-					}
-					public static int f2i(float f) {
-						if (f instanceof int r) {
-							return r;
-						}
-						return 0;
-					}
-					public static long f2l(float f) {
-						if (f instanceof long r) {
-							return r;
-						}
-						return 0;
-					}
-					public static void main(String[] args) {
-						float f = 49;
-						System.out.println(X.f2b(f));
-						System.out.println(X.f2s(f));
-						System.out.println(X.f2c(f));
-						System.out.println(X.f2i(f));
-						System.out.println(X.f2l(f));
-					}
-				}
-     			"""
-			},
-				"49\n" +
-				"49\n" +
-				"1\n" +
-				"49\n" +
-				"49");
-	}
-	public void test093() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte f2b() {
-						if (getFloat() instanceof byte) {
-							byte r = (byte) getFloat();
-							return r;
-						}
-						return 0;
-					}
-					public static short f2s() {
-						if (getFloat() instanceof short) {
-							short r = (short) getFloat();
-							return r;
-						}
-						return 0;
-					}
-					public static char f2c() {
-						if (getFloat() instanceof char) {
-							char r = (char) getFloat();
-							return r;
-						}
-						return 0;
-					}
-					public static int f2i() {
-						if (getFloat() instanceof int) {
-							int r = (int) getFloat();
-							return r;
-						}
-						return 0;
-					}
-					public static long f2l() {
-						if (getFloat() instanceof long) {
-							long r = (long) getFloat();
-							return r;
-						}
-						return 0;
-					}
-					private static float getFloat() {
-						return 49;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.f2b());
-						System.out.println(X.f2s());
-						System.out.println(X.f2c());
-						System.out.println(X.f2i());
-						System.out.println(X.f2l());
-					}
-				}
-     			"""
-			},
-				"49\n" +
-				"49\n" +
-				"1\n" +
-				"49\n" +
-				"49");
-	}
-	public void test094() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte f2b() {
-						if (getFloat() instanceof byte r) {
-							return r;
-						}
-						return 0;
-					}
-					public static short f2s() {
-						if (getFloat() instanceof short r) {
-							return r;
-						}
-						return 0;
-					}
-					public static char f2c() {
-						if (getFloat() instanceof char r) {
-							return r;
-						}
-						return 0;
-					}
-					public static int f2i() {
-						if (getFloat() instanceof int r) {
-							return r;
-						}
-						return 0;
-					}
-					public static long f2l() {
-						if (getFloat() instanceof long r) {
-							return r;
-						}
-						return 0;
-					}
-					private static float getFloat() {
-						return 49;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.f2b());
-						System.out.println(X.f2s());
-						System.out.println(X.f2c());
-						System.out.println(X.f2i());
-						System.out.println(X.f2l());
-					}
-				}
-     			"""
-			},
-				"49\n" +
-				"49\n" +
-				"1\n" +
-				"49\n" +
-				"49");
-	}
-
-	// Narrowing Long
-	public void test095() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte l2b(long l) {
-						if (l instanceof byte) {
-							byte r = (byte) l;
-							return r;
-						}
-						return 0;
-					}
-					public static short l2s(long l) {
-						if (l instanceof short) {
-							short r = (short) l;
-							return r;
-						}
-						return 0;
-					}
-					public static char l2c(long l) {
-						if (l instanceof char) {
-							char r = (char) l;
-							return r;
-						}
-						return 0;
-					}
-					public static int l2i(long l) {
-						if (l instanceof int) {
-							int r = (int) l;
-							return r;
-						}
-						return 0;
-					}
-					public static void main(String[] args) {
-						long l = 49;
-						System.out.println(X.l2b(l));
-						System.out.println(X.l2s(l));
-						System.out.println(X.l2c(l));
-						System.out.println(X.l2i(l));
-
-					}
-				}
-				"""
-			},
-				"49\n" +
-				"49\n" +
-				"1\n" +
-				"49");
-	}
-	public void test096() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte l2b(long l) {
-						if (l instanceof byte r) {
-							return r;
-						}
-						return 0;
-					}
-					public static short l2s(long l) {
-						if (l instanceof short r) {
-							return r;
-						}
-						return 0;
-					}
-					public static char l2c(long l) {
-						if (l instanceof char r) {
-							return r;
-						}
-						return 0;
-					}
-					public static int l2i(long l) {
-						if (l instanceof int r) {
-							return r;
-						}
-						return 0;
-					}
-					public static void main(String[] args) {
-						long l = 49;
-						System.out.println(X.l2b(l));
-						System.out.println(X.l2s(l));
-						System.out.println(X.l2c(l));
-						System.out.println(X.l2i(l));
-					}
-				}
-     			"""
-			},
-				"49\n" +
-				"49\n" +
-				"1\n" +
-				"49");
-	}
-	public void test097() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte l2b() {
-						if (getLong() instanceof byte) {
-							byte r = (byte) getLong();
-							return r;
-						}
-						return 0;
-					}
-					public static short l2s() {
-						if (getLong() instanceof short) {
-							short r = (short) getLong();
-							return r;
-						}
-						return 0;
-					}
-					public static char l2c() {
-						if (getLong() instanceof char) {
-							char r = (char) getLong();
-							return r;
-						}
-						return 0;
-					}
-					public static int l2i() {
-						if (getLong() instanceof int) {
-							int r = (int) getLong();
-							return r;
-						}
-						return 0;
-					}
-					private static long getLong() {
-						return 49;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.l2b());
-						System.out.println(X.l2s());
-						System.out.println(X.l2c());
-						System.out.println(X.l2i());
-					}
-				}
-     			"""
-			},
-				"49\n" +
-				"49\n" +
-				"1\n" +
-				"49");
-	}
-	public void test098() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte l2b() {
-						if (getLong() instanceof byte r) {
-							return r;
-						}
-						return 0;
-					}
-					public static short l2s() {
-						if (getLong() instanceof short r) {
-							return r;
-						}
-						return 0;
-					}
-					public static char l2c() {
-						if (getLong() instanceof char r) {
-							return r;
-						}
-						return 0;
-					}
-					public static int l2i() {
-						if (getLong() instanceof int r) {
-							return r;
-						}
-						return 0;
-					}
-					private static long getLong() {
-						return 49;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.l2b());
-						System.out.println(X.l2s());
-						System.out.println(X.l2c());
-						System.out.println(X.l2i());
-					}
-				}
-     			"""
-			},
-				"49\n" +
-				"49\n" +
-				"1\n" +
-				"49");
-	}
-	// Narrowing int
-	public void test099() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte i2b(int i) {
-						if (i instanceof byte) {
-							byte r = (byte) i;
-							return r;
-						}
-						return 0;
-					}
-					public static short i2s(int i) {
-						if (i instanceof short) {
-							short r = (short) i;
-							return r;
-						}
-						return 0;
-					}
-					public static char i2c(int i) {
-						if (i instanceof char) {
-							char r = (char) i;
-							return r;
-						}
-						return 0;
-					}
-					public static void main(String[] args) {
-						int i = 49;
-						System.out.println(X.i2b(i));
-						System.out.println(X.i2s(i));
-						System.out.println(X.i2c(i));
-
-					}
-				}
-				"""
-			},
-				"49\n" +
-				"49\n" +
-				"1");
-	}
-	public void test100() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte i2b(int i) {
-						if (i instanceof byte r) {
-							return r;
-						}
-						return 0;
-					}
-					public static short i2s(int i) {
-						if (i instanceof short r) {
-							return r;
-						}
-						return 0;
-					}
-					public static char i2c(int i) {
-						if (i instanceof char r) {
-							return r;
-						}
-						return 0;
-					}
-					public static void main(String[] args) {
-						int i = 49;
-						System.out.println(X.i2b(i));
-						System.out.println(X.i2s(i));
-						System.out.println(X.i2c(i));
-					}
-				}
-     			"""
-			},
-				"49\n" +
-				"49\n" +
-				"1");
-	}
-	public void test101() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte i2b() {
-						if (getInt() instanceof byte) {
-							byte r = (byte) getInt();
-							return r;
-						}
-						return 0;
-					}
-					public static short i2s() {
-						if (getInt() instanceof short) {
-							short r = (short) getInt();
-							return r;
-						}
-						return 0;
-					}
-					public static char i2c() {
-						if (getInt() instanceof char) {
-							char r = (char) getInt();
-							return r;
-						}
-						return 0;
-					}
-					private static int getInt() {
-						return 49;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.i2b());
-						System.out.println(X.i2s());
-						System.out.println(X.i2c());
-					}
-				}
-     			"""
-			},
-				"49\n" +
-				"49\n" +
-				"1");
-	}
-	public void test102() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte i2b() {
-						if (getInt() instanceof byte r) {
-							return r;
-						}
-						return 0;
-					}
-					public static short i2s() {
-						if (getInt() instanceof short r) {
-							return r;
-						}
-						return 0;
-					}
-					public static char i2c() {
-						if (getInt() instanceof char r) {
-							return r;
-						}
-						return 0;
-					}
-					private static int getInt() {
-						return 49;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.i2b());
-						System.out.println(X.i2s());
-						System.out.println(X.i2c());
-					}
-				}
-     			"""
-			},
-				"49\n" +
-				"49\n" +
-				"1");
-	}
-	// Narrowing char
-	public void test103() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte c2b(char c) {
-						if (c instanceof byte) {
-							byte r = (byte) c;
-							return r;
-						}
-						return 0;
-					}
-					public static short c2s(char c) {
-						if (c instanceof short) {
-							short r = (short) c;
-							return r;
-						}
-						return 0;
-					}
-					public static void main(String[] args) {
-						char c = 49;
-						System.out.println(X.c2b(c));
-						System.out.println(X.c2s(c));
-
-					}
-				}
-				"""
-			},
-				"49\n" +
-				"49");
-	}
-	public void test104() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte c2b(char c) {
-						if (c instanceof byte r) {
-							return r;
-						}
-						return 0;
-					}
-					public static short c2s(char c) {
-						if (c instanceof short r) {
-							return r;
-						}
-						return 0;
-					}
-					public static void main(String[] args) {
-						char c = 49;
-						System.out.println(X.c2b(c));
-						System.out.println(X.c2s(c));
-					}
-				}
-     			"""
-			},
-				"49\n" +
-				"49");
-	}
-	public void test105() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte c2b() {
-						if (getChar() instanceof byte) {
-							byte r = (byte) getChar();
-							return r;
-						}
-						return 0;
-					}
-					public static short c2s() {
-						if (getChar() instanceof short) {
-							short r = (short) getChar();
-							return r;
-						}
-						return 0;
-					}
-					private static char getChar() {
-						return 49;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.c2b());
-						System.out.println(X.c2s());
-					}
-				}
-     			"""
-			},
-				"49\n" +
-				"49");
-	}
-	public void test106() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte c2b() {
-						if (getChar() instanceof byte r) {
-							return r;
-						}
-						return 0;
-					}
-					public static short c2s() {
-						if (getChar() instanceof short r) {
-							return r;
-						}
-						return 0;
-					}
-					private static char getChar() {
-						return 49;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.c2b());
-						System.out.println(X.c2s());
-					}
-				}
-     			"""
-			},
-				"49\n" +
-				"49");
-	}
-
-	// Narrowing short
-	public void test107() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte s2b(short s) {
-						if (s instanceof byte) {
-							byte r = (byte) s;
-							return r;
-						}
-						return 0;
-					}
-					public static char s2c(short s) {
-						if (s instanceof char) {
-							char r = (char) s;
-							return r;
-						}
-						return 0;
-					}
-					public static void main(String[] args) {
-						short s = 49;
-						System.out.println(X.s2b(s));
-						System.out.println(X.s2c(s));
-
-					}
-				}
-				"""
-			},
-				"49\n" +
-				"1");
-	}
-	public void test108() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte s2b(short s) {
-						if (s instanceof byte r) {
-							return r;
-						}
-						return 0;
-					}
-					public static char s2c(short s) {
-						if (s instanceof char r) {
-							return r;
-						}
-						return 0;
-					}
-					public static void main(String[] args) {
-						short s = 49;
-						System.out.println(X.s2b(s));
-						System.out.println(X.s2c(s));
-					}
-				}
-     			"""
-			},
-				"49\n" +
-				"1");
-	}
-	public void test109() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte s2b() {
-						if (getShort() instanceof byte) {
-							byte r = (byte) getShort();
-							return r;
-						}
-						return 0;
-					}
-					public static char s2c() {
-						if (getShort() instanceof char) {
-							char r = (char) getShort();
-							return r;
-						}
-						return 0;
-					}
-					private static short getShort() {
-						return 49;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.s2b());
-						System.out.println(X.s2c());
-					}
-				}
-     			"""
-			},
-				"49\n" +
-				"1");
-	}
-	public void test110() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static byte s2b() {
-						if (getShort() instanceof byte r) {
-							return r;
-						}
-						return 0;
-					}
-					public static char s2c() {
-						if (getShort() instanceof char r) {
-							return r;
-						}
-						return 0;
-					}
-					private static short getShort() {
-						return 49;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.s2b());
-						System.out.println(X.s2c());
-					}
-				}
-     			"""
-			},
-				"49\n" +
-				"1");
-	}
-
-	// 5.1.4 Widening and Narrowing Primitive Conversion
-	public void test111() {
+	public void testNarrowingChar_various() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
 				public class X {
 					public static char b2c(byte b) {
 						if (b instanceof char) {
-							char r = (char) b;
-							return r;
+							return (char) b;
 						}
-						return 0;
+						return '-';
+					}
+					public static char s2c(short s) {
+						if (s instanceof char) {
+							return (char) s;
+						}
+						return '-';
+					}
+					public static short c2s(char c) {
+						if (c instanceof short) {
+							return (short) c;
+						}
+						return -1;
+					}
+					public static char b2c_pat(byte b) {
+						if (b instanceof char v) {
+							return v;
+						}
+						return '-';
+					}
+					public static char s2c_pat(short s) {
+						if (s instanceof char v) {
+							return v;
+						}
+						return '-';
+					}
+					public static short c2s_pat(char c) {
+						if (c instanceof short v) {
+							return v;
+						}
+						return -1;
 					}
 					public static void main(String[] args) {
-						byte b = 49;
-						System.out.println(X.b2c(b));
+						byte b=49, bmax=Byte.MAX_VALUE;
+						short s=49, smax=Short.MAX_VALUE;
+						char c='1', cmax=Character.MAX_VALUE;
+						print(X.b2c(b));
+						print(X.s2c(s));
+						print(X.c2s(c));
+						print(X.b2c(bmax));
+						print(X.s2c(smax));
+						print(X.c2s(cmax));
+						System.out.println();
+						print(X.b2c_pat(b));
+						print(X.s2c_pat(s));
+						print(X.c2s_pat(c));
+						print(X.b2c_pat(bmax));
+						print(X.s2c_pat(smax));
+						print(X.c2s_pat(cmax));
+					}
+					static void print(Object s) {
+						if (s instanceof Character)
+							System.out.print((int)((char) s)); // avoid char encoding issues
+						else
+							System.out.print(s);
+						System.out.print('|');
+					}
+				}
+				"""
+			},
+			"49|49|49|127|32767|-1|\n" +
+			"49|49|49|127|32767|-1|");
+	}
+
+	public void testBoxing() {
+		//	public class X {
+		//		public static Boolean boolean2Boolean(boolean v) {
+		//			if (v instanceof Boolean) {
+		//				return (Boolean) v;
+		//			}
+		//			return false;
+		//		}
+		//		public static Byte byte2Byte(byte v) {
+		//			if (v instanceof Byte) {
+		//				return (Byte) v;
+		//			}
+		//			return -1;
+		//		}
+		//		[...]
+		//		public static void main(String[] args) {
+		//			boolean vboolean = true;
+		//			System.out.print(X.boolean2Boolean(vboolean));
+		//			System.out.print('|');
+		//			byte vbyte = 49;
+		//			System.out.print(X.byte2Byte(vbyte));
+		//			System.out.print('|');
+		//			[...]
+		//		}
+		//	}
+
+		StringBuilder methods = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		String methodTmpl =
+				"""
+					public static BOX PRIM2BOX(PRIM v) {
+						if (v instanceof BOX) {
+							return (BOX) v;
+						}
+						return NEGVAL;
+					}
+				""";
+		String callTmpl =
+				"""
+						PRIM vPRIM = VAL;
+						System.out.print(X.PRIM2BOX(vPRIM));
+						System.out.print('|');
+				""";
+		// for all primitive types:
+		for (int i = 0; i < PRIMITIVES.length; i++) {
+			methods.append(fillIn(methodTmpl, i));
+			calls.append(fillIn(callTmpl, i));
+		}
+		StringBuilder classX = new StringBuilder("public class X {\n");
+		classX.append(methods.toString());
+		classX.append("public static void main(String[] args) {\n");
+		classX.append(calls);
+		classX.append("}}\n");
+		runConformTest(new String[] { "X.java", classX.toString() },
+				"true|49|1|49|49|49|49.0|49.0|");
+	}
+	public void testBoxing_pattern() {
+		//	public class X {
+		//		public static Boolean boolean2Boolean() {
+		//			if (barboolean() instanceof Boolean v) {
+		//				return v;
+		//			}
+		//			return false;
+		//		}
+		//		static boolean barboolean() {
+		//			return true;
+		//		}
+		//		public static Byte byte2Byte() {
+		//			if (barbyte() instanceof Byte v) {
+		//				return v;
+		//			}
+		//			return -1;
+		//		}
+		//		static byte barbyte() {
+		//			return 49;
+		//		}
+		//		[...]
+		//		public static void main(String[] args) {
+		//			System.out.print(X.boolean2Boolean());
+		//			System.out.print('|');
+		//			System.out.print(X.byte2Byte());
+		//			System.out.print('|');
+		//			[...]
+		//		}
+		//	}
+
+		StringBuilder methods = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		String methodTmpl =
+				"""
+					public static BOX PRIM2BOX() {
+						if (barPRIM() instanceof BOX v) {
+							return v;
+						}
+						return NEGVAL;
+					}
+					static PRIM barPRIM() {
+						return VAL;
+					}
+				""";
+		String callTmpl =
+				"""
+						System.out.print(X.PRIM2BOX());
+						System.out.print('|');
+				""";
+		// for all primitive types:
+		for (int i = 0; i < PRIMITIVES.length; i++) {
+			methods.append(fillIn(methodTmpl, i));
+			calls.append(fillIn(callTmpl, i));
+		}
+		StringBuilder classX = new StringBuilder("public class X {\n");
+		classX.append(methods.toString());
+		classX.append("public static void main(String[] args) {\n");
+		classX.append(calls);
+		classX.append("}}\n");
+		runConformTest(new String[] { "X.java", classX.toString() },
+				"true|49|1|49|49|49|49.0|49.0|");
+	}
+
+	// boxing and widening reference conversion
+
+	private void primitive2Comparable(String prim, int idx, String expectedOut) {
+		String methodTmpl =
+				"""
+					@SuppressWarnings("rawtypes")
+					public static Comparable foo1(PRIM v) {
+						if (v instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					@SuppressWarnings({"rawtypes", "unchecked" })
+					public static Comparable<BOX> foo2(PRIM v) {
+						if (v instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					@SuppressWarnings("unchecked")
+					public static Comparable<BOX> foo3(PRIM v) {
+						if (v instanceof Comparable<BOX> r) {
+							return r;
+						}
+						return null;
+					}
+				""";
+		String callTmpl =
+				"""
+						PRIM vPRIM = VAL;
+						System.out.print(X.foo1(vPRIM));
+						System.out.print('|');
+						System.out.print(X.foo2(vPRIM));
+						System.out.print('|');
+						System.out.print(X.foo3(vPRIM));
+						System.out.print('|');
+				""";
+		if (IS_NUMERICAL[idx]) {
+			methodTmpl +=
+				"""
+					public static Number foo4(PRIM v) {
+						if (v instanceof Number r) {
+							return r;
+						}
+						return null;
+					}
+				""";
+			callTmpl +=
+				"""
+					System.out.print(X.foo4(vPRIM));
+					System.out.print('|');
+				""";
+		}
+		StringBuilder classX = new StringBuilder("public class X {\n");
+		classX.append(fillIn(methodTmpl, idx));
+		classX.append("public static void main(String[] args) {\n");
+		classX.append(fillIn(callTmpl, idx));
+		classX.append("}}\n");
+		runConformTest(new String[] { "X.java", classX.toString() }, expectedOut);
+	}
+
+	public void test2Comparable_boolean() {
+		primitive2Comparable("boolean", 0, "true|true|true|");
+	}
+	public void test2Comparable_byte() {
+		primitive2Comparable("byte", 1, "49|49|49|49|");
+	}
+	public void test2Comparable_char() {
+		primitive2Comparable("char", 2, "1|1|1|"); // '1'
+	}
+	public void test2Comparable_short() {
+		primitive2Comparable("short", 3, "49|49|49|49|");
+	}
+	public void test2Comparable_int() {
+		primitive2Comparable("int", 4, "49|49|49|49|");
+	}
+	public void test2Comparable_long() {
+		primitive2Comparable("long", 5, "49|49|49|49|");
+	}
+	public void test2Comparable_float() {
+		primitive2Comparable("float", 6, "49.0|49.0|49.0|49.0|");
+	}
+	public void test2Comparable_double() {
+		primitive2Comparable("double", 7, "49.0|49.0|49.0|49.0|");
+	}
+	public void test2Number_NOK() {
+		runNegativeTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static Number foo1(boolean b) {
+						if (b instanceof Number r) {
+							return r;
+						}
+						return null;
+					}
+					public static Number foo2(char c) {
+						if (c instanceof Number r) {
+							return r;
+						}
+						return null;
+					}
+				}
+  			    """
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 3)
+				if (b instanceof Number r) {
+				    ^^^^^^^^^^^^^^^^^^^^^
+			Incompatible conditional operand types boolean and Number
+			----------
+			2. ERROR in X.java (at line 9)
+				if (c instanceof Number r) {
+				    ^^^^^^^^^^^^^^^^^^^^^
+			Incompatible conditional operand types char and Number
+			----------
+			""");
+	}
+
+	// reference - unboxing
+	public void _test159() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static boolean Boolean2boolean(Boolean b) {
+						if (b instanceof boolean) {
+							boolean r = (boolean) b;
+							return r;
+						}
+						return false;
+					}
+					public static void main(String[] args) {
+						boolean b = true;
+						System.out.println(X.Boolean2boolean(b));
 
 					}
 				}
-				"""
+			    """
 			},
-				"1");
-	}
-	public void test112() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static char b2c(byte b) {
-						if (b instanceof char r) {
-							return r;
-						}
-						return 0;
-					}
-					public static void main(String[] args) {
-						byte b = 49;
-						System.out.println(X.b2c(b));
-					}
-				}
-     			"""
-			},
-				"1");
-	}
-	public void test113() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static char b2c() {
-						if (getByte() instanceof char) {
-							char r = (char) getByte();
-							return r;
-						}
-						return 0;
-					}
-					private static byte getByte() {
-						return 49;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.b2c());
-					}
-				}
-     			"""
-			},
-			"1");
-	}
-	public void test114() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-				public class X {
-					public static char b2c() {
-						if (getByte() instanceof char r) {
-							return r;
-						}
-						return 0;
-					}
-					private static byte getByte() {
-						return 49;
-					}
-					public static void main(String[] args) {
-						System.out.println(X.b2c());
-					}
-				}
-     			"""
-			},
-			"1");
+			"true");
 	}
 
+	public void _test160() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+					public class X {
+						public static boolean Boolean2boolean(Boolean b) {
+							if (b instanceof boolean r) {
+								return r;
+							}
+							return false;
+						}
+						public static void main(String[] args) {
+							boolean b = true;
+							System.out.println(X.Boolean2boolean(b));
+
+						}
+					}
+			    """
+			},
+			"true");
+	}
+
+	public void _test161() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static boolean Boolean2boolean() {
+						if (getBoolean() instanceof boolean) {
+							boolean r = (boolean) getBoolean();
+							return r;
+						}
+						return false;
+					}
+					private static Boolean getBoolean() {
+						return Boolean.TRUE;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.Boolean2boolean());
+					}
+				}
+			    """
+			},
+			"true");
+	}
+
+	public void _test162() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static boolean Boolean2boolean() {
+						if (getBoolean() instanceof boolean r) {
+							return r;
+						}
+						return false;
+					}
+					private static Boolean getBoolean() {
+						return Boolean.TRUE;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.Boolean2boolean());
+					}
+				}
+			    """
+			},
+			"true");
+	}
+
+	public void testNonPrim001() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+					class Y<T> {
+					    public boolean foo(T t) {
+					        if (t instanceof T) {
+					            return false;
+					        }
+					        return true;
+					    }
+					}
+
+					public class X  {
+					    public static void main(String argv[]) {
+					    	System.out.println(new Y<X>().foo(null));
+					    }
+					}
+ 			    """
+			},
+			"true");
+	}
 	// test from spec
 	public void _testSpec001() {
 		runConformTest(new String[] {
