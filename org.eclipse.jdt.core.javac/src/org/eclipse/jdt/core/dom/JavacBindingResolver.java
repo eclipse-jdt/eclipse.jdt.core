@@ -545,6 +545,12 @@ public class JavacBindingResolver extends BindingResolver {
 			}
 		}
 		var jcTree = this.converter.domToJavac.get(expr);
+		if (jcTree instanceof JCFieldAccess jcFieldAccess) {
+			if (jcFieldAccess.type instanceof PackageType) {
+				return null;
+			}
+			return this.bindings.getTypeBinding(jcFieldAccess.type.isErroneous() ? jcFieldAccess.sym.type : jcFieldAccess.type);
+		}
 		if (jcTree instanceof JCExpression jcExpr) {
 			if (jcExpr.type instanceof PackageType) {
 				return null;

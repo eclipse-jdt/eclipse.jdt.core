@@ -2306,6 +2306,7 @@ class JavacConverter {
 			try {
 				if( qualified.getExpression() == null ) {
 					Name qn = toName(qualified);
+					commonSettings(qn, javac);
 					SimpleType res = this.ast.newSimpleType(qn);
 					commonSettings(res, qualified);
 					return res;
@@ -2320,6 +2321,7 @@ class JavacConverter {
 				Name parentName = simpleType.getName();
 				parentName.setParent(null, null);
 				QualifiedName name = this.ast.newQualifiedName(simpleType.getName(), (SimpleName)convertName(qualified.getIdentifier()));
+				commonSettings(name, javac);
 				SimpleType res = this.ast.newSimpleType(name);
 				commonSettings(res, javac);
 				return res;
