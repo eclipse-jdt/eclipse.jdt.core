@@ -223,14 +223,18 @@ private void generateTypeCheck(BlockScope scope, CodeStream codeStream) {
 		case IDENTITY_CONVERSION:
 			storeExpressionValue(codeStream);
 			codeStream.iconst_1();
+			setPatternIsTotalType();
 			break;
 		case WIDENING_PRIMITIVE_CONVERSION:
 		case NARROWING_PRIMITVE_CONVERSION:
 		case WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION:
 			generateExactConversions(scope, codeStream);
+			setPatternIsTotalType();
 			break;
 		case BOXING_CONVERSION:
-			//TODO
+			storeExpressionValue(codeStream);
+			codeStream.iconst_1();
+			setPatternIsTotalType();
 			break;
 		case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
 			//TODO
@@ -239,6 +243,12 @@ private void generateTypeCheck(BlockScope scope, CodeStream codeStream) {
 		default:
 			codeStream.instance_of(this.type, this.type.resolvedType);
 			break;
+	}
+}
+
+private void setPatternIsTotalType() {
+	if (this.pattern != null) {
+		this.pattern.isTotalTypeNode = true;
 	}
 }
 
@@ -266,7 +276,7 @@ private void generateTestingConversion(BlockScope scope, CodeStream codeStream) 
 			conversionCode(scope, codeStream);
 			break;
 		case BOXING_CONVERSION:
-			//TODO
+			codeStream.generateBoxingConversion(this.testContextRecord.right().id);
 			break;
 		case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
 			//TODO

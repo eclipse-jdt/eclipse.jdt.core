@@ -140,13 +140,33 @@ public abstract class Pattern extends Expression {
 	public void setIsGuarded() {
 		this.isUnguarded = false;
 	}
+	public static boolean isBoxing(TypeBinding left, TypeBinding right) {
+
+		if (right.isBaseType() && !left.isBaseType()) {
+			int expected = switch(right.id) {
+				case T_char     -> T_JavaLangCharacter;
+				case T_byte     -> T_JavaLangByte;
+				case T_short    -> T_JavaLangShort;
+				case T_boolean  -> T_JavaLangBoolean;
+				case T_long     -> T_JavaLangLong;
+				case T_double   -> T_JavaLangDouble;
+				case T_float    -> T_JavaLangFloat;
+				case T_int      -> T_JavaLangInteger;
+				default -> -1;
+			};
+			return left.id == expected;
+		}
+		return false;
+	}
 	public static PrimitiveConversionRoute findPrimitiveConversionRoute(TypeBinding left, TypeBinding right, BlockScope scope) {
 		if (!(JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
 				scope.compilerOptions().sourceLevel,
 				scope.compilerOptions().enablePreviewFeatures))) {
 			return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 		}
-		if (left.isBaseType() && right.isBaseType()) {
+		boolean leftIsBaseType = left.isBaseType();
+		boolean rightIsBaseType = right.isBaseType();
+		if (leftIsBaseType && rightIsBaseType) {
 			if (TypeBinding.equalsEquals(left, right)) {
 				return PrimitiveConversionRoute.IDENTITY_CONVERSION;
 			}
@@ -156,6 +176,11 @@ public abstract class Pattern extends Expression {
 				return PrimitiveConversionRoute.NARROWING_PRIMITVE_CONVERSION;
 			if (BaseTypeBinding.isWideningAndNarrowing(left.id, right.id))
 				return PrimitiveConversionRoute.WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION;
+		} else if (rightIsBaseType) { // check for boxing conversion
+			if (isBoxing(left, right))
+				return PrimitiveConversionRoute.BOXING_CONVERSION;
+		} else {
+			// TODO
 		}
 		return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 	}
