@@ -179,6 +179,8 @@ public abstract class Pattern extends Expression {
 		} else if (rightIsBaseType) { // check for boxing conversion
 			if (isBoxing(left, right))
 				return PrimitiveConversionRoute.BOXING_CONVERSION;
+			else if (scope.environment().computeBoxingType(right).isCompatibleWith(left))
+				return PrimitiveConversionRoute.BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION;
 		} else {
 			// TODO
 		}

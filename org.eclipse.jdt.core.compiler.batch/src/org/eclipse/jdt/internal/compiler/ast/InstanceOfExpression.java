@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class InstanceOfExpression extends OperatorExpression {
@@ -232,12 +233,10 @@ private void generateTypeCheck(BlockScope scope, CodeStream codeStream) {
 			setPatternIsTotalType();
 			break;
 		case BOXING_CONVERSION:
+		case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
 			storeExpressionValue(codeStream);
 			codeStream.iconst_1();
 			setPatternIsTotalType();
-			break;
-		case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
-			//TODO
 			break;
 		case NO_CONVERSION_ROUTE:
 		default:
@@ -279,7 +278,10 @@ private void generateTestingConversion(BlockScope scope, CodeStream codeStream) 
 			codeStream.generateBoxingConversion(this.testContextRecord.right().id);
 			break;
 		case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
-			//TODO
+			int rightId = this.testContextRecord.right().id;
+			codeStream.generateBoxingConversion(rightId);
+			TypeBinding unboxedType = scope.environment().computeBoxingType(TypeBinding.wellKnownBaseType(rightId));
+			this.expression.computeConversion(scope, this.testContextRecord.left(), unboxedType);
 			break;
 		case NO_CONVERSION_ROUTE:
 		default:
@@ -348,6 +350,10 @@ public TypeBinding resolveType(BlockScope scope) {
 				boolean isLegal = checkCastTypesCompatibility(scope, checkedType, expressionType, this.expression, true);
 				if (!isLegal || (this.bits & ASTNode.UnsafeCast) != 0) {
 					scope.problemReporter().unsafeCastInInstanceof(this.expression, checkedType, expressionType);
+				} else if ((JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
+						scope.compilerOptions().sourceLevel,
+						scope.compilerOptions().enablePreviewFeatures))) {
+					checkForPrimitives(scope, checkedType, expressionType);
 				}
 			}
 		}

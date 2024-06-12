@@ -3999,6 +3999,409 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49.0");
 	}
+	// boxing and widening reference conversion
+	public void test147() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static Comparable foo(byte b) {
+						if (b instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					public static void main(String[] args) {
+						byte b = 1;
+						System.out.println(X.foo(b));
+					}
+				}
+			    """
+			},
+			"1");
+	}
+
+	public void test148() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static Comparable<Byte> foo(byte b) {
+						if (b instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					public static void main(String[] args) {
+						byte b = 1;
+						System.out.println(X.foo(b));
+					}
+				}
+			    """
+			},
+			"1");
+	}
+
+	public void test149() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static Comparable<Byte> foo(byte b) {
+						if (b instanceof Comparable<Byte> r) {
+							return r;
+						}
+						return null;
+					}
+					public static void main(String[] args) {
+						byte b = 1;
+						System.out.println(X.foo(b));
+					}
+				}
+			    """
+			},
+			"1");
+	}
+
+	public void test150() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static Number foo(byte b) {
+						if (b instanceof Number r) {
+							return r;
+						}
+						return null;
+					}
+					public static void main(String[] args) {
+						byte b = 1;
+						System.out.println(X.foo(b));
+					}
+				}
+			    """
+			},
+			"1");
+	}
+
+	public void test151() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static Comparable foo1(boolean b) {
+						if (b instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					public static Comparable<Boolean> foo2(boolean b) {
+						if (b instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					public static Comparable<Boolean> foo3(boolean b) {
+						if (b instanceof Comparable<Boolean> r) {
+							return r;
+						}
+						return null;
+					}
+					public static void main(String[] args) {
+						boolean b = true;
+						System.out.println(X.foo1(b));
+						System.out.println(X.foo2(b));
+						System.out.println(X.foo3(b));
+					}
+				}
+			    """
+			},
+			"true\n" +
+			"true\n" +
+			"true");
+	}
+	public void test152() {
+		runNegativeTest(new String[] {
+			"X.java",
+				"""
+
+				public class X {
+					public static Number foo(boolean b) {
+						if (b instanceof Number r) {
+							return r;
+						}
+						return null;
+					}
+					public static void main(String[] args) {
+						boolean b = true;
+						System.out.println(X.foo(b));
+					}
+				}
+  			    """
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	if (b instanceof Number r) {\n" +
+			"	    ^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Incompatible conditional operand types boolean and Number\n" +
+			"----------\n");
+	}
+	public void test153() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static Comparable foo1(short s) {
+						if (s instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					public static Comparable<Short> foo2(short s) {
+						if (s instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					public static Comparable<Short> foo3(short s) {
+						if (s instanceof Comparable<Short> r) {
+							return r;
+						}
+						return null;
+					}
+					public static Number foo4(short s) {
+						if (s instanceof Number r) {
+							return r;
+						}
+						return null;
+					}
+					public static void main(String[] args) {
+						short s = 1;
+						System.out.println(X.foo1(s));
+						System.out.println(X.foo2(s));
+						System.out.println(X.foo3(s));
+						System.out.println(X.foo4(s));
+					}
+				}
+			    """
+			},
+			"1\n" +
+			"1\n" +
+			"1\n" +
+			"1");
+	}
+	public void test154() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static Comparable foo1(char c) {
+						if (c instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					public static Comparable<Character> foo2(char c) {
+						if (c instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					public static Comparable<Character> foo3(char c) {
+						if (c instanceof Comparable<Character> r) {
+							return r;
+						}
+						return null;
+					}
+					public static void main(String[] args) {
+						char c = 49;
+						System.out.println(X.foo1(c));
+						System.out.println(X.foo2(c));
+						System.out.println(X.foo3(c));
+					}
+				}
+			    """
+			},
+			"1\n" +
+			"1\n" +
+			"1");
+	}
+	public void test155() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static Comparable foo1(int i) {
+						if (i instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					public static Comparable<Integer> foo2(int i) {
+						if (i instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					public static Comparable<Integer> foo3(int i) {
+						if (i instanceof Comparable<Integer> r) {
+							return r;
+						}
+						return null;
+					}
+					public static Number foo4(int i) {
+						if (i instanceof Number r) {
+							return r;
+						}
+						return null;
+					}
+					public static void main(String[] args) {
+						int i = 49;
+						System.out.println(X.foo1(i));
+						System.out.println(X.foo2(i));
+						System.out.println(X.foo3(i));
+						System.out.println(X.foo4(i));
+					}
+				}
+			    """
+			},
+			"49\n" +
+			"49\n" +
+			"49\n" +
+			"49");
+	}
+	public void test156() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static Comparable foo1(long l) {
+						if (l instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					public static Comparable<Long> foo2(long l) {
+						if (l instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					public static Comparable<Long> foo3(long l) {
+						if (l instanceof Comparable<Long> r) {
+							return r;
+						}
+						return null;
+					}
+					public static Number foo4(long l) {
+						if (l instanceof Number r) {
+							return r;
+						}
+						return null;
+					}
+					public static void main(String[] args) {
+						long l = 49;
+						System.out.println(X.foo1(l));
+						System.out.println(X.foo2(l));
+						System.out.println(X.foo3(l));
+						System.out.println(X.foo4(l));
+					}
+				}
+			    """
+			},
+			"49\n" +
+			"49\n" +
+			"49\n" +
+			"49");
+	}
+	public void test157() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static Comparable foo1(float f) {
+						if (f instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					public static Comparable<Float> foo2(float f) {
+						if (f instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					public static Comparable<Float> foo3(float f) {
+						if (f instanceof Comparable<Float> r) {
+							return r;
+						}
+						return null;
+					}
+					public static Number foo4(float f) {
+						if (f instanceof Number r) {
+							return r;
+						}
+						return null;
+					}
+					public static void main(String[] args) {
+						float f = 49.0f;
+						System.out.println(X.foo1(f));
+						System.out.println(X.foo2(f));
+						System.out.println(X.foo3(f));
+						System.out.println(X.foo4(f));
+					}
+				}
+			    """
+			},
+			"49.0\n" +
+			"49.0\n" +
+			"49.0\n" +
+			"49.0");
+	}
+	public void test158() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static Comparable foo1(double d) {
+						if (d instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					public static Comparable<Double> foo2(double d) {
+						if (d instanceof Comparable r) {
+							return r;
+						}
+						return null;
+					}
+					public static Comparable<Double> foo3(double d) {
+						if (d instanceof Comparable<Double> r) {
+							return r;
+						}
+						return null;
+					}
+					public static Number foo4(double d) {
+						if (d instanceof Number r) {
+							return r;
+						}
+						return null;
+					}
+					public static void main(String[] args) {
+						double d = 49.0d;
+						System.out.println(X.foo1(d));
+						System.out.println(X.foo2(d));
+						System.out.println(X.foo3(d));
+						System.out.println(X.foo4(d));
+					}
+				}
+			    """
+			},
+			"49.0\n" +
+			"49.0\n" +
+			"49.0\n" +
+			"49.0");
+	}
 	// test from spec
 	public void _testSpec001() {
 		runConformTest(new String[] {
