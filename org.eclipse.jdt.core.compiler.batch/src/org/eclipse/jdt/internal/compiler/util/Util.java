@@ -477,6 +477,10 @@ public class Util implements SuffixConstants {
 			throws IOException {
 		byte[] byteContents =  getInputStreamAsByteArray(stream);
 
+		return getBytesAsCharArray(byteContents, encoding);
+	}
+
+	public static char[] getBytesAsCharArray(byte[] byteContents, String encoding) {
 		Charset charset;
 		try {
 			charset = Charset.forName(encoding);

@@ -118,12 +118,12 @@ public static ClassFileReader read(File file, boolean fullyInitialize) throws Cl
 	return classFileReader;
 }
 
-public static ClassFileReader read(InputStream stream, String fileName) throws ClassFormatException, IOException {
-	return read(stream, fileName, false);
+public static ClassFileReader read(byte[] classFileBytes, String fileName) throws ClassFormatException, IOException {
+	return read(classFileBytes, fileName, false);
 }
 
-public static ClassFileReader read(InputStream stream, String fileName, boolean fullyInitialize) throws ClassFormatException, IOException {
-	byte classFileBytes[] = Util.getInputStreamAsByteArray(stream);
+public static ClassFileReader read(byte[] classFileBytes, String fileName, boolean fullyInitialize)
+		throws ClassFormatException {
 	ClassFileReader classFileReader = new ClassFileReader(classFileBytes, fileName.toCharArray());
 	if (fullyInitialize) {
 		classFileReader.initialize();
