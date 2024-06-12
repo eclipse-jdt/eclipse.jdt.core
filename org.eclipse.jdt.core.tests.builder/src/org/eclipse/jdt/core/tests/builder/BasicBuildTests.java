@@ -24,11 +24,9 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 
 import junit.framework.*;
@@ -50,20 +48,12 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.tests.builder.mockcompiler.MockCompilerFactory;
+import org.eclipse.jdt.core.tests.builder.mockcompiler.MockCompilerFactory.MockCompiler;
 import org.eclipse.jdt.core.tests.util.Util;
-import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.CompilerConfiguration;
 import org.eclipse.jdt.internal.compiler.Either;
-import org.eclipse.jdt.internal.compiler.ICompilerFactory;
-import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
-import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
-import org.eclipse.jdt.internal.compiler.IProblemFactory;
-import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
-import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.builder.AbstractImageBuilder;
 
@@ -932,56 +922,4 @@ public class BasicBuildTests extends BuilderTests {
 		}
 	}
 
-	public static class MockCompilerFactory implements ICompilerFactory {
-		static Set<Consumer<Compiler>> listeners = new HashSet<>();
-
-		@Override
-		public Compiler newCompiler(INameEnvironment environment, IErrorHandlingPolicy policy,
-				CompilerConfiguration compilerConfig, ICompilerRequestor requestor, IProblemFactory problemFactory) {
-			Compiler compiler = new MockCompiler(environment, policy, compilerConfig, requestor, problemFactory);
-			for (Consumer<Compiler> listener : listeners) {
-				listener.accept(compiler);
-			}
-
-			return compiler;
-		}
-
-		static void addListener(Consumer<Compiler> listener) {
-			listeners.add(listener);
-		}
-
-		static void removeListener(Consumer<Compiler> listener) {
-			listeners.remove(listener);
-		}
-	}
-
-	static class MockCompiler extends org.eclipse.jdt.internal.compiler.Compiler {
-		CompilerConfiguration compilerConfig;
-
-		public MockCompiler(INameEnvironment environment, IErrorHandlingPolicy policy, CompilerConfiguration compilerConfig,
-				ICompilerRequestor requestor, IProblemFactory problemFactory) {
-			super(environment, policy, new CompilerOptions(compilerConfig.compilerOptions()), requestor, problemFactory);
-			this.compilerConfig = compilerConfig;
-		}
-
-		@Override
-		public void compile(ICompilationUnit[] sourceUnits) {
-			for (int i = 0; i < sourceUnits.length; i++) {
-				ICompilationUnit in = sourceUnits[i];
-				CompilationResult result = new CompilationResult(in, i, sourceUnits.length, Integer.MAX_VALUE);
-				if (i == 0) {
-					CategorizedProblem problem = new DefaultProblem(in.getFileName(),
-							"Compilation error from MockCompiler",
-							0,
-							new String[0],
-							ProblemSeverities.Error,
-							0, 0, 0, 0);
-					result.problems = new CategorizedProblem[] { problem };
-					result.problemCount = result.problems.length;
-				}
-
-				this.requestor.acceptResult(result);
-			}
-		}
-	}
 }
