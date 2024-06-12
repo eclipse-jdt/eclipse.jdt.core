@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
  * This class encapsulates the standard compiler options that can be
@@ -64,5 +65,5 @@ public final record CompilerConfiguration(
 		 * The compiler options used to control the compilation behavior.
 		 * See {@link org.eclipse.jdt.internal.compiler.impl.CompilerOptions} for a list of available options.
 		 */
-		Map<String, String> compilerOptions) {
+		CompilerOptions compilerOptions) {
 }

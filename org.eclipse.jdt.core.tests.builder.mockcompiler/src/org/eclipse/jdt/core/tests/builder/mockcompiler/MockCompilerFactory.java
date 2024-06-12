@@ -27,7 +27,6 @@ import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
@@ -58,7 +57,7 @@ public class MockCompilerFactory implements ICompilerFactory {
 
 		public MockCompiler(INameEnvironment environment, IErrorHandlingPolicy policy, CompilerConfiguration compilerConfig,
 				ICompilerRequestor requestor, IProblemFactory problemFactory) {
-			super(environment, policy, new CompilerOptions(compilerConfig.compilerOptions()), requestor, problemFactory);
+			super(environment, policy, compilerConfig.compilerOptions(), requestor, problemFactory);
 			this.compilerConfig = compilerConfig;
 		}
 

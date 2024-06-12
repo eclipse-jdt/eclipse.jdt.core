@@ -683,11 +683,11 @@ private CompilerConfiguration prepareCompilerConfiguration(CompilerOptions optio
 				annotationProcessorPaths,
 				generatedSourcePaths,
 				sourceOutputMapping,
-				options.getMap());
+				options);
 	} catch (Exception e) {
 		ILog.get().error("Failed computing compiler configuration", e); //$NON-NLS-1$
 		return new CompilerConfiguration(
-				null, null, null, null, null, null, null, options.getMap());
+				null, null, null, null, null, null, null, options);
 	}
 }
 

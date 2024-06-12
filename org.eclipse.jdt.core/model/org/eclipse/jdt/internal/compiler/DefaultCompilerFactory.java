@@ -14,14 +14,13 @@
 package org.eclipse.jdt.internal.compiler;
 
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class DefaultCompilerFactory implements ICompilerFactory {
 
 	@Override
 	public Compiler newCompiler(INameEnvironment environment, IErrorHandlingPolicy policy,
 			CompilerConfiguration compilerConfig, ICompilerRequestor requestor, IProblemFactory problemFactory) {
-		return new Compiler(environment, policy, new CompilerOptions(compilerConfig.compilerOptions()),
+		return new Compiler(environment, policy, compilerConfig.compilerOptions(),
 				requestor, problemFactory);
 	}
 }
