@@ -1500,7 +1500,24 @@ class JavacConverter {
 				if (type instanceof ArrayType childArrayType) {
 					arrayType = childArrayType;
 					if( this.ast.apiLevel >= AST.JLS8_INTERNAL) {
-						arrayType.dimensions().addFirst(this.ast.newDimension());
+						var extraDimensions = jcNewArray.getDimAnnotations().stream()
+							.map(annotations -> annotations.stream().map(this::convert).toList())
+							.map(annotations -> {
+								Dimension dim = this.ast.newDimension();
+								dim.annotations().addAll(annotations);
+								int startOffset = annotations.stream().mapToInt(Annotation::getStartPosition).min().orElse(-1);
+								int endOffset = annotations.stream().mapToInt(ann -> ann.getStartPosition() + ann.getLength()).max().orElse(-1);
+								dim.setSourceRange(startOffset, endOffset - startOffset);
+								return dim;
+							})
+							.toList();
+						if (arrayType.dimensions().isEmpty()) {
+							arrayType.dimensions().addAll(extraDimensions);
+						} else {
+							var lastDimension = arrayType.dimensions().removeFirst();
+							arrayType.dimensions().addAll(extraDimensions);
+							arrayType.dimensions().add(lastDimension);
+						}
 					} else {
 						arrayType = this.ast.newArrayType(childArrayType);
 					}
@@ -2429,7 +2446,8 @@ class JavacConverter {
 					res = this.ast.newSimpleType(convertName(simpleType.getName()));
 					commonSettings(res, javac);
 				}
-			} else {
+			}
+			if (res == null) { // nothing specific
 				res = convertToType(jcAnnotatedType.getUnderlyingType());
 			}
 			if (res instanceof AnnotatableType annotatableType && this.ast.apiLevel() >= AST.JLS8) {
