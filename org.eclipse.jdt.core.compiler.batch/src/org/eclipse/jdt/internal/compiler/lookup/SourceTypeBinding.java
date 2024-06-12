@@ -169,6 +169,7 @@ public SourceTypeBinding(SourceTypeBinding prototype) {
 
 	this.superclass = prototype.superclass;
 	this.superInterfaces = prototype.superInterfaces;
+	this.permittedTypes = prototype.permittedTypes;
 	this.fields = prototype.fields;
 	this.methods = prototype.methods;
 	this.memberTypes = prototype.memberTypes;
@@ -2610,6 +2611,8 @@ private MethodBinding checkRecordCanonicalConstructor(MethodBinding explicitCano
 
 @Override
 public ReferenceBinding[] permittedTypes() {
+	if (!isPrototype())
+		return this.permittedTypes = this.prototype.permittedTypes();
 	return this.permittedTypes;
 }
 
