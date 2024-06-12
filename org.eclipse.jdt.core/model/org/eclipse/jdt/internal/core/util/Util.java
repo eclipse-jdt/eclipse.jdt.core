@@ -1172,12 +1172,10 @@ public class Util {
 	 * Returns the given file's contents as a byte array.
 	 */
 	public static byte[] getResourceContentsAsByteArray(IFile file) throws JavaModelException {
-		try (InputStream stream = file.getContents(true)) {
-			return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream);
+		try  {
+			return file.readAllBytes();
 		} catch (CoreException e) {
-			throw new JavaModelException(e);
-		} catch (IOException e) {
-			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+			throw new JavaModelException(e, IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST);
 		}
 	}
 
@@ -1185,23 +1183,17 @@ public class Util {
 	 * Returns the given file's contents as a character array.
 	 */
 	public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModelException {
-		// Get encoding from file
-		String encoding;
 		try {
-			encoding = file.getCharset();
-		} catch(CoreException ce) {
-			// do not use any encoding
-			encoding = null;
+			return file.readAllChars();
+		} catch (CoreException e) {
+			throw new JavaModelException(e, IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST);
 		}
-		return getResourceContentsAsCharArray(file, encoding);
 	}
 
 	public static char[] getResourceContentsAsCharArray(IFile file, String encoding) throws JavaModelException {
 		// Get resource contents
-		try (InputStream stream = file.getContents(true)) {
-			return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, encoding);
-		} catch (IOException e) {
-			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+		try {
+			return org.eclipse.jdt.internal.compiler.util.Util.getBytesAsCharArray(file.readAllBytes(), encoding);
 		} catch (CoreException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST);
 		}
@@ -1906,9 +1898,7 @@ public class Util {
 	}
 
 	public static ClassFileReader newClassFileReader(IResource resource) throws CoreException, ClassFormatException, IOException {
-		try (InputStream in = ((IFile) resource).getContents(true)) {
-			return ClassFileReader.read(in, resource.getFullPath().toString());
-		}
+		return ClassFileReader.read(((IFile) resource).readAllBytes(), resource.getFullPath().toString());
 	}
 
 	/**

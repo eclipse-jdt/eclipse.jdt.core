@@ -667,23 +667,15 @@ public char[] getContents() {
 		// no need to force opening of CU to get the content
 		// also this cannot be a working copy, as its buffer is never closed while the working copy is alive
 		IFile file = (IFile) getResource();
-		// Get encoding from file
-		String encoding;
 		try {
-			encoding = file.getCharset();
-		} catch(CoreException ce) {
-			// do not use any encoding
-			encoding = null;
-		}
-		try {
-			return Util.getResourceContentsAsCharArray(file, encoding);
+			return Util.getResourceContentsAsCharArray(file);
 		} catch (JavaModelException e) {
 			if (JavaModelManager.getJavaModelManager().abortOnMissingSource.get() == Boolean.TRUE) {
 				IOException ioException =
 					e.getJavaModelStatus().getCode() == IJavaModelStatusConstants.IO_EXCEPTION ?
 						(IOException)e.getException() :
 						new IOException(e.getMessage());
-				throw new AbortCompilationUnit(null, ioException, encoding);
+				throw new AbortCompilationUnit(null, ioException, null);
 			} else {
 				Util.log(e);
 			}

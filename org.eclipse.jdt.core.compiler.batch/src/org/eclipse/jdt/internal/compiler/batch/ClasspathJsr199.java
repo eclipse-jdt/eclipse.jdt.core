@@ -100,7 +100,7 @@ public class ClasspathJsr199 extends ClasspathLocation {
 				return null; // most common case
 
 			try (InputStream inputStream = jfo.openInputStream()) {
-				ClassFileReader reader = ClassFileReader.read(inputStream, qualifiedBinaryFileName);
+				ClassFileReader reader = ClassFileReader.read(inputStream.readAllBytes(), qualifiedBinaryFileName);
 				if (reader != null) {
 					return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName));
 				}

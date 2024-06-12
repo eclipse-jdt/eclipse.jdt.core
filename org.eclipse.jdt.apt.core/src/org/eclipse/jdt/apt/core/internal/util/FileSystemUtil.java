@@ -15,13 +15,13 @@ package org.eclipse.jdt.apt.core.internal.util;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -126,32 +126,18 @@ public final class FileSystemUtil
     }
 
     /**
+     * Returns the contents of a IFile as a string in UTF8 format
+     */
+	public static String getContentsOfIFile(IFile file) throws IOException, CoreException {
+		return new String(file.readAllBytes(), StandardCharsets.UTF_8);
+	}
+
+    /**
      * Returns the contents of a file as a string in UTF8 format
      */
-    public static String getContentsOfIFile(IFile file) throws IOException, CoreException {
-    	return getContents(file.getContents(true));
-    }
-
-    public static String getContentsOfFile(File file) throws IOException {
-    	return getContents(new FileInputStream(file));
-    }
-
-    private static String getContents(InputStream in) throws IOException {
-    	try {
-    		ByteArrayOutputStream out = new ByteArrayOutputStream();
-    		byte[] buffer = new byte[512];
-    		int len;
-    		while ((len = in.read(buffer)) > 0) {
-    			out.write(buffer, 0, len);
-    		}
-    		out.close();
-    		String s = new String(out.toByteArray(), "UTF8"); //$NON-NLS-1$
-    		return s;
-    	}
-    	finally {
-    		try {in.close();} catch (IOException ioe) {}
-    	}
-    }
+	public static String getContentsOfFile(File file) throws IOException {
+		return new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+	}
 
     /**
      * Stores a string into an Eclipse file in UTF8 format.  The file
