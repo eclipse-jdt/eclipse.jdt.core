@@ -75,7 +75,10 @@ import com.sun.tools.javac.util.DiagnosticSource;
  * Allows to create and resolve DOM ASTs using Javac
  * @implNote Cannot move to another package because parent class is package visible only
  */
-class JavacCompilationUnitResolver implements ICompilationUnitResolver {
+public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
+	public JavacCompilationUnitResolver() {
+		// 0-arg constructor
+	}
 	private interface GenericRequestor {
 		public void acceptBinding(String bindingKey, IBinding binding);
 	}
@@ -337,9 +340,9 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 	@Override
 	public CompilationUnit toCompilationUnit(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
-			boolean initialNeedsToResolveBinding, IJavaProject project, List<Classpath> classpaths, int focalPosition,
-			int apiLevel, Map<String, String> compilerOptions, WorkingCopyOwner parsedUnitWorkingCopyOwner,
-			WorkingCopyOwner typeRootWorkingCopyOwner, int flags, IProgressMonitor monitor) {
+			boolean initialNeedsToResolveBinding, IJavaProject project, List<Classpath> classpaths,
+			int focalPoint, int apiLevel, Map<String, String> compilerOptions,
+			WorkingCopyOwner workingCopyOwner, WorkingCopyOwner typeRootWorkingCopyOwner, int flags, IProgressMonitor monitor) {
 		// TODO currently only parse
 		CompilationUnit res = parse(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] { sourceUnit},
 				apiLevel, compilerOptions, flags, project, monitor).get(sourceUnit);

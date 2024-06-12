@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<fragment>
+   <extension
+         point="org.eclipse.jdt.core.compilationUnitResolver">
+      <resolver
+            class="org.eclipse.jdt.core.dom.JavacCompilationUnitResolver"
+            id="org.eclipse.jdt.core.dom.JavacCompilationUnitResolver">
+      </resolver>
+   </extension>
+
+</fragment>

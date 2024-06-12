@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Javac
-Bundle-SymbolicName: org.eclipse.jdt.core.javac
+Bundle-SymbolicName: org.eclipse.jdt.core.javac;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Fragment-Host: org.eclipse.jdt.core
 Automatic-Module-Name: org.eclipse.jdt.core.javac
