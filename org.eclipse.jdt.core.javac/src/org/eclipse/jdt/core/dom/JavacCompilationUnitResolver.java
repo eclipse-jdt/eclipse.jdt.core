@@ -349,10 +349,16 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			&& Arrays.stream(compilationUnits).map(ICompilationUnit::getJavaProject).distinct().count() == 1
 			&& Arrays.stream(compilationUnits).allMatch(org.eclipse.jdt.internal.compiler.env.ICompilationUnit.class::isInstance)) {
 			// all in same project, build together
-			return
-				parse(Arrays.stream(compilationUnits).map(org.eclipse.jdt.internal.compiler.env.ICompilationUnit.class::cast).toArray(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[]::new),
+			Map<ICompilationUnit, CompilationUnit> res =
+				parse(Arrays.stream(compilationUnits)
+						.map(org.eclipse.jdt.internal.compiler.env.ICompilationUnit.class::cast)
+						.toArray(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[]::new),
 					apiLevel, compilerOptions, flags, compilationUnits[0].getJavaProject(), workingCopyOwner, monitor)
 				.entrySet().stream().collect(Collectors.toMap(entry -> (ICompilationUnit)entry.getKey(), entry -> entry.getValue()));
+			for (ICompilationUnit in : compilationUnits) {
+				res.get(in).setTypeRoot(in);
+			}
+			return res;
 		}
 		// build individually
 		Map<ICompilationUnit, CompilationUnit> res = new HashMap<>(compilationUnits.length, 1.f);
@@ -360,6 +366,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			if (in instanceof org.eclipse.jdt.internal.compiler.env.ICompilationUnit compilerUnit) {
 				res.put(in, parse(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] { compilerUnit },
 						apiLevel, compilerOptions, flags, in.getJavaProject(), workingCopyOwner, monitor).get(compilerUnit));
+				res.get(in).setTypeRoot(in);
 			}
 		}
 		return res;
