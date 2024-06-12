@@ -1101,4 +1101,36 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.classLibraries = this.LIBS;
 		runner.runConformTest();
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2521
+	// NPE on exhaustive pattern matching switch expressions with sealed interface
+	public void testIssue2521() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"X.java",
+			"""
+			@org.eclipse.jdt.annotation.NonNullByDefault
+
+			public sealed interface X {
+
+				record Stuff() implements X {}
+
+				static Stuff match(X pm) {
+					return switch(pm) {
+						case Stuff s -> s;
+					 	//default -> new Stuff(); //... you should not need as we exhausted it but Eclipse NPE w/o a default.
+					};
+				}
+
+				public static void main(String[] args) {
+				    System.out.println(match(new Stuff()));
+				}
+			}
+			"""
+		};
+		runner.expectedOutputString =
+				"Stuff[]";
+		runner.classLibraries = this.LIBS;
+		runner.runConformTest();
+	}
 }
