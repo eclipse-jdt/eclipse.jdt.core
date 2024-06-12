@@ -287,7 +287,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IsThenStatementUnreachable = Bit9; // as computed by control flow analysis or null analysis
 
 	// for type reference
-	public static final int IsSuperType = Bit5;
 	public static final int IsVarArgs = Bit15;
 	public static final int IgnoreRawTypeCheck = Bit31;
 

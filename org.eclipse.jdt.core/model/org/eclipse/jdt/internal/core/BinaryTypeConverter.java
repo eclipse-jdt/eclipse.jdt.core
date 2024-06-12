@@ -234,7 +234,6 @@ public class BinaryTypeConverter extends TypeConverter {
 			TypeReference typeReference = createTypeReference(type.getSuperclassTypeSignature());
 			if (typeReference != null) {
 				typeDeclaration.superclass = typeReference;
-				typeDeclaration.superclass.bits |= ASTNode.IsSuperType;
 			}
 		}
 
@@ -245,8 +244,7 @@ public class BinaryTypeConverter extends TypeConverter {
 		for (int i = 0; i < interfaceCount; i++) {
 			TypeReference typeReference = createTypeReference(interfaceTypes[i]);
 			if (typeReference != null) {
-				typeDeclaration.superInterfaces[count] = typeReference;
-				typeDeclaration.superInterfaces[count++].bits |= ASTNode.IsSuperType;
+				typeDeclaration.superInterfaces[count++] = typeReference;
 			}
 		}
 		if (count != interfaceCount) {
