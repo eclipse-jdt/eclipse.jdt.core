@@ -234,6 +234,11 @@ public class JavacBindingResolver extends BindingResolver {
 
 	@Override
 	ITypeBinding resolveType(Type type) {
+		if (type.getParent() instanceof ParameterizedType parameterized
+			&& type.getLocationInParent() == ParameterizedType.TYPE_PROPERTY) {
+			// use parent type for this as it keeps generics info
+			return resolveType(parameterized);
+		}
 		resolve();
 		JCTree jcTree = this.converter.domToJavac.get(type);
 		if (jcTree instanceof JCIdent ident && ident.type != null) {
