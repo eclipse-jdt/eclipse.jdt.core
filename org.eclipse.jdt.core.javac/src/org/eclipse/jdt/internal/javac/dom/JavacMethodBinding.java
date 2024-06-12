@@ -11,9 +11,11 @@
 package org.eclipse.jdt.internal.javac.dom;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.IJavaElement;
@@ -83,7 +85,13 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public int getModifiers() {
-		return toInt(this.methodSymbol.getModifiers());
+		Set<javax.lang.model.element.Modifier> modifiers = this.methodSymbol.getModifiers();
+		if (this.getDeclaringClass().isInterface() && modifiers.contains(javax.lang.model.element.Modifier.ABSTRACT)) {
+			// not expected in binding
+			modifiers = new TreeSet<javax.lang.model.element.Modifier>(modifiers);
+			modifiers.remove(javax.lang.model.element.Modifier.ABSTRACT);
+		}
+		return toInt(modifiers);
 	}
 
 	static int toInt(Set<javax.lang.model.element.Modifier> javac) {
