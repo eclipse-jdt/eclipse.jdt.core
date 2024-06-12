@@ -13,6 +13,7 @@
 
 package org.eclipse.jdt.internal.compiler;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -42,15 +43,15 @@ public final record CompilerConfiguration(
 		/**
 		 * List of file paths where the compiler can find user class files and annotation processors.
 		 */
-		List<Either<IContainer, String>> classpaths,
+		List<URI> classpaths,
 		/**
 		 * List of file paths where the compiler can find modules.
 		 */
-		List<Either<IContainer, String>> modulepaths,
+		List<URI> modulepaths,
 		/**
 		 * Location to search for annotation processors.
 		 */
-		List<String> annotationProcessorPaths,
+		List<URI> annotationProcessorPaths,
 		/**
 		 * Locations to place generated source files.
 		 */

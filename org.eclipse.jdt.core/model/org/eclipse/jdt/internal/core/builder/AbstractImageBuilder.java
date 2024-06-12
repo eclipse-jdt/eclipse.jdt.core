@@ -39,6 +39,7 @@ import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
 import java.io.*;
 import java.lang.reflect.*;
+import java.net.URI;
 import java.util.*;
 
 /**
@@ -619,13 +620,13 @@ protected Compiler newCompiler() {
 
 private CompilerConfiguration prepareCompilerConfiguration(CompilerOptions options) {
 	try {
-		List<String> annotationProcessorPaths = new ArrayList<>();
+		List<URI> annotationProcessorPaths = new ArrayList<>();
 		List<IContainer> generatedSourcePaths = new ArrayList<>();
 		boolean isTest = this.compilationGroup == CompilationGroup.TEST;
 		if (this.javaBuilder.participants != null) {
 			for (CompilationParticipant participant : this.javaBuilder.participants) {
 				if (participant.isAnnotationProcessor()) {
-					String[] paths = participant.getAnnotationProcessorPaths(this.javaBuilder.javaProject, isTest);
+					URI[] paths = participant.getAnnotationProcessorPaths(this.javaBuilder.javaProject, isTest);
 					if (paths != null) {
 						annotationProcessorPaths.addAll(Arrays.asList(paths));
 					}
@@ -638,21 +639,25 @@ private CompilerConfiguration prepareCompilerConfiguration(CompilerOptions optio
 		}
 
 		ClasspathLocation[] classpathLocations = this.nameEnvironment.binaryLocations;
-		Set<Either<IContainer, String>> classpaths = new LinkedHashSet<>();
-		Set<Either<IContainer, String>> modulepaths = new LinkedHashSet<>();
+		Set<URI> classpaths = new LinkedHashSet<>();
+		Set<URI> modulepaths = new LinkedHashSet<>();
 		for (ClasspathLocation location : classpathLocations) {
 			if (location instanceof ClasspathDirectory cpDirectory) {
+				URI cpURI = cpDirectory.binaryFolder.getRawLocationURI();
+				if (cpURI == null) {
+					continue;
+				}
 				if (cpDirectory.isOnModulePath) {
-					modulepaths.add(Either.forLeft(cpDirectory.binaryFolder));
+					modulepaths.add(cpURI);
 				} else {
-					classpaths.add(Either.forLeft(cpDirectory.binaryFolder));
+					classpaths.add(cpURI);
 				}
 			} else if (location instanceof ClasspathJar cpJar) {
-				String filepath = cpJar.zipFilename;
+				URI cpURI = new File(cpJar.zipFilename).toURI();
 				if (cpJar.isOnModulePath) {
-					modulepaths.add(Either.forRight(filepath));
+					modulepaths.add(cpURI);
 				} else {
-					classpaths.add(Either.forRight(filepath));
+					classpaths.add(cpURI);
 				}
 			}
 		}

@@ -15,6 +15,7 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -215,8 +216,8 @@ public class AptCompilationParticipant extends CompilationParticipant
 	}
 
 	@Override
-	public String[] getAnnotationProcessorPaths(IJavaProject project, boolean isTest) {
-		List<String> processorPaths = new ArrayList<>();
+	public URI[] getAnnotationProcessorPaths(IJavaProject project, boolean isTest) {
+		List<URI> processorPaths = new ArrayList<>();
 		FactoryPath factoryPath = FactoryPathUtil.getFactoryPath(project);
 		if (factoryPath == null) {
 			return null;
@@ -225,13 +226,13 @@ public class AptCompilationParticipant extends CompilationParticipant
 		factoryPath.getEnabledContainers().keySet().forEach(container -> {
 			if (container instanceof JarFactoryContainer jarContainer) {
 				if (jarContainer.exists()) {
-					processorPaths.add(jarContainer.getJarFile().getAbsolutePath());
+					processorPaths.add(jarContainer.getJarFile().toURI());
 				}
 			}
 		});
 
 		if (!processorPaths.isEmpty()) {
-			return processorPaths.toArray(new String[processorPaths.size()]);
+			return processorPaths.toArray(new URI[processorPaths.size()]);
 		}
 
 		return null;

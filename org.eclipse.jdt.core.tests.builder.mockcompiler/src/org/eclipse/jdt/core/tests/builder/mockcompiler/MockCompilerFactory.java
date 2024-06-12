@@ -31,7 +31,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
-@SuppressWarnings("restriction")
 public class MockCompilerFactory implements ICompilerFactory {
 	public static Set<Consumer<Compiler>> listeners = new HashSet<>();
 

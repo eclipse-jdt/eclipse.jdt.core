@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.tests.builder;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -53,7 +54,6 @@ import org.eclipse.jdt.core.tests.builder.mockcompiler.MockCompilerFactory.MockC
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.CompilerConfiguration;
-import org.eclipse.jdt.internal.compiler.Either;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.builder.AbstractImageBuilder;
 
@@ -778,10 +778,10 @@ public class BasicBuildTests extends BuilderTests {
 			// It creates compiler 4 times (MAIN full build, TEST full build, MAIN incremental build, TEST incremental build)
 			assertFalse(configs.isEmpty());
 			CompilerConfiguration config = configs.get(0);
-			List<String> processorPaths = config.annotationProcessorPaths();
+			List<URI> processorPaths = config.annotationProcessorPaths();
 			assertEquals(2, processorPaths.size());
-			assertTrue(processorPaths.get(0).endsWith("auto-value-1.6.5.jar"));
-			assertTrue(processorPaths.get(1).endsWith("auto-value-annotations-1.6.5.jar"));
+			assertTrue(processorPaths.get(0).getPath().endsWith("auto-value-1.6.5.jar"));
+			assertTrue(processorPaths.get(1).getPath().endsWith("auto-value-annotations-1.6.5.jar"));
 
 			List<IContainer> generatedSourcePaths = config.generatedSourcePaths();
 			assertEquals(1, generatedSourcePaths.size());
@@ -793,17 +793,15 @@ public class BasicBuildTests extends BuilderTests {
 			assertEquals("src", sourcePaths.get(0).getRawLocation().lastSegment());
 			assertEquals(".apt_generated", sourcePaths.get(1).getRawLocation().lastSegment());
 
-			List<Either<IContainer, String>> classPaths = config.classpaths();
+			List<URI> classPaths = config.classpaths();
 			assertEquals(2, classPaths.size());
-			assertNotNull(classPaths.get(0).getLeft());
-			assertEquals("bin", classPaths.get(0).getLeft().getRawLocation().lastSegment());
-			assertNotNull(classPaths.get(1).getRight());
-			assertTrue(classPaths.get(1).getRight().endsWith("auto-value-annotations-1.6.5.jar"));
+			assertTrue(classPaths.get(0).getPath().endsWith("bin"));
+			assertTrue(classPaths.get(1).getPath().endsWith("auto-value-annotations-1.6.5.jar"));
 
 			List<IContainer> moduleSourcePaths = config.moduleSourcepaths();
 			assertEquals(0, moduleSourcePaths.size());
 
-			List<Either<IContainer, String>> modulePaths = config.modulepaths();
+			List<URI> modulePaths = config.modulepaths();
 			assertEquals(0, modulePaths.size());
 
 			Map<IContainer, IContainer> sourceOutputMapping = config.sourceOutputMapping();

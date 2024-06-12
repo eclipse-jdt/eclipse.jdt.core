@@ -18,6 +18,7 @@
 package org.eclipse.jdt.core.compiler;
 
 import java.io.ByteArrayInputStream;
+import java.net.URI;
 import java.util.Optional;
 
 import org.eclipse.core.resources.IContainer;
@@ -164,7 +165,7 @@ public void processAnnotations(BuildContext[] files) {
  * @since 3.38
  * @noreference Provisional API for experimental support for an alternative compiler. This method is not intended to be referenced by clients.
  */
-public String[] getAnnotationProcessorPaths(IJavaProject project, boolean isTest) {
+public URI[] getAnnotationProcessorPaths(IJavaProject project, boolean isTest) {
 	return null;
 }
 
