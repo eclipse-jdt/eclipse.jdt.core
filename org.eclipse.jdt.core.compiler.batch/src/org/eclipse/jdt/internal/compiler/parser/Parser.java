@@ -2597,7 +2597,6 @@ protected void consumeClassHeaderExtends() {
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	typeDecl.bits |= (superClass.bits & ASTNode.HasTypeAnnotations);
 	typeDecl.superclass = superClass;
-	superClass.bits |= ASTNode.IsSuperType;
 	typeDecl.bodyStart = typeDecl.superclass.sourceEnd + 1;
 	// recovery
 	if (this.currentElement != null){
@@ -2621,7 +2620,6 @@ protected void consumeClassHeaderImplements() {
 	for (TypeReference superinterface : superinterfaces) {
 		TypeReference typeReference = superinterface;
 		typeDecl.bits |= (typeReference.bits & ASTNode.HasTypeAnnotations);
-		typeReference.bits |= ASTNode.IsSuperType;
 	}
 	typeDecl.bodyStart = typeDecl.superInterfaces[length-1].sourceEnd + 1;
 	this.listLength = 0; // reset after having read super-interfaces
@@ -4695,7 +4693,6 @@ protected void consumeInterfaceHeaderExtends() {
 	for (TypeReference superinterface : superinterfaces) {
 		TypeReference typeReference = superinterface;
 		typeDecl.bits |= (typeReference.bits & ASTNode.HasTypeAnnotations);
-		typeReference.bits |= ASTNode.IsSuperType;
 	}
 	typeDecl.bodyStart = typeDecl.superInterfaces[length-1].sourceEnd + 1;
 	this.listLength = 0; // reset after having read super-interfaces
@@ -10282,7 +10279,6 @@ protected void consumeTypeParameter1WithExtends() {
 	TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
 	typeParameter.declarationSourceEnd = superType.sourceEnd;
 	typeParameter.type = superType;
-	superType.bits |= ASTNode.IsSuperType;
 	typeParameter.bits |= (superType.bits & ASTNode.HasTypeAnnotations);
 	this.genericsStack[this.genericsPtr] = typeParameter;
 }
@@ -10297,11 +10293,9 @@ protected void consumeTypeParameter1WithExtendsAndBounds() {
 	typeParameter.declarationSourceEnd = bounds[additionalBoundsLength - 1].sourceEnd;
 	typeParameter.type = superType;
 	typeParameter.bits |= (superType.bits & ASTNode.HasTypeAnnotations);
-	superType.bits |= ASTNode.IsSuperType;
 	typeParameter.bounds = bounds;
 	for (TypeReference bound2 : bounds) {
 		TypeReference bound = bound2;
-		bound.bits |= ASTNode.IsSuperType;
 		typeParameter.bits |= (bound.bits & ASTNode.HasTypeAnnotations);
 	}
 }
@@ -10367,7 +10361,6 @@ protected void consumeTypeParameterWithExtends() {
 	typeParameter.declarationSourceEnd = superType.sourceEnd;
 	typeParameter.type = superType;
 	typeParameter.bits |= (superType.bits & ASTNode.HasTypeAnnotations);
-	superType.bits |= ASTNode.IsSuperType;
 }
 protected void consumeTypeParameterWithExtendsAndBounds() {
 	//TypeParameter ::= TypeParameterHeader 'extends' ReferenceType AdditionalBoundList
@@ -10379,12 +10372,10 @@ protected void consumeTypeParameterWithExtendsAndBounds() {
 	TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
 	typeParameter.type = superType;
 	typeParameter.bits |= (superType.bits & ASTNode.HasTypeAnnotations);
-	superType.bits |= ASTNode.IsSuperType;
 	typeParameter.bounds = bounds;
 	typeParameter.declarationSourceEnd = bounds[additionalBoundsLength - 1].sourceEnd;
 	for (TypeReference bound2 : bounds) {
 		TypeReference bound = bound2;
-		bound.bits |= ASTNode.IsSuperType;
 		typeParameter.bits |= (bound.bits & ASTNode.HasTypeAnnotations);
 	}
 }
@@ -10764,7 +10755,6 @@ protected void consumeRecordDeclaration() {
 	long[] poss = new long[sources.length];
 	Arrays.fill(poss, 0);
 	TypeReference superClass = new QualifiedTypeReference(sources, poss);
-	superClass.bits |= ASTNode.IsSuperType;
 	typeDecl.superclass = superClass;
 	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 }
