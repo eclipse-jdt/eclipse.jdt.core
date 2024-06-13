@@ -349,6 +349,12 @@ class JavacConverter {
 				if( endPos < 0 ) {
 					endPos = start + javac.toString().length();
 				}
+				// workaround: some JCIdent include trailing semicolon, eg in try-resources
+				if (res instanceof Name || res instanceof FieldAccess || res instanceof SuperFieldAccess) {
+					while (endPos > start && this.rawText.charAt(endPos - 1) == ';') {
+						endPos--;
+					}
+				}
 				int length = endPos - start;
 				if (start + Math.max(0, length) > this.rawText.length()) {
 					length = this.rawText.length() - start;
@@ -2249,10 +2255,7 @@ class JavacConverter {
 		return res;
 	}
 
-	private ASTNode /*VariableDeclarationExpression or Name*/ convertTryResource(JCTree javac, ASTNode parent) {
-		if (javac instanceof JCFieldAccess || javac instanceof JCIdent) {
-			return toName(javac);
-		}
+	private Expression convertTryResource(JCTree javac, ASTNode parent) {
 		if (javac instanceof JCVariableDecl decl) {
 			var converted = convertVariableDeclaration(decl);
 			final VariableDeclarationFragment fragment;
@@ -2291,10 +2294,10 @@ class JavacConverter {
 			}
 			return res;
 		}
-		if (javac instanceof JCErroneous error && error.getErrorTrees().isEmpty()) {
-			return null;
+		if (javac instanceof JCExpression jcExpression) {
+			return convertExpression(jcExpression);
 		}
-		throw new UnsupportedOperationException("Not implemented yet");
+		return null;
 	}
 
 	private CatchClause convertCatcher(JCCatch javac) {
@@ -2753,7 +2756,11 @@ class JavacConverter {
 		String nameString = javac.toString();
 		int lastDot = nameString.lastIndexOf(".");
 		if (lastDot < 0) {
-			return this.ast.newSimpleName(nameString);
+			try {
+				return this.ast.newSimpleName(nameString);
+			} catch (IllegalArgumentException ex) { // invalid name: super, this...
+				return this.ast.newSimpleName(FAKE_IDENTIFIER);
+			}
 		} else {
 			return this.ast.newQualifiedName(convertName(javac.subName(0, lastDot)), (SimpleName)convertName(javac.subName(lastDot + 1, javac.length() - 1)));
 		}
