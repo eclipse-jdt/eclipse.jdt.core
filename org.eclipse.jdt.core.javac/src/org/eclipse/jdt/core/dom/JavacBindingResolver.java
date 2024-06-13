@@ -77,7 +77,7 @@ public class JavacBindingResolver extends BindingResolver {
 	// it will probably be better to run the `Enter` and then only extract interesting
 	// date from it.
 	public final Context context;
-	private Map<Symbol, ASTNode> symbolToDom;
+	public Map<Symbol, ASTNode> symbolToDom;
 	public final IJavaProject javaProject;
 	private JavacConverter converter;
 	boolean isRecoveringBindings = false;

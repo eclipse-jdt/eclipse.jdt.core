@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -204,6 +205,9 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public int getVariableId() {
+		if (this.resolver.symbolToDom.get(this.variableSymbol) instanceof VariableDeclaration decl) {
+			return decl.getStartPosition();
+		}
 		// FIXME: since we are not running code generation,
 		// the variable has not been assigned an offset,
 		// so it's always -1.
