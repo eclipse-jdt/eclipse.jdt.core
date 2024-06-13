@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,9 +41,12 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.builder.SourceFile;
 
+import com.sun.tools.javac.comp.*;
 import com.sun.tools.javac.comp.CompileStates.CompileState;
 import com.sun.tools.javac.main.JavaCompiler;
+import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.Pair;
 
 public class JavacCompiler extends Compiler {
 	CompilerConfiguration compilerConfig;
@@ -76,11 +80,49 @@ public class JavacCompiler extends Compiler {
 		                JavaProject::hasJavaNature).map(JavaCore::create).findFirst().orElse(null);
 		
 		Map<File, List<ICompilationUnit>> outputSourceMapping = Arrays.stream(sourceUnits).collect(Collectors.groupingBy(this::computeOutputDirectory));
-		
 		for (Entry<File, List<ICompilationUnit>> outputSourceSet : outputSourceMapping.entrySet()) {
 			var outputFile = outputSourceSet.getKey();
 			JavacUtils.configureJavacContext(javacContext, this.compilerConfig, javaProject, outputFile);
-			JavaCompiler javac = JavaCompiler.instance(javacContext);
+			JavaCompiler javac = new JavaCompiler(javacContext) {
+				boolean isInGeneration = false;
+
+				@Override
+				protected boolean shouldStop(CompileState cs) {
+					// Never stop
+					return false;
+				}
+
+				@Override
+				public void generate(Queue<Pair<Env<AttrContext>, JCClassDecl>> queue, Queue<JavaFileObject> results) {
+					try {
+						this.isInGeneration = true;
+						super.generate(queue, results);
+					} catch (Throwable ex) {
+						// TODO error handling
+					} finally {
+						this.isInGeneration = false;
+					}
+				}
+
+				@Override
+				protected void desugar(Env<AttrContext> env, Queue<Pair<Env<AttrContext>, JCClassDecl>> results) {
+					try {
+						super.desugar(env, results);
+					} catch (Throwable ex) {
+						// TODO error handling
+					}
+				}
+
+				@Override
+				public int errorCount() {
+					// See JavaCompiler.genCode(Env<AttrContext> env, JCClassDecl cdef),
+					// it stops writeClass if errorCount is not zero.
+					// Force it to return 0 if we are in generation phase, and keeping
+					// generating class files for those files without errors.
+					return this.isInGeneration ? 0 : super.errorCount();
+				}
+			};
+			javacContext.put(JavaCompiler.compilerKey, javac);
 			javac.shouldStopPolicyIfError = CompileState.GENERATE;
 			try {
 				javac.compile(com.sun.tools.javac.util.List.from(
