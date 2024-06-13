@@ -1417,6 +1417,31 @@ class JavacConverter {
 						.forEach(res.typeArguments()::add);
 				}
 				return res;
+			} else if (qualifierExpression instanceof JCIdent ident
+						&& Names.instance(this.context)._super.equals(ident.getName())) {
+				SuperMethodReference res = this.ast.newSuperMethodReference();
+				commonSettings(res, javac);
+				res.setName((SimpleName)convertName(jcMemberReference.getName()));
+				if (jcMemberReference.getTypeArguments() != null) {
+					jcMemberReference.getTypeArguments().stream()
+						.map(this::convertToType)
+						.filter(Objects::nonNull)
+						.forEach(res.typeArguments()::add);
+				}
+				return res;
+			} else if (qualifierExpression instanceof JCFieldAccess fieldAccess
+						&& Names.instance(this.context)._super.equals(fieldAccess.getIdentifier())) {
+				SuperMethodReference res = this.ast.newSuperMethodReference();
+				commonSettings(res, javac);
+				res.setName((SimpleName)convertName(jcMemberReference.getName()));
+				res.setQualifier(toName(fieldAccess.getExpression()));
+				if (jcMemberReference.getTypeArguments() != null) {
+					jcMemberReference.getTypeArguments().stream()
+						.map(this::convertToType)
+						.filter(Objects::nonNull)
+						.forEach(res.typeArguments()::add);
+				}
+				return res;
 			} else {
 				ExpressionMethodReference res = this.ast.newExpressionMethodReference();
 				commonSettings(res, javac);
