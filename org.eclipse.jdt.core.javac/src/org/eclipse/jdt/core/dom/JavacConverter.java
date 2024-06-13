@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.dom;
 
 import static com.sun.tools.javac.code.Flags.VARARGS;
-import static com.sun.tools.javac.tree.JCTree.Tag.TYPEARRAY;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -593,7 +592,7 @@ class JavacConverter {
 			ret.typeBounds().add(type);
 			end = typeParameter.getEndPosition(this.javacCompilationUnit.endPositions);
 		}
-		if (typeParameter.getAnnotations() != null && this.ast.apiLevel() >= AST.JLS8) {
+		if (typeParameter.getAnnotations() != null && this.ast.apiLevel() >= AST.JLS8_INTERNAL) {
 			typeParameter.getAnnotations().stream()
 				.map(this::convert)
 				.forEach(ret.modifiers()::add);
@@ -775,25 +774,15 @@ class JavacConverter {
 		} else {
 			retType = convertToType(retTypeTree);
 		}
-		if( retTypeTree instanceof JCArrayTypeTree jcatt && retTypeTree.pos > javac.pos ) {
+		var dims = convertDimensionsAfterPosition(retTypeTree, javac.pos);
+		if (!dims.isEmpty() && retTypeTree.pos > javac.pos ) {
 			// The array dimensions are part of the variable name
-			if (jcatt.getType() != null) {
-				int dims = countDimensionsAfterPosition(jcatt, javac.pos);
-				if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
-					res.setExtraDimensions(dims);
-				} else {
-					// TODO might be buggy
-					for( int i = 0; i < dims; i++ ) {
-						Dimension d = this.ast.newDimension();
-						d.setSourceRange(jcatt.pos + (2*i), 2);
-						res.extraDimensions().add(d);
-						if( jcatt.getType() instanceof JCArrayTypeTree jcatt2) {
-							jcatt = jcatt2;
-						}
-					}
-				}
-				retType = convertToType(unwrapDimensions(jcatt, dims));
+			if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
+				res.setExtraDimensions(dims.size());
+			} else {
+				res.extraDimensions().addAll(dims);
 			}
+			retType = convertToType(unwrapDimensions(retTypeTree, dims.size()));
 		}
 
 		if( retType != null || isConstructor) {
@@ -910,25 +899,15 @@ class JavacConverter {
 		} else {
 			res.internalSetModifiers(getJLS2ModifiersFlags(javac.mods));
 		}
-		if( javac.getType() instanceof JCArrayTypeTree jcatt && javac.vartype.pos > javac.pos ) {
+		var dims = convertDimensionsAfterPosition(javac.getType(), javac.getPreferredPosition()); // +1 to exclude part of the type declared before name
+		if(!dims.isEmpty() && (javac.mods.flags & VARARGS) == 0) {
 			// The array dimensions are part of the variable name
-			if (jcatt.getType() != null) {
-				int dims = countDimensionsAfterPosition(jcatt, javac.vartype.pos);
-				if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
-					res.setExtraDimensions(dims);
-				} else {
-					// TODO might be buggy
-					for( int i = 0; i < dims; i++ ) {
-						Dimension d = this.ast.newDimension();
-						d.setSourceRange(jcatt.pos + (2*i), 2);
-						res.extraDimensions().add(d);
-						if( jcatt.getType() instanceof JCArrayTypeTree jcatt2) {
-							jcatt = jcatt2;
-						}
-					}
-				}
-				res.setType(convertToType(unwrapDimensions(jcatt, dims)));
+			if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
+				res.setExtraDimensions(dims.size()); // the type is 1-dim array
+			} else {
+				res.extraDimensions().addAll(dims);
 			}
+			res.setType(convertToType(unwrapDimensions(javac.getType(), dims.size())));
 		} else if ( (javac.mods.flags & VARARGS) != 0) {
 			JCTree type = javac.getType();
 			if (type instanceof JCAnnotatedType annotatedType) {
@@ -984,21 +963,11 @@ class JavacConverter {
 		if (convertName(javac.getName()) instanceof SimpleName simpleName) {
 			fragment.setName(simpleName);
 		}
-		if( javac.getType() instanceof JCArrayTypeTree jcatt && javac.vartype.pos > javac.pos ) {
-			// The array dimensions are part of the variable name
-			if (jcatt.getType() != null) {
-				int dims = countDimensionsAfterPosition(jcatt, fragmentStart);
-				if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
-					fragment.setExtraDimensions(dims);
-				} else {
-					// TODO might be buggy
-					for( int i = 0; i < dims; i++ ) {
-						Dimension d = this.ast.newDimension();
-						d.setSourceRange(jcatt.pos, 2);
-						fragment.extraDimensions().add(d);
-					}
-				}
-			}
+		var dims = convertDimensionsAfterPosition(javac.getType(), fragmentStart);
+		if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
+			fragment.setExtraDimensions(dims.size());
+		} else {
+			fragment.extraDimensions().addAll(dims);
 		}
 		if (javac.getInitializer() != null) {
 			fragment.setInitializer(convertExpression(javac.getInitializer()));
@@ -1698,28 +1667,65 @@ class JavacConverter {
 		return anon;
 	}
 
-	private int countDimensions(JCArrayTypeTree tree) {
-		return countDimensionsAfterPosition(tree, 0);
+	/**
+	 * 
+	 * @param tree
+	 * @param pos
+	 * @return a list of dimensions for the given type. If target < JLS8, then
+	 *         it returns a list of null objects, of the right size for the dimensions
+	 */
+	private List<Dimension> convertDimensionsAfterPosition(JCTree tree, int pos) {
+		if (tree == null) {
+			return List.of();
+		}
+		List<Dimension> res = new ArrayList<>();
+		JCTree elem = tree;
+		do {
+			if( elem.pos >= pos) {
+				if (elem instanceof JCArrayTypeTree arrayType) {
+					if (this.ast.apiLevel < AST.JLS8_INTERNAL) {
+						res.add(null);
+					} else {
+						Dimension dimension = this.ast.newDimension();
+						res.add(dimension);
+					}
+					elem = arrayType.getType();
+				} else if (elem instanceof JCAnnotatedType annotated && annotated.getUnderlyingType() instanceof JCArrayTypeTree arrayType) {
+					if (this.ast.apiLevel < AST.JLS8_INTERNAL) {
+						res.add(null);
+					} else {
+						Dimension dimension = this.ast.newDimension();
+						annotated.getAnnotations().stream()
+							.map(this::convert)
+							.forEach(dimension.annotations()::add);
+						res.add(dimension);
+					}
+					elem = arrayType.getType();
+				} else {
+					elem = null;
+				}
+			} else {
+				elem = null;
+			}
+		} while (elem != null);
+		return res;
 	}
 
-	private int countDimensionsAfterPosition(JCArrayTypeTree tree, int pos) {
-		int ret = 0;
-        JCTree elem = tree;
-        while (elem != null && elem.hasTag(TYPEARRAY)) {
-        	if( elem.pos >= pos)
-        		ret++;
-            elem = ((JCArrayTypeTree)elem).elemtype;
-        }
-        return ret;
-	}
-
-	private JCTree unwrapDimensions(JCArrayTypeTree tree, int count) {
-        JCTree elem = tree;
-        while (elem != null && elem.hasTag(TYPEARRAY) && count > 0) {
-            elem = ((JCArrayTypeTree)elem).elemtype;
-            count--;
-        }
-        return elem;
+	private JCTree unwrapDimensions(JCTree tree, int count) {
+		JCTree elem = tree;
+		while (count > 0) {
+			if (elem instanceof JCArrayTypeTree arrayTree) {
+				elem = arrayTree.getType();
+				count--;
+			} else if (elem instanceof JCAnnotatedType annotated && annotated.getUnderlyingType() instanceof JCArrayTypeTree arrayType) {
+				elem = arrayType.getType();
+				count--;
+			} else {
+				count = 0;
+			}
+			
+		}
+		return elem;
 	}
 
 	private SuperMethodInvocation convertSuperMethodInvocation(JCMethodInvocation javac) {
@@ -2450,7 +2456,7 @@ class JavacConverter {
 			if (res == null) { // nothing specific
 				res = convertToType(jcAnnotatedType.getUnderlyingType());
 			}
-			if (res instanceof AnnotatableType annotatableType && this.ast.apiLevel() >= AST.JLS8) {
+			if (res instanceof AnnotatableType annotatableType && this.ast.apiLevel() >= AST.JLS8_INTERNAL) {
 				for (JCAnnotation annotation : jcAnnotatedType.getAnnotations()) {
 					annotatableType.annotations().add(convert(annotation));
 				}
