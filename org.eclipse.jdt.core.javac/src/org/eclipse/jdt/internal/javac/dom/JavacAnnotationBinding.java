@@ -124,12 +124,8 @@ public abstract class JavacAnnotationBinding implements IAnnotationBinding {
 
 	@Override
 	public String toString() {
-		String res = '@' + getName();
-		if (getAllMemberValuePairs().length > 0) {
-			res += '(' + Arrays.stream(getAllMemberValuePairs()).map(IMemberValuePairBinding::toString).collect(Collectors.joining(",")) + ')';
-		} else if (Arrays.stream(getAnnotationType().getDeclaredMethods()).anyMatch(method -> "value".equals(method.getName()) && method.getParameterNames().length == 0)) {
-			res += "()";
-		}
-		return res;
+		return '@' + getName() + '(' +
+				Arrays.stream(getAllMemberValuePairs()).map(IMemberValuePairBinding::toString).collect(Collectors.joining(","))
+			+ ')';
 	}
 }

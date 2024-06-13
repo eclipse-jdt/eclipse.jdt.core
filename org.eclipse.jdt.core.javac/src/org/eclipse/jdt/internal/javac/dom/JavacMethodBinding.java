@@ -417,8 +417,8 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public String toString() {
-		return modifiersAsString() + getReturnType().getName() + ' ' + getName().toString() + '('
-				+ Arrays.stream(getParameterTypes()).map(ITypeBinding::getName).collect(Collectors.joining(","))
+		return modifiersAsString() + getReturnType().getQualifiedName() + ' ' + getName().toString() + '('
+				+ Arrays.stream(getParameterTypes()).map(ITypeBinding::getQualifiedName).collect(Collectors.joining(","))
 				+ ") ";
 	}
 
