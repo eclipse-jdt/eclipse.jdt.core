@@ -1798,6 +1798,10 @@ class JavacConverter {
 	private ConstructorInvocation convertThisConstructorInvocation(JCMethodInvocation javac) {
 		ConstructorInvocation res = this.ast.newConstructorInvocation();
 		commonSettings(res, javac);
+		// add the trailing `;`
+		// it's always there, since this is always a statement, since this is always `this();` or `super();`
+		// (or equivalent with type parameters)
+		res.setSourceRange(res.getStartPosition(), res.getLength() + 1);
 		javac.getArguments().stream().map(this::convertExpression).forEach(res.arguments()::add);
 		if( this.ast.apiLevel > AST.JLS2_INTERNAL) {
 			javac.getTypeArguments().stream()
