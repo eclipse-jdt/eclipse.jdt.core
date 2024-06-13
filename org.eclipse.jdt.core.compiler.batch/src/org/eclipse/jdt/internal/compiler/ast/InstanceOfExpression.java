@@ -376,11 +376,14 @@ private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeB
 	if (route == PrimitiveConversionRoute.WIDENING_PRIMITIVE_CONVERSION
 			|| route == PrimitiveConversionRoute.NARROWING_PRIMITVE_CONVERSION
 			|| route == PrimitiveConversionRoute.WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION) {
-//				this.expression.computeConversion(scope, expressionType, checkedType);
+
+		// Do Nothing - no additional steps required for conversion later.
+
+	} else if (route == PrimitiveConversionRoute.BOXING_CONVERSION
+			|| route == PrimitiveConversionRoute.BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION) {
+		addSecretExpressionValue(scope, expressionType);
 	} else if (route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
 		scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
-	} else {
-		addSecretExpressionValue(scope, expressionType);
 	}
 }
 

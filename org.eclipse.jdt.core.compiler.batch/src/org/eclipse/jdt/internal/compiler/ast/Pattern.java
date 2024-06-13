@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -158,31 +159,33 @@ public abstract class Pattern extends Expression {
 		}
 		return false;
 	}
-	public static PrimitiveConversionRoute findPrimitiveConversionRoute(TypeBinding left, TypeBinding right, BlockScope scope) {
+	public static PrimitiveConversionRoute findPrimitiveConversionRoute(TypeBinding destinationType, TypeBinding expressionType, BlockScope scope) {
 		if (!(JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
 				scope.compilerOptions().sourceLevel,
 				scope.compilerOptions().enablePreviewFeatures))) {
 			return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 		}
-		boolean leftIsBaseType = left.isBaseType();
-		boolean rightIsBaseType = right.isBaseType();
-		if (leftIsBaseType && rightIsBaseType) {
-			if (TypeBinding.equalsEquals(left, right)) {
+		boolean destinationIsBaseType = destinationType.isBaseType();
+		boolean expressionIsBaseType = expressionType.isBaseType();
+		if (destinationIsBaseType && expressionIsBaseType) {
+			if (TypeBinding.equalsEquals(destinationType, expressionType)) {
 				return PrimitiveConversionRoute.IDENTITY_CONVERSION;
 			}
-			if (BaseTypeBinding.isWidening(left.id, right.id))
+			if (BaseTypeBinding.isWidening(destinationType.id, expressionType.id))
 				return PrimitiveConversionRoute.WIDENING_PRIMITIVE_CONVERSION;
-			if (BaseTypeBinding.isNarrowing(left.id, right.id))
+			if (BaseTypeBinding.isNarrowing(destinationType.id, expressionType.id))
 				return PrimitiveConversionRoute.NARROWING_PRIMITVE_CONVERSION;
-			if (BaseTypeBinding.isWideningAndNarrowing(left.id, right.id))
+			if (BaseTypeBinding.isWideningAndNarrowing(destinationType.id, expressionType.id))
 				return PrimitiveConversionRoute.WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION;
-		} else if (rightIsBaseType) { // check for boxing conversion
-			if (isBoxing(left, right))
-				return PrimitiveConversionRoute.BOXING_CONVERSION;
-			else if (scope.environment().computeBoxingType(right).isCompatibleWith(left))
-				return PrimitiveConversionRoute.BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION;
 		} else {
-			// TODO
+			if (expressionIsBaseType) {
+				if (isBoxing(destinationType, expressionType))
+					return PrimitiveConversionRoute.BOXING_CONVERSION;
+				if (scope.environment().computeBoxingType(expressionType).isCompatibleWith(destinationType))
+					return PrimitiveConversionRoute.BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION;
+			} else if (expressionType instanceof ReferenceBinding) {
+				// TODO
+			}
 		}
 		return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 	}
