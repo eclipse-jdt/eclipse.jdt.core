@@ -1952,7 +1952,7 @@ MethodBinding resolveTypesFor(MethodBinding method) {
 	if ((method.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 		return method;
 	boolean tolerateSave = this.environment.mayTolerateMissingType;
-	this.environment.mayTolerateMissingType = this.environment.globalOptions.complianceLevel >= ClassFileConstants.JDK1_8; // tolerance only implemented for 1.8+
+	this.environment.mayTolerateMissingType |= this.environment.globalOptions.complianceLevel >= ClassFileConstants.JDK1_8; // tolerance only implemented for 1.8+
 	try {
 
 		if (!method.isConstructor()) {
