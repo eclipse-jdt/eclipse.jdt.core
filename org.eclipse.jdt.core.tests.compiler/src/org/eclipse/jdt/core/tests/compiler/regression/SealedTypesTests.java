@@ -5877,4 +5877,26 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				},
 				"Compiled and ran fine!");
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576471
+	// Sealed type hierarchy doesn't compile if there are redundant type references
+	public void testBug576471() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							public sealed interface I permits IA, C1, C2 {}
+							public sealed interface IA extends I permits A {}
+							public abstract sealed class A implements IA permits C1, C2 {}
+							public final class C1 extends A implements I {}
+							public final class C2 extends A implements I {}
+							public static void main(String [] args) {
+						        System.out.println("Compiled and ran fine!");
+					        }
+						}
+						"""
+				},
+				"Compiled and ran fine!");
+	}
 }
