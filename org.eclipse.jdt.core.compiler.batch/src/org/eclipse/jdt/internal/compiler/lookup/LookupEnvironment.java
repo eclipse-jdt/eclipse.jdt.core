@@ -154,6 +154,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 		NONE,
 		CHECK_AND_SET_IMPORTS,
 		CONNECT_TYPE_HIERARCHY,
+		SEAL_TYPE_HIERARCHY,
 		BUILD_FIELDS_AND_METHODS,
 		INTEGRATE_ANNOTATIONS_IN_HIERARCHY,
 		CHECK_PARAMETERIZED_TYPES;
@@ -182,6 +183,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 			switch (this) {
 				case CHECK_AND_SET_IMPORTS -> scope.checkAndSetImports();
 				case CONNECT_TYPE_HIERARCHY -> scope.connectTypeHierarchy();
+				case SEAL_TYPE_HIERARCHY -> scope.sealTypeHierarchy();
 				case BUILD_FIELDS_AND_METHODS -> scope.buildFieldsAndMethods();
 				case INTEGRATE_ANNOTATIONS_IN_HIERARCHY -> scope.integrateAnnotationsInHierarchy();
 				case CHECK_PARAMETERIZED_TYPES -> scope.checkParameterizedTypes();

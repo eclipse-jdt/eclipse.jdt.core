@@ -5845,4 +5845,36 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				+ "Type arguments are not allowed here\n"
 				+ "----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2093
+	// [sealed types] ECJ complains of cycles in hierarchy where none exists
+	public void testIssue2093() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						record Bar() implements TheA.FooOrBar {
+						}
+
+						record Foo() implements TheA.FooOrBar {
+						}
+
+						sealed interface Base permits TheA, TheB {
+						}
+
+						record TheA() implements Base {
+							public sealed interface FooOrBar permits Foo, Bar {
+							}
+						}
+
+						record TheB<T extends TheA.FooOrBar>() implements Base {
+						}
+						public class X {
+						    public static void main(String [] args) {
+						        System.out.println("Compiled and ran fine!");
+					        }
+				        }
+						"""
+				},
+				"Compiled and ran fine!");
+	}
 }
