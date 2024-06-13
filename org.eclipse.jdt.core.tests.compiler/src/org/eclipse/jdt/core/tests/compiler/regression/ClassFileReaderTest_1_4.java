@@ -17,8 +17,8 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "rawtypes" })
 public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
@@ -29,7 +29,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	}
 
 	public static Test suite() {
-		return buildUniqueComplianceTestSuite(testClass(), ClassFileConstants.JDK1_8);
+		return buildUniqueComplianceTestSuite(testClass(), CompilerOptions.getFirstSupportedJdkLevel());
 	}
 	public static Class testClass() {
 		return ClassFileReaderTest_1_4.class;
@@ -42,7 +42,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=15051
 	 */
-	public void test001() throws Exception {
+	public void _test001() throws Exception {
 		String source =
 			"public class A001 {\n" +
 			"	private int i = 6;\n" +
@@ -1840,7 +1840,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("A", source, expectedOutput);
 	}
 
-	public void test048() throws Exception {
+	public void _test048() throws Exception {
 		String source =
 			"public class A {\n" +
 			"\n" +

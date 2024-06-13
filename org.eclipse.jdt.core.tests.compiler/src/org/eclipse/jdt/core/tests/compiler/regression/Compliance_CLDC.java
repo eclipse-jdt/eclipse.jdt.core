@@ -18,7 +18,6 @@ import java.util.Map;
 
 import junit.framework.Test;
 
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -34,13 +33,13 @@ public Compliance_CLDC(String name) {
 @Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	return options;
 }
 public static Test suite() {
-		return buildUniqueComplianceTestSuite(testClass(), ClassFileConstants.JDK1_8);
+		return buildUniqueComplianceTestSuite(testClass(), CompilerOptions.getFirstSupportedJdkLevel());
 }
 public static Class testClass() {
 	return Compliance_CLDC.class;
@@ -80,7 +79,7 @@ public void test001() {
 		},
 		"OK");
 }
-public void test002() throws Exception {
+public void _test002() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",

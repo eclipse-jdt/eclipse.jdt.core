@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.builder.BuilderTests;
 import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import com.sun.mirror.apt.AnnotationProcessor;
 
@@ -96,7 +97,7 @@ public abstract class APTTestBase extends BuilderTests{
 	protected IJavaProject createJavaProject(final String projectName )
 		throws Exception
 	{
-		IPath projectPath = env.addProject( projectName, "1.5" );
+		IPath projectPath = env.addProject( projectName, CompilerOptions.getFirstSupportedJavaVersion() );
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$

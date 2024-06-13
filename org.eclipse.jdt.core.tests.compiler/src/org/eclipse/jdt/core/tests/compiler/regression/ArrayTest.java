@@ -410,7 +410,7 @@ public void test014() throws Exception {
 	CompilerOptions options = new CompilerOptions(optionsMap);
 	if (options.complianceLevel > ClassFileConstants.JDK1_4) {
 		// check that #clone() return type is changed ONLY from -source 1.5 only (independant from compliance level)
-		optionsMap.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+		optionsMap.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	}
 	this.runNegativeTest(
 			new String[] {
@@ -421,12 +421,7 @@ public void test014() throws Exception {
 				"	}\n" +
 				"}\n",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	long[] other = longs.clone();\n" +
-			"	               ^^^^^^^^^^^^^\n" +
-			"Type mismatch: cannot convert from Object to long[]\n" +
-			"----------\n",
+			"",
 			null,
 			true,
 			optionsMap);
@@ -508,7 +503,7 @@ public void test017() throws Exception {
 	CompilerOptions options = new CompilerOptions(optionsMap);
 	if (options.complianceLevel > ClassFileConstants.JDK1_4) {
 		// check that #clone() return type is changed ONLY from -source 1.5 only (independant from compliance level)
-		optionsMap.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+		optionsMap.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	}
 	this.runConformTest(
 			new String[] {
@@ -538,7 +533,7 @@ public void test017() throws Exception {
 		"  // Stack: 1, Locals: 3\n" +
 		"  void foo(long[] longs) throws java.lang.Exception;\n" +
 		"    0  aload_1 [longs]\n" +
-		"    1  invokevirtual java.lang.Object.clone() : java.lang.Object [19]\n" +
+		"    1  invokevirtual long[].clone() : java.lang.Object [19]\n" +
 		"    4  astore_2 [other]\n" +
 		"    5  return\n" +
 		"      Line numbers:\n" +

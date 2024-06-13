@@ -1220,7 +1220,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	 */
 	public void testParseCompilationUnit3() throws CoreException {
 		try {
-			createJavaProject("P1", new String[] {"src"}, new String[] {"JCL_LIB", "lib"}, "bin");
+			createJavaProject("P1", new String[] {"src"}, new String[] {"JCL18_LIB", "lib"}, "bin");
 
 			// create X.class in lib folder
 			/* Evaluate the following in a scrapbook:

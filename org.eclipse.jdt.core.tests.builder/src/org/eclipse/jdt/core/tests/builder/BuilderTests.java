@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.TestVerifier;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -626,7 +627,7 @@ public class BuilderTests extends TestCase {
 	static IPath addEmptyInternalJar(IPath projectPath, String jarName) throws IOException, JavaModelException {
 		IProject project = env.getProject(projectPath);
 		String jarFile = project.getLocation().append(jarName).toOSString();
-		Util.createEmptyJar(jarFile, JavaCore.VERSION_1_4);
+		Util.createEmptyJar(jarFile, CompilerOptions.getFirstSupportedJavaVersion());
 		IPath jarPath = null;
 		try (FileInputStream fis = new FileInputStream(jarFile)) {
 			int length = fis.available();

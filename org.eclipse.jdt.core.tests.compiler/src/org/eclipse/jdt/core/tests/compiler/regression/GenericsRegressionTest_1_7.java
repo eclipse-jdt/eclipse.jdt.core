@@ -2600,7 +2600,7 @@ public void test0059() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=351965
 public void test0060() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -2631,7 +2631,7 @@ public void test0060() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=351965
 public void test0060a() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	this.runNegativeTest(
 		new String[] {
 			"X.java",

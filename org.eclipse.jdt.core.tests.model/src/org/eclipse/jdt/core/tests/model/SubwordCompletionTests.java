@@ -45,21 +45,6 @@ public void setUpSuite() throws Exception {
 	this.defaultOptions = options;
 	JavaCore.setOptions(options);
 }
-public void tearDownSuite() throws Exception {
-	if (COMPLETION_SUITES == null) {
-		deleteProject("Completion");
-	} else {
-		COMPLETION_SUITES.remove(getClass());
-		if (COMPLETION_SUITES.size() == 0) {
-			deleteProject("Completion");
-			COMPLETION_SUITES = null;
-		}
-	}
-	if (COMPLETION_SUITES == null) {
-		COMPLETION_PROJECT = null;
-	}
-	super.tearDownSuite();
-}
 
 @Override
 protected Hashtable<String, String> getDefaultJavaCoreOptions() {

@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
@@ -46,7 +47,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 	}
 
 	@Override
@@ -265,7 +266,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	 */
 	public void test012() throws CoreException {
 		try {
-			IJavaProject project = createJavaProject("P14", new String[] {""}, new String[] {"JCL_LIB"}, "", "1.4");
+			IJavaProject project = createJavaProject("P14", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			ITypeBinding[] bindings = createTypeBindings(
 				new String[] {},
 				new String[] {
@@ -708,7 +709,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	 */
 	public void test032() throws CoreException {
 		try {
-			IJavaProject project = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, "", "1.4");
+			IJavaProject project = createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			IMethodBinding[] bindings = createMethodBindings(
 				new String[] {
 					"/P2/p1/X.java",

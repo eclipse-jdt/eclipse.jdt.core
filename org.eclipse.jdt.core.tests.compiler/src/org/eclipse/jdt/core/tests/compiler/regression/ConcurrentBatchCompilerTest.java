@@ -20,14 +20,13 @@ import java.util.Map;
 import junit.framework.Test;
 
 import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ConcurrentBatchCompilerTest extends BatchCompilerTest {
 
 	public static Test suite() {
-		return buildUniqueComplianceTestSuite(testClass(), ClassFileConstants.JDK1_8);
+		return buildUniqueComplianceTestSuite(testClass(), CompilerOptions.getFirstSupportedJdkLevel());
 	}
 	public static Class testClass() {
 		return ConcurrentBatchCompilerTest.class;

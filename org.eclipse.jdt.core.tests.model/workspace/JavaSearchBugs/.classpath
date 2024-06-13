@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="b81556/b/" kind="src" path="src"/>
-    <classpathentry kind="var" path="JCL_LIB" sourcepath="JCL_SRC" rootpath="JCL_SRCROOT"/>
+    <classpathentry kind="var" path="JCL18_LIB" sourcepath="JCL18_SRC" rootpath="JCL_SRCROOT"/>
     <classpathentry kind="lib" path="lib/record_reference_in_nonsource_jar.jar" sourcepath="/JavaSearchBugs/lib/record_reference_in_nonsource_jar.jar"/>
      <classpathentry kind="lib" path="lib/record_reference_in_source_jar.jar" sourcepath="/JavaSearchBugs/lib/record_reference_in_source_jar.jar"/>
      <classpathentry kind="lib" path="lib/permit_reference_in_nonsource_jar.jar" sourcepath="/JavaSearchBugs/lib/permit_reference_in_nonsource_jar.jar"/>

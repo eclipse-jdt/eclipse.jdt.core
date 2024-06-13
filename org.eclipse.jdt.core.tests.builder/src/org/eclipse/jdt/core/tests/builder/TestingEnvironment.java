@@ -185,7 +185,7 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 	}
 
 	public IPath addProject(String projectName){
-		return addProject(projectName, "1.8");
+		return addProject(projectName, CompilerOptions.getFirstSupportedJavaVersion());
 	}
 
 	public IPath addProject(String projectName, String compliance){

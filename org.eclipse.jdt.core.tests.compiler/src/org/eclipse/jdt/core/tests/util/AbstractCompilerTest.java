@@ -290,7 +290,7 @@ public class AbstractCompilerTest extends TestCase {
 				return ClassFileConstants.getComplianceLevelForJavaVersion(map[1]);
 			}
 		}
-		return ClassFileConstants.JDK1_8;
+		return CompilerOptions.getFirstSupportedJdkLevel();
 	}
 
 	static void initReflectionVersion() {
@@ -391,7 +391,7 @@ public class AbstractCompilerTest extends TestCase {
 				if (!RUN_JAVAC) {
 					possibleComplianceLevels = F_1_8;
 					boolean canRunPrevious = true;
-					String previousVersion = CompilerOptions.VERSION_1_4;
+					String previousVersion = CompilerOptions.getFirstSupportedJavaVersion();
 					for(int i = 0; i < complianceTestLevelMapping.length; i++) {
 						int[] versionMap = complianceTestLevelMapping[i];
 						long jdkLevel = ClassFileConstants.getComplianceLevelForJavaVersion(versionMap[1]);

@@ -3153,9 +3153,9 @@ public void test048() {
 public void test049() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
-	runner.customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
-	runner.customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
-	runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
+	runner.customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	runner.customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+	runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	runner.testFiles =
 		new String[] {
 			"X.java",
@@ -3259,9 +3259,9 @@ public void test051() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348406
 public void test052() {
 	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	this.runNegativeTest(
 		new String[] {
 			"X.java",

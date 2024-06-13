@@ -15,11 +15,12 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class CompletionWithMissingTypesTests extends AbstractJavaModelCompletionTests {
@@ -32,7 +33,7 @@ public void setUpSuite() throws Exception {
 	if (COMPLETION_PROJECT == null)  {
 		COMPLETION_PROJECT = setUpJavaProject("Completion");
 	} else {
-		setUpProjectCompliance(COMPLETION_PROJECT, "1.4");
+		setUpProjectCompliance(COMPLETION_PROJECT, CompilerOptions.getFirstSupportedJavaVersion());
 	}
 	super.setUpSuite();
 }

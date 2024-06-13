@@ -14,15 +14,31 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
-
 import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IInitializer;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaElementDelta;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import junit.framework.Test;
 
 public class RenameTests extends CopyMoveTests {
 	ICompilationUnit cu;
@@ -166,7 +182,7 @@ public void setUp() throws Exception {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	IJavaProject project = this.createJavaProject("BinaryProject", new String[] {"src"}, new String[] {"JCL_LIB"}, "lib");
+	IJavaProject project = this.createJavaProject("BinaryProject", new String[] {"src"}, new String[] {"JCL18_LIB"}, "lib");
 	this.createFile(
 		"/BinaryProject/src/X.java",
 		"public class X {\n" +
@@ -430,7 +446,7 @@ public void testRenameEmptyPF() throws CoreException {
  */
 public void testRenameEnum() throws CoreException {
 	try {
-		createJavaProject("P15", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createJavaProject("P15", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 		createFile(
 			"/P15/En.java",
 			"public enum En {\n" +
@@ -461,7 +477,7 @@ public void testRenameEnum() throws CoreException {
  */
 public void testRenameEnum2() throws CoreException {
 	try {
-		createJavaProject("P15", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createJavaProject("P15", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 		createFile(
 			"/P15/En.java",
 			"public enum En {\n" +

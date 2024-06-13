@@ -15,12 +15,12 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import junit.framework.Test;
 
 /**
  * Test class for completion in Javadoc comment of a type declaration.
@@ -46,7 +46,16 @@ public static Test suite() {
 @Override
 protected void setUp() throws Exception {
 	super.setUp();
-	setUpProjectOptions(CompilerOptions.VERSION_1_4);
+	setUpProjectOptions(CompilerOptions.getFirstSupportedJavaVersion());
+}
+
+/**
+ * Returns the java.io path to the external java class library (e.g. jclMin.jar)
+ */
+protected String getExternalJCLPathString(String compliance) {
+	// We use "simple" jclMin.jar here because it was developed for Java 1.4 and updating
+	// all completions available in jclMin1.8.jar would take ages
+	return getExternalPath() + "jclMin.jar";
 }
 
 /**
@@ -69,10 +78,15 @@ public void test001() throws JavaModelException {
 		"category[JAVADOC_BLOCK_TAG]{@category, null, null, category, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"apiNote[JAVADOC_BLOCK_TAG]{@apiNote, null, null, apiNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implSpec[JAVADOC_BLOCK_TAG]{@implSpec, null, null, implSpec, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implNote[JAVADOC_BLOCK_TAG]{@implNote, null, null, implNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
-		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"code[JAVADOC_INLINE_TAG]{{@code}, null, null, code, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"literal[JAVADOC_INLINE_TAG]{{@literal}, null, null, literal, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
@@ -143,12 +157,12 @@ public void test006() throws JavaModelException {
 	completeInJavadoc("/Completion/src/javadoc/types/Test.java", source, true, "@li");
 	assertResults(
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
-		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"literal[JAVADOC_INLINE_TAG]{{@literal}, null, null, literal, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
 public void test007() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_3);
 	String source =
 		"package javadoc.types;\n" +
 		"/**\n" +
@@ -166,13 +180,19 @@ public void test007() throws JavaModelException {
 		"category[JAVADOC_BLOCK_TAG]{@category, null, null, category, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"apiNote[JAVADOC_BLOCK_TAG]{@apiNote, null, null, apiNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implSpec[JAVADOC_BLOCK_TAG]{@implSpec, null, null, implSpec, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implNote[JAVADOC_BLOCK_TAG]{@implNote, null, null, implNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
-		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"code[JAVADOC_INLINE_TAG]{{@code}, null, null, code, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"literal[JAVADOC_INLINE_TAG]{{@literal}, null, null, literal, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
 public void test008() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
 		"package javadoc.types;\n" +
 		"/**\n" +
@@ -191,6 +211,9 @@ public void test008() throws JavaModelException {
 		"category[JAVADOC_BLOCK_TAG]{@category, null, null, category, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"apiNote[JAVADOC_BLOCK_TAG]{@apiNote, null, null, apiNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implSpec[JAVADOC_BLOCK_TAG]{@implSpec, null, null, implSpec, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implNote[JAVADOC_BLOCK_TAG]{@implNote, null, null, implNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -251,7 +274,6 @@ public void test012() throws JavaModelException {
 }
 
 public void test013() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
 		"package javadoc.types.tags;\n" +
 		"/**\n" +
@@ -284,7 +306,6 @@ public void test014() throws JavaModelException {
 }
 
 public void test015() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
 		"package javadoc.types.tags;\n" +
 		"/**\n" +
@@ -403,7 +424,6 @@ public void test021() throws JavaModelException {
 }
 
 public void test022() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
 		"package javadoc.types.tags;\n" +
 		"/**\n" +
@@ -414,13 +434,8 @@ public void test022() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "java.lang.");
 	assertSortedResults(
-		"java.lang.annotation[PACKAGE_REF]{java.lang.annotation, java.lang.annotation, null, null, null, "+this.positions+R_DRICQNR+"}\n" +
-		"CharSequence[TYPE_REF]{CharSequence, java.lang, Ljava.lang.CharSequence;, null, null, "+this.positions+R_DRICNR+"}\n" +
 		"Class[TYPE_REF]{Class, java.lang, Ljava.lang.Class;, null, null, "+this.positions+R_DRICNR+"}\n" +
 		"CloneNotSupportedException[TYPE_REF]{CloneNotSupportedException, java.lang, Ljava.lang.CloneNotSupportedException;, null, null, "+this.positions+R_DRICNR+"}\n" +
-		"Comparable[TYPE_REF]{Comparable, java.lang, Ljava.lang.Comparable;, null, null, "+this.positions+R_DRICNR+"}\n" +
-		"Deprecated[TYPE_REF]{Deprecated, java.lang, Ljava.lang.Deprecated;, null, null, "+this.positions+R_DRICNR+"}\n" +
-		"Enum[TYPE_REF]{Enum, java.lang, Ljava.lang.Enum;, null, null, "+this.positions+R_DRICNR+"}\n" +
 		"Error[TYPE_REF]{Error, java.lang, Ljava.lang.Error;, null, null, "+this.positions+R_DRICNR+"}\n" +
 		"Exception[TYPE_REF]{Exception, java.lang, Ljava.lang.Exception;, null, null, "+this.positions+R_DRICNR+"}\n" +
 		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DRICNR+"}\n" +
@@ -449,7 +464,6 @@ public void test023() throws JavaModelException {
 }
 
 public void test024() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
 		"package javadoc.types.tags;\n" +
 		"/**\n" +
@@ -460,8 +474,6 @@ public void test024() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "java.");
 	assertResults(
-		"java.util[PACKAGE_REF]{java.util, java.util, null, null, null, "+this.positions+R_DRICQNR+"}\n" +
-		"java.lang.annotation[PACKAGE_REF]{java.lang.annotation, java.lang.annotation, null, null, null, "+this.positions+R_DRICQNR+"}\n" +
 		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+R_DRICQNR+"}\n" +
 		"java.io[PACKAGE_REF]{java.io, java.io, null, null, null, "+this.positions+R_DRICQNR+"}"
 	);
@@ -825,7 +837,6 @@ public void test053() throws JavaModelException {
  * @category Tests for type parameters completion
  */
 public void test060() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
 		"package javadoc.types.tags;\n" +
 		"/**\n" +
@@ -840,7 +851,6 @@ public void test060() throws JavaModelException {
 }
 
 public void test061() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
 		"package javadoc.types.tags;\n" +
 		"/**\n" +
@@ -857,7 +867,6 @@ public void test061() throws JavaModelException {
 }
 
 public void test062() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
 		"package javadoc.types.tags;\n" +
 		"/**\n" +
@@ -874,7 +883,7 @@ public void test062() throws JavaModelException {
 }
 
 public void test063() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+
 	String source =
 		"package javadoc.types.tags;\n" +
 		"/**\n" +
@@ -891,7 +900,6 @@ public void test063() throws JavaModelException {
 }
 
 public void test064() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
 		"package javadoc.types.tags;\n" +
 		"/**\n" +
@@ -908,7 +916,6 @@ public void test064() throws JavaModelException {
 }
 
 public void test065() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
 		"package javadoc.types.tags;\n" +
 		"/**\n" +
@@ -925,7 +932,6 @@ public void test065() throws JavaModelException {
 }
 
 public void test066() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
 		"package javadoc.types.tags;\n" +
 		"/**\n" +
@@ -942,7 +948,6 @@ public void test066() throws JavaModelException {
 }
 
 public void test067() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
 		"package javadoc.types.tags;\n" +
 		"/**\n" +
@@ -956,7 +961,6 @@ public void test067() throws JavaModelException {
 }
 
 public void test068() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
 		"package javadoc.types.tags;\n" +
 		"/**\n" +
@@ -970,7 +974,6 @@ public void test068() throws JavaModelException {
 }
 
 public void test069() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
 		"package javadoc.types.tags;\n" +
 		"/**\n" +
@@ -987,7 +990,6 @@ public void test069() throws JavaModelException {
 }
 
 public void test070() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
 		"package javadoc.types.tags;\n" +
 		"/**\n" +
@@ -1004,7 +1006,6 @@ public void test070() throws JavaModelException {
 }
 
 public void test071() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
 		"package javadoc.types.tags;\n" +
 		"/**\n" +

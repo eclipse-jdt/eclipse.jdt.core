@@ -41,9 +41,9 @@ static {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=283225
 public void test1() {
 	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	this.runConformTest(
 			new String[] {
 					"Test.java",

@@ -13,8 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -31,7 +29,10 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.SourceType;
+
+import junit.framework.Test;
 
 /**
  * Test retrieving types by their name.
@@ -75,7 +76,7 @@ protected void setUp() throws Exception {
 		for (int i=0; i<SF_LENGTH; i++) {
 			sourceFolders[i] = "src" + i;
 		}
-		TEST_PROJECT = createJavaProject("TestProject", sourceFolders, new String[] {"JCL_LIB"}, "bin");
+		TEST_PROJECT = createJavaProject("TestProject", sourceFolders, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/TestProject/src0/org/eclipse/jdt/core/test0");
 		createFile(
 			"/TestProject/src0/org/eclipse/jdt/core/test0/Foo.java",
@@ -1198,7 +1199,7 @@ public void testFindSecondaryType_Unknown03() throws JavaModelException, CoreExc
  */
 public void testBug152841() throws Exception{
 	try {
-		IJavaProject project= createJavaProject("P", new String[] { "src" }, new String[] { "JCL_LIB" }, "bin");
+		IJavaProject project= createJavaProject("P", new String[] { "src" }, new String[] { "JCL18_LIB" }, "bin");
 		IPackageFragmentRoot root = (IPackageFragmentRoot) project.getChildren()[0];
 		IPackageFragment pack= root.createPackageFragment("p", true, null);
 
@@ -1310,7 +1311,7 @@ public void testBug302455() throws CoreException, InterruptedException {
 public void testBug306477() throws Exception {
 	try {
 		// create test case
-		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/P/p");
 		createFile(
 			"/P/p/Alice.java",

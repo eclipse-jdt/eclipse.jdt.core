@@ -367,7 +367,7 @@ public void testChangeZIPArchive1() throws Exception {
 				"}"
 			},
 			externalLib,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.addExternalJars(projectPath, new String[] {externalLib});
@@ -395,7 +395,7 @@ public void testChangeZIPArchive1() throws Exception {
 				"}"
 			},
 			externalLib,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 
 		IJavaProject p = env.getJavaProject(projectPath);
 		p.getJavaModel().refreshExternalArchives(new IJavaElement[] {p}, null);
@@ -428,7 +428,7 @@ public void testChangeZIPArchive2() throws Exception {
 			"}"
 		},
 		internalLib,
-		"1.4");
+		CompilerOptions.getFirstSupportedJavaVersion());
 	env.getProject(projectPath).refreshLocal(IResource.DEPTH_INFINITE, null);
 	env.addEntry(projectPath, JavaCore.newLibraryEntry(new Path("/Project/internalLib.abc"), null, null));
 
@@ -460,7 +460,7 @@ public void testChangeZIPArchive2() throws Exception {
 			"}"
 		},
 		internalLib,
-		"1.4");
+		CompilerOptions.getFirstSupportedJavaVersion());
 
 	env.getProject(projectPath).refreshLocal(IResource.DEPTH_INFINITE, null);
 

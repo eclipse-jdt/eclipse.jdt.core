@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
@@ -231,7 +232,7 @@ public class LocalElementTests extends ModifyingResourceTests {
 	 */
 	public void testAnonymousType6() throws CoreException {
 		try {
-			createJavaProject("P15", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+			createJavaProject("P15", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile(
 				"/P15/En.java",
 				"public enum En {\n" +

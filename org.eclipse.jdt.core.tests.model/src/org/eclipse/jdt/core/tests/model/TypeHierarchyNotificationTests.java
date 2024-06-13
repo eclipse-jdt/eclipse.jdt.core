@@ -16,14 +16,32 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.File;
 import java.io.IOException;
 
-import junit.framework.Test;
-
-import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IImportDeclaration;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IRegion;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.ITypeHierarchyChangedListener;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import junit.framework.Test;
 
 public class TypeHierarchyNotificationTests extends ModifyingResourceTests implements ITypeHierarchyChangedListener {
 	/**
@@ -106,7 +124,7 @@ private void reset() {
 protected void setUp() throws Exception {
 	super.setUp();
 	reset();
-	this.setUpJavaProject("TypeHierarchyNotification", "1.5");
+	this.setUpJavaProject("TypeHierarchyNotification", CompilerOptions.getFirstSupportedJavaVersion());
 }
 static {
 //	TESTS_NAMES= new String[] { "testAddExtendsSourceType3" };
@@ -368,7 +386,7 @@ public void testAddCompilationUnitInRegion() throws CoreException, IOException {
 			assertCreation(newCU3);
 			assertOneChange(h);
 			h.refresh(null);
-			IType throwableClass = getClassFile("TypeHierarchyNotification", getExternalJCLPathString("1.5"), "java.lang", "Throwable.class").getType();
+			IType throwableClass = getClassFile("TypeHierarchyNotification", getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()), "java.lang", "Throwable.class").getType();
 			assertEquals("Superclass of Z3 should be java.lang.Throwable", throwableClass, h.getSuperclass(newCU3.getType("Z3")));
 		} finally {
 			// cleanup
@@ -1102,7 +1120,7 @@ public void testRemoveExternalPackageFragmentRoot() throws CoreException {
  */
 public void testRemoveExternalProject() throws CoreException {
 	try {
-		this.createJavaProject("External", new String[] {""}, new String[] {"JCL_LIB"}, new String[]{"/TypeHierarchyNotification"}, "");
+		this.createJavaProject("External", new String[] {""}, new String[] {"JCL18_LIB"}, new String[]{"/TypeHierarchyNotification"}, "");
 		this.createFolder("/External/p");
 		this.createFile("/External/p/Y.java", "package p; public class Y extends X {}");
 		ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
@@ -1429,7 +1447,7 @@ public void testBug316654_a() throws CoreException {
 public void testBug316654_b() throws CoreException {
 	IJavaProject project = getJavaProject("TypeHierarchyNotification");
 	refreshExternalArchives(project);
-	String externalJCLPathString = getExternalJCLPathString("1.5");
+	String externalJCLPathString = getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion());
 	File jarFile = new File(externalJCLPathString);
 	long oldTimestamp = jarFile.lastModified();
 	assertTrue("File does not exist", jarFile.exists());

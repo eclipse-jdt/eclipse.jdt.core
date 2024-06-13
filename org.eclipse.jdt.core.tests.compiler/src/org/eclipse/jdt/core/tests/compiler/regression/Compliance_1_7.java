@@ -17,7 +17,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -85,9 +84,9 @@ public void test2() {
 // regular case
 public void testBug390889_a() {
 	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	this.runConformTest(
 			new String[] {
 					"MyComp.java",
@@ -115,8 +114,6 @@ public void testBug390889_a() {
 // Project with 1.7 compliance compiled against JRE 8
 // default method implements a regular abstract interface method
 public void testBug390889_b() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return;
 	runConformTest(
 			new String[] {
 				"I1.java",
@@ -130,9 +127,9 @@ public void testBug390889_b() {
 			});
 
 	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	this.runConformTest(
 			new String[] {
 					"C1.java",
@@ -149,8 +146,6 @@ public void testBug390889_b() {
 // Project with 1.7 compliance compiled against JRE 7, 8
 // assert that different forms of method invocation do not produce different result (as javac does)
 public void testBug390889_c() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return;
 	runConformTest(
 			new String[] {
 				"I.java",
@@ -160,9 +155,9 @@ public void testBug390889_c() {
 			});
 
 	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	this.runConformTest(
 			new String[] {
 				"CI.java",
@@ -183,12 +178,10 @@ public void testBug390889_c() {
 // Project with 1.7 compliance compiled against JRE 8
 // assert that 1.8 constructs are not allowed at compliance 1.7
 public void testBug490988() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return;
 	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	this.runNegativeTest(
 			new String[] {
 				"Thing.java",

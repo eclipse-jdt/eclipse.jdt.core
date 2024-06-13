@@ -384,7 +384,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 				"}\n" +
 				"}";
 			compileAndDeploy(sourceA012_2, "A012_2");
-			assertTrue(areStructurallyDifferent("A012", "A012_2", false, false));
+			assertFalse(areStructurallyDifferent("A012", "A012_2", false, false));
 		} finally {
 			removeTempClass("A012");
 		}
