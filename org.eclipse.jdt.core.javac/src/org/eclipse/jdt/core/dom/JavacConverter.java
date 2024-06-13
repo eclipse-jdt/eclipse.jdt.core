@@ -894,6 +894,11 @@ class JavacConverter {
 		commonSettings(res, javac);
 		if (convertName(javac.getName()) instanceof SimpleName simpleName) {
 			int endPos = javac.getEndPosition(this.javacCompilationUnit.endPositions);
+			char theChar = this.rawText.charAt(endPos);
+			while (endPos > 0 && theChar != simpleName.toString().charAt(simpleName.toString().length() - 1)) {
+				theChar = this.rawText.charAt(--endPos);
+			}
+			endPos++;
 			int length = simpleName.toString().length();
 			if( endPos != -1 ) {
 				simpleName.setSourceRange(endPos - length, length);
@@ -1699,7 +1704,7 @@ class JavacConverter {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param tree
 	 * @param pos
 	 * @return a list of dimensions for the given type. If target < JLS8, then
@@ -1754,7 +1759,7 @@ class JavacConverter {
 			} else {
 				count = 0;
 			}
-			
+
 		}
 		return elem;
 	}
