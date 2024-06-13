@@ -14,13 +14,25 @@
 package org.eclipse.jdt.apt.core.internal.env;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
-class APTProblem extends CategorizedProblem
+public class APTProblem extends CategorizedProblem
 {
+
+	public static final String APT_BATCH_PROCESSOR_PROBLEM_MARKER = JavaCore.PLUGIN_ID + ".apt.marker"; //$NON-NLS-1$
+	/** Marker ID used for build problem, e.g., missing factory jar */
+	public static final String APT_LOADER_PROBLEM_MARKER = JavaCore.PLUGIN_ID + ".apt.buildproblem"; //$NON-NLS-1$
+	/** Marker ID used for configuration problem, e.g generated source folder not on classpath */
+	public static final String APT_CONFIG_PROBLEM_MARKER = JavaCore.PLUGIN_ID + ".apt.configproblem"; //$NON-NLS-1$
+	/** Marker ID used for posting problems during reconcile/build */
+	public static final String APT_COMPILATION_PROBLEM_MARKER = JavaCore.PLUGIN_ID + ".apt.compile.problem"; //$NON-NLS-1$
+	/** Marker ID used for posting problems during build by processors that don't run in reconcile */
+	public static final String APT_NONRECONCILE_COMPILATION_PROBLEM_MARKER = JavaCore.PLUGIN_ID + ".apt.nonreconcile.compile.problem"; //$NON-NLS-1$
+
+
 	private static final String[] NO_ARGS = new String[0];
 	private final Severity _severity;
 	private int _startingOffset;
@@ -48,7 +60,7 @@ class APTProblem extends CategorizedProblem
 		_line = line;
 		_resource = file;
 		_arguments = arguments;
-		_markerType = isNonReconcile ? AptPlugin.APT_NONRECONCILE_COMPILATION_PROBLEM_MARKER : AptPlugin.APT_COMPILATION_PROBLEM_MARKER;
+		_markerType = isNonReconcile ? APT_NONRECONCILE_COMPILATION_PROBLEM_MARKER : APT_COMPILATION_PROBLEM_MARKER;
 	}
 
 	@Override

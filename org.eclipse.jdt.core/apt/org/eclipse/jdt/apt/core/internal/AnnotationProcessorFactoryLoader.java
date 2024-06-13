@@ -45,6 +45,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.apt.core.internal.env.APTProblem;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer.FactoryType;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
@@ -724,7 +725,7 @@ public class AnnotationProcessorFactoryLoader {
 			for (IJavaProject jp : jprojects) {
 				if (jp.exists()) {
 					IProject p = jp.getProject();
-					IMarker[] markers = p.findMarkers(AptPlugin.APT_LOADER_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+					IMarker[] markers = p.findMarkers(APTProblem.APT_LOADER_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 					if( markers != null ){
 						for( IMarker marker : markers )
 							marker.delete();

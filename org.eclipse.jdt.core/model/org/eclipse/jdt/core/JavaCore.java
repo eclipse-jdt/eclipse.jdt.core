@@ -158,6 +158,7 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -3527,6 +3528,8 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String JAVA_FORMATTER_EXTENSION_POINT_ID = "javaFormatter" ;  //$NON-NLS-1$
 
+	private AptPlugin aptPlugin = null;
+
 	/**
 	 * Creates the Java core plug-in.
 	 * <p>
@@ -3539,6 +3542,7 @@ public final class JavaCore extends Plugin {
 	public JavaCore() {
 		super();
 		JAVA_CORE_PLUGIN = this;
+		this.aptPlugin = new AptPlugin();
 	}
 
 	/**
@@ -6634,6 +6638,7 @@ public final class JavaCore extends Plugin {
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		try {
+			this.aptPlugin.start(context);
 			JavaModelManager.unregisterDebugOptionsListener();
 			JavaModelManager.getJavaModelManager().shutdown();
 		} finally {
@@ -6657,5 +6662,6 @@ public final class JavaCore extends Plugin {
 		JavaModelManager.getJavaModelManager().startup();
 		// New index is disabled, see bug 544898
 		// Indexer.getInstance().rescanAll();
+		this.aptPlugin.start(context);
 	}
 }

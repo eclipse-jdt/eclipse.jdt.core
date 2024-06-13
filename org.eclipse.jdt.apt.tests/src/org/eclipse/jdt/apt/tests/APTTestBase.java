@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.env.APTProblem;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
@@ -262,11 +263,11 @@ public abstract class APTTestBase extends BuilderTests{
 		try {
 			IMarker[] markers = null;
 			int total = 0;
-			final IMarker[] processorMarkers = resource.findMarkers(AptPlugin.APT_BATCH_PROCESSOR_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+			final IMarker[] processorMarkers = resource.findMarkers(APTProblem.APT_BATCH_PROCESSOR_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 			total = processorMarkers.length;
 			markers = processorMarkers;
 
-			final IMarker[] factoryPathMarkers = resource.findMarkers(AptPlugin.APT_LOADER_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+			final IMarker[] factoryPathMarkers = resource.findMarkers(APTProblem.APT_LOADER_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 			if( factoryPathMarkers.length != 0 ){
 				if( total != 0 ){
 					final int len = factoryPathMarkers.length;
@@ -279,7 +280,7 @@ public abstract class APTTestBase extends BuilderTests{
 				else
 					markers = factoryPathMarkers;
 			}
-			final IMarker[] configMarkers = resource.findMarkers(AptPlugin.APT_CONFIG_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+			final IMarker[] configMarkers = resource.findMarkers(APTProblem.APT_CONFIG_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 			if( configMarkers.length != 0 ){
 				if( total != 0 ){
 					final int len = configMarkers.length;

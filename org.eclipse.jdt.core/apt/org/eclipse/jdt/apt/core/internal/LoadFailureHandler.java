@@ -20,6 +20,7 @@ import java.util.List;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.apt.core.internal.env.APTProblem;
 import org.eclipse.jdt.core.IJavaProject;
 
 /**
@@ -68,7 +69,7 @@ public class LoadFailureHandler {
 				String message = Messages.bind(
 						Messages.AnnotationProcessorFactoryLoader_factorypath_missingLibrary,
 						new String[] {fc, _project.getName()});
-				IMarker marker = _project.createMarker(AptPlugin.APT_LOADER_PROBLEM_MARKER);
+				IMarker marker = _project.createMarker(APTProblem.APT_LOADER_PROBLEM_MARKER);
 				marker.setAttributes(
 						new String[] {
 							IMarker.MESSAGE,
@@ -104,7 +105,7 @@ public class LoadFailureHandler {
 				String message = Messages.bind(
 						Messages.AnnotationProcessorFactoryLoader_unableToLoadFactoryClass,
 						new String[] {factoryName, _project.getName()});
-				IMarker marker = _project.createMarker(AptPlugin.APT_LOADER_PROBLEM_MARKER);
+				IMarker marker = _project.createMarker(APTProblem.APT_LOADER_PROBLEM_MARKER);
 				marker.setAttributes(
 						new String[] {
 							IMarker.MESSAGE,

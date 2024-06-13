@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.apt.core.internal.env.APTProblem;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.TestCodeUtil;
 import org.eclipse.jdt.apt.core.util.AptConfig;
@@ -234,7 +235,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 		AptPlugin.getAptProject(javaProject).projectClean( true, true, true );
 		try{
 			// clear out all markers during a clean.
-			IMarker[] markers = p.findMarkers(AptPlugin.APT_BATCH_PROCESSOR_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+			IMarker[] markers = p.findMarkers(APTProblem.APT_BATCH_PROCESSOR_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 			if( markers != null ){
 				for( IMarker marker : markers )
 					marker.delete();

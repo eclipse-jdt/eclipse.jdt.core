@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.env.APTProblem;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.IFactoryPath;
 import org.eclipse.jdt.apt.tests.external.annotations.classloader.ColorAnnotationProcessor;
@@ -149,7 +150,7 @@ public class FactoryLoaderTests extends APTTestBase {
 		fullBuild( project.getFullPath() );
 		IMarker[] markers = getAllAPTMarkers(_projectPath);
 		assertEquals(1, markers.length);
-		assertEquals(AptPlugin.APT_LOADER_PROBLEM_MARKER, markers[0].getType());
+		assertEquals(APTProblem.APT_LOADER_PROBLEM_MARKER, markers[0].getType());
 		String message = markers[0].getAttribute(IMarker.MESSAGE, "");
 		assertTrue(message.contains("bogusJar.jar"));
 

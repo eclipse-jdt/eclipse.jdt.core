@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
+<title>Eclipse APT Design Notes</title>
+</head>
+<body lang="EN-US">
+<h1>Overview</h1>
+<p>Annotation processors may implement either the Java 5 com.sun.mirror.apt interfaces or the
+Java 6 javax.annotation.processing interfaces. The two interfaces are functionally similar but
+the details are different. Note that although the Java 5 apt tool has been deprecated by Sun,
+it is still included in the Java 6 JDK and developers continue to write processors against it.
+However, the com.sun.mirror.apt interface is considered proprietary and there are no Java
+compliance tests which validate it.
+</p>
+
+<h1>Build Process</h1>
+<p>The JDT system performs three kinds of build: full build, incremental build, and reconcile. When
+a single file is edited and saved (if autobuild is enabled) or manually built, an incremental
+build is performed: only the affected files will be rebuilt. This will include the edited file
+as well as any other files with relevant dependencies on the edited file. After a clean, or
+when incremental build detects an overwhelming number of files needing to be rebuilt, a full
+build will be performed; in this case every file in the project will be rebuilt. During an
+editing session, prior to saving, a file will frequently be reconciled, in order to identify
+errors while typing. Reconcile operates on only a single file at a time.</p>
+<p>
+Java 5 and Java 6 processors are handled by different code and interact with the Eclipse Java
+compiler in different ways and at different points in the build cycle. This is partly for
+historical reasons and partly in order to support Java 6 processors in the context of the
+command-line Eclipse compiler (ecj.jar). The Java 5 annotation processing code is built against
+the JDT's public API; the Java 6 code uses internal interfaces within the compiler, which was
+necessary because the public APIs use platform classes not available in the command-line package.
+A pleasant consequence is that the Java 6 annotation processing code is somewhat easier
+to understand.</p>
+<p>
+The main challenge of introducing APT into Eclipse is that annotation processors can contribute
+additional Java types, which must in turn be compiled; this compilation can affect previously
+compiled types, because a formerly unresolved reference can be resolved. Because of this, it
+is necessary for annotation processing to be implemented within the compile process, rather than
+as a later build step.</p>
+<p>
+TODO: overview of build process, i.e., when Java 5 processors are called relative to Java 6 processors
+</p>
+<h2>Java 5 Build-time Processing</h2>
+<p>
+The invocation path for Java 5 processors is quite complex, in part because when Java 5 processing
+was implemented it was not possible to integrate it closely with the compiler, and in part for
+silly historical reasons that serve no current purpose. It is ripe for refactoring.</p>
+<p>
+A typical call stack when a Java 5 processor is invoked looks like this:</p>
+<pre>
+	SomeProcessor.process() line: xxx	
+	APTDispatchRunnable.dispatchToFileBasedProcessor(AbstractCompilationEnv, boolean, boolean) line: 628	
+	APTDispatchRunnable.runAPTInFileBasedMode(BuildEnv) line: 317	
+	APTDispatchRunnable.build(BuildEnv) line: 655	
+	APTDispatchRunnable.access$1(APTDispatchRunnable, BuildEnv) line: 647	
+	APTDispatchRunnable$1.run(AbstractCompilationEnv) line: 265	
+	BuildEnv$CallbackRequestor.acceptBinding(String, IBinding) line: 611	
+	CompilationUnitResolver.resolve(ICompilationUnit[], String[], ASTRequestor, int, Map, WorkingCopyOwner, int) line: 766	
+	CompilationUnitResolver.resolve(ICompilationUnit[], String[], ASTRequestor, int, Map, IJavaProject, WorkingCopyOwner, int, IProgressMonitor) line: 478	
+	ASTParser.createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor) line: 737	
+	BaseProcessorEnv.createASTs(IJavaProject, ICompilationUnit[], ASTRequestor) line: 856	
+	BuildEnv.createASTs(BuildContext[]) line: 356	
+	AbstractCompilationEnv.newBuildEnv(BuildContext[], BuildContext[], IJavaProject, AbstractCompilationEnv$EnvCallback) line: 111	
+	APTDispatchRunnable.build() line: 271	
+	APTDispatchRunnable.run(IProgressMonitor) line: 217	
+	Workspace.run(IWorkspaceRunnable, ISchedulingRule, int, IProgressMonitor) line: 1800	
+	APTDispatchRunnable.runAPTDuringBuild(BuildContext[], BuildContext[], Map&lt;IFile,CategorizedProblem[]&gt;, AptProject, Map&lt;AnnotationProcessorFactory,Attributes&gt;, Set&lt;AnnotationProcessorFactory&gt;, boolean) line: 142	
+	AptCompilationParticipant.processAnnotations(BuildContext[]) line: 193	
+	IncrementalImageBuilder(AbstractImageBuilder).processAnnotations(CompilationParticipantResult[]) line: 627	
+	IncrementalImageBuilder(AbstractImageBuilder).compile(SourceFile[]) line: 338	
+	IncrementalImageBuilder.build(SimpleLookupTable) line: 134	
+	JavaBuilder.buildDeltas(SimpleLookupTable) line: 265	
+	JavaBuilder.build(int, Map, IProgressMonitor) line: 193	
+	[higher calls omitted for brevity]
+</pre>
+<p>
+Java 5 processors are invoked via the CompilationParticipant interface. The Java compiler calls
+AptCompilationParticipant.processAnnotations(), passing in a list of all the files being built.
+Note that the compiler may break large projects into multiple groups of files, resulting in
+multiple calls to processAnnotations(). Files are marked with whether or not they contain annotations.</p>
+<p>
+Within processAnnotations(), annotation processor factories are discovered from the processor
+factory path (and cached for subsequent invocations); factories and files are then passed in to
+APTDispatchRunnable.runAPTDuringBuild(). This in turn stores the information in a new instance of
+APTDispatchRunnable, and invokes its run() method within a workspace.run() operation.</p>
+<p>
+The run() method invokes BuildEnv.newBuildEnv(), passing in the AptDispatchRunnable as a callback.
+The newBuildEnv() method creates a BuildEnv, gets compilation units for each of the files being
+compiled, and then requests ASTs for each of the files. The parser is passed an ASTRequestor
+callback that is implemented by an inner class of the BuildEnv; in this way, when the ASTs are
+ready for consumption, APTDispatchRunnable.build(BuildEnv) is ultimately called, within the
+ASTRequestor callback.</p>
+<p>
+Finally, within build(), processors are selected on the basis of the
+annotations they support, and each processor's process() method is called on each appropriate file,
+configuring the BuildEnv before each process() invocation so that it will provide the correct data.
+The details of this vary depending on whether the processor is normal (file-based) or is marked
+as requiring batch mode.</p>
+<h3>Batch-mode Processors</h3>
+<p>Processors can be marked in the Advanced Factory Path Options dialog as requiring batch mode.
+If any of the processors on the project's factory path require batch mode, 
+AptDispatchRunnable.build(BuildEnv) calls runAPTInMixedMode(); if none of the processors
+requires batch mode, runAPTInFileBasedMode() is called instead. The chief difference is that
+batch-mode processors are only run during a full build, and that the batch-mode implementation of
+AnnotationProcessorEnvironment.getTypeDeclarations() returns all the compilation units in the
+build, whereas the normal implementation returns only a single compilation unit at a time.</p>
+<p>
+Additionally, a separate classloader is used to load batch-mode processors, and it is
+discarded after each build; thus the classes are reloaded for each build, and static variables
+are reinitialized. This is important because some processors written with command-line
+(non-incremental) compilation in mind store dynamic state in static variables and thus cannot
+be invoked multiple times.
+</p>
+<h3>File-mode Processors</h3>
+<p>Most processors are designed (or at least should be designed) to support incremental compilation,
+meaning that within the AnnotationProcessor.process() invocation, if the processor calls
+AnnotationProcessorEnvironment.getTypeDeclarations(), it will only retrieve a single type at a
+time; the process() method will be called repeatedly during the course of a build so that all
+files are eventually processed.
+</p>
+<h2>Java 6 Build-time Processing</h2>
+<p>
+The invocation process for Java 6 processors is more straightforward. A typical call stack looks
+like this:</p>
+<pre>
+	ModelTesterProc.process(Set&lt;TypeElement&gt;, RoundEnvironment) line: 107	
+	RoundDispatcher.handleProcessor(ProcessorInfo) line: 139	
+	RoundDispatcher.round() line: 121	
+	IdeAnnotationProcessorManager(BaseAnnotationProcessorManager).processAnnotations(CompilationUnitDeclaration[], ReferenceBinding[], boolean) line: 159	
+	IdeAnnotationProcessorManager.processAnnotations(CompilationUnitDeclaration[], ReferenceBinding[], boolean) line: 134	
+	Compiler.processAnnotations() line: 810	
+	Compiler.compile(ICompilationUnit[]) line: 428	
+	IncrementalImageBuilder(AbstractImageBuilder).compile(SourceFile[], SourceFile[], boolean) line: 364	
+	IncrementalImageBuilder.compile(SourceFile[], SourceFile[], boolean) line: 321	
+	IncrementalImageBuilder(AbstractImageBuilder).compile(SourceFile[]) line: 301	
+	IncrementalImageBuilder.build(SimpleLookupTable) line: 134	
+	JavaBuilder.buildDeltas(SimpleLookupTable) line: 265	
+	JavaBuilder.build(int, Map, IProgressMonitor) line: 193	
+	[higher calls omitted for brevity]
+</pre> 
+<p>
+Note that the processing is performed by an IdeAnnotationProcessorManager; this is distinguished
+from the BatchAnnotationProcessorManager, which would be used if processing was invoked from a
+command line (ecj.jar) compilation. Command-line compilation with ecj.jar uses the same typesystem
+implementation as IDE compilation, but somewhat different Messager and Filer implementations.
+</p>
+<h2>Reconcile-time Processing</h2>
+<p>
+Reconcile-time processing is only supported for Java 5 processors. This is chiefly because, after 
+developing the Java 5 processing implementation, it became clear that writing highly-performant
+annotation processors requires a level of compiler experience that most programmers do not have,
+and if less-performant processors are inserted into the reconcile step, reconcile can become
+painfully and confusingly slow. Thus when the Java 6 processing implementation was added it was
+decided to not support reconcile-time processing. Eclipse's effectiveness as an IDE depends on 
+reconcile being an extremely fast operation. In hindsight, edit-time processing should have been 
+limited to reporting errors, and should have been implemented as a background validation task 
+rather than within the reconcile step.</p>
+<p>
+TODO: describe practical differences between reconcile and build.</p>
+<p>
+The stack trace of a typical reconcile-time invocation looks like this:</p>
+<pre>
+	SomeProcessor.process() line: xxx	
+	APTDispatchRunnable.dispatchToFileBasedProcessor(AbstractCompilationEnv, boolean, boolean) line: 628	
+	APTDispatchRunnable.access$0(APTDispatchRunnable, AbstractCompilationEnv, boolean, boolean) line: 598	
+	APTDispatchRunnable$ReconcileEnvCallback.run(AbstractCompilationEnv) line: 77	
+	ReconcileEnv$CallbackRequestor.acceptBinding(String, IBinding) line: 135	
+	CompilationUnitResolver.resolve(ICompilationUnit[], String[], ASTRequestor, int, Map, WorkingCopyOwner, int) line: 766	
+	CompilationUnitResolver.resolve(ICompilationUnit[], String[], ASTRequestor, int, Map, IJavaProject, WorkingCopyOwner, int, IProgressMonitor) line: 478	
+	ASTParser.createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor) line: 737	
+	BaseProcessorEnv.createASTs(IJavaProject, ICompilationUnit[], ASTRequestor) line: 856	
+	ReconcileEnv.openPipeline() line: 108	
+	AbstractCompilationEnv.newReconcileEnv(ReconcileContext, AbstractCompilationEnv$EnvCallback) line: 97	
+	APTDispatchRunnable.reconcile(ReconcileContext, IJavaProject) line: 211	
+	APTDispatchRunnable.runAPTDuringReconcile(ReconcileContext, AptProject, Map&lt;AnnotationProcessorFactory,Attributes&gt;) line: 159	
+	AptCompilationParticipant.reconcile(ReconcileContext) line: 223	
+	ReconcileWorkingCopyOperation$1.run() line: 257	
+	SafeRunner.run(ISafeRunnable) line: 42	
+	ReconcileWorkingCopyOperation.notifyParticipants(CompilationUnit) line: 244	
+	ReconcileWorkingCopyOperation.executeOperation() line: 94	
+	ReconcileWorkingCopyOperation(JavaModelOperation).run(IProgressMonitor) line: 728	
+	ReconcileWorkingCopyOperation(JavaModelOperation).runOperation(IProgressMonitor) line: 788	
+	CompilationUnit.reconcile(int, int, WorkingCopyOwner, IProgressMonitor) line: 1242	
+	JavaReconcilingStrategy.reconcile(ICompilationUnit, boolean) line: 126	
+	[higher calls omitted for brevity]
+</pre>
+
+<h1>Processor Callbacks</h1>
+<p>When annotation processors are invoked, they can in turn call back into the compiler through various
+interfaces in order to generate new files and report errors. The interfaces are naturally not the same as
+those used within the JDT compiler, so wrappers and proxies are employed to glue the different systems
+together. The most significant difference in systems is that, in both the Java 5 and Java 6 processor
+interfaces, the typesystem is separated into Type and Element hierarchies, in which a Type object
+represents a particular reification of a type while an Element represents a declaration in code. The
+distinction is easiest to understand in the context of generics: for example, the following code sample
+contains declarations of classes Lister and Test, which contain declarations of method get() and fields
+'strings' and 'numbers' respectively. The type of the return of get() is List&lt;T&gt;, the type of strings is
+Lister&lt;String&gt;, and the type of numbers is Lister&lt;Number&gt;. Note that the single declaration of Lister&lt;T&gt;
+was able to generate multiple Types.
+</p>
+<pre>
+  import java.util.List;
+  class Lister&lt;T&gt; {
+    List&lt;T&gt; get() { ... }
+  }
+  class Test {
+    Lister&lt;String&gt; strings;
+    Lister&lt;Number&gt; numbers;
+  }
+</pre>
+
+<h2>Java 5 Type System</h2>
+<p>TODO</p>
+
+<h2>Java 5 Filer and Messager</h2>
+<p>TODO</p>
+
+<h2>Java 6 Type System</h2>
+<p>TODO</p>
+
+<h2>Java 6 Filer and Messager</h2>
+<p>TODO</p>
+
+</body>
+</html>

@@ -827,7 +827,8 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 					attributes.put(extraAttributeNames[j], extraAttributeValues[j]);
 				}
 			}
-			resource.createMarker(markerType, attributes);
+			IMarker mark = resource.createMarker(markerType, attributes);
+			mark.exists();
 
 			if (!this.keepStoringProblemMarkers) return; // only want the one error recorded on this source file
 		}
