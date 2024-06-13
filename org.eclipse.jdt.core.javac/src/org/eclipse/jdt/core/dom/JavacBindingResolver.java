@@ -62,6 +62,7 @@ import com.sun.tools.javac.tree.JCTree.JCNewClass;
 import com.sun.tools.javac.tree.JCTree.JCPackageDecl;
 import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCTypeApply;
+import com.sun.tools.javac.tree.JCTree.JCTypeCast;
 import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
@@ -561,19 +562,21 @@ public class JavacBindingResolver extends BindingResolver {
 			}
 			return this.bindings.getTypeBinding(jcFieldAccess.type.isErroneous() ? jcFieldAccess.sym.type : jcFieldAccess.type);
 		}
-		if (jcTree instanceof JCExpression jcExpr) {
-			if (jcExpr.type instanceof PackageType) {
-				return null;
-			}
-			return this.bindings.getTypeBinding(jcExpr.type);
-		}
 		if (jcTree instanceof JCVariableDecl jcVariableDecl) {
-
 			if (jcVariableDecl.type != null) {
 				return this.bindings.getTypeBinding(jcVariableDecl.type);
 			} else {
 				return null;
 			}
+		}
+		if (jcTree instanceof JCTypeCast jcCast && jcCast.getType() != null) {
+			return this.bindings.getTypeBinding(jcCast.getType().type);
+		}
+		if (jcTree instanceof JCExpression jcExpr) {
+			if (jcExpr.type instanceof PackageType) {
+				return null;
+			}
+			return this.bindings.getTypeBinding(jcExpr.type);
 		}
 		return null;
 	}
