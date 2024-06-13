@@ -3382,18 +3382,6 @@ public CompilationUnit[] getCompilationUnits() {
 	int[] orderedIndex = IntStream.range(0, fileCount).boxed().sorted((i1, i2) -> {
 		return this.filenames[i1].compareTo(this.filenames[i2]);
 	}).mapToInt(i -> i).toArray();
-	Map<String, String> location2patchedModule = new HashMap<>();
-	if (this.patchModules != null) {
-		for (Entry<String, String> entry : this.patchModules.entrySet()) {
-			StringTokenizer tokenizer = new StringTokenizer(entry.getValue(), File.pathSeparator);
-			while (tokenizer.hasMoreTokens()) {
-				String location = tokenizer.nextToken();
-				if (location2patchedModule.put(location, entry.getKey()) != null) {
-					throw new IllegalArgumentException(this.bind("configure.duplicateLocationPatchModule", location)); //$NON-NLS-1$
-				}
-			}
-		}
-	}
 	for (int round = 0; round < 2; round++) {
 		for (int i : orderedIndex) {
 			char[] charName = this.filenames[i].toCharArray();
@@ -3434,19 +3422,9 @@ public CompilationUnit[] getCompilationUnits() {
 						return null;
 					};
 				}
-				String modName = this.modNames[i];
-				if (modName == null) {
-					// does this source file patch an existing module?
-					patchEntries: for (Entry<String, String> entry : location2patchedModule.entrySet()) {
-						if (fileName.startsWith(entry.getKey()+File.separator)) {
-							modName = entry.getValue();
-							break patchEntries;
-						}
-					}
-				}
 				units[i] = new CompilationUnit(null, fileName, encoding, this.destinationPaths[i],
 						shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, fileName.toCharArray()),
-						modName, annotationPathProvider);
+						this.modNames[i], annotationPathProvider);
 			}
 		}
 	}
@@ -3578,6 +3556,33 @@ private void processAddonModuleOptions(FileSystem env) {
 		}
 	}
 }
+/** Associate patching source files to their modules. */
+protected void handlePatchModule() {
+	if (this.patchModules != null) {
+		Map<String, String> location2patchedModule = new HashMap<>();
+		for (Entry<String, String> entry : this.patchModules.entrySet()) {
+			StringTokenizer tokenizer = new StringTokenizer(entry.getValue(), File.pathSeparator);
+			while (tokenizer.hasMoreTokens()) {
+				String location = tokenizer.nextToken();
+				if (location2patchedModule.put(location, entry.getKey()) != null) {
+					throw new IllegalArgumentException(this.bind("configure.duplicateLocationPatchModule", location)); //$NON-NLS-1$
+				}
+			}
+		}
+		for(int i = 0; i < this.filenames.length; i++) {
+			if (this.modNames[i] == null) {
+				// does this source file patch an existing module?
+				for (Entry<String, String> entry : location2patchedModule.entrySet()) {
+					if (this.filenames[i].startsWith(entry.getKey()+File.separator)) {
+						this.modNames[i] = entry.getValue();
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
 protected ArrayList<FileSystem.Classpath> handleModulepath(String arg) {
 	ArrayList<String> modulePaths = processModulePathEntries(arg);
 	ArrayList<Classpath> result = new ArrayList<>();
@@ -4687,7 +4692,17 @@ public void outputClassFiles(CompilationResult unitResult) {
 		boolean generateClasspathStructure = false;
 		CompilationUnit compilationUnit =
 			(CompilationUnit) unitResult.compilationUnit;
-		if (compilationUnit.destinationPath == null) {
+		findDestination: if (compilationUnit.destinationPath == null) {
+			if (compilationUnit.module != null) {
+				// correlate patch-module to the corresponding destination path
+				for (Classpath classpath : this.checkedClasspaths) {
+					if (classpath.servesModule(compilationUnit.module)) {
+						currentDestinationPath = classpath.getDestinationPath();
+						generateClasspathStructure = true;
+						break findDestination;
+					}
+				}
+			}
 			if (this.destinationPath == null) {
 				currentDestinationPath =
 					extractDestinationPathFromSourceFile(unitResult);
@@ -5272,6 +5287,8 @@ protected void setPaths(ArrayList<String> bootclasspaths,
 	}
 
 	List<FileSystem.Classpath> cp = handleClasspath(classpaths, customEncoding);
+
+	handlePatchModule();
 
 	List<FileSystem.Classpath> mp = handleModulepath(modulePath);
 
