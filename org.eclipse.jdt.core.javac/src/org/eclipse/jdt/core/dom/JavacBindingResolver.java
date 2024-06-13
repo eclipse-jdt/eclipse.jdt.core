@@ -179,7 +179,20 @@ public class JavacBindingResolver extends BindingResolver {
 			}
 			this.symbolToDom = new HashMap<>();
 			this.converter.domToJavac.entrySet().forEach(entry ->
-				symbol(entry.getValue()).ifPresent(sym -> this.symbolToDom.put(sym, entry.getKey())));
+				symbol(entry.getValue()).ifPresent(sym -> {
+						if (this.symbolToDom.containsKey(sym)) {
+							var existing = this.symbolToDom.get(sym);
+							var cursor = existing.getParent();
+							while (cursor != null) {
+								if (entry.getKey() == existing.getParent()) {
+									// the existing node is probably more specific
+									return;
+								}
+								cursor = cursor.getParent();
+							}
+						}
+						this.symbolToDom.put(sym, entry.getKey());
+					}));
 		}
 	}
 
