@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -44,6 +48,7 @@ public interface TypeConstants {
 	char[] JAVAX = "javax".toCharArray(); //$NON-NLS-1$
 	char[] JAKARTA = "jakarta".toCharArray(); //$NON-NLS-1$
 	char[] LANG = "lang".toCharArray(); //$NON-NLS-1$
+	char[] BASE = "base".toCharArray(); //$NON-NLS-1$
 	char[] IO = "io".toCharArray(); //$NON-NLS-1$
 	char[] NIO = "nio".toCharArray(); //$NON-NLS-1$
 	char[] UTIL = "util".toCharArray(); //$NON-NLS-1$
@@ -156,6 +161,7 @@ public interface TypeConstants {
     char[] SPRING = "springframework".toCharArray(); //$NON-NLS-1$
 
 	// Constant compound names
+    char[][] JAVA_BASE = {JAVA, BASE};
 	char[][] JAVA_LANG = {JAVA, LANG};
 	char[][] JAVA_IO = {JAVA, IO};
 	char[][] JAVA_LANG_ANNOTATION = {JAVA, LANG, ANNOTATION};
@@ -571,7 +577,7 @@ public interface TypeConstants {
 	public static final String MODULE_INFO_FILE_NAME_STRING = "module-info.java"; //$NON-NLS-1$
 	public static final String MODULE_INFO_CLASS_NAME_STRING = "module-info.class"; //$NON-NLS-1$
 	// java.base module name
-	char[] JAVA_BASE = "java.base".toCharArray(); //$NON-NLS-1$
+	char[] JAVA_DOT_BASE = "java.base".toCharArray(); //$NON-NLS-1$
 	String META_INF_MANIFEST_MF = "META-INF/MANIFEST.MF"; //$NON-NLS-1$
 	String AUTOMATIC_MODULE_NAME = "Automatic-Module-Name";  //$NON-NLS-1$
 	char[][] JDK_INTERNAL_VALUEBASED = {"jdk".toCharArray(), "internal".toCharArray(), "ValueBased".toCharArray()}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

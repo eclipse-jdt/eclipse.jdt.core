@@ -242,6 +242,10 @@ void checkAndSetImports() {
 		if ((importReference.bits & ASTNode.OnDemand) != 0 && !importReference.isStatic()) {
 			if (CharOperation.equals(TypeConstants.JAVA_LANG, importReference.tokens)) {
 				numberOfImports--;
+			} else if ((importReference.modifiers & ClassFileConstants.AccModule) != 0 &&
+					this.referenceContext.isSimpleCompilationUnit() &&
+					CharOperation.equals(TypeConstants.JAVA_BASE, importReference.tokens)) {
+				numberOfImports--;
 			}
 		}
 	}
@@ -251,9 +255,16 @@ void checkAndSetImports() {
 
 	Predicate<ImportReference> isStaticImport = ImportReference::isStatic;
 	Predicate<ImportReference> isNotStaticImport = Predicate.not(isStaticImport);
-
+	Predicate<ImportReference> ignoreImplicit = (imp) -> {
+			if (!this.referenceContext.isSimpleCompilationUnit()) {
+				return false;
+			}
+			return (CharOperation.equals(TypeConstants.JAVA_LANG, imp.tokens) ||
+					((imp.modifiers & ClassFileConstants.AccModule) != 0
+						&& CharOperation.equals(TypeConstants.JAVA_BASE, imp.tokens)));
+	};
 	// GitHub 269: resolve non-static imports first, so that cyclic static imports can be resolved correctly
-	index = resolveImports(numberOfStatements, resolvedImports, index, isNotStaticImport);
+	index = resolveImports(numberOfStatements, resolvedImports, index, ignoreImplicit, isNotStaticImport);
 
 	// non-static imports are resolved now, "store" them before continuing with static imports
 	ImportBinding[] temp = new ImportBinding[index];
@@ -261,7 +272,7 @@ void checkAndSetImports() {
 	this.imports = temp;
 
 	// GitHub 269: non-static imports are resolved, now we can resolve static imports
-	index = resolveImports(numberOfStatements, resolvedImports, index, isStaticImport);
+	index = resolveImports(numberOfStatements, resolvedImports, index, ignoreImplicit, isStaticImport);
 
 	// shrink resolvedImports... only happens if an error was reported
 	if (resolvedImports.length > index) {
@@ -270,10 +281,13 @@ void checkAndSetImports() {
 	this.imports = resolvedImports;
 }
 
-private int resolveImports(int numberOfStatements, ImportBinding[] resolvedImports, int index, Predicate<ImportReference> filter) {
+private int resolveImports(int numberOfStatements, ImportBinding[] resolvedImports, int index, Predicate<ImportReference> filter1, Predicate<ImportReference> filter2) {
 	nextImport : for (int i = 0; i < numberOfStatements; i++) {
 		ImportReference importReference = this.referenceContext.imports[i];
-		if (!filter.test(importReference)) {
+		if (filter1.test(importReference)) {
+			continue;
+		}
+		if (!filter2.test(importReference)) {
 			continue;
 		}
 
@@ -755,6 +769,15 @@ ImportBinding[] getDefaultImports() {
 	// initialize the default imports if necessary... share the default java.lang.* import
 	if (this.environment.root.defaultImports != null) return this.environment.root.defaultImports;
 
+	if (JavaFeature.IMPLICIT_CLASSES_AND_INSTANCE_MAIN_METHODS.isSupported(this.environment.globalOptions) &&
+			this.referenceContext.isSimpleCompilationUnit()) {
+		ModuleBinding module = this.environment.getModule(CharOperation.concatWith(TypeConstants.JAVA_BASE, '.'));
+		if (module != null) {
+			ImportBinding javaBase = new ImportBinding(TypeConstants.JAVA_BASE, true, module, null);
+			// No need for the java.lang.* as module java.base covers it
+			return new ImportBinding[] {javaBase};
+		}
+	}
 	Binding importBinding = this.environment.getTopLevelPackage(TypeConstants.JAVA);
 	if (importBinding != null)
 		importBinding = ((PackageBinding) importBinding).getTypeOrPackage(TypeConstants.JAVA_LANG[1], module(), false);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -3031,7 +3035,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		for(int i = 0; i < module.requiresCount; i++) {
 			RequiresStatement req = module.requires[i];
 			ModuleBinding reqBinding = req.resolvedBinding;
-			if (CharOperation.equals(reqBinding.moduleName, TypeConstants.JAVA_BASE)) {
+			if (CharOperation.equals(reqBinding.moduleName, TypeConstants.JAVA_DOT_BASE)) {
 				javaBaseBinding = reqBinding;
 			}
 			int nameIndex = this.constantPool.literalIndexForModule(reqBinding.moduleName);
@@ -3044,7 +3048,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.contents[localContentsOffset++] = (byte) (required_version >> 8);
 			this.contents[localContentsOffset++] = (byte) (required_version);
 		}
-		if (!CharOperation.equals(binding.moduleName, TypeConstants.JAVA_BASE) && javaBaseBinding == null) {
+		if (!CharOperation.equals(binding.moduleName, TypeConstants.JAVA_DOT_BASE) && javaBaseBinding == null) {
 			if (localContentsOffset + 6 >= this.contents.length) {
 				resizeContents(6);
 			}
