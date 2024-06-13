@@ -838,8 +838,19 @@ public ModuleBinding module(LookupEnvironment environment) {
 	}
 	if (this.compilationResult != null) {
 		ICompilationUnit compilationUnit = this.compilationResult.compilationUnit;
-		if (compilationUnit != null)
-			return compilationUnit.module(environment);
+		if (compilationUnit != null) {
+			ModuleBinding module = compilationUnit.module(environment);
+			if (module == null) {
+				ReferenceContext save = environment.problemReporter.referenceContext;
+				try {
+					environment.problemReporter.referenceContext = this;
+					environment.problemReporter.moduleNotFound(this, compilationUnit.getModuleName());
+				} finally {
+					environment.problemReporter.referenceContext = save;
+				}
+			}
+			return module;
+		}
 	}
 	return environment.module;
 }

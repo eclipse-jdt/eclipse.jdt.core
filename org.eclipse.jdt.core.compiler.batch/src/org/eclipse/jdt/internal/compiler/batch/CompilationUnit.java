@@ -133,10 +133,7 @@ public char[] getModuleName() {
 public ModuleBinding module(LookupEnvironment rootEnvironment) {
 	if (this.moduleBinding != null)
 		return this.moduleBinding;
-	this.moduleBinding = rootEnvironment.getModule(this.module);
-	if (this.moduleBinding == null)
-		throw new IllegalStateException("Module should be known"); //$NON-NLS-1$
-	return this.moduleBinding;
+	return this.moduleBinding = rootEnvironment.getModule(this.module);
 }
 @Override
 public String getDestinationPath() {

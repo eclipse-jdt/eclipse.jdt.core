@@ -11591,6 +11591,11 @@ public void invalidModule(ModuleReference ref) {
 	String[] args = new String[] { CharOperation.charToString(ref.moduleName) };
 	this.handle(IProblem.UndefinedModule, args, args, ref.sourceStart, ref.sourceEnd);
 }
+public void moduleNotFound(CompilationUnitDeclaration compilationUnitDeclaration, char[] moduleName) {
+	String[] args = new String[] { String.valueOf(moduleName) };
+	ASTNode location = (compilationUnitDeclaration.currentPackage != null) ? compilationUnitDeclaration.currentPackage : compilationUnitDeclaration;
+	handle(IProblem.UndefinedModule, args, args, location.sourceStart, location.sourceEnd);
+}
 public void missingModuleAddReads(char[] requiredModuleName) {
 	String[] args = new String[] { new String(requiredModuleName) };
 	this.handle(IProblem.UndefinedModuleAddReads, args, args, 0, 0);

@@ -6022,4 +6022,136 @@ public void testBug521362_emptyFile() {
 				"",
 				false);
 	}
+
+	public void testPatchModuleSingle_duplicateModule() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String src1 = OUTPUT_DIR + File.separator + "src1";
+		String src2 = OUTPUT_DIR + File.separator + "src2";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, src1 + File.separator + "test1",
+				"A.java",
+				"package test1;\n" +
+				"public class A {}");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --patch-module mod.one=\"").append(src1).append("\" ")
+			.append(" --patch-module mod.one=\"").append(src2).append("\" ")
+			.append(" --module-path \"").append(Util.getJavaClassLibsAsString()).append("\" ");
+		runNegativeModuleTest(
+				files,
+				buffer,
+				"",
+				"duplicate module in --patch-module: mod.one\n",
+				false,
+				"--patch-module specified more than once");
+	}
+
+	public void testPatchModuleSingle_duplicateLocation1() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String src1 = OUTPUT_DIR + File.separator + "src1";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, src1 + File.separator + "test1",
+				"A.java",
+				"package test1;\n" +
+				"public class A {}");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --patch-module mod.one=\"").append(src1).append("\"")
+			.append(File.pathSeparatorChar).append("\"").append(src1).append("\" ")
+			.append(" --module-path \"").append(Util.getJavaClassLibsAsString()).append("\" ");
+		runNegativeModuleTest(
+				files,
+				buffer,
+				"",
+				"location ---OUTPUT_DIR_PLACEHOLDER---/src1 is specified more than once in --patch-module\n",
+				false,
+				"",
+				"",
+				JavacTestOptions.SKIP);
+	}
+
+	public void testPatchModuleSingle_duplicateLocation2() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String src1 = OUTPUT_DIR + File.separator + "src1";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, src1 + File.separator + "test1",
+				"A.java",
+				"package test1;\n" +
+				"public class A {}");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --patch-module mod.one=\"").append(src1).append("\" ")
+			.append(" --patch-module mod.two=\"").append(src1).append("\" ")
+			.append(" --module-path \"").append(Util.getJavaClassLibsAsString()).append("\" ");
+		runNegativeModuleTest(
+				files,
+				buffer,
+				"",
+				"location ---OUTPUT_DIR_PLACEHOLDER---/src1 is specified more than once in --patch-module\n",
+				false,
+				"",
+				"",
+				JavacTestOptions.SKIP);
+	}
+
+	public void testPatchModuleSingle_syntaxErr() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String src1 = OUTPUT_DIR + File.separator + "src1";
+		String src2 = OUTPUT_DIR + File.separator + "src2";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, src1 + File.separator + "test1",
+				"A.java",
+				"package test1;\n" +
+				"public class A {}");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --patch-module mod.one \"").append(src1).append("\" ")
+			.append(" --module-path \"").append(Util.getJavaClassLibsAsString()).append("\" ");
+		runNegativeModuleTest(
+				files,
+				buffer,
+				"",
+				"invalid syntax for --patch-module: mod.one\n",
+				false,
+				"bad value for --patch-module option");
+	}
+
+	public void testPatchModuleSingle_noSuchModule() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String src1 = OUTPUT_DIR + File.separator + "src1";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, src1 + File.separator + "test1",
+				"A.java",
+				"package test1;\n" +
+				"public class A {}");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --patch-module mod.one=\"").append(src1).append("\" ")
+			.append(" --module-path \"").append(Util.getJavaClassLibsAsString()).append("\" ");
+		runNegativeModuleTest(
+				files,
+				buffer,
+				"",
+				"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src1/test1/A.java (at line 1)
+					package test1;
+					        ^^^^^
+				mod.one cannot be resolved to a module
+				----------
+				1 problem (1 error)
+				""",
+				false,
+				"module not found");
+	}
 }

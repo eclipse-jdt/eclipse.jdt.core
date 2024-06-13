@@ -3382,6 +3382,18 @@ public CompilationUnit[] getCompilationUnits() {
 	int[] orderedIndex = IntStream.range(0, fileCount).boxed().sorted((i1, i2) -> {
 		return this.filenames[i1].compareTo(this.filenames[i2]);
 	}).mapToInt(i -> i).toArray();
+	Map<String, String> location2patchedModule = new HashMap<>();
+	if (this.patchModules != null) {
+		for (Entry<String, String> entry : this.patchModules.entrySet()) {
+			StringTokenizer tokenizer = new StringTokenizer(entry.getValue(), File.pathSeparator);
+			while (tokenizer.hasMoreTokens()) {
+				String location = tokenizer.nextToken();
+				if (location2patchedModule.put(location, entry.getKey()) != null) {
+					throw new IllegalArgumentException(this.bind("configure.duplicateLocationPatchModule", location)); //$NON-NLS-1$
+				}
+			}
+		}
+	}
 	for (int round = 0; round < 2; round++) {
 		for (int i : orderedIndex) {
 			char[] charName = this.filenames[i].toCharArray();
@@ -3423,15 +3435,12 @@ public CompilationUnit[] getCompilationUnits() {
 					};
 				}
 				String modName = this.modNames[i];
-				if (modName == null && this.patchModules != null) {
+				if (modName == null) {
 					// does this source file patch an existing module?
-					patchEntries: for (Entry<String, String> entry : this.patchModules.entrySet()) {
-						StringTokenizer tokenizer = new StringTokenizer(entry.getValue(), File.pathSeparator);
-						while (tokenizer.hasMoreTokens()) {
-							if (fileName.startsWith(tokenizer.nextToken()+File.separator)) {
-								modName = entry.getKey();
-								break patchEntries;
-							}
+					patchEntries: for (Entry<String, String> entry : location2patchedModule.entrySet()) {
+						if (fileName.startsWith(entry.getKey()+File.separator)) {
+							modName = entry.getValue();
+							break patchEntries;
 						}
 					}
 				}
