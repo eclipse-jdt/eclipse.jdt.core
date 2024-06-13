@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1368,6 +1368,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	private List<String> addonReads = Collections.EMPTY_LIST;
 	public Set<String> rootModules = Collections.EMPTY_SET;
 	public Set<String> limitedModules;
+	private Map<String,String> patchModules; // <module>=<file>(<pathsep><file>)*
 
 	public Locale compilerLocale;
 	public CompilerOptions compilerOptions; // read-only
@@ -1840,6 +1841,7 @@ public void configure(String[] argv) {
 	final int INSIDE_RELEASE = 30;
 	final int INSIDE_LIMIT_MODULES = 31;
 	final int INSIDE_MODULE_VERSION = 32;
+	final int INSIDE_PATCH_MODULE = 33;
 
 	final int DEFAULT = 0;
 	ArrayList<String> bootclasspaths = new ArrayList<>(DEFAULT_SIZE_CLASSPATH);
@@ -2147,6 +2149,10 @@ public void configure(String[] argv) {
 				}
 				if (currentArg.equals("--limit-modules")) { //$NON-NLS-1$
 					mode = INSIDE_LIMIT_MODULES;
+					continue;
+				}
+				if (currentArg.equals("--patch-module")) { //$NON-NLS-1$
+					mode = INSIDE_PATCH_MODULE;
 					continue;
 				}
 				if (currentArg.equals("--module-version")) { //$NON-NLS-1$
@@ -2783,6 +2789,20 @@ public void configure(String[] argv) {
 						this.limitedModules = new HashSet<>();
 					}
 					this.limitedModules.add(tokenizer.nextToken().trim());
+				}
+				continue;
+			case INSIDE_PATCH_MODULE:
+				mode = DEFAULT;
+				String[] toks = currentArg.split("="); //$NON-NLS-1$
+				if (toks.length == 2) {
+					if (this.patchModules == null) {
+						this.patchModules = new HashMap<>();
+					}
+					if (this.patchModules.put(toks[0].trim(), toks[1].trim()) != null) {
+						throw new IllegalArgumentException(this.bind("configure.duplicatePatchModule", toks[0].trim())); //$NON-NLS-1$
+					}
+				} else {
+					throw new IllegalArgumentException(this.bind("configure.invalidSyntaxPatchModule", currentArg)); //$NON-NLS-1$
 				}
 				continue;
 			case INSIDE_MODULE_VERSION:
@@ -3536,6 +3556,33 @@ private void processAddonModuleOptions(FileSystem env) {
 		}
 	}
 }
+/** Associate patching source files to their modules. */
+protected void handlePatchModule() {
+	if (this.patchModules != null) {
+		Map<String, String> location2patchedModule = new HashMap<>();
+		for (Entry<String, String> entry : this.patchModules.entrySet()) {
+			StringTokenizer tokenizer = new StringTokenizer(entry.getValue(), File.pathSeparator);
+			while (tokenizer.hasMoreTokens()) {
+				String location = tokenizer.nextToken();
+				if (location2patchedModule.put(location, entry.getKey()) != null) {
+					throw new IllegalArgumentException(this.bind("configure.duplicateLocationPatchModule", location)); //$NON-NLS-1$
+				}
+			}
+		}
+		for(int i = 0; i < this.filenames.length; i++) {
+			if (this.modNames[i] == null) {
+				// does this source file patch an existing module?
+				for (Entry<String, String> entry : location2patchedModule.entrySet()) {
+					if (this.filenames[i].startsWith(entry.getKey()+File.separator)) {
+						this.modNames[i] = entry.getValue();
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
 protected ArrayList<FileSystem.Classpath> handleModulepath(String arg) {
 	ArrayList<String> modulePaths = processModulePathEntries(arg);
 	ArrayList<Classpath> result = new ArrayList<>();
@@ -4645,7 +4692,17 @@ public void outputClassFiles(CompilationResult unitResult) {
 		boolean generateClasspathStructure = false;
 		CompilationUnit compilationUnit =
 			(CompilationUnit) unitResult.compilationUnit;
-		if (compilationUnit.destinationPath == null) {
+		findDestination: if (compilationUnit.destinationPath == null) {
+			if (compilationUnit.module != null) {
+				// correlate patch-module to the corresponding destination path
+				for (Classpath classpath : this.checkedClasspaths) {
+					if (classpath.servesModule(compilationUnit.module)) {
+						currentDestinationPath = classpath.getDestinationPath();
+						generateClasspathStructure = true;
+						break findDestination;
+					}
+				}
+			}
 			if (this.destinationPath == null) {
 				currentDestinationPath =
 					extractDestinationPathFromSourceFile(unitResult);
@@ -5230,6 +5287,8 @@ protected void setPaths(ArrayList<String> bootclasspaths,
 	}
 
 	List<FileSystem.Classpath> cp = handleClasspath(classpaths, customEncoding);
+
+	handlePatchModule();
 
 	List<FileSystem.Classpath> mp = handleModulepath(modulePath);
 

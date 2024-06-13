@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -668,6 +668,8 @@ public void test012(){
         "                       resolved to be root modules\n" +
         "    --limit-modules <module>(,<module>)*\n" +
         "                       specify the observable module names\n" +
+        "    --patch-modules <module>=<directories separated by " + File.pathSeparator + ">\n" +
+        "                       specify source locations for patching the given module\n" +
         "    --release <release> compile for a specific VM version\n" +
         " \n" +
         " Compliance options:\n" +

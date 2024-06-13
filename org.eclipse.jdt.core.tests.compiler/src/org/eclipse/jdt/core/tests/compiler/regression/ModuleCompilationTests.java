@@ -5968,4 +5968,350 @@ public void testBug521362_emptyFile() {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + out + File.separator + "module-info.class", "module-info", expectedOutput);
 	}
+
+	public void testPatchModuleSingle() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out1 = OUTPUT_DIR + File.separator + "bin1";
+		String src1 = OUTPUT_DIR + File.separator + "src1";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, src1,
+				"module-info.java",
+				"module mod.one { \n" + // no exports!
+				"}");
+		writeFileCollecting(files, src1 + File.separator + "test1",
+				"A.java",
+				"package test1;\n" +
+				"public class A {}");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("-d " + out1 )
+			.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ");
+		runConformModuleTest(
+				files,
+				buffer,
+				"",
+				"",
+				false);
+
+		files.clear();
+		String out2 = "bin2";
+		String src2 = OUTPUT_DIR + File.separator + "src2";
+		writeFileCollecting(files, src2 + File.separator + "test2",
+				"B.java",
+				"""
+				package test2;
+				import test1.A;
+				class B extends A {}
+				""");
+		buffer = new StringBuilder();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out2 )
+			.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --patch-module mod.one=\"").append(src2).append("\" ")
+			.append(" --module-path \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append(File.pathSeparatorChar)
+			.append(out1)
+			.append("\" ");
+		runConformModuleTest(
+				files,
+				buffer,
+				"",
+				"",
+				false);
+	}
+
+	public void testPatchModuleSingle_duplicateModule() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String src1 = OUTPUT_DIR + File.separator + "src1";
+		String src2 = OUTPUT_DIR + File.separator + "src2";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, src1 + File.separator + "test1",
+				"A.java",
+				"package test1;\n" +
+				"public class A {}");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --patch-module mod.one=\"").append(src1).append("\" ")
+			.append(" --patch-module mod.one=\"").append(src2).append("\" ")
+			.append(" --module-path \"").append(Util.getJavaClassLibsAsString()).append("\" ");
+		runNegativeModuleTest(
+				files,
+				buffer,
+				"",
+				"duplicate module in --patch-module: mod.one\n",
+				false,
+				"--patch-module specified more than once");
+	}
+
+	public void testPatchModuleSingle_duplicateLocation1() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String src1 = OUTPUT_DIR + File.separator + "src1";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, src1 + File.separator + "test1",
+				"A.java",
+				"package test1;\n" +
+				"public class A {}");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --patch-module mod.one=\"").append(src1).append("\"")
+			.append(File.pathSeparatorChar).append("\"").append(src1).append("\" ")
+			.append(" --module-path \"").append(Util.getJavaClassLibsAsString()).append("\" ");
+		runNegativeModuleTest(
+				files,
+				buffer,
+				"",
+				"location ---OUTPUT_DIR_PLACEHOLDER---/src1 is specified more than once in --patch-module\n",
+				false,
+				"",
+				"",
+				JavacTestOptions.SKIP);
+	}
+
+	public void testPatchModuleSingle_duplicateLocation2() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String src1 = OUTPUT_DIR + File.separator + "src1";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, src1 + File.separator + "test1",
+				"A.java",
+				"package test1;\n" +
+				"public class A {}");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --patch-module mod.one=\"").append(src1).append("\" ")
+			.append(" --patch-module mod.two=\"").append(src1).append("\" ")
+			.append(" --module-path \"").append(Util.getJavaClassLibsAsString()).append("\" ");
+		runNegativeModuleTest(
+				files,
+				buffer,
+				"",
+				"location ---OUTPUT_DIR_PLACEHOLDER---/src1 is specified more than once in --patch-module\n",
+				false,
+				"",
+				"",
+				JavacTestOptions.SKIP);
+	}
+
+	public void testPatchModuleSingle_syntaxErr() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String src1 = OUTPUT_DIR + File.separator + "src1";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, src1 + File.separator + "test1",
+				"A.java",
+				"package test1;\n" +
+				"public class A {}");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --patch-module mod.one \"").append(src1).append("\" ")
+			.append(" --module-path \"").append(Util.getJavaClassLibsAsString()).append("\" ");
+		runNegativeModuleTest(
+				files,
+				buffer,
+				"",
+				"invalid syntax for --patch-module: mod.one\n",
+				false,
+				"bad value for --patch-module option");
+	}
+
+	public void testPatchModuleSingle_noSuchModule() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String src1 = OUTPUT_DIR + File.separator + "src1";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, src1 + File.separator + "test1",
+				"A.java",
+				"package test1;\n" +
+				"public class A {}");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --patch-module mod.one=\"").append(src1).append("\" ")
+			.append(" --module-path \"").append(Util.getJavaClassLibsAsString()).append("\" ");
+		runNegativeModuleTest(
+				files,
+				buffer,
+				"",
+				"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src1/test1/A.java (at line 1)
+					package test1;
+					        ^^^^^
+				mod.one cannot be resolved to a module
+				----------
+				1 problem (1 error)
+				""",
+				false,
+				"module not found");
+	}
+
+	public void testPatchModuleMulti() {
+		// separately compile two modules, then patch them both in one go:
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+
+		// mod.one
+		String out1 = OUTPUT_DIR + File.separator + "bin1";
+		String src1 = OUTPUT_DIR + File.separator + "src1";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, src1,
+				"module-info.java",
+				"module mod.one { \n" + // no exports!
+				"}");
+		writeFileCollecting(files, src1 + File.separator + "test1",
+				"A.java",
+				"package test1;\n" +
+				"public class A {}");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("-d " + out1 )
+			.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ");
+		runConformModuleTest(
+				files,
+				buffer,
+				"",
+				"",
+				false);
+
+		// mod.two
+		String out2 = OUTPUT_DIR + File.separator + "bin2";
+		String src2 = OUTPUT_DIR + File.separator + "src2";
+		files.clear();
+		writeFileCollecting(files, src2,
+				"module-info.java",
+				"module mod.two { \n" + // no exports!
+				"}");
+		writeFileCollecting(files, src2 + File.separator + "test2",
+				"B.java",
+				"package test2;\n" +
+				"public class B {}");
+		buffer = new StringBuilder();
+		buffer.append("-d " + out2 )
+			.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ");
+		runConformModuleTest(
+				files,
+				buffer,
+				"",
+				"",
+				false);
+
+		// two files to patch each of the above modules:
+		files.clear();
+		String out3 = "bin3";
+		String src3 = OUTPUT_DIR + File.separator + "src3";
+		writeFileCollecting(files, src3 + File.separator + "test3",
+				"C.java",
+				"""
+				package test2;
+				import test1.A;
+				class C extends A {}
+				""");
+		String src4 = OUTPUT_DIR + File.separator + "src4";
+		writeFileCollecting(files, src4 + File.separator + "test4",
+				"E.java",
+				"""
+				package test4;
+				import test2.B;
+				class E extends B {}
+				""");
+		buffer = new StringBuilder();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out3 )
+			.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --patch-module mod.one=\"").append(src3).append("\" ")
+			.append(" --patch-module mod.two=\"").append(src4).append("\" ")
+			.append(" --module-path \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append(File.pathSeparatorChar)
+			.append(out1)
+			.append(File.pathSeparatorChar)
+			.append(out2)
+			.append("\" ");
+		runConformModuleTest(
+				files,
+				buffer,
+				"",
+				"",
+				false);
+	}
+
+	public void testPatchModuleMulti2() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+
+		String out = OUTPUT_DIR + File.separator + "bin";
+		// mod.one
+		String src = OUTPUT_DIR + File.separator + "src";
+		String m1src = src+ File.separator + "mod.one";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, m1src,
+				"module-info.java",
+				"module mod.one {}\n"); // no exports!
+		writeFileCollecting(files, m1src + File.separator + "test1",
+				"A.java",
+				"package test1;\n" +
+				"public class A {}");
+
+		// mod.two
+		String m2src = src + File.separator + "mod.two";
+		writeFileCollecting(files, m2src,
+				"module-info.java",
+				"module mod.two {} \n"); // no exports!
+		writeFileCollecting(files, m2src + File.separator + "test2",
+				"B.java",
+				"package test2;\n" +
+				"public class B {}\n");
+
+		// two files to patch each of the above modules:
+		String srcPatch1 = OUTPUT_DIR + File.separator + "src1";
+		writeFileCollecting(files, srcPatch1 + File.separator + "test3",
+				"C.java",
+				"""
+				package test2;
+				import test1.A;
+				class C extends A {}
+				""");
+		String srcPatch2 = OUTPUT_DIR + File.separator + "src2";
+		writeFileCollecting(files, srcPatch2 + File.separator + "test4",
+				"E.java",
+				"""
+				package test4;
+				import test2.B;
+				class E extends B {}
+				""");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("-d ").append(out)
+			.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --module-source-path \"").append(src).append("\"")
+			.append(" --patch-module mod.one=\"").append(srcPatch1).append("\" ")
+			.append(" --patch-module mod.two=\"").append(srcPatch2).append("\" ")
+			.append(" --module-path \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ");
+		runConformModuleTest(
+				files,
+				buffer,
+				"",
+				"",
+				false);
+	}
 }
