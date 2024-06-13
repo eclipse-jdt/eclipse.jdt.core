@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -296,7 +296,7 @@ protected void removeInfo(JavaElement element) {
 		case IJavaElement.CLASS_FILE:
 			this.openableCache.remove((ITypeRoot) element);
 			if (element.getElementName().equals(TypeConstants.MODULE_INFO_FILE_NAME_STRING)
-					||element.getElementName().equals(TypeConstants.MODULE_INFO_CLASS_NAME_STRING)) {
+					|| element.getElementName().equals(TypeConstants.MODULE_INFO_CLASS_NAME_STRING)) {
 				removeInfo(element.getJavaProject());
 			}
 			break;
