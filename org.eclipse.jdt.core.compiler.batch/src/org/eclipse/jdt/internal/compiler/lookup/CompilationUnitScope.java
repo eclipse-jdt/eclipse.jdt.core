@@ -408,6 +408,13 @@ void connectTypeHierarchy() {
 	for (SourceTypeBinding topLevelType : this.topLevelTypes)
 		topLevelType.scope.connectTypeHierarchy();
 }
+void sealTypeHierarchy() {
+	for (SourceTypeBinding sourceType : this.topLevelTypes) {
+		sourceType.scope.connectPermittedTypes();
+	}
+	for (SourceTypeBinding topLevelType : this.topLevelTypes)
+		topLevelType.scope.connectImplicitPermittedTypes();
+}
 void integrateAnnotationsInHierarchy() {
 	// Only now that all hierarchy information is built we're ready for ...
 	// ... integrating annotations
@@ -417,15 +424,6 @@ void integrateAnnotationsInHierarchy() {
 			topLevelType.scope.referenceType().updateSupertypesWithAnnotations(Collections.emptyMap());
 	} finally {
 		this.environment.suppressImportErrors = false;
-	}
-	// ... checking on permitted types
-	connectPermittedTypes();
-	for (SourceTypeBinding topLevelType : this.topLevelTypes)
-		topLevelType.scope.connectImplicitPermittedTypes();
-}
-private void connectPermittedTypes() {
-	for (SourceTypeBinding sourceType : this.topLevelTypes) {
-		sourceType.scope.connectPermittedTypes();
 	}
 }
 void faultInImports() {

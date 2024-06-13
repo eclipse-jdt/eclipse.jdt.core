@@ -1248,7 +1248,6 @@ public class ClassScope extends Scope {
 		}
 		return !foundCycle;
 	}
-	// Call only when we know there's no explicit permits clause and this is a sealed type
 	private void connectImplicitPermittedTypes(SourceTypeBinding sourceType) {
 		List<SourceTypeBinding> types = new ArrayList<>();
 		for (TypeDeclaration typeDecl : this.referenceCompilationUnit().types) {
@@ -1270,9 +1269,6 @@ public class ClassScope extends Scope {
 		}
 		sourceType.setPermittedTypes(permSubTypes.toArray(new ReferenceBinding[0]));
 	}
-/**
-	 * @see #connectPermittedTypes()
-	 */
 	void connectImplicitPermittedTypes() {
 		TypeDeclaration typeDecl = this.referenceContext;
 		SourceTypeBinding sourceType = typeDecl.binding;
@@ -1288,25 +1284,6 @@ public class ClassScope extends Scope {
 				((SourceTypeBinding) memberType).scope.connectImplicitPermittedTypes();
 		}
 	}
-	/**
-	 * This method only deals with the permitted types that are explicitly declared
-	 * in a type's permits clause. The implicitly permitted types are all filled in
-	 * in {@link #connectImplicitPermittedTypes()}. The reason being, the implicitly
-	 * permitted types require the complete type hierarchy to be ready. Therefore, this
-	 * method is called inside {@link #connectTypeHierarchy()} and connectImplicitPermittedTypes()
-	 * is called after the connectTypeHierarchy(). Why can't we do both after connectTypeHierarchy()?
-	 * That is because, in a very specific case of one of an explicitly permitted type also being
-	 * a member type and is referenced in the permits clause without type qualifier, we would allow
-	 * the following incorrect code:
-	 * <pre>
-	 * 	public sealed class X permits Y {
-	 *		final class Y extends X {}
-	 *	}
-	 *	</pre>
-	 *  If we were to resolve <code>Y</code> in <code>permits Y</code> after resolving
-	 *  the hierarchy, Y is resolved in current scope. However, Y should only be
-	 *  allowed with the qualifier, in this case, X.Y.
-	 */
 	void connectPermittedTypes() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
@@ -1478,7 +1455,6 @@ public class ClassScope extends Scope {
 			}
 			environment().typesBeingConnected.remove(sourceType);
 			sourceType.tagBits |= TagBits.EndHierarchyCheck;
-//			connectPermittedTypes();
 			noProblems &= connectTypeVariables(this.referenceContext.typeParameters, false);
 			sourceType.tagBits |= TagBits.TypeVariablesAreConnected;
 			if (noProblems && sourceType.isHierarchyInconsistent())
@@ -1518,7 +1494,6 @@ public class ClassScope extends Scope {
 		noProblems &= connectSuperInterfaces();
 		environment().typesBeingConnected.remove(sourceType);
 		sourceType.tagBits |= TagBits.EndHierarchyCheck;
-		connectPermittedTypes();
 		noProblems &= connectTypeVariables(this.referenceContext.typeParameters, false);
 		sourceType.tagBits |= TagBits.TypeVariablesAreConnected;
 		if (noProblems && sourceType.isHierarchyInconsistent())
