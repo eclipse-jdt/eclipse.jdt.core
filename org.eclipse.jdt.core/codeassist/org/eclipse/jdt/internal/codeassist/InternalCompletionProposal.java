@@ -1161,6 +1161,9 @@ public class InternalCompletionProposal extends CompletionProposal {
 			case CompletionProposal.LAMBDA_EXPRESSION :
 				buffer.append("LAMBDA_EXPRESSION"); //$NON-NLS-1$
 				break;
+			case CompletionProposal.TYPE_PATTERN:
+				buffer.append("TYPE_PATTERN"); //$NON-NLS-1$
+				break;
 			default :
 				buffer.append("PROPOSAL"); //$NON-NLS-1$
 				break;
