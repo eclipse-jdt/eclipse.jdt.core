@@ -11,18 +11,18 @@
 package org.eclipse.jdt.internal.javac.dom;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -32,7 +32,6 @@ import org.eclipse.jdt.core.dom.JavacBindingResolver;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import com.sun.tools.javac.code.Flags;
@@ -139,26 +138,57 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public IJavaElement getJavaElement() {
-		IJavaElement parent = this.resolver.bindings.getBinding(this.methodSymbol.owner, this.methodType).getJavaElement();
-		if (parent instanceof IType type) {
-			// prefer DOM object (for type parameters)
-			MethodDeclaration methodDeclaration = (MethodDeclaration)this.resolver.findDeclaringNode(this);
-			if (methodDeclaration != null) {
-				String[] params = ((List<SingleVariableDeclaration>)methodDeclaration.parameters()).stream() //
-						.map(param -> Util.getSignature(param.getType())) //
-						.toArray(String[]::new);
-				return type.getMethod(getName(), params);
-			}
-			// fail back to symbol args (type params erased)
-			return type.getMethod(getName(),
-					this.methodSymbol.params().stream()
+		// This can be invalid: it looks like it's possible to get some methodSymbol
+		// for a method that doesn't exist (eg `Runnable.equals()`). So we may be
+		// constructing incorrect bindings.
+		// If it is true, then once we only construct correct binding that really
+		// reference the method, then we can probably get rid of a lot of complexity
+		// here or in `getDeclaringClass()`
+		if (this.resolver.bindings.getBinding(this.methodSymbol.owner, this.methodType) instanceof ITypeBinding typeBinding) {
+			Queue<ITypeBinding> types = new LinkedList<>();
+			types.add(typeBinding);
+			while (!types.isEmpty()) {
+				ITypeBinding currentBinding = types.poll();
+				// prefer DOM object (for type parameters)
+				if (currentBinding.getJavaElement() instanceof IType currentType) {
+					MethodDeclaration methodDeclaration = (MethodDeclaration)this.resolver.findDeclaringNode(this);
+					if (methodDeclaration != null) {
+						String[] params = ((List<SingleVariableDeclaration>)methodDeclaration.parameters()).stream() //
+								.map(param -> Util.getSignature(param.getType())) //
+								.toArray(String[]::new);
+						IMethod method = currentType.getMethod(getName(), params);
+						if (method.exists()) {
+							return method;
+						}
+					}
+					var parametersResolved = this.methodSymbol.params().stream()
 							.map(varSymbol -> varSymbol.type)
 							.map(t ->
 								t instanceof TypeVar typeVar ? Signature.C_TYPE_VARIABLE + typeVar.tsym.name.toString() + ";" : // check whether a better constructor exists for it
-								type.isBinary() ?
-											Signature.createTypeSignature(resolveTypeName(t, true), true)
-											: Signature.createTypeSignature(resolveTypeName(t, false), false))
-							.toArray(String[]::new));
+									Signature.createTypeSignature(resolveTypeName(t, true), true))
+							.toArray(String[]::new);
+					IMethod[] methods = currentType.findMethods(currentType.getMethod(getName(), parametersResolved));
+					if (methods.length > 0) {
+						return methods[0];
+					}
+					var parametersNotResolved = this.methodSymbol.params().stream()
+							.map(varSymbol -> varSymbol.type)
+							.map(t ->
+								t instanceof TypeVar typeVar ? Signature.C_TYPE_VARIABLE + typeVar.tsym.name.toString() + ";" : // check whether a better constructor exists for it
+									Signature.createTypeSignature(resolveTypeName(t, false), false))
+							.toArray(String[]::new);
+					methods = currentType.findMethods(currentType.getMethod(getName(), parametersNotResolved));
+					if (methods.length > 0) {
+						return methods[0];
+					}
+				}
+				// nothing found: move up in hierarchy
+				ITypeBinding superClass = currentBinding.getSuperclass();
+				if (superClass != null) {
+					types.add(superClass);
+				}
+				types.addAll(Arrays.asList(currentBinding.getInterfaces()));
+			}
 		}
 		return null;
 	}
@@ -262,6 +292,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public ITypeBinding getDeclaringClass() {
+		// probably incorrect as it may not return the actual declaring type, see getJavaElement()
 		Symbol parentSymbol = this.methodSymbol.owner;
 		do {
 			if (parentSymbol instanceof ClassSymbol clazz) {
