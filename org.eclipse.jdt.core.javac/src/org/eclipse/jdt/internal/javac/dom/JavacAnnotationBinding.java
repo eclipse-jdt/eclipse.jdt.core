@@ -28,7 +28,6 @@ public abstract class JavacAnnotationBinding implements IAnnotationBinding {
 	private final JavacBindingResolver resolver;
 	private final Compound annotation;
 
-	private transient String key;
 	private final IBinding recipient;
 
 	public JavacAnnotationBinding(Compound ann, JavacBindingResolver resolver, IBinding recipient) {
@@ -71,7 +70,7 @@ public abstract class JavacAnnotationBinding implements IAnnotationBinding {
 
 	@Override
 	public boolean isRecovered() {
-		throw new UnsupportedOperationException("Unimplemented method 'isRecovered'");
+		return getAnnotationType().isRecovered();
 	}
 
 	@Override

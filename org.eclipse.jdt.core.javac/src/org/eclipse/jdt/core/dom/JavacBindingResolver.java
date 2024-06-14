@@ -772,9 +772,15 @@ public class JavacBindingResolver extends BindingResolver {
 	@Override
 	IAnnotationBinding resolveAnnotation(Annotation annotation) {
 		resolve();
+		IBinding recipient = null;
+		if (annotation.getParent() instanceof AnnotatableType annotatable) {
+			recipient = annotatable.resolveBinding();
+		} else if (annotation.getParent() instanceof FieldDeclaration fieldDeclaration) {
+			recipient = ((VariableDeclarationFragment)fieldDeclaration.fragments().get(0)).resolveBinding();
+		}
 		var javac = this.converter.domToJavac.get(annotation);
 		if (javac instanceof JCAnnotation jcAnnotation) {
-			return this.bindings.getAnnotationBinding(jcAnnotation.attribute, null);
+			return this.bindings.getAnnotationBinding(jcAnnotation.attribute, recipient);
 		}
 		return null;
 	}
