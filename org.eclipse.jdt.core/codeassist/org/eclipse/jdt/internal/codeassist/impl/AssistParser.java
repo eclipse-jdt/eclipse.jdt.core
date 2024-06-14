@@ -568,7 +568,7 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 	}
 	for (int i = this.elementPtr; i >= 0; --i) {
 		if (this.elementKindStack[i] == K_TYPE_DELIMITER)
-			break;
+			return false;
 		if (this.elementKindStack[i] != K_LAMBDA_EXPRESSION_DELIMITER)
 			continue;
 		LambdaExpression expression = (LambdaExpression) this.elementObjectInfoStack[i];
