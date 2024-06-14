@@ -739,7 +739,7 @@ public class JavacBindingResolver extends BindingResolver {
 	}
 
 	@Override
-	ITypeBinding resolveWellKnownType(String typeName) {
+	public ITypeBinding resolveWellKnownType(String typeName) {
 		com.sun.tools.javac.code.Symtab symtab = com.sun.tools.javac.code.Symtab.instance(this.context);
 		com.sun.tools.javac.code.Type type = switch (typeName) {
 		case "byte", "java.lang.Byte" -> symtab.byteType;

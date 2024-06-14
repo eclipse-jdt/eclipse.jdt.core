@@ -111,7 +111,12 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isRecovered() {
-		return this.typeSymbol.kind == Kinds.Kind.ERR;
+		if (isArray()) {
+			return getComponentType().isRecovered();
+		}
+		return this.typeSymbol.kind == Kinds.Kind.ERR ||
+			(Object.class.getName().equals(this.typeSymbol.getQualifiedName().toString())
+			&& getJavaElement() == null);
 	}
 
 	@Override
@@ -432,6 +437,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public IPackageBinding getPackage() {
+		if (isPrimitive() || isArray() || isWildcardType() || isNullType() || isTypeVariable()) {
+			return null;
+		}
 		return this.typeSymbol.packge() != null ?
 				this.resolver.bindings.getPackageBinding(this.typeSymbol.packge()) :
 			null;
@@ -463,6 +471,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding getSuperclass() {
+		if (Object.class.getName().equals(this.typeSymbol.getQualifiedName().toString())) {
+			return null;
+		}
 		if (this.typeSymbol instanceof TypeVariableSymbol && this.type instanceof TypeVar tv) {
 			Type t = tv.getUpperBound();
 			JavacTypeBinding possible = this.resolver.bindings.getTypeBinding(t);
@@ -485,8 +496,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		if (this.typeSymbol instanceof final ClassSymbol classSymbol && classSymbol.getSuperclass() != null && classSymbol.getSuperclass().tsym != null) {
 			return this.resolver.bindings.getTypeBinding(classSymbol.getSuperclass());
 		}
-
-		return null;
+		return this.resolver.resolveWellKnownType(Object.class.getName());
 	}
 
 	@Override
