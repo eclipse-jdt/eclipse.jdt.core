@@ -1266,39 +1266,8 @@ class JavacConverter {
 			return res;
 		}
 		if (javac instanceof JCBinary binary) {
-			InfixExpression res = this.ast.newInfixExpression();
-			commonSettings(res, javac);
-			Expression left = convertExpression(binary.getLeftOperand());
-			if (left != null) {
-				res.setLeftOperand(left);
-			}
-			Expression right = convertExpression(binary.getRightOperand());
-			if (right != null) {
-				res.setRightOperand(right);
-			}
-			res.setOperator(switch (binary.getTag()) {
-				case OR -> InfixExpression.Operator.CONDITIONAL_OR;
-				case AND -> InfixExpression.Operator.CONDITIONAL_AND;
-				case BITOR -> InfixExpression.Operator.OR;
-				case BITXOR -> InfixExpression.Operator.XOR;
-				case BITAND -> InfixExpression.Operator.AND;
-				case EQ -> InfixExpression.Operator.EQUALS;
-				case NE -> InfixExpression.Operator.NOT_EQUALS;
-				case LT -> InfixExpression.Operator.LESS;
-				case GT -> InfixExpression.Operator.GREATER;
-				case LE -> InfixExpression.Operator.LESS_EQUALS;
-				case GE -> InfixExpression.Operator.GREATER_EQUALS;
-				case SL -> InfixExpression.Operator.LEFT_SHIFT;
-				case SR -> InfixExpression.Operator.RIGHT_SHIFT_SIGNED;
-				case USR -> InfixExpression.Operator.RIGHT_SHIFT_UNSIGNED;
-				case PLUS -> InfixExpression.Operator.PLUS;
-				case MINUS -> InfixExpression.Operator.MINUS;
-				case MUL -> InfixExpression.Operator.TIMES;
-				case DIV -> InfixExpression.Operator.DIVIDE;
-				case MOD -> InfixExpression.Operator.REMAINDER;
-				default -> null;
-			});
-			return res;
+			return handleInfixExpression(binary, javac);
+
 		}
 		if (javac instanceof JCUnary unary) {
 			if (unary.getTag() != Tag.POSTINC && unary.getTag() != Tag.POSTDEC) {
@@ -1603,6 +1572,103 @@ class JavacConverter {
 		}
 		return null;
 	}
+
+	private List<JCExpression> consecutiveInfixExpressionsWithEqualOps(JCBinary binary, Tag opcode) {
+		return consecutiveInfixExpressionsWithEqualOps(binary, opcode, new ArrayList<JCExpression>());
+	}
+	private List<JCExpression> consecutiveInfixExpressionsWithEqualOps(
+			JCBinary binary, Tag opcode, List<JCExpression> consecutive) {
+
+		if( opcode.equals(binary.getTag())) {
+			if( consecutive != null ) {
+				JCExpression left = binary.getLeftOperand();
+				if( left instanceof JCBinary jcb) {
+					consecutive = consecutiveInfixExpressionsWithEqualOps(jcb, opcode, consecutive);
+				} else {
+					consecutive.add(left);
+				}
+			}
+			if( consecutive != null ) {
+				JCExpression right = binary.getRightOperand();
+				if( right instanceof JCBinary jcb) {
+					consecutive = consecutiveInfixExpressionsWithEqualOps(jcb, opcode, consecutive);
+				} else {
+					consecutive.add(right);
+				}
+			}
+			return consecutive;
+		}
+		return null;
+	}
+	
+	private Expression handleInfixExpression(JCBinary binary, JCExpression javac) {
+		List<JCExpression> conseq = consecutiveInfixExpressionsWithEqualOps(binary, binary.getTag());
+		if( conseq != null && conseq.size() > 2 ) {
+			return handleConsecutiveInfixExpression(binary, javac, conseq);
+		}
+
+		InfixExpression res = this.ast.newInfixExpression();
+		commonSettings(res, javac);
+		
+		Expression left = convertExpression(binary.getLeftOperand());
+		if (left != null) {
+			res.setLeftOperand(left);
+		}
+		Expression right = convertExpression(binary.getRightOperand());
+		if (right != null) {
+			res.setRightOperand(right);
+		}
+		res.setOperator(binaryTagToInfixOperator(binary.getTag()));
+		return res;
+	}
+
+	private Expression handleConsecutiveInfixExpression(JCBinary binary, JCExpression javac,
+			List<JCExpression> conseq) {
+
+		InfixExpression res = this.ast.newInfixExpression();
+		commonSettings(res, javac);
+		
+		Expression left = convertExpression(conseq.get(0));
+		if (left != null) {
+			res.setLeftOperand(left);
+		}
+		Expression right = convertExpression(conseq.get(1));
+		if (right != null) {
+			res.setRightOperand(right);
+		}
+		for( int i = 2; i < conseq.size(); i++ ) {
+			res.extendedOperands().add(convertExpression(conseq.get(i)));
+		}
+		
+		res.setOperator(binaryTagToInfixOperator(binary.getTag()));
+		return res;
+	}
+	
+	private InfixExpression.Operator binaryTagToInfixOperator(Tag t) {
+		return switch (t) {
+			case OR -> InfixExpression.Operator.CONDITIONAL_OR;
+			case AND -> InfixExpression.Operator.CONDITIONAL_AND;
+			case BITOR -> InfixExpression.Operator.OR;
+			case BITXOR -> InfixExpression.Operator.XOR;
+			case BITAND -> InfixExpression.Operator.AND;
+			case EQ -> InfixExpression.Operator.EQUALS;
+			case NE -> InfixExpression.Operator.NOT_EQUALS;
+			case LT -> InfixExpression.Operator.LESS;
+			case GT -> InfixExpression.Operator.GREATER;
+			case LE -> InfixExpression.Operator.LESS_EQUALS;
+			case GE -> InfixExpression.Operator.GREATER_EQUALS;
+			case SL -> InfixExpression.Operator.LEFT_SHIFT;
+			case SR -> InfixExpression.Operator.RIGHT_SHIFT_SIGNED;
+			case USR -> InfixExpression.Operator.RIGHT_SHIFT_UNSIGNED;
+			case PLUS -> InfixExpression.Operator.PLUS;
+			case MINUS -> InfixExpression.Operator.MINUS;
+			case MUL -> InfixExpression.Operator.TIMES;
+			case DIV -> InfixExpression.Operator.DIVIDE;
+			case MOD -> InfixExpression.Operator.REMAINDER;
+			default -> null;
+		};
+	}
+	
 
 	/**
 	 * precondition: you've checked all the segments are identifier that can be used in a qualified name
