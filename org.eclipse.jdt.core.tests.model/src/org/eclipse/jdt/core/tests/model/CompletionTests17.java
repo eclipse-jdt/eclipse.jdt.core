@@ -740,4 +740,28 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 				permits[RESTRICTED_IDENTIFIER]{permits, null, null, permits, null, 49}\
 					""", requestor.getResults());
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2540
+	// Completion fails within the body of a permitted class
+	public void testGH2540() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy("/Completion/src/Storage.java", """
+				public sealed class Storage permits SqlStorage {
+				}\
+				""");
+		this.workingCopies[1] = getWorkingCopy("/Completion/src/SqlStorage.java", """
+				public final class SqlStorage extends Storage {
+				/*here*/Sq
+				}\
+				""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[1].getSource();
+		String completeBehind = "/*here*/Sq";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[1].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("""
+				Sq[POTENTIAL_METHOD_DECLARATION]{Sq, LSqlStorage;, ()V, Sq, null, 39}
+				SqlStorage[TYPE_REF]{SqlStorage, , LSqlStorage;, null, null, 52}\
+					""", requestor.getResults());
+	}
 }
