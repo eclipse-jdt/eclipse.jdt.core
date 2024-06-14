@@ -168,7 +168,7 @@ public class FileSystem implements IModuleAwareNameEnvironment, SuffixConstants 
 	protected boolean annotationsFromClasspath; // should annotation files be read from the classpath (vs. explicit separate path)?
 	private static HashMap<File, Classpath> JRT_CLASSPATH_CACHE = null;
 	protected Map<String,Classpath> moduleLocations = new HashMap<>();
-        private Consumer<NameEnvironmentAnswer> nameEnvironmentAnswerListener; // a listener for findType* answers
+		private Consumer<NameEnvironmentAnswer> nameEnvironmentAnswerListener; // a listener for findType* answers
 
 	/** Tasks resulting from --add-reads or --add-exports command line options. */
 	Map<String,UpdatesByKind> moduleUpdates = new HashMap<>();
@@ -432,7 +432,7 @@ public void cleanup() {
 private static String convertPathSeparators(String path) {
 	return File.separatorChar == '/'
 		? path.replace('\\', '/')
-		 : path.replace('/', '\\');
+		: path.replace('/', '\\');
 }
 @SuppressWarnings("resource") // don't close classpathEntry.zipFile, which we don't own
 private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName, boolean asBinaryOnly, /*NonNull*/char[] moduleName) {
@@ -450,7 +450,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 					}
 					answer.setBinaryType(ExternalAnnotationDecorator.create(answer.getBinaryType(), classpathEntry.getPath(),
 							qualifiedTypeName, zip));
-                                        return notify(answer);
+										return notify(answer);
 				} catch (IOException e) {
 					// ignore broken entry, keep searching
 				} finally {
@@ -464,17 +464,17 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		// globally configured (annotationsFromClasspath), but no .eea found, decorate in order to answer NO_EEA_FILE:
 		answer.setBinaryType(new ExternalAnnotationDecorator(answer.getBinaryType(), null));
 	}
-        return notify(answer);
+		return notify(answer);
 }
 
 private NameEnvironmentAnswer notify(NameEnvironmentAnswer answer) {
-        if(answer == null) {
-                return answer;
-        }
-        Consumer<NameEnvironmentAnswer> listener = this.nameEnvironmentAnswerListener;
-        if(listener != null) {
-                listener.accept(answer);
-        }
+		if(answer == null) {
+				return answer;
+		}
+		Consumer<NameEnvironmentAnswer> listener = this.nameEnvironmentAnswerListener;
+		if(listener != null) {
+				listener.accept(answer);
+		}
 	return answer;
 }
 
@@ -773,8 +773,8 @@ public void applyModuleUpdates(IUpdatableModule compilerModule, IUpdatableModule
  * @return a previously set listener (may be <code>null</code>)
  */
 public Consumer<NameEnvironmentAnswer> setNameEnvironmentAnswerListener(Consumer<NameEnvironmentAnswer> nameEnvironmentAnswerListener) {
-        Consumer<NameEnvironmentAnswer> existing = this.nameEnvironmentAnswerListener;
-        this.nameEnvironmentAnswerListener = nameEnvironmentAnswerListener;
-        return existing;
+		Consumer<NameEnvironmentAnswer> existing = this.nameEnvironmentAnswerListener;
+		this.nameEnvironmentAnswerListener = nameEnvironmentAnswerListener;
+		return existing;
 }
 }

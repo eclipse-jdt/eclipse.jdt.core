@@ -94,7 +94,7 @@ public static Test suite() {
 	standardTests.add(InitializationTests.class);
 	standardTests.add(ResourceLeakTests.class);
 	standardTests.add(PackageBindingTest.class);
-        standardTests.add(NameEnvironmentAnswerListenerTest.class);
+		standardTests.add(NameEnvironmentAnswerListenerTest.class);
 
 	// add all javadoc tests
 	for (int i=0, l=JavadocTest.ALL_CLASSES.size(); i<l; i++) {
@@ -188,73 +188,73 @@ public static Test suite() {
 
 	// add 11 specific test here (check duplicates)
 	ArrayList since_11 = new ArrayList();
-	 since_11.add(JEP323VarLambdaParamsTest.class);
-	 since_11.add(JEP181NestTest.class);
-	 since_11.add(BatchCompilerTest2.class);
+	since_11.add(JEP323VarLambdaParamsTest.class);
+	since_11.add(JEP181NestTest.class);
+	since_11.add(BatchCompilerTest2.class);
 
 	// add 12 specific test here (check duplicates)
-	 ArrayList since_12 = new ArrayList();
-	 since_12.add(Unicode11Test.class);
+	ArrayList since_12 = new ArrayList();
+	since_12.add(Unicode11Test.class);
 
 		// add 13 specific test here (check duplicates)
-	 ArrayList since_13 = new ArrayList();
-	 since_13.add(Unicode12_1Test.class);
+	ArrayList since_13 = new ArrayList();
+	since_13.add(Unicode12_1Test.class);
 
-	 // add 14 specific test here (check duplicates)
-	 ArrayList since_14 = new ArrayList();
-	 since_14.add(SwitchExpressionsYieldTest.class);
-	 since_14.add(BatchCompilerTest_14.class);
+	// add 14 specific test here (check duplicates)
+	ArrayList since_14 = new ArrayList();
+	since_14.add(SwitchExpressionsYieldTest.class);
+	since_14.add(BatchCompilerTest_14.class);
 
-	 // add 15 specific test here (check duplicates)
-	 ArrayList since_15 = new ArrayList();
-	 since_15.add(ClassFileReaderTest_17.class);
-	 since_15.add(JavadocTest_15.class);
-	 since_15.add(Unicode13Test.class);
-	 since_15.add(BatchCompilerTest_15.class);
-	 since_15.add(TextBlockTest.class);
-	 since_15.add(ExternalizeStringLiteralsTest_15.class);
+	// add 15 specific test here (check duplicates)
+	ArrayList since_15 = new ArrayList();
+	since_15.add(ClassFileReaderTest_17.class);
+	since_15.add(JavadocTest_15.class);
+	since_15.add(Unicode13Test.class);
+	since_15.add(BatchCompilerTest_15.class);
+	since_15.add(TextBlockTest.class);
+	since_15.add(ExternalizeStringLiteralsTest_15.class);
 
-	 // add 16 specific test here (check duplicates)
-	 ArrayList since_16 = new ArrayList();
-	 since_16.add(LocalEnumTest.class);
-	 since_16.add(LocalStaticsTest.class);
-	 since_16.add(PreviewFeatureTest.class);
-	 since_16.add(ValueBasedAnnotationTests.class);
-	 since_16.add(BatchCompilerTest_16.class);
-	 since_16.add(PatternMatching16Test.class);
-	 since_16.add(RecordsRestrictedClassTest.class);
-	 since_16.add(JavadocTestForRecord.class);
-	 since_16.add(JavadocTest_16.class);
+	// add 16 specific test here (check duplicates)
+	ArrayList since_16 = new ArrayList();
+	since_16.add(LocalEnumTest.class);
+	since_16.add(LocalStaticsTest.class);
+	since_16.add(PreviewFeatureTest.class);
+	since_16.add(ValueBasedAnnotationTests.class);
+	since_16.add(BatchCompilerTest_16.class);
+	since_16.add(PatternMatching16Test.class);
+	since_16.add(RecordsRestrictedClassTest.class);
+	since_16.add(JavadocTestForRecord.class);
+	since_16.add(JavadocTest_16.class);
 
-	 // add 17 specific test here (check duplicates)
-	 ArrayList since_17 = new ArrayList();
-	 since_17.add(SealedTypesTests.class);
-	 since_17.add(InstanceofPrimaryPatternTest.class);
-	 since_17.add(BatchCompilerTest_17.class);
+	// add 17 specific test here (check duplicates)
+	ArrayList since_17 = new ArrayList();
+	since_17.add(SealedTypesTests.class);
+	since_17.add(InstanceofPrimaryPatternTest.class);
+	since_17.add(BatchCompilerTest_17.class);
 
-	 // add 18 specific test here (check duplicates)
-	 ArrayList since_18 = new ArrayList();
-	 since_18.add(JavadocTest_18.class);
+	// add 18 specific test here (check duplicates)
+	ArrayList since_18 = new ArrayList();
+	since_18.add(JavadocTest_18.class);
 
-	 // add 21 specific test here (check duplicates)
-	 ArrayList since_21 = new ArrayList();
-	 since_21.add(SwitchPatternTest.class);
-	 since_21.add(RecordPatternTest.class);
-	 since_21.add(RecordPatternProjectTest.class);
-	 since_21.add(NullAnnotationTests21.class);
-	 since_21.add(BatchCompilerTest_21.class);
+	// add 21 specific test here (check duplicates)
+	ArrayList since_21 = new ArrayList();
+	since_21.add(SwitchPatternTest.class);
+	since_21.add(RecordPatternTest.class);
+	since_21.add(RecordPatternProjectTest.class);
+	since_21.add(NullAnnotationTests21.class);
+	since_21.add(BatchCompilerTest_21.class);
 
-	 // add 21 specific test here (check duplicates)
-	 ArrayList since_22 = new ArrayList();
+	// add 21 specific test here (check duplicates)
+	ArrayList since_22 = new ArrayList();
 //	 since_22.add(SuperAfterStatementsTest.class);
-	 since_22.add(UnnamedPatternsAndVariablesTest.class);
-	 since_22.add(UseOfUnderscoreJava22Test.class);
-	 since_22.add(SuperAfterStatementsTest.class);
-	 since_22.add(StringTemplateTest.class);
-	 since_22.add(SwitchPatternTest21.class);
-	 since_22.add(ImplicitlyDeclaredClassesTest.class);
+	since_22.add(UnnamedPatternsAndVariablesTest.class);
+	since_22.add(UseOfUnderscoreJava22Test.class);
+	since_22.add(SuperAfterStatementsTest.class);
+	since_22.add(StringTemplateTest.class);
+	since_22.add(SwitchPatternTest21.class);
+	since_22.add(ImplicitlyDeclaredClassesTest.class);
 
-	 // Build final test suite
+	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	all.addTest(new TestSuite(StandAloneASTParserTest.class));
 	all.addTest(new TestSuite(HashtableOfObjectTest.class));

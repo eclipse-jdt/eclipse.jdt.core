@@ -1288,19 +1288,19 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				ICompilationUnit compilationUnit = compilationResult.compilationUnit;
 				HashMap<String, Object> parameters = new HashMap<>();
 				if (compilationUnit != null) {
-    				char[] fileName = compilationUnit.getFileName();
-    				File f = new File(new String(fileName));
-    				if (fileName != null) {
-    					parameters.put(Logger.PATH, f.getAbsolutePath());
-    				}
-    				char[][] packageName = compilationResult.packageName;
-    				if (packageName != null) {
-    					parameters.put(
-    							Logger.PACKAGE,
-    							new String(CharOperation.concatWith(packageName, File.separatorChar)));
-    				}
-    				CompilationUnit unit = (CompilationUnit) compilationUnit;
-    				String destinationPath = unit.destinationPath;
+					char[] fileName = compilationUnit.getFileName();
+					File f = new File(new String(fileName));
+					if (fileName != null) {
+						parameters.put(Logger.PATH, f.getAbsolutePath());
+					}
+					char[][] packageName = compilationResult.packageName;
+					if (packageName != null) {
+						parameters.put(
+								Logger.PACKAGE,
+								new String(CharOperation.concatWith(packageName, File.separatorChar)));
+					}
+					CompilationUnit unit = (CompilationUnit) compilationUnit;
+					String destinationPath = unit.destinationPath;
 					if (destinationPath == null) {
 						destinationPath = this.main.destinationPath;
 					}
@@ -1613,7 +1613,7 @@ protected void addNewEntry(ArrayList<FileSystem.Classpath> paths, String current
 			}
 		}
 		if (rulesOK) {
-    		accessRuleSet = new AccessRuleSet(accessRules, AccessRestriction.COMMAND_LINE, currentClasspathName);
+			accessRuleSet = new AccessRuleSet(accessRules, AccessRestriction.COMMAND_LINE, currentClasspathName);
 		} else {
 			if (currentClasspathName.length() != 0) {
 				// we go on anyway
@@ -3366,7 +3366,7 @@ public String extractDestinationPathFromSourceFile(CompilationResult result) {
  * Answer the component to which will be handed back compilation results from the compiler
  */
 public ICompilerRequestor getBatchRequestor() {
-    return new BatchCompilerRequestor(this);
+	return new BatchCompilerRequestor(this);
 }
 /*
  *  Build the set of compilation source units
@@ -3499,8 +3499,8 @@ public IProblemFactory getProblemFactory() {
  * External API
  */
 protected ArrayList<Classpath> handleBootclasspath(ArrayList<String> bootclasspaths, String customEncoding) {
- 	final int bootclasspathsSize;
- 	ArrayList<Classpath> result = new ArrayList<>(DEFAULT_SIZE_CLASSPATH);
+	final int bootclasspathsSize;
+	ArrayList<Classpath> result = new ArrayList<>(DEFAULT_SIZE_CLASSPATH);
 	if ((bootclasspaths != null)
 		&& ((bootclasspathsSize = bootclasspaths.size()) != 0)) {
 		result = new ArrayList<>(bootclasspathsSize);
@@ -3739,7 +3739,7 @@ protected ArrayList<FileSystem.Classpath> handleClasspath(ArrayList<String> clas
  * External API
  */
 protected ArrayList<FileSystem.Classpath> handleEndorseddirs(ArrayList<String> endorsedDirClasspaths) {
- 	final File javaHome = getJavaHome();
+	final File javaHome = getJavaHome();
 	/*
 	 * Feed endorsedDirClasspath according to:
 	 * - -endorseddirs first if present;
@@ -3802,7 +3802,7 @@ protected ArrayList<FileSystem.Classpath> handleEndorseddirs(ArrayList<String> e
  * Handle extdirs processing
  */
 protected ArrayList<FileSystem.Classpath> handleExtdirs(ArrayList<String> extdirsClasspaths) {
- 	final File javaHome = getJavaHome();
+	final File javaHome = getJavaHome();
 
 	/*
 	 * Feed extDirClasspath according to:
@@ -4043,7 +4043,7 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 					}
 				}
 				this.options.put(CompilerOptions.OPTION_ReportMissingEnumCaseDespiteDefault,
-								 isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+								isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 				return;
 			} else if (token.equals("emptyBlock")) {//$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, severity, isEnabling);
