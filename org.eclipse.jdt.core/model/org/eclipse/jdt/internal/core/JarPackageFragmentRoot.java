@@ -152,6 +152,9 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 				for (Enumeration<? extends ZipEntry> e= jar.entries(); e.hasMoreElements();) {
 					ZipEntry member= e.nextElement();
 					String name = Util.getEntryName(jar.getName(), member);
+					if (name == null)  {
+						continue;
+					}
 					if (this.multiVersion && name.length() > (length + 2) && name.startsWith(version)) {
 						int end = name.indexOf('/', length);
 						if (end >= name.length()) continue;
@@ -176,6 +179,10 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 				if (pkgName == null) continue;
 				children[index++] = getPackageFragment(pkgName);
 			}
+		} catch (ZipException zipex) {
+			// malcious ZIP archive, leave the children empty
+			Util.log(zipex, "Invalid ZIP archive: " + toStringWithAncestors()); //$NON-NLS-1$
+			children = NO_ELEMENTS;
 		} catch (CoreException e) {
 			if (e.getCause() instanceof ZipException zipex) {
 				// not a ZIP archive, leave the children empty
