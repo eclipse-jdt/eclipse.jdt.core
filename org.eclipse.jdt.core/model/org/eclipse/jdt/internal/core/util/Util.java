@@ -21,6 +21,7 @@ import java.io.*;
 import java.net.URI;
 import java.util.*;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.filesystem.EFS;
@@ -3349,11 +3350,17 @@ public class Util {
 		return method;
 	}
 
-	public static String getEntryName(String zipfileName, ZipEntry entry) {
+	public static String getEntryName(String zipfileName, ZipEntry entry) throws ZipException {
 		String entryName = entry.getName();
-		if (!java.nio.file.Path.of(zipfileName, entryName).normalize()
-				.startsWith(java.nio.file.Path.of(zipfileName).normalize())) {
-			throw new IllegalArgumentException("Bad zip entry: " + entryName + " in " + zipfileName); //$NON-NLS-1$ //$NON-NLS-2$
+		boolean zipSlip;
+		try {
+		zipSlip = !java.nio.file.Path.of(zipfileName, entryName).normalize()
+					.startsWith(java.nio.file.Path.of(zipfileName).normalize());
+		} catch (Exception pathException) { // for example java.nio.file.InvalidPathException: "Illegal char <<>"
+			return null; // illegal path on OS
+		}
+		if (zipSlip) {
+			throw new ZipException("Zip Slip Vulnerability: Bad zip entry: " + entryName + " in " + zipfileName); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return entryName; // did not escape
 	}
