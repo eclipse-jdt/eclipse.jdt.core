@@ -173,7 +173,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					builder.append('L');
 				}
 			}
-			builder.append(typeToBuild.asElement().getQualifiedName().toString().replace('.', '/'));
+			builder.append(typeToBuild.asElement().flatName().toString().replace('.', '/'));
 			if (typeToBuild.isParameterized()) {
 				builder.append('<');
 				for (var typeArgument : typeToBuild.getTypeArguments()) {
