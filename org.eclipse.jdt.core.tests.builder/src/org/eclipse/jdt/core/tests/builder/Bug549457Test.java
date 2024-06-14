@@ -13,8 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
-import java.io.ByteArrayInputStream;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -104,7 +102,7 @@ public class Bug549457Test extends BuilderTests {
 				CompilerOptions.OPTION_Compliance + "=1.7",
 				CompilerOptions.OPTION_Source + "=1.7");
 
-		settingsFile.setContents(new ByteArrayInputStream(newContents.getBytes()), IResource.FORCE, new NullProgressMonitor());
+		settingsFile.setContents(newContents.getBytes(), IResource.FORCE, new NullProgressMonitor());
 		waitForAutoBuild();
 		expectCompileProblem(this.project, "Default methods are allowed only at source level 1.8 or above");
 	}

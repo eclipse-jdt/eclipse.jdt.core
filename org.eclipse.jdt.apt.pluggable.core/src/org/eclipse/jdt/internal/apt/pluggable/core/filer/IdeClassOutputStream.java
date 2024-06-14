@@ -14,13 +14,10 @@
 
 package org.eclipse.jdt.internal.apt.pluggable.core.filer;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -49,21 +46,11 @@ public class IdeClassOutputStream  extends ByteArrayOutputStream
 	public void close() throws IOException {
 		super.close();
 		byte[] byteArray = toByteArray();
-		InputStream contents = new ByteArrayInputStream(byteArray);
 		Compiler compiler = this._env.getCompiler();
 
 		IBinaryType binaryType = null;
 		try {
-			try {
-				binaryType = ClassFileReader.read(this._file.getLocation().toString());
-			} catch(IOException ioe) {
-				// Files doesn't yet exist
-			}
-			if (binaryType == null) {
-				saveToDisk(contents, true);
-			} else {
-				saveToDisk(contents, false);
-			}
+			saveToDisk(byteArray);
 			binaryType = ClassFileReader.read(this._file.getLocation().toString());
 			char[][] splitOn = CharOperation.splitOn('/', binaryType.getName());
 			ReferenceBinding type = compiler.lookupEnvironment.getType(splitOn);
@@ -79,30 +66,13 @@ public class IdeClassOutputStream  extends ByteArrayOutputStream
 		} catch(Exception ex) {
 			Apt6Plugin.log(ex, "Could not create generated class file " + _file.getName()); //$NON-NLS-1$
 		}
-		finally {
-			closeInputStream(contents);
-		}
 	}
 
-	private void closeInputStream(InputStream stream) {
-		if (stream != null) {
-			try {
-				stream.close();
-			} catch (IOException ioe) {
-				// Nothing to do
-			}
-		}
-	}
-	private void saveToDisk(InputStream toSave, boolean create) throws IOException{
+	private void saveToDisk(byte[] toSave) throws IOException{
 		try {
 			FileSystemUtil.makeDerivedParentFolders(_file.getParent());
-			if (create) {
-				_file.create(toSave, IResource.FORCE | IResource.DERIVED, null);
-			} else {
-				_file.setContents(toSave, true, false, null);
-			}
-		}
-		catch (CoreException ce) {
+			_file.write(toSave, true, true, false, null);
+		} catch (CoreException ce) {
 			if (_file.exists()) {
 				// Do nothing. This is a case-insensitive file system mismatch,
 				// and the underlying platform has saved the contents already.

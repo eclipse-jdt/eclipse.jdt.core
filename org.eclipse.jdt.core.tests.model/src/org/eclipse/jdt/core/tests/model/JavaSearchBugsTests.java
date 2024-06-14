@@ -14388,7 +14388,7 @@ public void testBug469320_0001() throws CoreException {
 	try	{
 		ProjectA = createJavaProject("ProjectA", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
 		IFile f = getFile("/JavaSearchBugs/lib/common.jar");
-		this.createFile("/ProjectA/common.jar", f.getContents());
+		this.createFile("/ProjectA/common.jar", f.readAllBytes());
 		this.addLibraryEntry(ProjectA, "/ProjectA/common.jar", false);
 		createFolder("/ProjectA/test");
 		createFile("/ProjectA/test/Validation.java",
