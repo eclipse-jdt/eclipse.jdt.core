@@ -150,4 +150,42 @@ public void testIssue2108() throws Exception {
 		deleteProject(p);
 	}
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/62
+// [Reconciler][Sealed types] Inconsistent type hierarchy with sealed classes
+public void testIssue62() throws Exception {
+	if (!isJRE21)
+		return;
+	IJavaProject p = createJava21Project("p");
+	try {
+		createFile("p/src/Interface1.java",
+				   "public sealed interface Interface1 permits Class1, Interface2 {}\n");
+		createFile("p/src/Interface2.java",
+				   "public sealed interface Interface2 extends Interface1 permits Class2, Interface3 {}\n");
+		createFile("p/src/Interface3.java",
+				   "public sealed interface Interface3 extends Interface2 permits Class3 {}\n");
+		createFile("p/src/Class1.java",
+				   "public non-sealed class Class1 implements Interface1 {}\n");
+		createFile("p/src/Class2.java",
+				   "public non-sealed class Class2 extends Class1 implements Interface2 {}\n");
+		createFile("p/src/Class3.java",
+				   "public final class Class3 extends Class2 implements Interface3 {}\n");
+
+		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("markers in p",
+				"",
+				markers);
+
+		this.workingCopy = getCompilationUnit("p/src/Class2.java").getWorkingCopy(this.wcOwner, null);
+		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
+		this.workingCopy.reconcile(JLS_LATEST, true, this.wcOwner, null);
+		assertProblems("Expecting no problems",
+				"----------\n" +
+				"----------\n",
+				this.problemRequestor);
+		this.workingCopy.discardWorkingCopy();
+	} finally {
+		deleteProject(p);
+	}
+}
 }
