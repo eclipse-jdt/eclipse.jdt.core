@@ -568,8 +568,10 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 	}
 	boolean insideType = false;
 	for (int i = this.elementPtr; i >= 0; --i) {
-		if (this.elementKindStack[i] == K_TYPE_DELIMITER)
+		if (this.elementKindStack[i] == K_TYPE_DELIMITER) {
 			insideType = true;
+			break;
+		}
 		if (this.elementKindStack[i] != K_LAMBDA_EXPRESSION_DELIMITER)
 			continue;
 		LambdaExpression expression = (LambdaExpression) this.elementObjectInfoStack[i];
