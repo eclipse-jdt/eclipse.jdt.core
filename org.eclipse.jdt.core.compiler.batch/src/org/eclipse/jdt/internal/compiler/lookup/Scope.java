@@ -5156,13 +5156,17 @@ public abstract class Scope {
 					TypeBinding param = ((ArrayBinding) parameters[lastIndex]).elementsType();
 					for (int i = lastIndex; i < argLength; i++) {
 						TypeBinding arg = (tiebreakingVarargsMethods && (i == (argLength - 1))) ? ((ArrayBinding)arguments[i]).elementsType() : arguments[i];
-						if (TypeBinding.notEquals(param, arg) && parameterCompatibilityLevel(arg, param, env, tiebreakingVarargsMethods, method) == NOT_COMPATIBLE)
-							return NOT_COMPATIBLE;
+						if (TypeBinding.notEquals(param, arg)) {
+							level = parameterCompatibilityLevel(arg, param, env, tiebreakingVarargsMethods, method);
+							if (level == NOT_COMPATIBLE)
+								return NOT_COMPATIBLE;
+						}
 					}
 				}  else if (lastIndex != argLength) { // can call foo(int i, X ... x) with foo(1) but NOT foo();
 					return NOT_COMPATIBLE;
 				}
-				level = VARARGS_COMPATIBLE; // varargs support needed
+				if (level != NEEDS_MISSING_TYPE) // preserve any NEEDS_MISSING_TYPE
+					level = VARARGS_COMPATIBLE; // varargs support needed
 			}
 		} else if (paramLength != argLength) {
 			return NOT_COMPATIBLE;
@@ -5175,7 +5179,7 @@ public abstract class Scope {
 				int newLevel = parameterCompatibilityLevel(arg, param, env, tiebreakingVarargsMethods, method);
 				if (newLevel < COMPATIBLE)
 					return newLevel;
-				if (newLevel > level)
+				if (newLevel > level && level != NEEDS_MISSING_TYPE) // preserve any NEEDS_MISSING_TYPE
 					level = newLevel;
 			}
 		}
