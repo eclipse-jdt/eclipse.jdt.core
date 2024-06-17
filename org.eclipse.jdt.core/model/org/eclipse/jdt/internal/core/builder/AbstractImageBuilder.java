@@ -15,6 +15,7 @@
 package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.core.*;
@@ -653,7 +654,7 @@ private CompilerConfiguration prepareCompilerConfiguration(CompilerOptions optio
 					classpaths.add(cpURI);
 				}
 			} else if (location instanceof ClasspathJar cpJar) {
-				URI cpURI = new File(cpJar.zipFilename).toURI();
+				URI cpURI = URIUtil.toURI(cpJar.zipFilename, true);
 				if (cpJar.isOnModulePath) {
 					modulepaths.add(cpURI);
 				} else {
