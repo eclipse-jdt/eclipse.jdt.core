@@ -38,6 +38,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -46,6 +47,7 @@ import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -54,6 +56,8 @@ import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
 import org.eclipse.jdt.internal.core.util.BindingKeyParser;
 import org.eclipse.jdt.internal.javac.JavacProblemConverter;
@@ -131,7 +135,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				(a,b) -> requestor.acceptBinding(a,b),
 				classpaths.stream().toArray(Classpath[]::new),
 				new CompilerOptions(compilerOptions),
-				res.values(), monitor);
+				res.values(), null, monitor);
 	}
 
 	@Override
@@ -154,7 +158,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					(a,b) -> requestor.acceptBinding(a,b),
 					new Classpath[0], // TODO need some classpaths
 					new CompilerOptions(compilerOptions),
-					units.values(), monitor);
+					units.values(), project, monitor);
 		} else {
 			Iterator<CompilationUnit> it = units.values().iterator();
 			while(it.hasNext()) {
@@ -167,6 +171,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 	private void resolveRequestedBindingKeys(JavacBindingResolver bindingResolver, String[] bindingKeys, GenericRequestor requestor,
 			Classpath[] cp,CompilerOptions opts,
 			Collection<CompilationUnit> units,
+			IJavaProject project,
 			IProgressMonitor monitor) {
 		if (bindingResolver == null) {
 			var compiler = ToolProvider.getSystemJavaCompiler();
@@ -180,7 +185,18 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			cu.accept(new BindingBuilder(bindingMap));
 		}
 
-		NameEnvironmentWithProgress environment = new NameEnvironmentWithProgress(cp, null, monitor);
+		INameEnvironment environment = null;
+		if (project instanceof JavaProject javaProject) {
+			try {
+				environment = new CancelableNameEnvironment(javaProject, null, monitor);
+			} catch (JavaModelException e) {
+				// do nothing
+			}
+		}
+		if (environment == null) {
+			environment = new NameEnvironmentWithProgress(cp, null, monitor);
+		}
+
 		LookupEnvironment lu = new LookupEnvironment(new ITypeRequestor() {
 
 			@Override
