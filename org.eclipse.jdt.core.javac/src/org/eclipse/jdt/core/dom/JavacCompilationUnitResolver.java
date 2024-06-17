@@ -135,7 +135,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				(a,b) -> requestor.acceptBinding(a,b),
 				classpaths.stream().toArray(Classpath[]::new),
 				new CompilerOptions(compilerOptions),
-				res.values(), null, monitor);
+				res.values(), null, new HashMap<>(), monitor);
 	}
 
 	@Override
@@ -144,6 +144,8 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			IProgressMonitor monitor) {
 		Map<ICompilationUnit, CompilationUnit> units = parse(compilationUnits, apiLevel, compilerOptions, flags, monitor);
 		if (requestor != null) {
+			final Map<String, IBinding> bindingMap = new HashMap<>();
+			requestor.additionalBindingResolver = bindingMap::get;
 			final JavacBindingResolver[] bindingResolver = new JavacBindingResolver[1];
 			bindingResolver[0] = null;
 			units.forEach((a,b) -> {
@@ -158,7 +160,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					(a,b) -> requestor.acceptBinding(a,b),
 					new Classpath[0], // TODO need some classpaths
 					new CompilerOptions(compilerOptions),
-					units.values(), project, monitor);
+					units.values(), project, bindingMap, monitor);
 		} else {
 			Iterator<CompilationUnit> it = units.values().iterator();
 			while(it.hasNext()) {
@@ -167,11 +169,18 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		}
 	}
 
+	private void resolveRequestedBindingKeys(JavacBindingResolver bindingResolver, String[] bindingKeys, GenericRequestor requestor,
+			Classpath[] cp,CompilerOptions opts,
+			Collection<CompilationUnit> units,
+			IProgressMonitor monitor) {
+		resolveRequestedBindingKeys(bindingResolver, bindingKeys, requestor, cp, opts, units, null, new HashMap<>(), monitor);
+	}
 
 	private void resolveRequestedBindingKeys(JavacBindingResolver bindingResolver, String[] bindingKeys, GenericRequestor requestor,
 			Classpath[] cp,CompilerOptions opts,
 			Collection<CompilationUnit> units,
 			IJavaProject project,
+			Map<String, IBinding> bindingMap,
 			IProgressMonitor monitor) {
 		if (bindingResolver == null) {
 			var compiler = ToolProvider.getSystemJavaCompiler();
@@ -180,7 +189,6 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			bindingResolver = new JavacBindingResolver(null, task, context, new JavacConverter(null, null, context, null, true));
 		}
 
-		HashMap<String, IBinding> bindingMap = new HashMap<>();
 		for (CompilationUnit cu : units) {
 			cu.accept(new BindingBuilder(bindingMap));
 		}
@@ -620,9 +628,9 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 	}
 
 	private static class BindingBuilder extends ASTVisitor {
-		public HashMap<String, IBinding> bindingMap = new HashMap<>();
+		public Map<String, IBinding> bindingMap = new HashMap<>();
 
-		public BindingBuilder(HashMap<String, IBinding> bindingMap) {
+		public BindingBuilder(Map<String, IBinding> bindingMap) {
 			this.bindingMap = bindingMap;
 		}
 
