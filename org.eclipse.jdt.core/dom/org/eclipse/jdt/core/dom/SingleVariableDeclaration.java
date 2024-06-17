@@ -499,16 +499,20 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * @return the type
 	 */
 	public Type getType() {
-//		if (this.type == null) {
-//			// lazy init must be thread-safe for readers
-//			synchronized (this) {
-//				if (this.type == null) {
-//					preLazyInit();
-//					this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
-//					postLazyInit(this.type, TYPE_PROPERTY);
-//				}
-//			}
-//		}
+		if (this.type == null) {
+			//if it is an unnamed patterns
+			if(this.variableName.getIdentifier().equals("_")) { //$NON-NLS-1$
+				return this.type;
+			}
+			// lazy init must be thread-safe for readers
+			synchronized (this) {
+				if (this.type == null) {
+					preLazyInit();
+					this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
+					postLazyInit(this.type, TYPE_PROPERTY);
+				}
+			}
+		}
 		return this.type;
 	}
 

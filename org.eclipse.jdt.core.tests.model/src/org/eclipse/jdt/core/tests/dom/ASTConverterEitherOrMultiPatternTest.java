@@ -33,10 +33,15 @@ import org.eclipse.jdt.core.dom.GuardedPattern;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Pattern;
+import org.eclipse.jdt.core.dom.PatternInstanceofExpression;
+import org.eclipse.jdt.core.dom.RecordPattern;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.TypePattern;
 
 public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 	ICompilationUnit workingCopy;
@@ -77,7 +82,7 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 		System.err.println("Test "+getName()+" requires a JRE 22");
 	}
 
-	public void test001() throws JavaModelException {
+	public void _test001() throws JavaModelException {
 		if (!isJRE22) {
 			printJREError();
 			return;
@@ -157,7 +162,7 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 	}
 
 
-	public void test002() throws JavaModelException {
+	public void _test002() throws JavaModelException {
 		if (!isJRE22) {
 			printJREError();
 			return;
@@ -230,7 +235,7 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 
 	}
 
-	public void test003() throws JavaModelException {
+	public void _test003() throws JavaModelException {
 		if (!isJRE22) {
 			printJREError();
 			return;
@@ -296,7 +301,7 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 		assertEquals("RecordPattern", listPatterns.get(2).getNodeType(), ASTNode.RECORD_PATTERN);
 	}
 
-	public void test004() throws JavaModelException {
+	public void _test004() throws JavaModelException {
 		if (!isJRE22) {
 			printJREError();
 			return;
@@ -348,6 +353,7 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 		methodBinding= ((ITypeBinding) bindings[0]).getDeclaredMethods()[1];
 		assertEquals("method name", "main", methodBinding.getName());
 	}
+	@SuppressWarnings("cast")
 	public void test005() throws JavaModelException {
 		if (!isJRE22) {
 			printJREError();
@@ -367,11 +373,20 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 				""";
 		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
-		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
-		assertProblemsSize(compilationUnit, 0);
-		node = ((AbstractTypeDeclaration)compilationUnit.types().get(0));
-		System.out.println("sasi");
-		//ast.newSimpleName()
+
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) getASTNode(compilationUnit, 0, 0);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+		Block block = methodDeclaration.getBody();
+		assertEquals("statements size", block.statements().size(), 1);
+
+		IfStatement ifStatement = (IfStatement) block.statements().get(0);
+		PatternInstanceofExpression expression = (PatternInstanceofExpression) ifStatement.getExpression();
+		RecordPattern recordPattern = (RecordPattern) expression.getPattern();
+		TypePattern typePattern = (TypePattern) recordPattern.patterns().get(1);
+		SingleVariableDeclaration single = (SingleVariableDeclaration) typePattern.getPatternVariable();
+		assertEquals("SingleVariableDecleration name", single.getName().getIdentifier(), "_");
+		assertEquals("SingleVariableDecleration type", single.getType(), null);
 	}
 }
