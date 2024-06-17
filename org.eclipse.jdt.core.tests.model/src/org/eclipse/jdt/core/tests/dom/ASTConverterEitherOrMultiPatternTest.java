@@ -348,4 +348,30 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 		methodBinding= ((ITypeBinding) bindings[0]).getDeclaredMethods()[1];
 		assertEquals("method name", "main", methodBinding.getName());
 	}
+	public void test005() throws JavaModelException {
+		if (!isJRE22) {
+			printJREError();
+			return;
+		}
+		String contents = """
+				public class X {
+					public static void main(Object object) {
+						if (object instanceof Path(Pos(int x1, int y1), _)) {
+								//System.out.printf("object is a path starting at x = %d, y = %d%n", x1, y1);
+								System.out.println("abc");
+						}
+					}
+				}
+			record Pos(int x, int y) {}
+			record Path(Pos p1, Pos p2) {}
+				""";
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = ((AbstractTypeDeclaration)compilationUnit.types().get(0));
+		System.out.println("sasi");
+		//ast.newSimpleName()
+	}
 }
