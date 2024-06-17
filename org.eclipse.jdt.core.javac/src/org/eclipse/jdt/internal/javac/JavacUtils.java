@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.tools.JavaFileManager;
 import javax.tools.StandardLocation;
@@ -28,6 +29,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -54,7 +56,24 @@ public class JavacUtils {
 
 	private static void configureJavacContext(Context context, Map<String, String> compilerOptions,
 	        IJavaProject javaProject, CompilerConfiguration compilerConfig, File output) {
-		configureOptions(context, compilerOptions);
+		IClasspathEntry[] classpath = new IClasspathEntry[0];
+		if (javaProject != null) {
+			try {
+				classpath = javaProject.getRawClasspath();
+			} catch (JavaModelException ex) {
+				ILog.get().error(ex.getMessage(), ex);
+			}
+		}
+		var addExports = Arrays.stream(classpath) //
+				.filter(entry -> entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) //
+				.map(IClasspathEntry::getExtraAttributes)
+				.flatMap(Arrays::stream)
+				.filter(attribute -> IClasspathAttribute.ADD_EXPORTS.equals(attribute.getName()))
+				.map(IClasspathAttribute::getValue)
+				.map(value -> value.split(":"))
+				.flatMap(Arrays::stream)
+				.collect(Collectors.joining("\0")); //$NON-NLS-1$ // \0 as expected by javac
+		configureOptions(context, compilerOptions, addExports);
 		// TODO populate more from compilerOptions and/or project settings
 		if (context.get(JavaFileManager.class) == null) {
 			JavacFileManager.preRegister(context);
@@ -64,7 +83,7 @@ public class JavacUtils {
 		}
 	}
 
-	private static void configureOptions(Context context, Map<String, String> compilerOptions) {
+	private static void configureOptions(Context context, Map<String, String> compilerOptions, String addExports) {
 		Options options = Options.instance(context);
 		options.put("allowStringFolding", Boolean.FALSE.toString());
 		final Version complianceVersion;
@@ -112,6 +131,9 @@ public class JavacUtils {
 		}
 		options.put(Option.XLINT, Boolean.TRUE.toString()); // TODO refine according to compilerOptions
 		options.put(Option.XLINT_CUSTOM, "all"); // TODO refine according to compilerOptions
+		if (addExports != null && !addExports.isBlank()) {
+			options.put(Option.ADD_EXPORTS, addExports);
+		}
 	}
 
 	private static void configurePaths(JavaProject javaProject, Context context, CompilerConfiguration compilerConfig,
