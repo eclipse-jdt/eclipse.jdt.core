@@ -144,16 +144,52 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			IProgressMonitor monitor) {
 		Map<ICompilationUnit, CompilationUnit> units = parse(compilationUnits, apiLevel, compilerOptions, flags, monitor);
 		if (requestor != null) {
-			final Map<String, IBinding> bindingMap = new HashMap<>();
-			requestor.additionalBindingResolver = bindingMap::get;
 			final JavacBindingResolver[] bindingResolver = new JavacBindingResolver[1];
 			bindingResolver[0] = null;
+
+			final Map<String, IBinding> bindingMap = new HashMap<>();
+			{
+				INameEnvironment environment = null;
+				if (project instanceof JavaProject javaProject) {
+					try {
+						environment = new CancelableNameEnvironment(javaProject, workingCopyOwner, monitor);
+					} catch (JavaModelException e) {
+						// fall through
+					}
+				}
+				if (environment == null) {
+					environment = new NameEnvironmentWithProgress(new Classpath[0], null, monitor);
+				}
+				LookupEnvironment lu = new LookupEnvironment(new ITypeRequestor() {
+
+					@Override
+					public void accept(IBinaryType binaryType, PackageBinding packageBinding,
+							AccessRestriction accessRestriction) {
+						// do nothing
+					}
+
+					@Override
+					public void accept(org.eclipse.jdt.internal.compiler.env.ICompilationUnit unit,
+							AccessRestriction accessRestriction) {
+						// do nothing
+					}
+
+					@Override
+					public void accept(ISourceType[] sourceType, PackageBinding packageBinding,
+							AccessRestriction accessRestriction) {
+						// do nothing
+					}
+
+				}, new CompilerOptions(compilerOptions), null, environment);
+				requestor.additionalBindingResolver = new JavacAdditionalBindingCreator(bindingMap, environment, lu, bindingResolver)::createBinding;
+			}
+
 			units.forEach((a,b) -> {
 				if (bindingResolver[0] == null && (JavacBindingResolver)b.ast.getBindingResolver() != null) {
 					bindingResolver[0] = (JavacBindingResolver)b.ast.getBindingResolver();
 				}
 				requestor.acceptAST(a,b);
-				resolveBindings(b, bindingKeys, requestor, apiLevel);
+				resolveBindings(b, bindingKeys, bindingMap, apiLevel);
 			});
 
 			resolveRequestedBindingKeys(bindingResolver[0], bindingKeys,
@@ -327,37 +363,35 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 	}
 
 
-	private void respondBinding(IBinding binding, List<String> bindingKeys, ASTRequestor requestor) {
+	private void respondBinding(IBinding binding, List<String> bindingKeys, Map<String, IBinding> bindingMap) {
 		if( binding != null ) {
 			String k = binding.getKey();
-			if( k != null && bindingKeys.contains(k)) {
-				requestor.acceptBinding(k, binding);
-			}
+			bindingMap.put(k, binding);
 		}
 	}
 
 	private void resolveBindings(CompilationUnit unit, int apiLevel) {
-		resolveBindings(unit, new String[0], null, apiLevel);
+		resolveBindings(unit, new String[0], new HashMap<>(), apiLevel);
 	}
 
-	private void resolveBindings(CompilationUnit unit, String[] bindingKeys, ASTRequestor requestor, int apiLevel) {
+	private void resolveBindings(CompilationUnit unit, String[] bindingKeys, Map<String, IBinding> bindingMap, int apiLevel) {
 		List<String> keys = Arrays.asList(bindingKeys);
 
 		if (unit.getPackage() != null) {
 			IPackageBinding pb = unit.getPackage().resolveBinding();
-			respondBinding(pb, keys, requestor);
+			respondBinding(pb, keys, bindingMap);
 		}
 		if (!unit.types().isEmpty()) {
 			List types = unit.types();
 			for( int i = 0; i < types.size(); i++ ) {
 				ITypeBinding tb = ((AbstractTypeDeclaration) types.get(i)).resolveBinding();
-				respondBinding(tb, keys, requestor);
+				respondBinding(tb, keys, bindingMap);
 			}
 		}
 		if( apiLevel >= AST.JLS9_INTERNAL) {
 			if (unit.getModule() != null) {
 				IModuleBinding mb = unit.getModule().resolveBinding();
-				respondBinding(mb, keys, requestor);
+				respondBinding(mb, keys, bindingMap);
 			}
 		}
 	}
@@ -682,6 +716,36 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			bindingMap.putIfAbsent(binding.getKey(), binding);
 			return true;
 		}
+	}
+
+	private static record JavacAdditionalBindingCreator(Map<String, IBinding> bindingMap, INameEnvironment environment, LookupEnvironment lu, BindingResolver[] bindingResolverPointer) {
+
+		public IBinding createBinding(String key) {
+
+			{
+				// check parsed files
+				IBinding binding = bindingMap.get(key);
+				if (binding != null) {
+					return binding;
+				}
+			}
+
+			// check name environment
+			CustomBindingKeyParser bkp = new CustomBindingKeyParser(key);
+			bkp.parse(true);
+			char[][] name = bkp.compoundName;
+			NameEnvironmentAnswer answer = environment.findType(name);
+			if (answer != null) {
+				IBinaryType binaryType = answer.getBinaryType();
+				if (binaryType != null) {
+					BinaryTypeBinding binding = lu.cacheBinaryType(binaryType, null);
+					return new TypeBinding(bindingResolverPointer[0], binding);
+				}
+			}
+
+			return null;
+		}
+
 	}
 
 }
