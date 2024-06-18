@@ -478,7 +478,7 @@ public class JavacBindingResolver extends BindingResolver {
 		if( tree != null ) {
 			return resolveNameToJavac(name, tree);
 		}
-		if (tree == null) {
+		if (tree == null && (name.getFlags() & ASTNode.ORIGINAL) != 0) {
 			tree = this.converter.domToJavac.get(name.getParent());
 			if( tree instanceof JCFieldAccess jcfa) {
 				if( jcfa.selected instanceof JCIdent jcid && jcid.toString().equals(name.toString())) {
