@@ -4402,6 +4402,100 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"49.0\n" +
 			"49.0");
 	}
+
+	// reference - unboxing
+	public void test159() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static boolean Boolean2boolean(Boolean b) {
+						if (b instanceof boolean) {
+							boolean r = (boolean) b;
+							return r;
+						}
+						return false;
+					}
+					public static void main(String[] args) {
+						boolean b = true;
+						System.out.println(X.Boolean2boolean(b));
+
+					}
+				}
+			    """
+			},
+			"true");
+	}
+
+	public void test160() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+					public class X {
+						public static boolean Boolean2boolean(Boolean b) {
+							if (b instanceof boolean r) {
+								return r;
+							}
+							return false;
+						}
+						public static void main(String[] args) {
+							boolean b = true;
+							System.out.println(X.Boolean2boolean(b));
+
+						}
+					}
+			    """
+			},
+			"true");
+	}
+
+	public void test161() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static boolean Boolean2boolean() {
+						if (getBoolean() instanceof boolean) {
+							boolean r = (boolean) getBoolean();
+							return r;
+						}
+						return false;
+					}
+					private static Boolean getBoolean() {
+						return Boolean.TRUE;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.Boolean2boolean());
+					}
+				}
+			    """
+			},
+			"true");
+	}
+
+	public void test162() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static boolean Boolean2boolean() {
+						if (getBoolean() instanceof boolean r) {
+							return r;
+						}
+						return false;
+					}
+					private static Boolean getBoolean() {
+						return Boolean.TRUE;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.Boolean2boolean());
+					}
+				}
+			    """
+			},
+			"true");
+	}
+
 	// test from spec
 	public void _testSpec001() {
 		runConformTest(new String[] {

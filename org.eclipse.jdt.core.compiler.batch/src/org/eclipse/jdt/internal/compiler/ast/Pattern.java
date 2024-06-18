@@ -183,8 +183,17 @@ public abstract class Pattern extends Expression {
 					return PrimitiveConversionRoute.BOXING_CONVERSION;
 				if (scope.environment().computeBoxingType(expressionType).isCompatibleWith(destinationType))
 					return PrimitiveConversionRoute.BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION;
-			} else if (expressionType instanceof ReferenceBinding) {
-				// TODO
+			} else if (expressionType instanceof ReferenceBinding && destinationIsBaseType) {
+				TypeBinding boxedVersionDest = scope.environment().computeBoxingType(destinationType);
+				if (boxedVersionDest != null) {
+					/*
+					 * a widening reference conversion followed by an unboxing conversion
+					 * a widening reference conversion followed by an unboxing conversion, then followed by a widening primitive conversion
+					 * a narrowing reference conversion that is checked followed by an unboxing conversion
+					 * an unboxing conversion (5.1.8)
+					 * an unboxing conversion followed by a widening primitive conversion
+					 */
+				}
 			}
 		}
 		return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
