@@ -56,7 +56,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor TYPE_PROPERTY =
-			new ChildPropertyDescriptor(SingleVariableDeclaration.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+			new ChildPropertyDescriptor(SingleVariableDeclaration.class, "type", Type.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "varargsAnnotations" structural property of variable arguments of this node type (element type: {@link Annotation})
@@ -500,6 +500,10 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */
 	public Type getType() {
 		if (this.type == null) {
+			//if it is an unnamed patterns
+			if(this.variableName.getIdentifier().equals("_")) { //$NON-NLS-1$
+				return this.type;
+			}
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
 				if (this.type == null) {
