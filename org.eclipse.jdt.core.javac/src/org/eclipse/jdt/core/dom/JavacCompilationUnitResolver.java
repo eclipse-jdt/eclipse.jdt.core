@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -39,10 +40,14 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
+import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
@@ -55,6 +60,7 @@ import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
 import org.eclipse.jdt.internal.core.JavaProject;
@@ -266,11 +272,21 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		// resolve the requested bindings
 		for (String bindingKey : bindingKeys) {
 
+			int arrayCount = Signature.getArrayCount(bindingKey);
 			IBinding bindingFromMap = bindingMap.get(bindingKey);
 			if (bindingFromMap != null) {
 				// from parsed files
 				requestor.acceptBinding(bindingKey, bindingFromMap);
 			} else {
+
+				if (arrayCount > 0) {
+					String elementKey = Signature.getElementType(bindingKey);
+					IBinding elementBinding = bindingMap.get(elementKey);
+					if (elementBinding instanceof ITypeBinding elementTypeBinding) {
+						requestor.acceptBinding(bindingKey, elementTypeBinding.createArrayType(arrayCount));
+						continue;
+					}
+				}
 
 				CustomBindingKeyParser bkp = new CustomBindingKeyParser(bindingKey);
 				bkp.parse(true);
@@ -727,6 +743,16 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				IBinding binding = bindingMap.get(key);
 				if (binding != null) {
 					return binding;
+				}
+			}
+
+			// check parsed file for element
+			int arrayCount = Signature.getArrayCount(key);
+			if (arrayCount > 0) {
+				String elementKey = Signature.getElementType(key);
+				IBinding elementBinding = bindingMap.get(elementKey);
+				if (elementBinding instanceof ITypeBinding elementTypeBinding) {
+					return elementTypeBinding.createArrayType(arrayCount);
 				}
 			}
 
