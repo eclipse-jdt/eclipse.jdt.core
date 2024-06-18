@@ -17,14 +17,16 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
 
 class CompilationUnitResolverDiscovery {
+	private static final String SELECTED_SYSPROP = "ICompilationUnitResolver"; //$NON-NLS-1$
 	private static final String COMPILATION_UNIT_RESOLVER_EXTPOINT_ID = "compilationUnitResolver" ; //$NON-NLS-1$
 	private static boolean ERROR_LOGGED = false;
 
 
 	static ICompilationUnitResolver getInstance() {
-		String compilationUnitResolverId = System.getProperty(ICompilationUnitResolver.class.getSimpleName());
+		String compilationUnitResolverId = System.getProperty(SELECTED_SYSPROP);
 		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, COMPILATION_UNIT_RESOLVER_EXTPOINT_ID);
 		if (extension != null && compilationUnitResolverId != null && !compilationUnitResolverId.isEmpty()) {
 			IExtension[] extensions = extension.getExtensions();

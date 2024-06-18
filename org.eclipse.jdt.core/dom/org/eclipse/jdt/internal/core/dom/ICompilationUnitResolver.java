@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
-package org.eclipse.jdt.core.dom;
+package org.eclipse.jdt.internal.core.dom;
 
 import java.util.List;
 import java.util.Map;
@@ -17,15 +17,20 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.dom.ASTRequestor;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.FileASTRequestor;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 
 /**
  * This interface is used to resolve a jdt dom tree from source files.
- * It is contributed via the compilationUnitResolver extension point.
+ * It is contributed to via the compilationUnitResolver extension point.
+ * This interface is currently internal only, and is not considered API.
+ * This interface may be modified, changed, or removed at any time.
  *
  * @since 3.38
  */
-interface ICompilationUnitResolver {
+public interface ICompilationUnitResolver {
 	/**
 	 * Resolve the given source paths with the following options.
 	 *

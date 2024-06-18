@@ -6,7 +6,7 @@
          <meta.schema plugin="org.eclipse.jdt.core" id="compilationUnitResolver" name="Compilation Unit Resolver"/>
       </appInfo>
       <documentation>
-         This extension point provides the ability to override the default behavior of converting source files into the JDT DOM tree. Only one extension will be used, and only when the system property `ICompilationUnitResolver` is set to the id of that extension. This extension point is not intended to be implemented by clients.
+         This extension point provides the ability to override the default behavior of converting source files into the JDT DOM tree. The resolver will be instantiated on-demand based on the value of the system property `ICompilationUnitResolver`, which must be set to the id of an implementing extension. This extension point is not intended to be implemented by clients. This extension point is not considered API. This extension point may be modified or removed at any moment. 
       </documentation>
    </annotation>
 
