@@ -190,7 +190,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					bindingResolver[0] = (JavacBindingResolver)b.ast.getBindingResolver();
 				}
 				requestor.acceptAST(a,b);
-				resolveBindings(b, bindingKeys, bindingMap, apiLevel);
+				resolveBindings(b, bindingMap, apiLevel);
 			});
 
 			resolveRequestedBindingKeys(bindingResolver[0], bindingKeys,
@@ -367,35 +367,32 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 	}
 
 
-	private void respondBinding(IBinding binding, List<String> bindingKeys, Map<String, IBinding> bindingMap) {
-		if( binding != null ) {
-			String k = binding.getKey();
-			bindingMap.put(k, binding);
-		}
-	}
-
 	private void resolveBindings(CompilationUnit unit, int apiLevel) {
-		resolveBindings(unit, new String[0], new HashMap<>(), apiLevel);
+		resolveBindings(unit, new HashMap<>(), apiLevel);
 	}
 
-	private void resolveBindings(CompilationUnit unit, String[] bindingKeys, Map<String, IBinding> bindingMap, int apiLevel) {
-		List<String> keys = Arrays.asList(bindingKeys);
-
+	private void resolveBindings(CompilationUnit unit, Map<String, IBinding> bindingMap, int apiLevel) {
 		if (unit.getPackage() != null) {
 			IPackageBinding pb = unit.getPackage().resolveBinding();
-			respondBinding(pb, keys, bindingMap);
+			if (pb != null) {
+				bindingMap.put(pb.getKey(), pb);
+			}
 		}
 		if (!unit.types().isEmpty()) {
 			List types = unit.types();
 			for( int i = 0; i < types.size(); i++ ) {
 				ITypeBinding tb = ((AbstractTypeDeclaration) types.get(i)).resolveBinding();
-				respondBinding(tb, keys, bindingMap);
+				if (tb != null) {
+					bindingMap.put(tb.getKey(), tb);
+				}
 			}
 		}
 		if( apiLevel >= AST.JLS9_INTERNAL) {
 			if (unit.getModule() != null) {
 				IModuleBinding mb = unit.getModule().resolveBinding();
-				respondBinding(mb, keys, bindingMap);
+				if (mb != null) {
+					bindingMap.put(mb.getKey(), mb);
+				}
 			}
 		}
 	}
