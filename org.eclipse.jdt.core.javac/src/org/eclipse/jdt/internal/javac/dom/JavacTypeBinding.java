@@ -55,6 +55,7 @@ import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.code.Type.WildcardType;
 import com.sun.tools.javac.code.Types;
+import com.sun.tools.javac.code.Kinds.KindSelector;
 import com.sun.tools.javac.code.Types.FunctionDescriptorLookupError;
 
 public abstract class JavacTypeBinding implements ITypeBinding {
@@ -301,7 +302,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		// This is very very questionable, but trying to find
 		// the order of these members in the file has been challenging
 		Collections.reverse(l);
-		
+
 		return StreamSupport.stream(l.spliterator(), false)
 			.filter(MethodSymbol.class::isInstance)
 			.map(MethodSymbol.class::cast)
@@ -639,8 +640,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isLocal() {
-		//TODO Not supremely confident in this one
-		return this.typeSymbol.isDirectlyOrIndirectlyLocal();
+		//TODO Still not confident in this one,
+		//but now it doesn't check recursively
+		return this.typeSymbol.owner.kind.matches(KindSelector.VAL_MTH);
 	}
 
 	@Override

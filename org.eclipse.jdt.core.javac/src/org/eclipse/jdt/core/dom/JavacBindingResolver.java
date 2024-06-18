@@ -159,6 +159,34 @@ public class JavacBindingResolver extends BindingResolver {
 			}
 			return null;
 		}
+		public IBinding getBinding(String key) {
+			IBinding binding;
+			binding = this.annotationBindings.get(key);
+			if (binding != null) {
+				return binding;
+			}
+			binding = this.memberValuePairBindings.get(key);
+			if (binding != null) {
+				return binding;
+			}
+			binding = this.methodBindings.get(key);
+			if (binding != null) {
+				return binding;
+			}
+			binding = this.moduleBindings.get(key);
+			if (binding != null) {
+				return binding;
+			}
+			binding = this.packageBindings.get(key);
+			if (binding != null) {
+				return binding;
+			}
+			binding = this.typeBinding.get(key);
+			if (binding != null) {
+				return binding;
+			}
+			return this.variableBindings.get(key);
+		}
 
 	}
 	public final Bindings bindings = new Bindings();
@@ -199,6 +227,15 @@ public class JavacBindingResolver extends BindingResolver {
 	@Override
 	public ASTNode findDeclaringNode(IBinding binding) {
 		return findNode(getJavacSymbol(binding));
+	}
+
+	@Override
+	public ASTNode findDeclaringNode(String bindingKey) {
+		IBinding binding = this.bindings.getBinding(bindingKey);
+		if (binding == null) {
+			return null;
+		}
+		return findDeclaringNode(binding);
 	}
 
 	private Symbol getJavacSymbol(IBinding binding) {
