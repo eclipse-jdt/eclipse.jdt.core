@@ -897,14 +897,17 @@ class JavacConverter {
 		commonSettings(res, javac);
 		if (convertName(javac.getName()) instanceof SimpleName simpleName) {
 			int endPos = javac.getEndPosition(this.javacCompilationUnit.endPositions);
-			char theChar = this.rawText.charAt(endPos);
-			while (endPos > 0 && theChar != simpleName.toString().charAt(simpleName.toString().length() - 1)) {
-				theChar = this.rawText.charAt(--endPos);
-			}
-			endPos++;
-			int length = simpleName.toString().length();
-			if( endPos != -1 ) {
-				simpleName.setSourceRange(endPos - length, length);
+			if( !simpleName.toString().equals(FAKE_IDENTIFIER)) {
+				char theChar = this.rawText.charAt(endPos);
+				char soughtLastChar = simpleName.toString().charAt(simpleName.toString().length() - 1);
+				while (endPos > res.getStartPosition() && theChar != soughtLastChar) {
+					theChar = this.rawText.charAt(--endPos);
+				}
+				endPos++;
+				int length = simpleName.toString().length();
+				if( endPos != -1 && endPos - length > 0) {
+					simpleName.setSourceRange(endPos - length, length);
+				}
 			}
 			res.setName(simpleName);
 		}
