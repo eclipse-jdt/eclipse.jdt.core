@@ -33,10 +33,15 @@ import org.eclipse.jdt.core.dom.GuardedPattern;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Pattern;
+import org.eclipse.jdt.core.dom.PatternInstanceofExpression;
+import org.eclipse.jdt.core.dom.RecordPattern;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.TypePattern;
 
 public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 	ICompilationUnit workingCopy;
@@ -347,5 +352,41 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 		assertEquals("constructor name", "X", methodBinding.getName());
 		methodBinding= ((ITypeBinding) bindings[0]).getDeclaredMethods()[1];
 		assertEquals("method name", "main", methodBinding.getName());
+	}
+	@SuppressWarnings("cast")
+	public void test005() throws JavaModelException {
+		if (!isJRE22) {
+			printJREError();
+			return;
+		}
+		String contents = """
+				public class X {
+					public static void main(Object object) {
+						if (object instanceof Path(Pos(int x1, int y1), _)) {
+								//System.out.printf("object is a path starting at x = %d, y = %d%n", x1, y1);
+								System.out.println("abc");
+						}
+					}
+				}
+			record Pos(int x, int y) {}
+			record Path(Pos p1, Pos p2) {}
+				""";
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) getASTNode(compilationUnit, 0, 0);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+		Block block = methodDeclaration.getBody();
+		assertEquals("statements size", block.statements().size(), 1);
+
+		IfStatement ifStatement = (IfStatement) block.statements().get(0);
+		PatternInstanceofExpression expression = (PatternInstanceofExpression) ifStatement.getExpression();
+		RecordPattern recordPattern = (RecordPattern) expression.getPattern();
+		TypePattern typePattern = (TypePattern) recordPattern.patterns().get(1);
+		SingleVariableDeclaration single = (SingleVariableDeclaration) typePattern.getPatternVariable();
+		assertEquals("SingleVariableDecleration name", single.getName().getIdentifier(), "_");
+		assertEquals("SingleVariableDecleration type", single.getType(), null);
 	}
 }
