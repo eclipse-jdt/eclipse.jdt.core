@@ -1494,6 +1494,7 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 @Override
 protected void consumeToken(int token) {
 	int lastToken = this.previousToken; // before super.consumeToken tramples on it
+	boolean betweenCaseAndColonOrArrow = topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLONORARROW; // before super.consumeToken tramples on it
 	super.consumeToken(token);
 
 	// if in a method or if in a field initializer
@@ -1559,6 +1560,10 @@ protected void consumeToken(int token) {
 					pushOnElementStack(K_INSIDE_IF, this.expressionPtr, this.astPtr);
 				} else if (lastToken == TokenNamewhile) {
 					pushOnElementStack(K_INSIDE_WHILE, this.expressionPtr, this.astPtr);
+				} else if (lastToken == TokenNameIdentifier) {
+					if (betweenCaseAndColonOrArrow  && topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_SELECTOR) {
+						popElement(K_SELECTOR); // 'case' 'ID(' is *not* the start of an invocation
+					}
 				}
 				break;
 		}

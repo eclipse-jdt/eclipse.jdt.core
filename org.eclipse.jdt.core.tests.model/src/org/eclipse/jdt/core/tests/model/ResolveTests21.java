@@ -168,4 +168,55 @@ public void test004() throws JavaModelException {
 		elements
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2572
+// [code select] ClassCastException when hovering in switch case yield
+public void testIssue2572() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve/src/Test.java",
+			"""
+			public class Test {
+				public static void main(String[] args) {
+					test(new Bar(0));
+					test(new FooBar<>("0"));
+				}
+
+				public static void test(final Foo foo) {
+					final String str = switch (foo) {
+					case Bar(Number number) -> {
+						yield number.toString();
+					}
+					case BarFoo(String data) -> {
+						yield data;
+					}
+					case final FooBar<?> fooBar -> {
+						yield fooBar.object.toString();
+					}
+					};
+					System.out.println(str);
+				}
+
+				private static sealed interface Foo {
+				}
+
+				private record Bar(Number number) implements Foo {
+				}
+
+				private record BarFoo(String data) implements Foo {
+				}
+
+				private record FooBar<T>(T object) implements Foo {
+				}
+			}
+			"""
+			);
+	String str = this.wc.getSource();
+	String selection = "toString";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"toString() [in Object [in Object.class [in java.lang [in " + getExternalPath() + "jclMin21.jar]]]]",
+		elements
+	);
+}
 }
