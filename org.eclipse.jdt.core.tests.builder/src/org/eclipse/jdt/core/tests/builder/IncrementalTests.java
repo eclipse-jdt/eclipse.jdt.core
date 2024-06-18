@@ -1612,4 +1612,57 @@ public class IncrementalTests extends BuilderTests {
 
 		env.removeProject(projectPath);
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577787
+	// [17] False positive error for explicitly permitted class extending a sealed class
+	public void testBug577787() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "19");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "sealedtest", "Parent",
+				"""
+				package sealedtest;
+
+				public sealed class Parent permits Child {
+
+				}
+				""");
+
+		env.addClass(root, "sealedtest", "Child",
+				"""
+				package sealedtest;
+
+				public final class Child extends Parent {
+
+				}
+				""");
+
+		// force annotation encoding into bindings which is necessary to reproduce.
+		env.getJavaProject("Project").setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+		env.getJavaProject("Project").setOption(JavaCore.CORE_JAVA_BUILD_EXTERNAL_ANNOTATIONS_FROM_ALL_LOCATIONS, JavaCore.ENABLED);
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(root, "sealedtest", "Child",
+				"""
+				package sealedtest;
+
+				public final class Child extends Parent {
+
+				}
+				""");
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+
+		env.removeProject(projectPath);
+	}
+
 }
