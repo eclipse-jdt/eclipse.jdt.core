@@ -9488,6 +9488,8 @@ public final class CompletionEngine
 		next : for (int f = methods.length; --f >= 0;) {
 			MethodBinding method = methods[f];
 
+			if (completingInPreamble(method))
+				continue next;
 			if (method.isSynthetic()) continue next;
 
 			if (method.isDefaultAbstract())	continue next;
@@ -9824,6 +9826,23 @@ public final class CompletionEngine
 		}
 
 		methodsFound.addAll(newMethodsFound);
+	}
+
+	protected boolean completingInPreamble(MethodBinding method) {
+		// don't propose a method within its own annotation, detected via source positions:
+		AbstractMethodDeclaration sourceMethod = method.sourceMethod();
+		if (sourceMethod == null)
+			return false;
+		int completionPosition = this.actualCompletionPosition + 1; // field is initialized as completionPosition-1
+		if (completionPosition < sourceMethod.declarationSourceStart)
+			return false;
+		if (completionPosition >= sourceMethod.bodyStart)
+			return false;
+		if (sourceMethod.javadoc != null) {
+			if (completionPosition > sourceMethod.javadoc.sourceStart && completionPosition < sourceMethod.javadoc.sourceEnd)
+				return false; // within javadoc, doesn't count as 'preamble'
+		}
+		return true;
 	}
 
 	private char[] capitalize(char[] name) {
