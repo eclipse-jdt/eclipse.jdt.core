@@ -218,8 +218,8 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isEqualTo(final IBinding binding) {
-		return binding instanceof final JavacTypeBinding other && //
-			Objects.equals(this.resolver, other.resolver) && //
+		return binding instanceof final JavacTypeBinding other && 
+			Objects.equals(this.resolver, other.resolver) && 
 			Objects.equals(this.typeSymbol, other.typeSymbol);
 	}
 
@@ -472,7 +472,8 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding getSuperclass() {
-		if (Object.class.getName().equals(this.typeSymbol.getQualifiedName().toString())) {
+		String jlObject = this.typeSymbol.getQualifiedName().toString();
+		if (Object.class.getName().equals(jlObject)) {
 			return null;
 		}
 		if (this.typeSymbol instanceof TypeVariableSymbol && this.type instanceof TypeVar tv) {
@@ -497,13 +498,13 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		if (this.typeSymbol instanceof final ClassSymbol classSymbol && classSymbol.getSuperclass() != null && classSymbol.getSuperclass().tsym != null) {
 			return this.resolver.bindings.getTypeBinding(classSymbol.getSuperclass());
 		}
-		return this.resolver.resolveWellKnownType(Object.class.getName());
+		return null;
 	}
 
 	@Override
 	public IAnnotationBinding[] getTypeAnnotations() {
-		return this.typeSymbol.getAnnotationMirrors().stream() //
-				.map(annotation -> this.resolver.bindings.getAnnotationBinding(annotation, this)) //
+		return this.typeSymbol.getAnnotationMirrors().stream()
+				.map(annotation -> this.resolver.bindings.getAnnotationBinding(annotation, this))
 				.toArray(IAnnotationBinding[]::new);
 	}
 
@@ -720,9 +721,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public String toString() {
-		return Arrays.stream(getAnnotations()) //
-					.map(Object::toString) //
-					.map(ann -> ann + " ") //
+		return Arrays.stream(getAnnotations())
+					.map(Object::toString) 
+					.map(ann -> ann + " ") 
 					.collect(Collectors.joining())
 				+ getQualifiedName();
 	}
