@@ -1395,4 +1395,221 @@ public class IncrementalTests extends BuilderTests {
 
 		env.removeProject(projectPath);
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577872
+	// [17] Incremental builder problems with sealed types: Bogus error: The type C that implements a sealed interface Types.B should be a permitted subtype of Types.B
+	public void testBug577872() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "19");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "", "Types",
+				"""
+				public class Types {
+					public sealed interface I permits A, B {}
+					public non-sealed interface A extends I {}
+					public sealed interface B extends I permits C {}
+				}
+				""");
+
+		env.addClass(root, "", "C",
+				"""
+				abstract class D implements Types.A {}
+				public final class C extends D implements Types.B {}
+				""");
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(root, "", "C",
+				"""
+				abstract class D implements Types.A {}
+				public final class C extends D implements Types.B {}
+				""");
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+
+		env.removeProject(projectPath);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577872
+	// [17] Incremental builder problems with sealed types: Bogus error: The type C that implements a sealed interface Types.B should be a permitted subtype of Types.B
+	// Test with null analysis and external; annotations involved.
+	public void testBug577872_2() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "19");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "", "Types",
+				"""
+				public class Types {
+					public sealed interface I permits A, B {}
+					public non-sealed interface A extends I {}
+					public sealed interface B extends I permits C {}
+				}
+				""");
+
+		env.addClass(root, "", "C",
+				"""
+				abstract class D implements Types.A {}
+				public final class C extends D implements Types.B {}
+				""");
+
+		// force annotation encoding into bindings which is necessary to reproduce.
+		env.getJavaProject("Project").setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+		env.getJavaProject("Project").setOption(JavaCore.CORE_JAVA_BUILD_EXTERNAL_ANNOTATIONS_FROM_ALL_LOCATIONS, JavaCore.ENABLED);
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(root, "", "C",
+				"""
+				abstract class D implements Types.A {}
+				public final class C extends D implements Types.B {}
+				""");
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+
+		env.removeProject(projectPath);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577872
+	// [17] Incremental builder problems with sealed types: Bogus error: The type C that implements a sealed interface Types.B should be a permitted subtype of Types.B
+	// original test case as is.
+	public void testBug577872_original() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "19");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "", "module-info",
+				"""
+				module m {}
+				""");
+
+		env.addClass(root, "p", "Types",
+				"""
+				package p;
+
+				import q.C;
+
+				public class Types {
+				    public sealed interface I permits A, B {}
+				    public non-sealed interface A extends I {}
+				    public sealed interface B extends I permits C {}
+				}
+				""");
+
+		env.addClass(root, "q", "C",
+				"""
+				package q;
+
+				import p.Types.A;
+				import p.Types.B;
+
+				abstract class D implements A {}
+				public final class C extends D implements B {}
+				""");
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(root, "q", "C",
+				"""
+				package q;
+
+				import p.Types.A;
+				import p.Types.B;
+
+				abstract class D implements A {}
+				public final class C extends D implements B {}
+				""");
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+
+		env.removeProject(projectPath);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577872
+	// [17] Incremental builder problems with sealed types: Bogus error: The type C that implements a sealed interface Types.B should be a permitted subtype of Types.B
+	// original test case with null analysis and external annotations
+	public void testBug577872_original_with_null_analysis() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "19");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "", "module-info",
+				"""
+				module m {}
+				""");
+
+		env.addClass(root, "p", "Types",
+				"""
+				package p;
+
+				import q.C;
+
+				public class Types {
+				    public sealed interface I permits A, B {}
+				    public non-sealed interface A extends I {}
+				    public sealed interface B extends I permits C {}
+				}
+				""");
+
+		env.addClass(root, "q", "C",
+				"""
+				package q;
+
+				import p.Types.A;
+				import p.Types.B;
+
+				abstract class D implements A {}
+				public final class C extends D implements B {}
+				""");
+
+		// force annotation encoding into bindings which is necessary to reproduce.
+		env.getJavaProject("Project").setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+		env.getJavaProject("Project").setOption(JavaCore.CORE_JAVA_BUILD_EXTERNAL_ANNOTATIONS_FROM_ALL_LOCATIONS, JavaCore.ENABLED);
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(root, "q", "C",
+				"""
+				package q;
+
+				import p.Types.A;
+				import p.Types.B;
+
+				abstract class D implements A {}
+				public final class C extends D implements B {}
+				""");
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+
+		env.removeProject(projectPath);
+	}
 }
