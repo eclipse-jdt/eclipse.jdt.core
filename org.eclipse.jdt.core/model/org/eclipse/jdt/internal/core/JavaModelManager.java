@@ -1624,8 +1624,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public static class PerWorkingCopyInfo implements IProblemRequestor {
 		int useCount = 0;
-		IProblemRequestor problemRequestor;
-		CompilationUnit workingCopy;
+		private final IProblemRequestor problemRequestor;
+		final CompilationUnit workingCopy;
 		public PerWorkingCopyInfo(CompilationUnit workingCopy, IProblemRequestor problemRequestor) {
 			this.workingCopy = workingCopy;
 			this.problemRequestor = problemRequestor;
