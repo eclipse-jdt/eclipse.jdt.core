@@ -845,7 +845,13 @@ public class BasicBuildTests extends BuilderTests {
 	}
 
 	private File getSourceProjectDirectory() {
-		return new File("resources");
+		final String pluginId = "org.eclipse.jdt.core.tests.builder";
+		String cwd = new File("").getAbsolutePath();
+		if (cwd.endsWith(pluginId)) {
+			return new File("resources"); // run from current test plugin
+		} else {
+			return new File("../" + pluginId + "/resources"); // run from other test plugin
+		}
 	}
 
 	private File getWorkingProjectDirectory() throws IOException {
