@@ -169,7 +169,10 @@ public class NameEnvironmentAnswerListenerTest extends AbstractComparableTest {
 				Assert.fail("Compile failed, output: '" + logOutputString + "'");
 			}
 		}
-		Assert.assertTrue("must reference p.Color", compiler.answeredFileNames.stream().anyMatch(s -> s.contains(libPath)));
-		Assert.assertFalse("must not reference p2.Color", compiler.answeredFileNames.stream().anyMatch(s -> s.contains(unusedLibPath)));
+		String libPathExpected = libPath.replace('\\', '/');
+		String unusedLibPathExpected = unusedLibPath.replace('\\', '/');
+		Set<String> answeredFileNames = compiler.answeredFileNames;
+		Assert.assertTrue("must reference p.Color: " + answeredFileNames, answeredFileNames.stream().anyMatch(s -> s.contains(libPathExpected)));
+		Assert.assertFalse("must not reference p2.Color: " + answeredFileNames, answeredFileNames.stream().anyMatch(s -> s.contains(unusedLibPathExpected)));
 	}
 }
