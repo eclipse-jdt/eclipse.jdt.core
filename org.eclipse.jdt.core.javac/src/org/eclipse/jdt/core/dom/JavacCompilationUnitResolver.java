@@ -209,13 +209,6 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 	private void resolveRequestedBindingKeys(JavacBindingResolver bindingResolver, String[] bindingKeys, GenericRequestor requestor,
 			Classpath[] cp,CompilerOptions opts,
 			Collection<CompilationUnit> units,
-			IProgressMonitor monitor) {
-		resolveRequestedBindingKeys(bindingResolver, bindingKeys, requestor, cp, opts, units, null, new HashMap<>(), monitor);
-	}
-
-	private void resolveRequestedBindingKeys(JavacBindingResolver bindingResolver, String[] bindingKeys, GenericRequestor requestor,
-			Classpath[] cp,CompilerOptions opts,
-			Collection<CompilationUnit> units,
 			IJavaProject project,
 			Map<String, IBinding> bindingMap,
 			IProgressMonitor monitor) {
@@ -741,7 +734,8 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				}
 			}
 
-			// check parsed file for element
+			// if the requested type is an array type,
+			// check the parsed files for element type and create the array variant
 			int arrayCount = Signature.getArrayCount(key);
 			if (arrayCount > 0) {
 				String elementKey = Signature.getElementType(key);
