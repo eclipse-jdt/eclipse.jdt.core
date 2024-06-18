@@ -188,4 +188,59 @@ public void testIssue62() throws Exception {
 		deleteProject(p);
 	}
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1998
+// [Sealed classes] Incorrect Reconciler error: The type A that implements a sealed interface I should be a permitted subtype of I
+public void testIssue1998() throws Exception {
+	if (!isJRE21)
+		return;
+	IJavaProject p = createJava21Project("p");
+	try {
+		createFile("p/src/X.java",
+				"""
+				sealed interface I {}
+				final class A implements I {}
+
+				record R<T extends I>(T x, T  y) {}
+
+				public class X {
+				    public static int foo(R r) {
+				       return  switch (r) {
+				            case R(A a1, A a2) -> 0;
+				        };
+				    }
+
+				    @SuppressWarnings("unchecked")
+				       public static void main(String argv[]) {
+				       System.out.println(X.foo(new R(new A(), new A())));
+				    }
+				}
+				""");
+		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("markers in p",
+				"R is a raw type. References to generic type R<T> should be parameterized\n" +
+				"R is a raw type. References to generic type R<T> should be parameterized",
+				markers);
+
+		ICompilationUnit unit = getCompilationUnit("p/src/X.java");
+		this.problemRequestor.initialize(unit.getSource().toCharArray());
+		this.workingCopy = getCompilationUnit("p/src/X.java").getWorkingCopy(this.wcOwner, null);
+		assertProblems("Expecting no problems",
+				"----------\n" +
+				"1. WARNING in /p/src/X.java (at line 7)\n" +
+				"	public static int foo(R r) {\n" +
+				"	                      ^\n" +
+				"R is a raw type. References to generic type R<T> should be parameterized\n" +
+				"----------\n" +
+				"2. WARNING in /p/src/X.java (at line 15)\n" +
+				"	System.out.println(X.foo(new R(new A(), new A())));\n" +
+				"	                             ^\n" +
+				"R is a raw type. References to generic type R<T> should be parameterized\n" +
+				"----------\n",
+				this.problemRequestor);
+		this.workingCopy.discardWorkingCopy();
+	} finally {
+		deleteProject(p);
+	}
+}
 }
