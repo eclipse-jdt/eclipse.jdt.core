@@ -3322,9 +3322,27 @@ public final class JavaCore extends Plugin {
 	 * @category OptionValue
 	 */
 	public static final String VERSION_CLDC_1_1 = "cldc1.1"; //$NON-NLS-1$
-	private static List<String> allVersions = Collections.unmodifiableList(Arrays.asList(VERSION_CLDC_1_1, VERSION_1_1, VERSION_1_2, VERSION_1_3, VERSION_1_4, VERSION_1_5,
+	private static final List<String> allVersions = Collections.unmodifiableList(Arrays.asList(VERSION_CLDC_1_1, VERSION_1_1, VERSION_1_2, VERSION_1_3, VERSION_1_4, VERSION_1_5,
 			VERSION_1_6, VERSION_1_7, VERSION_1_8, VERSION_9, VERSION_10, VERSION_11, VERSION_12, VERSION_13, VERSION_14, VERSION_15, VERSION_16, VERSION_17, VERSION_18,
 			VERSION_19, VERSION_20, VERSION_21, VERSION_22));
+
+	/**
+	 * Unordered set of all Java source versions <b>not supported</b> by compiler anymore.
+	 * The values are from {@link JavaCore}{@code #VERSION_*}.
+	 */
+	private static final Set<String> UNSUPPORTED_VERSIONS = CompilerOptions.UNSUPPORTED_VERSIONS;
+
+	/**
+	 * Ordered set (from oldest to latest) of all Java source versions <b>supported</b> by compiler.
+	 * The values are from {@link JavaCore}{@code #VERSION_*}.
+	 */
+	private static final List<String> SUPPORTED_VERSIONS;
+	static {
+		ArrayList<String> temp = new ArrayList<>();
+		temp.addAll(allVersions);
+		temp.removeAll(UNSUPPORTED_VERSIONS);
+		SUPPORTED_VERSIONS = Collections.unmodifiableList(temp);
+	}
 
 	/**
 	 * Returns all {@link JavaCore}{@code #VERSION_*} levels in the order of their
@@ -3335,6 +3353,22 @@ public final class JavaCore extends Plugin {
 	 */
 	public static List<String> getAllVersions() {
 		return allVersions;
+	}
+
+	/**
+	 * Returns all Java source versions fully supported by Eclipse compiler in the order of their introduction. For
+	 * example, {@link JavaCore#VERSION_1_8} appears before {@link JavaCore#VERSION_10}.
+	 * <p>
+	 * Note, some not included older or newer Java versions might be known by Eclipse compiler internally but not
+	 * exposed via this API because compiler does not support these anymore (or yet).
+	 *
+	 * @return all Java source versions fully supported by Eclipse compiler
+	 * @see #isJavaSourceVersionSupportedByCompiler(String)
+	 * @see #getFirstJavaSourceVersionSupportedByCompiler()
+	 * @since 3.39
+	 */
+	public static List<String> getAllJavaSourceVersionsSupportedByCompiler() {
+		return SUPPORTED_VERSIONS;
 	}
 
 	/**
@@ -3350,6 +3384,22 @@ public final class JavaCore extends Plugin {
 	 */
 	public static boolean isSupportedJavaVersion(String version) {
 		return CompilerOptions.versionToJdkLevel(version, false) > 0;
+	}
+
+	/**
+	 * Not all known Java versions are supported by Eclipse compiler. This method answers if the given Java source
+	 * version is fully supported.
+	 *
+	 * @return {@code true} if the given string represents Java language version is fully supported by Eclipse compiler
+	 * @see #getAllJavaSourceVersionsSupportedByCompiler()
+	 * @see #getFirstJavaSourceVersionSupportedByCompiler()
+	 * @since 3.39
+	 */
+	public static boolean isJavaSourceVersionSupportedByCompiler(String version) {
+		if(version == null || version.isBlank()) {
+			return false;
+		}
+		return SUPPORTED_VERSIONS.contains(version);
 	}
 
 	/**
@@ -6453,6 +6503,20 @@ public final class JavaCore extends Plugin {
 	public static String latestSupportedJavaVersion() {
 		return allVersions.get(allVersions.size() - 1);
 	}
+
+	/**
+	 * First (oldest) Java source version supported by the Eclipse compiler.
+	 * This is the first entry from {@link JavaCore#getAllJavaSourceVersionsSupportedByCompiler()}.
+	 *
+	 * @return first (oldest) Java source version supported by the Eclipse compiler
+	 * @see #getAllJavaSourceVersionsSupportedByCompiler()
+	 * @see #isJavaSourceVersionSupportedByCompiler(String)
+	 * @since 3.39
+	 */
+	public static String getFirstJavaSourceVersionSupportedByCompiler() {
+		return SUPPORTED_VERSIONS.get(0);
+	}
+
 	/**
 	 * Compares two given versions of the Java platform. The versions being compared must both be
 	 * one of the supported values mentioned in
