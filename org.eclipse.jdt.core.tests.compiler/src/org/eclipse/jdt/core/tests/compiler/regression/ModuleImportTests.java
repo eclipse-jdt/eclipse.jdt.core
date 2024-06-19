@@ -47,7 +47,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 	@Override
 	protected StringBuilder trimJavacLog(StringBuilder log) {
 		// suppress preview warnings from javac:
-		if (log.substring(0, 6).equals("Note: ")) {
+		if (log.length() > 6 && log.substring(0, 6).equals("Note: ")) {
 			StringBuilder filtered = new StringBuilder();
 			filtered.append(
 				log.toString().lines()
@@ -709,5 +709,41 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 	        "",
 	        "",
 	        true);
+	}
+
+	public void test014_moduleAsPackageName_regular() {
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, OUTPUT_DIR + File.separator + "module", "Z.java",
+				"""
+					package module;
+					public class Z {}
+					""");
+		writeFileCollecting(files, OUTPUT_DIR + File.separator + "test", "X.java",
+				"""
+					package test;
+					import module.Z;
+					public class X extends Z {}
+					""");
+		StringBuilder commandLine = new StringBuilder(" -23 --enable-preview");
+		runConformModuleTest(files, commandLine, "", "");
+	}
+
+
+	public void test014_moduleAsPackageName_moduleInfo() {
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, OUTPUT_DIR + File.separator + "module", "Z.java",
+				"""
+					package module;
+					public class Z {}
+					""");
+		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
+				"""
+					import module.Z;
+					module one {
+						uses Z;
+					}
+					""");
+		StringBuilder commandLine = new StringBuilder(" -23 --enable-preview");
+		runConformModuleTest(files, commandLine, "", "");
 	}
 }
