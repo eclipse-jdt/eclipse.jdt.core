@@ -13,8 +13,10 @@ package org.eclipse.jdt.core.dom;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -23,6 +25,10 @@ import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
 
+import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.Tree;
+import com.sun.source.util.DocTreePath;
+import com.sun.source.util.TreePath;
 import com.sun.tools.javac.parser.UnicodeReader;
 import com.sun.tools.javac.tree.DCTree;
 import com.sun.tools.javac.tree.DCTree.DCAuthor;
@@ -61,6 +67,9 @@ class JavadocConverter {
 	private final DCDocComment docComment;
 	private final int initialOffset;
 	private final int endOffset;
+	private final TreePath contextTreePath;
+
+	public final Map<ASTNode, DocTreePath> converted = new HashMap<>();
 
 	final private Set<JCDiagnostic> diagnostics = new HashSet<>();
 
@@ -75,10 +84,11 @@ class JavadocConverter {
 		}
 	}
 
-	JavadocConverter(JavacConverter javacConverter, DCDocComment docComment) {
+	JavadocConverter(JavacConverter javacConverter, DCDocComment docComment, TreePath contextTreePath) {
 		this.javacConverter = javacConverter;
 		this.ast = javacConverter.ast;
 		this.docComment = docComment;
+		this.contextTreePath = contextTreePath;
 
 		int startPos = -1;
 		if (UNICODE_READER_CLASS_OFFSET_FIELD != null) {
@@ -107,6 +117,7 @@ class JavadocConverter {
 				length++;
 			}
 			res.setSourceRange(startPosition, length);
+			this.converted.put(res, DocTreePath.getPath(this.contextTreePath, this.docComment, javac));
 		}
 	}
 
@@ -379,6 +390,7 @@ class JavadocConverter {
 			} else if (!signature.contains("#")) {
 				Name res = this.ast.newName(signature);
 				res.setSourceRange(this.docComment.getSourcePosition(javac.getStartPosition()), signature.length());
+				this.converted.put(res, DocTreePath.getPath(this.contextTreePath, this.docComment, reference));
 				return Stream.of(res);
 			}
 		} else if (javac instanceof DCStartElement || javac instanceof DCEndElement || javac instanceof DCEntity) {

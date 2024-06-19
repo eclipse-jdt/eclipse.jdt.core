@@ -39,6 +39,8 @@ import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import com.sun.source.tree.CaseTree.CaseKind;
 import com.sun.source.tree.ModuleTree.ModuleKind;
 import com.sun.source.tree.Tree.Kind;
+import com.sun.source.util.DocTreePath;
+import com.sun.source.util.TreePath;
 import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.parser.Tokens.Comment;
@@ -135,6 +137,7 @@ class JavacConverter {
 	final Map<ASTNode, JCTree> domToJavac = new HashMap<>();
 	final String rawText;
 	final Set<JCDiagnostic> javadocDiagnostics = new HashSet<>();
+	private final List<JavadocConverter> javadocConverters = new ArrayList<>();
 
 	public JavacConverter(AST ast, JCCompilationUnit javacCompilationUnit, Context context, String rawText) {
 		this.ast = ast;
@@ -2882,7 +2885,8 @@ class JavacConverter {
 	public org.eclipse.jdt.core.dom.Comment convert(Comment javac, JCTree context) {
 		if (javac.getStyle() == CommentStyle.JAVADOC && context != null) {
 			var docCommentTree = this.javacCompilationUnit.docComments.getCommentTree(context);
-			JavadocConverter javadocConverter = new JavadocConverter(this, docCommentTree);
+			JavadocConverter javadocConverter = new JavadocConverter(this, docCommentTree, TreePath.getPath(this.javacCompilationUnit, context));
+			this.javadocConverters.add(javadocConverter);
 			Javadoc javadoc = javadocConverter.convertJavadoc();
 			this.javadocDiagnostics.addAll(javadocConverter.getDiagnostics());
 			return javadoc;
@@ -3053,6 +3057,14 @@ class JavacConverter {
 			.map(ASTNode.class::cast)
 			.filter(Predicate.not(node::equals))
 			.toList();
+	}
+
+	public DocTreePath findDocTreePath(ASTNode node) {
+		return this.javadocConverters.stream()
+			.map(javadocConverter -> javadocConverter.converted.get(node))
+			.filter(Objects::nonNull)
+			.findFirst()
+			.orElse(null);
 	}
 
 
