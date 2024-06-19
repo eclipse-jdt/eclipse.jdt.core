@@ -3454,6 +3454,10 @@ public abstract class Scope {
 							insideStaticContext |= sourceType.isStatic();
 							break;
 						}
+						if (scope == this && (sourceType.tagBits & TagBits.SealingTypeHierarchy) != 0) {
+							insideStaticContext |= sourceType.isStatic();
+							break; // while resolving permits we should not consider member types not in scope
+						}
 						// member types take precedence over type variables
 						if (!insideTypeAnnotation) {
 							// 6.5.5.1 - member types have precedence over top-level type in same unit
