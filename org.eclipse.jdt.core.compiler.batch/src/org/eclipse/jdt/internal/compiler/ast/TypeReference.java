@@ -572,6 +572,9 @@ protected TypeBinding internalResolveType(Scope scope, int location) {
 public boolean isTypeReference() {
 	return true;
 }
+public boolean isImplicit() {
+	return false;
+}
 public boolean isWildcard() {
 	return false;
 }

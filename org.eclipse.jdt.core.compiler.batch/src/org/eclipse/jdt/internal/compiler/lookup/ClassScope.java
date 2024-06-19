@@ -1275,7 +1275,7 @@ public class ClassScope extends Scope {
 		if (sourceType.id == TypeIds.T_JavaLangObject) // already handled
 			return;
 		if (sourceType.isSealed() && (typeDecl.permittedTypes == null ||
-				typeDecl.permittedTypes.length == 0)) {
+				typeDecl.permittedTypes.length == 0 || typeDecl.permittedTypes[0].isImplicit())) {
 			connectImplicitPermittedTypes(sourceType);
 		}
 		ReferenceBinding[] memberTypes = sourceType.memberTypes;

@@ -1077,6 +1077,10 @@ private static class DummyTypeReference extends TypeReference {
 	public String toString() {
 		return new String(this.token);
 	}
+	@Override
+	public boolean isImplicit() {
+		return true;
+	}
 }
 private void processImplicitPermittedTypes(TypeDeclaration typeDecl, TypeDeclaration[] allTypes) {
 	if (typeDecl.permittedTypes == null &&

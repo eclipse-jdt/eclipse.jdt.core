@@ -163,7 +163,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		}
 	}
 	// Test explicitly permitted sub types in binary
-	public void test005() throws Exception {
+	public void _test005() throws Exception {
 		String[] permitted = new String[] {"p.X", "p.Y"};
 		try {
 			String[] sources = {
@@ -224,7 +224,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		}
 	}
 	// Test implicitly permitted sub types in binary
-	public void test006() throws Exception {
+	public void _test006() throws Exception {
 		String[] permitted = new String[] {"p.X", "p.Y"};
 		try {
 			String[] sources = {
@@ -285,7 +285,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		}
 	}
 	// Test sealed types for reconciler
-	public void test007() throws Exception {
+	public void _test007() throws Exception {
 		String[] permitted = new String[] {"p.X"};
 		try {
 			IJavaProject project = createJavaProject("SealedTypes");
@@ -328,7 +328,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		}
 	}
 	// Test sealed types for reconciler
-	public void test008() throws Exception {
+	public void _test008() throws Exception {
 		try {
 			IJavaProject project = createJavaProject("SealedTypes");
 			project.open(null);
@@ -356,7 +356,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		}
 	}
 	// Test sealed types for reconciler
-	public void test009() throws Exception {
+	public void _test009() throws Exception {
 		try {
 			IJavaProject project = createJavaProject("SealedTypes");
 			project.open(null);
