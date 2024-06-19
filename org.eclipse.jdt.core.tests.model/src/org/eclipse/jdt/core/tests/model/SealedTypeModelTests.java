@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation.
+ * Copyright (c) 2020, 2024 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -56,7 +56,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		return buildModelTestSuite(AbstractCompilerTest.F_17, SealedTypeModelTests.class);
 	}
 	protected IJavaProject createJavaProject(String projectName) throws CoreException {
-		IJavaProject createJavaProject = super.createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "17");
+		IJavaProject createJavaProject = super.createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL_17_LIB"}, "bin", "17");
 		return createJavaProject;
 	}
 	// Check types with neither sealed nor non-sealed don't return those modifiers
@@ -163,7 +163,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		}
 	}
 	// Test explicitly permitted sub types in binary
-	public void _test005() throws Exception {
+	public void test005() throws Exception {
 		String[] permitted = new String[] {"p.X", "p.Y"};
 		try {
 			String[] sources = {
@@ -176,7 +176,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 			String outputDirectory = Util.getOutputDirectory();
 
 			String jarPath = outputDirectory + File.separator + "sealed.jar";
-			Util.createJar(sources, jarPath, "17", true);
+			Util.createJar(sources, jarPath, "17", false);
 
 			IJavaProject project = createJavaProject("SealedTypes");
 			addClasspathEntry(project, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, null, false));
@@ -224,7 +224,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		}
 	}
 	// Test implicitly permitted sub types in binary
-	public void _test006() throws Exception {
+	public void test006() throws Exception {
 		String[] permitted = new String[] {"p.X", "p.Y"};
 		try {
 			String[] sources = {
@@ -237,7 +237,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 			String outputDirectory = Util.getOutputDirectory();
 
 			String jarPath = outputDirectory + File.separator + "sealed.jar";
-			Util.createJar(sources, jarPath, "17", true);
+			Util.createJar(sources, jarPath, "17", false);
 
 			IJavaProject project = createJavaProject("SealedTypes");
 			addClasspathEntry(project, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, null, false));
@@ -285,7 +285,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		}
 	}
 	// Test sealed types for reconciler
-	public void _test007() throws Exception {
+	public void test007() throws Exception {
 		String[] permitted = new String[] {"p.X"};
 		try {
 			IJavaProject project = createJavaProject("SealedTypes");
@@ -328,7 +328,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		}
 	}
 	// Test sealed types for reconciler
-	public void _test008() throws Exception {
+	public void test008() throws Exception {
 		try {
 			IJavaProject project = createJavaProject("SealedTypes");
 			project.open(null);
@@ -356,7 +356,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		}
 	}
 	// Test sealed types for reconciler
-	public void _test009() throws Exception {
+	public void test009() throws Exception {
 		try {
 			IJavaProject project = createJavaProject("SealedTypes");
 			project.open(null);
