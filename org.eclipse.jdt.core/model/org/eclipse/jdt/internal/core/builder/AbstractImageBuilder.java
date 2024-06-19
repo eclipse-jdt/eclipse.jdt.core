@@ -15,6 +15,7 @@
 package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.core.*;
@@ -38,6 +39,8 @@ import org.eclipse.jdt.internal.core.util.Util;
 import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
 import java.io.*;
+import java.lang.reflect.*;
+import java.net.URI;
 import java.util.*;
 
 /**
@@ -85,6 +88,7 @@ public final static Integer S_INFO = Integer.valueOf(IMarker.SEVERITY_INFO);
 public final static Integer P_HIGH = Integer.valueOf(IMarker.PRIORITY_HIGH);
 public final static Integer P_NORMAL = Integer.valueOf(IMarker.PRIORITY_NORMAL);
 public final static Integer P_LOW = Integer.valueOf(IMarker.PRIORITY_LOW);
+public final static String COMPILER_FACTORY_KEY = "AbstractImageBuilder.compilerFactory"; //$NON-NLS-1$
 private final CompilationGroup compilationGroup;
 
 protected AbstractImageBuilder(JavaBuilder javaBuilder, boolean buildStarting, State newState, CompilationGroup compilationGroup) {
@@ -573,12 +577,31 @@ protected Compiler newCompiler() {
 	CompilerOptions compilerOptions = new CompilerOptions(projectOptions);
 	compilerOptions.performMethodsFullRecovery = true;
 	compilerOptions.performStatementsRecovery = true;
-	Compiler newCompiler = new Compiler(
-		this.nameEnvironment,
-		DefaultErrorHandlingPolicies.proceedWithAllProblems(),
-		compilerOptions,
-		this,
-		ProblemFactory.getProblemFactory(Locale.getDefault()));
+
+	ICompilerFactory compilerFactory = null;
+	String compilerFactoryClassName = System.getProperty(COMPILER_FACTORY_KEY);
+	if (compilerFactoryClassName != null) {
+		try {
+			Class<? extends ICompilerFactory> compilerFactoryClass = (Class<? extends ICompilerFactory>) Class.forName(compilerFactoryClassName);
+			Constructor<? extends ICompilerFactory> constructor = compilerFactoryClass.getDeclaredConstructor();
+			compilerFactory = constructor.newInstance();
+		} catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+				| IllegalArgumentException | InstantiationException | InvocationTargetException e) {
+			ILog.get().error("Failed to initialize the custom compiler factory - " + compilerFactoryClassName, e); //$NON-NLS-1$
+		}
+	}
+
+	if (compilerFactory == null) {
+		compilerFactory = new DefaultCompilerFactory();
+	}
+
+	Compiler newCompiler = compilerFactory.newCompiler(
+			this.nameEnvironment,
+			DefaultErrorHandlingPolicies.proceedWithAllProblems(),
+			prepareCompilerConfiguration(compilerOptions),
+			this,
+			ProblemFactory.getProblemFactory(Locale.getDefault()));
+
 	CompilerOptions options = newCompiler.options;
 	// temporary code to allow the compiler to revert to a single thread
 	String setting = System.getProperty("jdt.compiler.useSingleThread"); //$NON-NLS-1$
@@ -594,6 +617,79 @@ protected Compiler newCompiler() {
 	}
 
 	return newCompiler;
+}
+
+private CompilerConfiguration prepareCompilerConfiguration(CompilerOptions options) {
+	try {
+		List<URI> annotationProcessorPaths = new ArrayList<>();
+		List<IContainer> generatedSourcePaths = new ArrayList<>();
+		boolean isTest = this.compilationGroup == CompilationGroup.TEST;
+		if (this.javaBuilder.participants != null) {
+			for (CompilationParticipant participant : this.javaBuilder.participants) {
+				if (participant.isAnnotationProcessor()) {
+					URI[] paths = participant.getAnnotationProcessorPaths(this.javaBuilder.javaProject, isTest);
+					if (paths != null) {
+						annotationProcessorPaths.addAll(Arrays.asList(paths));
+					}
+					IContainer[] generatedSrc = participant.getGeneratedSourcePaths(this.javaBuilder.javaProject, isTest);
+					if (generatedSrc != null) {
+						generatedSourcePaths.addAll(Arrays.asList(generatedSrc));
+					}
+				}
+			}
+		}
+
+		ClasspathLocation[] classpathLocations = this.nameEnvironment.binaryLocations;
+		Set<URI> classpaths = new LinkedHashSet<>();
+		Set<URI> modulepaths = new LinkedHashSet<>();
+		for (ClasspathLocation location : classpathLocations) {
+			if (location instanceof ClasspathDirectory cpDirectory) {
+				URI cpURI = cpDirectory.binaryFolder.getRawLocationURI();
+				if (cpURI == null) {
+					continue;
+				}
+				if (cpDirectory.isOnModulePath) {
+					modulepaths.add(cpURI);
+				} else {
+					classpaths.add(cpURI);
+				}
+			} else if (location instanceof ClasspathJar cpJar) {
+				URI cpURI = URIUtil.toURI(cpJar.zipFilename, true);
+				if (cpJar.isOnModulePath) {
+					modulepaths.add(cpURI);
+				} else {
+					classpaths.add(cpURI);
+				}
+			}
+		}
+
+		Map<IContainer, IContainer> sourceOutputMapping = new HashMap<>();
+		Set<IContainer> sourcepaths = new LinkedHashSet<>();
+		Set<IContainer> moduleSourcepaths = new LinkedHashSet<>();
+		ClasspathMultiDirectory[] srcLocations = this.nameEnvironment.sourceLocations;
+		for (ClasspathMultiDirectory sourceLocation : srcLocations) {
+			sourceOutputMapping.put(sourceLocation.sourceFolder, sourceLocation.binaryFolder);
+			if (sourceLocation.isOnModulePath) {
+				moduleSourcepaths.add(sourceLocation.sourceFolder);
+			} else {
+				sourcepaths.add(sourceLocation.sourceFolder);
+			}
+		}
+
+		return new CompilerConfiguration(
+				List.copyOf(sourcepaths),
+				List.copyOf(moduleSourcepaths),
+				List.copyOf(classpaths),
+				List.copyOf(modulepaths),
+				annotationProcessorPaths,
+				generatedSourcePaths,
+				sourceOutputMapping,
+				options);
+	} catch (Exception e) {
+		ILog.get().error("Failed computing compiler configuration", e); //$NON-NLS-1$
+		return new CompilerConfiguration(
+				null, null, null, null, null, null, null, options);
+	}
 }
 
 protected CompilationParticipantResult[] notifyParticipants(SourceFile[] unitsAboutToCompile) {
@@ -666,10 +762,13 @@ protected void processAnnotations(CompilationParticipantResult[] results) {
 		results[i].reset(foundAnnotations ? this.filesWithAnnotations.get(results[i].sourceFile) : null);
 	}
 
-	// even if no files have annotations, must still tell every annotation processor in case the file used to have them
-	for (CompilationParticipant participant : this.javaBuilder.participants)
-		if (participant.isAnnotationProcessor())
-			participant.processAnnotations(results);
+	boolean isEcjUsed = Compiler.class.equals(this.compiler.getClass());
+	if (isEcjUsed) {
+		// even if no files have annotations, must still tell every annotation processor in case the file used to have them
+		for (CompilationParticipant participant : this.javaBuilder.participants)
+			if (participant.isAnnotationProcessor())
+				participant.processAnnotations(results);
+	}
 	processAnnotationResults(results);
 }
 
