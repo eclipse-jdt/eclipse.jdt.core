@@ -8095,4 +8095,53 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Foo\nBar\n"
 				+ "Null");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2582
+	// Switch exhaustiveness error with enum and 'case null'
+	// optional warning enabled
+	public void testIssue2582b() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.WARNING);
+		runner.testFiles =
+				new String[] {
+					"X.java",
+					"""
+					enum Foo {
+					        FOO, BAR;
+					    }
+
+					public class X {
+					    public void dispatch(final Foo foo) {
+					        switch (foo)  {
+					            // forces JEP-441 exhaustiveness
+					            case null -> throw new NullPointerException("null foo");
+					            case FOO -> foo();
+					            case BAR -> bar();
+					        }
+					    }
+
+					    private void foo() {
+					    	System.out.println("Foo");
+					    }
+
+					    private void bar() {
+					    	System.out.println("Bar");
+					    }
+					    public static void main(String[] args) {
+					    	new X().dispatch(Foo.FOO);
+					    	new X().dispatch(Foo.BAR);
+					    	try {
+					    	new X().dispatch(null);
+					    	} catch (NullPointerException npe) {
+					    		System.out.println("Null");
+					    	}
+						}
+					}
+
+					"""};
+		runner.expectedOutputString =
+				"Foo\nBar\n"
+				+ "Null";
+		runner.runConformTest();
+	}
 }
