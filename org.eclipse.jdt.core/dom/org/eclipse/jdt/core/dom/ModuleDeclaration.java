@@ -286,9 +286,9 @@ public class ModuleDeclaration extends ASTNode {
 			synchronized (this) {
 				if (this.name == null) {
 					preLazyInit();
-					this.name =this.ast.newQualifiedName(
-							new SimpleName(this.ast), new SimpleName(this.ast));
-					postLazyInit(this.name, NAME_PROPERTY);
+					this.name = postLazyInit(
+							this.ast.newQualifiedName(new SimpleName(this.ast), new SimpleName(this.ast)),
+							NAME_PROPERTY);
 				}
 			}
 		}

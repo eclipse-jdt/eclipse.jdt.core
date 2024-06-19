@@ -1,26 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter id="931135546">
+            <message_arguments>
+                <message_argument value="3.39.50"/>
+                <message_argument value="3.38.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="META-INF/MANIFEST.MF" type="org.eclipse.jdt.core.dom.StringFragment">
-        <filter comment="StringTemplate was a preview feature - removed" id="305324134">
+        <filter id="305324134">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.dom.StringFragment"/>
-                <message_argument value="org.eclipse.jdt.core_3.38.50"/>
+                <message_argument value="org.eclipse.jdt.core_3.39.50"/>
             </message_arguments>
         </filter>
     </resource>
     <resource path="META-INF/MANIFEST.MF" type="org.eclipse.jdt.core.dom.StringTemplateComponent">
-        <filter comment="StringTemplate was a preview feature - removed" id="305324134">
+        <filter id="305324134">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.dom.StringTemplateComponent"/>
-                <message_argument value="org.eclipse.jdt.core_3.38.50"/>
+                <message_argument value="org.eclipse.jdt.core_3.39.50"/>
             </message_arguments>
         </filter>
     </resource>
     <resource path="META-INF/MANIFEST.MF" type="org.eclipse.jdt.core.dom.StringTemplateExpression">
-        <filter comment="StringTemplate was a preview feature - removed" id="305324134">
+        <filter id="305324134">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.dom.StringTemplateExpression"/>
-                <message_argument value="org.eclipse.jdt.core_3.38.50"/>
+                <message_argument value="org.eclipse.jdt.core_3.39.50"/>
             </message_arguments>
         </filter>
     </resource>
@@ -318,14 +326,6 @@
             <message_arguments>
                 <message_argument value="ASTNode"/>
                 <message_argument value="VariableDeclaration"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="model/org/eclipse/jdt/core/SourceRange.java" type="org.eclipse.jdt.core.SourceRange">
-        <filter id="576725006">
-            <message_arguments>
-                <message_argument value="ISourceRange"/>
-                <message_argument value="SourceRange"/>
             </message_arguments>
         </filter>
     </resource>

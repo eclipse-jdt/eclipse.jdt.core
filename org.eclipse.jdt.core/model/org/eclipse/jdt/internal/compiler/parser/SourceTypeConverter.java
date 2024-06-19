@@ -569,7 +569,6 @@ public class SourceTypeConverter extends TypeConverter {
 		/* set superclass and superinterfaces */
 		if (typeInfo.getSuperclassName() != null) {
 			type.superclass = createTypeReference(typeInfo.getSuperclassName(), start, end, true /* include generics */);
-			type.superclass.bits |= ASTNode.IsSuperType;
 		}
 		char[][] interfaceNames = typeInfo.getInterfaceNames();
 		int interfaceCount = interfaceNames == null ? 0 : interfaceNames.length;
@@ -577,7 +576,6 @@ public class SourceTypeConverter extends TypeConverter {
 			type.superInterfaces = new TypeReference[interfaceCount];
 			for (int i = 0; i < interfaceCount; i++) {
 				type.superInterfaces[i] = createTypeReference(interfaceNames[i], start, end, true /* include generics */);
-				type.superInterfaces[i].bits |= ASTNode.IsSuperType;
 			}
 		}
 		char[][] permittedSubtypeNames = typeInfo.getPermittedSubtypeNames();

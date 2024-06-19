@@ -504,8 +504,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 			synchronized (this) {
 				if (this.type == null) {
 					preLazyInit();
-					this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
-					postLazyInit(this.type, TYPE_PROPERTY);
+					this.type = postLazyInit(this.ast.newPrimitiveType(PrimitiveType.INT), TYPE_PROPERTY);
 				}
 			}
 		}

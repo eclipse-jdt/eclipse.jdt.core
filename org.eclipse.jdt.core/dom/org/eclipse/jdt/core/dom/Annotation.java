@@ -100,8 +100,7 @@ public abstract class Annotation extends Expression implements IExtendedModifier
 			synchronized (this) {
 				if (this.typeName == null) {
 					preLazyInit();
-					this.typeName = new SimpleName(this.ast);
-					postLazyInit(this.typeName, internalTypeNameProperty());
+					this.typeName = postLazyInit(new SimpleName(this.ast), internalTypeNameProperty());
 				}
 			}
 		}

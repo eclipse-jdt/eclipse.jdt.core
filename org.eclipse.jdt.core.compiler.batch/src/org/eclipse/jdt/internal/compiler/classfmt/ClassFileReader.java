@@ -118,12 +118,22 @@ public static ClassFileReader read(File file, boolean fullyInitialize) throws Cl
 	return classFileReader;
 }
 
+/**
+ * <strong>PROVISIONAL</strong>: This has been re-introduced not to break Xtext (see
+ * <a href="https://github.com/eclipse/xtext/issues/3089">https://github.com/eclipse/xtext/issues/3089</a>).
+ *
+ * @author Lorenzo Bettini
+ */
 public static ClassFileReader read(InputStream stream, String fileName) throws ClassFormatException, IOException {
-	return read(stream, fileName, false);
+	return read(Util.getInputStreamAsByteArray(stream), fileName);
 }
 
-public static ClassFileReader read(InputStream stream, String fileName, boolean fullyInitialize) throws ClassFormatException, IOException {
-	byte classFileBytes[] = Util.getInputStreamAsByteArray(stream);
+public static ClassFileReader read(byte[] classFileBytes, String fileName) throws ClassFormatException, IOException {
+	return read(classFileBytes, fileName, false);
+}
+
+public static ClassFileReader read(byte[] classFileBytes, String fileName, boolean fullyInitialize)
+		throws ClassFormatException {
 	ClassFileReader classFileReader = new ClassFileReader(classFileBytes, fileName.toCharArray());
 	if (fullyInitialize) {
 		classFileReader.initialize();

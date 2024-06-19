@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.toMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -33,6 +34,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.util.Tuples.Pair;
 
 /**
  * Implementation of 18.1.3 in JLS8.
@@ -624,9 +626,8 @@ class BoundSet {
 							}
 						}
 					}
-					ConstraintFormula[] typeArgumentConstraints = deriveTypeArgumentConstraints ? deriveTypeArgumentConstraints(bound1, bound2) : null;
-					if (typeArgumentConstraints != null) {
-						for (ConstraintFormula typeArgumentConstraint : typeArgumentConstraints) {
+					if (deriveTypeArgumentConstraints) {
+						for (ConstraintTypeFormula typeArgumentConstraint : deriveTypeArgumentConstraints(bound1, bound2, context)) {
 							if (!reduceOneConstraint(context, typeArgumentConstraint))
 								return false;
 						}
@@ -949,28 +950,42 @@ class BoundSet {
 		return ConstraintTypeFormula.create(left, right, boundRight.relation, isAnyLeftSoft||boundRight.isSoft);
 	}
 
-	private ConstraintTypeFormula[] deriveTypeArgumentConstraints(TypeBound boundS, TypeBound boundT) {
+	private List<ConstraintTypeFormula> deriveTypeArgumentConstraints(TypeBound boundS, TypeBound boundT, InferenceContext18 context) {
 		/* From 18.4:
 		 *  If two bounds have the form α <: S and α <: T, and if for some generic class or interface, G,
 		 *  there exists a supertype (4.10) of S of the form G<S1, ..., Sn> and a supertype of T of the form G<T1, ..., Tn>,
 		 *  then for all i, 1 ≤ i ≤ n, if Si and Ti are types (not wildcards), the constraint ⟨Si = Ti⟩ is implied.
 		 */
 		// callers must ensure both relations are <: and both lefts are equal
-		TypeBinding[] supers = superTypesWithCommonGenericType(boundS.right, boundT.right);
-		if (supers != null)
-			return typeArgumentEqualityConstraints(supers[0], supers[1], boundS.isSoft || boundT.isSoft);
-		return null;
+
+		// §4.10.2 requires the use of capture to find supertypes:
+		int sourceStart = context.currentInvocation.sourceStart();
+		int sourceEnd = context.currentInvocation.sourceEnd();
+		TypeBinding s_cap = boundS.right.capture(context.scope, sourceStart, sourceEnd);
+		TypeBinding t_cap = boundT.right.capture(context.scope, sourceStart, sourceEnd);
+
+		List<Pair<TypeBinding>> superPairs = allSuperPairsWithCommonGenericType(s_cap, t_cap);
+		if (superPairs.isEmpty())
+			return Collections.emptyList();
+		List<ConstraintTypeFormula> result = new ArrayList<>();
+		for (Pair<TypeBinding> pair : superPairs) {
+			// future JLS should apply upwards projection according to https://mail.openjdk.org/pipermail/compiler-dev/2024-May/026579.html
+			TypeBinding g_s = pair.left().upwardsProjection(context.scope);
+			TypeBinding g_t = pair.right().upwardsProjection(context.scope);
+			result.addAll(typeArgumentEqualityConstraints(g_s, g_t, boundS.isSoft || boundT.isSoft));
+		}
+		return result;
 	}
 
-	private ConstraintTypeFormula[] typeArgumentEqualityConstraints(TypeBinding s, TypeBinding t, boolean isSoft) {
-		if (s == null || s.kind() != Binding.PARAMETERIZED_TYPE || t == null || t.kind() != Binding.PARAMETERIZED_TYPE)
-			return null;
-		if (TypeBinding.equalsEquals(s, t)) // don't create useless constraints
-			return null;
-		TypeBinding[] sis = s.typeArguments();
-		TypeBinding[] tis = t.typeArguments();
+	private List<ConstraintTypeFormula> typeArgumentEqualityConstraints(TypeBinding g_s, TypeBinding g_t, boolean isSoft) {
+		if (g_s == null || g_s.kind() != Binding.PARAMETERIZED_TYPE || g_t == null || g_t.kind() != Binding.PARAMETERIZED_TYPE)
+			return Collections.emptyList();
+		if (TypeBinding.equalsEquals(g_s, g_t)) // don't create useless constraints
+			return Collections.emptyList();
+		TypeBinding[] sis = g_s.typeArguments();
+		TypeBinding[] tis = g_t.typeArguments();
 		if (sis == null || tis == null || sis.length != tis.length)
-			return null;
+			return Collections.emptyList();
 		List<ConstraintTypeFormula> result = new ArrayList<>();
 		for (int i = 0; i < sis.length; i++) {
 			TypeBinding si = sis[i];
@@ -979,9 +994,7 @@ class BoundSet {
 				continue;
 			result.add(ConstraintTypeFormula.create(si, ti, ReductionResult.SAME, isSoft));
 		}
-		if (result.size() > 0)
-			return result.toArray(new ConstraintTypeFormula[result.size()]);
-		return null;
+		return result;
 	}
 
 	/**
@@ -1208,14 +1221,14 @@ class BoundSet {
 				TypeBinding s1 = superBounds.get(i).right;
 				for (int j=i+1; j<len; j++) {
 					TypeBinding s2 = superBounds.get(j).right;
-					TypeBinding[] supers = superTypesWithCommonGenericType(s1, s2);
-					if (supers != null) {
+					List<Pair<TypeBinding>> pairs = allSuperPairsWithCommonGenericType(s1, s2);
+					for (Pair<TypeBinding> pair : pairs) {
 						/* HashMap<K#8,V#9> and HashMap<K#8,ArrayList<T>> with an instantiation for V9 = ArrayList<T> already in the
 						   bound set should not be seen as two different parameterizations of the same generic class or interface.
 						   See https://bugs.eclipse.org/bugs/show_bug.cgi?id=432626 for a test that triggers this condition.
 						   See https://bugs.openjdk.java.net/browse/JDK-8056092: recommendation is to check for proper types.
 						*/
-						if (supers[0].isProperType(true) && supers[1].isProperType(true) && !TypeBinding.equalsEquals(supers[0], supers[1]))
+						if (pair.left().isProperType(true) && pair.right().isProperType(true) && !TypeBinding.equalsEquals(pair.left(), pair.right()))
 							return true;
 					}
 				}
@@ -1261,28 +1274,25 @@ class BoundSet {
 		return false;
 	}
 
-	protected TypeBinding[] superTypesWithCommonGenericType(TypeBinding s, TypeBinding t) {
+	protected List<Pair<TypeBinding>> allSuperPairsWithCommonGenericType(TypeBinding s, TypeBinding t) {
 		if (s == null || s.id == TypeIds.T_JavaLangObject || t == null || t.id == TypeIds.T_JavaLangObject)
-			return null;
+			return Collections.emptyList();
+		List<Pair<TypeBinding>> result = new ArrayList<>();
 		if (TypeBinding.equalsEquals(s.original(), t.original())) {
-			return new TypeBinding[] { s, t };
+			result.add(new Pair<>(s, t));
 		}
 		TypeBinding tSuper = t.findSuperTypeOriginatingFrom(s);
 		if (tSuper != null) {
-			return new TypeBinding[] {s, tSuper};
+			result.add(new Pair<>(s, tSuper));
 		}
-		TypeBinding[] result = superTypesWithCommonGenericType(s.superclass(), t);
-		if (result != null)
-			return result;
+		result.addAll(allSuperPairsWithCommonGenericType(s.superclass(), t));
 		ReferenceBinding[] superInterfaces = s.superInterfaces();
 		if (superInterfaces != null) {
 			for (ReferenceBinding superInterface : superInterfaces) {
-				result = superTypesWithCommonGenericType(superInterface, t);
-				if (result != null)
-					return result;
+				result.addAll(allSuperPairsWithCommonGenericType(superInterface, t));
 			}
 		}
-		return null;
+		return result;
 	}
 
 	public TypeBinding getEquivalentOuterVariable(InferenceVariable variable, InferenceVariable[] outerVariables) {
@@ -1304,14 +1314,17 @@ class BoundSet {
 		}
 		return null;
 	}
-	public TypeBinding[] condition18_5_5_item_4(
+	public TypeBinding condition18_5_5_item_4(
 			ReferenceBinding rAlpha,
 			InferenceVariable[] alpha,
 			TypeBinding tPrime, InferenceContext18 ctx18) {
-		/* If T' is a parameterization of a generic class G, and there exists a supertype
-		 *  of R<α1, ..., αn> that is also a parameterization of G, let R' be that supertype.
-		 */
-		return tPrime.isParameterizedType() ?
-				superTypesWithCommonGenericType(rAlpha, tPrime) : null;
+		if (tPrime.isParameterizedType()) {
+			/* If T' is a parameterization of a generic class G, and there exists a supertype
+			 *  of R<α1, ..., αn> that is also a parameterization of G, let R' be that supertype.
+			 */
+			return rAlpha.findSuperTypeOriginatingFrom(tPrime);
+		} else {
+			return null;
+		}
 	}
 }

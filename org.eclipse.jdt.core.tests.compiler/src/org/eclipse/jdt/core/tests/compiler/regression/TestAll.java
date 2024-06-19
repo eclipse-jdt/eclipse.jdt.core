@@ -98,6 +98,8 @@ public static Test suite() {
 	standardTests.add(InitializationTests.class);
 	standardTests.add(ResourceLeakTests.class);
 	standardTests.add(PackageBindingTest.class);
+	standardTests.add(NameEnvironmentAnswerListenerTest.class);
+	standardTests.add(XtextDependencies.class);
 
 	// add all javadoc tests
 	for (int i=0, l=JavadocTest.ALL_CLASSES.size(); i<l; i++) {
@@ -251,7 +253,8 @@ public static Test suite() {
 	 ArrayList since_22 = new ArrayList();
 //	 since_22.add(SuperAfterStatementsTest.class);
 	 since_22.add(UnnamedPatternsAndVariablesTest.class);
-	 since_22.add(UseOfUnderscoreWithPreviewTest.class);
+	 since_22.add(UseOfUnderscoreJava22Test.class);
+	 since_22.add(SuperAfterStatementsTest.class);
 	 since_22.add(SwitchPatternTest21.class);
 
 	 ArrayList since_23 = new ArrayList();

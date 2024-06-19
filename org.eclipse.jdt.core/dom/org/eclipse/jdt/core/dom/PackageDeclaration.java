@@ -281,8 +281,7 @@ public class PackageDeclaration extends ASTNode {
 			synchronized (this) {
 				if (this.packageName == null) {
 					preLazyInit();
-					this.packageName = new SimpleName(this.ast);
-					postLazyInit(this.packageName, NAME_PROPERTY);
+					this.packageName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

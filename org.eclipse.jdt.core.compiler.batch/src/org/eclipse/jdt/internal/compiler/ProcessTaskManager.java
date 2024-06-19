@@ -15,6 +15,7 @@
 package org.eclipse.jdt.internal.compiler;
 
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 
 public class ProcessTaskManager implements Runnable {
@@ -142,7 +143,13 @@ public void run() {
 							String.valueOf(this.compiler.totalUnits),
 							new String(this.unitToProcess.getFileName())
 						}));
-				this.compiler.process(this.unitToProcess, index);
+				try {
+					this.compiler.process(this.unitToProcess, index);
+				} catch (AbortCompilation keptCancelation) {
+					throw keptCancelation;
+				} catch (Error | RuntimeException e) {
+					throw new RuntimeException("Internal Error compiling " + new String(this.unitToProcess.getFileName()), e); //$NON-NLS-1$
+				}
 			} finally {
 				// cleanup compilation unit result, but only if not annotation processed.
 				if (this.unitToProcess != null && cleanup)

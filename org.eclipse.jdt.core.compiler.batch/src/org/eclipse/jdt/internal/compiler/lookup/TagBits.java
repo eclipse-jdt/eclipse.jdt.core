@@ -53,6 +53,7 @@ public interface TagBits {
 	long PauseHierarchyCheck = ASTNode.Bit20; // type
 	long HasParameterAnnotations = ASTNode.Bit11; // method/constructor
 
+	long SealingTypeHierarchy = ASTNode.Bit20; // type, Bit20 used for PauseHierarchyCheck can be re-purposed as hierarchy check is complete now
 
 	// test bit to see if default abstract methods were computed
 	long KnowsDefaultAbstractMethods = ASTNode.Bit11; // type

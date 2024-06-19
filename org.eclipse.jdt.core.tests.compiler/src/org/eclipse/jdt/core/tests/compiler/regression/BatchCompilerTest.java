@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -668,6 +668,8 @@ public void test012(){
         "                       resolved to be root modules\n" +
         "    --limit-modules <module>(,<module>)*\n" +
         "                       specify the observable module names\n" +
+        "    --patch-modules <module>=<directories separated by " + File.pathSeparator + ">\n" +
+        "                       specify source locations for patching the given module\n" +
         "    --release <release> compile for a specific VM version\n" +
         " \n" +
         " Compliance options:\n" +
@@ -1043,10 +1045,10 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.lambda.genericSignature\" value=\"do not generate\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.methodParameters\" value=\"do not generate\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.shareCommonFinallyBlocks\" value=\"disabled\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.simulateOperandStack\" value=\"enabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.targetPlatform\" value=\"1.5\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.unusedLocal\" value=\"optimize out\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.useStringConcatFactory\" value=\"enabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.validateOperandStack\" value=\"enabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.compliance\" value=\"1.5\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.debug.lineNumber\" value=\"generate\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.debug.localVariable\" value=\"do not generate\"/>\n" +

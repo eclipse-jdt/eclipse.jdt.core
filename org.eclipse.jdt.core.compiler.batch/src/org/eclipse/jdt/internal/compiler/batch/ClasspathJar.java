@@ -162,8 +162,8 @@ public char[][][] findTypeNames(final String qualifiedPackageName, String module
 		return null; // most common case
 	final char[] packageArray = qualifiedPackageName.toCharArray();
 	final ArrayList answers = new ArrayList();
-	nextEntry : for (Enumeration e = this.zipFile.entries(); e.hasMoreElements(); ) {
-		String fileName = ((ZipEntry) e.nextElement()).getName();
+	nextEntry : for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
+		String fileName = e.nextElement().getName();
 
 		// add the package name & all of its parent packages
 		int last = fileName.lastIndexOf('/');
@@ -234,8 +234,8 @@ public synchronized char[][] getModulesDeclaringPackage(String qualifiedPackageN
 	this.packageCache = new HashSet<>(41);
 	this.packageCache.add(Util.EMPTY_STRING);
 
-	for (Enumeration e = this.zipFile.entries(); e.hasMoreElements(); ) {
-		String fileName = ((ZipEntry) e.nextElement()).getName();
+	for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
+		String fileName = e.nextElement().getName();
 		addToPackageCache(fileName, false);
 	}
 	return singletonModuleNameIf(this.packageCache.contains(qualifiedPackageName));

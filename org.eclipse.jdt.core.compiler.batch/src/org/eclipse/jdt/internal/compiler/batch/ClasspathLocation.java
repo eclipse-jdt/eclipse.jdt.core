@@ -38,10 +38,10 @@ public abstract class ClasspathLocation implements FileSystem.Classpath,
 
 	String path;
 	char[] normalizedPath;
-	public AccessRuleSet accessRuleSet;
+	public final AccessRuleSet accessRuleSet;
 	IModule module;
 
-	public String destinationPath;
+	public final String destinationPath;
 		// destination path for compilation units that are reached through this
 		// classpath location; the coding is consistent with the one of
 		// Main.destinationPath:

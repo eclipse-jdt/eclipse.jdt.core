@@ -102,7 +102,7 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 	protected String readJarContent(final SimpleSet packageSet) {
 		String modInfo = null;
 		for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
-			String fileName = ((ZipEntry) e.nextElement()).getName();
+			String fileName = e.nextElement().getName();
 			if (fileName.startsWith(META_INF_VERSIONS) && fileName.length() > META_INF_LENGTH) {
 				int i = fileName.indexOf('/', META_INF_LENGTH);
 				fileName = fileName.substring(i + 1);

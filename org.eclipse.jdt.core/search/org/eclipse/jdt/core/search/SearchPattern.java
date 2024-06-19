@@ -285,7 +285,7 @@ public abstract class SearchPattern {
 		| R_SUBSTRING_MATCH
 		| R_SUBWORD_MATCH;
 
-	private int matchRule;
+	private final int matchRule;
 
 	/**
 	 * The focus element (used for reference patterns)
@@ -352,18 +352,19 @@ public abstract class SearchPattern {
  * 	Note also that default behavior for generic types/methods search is to find exact matches.
  */
 public SearchPattern(int matchRule) {
-	this.matchRule = matchRule;
+	int rule = matchRule;
 	// Set full match implicit mode
 	if ((matchRule & (R_EQUIVALENT_MATCH | R_ERASURE_MATCH )) == 0) {
-		this.matchRule |= R_FULL_MATCH;
+		rule |= R_FULL_MATCH;
 	}
 	// reset other incompatible flags
 	if ((matchRule & R_CAMELCASE_MATCH) != 0) {
-		this.matchRule &= ~R_CAMELCASE_SAME_PART_COUNT_MATCH;
-		this.matchRule &= ~R_PREFIX_MATCH;
+		rule &= ~R_CAMELCASE_SAME_PART_COUNT_MATCH;
+		rule &= ~R_PREFIX_MATCH;
 	} else if ((matchRule & R_CAMELCASE_SAME_PART_COUNT_MATCH) != 0) {
-		this.matchRule &= ~R_PREFIX_MATCH;
+		rule &= ~R_PREFIX_MATCH;
 	}
+	this.matchRule = rule;
 }
 
 /**

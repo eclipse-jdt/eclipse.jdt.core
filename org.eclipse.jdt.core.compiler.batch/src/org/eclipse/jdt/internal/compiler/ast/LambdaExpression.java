@@ -129,7 +129,6 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	private boolean assistNode = false;
 	private ReferenceBinding classType;
 	private Set thrownExceptions;
-	public boolean containsSwitchWithTry = false;
 	private static final SyntheticArgumentBinding [] NO_SYNTHETIC_ARGUMENTS = new SyntheticArgumentBinding[0];
 	private static final Block NO_BODY = new Block(0);
 	private HashMap<TypeBinding, LambdaExpression> copiesPerTargetType;

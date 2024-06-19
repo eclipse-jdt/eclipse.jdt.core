@@ -98,7 +98,6 @@ public abstract class TypeConverter {
 					parameter.bounds = new TypeReference[length-1];
 					for (int i = 1; i < length; i++) {
 						TypeReference bound = createTypeReference(typeParameterBounds[i], start, end);
-						bound.bits |= ASTNode.IsSuperType;
 						parameter.bounds[i-1] = bound;
 					}
 				}

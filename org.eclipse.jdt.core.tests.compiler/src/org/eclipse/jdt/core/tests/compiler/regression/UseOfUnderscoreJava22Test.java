@@ -17,27 +17,23 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
-public class UseOfUnderscoreWithPreviewTest extends AbstractBatchCompilerTest {
+public class UseOfUnderscoreJava22Test extends AbstractBatchCompilerTest {
 
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(UseOfUnderscoreWithPreviewTest.class, F_22);
+		return buildMinimalComplianceTestSuite(UseOfUnderscoreJava22Test.class, F_22);
 	}
 
-	public UseOfUnderscoreWithPreviewTest(String name) {
+	public UseOfUnderscoreJava22Test(String name) {
 		super(name);
 	}
 
 	@Override
 	protected Map<String, String> getCompilerOptions() {
 		CompilerOptions compilerOptions = new CompilerOptions(super.getCompilerOptions());
-		if (compilerOptions.sourceLevel == ClassFileConstants.getLatestJDKLevel()) {
-			compilerOptions.enablePreviewFeatures = true;
-		}
 		return compilerOptions.getMap();
 	}
 

@@ -130,8 +130,7 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
 			synchronized (this) {
 				if (this.typeName == null) {
 					preLazyInit();
-					this.typeName = new SimpleName(this.ast);
-					postLazyInit(this.typeName, internalNameProperty());
+					this.typeName = postLazyInit(new SimpleName(this.ast), internalNameProperty());
 				}
 			}
 		}

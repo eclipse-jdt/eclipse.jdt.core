@@ -2064,27 +2064,17 @@ public class InferenceContext18 {
 			return false;
 		ReferenceBinding rAlpha = this.environment.createParameterizedType(
 				(ReferenceBinding) typeBinding.original(), alphas, typeBinding.enclosingType(), typeBinding.getTypeAnnotations());
-		TypeBinding[] rPrimes = this.currentBounds.condition18_5_5_item_4(rAlpha, alphas, tPrime, this);
-		if (rPrimes != null) {
-			// TODO:
+		TypeBinding rPrime = this.currentBounds.condition18_5_5_item_4(rAlpha, alphas, tPrime, this);
+		if (rPrime != null) {
 			/* The constraint formula ‹T' = R'› is reduced (18.2) and the resulting bounds are
-			 * incorporated into B1 to produce a new bound set, B2.
-			 * TODO: refactor the method below into two? - instead of creating array - here reusing. */
-			for (TypeBinding rPrime : rPrimes) {
-				if (!rPrime.isParameterizedType()) continue;
-				try {
-					if (!reduceAndIncorporate(ConstraintTypeFormula.create(tPrime, rPrime, ReductionResult.SAME))) {
-						 /* If B2 contains the bound false, inference fails. */
-						return false;
-					}
-				} catch (InferenceFailureException e) {
+			 * incorporated into B1 to produce a new bound set, B2. */
+			try {
+				if (!reduceAndIncorporate(ConstraintTypeFormula.create(tPrime, rPrime, ReductionResult.SAME))) {
+					 /* If B2 contains the bound false, inference fails. */
 					return false;
 				}
-//				if (rPrime.typeArguments().length == 0) continue; // TODO: should we?
-//				if (!reduceWithEqualityConstraints(new TypeBinding[] {tPrime}, new TypeBinding[] {rPrime})) {
-//					 /* If B2 contains the bound false, inference fails. */
-//					return false;
-//				}
+			} catch (InferenceFailureException e) {
+				return false;
 			}
 		} /* else part: Otherwise, B2 is the same as B1.*/
 		return true;

@@ -208,8 +208,7 @@ public class SimpleType extends AnnotatableType {
 			synchronized (this) {
 				if (this.typeName == null) {
 					preLazyInit();
-					this.typeName = new SimpleName(this.ast);
-					postLazyInit(this.typeName, NAME_PROPERTY);
+					this.typeName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

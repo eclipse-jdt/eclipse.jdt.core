@@ -67,6 +67,8 @@ private static Class[] getAllTestClasses() {
 		AttachedJavadocTests.class,
 		AttachedJavadocTests21.class,
 
+		SealedTypeModelTests.class,
+
 		// Java search tests
 		RunJavaSearchTests.class,
 
@@ -139,6 +141,8 @@ private static Class[] getAllTestClasses() {
 		// Reconciler tests
 		ReconcilerTests.class,
 		ReconcilerTests9.class,
+		ReconcilerTests16.class,
+		ReconcilerTests21.class,
 		ReconcilerStatementsRecoveryTests.class,
 
 		// Copy and move operation tests

@@ -172,8 +172,7 @@ public class LabeledStatement extends Statement {
 			synchronized (this) {
 				if (this.labelName == null) {
 					preLazyInit();
-					this.labelName= new SimpleName(this.ast);
-					postLazyInit(this.labelName, LABEL_PROPERTY);
+					this.labelName= postLazyInit(new SimpleName(this.ast), LABEL_PROPERTY);
 				}
 			}
 		}
@@ -211,8 +210,7 @@ public class LabeledStatement extends Statement {
 			synchronized (this) {
 				if (this.body == null) {
 					preLazyInit();
-					this.body= new EmptyStatement(this.ast);
-					postLazyInit(this.body, BODY_PROPERTY);
+					this.body = postLazyInit(new EmptyStatement(this.ast), BODY_PROPERTY);
 				}
 			}
 		}

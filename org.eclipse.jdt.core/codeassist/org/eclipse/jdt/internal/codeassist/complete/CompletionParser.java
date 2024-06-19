@@ -2397,10 +2397,8 @@ private void classHeaderExtendsOrImplements(boolean isInterface, boolean isRecor
 							this.identifierPositionStack[ptr], keywords);
 					if (isInterface) {
 						type.superInterfaces = new TypeReference[] { completionOnKeyword };
-						type.superInterfaces[0].bits |= ASTNode.IsSuperType;
 					} else {
 						type.superclass = completionOnKeyword;
-						type.superclass.bits |= ASTNode.IsSuperType;
 					}
 					this.assistNode = completionOnKeyword;
 					this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
@@ -2728,7 +2726,6 @@ protected void consumeClassHeaderExtends() {
 						this.identifierPositionStack[ptr],
 						keywords);
 					type.superclass = completionOnKeyword;
-					type.superclass.bits |= ASTNode.IsSuperType;
 					this.assistNode = completionOnKeyword;
 					this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
 				}

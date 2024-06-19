@@ -566,7 +566,12 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 	} else {
 		statementEnd = statement.sourceEnd;
 	}
+	boolean insideType = false;
 	for (int i = this.elementPtr; i >= 0; --i) {
+		if (this.elementKindStack[i] == K_TYPE_DELIMITER) {
+			insideType = true;
+			break;
+		}
 		if (this.elementKindStack[i] != K_LAMBDA_EXPRESSION_DELIMITER)
 			continue;
 		LambdaExpression expression = (LambdaExpression) this.elementObjectInfoStack[i];
@@ -657,7 +662,7 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 			}
 		}
 	}
-	if (this.snapShotPtr > -1)
+	if (this.snapShotPtr > -1 && !insideType)
 		popSnapShot();
 	return lambdaClosed;
 }

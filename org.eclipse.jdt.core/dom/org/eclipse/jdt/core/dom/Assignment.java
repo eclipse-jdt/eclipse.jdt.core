@@ -340,8 +340,7 @@ public class Assignment extends Expression {
 			synchronized (this) {
 				if (this.leftHandSide == null) {
 					preLazyInit();
-					this.leftHandSide= new SimpleName(this.ast);
-					postLazyInit(this.leftHandSide, LEFT_HAND_SIDE_PROPERTY);
+					this.leftHandSide = postLazyInit(new SimpleName(this.ast), LEFT_HAND_SIDE_PROPERTY);
 				}
 			}
 		}
@@ -381,8 +380,7 @@ public class Assignment extends Expression {
 			synchronized (this) {
 				if (this.rightHandSide == null) {
 					preLazyInit();
-					this.rightHandSide= new SimpleName(this.ast);
-					postLazyInit(this.rightHandSide, RIGHT_HAND_SIDE_PROPERTY);
+					this.rightHandSide = postLazyInit(new SimpleName(this.ast), RIGHT_HAND_SIDE_PROPERTY);
 				}
 			}
 		}

@@ -352,13 +352,13 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * JLS3 and later: lazily initialized; defaults to void; null allowed.
 	 * Note that this field is ignored for constructor declarations.
 	 */
-	private Type returnType = null;
+	private volatile Type returnType = null;
 
 	/**
 	 * Indicated whether the return type has been initialized.
 	 * @since 3.1
 	 */
-	private boolean returnType2Initialized = false;
+	private volatile boolean returnType2Initialized = false;
 
 	/**
 	 * The type paramters (element type: {@link TypeParameter}).
@@ -762,8 +762,7 @@ public class MethodDeclaration extends BodyDeclaration {
 			synchronized (this) {
 				if (this.methodName == null) {
 					preLazyInit();
-					this.methodName = new SimpleName(this.ast);
-					postLazyInit(this.methodName, NAME_PROPERTY);
+					this.methodName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}
@@ -973,8 +972,7 @@ public class MethodDeclaration extends BodyDeclaration {
 			synchronized (this) {
 				if (this.returnType == null) {
 					preLazyInit();
-					this.returnType = this.ast.newPrimitiveType(PrimitiveType.VOID);
-					postLazyInit(this.returnType, RETURN_TYPE_PROPERTY);
+					this.returnType = postLazyInit(this.ast.newPrimitiveType(PrimitiveType.VOID), RETURN_TYPE_PROPERTY);
 				}
 			}
 		}
@@ -1046,9 +1044,8 @@ public class MethodDeclaration extends BodyDeclaration {
 			synchronized (this) {
 				if (this.returnType == null && !this.returnType2Initialized) {
 					preLazyInit();
-					this.returnType = this.ast.newPrimitiveType(PrimitiveType.VOID);
+					this.returnType = postLazyInit(this.ast.newPrimitiveType(PrimitiveType.VOID), RETURN_TYPE2_PROPERTY);
 					this.returnType2Initialized = true;
-					postLazyInit(this.returnType, RETURN_TYPE2_PROPERTY);
 				}
 			}
 		}

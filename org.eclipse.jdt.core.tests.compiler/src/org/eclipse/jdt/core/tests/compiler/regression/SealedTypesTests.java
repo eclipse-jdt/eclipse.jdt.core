@@ -79,11 +79,24 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("17"));
 	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
-		runWarningTest(testFiles, expectedCompilerLog, null);
+		runWarningTest(testFiles, expectedCompilerLog, (Map<String, String>) null);
 	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog, Map<String, String> customOptions) {
 		runWarningTest(testFiles, expectedCompilerLog, customOptions, null);
 	}
+
+	protected void runWarningTest(String[] testFiles, String expectedCompilerLog, String expectedOutput) {
+
+		Runner runner = new Runner();
+		runner.testFiles = testFiles;
+		runner.expectedCompilerLog = expectedCompilerLog;
+		runner.expectedOutputString = expectedOutput;
+		runner.customOptions = getCompilerOptions();
+		runner.vmArguments = new String[] {"--enable-preview"};
+		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("16");
+		runner.runWarningTest();
+	}
+
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog,
 			Map<String, String> customOptions, String javacAdditionalTestOptions) {
 
@@ -1615,7 +1628,12 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 					"}",
 				},
 				"----------\n" +
-				"1. ERROR in p1\\X.java (at line 7)\n" +
+				"1. ERROR in p1\\X.java (at line 6)\n" +
+				"	sealed class Y extends X permits SubInnerY {\n" +
+				"	                                 ^^^^^^^^^\n" +
+				"SubInnerY cannot be resolved to a type\n" +
+				"----------\n" +
+				"2. ERROR in p1\\X.java (at line 7)\n" +
 				"	final class SubInnerY extends Y {}\n" +
 				"	                              ^\n" +
 				"The type SubInnerY extending a sealed class A.Y should be a permitted subtype of A.Y\n" +
@@ -5719,12 +5737,17 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 					"	final class Y extends X {}\n" +
 					"}"
 				},
-				"----------\n"
-				+ "1. ERROR in X.java (at line 2)\n"
-				+ "	final class Y extends X {}\n"
-				+ "	                      ^\n"
-				+ "The type Y extending a sealed class X should be a permitted subtype of X\n"
-				+ "----------\n");
+				"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	public sealed class X permits Y {\n" +
+				"	                              ^\n" +
+				"Y cannot be resolved to a type\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 2)\n" +
+				"	final class Y extends X {}\n" +
+				"	                      ^\n" +
+				"The type Y extending a sealed class X should be a permitted subtype of X\n" +
+				"----------\n");
 	}
 	public void testBug578619_1() {
 		runConformTest(
@@ -5848,5 +5871,176 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				+ "	                               ^^^^^^\n"
 				+ "Type arguments are not allowed here\n"
 				+ "----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2093
+	// [sealed types] ECJ complains of cycles in hierarchy where none exists
+	public void testIssue2093() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						record Bar() implements TheA.FooOrBar {
+						}
+
+						record Foo() implements TheA.FooOrBar {
+						}
+
+						sealed interface Base permits TheA, TheB {
+						}
+
+						record TheA() implements Base {
+							public sealed interface FooOrBar permits Foo, Bar {
+							}
+						}
+
+						record TheB<T extends TheA.FooOrBar>() implements Base {
+						}
+						public class X {
+						    public static void main(String [] args) {
+						        System.out.println("Compiled and ran fine!");
+					        }
+				        }
+						"""
+				},
+				"Compiled and ran fine!");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576471
+	// Sealed type hierarchy doesn't compile if there are redundant type references
+	public void testBug576471() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							public sealed interface I permits IA, C1, C2 {}
+							public sealed interface IA extends I permits A {}
+							public abstract sealed class A implements IA permits C1, C2 {}
+							public final class C1 extends A implements I {}
+							public final class C2 extends A implements I {}
+							public static void main(String [] args) {
+						        System.out.println("Compiled and ran fine!");
+					        }
+						}
+						"""
+				},
+				"Compiled and ran fine!");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1808
+	// [sealed-classes] Incorrect unused import warning
+	public void testIssue1808() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public sealed interface X permits B {
+						    record B(int data) {}
+						    public static void main(String [] args) {
+						        System.out.println("Compiled and ran fine!");
+					        }
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	public sealed interface X permits B {\n" +
+				"	                                  ^\n" +
+				"B cannot be resolved to a type\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1808
+	// [sealed-classes] Incorrect unused import warning
+	public void testIssue1808_1() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public sealed interface X permits B {
+						    record B(int data) implements X {}
+						    public static void main(String [] args) {
+						        System.out.println("Compiled and ran fine!");
+					        }
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	public sealed interface X permits B {\n" +
+				"	                                  ^\n" +
+				"B cannot be resolved to a type\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 2)\n" +
+				"	record B(int data) implements X {}\n" +
+				"	                              ^\n" +
+				"The type B that implements a sealed interface X should be a permitted subtype of X\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1808
+	// [sealed-classes] Incorrect unused import warning
+	public void testIssue1808_2() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public sealed interface X permits X.B {
+						    record B(int data)  implements X {}
+						    public static void main(String [] args) {
+						        System.out.println("Compiled and ran fine!");
+					        }
+						}
+						"""
+				},
+				"Compiled and ran fine!");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1808
+	// [sealed-classes] Incorrect unused import warning
+	public void testIssue1808_3() {
+		runWarningTest(
+				new String[] {
+						"foo/X.java",
+						"""
+						package foo;
+						import foo.X.B;
+						public sealed interface X permits B {
+						    record B(int data) implements X {}
+						    public static void main(String [] args) {
+						        System.out.println("Compiled and ran fine!");
+					        }
+						}
+						"""
+				},
+				"",
+				"Compiled and ran fine!");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1808
+	// [sealed-classes] Incorrect unused import warning
+	public void testIssue1808_4() {
+		runWarningTest(
+				new String[] {
+						"foo/X.java",
+						"""
+						package foo;
+						import foo.X.B;
+						public sealed interface X permits X.B {
+						    record B(int data) implements X {}
+						    public static void main(String [] args) {
+						        System.out.println("Compiled and ran fine!");
+					        }
+						}
+						"""
+				},
+
+				"----------\n"
+				+ "1. WARNING in foo\\X.java (at line 2)\n"
+				+ "	import foo.X.B;\n"
+				+ "	       ^^^^^^^\n"
+				+ "The import foo.X.B is never used\n"
+				+ "----------\n",
+
+				"Compiled and ran fine!");
 	}
 }

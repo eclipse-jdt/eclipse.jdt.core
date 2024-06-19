@@ -3442,6 +3442,10 @@ public abstract class Scope {
 							insideStaticContext |= sourceType.isStatic();
 							break;
 						}
+						if (scope == this && (sourceType.tagBits & TagBits.SealingTypeHierarchy) != 0) {
+							insideStaticContext |= sourceType.isStatic();
+							break; // while resolving permits we should not consider member types not in scope
+						}
 						// member types take precedence over type variables
 						if (!insideTypeAnnotation) {
 							// 6.5.5.1 - member types have precedence over top-level type in same unit
@@ -4717,7 +4721,7 @@ public abstract class Scope {
 						} else {
 							expressions = ((ReferenceExpression)invocationSite).createPseudoExpressions(argumentTypes);
 						}
-						InferenceContext18 ic18 = new InferenceContext18(this, expressions, null, null);
+						InferenceContext18 ic18 = new InferenceContext18(this, expressions, invocationSite, null);
 						if (!ic18.isMoreSpecificThan(mbj, mbk, levelj == VARARGS_COMPATIBLE, levelk == VARARGS_COMPATIBLE)) {
 							continue nextJ;
 						}

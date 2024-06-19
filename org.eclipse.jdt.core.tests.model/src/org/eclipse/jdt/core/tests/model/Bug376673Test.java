@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -59,7 +60,7 @@ public class Bug376673Test extends ModifyingResourceTests {
 					"	public p\uD842\uDF9F.i\uD842\uDF9F.Test test;",
 					"}",
 			};
-			IFile file = createFile("/P/src/pkg/UseJarClass.java", String.join(System.lineSeparator(), classFileContent), "UTF-8");
+			IFile file = createFile("/P/src/pkg/UseJarClass.java", String.join(System.lineSeparator(), classFileContent), StandardCharsets.UTF_8);
 			file.setCharset("UTF-8", null);
 			refresh(p);
 			waitForAutoBuild();

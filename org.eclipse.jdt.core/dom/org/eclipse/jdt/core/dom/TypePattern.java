@@ -158,8 +158,8 @@ public class TypePattern extends Pattern {
 			synchronized (this) {
 				if (this.patternVariable == null) {
 					preLazyInit();
-					this.patternVariable= new SingleVariableDeclaration(this.ast);
-					postLazyInit(this.patternVariable, PATTERN_VARIABLE_PROPERTY);
+					this.patternVariable = postLazyInit(new SingleVariableDeclaration(this.ast),
+							PATTERN_VARIABLE_PROPERTY);
 				}
 			}
 		}

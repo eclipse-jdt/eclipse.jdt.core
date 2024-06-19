@@ -18,14 +18,11 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
 public class SwitchPatternTest21 extends AbstractBatchCompilerTest {
-
-	private static String[] JAVAC_OPTIONS = new String[] { "--enable-preview" };
 
 	static {
 		//	TESTS_NAMES = new String [] { "testNaming" };
@@ -42,14 +39,11 @@ public class SwitchPatternTest21 extends AbstractBatchCompilerTest {
 	@Override
 	protected Map<String, String> getCompilerOptions() {
 		CompilerOptions compilerOptions = new CompilerOptions(super.getCompilerOptions());
-		if (compilerOptions.sourceLevel == ClassFileConstants.getLatestJDKLevel()) {
-			compilerOptions.enablePreviewFeatures = true;
-		}
 		return compilerOptions.getMap();
 	}
 
 	public void runConformTest(String[] files, String expectedOutput) {
-		super.runConformTest(files, expectedOutput, null, JAVAC_OPTIONS);
+		super.runConformTest(files, expectedOutput, null, null);
 	}
 
 	@Override

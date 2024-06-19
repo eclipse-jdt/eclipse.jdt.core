@@ -121,8 +121,6 @@ public class Clinit extends AbstractMethodDeclaration {
 			if (referenceContext != null) {
 				unitResult = referenceContext.compilationResult();
 				problemCount = unitResult.problemCount;
-				if (referenceContext.clinitContainsSwitchWithTry)
-					this.containsSwitchWithTry = true;
 			}
 		}
 		boolean restart = false;

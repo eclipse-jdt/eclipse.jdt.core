@@ -168,8 +168,7 @@ public class CastExpression extends Expression {
 			synchronized (this) {
 				if (this.type == null) {
 					preLazyInit();
-					this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
-					postLazyInit(this.type, TYPE_PROPERTY);
+					this.type = postLazyInit(this.ast.newPrimitiveType(PrimitiveType.INT), TYPE_PROPERTY);
 				}
 			}
 		}
@@ -207,8 +206,7 @@ public class CastExpression extends Expression {
 			synchronized (this) {
 				if (this.expression == null) {
 					preLazyInit();
-					this.expression = new SimpleName(this.ast);
-					postLazyInit(this.expression, EXPRESSION_PROPERTY);
+					this.expression = postLazyInit(new SimpleName(this.ast), EXPRESSION_PROPERTY);
 				}
 			}
 		}

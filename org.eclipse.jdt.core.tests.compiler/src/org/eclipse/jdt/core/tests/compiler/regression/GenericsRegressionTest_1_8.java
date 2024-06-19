@@ -10864,4 +10864,97 @@ public void testBug508834_comment0() {
 			""";
 		runner.runNegativeTest();
 	}
+	public void testGH2413() {
+		runConformTest(
+			new String[] {
+				"EjcBug2413.java",
+				"""
+				public class EjcBug2413 {
+
+					public interface EventSource<L> { }
+
+					public interface ObservableEventListener<V> { }
+
+					public interface WritableProperty<V> extends EventSource<ObservableEventListener<V>> {
+						static <P extends WritableProperty<?>> P getReadOnly(P property) {
+							return null;
+						}
+					}
+
+					public static class Property<V> implements EventSource<ObservableEventListener<V>>, WritableProperty<V> { }
+
+					public static abstract class Bug2413<V, P extends Property<V>> {
+						public void foo(P property) {
+							P readOnly = WritableProperty.getReadOnly(property);
+						}
+					}
+				}
+				"""});
+	}
+	public void testGH2413_mini() {
+		// minified from above and made type variable names unique
+		runConformTest(
+			new String[] {
+				"Bug.java",
+				"""
+				interface Inner<S> { }
+				interface Super<T> { }
+				interface One<U> extends Super<Inner<U>> { }
+				interface Two<V> extends Super<Inner<V>>, One<V> { }
+
+				public class Bug {
+					<W extends One<?>> W getOne(W w) {
+						return null;
+					}
+					<X, Y extends Two<X>> void foo(Y y) {
+						Y one = getOne(y);
+					}
+				}
+				"""
+			});
+	}
+	public void testGH2413_direct() {
+		// reduce depth of inheritance hierarchy.
+		// demonstrates:
+		// - attempt to "unify" One<Inner<?>> and One<Inner<X>> fails
+		// - but parameter One<?> accepts One<X>
+		runNegativeTest(
+			new String[] {
+				"Bug.java",
+				"""
+				interface Inner<S> { }
+				class One<U> { }
+
+				public class Bug {
+					<W extends One<Inner<?>>> W getOne(W w) {
+						return null;
+					}
+					void bar(One<Inner<?>> o) {
+					}
+					<X, Y extends One<Inner<X>>> void foo(Y y) {
+						Y y2 = getOne(y);
+						bar(new One<Inner<X>>()); // rejected without any inference involved
+					}
+					<W extends One<?>> W getOne2(W w) { // at first level of type argument '?' is fine
+						return null;
+					}
+					<X, Y extends One<X>> void foo2(Y y1) {
+						Y y2 = getOne2(y1);
+						getOne2(y1);
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in Bug.java (at line 11)\n" +
+			"	Y y2 = getOne(y);\n" +
+			"	       ^^^^^^\n" +
+			"The method getOne(W) in the type Bug is not applicable for the arguments (Y)\n" +
+			"----------\n" +
+			"2. ERROR in Bug.java (at line 12)\n" +
+			"	bar(new One<Inner<X>>()); // rejected without any inference involved\n" +
+			"	^^^\n" +
+			"The method bar(One<Inner<?>>) in the type Bug is not applicable for the arguments (One<Inner<X>>)\n" +
+			"----------\n");
+	}
 }

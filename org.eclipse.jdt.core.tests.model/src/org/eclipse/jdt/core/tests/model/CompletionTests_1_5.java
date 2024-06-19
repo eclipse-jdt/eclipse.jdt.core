@@ -15,8 +15,6 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -25,6 +23,8 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class CompletionTests_1_5 extends AbstractJavaModelCompletionTests {
@@ -14909,5 +14909,51 @@ public void testGH969_completeOnArgumentPosition_onMethodInvocation() throws Exc
 					+ relevance + "}\n"
 					+ "emptyList[METHOD_REF]{emptyList(), LGH969;, <T:Ljava.lang.Object;>()LGH969List<TT;>;, null, null, emptyList, null, replace[98, 98], token[98, 98], " + symbolRelevance + "}",
 			requestor.getResults());
+}
+public void testGH2597() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/jdbi/Dao.java", """
+			package jdbi;
+
+			public interface Dao {
+
+			    String LABELS_BOOK_TITLES = "labels_book_titles";
+				String LABELS_CHAPTERS = "labels_chapters";
+				String TRAIN_ARTICLE_DATA = "training_article_data";
+				String TRAIN_ARTICLE_DATA_CLEAN = "training_article_data_clean";
+				String TRAIN_ARTICLE_LABELS = "training_article_labels";
+
+			    @SqlUpdate("update "+TRAIN) //***** THIS IS WHERE THE ERROR HAPPENS, WHEN TRYING TO AUTO COMPLETE THE PARTIAL WORD.
+				void resetBookTitleTrainingData();
+			}
+
+			interface DaoExtended extends Dao { }
+
+			@interface SqlUpdate {
+				String value();
+			}
+			""");
+	// try to provoke proposing "resetBookTitleTrainingData()":
+	IJavaProject javaProject = getJavaProject("Completion");
+	javaProject.setOption(JavaCore.CODEASSIST_SUBWORD_MATCH, JavaCore.ENABLED);
+	try {
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "+TRAIN";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
+		assertEquals(
+				"TRAIN_ARTICLE_DATA[FIELD_REF]{TRAIN_ARTICLE_DATA, Ljdbi.Dao;, Ljava.lang.String;, null, null, TRAIN_ARTICLE_DATA, null, replace[342, 347], token[342, 347], "
+				 	+ relevance + "}\n" +
+				"TRAIN_ARTICLE_DATA_CLEAN[FIELD_REF]{TRAIN_ARTICLE_DATA_CLEAN, Ljdbi.Dao;, Ljava.lang.String;, null, null, TRAIN_ARTICLE_DATA_CLEAN, null, replace[342, 347], token[342, 347], "
+					+ relevance + "}\n" +
+				"TRAIN_ARTICLE_LABELS[FIELD_REF]{TRAIN_ARTICLE_LABELS, Ljdbi.Dao;, Ljava.lang.String;, null, null, TRAIN_ARTICLE_LABELS, null, replace[342, 347], token[342, 347], "
+			 		+ relevance + "}",
+				requestor.getResults());
+	} finally {
+		javaProject.setOption(JavaCore.CODEASSIST_SUBWORD_MATCH, JavaCore.DISABLED);
+	}
 }
 }

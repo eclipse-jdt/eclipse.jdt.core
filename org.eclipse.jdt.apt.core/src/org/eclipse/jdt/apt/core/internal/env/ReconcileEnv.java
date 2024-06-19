@@ -15,7 +15,6 @@ package org.eclipse.jdt.apt.core.internal.env;
 
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorEnvironment;
 import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
@@ -29,7 +28,7 @@ import org.eclipse.jdt.core.dom.IBinding;
 
 import com.sun.mirror.apt.Filer;
 
-public class ReconcileEnv extends AbstractCompilationEnv implements EclipseAnnotationProcessorEnvironment{
+public class ReconcileEnv extends AbstractCompilationEnv{
 
 	/** The compilation unit being reconciled */
 	private final ICompilationUnit _workingCopy;

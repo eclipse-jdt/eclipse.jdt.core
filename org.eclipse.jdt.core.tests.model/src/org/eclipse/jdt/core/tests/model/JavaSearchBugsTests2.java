@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -708,12 +707,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			String content = "package pkg;\n" +
 					"class \uD842\uDF9F1 {}\n";
 			createFolder("/P/pkg");
-			try {
-				IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, "UTF-8");
-				file.setCharset("UTF-8", null);
-			} catch (UnsupportedEncodingException e) {
-				System.out.println("unsupported encoding");
-			}
+			IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, StandardCharsets.UTF_8);
+			file.setCharset("UTF-8", null);
 			waitUntilIndexesReady();
 			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
 					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
@@ -735,12 +730,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					"	public void \uD842\uDF9Fm() {}\n" +
 					"}\n";
 			createFolder("/P/pkg");
-			try {
-				IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, "UTF-8");
-				file.setCharset("UTF-8", null);
-			} catch (UnsupportedEncodingException e) {
-				System.out.println("unsupported encoding");
-			}
+			IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, StandardCharsets.UTF_8);
+			file.setCharset("UTF-8", null);
 			waitUntilIndexesReady();
 			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
 					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
@@ -762,12 +753,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					"	public \uD842\uDF9F1() {}\n" +
 					"}\n";
 			createFolder("/P/pkg");
-			try {
-				IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, "UTF-8");
-				file.setCharset("UTF-8", null);
-			} catch (UnsupportedEncodingException e) {
-				System.out.println("unsupported encoding");
-			}
+			IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, StandardCharsets.UTF_8);
+			file.setCharset("UTF-8", null);
 			waitUntilIndexesReady();
 			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
 					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
@@ -789,12 +776,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					"	public int \uD842\uDF9Ff;\n" +
 					"}\n";
 			createFolder("/P/pkg");
-			try {
-				IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, "UTF-8");
-				file.setCharset("UTF-8", null);
-			} catch (UnsupportedEncodingException e) {
-				System.out.println("unsupported encoding");
-			}
+			IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, StandardCharsets.UTF_8);
+			file.setCharset("UTF-8", null);
 			waitUntilIndexesReady();
 			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
 					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);

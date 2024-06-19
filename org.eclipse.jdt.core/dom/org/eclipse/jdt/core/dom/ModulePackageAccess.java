@@ -136,10 +136,9 @@ public abstract class ModulePackageAccess extends ModuleDirective {
 			synchronized (this) {
 				if (this.name == null) {
 					preLazyInit();
-					this.name =this.ast.newQualifiedName(
-							new SimpleName(this.ast), new SimpleName(this.ast));
-					ChildPropertyDescriptor p = internalNameProperty();
-					postLazyInit(this.name, p);
+					this.name = postLazyInit(
+							this.ast.newQualifiedName(new SimpleName(this.ast), new SimpleName(this.ast)),
+							internalNameProperty());
 				}
 			}
 		}

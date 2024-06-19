@@ -264,8 +264,7 @@ public class QualifiedType extends AnnotatableType {
 			synchronized (this) {
 				if (this.qualifier == null) {
 					preLazyInit();
-					this.qualifier = new SimpleType(this.ast);
-					postLazyInit(this.qualifier, QUALIFIER_PROPERTY);
+					this.qualifier = postLazyInit(new SimpleType(this.ast), QUALIFIER_PROPERTY);
 				}
 			}
 		}
@@ -303,8 +302,7 @@ public class QualifiedType extends AnnotatableType {
 			synchronized (this) {
 				if (this.name == null) {
 					preLazyInit();
-					this.name = new SimpleName(this.ast);
-					postLazyInit(this.name, NAME_PROPERTY);
+					this.name = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

@@ -166,8 +166,7 @@ public class InstanceofExpression extends Expression {
 			synchronized (this) {
 				if (this.leftOperand == null) {
 					preLazyInit();
-					this.leftOperand= new SimpleName(this.ast);
-					postLazyInit(this.leftOperand, LEFT_OPERAND_PROPERTY);
+					this.leftOperand = postLazyInit(new SimpleName(this.ast), LEFT_OPERAND_PROPERTY);
 				}
 			}
 		}
@@ -206,8 +205,7 @@ public class InstanceofExpression extends Expression {
 			synchronized (this) {
 				if (this.rightOperand == null) {
 					preLazyInit();
-					this.rightOperand= new SimpleType(this.ast);
-					postLazyInit(this.rightOperand, RIGHT_OPERAND_PROPERTY);
+					this.rightOperand = postLazyInit(new SimpleType(this.ast), RIGHT_OPERAND_PROPERTY);
 				}
 			}
 		}

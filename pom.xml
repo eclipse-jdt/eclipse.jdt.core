@@ -63,6 +63,7 @@
     <module>org.eclipse.jdt.core</module>
     <module>org.eclipse.jdt.core.formatterapp</module>
     <module>org.eclipse.jdt.compiler.tool.tests</module>
+    <module>org.eclipse.jdt.core.tests.builder.mockcompiler</module>
     <module>org.eclipse.jdt.core.tests.builder</module>
     <module>org.eclipse.jdt.core.tests.compiler</module>
     <module>org.eclipse.jdt.core.tests.model</module>

@@ -196,8 +196,7 @@ public class ConditionalExpression extends Expression {
 			synchronized (this) {
 				if (this.conditionExpression == null) {
 					preLazyInit();
-					this.conditionExpression = new SimpleName(this.ast);
-					postLazyInit(this.conditionExpression, EXPRESSION_PROPERTY);
+					this.conditionExpression = postLazyInit(new SimpleName(this.ast), EXPRESSION_PROPERTY);
 				}
 			}
 		}
@@ -236,8 +235,7 @@ public class ConditionalExpression extends Expression {
 			synchronized (this) {
 				if (this.thenExpression == null) {
 					preLazyInit();
-					this.thenExpression = new SimpleName(this.ast);
-					postLazyInit(this.thenExpression, THEN_EXPRESSION_PROPERTY);
+					this.thenExpression = postLazyInit(new SimpleName(this.ast), THEN_EXPRESSION_PROPERTY);
 				}
 			}
 		}
@@ -276,8 +274,7 @@ public class ConditionalExpression extends Expression {
 			synchronized (this) {
 				if (this.elseExpression == null) {
 					preLazyInit();
-					this.elseExpression = new SimpleName(this.ast);
-					postLazyInit(this.elseExpression, ELSE_EXPRESSION_PROPERTY);
+					this.elseExpression = postLazyInit(new SimpleName(this.ast), ELSE_EXPRESSION_PROPERTY);
 				}
 			}
 		}

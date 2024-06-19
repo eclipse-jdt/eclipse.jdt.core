@@ -1242,9 +1242,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	/**
-	 * The singleton manager
+	 * The current JavaModelManager. Normally a singleton but alternating during junit tests
 	 */
-	private static JavaModelManager MANAGER= new JavaModelManager();
+	private static volatile JavaModelManager MANAGER= new JavaModelManager();
 
 	/**
 	 * Infos cache.
@@ -1624,8 +1624,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public static class PerWorkingCopyInfo implements IProblemRequestor {
 		int useCount = 0;
-		IProblemRequestor problemRequestor;
-		CompilationUnit workingCopy;
+		private final IProblemRequestor problemRequestor;
+		final CompilationUnit workingCopy;
 		public PerWorkingCopyInfo(CompilationUnit workingCopy, IProblemRequestor problemRequestor) {
 			this.workingCopy = workingCopy;
 			this.problemRequestor = problemRequestor;
@@ -2873,27 +2873,23 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	public static UserLibraryManager getUserLibraryManager() {
-		if (MANAGER.userLibraryManager == null) {
-			UserLibraryManager libraryManager = new UserLibraryManager();
-			synchronized(MANAGER) {
-				if (MANAGER.userLibraryManager == null) { // ensure another library manager was not set while creating the instance above
-					MANAGER.userLibraryManager = libraryManager;
-				}
+		JavaModelManager m = MANAGER;
+		synchronized(m) {
+			if (m.userLibraryManager != null) {
+				return m.userLibraryManager;
 			}
+			return (m.userLibraryManager = new UserLibraryManager());
 		}
-		return MANAGER.userLibraryManager;
 	}
 
 	public static ModuleSourcePathManager getModulePathManager() {
-		if (MANAGER.modulePathManager == null) {
-			ModuleSourcePathManager modulePathManager = new ModuleSourcePathManager();
-			synchronized(MANAGER) {
-				if (MANAGER.modulePathManager == null) { // ensure another library manager was not set while creating the instance above
-					MANAGER.modulePathManager = modulePathManager;
-				}
+		JavaModelManager m = MANAGER;
+		synchronized(m) {
+			if (m.modulePathManager != null) {
+				return m.modulePathManager;
 			}
+			return (m.modulePathManager = new ModuleSourcePathManager());
 		}
-		return MANAGER.modulePathManager;
 	}
 	/*
 	 * Returns all the working copies which have the given owner.
@@ -5576,6 +5572,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		// wait for the initialization job to finish
 		try {
+			Job.getJobManager().wakeUp(JavaCore.PLUGIN_ID);
 			Job.getJobManager().join(JavaCore.PLUGIN_ID, null);
 		} catch (InterruptedException e) {
 			// ignore

@@ -30,7 +30,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -514,17 +513,23 @@ static class JavacCompiler {
 			}
 		}
 		if (version == JavaCore.VERSION_17) {
-			if ("17-ea".equals(rawVersion)) {
-				return 0000;
-			}
-			if ("17".equals(rawVersion)) {
-				return 0000;
-			}
-			if ("17.0.1".equals(rawVersion)) {
-				return 0100;
-			}
-			if ("17.0.2".equals(rawVersion)) {
-				return 0200;
+			switch (rawVersion) {
+				case "17-ea":
+					return 0000;
+				case "17":
+					return 0000;
+				case "17.0.1":
+					return 0100;
+				case "17.0.2":
+					return 0200;
+				case "17.0.3":
+					return 0300;
+				case "17.0.4":
+					return 0400;
+				case "17.0.5":
+					return 0500;
+				case "17.0.6":
+					return 0600;
 			}
 		}
 		if (version == JavaCore.VERSION_18) {
@@ -567,6 +572,11 @@ static class JavacCompiler {
 			}
 			if ("20.0.2".equals(rawVersion)) {
 				return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_21) {
+			switch (rawVersion) {
+				case "21": return 0;
 			}
 		}
 		if (version == JavaCore.VERSION_22) {
@@ -836,6 +846,19 @@ protected static class JavacTestOptions {
 	}
 	Excuse excuseFor(JavacCompiler compiler) {
 		return null;
+	}
+	/** Difference were we're not sure which is correct, but want to be informed if either compiler changes. */
+	public static class DubiousOutcome extends Excuse {
+		DubiousOutcome(int mismatchType) {
+			super(mismatchType);
+		}
+		public static DubiousOutcome
+		EclipseErrorsJavacNone = RUN_JAVAC ?
+				new DubiousOutcome(MismatchType.EclipseErrorsJavacNone) : null,
+		JavacErrorsEclipseNone = RUN_JAVAC ?
+				new DubiousOutcome(MismatchType.JavacErrorsEclipseNone) : null,
+		JDK8319461 = RUN_JAVAC ? // https://bugs.openjdk.org/browse/JDK-8319461
+				new DubiousOutcome(MismatchType.JavacErrorsEclipseNone) : null;
 	}
 	public static class EclipseHasABug extends Excuse {
 		EclipseHasABug(int mismatchType) {
@@ -1368,24 +1391,10 @@ protected static class JavacTestOptions {
 			if (index == -1) {
 				assertEquals("Wrong contents", expectedOutput, result);
 			}
-			FileInputStream stream = null;
 			try {
-				stream = new FileInputStream(f);
-				ClassFileReader.read(stream, className + ".class", true);
-			} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
-				e.printStackTrace();
-				assertTrue("ClassFormatException", false);
-			} catch (IOException e) {
-				e.printStackTrace();
-				assertTrue("IOException", false);
-			} finally {
-				if (stream != null) {
-					try {
-						stream.close();
-					} catch (IOException e) {
-						/* ignore */
-					}
-				}
+				ClassFileReader.read(Files.readAllBytes(f.toPath()), className + ".class", true);
+			} catch (Exception e) {
+				throw new AssertionError(e);
 			}
 		} finally {
 			removeTempClass(className);
@@ -1405,24 +1414,10 @@ protected static class JavacTestOptions {
 			}
 			File f = new File(directory, disassembledClassName + ".class");
 			ClassFileReader classFileReader = null;
-			FileInputStream stream = null;
 			try {
-				stream = new FileInputStream(f);
-				classFileReader = ClassFileReader.read(stream, className + ".class", true);
-			} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
-				e.printStackTrace();
-				assertTrue("ClassFormatException", false);
-			} catch (IOException e) {
-				e.printStackTrace();
-				assertTrue("IOException", false);
-			} finally {
-				if (stream != null) {
-					try {
-						stream.close();
-					} catch (IOException e) {
-						/* ignore */
-					}
-				}
+				classFileReader = ClassFileReader.read(Files.readAllBytes(f.toPath()), className + ".class", true);
+			} catch (Exception e) {
+				throw new AssertionError(e);
 			}
 			return classFileReader;
 		} finally {
@@ -1455,19 +1450,7 @@ protected static class JavacTestOptions {
 			fail("ClassFormatException swallowed in Disassembler:\n..." + result.substring(start, end));
 		}
 
-		FileInputStream stream = null;
-		try {
-			stream = new FileInputStream(classFile);
-			ClassFileReader.read(stream, className + ".class", true);
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					/* ignore */
-				}
-			}
-		}
+		ClassFileReader.read(Files.readAllBytes(classFile.toPath()), className + ".class", true);
 	}
 
 	protected void compileAndDeploy(String source, String directoryName, String className, boolean suppressConsole) {
@@ -1699,30 +1682,15 @@ protected static class JavacTestOptions {
 
 	protected ClassFileReader getClassFileReader(String fileName, String className) {
 		File classFile = new File(fileName);
-		if (!classFile.exists()) {
-			assertTrue(".class file doesn't exist", false);
-		}
-		FileInputStream stream = null;
+		assertTrue(".class file doesn't exist:" + fileName, classFile.exists());
 		try {
-			stream = new FileInputStream(classFile);
-			ClassFileReader reader = ClassFileReader.read(stream, className + ".class", true);
+			ClassFileReader reader = ClassFileReader.read(Files.readAllBytes(classFile.toPath()), className + ".class", true);
 			return reader;
 		} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
+			throw new AssertionError(e);
 		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					/* ignore */
-				}
-			}
+			throw new AssertionError(e);
 		}
-		return null;
 	}
 
 	protected INameEnvironment[] getClassLibs(boolean useDefaultClasspaths, Map<String, String> options) {

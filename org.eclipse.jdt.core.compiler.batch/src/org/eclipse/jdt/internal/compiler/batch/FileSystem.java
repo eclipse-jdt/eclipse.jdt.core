@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,6 +12,8 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								Bug 440687 - [compiler][batch][null] improve command line option for external annotations
+ *     Salesforce - Contribution for
+ *								https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2529
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -166,6 +168,7 @@ public class FileSystem implements IModuleAwareNameEnvironment, SuffixConstants 
 	protected boolean annotationsFromClasspath; // should annotation files be read from the classpath (vs. explicit separate path)?
 	private static HashMap<File, Classpath> JRT_CLASSPATH_CACHE = null;
 	protected Map<String,Classpath> moduleLocations = new HashMap<>();
+	private Consumer<NameEnvironmentAnswer> nameEnvironmentAnswerListener; // a listener for findType* answers
 
 	/** Tasks resulting from --add-reads or --add-exports command line options. */
 	Map<String,UpdatesByKind> moduleUpdates = new HashMap<>();
@@ -447,7 +450,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 					}
 					answer.setBinaryType(ExternalAnnotationDecorator.create(answer.getBinaryType(), classpathEntry.getPath(),
 							qualifiedTypeName, zip));
-					return answer;
+					return notify(answer);
 				} catch (IOException e) {
 					// ignore broken entry, keep searching
 				} finally {
@@ -461,8 +464,20 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		// globally configured (annotationsFromClasspath), but no .eea found, decorate in order to answer NO_EEA_FILE:
 		answer.setBinaryType(new ExternalAnnotationDecorator(answer.getBinaryType(), null));
 	}
+	return notify(answer);
+}
+
+private NameEnvironmentAnswer notify(NameEnvironmentAnswer answer) {
+	if(answer == null) {
+		return answer;
+	}
+	Consumer<NameEnvironmentAnswer> listener = this.nameEnvironmentAnswerListener;
+	if(listener != null) {
+		listener.accept(answer);
+	}
 	return answer;
 }
+
 private NameEnvironmentAnswer internalFindClass(String qualifiedTypeName, char[] typeName, boolean asBinaryOnly, /*NonNull*/char[] moduleName) {
 	if (this.knownFileNames.contains(qualifiedTypeName)) return null; // looking for a file which we know was provided at the beginning of the compilation
 
@@ -749,5 +764,17 @@ public void applyModuleUpdates(IUpdatableModule compilerModule, IUpdatableModule
 				update.accept(compilerModule);
 		}
 	}
+}
+
+/**
+ * @param nameEnvironmentAnswerListener
+ *            a listener for {@link NameEnvironmentAnswer} returned by <code>findType*</code> methods; useful for
+ *            tracking used/answered dependencies during compilation (may be <code>null</code> to unset)
+ * @return a previously set listener (may be <code>null</code>)
+ */
+public Consumer<NameEnvironmentAnswer> setNameEnvironmentAnswerListener(Consumer<NameEnvironmentAnswer> nameEnvironmentAnswerListener) {
+	Consumer<NameEnvironmentAnswer> existing = this.nameEnvironmentAnswerListener;
+	this.nameEnvironmentAnswerListener = nameEnvironmentAnswerListener;
+	return existing;
 }
 }

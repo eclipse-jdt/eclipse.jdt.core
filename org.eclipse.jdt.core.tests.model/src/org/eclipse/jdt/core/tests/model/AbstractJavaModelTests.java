@@ -1765,6 +1765,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected IJavaProject createJava16Project(String name) throws CoreException {
 		return createJava9ProjectWithJREAttributes(name, new String[]{"src"}, null, "16");
 	}
+	protected IJavaProject createJava21Project(String name) throws CoreException {
+		return createJava9ProjectWithJREAttributes(name, new String[]{"src"}, null, "21");
+	}
 	protected IJavaProject createJava9ProjectWithJREAttributes(String name, String[] srcFolders, IClasspathAttribute[] attributes) throws CoreException {
 		return createJava9ProjectWithJREAttributes(name, srcFolders, attributes, "9");
 	}
@@ -3485,7 +3488,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		javaProject.setOption(JavaCore.COMPILER_COMPLIANCE, compliance);
 		javaProject.setOption(JavaCore.COMPILER_SOURCE, compliance);
 		javaProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, compliance);
-		javaProject.setOption(CompilerOptions.OPTION_SimulateOperandStack, CompilerOptions.DISABLED);
 		return javaProject;
 	}
 	protected void setUpProjectCompliance(IJavaProject javaProject, String compliance) throws JavaModelException, IOException {
@@ -3728,11 +3730,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					null);
 			}
 		} else if ("22".equals(compliance)) {
-			if (JavaCore.getClasspathVariable("JCL_21_LIB") == null) {
-				setupExternalJCL("jclMin21");
+			if (JavaCore.getClasspathVariable("JCL_22_LIB") == null) {
+				setupExternalJCL("jclMin22");
 				JavaCore.setClasspathVariables(
-					new String[] {"JCL_21_LIB", "JCL_21_SRC", "JCL_SRCROOT"},
-					new IPath[] {getExternalJCLPath("21"), getExternalJCLSourcePath("21"), getExternalJCLRootSourcePath()},
+					new String[] {"JCL_22_LIB", "JCL_22_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("22"), getExternalJCLSourcePath("22"), getExternalJCLRootSourcePath()},
 					null);
 			}
 		} else if ("23".equals(compliance)) {
@@ -4039,6 +4041,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	@SuppressWarnings("restriction")
 	public void waitForCharsetDeltaJob() throws CoreException {
 		try {
+			Job.getJobManager().wakeUp(org.eclipse.core.internal.resources.CharsetDeltaJob.FAMILY_CHARSET_DELTA);
 			Job.getJobManager().join(org.eclipse.core.internal.resources.CharsetDeltaJob.FAMILY_CHARSET_DELTA, null);
 		} catch (OperationCanceledException | InterruptedException e) {
 			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, e.getMessage(), e));
@@ -4052,6 +4055,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		boolean wasInterrupted = false;
 		do {
 			try {
+				Job.getJobManager().wakeUp(ResourcesPlugin.FAMILY_AUTO_BUILD);
 				Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
 				JavaModelManager.getIndexManager().waitForIndex(isIndexDisabledForTest(), null);
 				wasInterrupted = false;
@@ -4067,6 +4071,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		boolean wasInterrupted = false;
 		do {
 			try {
+				Job.getJobManager().wakeUp(ResourcesPlugin.FAMILY_MANUAL_REFRESH);
 				Job.getJobManager().join(ResourcesPlugin.FAMILY_MANUAL_REFRESH, null);
 				JavaModelManager.getIndexManager().waitForIndex(isIndexDisabledForTest(), null);
 				wasInterrupted = false;

@@ -20,14 +20,11 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
 public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
-
-	private static String[] JAVAC_OPTIONS = new String[] { "--enable-preview" };
 
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(UnnamedPatternsAndVariablesTest.class, F_23);
@@ -44,16 +41,13 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 	@Override
 	protected Map<String, String> getCompilerOptions() {
 		CompilerOptions compilerOptions = new CompilerOptions(super.getCompilerOptions());
-		if (compilerOptions.sourceLevel == ClassFileConstants.JDK23) {
-			compilerOptions.enablePreviewFeatures = true;
-		}
 		return compilerOptions.getMap();
 	}
 
 	public void runConformTest(String[] files, String expectedOutput) {
 		if(!isJRE22Plus)
 			return;
-		super.runConformTest(files, expectedOutput, null, JAVAC_OPTIONS);
+		super.runConformTest(files, expectedOutput, null, null);
 	}
 
 	public void testAllSnippetsFromUnnamedVariablesAndPatternsProposal() {

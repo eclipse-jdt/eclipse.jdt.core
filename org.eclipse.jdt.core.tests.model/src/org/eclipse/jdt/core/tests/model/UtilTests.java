@@ -14,8 +14,10 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.List;
+import java.util.zip.ZipException;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform.OS;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
@@ -138,7 +140,7 @@ public class UtilTests extends AbstractJavaModelTests {
 		type.types().add(ast.newSimpleType(ast.newSimpleName("B")));
 		assertEquals("&QA;:QB;", Util.getSignature(type));
 	}
-	public void testGetSafeName() {
+	public void testGetSafeName() throws ZipException {
 		assertGetSafeNamePass("simple");
 		assertGetSafeNamePass("dir1/dir2/normal");
 		assertGetSafeNamePass("dir1/../unnormal");
@@ -149,9 +151,17 @@ public class UtilTests extends AbstractJavaModelTests {
 
 		// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/2015#issuecomment-2009162226
 		assertGetSafeNamePass("overrides/..ROOT...override");
+		if (OS.isWindows()) {
+			assertIllegalEntry("overrides/<hello");
+		}
 	}
 
-	private void assertGetSafeNamePass(String entryName) {
+	private void assertIllegalEntry(String entryName) throws ZipException {
+		String zipfileName = "any";
+		assertNull(Util.getEntryName(zipfileName, new java.util.zip.ZipEntry(entryName)));
+	}
+
+	private void assertGetSafeNamePass(String entryName) throws ZipException {
 		String zipfileName = "any";
 		assertEquals(entryName, Util.getEntryName(zipfileName, new java.util.zip.ZipEntry(entryName)));
 	}
@@ -160,8 +170,8 @@ public class UtilTests extends AbstractJavaModelTests {
 		String zipfileName = "any";
 		try {
 			String n = Util.getEntryName(zipfileName, new java.util.zip.ZipEntry(entryName));
-			assertFalse("Expected IllegalArgumentException but got " + n, true);
-		} catch (IllegalArgumentException expected) {
+			assertFalse("Expected Exception but got " + n, true);
+		} catch (ZipException expected) {
 			// expected
 		}
 	}

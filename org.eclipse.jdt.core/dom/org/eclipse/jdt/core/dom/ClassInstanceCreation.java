@@ -383,8 +383,7 @@ public class ClassInstanceCreation extends Expression {
 			synchronized (this) {
 				if (this.typeName == null) {
 					preLazyInit();
-					this.typeName = new SimpleName(this.ast);
-					postLazyInit(this.typeName, NAME_PROPERTY);
+					this.typeName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}
@@ -443,8 +442,7 @@ public class ClassInstanceCreation extends Expression {
 			synchronized (this) {
 				if (this.type == null) {
 					preLazyInit();
-					this.type = new SimpleType(this.ast);
-					postLazyInit(this.type, TYPE_PROPERTY);
+					this.type = postLazyInit(new SimpleType(this.ast), TYPE_PROPERTY);
 				}
 			}
 		}
