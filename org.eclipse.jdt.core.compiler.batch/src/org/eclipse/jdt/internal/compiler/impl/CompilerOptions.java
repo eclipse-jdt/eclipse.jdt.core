@@ -35,6 +35,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.Compiler;
@@ -258,6 +259,25 @@ public class CompilerOptions {
 	 * Note: Whenever a new version is added, make sure getLatestVersion()
 	 * is updated with it.
 	 */
+
+	/**
+	 * Unsupported JLS versions
+	 */
+	/*
+	 * Note: Whenever a new version is obsoleted, make sure getFirstVersion() is updated.
+	 */
+	public static Set<String> UNSUPPORTED_VERSIONS = Set.of(
+			VERSION_1_1,
+			VERSION_1_2,
+			VERSION_1_3,
+			VERSION_1_4,
+			VERSION_JSR14,
+			VERSION_CLDC1_1,
+			VERSION_1_5,
+			VERSION_1_6,
+			VERSION_1_7
+			);
+
 	public static final String ERROR = "error"; //$NON-NLS-1$
 	public static final String WARNING = "warning"; //$NON-NLS-1$
 	public static final String INFO = "info"; //$NON-NLS-1$
@@ -647,6 +667,18 @@ public class CompilerOptions {
 		this.parseLiteralExpressionsAsConstants = parseLiteralExpressionsAsConstants;
 	}
 
+	/**
+	 * Return the first (oldest) Java language version supported by the Eclipse compiler
+	 */
+	public static String getFirstSupportedJavaVersion() {
+		return VERSION_1_8;
+	}
+	/**
+	 * Return the first (oldest) Java language level supported by the Eclipse compiler
+	 */
+	public static long getFirstSupportedJdkLevel() {
+		return ClassFileConstants.JDK1_8;
+	}
 	/**
 	 * Return the latest Java language version supported by the Eclipse compiler
 	 */
