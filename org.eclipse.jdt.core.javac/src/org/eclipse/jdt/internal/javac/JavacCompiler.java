@@ -29,10 +29,10 @@ import javax.tools.JavaFileObject.Kind;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.compiler.CompilerConfiguration;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.CompilerConfiguration;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
@@ -49,19 +49,19 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Pair;
 
 public class JavacCompiler extends Compiler {
-	CompilerConfiguration compilerConfig;
+	JavacConfig compilerConfig;
 
 	public JavacCompiler(INameEnvironment environment, IErrorHandlingPolicy policy, CompilerConfiguration compilerConfig,
 			ICompilerRequestor requestor, IProblemFactory problemFactory) {
-		super(environment, policy, compilerConfig.getOptions(), requestor, problemFactory);
-		this.compilerConfig = compilerConfig;
+		super(environment, policy, compilerConfig.compilerOptions(), requestor, problemFactory);
+		this.compilerConfig = JavacConfig.createFrom(compilerConfig);
 	}
 
 	@Override
 	public void compile(ICompilationUnit[] sourceUnits) {
 		Context javacContext = new Context();
 		Map<ICompilationUnit, List<IProblem>> javacProblems = new HashMap<>();
-		JavacProblemConverter problemConverter = new JavacProblemConverter(this.compilerConfig.getOptions(), javacContext);
+		JavacProblemConverter problemConverter = new JavacProblemConverter(this.compilerConfig.compilerOptions(), javacContext);
 		javacContext.put(DiagnosticListener.class, diagnostic -> {
 			if (diagnostic.getSource() instanceof JavacFileObject fileObject) {
 				JavacProblem javacProblem = problemConverter.createJavacProblem(diagnostic);
@@ -154,7 +154,7 @@ public class JavacCompiler extends Compiler {
 			File sourceFile = sf.resource.getLocation().toFile();
 			File sourceDirectory = sourceFile.getParentFile();
 			while (sourceDirectory != null) {
-				File mappedOutput = this.compilerConfig.getSourceOutputMapping().get(sourceDirectory);
+				File mappedOutput = this.compilerConfig.sourceOutputMapping().get(sourceDirectory);
 				if (mappedOutput != null) {
 					return mappedOutput;
 				}

@@ -34,7 +34,6 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.compiler.CompilerConfiguration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaProject;
 
@@ -49,13 +48,13 @@ public class JavacUtils {
 		configureJavacContext(context, compilerOptions, javaProject, null, null);
 	}
 
-	public static void configureJavacContext(Context context, CompilerConfiguration compilerConfig,
+	public static void configureJavacContext(Context context, JavacConfig compilerConfig,
 	        IJavaProject javaProject, File output) {
-		configureJavacContext(context, compilerConfig.getOptions().getMap(), javaProject, compilerConfig, output);
+		configureJavacContext(context, compilerConfig.compilerOptions().getMap(), javaProject, compilerConfig, output);
 	}
 
 	private static void configureJavacContext(Context context, Map<String, String> compilerOptions,
-	        IJavaProject javaProject, CompilerConfiguration compilerConfig, File output) {
+	        IJavaProject javaProject, JavacConfig compilerConfig, File output) {
 		IClasspathEntry[] classpath = new IClasspathEntry[0];
 		if (javaProject != null) {
 			try {
@@ -136,14 +135,14 @@ public class JavacUtils {
 		}
 	}
 
-	private static void configurePaths(JavaProject javaProject, Context context, CompilerConfiguration compilerConfig,
+	private static void configurePaths(JavaProject javaProject, Context context, JavacConfig compilerConfig,
 	        File output) {
 		JavacFileManager fileManager = (JavacFileManager)context.get(JavaFileManager.class);
 		try {
 			if (output != null) {
 				fileManager.setLocation(StandardLocation.CLASS_OUTPUT, List.of(output));
-			} else if (compilerConfig != null && !compilerConfig.getSourceOutputMapping().isEmpty()) {
-				fileManager.setLocation(StandardLocation.CLASS_OUTPUT, compilerConfig.getSourceOutputMapping().values().stream().distinct().toList());
+			} else if (compilerConfig != null && !compilerConfig.sourceOutputMapping().isEmpty()) {
+				fileManager.setLocation(StandardLocation.CLASS_OUTPUT, compilerConfig.sourceOutputMapping().values().stream().distinct().toList());
 			} else if (javaProject.getProject() != null) {
 				IResource member = javaProject.getProject().getParent().findMember(javaProject.getOutputLocation());
 				if( member != null ) {
@@ -153,17 +152,17 @@ public class JavacUtils {
 			}
 
 			boolean sourcePathEnabled = false;
-			if (compilerConfig != null && !isEmpty(compilerConfig.getSourcepaths())) {
+			if (compilerConfig != null && !isEmpty(compilerConfig.sourcepaths())) {
 				fileManager.setLocation(StandardLocation.SOURCE_PATH,
-					compilerConfig.getSourcepaths()
+					compilerConfig.sourcepaths()
 						.stream()
 						.map(File::new)
 						.toList());
 				sourcePathEnabled = true;
 			}
-			if (compilerConfig != null && !isEmpty(compilerConfig.getModuleSourcepaths())) {
+			if (compilerConfig != null && !isEmpty(compilerConfig.moduleSourcepaths())) {
 				fileManager.setLocation(StandardLocation.MODULE_SOURCE_PATH,
-					compilerConfig.getModuleSourcepaths()
+					compilerConfig.moduleSourcepaths()
 						.stream()
 						.map(File::new)
 						.toList());
@@ -174,17 +173,17 @@ public class JavacUtils {
 			}
 
 			boolean classpathEnabled = false;
-			if (compilerConfig != null && !isEmpty(compilerConfig.getClasspaths())) {
+			if (compilerConfig != null && !isEmpty(compilerConfig.classpaths())) {
 				fileManager.setLocation(StandardLocation.CLASS_PATH,
-					compilerConfig.getClasspaths()
+					compilerConfig.classpaths()
 						.stream()
 						.map(File::new)
 						.toList());
 				classpathEnabled = true;
 			}
-			if (compilerConfig != null && !isEmpty(compilerConfig.getModulepaths())) {
+			if (compilerConfig != null && !isEmpty(compilerConfig.modulepaths())) {
 				fileManager.setLocation(StandardLocation.MODULE_PATH,
-					compilerConfig.getModulepaths()
+					compilerConfig.modulepaths()
 						.stream()
 						.map(File::new)
 						.toList());
