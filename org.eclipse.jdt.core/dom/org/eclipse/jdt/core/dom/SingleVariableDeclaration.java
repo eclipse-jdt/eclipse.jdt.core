@@ -501,7 +501,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	public Type getType() {
 		if (this.type == null) {
 			//if it is an unnamed patterns
-			if(this.variableName.getIdentifier().equals("_")) { //$NON-NLS-1$
+			if(this.variableName != null && this.variableName.getIdentifier().equals("_")) { //$NON-NLS-1$
 				return this.type;
 			}
 			// lazy init must be thread-safe for readers
