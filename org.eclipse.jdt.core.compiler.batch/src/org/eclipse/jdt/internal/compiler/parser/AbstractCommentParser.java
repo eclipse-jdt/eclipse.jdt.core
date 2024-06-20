@@ -252,7 +252,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								openingBraces = 0;
 							}
 						} else if ((!this.lineStarted || previousChar == '{') || lookForTagsInSnippets()) {
-							if (this.inlineTagStarted && !inlineReturn) {
+							if (this.inlineTagStarted && !this.inlineReturn) {
 								setInlineTagStarted(false);
 								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
 								// Cannot have @ inside inline comment
@@ -391,7 +391,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							if (this.textStart == -1) this.textStart = previousPosition;
 							textEndPosition = this.index;
 						}
-						if (!this.lineStarted && !inlineReturn) {
+						if (!this.lineStarted && !this.inlineReturn) {
 							this.textStart = previousPosition;
 						}
 						this.lineStarted = true;
