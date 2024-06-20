@@ -2435,9 +2435,16 @@ class JavacConverter {
 		return res;
 	}
 
+	/**
+	 * ⚠️ node position in JCTree must be absolute
+	 * @param javac
+	 * @return
+	 */
 	Type convertToType(JCTree javac) {
 		if (javac instanceof JCIdent ident) {
-			SimpleType res = this.ast.newSimpleType(convertName(ident.name));
+			Name name = convertName(ident.name);
+			name.setSourceRange(ident.getStartPosition(), ident.name.length());
+			SimpleType res = this.ast.newSimpleType(name);
 			commonSettings(res, ident);
 			return res;
 		}
@@ -2455,17 +2462,23 @@ class JavacConverter {
 			// case of not translatable name, eg because of generics
 			// TODO find a better check instead of relying on exception
 			Type qualifierType = convertToType(qualified.getExpression());
+			SimpleName simpleName = (SimpleName)convertName(qualified.getIdentifier());
+			int simpleNameStart = this.rawText.indexOf(simpleName.getIdentifier(), qualifierType.getStartPosition() + qualifierType.getLength());
+			simpleName.setSourceRange(simpleNameStart, simpleName.getIdentifier().length());
 			if(qualifierType instanceof SimpleType simpleType && (ast.apiLevel() < AST.JLS8 || simpleType.annotations().isEmpty())) {
 				simpleType.delete();
 				Name parentName = simpleType.getName();
 				parentName.setParent(null, null);
-				QualifiedName name = this.ast.newQualifiedName(simpleType.getName(), (SimpleName)convertName(qualified.getIdentifier()));
+				QualifiedName name = this.ast.newQualifiedName(simpleType.getName(), simpleName);
 				commonSettings(name, javac);
+				int length = name.getName().getStartPosition() + name.getName().getLength() - name.getStartPosition();
+				name.setSourceRange(name.getStartPosition(), length);
 				SimpleType res = this.ast.newSimpleType(name);
 				commonSettings(res, javac);
+				res.setSourceRange(name.getStartPosition(), length);
 				return res;
 			} else {
-				QualifiedType res = this.ast.newQualifiedType(qualifierType, (SimpleName)convertName(qualified.getIdentifier()));
+				QualifiedType res = this.ast.newQualifiedType(qualifierType, simpleName);
 				commonSettings(res, qualified);
 				return res;
 			}

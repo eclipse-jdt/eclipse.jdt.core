@@ -517,9 +517,16 @@ public class JavacBindingResolver extends BindingResolver {
 		if( tree != null ) {
 			return resolveNameToJavac(name, tree);
 		}
-		DocTreePath path = this.converter.findDocTreePath(name); // TODO
-		if (path != null && JavacTrees.instance(this.context).getElement(path) instanceof Symbol symbol) {
-			return this.bindings.getBinding(symbol, null);
+		DocTreePath path = this.converter.findDocTreePath(name);
+		if (path != null) {
+			if (JavacTrees.instance(this.context).getElement(path) instanceof Symbol symbol) {
+				return this.bindings.getBinding(symbol, null);
+			}
+			// try parent
+			path = path.getParentPath();
+			if (JavacTrees.instance(this.context).getElement(path) instanceof Symbol symbol) {
+				return this.bindings.getBinding(symbol, null);
+			}
 		}
 		if (tree == null && (name.getFlags() & ASTNode.ORIGINAL) != 0) {
 			tree = this.converter.domToJavac.get(name.getParent());
@@ -837,6 +844,26 @@ public class JavacBindingResolver extends BindingResolver {
 		var javac = this.converter.domToJavac.get(annotation);
 		if (javac instanceof JCAnnotation jcAnnotation) {
 			return this.bindings.getAnnotationBinding(jcAnnotation.attribute, recipient);
+		}
+		return null;
+	}
+	
+	@Override
+	IBinding resolveReference(MethodRef ref) {
+		resolve();
+		DocTreePath path = this.converter.findDocTreePath(ref);
+		if (path != null && JavacTrees.instance(this.context).getElement(path) instanceof Symbol symbol) {
+			return this.bindings.getBinding(symbol, null);
+		}
+		return null;
+	}
+
+	@Override
+	IBinding resolveReference(MemberRef ref) {
+		resolve();
+		DocTreePath path = this.converter.findDocTreePath(ref);
+		if (path != null && JavacTrees.instance(this.context).getElement(path) instanceof Symbol symbol) {
+			return this.bindings.getBinding(symbol, null);
 		}
 		return null;
 	}

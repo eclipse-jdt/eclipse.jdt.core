@@ -25,16 +25,14 @@ import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
 
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.Tree;
 import com.sun.source.util.DocTreePath;
 import com.sun.source.util.TreePath;
 import com.sun.tools.javac.parser.UnicodeReader;
 import com.sun.tools.javac.tree.DCTree;
 import com.sun.tools.javac.tree.DCTree.DCAuthor;
 import com.sun.tools.javac.tree.DCTree.DCBlockTag;
-import com.sun.tools.javac.tree.DCTree.DCDeprecated;
 import com.sun.tools.javac.tree.DCTree.DCComment;
+import com.sun.tools.javac.tree.DCTree.DCDeprecated;
 import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.DCTree.DCEndElement;
 import com.sun.tools.javac.tree.DCTree.DCEntity;
@@ -58,6 +56,7 @@ import com.sun.tools.javac.tree.DCTree.DCUses;
 import com.sun.tools.javac.tree.DCTree.DCValue;
 import com.sun.tools.javac.tree.DCTree.DCVersion;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.util.JCDiagnostic;
 
 class JavadocConverter {
@@ -353,6 +352,7 @@ class JavadocConverter {
 					name.setSourceRange(currentOffset, Math.max(0, reference.memberName.toString().length()));
 					currentOffset += name.getLength();
 					res.setName(name);
+					this.converted.put(name, DocTreePath.getPath(this.contextTreePath, this.docComment, reference));
 					currentOffset++; // (
 					final int paramListOffset = currentOffset;
 					List<Region> params = new ArrayList<>();
@@ -379,6 +379,7 @@ class JavadocConverter {
 					commonSettings(res, javac);
 					SimpleName name = this.ast.newSimpleName(reference.memberName.toString());
 					name.setSourceRange(this.docComment.getSourcePosition(javac.getStartPosition()), Math.max(0, reference.memberName.toString().length()));
+					this.converted.put(res, DocTreePath.getPath(this.contextTreePath, this.docComment, reference));
 					res.setName(name);
 					if (reference.qualifierExpression != null) {
 						Name qualifierExpressionName = toName(reference.qualifierExpression, res.getStartPosition());
@@ -390,7 +391,12 @@ class JavadocConverter {
 			} else if (!signature.contains("#")) {
 				Name res = this.ast.newName(signature);
 				res.setSourceRange(this.docComment.getSourcePosition(javac.getStartPosition()), signature.length());
-				this.converted.put(res, DocTreePath.getPath(this.contextTreePath, this.docComment, reference));
+				res.accept(new ASTVisitor() {
+					@Override
+					public void preVisit(ASTNode node) {
+						JavadocConverter.this.converted.put(node, DocTreePath.getPath(JavadocConverter.this.contextTreePath, JavadocConverter.this.docComment, reference));
+					}
+				});
 				return Stream.of(res);
 			}
 		} else if (javac instanceof DCStartElement || javac instanceof DCEndElement || javac instanceof DCEntity) {
@@ -437,16 +443,25 @@ class JavadocConverter {
 		res.setSourceRange(
 				range != null ? range.startOffset : paramListOffset + type.getStartPosition(),
 				range != null ? range.length : type.toString().length());
+		// Make positons absolute
+		var fixPositions = new TreeScanner() {
+			@Override
+			public void scan(JCTree tree) {
+				tree.setPos(tree.pos + paramListOffset);
+				super.scan(tree);
+			}
+		};
+		fixPositions.scan(type);
 		Type jdtType = this.javacConverter.convertToType(type);
 		res.setType(jdtType);
-		jdtType.accept(new ASTVisitor(true) {
+		// some lengths may be missing
+		jdtType.accept(new ASTVisitor() {
 			@Override
 			public void preVisit(ASTNode node) {
-				if (node.getStartPosition() <= 0 && node.getParent() != null) {
-					node.setSourceRange(node.getParent().getStartPosition(), node.getLength() != 0 ? node.getLength() : node.toString().length());
-				} else {
-					node.setSourceRange(node.getStartPosition() + paramListOffset, node.getLength() != 0 ? node.getLength() : node.toString().length());
+				if (node.getLength() == 0 && node.getStartPosition() >= 0) {
+					node.setSourceRange(node.getStartPosition(), node.toString().length());
 				}
+				super.preVisit(node);
 			}
 		});
 		if (jdtType.getStartPosition() + jdtType.getLength() < res.getStartPosition() + res.getLength()) {
