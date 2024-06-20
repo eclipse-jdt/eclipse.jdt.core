@@ -8095,4 +8095,145 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Foo\nBar\n"
 				+ "Null");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2582
+	// Switch exhaustiveness error with enum and 'case null'
+	// optional warning enabled
+	public void testIssue2582b() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.WARNING);
+		runner.testFiles =
+				new String[] {
+					"X.java",
+					"""
+					enum Foo {
+					        FOO, BAR;
+					    }
+					public class X {
+					    public void dispatch(final Foo foo) {
+					        switch (foo)  {
+					            // forces JEP-441 exhaustiveness
+					            case null -> throw new NullPointerException("null foo");
+					            case FOO -> foo();
+					            case BAR -> bar();
+					        }
+					    }
+					    private void foo() {
+					    	System.out.println("Foo");
+					    }
+					    private void bar() {
+					    	System.out.println("Bar");
+					    }
+					    public static void main(String[] args) {
+					    	new X().dispatch(Foo.FOO);
+					    	new X().dispatch(Foo.BAR);
+					    	try {
+					    	new X().dispatch(null);
+					    	} catch (NullPointerException npe) {
+					    		System.out.println("Null");
+					    	}
+						}
+					}
+					"""};
+		runner.expectedOutputString =
+				"Foo\nBar\n"
+				+ "Null";
+		runner.runConformTest();
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2582
+	// Switch exhaustiveness error with enum and 'case null'
+	// optional warning enabled
+	public void testIssue2582c() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.ERROR);
+		runner.customOptions.put(CompilerOptions.OPTION_ReportMissingEnumCaseDespiteDefault, CompilerOptions.ENABLED);
+		runner.customOptions.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.WARNING);
+		runner.testFiles =
+				new String[] {
+					"X.java",
+					"""
+					enum NUM { ONE, TWO, THREE; }
+
+					public class X {
+						void old(NUM n) {
+							switch (n) { // The switch over the enum type NUM should have a default case
+								case ONE, TWO, THREE:
+									System.out.println("known");
+							}
+							switch (n) {
+								case ONE, TWO, THREE:
+									System.out.println("known");
+								default:
+									System.out.println("safety");
+							}
+							switch (n) { // The enum constant THREE should have a corresponding case label in this enum switch on NUM. To suppress this problem, add a comment //$CASES-OMITTED$ on the line above the 'default:'
+								case ONE, TWO:
+									System.out.println("known");
+									break;
+								default:
+									System.out.println("other");
+							}
+							switch (n) {
+								case ONE, TWO:
+									System.out.println("known");
+									break;
+								//$CASES-OMITTED$
+								default:
+									System.out.println("other");
+							}
+						}
+						void newStyle(NUM n) {
+							switch (n) {  // The switch over the enum type NUM should have a default case
+								case ONE, TWO, THREE ->
+									System.out.println("known");
+							}
+							switch (n) {
+								case ONE, TWO, THREE ->
+									System.out.println("known");
+								default ->
+									System.out.println("safety");
+							}
+							switch (n) { // The enum constant THREE should have a corresponding case label in this enum switch on NUM. To suppress this problem, add a comment $CASES-OMITTED$ on the line above the 'default:'
+								case ONE, TWO ->
+									System.out.println("known");
+								default ->
+									System.out.println("other");
+							}
+							switch (n) {
+								case ONE, TWO ->
+									System.out.println("known");
+								//$CASES-OMITTED$
+								default ->
+									System.out.println("other");
+							}
+						}
+					}
+					"""};
+		runner.expectedCompilerLog =
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	switch (n) { // The switch over the enum type NUM should have a default case\n" +
+				"	        ^\n" +
+				"The switch over the enum type NUM should have a default case\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 15)\n" +
+				"	switch (n) { // The enum constant THREE should have a corresponding case label in this enum switch on NUM. To suppress this problem, add a comment //$CASES-OMITTED$ on the line above the 'default:'\n" +
+				"	        ^\n" +
+				"The enum constant THREE should have a corresponding case label in this enum switch on NUM. To suppress this problem, add a comment //$CASES-OMITTED$ on the line above the 'default:'\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 32)\n" +
+				"	switch (n) {  // The switch over the enum type NUM should have a default case\n" +
+				"	        ^\n" +
+				"The switch over the enum type NUM should have a default case\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 42)\n" +
+				"	switch (n) { // The enum constant THREE should have a corresponding case label in this enum switch on NUM. To suppress this problem, add a comment $CASES-OMITTED$ on the line above the 'default:'\n" +
+				"	        ^\n" +
+				"The enum constant THREE should have a corresponding case label in this enum switch on NUM. To suppress this problem, add a comment //$CASES-OMITTED$ on the line above the 'default:'\n" +
+				"----------\n";
+		runner.runNegativeTest();
+	}
 }
