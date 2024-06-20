@@ -1990,10 +1990,8 @@ class JavacConverter {
 						return res;
 					}
 				}
-				Block substitute = this.ast.newBlock();
-				commonSettings(substitute, jcError);
 				parent.setFlags(parent.getFlags() | ASTNode.MALFORMED);
-				return substitute;
+				return null;
 			}
 			boolean uniqueCaseFound = false;
 			if (jcExpressionStatement.getExpression() instanceof JCMethodInvocation methodInvocation) {
