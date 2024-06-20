@@ -325,7 +325,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	public IAnnotationBinding[] getParameterAnnotations(int paramIndex) {
 		VarSymbol parameter = this.methodSymbol.params.get(paramIndex);
 		return parameter.getAnnotationMirrors().stream() //
-				.map(annotation -> this.resolver.bindings.getAnnotationBinding(annotation, this)) //
+				.map(annotation -> this.resolver.bindings.getAnnotationBinding(annotation, null)) //
 				.toArray(IAnnotationBinding[]::new);
 	}
 
