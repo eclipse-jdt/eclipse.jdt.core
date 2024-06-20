@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
 import org.eclipse.jdt.internal.core.util.BindingKeyParser;
@@ -403,8 +405,24 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			boolean initialNeedsToResolveBinding, IJavaProject project, List<Classpath> classpaths,
 			int focalPoint, int apiLevel, Map<String, String> compilerOptions,
 			WorkingCopyOwner workingCopyOwner, WorkingCopyOwner typeRootWorkingCopyOwner, int flags, IProgressMonitor monitor) {
+
+		// collect working copies
+		var workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(workingCopyOwner, true);
+		if (workingCopies == null) {
+			workingCopies = new ICompilationUnit[0];
+		}
+		var pathToUnit = new HashMap<String, org.eclipse.jdt.internal.compiler.env.ICompilationUnit>();
+		Arrays.stream(workingCopies) //
+				.map(org.eclipse.jdt.internal.compiler.env.ICompilationUnit.class::cast) //
+				.forEach(inMemoryCu -> {
+					pathToUnit.put(new String(inMemoryCu.getFileName()), inMemoryCu);
+				});
+
+		// note that this intentionally overwrites an existing working copy entry for the same file
+		pathToUnit.put(new String(sourceUnit.getFileName()), sourceUnit);
+
 		// TODO currently only parse
-		CompilationUnit res = parse(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] { sourceUnit},
+		CompilationUnit res = parse(pathToUnit.values().toArray(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[]::new),
 				apiLevel, compilerOptions, flags, project, monitor).get(sourceUnit);
 		if (initialNeedsToResolveBinding) {
 			((JavacBindingResolver)res.ast.getBindingResolver()).isRecoveringBindings = (flags & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0;
