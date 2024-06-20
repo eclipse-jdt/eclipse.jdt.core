@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
-import java.io.ByteArrayInputStream;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
@@ -121,8 +120,7 @@ public class Bug531382Test extends BuilderTests {
 		boolean force = true;
 		IProgressMonitor monitor = new NullProgressMonitor();
 		try {
-			generatedFile.create(new ByteArrayInputStream(contents.getBytes()), force, monitor);
-			generatedFile.setDerived(true, monitor);
+			generatedFile.create(contents.getBytes(), force, true, monitor);
 		} catch (CoreException e) {
 			throw new AssertionError("failed to generate file in build participant", e);
 		}

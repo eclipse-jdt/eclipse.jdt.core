@@ -242,7 +242,7 @@ public void testBug29832() throws Exception {
 			new String[]{},
 			new String[]{"JCL_LIB"},
 			 "");
-		this.createFile("/P1/lib.jar", f.getContents());
+		this.createFile("/P1/lib.jar", f.readAllBytes());
 		this.addLibraryEntry(p, "/P1/lib.jar", true);
 
 		// create P2
@@ -358,7 +358,7 @@ public void testBug33560() throws Exception {
 			new String[]{},
 			new String[]{"JCL_LIB"},
 			 "");
-		this.createFile("/P1/lib.jar", f.getContents());
+		this.createFile("/P1/lib.jar", f.readAllBytes());
 		this.addLibraryEntry(p, "/P1/lib.jar", true);
 
 		// create P2
@@ -5596,7 +5596,7 @@ public void testBug326610() throws Exception {
 			 "1.5");
 
 		this.createFolder("/P1/src/p");
-		this.createFile("/P1/lib.jar", f.getContents());
+		this.createFile("/P1/lib.jar", f.readAllBytes());
 		this.addLibraryEntry(p, "/P1/lib.jar", true);
 
 		this.createFile(
@@ -6168,7 +6168,7 @@ public void test479656() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin", "1.5");
-		this.createFile("/P/bug479656.jar", f.getContents());
+		this.createFile("/P/bug479656.jar", f.readAllBytes());
 		this.addLibraryEntry(p, "/P/bug479656.jar", true);
 		this.createFolder("/P/src/com/google/gwt/event/shared");
 		this.createFile(

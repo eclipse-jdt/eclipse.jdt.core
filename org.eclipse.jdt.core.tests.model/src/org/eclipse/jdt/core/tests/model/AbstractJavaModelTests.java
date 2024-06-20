@@ -13,12 +13,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URL;
@@ -1676,19 +1674,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 	}
-	protected IFile createFile(String path, InputStream content) throws CoreException {
-		IFile file = getFile(path);
-		file.create(content, true, null);
-		try {
-			content.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return file;
-	}
 
 	protected IFile createFile(String path, byte[] content) throws CoreException {
-		return createFile(path, new ByteArrayInputStream(content));
+		IFile file = getFile(path);
+		file.create(content, true, false, null);
+		return file;
 	}
 
 	protected IFile createFile(String path, String content) throws CoreException {
@@ -3397,7 +3387,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			if (!folder.exists())
 				this.createFolder(folder.getFullPath());
 			IFile file = project.getProject().getFile(new Path(sources[i]));
-			file.create(new ByteArrayInputStream(sources[i+1].getBytes()), true, monitor);
+			file.create(sources[i+1].getBytes(), true, false, monitor);
 		}
 	}
 

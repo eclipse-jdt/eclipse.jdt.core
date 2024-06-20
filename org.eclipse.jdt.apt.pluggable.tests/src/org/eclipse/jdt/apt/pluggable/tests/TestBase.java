@@ -63,18 +63,16 @@ public class TestBase extends BuilderTests
 	private static void addAnnotationJar(IJavaProject jproj, boolean addToModulePath) throws Exception {
 		final String resName = "lib/annotations.jar"; // name in bundle
 		final String libName = resName; // name in destination project
-		InputStream is = null;
 		URL resURL = Apt6TestsPlugin.thePlugin().getBundle().getEntry(resName);
-		is = resURL.openStream();
+		byte[] bytes;
+		try (InputStream is = resURL.openStream()) {
+			bytes= is.readAllBytes();
+		}
 		IPath projPath = jproj.getPath();
 		IProject proj = jproj.getProject();
 		IFile libFile = proj.getFile(libName);
 		env.addFolder(projPath, "lib");
-		if (libFile.exists()) {
-			libFile.setContents(is, true, false, null);
-		} else {
-			libFile.create(is, true, null);
-		}
+		libFile.write(bytes, true, false, false, null);
 		if (addToModulePath) {
 			IClasspathAttribute[] attributes = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
 			env.addEntry(projPath, JavaCore.newLibraryEntry(libFile.getFullPath(), null, null,

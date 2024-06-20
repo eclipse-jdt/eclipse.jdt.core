@@ -19,7 +19,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -880,7 +879,7 @@ public void testClasspathCorruption() throws CoreException {
 			+"</classpath>	\n";
 
 		IFile fileRsc = p1.getProject().getFile(JavaProject.CLASSPATH_FILENAME);
-		fileRsc.setContents(new ByteArrayInputStream(newCPContent.getBytes()), true, false, null);
+		fileRsc.setContents(newCPContent.getBytes(), true, false, null);
 /*
 		File file = p1.getProject().getFile(JavaProject.CLASSPATH_FILENAME).getLocation().toFile();
 		if (file.exists()){
@@ -959,7 +958,7 @@ public void testClasspathForceReload() throws CoreException {
 						+"</classpath>	\n";
 
 					IFile fileRsc = p1.getProject().getFile(JavaProject.CLASSPATH_FILENAME);
-					fileRsc.setContents(new ByteArrayInputStream(newCPContent.getBytes()), true, false, null);
+					fileRsc.setContents(newCPContent.getBytes(), true, false, null);
 
 					p1.close();
 					assertEquals("output location should not have been refreshed", "/P1", p1.getOutputLocation().toString());

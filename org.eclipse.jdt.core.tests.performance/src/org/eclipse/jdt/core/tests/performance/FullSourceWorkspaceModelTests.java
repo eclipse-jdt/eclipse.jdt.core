@@ -16,7 +16,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.performance;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -203,7 +202,7 @@ private void setUpBigProject() throws CoreException, IOException {
 				"	}\n" +
 				"}\n" +
 				"class TestSecondary {}\n";
-			file.create(new ByteArrayInputStream(content.getBytes()), true, null);
+			file.create(content.getBytes(), true, false, null);
 		}
 		WORKING_COPY = (ICompilationUnit)JavaCore.create(file);
 		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");

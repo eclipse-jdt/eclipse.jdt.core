@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -184,11 +183,10 @@ public class IndexManagerTests extends ModifyingResourceTests {
 			throw new AssertionError("File expected at path " + path);
 		}
 
-		try (ByteArrayInputStream stream = new ByteArrayInputStream(content.getBytes())) {
-			file.setContents(stream, IResource.FORCE, new NullProgressMonitor());
-		} catch (IOException | CoreException e) {
-			e.printStackTrace();
-			throw new AssertionError("Failed to update file " + e.getMessage());
+		try {
+			file.setContents(content.getBytes(), IResource.FORCE, new NullProgressMonitor());
+		} catch (CoreException e) {
+			throw new AssertionError("Failed to update file " + e.getMessage(), e);
 		}
 	}
 

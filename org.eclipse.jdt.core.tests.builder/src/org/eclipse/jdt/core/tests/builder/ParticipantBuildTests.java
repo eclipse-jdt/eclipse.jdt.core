@@ -119,7 +119,7 @@ public class ParticipantBuildTests extends BuilderTests {
 				IFile genedType = result.getFile().getParent().getFile(new Path("GeneratedType.java")); //$NON-NLS-1$
 				if (this.buildPass == 0 || this.buildPass == 3) {
 					try {
-						genedType.create(new ByteArrayInputStream("public class GeneratedType {}".getBytes()), true, null); //$NON-NLS-1$
+						genedType.create("public class GeneratedType {}".getBytes(), true, false, null); //$NON-NLS-1$
 					} catch (CoreException e) {
 						e.printStackTrace();
 					}
@@ -311,7 +311,7 @@ public class ParticipantBuildTests extends BuilderTests {
 					BuildContext result = files[0];
 					IFile genedType = result.getFile().getParent().getFile(new Path("MissingAnnotation.java")); //$NON-NLS-1$
 					try {
-						genedType.create(new ByteArrayInputStream("public @interface MissingAnnotation {}".getBytes()), true, null); //$NON-NLS-1$
+						genedType.create("public @interface MissingAnnotation {}".getBytes(), true, false, null); //$NON-NLS-1$
 					} catch (CoreException e) {
 						e.printStackTrace();
 					}
@@ -321,7 +321,7 @@ public class ParticipantBuildTests extends BuilderTests {
 					BuildContext result = files[0];
 					IFile genedType = result.getFile().getParent().getFile(new Path("GeneratedType.java")); //$NON-NLS-1$
 					try {
-						genedType.create(new ByteArrayInputStream("public class GeneratedType {}".getBytes()), true, null); //$NON-NLS-1$
+						genedType.create("public class GeneratedType {}".getBytes(), true, false, null); //$NON-NLS-1$
 					} catch (CoreException e) {
 						e.printStackTrace();
 					}
@@ -366,7 +366,7 @@ public class ParticipantBuildTests extends BuilderTests {
 					IFolder folder = (IFolder) genedType.getParent();
 					if(!folder.exists())
 						folder.create(true, true, null);
-					genedType.create(new ByteArrayInputStream("package p1.p2; public class GeneratedType { public static void method(){} }".getBytes()), true, null); //$NON-NLS-1$
+					genedType.create("package p1.p2; public class GeneratedType { public static void method(){} }".getBytes(), true, false, null); //$NON-NLS-1$
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
@@ -439,7 +439,7 @@ public class ParticipantBuildTests extends BuilderTests {
 				IFile genedType = result.getFile().getParent().getFile(new Path("GeneratedAnnotation.java")); //$NON-NLS-1$
 				if (genedType.exists()) return;
 				try {
-					genedType.create(new ByteArrayInputStream("@interface GeneratedAnnotation {}".getBytes()), true, null); //$NON-NLS-1$
+					genedType.create("@interface GeneratedAnnotation {}".getBytes(), true, false, null); //$NON-NLS-1$
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}

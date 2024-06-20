@@ -13,9 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
@@ -118,8 +116,8 @@ protected void executeOperation() throws JavaModelException {
 				catch (CoreException ce) {
 					// use no encoding
 				}
-				InputStream stream = new ByteArrayInputStream(encoding == null ? this.source.getBytes() : this.source.getBytes(encoding));
-				createFile(folder, unit.getElementName(), stream, this.force);
+				byte[] content = encoding == null ? this.source.getBytes() : this.source.getBytes(encoding);
+				createFile(folder, unit.getElementName(), content, this.force);
 				this.resultElements = new IJavaElement[] {unit};
 				if (!Util.isExcluded(unit)
 						&& unit.getParent().exists()) {
