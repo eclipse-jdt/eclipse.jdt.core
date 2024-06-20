@@ -21,7 +21,6 @@ import java.util.Collections;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 
 /**
@@ -56,7 +55,7 @@ public class BinaryFileOutputStream extends ByteArrayOutputStream {
 			contentsChanged = true;
 		}
 		if (contentsChanged) {
-			saveToDisk(newContent);
+			FileSystemUtil.saveToDisk(_file, newContent);
 		}
 
 		IFile parentFile = _env.getFile();
@@ -65,21 +64,4 @@ public class BinaryFileOutputStream extends ByteArrayOutputStream {
 			_env.addGeneratedNonSourceFile(_file);
 		}
 	}
-
-	private void saveToDisk(byte[] toSave) throws IOException{
-		try {
-			FileSystemUtil.makeDerivedParentFolders(_file.getParent());
-			_file.write(toSave, true, true, false, null);
-		} catch (CoreException ce) {
-			if (_file.exists()) {
-				// Do nothing. This is a case-insensitive file system mismatch,
-				// and the underlying platform has saved the contents already.
-			}
-			else {
-				AptPlugin.log(ce, "Could not create generated file"); //$NON-NLS-1$
-				throw new IOException(ce.getMessage(), ce);
-			}
-		}
-	}
-
 }

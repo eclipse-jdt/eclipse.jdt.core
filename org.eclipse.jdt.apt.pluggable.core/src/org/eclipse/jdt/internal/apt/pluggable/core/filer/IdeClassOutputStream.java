@@ -18,7 +18,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.apt.pluggable.core.Apt6Plugin;
@@ -50,7 +49,7 @@ public class IdeClassOutputStream  extends ByteArrayOutputStream
 
 		IBinaryType binaryType = null;
 		try {
-			saveToDisk(byteArray);
+			FileSystemUtil.saveToDisk(_file, byteArray);
 			binaryType = ClassFileReader.read(this._file.getLocation().toString());
 			char[][] splitOn = CharOperation.splitOn('/', binaryType.getName());
 			ReferenceBinding type = compiler.lookupEnvironment.getType(splitOn);
@@ -65,21 +64,6 @@ public class IdeClassOutputStream  extends ByteArrayOutputStream
 			}
 		} catch(Exception ex) {
 			Apt6Plugin.log(ex, "Could not create generated class file " + _file.getName()); //$NON-NLS-1$
-		}
-	}
-
-	private void saveToDisk(byte[] toSave) throws IOException{
-		try {
-			FileSystemUtil.makeDerivedParentFolders(_file.getParent());
-			_file.write(toSave, true, true, false, null);
-		} catch (CoreException ce) {
-			if (_file.exists()) {
-				// Do nothing. This is a case-insensitive file system mismatch,
-				// and the underlying platform has saved the contents already.
-			} else {
-				Apt6Plugin.log(ce, "Could not create generated class file " + _file.getName()); //$NON-NLS-1$
-				throw new IOException(ce);
-			}
 		}
 	}
 }

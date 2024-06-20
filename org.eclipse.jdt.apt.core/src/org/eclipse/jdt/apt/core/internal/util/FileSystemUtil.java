@@ -123,6 +123,21 @@ public final class FileSystemUtil
 			container.setDerived(true, null);
 		}
     }
+    public static void saveToDisk(IFile file, byte[] toSave) throws IOException{
+		try {
+			FileSystemUtil.makeDerivedParentFolders(file.getParent());
+			file.write(toSave, true, true, false, null);
+		} catch (CoreException ce) {
+			if (file.exists()) {
+				// Do nothing. This is a case-insensitive file system mismatch,
+				// and the underlying platform has saved the contents already.
+			}
+			else {
+				AptPlugin.log(ce, "Could not create generated file"); //$NON-NLS-1$
+				throw new IOException(ce.getMessage(), ce);
+			}
+		}
+	}
 
     /**
      * Returns the contents of a IFile as a string in UTF8 format

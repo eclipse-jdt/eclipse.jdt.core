@@ -23,7 +23,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.internal.env.BinaryFileOutputStream;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
-import org.eclipse.jdt.internal.apt.pluggable.core.Apt6Plugin;
 import org.eclipse.jdt.internal.apt.pluggable.core.dispatch.IdeProcessingEnvImpl;
 
 /**
@@ -58,7 +57,7 @@ public class IdeNonSourceOutputStream  extends ByteArrayOutputStream
 			contentsChanged = true;
 		}
 		if (contentsChanged) {
-			saveToDisk(newContent);
+			FileSystemUtil.saveToDisk(_file, newContent);
 		}
 
 		// If there are no parents, we don't need to track dependencies
@@ -67,22 +66,4 @@ public class IdeNonSourceOutputStream  extends ByteArrayOutputStream
 			_env.addNewResource(_file);
 		}
 	}
-
-	private void saveToDisk(byte[] toSave) throws IOException{
-		try {
-			FileSystemUtil.makeDerivedParentFolders(_file.getParent());
-			_file.write(toSave, true, true, false, null);
-		}
-		catch (CoreException ce) {
-			if (_file.exists()) {
-				// Do nothing. This is a case-insensitive file system mismatch,
-				// and the underlying platform has saved the contents already.
-			}
-			else {
-				Apt6Plugin.log(ce, "Could not create generated non-Java file " + _file.getName()); //$NON-NLS-1$
-				throw new IOException(ce);
-			}
-		}
-	}
-
 }
