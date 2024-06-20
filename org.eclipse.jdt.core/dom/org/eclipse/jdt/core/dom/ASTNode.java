@@ -1107,6 +1107,14 @@ public abstract class ASTNode {
 	public static final int UNNAMED_CLASS = 118;
 
 	/**
+	 * Node type constant indicating a node of type
+	 * <code>EitherOrMultiPattern</code>.
+	 * @since 3.39
+	 * @noreference This field is not intended to be referenced by clients.
+	 */
+	public static final int NULL_TYPE = 119;
+
+	/**
 	 * Returns the node class for the corresponding node type.
 	 *
 	 * @param nodeType AST node type
@@ -1244,6 +1252,8 @@ public abstract class ASTNode {
 				return NullLiteral.class;
 			case NULL_PATTERN :
 				return NullPattern.class;
+			case NULL_TYPE :
+				return NullType.class;
 			case NUMBER_LITERAL :
 				return NumberLiteral.class;
 			case OPENS_DIRECTIVE :

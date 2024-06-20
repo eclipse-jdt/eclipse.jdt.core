@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -9605,7 +9605,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ASTNode.STRING_FRAGMENT,
 			ASTNode.STRING_TEMPLATE_COMPONENT,
 			ASTNode.EitherOr_MultiPattern,
-			ASTNode.UNNAMED_CLASS
+			ASTNode.UNNAMED_CLASS,
+			ASTNode.NULL_TYPE
 		};
 
 		// assert that nodeType values are correct:

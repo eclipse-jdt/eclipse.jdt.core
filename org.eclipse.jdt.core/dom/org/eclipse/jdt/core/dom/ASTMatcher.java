@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1784,6 +1784,28 @@ public class ASTMatcher {
 	 */
 	public boolean match(NullLiteral node, Object other) {
 		if (!(other instanceof NullLiteral)) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Returns whether the given node and the other object match.
+	 * <p>
+	 * The default implementation provided by this class tests whether the
+	 * other object is a node of the same type with structurally isomorphic
+	 * child subtrees. Subclasses may override this method as needed.
+	 * </p>
+	 *
+	 * @param node the node
+	 * @param other the other object, or <code>null</code>
+	 * @return <code>true</code> if the subtree matches, or
+	 *   <code>false</code> if they do not match or the other object has a
+	 *   different node type or is <code>null</code>
+	 *  @since 3.39
+	 */
+	public boolean match(NullType node, Object other) {
+		if (!(other instanceof NullType)) {
 			return false;
 		}
 		return true;

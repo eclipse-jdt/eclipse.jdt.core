@@ -14,7 +14,7 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.util.List;
-import junit.framework.Test;
+
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -42,6 +42,8 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TypePattern;
+
+import junit.framework.Test;
 
 public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 	ICompilationUnit workingCopy;
@@ -387,6 +389,6 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 		TypePattern typePattern = (TypePattern) recordPattern.patterns().get(1);
 		SingleVariableDeclaration single = (SingleVariableDeclaration) typePattern.getPatternVariable();
 		assertEquals("SingleVariableDecleration name", single.getName().getIdentifier(), "_");
-		assertEquals("SingleVariableDecleration type", single.getType(), null);
+		assertEquals("SingleVariableDecleration type", single.getType().getNodeType(), this.ast.newNullType().getNodeType());
 	}
 }

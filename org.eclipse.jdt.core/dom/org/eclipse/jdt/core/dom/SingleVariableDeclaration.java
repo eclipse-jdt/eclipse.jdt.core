@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -500,15 +500,18 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */
 	public Type getType() {
 		if (this.type == null) {
-			//if it is an unnamed patterns
-			if(this.variableName != null && this.variableName.getIdentifier().equals("_")) { //$NON-NLS-1$
-				return this.type;
-			}
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
 				if (this.type == null) {
 					preLazyInit();
-					this.type = postLazyInit(this.ast.newPrimitiveType(PrimitiveType.INT), TYPE_PROPERTY);
+					//if it is an unnamed patterns
+					if(this.variableName != null && this.variableName.getIdentifier().equals("_")) { //$NON-NLS-1$
+						NullType nullType = this.ast.newNullType();
+						nullType.setSourceRange(this.variableName.getStartPosition(), 0);
+						this.type = postLazyInit(nullType, TYPE_PROPERTY);
+					} else {
+						this.type = postLazyInit(this.ast.newPrimitiveType(PrimitiveType.INT), TYPE_PROPERTY);
+					}
 				}
 			}
 		}
