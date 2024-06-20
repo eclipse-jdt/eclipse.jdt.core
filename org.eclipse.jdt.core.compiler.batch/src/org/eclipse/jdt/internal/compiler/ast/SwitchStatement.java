@@ -1247,13 +1247,13 @@ public class SwitchStatement extends Expression {
 			}
 			reportMixingCaseTypes();
 
-			// check default case for all kinds of switch:
+			// check default case for non-enum switch:
 			boolean flagged = checkAndFlagDefaultSealed(upperScope, compilerOptions);
 			if (!flagged && this.defaultCase == null) {
 				if (ignoreMissingDefaultCase(compilerOptions, isEnumSwitch) && isEnumSwitch) {
 						upperScope.methodScope().hasMissingSwitchDefault = true;
 				} else {
-					if (!isExhaustive()) {
+					if (!isEnumSwitch && !isExhaustive()) {
 						if (isEnhanced)
 							upperScope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
 						else
@@ -1261,19 +1261,18 @@ public class SwitchStatement extends Expression {
 					}
 				}
 			}
-			// for enum switch, check if all constants are accounted for (perhaps depending on existence of a default case)
+			// Exhaustiveness check for enum switch
 			if (isEnumSwitch && compilerOptions.complianceLevel >= ClassFileConstants.JDK1_5) {
 				if (this.defaultCase == null || compilerOptions.reportMissingEnumCaseDespiteDefault) {
-					int constantCount = this.otherConstants == null ? 0 : this.otherConstants.length; // could be null if no case statement
-					// The previous computation of exhaustiveness by comparing the size of cases to the enum fields
-					// no longer holds true when we throw in a pattern expression to the mix.
-					// And if there is a total pattern, then we don't have to check further.
+					int constantCount = this.otherConstants == null ? 0 : this.otherConstants.length;
+					if (isEnhanced)
+						this.switchBits |= SwitchStatement.Exhaustive; // negated below if found otherwise
 					if (!((this.switchBits & TotalPattern) != 0) &&
 							((this.containsPatterns || this.containsNull) ||
 							(constantCount >= this.caseCount &&
 							constantCount != ((ReferenceBinding)expressionType).enumConstantCount()))) {
-						FieldBinding[] enumFields = ((ReferenceBinding)expressionType.erasure()).fields();
-						for (int i = 0, max = enumFields.length; i <max; i++) {
+						FieldBinding[] enumFields = ((ReferenceBinding) expressionType.erasure()).fields();
+						for (int i = 0, max = enumFields.length; i < max; i++) {
 							FieldBinding enumConstant = enumFields[i];
 							if ((enumConstant.modifiers & ClassFileConstants.AccEnum) == 0) continue;
 							findConstant : {
@@ -1281,7 +1280,7 @@ public class SwitchStatement extends Expression {
 									if ((enumConstant.id + 1) == this.otherConstants[j].c.intValue()) // zero should not be returned see bug 141810
 										break findConstant;
 								}
-								this.switchBits &= ~(1 << SwitchStatement.Exhaustive);
+								this.switchBits &= ~SwitchStatement.Exhaustive;
 								// enum constant did not get referenced from switch
 								boolean suppress = (this.defaultCase != null && (this.defaultCase.bits & DocumentedCasesOmitted) != 0);
 								if (!suppress) {
@@ -1292,6 +1291,13 @@ public class SwitchStatement extends Expression {
 								}
 							}
 						}
+					}
+				}
+				if (this.defaultCase == null) {
+					if (ignoreMissingDefaultCase(compilerOptions, isEnumSwitch)) {
+						upperScope.methodScope().hasMissingSwitchDefault = true;
+					} else {
+						upperScope.problemReporter().missingDefaultCase(this, isEnumSwitch, expressionType);
 					}
 				}
 			}
