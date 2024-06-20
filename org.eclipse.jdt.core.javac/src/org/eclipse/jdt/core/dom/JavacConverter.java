@@ -347,6 +347,7 @@ class JavacConverter {
 	void commonSettings(ASTNode res, JCTree javac) {
 		if( javac != null ) {
 			int start = javac.getStartPosition();
+			int length = -1;
 			if (start >= 0) {
 				int endPos = javac.getEndPosition(this.javacCompilationUnit.endPositions);
 				if( endPos < 0 ) {
@@ -358,10 +359,20 @@ class JavacConverter {
 						endPos--;
 					}
 				}
-				int length = endPos - start;
+				length = endPos - start;
 				if (start + Math.max(0, length) > this.rawText.length()) {
 					length = this.rawText.length() - start;
 				}
+				res.setSourceRange(start, Math.max(0, length));
+			}
+			commonSettings(res, javac, length);
+		}
+	}
+
+	void commonSettings(ASTNode res, JCTree javac, int length) {
+		if( javac != null ) {
+			if (length >= 0) {
+				int start = javac.getStartPosition();
 				res.setSourceRange(start, Math.max(0, length));
 			}
 			this.domToJavac.put(res, javac);
@@ -1835,6 +1846,25 @@ class JavacConverter {
 		}
 		return elem;
 	}
+	
+	private int countDimensions(JCTree tree) {
+		JCTree elem = tree;
+		int count = 0;
+		boolean done = false;
+		while (!done) {
+			if (elem instanceof JCArrayTypeTree arrayTree) {
+				elem = arrayTree.getType();
+				count++;
+			} else if (elem instanceof JCAnnotatedType annotated && annotated.getUnderlyingType() instanceof JCArrayTypeTree arrayType) {
+				elem = arrayType.getType();
+				count++;
+			} else {
+				done = true;
+			}
+		}
+		return count;
+	}
+
 
 	private SuperMethodInvocation convertSuperMethodInvocation(JCMethodInvocation javac) {
 		SuperMethodInvocation res = this.ast.newSuperMethodInvocation();
@@ -2507,10 +2537,29 @@ class JavacConverter {
 			if (t instanceof ArrayType childArrayType && this.ast.apiLevel > AST.JLS4_INTERNAL) {
 				res = childArrayType;
 				res.dimensions().addFirst(this.ast.newDimension());
+				commonSettings(res, jcArrayType.getType());
 			} else {
+				JCTree innerType = jcArrayType.getType();
+				int dims = countDimensions(jcArrayType);
 				res = this.ast.newArrayType(t);
+				if( dims == 0 ) {
+					commonSettings(res, jcArrayType);
+				} else {
+					int endPos = jcArrayType.getEndPosition(this.javacCompilationUnit.endPositions);
+					int startPos = jcArrayType.getStartPosition();
+					try {
+						String raw = this.rawText.substring(startPos, endPos);
+						int ordinal = ordinalIndexOf(raw, "]", dims); 
+						if( ordinal != -1 ) {
+							int indOf = ordinal + 1;
+							commonSettings(res, jcArrayType, indOf);
+							return res;
+						}
+					} catch( Throwable tErr) {
+					}
+					commonSettings(res, jcArrayType);
+				}
 			}
-			commonSettings(res, javac);
 			return res;
 		}
 		if (javac instanceof JCTypeApply jcTypeApply) {
@@ -2595,7 +2644,12 @@ class JavacConverter {
 		}
 		throw new UnsupportedOperationException("Not supported yet, type " + javac + " of class" + javac.getClass());
 	}
-
+	public static int ordinalIndexOf(String str, String substr, int n) {
+	    int pos = str.indexOf(substr);
+	    while (--n > 0 && pos != -1)
+	        pos = str.indexOf(substr, pos + 1);
+	    return pos;
+	}
 	private Code convert(TypeKind javac) {
 		return switch(javac) {
 			case BOOLEAN -> PrimitiveType.BOOLEAN;
