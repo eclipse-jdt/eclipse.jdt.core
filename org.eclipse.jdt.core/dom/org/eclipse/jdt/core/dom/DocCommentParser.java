@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2022 IBM Corporation and others.
+ * Copyright (c) 2004, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1290,6 +1290,29 @@ class DocCommentParser extends AbstractCommentParser {
 		}
 	}
 
+	@Override
+	protected void addFragmentToInlineReturn() {
+		TagElement currTag= (TagElement) this.astStack[this.astPtr];
+		List fragments= currTag.fragments();
+		int size= fragments.size();
+		if (size > 1) {
+			ASTNode lastNode= (ASTNode) fragments.get(size - 1);
+			if (lastNode instanceof TagElement lastTag) {
+				if (!lastTag.getTagName().equals(TagElement.TAG_RETURN)) {
+					ASTNode secondLastNode= (ASTNode) fragments.get(size - 2);
+					if (secondLastNode instanceof TagElement prevTag && prevTag.getTagName().equals(TagElement.TAG_RETURN)) {
+						fragments.remove(size - 1);
+						prevTag.fragments().add(lastNode);
+						this.inlineTagStart= prevTag.getStartPosition();
+						this.inlineTagStarted= true;
+						prevTag.setSourceRange(prevTag.getStartPosition(), lastNode.getStartPosition() + lastNode.getLength() - prevTag.getStartPosition());
+					}
+				} else {
+					this.inlineReturn= false;
+				}
+			}
+		}
+	}
 	/*
 	 * Add stored tag elements to associated comment.
 	 */

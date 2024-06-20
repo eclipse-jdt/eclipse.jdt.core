@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -90,6 +90,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	// Flags
 	protected boolean lineStarted = false;
 	protected boolean inlineTagStarted = false;
+	protected boolean inlineReturn= false;
 	protected boolean abort = false;
 	protected int kind;
 	protected int tagValue = NO_TAG_VALUE;
@@ -251,7 +252,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								openingBraces = 0;
 							}
 						} else if ((!this.lineStarted || previousChar == '{') || lookForTagsInSnippets()) {
-							if (this.inlineTagStarted) {
+							if (this.inlineTagStarted && !this.inlineReturn) {
 								setInlineTagStarted(false);
 								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
 								// Cannot have @ inside inline comment
@@ -352,6 +353,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							if (!isFormatterParser && !considerTagAsPlainText)
 								this.textStart = this.index;
 							setInlineTagStarted(false);
+							if (this.inlineReturn) {
+								addFragmentToInlineReturn();
+							}
 						} else {
 							if (!this.lineStarted) {
 								this.textStart = previousPosition;
@@ -368,15 +372,18 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						if (considerTagAsPlainText) {
 							openingBraces++;
 						} else if (this.inlineTagStarted) {
-							setInlineTagStarted(false);
-							// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
-							// Cannot have opening brace in inline comment
-							if (this.reportProblems) {
-								int end = previousPosition<invalidInlineTagLineEnd ? previousPosition : invalidInlineTagLineEnd;
-								this.sourceParser.problemReporter().javadocUnterminatedInlineTag(this.inlineTagStart, end);
+							if (this.tagValue == TAG_RETURN_VALUE) {
+								this.inlineReturn= true;
 							}
 							if (this.lineStarted && this.textStart != -1 && this.textStart < textEndPosition) {
 								pushText(this.textStart, textEndPosition);
+							}
+							setInlineTagStarted(false);
+							// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
+							// Cannot have opening brace in inline comment
+							if (this.reportProblems && !this.inlineReturn || peekChar() != '@') {
+								int end = previousPosition<invalidInlineTagLineEnd ? previousPosition : invalidInlineTagLineEnd;
+								this.sourceParser.problemReporter().javadocUnterminatedInlineTag(this.inlineTagStart, end);
 							}
 							refreshInlineTagPosition(textEndPosition);
 							textEndPosition = this.index;
@@ -384,7 +391,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							if (this.textStart == -1) this.textStart = previousPosition;
 							textEndPosition = this.index;
 						}
-						if (!this.lineStarted) {
+						if (!this.lineStarted && !this.inlineReturn) {
 							this.textStart = previousPosition;
 						}
 						this.lineStarted = true;
@@ -479,6 +486,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			validComment = false;
 		}
 		return validComment;
+	}
+
+	protected void addFragmentToInlineReturn() {
+		// do nothing
 	}
 
 	protected void consumeToken() {
