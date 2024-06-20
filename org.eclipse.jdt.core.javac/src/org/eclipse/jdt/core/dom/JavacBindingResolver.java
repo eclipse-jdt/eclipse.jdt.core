@@ -42,9 +42,11 @@ import com.sun.tools.javac.code.Symbol.PackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type.JCPrimitiveType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.ModuleType;
 import com.sun.tools.javac.code.Type.PackageType;
+import com.sun.tools.javac.code.TypeTag;
 import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
@@ -55,6 +57,7 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCLambda;
+import com.sun.tools.javac.tree.JCTree.JCLiteral;
 import com.sun.tools.javac.tree.JCTree.JCMemberReference;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
@@ -635,6 +638,14 @@ public class JavacBindingResolver extends BindingResolver {
 		if (jcTree instanceof JCTypeCast jcCast && jcCast.getType() != null) {
 			return this.bindings.getTypeBinding(jcCast.getType().type);
 		}
+		if (jcTree instanceof JCLiteral jcLiteral && jcLiteral.type.isErroneous()) {
+			if (jcLiteral.typetag == TypeTag.CLASS) {
+				return resolveWellKnownType("java.lang.String");
+			} else if (jcLiteral.typetag == TypeTag.BOT) {
+				return this.bindings.getTypeBinding(com.sun.tools.javac.code.Symtab.instance(this.context).botType);
+			}
+			return resolveWellKnownType(jcLiteral.typetag.name().toLowerCase());
+		}
 		if (jcTree instanceof JCExpression jcExpr) {
 			if (jcExpr.type instanceof PackageType) {
 				return null;
@@ -847,7 +858,7 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 		return null;
 	}
-	
+
 	@Override
 	IBinding resolveReference(MethodRef ref) {
 		resolve();
