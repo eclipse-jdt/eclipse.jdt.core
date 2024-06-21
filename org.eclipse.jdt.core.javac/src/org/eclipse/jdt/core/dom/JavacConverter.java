@@ -2198,8 +2198,9 @@ class JavacConverter {
 			return res;
 		}
 		if (javac instanceof JCCase jcCase) {
+
 			SwitchCase res = this.ast.newSwitchCase();
-			commonSettings(res, javac);
+			commonSettings(res, jcCase);
 			if( this.ast.apiLevel >= AST.JLS14_INTERNAL) {
 				if (jcCase.getGuard() != null && (jcCase.getLabels().size() > 1 || jcCase.getLabels().get(0) instanceof JCPatternCaseLabel)) {
 					GuardedPattern guardedPattern = this.ast.newGuardedPattern();
@@ -2235,10 +2236,22 @@ class JavacConverter {
 					guardedPattern.setSourceRange(start, end - start);
 					res.expressions().add(guardedPattern);
 				} else {
+					// Override length to just be `case blah:`
+					int start1 = res.getStartPosition();
+					int colon = this.rawText.indexOf(":", start1);
+					if( colon != -1 ) {
+						res.setSourceRange(start1, colon - start1 + 1);
+					}
 					jcCase.getExpressions().stream().map(this::convertExpression).forEach(res.expressions()::add);
 				}
 				res.setSwitchLabeledRule(jcCase.getCaseKind() == CaseKind.RULE);
 			} else {
+				// Override length to just be `case blah:`
+				int start1 = res.getStartPosition();
+				int colon = this.rawText.indexOf(":", start1);
+				if( colon != -1 ) {
+					res.setSourceRange(start1, colon - start1 + 1);
+				}
 				List<JCExpression> l = jcCase.getExpressions();
 				if( l.size() == 1 ) {
 					res.setExpression(convertExpression(l.get(0)));
@@ -2325,6 +2338,11 @@ class JavacConverter {
 			return res;
 		}
 		throw new UnsupportedOperationException("Missing support to convert " + javac + "of type " + javac.getClass().getName());
+	}
+
+	private Statement convertSwitchCase(JCCase jcCase) {
+		// TODO
+		return null;
 	}
 
 	private Expression convertStatementToExpression(JCStatement javac, ASTNode parent) {
