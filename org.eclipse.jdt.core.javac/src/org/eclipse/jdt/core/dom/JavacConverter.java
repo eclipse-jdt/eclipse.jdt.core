@@ -812,6 +812,10 @@ class JavacConverter {
 			} else {
 				res.internalSetReturnType(retType);
 			}
+		} else {
+			if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
+				res.setReturnType2(null);
+			}
 		}
 
 		if( !isCompactConstructor) {
