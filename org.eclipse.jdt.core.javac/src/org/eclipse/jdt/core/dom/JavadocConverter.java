@@ -253,6 +253,7 @@ class JavadocConverter {
 			int start = parentOffset + javac.getStartPosition();
 			int length = javac.toString().length();
 			dom.setSourceRange(start, Math.max(0,length));
+			this.javacConverter.domToJavac.put(dom, javac);
 		});
 		// We need to clean all the sub-names
 		if( n instanceof QualifiedName qn ) {
@@ -389,14 +390,17 @@ class JavadocConverter {
 					return Stream.of(res);
 				}
 			} else if (!signature.contains("#")) {
-				Name res = this.ast.newName(signature);
-				res.setSourceRange(this.docComment.getSourcePosition(javac.getStartPosition()), signature.length());
-				res.accept(new ASTVisitor() {
-					@Override
-					public void preVisit(ASTNode node) {
-						JavadocConverter.this.converted.put(node, DocTreePath.getPath(JavadocConverter.this.contextTreePath, JavadocConverter.this.docComment, reference));
-					}
+				Name res = this.javacConverter.toName(reference.qualifierExpression, (dom, javacNode) -> {
+					int startPosition = this.docComment.getSourcePosition(reference.getPreferredPosition()) + javacNode.getStartPosition();
+					dom.setSourceRange(startPosition, dom.getLength());
+					this.converted.put(dom, DocTreePath.getPath(this.contextTreePath, this.docComment, javac));
 				});
+//				res.accept(new ASTVisitor() {
+//					@Override
+//					public void preVisit(ASTNode node) {
+//						JavadocConverter.this.converted.put(node, DocTreePath.getPath(JavadocConverter.this.contextTreePath, JavadocConverter.this.docComment, reference));
+//					}
+//				});
 				return Stream.of(res);
 			}
 		} else if (javac instanceof DCStartElement || javac instanceof DCEndElement || javac instanceof DCEntity) {

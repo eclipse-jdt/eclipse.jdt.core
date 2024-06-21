@@ -386,6 +386,7 @@ class JavacConverter {
 	Name toName(JCTree expression, BiConsumer<ASTNode, JCTree> extraSettings ) {
 		if (expression instanceof JCIdent ident) {
 			Name res = convertName(ident.getName());
+			commonSettings(res, expression);
 			extraSettings.accept(res, ident);
 			return res;
 		}
@@ -399,7 +400,7 @@ class JavacConverter {
 
 			Name qualifier = toName(faExpression, extraSettings);
 			QualifiedName res = this.ast.newQualifiedName(qualifier, n);
-			commonSettings(res, fieldAccess.getExpression());
+			commonSettings(res, fieldAccess);
 			extraSettings.accept(res, fieldAccess);
 			// don't calculate source range if the identifier is not valid.
 			if (!fieldAccess.getIdentifier().contentEquals(FAKE_IDENTIFIER)

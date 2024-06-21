@@ -518,15 +518,13 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree tree = this.converter.domToJavac.get(name);
 		if( tree != null ) {
-			return resolveNameToJavac(name, tree);
+			var res = resolveNameToJavac(name, tree);
+			if (res != null) {
+				return res;
+			}
 		}
 		DocTreePath path = this.converter.findDocTreePath(name);
 		if (path != null) {
-			if (JavacTrees.instance(this.context).getElement(path) instanceof Symbol symbol) {
-				return this.bindings.getBinding(symbol, null);
-			}
-			// try parent
-			path = path.getParentPath();
 			if (JavacTrees.instance(this.context).getElement(path) instanceof Symbol symbol) {
 				return this.bindings.getBinding(symbol, null);
 			}
@@ -543,6 +541,24 @@ public class JavacBindingResolver extends BindingResolver {
 			IBinding ret = resolveNameToJavac(name, tree);
 			return ret;
 		}
+//		if (name.getParent() instanceof MethodRef methodRef && methodRef.getQualifier() == name) {
+//			path = this.converter.findDocTreePath(methodRef);
+//			if (path != null) {
+//				if (JavacTrees.instance(this.context).getElement(path) instanceof Symbol symbol
+//						&& this.bindings.getBinding(symbol, null) instanceof IMethodBinding method) {
+//					return method.getDeclaringClass();
+//				}
+//			}
+//		}
+//		if (name.getParent() instanceof MethodRef methodRef && methodRef.getQualifier() == name) {
+//			path = this.converter.findDocTreePath(methodRef);
+//			if (path != null) {
+//				if (JavacTrees.instance(this.context).getElement(path) instanceof Symbol symbol
+//						&& this.bindings.getBinding(symbol, null) instanceof IMethodBinding method) {
+//					return method.getDeclaringClass();
+//				}
+//			}
+//		}
 		return null;
 	}
 
