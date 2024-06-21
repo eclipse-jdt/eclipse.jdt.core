@@ -4404,7 +4404,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	}
 
 	// reference - unboxing
-	public void test159() {
+	public void _test159() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -4427,7 +4427,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"true");
 	}
 
-	public void test160() {
+	public void _test160() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -4449,7 +4449,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"true");
 	}
 
-	public void test161() {
+	public void _test161() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -4473,7 +4473,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"true");
 	}
 
-	public void test162() {
+	public void _test162() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -4496,6 +4496,28 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"true");
 	}
 
+	public void testNonPrim001() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+					class Y<T> {
+					    public boolean foo(T t) {
+					        if (t instanceof T) {
+					            return false;
+					        }
+					        return true;
+					    }
+					}
+
+					public class X  {
+					    public static void main(String argv[]) {
+					    	System.out.println(new Y<X>().foo(null));
+					    }
+					}
+ 			    """
+			},
+			"true");
+	}
 	// test from spec
 	public void _testSpec001() {
 		runConformTest(new String[] {

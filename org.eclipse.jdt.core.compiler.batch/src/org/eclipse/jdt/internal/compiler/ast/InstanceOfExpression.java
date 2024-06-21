@@ -353,7 +353,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				} else if ((JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
 						scope.compilerOptions().sourceLevel,
 						scope.compilerOptions().enablePreviewFeatures))) {
-					checkForPrimitives(scope, checkedType, expressionType);
+					checkForPrimitives(scope, checkedType, expressionType, false);
 				}
 			}
 		}
@@ -362,14 +362,14 @@ public TypeBinding resolveType(BlockScope scope) {
 		if ((expressionType != TypeBinding.NULL && expressionType.isBaseType()) // disallow autoboxing
 				|| checkedType.isBaseType()
 				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null, true)) {
-			checkForPrimitives(scope, checkedType, expressionType);
+			checkForPrimitives(scope, checkedType, expressionType, true);
 		}
 	}
 
 	return this.resolvedType = TypeBinding.BOOLEAN;
 }
 
-private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeBinding expressionType) {
+private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeBinding expressionType, boolean flagError) {
 	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope);
 	this.testContextRecord = new TestContextRecord(checkedType, expressionType, route);
 
@@ -383,7 +383,8 @@ private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeB
 			|| route == PrimitiveConversionRoute.BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION) {
 		addSecretExpressionValue(scope, expressionType);
 	} else if (route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
-		scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
+		if (flagError)
+			scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
 	}
 }
 
