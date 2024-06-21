@@ -18,6 +18,7 @@ package org.eclipse.jdt.core.tests.builder;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,8 +43,11 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.IJavaProject;
@@ -56,6 +60,7 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.CompilerConfiguration;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.builder.AbstractImageBuilder;
+import org.osgi.framework.Bundle;
 
 /**
  * Basic tests of the image builder.
@@ -838,20 +843,35 @@ public class BasicBuildTests extends BuilderTests {
 		if (from.isDirectory()) {
 			copyDirectory(from.toPath(), to.toPath());
 		} else {
-			Files.copy(from.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			try {
+				Files.copy(from.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e) {
+				ILog.get().error("Failed to copy the file - " + from.getCanonicalPath(), e); //$NON-NLS-1$
+				throw e;
+			}
 		}
 
 		return to;
 	}
 
-	private File getSourceProjectDirectory() {
+	private File getSourceProjectDirectory() throws IOException {
 		final String pluginId = "org.eclipse.jdt.core.tests.builder";
-		String cwd = new File("").getAbsolutePath();
-		if (cwd.endsWith(pluginId)) {
-			return new File("resources"); // run from current test plugin
-		} else {
-			return new File("../" + pluginId + "/resources"); // run from other test plugin
+		return getFileFromPlugin(pluginId, "resources");
+	}
+
+	public static File getFileFromPlugin(String pluginId, String relativePath) throws IOException {
+		Bundle bundle = Platform.getBundle(pluginId);
+		if (bundle == null) {
+			throw new IOException("Plugin not found: " + pluginId);
 		}
+
+		URL fileURL = bundle.getEntry(relativePath);
+		if (fileURL == null) {
+			throw new IOException("File not found: " + relativePath);
+		}
+
+		URL resolvedFileURL = FileLocator.toFileURL(fileURL);
+		return new File(resolvedFileURL.getPath());
 	}
 
 	private File getWorkingProjectDirectory() throws IOException {
