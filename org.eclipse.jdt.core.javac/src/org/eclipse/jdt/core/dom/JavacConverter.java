@@ -2048,14 +2048,23 @@ class JavacConverter {
 		if (javac instanceof JCVariableDecl jcVariableDecl) {
 			VariableDeclarationFragment fragment = createVariableDeclarationFragment(jcVariableDecl);
 			List<ASTNode> sameStartPosition = new ArrayList<>();
-			if (parent instanceof Block decl && jcVariableDecl.vartype != null) {
+ 			if (parent instanceof Block decl && jcVariableDecl.vartype != null) {
 				decl.statements().stream().filter(x -> x instanceof VariableDeclarationStatement)
 				.filter(x -> ((VariableDeclarationStatement)x).getType().getStartPosition() == jcVariableDecl.vartype.getStartPosition())
 				.forEach(x -> sameStartPosition.add((ASTNode)x));
+			} else if( parent instanceof ForStatement decl && jcVariableDecl.vartype != null) {
+				// TODO somehow doubt this will work as expected
+				decl.initializers().stream().filter(x -> x instanceof VariableDeclarationExpression)
+				.filter(x -> ((VariableDeclarationExpression)x).getType().getStartPosition() == jcVariableDecl.vartype.getStartPosition())
+				.forEach(x -> sameStartPosition.add((ASTNode)x));
 			}
 			if( sameStartPosition.size() >= 1 ) {
-				VariableDeclarationStatement fd = (VariableDeclarationStatement)sameStartPosition.get(0);
-				if( fd != null ) {
+				Object obj0 = sameStartPosition.get(0);
+				if( obj0 instanceof VariableDeclarationStatement fd ) {
+					fd.fragments().add(fragment);
+					int newParentEnd = fragment.getStartPosition() + fragment.getLength();
+					fd.setSourceRange(fd.getStartPosition(), newParentEnd - fd.getStartPosition() + 1);
+				} else if( obj0 instanceof VariableDeclarationExpression fd ) {
 					fd.fragments().add(fragment);
 					int newParentEnd = fragment.getStartPosition() + fragment.getLength();
 					fd.setSourceRange(fd.getStartPosition(), newParentEnd - fd.getStartPosition() + 1);
@@ -2344,7 +2353,7 @@ class JavacConverter {
 			}
 			return jdtVariableDeclarationExpression;
 		}
-		throw new UnsupportedOperationException(javac + " of type" + javac.getClass());
+		return null;
 	}
 
 	private JCTree findBaseType(JCExpression vartype) {
