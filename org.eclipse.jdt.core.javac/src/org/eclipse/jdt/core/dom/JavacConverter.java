@@ -2198,69 +2198,7 @@ class JavacConverter {
 			return res;
 		}
 		if (javac instanceof JCCase jcCase) {
-
-			SwitchCase res = this.ast.newSwitchCase();
-			commonSettings(res, jcCase);
-			if( this.ast.apiLevel >= AST.JLS14_INTERNAL) {
-				if (jcCase.getGuard() != null && (jcCase.getLabels().size() > 1 || jcCase.getLabels().get(0) instanceof JCPatternCaseLabel)) {
-					GuardedPattern guardedPattern = this.ast.newGuardedPattern();
-					guardedPattern.setExpression(convertExpression(jcCase.getGuard()));
-					if (jcCase.getLabels().length() > 1) {
-						int start = Integer.MAX_VALUE;
-						int end = Integer.MIN_VALUE;
-						EitherOrMultiPattern eitherOrMultiPattern = this.ast.newEitherOrMultiPattern();
-						for (JCCaseLabel label : jcCase.getLabels()) {
-							if (label.pos < start) {
-								start = label.pos;
-							}
-							if (end < label.getEndPosition(this.javacCompilationUnit.endPositions)) {
-								end = label.getEndPosition(this.javacCompilationUnit.endPositions);
-							}
-							if (label instanceof JCPatternCaseLabel jcPattern) {
-								eitherOrMultiPattern.patterns().add(convert(jcPattern.getPattern()));
-							}
-							// skip over any constants, they are not valid anyways
-						}
-						eitherOrMultiPattern.setSourceRange(start, end - start);
-						guardedPattern.setPattern(eitherOrMultiPattern);
-					} else if (jcCase.getLabels().length() == 1) {
-						if (jcCase.getLabels().get(0) instanceof JCPatternCaseLabel jcPattern) {
-							guardedPattern.setPattern(convert(jcPattern.getPattern()));
-						} else {
-							// see same above note regarding guarded case labels using constants
-							throw new UnsupportedOperationException("cannot convert case label: " + jcCase.getLabels().get(0));
-						}
-					}
-					int start = guardedPattern.getPattern().getStartPosition();
-					int end = guardedPattern.getExpression().getStartPosition() + guardedPattern.getExpression().getLength();
-					guardedPattern.setSourceRange(start, end - start);
-					res.expressions().add(guardedPattern);
-				} else {
-					// Override length to just be `case blah:`
-					int start1 = res.getStartPosition();
-					int colon = this.rawText.indexOf(":", start1);
-					if( colon != -1 ) {
-						res.setSourceRange(start1, colon - start1 + 1);
-					}
-					jcCase.getExpressions().stream().map(this::convertExpression).forEach(res.expressions()::add);
-				}
-				res.setSwitchLabeledRule(jcCase.getCaseKind() == CaseKind.RULE);
-			} else {
-				// Override length to just be `case blah:`
-				int start1 = res.getStartPosition();
-				int colon = this.rawText.indexOf(":", start1);
-				if( colon != -1 ) {
-					res.setSourceRange(start1, colon - start1 + 1);
-				}
-				List<JCExpression> l = jcCase.getExpressions();
-				if( l.size() == 1 ) {
-					res.setExpression(convertExpression(l.get(0)));
-				} else if( l.size() == 0 ) {
-					res.setExpression(null);
-				}
-			}
-			// jcCase.getStatements is processed as part of JCSwitch conversion
-			return res;
+			return convertSwitchCase(jcCase);
 		}
 		if (javac instanceof JCWhileLoop jcWhile) {
 			WhileStatement res = this.ast.newWhileStatement();
@@ -2341,8 +2279,68 @@ class JavacConverter {
 	}
 
 	private Statement convertSwitchCase(JCCase jcCase) {
-		// TODO
-		return null;
+		SwitchCase res = this.ast.newSwitchCase();
+		commonSettings(res, jcCase);
+		if( this.ast.apiLevel >= AST.JLS14_INTERNAL) {
+			if (jcCase.getGuard() != null && (jcCase.getLabels().size() > 1 || jcCase.getLabels().get(0) instanceof JCPatternCaseLabel)) {
+				GuardedPattern guardedPattern = this.ast.newGuardedPattern();
+				guardedPattern.setExpression(convertExpression(jcCase.getGuard()));
+				if (jcCase.getLabels().length() > 1) {
+					int start = Integer.MAX_VALUE;
+					int end = Integer.MIN_VALUE;
+					EitherOrMultiPattern eitherOrMultiPattern = this.ast.newEitherOrMultiPattern();
+					for (JCCaseLabel label : jcCase.getLabels()) {
+						if (label.pos < start) {
+							start = label.pos;
+						}
+						if (end < label.getEndPosition(this.javacCompilationUnit.endPositions)) {
+							end = label.getEndPosition(this.javacCompilationUnit.endPositions);
+						}
+						if (label instanceof JCPatternCaseLabel jcPattern) {
+							eitherOrMultiPattern.patterns().add(convert(jcPattern.getPattern()));
+						}
+						// skip over any constants, they are not valid anyways
+					}
+					eitherOrMultiPattern.setSourceRange(start, end - start);
+					guardedPattern.setPattern(eitherOrMultiPattern);
+				} else if (jcCase.getLabels().length() == 1) {
+					if (jcCase.getLabels().get(0) instanceof JCPatternCaseLabel jcPattern) {
+						guardedPattern.setPattern(convert(jcPattern.getPattern()));
+					} else {
+						// see same above note regarding guarded case labels using constants
+						throw new UnsupportedOperationException("cannot convert case label: " + jcCase.getLabels().get(0));
+					}
+				}
+				int start = guardedPattern.getPattern().getStartPosition();
+				int end = guardedPattern.getExpression().getStartPosition() + guardedPattern.getExpression().getLength();
+				guardedPattern.setSourceRange(start, end - start);
+				res.expressions().add(guardedPattern);
+			} else {
+				// Override length to just be `case blah:`
+				int start1 = res.getStartPosition();
+				int colon = this.rawText.indexOf(":", start1);
+				if( colon != -1 ) {
+					res.setSourceRange(start1, colon - start1 + 1);
+				}
+				jcCase.getExpressions().stream().map(this::convertExpression).forEach(res.expressions()::add);
+			}
+			res.setSwitchLabeledRule(jcCase.getCaseKind() == CaseKind.RULE);
+		} else {
+			// Override length to just be `case blah:`
+			int start1 = res.getStartPosition();
+			int colon = this.rawText.indexOf(":", start1);
+			if( colon != -1 ) {
+				res.setSourceRange(start1, colon - start1 + 1);
+			}
+			List<JCExpression> l = jcCase.getExpressions();
+			if( l.size() == 1 ) {
+				res.setExpression(convertExpression(l.get(0)));
+			} else if( l.size() == 0 ) {
+				res.setExpression(null);
+			}
+		}
+		// jcCase.getStatements is processed as part of JCSwitch conversion
+		return res;
 	}
 
 	private Expression convertStatementToExpression(JCStatement javac, ASTNode parent) {
