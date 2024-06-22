@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 @SuppressWarnings({ "rawtypes" })
 public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 	static {
+//		TESTS_NAMES = new String[] { "testGH2625" };
 	}
 
 	public static Test suite() {
@@ -462,6 +463,33 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 				"public class Usage {\n" +
 				"    C c;\n" +
 				"}"
+			},
+			"",
+			libs,
+			false,
+			null
+		);
+	}
+
+	public void testGH2625() {
+		String[] libs = getDefaultClassPaths();
+		int len = libs.length;
+		System.arraycopy(libs, 0, libs = new String[len+1], 0, len);
+		// in this jar the num_parameters field of RuntimeInvisibleParameterAnnotations has been manually set to 2
+		// (annotations on the 3-arg method a(Function,Object,long)):
+		libs[libs.length-1] = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "TestGH2625.jar";
+
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"""
+				import a.A;
+				public class Test {
+					void test(A a) {
+						a.m(null, null, 0L);
+					}
+				}
+				"""
 			},
 			"",
 			libs,
