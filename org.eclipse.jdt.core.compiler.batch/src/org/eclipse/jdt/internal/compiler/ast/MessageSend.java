@@ -136,6 +136,7 @@ public class MessageSend extends Expression implements IPolyExpression, Invocati
 	public TypeReference[] typeArguments;
 	public TypeBinding[] genericTypeArguments;
 	public ExpressionContext expressionContext = VANILLA_CONTEXT;
+	public boolean isReceiver = false;
 
 	 // hold on to this context from invocation applicability inference until invocation type inference (per method candidate):
 	private SimpleLookupTable/*<PGMB,InferenceContext18>*/ inferenceContexts;
@@ -811,6 +812,9 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (this.receiver instanceof CastExpression) {
 			this.receiver.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
 		}
+		if (this.receiver instanceof MessageSend) {
+			((MessageSend) this.receiver).isReceiver = true;
+		}
 		this.actualReceiverType = this.receiver.resolveType(scope);
 		if (this.actualReceiverType instanceof InferenceVariable) {
 				return null; // not yet ready for resolving
@@ -1113,6 +1117,10 @@ protected boolean isUnnecessaryReceiverCast(BlockScope scope, TypeBinding uncast
 }
 
 protected boolean isMissingTypeRelevant() {
+	if (this.expressionContext == ExpressionContext.VANILLA_CONTEXT && !this.isReceiver) {
+		if (this.binding.collectMissingTypes(null, false) == null)
+			return false; // only irrelevant return type is missing
+	}
 	if ((this.binding.returnType.tagBits & TagBits.HasMissingType) == 0
 			&& this.binding.isVarargs()) {
 		if (this.arguments.length < this.binding.parameters.length) {

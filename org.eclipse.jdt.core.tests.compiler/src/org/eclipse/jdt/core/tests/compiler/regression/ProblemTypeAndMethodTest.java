@@ -486,8 +486,9 @@ public void test005() {
 			"public class X {\n" +
 			"	void foo() {\n" +
 			"		p.OtherFoo ofoo = new p.OtherFoo();\n" +
-			"		ofoo.bar();\n" +
+			"		Object o = ofoo.bar();\n" +
 			"		q1.q2.Zork z;\n" +
+			"		ofoo.bar();\n" + // not a problem
 			"	}\n" +
 			"}	\n",
 		},
@@ -497,8 +498,8 @@ public void test005() {
 		// compiler results
 		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 4)\n" +
-		"	ofoo.bar();\n" +
-		"	     ^^^\n" +
+		"	Object o = ofoo.bar();\n" +
+		"	                ^^^\n" +
 		"The method bar() from the type OtherFoo refers to the missing type Zork\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 5)\n" +
@@ -559,12 +560,7 @@ public void test006() {
 		"	       ^^\n" +
 		"The import q1 cannot be resolved\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	ofoo.bar();\n" +
-		"	     ^^^\n" +
-		"The method bar() from the type OtherFoo refers to the missing type Zork\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 6)\n" +
+		"2. ERROR in X.java (at line 6)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
@@ -607,7 +603,7 @@ public void test007() {
 			"public class X {\n" +
 			"	void foo() {\n" +
 			"		p.OtherFoo ofoo = new p.OtherFoo();\n" +
-			"		ofoo.bar();\n" +
+			"		Object o = ofoo.bar();\n" +
 			"		Zork z;\n" +
 			"	}\n" +
 			"}	\n",
@@ -623,8 +619,8 @@ public void test007() {
 		"The import q1 cannot be resolved\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 5)\n" +
-		"	ofoo.bar();\n" +
-		"	     ^^^\n" +
+		"	Object o = ofoo.bar();\n" +
+		"	                ^^^\n" +
 		"The method bar() from the type OtherFoo refers to the missing type Zork\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 6)\n" +
@@ -3439,8 +3435,8 @@ public void test074() {
 				"The method bar1() from the type X refers to the missing type Zork\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 5)\n" +
-				"	bar2();\n" +
-				"	^^^^\n" +
+				"	Object o = bar2();\n" +
+				"	           ^^^^\n" +
 				"The method bar2() from the type X refers to the missing type Zork\n" +
 				"----------\n" +
 				"3. ERROR in X.java (at line 6)\n" +
@@ -3481,7 +3477,7 @@ public void test074() {
 				"public class X {\n" +
 				"	void foo() {\n" +
 				"		bar1().foo();\n" +
-				"		bar2();\n" +
+				"		Object o = bar2();\n" +
 				"		bar3(null);\n" +
 				"		bar4(null,null);\n" +
 				"	}\n" +
@@ -9315,6 +9311,136 @@ public void testMissingClassNeededForOverloadResolution_varargs3() {
 				b.m(this, "");	// two overloads could apply (not knowing A)
 				  ^
 			The method m(A, String...) from the type B refers to the missing type A
+			----------
+			""";
+	runner.runNegativeTest();
+}
+public void testMissingClass_returnType_OK() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"p1/A.java",
+			"""
+			package p1;
+			public class A {
+				public A() { System.out.print("new A()"); }
+			}
+			""",
+			"p1/B.java",
+			"""
+			package p1;
+			public class B {
+				public A m(Object o) {
+					System.out.print("B.m()");
+					return new A();
+				}
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// temporarily move A.class to A.moved (i.e. simulate removing it from classpath for the next compile)
+	File classFileA = new File(OUTPUT_DIR, "p1" + File.separator + "A.class");
+	File movedFileA = new File(OUTPUT_DIR, "p1" + File.separator + "A.moved");
+	classFileA.renameTo(movedFileA);
+	runner.shouldFlushOutputDirectory = false;
+
+	runner.testFiles = new String[] {
+			"p2/C.java",
+			"""
+			package p2;
+			import p1.B;
+			public class C extends B {
+				void test(B b) {
+					b.m(this);
+				}
+			}
+			"""
+		};
+	runner.expectedErrorString = "java.lang.NoClassDefFoundError: p1/A\n";
+	runner.runConformTest();
+
+	runner.testFiles = new String[] {
+			"p2/Main.java",
+			"""
+			package p2;
+			import p1.B;
+			public class Main {
+				public static void main(String... args) {
+					new C().test(new B());
+					System.out.print("SUCCESS");
+				}
+			}
+			"""
+		};
+	// restore A.class and expect execution of Main to succeed
+	movedFileA.renameTo(classFileA);
+	runner.expectedOutputString = "B.m()new A()SUCCESS";
+	runner.shouldFlushOutputDirectory = false;
+	runner.expectedErrorString = null;
+	runner.runConformTest();
+}
+public void testMissingClass_returnType_NOK() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"p1/A.java",
+			"""
+			package p1;
+			public class A {}
+			""",
+			"p1/B.java",
+			"""
+			package p1;
+			public class B {
+				public A m(Object o) { return new A(); }
+				public void n(A a) {}
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// delete binary file A (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "A.class"));
+
+	runner.shouldFlushOutputDirectory = false;
+
+	runner.testFiles = new String[] {
+			"p2/C.java",
+			"""
+			package p2;
+			import p1.B;
+			public class C extends B {
+				void test(B b) {
+					B b2 = b.m(this);
+					b.n(b.m(this));
+				}
+				@Override
+				public B m(Object o) { return super.m(o); }
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. ERROR in p2\\C.java (at line 5)
+				B b2 = b.m(this);
+				         ^
+			The method m(Object) from the type B refers to the missing type A
+			----------
+			2. ERROR in p2\\C.java (at line 6)
+				b.n(b.m(this));
+				      ^
+			The method m(Object) from the type B refers to the missing type A
+			----------
+			3. ERROR in p2\\C.java (at line 9)
+				public B m(Object o) { return super.m(o); }
+				       ^
+			The return type is incompatible with B.m(Object)
+			----------
+			4. ERROR in p2\\C.java (at line 9)
+				public B m(Object o) { return super.m(o); }
+				                                    ^
+			The method m(Object) from the type B refers to the missing type A
 			----------
 			""";
 	runner.runNegativeTest();

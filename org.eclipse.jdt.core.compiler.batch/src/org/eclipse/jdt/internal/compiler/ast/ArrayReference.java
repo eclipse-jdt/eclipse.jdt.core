@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -207,6 +207,9 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (this.receiver instanceof CastExpression	// no cast check for ((type[])null)[0]
 			&& ((CastExpression)this.receiver).innermostCastedExpression() instanceof NullLiteral) {
 		this.receiver.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
+	}
+	if (this.receiver instanceof MessageSend) {
+		((MessageSend) this.receiver).isReceiver = true;
 	}
 	TypeBinding arrayType = this.receiver.resolveType(scope);
 	if (arrayType != null) {

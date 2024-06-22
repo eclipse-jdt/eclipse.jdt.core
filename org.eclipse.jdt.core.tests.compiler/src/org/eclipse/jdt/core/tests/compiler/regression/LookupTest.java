@@ -1907,7 +1907,7 @@ public void test059() {
     			"	Zork bb() {\n" +
     			"	}\n" +
     			"	void cc() {\n" +
-    			"		this.bb();\n" +
+    			"		Object o = this.bb();\n" +
     			"	}\n" +
     			"	public static void main(String[] args) {\n" +
     			"		System.out.println(\"SUCCESS\");\n" +
@@ -1921,8 +1921,8 @@ public void test059() {
 		"Zork cannot be resolved to a type\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 10)\n" +
-		"	this.bb();\n" +
-		"	     ^^\n" +
+		"	Object o = this.bb();\n" +
+		"	                ^^\n" +
 		"The method bb() from the type X refers to the missing type Zork\n" +
 		"----------\n");
 }
@@ -1940,7 +1940,7 @@ public void test060() {
     			"	Zork bb() {\n" +
     			"	}\n" +
     			"	void cc() {\n" +
-    			"		this.bb();\n" +
+    			"		Object o = this.bb();\n" +
     			"	}\n" +
     			"	public static void main(String[] args) {\n" +
     			"		System.out.println(\"SUCCESS\");\n" +
@@ -1959,8 +1959,8 @@ public void test060() {
 		"Zork cannot be resolved to a type\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 10)\n" +
-		"	this.bb();\n" +
-		"	     ^^\n" +
+		"	Object o = this.bb();\n" +
+		"	                ^^\n" +
 		"The method bb() from the type X refers to the missing type Zork\n" +
 		"----------\n");
 }

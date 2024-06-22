@@ -6951,7 +6951,7 @@ public void missingSynchronizedOnInheritedMethod(MethodBinding currentMethod, Me
 			currentMethod.sourceEnd());
 }
 public void missingTypeInConstructor(ASTNode location, MethodBinding constructor) {
-	List<TypeBinding> missingTypes = constructor.collectMissingTypes(null);
+	List<TypeBinding> missingTypes = constructor.collectMissingTypes(null, true);
 	if (missingTypes == null) {
 		System.err.println("The constructor " + constructor + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
 		return;
@@ -6984,7 +6984,7 @@ public void missingTypeInConstructor(ASTNode location, MethodBinding constructor
 public void missingTypeInLambda(LambdaExpression lambda, MethodBinding method) {
 	int nameSourceStart = lambda.sourceStart();
 	int nameSourceEnd = lambda.diagnosticsSourceEnd();
-	List<TypeBinding> missingTypes = method.collectMissingTypes(null);
+	List<TypeBinding> missingTypes = method.collectMissingTypes(null, true);
 	if (missingTypes == null) {
 		System.err.println("The lambda expression " + method + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
 		return;
@@ -7011,7 +7011,7 @@ public void missingTypeInMethod(ASTNode astNode, MethodBinding method) {
 		nameSourceStart = astNode.sourceStart;
 		nameSourceEnd = astNode.sourceEnd;
 	}
-	List<TypeBinding> missingTypes = method.collectMissingTypes(null);
+	List<TypeBinding> missingTypes = method.collectMissingTypes(null, true);
 	if (missingTypes == null) {
 		System.err.println("The method " + method + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
 		return;
