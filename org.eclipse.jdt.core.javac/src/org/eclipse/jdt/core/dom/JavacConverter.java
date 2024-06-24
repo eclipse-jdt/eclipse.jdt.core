@@ -1039,7 +1039,8 @@ class JavacConverter {
 			} else {
 				res.internalSetModifiers(getJLS2ModifiersFlags(javac.mods));
 			}
-
+			
+			Type resType = null;
 			int count = fragment.getExtraDimensions();
 			if( count > 0 ) {
 				// must do simple type here
@@ -1052,22 +1053,22 @@ class JavacConverter {
 							working = work2.getType();
 						}
 					}
-					Type type = convertToType(working);
-					if (type != null) {
-						res.setType(type);
-					}
+					resType = convertToType(working);
 				} else {
-					Type type = convertToType(javac.getType());
-					if (type != null) {
-						res.setType(type);
-					}
+					resType = convertToType(javac.getType());
 				}
 			} else {
-				Type type = convertToType(javac.getType());
-				if (type != null) {
-					res.setType(type);
+				resType = convertToType(javac.getType());
+			}
+			if (resType != null) {
+				res.setType(resType);
+			}
+			if( javac.getType() instanceof JCErroneous && resType instanceof SimpleType st && st.getName() instanceof SimpleName sn && sn.toString().equals(FAKE_IDENTIFIER)) {
+				if( fragment.getName() instanceof SimpleName fragName && fragName.toString().equals(FAKE_IDENTIFIER)) {
+					return null;
 				}
 			}
+			
 			return res;
 		}
 	}
