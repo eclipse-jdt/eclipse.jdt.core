@@ -177,7 +177,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			var compiler = ToolProvider.getSystemJavaCompiler();
 			var context = new Context();
 			JavacTask task = (JavacTask) compiler.getTask(null, null, null, List.of(), List.of(), List.of());
-			bindingResolver = new JavacBindingResolver(null, task, context, new JavacConverter(null, null, context, null));
+			bindingResolver = new JavacBindingResolver(null, task, context, new JavacConverter(null, null, context, null, true));
 		}
 
 		HashMap<String, IBinding> bindingMap = new HashMap<>();
@@ -456,7 +456,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					AST ast = res.ast;
 					int savedDefaultNodeFlag = ast.getDefaultNodeFlag();
 					ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
-					JavacConverter converter = new JavacConverter(ast, javacCompilationUnit, context, rawText);
+					JavacConverter converter = new JavacConverter(ast, javacCompilationUnit, context, rawText, JavaCore.ENABLED.equals(compilerOptions.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT)));
 					converter.populateCompilationUnit(res, javacCompilationUnit);
 					// javadoc problems explicitly set as they're not sent to DiagnosticListener (maybe find a flag to do it?)
 					var javadocProblems = converter.javadocDiagnostics.stream()

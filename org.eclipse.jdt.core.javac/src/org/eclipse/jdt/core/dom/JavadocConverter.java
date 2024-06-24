@@ -66,6 +66,7 @@ class JavadocConverter {
 	private final DCDocComment docComment;
 	private final int initialOffset;
 	private final int endOffset;
+	private boolean buildJavadoc;
 	private final TreePath contextTreePath;
 
 	public final Map<ASTNode, DocTreePath> converted = new HashMap<>();
@@ -83,11 +84,12 @@ class JavadocConverter {
 		}
 	}
 
-	JavadocConverter(JavacConverter javacConverter, DCDocComment docComment, TreePath contextTreePath) {
+	JavadocConverter(JavacConverter javacConverter, DCDocComment docComment, TreePath contextTreePath, boolean buildJavadoc) {
 		this.javacConverter = javacConverter;
 		this.ast = javacConverter.ast;
 		this.docComment = docComment;
 		this.contextTreePath = contextTreePath;
+		this.buildJavadoc = buildJavadoc;
 
 		int startPos = -1;
 		if (UNICODE_READER_CLASS_OFFSET_FIELD != null) {
@@ -127,32 +129,34 @@ class JavadocConverter {
 			String rawContent = this.javacConverter.rawText.substring(this.initialOffset, this.endOffset);
 			res.setComment(rawContent);
 		}
-		List<? extends IDocElement> elements = Stream.of(docComment.preamble, docComment.fullBody, docComment.postamble, docComment.tags)
-			.flatMap(List::stream)
-			.flatMap(this::convertElement)
-			.toList();
-		TagElement host = null;
-		for (IDocElement docElement : elements) {
-			if (docElement instanceof TagElement tag && !isInline(tag)) {
-				if (host != null) {
-					res.tags().add(host);
-					host = null;
-				}
-				res.tags().add(tag);
-			} else {
-				if (host == null) {
-					host = this.ast.newTagElement();
-					if(docElement instanceof ASTNode astn) {
-						host.setSourceRange(astn.getStartPosition(), astn.getLength());
+		if (this.buildJavadoc) {
+			List<? extends IDocElement> elements = Stream.of(docComment.preamble, docComment.fullBody, docComment.postamble, docComment.tags)
+				.flatMap(List::stream)
+				.flatMap(this::convertElement)
+				.toList();
+			TagElement host = null;
+			for (IDocElement docElement : elements) {
+				if (docElement instanceof TagElement tag && !isInline(tag)) {
+					if (host != null) {
+						res.tags().add(host);
+						host = null;
 					}
-				} else if (docElement instanceof ASTNode extraNode){
-					host.setSourceRange(host.getStartPosition(), extraNode.getStartPosition() + extraNode.getLength() - host.getStartPosition());
+					res.tags().add(tag);
+				} else {
+					if (host == null) {
+						host = this.ast.newTagElement();
+						if(docElement instanceof ASTNode astn) {
+							host.setSourceRange(astn.getStartPosition(), astn.getLength());
+						}
+					} else if (docElement instanceof ASTNode extraNode){
+						host.setSourceRange(host.getStartPosition(), extraNode.getStartPosition() + extraNode.getLength() - host.getStartPosition());
+					}
+					host.fragments().add(docElement);
 				}
-				host.fragments().add(docElement);
 			}
-		}
-		if (host != null) {
-			res.tags().add(host);
+			if (host != null) {
+				res.tags().add(host);
+			}
 		}
 		return res;
 	}

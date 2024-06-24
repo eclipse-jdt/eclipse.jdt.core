@@ -138,12 +138,14 @@ class JavacConverter {
 	final String rawText;
 	final Set<JCDiagnostic> javadocDiagnostics = new HashSet<>();
 	private final List<JavadocConverter> javadocConverters = new ArrayList<>();
+	private boolean buildJavadoc;
 
-	public JavacConverter(AST ast, JCCompilationUnit javacCompilationUnit, Context context, String rawText) {
+	public JavacConverter(AST ast, JCCompilationUnit javacCompilationUnit, Context context, String rawText, boolean buildJavadoc) {
 		this.ast = ast;
 		this.javacCompilationUnit = javacCompilationUnit;
 		this.context = context;
 		this.rawText = rawText;
+		this.buildJavadoc = buildJavadoc;
 	}
 
 	CompilationUnit convertCompilationUnit() {
@@ -2983,7 +2985,7 @@ class JavacConverter {
 	public org.eclipse.jdt.core.dom.Comment convert(Comment javac, JCTree context) {
 		if (javac.getStyle() == CommentStyle.JAVADOC && context != null) {
 			var docCommentTree = this.javacCompilationUnit.docComments.getCommentTree(context);
-			JavadocConverter javadocConverter = new JavadocConverter(this, docCommentTree, TreePath.getPath(this.javacCompilationUnit, context));
+			JavadocConverter javadocConverter = new JavadocConverter(this, docCommentTree, TreePath.getPath(this.javacCompilationUnit, context), this.buildJavadoc);
 			this.javadocConverters.add(javadocConverter);
 			Javadoc javadoc = javadocConverter.convertJavadoc();
 			this.javadocDiagnostics.addAll(javadocConverter.getDiagnostics());
