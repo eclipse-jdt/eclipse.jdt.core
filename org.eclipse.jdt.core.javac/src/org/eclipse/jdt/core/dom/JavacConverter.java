@@ -1963,7 +1963,18 @@ class JavacConverter {
 			} else {
 				StringLiteral res = this.ast.newStringLiteral();
 				commonSettings(res, literal);
-				res.setLiteralValue(string);  // TODO: we want the token here
+				int startPos = res.getStartPosition();
+				int len = res.getLength();
+				if( string.length() != len && len > 2) {
+					try {
+						string = this.rawText.substring(startPos, startPos + len);
+						res.internalSetEscapedValue(string);
+					} catch(IndexOutOfBoundsException ignore) {
+						res.setLiteralValue(string);  // TODO: we want the token here
+					}
+				} else {
+					res.setLiteralValue(string);  // TODO: we want the token here
+				}
 				return res;
 			}
 		}
