@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.javac;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -79,7 +80,26 @@ public class JavacCompiler extends Compiler {
 		        SourceFile.class::cast).map(source -> source.resource).map(IResource::getProject).filter(
 		                JavaProject::hasJavaNature).map(JavaCore::create).findFirst().orElse(null);
 		
-		Map<File, List<ICompilationUnit>> outputSourceMapping = Arrays.stream(sourceUnits).collect(Collectors.groupingBy(this::computeOutputDirectory));
+		Map<File, List<ICompilationUnit>> outputSourceMapping = Arrays.stream(sourceUnits)
+			.filter(unit -> {
+				/**
+				 * Exclude the generated sources from the original source path to
+				 * prevent conflicts with Javac's annotation processing.
+				 *
+				 * If the generated sources are already included in the input
+				 * source list, Javac won't be able to regenerate those sources
+				 * through annotation processing.
+				 */
+				if (unit instanceof SourceFile sf) {
+					File sourceFile = sf.resource.getLocation().toFile();
+					if (this.compilerConfig != null && !JavacUtils.isEmpty(this.compilerConfig.generatedSourcePaths())) {
+						return !this.compilerConfig.generatedSourcePaths().stream()
+							.anyMatch(path -> sourceFile.toPath().startsWith(Path.of(path)));
+					}
+				}
+				return true;
+			})
+			.collect(Collectors.groupingBy(this::computeOutputDirectory));
 		for (Entry<File, List<ICompilationUnit>> outputSourceSet : outputSourceMapping.entrySet()) {
 			var outputFile = outputSourceSet.getKey();
 			JavacUtils.configureJavacContext(javacContext, this.compilerConfig, javaProject, outputFile);

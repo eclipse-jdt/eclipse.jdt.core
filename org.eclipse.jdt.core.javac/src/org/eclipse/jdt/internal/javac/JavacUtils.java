@@ -139,6 +139,27 @@ public class JavacUtils {
 	        File output) {
 		JavacFileManager fileManager = (JavacFileManager)context.get(JavaFileManager.class);
 		try {
+			if (compilerConfig != null && !isEmpty(compilerConfig.annotationProcessorPaths())) {
+				fileManager.setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH,
+					compilerConfig.annotationProcessorPaths()
+						.stream()
+						.map(File::new)
+						.toList());
+			}
+			if (compilerConfig != null && !isEmpty(compilerConfig.generatedSourcePaths())) {
+				fileManager.setLocation(StandardLocation.SOURCE_OUTPUT,
+					compilerConfig.generatedSourcePaths()
+						.stream()
+						.map(File::new)
+						.map(file -> {
+							if (!file.exists() && !file.mkdirs()) {
+								ILog.get().warn("Failed to create generated source file directory: " + file);
+							}
+							return file;
+						})
+						.toList());
+			}
+
 			if (output != null) {
 				fileManager.setLocation(StandardLocation.CLASS_OUTPUT, List.of(output));
 			} else if (compilerConfig != null && !compilerConfig.sourceOutputMapping().isEmpty()) {
@@ -197,7 +218,7 @@ public class JavacUtils {
 		}
 	}
 
-	private static <T> boolean isEmpty(List<T> list) {
+	public static <T> boolean isEmpty(List<T> list) {
 		return list == null || list.isEmpty();
 	}
 

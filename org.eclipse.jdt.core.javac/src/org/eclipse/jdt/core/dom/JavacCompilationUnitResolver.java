@@ -424,7 +424,8 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 
 		JCCompilationUnit javacCompilationUnit = null;
-		JavacTask task = ((JavacTool)compiler).getTask(null, fileManager, null /* already added to context */, List.of() /* already set in options */, List.of() /* already set */, fileObjects, context);
+		Iterable<String> options = Arrays.asList("-proc:none"); // disable annotation processing in the parser.
+		JavacTask task = ((JavacTool)compiler).getTask(null, fileManager, null /* already added to context */, options, List.of() /* already set */, fileObjects, context);
 		{
 			// don't know yet a better way to ensure those necessary flags get configured
 			var javac = com.sun.tools.javac.main.JavaCompiler.instance(context);
