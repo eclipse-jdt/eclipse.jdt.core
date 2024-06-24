@@ -43,8 +43,11 @@ import com.sun.source.util.DocTreePath;
 import com.sun.source.util.TreePath;
 import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.code.Flags;
+import com.sun.tools.javac.parser.ParserFactory;
 import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
+import com.sun.tools.javac.tree.DCTree.DCComment;
+import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
@@ -119,6 +122,7 @@ import com.sun.tools.javac.tree.JCTree.JCYield;
 import com.sun.tools.javac.tree.JCTree.Tag;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JCDiagnostic;
+import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Names;
 import com.sun.tools.javac.util.Position.LineMap;
 
@@ -138,6 +142,7 @@ class JavacConverter {
 	final String rawText;
 	final Set<JCDiagnostic> javadocDiagnostics = new HashSet<>();
 	private final List<JavadocConverter> javadocConverters = new ArrayList<>();
+	final List<org.eclipse.jdt.core.dom.Comment> notAttachedComments = new ArrayList<>();
 	private boolean buildJavadoc;
 
 	public JavacConverter(AST ast, JCCompilationUnit javacCompilationUnit, Context context, String rawText, boolean buildJavadoc) {
@@ -1087,8 +1092,12 @@ class JavacConverter {
 			} else if (node instanceof PackageDeclaration packageDeclaration) {
 				if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
 					packageDeclaration.setJavadoc(javadoc);
+				} else {
+					this.notAttachedComments.add(javadoc);
 				}
 				packageDeclaration.setSourceRange(javadoc.getStartPosition(), packageDeclaration.getStartPosition() + packageDeclaration.getLength() - javadoc.getStartPosition());
+			} else {
+				this.notAttachedComments.add(javadoc);
 			}
 		}
 	}
@@ -3013,6 +3022,25 @@ class JavacConverter {
 		return jdt;
 	}
 
+	public org.eclipse.jdt.core.dom.Comment convert(Comment javac, int pos, int endPos) {
+		if (javac.getStyle() == CommentStyle.JAVADOC) {
+			var parser = new com.sun.tools.javac.parser.DocCommentParser(ParserFactory.instance(this.context), Log.instance(this.context).currentSource(), javac);
+			JavadocConverter javadocConverter = new JavadocConverter(this, parser.parse(), pos, endPos, this.buildJavadoc);
+			this.javadocConverters.add(javadocConverter);
+			Javadoc javadoc = javadocConverter.convertJavadoc();
+			this.javadocDiagnostics.addAll(javadocConverter.getDiagnostics());
+			return javadoc;
+		}
+		org.eclipse.jdt.core.dom.Comment jdt = switch (javac.getStyle()) {
+			case LINE -> this.ast.newLineComment();
+			case BLOCK -> this.ast.newBlockComment();
+			case JAVADOC -> this.ast.newJavadoc();
+		};
+		javac.isDeprecated(); javac.getText(); // initialize docComment
+		jdt.setSourceRange(pos, endPos - pos);
+		return jdt;
+	}
+	
 	class FixPositions extends ASTVisitor {
 		private final String contents;
 

@@ -109,6 +109,16 @@ class JavadocConverter {
 		this.endOffset = startPos + this.javacConverter.rawText.substring(startPos).indexOf("*/") + "*/".length();
 	}
 
+	JavadocConverter(JavacConverter javacConverter, DCDocComment docComment, int initialOffset, int endPos, boolean buildJavadoc) {
+		this.javacConverter = javacConverter;
+		this.ast = javacConverter.ast;
+		this.docComment = docComment;
+		this.contextTreePath = null;
+		this.buildJavadoc = buildJavadoc;
+		this.initialOffset = initialOffset;
+		this.endOffset = endPos;
+	}
+
 	private void commonSettings(ASTNode res, DCTree javac) {
 		if (javac != null) {
 			int startPosition = this.docComment.getSourcePosition(javac.getStartPosition());
@@ -118,7 +128,9 @@ class JavadocConverter {
 				length++;
 			}
 			res.setSourceRange(startPosition, length);
-			this.converted.put(res, DocTreePath.getPath(this.contextTreePath, this.docComment, javac));
+			if (this.contextTreePath != null) {
+				this.converted.put(res, DocTreePath.getPath(this.contextTreePath, this.docComment, javac));
+			}
 		}
 	}
 
@@ -357,7 +369,9 @@ class JavadocConverter {
 					name.setSourceRange(currentOffset, Math.max(0, reference.memberName.toString().length()));
 					currentOffset += name.getLength();
 					res.setName(name);
-					this.converted.put(name, DocTreePath.getPath(this.contextTreePath, this.docComment, reference));
+					if (this.contextTreePath != null) {
+						this.converted.put(name, DocTreePath.getPath(this.contextTreePath, this.docComment, reference));
+					}
 					currentOffset++; // (
 					final int paramListOffset = currentOffset;
 					List<Region> params = new ArrayList<>();
@@ -384,7 +398,9 @@ class JavadocConverter {
 					commonSettings(res, javac);
 					SimpleName name = this.ast.newSimpleName(reference.memberName.toString());
 					name.setSourceRange(this.docComment.getSourcePosition(javac.getStartPosition()), Math.max(0, reference.memberName.toString().length()));
-					this.converted.put(res, DocTreePath.getPath(this.contextTreePath, this.docComment, reference));
+					if (this.contextTreePath != null) {
+						this.converted.put(res, DocTreePath.getPath(this.contextTreePath, this.docComment, reference));
+					}
 					res.setName(name);
 					if (reference.qualifierExpression != null) {
 						Name qualifierExpressionName = toName(reference.qualifierExpression, res.getStartPosition());
@@ -397,7 +413,9 @@ class JavadocConverter {
 				Name res = this.javacConverter.toName(reference.qualifierExpression, (dom, javacNode) -> {
 					int startPosition = this.docComment.getSourcePosition(reference.getPreferredPosition()) + javacNode.getStartPosition();
 					dom.setSourceRange(startPosition, dom.getLength());
-					this.converted.put(dom, DocTreePath.getPath(this.contextTreePath, this.docComment, javac));
+					if (this.contextTreePath != null) {
+						this.converted.put(dom, DocTreePath.getPath(this.contextTreePath, this.docComment, javac));
+					}
 				});
 //				res.accept(new ASTVisitor() {
 //					@Override

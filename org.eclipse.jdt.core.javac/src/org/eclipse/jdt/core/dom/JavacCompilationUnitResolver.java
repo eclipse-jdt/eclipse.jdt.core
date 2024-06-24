@@ -489,7 +489,8 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 						}
 					});
 					addCommentsToUnit(javadocComments, res);
-					attachNonDocComments(res, context, rawText, converter, compilerOptions);
+					addCommentsToUnit(converter.notAttachedComments, res);
+					attachMissingComments(res, context, rawText, converter, compilerOptions);
 					ast.setBindingResolver(new JavacBindingResolver(javaProject, task, context, converter));
 					//
 					ast.setOriginalModificationCount(ast.modificationCount()); // "un-dirty" AST so Rewrite can process it
@@ -559,27 +560,22 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 	 * @param converter
 	 * @param compilerOptions
 	 */
-	private void attachNonDocComments(CompilationUnit unit, Context context, String rawText, JavacConverter converter, Map<String, String> compilerOptions) {
+	private void attachMissingComments(CompilationUnit unit, Context context, String rawText, JavacConverter converter, Map<String, String> compilerOptions) {
 		ScannerFactory scannerFactory = ScannerFactory.instance(context);
-		List<Comment> nonJavadocComments = new ArrayList<>();
+		List<Comment> missingComments = new ArrayList<>();
 		JavadocTokenizer commentTokenizer = new JavadocTokenizer(scannerFactory, rawText.toCharArray(), rawText.length()) {
 			@Override
 			protected com.sun.tools.javac.parser.Tokens.Comment processComment(int pos, int endPos, CommentStyle style) {
+				// workaround Java bug 9077218
+				if (style == CommentStyle.JAVADOC && endPos - pos <= 4) {
+					style = CommentStyle.BLOCK;
+				}
 				var res = super.processComment(pos, endPos, style);
-				if (style != CommentStyle.JAVADOC || noCommentAt(pos)) { // javadoc comment already c and added
-					var comment = converter.convert(res, null);
-					comment.setSourceRange(pos, endPos - pos);
-					nonJavadocComments.add(comment);
+				if (noCommentAt(unit, pos)) { // not already processed
+					var comment = converter.convert(res, pos, endPos);
+					missingComments.add(comment);
 				}
 				return res;
-			}
-
-			private boolean noCommentAt(int pos) {
-				if (unit.getCommentList() == null) {
-					return false;
-				}
-				return ((List<Comment>)unit.getCommentList()).stream()
-						.noneMatch(other -> other.getStartPosition() <= pos && other.getStartPosition() + other.getLength() >= pos);
 			}
 		};
 		Scanner javacScanner = new Scanner(scannerFactory, commentTokenizer) {
@@ -603,15 +599,24 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 		// need to scan with ecjScanner first to populate some line indexes used by the CommentMapper
 		// on longer-term, implementing an alternative comment mapper based on javac scanner might be best
-		addCommentsToUnit(nonJavadocComments, unit);
+		addCommentsToUnit(missingComments, unit);
 		unit.initCommentMapper(ecjScanner);
 	}
 
-	private static void addCommentsToUnit(Collection<Comment> comments, CompilationUnit res) {
+	static void addCommentsToUnit(Collection<Comment> comments, CompilationUnit res) {
 		List<Comment> before = res.getCommentList() == null ? new ArrayList<>() : new ArrayList<>(res.getCommentList());
-		before.addAll(comments);
+		comments.stream().filter(comment -> comment.getStartPosition() >= 0 && JavacCompilationUnitResolver.noCommentAt(res, comment.getStartPosition()))
+			.forEach(before::add);
 		before.sort(Comparator.comparingInt(Comment::getStartPosition));
 		res.setCommentTable(before.toArray(Comment[]::new));
+	}
+
+	private static boolean noCommentAt(CompilationUnit unit, int pos) {
+		if (unit.getCommentList() == null) {
+			return true;
+		}
+		return ((List<Comment>)unit.getCommentList()).stream()
+				.allMatch(other -> pos < other.getStartPosition() || pos >= other.getStartPosition() + other.getLength());
 	}
 
 	private static class BindingBuilder extends ASTVisitor {
