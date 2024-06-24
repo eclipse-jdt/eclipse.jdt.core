@@ -7882,7 +7882,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2503
 	// [Switch Expression] Switching on sealed interface instance compiles even when the switch expression does not cover all possible input values
-	public void _testIssue2503() {
+	public void testIssue2503() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
@@ -7911,7 +7911,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2503
 	// [Switch Expression] Switching on sealed interface instance compiles even when the switch expression does not cover all possible input values
-	public void _testIssue2503_2() {
+	public void testIssue2503_2() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
@@ -7933,11 +7933,48 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"----------\n"
 				+ "1. ERROR in X.java (at line 9)\n"
-				+ "	System.out.println(switch((I) new J()) {\n"
-				+ "	                          ^^^^^^^^^^^\n"
+				+ "	System.out.println(switch((I) new J() {}) {\n"
+				+ "	                          ^^^^^^^^^^^^^^\n"
 				+ "A switch expression should have a default case\n"
 				+ "----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2503
+	// [Switch Expression] Switching on sealed interface instance compiles even when the switch expression does not cover all possible input values
+	public void testIssue2503_3() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					sealed interface Outer permits Inner, Foo {}
+					sealed interface Inner extends Outer {
+						public static record A() implements Inner {}
+						public static record B() implements Inner {}
+					}
+					non-sealed interface Foo extends Outer {}
+					public class X {
+						public static void main(String[] args) {
+							Outer element = new FooImpl();
+
+							String test = switch(element) {
+							case Inner.A a -> "a";
+							case Inner.B b -> "b";
+							};
+
+							System.out.println(test);
+						}
+
+						private static record FooImpl() implements Foo {}
+					}
+					"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 11)\n" +
+				"	String test = switch(element) {\n" +
+				"	                     ^^^^^^^\n" +
+				"A switch expression should have a default case\n" +
+				"----------\n");
+	}
+
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2508
 	// [Switch expression] Compiler erroneously treats guarded case patterns as covering switch selector type
 	public void testIssue2508() {
