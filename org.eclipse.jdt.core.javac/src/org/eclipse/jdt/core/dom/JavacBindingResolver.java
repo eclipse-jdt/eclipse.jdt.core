@@ -42,7 +42,7 @@ import com.sun.tools.javac.code.Symbol.PackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Type.JCPrimitiveType;
+import com.sun.tools.javac.code.Type.ErrorType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.ModuleType;
 import com.sun.tools.javac.code.Type.PackageType;
@@ -131,7 +131,10 @@ public class JavacBindingResolver extends BindingResolver {
 		//
 		private Map<String, JavacTypeBinding> typeBinding = new HashMap<>();
 		public JavacTypeBinding getTypeBinding(com.sun.tools.javac.code.Type type) {
-			JavacTypeBinding newInstance = new JavacTypeBinding(type, JavacBindingResolver.this) { };
+			if (type instanceof ErrorType errorType && (errorType.getOriginalType() != com.sun.tools.javac.code.Type.noType)) {
+				return getTypeBinding(errorType.getOriginalType());
+			}
+			JavacTypeBinding newInstance = new JavacTypeBinding(type, type.tsym, JavacBindingResolver.this) { };
 			typeBinding.putIfAbsent(newInstance.getKey(), newInstance);
 			return typeBinding.get(newInstance.getKey());
 		}
@@ -222,7 +225,9 @@ public class JavacBindingResolver extends BindingResolver {
 					symbol(javac).ifPresent(symbol -> this.symbolToDeclaration.put(symbol, jdt));
 				}
 			});
-		}		
+			// prefill the binding so that they're already searchable by key
+			this.symbolToDeclaration.keySet().forEach(sym -> this.bindings.getBinding(sym, null));
+		}
 	}
 
 	@Override
@@ -232,6 +237,7 @@ public class JavacBindingResolver extends BindingResolver {
 
 	@Override
 	public ASTNode findDeclaringNode(String bindingKey) {
+		resolve();
 		IBinding binding = this.bindings.getBinding(bindingKey);
 		if (binding == null) {
 			return null;

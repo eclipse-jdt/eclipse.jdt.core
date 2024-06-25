@@ -36,9 +36,11 @@ import org.eclipse.jdt.core.dom.JavacBindingResolver;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
+import org.eclipse.jdt.internal.core.SourceType;
 
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
+import com.sun.tools.javac.code.Kinds.KindSelector;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
@@ -55,7 +57,6 @@ import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.code.Type.WildcardType;
 import com.sun.tools.javac.code.Types;
-import com.sun.tools.javac.code.Kinds.KindSelector;
 import com.sun.tools.javac.code.Types.FunctionDescriptorLookupError;
 
 public abstract class JavacTypeBinding implements ITypeBinding {
@@ -67,11 +68,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	private final Types types;
 	private final Type type;
 
-	public JavacTypeBinding(final Type type, final JavacBindingResolver resolver) {
-		this(type, type.tsym, resolver);
-	}
-
-	private JavacTypeBinding(final Type type, final TypeSymbol typeSymbol, JavacBindingResolver resolver) {
+	public JavacTypeBinding(final Type type, final TypeSymbol typeSymbol, JavacBindingResolver resolver) {
 		if (type instanceof PackageType) {
 			throw new IllegalArgumentException("Use JavacPackageBinding");
 		}
@@ -621,7 +618,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isFromSource() {
-		return this.resolver.findDeclaringNode(this) != null;
+		return this.resolver.findDeclaringNode(this) != null ||
+				getJavaElement() instanceof SourceType ||
+				(getDeclaringClass() != null && getDeclaringClass().isFromSource());
 	}
 
 	@Override
