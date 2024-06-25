@@ -2158,7 +2158,7 @@ void setSourceStart(int sourceStart);
 	int ConflictingPackageInModules = ModuleRelated + 1462;
 
 	// module imports
-	/** @since 3.38 @noreference This field is not intended to be referenced by clients.*/
+	/** @since 3.39 @noreference This field is not intended to be referenced by clients.*/
 	int ModuleNotRead = ModuleRelated + 1463;
 
 	// doc variant of an above constant:

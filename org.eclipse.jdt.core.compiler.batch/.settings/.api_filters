@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core.compiler.batch" version="2">
     <resource path="META-INF/MANIFEST.MF">
-        <filter id="926941240">
+        <filter id="931135546">
             <message_arguments>
-                <message_argument value="3.39.0"/>
+                <message_argument value="3.39.50"/>
                 <message_argument value="3.38.0"/>
             </message_arguments>
         </filter>
