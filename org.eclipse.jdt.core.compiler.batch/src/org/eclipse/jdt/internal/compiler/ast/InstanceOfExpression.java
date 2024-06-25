@@ -361,6 +361,7 @@ private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeB
 			|| route == PrimitiveConversionRoute.NARROWING_PRIMITVE_CONVERSION
 			|| route == PrimitiveConversionRoute.WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION) {
 //				this.expression.computeConversion(scope, expressionType, checkedType);
+		addSecretExpressionValue(scope, expressionType);
 	} else if (route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
 		scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
 	} else {
