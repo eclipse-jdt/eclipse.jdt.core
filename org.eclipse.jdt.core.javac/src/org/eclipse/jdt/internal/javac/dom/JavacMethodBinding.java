@@ -168,7 +168,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 									Signature.createTypeSignature(resolveTypeName(t, true), true))
 							.toArray(String[]::new);
 					IMethod[] methods = currentType.findMethods(currentType.getMethod(getName(), parametersResolved));
-					if (methods.length > 0) {
+					if (methods != null && methods.length > 0) {
 						return methods[0];
 					}
 					var parametersNotResolved = this.methodSymbol.params().stream()
@@ -178,7 +178,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 									Signature.createTypeSignature(resolveTypeName(t, false), false))
 							.toArray(String[]::new);
 					methods = currentType.findMethods(currentType.getMethod(getName(), parametersNotResolved));
-					if (methods.length > 0) {
+					if (methods != null && methods.length > 0) {
 						return methods[0];
 					}
 				}
