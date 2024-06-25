@@ -5077,17 +5077,37 @@ public void test139() {
 }
 //check final modifier
 public void test140() {
- this.runConformTest(
-     new String[] {
-    	        "X.java",
-    			"public enum X {\n" +
-    			"	PLUS {/*ANONYMOUS*/}, MINUS;\n" +
-    			"	void bar(X x) {\n" +
-    			"		Runnable r = (Runnable)x;\n" +
-    			"	}\n" +
-    			"}", // =================
-     },
-	"");
+	if (this.complianceLevel < ClassFileConstants.JDK17) {
+		this.runConformTest(
+			     new String[] {
+			    	        "X.java",
+			    			"public enum X {\n" +
+			    			"	PLUS {/*ANONYMOUS*/}, MINUS;\n" +
+			    			"	void bar(X x) {\n" +
+			    			"		Runnable r = (Runnable)x;\n" +
+			    			"	}\n" +
+			    			"}", // =================
+			     },
+				"");
+	} else {
+		// An enum class E is implicitly sealed if its declaration contains at least one enum constant that has a class body
+		this.runNegativeTest(
+			     new String[] {
+			    	        "X.java",
+			    			"public enum X {\n" +
+			    			"	PLUS {/*ANONYMOUS*/}, MINUS;\n" +
+			    			"	void bar(X x) {\n" +
+			    			"		Runnable r = (Runnable)x;\n" +
+			    			"	}\n" +
+			    			"}", // =================
+			     },
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	Runnable r = (Runnable)x;\n" +
+				"	             ^^^^^^^^^^^\n" +
+				"Cannot cast from X to Runnable\n" +
+				"----------\n");
+	}
 }
 //check final modifier
 public void test141() {

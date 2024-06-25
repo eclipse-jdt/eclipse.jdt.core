@@ -6039,4 +6039,143 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 				"Compiled and ran fine!");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2595
+	// [sealed types] ECJ accepts a cast from a disjoint interface to a sealed interface
+	public void testIssue2595_0() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						interface I {
+						}
+
+						final class C {
+						}
+
+						public class X {
+							void test(C c) {
+								if (c instanceof I) // Compile-time error!
+									System.out.println("It's an I");
+							}
+							void test(I i) {
+								if (i instanceof C) // Compile-time error!
+									System.out.println("It's a C");
+							}
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	if (c instanceof I) // Compile-time error!\n" +
+				"	    ^^^^^^^^^^^^^^\n" +
+				"Incompatible conditional operand types C and I\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 13)\n" +
+				"	if (i instanceof C) // Compile-time error!\n" +
+				"	    ^^^^^^^^^^^^^^\n" +
+				"Incompatible conditional operand types I and C\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2595
+	// [sealed types] ECJ accepts a cast from a disjoint interface to a sealed interface
+	public void testIssue2595_1() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							interface I {
+							}
+
+							sealed class C permits D {
+							}
+
+							final class D extends C {
+							}
+
+							void test(C c) {
+								if (c instanceof I) // Compile-time error!
+									System.out.println("It's an I");
+							}
+
+							void test(I i) {
+								if (i instanceof C) // Compile-time error!
+									System.out.println("It's a C");
+							}
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 12)\n" +
+				"	if (c instanceof I) // Compile-time error!\n" +
+				"	    ^^^^^^^^^^^^^^\n" +
+				"Incompatible conditional operand types X.C and X.I\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 17)\n" +
+				"	if (i instanceof C) // Compile-time error!\n" +
+				"	    ^^^^^^^^^^^^^^\n" +
+				"Incompatible conditional operand types X.I and X.C\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2595
+	// [sealed types] ECJ accepts a cast from a disjoint interface to a sealed interface
+	public void testIssue2595_2() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							interface I {}
+							sealed class C permits D, E {}
+							non-sealed class D extends C {}
+							final class E extends C {}
+						    class F extends D implements I {}
+
+							void test (C c) {
+							    if (c instanceof I)
+							        System.out.println("It's an I");
+							}
+
+							void test (I i) {
+							    if (i instanceof C)
+							        System.out.println("It's a C");
+							}
+
+						    public static void main(String [] args) {
+						        new X().test(((C) new X().new F()));
+						        new X().test(((I) new X().new F()));
+						    }
+						}
+						"""
+				},
+				"It's an I\nIt's a C");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2595
+	// [sealed types] ECJ accepts a cast from a disjoint interface to a sealed interface
+	public void testIssue2595_3() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						sealed interface Intf permits PermittedA {}
+						final class PermittedA implements Intf {}
+						interface Standalone {}
+						public class X {
+						    public Intf foo(Standalone st) {
+						    	return (Intf) st;
+						    }
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\r\n" +
+				"	return (Intf) st;\r\n" +
+				"	       ^^^^^^^^^\n" +
+				"Cannot cast from Standalone to Intf\n" +
+				"----------\n");
+	}
 }
