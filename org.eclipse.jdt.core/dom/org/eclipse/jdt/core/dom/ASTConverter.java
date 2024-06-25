@@ -3638,7 +3638,12 @@ class ASTConverter {
 		if (pattern.local == null) {
 			return createFakeNullPattern(pattern);
 		}
-		typePattern.setPatternVariable(convertToSingleVariableDeclaration(pattern.local));
+
+		if(pattern.local.type != null) {
+			typePattern.setPatternVariable(convertToSingleVariableDeclaration(pattern.local));
+		} else {
+			typePattern.setPatternVariable(convertToVariableDeclarationFragmentForTypePattern(pattern.local));
+		}
 		int startPosition = pattern.local.declarationSourceStart;
 		int sourceEnd= pattern.sourceEnd;
 		typePattern.setSourceRange(startPosition, sourceEnd - startPosition + 1);
@@ -4193,6 +4198,34 @@ class ASTConverter {
 			}
 		}
 		variableDeclarationFragment.setSourceRange(localDeclaration.sourceStart, end - localDeclaration.sourceStart + 1);
+		if (this.resolveBindings) {
+			recordNodes(variableDeclarationFragment, localDeclaration);
+			recordNodes(name, localDeclaration);
+			variableDeclarationFragment.resolveBinding();
+		}
+		return variableDeclarationFragment;
+	}
+
+	protected VariableDeclarationFragment convertToVariableDeclarationFragmentForTypePattern(org.eclipse.jdt.internal.compiler.ast.LocalDeclaration localDeclaration) {
+		final VariableDeclarationFragment variableDeclarationFragment = new VariableDeclarationFragment(this.ast);
+		final SimpleName name = new SimpleName(this.ast);
+		//name.internalSetIdentifier(new String(localDeclaration.name));
+		name.setSourceRange(localDeclaration.sourceStart, localDeclaration.sourceEnd - localDeclaration.sourceStart + 1);
+		variableDeclarationFragment.setName(name);
+		int start = localDeclaration.sourceEnd;
+
+		//int end = start + 1;
+//		int possibleEnd = retrieveEndOfPotentialExtendedDimensions(start + 1, localDeclaration.sourceEnd, localDeclaration.declarationSourceEnd);
+//		if (possibleEnd == Integer.MIN_VALUE) {
+//			end = start;
+//			variableDeclarationFragment.setFlags(variableDeclarationFragment.getFlags() | ASTNode.MALFORMED);
+//		} else if (possibleEnd < 0) {
+//			end = -possibleEnd;
+//			variableDeclarationFragment.setFlags(variableDeclarationFragment.getFlags() | ASTNode.MALFORMED);
+//		} else {
+//			end = possibleEnd;
+//		}
+		variableDeclarationFragment.setSourceRange(localDeclaration.sourceStart, 1);
 		if (this.resolveBindings) {
 			recordNodes(variableDeclarationFragment, localDeclaration);
 			recordNodes(name, localDeclaration);

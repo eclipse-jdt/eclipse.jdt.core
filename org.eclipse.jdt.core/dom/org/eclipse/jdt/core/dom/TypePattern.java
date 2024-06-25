@@ -24,9 +24,10 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  * <pre>
  * TypePattern:
  *      SingleVariableDeclaration
+ *      VariableDeclarationFragment
  * </pre>
  *
- * @since 3.27
+ * @since 3.28
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 @SuppressWarnings("rawtypes")
@@ -38,17 +39,33 @@ public class TypePattern extends Pattern {
 			new ChildPropertyDescriptor(TypePattern.class, "patternVariable", SingleVariableDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
+	 * The "patternVariable" structural property of this node type (child type: {@link VariableDeclarationFragment}).
+	 */
+	public static final ChildPropertyDescriptor PATTERN_VARIABLE_PROPERTY1 =
+			new ChildPropertyDescriptor(TypePattern.class, "patternVariable1", VariableDeclarationFragment.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
+	private static final List PROPERTY_DESCRIPTORS_2_0;
+
 	static {
 		List properyList = new ArrayList(3);
 		createPropertyList(TypePattern.class, properyList);
 		addProperty(PATTERN_VARIABLE_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
+
+		properyList = new ArrayList(2);
+		createPropertyList(TypePattern.class, properyList);
+		addProperty(PATTERN_VARIABLE_PROPERTY1, properyList);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList(properyList);
+
+
+
 	}
 
 	@Override
@@ -65,7 +82,7 @@ public class TypePattern extends Pattern {
 	/**
 	 * The pattern Variable list; <code>empty</code> for none;
 	 */
-	private volatile SingleVariableDeclaration patternVariable;
+	private volatile Object patternVariable;
 
 	/**
 	 * Returns a list of structural property descriptors for this node type.
@@ -111,8 +128,8 @@ public class TypePattern extends Pattern {
 
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
-		if (property == PATTERN_VARIABLE_PROPERTY ) {
-			return getPatternVariable();
+		if (property == PATTERN_VARIABLE_PROPERTY || property == PATTERN_VARIABLE_PROPERTY1 ) {
+			return (ASTNode) getPatternVariable();
 		}
 		// allow default implementation to flag the error
 		return super.internalGetSetChildProperty(property, get, child);
@@ -137,10 +154,35 @@ public class TypePattern extends Pattern {
 		if (patternVariable == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTNode oldChild = this.patternVariable;
+		ASTNode oldChild = (SingleVariableDeclaration) this.patternVariable;
 		preReplaceChild(oldChild, patternVariable, PATTERN_VARIABLE_PROPERTY);
 		this.patternVariable = patternVariable;
 		postReplaceChild(oldChild, patternVariable, PATTERN_VARIABLE_PROPERTY);
+	}
+
+	/**
+	 * Sets the pattern variable.
+	 *
+	 * @param patternVariable the right operand node
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
+	 * @exception UnsupportedOperationException if this operation is used other than JLS19
+	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
+	 * @since 3.39
+	 */
+	public void setPatternVariable(VariableDeclarationFragment patternVariable) {
+		supportedOnlyIn20();
+		if (patternVariable == null) {
+			throw new IllegalArgumentException();
+		}
+		ASTNode oldChild = (VariableDeclarationFragment) this.patternVariable;
+		preReplaceChild(oldChild, patternVariable, PATTERN_VARIABLE_PROPERTY1);
+		this.patternVariable = patternVariable;
+		postReplaceChild(oldChild, patternVariable, PATTERN_VARIABLE_PROPERTY1);
 	}
 
 	/**
@@ -149,21 +191,31 @@ public class TypePattern extends Pattern {
 	 * @return the pattern variable
 	 * @exception UnsupportedOperationException if this operation is used other than JLS19
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * @since 3.38
+	 * @since 3.39
 	 */
-	public SingleVariableDeclaration getPatternVariable() {
+	@SuppressWarnings("cast")
+	public Object getPatternVariable() {
 		supportedOnlyIn20();
 		if (this.patternVariable  == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
 				if (this.patternVariable == null) {
 					preLazyInit();
-					this.patternVariable = postLazyInit(new SingleVariableDeclaration(this.ast),
+					/*if(getPatternVariable() instanceof SingleVariableDeclaration) {*/
+						this.patternVariable = postLazyInit(new SingleVariableDeclaration(this.ast),
 							PATTERN_VARIABLE_PROPERTY);
+					/*} else {
+						this.patternVariable = postLazyInit(new VariableDeclarationFragment(this.ast),
+								PATTERN_VARIABLE_PROPERTY1);
+					}*/
 				}
 			}
 		}
-		return this.patternVariable;
+		if(this.patternVariable instanceof SingleVariableDeclaration)
+			return (SingleVariableDeclaration) this.patternVariable;
+		else {
+			return (VariableDeclarationFragment) this.patternVariable;
+		}
 	}
 
 	@Override
@@ -175,7 +227,12 @@ public class TypePattern extends Pattern {
 	ASTNode clone0(AST target) {
 		TypePattern result = new TypePattern(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setPatternVariable((SingleVariableDeclaration) getPatternVariable().clone(target));
+		if(getPatternVariable() instanceof SingleVariableDeclaration) {
+			result.setPatternVariable((SingleVariableDeclaration) getPatternVariable().clone(target));
+		} else {
+			result.setPatternVariable((VariableDeclarationFragment) getPatternVariable().clone(target));
+		}
+
 		return result;
 	}
 
@@ -184,7 +241,7 @@ public class TypePattern extends Pattern {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			acceptChild(visitor, getPatternVariable());
+			acceptChild(visitor, (ASTNode) getPatternVariable());
 		}
 		visitor.endVisit(this);
 
@@ -197,9 +254,15 @@ public class TypePattern extends Pattern {
 
 	@Override
 	int treeSize() {
+		int temp;
+		if(getPatternVariable() instanceof SingleVariableDeclaration) {
+			temp = ((SingleVariableDeclaration) getPatternVariable()).treeSize();
+		} else {
+			temp = ((VariableDeclarationFragment) getPatternVariable()).treeSize();
+		}
 		return
 				memSize()
-				+ (this.patternVariable == null ? 0 : getPatternVariable().treeSize());
+				+ (this.patternVariable == null ? 0 : temp);
 	}
 
 
