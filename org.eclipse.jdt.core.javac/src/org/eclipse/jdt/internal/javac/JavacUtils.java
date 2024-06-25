@@ -120,6 +120,10 @@ public class JavacUtils {
 					ILog.get().warn("Unsupported target level: " + target + ", using 8 instead");
 					options.put(Option.TARGET, "8");
 				} else {
+					if (Integer.parseInt(target) < Integer.parseInt(source)) {
+						ILog.get().warn("javac requires the source version to be less than or equal to the target version. Targetting " + source + " instead");
+						target = source;
+					}
 					options.put(Option.TARGET, target);
 				}
 			}
