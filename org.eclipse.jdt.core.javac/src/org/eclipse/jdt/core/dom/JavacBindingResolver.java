@@ -83,7 +83,7 @@ public class JavacBindingResolver extends BindingResolver {
 	// it will probably be better to run the `Enter` and then only extract interesting
 	// date from it.
 	public final Context context;
-	public Map<Symbol, ASTNode> symbolToDom;
+	public Map<Symbol, ASTNode> symbolToDeclaration;
 	public final IJavaProject javaProject;
 	private JavacConverter converter;
 	boolean isRecoveringBindings = false;
@@ -204,29 +204,25 @@ public class JavacBindingResolver extends BindingResolver {
 	}
 
 	private void resolve() {
-		if (this.symbolToDom == null) {
+		if (this.symbolToDeclaration == null) {
 			try {
 				this.javac.analyze();
 			} catch (IOException e) {
 				ILog.get().error(e.getMessage(), e);
 			}
-			this.symbolToDom = new HashMap<>();
-			this.converter.domToJavac.entrySet().forEach(entry ->
-				symbol(entry.getValue()).ifPresent(sym -> {
-						if (this.symbolToDom.containsKey(sym)) {
-							var existing = this.symbolToDom.get(sym);
-							var cursor = existing.getParent();
-							while (cursor != null) {
-								if (entry.getKey() == existing.getParent()) {
-									// the existing node is probably more specific
-									return;
-								}
-								cursor = cursor.getParent();
-							}
-						}
-						this.symbolToDom.put(sym, entry.getKey());
-					}));
-		}
+			this.symbolToDeclaration = new HashMap<>();
+			this.converter.domToJavac.forEach((jdt, javac) -> {
+				// We don't want FieldDeclaration (ref ASTConverterTest2.test0433)
+				if (jdt instanceof MethodDeclaration ||
+					jdt instanceof VariableDeclaration ||
+					jdt instanceof EnumConstantDeclaration ||
+					jdt instanceof AnnotationTypeMemberDeclaration ||
+					jdt instanceof AbstractTypeDeclaration ||
+					jdt instanceof AnonymousClassDeclaration) {
+					symbol(javac).ifPresent(symbol -> this.symbolToDeclaration.put(symbol, jdt));
+				}
+			});
+		}		
 	}
 
 	@Override
@@ -266,8 +262,8 @@ public class JavacBindingResolver extends BindingResolver {
 	}
 
 	public ASTNode findNode(Symbol symbol) {
-		if (this.symbolToDom != null) {
-			return this.symbolToDom.get(symbol);
+		if (this.symbolToDeclaration != null) {
+			return this.symbolToDeclaration.get(symbol);
 		}
 		return null;
 	}

@@ -210,7 +210,7 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public int getVariableId() {
-		if (this.resolver.symbolToDom.get(this.variableSymbol) instanceof VariableDeclaration decl) {
+		if (this.resolver.symbolToDeclaration.get(this.variableSymbol) instanceof VariableDeclaration decl) {
 			return decl.getStartPosition();
 		}
 		// FIXME: since we are not running code generation,
