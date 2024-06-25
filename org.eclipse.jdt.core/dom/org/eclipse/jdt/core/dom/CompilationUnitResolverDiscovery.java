@@ -45,16 +45,26 @@ class CompilationUnitResolverDiscovery {
 								return icur;
 							}
 						} catch (CoreException e) {
-							if( !ERROR_LOGGED) {
+							if( !setErrorLogged()) {
 								ILog.get().error("Could not instantiate ICompilationUnitResolver: '" + elementId + "' with class: " + configElement.getAttribute("class"), e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-								ERROR_LOGGED = true;
 							}
 						}
 					}
 				}
 			}
 		}
-		return CompilationUnitResolver.FACADE;
+		return CompilationUnitResolver.getInstance();
 	}
 
+	/*
+	 * Set the ERROR_LOGGED field to true.
+	 * Return the previous value of ERROR_LOGGED.
+	 */
+	private static synchronized boolean setErrorLogged() {
+		boolean prev = ERROR_LOGGED;
+		if( !ERROR_LOGGED) {
+			ERROR_LOGGED = true;
+		}
+		return prev;
+	}
 }

@@ -120,7 +120,14 @@ class CompilationUnitResolver extends Compiler {
 		}
 	}
 
-	public static final ECJCompilationUnitResolver FACADE = new ECJCompilationUnitResolver();
+	private static ECJCompilationUnitResolver FACADE;
+	public static synchronized ICompilationUnitResolver getInstance() {
+		if( FACADE == null ) {
+			FACADE = new ECJCompilationUnitResolver();
+		}
+		return FACADE;
+	}
+
 
 	public static final int RESOLVE_BINDING = 0x1;
 	public static final int PARTIAL = 0x2;

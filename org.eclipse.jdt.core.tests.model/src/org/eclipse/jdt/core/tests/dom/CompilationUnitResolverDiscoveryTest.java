@@ -9,7 +9,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *     Red Hat Inc - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
@@ -162,23 +162,20 @@ public class CompilationUnitResolverDiscoveryTest extends ConverterTestSetup {
 		@Override
 		public void parse(ICompilationUnit[] compilationUnits, ASTRequestor requestor, int apiLevel,
 				Map<String, String> compilerOptions, int flags, IProgressMonitor monitor) {
-			// TODO Auto-generated method stub
-
+			// irrelevant for test
 		}
 
 		@Override
 		public void parse(String[] sourceFilePaths, String[] encodings, FileASTRequestor requestor, int apiLevel,
 				Map<String, String> compilerOptions, int flags, IProgressMonitor monitor) {
-			// TODO Auto-generated method stub
-
+			// irrelevant for test
 		}
 
 		@Override
 		public void resolve(ICompilationUnit[] compilationUnits, String[] bindingKeys, ASTRequestor requestor,
 				int apiLevel, Map<String, String> compilerOptions, IJavaProject project,
 				WorkingCopyOwner workingCopyOwner, int flags, IProgressMonitor monitor) {
-			// TODO Auto-generated method stub
-
+			// irrelevant for test
 		}
 	}
 }

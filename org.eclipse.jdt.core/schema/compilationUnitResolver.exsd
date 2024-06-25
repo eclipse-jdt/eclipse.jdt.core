@@ -57,7 +57,7 @@
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-                  The class that implements this compilation unit resolver. This class must implement the  &lt;code&gt;org.eclipse.jdt.core.dom.ICompilationUnitResolver&lt;/code&gt; interface with a public 0-arg constructor.
+                  The class that implements this compilation unit resolver. This class must implement the  &lt;code&gt;org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver&lt;/code&gt; interface with a public 0-arg constructor.
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.jdt.core.dom.ICompilationUnitResolver"/>

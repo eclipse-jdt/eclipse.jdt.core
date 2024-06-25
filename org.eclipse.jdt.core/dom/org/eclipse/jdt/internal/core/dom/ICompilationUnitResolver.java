@@ -28,7 +28,14 @@ import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
  * This interface is currently internal only, and is not considered API.
  * This interface may be modified, changed, or removed at any time.
  *
- * @since 3.38
+* <p>
+* <strong>EXPERIMENTAL</strong>. This class or interface has been added as
+* part of a work in progress. There is no guarantee that this API will
+* work or that it will remain the same. Please do not use this API without
+* consulting with the Red Hat team.
+* </p>
+*
+* @since 3.38
  */
 public interface ICompilationUnitResolver {
 	/**
