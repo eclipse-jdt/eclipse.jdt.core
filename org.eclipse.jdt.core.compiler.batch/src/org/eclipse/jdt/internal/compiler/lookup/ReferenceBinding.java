@@ -2603,10 +2603,10 @@ public boolean isDisjointFrom(ReferenceBinding that) {
 	} else {
 		if (that.isInterface()) {
 			/* • A class named C is disjoint from an interface named I if (i) it is not the case that C <: I, and (ii) one of the following cases applies:
-	         – C is final.
-	         – C is sealed, and all of the permitted direct subclasses of C are disjoint from I.
-	         – C is freely extensible (§8.1.1.2), and I is sealed, and C is disjoint from all of the permitted direct subclasses and subinterfaces of I
-    	    */
+			 – C is final.
+			 – C is sealed, and all of the permitted direct subclasses of C are disjoint from I.
+			 – C is freely extensible (§8.1.1.2), and I is sealed, and C is disjoint from all of the permitted direct subclasses and subinterfaces of I
+			 */
 			if (this.findSuperTypeOriginatingFrom(that) != null)
 				return false;
 			if (this.isFinal())

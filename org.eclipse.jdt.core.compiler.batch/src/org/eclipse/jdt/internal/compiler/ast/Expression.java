@@ -507,7 +507,6 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 								return checkUnsafeCast(scope, castType, expressionType, match, true);
 							}
 							if (((ReferenceBinding) castType).isDisjointFrom((ReferenceBinding) expressionType)) {
-								// no subclass for castType, thus compile-time check is invalid
 								return false;
 							}
 							if (use15specifics) {
@@ -556,7 +555,6 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 							if (match != null) {
 								return checkUnsafeCast(scope, castType, expressionType, match, false);
 							}
-							// unless final, a subclass may implement the interface ==> no check at compile time
 							if (refExprType.isDisjointFrom((ReferenceBinding) castType)) {
 								return false;
 							}
