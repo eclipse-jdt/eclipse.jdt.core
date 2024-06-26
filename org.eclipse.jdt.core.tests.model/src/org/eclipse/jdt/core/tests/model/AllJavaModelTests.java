@@ -40,6 +40,9 @@ private static Class[] getAllTestClasses() {
 
 		// Enter each test here, grouping the tests that are related
 
+		// Support for completion tests
+		RunCompletionModelTests.class,
+
 		// Binding key tests
 		BindingKeyTests.class,
 
@@ -118,9 +121,6 @@ private static Class[] getAllTestClasses() {
 		ResolveTests12To15.class,
 		ResolveTests21.class,
 		SelectionJavadocModelTests.class,
-
-		// Support for completion tests
-		RunCompletionModelTests.class,
 
 		// Prefix and suffix tests
 		NamingConventionTests.class,
