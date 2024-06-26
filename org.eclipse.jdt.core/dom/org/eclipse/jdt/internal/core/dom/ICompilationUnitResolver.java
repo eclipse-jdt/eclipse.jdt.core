@@ -35,6 +35,9 @@ import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 * consulting with the Red Hat team.
 * </p>
 *
+* See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2641 for discussion on possible
+* changes to this interface
+*
 * @since 3.38
  */
 public interface ICompilationUnitResolver {
