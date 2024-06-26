@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.builder.SourceFile;
 
+import com.sun.tools.javac.api.MultiTaskListener;
 import com.sun.tools.javac.comp.*;
 import com.sun.tools.javac.comp.CompileStates.CompileState;
 import com.sun.tools.javac.main.JavaCompiler;
@@ -100,6 +101,12 @@ public class JavacCompiler extends Compiler {
 				return true;
 			})
 			.collect(Collectors.groupingBy(this::computeOutputDirectory));
+
+		// Register listener to intercept intermediate results from Javac task.
+		JavacTaskListener resultListener = new JavacTaskListener(this.compilerConfig, outputSourceMapping);
+		MultiTaskListener mtl = MultiTaskListener.instance(javacContext);
+		mtl.add(resultListener);
+
 		for (Entry<File, List<ICompilationUnit>> outputSourceSet : outputSourceMapping.entrySet()) {
 			var outputFile = outputSourceSet.getKey();
 			JavacUtils.configureJavacContext(javacContext, this.compilerConfig, javaProject, outputFile);
