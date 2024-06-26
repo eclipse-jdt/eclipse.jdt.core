@@ -965,15 +965,23 @@ public class ASTParser {
 				if ((this.bits & CompilationUnitResolver.BINDING_RECOVERY) != 0) {
 					flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
 				}
-				this.unitResolver.resolve(Arrays.copyOf(compilationUnits, compilationUnits.length), Arrays.copyOf(bindingKeys, bindingKeys.length), requestor, this.apiLevel, Collections.unmodifiableMap(this.compilerOptions), this.project, this.workingCopyOwner, flags, monitor);
+				this.unitResolver.resolve(safeCopyOf(compilationUnits), safeCopyOf(bindingKeys), requestor, this.apiLevel, safeUnmodifiableMap(this.compilerOptions), this.project, this.workingCopyOwner, flags, monitor);
 			} else {
-				this.unitResolver.parse(Arrays.copyOf(compilationUnits, compilationUnits.length), requestor, this.apiLevel, Collections.unmodifiableMap(this.compilerOptions), flags, monitor);
+				this.unitResolver.parse(safeCopyOf(compilationUnits), requestor, this.apiLevel, safeUnmodifiableMap(this.compilerOptions), flags, monitor);
 			}
 		} finally {
 			// reset to defaults to allow reuse (and avoid leaking)
 			initializeDefaults();
 		}
 	}
+    @SuppressWarnings("unchecked")
+    private static <T> T[] safeCopyOf(T[] original) {
+        return original == null ? null : Arrays.copyOf(original, original.length);
+    }
+
+    private static <K,V> Map<K,V> safeUnmodifiableMap(Map<? extends K, ? extends V> m) {
+    	return m == null ? null : Collections.unmodifiableMap(m);
+    }
 
 	/**
 	 * Creates ASTs for a batch of compilation units.
@@ -1060,9 +1068,9 @@ public class ASTParser {
 				if ((this.bits & CompilationUnitResolver.BINDING_RECOVERY) != 0) {
 					flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
 				}
-				this.unitResolver.resolve(Arrays.copyOf(sourceFilePaths, sourceFilePaths.length), Arrays.copyOf(encodings, encodings.length), Arrays.copyOf(bindingKeys, bindingKeys.length), requestor, this.apiLevel, Collections.unmodifiableMap(this.compilerOptions), getClasspath(), flags, monitor);
+				this.unitResolver.resolve(safeCopyOf(sourceFilePaths), safeCopyOf(encodings), safeCopyOf(bindingKeys), requestor, this.apiLevel, safeUnmodifiableMap(this.compilerOptions), getClasspath(), flags, monitor);
 			} else {
-				this.unitResolver.parse(Arrays.copyOf(sourceFilePaths, sourceFilePaths.length), Arrays.copyOf(encodings, encodings.length), requestor, this.apiLevel, Collections.unmodifiableMap(this.compilerOptions), flags, monitor);
+				this.unitResolver.parse(safeCopyOf(sourceFilePaths), safeCopyOf(encodings), requestor, this.apiLevel, safeUnmodifiableMap(this.compilerOptions), flags, monitor);
 			}
 		} finally {
 			// reset to defaults to allow reuse (and avoid leaking)
@@ -1252,7 +1260,7 @@ public class ASTParser {
 						}
 					}
 
-					CompilationUnit result2 = this.unitResolver.toCompilationUnit(sourceUnit, needToResolveBindings, this.project, getClasspath(), useSearcher ? this.focalPointPosition : -1, this.apiLevel, Collections.unmodifiableMap(this.compilerOptions), this.workingCopyOwner, wcOwner, flags, monitor);
+					CompilationUnit result2 = this.unitResolver.toCompilationUnit(sourceUnit, needToResolveBindings, this.project, getClasspath(), useSearcher ? this.focalPointPosition : -1, this.apiLevel, safeUnmodifiableMap(this.compilerOptions), this.workingCopyOwner, wcOwner, flags, monitor);
 					result2.setTypeRoot(this.typeRoot);
 					return result2;
 				} finally {
