@@ -24,6 +24,7 @@ import javax.lang.model.type.TypeKind;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -221,8 +222,8 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isEqualTo(final IBinding binding) {
-		return binding instanceof final JavacTypeBinding other && 
-			Objects.equals(this.resolver, other.resolver) && 
+		return binding instanceof final JavacTypeBinding other &&
+			Objects.equals(this.resolver, other.resolver) &&
 			Objects.equals(this.typeSymbol, other.typeSymbol);
 	}
 
@@ -439,7 +440,15 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			}
 			return builder.toString();
 		}
-		return this.typeSymbol.getSimpleName().toString();
+		StringBuilder builder = new StringBuilder(this.typeSymbol.getSimpleName().toString());
+		if (this.getTypeArguments().length > 0) {
+			builder.append("<");
+			for (var typeArgument : this.getTypeArguments()) {
+				builder.append(typeArgument.getName());
+			}
+			builder.append(">");
+		}
+		return builder.toString();
 	}
 
 	@Override
@@ -528,13 +537,25 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding[] getTypeArguments() {
-		if (this.type.getTypeArguments().isEmpty()) {
+		if (this.type.getTypeArguments().isEmpty() || this.type == this.typeSymbol.type || isTargettingPreGenerics()) {
 			return NO_TYPE_ARGUMENTS;
 		}
 		return this.type.getTypeArguments()
 				.stream()
 				.map(this.resolver.bindings::getTypeBinding)
 				.toArray(ITypeBinding[]::new);
+	}
+
+	private boolean isTargettingPreGenerics() {
+		if (this.resolver.javaProject == null) {
+			return false;
+		}
+		String target = this.resolver.javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true);
+		return JavaCore.VERSION_1_1.equals(target)
+				|| JavaCore.VERSION_CLDC_1_1.equals(target)
+				|| JavaCore.VERSION_1_2.equals(target)
+				|| JavaCore.VERSION_1_3.equals(target)
+				|| JavaCore.VERSION_1_4.equals(target);
 	}
 
 	@Override
@@ -680,6 +701,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isNested() {
+		if (this.isTypeVariable()) {
+			return false;
+		}
 		return getDeclaringClass() != null;
 	}
 
@@ -746,8 +770,8 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	@Override
 	public String toString() {
 		return Arrays.stream(getAnnotations())
-					.map(Object::toString) 
-					.map(ann -> ann + " ") 
+					.map(Object::toString)
+					.map(ann -> ann + " ")
 					.collect(Collectors.joining())
 				+ getQualifiedName();
 	}
