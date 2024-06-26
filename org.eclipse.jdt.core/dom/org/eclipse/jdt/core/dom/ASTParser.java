@@ -17,6 +17,8 @@ package org.eclipse.jdt.core.dom;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -963,9 +965,9 @@ public class ASTParser {
 				if ((this.bits & CompilationUnitResolver.BINDING_RECOVERY) != 0) {
 					flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
 				}
-				this.unitResolver.resolve(compilationUnits, bindingKeys, requestor, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, flags, monitor);
+				this.unitResolver.resolve(Arrays.copyOf(compilationUnits, compilationUnits.length), Arrays.copyOf(bindingKeys, bindingKeys.length), requestor, this.apiLevel, Collections.unmodifiableMap(this.compilerOptions), this.project, this.workingCopyOwner, flags, monitor);
 			} else {
-				this.unitResolver.parse(compilationUnits, requestor, this.apiLevel, this.compilerOptions, flags, monitor);
+				this.unitResolver.parse(Arrays.copyOf(compilationUnits, compilationUnits.length), requestor, this.apiLevel, Collections.unmodifiableMap(this.compilerOptions), flags, monitor);
 			}
 		} finally {
 			// reset to defaults to allow reuse (and avoid leaking)
@@ -1058,9 +1060,9 @@ public class ASTParser {
 				if ((this.bits & CompilationUnitResolver.BINDING_RECOVERY) != 0) {
 					flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
 				}
-				this.unitResolver.resolve(sourceFilePaths, encodings, bindingKeys, requestor, this.apiLevel, this.compilerOptions, getClasspath(), flags, monitor);
+				this.unitResolver.resolve(Arrays.copyOf(sourceFilePaths, sourceFilePaths.length), Arrays.copyOf(encodings, encodings.length), Arrays.copyOf(bindingKeys, bindingKeys.length), requestor, this.apiLevel, Collections.unmodifiableMap(this.compilerOptions), getClasspath(), flags, monitor);
 			} else {
-				this.unitResolver.parse(sourceFilePaths, encodings, requestor, this.apiLevel, this.compilerOptions, flags, monitor);
+				this.unitResolver.parse(Arrays.copyOf(sourceFilePaths, sourceFilePaths.length), Arrays.copyOf(encodings, encodings.length), requestor, this.apiLevel, Collections.unmodifiableMap(this.compilerOptions), flags, monitor);
 			}
 		} finally {
 			// reset to defaults to allow reuse (and avoid leaking)
@@ -1250,7 +1252,7 @@ public class ASTParser {
 						}
 					}
 
-					CompilationUnit result2 = this.unitResolver.toCompilationUnit(sourceUnit, needToResolveBindings, this.project, getClasspath(), useSearcher ? this.focalPointPosition : -1, this.apiLevel, this.compilerOptions, this.workingCopyOwner, wcOwner, flags, monitor);
+					CompilationUnit result2 = this.unitResolver.toCompilationUnit(sourceUnit, needToResolveBindings, this.project, getClasspath(), useSearcher ? this.focalPointPosition : -1, this.apiLevel, Collections.unmodifiableMap(this.compilerOptions), this.workingCopyOwner, wcOwner, flags, monitor);
 					result2.setTypeRoot(this.typeRoot);
 					return result2;
 				} finally {
