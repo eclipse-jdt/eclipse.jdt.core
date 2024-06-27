@@ -447,8 +447,6 @@ public class JavacProblemConverter {
 					&& args[0] instanceof Type.JCVoidType) {
 					return IProblem.MethodReturnsVoid;
 				}
-
-				return IProblem.TypeMismatch;
 			} else if ("compiler.misc.unexpected.ret.val".equals(diagnosticArg.getCode())) {
 				return IProblem.VoidMethodReturnsValue;
 			} else if ("compiler.misc.missing.ret.val".equals(diagnosticArg.getCode())) {
@@ -456,7 +454,7 @@ public class JavacProblemConverter {
 			}
 		}
 
-		return 0;
+		return IProblem.TypeMismatch;
 	}
 
 	private static int convertUnresolvedSymbol(Diagnostic<? extends JavaFileObject> javacDiagnostic) {
