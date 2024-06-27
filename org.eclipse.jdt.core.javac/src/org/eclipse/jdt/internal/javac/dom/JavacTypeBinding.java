@@ -52,6 +52,7 @@ import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ErrorType;
+import com.sun.tools.javac.code.Type.JCNoType;
 import com.sun.tools.javac.code.Type.JCVoidType;
 import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Type.TypeVar;
@@ -395,20 +396,23 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding[] getInterfaces() {
-		if (this.typeSymbol instanceof TypeVariableSymbol && this.type instanceof TypeVar tv) {
-			Type t = tv.getUpperBound();
-			if (t.tsym instanceof ClassSymbol) {
-				JavacTypeBinding jtb = this.resolver.bindings.getTypeBinding(t);
-				if( jtb.isInterface()) {
-					return new ITypeBinding[] {jtb};
-				}
-			}
-		}
-
-		if( this.typeSymbol instanceof final ClassSymbol classSymbol && classSymbol.getInterfaces() != null ) {
-			return 	classSymbol.getInterfaces().map(this.resolver.bindings::getTypeBinding).toArray(ITypeBinding[]::new);
-		}
-		return new ITypeBinding[0];
+		return this.types.interfaces(this.type).stream()
+				.map(this.resolver.bindings::getTypeBinding)
+				.toArray(ITypeBinding[]::new);
+//		if (this.typeSymbol instanceof TypeVariableSymbol && this.type instanceof TypeVar tv) {
+//			Type t = tv.getUpperBound();
+//			if (t.tsym instanceof ClassSymbol) {
+//				JavacTypeBinding jtb = this.resolver.bindings.getTypeBinding(t);
+//				if( jtb.isInterface()) {
+//					return new ITypeBinding[] {jtb};
+//				}
+//			}
+//		}
+//
+//		if( this.typeSymbol instanceof final ClassSymbol classSymbol && classSymbol.getInterfaces() != null ) {
+//			return 	classSymbol.getInterfaces().map(this.resolver.bindings::getTypeBinding).toArray(ITypeBinding[]::new);
+//		}
+//		return new ITypeBinding[0];
 	}
 
 	@Override
@@ -456,7 +460,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		}
 
 		StringBuilder res = new StringBuilder();
-		if (isGenericType()) {
+		if (!isParameterizedType()) {
 			res.append(this.typeSymbol.getQualifiedName().toString());
 		} else {
 			res.append(this.type.toString()); // may include type parameters
@@ -474,6 +478,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding getSuperclass() {
+		Type superType = this.types.supertype(this.type);
+		if (superType != null && !(superType instanceof JCNoType)) {
+			return this.resolver.bindings.getTypeBinding(superType);
+		}
 		String jlObject = this.typeSymbol.getQualifiedName().toString();
 		if (Object.class.getName().equals(jlObject)) {
 			return null;
@@ -551,8 +559,8 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	public ITypeBinding[] getTypeParameters() {
 		return isRawType()
 			? new ITypeBinding[0]
-			: this.typeSymbol.getTypeParameters().stream()
-				.map(symbol -> this.resolver.bindings.getTypeBinding(symbol.type))
+			: this.type.getParameterTypes()
+				.map(this.resolver.bindings::getTypeBinding)
 				.toArray(ITypeBinding[]::new);
 	}
 
@@ -634,7 +642,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isGenericType() {
-		return getTypeParameters().length > 0;
+		return this.type.isParameterized() && this.type.getTypeArguments().stream().anyMatch(TypeVar.class::isInstance);
 	}
 
 	@Override
@@ -674,7 +682,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isParameterizedType() {
-		return this.type.isParameterized();
+		return !this.type.getTypeArguments().isEmpty() && this.type.getTypeArguments().stream().noneMatch(TypeVar.class::isInstance);
 	}
 
 	@Override

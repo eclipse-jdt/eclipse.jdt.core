@@ -1824,6 +1824,10 @@ class JavacConverter {
 					} else {
 						Dimension dimension = this.ast.newDimension();
 						res.add(dimension);
+						// Would be better to use a Tokenizer here that is capable of skipping comments
+						int startPosition = this.rawText.indexOf('[', arrayType.pos);
+						int endPosition = this.rawText.indexOf(']', startPosition);
+						dimension.setSourceRange(startPosition, endPosition - startPosition + 1);
 					}
 					elem = arrayType.getType();
 				} else if (elem instanceof JCAnnotatedType annotated && annotated.getUnderlyingType() instanceof JCArrayTypeTree arrayType) {
@@ -1834,6 +1838,10 @@ class JavacConverter {
 						annotated.getAnnotations().stream()
 							.map(this::convert)
 							.forEach(dimension.annotations()::add);
+						// Would be better to use a Tokenizer here that is capable of skipping comments
+						int startPosition = this.rawText.indexOf('[', arrayType.pos);
+						int endPosition = this.rawText.indexOf(']', startPosition);
+						dimension.setSourceRange(startPosition, endPosition - startPosition + 1);
 						res.add(dimension);
 					}
 					elem = arrayType.getType();

@@ -443,8 +443,8 @@ public class JavacProblemConverter {
 		if (diagnosticArg != null) {
 			if ("compiler.misc.inconvertible.types".equals(diagnosticArg.getCode())) {
 				Object[] args = getDiagnosticArguments(diagnosticArg);
-				if (args != null && args.length > 0
-					&& args[0] instanceof Type.JCVoidType) {
+				if (args != null && args.length > 1
+					&& args[1] instanceof Type.JCVoidType) {
 					return IProblem.MethodReturnsVoid;
 				}
 			} else if ("compiler.misc.unexpected.ret.val".equals(diagnosticArg.getCode())) {
@@ -453,7 +453,6 @@ public class JavacProblemConverter {
 				return IProblem.ShouldReturnValue;
 			}
 		}
-
 		return IProblem.TypeMismatch;
 	}
 
