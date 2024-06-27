@@ -76,7 +76,7 @@ public class DOMASTUtil {
 			case ASTNode.RECORD_PATTERN:
 				return apiLevel >= AST.JLS21;
 			case ASTNode.EitherOr_MultiPattern:
-				return apiLevel >= AST.JLS21 && previewEnabled;
+				return apiLevel >= AST.JLS22;
 		}
 		return false;
 	}
