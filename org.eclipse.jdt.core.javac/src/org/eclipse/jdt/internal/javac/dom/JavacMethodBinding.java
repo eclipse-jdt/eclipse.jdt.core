@@ -51,7 +51,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	private static final ITypeBinding[] NO_TYPE_ARGUMENTS = new ITypeBinding[0];
 
 	public final MethodSymbol methodSymbol;
-	private final MethodType methodType;
+	final MethodType methodType;
 	final JavacBindingResolver resolver;
 
 	public JavacMethodBinding(MethodType methodType, MethodSymbol methodSymbol, JavacBindingResolver resolver) {
@@ -84,13 +84,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public int getModifiers() {
-		Set<javax.lang.model.element.Modifier> modifiers = this.methodSymbol.getModifiers();
-		if (this.getDeclaringClass().isInterface() && modifiers.contains(javax.lang.model.element.Modifier.ABSTRACT)) {
-			// not expected in binding
-			modifiers = new TreeSet<javax.lang.model.element.Modifier>(modifiers);
-			modifiers.remove(javax.lang.model.element.Modifier.ABSTRACT);
-		}
-		return toInt(modifiers);
+		return toInt(this.methodSymbol.getModifiers());
 	}
 
 	static int toInt(Set<javax.lang.model.element.Modifier> javac) {

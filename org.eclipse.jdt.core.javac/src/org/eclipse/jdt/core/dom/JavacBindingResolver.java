@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.internal.javac.dom.JavacAnnotationBinding;
+import org.eclipse.jdt.internal.javac.dom.JavacLambdaBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacMemberValuePairBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacMethodBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacModuleBinding;
@@ -151,6 +152,13 @@ public class JavacBindingResolver extends BindingResolver {
 			JavacVariableBinding newInstance = new JavacVariableBinding(varSymbol, JavacBindingResolver.this) { };
 			variableBindings.putIfAbsent(newInstance.getKey(), newInstance);
 			return variableBindings.get(newInstance.getKey());
+		}
+		//
+		private Map<String, JavacLambdaBinding> lambdaBindings = new HashMap<>();
+		public JavacLambdaBinding getLambdaBinding(JavacMethodBinding javacMethodBinding) {
+			JavacLambdaBinding newInstance = new JavacLambdaBinding(javacMethodBinding);
+			lambdaBindings.putIfAbsent(newInstance.getKey(), newInstance);
+			return lambdaBindings.get(newInstance.getKey());
 		}
 
 		public IBinding getBinding(final Symbol owner, final com.sun.tools.javac.code.Type type) {
@@ -459,8 +467,8 @@ public class JavacBindingResolver extends BindingResolver {
 		JCTree javacElement = this.converter.domToJavac.get(lambda);
 		if (javacElement instanceof JCLambda jcLambda) {
 			JavacTypeBinding typeBinding = this.bindings.getTypeBinding(jcLambda.type);
-			if (typeBinding != null && typeBinding.getDeclaredMethods().length == 1) {
-				return typeBinding.getDeclaredMethods()[0];
+			if (typeBinding != null && typeBinding.getDeclaredMethods().length == 1 && typeBinding.getDeclaredMethods()[0] instanceof JavacMethodBinding javacMethodBinding) {
+				return this.bindings.getLambdaBinding(javacMethodBinding);
 			}
 		}
 		return null;
