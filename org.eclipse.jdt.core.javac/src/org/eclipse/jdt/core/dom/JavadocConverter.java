@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
 
+import com.sun.source.doctree.DocTree;
 import com.sun.source.util.DocTreePath;
 import com.sun.source.util.TreePath;
 import com.sun.tools.javac.parser.UnicodeReader;
@@ -254,6 +255,10 @@ class JavadocConverter {
 			res.setTagName(TagElement.TAG_INHERITDOC);
 		} else if (javac instanceof DCSnippet snippet) {
 			res.setTagName(TagElement.TAG_SNIPPET);
+			// TODO hardcoded value
+			res.setProperty(TagProperty.TAG_PROPERTY_SNIPPET_ERROR, false);
+			// TODO hardcoded value
+			res.setProperty(TagProperty.TAG_PROPERTY_SNIPPET_IS_VALID, true);
 			// TODO attributes
 			res.fragments().addAll(convertElement(snippet.body).toList());
 		} else if (javac instanceof DCUnknownInlineTag unknown) {
@@ -322,25 +327,14 @@ class JavadocConverter {
 	private Stream<Region> splitLines(DCText text) {
 		int[] startPosition = { this.docComment.getSourcePosition(text.getStartPosition()) };
 		int endPosition = this.docComment.getSourcePosition(text.getEndPosition());
-		return Arrays.stream(this.javacConverter.rawText.substring(startPosition[0], endPosition).split("(\r)?\n(\\s|\\*)*")) //$NON-NLS-1$
-			.filter(Predicate.not(String::isBlank))
+		return Arrays.stream(this.javacConverter.rawText.substring(startPosition[0], endPosition).split("(\r)?\n\\s*\\*\\s")) //$NON-NLS-1$
 			.map(string -> {
 				int index = this.javacConverter.rawText.indexOf(string, startPosition[0]);
 				if (index < 0) {
 					return null;
 				}
-				// workaround for JDT expectations: include prefix whitespaces
-				// if there is another element before on the same line
-				int lineStart = this.javacConverter.rawText.lastIndexOf("\n", index) + 1;
-				int prefixWhitespace = 0;
-				if (!this.javacConverter.rawText.substring(lineStart, index).matches("(\\s|\\*)*")) {
-					while (index > lineStart && Character.isWhitespace(this.javacConverter.rawText.charAt(index - 1))) {
-						prefixWhitespace++;
-						index--;
-					}
-				}
 				startPosition[0] = index + string.length();
-				return new Region(index, prefixWhitespace + string.length());
+				return new Region(index, string.length());
 			}).filter(Objects::nonNull);
 	}
 
