@@ -455,7 +455,12 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return this.resolver.bindings.getTypeBinding(at.getComponentType()).getQualifiedName() + "[]";
 		}
 
-		StringBuilder res = new StringBuilder(this.type.toString());
+		StringBuilder res = new StringBuilder();
+		if (isGenericType()) {
+			res.append(this.typeSymbol.getQualifiedName().toString());
+		} else {
+			res.append(this.type.toString()); // may include type parameters
+		}
 		// remove annotations here
 		int annotationIndex = -1;
 		while ((annotationIndex = res.lastIndexOf("@")) >= 0) {
@@ -537,14 +542,18 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding getTypeDeclaration() {
-		return this;
+		return this.typeSymbol.type == this.type
+			? this
+			: this.resolver.bindings.getTypeBinding(this.typeSymbol.type);
 	}
 
 	@Override
 	public ITypeBinding[] getTypeParameters() {
-		return this.typeSymbol.getTypeParameters().stream()
-			.map(symbol -> this.resolver.bindings.getTypeBinding(symbol.type))
-			.toArray(ITypeBinding[]::new);
+		return isRawType()
+			? new ITypeBinding[0]
+			: this.typeSymbol.getTypeParameters().stream()
+				.map(symbol -> this.resolver.bindings.getTypeBinding(symbol.type))
+				.toArray(ITypeBinding[]::new);
 	}
 
 	@Override
@@ -625,7 +634,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isGenericType() {
-		return this.type.getTypeArguments().isEmpty() && !this.typeSymbol.getTypeParameters().isEmpty();
+		return getTypeParameters().length > 0;
 	}
 
 	@Override
@@ -665,7 +674,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isParameterizedType() {
-		return !this.type.getTypeArguments().isEmpty();
+		return this.type.isParameterized();
 	}
 
 	@Override
