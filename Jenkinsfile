@@ -43,7 +43,7 @@ pipeline {
 			}
 			post {
 				always {
-					archiveArtifacts artifacts: '*.log,*/target/work/data/.metadata/*.log,*/tests/target/work/data/.metadata/*.log,apiAnalyzer-workspace/.metadata/*.log,repository/target/repository/**,**/target/artifactcomparison/**', allowEmptyArchive: true
+					archiveArtifacts artifacts: '*.log,*/target/work/data/.metadata/*.log,*/tests/target/work/data/.metadata/*.log,apiAnalyzer-workspace/.metadata/*.log,repository/target/repository/**', allowEmptyArchive: true
 					// The following lines use the newest build on master that did not fail a reference
 					// To not fail master build on failed test maven needs to be started with "-Dmaven.test.failure.ignore=true" it will then only marked unstable.
 					// To not fail the build also "unstable: true" is used to only mark the build unstable instead of failing when qualityGates are missed
