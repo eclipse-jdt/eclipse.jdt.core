@@ -72,7 +72,8 @@ public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension
 						Object value = field.get(this.currentTestCase);
 						field.set(test, value);
 					} catch (IllegalAccessException e) {
-						e.printStackTrace();
+						e.printStackTrace(System.out);
+						throw new IllegalStateException(e);
 					}
 				}
 				currentClass = currentClass.getSuperclass();
@@ -104,7 +105,8 @@ public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension
 				try {
 					current.setUpSuite();
 				} catch (Exception e) {
-					e.printStackTrace();
+					e.printStackTrace(System.out);
+					throw new IllegalStateException(e);
 				}
 			} else {
 				// copy the values of the previous current test case's fields into the current one
