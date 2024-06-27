@@ -37,6 +37,7 @@ import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCBlock;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
+import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.DiagnosticSource;
 import com.sun.tools.javac.util.JCDiagnostic;
@@ -98,8 +99,11 @@ public class JavacProblemConverter {
 			case JCClassDecl jcClassDecl -> {
 				return getDiagnosticPosition(jcDiagnostic, jcClassDecl);
 			}
-			case JCVariableDecl JCVariableDecl -> {
-				return getDiagnosticPosition(jcDiagnostic, JCVariableDecl);
+			case JCVariableDecl jcVariableDecl -> {
+				return getDiagnosticPosition(jcDiagnostic, jcVariableDecl);
+			}
+			case JCMethodDecl jcMethodDecl -> {
+				return getDiagnosticPosition(jcDiagnostic, jcMethodDecl);
 			}
 			default -> {
 				org.eclipse.jface.text.Position result = getMissingReturnMethodDiagnostic(jcDiagnostic, context);
@@ -117,6 +121,19 @@ public class JavacProblemConverter {
 		return getDefaultPosition(diagnostic);
 	}
 
+	private static org.eclipse.jface.text.Position getDiagnosticPosition(JCDiagnostic jcDiagnostic,
+			JCMethodDecl jcMethodDecl) {
+		int startPosition = (int) jcDiagnostic.getPosition();
+		if (startPosition != Position.NOPOS) {
+			try {
+				String name = jcMethodDecl.getName().toString();
+				return getDiagnosticPosition(name, startPosition, jcDiagnostic);
+			} catch (IOException ex) {
+				ILog.get().error(ex.getMessage(), ex);
+			}
+		}
+		return getDefaultPosition(jcDiagnostic);
+	}
 	private static org.eclipse.jface.text.Position getDefaultPosition(Diagnostic<? extends JavaFileObject> diagnostic) {
 		int start = (int) Math.min(diagnostic.getPosition(), diagnostic.getStartPosition());
 		int end = (int) Math.max(diagnostic.getEndPosition() - 1, start);

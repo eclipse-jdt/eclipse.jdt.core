@@ -869,12 +869,8 @@ class JavacConverter {
 				boolean notAllowed = (isAbstractOrNative || (isInterface && (isJlsBelow8 || (modFlags & flagsToCheckForAboveJLS8) == 0)));
 				if (notAllowed) {
 					res.setFlags(res.getFlags() | ASTNode.MALFORMED);
-					Block b1 = this.ast.newBlock();
-					commonSettings(b1, javac);
-					res.setBody(b1);
-				} else {
-					res.setBody(b);
 				}
+				res.setBody(b);
 			}
 
 			if( (b.getFlags() & ASTNode.MALFORMED) > 0 ) {
@@ -1044,7 +1040,7 @@ class JavacConverter {
 			} else {
 				res.internalSetModifiers(getJLS2ModifiersFlags(javac.mods));
 			}
-			
+
 			Type resType = null;
 			int count = fragment.getExtraDimensions();
 			if( count > 0 ) {
@@ -1073,7 +1069,7 @@ class JavacConverter {
 					return null;
 				}
 			}
-			
+
 			return res;
 		}
 	}
@@ -1634,7 +1630,7 @@ class JavacConverter {
 		}
 		return null;
 	}
-	
+
 	private Expression handleInfixExpression(JCBinary binary, JCExpression javac) {
 		List<JCExpression> conseq = consecutiveInfixExpressionsWithEqualOps(binary, binary.getTag());
 		if( conseq != null && conseq.size() > 2 ) {
@@ -1643,7 +1639,7 @@ class JavacConverter {
 
 		InfixExpression res = this.ast.newInfixExpression();
 		commonSettings(res, javac);
-		
+
 		Expression left = convertExpression(binary.getLeftOperand());
 		if (left != null) {
 			res.setLeftOperand(left);
@@ -1661,7 +1657,7 @@ class JavacConverter {
 
 		InfixExpression res = this.ast.newInfixExpression();
 		commonSettings(res, javac);
-		
+
 		Expression left = convertExpression(conseq.get(0));
 		if (left != null) {
 			res.setLeftOperand(left);
@@ -1673,11 +1669,11 @@ class JavacConverter {
 		for( int i = 2; i < conseq.size(); i++ ) {
 			res.extendedOperands().add(convertExpression(conseq.get(i)));
 		}
-		
+
 		res.setOperator(binaryTagToInfixOperator(binary.getTag()));
 		return res;
 	}
-	
+
 	private InfixExpression.Operator binaryTagToInfixOperator(Tag t) {
 		return switch (t) {
 			case OR -> InfixExpression.Operator.CONDITIONAL_OR;
@@ -1702,7 +1698,7 @@ class JavacConverter {
 			default -> null;
 		};
 	}
-	
+
 
 	/**
 	 * precondition: you've checked all the segments are identifier that can be used in a qualified name
@@ -1871,7 +1867,7 @@ class JavacConverter {
 		}
 		return elem;
 	}
-	
+
 	private int countDimensions(JCTree tree) {
 		JCTree elem = tree;
 		int count = 0;
@@ -2610,7 +2606,7 @@ class JavacConverter {
 					int startPos = jcArrayType.getStartPosition();
 					try {
 						String raw = this.rawText.substring(startPos, endPos);
-						int ordinal = ordinalIndexOf(raw, "]", dims); 
+						int ordinal = ordinalIndexOf(raw, "]", dims);
 						if( ordinal != -1 ) {
 							int indOf = ordinal + 1;
 							commonSettings(res, jcArrayType, indOf);
@@ -3048,7 +3044,7 @@ class JavacConverter {
 		jdt.setSourceRange(pos, endPos - pos);
 		return jdt;
 	}
-	
+
 	class FixPositions extends ASTVisitor {
 		private final String contents;
 
