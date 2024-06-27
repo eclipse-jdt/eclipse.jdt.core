@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.dom;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -162,6 +163,10 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 
 		public IBinding getBinding(final Symbol owner, final com.sun.tools.javac.code.Type type) {
+			Symbol recoveredSymbol = getRecoveredSymbol(type);
+			if (recoveredSymbol != null) {
+				return getBinding(recoveredSymbol, recoveredSymbol.type);
+			}
 			if (owner instanceof final PackageSymbol other) {
 				return getPackageBinding(other);
 			} else if (owner instanceof ModuleSymbol typeSymbol) {
@@ -693,6 +698,17 @@ public class JavacBindingResolver extends BindingResolver {
 			if (jcExpr.type instanceof PackageType) {
 				return null;
 			}
+			Symbol recoveredSymbol = getRecoveredSymbol(jcExpr.type);
+			if (recoveredSymbol != null) {
+				IBinding recoveredBinding = this.bindings.getBinding(recoveredSymbol, recoveredSymbol.type);
+				switch (recoveredBinding) {
+				case IVariableBinding variableBinding: return variableBinding.getType();
+				case ITypeBinding typeBinding: return typeBinding;
+				case IMethodBinding methodBinding: return methodBinding.getReturnType();
+				default:
+					return null;
+				}
+			}
 			return this.bindings.getTypeBinding(jcExpr.type);
 		}
 		return null;
@@ -921,5 +937,20 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 		return null;
 	}
+	private static Symbol getRecoveredSymbol(com.sun.tools.javac.code.Type type) {
+		if (type instanceof ErrorType) {
+			try {
+				Field candidateSymbolField = type.getClass().getField("candidateSymbol");
+				candidateSymbolField.setAccessible(true);
 
+				Object symbolFieldValue = candidateSymbolField.get(type);
+				if (symbolFieldValue instanceof Symbol symbol) {
+					return symbol;
+				}
+			} catch (NoSuchFieldException | IllegalAccessException unused) {
+				// fall through to null
+			}
+		}
+		return null;
+	}
 }
