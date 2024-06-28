@@ -328,6 +328,7 @@ public class JavacProblemConverter {
 			case "compiler.err.prob.found.req" -> convertTypeMismatch(diagnostic);
 			case "compiler.err.invalid.meth.decl.ret.type.req" -> IProblem.MissingReturnType;
 			case "compiler.err.abstract.meth.cant.have.body" -> IProblem.BodyForAbstractMethod;
+			case "compiler.err.unreported.exception.need.to.catch.or.throw" -> IProblem.UnhandledException;
 			case "compiler.err.unreported.exception.default.constructor" -> IProblem.UnhandledExceptionInDefaultConstructor;
 			case "compiler.err.unreachable.stmt" -> IProblem.CodeCannotBeReached;
 			case "compiler.err.except.never.thrown.in.try" -> IProblem.UnreachableCatch;
