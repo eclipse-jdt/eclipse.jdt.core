@@ -5507,15 +5507,16 @@ public void invokeExactConversionsSupport(int typeFromTo) {
 		default :
 			return; // should not occur
 	}
+	char[] declaringClass = ConstantPool.JAVA_LANG_RUNTIME_EXACTCONVERSIONSSUPPORT;
 	invoke(
 			Opcodes.OPC_invokestatic,
 			receiverAndArgsSize, // receiverAndArgsSize
 			returnTypeSize, // return type size
-			ConstantPool.ExactConversionsSupport,
+			declaringClass,
 			methodName,
 			signature,
 			typeID,
-			getPopularBinding(ConstantPool.ExactConversionsSupport));
+			TypeBinding.BOOLEAN);
 }
 
 public void invokeThrowableToString() {

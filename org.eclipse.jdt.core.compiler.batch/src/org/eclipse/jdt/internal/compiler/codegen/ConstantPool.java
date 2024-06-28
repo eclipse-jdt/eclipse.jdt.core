@@ -335,7 +335,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 
 	public static final char[] PROCESS = "process".toCharArray(); //$NON-NLS-1$
 
-	public static final char[] ExactConversionsSupport = "java/lang/runtime/ExactConversionsSupport".toCharArray(); //$NON-NLS-1$
+	public static final char[] JAVA_LANG_RUNTIME_EXACTCONVERSIONSSUPPORT = "java/lang/runtime/ExactConversionsSupport".toCharArray(); //$NON-NLS-1$
 	public static final char[] isIntToFloatExact = "isIntToFloatExact".toCharArray(); //$NON-NLS-1$
 	public static final char[] isIntToFloatExactSignature = "(I)Z".toCharArray(); //$NON-NLS-1$
 	public static final char[] isLongToFloatExact = "isLongToFloatExact".toCharArray(); //$NON-NLS-1$
