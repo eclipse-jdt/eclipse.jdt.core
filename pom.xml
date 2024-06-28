@@ -91,6 +91,31 @@
           </execution>
           </executions>
         </plugin>
+		</plugin> 
+		<plugin>
+	    	<groupId>org.eclipse.tycho.extras</groupId>
+	    	<artifactId>tycho-p2-extras-plugin</artifactId>
+			<version>${tycho.version}</version>
+			<executions>
+	        	<execution> <!-- Checks versions are properly bumped from one stream to the other -->
+	           		<id>compare-attached-artifacts-with-release</id>
+	           		<goals>
+	             		<goal>compare-version-with-baselines</goal>
+	           		</goals>
+	           		<configuration>
+	             		<skip>${compare-version-with-baselines.skip}</skip>
+	             		<baselines>
+	               			<baseline>${previous-release.baseline}</baseline>
+	             		</baselines>
+	             		<comparator>zip</comparator>
+       		            <ignoredPatterns>
+							<pattern>META-INF/ECLIPSE_.RSA</pattern>
+							<pattern>META-INF/ECLIPSE_.SF</pattern>
+            			</ignoredPatterns>
+	           		</configuration>
+	         	</execution>
+	       </executions>
+	     </plugin>
       </plugins>
     </pluginManagement>
   </build>
