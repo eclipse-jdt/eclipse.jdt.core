@@ -464,6 +464,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		};
 		// must be 1st thing added to context
 		context.put(DiagnosticListener.class, diagnosticListener);
+		boolean docEnabled = JavaCore.ENABLED.equals(compilerOptions.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT));
 		JavacUtils.configureJavacContext(context, compilerOptions, javaProject);
 		var fileManager = (JavacFileManager)context.get(JavaFileManager.class);
 		List<JavaFileObject> fileObjects = new ArrayList<>(); // we need an ordered list of them
@@ -518,7 +519,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					AST ast = res.ast;
 					int savedDefaultNodeFlag = ast.getDefaultNodeFlag();
 					ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
-					JavacConverter converter = new JavacConverter(ast, javacCompilationUnit, context, rawText, JavaCore.ENABLED.equals(compilerOptions.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT)));
+					JavacConverter converter = new JavacConverter(ast, javacCompilationUnit, context, rawText, docEnabled);
 					converter.populateCompilationUnit(res, javacCompilationUnit);
 					// javadoc problems explicitly set as they're not sent to DiagnosticListener (maybe find a flag to do it?)
 					var javadocProblems = converter.javadocDiagnostics.stream()

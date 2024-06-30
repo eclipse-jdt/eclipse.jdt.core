@@ -132,10 +132,13 @@ public class JavacUtils {
 			Runtime.version().feature() == complianceVersion.feature()) {
 			options.put(Option.PREVIEW, Boolean.toString(true));
 		}
-		options.put(Option.XLINT, Boolean.TRUE.toString()); // TODO refine according to compilerOptions
+		options.put(Option.XLINT, Boolean.toString(true)); // TODO refine according to compilerOptions
 		options.put(Option.XLINT_CUSTOM, "all"); // TODO refine according to compilerOptions
 		if (addExports != null && !addExports.isBlank()) {
 			options.put(Option.ADD_EXPORTS, addExports);
+		}
+		if (JavaCore.ENABLED.equals(compilerOptions.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT))) {
+			options.put(Option.XDOCLINT, Boolean.toString(true));
 		}
 	}
 
