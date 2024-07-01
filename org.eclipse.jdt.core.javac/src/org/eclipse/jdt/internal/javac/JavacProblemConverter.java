@@ -27,8 +27,10 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 import com.sun.tools.javac.code.Kinds;
+import com.sun.tools.javac.code.Kinds.KindName;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.code.TypeTag;
 import com.sun.tools.javac.parser.Scanner;
 import com.sun.tools.javac.parser.ScannerFactory;
 import com.sun.tools.javac.parser.Tokens.Token;
@@ -36,6 +38,7 @@ import com.sun.tools.javac.parser.Tokens.TokenKind;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCBlock;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
+import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.util.Context;
@@ -87,7 +90,7 @@ public class JavacProblemConverter {
 				new String[0],
 				severity,
 				diagnosticPosition.getOffset(),
-				diagnosticPosition.getOffset() + diagnosticPosition.getLength(),
+				diagnosticPosition.getOffset() + diagnosticPosition.getLength() - 1,
 				(int) diagnostic.getLineNumber(),
 				(int) diagnostic.getColumnNumber());
 	}
@@ -96,30 +99,26 @@ public class JavacProblemConverter {
 		if (diagnostic.getCode().contains(".dc")) { //javadoc
 			return getDefaultPosition(diagnostic);
 		}
-		switch (diagnostic) {
-		case JCDiagnostic jcDiagnostic -> {
+		if (diagnostic instanceof JCDiagnostic jcDiagnostic) {
 			switch (jcDiagnostic.getDiagnosticPosition()) {
-			case JCClassDecl jcClassDecl -> {
-				return getDiagnosticPosition(jcDiagnostic, jcClassDecl);
+				case JCClassDecl jcClassDecl: return getDiagnosticPosition(jcDiagnostic, jcClassDecl);
+				case JCVariableDecl jcVariableDecl: return getDiagnosticPosition(jcDiagnostic, jcVariableDecl);
+				case JCMethodDecl jcMethodDecl: return getDiagnosticPosition(jcDiagnostic, jcMethodDecl);
+				case JCFieldAccess jcFieldAccess:
+					if (getDiagnosticArgumentByType(jcDiagnostic, KindName.class) != KindName.PACKAGE) {
+						// TODO here, instead of recomputing a position, get the JDT DOM node and call the Name (which has a position)
+						return new org.eclipse.jface.text.Position(jcFieldAccess.getPreferredPosition() + 1, jcFieldAccess.getIdentifier().length());
+					}
+					// else: fail-through
+				default:
+					org.eclipse.jface.text.Position result = getMissingReturnMethodDiagnostic(jcDiagnostic, context);
+					if (result != null) {
+						return result;
+					}
+					if (jcDiagnostic.getStartPosition() == jcDiagnostic.getEndPosition()) {
+						return getPositionUsingScanner(jcDiagnostic, context);
+					}
 			}
-			case JCVariableDecl jcVariableDecl -> {
-				return getDiagnosticPosition(jcDiagnostic, jcVariableDecl);
-			}
-			case JCMethodDecl jcMethodDecl -> {
-				return getDiagnosticPosition(jcDiagnostic, jcMethodDecl);
-			}
-			default -> {
-				org.eclipse.jface.text.Position result = getMissingReturnMethodDiagnostic(jcDiagnostic, context);
-				if (result != null) {
-					return result;
-				}
-				if (jcDiagnostic.getStartPosition() == jcDiagnostic.getEndPosition()) {
-					return getPositionUsingScanner(jcDiagnostic, context);
-				}
-			}
-			}
-		}
-		default -> {}
 		}
 		return getDefaultPosition(diagnostic);
 	}
@@ -342,8 +341,12 @@ public class JavacProblemConverter {
 			case "compiler.err.cant.resolve" -> convertUnresolvedVariable(diagnostic);
 			case "compiler.err.cant.resolve.args" -> convertUndefinedMethod(diagnostic);
 			case "compiler.err.cant.resolve.args.params" -> IProblem.UndefinedMethod;
-			case "compiler.err.cant.apply.symbols" -> convertInApplicableSymbols(diagnostic);
-			case "compiler.err.cant.apply.symbol" -> convertInApplicableSymbols(diagnostic);
+			case "compiler.err.cant.apply.symbols", "compiler.err.cant.apply.symbol" -> 
+				switch (getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class)) {
+					case CONSTRUCTOR -> IProblem.UndefinedConstructor;
+					case METHOD -> IProblem.ParameterMismatch;
+					default -> 0;
+				};
 			case "compiler.err.premature.eof" -> IProblem.ParsingErrorUnexpectedEOF; // syntax error
 			case "compiler.err.report.access" -> convertNotVisibleAccess(diagnostic);
 			case "compiler.err.does.not.override.abstract" -> IProblem.AbstractMethodMustBeImplemented;
@@ -402,7 +405,7 @@ public class JavacProblemConverter {
 			case "compiler.err.dc.unterminated.signature" -> IProblem.JavadocUnexpectedText;
 			case "compiler.err.dc.unterminated.string" -> IProblem.JavadocUnexpectedText;
 			case "compiler.err.dc.ref.annotations.not.allowed" -> IProblem.JavadocUnexpectedText;
-			case "compiler.warn.proc.messager" -> {
+			case "compiler.warn.proc.messager", "compiler.err.proc.messager" -> {
 				// probably some javadoc comment, we didn't find a good way to get javadoc
 				// code/ids: there are lost in the diagnostic when going through
 				// jdk.javadoc.internal.doclint.Messages.report(...) and we cannot override
@@ -414,6 +417,9 @@ public class JavacProblemConverter {
 				}
 				if (message.contains("no @return")) {
 					yield IProblem.JavadocMissingReturnTag;
+				}
+				if (message.contains("@param name not found")) {
+					yield IProblem.JavadocInvalidParamName;
 				}
 				// most others are ignored
 				yield 0;
@@ -437,9 +443,12 @@ public class JavacProblemConverter {
 	}
 
 	private static int convertUndefinedMethod(Diagnostic<?> diagnostic) {
-		Diagnostic<?> diagnosticArg = getDiagnosticArgumentByType(diagnostic, Diagnostic.class);
-		if (diagnosticArg != null && "compiler.misc.location.1".equals(diagnosticArg.getCode())) {
-			return IProblem.NoMessageSendOnArrayType;
+		JCDiagnostic diagnosticArg = getDiagnosticArgumentByType(diagnostic, JCDiagnostic.class);
+		if (diagnosticArg != null) {
+			Type receiverArg = getDiagnosticArgumentByType(diagnosticArg, Type.class);
+			if (receiverArg.hasTag(TypeTag.ARRAY)) {
+				return IProblem.NoMessageSendOnArrayType;
+			}
 		}
 
 		if ("compiler.err.cant.resolve.args".equals(diagnostic.getCode())) {
@@ -475,25 +484,6 @@ public class JavacProblemConverter {
 		}
 
 		return jcDiagnostic.getArgs();
-	}
-
-	private static int convertInApplicableSymbols(Diagnostic<? extends JavaFileObject> diagnostic) {
-		Kinds.KindName kind = getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class);
-		if ("compiler.err.cant.apply.symbols".equals(diagnostic.getCode())) {
-			return switch (kind) {
-				case CONSTRUCTOR -> IProblem.UndefinedConstructor;
-				case METHOD -> IProblem.ParameterMismatch;
-				default -> 0;
-			};
-		} else if ("compiler.err.cant.apply.symbol".equals(diagnostic.getCode())) {
-			return switch (kind) {
-				case CONSTRUCTOR -> IProblem.UndefinedConstructorInDefaultConstructor;
-				case METHOD -> IProblem.ParameterMismatch;
-				default -> 0;
-			};
-		}
-
-		return 0;
 	}
 
 	// compiler.err.prob.found.req -> TypeMismatch, ReturnTypeMismatch, IllegalCast, VoidMethodReturnsValue...
