@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -660,9 +660,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (this.receiver instanceof CastExpression) {
 		this.receiver.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
 		receiverCast = true;
-	}
-	if (this.receiver instanceof MessageSend) {
-		((MessageSend) this.receiver).isReceiver = true;
 	}
 	this.actualReceiverType = this.receiver.resolveType(scope);
 	if (this.actualReceiverType == null) {

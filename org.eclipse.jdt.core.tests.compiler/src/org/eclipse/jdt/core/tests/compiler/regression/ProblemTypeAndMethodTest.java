@@ -9410,37 +9410,109 @@ public void testMissingClass_returnType_NOK() {
 			"""
 			package p2;
 			import p1.B;
+			import java.util.function.Function;
 			public class C extends B {
 				void test(B b) {
 					B b2 = b.m(this);
 					b.n(b.m(this));
+					boolean f = b.m(this) == b;
+					f = b.m(this) instanceof B;
+					Function<?,?> fun = b.m(this)::foo;
+					Object o = b.m(this).new Inner();
 				}
 				@Override
 				public B m(Object o) { return super.m(o); }
+				class Inner {}
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. ERROR in p2\\C.java (at line 6)
+				B b2 = b.m(this);
+				         ^
+			The method m(Object) from the type B refers to the missing type A
+			----------
+			2. ERROR in p2\\C.java (at line 7)
+				b.n(b.m(this));
+				      ^
+			The method m(Object) from the type B refers to the missing type A
+			----------
+			3. ERROR in p2\\C.java (at line 8)
+				boolean f = b.m(this) == b;
+				              ^
+			The method m(Object) from the type B refers to the missing type A
+			----------
+			4. ERROR in p2\\C.java (at line 9)
+				f = b.m(this) instanceof B;
+				      ^
+			The method m(Object) from the type B refers to the missing type A
+			----------
+			5. ERROR in p2\\C.java (at line 10)
+				Function<?,?> fun = b.m(this)::foo;
+				                      ^
+			The method m(Object) from the type B refers to the missing type A
+			----------
+			7. ERROR in p2\\C.java (at line 11)
+				Object o = b.m(this).new Inner();
+				             ^
+			The method m(Object) from the type B refers to the missing type A
+			----------
+			8. ERROR in p2\\C.java (at line 14)
+				public B m(Object o) { return super.m(o); }
+				       ^
+			The return type is incompatible with B.m(Object)
+			----------
+			9. ERROR in p2\\C.java (at line 14)
+				public B m(Object o) { return super.m(o); }
+				                                    ^
+			The method m(Object) from the type B refers to the missing type A
+			----------
+			""";
+	runner.runNegativeTest();
+}
+public void testMissingClass_exception() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"p1/A.java",
+			"""
+			package p1;
+			public class A extends Exception {}
+			""",
+			"p1/B.java",
+			"""
+			package p1;
+			import p1.A;
+			public class B {
+				public void m() throws A {}
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// delete binary file A (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "A.class"));
+
+	runner.shouldFlushOutputDirectory = false;
+	runner.testFiles = new String[] {
+			"p2/C.java",
+			"""
+			package p2;
+			import p1.B;
+			class C {
+				void test(B b) {
+					b.m();
+				}
 			}
 			"""
 		};
 	runner.expectedCompilerLog = """
 			----------
 			1. ERROR in p2\\C.java (at line 5)
-				B b2 = b.m(this);
-				         ^
-			The method m(Object) from the type B refers to the missing type A
-			----------
-			2. ERROR in p2\\C.java (at line 6)
-				b.n(b.m(this));
-				      ^
-			The method m(Object) from the type B refers to the missing type A
-			----------
-			3. ERROR in p2\\C.java (at line 9)
-				public B m(Object o) { return super.m(o); }
-				       ^
-			The return type is incompatible with B.m(Object)
-			----------
-			4. ERROR in p2\\C.java (at line 9)
-				public B m(Object o) { return super.m(o); }
-				                                    ^
-			The method m(Object) from the type B refers to the missing type A
+				b.m();
+				  ^
+			The method m() from the type B refers to the missing type A
 			----------
 			""";
 	runner.runNegativeTest();

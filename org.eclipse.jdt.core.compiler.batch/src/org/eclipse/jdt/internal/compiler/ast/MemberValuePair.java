@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -69,8 +69,6 @@ public class MemberValuePair extends ASTNode {
 			this.compilerElementPair = new ElementValuePair(this.name, this.value, this.binding);
 			return;
 		}
-		// the following is not really useful, but let's humor the resolution even if value is not a constant
-		this.value.setExpressionContext(ExpressionContext.ASSIGNMENT_CONTEXT);
 		if (requiredType == null) {
 			// fault tolerance: keep resolving
 			if (this.value instanceof ArrayInitializer) {
