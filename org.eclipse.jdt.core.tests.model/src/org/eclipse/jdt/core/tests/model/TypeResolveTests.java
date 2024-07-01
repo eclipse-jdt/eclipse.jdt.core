@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IAnnotation;
-import org.eclipse.jdt.core.ICodeAssist;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -362,7 +361,7 @@ public void testParamAnnotations() throws CoreException {
 		waitForAutoBuild();
 
 		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
-		IJavaElement[] variable = ((ICodeAssist) unit).codeSelect(source.indexOf("processor"), "processor".length());
+		IJavaElement[] variable = unit.codeSelect(source.indexOf("processor"), "processor".length());
 
 		assertEquals(1, variable.length);
 		String annotationString = "@Default [in processor [in Test(String) [in X [in X.java [in p [in src [in P]]]]]]]";
@@ -432,7 +431,7 @@ public void testParamAnnotations3() throws CoreException {
 		waitForAutoBuild();
 
 		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
-		IJavaElement[] variable = ((ICodeAssist) unit).codeSelect(source.indexOf("processor"), "processor".length());
+		IJavaElement[] variable = unit.codeSelect(source.indexOf("processor"), "processor".length());
 
 		assertEquals(1, variable.length);
 		String annotationString1 = "@Default [in processor [in Test(int, String, int) [in X [in X.java [in p [in src [in P]]]]]]]";

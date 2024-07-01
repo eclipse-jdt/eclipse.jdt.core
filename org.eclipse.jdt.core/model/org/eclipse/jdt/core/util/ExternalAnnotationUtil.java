@@ -14,7 +14,6 @@
 package org.eclipse.jdt.core.util;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -716,13 +715,13 @@ public final class ExternalAnnotationUtil {
 		String line;
 		while ((line = tailReader.readLine()) != null)
 			head.append(line).append('\n');
-		ByteArrayInputStream newContent = new ByteArrayInputStream(head.toString().getBytes(StandardCharsets.UTF_8));
+		byte[] newContent = head.toString().getBytes(StandardCharsets.UTF_8);
 		annotationFile.setContents(newContent, IResource.KEEP_HISTORY, monitor);
 	}
 
 	private static void createNewFile(IFile file, String newContent, IProgressMonitor monitor) throws CoreException {
 		ensureExists(file.getParent(), monitor);
-		file.create(new ByteArrayInputStream(newContent.getBytes(StandardCharsets.UTF_8)), false, monitor);
+		file.create(newContent.getBytes(StandardCharsets.UTF_8), false, false, monitor);
 	}
 
 	private static void ensureExists(IContainer container, IProgressMonitor monitor) throws CoreException {

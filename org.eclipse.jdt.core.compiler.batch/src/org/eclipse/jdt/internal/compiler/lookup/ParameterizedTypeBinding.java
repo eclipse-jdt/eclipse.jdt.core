@@ -919,7 +919,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public boolean hasTypeBit(int bit) {
 		TypeBinding erasure = erasure();
 		if (erasure instanceof ReferenceBinding)
-			return ((ReferenceBinding) erasure).hasTypeBit(bit);
+			return erasure.hasTypeBit(bit);
 		return false;
 	}
 

@@ -1352,7 +1352,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		assertBindingsEqual(
 			"Lpack/package-info;",
 			bindings);
-		IAnnotationBinding[] annotations = ((ITypeBinding) bindings[0]).getAnnotations();
+		IAnnotationBinding[] annotations = bindings[0].getAnnotations();
 		assertBindingsEqual(
 			"@Ljava/lang/Deprecated;",
 			annotations);

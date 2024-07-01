@@ -14,7 +14,6 @@
 package org.eclipse.jdt.apt.core.internal.util;
 
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -124,6 +123,21 @@ public final class FileSystemUtil
 			container.setDerived(true, null);
 		}
     }
+    public static void saveToDisk(IFile file, byte[] toSave) throws IOException{
+		try {
+			FileSystemUtil.makeDerivedParentFolders(file.getParent());
+			file.write(toSave, true, true, false, null);
+		} catch (CoreException ce) {
+			if (file.exists()) {
+				// Do nothing. This is a case-insensitive file system mismatch,
+				// and the underlying platform has saved the contents already.
+			}
+			else {
+				AptPlugin.log(ce, "Could not create generated file"); //$NON-NLS-1$
+				throw new IOException(ce.getMessage(), ce);
+			}
+		}
+	}
 
     /**
      * Returns the contents of a IFile as a string in UTF8 format
@@ -145,21 +159,20 @@ public final class FileSystemUtil
      * @throws IOException
      * @throws CoreException
      */
-    public static void writeStringToIFile(IFile file, String contents) throws IOException, CoreException {
-    	byte[] data = contents.getBytes("UTF8"); //$NON-NLS-1$
-    	ByteArrayInputStream input = new ByteArrayInputStream(data);
-    	if (file.exists()) {
-    		if (file.isReadOnly()) {
+	public static void writeStringToIFile(IFile file, String contents) throws IOException, CoreException {
+		byte[] data = contents.getBytes(StandardCharsets.UTF_8);
+		try {
+			file.write(data, true, false, false, null);
+		} catch (CoreException e) {
+			if (file.exists() && file.isReadOnly()) {
 				// provide opportunity to checkout read-only .factorypath file
-				ResourcesPlugin.getWorkspace().validateEdit(new IFile[]{file}, null);
+				ResourcesPlugin.getWorkspace().validateEdit(new IFile[] { file }, null);
+				file.write(data, true, false, false, null);
+			} else {
+				throw e;
 			}
-    		file.setContents(input, true, false, null);
-    	}
-    	else {
-    		// Even with FORCE, create() will still throw if the file already exists.
-    		file.create(input, IResource.FORCE, null);
-    	}
-    }
+		}
+	}
 
     /**
      * Stores a string into an ordinary workspace file in UTF8 format.

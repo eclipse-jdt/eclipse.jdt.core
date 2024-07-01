@@ -710,7 +710,7 @@ public class JavaProject
 
 		String rootID = ((ClasspathEntry)resolvedEntry).rootID();
 		if (rootIDs.contains(rootID)) return;
-		if(excludeTestCode && ((ClasspathEntry)resolvedEntry).isTest()) {
+		if(excludeTestCode && resolvedEntry.isTest()) {
 			return;
 		}
 
@@ -3552,26 +3552,19 @@ public class JavaProject
 	 * @see JavaProject#getSharedProperty(String key)
 	 */
 	public void setSharedProperty(String key, String value) throws CoreException {
-
 		IFile rscFile = this.project.getFile(key);
-		byte[] bytes = null;
-		try {
-			bytes = value.getBytes(org.eclipse.jdt.internal.compiler.util.Util.UTF_8); // .classpath always encoded with UTF-8
-		} catch (UnsupportedEncodingException e) {
-			Util.log(e, "Could not write .classpath with UTF-8 encoding "); //$NON-NLS-1$
-			// fallback to default
-			bytes = value.getBytes();
-		}
-		InputStream inputStream = new ByteArrayInputStream(bytes);
+		byte[] bytes = value.getBytes(StandardCharsets.UTF_8); // .classpath always encoded with UTF-8
 		// update the resource content
-		if (rscFile.exists()) {
-			if (rscFile.isReadOnly()) {
+		try {
+			rscFile.write(bytes, true, false, false, null);
+		} catch (CoreException e) {
+			if (rscFile.exists() && rscFile.isReadOnly()) {
 				// provide opportunity to checkout read-only .classpath file (23984)
-				ResourcesPlugin.getWorkspace().validateEdit(new IFile[]{rscFile}, IWorkspace.VALIDATE_PROMPT);
+				ResourcesPlugin.getWorkspace().validateEdit(new IFile[] { rscFile }, IWorkspace.VALIDATE_PROMPT);
+				rscFile.write(bytes, true, false, false, null);
+			} else {
+				throw e;
 			}
-			rscFile.setContents(inputStream, IResource.FORCE, null);
-		} else {
-			rscFile.create(inputStream, IResource.FORCE, null);
 		}
 	}
 

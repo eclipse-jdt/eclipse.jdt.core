@@ -1005,25 +1005,9 @@ protected char[] writeClassFile(ClassFile classFile, SourceFile compilationUnit,
 }
 
 protected void writeClassFileContents(ClassFile classFile, IFile file, String qualifiedFileName, boolean isTopLevelType, SourceFile compilationUnit) throws CoreException {
-//	InputStream input = new SequenceInputStream(
-//			new ByteArrayInputStream(classFile.header, 0, classFile.headerOffset),
-//			new ByteArrayInputStream(classFile.contents, 0, classFile.contentsOffset));
-	InputStream input = new ByteArrayInputStream(classFile.getBytes());
-	if (file.exists()) {
-		// Deal with shared output folders... last one wins... no collision cases detected
-		if (JavaBuilder.DEBUG) {
-			trace("Writing changed class file " + file.getName());//$NON-NLS-1$
-		}
-		if (!file.isDerived()) {
-			file.setDerived(true, null);
-		}
-		file.setContents(input, true, false, null);
-	} else {
-		// Default implementation just writes out the bytes for the new class file...
-		if (JavaBuilder.DEBUG) {
-			trace("Writing new class file " + file.getName());//$NON-NLS-1$
-		}
-		file.create(input, IResource.FORCE | IResource.DERIVED, null);
+	if (JavaBuilder.DEBUG) {
+		trace("Writing changed class file " + file.getName());//$NON-NLS-1$
 	}
+	file.write(classFile.getBytes(), true, true, false, null);
 }
 }

@@ -15,7 +15,6 @@ package org.eclipse.jdt.internal.core;
 
 import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -275,7 +274,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	/**
 	 * Convenience method to create a file
 	 */
-	protected void createFile(IContainer folder, String name, InputStream contents, boolean forceFlag) throws JavaModelException {
+	protected void createFile(IContainer folder, String name, byte[] contents, boolean forceFlag) throws JavaModelException {
 		IFile file= folder.getFile(new Path(name));
 		try {
 			file.create(

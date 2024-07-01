@@ -115,7 +115,7 @@ public class SingleTypeReference extends TypeReference {
 		if (!memberType.isValidBinding()) {
 			hasError = true;
 			scope.problemReporter().invalidEnclosingType(this, memberType, enclosingType);
-			memberType = ((ReferenceBinding)memberType).closestMatch();
+			memberType = memberType.closestMatch();
 			if (memberType == null) {
 				return null;
 			}

@@ -1954,7 +1954,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					}
 					break;
 				case IConstantPoolConstant.CONSTANT_MethodType:
-					arguments[i] = new String(((ConstantPoolEntry2) constantPoolEntry).getMethodDescriptor());
+					arguments[i] = new String(constantPoolEntry.getMethodDescriptor());
 					break;
 				case IConstantPoolConstant.CONSTANT_Class:
 					arguments[i] = new String(constantPoolEntry.getClassInfoName());

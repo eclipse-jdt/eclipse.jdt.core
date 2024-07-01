@@ -172,9 +172,9 @@ public class NameQualifiedType extends AnnotatableType {
 	ASTNode clone0(AST target) {
 		NameQualifiedType result = new NameQualifiedType(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setQualifier((Name) ((ASTNode) getQualifier()).clone(target));
+		result.setQualifier((Name) getQualifier().clone(target));
 		result.annotations().addAll(ASTNode.copySubtrees(target, annotations()));
-		result.setName((SimpleName) ((ASTNode) getName()).clone(target));
+		result.setName((SimpleName) getName().clone(target));
 		return result;
 	}
 

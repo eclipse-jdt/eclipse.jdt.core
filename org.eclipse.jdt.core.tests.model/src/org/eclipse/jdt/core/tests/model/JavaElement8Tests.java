@@ -13,11 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-
-import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -42,6 +40,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.LambdaExpression;
 import org.eclipse.jdt.internal.core.LambdaMethod;
 import org.eclipse.jdt.internal.core.SourceMethod;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaElement8Tests extends AbstractJavaModelTests {
@@ -646,7 +646,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			buf.append("	}\n");
 			buf.append("}\n");
 			String content= buf.toString();
-			file.create(new ByteArrayInputStream(content.getBytes("UTF-8")), 0, null);
+			file.create(content.getBytes(StandardCharsets.UTF_8), 0, null);
 
 			// create a CU from that file:
 			ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);

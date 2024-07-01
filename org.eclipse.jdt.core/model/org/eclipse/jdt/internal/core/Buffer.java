@@ -14,7 +14,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -418,15 +417,7 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 		}
 
 		// Set file contents
-		ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-		if (this.file.exists()) {
-			this.file.setContents(
-				stream,
-				force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
-				null);
-		} else {
-			this.file.create(stream, force, null);
-		}
+		this.file.write(bytes, force, false, true, null);
 	} catch (IOException e) {
 		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 	} catch (CoreException e) {

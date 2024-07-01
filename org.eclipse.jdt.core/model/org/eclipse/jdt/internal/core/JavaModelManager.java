@@ -1666,7 +1666,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		public String toString() {
 			StringBuilder buffer = new StringBuilder();
 			buffer.append("Info for "); //$NON-NLS-1$
-			buffer.append(((JavaElement)this.workingCopy).toStringWithAncestors());
+			buffer.append(this.workingCopy.toStringWithAncestors());
 			buffer.append("\nUse count = "); //$NON-NLS-1$
 			buffer.append(this.useCount);
 			buffer.append("\nProblem requestor:\n  "); //$NON-NLS-1$

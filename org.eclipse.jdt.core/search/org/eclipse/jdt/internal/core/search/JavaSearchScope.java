@@ -597,7 +597,7 @@ public void processDelta(IJavaElementDelta delta, int eventType) {
 						path = ((IJavaProject)element).getProject().getFullPath().toString();
 						break;
 					case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-						path = ((IPackageFragmentRoot)element).getPath().toString();
+						path = element.getPath().toString();
 						break;
 					default:
 						return;

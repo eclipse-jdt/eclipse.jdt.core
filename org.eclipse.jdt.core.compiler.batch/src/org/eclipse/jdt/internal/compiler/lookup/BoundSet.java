@@ -1178,8 +1178,8 @@ class BoundSet {
 		} else {
 			buf.append('\n');
 			for (Entry<ParameterizedTypeBinding, ParameterizedTypeBinding> entry : this.captures.entrySet()) {
-				String lhs = String.valueOf(((TypeBinding)entry.getKey()).shortReadableName());
-				String rhs = String.valueOf(((TypeBinding)entry.getValue()).shortReadableName());
+				String lhs = String.valueOf(entry.getKey().shortReadableName());
+				String rhs = String.valueOf(entry.getValue().shortReadableName());
 				buf.append('\t').append(lhs).append(" = capt(").append(rhs).append(")\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}

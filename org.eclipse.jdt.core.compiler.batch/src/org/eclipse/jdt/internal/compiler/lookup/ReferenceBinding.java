@@ -53,7 +53,11 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
@@ -1558,6 +1562,7 @@ public final boolean isNonSealed() {
 /**
  * Answer true if the receiver has sealed modifier
  */
+@Override
 public boolean isSealed() {
 	return (this.modifiers & ExtraCompilerModifiers.AccSealed) != 0;
 }
@@ -1599,7 +1604,7 @@ protected boolean isSubTypeOfRTL(TypeBinding other) {
 		return (lower != null && isSubtypeOf(lower, false));
 	}
 	if (other instanceof ReferenceBinding) {
-		TypeBinding[] intersecting = ((ReferenceBinding) other).getIntersectingTypes();
+		TypeBinding[] intersecting = other.getIntersectingTypes();
 		if (intersecting != null) {
 			for (TypeBinding binding : intersecting) {
 				if (!isSubtypeOf(binding, false))
@@ -2543,6 +2548,89 @@ public boolean hasEnclosingInstanceContext() {
 	if (enclosingMethod != null)
 		return !enclosingMethod.isStatic();
 	return false;
+}
+
+@Override
+public List<ReferenceBinding> getAllEnumerableReferenceTypes() {
+	if (!isSealed())
+		return Collections.emptyList();
+
+	Set<ReferenceBinding> permSet = new HashSet<>(Arrays.asList(permittedTypes()));
+	if (isClass() && (!isAbstract()))
+		permSet.add(this);
+	Set<ReferenceBinding> oldSet = new HashSet<>(permSet);
+	do {
+		for (ReferenceBinding type : permSet) {
+			oldSet.addAll(Arrays.asList(type.permittedTypes()));
+		}
+		Set<ReferenceBinding> tmp = oldSet;
+		oldSet = permSet;
+		permSet = tmp;
+	} while (oldSet.size() != permSet.size());
+	return Arrays.asList(permSet.toArray(new ReferenceBinding[0]));
+}
+
+// 5.1.6.1 Allowed Narrowing Reference Conversion
+public boolean isDisjointFrom(ReferenceBinding that) {
+	if (this.isInterface()) {
+		if (that.isInterface()) {
+			/* • An interface named I is disjoint from another interface named J if (i) it is not that case that I <: J, and (ii) it is not the case that J <: I, and
+			 *  (iii) one of the following cases applies:
+		             – I is sealed, and all of the permitted direct subclasses and subinterfaces of I are disjoint from J.
+		             – J is sealed, and I is disjoint from all the permitted direct subclasses and subinterfaces of J.
+			 */
+			if (this.findSuperTypeOriginatingFrom(that) != null || that.findSuperTypeOriginatingFrom(this) != null)
+				return false;
+			if (this.isSealed()) {
+				for (ReferenceBinding directSubType : this.permittedTypes()) {
+					if (!directSubType.isDisjointFrom(that))
+						return false;
+				}
+				return true;
+			}
+			if (that.isSealed()) {
+				for (ReferenceBinding directSubType : that.permittedTypes()) {
+					if (!this.isDisjointFrom(directSubType))
+						return false;
+				}
+				return true;
+			}
+			return false;
+		} else {
+			// • An interface named I is disjoint from a class named C if C is disjoint from I.
+			return that.isDisjointFrom(this);
+		}
+	} else {
+		if (that.isInterface()) {
+			/* • A class named C is disjoint from an interface named I if (i) it is not the case that C <: I, and (ii) one of the following cases applies:
+			 – C is final.
+			 – C is sealed, and all of the permitted direct subclasses of C are disjoint from I.
+			 – C is freely extensible (§8.1.1.2), and I is sealed, and C is disjoint from all of the permitted direct subclasses and subinterfaces of I
+			 */
+			if (this.findSuperTypeOriginatingFrom(that) != null)
+				return false;
+			if (this.isFinal())
+				return true;
+			if (this.isSealed()) {
+				for (ReferenceBinding directSubclass : this.permittedTypes()) {
+					if (!directSubclass.isDisjointFrom(that))
+						return false;
+				}
+				return true;
+			}
+			if (that.isSealed()) {
+				for (ReferenceBinding directSubType : that.permittedTypes()) {
+					if (!this.isDisjointFrom(directSubType))
+						return false;
+				}
+				return true;
+			}
+			return false;
+		} else {
+			// • A class named C is disjoint from another class named D if (i) it is not the case that C <: D, and (ii) it is not the case that D <: C.
+			return this.findSuperTypeOriginatingFrom(that) == null && that.findSuperTypeOriginatingFrom(this) == null;
+		}
+	}
 }
 static class InvalidBindingException extends Exception {
 	private static final long serialVersionUID = 1L;

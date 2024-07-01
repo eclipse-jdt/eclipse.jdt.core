@@ -182,7 +182,7 @@ public class TypeParameter extends ASTNode {
 			result.modifiers().addAll(
 					ASTNode.copySubtrees(target, modifiers()));
 		}
-		result.setName((SimpleName) ((ASTNode) getName()).clone(target));
+		result.setName((SimpleName) getName().clone(target));
 		result.typeBounds().addAll(
 			ASTNode.copySubtrees(target, typeBounds()));
 		return result;

@@ -4523,7 +4523,7 @@ public final class CompletionEngine
 				}
 				addExpectedType(expected, scope);
 			} else {
-				TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
+				TypeVariableBinding[] typeVariables = ref.resolvedType.typeVariables();
 				int length = ref.typeArguments == null ? 0 : ref.typeArguments.length;
 				if(typeVariables != null && typeVariables.length >= length) {
 					int index = length - 1;
@@ -4551,7 +4551,7 @@ public final class CompletionEngine
 				}
 				addExpectedType(expected, scope);
 			} else {
-				TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
+				TypeVariableBinding[] typeVariables = ref.resolvedType.typeVariables();
 				if(typeVariables != null) {
 					int iLength = arguments == null ? 0 : arguments.length;
 					done: for (int i = 0; i < iLength; i++) {
@@ -13858,7 +13858,7 @@ public final class CompletionEngine
 
 		if(parent instanceof ParameterizedSingleTypeReference) {
 			ParameterizedSingleTypeReference ref = (ParameterizedSingleTypeReference) parent;
-			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
+			TypeVariableBinding[] typeVariables = ref.resolvedType.typeVariables();
 			int length = ref.typeArguments == null ? 0 : ref.typeArguments.length;
 			int nodeIndex = -1;
 			for(int i = length - 1 ; i > -1 ; i--) {
@@ -13882,7 +13882,7 @@ public final class CompletionEngine
 			}
 		} else if(parent instanceof ParameterizedQualifiedTypeReference) {
 			ParameterizedQualifiedTypeReference ref = (ParameterizedQualifiedTypeReference) parent;
-			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
+			TypeVariableBinding[] typeVariables = ref.resolvedType.typeVariables();
 			TypeReference[][] arguments = ref.typeArguments;
 			int iLength = arguments == null ? 0 : arguments.length;
 			for (int i = 0; i < iLength; i++) {

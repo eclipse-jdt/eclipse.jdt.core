@@ -468,27 +468,12 @@ public void cleanBuild(String projectName) {
 	}
 
 	private IFile createFile(IPath path, byte[] contents) {
-		ByteArrayInputStream is = null;
 		try {
 			IFile file = this.workspace.getRoot().getFile(path);
-
-			is = new ByteArrayInputStream(contents);
-			if (file.exists()) {
-				file.setContents(is, true, false, null);
-			} else {
-				file.create(is, true, null);
-			}
+			file.write(contents, true, false, false, null);
 			return file;
 		} catch (CoreException e) {
 			handle(e);
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
 		}
 		return null;
 	}

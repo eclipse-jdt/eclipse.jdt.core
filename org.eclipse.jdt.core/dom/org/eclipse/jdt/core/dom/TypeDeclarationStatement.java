@@ -320,9 +320,9 @@ public class TypeDeclarationStatement extends Statement {
 		// forward request to the wrapped type declaration
 		AbstractTypeDeclaration d = getDeclaration();
 		if (d instanceof TypeDeclaration) {
-			return ((TypeDeclaration) d).resolveBinding();
+			return d.resolveBinding();
 		} else if (d instanceof AnnotationTypeDeclaration) {
-			return ((AnnotationTypeDeclaration) d).resolveBinding();
+			return d.resolveBinding();
 		} else {
 			// shouldn't happen
 			return null;
