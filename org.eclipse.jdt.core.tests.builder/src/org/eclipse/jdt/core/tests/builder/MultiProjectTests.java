@@ -34,7 +34,7 @@ import junit.framework.Test;
 public class MultiProjectTests extends BuilderTests {
 
 	static {
-		TESTS_NAMES = new String[] { "test461074_error_1_8" };
+//		TESTS_NAMES = new String[] { "test461074_error_1_8" };
 	}
 
 	public MultiProjectTests(String name) {

@@ -9517,4 +9517,102 @@ public void testMissingClass_exception() {
 			""";
 	runner.runNegativeTest();
 }
+public void testMissingClass_typeVariableBound() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"p1/A.java",
+			"""
+			package p1;
+			public class A {}
+			""",
+			"p1/B.java",
+			"""
+			package p1;
+			import p1.A;
+			public class B {
+				public void m(Number n) {} 			// would match, but ...
+				public <T extends A> void m(T t) {}	// ... don't rule out method with missing type
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// delete binary file A (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "A.class"));
+
+	runner.shouldFlushOutputDirectory = false;
+	runner.testFiles = new String[] {
+			"p2/C.java",
+			"""
+			package p2;
+			import p1.B;
+			class C {
+				void test(B b) {
+					b.m(Integer.valueOf(13));
+				}
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. ERROR in p2\\C.java (at line 5)
+				b.m(Integer.valueOf(13));
+				  ^
+			The method m(T) from the type B refers to the missing type A
+			----------
+			""";
+	runner.runNegativeTest();
+}
+public void testMissingClass_typeVariableBound2() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"p1/A.java",
+			"""
+			package p1;
+			public class A {}
+			""",
+			"p1/B.java",
+			"""
+			package p1;
+			import p1.A;
+			public class B<T extends A> {
+				public void m(T t) {}
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// delete binary file A (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "A.class"));
+
+	runner.shouldFlushOutputDirectory = false;
+	runner.testFiles = new String[] {
+			"p2/C.java",
+			"""
+			package p2;
+			import p1.B;
+			class C {
+				void test(B<C> b) {
+					b.m(this);
+				}
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. ERROR in p2\\C.java (at line 1)
+				package p2;
+				^
+			The type p1.A cannot be resolved. It is indirectly referenced from required type p1.B
+			----------
+			2. ERROR in p2\\C.java (at line 4)
+				void test(B<C> b) {
+				            ^
+			Bound mismatch: The type C is not a valid substitute for the bounded parameter <T extends A> of the type B<T>
+			----------
+			""";
+	runner.runNegativeTest();
+}
 }

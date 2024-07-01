@@ -982,7 +982,7 @@ public abstract class Scope {
 					} else {
 						typeVariable.setSuperInterfaces(new ReferenceBinding[] {superRefType});
 					}
-					typeVariable.tagBits |= superType.tagBits & TagBits.ContainsNestedTypeReferences;
+					typeVariable.tagBits |= superType.tagBits & (TagBits.ContainsNestedTypeReferences | TagBits.HasMissingType);
 					typeVariable.setFirstBound(superRefType); // first bound used to compute erasure
 				}
 			}
@@ -997,7 +997,7 @@ public abstract class Scope {
 						typeVariable.tagBits |= TagBits.HierarchyHasProblems;
 						continue nextBound;
 					} else {
-						typeVariable.tagBits |= superType.tagBits & TagBits.ContainsNestedTypeReferences;
+						typeVariable.tagBits |= superType.tagBits & (TagBits.ContainsNestedTypeReferences | TagBits.HasMissingType);
 						boolean didAlreadyComplain = !typeRef.resolvedType.isValidBinding();
 						if (isFirstBoundTypeVariable && j == 0) {
 							problemReporter().noAdditionalBoundAfterTypeVariable(typeRef);

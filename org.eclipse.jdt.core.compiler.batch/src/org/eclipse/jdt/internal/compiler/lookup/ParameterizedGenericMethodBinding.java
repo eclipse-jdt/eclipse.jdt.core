@@ -307,6 +307,9 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					if (invocationSite instanceof Invocation && allArgumentsAreProper && (expectedType == null || expectedType.isProperType(true)))
 						infCtx18.forwardResults(result, (Invocation) invocationSite, methodSubstitute, expectedType);
 					try {
+						if (infCtx18.hasIgnoredMissingType) {
+							return new ProblemMethodBinding(originalMethod, originalMethod.selector, parameters, ProblemReasons.MissingTypeInSignature);
+						}
 						if (hasReturnProblem) { // illegally working from the provisional result?
 							MethodBinding problemMethod = infCtx18.getReturnProblemMethodIfNeeded(expectedType, methodSubstitute);
 							if (problemMethod instanceof ProblemMethodBinding) {
