@@ -36,8 +36,8 @@ import com.sun.tools.javac.parser.Tokens.TokenKind;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCBlock;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
-import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
+import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.DiagnosticSource;
 import com.sun.tools.javac.util.JCDiagnostic;
@@ -71,6 +71,9 @@ public class JavacProblemConverter {
 			return null;
 		}
 		int problemId = toProblemId(diagnostic);
+		if (problemId == 0) {
+			return null;
+		}
 		int severity = toSeverity(problemId, diagnostic);
 		if (severity == ProblemSeverities.Ignore || severity == ProblemSeverities.Optional) {
 			return null;
@@ -326,6 +329,12 @@ public class JavacProblemConverter {
 		String javacDiagnosticCode = diagnostic.getCode();
 		return switch (javacDiagnosticCode) {
 			case "compiler.err.expected" -> IProblem.ParsingErrorInsertTokenAfter;
+			case "compiler.err.expected2" -> IProblem.ParsingErrorInsertTokenBefore;
+			case "compiler.err.expected3" -> IProblem.ParsingErrorInsertToComplete;
+			case "compiler.err.unclosed.comment" -> IProblem.UnterminatedComment;
+			case "compiler.err.illegal.start.of.type" -> IProblem.Syntax;
+			case "compiler.err.illegal.start.of.expr" -> IProblem.Syntax;
+			case "compiler.err.variable.not.allowed" -> IProblem.Syntax;
 			case "compiler.warn.raw.class.use" -> IProblem.RawTypeReference;
 			case "compiler.err.cant.resolve.location" -> convertUnresolvedSymbol(diagnostic);
 			case "compiler.err.cant.resolve.location.args" -> convertUndefinedMethod(diagnostic);
@@ -359,6 +368,20 @@ public class JavacProblemConverter {
 			case "compiler.err.annotation.value.must.be.name.value" -> IProblem.UndefinedAnnotationMember;
 			case "compiler.err.multicatch.types.must.be.disjoint" -> IProblem.InvalidUnionTypeReferenceSequence;
 			case "compiler.err.unreported.exception.implicit.close" -> IProblem.UnhandledExceptionOnAutoClose;
+			case "compiler.err.repeated.modifier" -> IProblem.DuplicateModifierForArgument; // TODO different according to target node
+			case "compiler.err.not.stmt" -> IProblem.InvalidExpressionAsStatement;
+			case "compiler.err.varargs.and.old.array.syntax" -> IProblem.VarargsConflict;
+			case "compiler.err.non-static.cant.be.ref" -> IProblem.NonStaticAccessToStaticMethod; // TODO different according to target node
+			case COMPILER_ERR_MISSING_RET_STMT -> IProblem.ShouldReturnValue;
+			case "compiler.err.cant.ref.before.ctor.called" -> IProblem.InstanceFieldDuringConstructorInvocation; // TODO different according to target node
+			case "compiler.err.not.def.public.cant.access" -> IProblem.NotVisibleType; // TODO different according to target node
+			case "compiler.err.already.defined" -> IProblem.DuplicateMethod; // TODO different according to target node
+			case "compiler.err.var.might.not.have.been.initialized" -> IProblem.UninitializedLocalVariable;
+			case "compiler.err.missing.meth.body.or.decl.abstract" -> IProblem.MethodRequiresBody;
+			case "compiler.err.intf.meth.cant.have.body" -> IProblem.BodyForAbstractMethod;
+			case "compiler.warn.empty.if" -> IProblem.EmptyControlFlowStatement;
+			case "compiler.warn.redundant.cast" -> IProblem.UnnecessaryCast;
+			case "compiler.err.illegal.char" -> IProblem.InvalidCharacterConstant;
 			// next are javadoc; defaulting to JavadocUnexpectedText when no better problem could be found
 			case "compiler.err.dc.bad.entity" -> IProblem.JavadocUnexpectedText;
 			case "compiler.err.dc.bad.inline.tag" -> IProblem.JavadocUnexpectedText;
@@ -379,8 +402,26 @@ public class JavacProblemConverter {
 			case "compiler.err.dc.unterminated.signature" -> IProblem.JavadocUnexpectedText;
 			case "compiler.err.dc.unterminated.string" -> IProblem.JavadocUnexpectedText;
 			case "compiler.err.dc.ref.annotations.not.allowed" -> IProblem.JavadocUnexpectedText;
-			case COMPILER_ERR_MISSING_RET_STMT -> IProblem.ShouldReturnValue;
-			default -> 0;
+			case "compiler.warn.proc.messager" -> {
+				// probably some javadoc comment, we didn't find a good way to get javadoc
+				// code/ids: there are lost in the diagnostic when going through
+				// jdk.javadoc.internal.doclint.Messages.report(...) and we cannot override
+				// Messages class to plug some specific strategy.
+				// So we fail back to (weak) message check.
+				String message = diagnostic.getMessage(Locale.ENGLISH).toLowerCase();
+				if (message.contains("no @param for")) {
+					yield IProblem.JavadocMissingParamTag;
+				}
+				if (message.contains("no @return")) {
+					yield IProblem.JavadocMissingReturnTag;
+				}
+				// most others are ignored
+				yield 0;
+			}
+			default -> {
+				ILog.get().error("Could not convert diagnostic " + diagnostic);
+				yield 0;
+			}
 		};
 	}
 
