@@ -974,14 +974,14 @@ public class ASTParser {
 			initializeDefaults();
 		}
 	}
-    @SuppressWarnings("unchecked")
-    private static <T> T[] safeCopyOf(T[] original) {
-        return original == null ? null : Arrays.copyOf(original, original.length);
-    }
 
-    private static <K,V> Map<K,V> safeUnmodifiableMap(Map<? extends K, ? extends V> m) {
-    	return m == null ? null : Collections.unmodifiableMap(m);
-    }
+	private static <T> T[] safeCopyOf(T[] original) {
+		return original == null ? null : Arrays.copyOf(original, original.length);
+	}
+
+	private static <K,V> Map<K,V> safeUnmodifiableMap(Map<? extends K, ? extends V> m) {
+		return m == null ? null : Collections.unmodifiableMap(m);
+	}
 
 	/**
 	 * Creates ASTs for a batch of compilation units.
@@ -1260,9 +1260,9 @@ public class ASTParser {
 						}
 					}
 
-					CompilationUnit result2 = this.unitResolver.toCompilationUnit(sourceUnit, needToResolveBindings, this.project, getClasspath(), useSearcher ? this.focalPointPosition : -1, this.apiLevel, safeUnmodifiableMap(this.compilerOptions), this.workingCopyOwner, wcOwner, flags, monitor);
-					result2.setTypeRoot(this.typeRoot);
-					return result2;
+					CompilationUnit result = this.unitResolver.toCompilationUnit(sourceUnit, needToResolveBindings, this.project, getClasspath(), useSearcher ? this.focalPointPosition : -1, this.apiLevel, safeUnmodifiableMap(this.compilerOptions), this.workingCopyOwner, wcOwner, flags, monitor);
+					result.setTypeRoot(this.typeRoot);
+					return result;
 				} finally {
 					// unitResolver should already handle this.
 					// Leaving this finally in place to avoid changing indentation

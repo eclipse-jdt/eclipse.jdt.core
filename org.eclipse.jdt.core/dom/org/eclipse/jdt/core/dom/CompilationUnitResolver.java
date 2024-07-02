@@ -122,7 +122,7 @@ class CompilationUnitResolver extends Compiler {
 
 	private static ECJCompilationUnitResolver FACADE;
 	public static synchronized ICompilationUnitResolver getInstance() {
-		if( FACADE == null ) {
+		if (FACADE == null) {
 			FACADE = new ECJCompilationUnitResolver();
 		}
 		return FACADE;

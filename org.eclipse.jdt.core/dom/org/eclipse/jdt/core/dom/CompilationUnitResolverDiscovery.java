@@ -34,18 +34,18 @@ class CompilationUnitResolverDiscovery {
 				IConfigurationElement[] configElements = ext.getConfigurationElements();
 				for (final IConfigurationElement configElement : configElements) {
 					String elementId = configElement.getAttribute("id"); //$NON-NLS-1$
-					if( compilationUnitResolverId.equals(elementId)) {
+					if (compilationUnitResolverId.equals(elementId)) {
 						String elementName =configElement.getName();
 						if (!("resolver".equals(elementName))) { //$NON-NLS-1$
 							continue;
 						}
 						try {
 							Object executableExtension = configElement.createExecutableExtension("class"); //$NON-NLS-1$
-							if( executableExtension instanceof ICompilationUnitResolver icur) {
+							if (executableExtension instanceof ICompilationUnitResolver icur) {
 								return icur;
 							}
 						} catch (CoreException e) {
-							if( !setErrorLogged()) {
+							if (!setErrorLogged()) {
 								ILog.get().error("Could not instantiate ICompilationUnitResolver: '" + elementId + "' with class: " + configElement.getAttribute("class"), e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							}
 						}
@@ -56,15 +56,13 @@ class CompilationUnitResolverDiscovery {
 		return CompilationUnitResolver.getInstance();
 	}
 
-	/*
-	 * Set the ERROR_LOGGED field to true.
-	 * Return the previous value of ERROR_LOGGED.
+	/**
+	 * Set the ERROR_LOGGED field to <code>true</code>.
+	 * @return the previous value of ERROR_LOGGED.
 	 */
 	private static synchronized boolean setErrorLogged() {
 		boolean prev = ERROR_LOGGED;
-		if( !ERROR_LOGGED) {
-			ERROR_LOGGED = true;
-		}
+		ERROR_LOGGED = true;
 		return prev;
 	}
 }

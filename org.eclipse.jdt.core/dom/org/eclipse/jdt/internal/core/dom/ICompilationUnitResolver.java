@@ -42,7 +42,7 @@ import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
  */
 public interface ICompilationUnitResolver {
 	/**
-	 * Resolve the given source paths with the following options.
+	 * Parse the ASTs and resolve the bindings for the given source files using the following options.
 	 *
 	 * @param sourceFilePaths the compilation units to create ASTs for
 	 * @param encodings the given encoding for the source units
@@ -59,7 +59,7 @@ public interface ICompilationUnitResolver {
 			IProgressMonitor monitor);
 
 	/**
-	 * Parse the given source paths with the following options.
+	 * Parse the ASTs for the given source units using the following options.
 	 *
 	 * @param compilationUnits the compilation units to create ASTs for
 	 * @param requestor the AST requestor that collects abstract syntax trees and bindings
@@ -72,6 +72,7 @@ public interface ICompilationUnitResolver {
 			Map<String, String> compilerOptions, int flags, IProgressMonitor monitor);
 
 	/**
+	 * Parse the given source paths with the following options.
 	 *
 	 * @param sourceFilePaths the compilation units to create ASTs for
 	 * @param encodings the given encoding for the source units
@@ -85,6 +86,7 @@ public interface ICompilationUnitResolver {
 			Map<String, String> compilerOptions, int flags, IProgressMonitor monitor);
 
 	/**
+	 * Parse and resolve bindings for the given compilation units with the following options.
 	 *
 	 * @param compilationUnits the compilation units to create ASTs for
 	 * @param bindingKeys the binding keys to create bindings for
