@@ -69,10 +69,6 @@ public class JavacProblemConverter {
 	 * @return a JavacProblem matching the given diagnostic, or <code>null</code> if problem is ignored
 	 */
 	public JavacProblem createJavacProblem(Diagnostic<? extends JavaFileObject> diagnostic) {
-		// Ignore "documentation comment is not attached to any declaration" warnings
-		if (diagnostic.getCode().equals("compiler.warn.dangling.doc.comment")) {
-			return null;
-		}
 		int problemId = toProblemId(diagnostic);
 		if (problemId == 0) {
 			return null;
@@ -138,8 +134,8 @@ public class JavacProblemConverter {
 	}
 	private static org.eclipse.jface.text.Position getDefaultPosition(Diagnostic<? extends JavaFileObject> diagnostic) {
 		int start = (int) Math.min(diagnostic.getPosition(), diagnostic.getStartPosition());
-		int end = (int) Math.max(diagnostic.getEndPosition() - 1, start);
-		return new org.eclipse.jface.text.Position( start, end - start);
+		int end = (int) Math.max(diagnostic.getEndPosition(), start);
+		return new org.eclipse.jface.text.Position(start, end - start);
 	}
 
 	private static org.eclipse.jface.text.Position getPositionUsingScanner(JCDiagnostic jcDiagnostic, Context context) {
@@ -327,6 +323,7 @@ public class JavacProblemConverter {
 	public int toProblemId(Diagnostic<? extends JavaFileObject> diagnostic) {
 		String javacDiagnosticCode = diagnostic.getCode();
 		return switch (javacDiagnosticCode) {
+			case "compiler.warn.dangling.doc.comment" -> 0; // ignore
 			case "compiler.err.expected" -> IProblem.ParsingErrorInsertTokenAfter;
 			case "compiler.err.expected2" -> IProblem.ParsingErrorInsertTokenBefore;
 			case "compiler.err.expected3" -> IProblem.ParsingErrorInsertToComplete;
@@ -335,7 +332,12 @@ public class JavacProblemConverter {
 			case "compiler.err.illegal.start.of.expr" -> IProblem.Syntax;
 			case "compiler.err.variable.not.allowed" -> IProblem.Syntax;
 			case "compiler.warn.raw.class.use" -> IProblem.RawTypeReference;
-			case "compiler.err.cant.resolve.location" -> convertUnresolvedSymbol(diagnostic);
+			case "compiler.err.cant.resolve.location" -> switch (getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class)) {
+					case CLASS -> IProblem.UndefinedType;
+					case METHOD -> IProblem.UndefinedMethod;
+					case VAR -> IProblem.UnresolvedVariable;
+					default -> IProblem.UndefinedName;
+				};
 			case "compiler.err.cant.resolve.location.args" -> convertUndefinedMethod(diagnostic);
 			case "compiler.err.cant.resolve.location.args.params" -> IProblem.UndefinedMethod;
 			case "compiler.err.cant.resolve" -> convertUnresolvedVariable(diagnostic);
@@ -503,26 +505,6 @@ public class JavacProblemConverter {
 			}
 		}
 		return IProblem.TypeMismatch;
-	}
-
-	private int convertUnresolvedSymbol(Diagnostic<? extends JavaFileObject> javacDiagnostic) {
-		if (javacDiagnostic instanceof JCDiagnostic jcDiagnostic) {
-			Object[] args = jcDiagnostic.getArgs();
-			if (args != null) {
-				for (Object arg : args) {
-					if (arg instanceof Kinds.KindName kindName) {
-						return switch (kindName) {
-							case CLASS -> IProblem.UndefinedType;
-							case METHOD -> IProblem.UndefinedMethod;
-							case VAR -> IProblem.UnresolvedVariable;
-							default -> IProblem.UndefinedName;
-						};
-					}
-				}
-			}
-		}
-
-		return IProblem.UndefinedName;
 	}
 
 	private int convertNotVisibleAccess(Diagnostic<?> diagnostic) {
