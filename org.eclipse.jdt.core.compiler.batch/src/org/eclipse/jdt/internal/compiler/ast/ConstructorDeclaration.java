@@ -686,13 +686,8 @@ public void resolveStatements() {
 }
 
 private void partitionConstructorStatements() {
-
-
-	if (!(JavaFeature.STATEMENTS_BEFORE_SUPER.isSupported(
-			this.scope.compilerOptions().sourceLevel,
-			this.scope.compilerOptions().enablePreviewFeatures)))
-		return;
-
+	if (this.scope.compilerOptions().sourceLevel < ClassFileConstants.JDK22)
+			return;
 	if (!this.constructorCall.isImplicitSuper()) {
 		this.postPrologueConstructorCall = this.constructorCall;
 		this.postPrologueConstructorCall.firstStatement = true;
