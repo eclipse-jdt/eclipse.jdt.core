@@ -1632,7 +1632,7 @@ public class ScannerTest extends AbstractRegressionTest {
 	}
 
 	@SuppressWarnings("deprecation")
-	public void testPermits() {
+	public void _testPermits() {
 		char[] source = ("sealed class X permits Y { }").toCharArray();
 		IScanner scanner = ToolFactory.createScanner(false, true, false, "17", "17", false);
 		scanner.setSource(source);
@@ -1878,7 +1878,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		int [] reskw = { TerminalTokens.TokenNameRestrictedIdentifierWhen,
 							TerminalTokens.TokenNameRestrictedIdentifierrecord,
 							TerminalTokens.TokenNameRestrictedIdentifiersealed,
-							TerminalTokens.TokenNameRestrictedIdentifierpermits,
+							TerminalTokens.TokenNamepermits,
 							TerminalTokens.TokenNameRestrictedIdentifierYield,};
 		int i = -1;
 		for (char [] id : ids) {

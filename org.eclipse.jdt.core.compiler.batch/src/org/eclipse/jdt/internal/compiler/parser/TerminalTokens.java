@@ -41,7 +41,7 @@ public interface TerminalTokens {
 	static boolean isRestrictedKeyword(int tokenType) {
 		return switch (tokenType) {
 			case TokenNameRestrictedIdentifierYield, TokenNameRestrictedIdentifierrecord,TokenNameRestrictedIdentifierWhen,
-					TokenNameRestrictedIdentifiersealed, TokenNameRestrictedIdentifierpermits -> true;
+					TokenNameRestrictedIdentifiersealed, TokenNamepermits -> true;
 			default -> false;
 		};
 	}
@@ -65,7 +65,7 @@ public interface TerminalTokens {
 			case "record"  -> TokenNameRestrictedIdentifierrecord;  //$NON-NLS-1$
 			case "when"    -> TokenNameRestrictedIdentifierWhen;    //$NON-NLS-1$
 			case "sealed"  -> TokenNameRestrictedIdentifiersealed;  //$NON-NLS-1$
-			case "permits" -> TokenNameRestrictedIdentifierpermits; //$NON-NLS-1$
+			case "permits" -> TokenNamepermits; //$NON-NLS-1$
 			default        -> TokenNameNotAToken;
 		};
 	}
@@ -96,7 +96,7 @@ public interface TerminalTokens {
 							TokenNamefor = 86,
 							TokenNamegoto = 139,
 							TokenNameif = 87,
-							TokenNameimplements = 135,
+							TokenNameimplements = 134,
 							TokenNameimport = 112,
 							TokenNameinstanceof = 16,
 							TokenNameint = 113,
@@ -107,12 +107,13 @@ public interface TerminalTokens {
 							TokenNamenon_sealed = 47,
 							TokenNamenull = 57,
 							TokenNamepackage = 91,
+							TokenNamepermits = 135,
 							TokenNameprivate = 48,
 							TokenNameprotected = 49,
 							TokenNamepublic = 50,
 							TokenNamereturn = 88,
 							TokenNameshort = 115,
-							TokenNamestatic = 39,
+							TokenNamestatic = 38,
 							TokenNamestrictfp = 51,
 							TokenNamesuper = 36,
 							TokenNameswitch = 65,
@@ -129,7 +130,7 @@ public interface TerminalTokens {
 							TokenNamemodule = 119,
 							TokenNameopen = 124,
 							TokenNamerequires = 125,
-							TokenNametransitive = 131,
+							TokenNametransitive = 130,
 							TokenNameexports = 126,
 							TokenNameopens = 127,
 							TokenNameto = 136,
@@ -200,15 +201,14 @@ public interface TerminalTokens {
 							TokenNameBeginTypeArguments = 90,
 							TokenNameElidedSemicolonAndRightBrace = 72,
 							TokenNameAT308 = 28,
-							TokenNameAT308DOTDOTDOT = 132,
+							TokenNameAT308DOTDOTDOT = 131,
 							TokenNameBeginCaseExpr = 73,
 							TokenNameRestrictedIdentifierYield = 81,
 							TokenNameRestrictedIdentifierrecord = 76,
 							TokenNameRestrictedIdentifiersealed = 43,
-							TokenNameRestrictedIdentifierpermits = 130,
-							TokenNameBeginCaseElement = 133,
-							TokenNameRestrictedIdentifierWhen = 134,
+							TokenNameBeginCaseElement = 132,
+							TokenNameRestrictedIdentifierWhen = 133,
 							TokenNameUNDERSCORE = 34,
-							TokenNameEOF = 38,
+							TokenNameEOF = 39,
 							TokenNameERROR = 140;
 }
