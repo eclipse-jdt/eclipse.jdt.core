@@ -58,6 +58,8 @@ public interface ITypeAnnotationWalker {
 		public ITypeAnnotationWalker toNextNestedType() { return this; }
 		@Override
 		public IBinaryAnnotation[] getAnnotationsAtCursor(int currentTypeId, boolean mayApplyArrayContentsDefaultNullness) { return NO_ANNOTATIONS; }
+		@Override
+		public long getDeclarationAnnotationsAtCursor() { return 0; }
 	};
 
 	/** Walk to a field. */
@@ -131,5 +133,11 @@ public interface ITypeAnnotationWalker {
 	 * 		 -1 signals if annotating a wildcard or a use of a type variable.
 	 */
 	public abstract IBinaryAnnotation[] getAnnotationsAtCursor(int currentTypeId, boolean mayApplyArrayContentsDefaultNullness);
+
+	/**
+	 * Retrieve the tagBits representing any declaration annotations (like {@code @Owning} / {@code @NotOwning})
+	 * at the current position reached by invocations of toXYZ() methods.
+	 */
+	public abstract long getDeclarationAnnotationsAtCursor();
 
 }
