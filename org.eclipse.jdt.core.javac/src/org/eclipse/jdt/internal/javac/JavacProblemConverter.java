@@ -95,7 +95,7 @@ public class JavacProblemConverter {
 				(int) diagnostic.getColumnNumber());
 	}
 
-	private static org.eclipse.jface.text.Position getDiagnosticPosition(Diagnostic<? extends JavaFileObject> diagnostic, Context context) {
+	private org.eclipse.jface.text.Position getDiagnosticPosition(Diagnostic<? extends JavaFileObject> diagnostic, Context context) {
 		if (diagnostic.getCode().contains(".dc")) { //javadoc
 			return getDefaultPosition(diagnostic);
 		}
@@ -324,7 +324,7 @@ public class JavacProblemConverter {
 	 * And the examples to reproduce the Javac problems:
 	 * https://github.com/openjdk/jdk/tree/master/test/langtools/tools/javac/diags/examples
 	 */
-	public static int toProblemId(Diagnostic<? extends JavaFileObject> diagnostic) {
+	public int toProblemId(Diagnostic<? extends JavaFileObject> diagnostic) {
 		String javacDiagnosticCode = diagnostic.getCode();
 		return switch (javacDiagnosticCode) {
 			case "compiler.err.expected" -> IProblem.ParsingErrorInsertTokenAfter;
@@ -442,7 +442,7 @@ public class JavacProblemConverter {
 		return IProblem.UnresolvedVariable;
 	}
 
-	private static int convertUndefinedMethod(Diagnostic<?> diagnostic) {
+	private int convertUndefinedMethod(Diagnostic<?> diagnostic) {
 		JCDiagnostic diagnosticArg = getDiagnosticArgumentByType(diagnostic, JCDiagnostic.class);
 		if (diagnosticArg != null) {
 			Type receiverArg = getDiagnosticArgumentByType(diagnosticArg, Type.class);
@@ -461,7 +461,7 @@ public class JavacProblemConverter {
 		return IProblem.UndefinedMethod;
 	}
 
-	private static <T> T getDiagnosticArgumentByType(Diagnostic<?> diagnostic, Class<T> type) {
+	private <T> T getDiagnosticArgumentByType(Diagnostic<?> diagnostic, Class<T> type) {
 		if (!(diagnostic instanceof JCDiagnostic jcDiagnostic)) {
 			return null;
 		}
@@ -478,7 +478,7 @@ public class JavacProblemConverter {
 		return null;
 	}
 
-	private static Object[] getDiagnosticArguments(Diagnostic<?> diagnostic) {
+	private Object[] getDiagnosticArguments(Diagnostic<?> diagnostic) {
 		if (!(diagnostic instanceof JCDiagnostic jcDiagnostic)) {
 			return new Object[0];
 		}
@@ -487,7 +487,7 @@ public class JavacProblemConverter {
 	}
 
 	// compiler.err.prob.found.req -> TypeMismatch, ReturnTypeMismatch, IllegalCast, VoidMethodReturnsValue...
-	private static int convertTypeMismatch(Diagnostic<?> diagnostic) {
+	private int convertTypeMismatch(Diagnostic<?> diagnostic) {
 		Diagnostic<?> diagnosticArg = getDiagnosticArgumentByType(diagnostic, Diagnostic.class);
 		if (diagnosticArg != null) {
 			if ("compiler.misc.inconvertible.types".equals(diagnosticArg.getCode())) {
@@ -505,7 +505,7 @@ public class JavacProblemConverter {
 		return IProblem.TypeMismatch;
 	}
 
-	private static int convertUnresolvedSymbol(Diagnostic<? extends JavaFileObject> javacDiagnostic) {
+	private int convertUnresolvedSymbol(Diagnostic<? extends JavaFileObject> javacDiagnostic) {
 		if (javacDiagnostic instanceof JCDiagnostic jcDiagnostic) {
 			Object[] args = jcDiagnostic.getArgs();
 			if (args != null) {
@@ -525,7 +525,7 @@ public class JavacProblemConverter {
 		return IProblem.UndefinedName;
 	}
 
-	private static int convertNotVisibleAccess(Diagnostic<?> diagnostic) {
+	private int convertNotVisibleAccess(Diagnostic<?> diagnostic) {
 		if (diagnostic instanceof JCDiagnostic jcDiagnostic) {
 			Object[] args = jcDiagnostic.getArgs();
 			if (args != null && args.length > 0) {
@@ -550,7 +550,7 @@ public class JavacProblemConverter {
 		return 0;
 	}
 
-	private static int convertAmbiguous(Diagnostic<?> diagnostic) {
+	private int convertAmbiguous(Diagnostic<?> diagnostic) {
 		Kinds.KindName kind = getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class);
 		return switch (kind) {
 			case CLASS -> IProblem.AmbiguousType;
