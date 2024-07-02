@@ -606,7 +606,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	@Override
 	public boolean isAssignmentCompatible(final ITypeBinding variableType) {
 		if (variableType instanceof JavacTypeBinding other) {
-			return this.types.isAssignable(other.type, this.type);
+			return this.types.isAssignable(this.type, other.type);
 		}
 		throw new UnsupportedOperationException("Cannot mix with non Javac binding"); //$NON-NLS-1$
 	}
