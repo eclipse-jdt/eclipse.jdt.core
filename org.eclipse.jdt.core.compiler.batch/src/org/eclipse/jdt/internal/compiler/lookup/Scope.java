@@ -5165,7 +5165,7 @@ public abstract class Scope {
 				}  else if (lastIndex != argLength) { // can call foo(int i, X ... x) with foo(1) but NOT foo();
 					return NOT_COMPATIBLE;
 				}
-				if (level != COMPATIBLE_IGNORING_MISSING_TYPE) // preserve any NEEDS_MISSING_TYPE
+				if (level != COMPATIBLE_IGNORING_MISSING_TYPE) // preserve any COMPATIBLE_IGNORING_MISSING_TYPE
 					level = VARARGS_COMPATIBLE; // varargs support needed
 			}
 		} else if (paramLength != argLength) {
@@ -5179,7 +5179,7 @@ public abstract class Scope {
 				int newLevel = parameterCompatibilityLevel(arg, param, env, tiebreakingVarargsMethods, method);
 				if (newLevel < COMPATIBLE)
 					return newLevel;
-				if (newLevel > level && level != COMPATIBLE_IGNORING_MISSING_TYPE) // preserve any NEEDS_MISSING_TYPE
+				if (newLevel > level && level != COMPATIBLE_IGNORING_MISSING_TYPE) // preserve any COMPATIBLE_IGNORING_MISSING_TYPE
 					level = newLevel;
 			}
 		}
