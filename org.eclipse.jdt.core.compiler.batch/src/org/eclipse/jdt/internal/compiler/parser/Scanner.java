@@ -2759,6 +2759,11 @@ protected boolean areRestrictedModuleKeywordsActive() {
 	return this.scanContext != null && this.scanContext != ScanContext.INACTIVE;
 }
 void updateScanContext(int token) {
+	if (this.scanContext == ScanContext.AFTER_IMPORT && !isInModuleDeclaration()) {
+		this.scanContext = ScanContext.INACTIVE; // end temporary use of scanContext to disambiguate module imports
+		return;
+	}
+
 	switch (token) {
 		case TerminalTokens.TokenNameSEMICOLON:	// next could be a KEYWORD
 		case TerminalTokens.TokenNameRBRACE:
@@ -3536,10 +3541,14 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 						&& (data[++index] == 'p')
 						&& (data[++index] == 'o')
 						&& (data[++index] == 'r')
-						&& (data[++index] == 't'))
+						&& (data[++index] == 't')) {
+						// initialize scanContext, because we need disambiguation when the next token is 'module':
+						if (this.scanContext == null || this.scanContext == ScanContext.INACTIVE)
+							this.scanContext = ScanContext.EXPECTING_IDENTIFIER;
 						return TokenNameimport;
-					else
+					} else {
 						return TokenNameIdentifier;
+					}
 				case 9 :
 					if ((data[++index] == 'n')
 						&& (data[++index] == 't')
@@ -3596,8 +3605,7 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 		case 'm': //module
 			switch (length) {
 				case 6 :
-					if ((areRestrictedModuleKeywordsActive()
-							|| this.lookBack[1] == TokenNameimport) // JEP 467: import module
+					if ((areRestrictedModuleKeywordsActive()) // JEP 467: import module
 						&& (data[++index] == 'o')
 						&& (data[++index] == 'd')
 						&& (data[++index] == 'u')
