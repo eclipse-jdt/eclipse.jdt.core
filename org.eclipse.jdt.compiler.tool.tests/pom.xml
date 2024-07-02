@@ -23,7 +23,7 @@
   <packaging>eclipse-test-plugin</packaging>
   <properties>
   	<testSuite>${project.artifactId}</testSuite>
-  	<testClass>org.eclipse.jdt.compiler.tool.tests.AllTests</testClass>
+  	<testClass>org.eclipse.jdt.compiler.tool.tests.AllCompilerToolTests</testClass>
   </properties>
   <build>
     <plugins>
