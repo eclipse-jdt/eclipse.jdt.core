@@ -4070,26 +4070,31 @@ class ASTConverter {
 		int nameEnd = localDeclaration.sourceEnd;
 		name.setSourceRange(start, nameEnd - start + 1);
 		variableDecl.setName(name);
-		TypeReference typeReference = localDeclaration.type;
-		final int extraDimensions = typeReference.extraDimensions();
-		if (this.ast.apiLevel >= AST.JLS8_INTERNAL) {
-			setExtraAnnotatedDimensions(nameEnd + 1, localDeclaration.declarationSourceEnd, typeReference,
-					variableDecl.extraDimensions(), extraDimensions);
-		} else {
-			internalSetExtraDimensions(variableDecl, extraDimensions);
+		int rightEnd;
+		if(localDeclaration.type != null) {
+			TypeReference typeReference = localDeclaration.type;
+			final int extraDimensions = typeReference.extraDimensions();
+			if (this.ast.apiLevel >= AST.JLS8_INTERNAL) {
+				setExtraAnnotatedDimensions(nameEnd + 1, localDeclaration.declarationSourceEnd, typeReference,
+						variableDecl.extraDimensions(), extraDimensions);
+			} else {
+				internalSetExtraDimensions(variableDecl, extraDimensions);
+			}
+			Type type = convertType(localDeclaration.type);
+			int typeEnd = type.getStartPosition() + type.getLength() - 1;
+			// https://bugs.eclipse.org/393719 - [compiler] inconsistent warnings on iteration variables
+			// compiler considers collectionExpression as within the declarationSourceEnd, DOM AST must use the shorter range to avoid overlap
+			int sourceEnd = ((localDeclaration.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsForeachElementVariable) != 0)
+					? localDeclaration.sourceEnd : localDeclaration.declarationSourceEnd;
+			rightEnd = Math.max(typeEnd, sourceEnd);
+			/*
+			 * There is extra work to do to set the proper type positions
+			 * See PR http://bugs.eclipse.org/bugs/show_bug.cgi?id=23284
+			 */
+			setTypeForSingleVariableDeclaration(variableDecl, type, extraDimensions);
+		} else {//does not have any type
+			rightEnd = nameEnd;
 		}
-		Type type = convertType(localDeclaration.type);
-		int typeEnd = type.getStartPosition() + type.getLength() - 1;
-		// https://bugs.eclipse.org/393719 - [compiler] inconsistent warnings on iteration variables
-		// compiler considers collectionExpression as within the declarationSourceEnd, DOM AST must use the shorter range to avoid overlap
-		int sourceEnd = ((localDeclaration.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsForeachElementVariable) != 0)
-				? localDeclaration.sourceEnd : localDeclaration.declarationSourceEnd;
-		int rightEnd = Math.max(typeEnd, sourceEnd);
-		/*
-		 * There is extra work to do to set the proper type positions
-		 * See PR http://bugs.eclipse.org/bugs/show_bug.cgi?id=23284
-		 */
-		setTypeForSingleVariableDeclaration(variableDecl, type, extraDimensions);
 		variableDecl.setSourceRange(localDeclaration.declarationSourceStart, rightEnd - localDeclaration.declarationSourceStart + 1);
 		if (this.resolveBindings) {
 			recordNodes(name, localDeclaration);
