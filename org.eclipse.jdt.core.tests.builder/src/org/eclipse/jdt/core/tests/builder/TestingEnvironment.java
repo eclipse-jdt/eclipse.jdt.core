@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class TestingEnvironment {
@@ -89,12 +90,7 @@ public class TestingEnvironment {
 	public IPath addClass(IPath packagePath, String className, String contents) {
 		checkAssertion("a workspace must be open", this.isOpen); //$NON-NLS-1$
 		IPath classPath = packagePath.append(className + ".java"); //$NON-NLS-1$
-		try {
-			createFile(classPath, contents.getBytes("UTF8")); //$NON-NLS-1$
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			checkAssertion("e1", false); //$NON-NLS-1$
-		}
+		createFile(classPath, contents.getBytes(StandardCharsets.UTF_8));
 		return classPath;
 	}
 
@@ -370,12 +366,7 @@ public void addLibrary(IPath projectPath, IPath libraryPath, IPath sourceAttachm
 	public IPath addFile(IPath root, String fileName, String contents){
 		checkAssertion("a workspace must be open", this.isOpen); //$NON-NLS-1$
 		IPath filePath = root.append(fileName);
-		try {
-			createFile(filePath, contents.getBytes("UTF8")); //$NON-NLS-1$
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			checkAssertion("e1", false); //$NON-NLS-1$
-		}
+		createFile(filePath, contents.getBytes(StandardCharsets.UTF_8));
 		return filePath;
 	}
 
