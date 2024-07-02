@@ -37,9 +37,7 @@ import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 *
 * See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2641 for discussion on possible
 * changes to this interface
-*
-* @since 3.38
- */
+*/
 public interface ICompilationUnitResolver {
 	/**
 	 * Parse the ASTs and resolve the bindings for the given source files using the following options.

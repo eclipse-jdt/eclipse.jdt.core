@@ -92,7 +92,11 @@ public class CompilationUnitResolverDiscoveryTest extends ConverterTestSetup {
 			IMethodBinding mb = methodDeclaration.resolveBinding();
 			assertEquals(mb.getClass().getName(), "org.eclipse.jdt.core.dom.MethodBinding");
 		} finally {
-			System.setProperty(SELECTED_SYSPROP, original);
+			if (original == null) {
+				System.clearProperty(SELECTED_SYSPROP);
+			} else {
+				System.setProperty(SELECTED_SYSPROP, original);
+			}
 		}
 	}
 
@@ -111,7 +115,11 @@ public class CompilationUnitResolverDiscoveryTest extends ConverterTestSetup {
 			IMethodBinding mb = methodDeclaration.resolveBinding();
 			assertEquals(mb.getClass().getName(), "org.eclipse.jdt.core.dom.MethodBinding");
 		} finally {
-			System.setProperty(SELECTED_SYSPROP, original);
+			if (original == null) {
+				System.clearProperty(SELECTED_SYSPROP);
+			} else {
+				System.setProperty(SELECTED_SYSPROP, original);
+			}
 		}
 	}
 
@@ -129,7 +137,11 @@ public class CompilationUnitResolverDiscoveryTest extends ConverterTestSetup {
 			String pdName = pd.getName().toString();
 			assertEquals(pdName, "compilationUnitResolverDiscoveryTest");
 		} finally {
-			System.setProperty(SELECTED_SYSPROP, original);
+			if (original == null) {
+				System.clearProperty(SELECTED_SYSPROP);
+			} else {
+				System.setProperty(SELECTED_SYSPROP, original);
+			}
 		}
 	}
 
