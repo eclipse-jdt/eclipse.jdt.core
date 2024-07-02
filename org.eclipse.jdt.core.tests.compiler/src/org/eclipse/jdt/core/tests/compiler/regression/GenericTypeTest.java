@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -39060,6 +39060,9 @@ public void test1119() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=166963
 public void test1120() {
+	String msg = (this.complianceLevel < ClassFileConstants.JDK22) ?
+						"Constructor call must be the first statement in a constructor\n" :
+							"Statements Before Super is a preview feature and disabled by default. Use --enable-preview to enable\n";
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -39076,7 +39079,7 @@ public void test1120() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	this(zork);\n" +
 		"	^^^^^^^^^^^\n" +
-		"Constructor call must be the first statement in a constructor\n" +
+		msg +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	this(zork);\n" +
