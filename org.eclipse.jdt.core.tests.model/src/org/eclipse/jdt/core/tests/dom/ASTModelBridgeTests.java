@@ -160,10 +160,14 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 
 	private IBinding[] createBindings(String contents, IJavaElement element) throws JavaModelException {
+		return createBindings(contents, element, false);
+	}
+	private IBinding[] createBindings(String contents, IJavaElement element, boolean recoverBindings) throws JavaModelException {
 		this.workingCopy.getBuffer().setContents(contents);
 		this.workingCopy.makeConsistent(null);
 		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 		parser.setProject(getJavaProject("P"));
+		parser.setBindingsRecovery(recoverBindings);
 		IJavaElement[] elements = new IJavaElement[] {element};
 		return parser.createBindings(elements, null);
 	}
@@ -1174,6 +1178,22 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	public void testCreateBindings14a() throws JavaModelException {
 		IBinding[] bindings = createBindings(
 			"public class X<T extends java.lang.Number> {\n" +
+			"}",
+			this.workingCopy.getType("X").getTypeParameter("T"),
+			true // recover bindings, java.lang.Number is missing from jclMin!
+		);
+		assertBindingsEqual(
+			"LX;:TT;",
+			bindings);
+	}
+
+	/*
+	 * Ensures that the correct IBindings are created for a given set of IJavaElement
+	 * (type parameter with bound)
+	 */
+	public void testCreateBindings14a2() throws JavaModelException {
+		IBinding[] bindings = createBindings(
+			"public class X<T extends java.lang.Exception> {\n" + // j.l.Exception is present
 			"}",
 			this.workingCopy.getType("X").getTypeParameter("T")
 		);

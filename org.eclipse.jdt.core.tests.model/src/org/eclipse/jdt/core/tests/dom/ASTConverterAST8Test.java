@@ -6993,8 +6993,8 @@ public class ASTConverterAST8Test extends ConverterTestSetup {
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("Wrong size", 2, compilationUnit.getMessages().length); //$NON-NLS-1$
-		assertEquals("Wrong size", 2, compilationUnit.getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong size", 1, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("Wrong size", 1, compilationUnit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
 		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
