@@ -77,7 +77,7 @@ public class AnnotationProcessingCompilerToolTest extends AbstractBatchCompilerT
 			null /* standardJavaFileManager */,
 			Arrays.asList(
 					"-d", OUTPUT_DIR,
-			        "-source", "1.6",
+			        "-source", "1.8",
 			        "-g", "-preserveAllLocals",
 			        "-cp",  OUTPUT_DIR  + File.pathSeparator + _extJar.getAbsolutePath() ,
 			        "-s", OUTPUT_DIR  +  File.separator + "src-gen",
@@ -161,7 +161,7 @@ public class AnnotationProcessingCompilerToolTest extends AbstractBatchCompilerT
 			null /* standardJavaFileManager */,
 			Arrays.asList(
 					"-d", OUTPUT_DIR,
-			        "-source", "1.6",
+			        "-source", "1.8",
 			        "-g", "-preserveAllLocals",
 			        "-cp",  OUTPUT_DIR  + File.pathSeparator + _extJar.getAbsolutePath() ,
 			        "-s", OUTPUT_DIR  +  File.separator + "src-gen",

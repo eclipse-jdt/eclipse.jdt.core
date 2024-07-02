@@ -1577,9 +1577,9 @@ public class CompilerOptions {
 
 		// by default only lines and source attributes are generated.
 		this.produceDebugAttributes = ClassFileConstants.ATTR_SOURCE | ClassFileConstants.ATTR_LINES;
-		this.complianceLevel = this.originalComplianceLevel = ClassFileConstants.JDK1_4; // by default be compliant with 1.4
-		this.sourceLevel = this.originalSourceLevel = ClassFileConstants.JDK1_3; //1.3 source behavior by default
-		this.targetJDK = ClassFileConstants.JDK1_2; // default generates for JVM1.2
+		this.complianceLevel = this.originalComplianceLevel = ClassFileConstants.JDK1_8; // by default be compliant with 1.8
+		this.sourceLevel = this.originalSourceLevel = ClassFileConstants.JDK1_8; //1.8 source behavior by default
+		this.targetJDK = ClassFileConstants.JDK1_8; // default generates for JVM1.8
 
 		this.defaultEncoding = null; // will use the platform default encoding
 

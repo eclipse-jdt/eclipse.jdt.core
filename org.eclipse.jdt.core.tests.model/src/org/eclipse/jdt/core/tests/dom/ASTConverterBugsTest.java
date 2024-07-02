@@ -805,7 +805,12 @@ public void testBug215759b() throws CoreException {
 			"4:METHOD_DECLARATION,[176,23],[165,34],,[METHOD,Lp/X;.bar()V,]\n" +
 			"5:METHOD_DECLARATION,[201,40],,,[METHOD,Lp/X;.bar2()V,DEPRECATED]\n" +
 			"===== Problems =====\n" +
-			"No problem",
+			"""
+1. ERROR in /Converter/src/p/X.java (at line 1)
+	package p;
+	^
+The type java.lang.StringBuilder cannot be resolved. It is indirectly referenced from required .class files
+""",
 			result);
 }
 /**

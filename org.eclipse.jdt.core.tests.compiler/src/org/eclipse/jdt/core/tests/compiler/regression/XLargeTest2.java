@@ -27,7 +27,7 @@ public class XLargeTest2 extends AbstractRegressionTest {
 	}
 
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_5);
+		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 	}
 
 	public static Class<?> testClass() {

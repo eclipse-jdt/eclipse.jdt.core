@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil.MergeStrategy;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.osgi.framework.Bundle;
 
 import junit.framework.Test;
@@ -47,7 +48,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 
 
 	public ExternalAnnotations17Test(String name) {
-		super(name, "1.7", "JCL17_LIB");
+		super(name, CompilerOptions.getFirstSupportedJavaVersion(), "JCL18_LIB");
 	}
 
 // Use this static initializer to specify subset for tests
@@ -882,7 +883,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 				" ()TE;\n" +
 				" ()T1E;\n" + // this @NonNull should be respected by analysis of ForeachStatement
 				"\n");
-		addEeaToVariableEntry("JCL17_LIB", "annots");
+		addEeaToVariableEntry("JCL18_LIB", "annots");
 
 		fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
 		unit = fragment.createCompilationUnit("B.java",

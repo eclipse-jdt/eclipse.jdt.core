@@ -19,12 +19,39 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ILogListener;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.ClasspathContainerInitializer;
+import org.eclipse.jdt.core.IClasspathContainer;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModelMarker;
+import org.eclipse.jdt.core.IJavaModelStatus;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaConventions;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.model.Semaphore.TimeOutException;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
@@ -1395,7 +1422,7 @@ public void testVariableInitializerDeprecated() throws CoreException, IOExceptio
 		addLibrary(project, "lib.jar", null, new String[0],
 				new String[]{"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n"} ,
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
 		assertStatus("Classpath variable 'TEST_DEPRECATED' in project 'P1' is deprecated: Test deprecated flag", status);
@@ -1452,7 +1479,7 @@ public void testVariableInitializerReadOnly() throws CoreException, IOException 
 		addLibrary(project, "lib.jar", null, new String[0],
 				new String[]{"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n"} ,
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_READ_ONLY"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
 		assertStatus("OK", status);
@@ -1480,7 +1507,7 @@ public void testVariableInitializerDeprecatedAndReadOnly() throws CoreException,
 		addLibrary(project, "lib.jar", null, new String[0],
 				new String[]{"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n"} ,
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED_READ_ONLY"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
 		assertStatus("Classpath variable 'TEST_DEPRECATED_READ_ONLY' in project 'P1' is deprecated: A deprecated and read-only initializer", status);
@@ -1514,7 +1541,7 @@ public void testVariableInitializerBug172207() throws CoreException, IOException
 		addLibrary(project, "lib.jar", null, new String[0],
 				new String[]{"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n"} ,
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED_READ_ONLY"), null, null);
 		IClasspathEntry[] entries = project.getRawClasspath();
 		int length = entries.length;

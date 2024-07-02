@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.TestVerifier;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -548,13 +549,11 @@ public class BuilderTests extends TestCase {
 			LeakTestsBefore9.class,
 		};
 		List<Class<?>> list = new ArrayList<>(Arrays.asList(classes));
-		if (matchesCompliance(F_1_5)) {
+		if (matchesCompliance(F_1_8)) {
 			list.add(Java50Tests.class);
 			list.add(PackageInfoTest.class);
 			list.add(ParticipantBuildTests.class);
 			list.add(AnnotationDependencyTests.class);
-		}
-		if (matchesCompliance(F_1_8)) {
 			list.add(Bug544921Test.class);
 		}
 		if (matchesCompliance(F_9)) {
@@ -628,7 +627,7 @@ public class BuilderTests extends TestCase {
 	static IPath addEmptyInternalJar(IPath projectPath, String jarName) throws IOException, JavaModelException {
 		IProject project = env.getProject(projectPath);
 		String jarFile = project.getLocation().append(jarName).toOSString();
-		Util.createEmptyJar(jarFile, JavaCore.VERSION_1_4);
+		Util.createEmptyJar(jarFile, CompilerOptions.getFirstSupportedJavaVersion());
 		IPath jarPath = null;
 		try (FileInputStream fis = new FileInputStream(jarFile)) {
 			int length = fis.available();

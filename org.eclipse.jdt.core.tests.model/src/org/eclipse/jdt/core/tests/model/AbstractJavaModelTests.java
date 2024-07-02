@@ -20,6 +20,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,6 +33,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IContainer;
@@ -1638,9 +1642,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		byte[] srcBytes = read(src);
 
 		if (convertToIndependantLineDelimiter(src)) {
-			String contents = new String(srcBytes);
+			String contents = new String(srcBytes, StandardCharsets.UTF_8);
 			contents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(contents);
-			srcBytes = contents.getBytes();
+			srcBytes = contents.getBytes(StandardCharsets.UTF_8);
 		}
 
 		// write bytes to dest
@@ -1658,14 +1662,18 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 */
 	protected void copyDirectory(File source, File target) throws IOException {
 		if (!target.exists()) {
-			target.mkdirs();
+			Files.createDirectories(target.toPath());
 		}
 		File[] files = source.listFiles();
-		if (files == null) return;
+		if (files == null) {
+			throw new IOException(source + " directory has no files!");
+		}
 		for (int i = 0; i < files.length; i++) {
 			File sourceChild = files[i];
 			String name =  sourceChild.getName();
-			if (name.equals("CVS") || name.equals(".svn")) continue;
+			if (name.equals(".git")) {
+				continue;
+			}
 			File targetChild = new File(target, name);
 			if (sourceChild.isDirectory()) {
 				copyDirectory(sourceChild, targetChild);
@@ -1705,11 +1713,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return folder;
 	}
 	protected void createJar(String[] javaPathsAndContents, String jarPath) throws IOException {
-		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, jarPath, "1.4");
+		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, jarPath, CompilerOptions.getFirstSupportedJavaVersion());
 	}
 
 	protected void createJar(String[] javaPathsAndContents, String jarPath, Map options) throws IOException {
-		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, null, jarPath, null, "1.4", options);
+		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, null, jarPath, null, CompilerOptions.getFirstSupportedJavaVersion(), options);
 	}
 
 	protected void createJar(String[] javaPathsAndContents, String jarPath, String[] classpath, String compliance) throws IOException {
@@ -1793,7 +1801,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Creates a Java project where prj=src=bin and with JCL_LIB on its classpath.
 	 */
 	protected IJavaProject createJavaProject(String projectName) throws CoreException {
-		return this.createJavaProject(projectName, new String[] {""}, new String[] {"JCL_LIB"}, "");
+		return this.createJavaProject(projectName, new String[] {""}, new String[] {"JCL18_LIB"}, "");
 	}
 	/*
 	 * Creates a Java project with the given source folders an output location.
@@ -1815,7 +1823,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				""
+				CompilerOptions.getFirstSupportedJavaVersion()
 			);
 	}
 	/*
@@ -1838,7 +1846,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				sourceOutputs,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				""
+				CompilerOptions.getFirstSupportedJavaVersion()
 			);
 	}
 	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String output) throws CoreException {
@@ -1858,7 +1866,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				"",
+				CompilerOptions.getFirstSupportedJavaVersion(),
 				false/*don't import*/
 			);
 	}
@@ -1920,7 +1928,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				""
+				CompilerOptions.getFirstSupportedJavaVersion()
 			);
 	}
 	protected SearchPattern createPattern(IJavaElement element, int limitTo) {
@@ -1949,7 +1957,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				""
+				CompilerOptions.getFirstSupportedJavaVersion()
 			);
 	}
 	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String[] projects, String projectOutput, String compliance) throws CoreException {
@@ -2169,7 +2177,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 							// ensure JCL variables are set
 							setUpJCLClasspathVariables(compliance, fullJCL);
 						} catch (IOException e) {
-							e.printStackTrace();
+							throw new CoreException(Status.error("Failed to setup '" + lib + "' library for compliance '" + compliance + "'", e));
 						}
 					}
 
@@ -2292,31 +2300,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					javaProject.setRawClasspath(entries, projectPath.append(outputPath), monitor);
 
 				// set compliance level options
-				if ("1.4".equals(compliance)) {
-					Map options = new HashMap();
-					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-					javaProject.setOptions(options);
-				} else if ("1.5".equals(compliance)) {
-					Map options = new HashMap();
-					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-					javaProject.setOptions(options);
-				} else if ("1.6".equals(compliance)) {
-					Map options = new HashMap();
-					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
-					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
-					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-					javaProject.setOptions(options);
-				} else if ("1.7".equals(compliance)) {
-					Map options = new HashMap();
-					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
-					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
-					javaProject.setOptions(options);
-				} else if ("1.8".equals(compliance)) {
+				if ("1.8".equals(compliance)) {
 					Map options = new HashMap();
 					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
@@ -2388,6 +2372,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_22);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_22);
 					javaProject.setOptions(options);
+				} else {
+					// Do NOT set default project options if compliance is not given,
+					// we may test workspace (JavaCore) default options here
 				}
 				result[0] = javaProject;
 			}
@@ -2412,7 +2399,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				"1.4",
+				CompilerOptions.getFirstSupportedJavaVersion(),
 				true/*import*/
 			);
 	}
@@ -2571,11 +2558,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			setUpJCLClasspathVariables("1.8");
 			return new String[] {getExternalJCLPathString("1.8")};
 		}
-		if (compliance.charAt(compliance.length()-1) >= '5' && (AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_1_5) != 0) {
-			// ensure that the JCL 15 lib is setup (i.e. that the jclMin15.jar is copied)
-			setUpJCLClasspathVariables("1.5");
-			return new String[] {getExternalJCLPathString("1.5")};
-		}
 		return null;
 	}
 	/**
@@ -2644,7 +2626,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Returns the IPath to the external java class library (e.g. jclMin.jar)
 	 */
 	protected IPath getExternalJCLPath() {
-		return new Path(getExternalJCLPathString(""));
+		return new Path(getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()));
 	}
 	/**
 	 * Returns the IPath to the external java class library (e.g. jclMin.jar)
@@ -2656,7 +2638,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Returns the java.io path to the external java class library (e.g. jclMin.jar)
 	 */
 	protected String getExternalJCLPathString() {
-		return getExternalJCLPathString("");
+		return getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion());
 	}
 	/**
 	 * Returns the java.io path to the external java class library (e.g. jclMin.jar)
@@ -2681,7 +2663,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Returns the IPath to the source of the external java class library (e.g. jclMinsrc.zip)
 	 */
 	protected IPath getExternalJCLSourcePath() {
-		return new Path(getExternalJCLSourcePathString(""));
+		return new Path(getExternalJCLSourcePathString(CompilerOptions.getFirstSupportedJavaVersion()));
 	}
 	/**
 	 * Returns the IPath to the source of the external java class library (e.g. jclMinsrc.zip)
@@ -2693,7 +2675,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Returns the java.io path to the source of the external java class library (e.g. jclMinsrc.zip)
 	 */
 	protected String getExternalJCLSourcePathString() {
-		return getExternalJCLSourcePathString("");
+		return getExternalJCLSourcePathString(CompilerOptions.getFirstSupportedJavaVersion());
 	}
 	/**
 	 * Returns the java.io path to the source of the external java class library (e.g. jclMinsrc.zip)
@@ -2706,15 +2688,19 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * This path ends with a File.separatorChar.
 	 */
 	protected String getExternalPath() {
-		if (EXTERNAL_JAR_DIR_PATH == null)
+		if (EXTERNAL_JAR_DIR_PATH == null) {
 			try {
 				String path = getWorkspaceRoot().getLocation().toFile().getParentFile().getCanonicalPath();
-				if (path.charAt(path.length()-1) != File.separatorChar)
+				if (path.charAt(path.length()-1) != File.separatorChar) {
 					path += File.separatorChar;
+				}
 				EXTERNAL_JAR_DIR_PATH = path;
+				System.out.println("EXTERNAL_JAR_DIR_PATH=" + EXTERNAL_JAR_DIR_PATH);
+				System.out.println("EXTERNAL_JAR_DIR_PATH writable? " + Files.isWritable(Paths.get(EXTERNAL_JAR_DIR_PATH)));
 			} catch (IOException e) {
-				e.printStackTrace();
+				throw new IllegalStateException(e);
 			}
+		}
 		return EXTERNAL_JAR_DIR_PATH;
 	}
 	/*
@@ -2857,17 +2843,26 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	/**
 	 * Returns the OS path to the directory that contains this plugin.
 	 */
-	protected String getPluginDirectoryPath() {
-		try {
-			URL platformURL = Platform.getBundle("org.eclipse.jdt.core.tests.model").getEntry("/");
-			return new File(FileLocator.toFileURL(platformURL).getFile()).getAbsolutePath();
-		} catch (IOException e) {
-			e.printStackTrace();
+	protected String getPluginDirectoryPath() throws IOException {
+		URL platformURL = Platform.getBundle("org.eclipse.jdt.core.tests.model").getEntry("/");
+		String absolutePath = new File(FileLocator.toFileURL(platformURL).getFile()).getAbsolutePath();
+		java.nio.file.Path rootDir = Paths.get(absolutePath);
+		if (!Files.isDirectory(rootDir)){
+			throw new IOException("Directory for 'org.eclipse.jdt.core.tests.model' bundle is not readable: " + rootDir);
 		}
-		return null;
+		if(Files.list(rootDir).count() == 0){
+			throw new IOException("Directory for 'org.eclipse.jdt.core.tests.model' bundle is empty: " + rootDir);
+		}
+		return absolutePath;
 	}
+
 	public String getSourceWorkspacePath() {
-		return getPluginDirectoryPath() +  java.io.File.separator + "workspace";
+		try {
+			return getPluginDirectoryPath() + java.io.File.separator + "workspace";
+		} catch (IOException e) {
+			e.printStackTrace(System.out);
+			return null;
+		}
 	}
 	public ICompilationUnit getWorkingCopy(String path, boolean computeProblems) throws JavaModelException {
 		return getWorkingCopy(path, "", computeProblems);
@@ -2939,6 +2934,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 
 	protected String displayString(String toPrint, int indent) {
+		String minJavaVersion = CompilerOptions.getFirstSupportedJavaVersion();
+		String minJavaVersionEncoded = "\"" + minJavaVersion + "\"";
     	char[] toDisplay = toPrint.toCharArray();
     	toDisplay =
     		CharOperation.replace(
@@ -2953,8 +2950,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		toDisplay =
     		CharOperation.replace(
     			toDisplay,
-    			getExternalJCLPathString("1.5").toCharArray(),
-    			"getExternalJCLPathString(\"1.5\")".toCharArray());
+    			getExternalJCLPathString(minJavaVersion).toCharArray(),
+    			("getExternalJCLPathString(" + minJavaVersionEncoded + ")").toCharArray());
 		toDisplay =
     		CharOperation.replace(
     			toDisplay,
@@ -2969,8 +2966,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		toDisplay =
     		CharOperation.replace(
     			toDisplay,
-    			org.eclipse.jdt.core.tests.util.Util.displayString(getExternalJCLSourcePathString("1.5"), 0).toCharArray(),
-    			"getExternalJCLSourcePathString(\"1.5\")".toCharArray());
+    			org.eclipse.jdt.core.tests.util.Util.displayString(getExternalJCLSourcePathString(minJavaVersion), 0).toCharArray(),
+    			("getExternalJCLSourcePathString(" + minJavaVersionEncoded + ")").toCharArray());
 
     	toDisplay = org.eclipse.jdt.core.tests.util.Util.displayString(new String(toDisplay), indent).toCharArray();
 
@@ -2987,8 +2984,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
     	toDisplay =
     		CharOperation.replace(
     			toDisplay,
-    			"getExternalJCLPathString(\\\"1.5\\\")".toCharArray(),
-    			("\"+ getExternalJCLPathString(\"1.5\") + \"").toCharArray());
+    			("getExternalJCLPathString(\\\"" + minJavaVersion + "\\\")").toCharArray(),
+    			("\"+ getExternalJCLPathString(" + minJavaVersionEncoded + ") + \"").toCharArray());
     	toDisplay =
     		CharOperation.replace(
     			toDisplay,
@@ -2997,8 +2994,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
     	toDisplay =
     		CharOperation.replace(
     			toDisplay,
-    			"getExternalJCLSourcePathString(\\\"1.5\\\")".toCharArray(),
-    			("\"+ getExternalJCLSourcePathString(\"1.5\") + \"").toCharArray());
+    			("getExternalJCLSourcePathString(\\\"" + minJavaVersion + "\\\")").toCharArray(),
+    			("\"+ getExternalJCLSourcePathString(" + minJavaVersionEncoded + ") + \"").toCharArray());
     	toDisplay =
     		CharOperation.replace(
     			toDisplay,
@@ -3039,21 +3036,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		};
 	}
 
-	public byte[] read(java.io.File file) throws java.io.IOException {
-		int fileLength;
-		byte[] fileBytes = new byte[fileLength = (int) file.length()];
-		java.io.FileInputStream stream = new java.io.FileInputStream(file);
-		int bytesRead = 0;
-		int lastReadSize = 0;
-		try {
-			while ((lastReadSize != -1) && (bytesRead != fileLength)) {
-				lastReadSize = stream.read(fileBytes, bytesRead, fileLength - bytesRead);
-				bytesRead += lastReadSize;
-			}
-			return fileBytes;
-		} finally {
-			stream.close();
-		}
+	public byte[] read(java.io.File file) throws IOException {
+		return Files.readAllBytes(file.toPath());
 	}
 
 	public void refresh(final IJavaProject javaProject) throws CoreException {
@@ -3397,6 +3381,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 */
 	public void setupExternalJCL(String jclName) throws IOException {
 		String externalPath = getExternalPath();
+		java.nio.file.Path rootPath = Paths.get(externalPath);
+		if(!Files.isDirectory(rootPath)) {
+			Files.deleteIfExists(rootPath);
+			Files.createDirectories(rootPath);
+		}
 		String separator = java.io.File.separator;
 		String resourceJCLDir = getPluginDirectoryPath() + separator + "JCL";
 		java.io.File jclDir = new java.io.File(externalPath);
@@ -3404,10 +3393,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			new java.io.File(externalPath + jclName + ".jar");
 		java.io.File jclMinsrc = new java.io.File(externalPath + jclName + "src.zip");
 		if (!jclDir.exists()) {
-			if (!jclDir.mkdir()) {
-				//mkdir failed
-				throw new IOException("Could not create the directory " + jclDir);
-			}
+			Files.createDirectory(jclDir.toPath());
 			//copy the two files to the JCL directory
 			java.io.File resourceJCLMin =
 				new java.io.File(resourceJCLDir + separator + jclName + ".jar");
@@ -3420,20 +3406,18 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			//copy either file that is missing or less recent than the one in workspace
 			java.io.File resourceJCLMin =
 				new java.io.File(resourceJCLDir + separator + jclName + ".jar");
-			if ((jclMin.lastModified() < resourceJCLMin.lastModified())
-                    || (jclMin.length() != resourceJCLMin.length())) {
+			if (!jclMin.exists() || !Files.isSameFile(jclMin.toPath(), resourceJCLMin.toPath())) {
 				copy(resourceJCLMin, jclMin);
 			}
 			java.io.File resourceJCLMinsrc =
 				new java.io.File(resourceJCLDir + separator + jclName + "src.zip");
-			if ((jclMinsrc.lastModified() < resourceJCLMinsrc.lastModified())
-                    || (jclMinsrc.length() != resourceJCLMinsrc.length())) {
+			if (!jclMinsrc.exists() || !Files.isSameFile(jclMinsrc.toPath(), resourceJCLMinsrc.toPath())) {
 				copy(resourceJCLMinsrc, jclMinsrc);
 			}
 		}
 	}
 	protected IJavaProject setUpJavaProject(final String projectName) throws CoreException, IOException {
-		this.currentProject = setUpJavaProject(projectName, "1.4");
+		this.currentProject = setUpJavaProject(projectName, CompilerOptions.getFirstSupportedJavaVersion());
 		return this.currentProject;
 	}
 	protected IJavaProject setUpJavaProject(final String projectName, String compliance) throws CoreException, IOException {
@@ -3455,7 +3439,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			public void run(IProgressMonitor monitor) throws CoreException {
 				project.create(null);
 				project.open(null);
-				project.setDefaultCharset(ResourcesPlugin.getEncoding(), monitor);
+				// Shouldn't be needed anymore, see org.eclipse.core.internal.resources.Project.writeEncodingAfterOpen(IProgressMonitor)
+				// project.setDefaultCharset(ResourcesPlugin.getEncoding(), monitor);
 			}
 		};
 		getWorkspace().run(populate, null);
@@ -3478,9 +3463,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void setUpProjectCompliance(IJavaProject javaProject, String compliance, boolean useFullJCL) throws JavaModelException, IOException {
 		// Look for version to set and return if that's already done
 		String version = compliance; // assume that the values of CompilerOptions.VERSION_* are used
-		if (version.equals(javaProject.getOption(CompilerOptions.OPTION_Compliance, false))) {
-			return;
-		}
+//		if (!useFullJCL && version.equals(javaProject.getOption(CompilerOptions.OPTION_Compliance, false))) {
+//			return;
+//		}
 		String newJclLibString;
 		String newJclSrcString;
 		if (useFullJCL) {
@@ -3534,15 +3519,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			} else if (compliance.length() < 3) {
 				newJclLibString = "JCL19_LIB";
 				newJclSrcString = "JCL19_SRC";
-			} else if (compliance.charAt(2) > '7') {
+			} else {
 				newJclLibString = "JCL18_LIB";
 				newJclSrcString = "JCL18_SRC";
-			} else if (compliance.charAt(2) > '4') {
-				newJclLibString = "JCL15_LIB";
-				newJclSrcString = "JCL15_SRC";
-			} else {
-				newJclLibString = "JCL_LIB";
-				newJclSrcString = "JCL_SRC";
 			}
 		}
 
@@ -3551,71 +3530,46 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 		// set options
 		Map options = new HashMap();
+		if(version.startsWith("1.") && !version.equals(CompilerOptions.getFirstSupportedJavaVersion())){
+			throw new IllegalArgumentException("Unsupported compliance: '" + version + "'");
+		}
 		options.put(CompilerOptions.OPTION_Compliance, version);
 		options.put(CompilerOptions.OPTION_Source, version);
 		options.put(CompilerOptions.OPTION_TargetPlatform, version);
 		javaProject.setOptions(options);
 
 		IClasspathEntry[] classpath = javaProject.getRawClasspath();
-
+		boolean jclPathEntrySet = false;
 		for (int i = 0, length = classpath.length; i < length; i++) {
 			IClasspathEntry entry = classpath[i];
 			final IPath path = entry.getPath();
 			// Choose the new JCL path only if the current JCL path is different
 			if (isJCLPath(path) && !path.toString().equals(newJclLibString)) {
-					classpath[i] = JavaCore.newVariableEntry(
-							new Path(newJclLibString),
-							new Path(newJclSrcString),
-							entry.getSourceAttachmentRootPath(),
-							entry.getAccessRules(),
-							new IClasspathAttribute[0],
-							entry.isExported());
-					break;
+				if(jclPathEntrySet) {
+					throw new IllegalStateException("Duplicated JCL container in class path " + Arrays.toString(classpath));
+				}
+				classpath[i] = JavaCore.newVariableEntry(
+						new Path(newJclLibString),
+						new Path(newJclSrcString),
+						entry.getSourceAttachmentRootPath(),
+						entry.getAccessRules(),
+						new IClasspathAttribute[0],
+						entry.isExported());
+				jclPathEntrySet = true;
 			}
 		}
 		javaProject.setRawClasspath(classpath, null);
 	}
 	public boolean isJCLPath(IPath path) {
-		IPath jclLib = new Path("JCL_LIB");
-		IPath jcl5Lib = new Path("JCL15_LIB");
-		IPath jcl8Lib = new Path("JCL18_LIB");
-		IPath jcl9Lib = new Path("JCL19_LIB");
-		IPath jcl10Lib = new Path("JCL10_LIB");
-		IPath jcl11Lib = new Path("JCL11_LIB");
-		IPath jcl12Lib = new Path("JCL12_LIB");
-		IPath jcl13Lib = new Path("JCL13_LIB");
-		IPath jcl14Lib = new Path("JCL14_LIB");
-		IPath jcl17Lib = new Path("JCL_17_LIB");
-		IPath jcl21Lib = new Path("JCL_21_LIB");
-		IPath jcl22Lib = new Path("JCL_22_LIB");
-		IPath jclFull = new Path("JCL18_FULL");
-
-		return path.equals(jclLib) || path.equals(jcl5Lib) || path.equals(jcl8Lib) || path.equals(jcl9Lib)
-				|| path.equals(jcl10Lib) ||  path.equals(jcl11Lib) || path.equals(jcl12Lib) || path.equals(jcl13Lib)
-				|| path.equals(jcl14Lib) || path.equals(jcl17Lib) || path.equals(jcl21Lib) || path.equals(jcl22Lib)
-				|| path.equals(jclFull);
+		return path.toPortableString().startsWith("JCL");
 	}
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
 		setUpJCLClasspathVariables(compliance, false);
 	}
 	public void setUpJCLClasspathVariables(String compliance, boolean useFullJCL) throws JavaModelException, IOException {
-		if ("1.5".equals(compliance) || "1.6".equals(compliance)) {
-			if (JavaCore.getClasspathVariable("JCL15_LIB") == null) {
-				setupExternalJCL("jclMin1.5");
-				JavaCore.setClasspathVariables(
-					new String[] {"JCL15_LIB", "JCL15_SRC", "JCL_SRCROOT"},
-					new IPath[] {getExternalJCLPath("1.5"), getExternalJCLSourcePath("1.5"), getExternalJCLRootSourcePath()},
-					null);
-			}
-		} else if ("1.7".equals(compliance)) {
-			if (JavaCore.getClasspathVariable("JCL17_LIB") == null) {
-				setupExternalJCL("jclMin1.7");
-				JavaCore.setClasspathVariables(
-					new String[] {"JCL17_LIB", "JCL17_SRC", "JCL_SRCROOT"},
-					new IPath[] {getExternalJCLPath("1.7"), getExternalJCLSourcePath("1.7"), getExternalJCLRootSourcePath()},
-					null);
-			}
-		} else if ("1.8".equals(compliance)) {
+		Set<String> knownVariables = new TreeSet<>(List.of(JavaCore.getClasspathVariableNames()));
+
+		if ("1.8".equals(compliance)) {
 			if (useFullJCL) {
 				if (JavaCore.getClasspathVariable("JCL18_FULL") == null) {
 					setupExternalJCL("jclMin1.8"); // Create the whole mininmal 1.8 set, though we will need only the source zip
@@ -3721,13 +3675,46 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					null);
 			}
 		} else {
+			if (JavaCore.getClasspathVariable("JCL18_LIB") == null) {
+				setupExternalJCL("jclMin" + CompilerOptions.getFirstSupportedJavaVersion());
+				JavaCore.setClasspathVariables(
+						new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
+						new IPath[] {getExternalJCLPath("1.8"), getExternalJCLSourcePath(CompilerOptions.getFirstSupportedJavaVersion()), getExternalJCLRootSourcePath()},
+						null);
+			}
 			if (JavaCore.getClasspathVariable("JCL_LIB") == null) {
 				setupExternalJCL("jclMin");
 				JavaCore.setClasspathVariables(
 					new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-					new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+					new IPath[] {getExternalJCLPath(""), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 					null);
 			}
+		}
+		Set<String> newVariables = new TreeSet<>(List.of(JavaCore.getClasspathVariableNames()));
+		newVariables.removeAll(knownVariables);
+		Set<String> printout = newVariables;
+		if(newVariables.isEmpty()) {
+			printout = knownVariables;
+		}
+		for (String variable : printout) {
+			if(!variable.contains("JCL")) {
+				continue;
+			}
+			IPath varPath = JavaCore.getClasspathVariable(variable);
+			if("JCL18_LIB".equals(variable) && varPath.toString().endsWith("jclMin.jar")) {
+				System.out.println("Classpath variable '" + variable + "' with path " + varPath + " points to wrong jar, redefining!");
+				setupExternalJCL("jclMin1.8");
+				IPath externalJCLPath = getExternalJCLPath("1.8");
+				System.out.println("getExternalJCLPath(\"1.8\") => " + externalJCLPath);
+				JavaCore.setClasspathVariables(
+						new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
+						new IPath[] {externalJCLPath, getExternalJCLSourcePath("1.8"), getExternalJCLRootSourcePath()},
+						null);
+				varPath = JavaCore.getClasspathVariable(variable);
+			}
+			assertNotNull("Should have path defined: '" + variable + "'", varPath);
+			assertTrue("Should exist on disk: '" + variable + "' defined as " + varPath, varPath.toFile().exists());
+			System.out.println("Defined classpath variable '" + variable + "' with path " + varPath + " and file size " + varPath.toFile().length());
 		}
 	}
 	@Override
@@ -3776,7 +3763,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
         logInfo(env);
     }
 
-    private static void printMemoryUse() {
+    private void printMemoryUse() {
     	System.gc();
     	System.runFinalization();
     	System.gc();
@@ -3785,6 +3772,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
     	long total = Runtime.getRuntime().totalMemory();
 		long free = Runtime.getRuntime().freeMemory();
 		long used = total - free;
+		System.out.print("\n#################################################");
+		System.out.print("\n" + getClass().getName());
 		System.out.print("\n########### Memory usage reported by JVM ########");
 		System.out.printf(Locale.GERMAN, "%n%,16d bytes max heap", nax);
 		System.out.printf(Locale.GERMAN, "%n%,16d bytes heap allocated", total);
@@ -4121,8 +4110,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		Plugin plugin = JavaCore.getPlugin();
 		if (plugin != null) {
 			plugin.getLog().log(new Status(IStatus.INFO, JavaCore.PLUGIN_ID, message));
-		} else {
-			System.out.println(message);
 		}
+		System.out.println(message);
 	}
 }

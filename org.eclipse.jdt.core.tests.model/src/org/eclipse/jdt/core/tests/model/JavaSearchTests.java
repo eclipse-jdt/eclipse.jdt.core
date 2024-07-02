@@ -54,6 +54,7 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 
@@ -100,7 +101,7 @@ public void setUpSuite() throws Exception {
 
 	if (JAVA_PROJECT == null) {
 		JAVA_PROJECT = setUpJavaProject("JavaSearch");
-		setUpJavaProject("JavaSearch15", "1.5");
+		setUpJavaProject("JavaSearch15", CompilerOptions.getFirstSupportedJavaVersion());
 	}
 }
 @Override
@@ -546,7 +547,7 @@ public void testDeclarationOfReferencedTypes09() throws CoreException {
 	);
 	assertSearchResults(
 		"Starting search...\n" +
-		getExternalJCLPathString("1.5") + " java.lang.Object\n" +
+		getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + " java.lang.Object\n" +
 		"Done searching.",
 		result);
 }
@@ -903,7 +904,7 @@ public void testFieldReference05() throws CoreException {
 	// Set 1.4 compliance level (no constant yet)
 	Hashtable options = JavaCore.getOptions();
 	String currentOption = (String)options.get("org.eclipse.jdt.core.compiler.compliance");
-	options.put("org.eclipse.jdt.core.compiler.compliance", "1.4");
+	options.put("org.eclipse.jdt.core.compiler.compliance", CompilerOptions.getFirstSupportedJavaVersion());
 	JavaCore.setOptions(options);
 
 	try {

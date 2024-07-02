@@ -17,8 +17,10 @@ import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
-import junit.framework.*;
+import junit.framework.ComparisonFailure;
+import junit.framework.Test;
 
 public class SnippetCompletionTests_1_5 extends AbstractJavaModelTests implements RelevanceConstants {
 
@@ -29,7 +31,7 @@ public SnippetCompletionTests_1_5(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	setUpJavaProject("SnippetCompletion", "1.5");
+	setUpJavaProject("SnippetCompletion", CompilerOptions.getFirstSupportedJavaVersion());
 }
 @Override
 public void tearDownSuite() throws Exception {

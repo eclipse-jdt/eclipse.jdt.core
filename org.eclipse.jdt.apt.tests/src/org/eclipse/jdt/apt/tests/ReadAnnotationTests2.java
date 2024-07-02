@@ -38,6 +38,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.tests.builder.BuilderTests;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
  * This test the dom layer of annotation support. No APT involved.
@@ -138,7 +139,7 @@ public class ReadAnnotationTests2 extends BuilderTests {
 	private IProject setupTest() throws Exception
 	{
 		// project will be deleted by super-class's tearDown() method
-		IPath projectPath = env.addProject( getUniqueProjectName(), "1.5" ); //$NON-NLS-1$
+		IPath projectPath = env.addProject( getUniqueProjectName(), CompilerOptions.getFirstSupportedJavaVersion() ); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 

@@ -1345,7 +1345,7 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		}
 		//permit reference in another file
 		public void test564049_011() throws CoreException {
-			IJavaProject project1 = createJavaProject("JavaSearchBugs15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "16");
+			IJavaProject project1 = createJavaProject("JavaSearchBugs15", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "16");
 			try {
 				Map<String, String> options = project1.getOptions(false);
 				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_16);

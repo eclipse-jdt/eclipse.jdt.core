@@ -22,13 +22,13 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.ArrayList;
 
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CompilationProgress;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathLocation;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 
@@ -184,7 +184,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 						"}",
 					},
 					LIB_DIR + "/lib1.jar",
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 				Util.createJar(
 					new String[] {
 						"p/B.java",
@@ -204,7 +204,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 						"}",
 					},
 					LIB_DIR + "/lib2.jar",
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 				Util.createJar(
 					new String[] {
 						"p/C.java",
@@ -224,7 +224,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 						"Class-Path: lib4.jar\n",
 					},
 					LIB_DIR + "/lib3.jar",
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 				Util.createJar(
 					new String[] {
 						"p/D.java",
@@ -239,7 +239,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 						"Class-Path: lib1.jar lib3.jar\n",
 					},
 					LIB_DIR + "/lib4.jar",
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 				Util.createJar(
 					new String[] {
 						"p/C.java",
@@ -259,7 +259,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 						"Class-Path: s/lib6.jar\n",
 					},
 					LIB_DIR + "/lib5.jar",
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 				new File(LIB_DIR + "/s").mkdir();
 				Util.createJar(
 					new String[] {
@@ -275,7 +275,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 						"Class-Path: ../lib7.jar\n",
 					},
 					LIB_DIR + "/s/lib6.jar",
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 				Util.createJar(
 					new String[] {
 						"p/A.java",
@@ -290,7 +290,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 						"Class-Path: lib2.jar\n",
 					},
 					LIB_DIR + "/lib7.jar",
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 				Util.createJar(
 					new String[] {
 						"p/F.java",
@@ -305,7 +305,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 						"Class-Path: " + LIB_DIR + "/lib3.jar lib1.jar\n",
 					},
 					LIB_DIR + "/lib8.jar",
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 				Util.createJar(
 					new String[] {
 						"p/G.java",
@@ -321,7 +321,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 						"Class-Path: lib3.jar\n",
 					},
 					LIB_DIR + "/lib9.jar",
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 				Util.createJar(
 					new String[] {
 						"p/A.java",
@@ -337,7 +337,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 						"Class-Path: lib2.jar\n",
 					},
 					LIB_DIR + "/lib10.jar",
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 				Util.createJar(
 					new String[] {
 						"p/A.java",
@@ -352,7 +352,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 						"Class-Path:\n",
 					},
 					LIB_DIR + "/lib11.jar",
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 				Util.createJar(
 					null,
 					new String[] {
@@ -362,7 +362,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 						"Class-Path:lib1.jar\n", // missing space
 					},
 					LIB_DIR + "/lib12.jar",
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 				Util.createJar(
 					null,
 					new String[] {
@@ -372,7 +372,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 						"Class-Path:lib1.jar lib1.jar\n", // missing space
 					},
 					LIB_DIR + "/lib13.jar",
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 				Util.createJar(
 					null,
 					new String[] {
@@ -382,7 +382,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 						" Class-Path: lib1.jar\n", // extra space at line start
 					},
 					LIB_DIR + "/lib14.jar",
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 				Util.createJar(
 					null,
 					new String[] {
@@ -392,7 +392,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 						"Class-Path: lib1.jar", // missing newline at end
 					},
 					LIB_DIR + "/lib15.jar",
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 				Util.createJar(
 					new String[] {
 						"p/A.java",
@@ -412,7 +412,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 						"}",
 					},
 					LIB_DIR + "/lib16.jar",
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 				new File(LIB_DIR + "/dir").mkdir();
 				Util.createJar(
 					new String[] {
@@ -428,7 +428,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 						"Class-Path: ../lib2.jar\n",
 					},
 					LIB_DIR + "/dir/lib17.jar",
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 				CASCADED_JARS_CREATED = true;
 			} catch (IOException e) {
 				// ignore

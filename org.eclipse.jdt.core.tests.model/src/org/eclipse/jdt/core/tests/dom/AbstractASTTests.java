@@ -496,7 +496,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		int JLSLevel = AST_INTERNAL_JLS3;
 		if (jdkLevel >= ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_22)) {
 			JLSLevel = AST_INTERNAL_JLS22;
-		} else		if (jdkLevel >= ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_21)) {
+		} else if (jdkLevel >= ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_21)) {
 			JLSLevel = AST_INTERNAL_JLS21;
 		} else if (jdkLevel >= ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_20)) {
 			JLSLevel = AST_INTERNAL_JLS20;
@@ -522,10 +522,8 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 			JLSLevel = AST_INTERNAL_JLS10;
 		} else if (jdkLevel >= ClassFileConstants.JDK9) {
 			JLSLevel = AST_INTERNAL_JLS9;
-		} else if (jdkLevel >= ClassFileConstants.JDK1_8) {
+		} else if (jdkLevel <= CompilerOptions.getFirstSupportedJdkLevel()) {
 			JLSLevel = AST_INTERNAL_JLS8;
-		} else if (jdkLevel >= ClassFileConstants.JDK1_7) {
-			JLSLevel = AST_INTERNAL_JLS4;
 		}
 		return buildASTs(
 				JLSLevel,

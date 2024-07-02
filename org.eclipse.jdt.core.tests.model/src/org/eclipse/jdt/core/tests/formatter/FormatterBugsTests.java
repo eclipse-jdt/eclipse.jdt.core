@@ -75,7 +75,7 @@ private void setUpBracesPreferences(String braces) {
 @Override
 public void setUpSuite() throws Exception {
 	if (JAVA_PROJECT == null) {
-		JAVA_PROJECT = setUpJavaProject("FormatterBugs", "1.5"); //$NON-NLS-1$
+		JAVA_PROJECT = setUpJavaProject("FormatterBugs", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 	}
 	super.setUpSuite();
 }

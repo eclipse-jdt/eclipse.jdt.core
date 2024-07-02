@@ -85,20 +85,9 @@ public class CompilerToolTests extends TestCase {
 		"-classNames"
 	};
 	static final String[] ZERO_ARG_OPTIONS = {
-		"-1.3",
-		"-1.4",
-		"-1.5",
-		"-1.6",
-		"-1.7",
 		"-1.8",
 		"-8",
 		"-8.0",
-		"-7",
-		"-7.0",
-		"-6",
-		"-6.0",
-		"-5",
-		"-5.0",
 		"-deprecation",
 		"-nowarn",
 		"-warn:none",
@@ -528,7 +517,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		List<String> options = new ArrayList<>();
 		options.add("-d");
 		options.add(tmpFolder);
-		options.add("-1.5");
+		options.add("-1.8");
  		CompilationTask task = compiler.getTask(printWriter, forwardingJavaFileManager, null, options, null, units);
  		// check the classpath location
  		assertTrue("Has no location CLASS_OUPUT", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
@@ -550,7 +539,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 			assertTrue("Should not happen", false);
 		}
 		assertNotNull("No reader", reader);
-		assertEquals("Not a 1.5 .class file", ClassFileConstants.JDK1_5, reader.getVersion());
+		assertEquals("Not a 1.8 .class file", ClassFileConstants.JDK1_8, reader.getVersion());
 
 		stringWriter = new StringWriter();
 		printWriter = new PrintWriter(stringWriter);

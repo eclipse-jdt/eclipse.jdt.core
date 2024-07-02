@@ -3,7 +3,7 @@
     <classpathentry kind="src" path="src"/>
     <classpathentry kind="src" path="src2"/>
     <classpathentry kind="src" path="src3"/>
-    <classpathentry kind="var" path="JCL_LIB" sourcepath="JCL_SRC" rootpath="JCL_SRCROOT"/>
+    <classpathentry kind="var" path="JCL18_LIB" sourcepath="JCL18_SRC" rootpath="JCL_SRCROOT"/>
     <classpathentry kind="lib" path="zzz.jar" sourcepath="/Completion/zzzsrc.zip"/>
     <classpathentry kind="lib" path="test0049.jar" sourcepath="/Completion/test0049src.zip"/>
     <classpathentry kind="lib" path="pack.jar"/>

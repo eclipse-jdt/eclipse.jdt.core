@@ -34,9 +34,12 @@
       	<configuration>
       	  <argLine>-Xmx1G -Djdt.default.test.compliance=1.8 -DDetectVMInstallationsJob.disabled=true ${tycho.surefire.argLine}</argLine>
       	  <includes>
+      	  	<include>org/eclipse/jdt/core/tests/RunAllJdtModelTestsTracing.class</include>
+      	  	<!--
       	  	<include>org/eclipse/jdt/core/tests/model/AllJavaModelTestsTracing.class</include>
       	  	<include>org/eclipse/jdt/core/tests/dom/RunAllTestsTracing.class</include>
       	  	<include>org/eclipse/jdt/core/tests/RunFormatterTests.class</include>
+			-->
       	  </includes>
          </configuration>
       </plugin>
@@ -90,7 +93,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,14,17</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,14,17</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>
@@ -111,7 +114,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,15,18</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,15,18</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>
@@ -132,7 +135,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,17,19</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,19</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>
@@ -153,7 +156,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.8,17,19,21</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,19,21</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>

@@ -21,8 +21,10 @@ import java.util.Hashtable;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
-import junit.framework.*;
+import junit.framework.ComparisonFailure;
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class CompletionWithMissingTypesTests2 extends ModifyingResourceTests implements RelevanceConstants {
@@ -35,26 +37,10 @@ public void setUpSuite() throws Exception {
 	if (AbstractJavaModelCompletionTests.COMPLETION_PROJECT == null)  {
 		AbstractJavaModelCompletionTests.COMPLETION_PROJECT = setUpJavaProject("Completion");
 	} else {
-		setUpProjectCompliance(AbstractJavaModelCompletionTests.COMPLETION_PROJECT, "1.4");
+		setUpProjectCompliance(AbstractJavaModelCompletionTests.COMPLETION_PROJECT, CompilerOptions.getFirstSupportedJavaVersion());
 		this.currentProject = AbstractJavaModelCompletionTests.COMPLETION_PROJECT;
 	}
 	super.setUpSuite();
-}
-@Override
-public void tearDownSuite() throws Exception {
-	if (AbstractJavaModelCompletionTests.COMPLETION_SUITES == null) {
-		deleteProject("Completion");
-	} else {
-		AbstractJavaModelCompletionTests.COMPLETION_SUITES.remove(getClass());
-		if (AbstractJavaModelCompletionTests.COMPLETION_SUITES.size() == 0) {
-			deleteProject("Completion");
-			AbstractJavaModelCompletionTests.COMPLETION_SUITES = null;
-		}
-	}
-	if (AbstractJavaModelCompletionTests.COMPLETION_SUITES == null) {
-		AbstractJavaModelCompletionTests.COMPLETION_PROJECT = null;
-	}
-	super.tearDownSuite();
 }
 
 protected static void assertResults(String expected, String actual) {
@@ -99,7 +85,7 @@ public void test0001() throws Exception {
 
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -107,7 +93,7 @@ public void test0001() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 
 		this.createFolder("/P1/src/a");
@@ -130,7 +116,7 @@ public void test0001() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -141,7 +127,7 @@ public void test0001() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		this.createFile(
 			"/P2/src/YY.java",
 			"public class YY {\n"+
@@ -193,7 +179,7 @@ public void test0002() throws Exception {
 
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -201,7 +187,7 @@ public void test0002() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 
 		this.createFolder("/P1/src/a");
@@ -224,7 +210,7 @@ public void test0002() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -235,7 +221,7 @@ public void test0002() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		this.createFile(
 			"/P2/src/YY.java",
 			"public class YY {\n"+

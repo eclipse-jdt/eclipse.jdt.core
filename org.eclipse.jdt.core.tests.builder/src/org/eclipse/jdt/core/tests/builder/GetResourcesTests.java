@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.IRegion;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
  * Basic tests of {@link JavaCore#getGeneratedResources(IRegion, boolean)}.
@@ -402,7 +403,7 @@ public class GetResourcesTests extends BuilderTests {
 	public void test006() throws JavaModelException {
 		IPath projectPath = null;
 		try {
-			projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$
+			projectPath = env.addProject("Project", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		} catch (RuntimeException e) {
 			// no 1.5 VM or above is available
 			return;
