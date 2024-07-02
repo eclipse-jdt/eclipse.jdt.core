@@ -1,0 +1,79 @@
+# This workflow build the "Eclipse Platform Aggregator Build"
+# For more information see: https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/
+
+name: Verify Eclipse Platform Aggregator Build
+concurrency: 
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+on:
+  pull_request:
+    branches: 
+     - 'master'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout PR
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      with:
+       path: 'compiler'
+    - name: Checkout platform
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      with:
+       path: 'platform'
+       submodules: 'recursive'
+       lfs: true
+       repository: 'eclipse-platform/eclipse.platform.releng.aggregator'
+       fetch-depth: 0
+    - name: Set up Java
+      uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93 # v4.0.0
+      with:
+        java-version: |
+            8
+            11
+            17
+        mvn-toolchain-id: |
+          JavaSE-1.8
+          JavaSE-11
+          JavaSE-17
+        distribution: 'temurin'
+        cache: maven
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@07fbbe97d97ef44336b7382563d66743297e442f # v4.5
+      with:
+        maven-version: 3.9.6
+    - name: Build ECJ
+      env:
+       JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
+      working-directory: 'compiler'
+      run: >- 
+        mvn clean install 
+        -f org.eclipse.jdt.core.compiler.batch
+        -DlocalEcjVersion=99.99
+        -DcompilerBaselineMode=disable
+        -DcompilerBaselineReplace=none
+    - name: Run Platform Build
+      env:
+       JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
+      working-directory: 'platform'
+      run: >- 
+        mvn -U -V -e -B -ntp
+        --file pom.xml
+        -DskipTests
+        -Pbree-libs
+        -Dcompare-version-with-baselines.skip=false
+        -Dcbi-ecj-version=99.99
+        -Dtycho.debug.artifactcomparator
+        clean verify
+    - name: Upload Comparator Results
+      uses: actions/upload-artifact@26f96dfa697d77e81fd5907df203aa23a56210a8 # v4.3.0
+      if: always()
+      with:
+        name: comparator-results
+        if-no-files-found: ignore
+        retention-days: 7
+        compression-level: 0
+        path: |
+          ${{ github.workspace }}/platform/**/target/artifactcomparison/**/*
+
