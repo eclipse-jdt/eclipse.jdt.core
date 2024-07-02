@@ -387,6 +387,7 @@ public class JavacProblemConverter {
 			case "compiler.warn.empty.if" -> IProblem.EmptyControlFlowStatement;
 			case "compiler.warn.redundant.cast" -> IProblem.UnnecessaryCast;
 			case "compiler.err.illegal.char" -> IProblem.InvalidCharacterConstant;
+			case "compiler.err.enum.label.must.be.unqualified.enum" -> IProblem.UndefinedField;
 			// next are javadoc; defaulting to JavadocUnexpectedText when no better problem could be found
 			case "compiler.err.dc.bad.entity" -> IProblem.JavadocUnexpectedText;
 			case "compiler.err.dc.bad.inline.tag" -> IProblem.JavadocUnexpectedText;

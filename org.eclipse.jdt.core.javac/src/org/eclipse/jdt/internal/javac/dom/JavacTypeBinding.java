@@ -57,6 +57,7 @@ import com.sun.tools.javac.code.Type.JCVoidType;
 import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.code.Type.WildcardType;
+import com.sun.tools.javac.code.TypeTag;
 import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Types.FunctionDescriptorLookupError;
 
@@ -150,6 +151,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	static void getKey(StringBuilder builder, Type typeToBuild, boolean isLeaf) {
 		if (typeToBuild instanceof Type.JCNoType) {
+			return;
+		}
+		if (typeToBuild.hasTag(TypeTag.UNKNOWN)) {
+			builder.append('*');
 			return;
 		}
 		if (typeToBuild instanceof ArrayType arrayType) {
@@ -513,9 +518,12 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public IAnnotationBinding[] getTypeAnnotations() {
-		return this.typeSymbol.getAnnotationMirrors().stream()
-				.map(annotation -> this.resolver.bindings.getAnnotationBinding(annotation, this))
-				.toArray(IAnnotationBinding[]::new);
+		if (this.typeSymbol.hasTypeAnnotations()) {
+			return new IAnnotationBinding[0];
+		}
+		// TODO implement this correctly (used to be returning
+		// same as getAnnotations() which is incorrect
+		return new IAnnotationBinding[0];
 	}
 
 	@Override
