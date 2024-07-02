@@ -108,7 +108,7 @@ public abstract class Scope {
 	public final static int COMPATIBLE = 0;
 	public final static int AUTOBOX_COMPATIBLE = 1;
 	public final static int VARARGS_COMPATIBLE = 2;
-	public final static int NEEDS_MISSING_TYPE = -2;
+	public final static int COMPATIBLE_IGNORING_MISSING_TYPE = -2;
 
 	/* Type Compatibilities */
 	public static final int EQUAL_OR_MORE_SPECIFIC = -1;
@@ -880,7 +880,7 @@ public abstract class Scope {
 				return this.environment().createPolymorphicMethod(method, arguments, this);
 			}
 			return method;
-		} else if (level == NEEDS_MISSING_TYPE) {
+		} else if (level == COMPATIBLE_IGNORING_MISSING_TYPE) {
 			return new ProblemMethodBinding(method, method.selector, method.parameters, ProblemReasons.MissingTypeInSignature);
 		}
 		// if method is generic and type arguments have been supplied, only then answer a problem
@@ -4656,7 +4656,7 @@ public abstract class Scope {
 		int compatibleCount = 0;
 		for (int i = 0; i < visibleSize; i++)
 			if ((compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argumentTypes, invocationSite)) != NOT_COMPATIBLE) {
-				if (compatibilityLevels[i] == NEEDS_MISSING_TYPE) {
+				if (compatibilityLevels[i] == COMPATIBLE_IGNORING_MISSING_TYPE) {
 					// cannot conclusively select any candidate, use the method with missing types in the error message
 					return new ProblemMethodBinding(visible[i], visible[i].selector, visible[i].parameters, ProblemReasons.Ambiguous);
 				}
@@ -5165,7 +5165,7 @@ public abstract class Scope {
 				}  else if (lastIndex != argLength) { // can call foo(int i, X ... x) with foo(1) but NOT foo();
 					return NOT_COMPATIBLE;
 				}
-				if (level != NEEDS_MISSING_TYPE) // preserve any NEEDS_MISSING_TYPE
+				if (level != COMPATIBLE_IGNORING_MISSING_TYPE) // preserve any NEEDS_MISSING_TYPE
 					level = VARARGS_COMPATIBLE; // varargs support needed
 			}
 		} else if (paramLength != argLength) {
@@ -5179,7 +5179,7 @@ public abstract class Scope {
 				int newLevel = parameterCompatibilityLevel(arg, param, env, tiebreakingVarargsMethods, method);
 				if (newLevel < COMPATIBLE)
 					return newLevel;
-				if (newLevel > level && level != NEEDS_MISSING_TYPE) // preserve any NEEDS_MISSING_TYPE
+				if (newLevel > level && level != COMPATIBLE_IGNORING_MISSING_TYPE) // preserve any NEEDS_MISSING_TYPE
 					level = newLevel;
 			}
 		}
@@ -5210,7 +5210,7 @@ public abstract class Scope {
 		if (arg == null || param == null)
 			return NOT_COMPATIBLE;
 		if ((param.tagBits & TagBits.HasMissingType) != 0)
-			return NEEDS_MISSING_TYPE;
+			return COMPATIBLE_IGNORING_MISSING_TYPE;
 		if (arg instanceof PolyTypeBinding && !((PolyTypeBinding) arg).expression.isPertinentToApplicability(param, method)) {
 			if (arg.isPotentiallyCompatibleWith(param, this))
 				return COMPATIBLE;
