@@ -3514,7 +3514,7 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 								&& (data[++index] == 'i')
 								&& (data[++index] == 't')
 								&& (data[++index] == 's')) {
-							return disambiguatedRestrictedIdentifierpermits(TokenNameRestrictedIdentifierpermits);
+							return disambiguatedToken(TokenNamepermits, this);
 							} else
 							return TokenNameIdentifier;
 					}
@@ -4285,7 +4285,7 @@ public String toStringAction(int act) {
 			return "null"; //$NON-NLS-1$
 		case TokenNamepackage :
 			return "package"; //$NON-NLS-1$
-		case TokenNameRestrictedIdentifierpermits:
+		case TokenNamepermits:
 			return "permits"; //$NON-NLS-1$
 		case TokenNameprivate :
 			return "private"; //$NON-NLS-1$
@@ -4554,7 +4554,7 @@ public static boolean isKeyword(int token) {
 		case TerminalTokens.TokenNameRestrictedIdentifierYield:
 		case TerminalTokens.TokenNameRestrictedIdentifierrecord:
 		case TerminalTokens.TokenNameRestrictedIdentifiersealed:
-		case TerminalTokens.TokenNameRestrictedIdentifierpermits:
+		case TerminalTokens.TokenNamepermits:
 		case TerminalTokens.TokenNameRestrictedIdentifierWhen:
 			// making explicit - not a (restricted) keyword but restricted identifier.
 			//$FALL-THROUGH$
@@ -4624,7 +4624,6 @@ private static class Goal {
 	static int YieldStatementRule = 0;
 	static int SwitchLabelCaseLhsRule = 0;
 	static int[] RestrictedIdentifierSealedRule;
-	static int[] RestrictedIdentifierPermitsRule;
 	static int[] PatternRules;
 
 	static Goal LambdaParameterListGoal;
@@ -4635,18 +4634,15 @@ private static class Goal {
 	static Goal YieldStatementGoal;
 	static Goal SwitchLabelCaseLhsGoal;
 	static Goal RestrictedIdentifierSealedGoal;
-	static Goal RestrictedIdentifierPermitsGoal;
 	static Goal PatternGoal;
 
 	static int[] RestrictedIdentifierSealedFollow =  { TokenNameclass, TokenNameinterface,
 			TokenNameenum, TokenNameRestrictedIdentifierrecord };// Note: enum/record allowed as error flagging rules.
-	static int[] RestrictedIdentifierPermitsFollow =  { TokenNameLBRACE };
 	static int[] PatternCaseLabelFollow = {TokenNameCOLON, TokenNameARROW, TokenNameCOMMA, TokenNameBeginCaseExpr, TokenNameRestrictedIdentifierWhen};
 
 	static {
 
 		List<Integer> ridSealed = new ArrayList<>(2);
-		List<Integer> ridPermits = new ArrayList<>();
 		List<Integer> patternStates = new ArrayList<>();
 		for (int i = 1; i <= ParserBasicInformation.NUM_RULES; i++) {  // 0 == $acc
 			// TODO: Change to switch
@@ -4671,9 +4667,6 @@ private static class Goal {
 			if ("Modifiersopt".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				ridSealed.add(i);
 			else
-			if ("PermittedSubclasses".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
-				ridPermits.add(i);
-			else
 			if ("SwitchLabelCaseLhs".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				SwitchLabelCaseLhsRule = i;
 			else
@@ -4690,7 +4683,6 @@ private static class Goal {
 				patternStates.add(i);
 		}
 		RestrictedIdentifierSealedRule = ridSealed.stream().mapToInt(Integer :: intValue).toArray(); // overkill but future-proof
-		RestrictedIdentifierPermitsRule = ridPermits.stream().mapToInt(Integer :: intValue).toArray();
 		PatternRules = patternStates.stream().mapToInt(Integer :: intValue).toArray();
 
 		LambdaParameterListGoal =  new Goal(TokenNameARROW, new int[] { TokenNameARROW }, LambdaParameterListRule);
@@ -4701,7 +4693,6 @@ private static class Goal {
 		YieldStatementGoal =       new Goal(TokenNameARROW, new int [0], YieldStatementRule);
 		SwitchLabelCaseLhsGoal =   new Goal(TokenNameARROW, new int [0], SwitchLabelCaseLhsRule);
 		RestrictedIdentifierSealedGoal = new Goal(TokenNameRestrictedIdentifiersealed, RestrictedIdentifierSealedFollow, RestrictedIdentifierSealedRule);
-		RestrictedIdentifierPermitsGoal = new Goal(TokenNameRestrictedIdentifierpermits, RestrictedIdentifierPermitsFollow, RestrictedIdentifierPermitsRule);
 		PatternGoal = new Goal(TokenNameBeginCaseElement, PatternCaseLabelFollow, PatternRules);
 	}
 
@@ -4961,7 +4952,7 @@ protected final boolean maybeAtReferenceExpression() { // Did the '<' we saw jus
 				case TokenNamesuper:      // ? super Context<N>
 				case TokenNameAND:        // T extends Object & Comparable<? super T>
 				case TokenNameimplements: // class A implements I<Z>
-				case TokenNameRestrictedIdentifierpermits: // class A permits I<Z>
+				case TokenNamepermits: // class A permits I<Z>
 				case TokenNamethrows:     // throws Y<Z>
 				case TokenNameAT:         // @Deprecated <T> void foo() {}
 				case TokenNameinstanceof: // if (o instanceof List<E>[])
@@ -4987,7 +4978,7 @@ private final boolean maybeAtEllipsisAnnotationsStart() { // Did the '@' we saw 
 		case TokenNameextends:
 		case TokenNamesuper:
 		case TokenNameimplements:
-		case TokenNameRestrictedIdentifierpermits:
+		case TokenNamepermits:
 		case TokenNameDOT:
 		case TokenNameLBRACE:
 		case TokenNameinstanceof:
@@ -5055,7 +5046,7 @@ private boolean mayBeAtASealedRestricedIdentifier(int restrictedIdentifier) {
 	switch (restrictedIdentifier) {
 		case TokenNameRestrictedIdentifiersealed:
 			break;
-		case TokenNameRestrictedIdentifierpermits:
+		case TokenNamepermits:
 			break;
 	}
 	return true;
@@ -5191,20 +5182,7 @@ private boolean disambiguateYieldWithLookAhead() {
 	}
 	return false; // IIE event;
 }
-int disambiguatedRestrictedIdentifierpermits(int restrictedIdentifierToken) {
-	// and here's the kludge
-	if (restrictedIdentifierToken != TokenNameRestrictedIdentifierpermits)
-		return restrictedIdentifierToken;
-	if (!JavaFeature.RECORDS.isSupported(this.complianceLevel, this.previewEnabled))
-		return TokenNameIdentifier;
-
-	return disambiguatesRestrictedIdentifierWithLookAhead(this::mayBeAtASealedRestricedIdentifier,
-			restrictedIdentifierToken, Goal.RestrictedIdentifierPermitsGoal);
-}
 int disambiguatedRestrictedIdentifiersealed(int restrictedIdentifierToken) {
-	// and here's the kludge
-	if (restrictedIdentifierToken != TokenNameRestrictedIdentifiersealed)
-		return restrictedIdentifierToken;
 	if (!JavaFeature.RECORDS.isSupported(this.complianceLevel, this.previewEnabled))
 		return TokenNameIdentifier;
 
@@ -5289,6 +5267,12 @@ private VanguardParser getNewVanguardParser(char[] src) {
 	return vp;
 }
 int disambiguatedToken(int token, Scanner scanner) {
+	if (token == TokenNamepermits) {
+	    if (scanner.sourceLevel < ClassFileConstants.JDK17)
+			return TokenNameIdentifier;
+	    return scanner.activeParser == null || !scanner.activeParser.automatonWillShift(TokenNamepermits) ?
+				TokenNameIdentifier : TokenNamepermits;
+	}
 	final VanguardParser parser = getVanguardParser();
 	parser.scanner.caseStartPosition = this.caseStartPosition;
 	if (token == TokenNameARROW  &&  mayBeAtCaseLabelExpr() &&  scanner.caseStartPosition < scanner.startPosition) {

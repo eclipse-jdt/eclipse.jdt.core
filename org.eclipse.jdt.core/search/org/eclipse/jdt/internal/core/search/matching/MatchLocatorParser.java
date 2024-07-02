@@ -948,11 +948,8 @@ protected void consumeWildcardBoundsSuper() {
 }
 
 @Override
-protected  void consumeInterfaceHeaderPermittedSubClassesAndSubInterfaces(){
-	super.consumeInterfaceHeaderPermittedSubClassesAndSubInterfaces();
-	updatePatternLocaterMatch();
-}
-private void updatePatternLocaterMatch() {
+protected  void consumePermittedTypes(){
+	super.consumePermittedTypes();
 	if ((this.patternFineGrain & IJavaSearchConstants.PERMITTYPE_TYPE_REFERENCE) != 0) {
 		TypeDeclaration td = (TypeDeclaration) this.astStack[this.astPtr];
 		TypeReference[] permittedTypes = td.permittedTypes;
@@ -960,12 +957,6 @@ private void updatePatternLocaterMatch() {
 			this.patternLocator.match(pt, this.nodeSet);
 		}
 	}
-}
-
-@Override
-protected void consumeClassHeaderPermittedSubclasses() {
-	super.consumeClassHeaderPermittedSubclasses();
-	updatePatternLocaterMatch();
 }
 
 @Override
