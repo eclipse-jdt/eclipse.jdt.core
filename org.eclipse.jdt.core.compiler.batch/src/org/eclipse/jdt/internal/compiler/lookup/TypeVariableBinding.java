@@ -348,12 +348,17 @@ public class TypeVariableBinding extends ReferenceBinding {
 
 	@Override
 	public List<TypeBinding> collectMissingTypes(List<TypeBinding> missingTypes) {
-		if ((this.tagBits & TagBits.HasMissingType) != 0) {
-			if (this.superclass != null) {
-				missingTypes = this.superclass.collectMissingTypes(missingTypes);
-			}
-			for (ReferenceBinding superIfc : this.superInterfaces) {
-				missingTypes = superIfc.collectMissingTypes(missingTypes);
+		if ((this.tagBits & TagBits.HasMissingType) != 0 && !this.inRecursiveFunction) {
+			this.inRecursiveFunction = true;
+			try {
+				if (this.superclass != null) {
+					missingTypes = this.superclass.collectMissingTypes(missingTypes);
+				}
+				for (ReferenceBinding superIfc : this.superInterfaces) {
+					missingTypes = superIfc.collectMissingTypes(missingTypes);
+				}
+			} finally {
+				this.inRecursiveFunction = false;
 			}
 		}
 		return missingTypes;
