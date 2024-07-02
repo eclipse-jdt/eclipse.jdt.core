@@ -179,7 +179,7 @@ public final class FileSystemUtil
      * The file will be created if it does not already exist.
      */
     public static void writeStringToFile(File file, String contents) throws IOException {
-    	byte[] data = contents.getBytes("UTF8"); //$NON-NLS-1$
+    	byte[] data = contents.getBytes(StandardCharsets.UTF_8);
     	OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
     	try {
     		for (byte b : data) {
