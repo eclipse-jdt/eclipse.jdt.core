@@ -8875,6 +8875,69 @@ public void testMissingClassNeededForOverloadResolution() {
 		""";
 	runner.runNegativeTest();
 }
+public void testMissingClassNeededForOverloadResolution_ctor() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"p1/A.java",
+			"""
+			package p1;
+			public class A {}
+			""",
+			"p1/B.java",
+			"""
+			package p1;
+			public class B {
+				public B(A a) {}
+				public B(Object s) {}
+				public B(Object s1, String s2) {}
+				public B() {}
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// delete binary file A (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "A.class"));
+	runner.shouldFlushOutputDirectory = false;
+
+	runner.testFiles = new String[] {
+			"p2/C.java",
+			"""
+			package p2;
+			import p1.B;
+			public class C {
+				void test(B b) {
+					new B(); 			// no need to see A for B()
+					new B(this, "");	// overload selected by arity
+				}
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	runner.testFiles = new String[] {
+			"p2/D.java",
+			"""
+			package p2;
+			import p1.B;
+			public class D {
+				void test(B b) {
+					new B(this);	// cannot select without seeing class A
+				}
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+		----------
+		1. ERROR in p2\\D.java (at line 5)
+			new B(this);	// cannot select without seeing class A
+			^^^^^^^^^^^
+		The constructor B(A) refers to the missing type A
+		----------
+		""";
+	runner.runNegativeTest();
+}
 public void testMissingClassNeededForOverloadResolution_varargs1a() {
 	// varargs arg: B vs Missing
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
@@ -8951,6 +9014,86 @@ public void testMissingClassNeededForOverloadResolution_varargs1a() {
 				b.m(this, new B[0]);
 				  ^
 			The method m(Object, A1...) from the type B refers to the missing type A1
+			----------
+			""";
+	runner.runNegativeTest();
+}
+public void testMissingClassNeededForOverloadResolution_varargs1a_ctor() {
+	// varargs arg: B vs Missing
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.testFiles = new String[] {
+			"p1/A1.java",
+			"""
+			package p1;
+			public class A1 {}
+			""",
+			"p1/A2.java",
+			"""
+			package p1;
+			public class A2 {}
+			""",
+			"p1/B.java",
+			"""
+			package p1;
+			public class B {
+				public B(Object o1, B... s) {}
+				public B(Object o1, A1... a) {}
+				public B(Object o1, A2... a) {}
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// delete binary files A1, A2 (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "A1.class"));
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "A2.class"));
+	runner.shouldFlushOutputDirectory = false;
+
+	runner.customOptions.put(CompilerOptions.OPTION_ReportVarargsArgumentNeedCast, CompilerOptions.IGNORE);
+	runner.testFiles = new String[] {
+			"p2/C.java",
+			"""
+			package p2;
+			import p1.B;
+			public class C {
+				void test(B b) {
+					new B(this); // simply ambiguous as we don't even look at A1 or A2
+					new B(this, null);
+					new B(this, b);
+					new B(this, b, b);
+					new B(this, new B[0]);
+				}
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. ERROR in p2\\C.java (at line 5)
+				new B(this); // simply ambiguous as we don't even look at A1 or A2
+				^^^^^^^^^^^
+			The constructor B(Object, B[]) is ambiguous
+			----------
+			2. ERROR in p2\\C.java (at line 6)
+				new B(this, null);
+				^^^^^^^^^^^^^^^^^
+			The constructor B(Object, A1...) refers to the missing type A1
+			----------
+			3. ERROR in p2\\C.java (at line 7)
+				new B(this, b);
+				^^^^^^^^^^^^^^
+			The constructor B(Object, A1...) refers to the missing type A1
+			----------
+			4. ERROR in p2\\C.java (at line 8)
+				new B(this, b, b);
+				^^^^^^^^^^^^^^^^^
+			The constructor B(Object, A1...) refers to the missing type A1
+			----------
+			5. ERROR in p2\\C.java (at line 9)
+				new B(this, new B[0]);
+				^^^^^^^^^^^^^^^^^^^^^
+			The constructor B(Object, A1...) refers to the missing type A1
 			----------
 			""";
 	runner.runNegativeTest();
@@ -9266,6 +9409,149 @@ public void testMissingClassNeededForOverloadResolution_varargs2() {
 			""";
 	runner.runNegativeTest();
 }
+public void testMissingClassNeededForOverloadResolution_varargs2_ctorOK() {
+	// different arities
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.testFiles = new String[] {
+			"p1/A.java",
+			"""
+			package p1;
+			public class A {}
+			""",
+			"p1/B.java",
+			"""
+			package p1;
+			public class B {
+				public B(Object o1, String s, A... a) {}
+				public B(Object o1) {}
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// delete binary file A (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "A.class"));
+	runner.shouldFlushOutputDirectory = false;
+
+	runner.customOptions.put(CompilerOptions.OPTION_ReportVarargsArgumentNeedCast, CompilerOptions.IGNORE);
+	runner.testFiles = new String[] {
+			"p2/C.java",
+			"""
+			package p2;
+			import p1.B;
+			public class C {
+				void test() {
+					new B(this, "");			// overload selected by arity, trailing A[] is irrelevant
+					new B(this);				// overload selected by arity, no reference to A
+				}
+			}
+			"""
+		};
+	runner.runConformTest();
+}
+public void testMissingClassNeededForOverloadResolution_varargs2_qualCtorOK() {
+	// different arities
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.testFiles = new String[] {
+			"p1/A.java",
+			"""
+			package p1;
+			public class A {}
+			""",
+			"p1/Outer.java",
+			"""
+			package p1;
+			public class Outer {
+				public class B {
+					public B(Object o1, String s, A... a) {}
+					public B(Object o1) {}
+				}
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// delete binary file A (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "A.class"));
+	runner.shouldFlushOutputDirectory = false;
+
+	runner.customOptions.put(CompilerOptions.OPTION_ReportVarargsArgumentNeedCast, CompilerOptions.IGNORE);
+	runner.testFiles = new String[] {
+			"p2/C.java",
+			"""
+			package p2;
+			import p1.Outer;
+			public class C {
+				void test(Outer outer) {
+					outer.new B(this, "");			// overload selected by arity, trailing A[] is irrelevant
+					outer.new B(this);				// overload selected by arity, no reference to A
+				}
+			}
+			"""
+		};
+	runner.runConformTest();
+}
+public void testMissingClassNeededForOverloadResolution_varargs2_ctorNOK() {
+	// different arities
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.testFiles = new String[] {
+			"p1/A.java",
+			"""
+			package p1;
+			public class A {}
+			""",
+			"p1/B.java",
+			"""
+			package p1;
+			public class B {
+				public B(Object o1, A... a) {}
+				public B(Object o1) {}
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// delete binary file A (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "A.class"));
+	runner.shouldFlushOutputDirectory = false;
+
+	runner.customOptions.put(CompilerOptions.OPTION_ReportVarargsArgumentNeedCast, CompilerOptions.IGNORE);
+
+	runner.testFiles = new String[] {
+			"p2/D.java",
+			"""
+			package p2;
+			import p1.B;
+			public class D {
+				void test(B b) {
+					new B(this, null);		// passing null into A[] is not OK
+					new B(this, null, null);	// passing null into A is not OK (could potentially be accepted)
+					new B(this);				// resolvable in strict mode, ignore the varargs method
+				}
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. ERROR in p2\\D.java (at line 5)
+				new B(this, null);		// passing null into A[] is not OK
+				^^^^^^^^^^^^^^^^^
+			The constructor B(Object, A...) refers to the missing type A
+			----------
+			2. ERROR in p2\\D.java (at line 6)
+				new B(this, null, null);	// passing null into A is not OK (could potentially be accepted)
+				^^^^^^^^^^^^^^^^^^^^^^^
+			The constructor B(Object, A...) refers to the missing type A
+			----------
+			""";
+	runner.runNegativeTest();
+}
 public void testMissingClassNeededForOverloadResolution_varargs3() {
 	// missing type in non-varargs position
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
@@ -9311,6 +9597,55 @@ public void testMissingClassNeededForOverloadResolution_varargs3() {
 				b.m(this, "");	// two overloads could apply (not knowing A)
 				  ^
 			The method m(A, String...) from the type B refers to the missing type A
+			----------
+			""";
+	runner.runNegativeTest();
+}
+public void testMissingClassNeededForOverloadResolution_varargs3_ctor() {
+	// missing type in non-varargs position
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"p1/A.java",
+			"""
+			package p1;
+			public class A {}
+			""",
+			"p1/B.java",
+			"""
+			package p1;
+			public class B {
+				public B(A a, String... args) {}
+				public B(Object s, Number... args) {}
+				public B(Object s1, String s2) {}
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// delete binary file A (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "A.class"));
+	runner.shouldFlushOutputDirectory = false;
+
+	runner.testFiles = new String[] {
+			"p2/C.java",
+			"""
+			package p2;
+			import p1.B;
+			public class C {
+				void test(B b) {
+					new B(this, "");	// two overloads could apply (not knowing A)
+					new B(this, 3);		// overload effectively selected by 2nd arg
+				}
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. ERROR in p2\\C.java (at line 5)
+				new B(this, "");	// two overloads could apply (not knowing A)
+				^^^^^^^^^^^^^^^
+			The constructor B(A, String...) refers to the missing type A
 			----------
 			""";
 	runner.runNegativeTest();
@@ -9517,6 +9852,52 @@ public void testMissingClass_exception() {
 			""";
 	runner.runNegativeTest();
 }
+public void testMissingClass_exception_ctor() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"p1/A.java",
+			"""
+			package p1;
+			public class A extends Exception {}
+			""",
+			"p1/B.java",
+			"""
+			package p1;
+			import p1.A;
+			public class B {
+				public B() throws A {}
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// delete binary file A (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "A.class"));
+
+	runner.shouldFlushOutputDirectory = false;
+	runner.testFiles = new String[] {
+			"p2/C.java",
+			"""
+			package p2;
+			import p1.B;
+			class C {
+				void test() {
+					new B();
+				}
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. ERROR in p2\\C.java (at line 5)
+				new B();
+				^^^^^^^
+			The constructor B() refers to the missing type A
+			----------
+			""";
+	runner.runNegativeTest();
+}
 public void testMissingClass_typeVariableBound() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
 	Runner runner = new Runner();
@@ -9560,6 +9941,53 @@ public void testMissingClass_typeVariableBound() {
 				b.m(Integer.valueOf(13));
 				  ^
 			The method m(T) from the type B refers to the missing type A
+			----------
+			""";
+	runner.runNegativeTest();
+}
+public void testMissingClass_typeVariableBound_OK() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"p1/A.java",
+			"""
+			package p1;
+			public class A {}
+			""",
+			"p1/B.java",
+			"""
+			package p1;
+			import p1.A;
+			public class B {
+				public B(Number n) {} 			// would match, but ...
+				public <T extends A> B(T t) {}	// ... don't rule out method with missing type
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// delete binary file A (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "A.class"));
+
+	runner.shouldFlushOutputDirectory = false;
+	runner.testFiles = new String[] {
+			"p2/C.java",
+			"""
+			package p2;
+			import p1.B;
+			class C {
+				void test(B b) {
+					new B(Integer.valueOf(13));
+				}
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. ERROR in p2\\C.java (at line 5)
+				new B(Integer.valueOf(13));
+				^^^^^^^^^^^^^^^^^^^^^^^^^^
+			The constructor B(T) refers to the missing type A
 			----------
 			""";
 	runner.runNegativeTest();
@@ -9611,6 +10039,201 @@ public void testMissingClass_typeVariableBound2() {
 				void test(B<C> b) {
 				            ^
 			Bound mismatch: The type C is not a valid substitute for the bounded parameter <T extends A> of the type B<T>
+			----------
+			""";
+	runner.runNegativeTest();
+}
+public void testMissingClass_typeVariableBound2_ctor() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"p1/A.java",
+			"""
+			package p1;
+			public class A {}
+			""",
+			"p1/B.java",
+			"""
+			package p1;
+			import p1.A;
+			public class B<T extends A> {
+				public B(T t) {}
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// delete binary file A (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "A.class"));
+
+	runner.shouldFlushOutputDirectory = false;
+	runner.testFiles = new String[] {
+			"p2/C.java",
+			"""
+			package p2;
+			import p1.B;
+			class C {
+				B<C> test() {
+					new B<>(this);
+				}
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. ERROR in p2\\C.java (at line 1)
+				package p2;
+				^
+			The type p1.A cannot be resolved. It is indirectly referenced from required type p1.B
+			----------
+			2. ERROR in p2\\C.java (at line 4)
+				B<C> test() {
+				  ^
+			Bound mismatch: The type C is not a valid substitute for the bounded parameter <T extends A> of the type B<T>
+			----------
+			3. ERROR in p2\\C.java (at line 5)
+				new B<>(this);
+				^^^^^^^^^^^^^
+			Cannot infer type arguments for B<>
+			----------
+			""";
+	runner.runNegativeTest();
+}
+public void testMissingClass_samMissingParameterType_OK() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"p1/A.java",
+			"""
+			package p1;
+			public class A {}
+			""",
+			"p1/F.java",
+			"""
+			package p1;
+			import p1.A;
+			public interface F {
+				public void m(A a);
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// delete binary file A (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "A.class"));
+
+	runner.shouldFlushOutputDirectory = false;
+	runner.testFiles = new String[] {
+			"p2/C.java",
+			"""
+			package p2;
+			import p1.F;
+			class C {
+				F test() {
+					return a -> {};
+				}
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. ERROR in p2\\C.java (at line 5)
+				return a -> {};
+				       ^^^^
+			This lambda expression refers to the missing type A
+			----------
+			""";
+	runner.runNegativeTest();
+}
+public void testMissingClass_samMissingParameterType_NOK() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"p1/A.java",
+			"""
+			package p1;
+			public class A {}
+			""",
+			"p1/F.java",
+			"""
+			package p1;
+			import p1.A;
+			public interface F {
+				public void m(A a);
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// delete binary file A (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "A.class"));
+
+	runner.shouldFlushOutputDirectory = false;
+	runner.testFiles = new String[] {
+			"p2/C.java",
+			"""
+			package p2;
+			import p1.F;
+			class C {
+				F test() {
+					return a -> bar(a);
+				}
+				void bar(C c) {}
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. ERROR in p2\\C.java (at line 5)
+				return a -> bar(a);
+				       ^^^^^^^^^^^
+			This lambda expression refers to the missing type A
+			----------
+			""";
+	runner.runNegativeTest();
+}
+public void testMissingClass_samMissingReturnType() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"p1/A.java",
+			"""
+			package p1;
+			public class A {}
+			""",
+			"p1/F.java",
+			"""
+			package p1;
+			import p1.A;
+			public interface F {
+				public A m();
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// delete binary file A (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "A.class"));
+
+	runner.shouldFlushOutputDirectory = false;
+	runner.testFiles = new String[] {
+			"p2/C.java",
+			"""
+			package p2;
+			import p1.F;
+			class C {
+				F test() {
+					return () -> null;
+				}
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. ERROR in p2\\C.java (at line 5)
+				return () -> null;
+				       ^^^^^^^^^^
+			This lambda expression refers to the missing type A
 			----------
 			""";
 	runner.runNegativeTest();

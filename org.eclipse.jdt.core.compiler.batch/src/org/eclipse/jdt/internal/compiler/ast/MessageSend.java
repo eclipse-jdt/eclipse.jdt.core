@@ -1123,7 +1123,7 @@ protected boolean isMissingTypeRelevant() {
 			// are all but the irrelevant varargs type present?
 			for (int i = 0; i < this.arguments.length; i++) {
 				if ((this.binding.parameters[i].tagBits & TagBits.HasMissingType) != 0)
-					return true; // this one *is* relevant
+					return true; // this one *is* relevant - actually this case is already detected during findMethodBinding()
 			}
 			return false;
 		}
