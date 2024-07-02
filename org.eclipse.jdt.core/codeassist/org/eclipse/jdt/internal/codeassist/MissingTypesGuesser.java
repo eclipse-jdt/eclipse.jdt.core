@@ -20,7 +20,15 @@ import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -340,6 +348,9 @@ public class MissingTypesGuesser extends ASTVisitor {
 				this.substituedTypes.put(convertedType, typeNames);
 				this.originalTypes.put(convertedType, typeName);
 				this.combinationsCount *= typeNames.length;
+				if (length > 0 && typeArguments[length - 1] == TypeReference.NO_TYPE_ARGUMENTS) {
+					convertedType.bits |= ASTNode.IsDiamond;
+				}
 				return convertedType;
 			}
 		}
@@ -385,6 +396,9 @@ public class MissingTypesGuesser extends ASTVisitor {
 				this.substituedTypes.put(convertedType, typeNames);
 				this.originalTypes.put(convertedType, typeName);
 				this.combinationsCount *= typeNames.length;
+				if (typeArguments == TypeReference.NO_TYPE_ARGUMENTS) {
+					convertedType.bits |= ASTNode.IsDiamond;
+				}
 				return convertedType;
 			}
 		}
