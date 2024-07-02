@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2656,6 +2656,16 @@ public final class AST {
 	public NullPattern newNullPattern() {
 		NullPattern result = new NullPattern(this);
 		return result;
+	}
+
+	/**
+	 * Creates and returns a new unparented null type node.
+	 *
+	 * @return a new unparented null type node
+	 * @since 3.39
+	 */
+	public NullType newNullType() {
+		return new NullType(this);
 	}
 
 	/**
