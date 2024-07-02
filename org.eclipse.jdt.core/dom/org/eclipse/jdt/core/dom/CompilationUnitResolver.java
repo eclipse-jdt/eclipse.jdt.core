@@ -964,7 +964,7 @@ class CompilationUnitResolver extends Compiler {
 			int flags) {
 
 		// temporarily connect ourselves to the ASTResolver - must disconnect when done
-		astRequestor.compilationUnitResolver = this;
+		astRequestor.additionalBindingResolver = this::createBinding;
 		this.bindingTables = new DefaultBindingResolver.BindingTables();
 		CompilationUnitDeclaration unit = null;
 		try {
@@ -1067,7 +1067,7 @@ class CompilationUnitResolver extends Compiler {
 			throw e; // rethrow
 		} finally {
 			// disconnect ourselves from ast requestor
-			astRequestor.compilationUnitResolver = null;
+			astRequestor.additionalBindingResolver = null;
 		}
 	}
 
