@@ -2188,6 +2188,8 @@ void setSourceStart(int sourceStart);
 	int UnlikelyCollectionMethodArgumentType = 1200;
 	/** @since 3.13 */
 	int UnlikelyEqualsArgumentType = 1201;
+	/** @since 3.38 */
+	int DubiousReferenceComparison = 1202;
 
 	/* Local-Variable Type Inference */
 	/** @since 3.14 */
@@ -2625,5 +2627,4 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature
 	 */
 	int DisallowedStatementInPrologue = PreviewRelated + 2023;
-
 }

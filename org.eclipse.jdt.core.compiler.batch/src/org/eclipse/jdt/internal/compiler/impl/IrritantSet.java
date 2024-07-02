@@ -73,6 +73,7 @@ public class IrritantSet {
 	public static final IrritantSet UNQUALIFIED_FIELD_ACCESS = new IrritantSet(CompilerOptions.UnqualifiedFieldAccess);
 	public static final IrritantSet RESOURCE = new IrritantSet(CompilerOptions.UnclosedCloseable);
 	public static final IrritantSet UNLIKELY_ARGUMENT_TYPE = new IrritantSet(CompilerOptions.UnlikelyCollectionMethodArgumentType);
+	public static final IrritantSet DUBIOUS_REFERENCE_COMPARISON = new IrritantSet(CompilerOptions.DubiousReferenceComparison);
 	public static final IrritantSet API_LEAK = new IrritantSet(CompilerOptions.APILeak);
 	public static final IrritantSet MODULE = new IrritantSet(CompilerOptions.UnstableAutoModuleName);
 
@@ -87,7 +88,10 @@ public class IrritantSet {
 		.set(
 			CompilerOptions.UnlikelyEqualsArgumentType
 			| CompilerOptions.SuppressWarningsNotAnalysed
-			| CompilerOptions.AnnotatedTypeArgumentToUnannotated);
+			| CompilerOptions.AnnotatedTypeArgumentToUnannotated)
+		// group-3 infos enabled by default
+		.set(CompilerOptions.DubiousReferenceComparison)
+		;
 
 		COMPILER_DEFAULT_WARNINGS
 			// group-0 warnings enabled by default
@@ -140,7 +144,8 @@ public class IrritantSet {
 				|CompilerOptions.UnstableAutoModuleName
 				|CompilerOptions.PreviewFeatureUsed)
 			.set(CompilerOptions.InsufficientResourceManagement
-				|CompilerOptions.IncompatibleOwningContract);
+				|CompilerOptions.IncompatibleOwningContract)
+			;
 		// default errors IF AnnotationBasedNullAnalysis is enabled:
 		COMPILER_DEFAULT_ERRORS.set(
 				CompilerOptions.NullSpecViolation
@@ -198,6 +203,9 @@ public class IrritantSet {
 
 		UNLIKELY_ARGUMENT_TYPE
 			.set(CompilerOptions.UnlikelyEqualsArgumentType);
+
+		DUBIOUS_REFERENCE_COMPARISON
+			.set(CompilerOptions.DubiousReferenceComparison);
 	}
 	// Internal state
 

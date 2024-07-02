@@ -61,6 +61,7 @@ public static Test setUpTest(Test test) throws Exception {
 protected Map getCompilerOptions() {
 	Map defaultOptions = super.getCompilerOptions();
 	defaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);
+	defaultOptions.put(CompilerOptions.OPTION_ReportDubiousReferenceComparison, CompilerOptions.IGNORE);
 	return defaultOptions;
 }
 

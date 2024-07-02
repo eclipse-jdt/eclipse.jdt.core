@@ -98,7 +98,7 @@ public void acceptModule(IModuleDescription module) {
 /**
  * @see IJavaElementRequestor
  */
-@SuppressWarnings("unlikely-arg-type")
+@SuppressWarnings("reference-comparison")
 @Override
 public void acceptType(IType type) {
 	try {

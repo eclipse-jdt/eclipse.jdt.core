@@ -1356,6 +1356,8 @@ public void test0036_declared_thrown_checked_exceptions() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=115814
 public void test0037() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportDubiousReferenceComparison, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1412,7 +1414,10 @@ public void test0037() {
 			"	Zork z;\n" +
 			"	^^^^\n" +
 			"Zork cannot be resolved to a type\n" +
-			"----------\n");
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
 }
 
 /**
@@ -3361,5 +3366,172 @@ public void testGH567() {
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
+}
+//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2176
+//report unlikely comparing references for primitive wrappers and String objects
+public void testGH2167() {
+	// un/boxing was introduced in JDK15, so no need to test compatibility prior to that
+	if (this.complianceLevel < ClassFileConstants.JDK15)
+		return;
+
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_SuppressWarnings, CompilerOptions.ENABLED);
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.WARNING);
+	runner.customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
+	runner.customOptions.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
+	runner.customOptions.put(CompilerOptions.OPTION_ReportDubiousReferenceComparison, CompilerOptions.ERROR);
+
+	runner.testFiles = new String[] {
+			"A.java",
+			"""
+				public class A {
+					public boolean a1() {
+						String x1 = "12345";
+						String x2 = "67890";
+						return x1 == x2;
+					}
+					public boolean a2() {
+						Byte x1 = 12;
+						Byte x2 = 34;
+						return x1 == x2;
+					}
+					public boolean a3() {
+						Short x1 = 123;
+						Short x2 = 456;
+						return x1 == x2;
+					}
+					public boolean a4() {
+						Integer x1 = 123;
+						Integer x2 = 456;
+						return x1 == x2;
+					}
+					public boolean a5() {
+						Long x1 = 12345L;
+						Long x2 = 67890L;
+						return x1 == x2;
+					}
+					public boolean a6() {
+					    Long x = 12346L;
+
+					    return getId() != x;
+					}
+					public boolean a7() {
+					    Long x1 = 12346L;
+						Number x2 = 12345L;
+					    return x1 != x2;
+					}
+					public boolean a8() {
+					    Number x1 = 12346L;
+						Number x2 = 12345L;
+					    return x1 == x2;
+					}
+					public boolean a9() {
+					    java.io.Serializable x1 = 12346L;
+						Number x2 = 12345L;
+					    return x1 == x2;
+					}
+					public boolean a10() {
+						Number x1 = 12345L;
+					    java.io.Serializable x2 = 12346L;
+					    return x1 == x2;
+					}
+					public boolean a11() {
+						String[] x1 = new String[]{"a", "b"};
+					    String[] x2 = new String[]{"a", "b"};
+					    return x1 == x2;
+					}
+					private Long getId() {
+					    return 12345L;
+					}
+					public boolean no_error1() {
+						Long x1 = 12345L;
+						Long x2 = 67890L;
+						return x1 == (x2 + 1);
+					}
+					public boolean no_error2() {
+					    Long x1 = getId();
+					    long x2 = 12346L;
+					    return x1 == x2;
+					}
+					@SuppressWarnings("reference-comparison")
+					public boolean no_error3() {
+						Long x1 = 12345L;
+						Long x2 = 67890L;
+						return x1 == x2;
+					}
+					@SuppressWarnings("all")
+					public boolean no_error4() {
+						Long x1 = 12345L;
+						Long x2 = 67890L;
+						return x1 == x2;
+					}
+					public boolean no_error5() {
+						Long x = 12345L;
+						return x == null;
+					}
+				}"""
+	};
+
+	runner.expectedCompilerLog =
+		"""
+			----------
+			1. ERROR in A.java (at line 5)
+				return x1 == x2;
+				       ^^^^^^^^
+			Dubious operand types for '==': java.lang.String and java.lang.String are references
+			----------
+			2. ERROR in A.java (at line 10)
+				return x1 == x2;
+				       ^^^^^^^^
+			Dubious operand types for '==': java.lang.Byte and java.lang.Byte are references
+			----------
+			3. ERROR in A.java (at line 15)
+				return x1 == x2;
+				       ^^^^^^^^
+			Dubious operand types for '==': java.lang.Short and java.lang.Short are references
+			----------
+			4. ERROR in A.java (at line 20)
+				return x1 == x2;
+				       ^^^^^^^^
+			Dubious operand types for '==': java.lang.Integer and java.lang.Integer are references
+			----------
+			5. ERROR in A.java (at line 25)
+				return x1 == x2;
+				       ^^^^^^^^
+			Dubious operand types for '==': java.lang.Long and java.lang.Long are references
+			----------
+			6. ERROR in A.java (at line 30)
+				return getId() != x;
+				       ^^^^^^^^^^^^
+			Dubious operand types for '!=': java.lang.Long and java.lang.Long are references
+			----------
+			7. ERROR in A.java (at line 35)
+				return x1 != x2;
+				       ^^^^^^^^
+			Dubious operand types for '!=': java.lang.Long and java.lang.Number are references
+			----------
+			8. ERROR in A.java (at line 40)
+				return x1 == x2;
+				       ^^^^^^^^
+			Dubious operand types for '==': java.lang.Number and java.lang.Number are references
+			----------
+			9. ERROR in A.java (at line 45)
+				return x1 == x2;
+				       ^^^^^^^^
+			Dubious operand types for '==': java.io.Serializable and java.lang.Number are references
+			----------
+			10. ERROR in A.java (at line 50)
+				return x1 == x2;
+				       ^^^^^^^^
+			Dubious operand types for '==': java.lang.Number and java.io.Serializable are references
+			----------
+			11. ERROR in A.java (at line 55)
+				return x1 == x2;
+				       ^^^^^^^^
+			Dubious operand types for '==': java.lang.String[] and java.lang.String[] are references
+			""";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 }

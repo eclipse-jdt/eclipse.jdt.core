@@ -20,6 +20,7 @@ package org.eclipse.jdt.apt.pluggable.tests;
  * Utility class to hold results of processor-based tests.
  * All methods are static.
  */
+@SuppressWarnings("reference-comparison")
 public final class ProcessorTestStatus {
 
 	/**

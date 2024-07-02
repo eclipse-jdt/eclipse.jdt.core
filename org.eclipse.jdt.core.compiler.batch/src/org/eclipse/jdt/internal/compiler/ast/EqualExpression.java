@@ -915,6 +915,25 @@ public class EqualExpression extends BinaryExpression {
 				}
 			}
 		}
+
+		boolean leftTypeIsNumber = new String(leftType.readableName()).equals("java.lang.Number"); //$NON-NLS-1$
+		boolean rightTypeIsNumber = new String(rightType.readableName()).equals("java.lang.Number"); //$NON-NLS-1$
+
+		// Check for dubious comparisons of references, for both wrapper types or strings.
+		// Putting primitives (or calculations) in the mix results in unboxing the wrappers to their
+		// primitives, so this only warns when both sides are wrappers. e.g. (x1 == (x2 + 1)) results in
+		// (x2 + 1) becoming a primitive, and an unboxing of x1 as well, not necessitating a warning.
+		// When comparing a reference to null the assumption is that the developer is aware of comparing
+		// references, so the comparison is not unlikely
+		if((leftType != TypeBinding.NULL && rightType != TypeBinding.NULL) &&
+				((leftType.isBoxedPrimitiveType() && rightType.isBoxedPrimitiveType()) ||
+				(!leftType.isPrimitiveType() && (rightType.isBoxedPrimitiveType() || rightTypeIsNumber)) ||
+				((leftType.isBoxedPrimitiveType() || leftTypeIsNumber) && !rightType.isPrimitiveType()) ||
+				(leftType.id == rightType.id && (leftType.id == TypeIds.T_JavaLangString || leftType.isArrayType()))))
+		{
+			scope.problemReporter().dubiousComparison(this, operatorToString(), leftType, rightType);
+		}
+
 		// both base type
 		if (leftType.isBaseType() && rightType.isBaseType()) {
 			int leftTypeID = leftType.id;
