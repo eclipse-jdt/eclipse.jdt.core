@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1556,7 +1556,6 @@ public final class CompletionEngine
 					} else {
 						completionName = appendUnlessNextToken(completionName, new char[] {';'}, TerminalTokens.TokenNameSEMICOLON);
 					}
-
 					int relevance = computeBaseRelevance();
 					relevance += computeRelevanceForResolution();
 					relevance += computeRelevanceForInterestingProposal(packageName, fullyQualifiedName);
@@ -4968,6 +4967,13 @@ public final class CompletionEngine
 		return 0;
 	}
 
+	private int computeRelevanceForJavaLibrary(char[] packageName) {
+		if (new String(packageName).startsWith("java.")) { //$NON-NLS-1$
+			return R_JAVA_LIBRARY;
+		}
+		return 0;
+	}
+
 	private int computeRelevanceForEnumConstant(TypeBinding proposalType){
 		if(this.assistNodeIsEnum &&
 				proposalType != null &&
@@ -5016,6 +5022,7 @@ public final class CompletionEngine
 	}
 
 	private int computeRelevanceForExpectingType(TypeBinding proposalType){
+		Thread.dumpStack();
 		if(this.expectedTypes != null && proposalType != null) {
 			int relevance = 0;
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=271296
@@ -11817,6 +11824,7 @@ public final class CompletionEngine
 				relevance += computeRelevanceForCaseMatching(token, sourceType.sourceName);
 				relevance += computeRelevanceForExpectingType(sourceType);
 				relevance += computeRelevanceForQualification(false);
+				relevance += computeRelevanceForJavaLibrary(sourceType.qualifiedPackageName());
 				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for type in the current unit
 
 				if (sourceType.isAnnotationType()) {
@@ -12393,6 +12401,7 @@ public final class CompletionEngine
 							isArrayCompletion ? originalExpectedType : refBinding);
 						relevance += computeRelevanceForQualification(isQualified);
 						relevance += computeRelevanceForRestrictions(accessibility);
+						relevance += computeRelevanceForJavaLibrary(packageName);
 
 						if(refBinding.isClass()) {
 							relevance += computeRelevanceForClass();
@@ -14550,6 +14559,7 @@ public final class CompletionEngine
 		relevance += computeRelevanceForCaseMatching(this.completionToken, simpleTypeName);
 		relevance += computeRelevanceForExpectingType(packageName, simpleTypeName);
 		relevance += computeRelevanceForQualification(isQualified);
+		relevance += computeRelevanceForJavaLibrary(packageName);
 
 		int kind = modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation);
 		switch (kind) {
