@@ -47,7 +47,13 @@ public class SplitPackageBinding extends PackageBinding {
 			return previous;
 		if (binding.subsumes(previous))
 			return binding;
-		SplitPackageBinding split = new SplitPackageBinding(previous, primaryModule);
+
+		final SplitPackageBinding split;
+		if (previous instanceof SplitPackageBinding previousSplit && previousSplit.enclosingModule == primaryModule) {
+			split = previousSplit;
+		} else {
+			split = new SplitPackageBinding(previous, primaryModule);
+		}
 		split.add(binding);
 		return split;
 	}
