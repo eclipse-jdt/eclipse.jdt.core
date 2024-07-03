@@ -133,13 +133,13 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		SwitchCase caseInteger = (SwitchCase) statements.get(0);
 		Expression typePattern = (Expression)caseInteger.expressions().get(0);
 		assertEquals("Type Pattern", typePattern.getNodeType(), ASTNode.TYPE_PATTERN);
-		SingleVariableDeclaration patternVariable = ((TypePattern)typePattern).getPatternVariable();
+		SingleVariableDeclaration patternVariable = (SingleVariableDeclaration) ((TypePattern)typePattern).getPatternVariable();
 		assertEquals("Type Pattern Integer", "Integer", patternVariable.getType().toString());
 
 		SwitchCase caseString = (SwitchCase) statements.get(2);
 		typePattern = (Expression)caseString.expressions().get(0);
 		assertEquals("Type Pattern", typePattern.getNodeType(), ASTNode.TYPE_PATTERN);
-		patternVariable = ((TypePattern)typePattern).getPatternVariable();
+		patternVariable = (SingleVariableDeclaration) ((TypePattern)typePattern).getPatternVariable();
 		assertEquals("Type Pattern Integer", "String", patternVariable.getType().toString());
 
 		SwitchCase caseDefault = (SwitchCase) statements.get(4);
@@ -178,7 +178,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		Expression guardedPattern = (Expression)caseInteger.expressions().get(0);
 		assertEquals("Guarded Pattern", ASTNode.GUARDED_PATTERN, guardedPattern.getNodeType());
 		Pattern pattern = ((GuardedPattern)guardedPattern).getPattern();
-		SingleVariableDeclaration patternVariable = ((TypePattern)pattern).getPatternVariable();
+		SingleVariableDeclaration patternVariable = (SingleVariableDeclaration) ((TypePattern)pattern).getPatternVariable();
 		assertEquals("Type Pattern Integer", "Integer", patternVariable.getType().toString());
 		Expression expression = ((GuardedPattern)guardedPattern).getExpression();
 		Expression expression2 = ((ParenthesizedExpression)expression).getExpression();
@@ -189,7 +189,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		guardedPattern = (Expression)caseString.expressions().get(0);
 		assertEquals("Guarded Pattern", guardedPattern.getNodeType(), ASTNode.GUARDED_PATTERN);
 		pattern = ((GuardedPattern)guardedPattern).getPattern();
-		patternVariable = ((TypePattern)pattern).getPatternVariable();
+		patternVariable = (SingleVariableDeclaration) ((TypePattern)pattern).getPatternVariable();
 		assertEquals("Type Pattern String", "String", patternVariable.getType().toString());
 		expression = ((GuardedPattern)guardedPattern).getExpression();
 		assertEquals("Infix expression", "s.equals(\"ff\")",expression.toString());
@@ -305,7 +305,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		assertEquals("wrong source range", typePattern.getStartPosition(), start);
 		assertEquals("wrong source range", typePattern.getLength(), length);
 
-		SingleVariableDeclaration patternVariable = typePattern.getPatternVariable();
+		SingleVariableDeclaration patternVariable = (SingleVariableDeclaration) typePattern.getPatternVariable();
 		assertEquals("wrong source range", patternVariable.getStartPosition(), start);
 		assertEquals("wrong source range", patternVariable.getLength(), length);
 
@@ -372,7 +372,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		assertEquals("Should be a type pattern", "org.eclipse.jdt.core.dom.TypePattern", pattern.getClass().getName());
 		TypePattern tPattern = (TypePattern) pattern;
 		assertNotNull("Pattern name should not be null", tPattern.getPatternVariable());
-		assertEquals("Incorrect pattern variable name", "lr", tPattern.getPatternVariable().getName().toString());
+		assertEquals("Incorrect pattern variable name", "lr", ((SingleVariableDeclaration) tPattern.getPatternVariable()).getName().toString());
 	}
 
 	@SuppressWarnings("rawtypes")

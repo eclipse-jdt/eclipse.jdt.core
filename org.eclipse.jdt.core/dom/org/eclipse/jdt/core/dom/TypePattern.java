@@ -64,8 +64,6 @@ public class TypePattern extends Pattern {
 		addProperty(PATTERN_VARIABLE_PROPERTY1, properyList);
 		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList(properyList);
 
-
-
 	}
 
 	@Override

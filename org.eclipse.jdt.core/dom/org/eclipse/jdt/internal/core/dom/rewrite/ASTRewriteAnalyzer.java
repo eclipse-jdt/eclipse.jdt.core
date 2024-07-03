@@ -4723,6 +4723,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		rewriteRequiredNode(node, TypePattern.PATTERN_VARIABLE_PROPERTY);
+		rewriteRequiredNode(node, TypePattern.PATTERN_VARIABLE_PROPERTY1);
 		return false;
 	}
 
