@@ -26,7 +26,7 @@ public interface RelevanceConstants {
 	 */
 	int R_DEFAULT = 30;
 	int R_INTERESTING = 5;
-	int R_JAVA_LIBRARY = 7;
+	int R_JAVA_LIBRARY = 2;
 	int R_CASE = 10;
 	int R_CAMEL_CASE = 5;
 	int R_EXACT_NAME = 4;
