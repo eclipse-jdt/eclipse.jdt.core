@@ -133,7 +133,7 @@ public class JavacBindingResolver extends BindingResolver {
 		//
 		private Map<String, JavacTypeBinding> typeBinding = new HashMap<>();
 		public JavacTypeBinding getTypeBinding(com.sun.tools.javac.code.Type type) {
-			if (type instanceof ErrorType errorType && errorType.tsym == null && (errorType.getOriginalType() != com.sun.tools.javac.code.Type.noType)) {
+			if (type instanceof ErrorType errorType && (errorType.getOriginalType() != com.sun.tools.javac.code.Type.noType)) {
 				return getTypeBinding(errorType.getOriginalType());
 			}
 			JavacTypeBinding newInstance = new JavacTypeBinding(type, type.tsym, JavacBindingResolver.this) { };

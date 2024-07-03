@@ -104,7 +104,7 @@ public class JavacProblemConverter {
 				case JCVariableDecl jcVariableDecl: return getDiagnosticPosition(jcDiagnostic, jcVariableDecl);
 				case JCMethodDecl jcMethodDecl: return getDiagnosticPosition(jcDiagnostic, jcMethodDecl);
 				case JCFieldAccess jcFieldAccess:
-					if (getDiagnosticArgumentByType(jcDiagnostic, KindName.class) != KindName.PACKAGE) {
+					if (getDiagnosticArgumentByType(jcDiagnostic, KindName.class) != KindName.PACKAGE && getDiagnosticArgumentByType(jcDiagnostic, Symbol.PackageSymbol.class) == null) {
 						// TODO here, instead of recomputing a position, get the JDT DOM node and call the Name (which has a position)
 						return new org.eclipse.jface.text.Position(jcFieldAccess.getPreferredPosition() + 1, jcFieldAccess.getIdentifier().length());
 					}
