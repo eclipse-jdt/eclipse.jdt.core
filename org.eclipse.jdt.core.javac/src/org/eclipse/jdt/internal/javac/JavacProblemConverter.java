@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.javac;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
@@ -78,12 +79,13 @@ public class JavacProblemConverter {
 			return null;
 		}
 		org.eclipse.jface.text.Position diagnosticPosition = getDiagnosticPosition(diagnostic, context);
+		String[] arguments = getDiagnosticStringArguments(diagnostic);
 		return new JavacProblem(
 				diagnostic.getSource().getName().toCharArray(),
 				diagnostic.getMessage(Locale.getDefault()),
 				diagnostic.getCode(),
 				problemId,
-				new String[0],
+				arguments,
 				severity,
 				diagnosticPosition.getOffset(),
 				diagnosticPosition.getOffset() + diagnosticPosition.getLength() - 1,
@@ -487,6 +489,27 @@ public class JavacProblemConverter {
 		}
 
 		return jcDiagnostic.getArgs();
+	}
+
+	private String[] getDiagnosticStringArguments(Diagnostic<?> diagnostic) {
+		if (!(diagnostic instanceof JCDiagnostic jcDiagnostic)) {
+			return new String[0];
+		}
+
+		if (!jcDiagnostic.getSubdiagnostics().isEmpty()) {
+			jcDiagnostic = jcDiagnostic.getSubdiagnostics().get(0);
+		}
+
+		if (jcDiagnostic.getArgs().length != 0
+				&& jcDiagnostic.getArgs()[0] instanceof JCDiagnostic argDiagnostic) {
+			return Stream.of(argDiagnostic.getArgs()) //
+					.map(Object::toString) //
+					.toArray(String[]::new);
+		}
+
+		return Stream.of(jcDiagnostic.getArgs()) //
+				.map(Object::toString) //
+				.toArray(String[]::new);
 	}
 
 	// compiler.err.prob.found.req -> TypeMismatch, ReturnTypeMismatch, IllegalCast, VoidMethodReturnsValue...
