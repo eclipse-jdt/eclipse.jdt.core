@@ -114,8 +114,14 @@ public class PublicScannerTest extends AbstractRegressionTest {
 		this.ttNameToValue = new TreeMap<>();
 		this.ttFields = TerminalTokens.class.getFields();
 		for (Field field : this.ttFields) {
-			this.ttValueToName.put(field.getInt(null), field.getName());
-			this.ttNameToValue.put(field.getName(), field.getInt(null));
+			// we are stuck with the clunkier names for API - map
+			String fName = field.getName();
+			if (fName.equals("TokenNamesealed"))
+				fName = "TokenNameRestrictedIdentifiersealed";
+			else if (fName.equals("TokenNamepermits"))
+				fName = "TokenNameRestrictedIdentifierpermits";
+			this.ttValueToName.put(field.getInt(null), fName);
+			this.ttNameToValue.put(fName, field.getInt(null));
 		}
 		if(this.ttValueToName.size() != this.ttNameToValue.size()) {
 			this.ttNameToValue.keySet().removeAll(this.ttValueToName.values());
