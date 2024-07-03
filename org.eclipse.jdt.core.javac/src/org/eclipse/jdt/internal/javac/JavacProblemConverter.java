@@ -288,7 +288,7 @@ public class JavacProblemConverter {
 				int ind = temp.indexOf(name);
 				if (ind >= 0) {
 					int offset = startPosition + ind;
-					int length = name.length() - 1;
+					int length = name.length();
 					return new org.eclipse.jface.text.Position(offset, length);
 				}
 			}
@@ -343,7 +343,7 @@ public class JavacProblemConverter {
 			case "compiler.err.cant.resolve" -> convertUnresolvedVariable(diagnostic);
 			case "compiler.err.cant.resolve.args" -> convertUndefinedMethod(diagnostic);
 			case "compiler.err.cant.resolve.args.params" -> IProblem.UndefinedMethod;
-			case "compiler.err.cant.apply.symbols", "compiler.err.cant.apply.symbol" -> 
+			case "compiler.err.cant.apply.symbols", "compiler.err.cant.apply.symbol" ->
 				switch (getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class)) {
 					case CONSTRUCTOR -> IProblem.UndefinedConstructor;
 					case METHOD -> IProblem.ParameterMismatch;
