@@ -82,33 +82,6 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			return;
 		runConformTest(testFiles, expectedOutput, customOptions, VMARGS, JAVAC_OPTIONS);
 	}
-	protected void runConformTest(
-			String[] testFiles,
-			String expectedOutputString,
-			String[] classLibraries,
-			boolean shouldFlushOutputDirectory,
-			String[] vmArguments) {
-			runTest(
-		 		// test directory preparation
-				shouldFlushOutputDirectory /* should flush output directory */,
-				testFiles /* test files */,
-				// compiler options
-				classLibraries /* class libraries */,
-				null /* no custom options */,
-				false /* do not perform statements recovery */,
-				null /* no custom requestor */,
-				// compiler results
-				false /* expecting no compiler errors */,
-				null /* do not check compiler log */,
-				// runtime options
-				false /* do not force execution */,
-				vmArguments /* vm arguments */,
-				// runtime results
-				expectedOutputString /* expected output string */,
-				null /* do not check error string */,
-				// javac options
-				JavacTestOptions.DEFAULT /* default javac test options */);
-		}
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 		Map<String, String> customOptions = getCompilerOptions(true);
 		Runner runner = new Runner();
@@ -117,21 +90,6 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.javacTestOptions = JAVAC_OPTIONS;
 		runner.customOptions = customOptions;
 		runner.expectedJavacOutputString = null;
-		runner.runNegativeTest();
-	}
-	protected void runNegativeTest(
-			String[] testFiles,
-			String expectedCompilerLog,
-			String javacLog,
-			String[] classLibraries,
-			boolean shouldFlushOutputDirectory,
-			Map<String, String> customOptions) {
-		Runner runner = new Runner();
-		runner.testFiles = testFiles;
-		runner.expectedCompilerLog = expectedCompilerLog;
-		runner.javacTestOptions = JAVAC_OPTIONS;
-		runner.customOptions = customOptions;
-		runner.expectedJavacOutputString = javacLog;
 		runner.runNegativeTest();
 	}
 	public void test001() {
@@ -1391,5 +1349,37 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"42\n" +
 			"true"
 		);
+	}
+	public void test040() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		runNegativeTest(new String[] {
+				"X.java",
+					"""
+						class Y {
+							public int v;
+							Y(int v) {
+								this.v = v;
+							}
+						}
+						@SuppressWarnings("preview")
+						public class X extends Y {
+						    public X(int value) {
+						        if (value <= 0)
+						            throw new IllegalArgumentException("non-positive value");
+						        super(value);
+						    }
+						}
+					"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	super(value);\n" +
+			"	^^^^^^^^^^^^^\n" +
+			"Statements Before Super is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			"----------\n",
+			null,
+			true,
+			options);
 	}
 }
