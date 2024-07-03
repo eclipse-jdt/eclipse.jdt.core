@@ -5022,7 +5022,6 @@ public final class CompletionEngine
 	}
 
 	private int computeRelevanceForExpectingType(TypeBinding proposalType){
-		Thread.dumpStack();
 		if(this.expectedTypes != null && proposalType != null) {
 			int relevance = 0;
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=271296
