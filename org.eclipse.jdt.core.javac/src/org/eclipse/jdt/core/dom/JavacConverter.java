@@ -277,12 +277,14 @@ class JavacConverter {
 		res.setName(toName(javac.getPackageName()));
 		commonSettings(res, javac);
 		List<JCExpression> mods = javac.getModuleNames();
-		Iterator<JCExpression> it = mods.iterator();
-		while(it.hasNext()) {
-			JCExpression jcpe = it.next();
-			Expression e = convertExpression(jcpe);
-			if( e != null )
-				res.modules().add(e);
+		if (mods != null) {
+			Iterator<JCExpression> it = mods.iterator();
+			while (it.hasNext()) {
+				JCExpression jcpe = it.next();
+				Expression e = convertExpression(jcpe);
+				if (e != null)
+					res.modules().add(e);
+			}
 		}
 		return res;
 	}
