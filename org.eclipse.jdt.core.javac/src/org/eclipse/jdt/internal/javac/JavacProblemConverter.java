@@ -268,7 +268,8 @@ public class JavacProblemConverter {
 	private static org.eclipse.jface.text.Position getDiagnosticPosition(JCDiagnostic jcDiagnostic, JCClassDecl jcClassDecl) {
 		int startPosition = (int) jcDiagnostic.getPosition();
 		if (startPosition != Position.NOPOS &&
-			!jcClassDecl.getMembers().isEmpty() && jcClassDecl.getStartPosition() != jcClassDecl.getMembers().get(0).getStartPosition()) {
+			(jcClassDecl.getMembers().isEmpty() ||
+			(!jcClassDecl.getMembers().isEmpty() && jcClassDecl.getStartPosition() != jcClassDecl.getMembers().get(0).getStartPosition()))) {
 			try {
 				String name = jcClassDecl.getSimpleName().toString();
 				return getDiagnosticPosition(name, startPosition, jcDiagnostic);
