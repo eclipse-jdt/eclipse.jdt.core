@@ -824,7 +824,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 */
 	protected void internalBeginToCompile(ICompilationUnit[] sourceUnits, int maxUnits) {
 		abortIfPreviewNotAllowed(sourceUnits,maxUnits);
-		if (!this.useSingleThread && maxUnits >= ReadManager.THRESHOLD)
+		if (!this.useSingleThread)
 			this.parser.readManager = new ReadManager(sourceUnits, maxUnits);
 		try {
 			// Switch the current policy and compilation result for this unit to the requested one.
