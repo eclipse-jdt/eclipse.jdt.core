@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -5012,7 +5012,7 @@ public void testBug281598c() throws Exception {
 	    type.getTypeRoot().codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 
 	    assertResults(
-			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT+R_RESOLVED+R_INTERESTING+R_CASE+R_UNQUALIFIED+R_NON_RESTRICTED)+"}",
+			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT+R_RESOLVED+R_INTERESTING+R_CASE+R_UNQUALIFIED+R_NON_RESTRICTED+R_JAVA_LIBRARY)+"}",
 			requestor.getResults());
 	} finally {
 		enableIndexer();
@@ -5224,7 +5224,7 @@ public void testBug317264a() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
 		assertResults(
-				"Enum[TYPE_REF]{Enum, java.lang, Ljava.lang.Enum;, null, null, " + (R_DEFAULT + 12) + "}",
+				"Enum[TYPE_REF]{Enum, java.lang, Ljava.lang.Enum;, null, null, " + (R_DEFAULT + R_JAVA_LIBRARY + 12) + "}",
 				requestor.getResults());
 
 	} finally {
@@ -5693,7 +5693,7 @@ public void testBug373409() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 
 	    assertResults(
-	    	"ThreadLocal[TYPE_REF]{java.llang.ThreadLocal, java.llang, Ljava.llang.ThreadLocal;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+	    	"ThreadLocal[TYPE_REF]{java.llang.ThreadLocal, java.llang, Ljava.llang.ThreadLocal;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_JAVA_LIBRARY) + "}\n" +
 			"Thread[CONSTRUCTOR_INVOCATION]{(), Ljava.llang.Thread;, ()V, Thread, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
 			"   Thread[TYPE_REF]{java.llang.Thread, java.llang, Ljava.llang.Thread;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
 			"Thread[CONSTRUCTOR_INVOCATION]{(), Ljava.llang.Thread;, (Ljava.lang.String;)V, Thread, (s), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
@@ -6157,7 +6157,7 @@ public void test442868() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, null, null, [218, 224], " +
 			(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_RESOLVED + RelevanceConstants.R_INTERESTING + RelevanceConstants.R_NON_RESTRICTED
-			+ RelevanceConstants.R_CASE + RelevanceConstants.R_UNQUALIFIED) + "}", requestor.getResults());
+			+ RelevanceConstants.R_CASE + RelevanceConstants.R_UNQUALIFIED + RelevanceConstants.R_JAVA_LIBRARY) + "}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=479656
 public void test479656() throws Exception {
