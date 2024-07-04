@@ -8,3 +8,4 @@ https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/17
 https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/1923
 https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/2163
 https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2669
+https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2672
