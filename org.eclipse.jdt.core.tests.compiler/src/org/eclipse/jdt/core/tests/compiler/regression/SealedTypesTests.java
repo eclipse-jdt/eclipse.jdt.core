@@ -6193,4 +6193,57 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"Cannot cast from Standalone to Intf\n" +
 				"----------\n");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2667
+	// [Sealed Types] Failure to cast an Object to a generic sealed interface type
+	public void testIssue2667() {
+		runWarningTest(
+				new String[] {
+						"Either.java",
+						"""
+						import java.util.NoSuchElementException;
+
+						public sealed interface Either<L,R> {
+
+						    L getLeft();
+						    R getRight();
+
+						    record Left<L, R>(L error) implements Either<L, R> {
+						        @Override
+						        public L getLeft() {
+						            return error;
+						        }
+						        @Override
+						        public R getRight() {
+						            throw new NoSuchElementException();
+						        }
+						    }
+
+						    record Right<L, R>(R value) implements Either<L, R> {
+						        @Override
+						        public L getLeft() {
+						            throw new NoSuchElementException();
+						        }
+						        @Override
+						        public R getRight() {
+						            return value;
+						        }
+						    }
+
+						    public static void main(String[] args) {
+						        Object o = new Left<String, Integer>("boo");
+						        var either = (Either<String, Integer>) o;
+						        System.out.println(either.getLeft());
+						    }
+						}
+						"""
+				},
+				"----------\n" +
+				"1. WARNING in Either.java (at line 32)\n" +
+				"	var either = (Either<String, Integer>) o;\n" +
+				"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Type safety: Unchecked cast from Object to Either<String,Integer>\n" +
+				"----------\n",
+				"boo");
+	}
 }
