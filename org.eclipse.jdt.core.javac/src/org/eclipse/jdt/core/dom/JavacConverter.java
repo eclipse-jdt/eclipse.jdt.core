@@ -46,8 +46,6 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.parser.ParserFactory;
 import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
-import com.sun.tools.javac.tree.DCTree.DCComment;
-import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
@@ -1945,7 +1943,11 @@ class JavacConverter {
 	private Expression convertLiteral(JCLiteral literal) {
 		Object value = literal.getValue();
 		if (value instanceof Number number) {
-			char firstChar = number.toString().charAt(0);
+			// to check if the literal is actually a prefix expression of it is a hex
+			// negative value we need to check the source char value.
+			char firstChar = this.rawText.substring(literal.getStartPosition(), literal.getStartPosition() + 1)
+					.charAt(0);
+
 			if( firstChar != '-' ) {
 				NumberLiteral res = this.ast.newNumberLiteral();
 				commonSettings(res, literal);
