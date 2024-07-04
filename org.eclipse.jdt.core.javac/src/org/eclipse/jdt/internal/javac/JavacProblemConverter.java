@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.javac;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -27,6 +28,9 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
+import com.sun.source.tree.Tree;
+import com.sun.source.util.TreePath;
+import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Kinds.KindName;
 import com.sun.tools.javac.code.Symbol;
@@ -39,8 +43,11 @@ import com.sun.tools.javac.parser.Tokens.TokenKind;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCBlock;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
+import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
+import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
+import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.DiagnosticSource;
@@ -55,6 +62,7 @@ public class JavacProblemConverter {
 	private static final String COMPILER_WARN_MISSING_SVUID = "compiler.warn.missing.SVUID";
 	private final CompilerOptions compilerOptions;
 	private final Context context;
+	private final Map<JavaFileObject, JCCompilationUnit> units = new HashMap<>();
 
 	public JavacProblemConverter(Map<String, String> options, Context context) {
 		this(new CompilerOptions(options), context);
@@ -79,7 +87,7 @@ public class JavacProblemConverter {
 		if (severity == ProblemSeverities.Ignore || severity == ProblemSeverities.Optional) {
 			return null;
 		}
-		org.eclipse.jface.text.Position diagnosticPosition = getDiagnosticPosition(diagnostic, context);
+		org.eclipse.jface.text.Position diagnosticPosition = getDiagnosticPosition(diagnostic, context, problemId);
 		String[] arguments = getDiagnosticStringArguments(diagnostic);
 		return new JavacProblem(
 				diagnostic.getSource().getName().toCharArray(),
@@ -94,29 +102,51 @@ public class JavacProblemConverter {
 				(int) diagnostic.getColumnNumber());
 	}
 
-	private org.eclipse.jface.text.Position getDiagnosticPosition(Diagnostic<? extends JavaFileObject> diagnostic, Context context) {
+	private org.eclipse.jface.text.Position getDiagnosticPosition(Diagnostic<? extends JavaFileObject> diagnostic, Context context, int problemId) {
 		if (diagnostic.getCode().contains(".dc")) { //javadoc
 			return getDefaultPosition(diagnostic);
 		}
 		if (diagnostic instanceof JCDiagnostic jcDiagnostic) {
-			switch (jcDiagnostic.getDiagnosticPosition()) {
-				case JCClassDecl jcClassDecl: return getDiagnosticPosition(jcDiagnostic, jcClassDecl);
-				case JCVariableDecl jcVariableDecl: return getDiagnosticPosition(jcDiagnostic, jcVariableDecl);
-				case JCMethodDecl jcMethodDecl: return getDiagnosticPosition(jcDiagnostic, jcMethodDecl);
-				case JCFieldAccess jcFieldAccess:
-					if (getDiagnosticArgumentByType(jcDiagnostic, KindName.class) != KindName.PACKAGE && getDiagnosticArgumentByType(jcDiagnostic, Symbol.PackageSymbol.class) == null) {
-						// TODO here, instead of recomputing a position, get the JDT DOM node and call the Name (which has a position)
-						return new org.eclipse.jface.text.Position(jcFieldAccess.getPreferredPosition() + 1, jcFieldAccess.getIdentifier().length());
+			TreePath diagnosticPath = getTreePath(jcDiagnostic);
+			if (problemId == IProblem.ParameterMismatch && diagnosticPath != null && !(diagnosticPath.getLeaf() instanceof JCMethodInvocation)) {
+				diagnosticPath = diagnosticPath.getParentPath();
+				if (diagnosticPath.getLeaf() instanceof JCMethodInvocation method) {
+					var selectExpr = method.getMethodSelect();
+					if (selectExpr instanceof JCIdent methodNameIdent) {
+						int start = methodNameIdent.getStartPosition();
+						int end = methodNameIdent.getEndPosition(this.units.get(jcDiagnostic.getSource()).endPositions);
+						return new org.eclipse.jface.text.Position(start, end - start);
 					}
-					// else: fail-through
-				default:
-					org.eclipse.jface.text.Position result = getMissingReturnMethodDiagnostic(jcDiagnostic, context);
-					if (result != null) {
-						return result;
+					if (selectExpr instanceof JCFieldAccess methodFieldAccess) {
+						int start = methodFieldAccess.getPreferredPosition() + 1; // after dot
+						int end = methodFieldAccess.getEndPosition(this.units.get(jcDiagnostic.getSource()).endPositions);
+						return new org.eclipse.jface.text.Position(start, end - start);
 					}
-					if (jcDiagnostic.getStartPosition() == jcDiagnostic.getEndPosition()) {
-						return getPositionUsingScanner(jcDiagnostic, context);
-					}
+				}
+			}
+			Tree element = diagnosticPath != null ? diagnosticPath.getLeaf() :
+				jcDiagnostic.getDiagnosticPosition() instanceof Tree tree ? tree :
+				null;
+			if (element != null) {
+				switch (element) {
+					case JCClassDecl jcClassDecl: return getDiagnosticPosition(jcDiagnostic, jcClassDecl);
+					case JCVariableDecl jcVariableDecl: return getDiagnosticPosition(jcDiagnostic, jcVariableDecl);
+					case JCMethodDecl jcMethodDecl: return getDiagnosticPosition(jcDiagnostic, jcMethodDecl);
+					case JCFieldAccess jcFieldAccess:
+						if (getDiagnosticArgumentByType(jcDiagnostic, KindName.class) != KindName.PACKAGE && getDiagnosticArgumentByType(jcDiagnostic, Symbol.PackageSymbol.class) == null) {
+							// TODO here, instead of recomputing a position, get the JDT DOM node and call the Name (which has a position)
+							return new org.eclipse.jface.text.Position(jcFieldAccess.getPreferredPosition() + 1, jcFieldAccess.getIdentifier().length());
+						}
+						// else: fail-through
+					default:
+						org.eclipse.jface.text.Position result = getMissingReturnMethodDiagnostic(jcDiagnostic, context);
+						if (result != null) {
+							return result;
+						}
+						if (jcDiagnostic.getStartPosition() == jcDiagnostic.getEndPosition()) {
+							return getPositionUsingScanner(jcDiagnostic, context);
+						}
+				}
 			}
 		}
 		return getDefaultPosition(diagnostic);
@@ -551,7 +581,26 @@ public class JavacProblemConverter {
 				return IProblem.ShouldReturnValue;
 			}
 		}
+		if (diagnostic instanceof JCDiagnostic jcDiagnostic && jcDiagnostic.getDiagnosticPosition() instanceof JCTree tree) {
+			JCCompilationUnit unit = units.get(jcDiagnostic.getSource());
+			if (unit != null) {
+				TreePath path = JavacTrees.instance(context).getPath(unit, tree);
+				if (path.getParentPath().getLeaf() instanceof JCMethodInvocation) {
+					return IProblem.ParameterMismatch;
+				}
+			}
+		}
 		return IProblem.TypeMismatch;
+	}
+
+	private TreePath getTreePath(Diagnostic<?> diagnostic) {
+		if (diagnostic instanceof JCDiagnostic jcDiagnostic && jcDiagnostic.getDiagnosticPosition() instanceof JCTree tree) {
+			JCCompilationUnit unit = units.get(jcDiagnostic.getSource());
+			if (unit != null) {
+				return JavacTrees.instance(context).getPath(unit, tree);
+			}
+		}
+		return null;
 	}
 
 	private int convertNotVisibleAccess(Diagnostic<?> diagnostic) {
@@ -586,5 +635,9 @@ public class JavacProblemConverter {
 			case METHOD -> IProblem.AmbiguousMethod;
 			default -> 0;
 		};
+	}
+
+	public void registerUnit(JavaFileObject javaFileObject, JCCompilationUnit unit) {
+		this.units.put(javaFileObject, unit);
 	}
 }

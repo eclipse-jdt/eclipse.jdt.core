@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +67,10 @@ import org.eclipse.jdt.internal.javac.JavacProblemConverter;
 import org.eclipse.jdt.internal.javac.JavacUtils;
 
 import com.sun.source.util.JavacTask;
+import com.sun.source.util.TaskEvent;
+import com.sun.source.util.TaskListener;
 import com.sun.tools.javac.api.JavacTool;
+import com.sun.tools.javac.api.MultiTaskListener;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.parser.JavadocTokenizer;
 import com.sun.tools.javac.parser.Scanner;
@@ -382,7 +384,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			}
 		}
 		if (!unit.types().isEmpty()) {
-			List types = unit.types();
+			List<AbstractTypeDeclaration> types = unit.types();
 			for( int i = 0; i < types.size(); i++ ) {
 				ITypeBinding tb = ((AbstractTypeDeclaration) types.get(i)).resolveBinding();
 				if (tb != null) {
@@ -462,6 +464,14 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				}
 			});
 		};
+		MultiTaskListener.instance(context).add(new TaskListener() {
+			@Override
+			public void finished(TaskEvent e) {
+				if (e.getCompilationUnit() instanceof JCCompilationUnit u) {
+					problemConverter.registerUnit(e.getSourceFile(), u);
+				}
+			}
+		});
 		// must be 1st thing added to context
 		context.put(DiagnosticListener.class, diagnosticListener);
 		boolean docEnabled = JavaCore.ENABLED.equals(compilerOptions.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT));
