@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,13 +15,13 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
 
-import junit.framework.Test;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import junit.framework.Test;
 
 /**
  * Test class for completion in Javadoc comment of a package declaration.
@@ -232,7 +232,7 @@ public void test010() throws JavaModelException {
 		"package javadoc.tags;\n";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "Obj");
 	assertResults(
-		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNR+"}"
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNRJ+"}"
 	);
 }
 
@@ -305,10 +305,10 @@ public void test015() throws JavaModelException {
 		"package javadoc.tags;\n";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "I");
 	assertSortedResults(
-		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DRICUNR+"}\n" +
-		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DRICUNR+"}\n" +
-		"Inherited[TYPE_REF]{java.lang.annotation.Inherited, java.lang.annotation, Ljava.lang.annotation.Inherited;, null, null, "+this.positions+R_DRICNR+"}\n" +
-		"Iterator[TYPE_REF]{java.util.Iterator, java.util, Ljava.util.Iterator;, null, null, "+this.positions+R_DRICNR+"}"
+		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DRICUNRJ+"}\n" +
+		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DRICUNRJ+"}\n" +
+		"Inherited[TYPE_REF]{java.lang.annotation.Inherited, java.lang.annotation, Ljava.lang.annotation.Inherited;, null, null, "+this.positions+R_DRICNRJ+"}\n" +
+		"Iterator[TYPE_REF]{java.util.Iterator, java.util, Ljava.util.Iterator;, null, null, "+this.positions+R_DRICNRJ+"}"
 	);
 }
 
