@@ -45,6 +45,7 @@ import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.DiagnosticSource;
 import com.sun.tools.javac.util.JCDiagnostic;
+import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Position;
 
@@ -429,6 +430,27 @@ public class JavacProblemConverter {
 				// most others are ignored
 				yield 0;
 			}
+			case "compiler.err.doesnt.exist" -> IProblem.PackageDoesNotExistOrIsEmpty;
+			case "compiler.err.override.meth" -> IProblem.FinalMethodCannotBeOverridden;
+			case "compiler.err.unclosed.char.lit", "compiler.err.empty.char.lit" -> IProblem.InvalidCharacterConstant;
+			case "compiler.err.malformed.fp.lit" -> IProblem.InvalidFloat;
+			case "compiler.warn.missing.deprecated.annotation" -> {
+				if (!(diagnostic instanceof JCDiagnostic jcDiagnostic)) {
+					yield 0;
+				}
+				DiagnosticPosition pos = jcDiagnostic.getDiagnosticPosition();
+				if (pos instanceof JCTree.JCVariableDecl) {
+					yield IProblem.FieldMissingDeprecatedAnnotation;
+				} else if (pos instanceof JCTree.JCMethodDecl) {
+					yield IProblem.MethodMissingDeprecatedAnnotation;
+				} else if (pos instanceof JCTree.JCClassDecl) {
+					yield IProblem.TypeMissingDeprecatedAnnotation;
+				}
+				ILog.get().error("Could not convert diagnostic " + diagnostic);
+				yield 0;
+			}
+			case "compiler.warn.override.equals.but.not.hashcode" -> IProblem.ShouldImplementHashcode;
+			case "compiler.warn.unchecked.call.mbr.of.raw.type" -> IProblem.UnsafeRawMethodInvocation;
 			default -> {
 				ILog.get().error("Could not convert diagnostic " + diagnostic);
 				yield 0;
