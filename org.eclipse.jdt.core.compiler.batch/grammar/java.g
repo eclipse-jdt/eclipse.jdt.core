@@ -45,7 +45,7 @@ $Terminals
 	abstract assert boolean break byte case catch char class
 	continue const default do double else enum extends false final finally float
 	for goto if implements import instanceof int
-	interface long native new non-sealed null package permits private
+	interface long native new non-sealed null package private
 	protected public return short static strictfp super switch
 	synchronized this throw throws transient true try void
 	volatile while module open requires transitive exports opens to uses provides with
@@ -120,6 +120,7 @@ $Terminals
 	RestrictedIdentifierYield
 	RestrictedIdentifierrecord
 	RestrictedIdentifiersealed
+	RestrictedIdentifierpermits
 	BeginCaseElement
 	RestrictedIdentifierWhen
 	UNDERSCORE
@@ -232,6 +233,7 @@ Goal ::= '->' YieldStatement
 Goal ::= '->' SwitchLabelCaseLhs
 -- JSR 360 Restricted
 Goal ::= RestrictedIdentifiersealed Modifiersopt
+Goal ::= RestrictedIdentifierpermits PermittedSubclasses
 -- jsr 427 --
 Goal ::= BeginCaseElement Pattern
 Goal ::= RestrictedIdentifierWhen Expression
@@ -700,7 +702,7 @@ ClassDeclaration ::= ClassHeader ClassBody
 /.$putCase consumeClassDeclaration(); $break ./
 /:$readableName ClassDeclaration:/
 
-ClassHeader ::= ClassHeaderName ClassHeaderExtendsopt ClassHeaderImplementsopt PermittedTypesopt
+ClassHeader ::= ClassHeaderName ClassHeaderExtendsopt ClassHeaderImplementsopt ClassHeaderPermittedSubclassesopt
 /.$putCase consumeClassHeader(); $break ./
 /:$readableName ClassHeader:/
 
@@ -1054,7 +1056,7 @@ InterfaceDeclaration ::= InterfaceHeader InterfaceBody
 /.$putCase consumeInterfaceDeclaration(); $break ./
 /:$readableName InterfaceDeclaration:/
 
-InterfaceHeader ::= InterfaceHeaderName InterfaceHeaderExtendsopt PermittedTypesopt
+InterfaceHeader ::= InterfaceHeaderName InterfaceHeaderExtendsopt InterfaceHeaderPermittedSubClassesAndSubInterfacesopt
 /.$putCase consumeInterfaceHeader(); $break ./
 /:$readableName InterfaceHeader:/
 
@@ -2410,11 +2412,29 @@ ClassHeaderImplementsopt ::= $empty
 ClassHeaderImplementsopt -> ClassHeaderImplements
 /:$readableName ClassHeaderImplements:/
 
-PermittedTypesopt -> $empty
-PermittedTypesopt ::= 'permits' ClassTypeList
-/.$putCase consumePermittedTypes(); $break ./
-/:$readableName PermittedTypes:/
-/:$compliance 17:/
+ClassHeaderPermittedSubclassesopt ::= $empty
+ClassHeaderPermittedSubclassesopt -> ClassHeaderPermittedSubclasses
+/:$readableName ClassHeaderPermittedSubclasses:/
+/:$compliance 15:/
+
+-- Production name hardcoded in parser. Must be ::= and not ->
+PermittedSubclasses ::= ClassTypeList
+/:$readableName PermittedSubclasses:/
+
+ClassHeaderPermittedSubclasses ::= RestrictedIdentifierpermits ClassTypeList
+/.$putCase consumeClassHeaderPermittedSubclasses(); $break ./
+/:$readableName ClassHeaderPermittedSubclasses:/
+/:$compliance 15:/
+
+InterfaceHeaderPermittedSubClassesAndSubInterfacesopt ::= $empty
+InterfaceHeaderPermittedSubClassesAndSubInterfacesopt -> InterfaceHeaderPermittedSubClassesAndSubInterfaces
+/:$readableName InterfaceHeaderPermittedSubClassesAndSubInterfaces:/
+/:$compliance 15:/
+
+InterfaceHeaderPermittedSubClassesAndSubInterfaces ::= RestrictedIdentifierpermits ClassTypeList
+/.$putCase consumeInterfaceHeaderPermittedSubClassesAndSubInterfaces(); $break ./
+/:$readableName InterfaceHeaderPermittedSubClassesAndSubInterfaces:/
+/:$compliance 15:/
 
 InterfaceMemberDeclarationsopt ::= $empty
 /. $putCase consumeEmptyInterfaceMemberDeclarationsopt(); $break ./
@@ -3199,5 +3219,3 @@ UNDERSCORE ::= '_'
 
 $end
 -- need a carriage return after the $end
-
-
