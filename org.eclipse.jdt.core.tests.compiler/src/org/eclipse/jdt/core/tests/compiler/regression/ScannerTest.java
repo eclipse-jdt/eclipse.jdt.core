@@ -1632,7 +1632,7 @@ public class ScannerTest extends AbstractRegressionTest {
 	}
 
 	@SuppressWarnings("deprecation")
-	public void _testPermits() {
+	public void testPermits() {
 		char[] source = ("sealed class X permits Y { }").toCharArray();
 		IScanner scanner = ToolFactory.createScanner(false, true, false, "17", "17", false);
 		scanner.setSource(source);

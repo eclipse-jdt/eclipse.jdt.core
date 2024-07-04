@@ -230,8 +230,9 @@ Goal ::= '@' TypeAnnotations
 -- JSR 354 Reconnaissance mission.
 Goal ::= '->' YieldStatement
 Goal ::= '->' SwitchLabelCaseLhs
--- JSR 360 Restricted
+-- JEP 409 Sealed types Reconnaissance mission.
 Goal ::= RestrictedIdentifiersealed Modifiersopt
+Goal ::= PermittedTypesopt -- we lead with "permits" internally in the vanguard parser
 -- jsr 427 --
 Goal ::= BeginCaseElement Pattern
 Goal ::= RestrictedIdentifierWhen Expression
@@ -3199,5 +3200,3 @@ UNDERSCORE ::= '_'
 
 $end
 -- need a carriage return after the $end
-
-

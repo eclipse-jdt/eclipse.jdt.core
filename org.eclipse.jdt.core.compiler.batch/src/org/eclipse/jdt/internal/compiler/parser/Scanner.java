@@ -3514,7 +3514,7 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 								&& (data[++index] == 'i')
 								&& (data[++index] == 't')
 								&& (data[++index] == 's')) {
-							return disambiguatedToken(TokenNamepermits, this);
+							return disambiguateContextualKeywordpermits();
 							} else
 							return TokenNameIdentifier;
 					}
@@ -4624,6 +4624,7 @@ private static class Goal {
 	static int YieldStatementRule = 0;
 	static int SwitchLabelCaseLhsRule = 0;
 	static int[] RestrictedIdentifierSealedRule;
+	static int PermitsRule;
 	static int[] PatternRules;
 
 	static Goal LambdaParameterListGoal;
@@ -4634,10 +4635,12 @@ private static class Goal {
 	static Goal YieldStatementGoal;
 	static Goal SwitchLabelCaseLhsGoal;
 	static Goal RestrictedIdentifierSealedGoal;
+	static Goal PermitsGoal;
 	static Goal PatternGoal;
 
 	static int[] RestrictedIdentifierSealedFollow =  { TokenNameclass, TokenNameinterface,
 			TokenNameenum, TokenNameRestrictedIdentifierrecord };// Note: enum/record allowed as error flagging rules.
+	static int[] PermitsFollow =  { TokenNameLBRACE };
 	static int[] PatternCaseLabelFollow = {TokenNameCOLON, TokenNameARROW, TokenNameCOMMA, TokenNameBeginCaseExpr, TokenNameRestrictedIdentifierWhen};
 
 	static {
@@ -4667,6 +4670,9 @@ private static class Goal {
 			if ("Modifiersopt".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				ridSealed.add(i);
 			else
+			if ("PermittedTypesopt".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+				PermitsRule = i;
+			else
 			if ("SwitchLabelCaseLhs".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				SwitchLabelCaseLhsRule = i;
 			else
@@ -4693,6 +4699,7 @@ private static class Goal {
 		YieldStatementGoal =       new Goal(TokenNameARROW, new int [0], YieldStatementRule);
 		SwitchLabelCaseLhsGoal =   new Goal(TokenNameARROW, new int [0], SwitchLabelCaseLhsRule);
 		RestrictedIdentifierSealedGoal = new Goal(TokenNameRestrictedIdentifiersealed, RestrictedIdentifierSealedFollow, RestrictedIdentifierSealedRule);
+		PermitsGoal = new Goal(TokenNamepermits, PermitsFollow, PermitsRule);
 		PatternGoal = new Goal(TokenNameBeginCaseElement, PatternCaseLabelFollow, PatternRules);
 	}
 
@@ -5182,7 +5189,17 @@ private boolean disambiguateYieldWithLookAhead() {
 	}
 	return false; // IIE event;
 }
+int disambiguateContextualKeywordpermits() {
+	if (this.sourceLevel < ClassFileConstants.JDK17 || isInModuleDeclaration())
+		return TokenNameIdentifier;
+
+	return disambiguatesRestrictedIdentifierWithLookAhead(x->true,
+			TokenNamepermits, Goal.PermitsGoal);
+}
 int disambiguatedRestrictedIdentifiersealed(int restrictedIdentifierToken) {
+	// and here's the kludge
+	if (restrictedIdentifierToken != TokenNameRestrictedIdentifiersealed)
+		return restrictedIdentifierToken;
 	if (!JavaFeature.RECORDS.isSupported(this.complianceLevel, this.previewEnabled))
 		return TokenNameIdentifier;
 
@@ -5267,12 +5284,6 @@ private VanguardParser getNewVanguardParser(char[] src) {
 	return vp;
 }
 int disambiguatedToken(int token, Scanner scanner) {
-	if (token == TokenNamepermits) {
-	    if (scanner.sourceLevel < ClassFileConstants.JDK17)
-			return TokenNameIdentifier;
-	    return scanner.activeParser == null || !scanner.activeParser.automatonWillShift(TokenNamepermits) ?
-				TokenNameIdentifier : TokenNamepermits;
-	}
 	final VanguardParser parser = getVanguardParser();
 	parser.scanner.caseStartPosition = this.caseStartPosition;
 	if (token == TokenNameARROW  &&  mayBeAtCaseLabelExpr() &&  scanner.caseStartPosition < scanner.startPosition) {

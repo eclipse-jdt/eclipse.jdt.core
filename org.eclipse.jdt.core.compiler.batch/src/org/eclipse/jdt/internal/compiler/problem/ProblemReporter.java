@@ -231,7 +231,7 @@ public class ProblemReporter extends ProblemHandler {
 	private static String RECORD = "record"; //$NON-NLS-1$
 	private static String RESTRICTED_IDENTIFIER_SEALED = "RestrictedIdentifiersealed"; //$NON-NLS-1$
 	private static String SEALED = "sealed"; //$NON-NLS-1$
-	private static String RESTRICTED_IDENTIFIER_PERMITS = "RestrictedIdentifierpermits"; //$NON-NLS-1$
+	private static String RESTRICTED_IDENTIFIER_PERMITS = "permits"; //$NON-NLS-1$
 	private static String PERMITS = "permits"; //$NON-NLS-1$
 	private static String PREVIEW_KEYWORD_NON_SEALED = "non-sealed"; //$NON-NLS-1$
 
