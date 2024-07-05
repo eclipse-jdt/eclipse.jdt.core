@@ -5221,7 +5221,7 @@ private boolean isRestrictedIdentifier(int token) {
 		case TerminalTokens.TokenNameRestrictedIdentifierYield:
 		case TerminalTokens.TokenNameRestrictedIdentifierrecord:
 		case TerminalTokens.TokenNameRestrictedIdentifiersealed:
-		case TerminalTokens.TokenNamepermits:
+		case TerminalTokens.TokenNameRestrictedIdentifierpermits:
 		case TerminalTokens.TokenNameRestrictedIdentifierWhen:
 			return true;
 		default: return false;
@@ -5284,7 +5284,7 @@ private boolean isKeyword(int token) {
 		case TerminalTokens.TokenNameRestrictedIdentifierYield:
 		case TerminalTokens.TokenNameRestrictedIdentifierrecord:
 		case TerminalTokens.TokenNameRestrictedIdentifiersealed:
-		case TerminalTokens.TokenNamepermits:
+		case TerminalTokens.TokenNameRestrictedIdentifierpermits:
 		case TerminalTokens.TokenNameRestrictedIdentifierWhen:
 			// making explicit - not a (restricted) keyword but restricted identifier.
 			//$FALL-THROUGH$

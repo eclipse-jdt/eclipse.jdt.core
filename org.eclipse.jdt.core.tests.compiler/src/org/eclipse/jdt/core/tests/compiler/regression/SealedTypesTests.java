@@ -343,10 +343,15 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"2. ERROR in X.java (at line 1)\n" +
 			"	public sealed class X permits {\n" +
 			"	                      ^^^^^^^\n" +
-			"Syntax error on token \"permits\", delete this token\n" +
+			"Syntax error on token \"permits\", { expected\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 1)\n" +
+			"	public sealed class X permits {\n" +
+			"	                              ^\n" +
+			"Syntax error, insert \"}\" to complete Block\n" +
 			"----------\n");
 	}
-
+	// TODO : Enable after error flag code implemented
 	public void testBug562715_011() {
 		this.runNegativeTest(
 			new String[] {
@@ -1676,27 +1681,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	public sealed class X permits permits Y, Z {}\n" +
 			"	                      ^^^^^^^\n" +
-			"Syntax error on token \"permits\", { expected\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	public sealed class X permits permits Y, Z {}\n" +
-			"	                              ^^^^^^^\n" +
-			"'permits' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 1)\n" +
-			"	public sealed class X permits permits Y, Z {}\n" +
-			"	                                           ^\n" +
-			"Syntax error on token \"{\", ; expected\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 2)\n" +
-			"	final class Y extends X{}\n" +
-			"	                      ^\n" +
-			"The type Y extending a sealed class X should be a permitted subtype of X\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 3)\n" +
-			"	final class Z extends X{}\n" +
-			"	                      ^\n" +
-			"The type Z extending a sealed class X should be a permitted subtype of X\n" +
+			"Syntax error on token \"permits\", delete this token\n" +
 			"----------\n");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -6245,5 +6230,33 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"Type safety: Unchecked cast from Object to Either<String,Integer>\n" +
 				"----------\n",
 				"boo");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2672
+	// [Sealed Types] Strange error from ECJ: Syntax error on token "permits", permits expected
+	public void testIssue2672() {
+		runNegativeTest(
+				new String[] {
+						"test/IShape.java",
+						"""
+						package test;
+
+						public sealed interface IShape permits Circle {\\n\
+						}
+						class Circle {
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in test\\IShape.java (at line 3)\n" +
+				"	public sealed interface IShape permits Circle {\\n}\n" +
+				"	                                       ^^^^^^\n" +
+				"Permitted type Circle does not declare test.IShape as direct super interface \n" +
+				"----------\n" +
+				"2. ERROR in test\\IShape.java (at line 3)\n" +
+				"	public sealed interface IShape permits Circle {\\n}\n" +
+				"	                                               ^^\n" +
+				"Syntax error on tokens, delete these tokens\n" +
+				"----------\n");
 	}
 }
