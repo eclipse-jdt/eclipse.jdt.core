@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -619,32 +619,27 @@ public void test014() {
 			"}\n",
 		},
 		"----------\n" +
-		"1. WARNING in Y.java (at line 1)\n" +
-		"	import p.X;\n" +
-		"	       ^^^\n" +
-		"The type X is deprecated\n" +
-		"----------\n" +
-		"2. ERROR in Y.java (at line 3)\n" +
+		"1. ERROR in Y.java (at line 3)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
 		"----------\n" +
-		"3. WARNING in Y.java (at line 5)\n" +
+		"2. WARNING in Y.java (at line 5)\n" +
 		"	X x;\n" +
 		"	^\n" +
 		"The type X is deprecated\n" +
 		"----------\n" +
-		"4. WARNING in Y.java (at line 6)\n" +
+		"3. WARNING in Y.java (at line 6)\n" +
 		"	X[] xs = { x };\n" +
 		"	^\n" +
 		"The type X is deprecated\n" +
 		"----------\n" +
-		"5. WARNING in Y.java (at line 9)\n" +
+		"4. WARNING in Y.java (at line 9)\n" +
 		"	p.X x;\n" +
 		"	  ^\n" +
 		"The type X is deprecated\n" +
 		"----------\n" +
-		"6. WARNING in Y.java (at line 10)\n" +
+		"5. WARNING in Y.java (at line 10)\n" +
 		"	p.X[] xs = { x };\n" +
 		"	  ^\n" +
 		"The type X is deprecated\n" +
@@ -965,6 +960,103 @@ public void test020() {
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
+}
+public void testJEP211_1() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"p1/C1.java",
+			"""
+			package p1;
+			@Deprecated public class C1 {}
+			""",
+			"Test.java",
+			"""
+			import p1.C1;
+			public class Test {
+				C1 c;
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. WARNING in Test.java (at line 3)
+				C1 c;
+				^^
+			The type C1 is deprecated
+			----------
+			""";
+	runner.runWarningTest();
+}
+public void testJEP211_2() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"p1/C1.java",
+			"""
+			package p1;
+			public class C1 {
+				@Deprecated public class CInner {}
+				@Deprecated(forRemoval=true) public static int ZERO = 0;
+			}
+			""",
+			"Test.java",
+			"""
+			import p1.C1.CInner;
+			import static p1.C1.ZERO;
+			public class Test {
+				CInner c;
+				int z = ZERO;
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. WARNING in Test.java (at line 4)
+				CInner c;
+				^^^^^^
+			The type C1.CInner is deprecated
+			----------
+			2. WARNING in Test.java (at line 5)
+				int z = ZERO;
+				        ^^^^
+			The field C1.ZERO has been deprecated and marked for removal
+			----------
+			""";
+	runner.runWarningTest();
+}
+public void testJEP211_3() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"p1/C1.java",
+			"""
+			package p1;
+			public class C1 {
+				@Deprecated public static int ZERO = 0;
+				@Deprecated public static int nothing() { return 0; };
+			}
+			""",
+			"Test.java",
+			"""
+			import static p1.C1.*;
+			public class Test {
+				int z = ZERO;
+				int zz = nothing();
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. WARNING in Test.java (at line 3)
+				int z = ZERO;
+				        ^^^^
+			The field C1.ZERO is deprecated
+			----------
+			2. WARNING in Test.java (at line 4)
+				int zz = nothing();
+				         ^^^^^^^^^
+			The method nothing() from the type C1 is deprecated
+			----------
+			""";
+	runner.runWarningTest();
 }
 public static Class testClass() {
 	return DeprecatedTest.class;

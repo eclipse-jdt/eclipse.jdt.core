@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -58,52 +58,47 @@ public void test001() {
 			"}\n",
 		},
 		"----------\n" +
-		"1. WARNING in Y.java (at line 1)\n" +
-		"	import p.X;\n" +
-		"	       ^^^\n" +
-		"The type X<T> is deprecated\n" +
-		"----------\n" +
-		"2. ERROR in Y.java (at line 3)\n" +
+		"1. ERROR in Y.java (at line 3)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
 		"----------\n" +
-		"3. WARNING in Y.java (at line 5)\n" +
+		"2. WARNING in Y.java (at line 5)\n" +
 		"	X x;\n" +
 		"	^\n" +
 		"The type X<T> is deprecated\n" +
 		"----------\n" +
-		"4. WARNING in Y.java (at line 5)\n" +
+		"3. WARNING in Y.java (at line 5)\n" +
 		"	X x;\n" +
 		"	^\n" +
 		"X is a raw type. References to generic type X<T> should be parameterized\n" +
+		"----------\n" +
+		"4. WARNING in Y.java (at line 6)\n" +
+		"	X[] xs = { x };\n" +
+		"	^\n" +
+		"The type X<T> is deprecated\n" +
 		"----------\n" +
 		"5. WARNING in Y.java (at line 6)\n" +
 		"	X[] xs = { x };\n" +
 		"	^\n" +
-		"The type X<T> is deprecated\n" +
+		"X is a raw type. References to generic type X<T> should be parameterized\n" +
 		"----------\n" +
-		"6. WARNING in Y.java (at line 6)\n" +
-		"	X[] xs = { x };\n" +
-		"	^\n" +
+		"6. WARNING in Y.java (at line 9)\n" +
+		"	p.X x;\n" +
+		"	^^^\n" +
 		"X is a raw type. References to generic type X<T> should be parameterized\n" +
 		"----------\n" +
 		"7. WARNING in Y.java (at line 9)\n" +
 		"	p.X x;\n" +
-		"	^^^\n" +
-		"X is a raw type. References to generic type X<T> should be parameterized\n" +
-		"----------\n" +
-		"8. WARNING in Y.java (at line 9)\n" +
-		"	p.X x;\n" +
 		"	  ^\n" +
 		"The type X<T> is deprecated\n" +
 		"----------\n" +
-		"9. WARNING in Y.java (at line 10)\n" +
+		"8. WARNING in Y.java (at line 10)\n" +
 		"	p.X[] xs = { x };\n" +
 		"	^^^\n" +
 		"X is a raw type. References to generic type X<T> should be parameterized\n" +
 		"----------\n" +
-		"10. WARNING in Y.java (at line 10)\n" +
+		"9. WARNING in Y.java (at line 10)\n" +
 		"	p.X[] xs = { x };\n" +
 		"	  ^\n" +
 		"The type X<T> is deprecated\n" +

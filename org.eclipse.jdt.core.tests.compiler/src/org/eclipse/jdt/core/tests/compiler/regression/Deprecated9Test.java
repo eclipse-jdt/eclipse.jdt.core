@@ -938,12 +938,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 				"}\n"
 			},
 			"----------\n" +
-			"1. WARNING in p1\\C1.java (at line 3)\n" +
-			"	import pdep.Dep1;\n" +
-			"	       ^^^^^^^^^\n" +
-			"The type Dep1 is deprecated since version 13\n" +
-			"----------\n" +
-			"2. WARNING in p1\\C1.java (at line 6)\n" +
+			"1. WARNING in p1\\C1.java (at line 6)\n" +
 			"	Dep1 f;\n" +
 			"	^^^^\n" +
 			"The type Dep1 is deprecated since version 13\n" +
