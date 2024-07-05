@@ -673,8 +673,12 @@ public class JavacBindingResolver extends BindingResolver {
 		if (jcTree instanceof JCMethodInvocation javacMethodInvocation) {
 			if (javacMethodInvocation.meth.type instanceof MethodType methodType) {
 				return this.bindings.getTypeBinding(methodType.getReturnType());
+			} else if (javacMethodInvocation.meth.type instanceof ErrorType errorType)  {
+				if (errorType.getOriginalType() instanceof MethodType methodType) {
+					return this.bindings.getTypeBinding(methodType.getReturnType());
+				}
 			}
-			jcTree = javacMethodInvocation.meth;
+			return null;
 		}
 		if (jcTree instanceof JCFieldAccess jcFieldAccess) {
 			if (jcFieldAccess.type instanceof PackageType) {
