@@ -6231,4 +6231,32 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"----------\n",
 				"boo");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2672
+	// [Sealed Types] Strange error from ECJ: Syntax error on token "permits", permits expected
+	public void testIssue2672() {
+		runNegativeTest(
+				new String[] {
+						"test/IShape.java",
+						"""
+						package test;
+
+						public sealed interface IShape permits Circle {\\n\
+						}
+						class Circle {
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in test\\IShape.java (at line 3)\n" +
+				"	public sealed interface IShape permits Circle {\\n}\n" +
+				"	                                       ^^^^^^\n" +
+				"Permitted type Circle does not declare test.IShape as direct super interface \n" +
+				"----------\n" +
+				"2. ERROR in test\\IShape.java (at line 3)\n" +
+				"	public sealed interface IShape permits Circle {\\n}\n" +
+				"	                                               ^^\n" +
+				"Syntax error on tokens, delete these tokens\n" +
+				"----------\n");
+	}
 }
