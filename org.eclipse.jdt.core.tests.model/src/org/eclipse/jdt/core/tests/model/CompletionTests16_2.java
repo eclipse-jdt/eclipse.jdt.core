@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation and others.
+ * Copyright (c) 2020, 2024 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -75,7 +75,7 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 		String completeBehind = "enu";
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		assertResults("Enum[TYPE_REF]{Enum, java.lang, Ljava.lang.Enum;, null, null, 42}\n"
+		assertResults("Enum[TYPE_REF]{Enum, java.lang, Ljava.lang.Enum;, null, null, 44}\n"
 				+ "enum[KEYWORD]{enum, null, null, enum, null, 49}",
 				requestor.getResults());
 

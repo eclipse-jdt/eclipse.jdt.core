@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2020 IBM Corporation and others.
+ * Copyright (c) 2016, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1575,9 +1575,9 @@ public void testBug530911() throws Exception {
 
 		String expected = "NonNull[TYPE_REF]{NonNull, p, Lp.NonNull;, null, 52}\n" +
 				"value[ANNOTATION_ATTRIBUTE_REF]{value = , Ljava.lang.annotation.Target;, [Ljava.lang.annotation.ElementType;, value, 52}\n" +
-				"ElementType[TYPE_REF]{ElementType, java.lang.annotation, Ljava.lang.annotation.ElementType;, null, 102}\n" +
 				"ANNOTATION_TYPE[FIELD_REF]{ElementType.ANNOTATION_TYPE, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, ANNOTATION_TYPE, 104}\n" +
 				"CONSTRUCTOR[FIELD_REF]{ElementType.CONSTRUCTOR, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, CONSTRUCTOR, 104}\n" +
+				"ElementType[TYPE_REF]{ElementType, java.lang.annotation, Ljava.lang.annotation.ElementType;, null, 104}\n" +
 				"FIELD[FIELD_REF]{ElementType.FIELD, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, FIELD, 104}\n" +
 				"LOCAL_VARIABLE[FIELD_REF]{ElementType.LOCAL_VARIABLE, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, LOCAL_VARIABLE, 104}\n" +
 				"METHOD[FIELD_REF]{ElementType.METHOD, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, METHOD, 104}\n" +
@@ -1614,7 +1614,7 @@ public void testBug548888() throws Exception {
 		ICompilationUnit unit = getCompilationUnit(filePath);
 		unit.codeComplete(cursorLocation, requestor);
 
-		String expected = "List[TYPE_REF]{java.util.List, java.util, Ljava.util.List;, null, 53}";
+		String expected = "List[TYPE_REF]{java.util.List, java.util, Ljava.util.List;, null, 55}";
 		assertResults(expected,	requestor.getResults());
 	} finally {
 		deleteProject(project1);

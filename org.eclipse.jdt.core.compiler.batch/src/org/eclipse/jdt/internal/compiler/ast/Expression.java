@@ -506,6 +506,10 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 							if (match != null) {
 								return checkUnsafeCast(scope, castType, expressionType, match, true);
 							}
+							if (((ReferenceBinding) castType).isFinal()) {
+								// no subclass for castType, thus compile-time check is invalid
+								return false;
+							}
 							if (((ReferenceBinding) castType).isDisjointFrom((ReferenceBinding) expressionType)) {
 								return false;
 							}
@@ -555,13 +559,17 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 							if (match != null) {
 								return checkUnsafeCast(scope, castType, expressionType, match, false);
 							}
-							if (refExprType.isDisjointFrom((ReferenceBinding) castType)) {
+							// unless final a subclass may implement the interface ==> no check at compile time
+							if (refExprType.isFinal()) {
 								return false;
 							}
 							tagAsNeedCheckCast();
 							match = castType.findSuperTypeOriginatingFrom(expressionType);
 							if (match != null) {
 								return checkUnsafeCast(scope, castType, expressionType, match, true);
+							}
+							if (refExprType.isDisjointFrom((ReferenceBinding) castType)) {
+								return false;
 							}
 							if (use15specifics) {
 								checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);

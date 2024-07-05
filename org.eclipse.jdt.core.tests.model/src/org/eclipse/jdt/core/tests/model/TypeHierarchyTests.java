@@ -3401,7 +3401,7 @@ public void testBug457813() throws CoreException {
 public void testBug573450_001() throws CoreException {
 	if (!isJRE16) return;
 	try {
-		IJavaProject proj = createJava16Project("P", new String[] {"src"});
+		IJavaProject proj = createJava21Project("P");
 		proj.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		createFolder("/P/src/hierarchy");
 		createFile(
@@ -3429,7 +3429,7 @@ public void testBug573450_001() throws CoreException {
 public void testBug573450_002() throws CoreException {
 	if (!isJRE16) return;
 	try {
-		IJavaProject proj = createJava16Project("P", new String[] {"src"});
+		IJavaProject proj = createJava21Project("P");
 		proj.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		createFolder("/P/src/hierarchy");
 		createFile(

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM and others.
+ * Copyright (c) 2020, 2024 IBM and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -382,7 +382,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"Record[TYPE_REF]{Record, java.lang, Ljava.lang.Record;, null, null, 42}\n"+
+				"Record[TYPE_REF]{Record, java.lang, Ljava.lang.Record;, null, null, 44}\n"+
 				"record[LOCAL_VARIABLE_REF]{record, null, I, record, null, 52}",
 				requestor.getResults());
 
@@ -983,7 +983,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"implementMe[METHOD_DECLARATION]{public void implementMe(), LBaseInterface;, ()V, implementMe, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	}
-	
+
 	public void testGH1561_CompletionInIfConditionInsideASwitchStatement() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchIf.java",
