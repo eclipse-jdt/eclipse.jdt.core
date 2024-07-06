@@ -39062,7 +39062,7 @@ public void test1119() {
 public void test1120() {
 	String msg = (this.complianceLevel < ClassFileConstants.JDK22) ?
 						"Constructor call must be the first statement in a constructor\n" :
-							"Statements Before Super is a preview feature and disabled by default. Use --enable-preview to enable\n";
+							"Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable\n";
 	this.runNegativeTest(
 		new String[] {
 			"X.java",

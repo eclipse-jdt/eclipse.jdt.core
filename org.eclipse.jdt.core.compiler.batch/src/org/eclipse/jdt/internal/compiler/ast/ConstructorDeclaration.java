@@ -703,7 +703,7 @@ private void partitionConstructorStatements() {
 		if (stmt instanceof ExplicitConstructorCall explicitContructorCall) {
 			this.postPrologueConstructorCall = explicitContructorCall;
 			this.postPrologueConstructorCall.firstStatement = false;
-			this.scope.problemReporter().validateJavaFeatureSupport(JavaFeature.STATEMENTS_BEFORE_SUPER,
+			this.scope.problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES,
 					this.postPrologueConstructorCall.sourceStart,
 					this.postPrologueConstructorCall.sourceEnd);
 			this.constructorCall = this.postPrologueConstructorCall; //ignore implicitsuper

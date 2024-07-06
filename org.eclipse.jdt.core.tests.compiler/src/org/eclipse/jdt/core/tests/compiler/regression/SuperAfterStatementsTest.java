@@ -1338,7 +1338,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	super(value);\n" +
 			"	^^^^^^^^^^^^^\n" +
-			"Statements Before Super is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			"Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable\n" +
 			"----------\n",
 			null,
 			true,
