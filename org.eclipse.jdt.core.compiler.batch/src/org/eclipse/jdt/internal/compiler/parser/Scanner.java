@@ -4671,7 +4671,7 @@ private static class Goal {
 			if ("Modifiersopt".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				ridSealed.add(i);
 			else
-			if ("PermittedSubclasses".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+			if ("PermittedSubtypes".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				ridPermits.add(i);
 			else
 			if ("SwitchLabelCaseLhs".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
