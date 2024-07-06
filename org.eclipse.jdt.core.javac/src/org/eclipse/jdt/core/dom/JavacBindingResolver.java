@@ -871,10 +871,16 @@ public class JavacBindingResolver extends BindingResolver {
 			if (importDeclaration.isStatic()) {
 				com.sun.tools.javac.code.Type type = fieldAccess.getExpression().type;
 				if (type != null) {
-					return Arrays.stream(this.bindings.getTypeBinding(type).getDeclaredMethods())
+					IBinding binding = Arrays.stream(this.bindings.getTypeBinding(type).getDeclaredMethods())
 						.filter(method -> Objects.equals(fieldAccess.getIdentifier().toString(), method.getName()))
 						.findAny()
 						.orElse(null);
+					if (binding == null) {
+						binding = Arrays.stream(this.bindings.getTypeBinding(type).getDeclaredFields()).filter(
+								field -> Objects.equals(fieldAccess.getIdentifier().toString(), field.getName()))
+								.findAny().orElse(null);
+					}
+					return binding;
 				}
 			}
 		}
