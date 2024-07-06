@@ -198,6 +198,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {
 			((MethodScope) currentScope).isConstructorCall = false;
+			currentScope.leaveEarlyConstructionContext();
 		}
 	}
 
@@ -315,9 +316,10 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			}
 			if (methodDeclaration == null
 					|| !methodDeclaration.isConstructor()
-					|| ((ConstructorDeclaration) methodDeclaration).constructorCall != this) {
+					|| (!scope.isInsideEarlyConstructionContext() &&
+							((ConstructorDeclaration) methodDeclaration).constructorCall != this)) {
 				if (!(methodDeclaration instanceof CompactConstructorDeclaration)) {// already flagged for CCD
-					if (!this.inPreConstructorContext)
+					if (!scope.isInsideEarlyConstructionContext())
 						scope.problemReporter().invalidExplicitConstructorCall(this);
 				}
 				// fault-tolerance
@@ -481,6 +483,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			}
 		} finally {
 			methodScope.isConstructorCall = false;
+			methodScope.leaveEarlyConstructionContext();
 		}
 	}
 

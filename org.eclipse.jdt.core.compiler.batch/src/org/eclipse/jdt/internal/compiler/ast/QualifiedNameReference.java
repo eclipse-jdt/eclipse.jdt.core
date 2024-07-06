@@ -1098,7 +1098,7 @@ public TypeBinding resolveType(BlockScope scope) {
 						}
 					} else {
 						boolean inStaticContext = scope.methodScope().isStatic;
-						if (this.inPreConstructorContext)
+						if (scope.isInsideEarlyConstructionContext())
 							scope.problemReporter().errorExpressionInPreConstructorContext(this);
 						if (this.indexOfFirstFieldBinding == 1) {
 							if (scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {

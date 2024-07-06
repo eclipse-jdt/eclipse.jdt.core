@@ -198,7 +198,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			codeStream.generateInlinedValue(this.enumConstant.binding.id);
 		}
 		// handling innerclass instance allocation - enclosing instance arguments
-		if (allocatedType.isNestedType() && !this.inPreConstructorContext) {
+		if (allocatedType.isNestedType() && !currentScope.isInsideEarlyConstructionContext()) {
 			codeStream.generateSyntheticEnclosingInstanceValues(
 				currentScope,
 				allocatedType,

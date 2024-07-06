@@ -244,7 +244,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 		if (scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
 			scope.problemReporter().unqualifiedFieldAccess(this, fieldBinding);
 		}
-		if (this.inPreConstructorContext && this.actualReceiverType != null) {
+		if (scope.isInsideEarlyConstructionContext() && this.actualReceiverType != null) {
 			MethodScope ms = scope.methodScope();
 			MethodBinding method = ms != null ? ms.referenceMethodBinding() : null;
 			if (method != null && TypeBinding.equalsEquals(method.declaringClass, this.actualReceiverType)) {

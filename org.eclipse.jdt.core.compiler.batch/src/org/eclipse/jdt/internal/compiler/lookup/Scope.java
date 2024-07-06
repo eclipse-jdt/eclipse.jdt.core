@@ -5672,4 +5672,15 @@ public abstract class Scope {
 		t.put(new String(ConstantPool.JavaLangObjectConstantPoolName), this :: getJavaLangObject);
 		return this.commonTypeBindings = t;
 	}
+
+	public void enterEarlyConstructionContext() {
+		classScope().insideEarlyConstructionContext = true;
+	}
+	public void leaveEarlyConstructionContext() {
+		classScope().insideEarlyConstructionContext = false;
+	}
+	public boolean isInsideEarlyConstructionContext() {
+		ClassScope classScope = classScope();
+		return classScope != null && classScope.insideEarlyConstructionContext;
+	}
 }

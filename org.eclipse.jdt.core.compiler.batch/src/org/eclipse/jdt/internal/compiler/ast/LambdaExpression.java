@@ -138,6 +138,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	public boolean argumentsTypeVar = false;
 	int firstLocalLocal; // analysis index of first local variable (if any) post parameter(s) in the lambda; ("local local" as opposed to "outer local")
 
+	private boolean inPreConstructorContext = false; // generateCode is called out of band, so remember the context: FIXME: outer contexts??
 
 	public LambdaExpression(CompilationResult compilationResult, boolean assistNode, boolean requiresGenericSignature) {
 		super(compilationResult);
@@ -285,6 +286,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				return new PolyTypeBinding(this);
 			}
 		}
+		this.inPreConstructorContext = blockScope.isInsideEarlyConstructionContext();
 
 		MethodScope methodScope = blockScope.methodScope();
 		this.scope = new MethodScope(blockScope, this, methodScope.isStatic, methodScope.lastVisibleFieldID);
@@ -1283,22 +1285,29 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			}
 		}
 		codeStream.pushPatternAccessTrapScope(this.scope);
-		if (this.body instanceof Block) {
-			boolean prev = codeStream.stmtInPreConContext;
-			codeStream.stmtInPreConContext = this.inPreConstructorContext;
-			this.body.generateCode(this.scope, codeStream);
-			codeStream.stmtInPreConContext = prev;
-			if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
-				codeStream.return_();
-			}
-		} else {
-			Expression expression = (Expression) this.body;
-			expression.generateCode(this.scope, codeStream, true);
-			if (this.binding.returnType == TypeBinding.VOID) {
-				codeStream.return_();
+		if (this.inPreConstructorContext) {
+			this.scope.enterEarlyConstructionContext();
+		}
+		try {
+			if (this.body instanceof Block) {
+				boolean prev = codeStream.stmtInPreConContext;
+				codeStream.stmtInPreConContext = this.scope.isInsideEarlyConstructionContext();
+				this.body.generateCode(this.scope, codeStream);
+				codeStream.stmtInPreConContext = prev;
+				if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
+					codeStream.return_();
+				}
 			} else {
-				codeStream.generateReturnBytecode(expression);
+				Expression expression = (Expression) this.body;
+				expression.generateCode(this.scope, codeStream, true);
+				if (this.binding.returnType == TypeBinding.VOID) {
+					codeStream.return_();
+				} else {
+					codeStream.generateReturnBytecode(expression);
+				}
 			}
+		} finally {
+			this.scope.leaveEarlyConstructionContext();
 		}
 		// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1796#issuecomment-1933458054
 		codeStream.exitUserScope(this.scope, lvb -> !lvb.isParameter());

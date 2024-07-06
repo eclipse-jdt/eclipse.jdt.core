@@ -132,7 +132,7 @@ public class ThisReference extends Reference {
 
 		this.constant = Constant.NotAConstant;
 
-		if (this.inPreConstructorContext && !isImplicitThis())
+		if (scope.isInsideEarlyConstructionContext() && !isImplicitThis())
 			scope.problemReporter().errorExpressionInPreConstructorContext(this);
 
 		ReferenceBinding enclosingReceiverType = scope.enclosingReceiverType();

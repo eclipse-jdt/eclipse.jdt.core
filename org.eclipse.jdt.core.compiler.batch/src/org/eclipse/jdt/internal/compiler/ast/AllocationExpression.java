@@ -540,7 +540,7 @@ public TypeBinding resolveType(BlockScope scope) {
 }
 
 protected void checkPreConstructorContext(BlockScope scope) {
-	if (this.inPreConstructorContext && this.type != null &&
+	if (scope.isInsideEarlyConstructionContext() && this.type != null &&
 			this.type.resolvedType instanceof ReferenceBinding currentType
 			&& !(currentType.isStatic() || currentType.isInterface())) { // no enclosing instance
 		MethodScope ms = scope.methodScope();

@@ -67,7 +67,7 @@ public class SuperReference extends ThisReference {
 	public TypeBinding resolveType(BlockScope scope) {
 
 		this.constant = Constant.NotAConstant;
-		if (this.inPreConstructorContext)
+		if (scope.isInsideEarlyConstructionContext())
 			scope.problemReporter().errorExpressionInPreConstructorContext(this);
 		ReferenceBinding enclosingReceiverType = scope.enclosingReceiverType();
 		if (!checkAccess(scope, enclosingReceiverType))

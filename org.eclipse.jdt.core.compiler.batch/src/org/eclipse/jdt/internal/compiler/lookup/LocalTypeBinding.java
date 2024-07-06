@@ -41,7 +41,7 @@ public LocalTypeBinding(ClassScope scope, SourceTypeBinding enclosingType, CaseS
 	TypeDeclaration typeDeclaration = scope.referenceContext;
 	if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
 		this.tagBits |= TagBits.AnonymousTypeMask;
-		this.extendedTagBits |= typeDeclaration.inPreConstructorContext ? ExtendedTagBits.IsInPreconstructorContext : 0;
+		this.extendedTagBits |= scope.parent.isInsideEarlyConstructionContext() ? ExtendedTagBits.IsInPreconstructorContext : 0;
 	} else {
 		this.tagBits |= TagBits.LocalTypeMask;
 	}

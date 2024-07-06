@@ -1017,7 +1017,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				this.bits |= NeedReceiverGenericCast;
 			}
 		}
-		if (this.inPreConstructorContext && this.actualReceiverType != null &&
+		if (scope.isInsideEarlyConstructionContext() && this.actualReceiverType != null &&
 				(this.receiver instanceof ThisReference thisReference && thisReference.isImplicitThis() ||
 				!(this.receiver instanceof ThisReference))) {
 			MethodScope ms = scope.methodScope();

@@ -71,7 +71,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().cannotUseSuperInJavaLangObject(this);
 		return null;
 	}
-	if (this.inPreConstructorContext)
+	if (scope.isInsideEarlyConstructionContext())
 		scope.problemReporter().errorExpressionInPreConstructorContext(this);
 	return this.resolvedType = (this.currentCompatibleType.isInterface()
 			? this.currentCompatibleType

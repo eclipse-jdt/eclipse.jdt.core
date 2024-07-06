@@ -744,7 +744,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 		}
 	} else {
-		if (this.inPreConstructorContext && this.actualReceiverType != null &&
+		if (scope.isInsideEarlyConstructionContext() && this.actualReceiverType != null &&
  				(this.receiver instanceof ThisReference thisReference
  						&& thisReference.isImplicitThis())) { // explicit thisReference error flagging taken care in ThisReference
 			MethodScope ms = scope.methodScope();

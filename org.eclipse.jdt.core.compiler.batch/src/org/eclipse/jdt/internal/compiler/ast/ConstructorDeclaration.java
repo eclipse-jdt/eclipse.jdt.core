@@ -53,8 +53,6 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
 	public TypeParameter[] typeParameters;
 
-	public ExplicitConstructorCall postPrologueConstructorCall;
-
 public ConstructorDeclaration(CompilationResult compilationResult){
 	super(compilationResult);
 }
@@ -166,7 +164,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 					}
 				}
 			}
-			if (useConstrucorCall())
+			if (getLateConstructorCall() == null)
 				flowInfo = this.constructorCall.analyseCode(this.scope, constructorContext, flowInfo);
 		}
 
@@ -435,7 +433,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			codeStream.recordPositionsFrom(0, this.bodyStart > 0 ? this.bodyStart : this.sourceStart);
 		}
 		// generate constructor call
-		if (useConstrucorCall()) {
+		if (getLateConstructorCall() == null && this.constructorCall != null) {
 			this.constructorCall.generateCode(this.scope, codeStream);
 		}
 		// generate field initialization - only if not invoking another constructor call of the same class
@@ -455,8 +453,11 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		}
 		// generate statements
 		if (this.statements != null) {
+			if (getLateConstructorCall() != null) {
+				this.scope.enterEarlyConstructionContext();
+			}
 			for (Statement statement : this.statements) {
-				codeStream.stmtInPreConContext = statement.inPreConstructorContext;
+				codeStream.stmtInPreConContext = this.scope.isInsideEarlyConstructionContext(); // TODO: pass scope to codeStream?
 				statement.generateCode(this.scope, codeStream);
 				codeStream.stmtInPreConContext = false;
 				if (!this.compilationResult.hasErrors() && (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)) {
@@ -490,10 +491,6 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		}
 	}
 	classFile.completeMethodInfo(this.binding, methodAttributeOffset, attributeNumber);
-}
-private boolean useConstrucorCall() {
-	return this.constructorCall != null
-			&& (this.postPrologueConstructorCall == null || this.postPrologueConstructorCall.firstStatement);
 }
 
 @Override
@@ -606,7 +603,7 @@ public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 @Override
 public StringBuilder printBody(int indent, StringBuilder output) {
 	output.append(" {"); //$NON-NLS-1$
-	if (useConstrucorCall()) {
+	if (getLateConstructorCall() == null) {
 		output.append('\n');
 		this.constructorCall.printStatement(indent, output);
 	}
@@ -674,9 +671,17 @@ public void resolveStatements() {
 			this.scope.problemReporter().recordMissingExplicitConstructorCallInNonCanonicalConstructor(this);
 			this.constructorCall = null;
 		} else {
-			partitionConstructorStatements();
-			if (useConstrucorCall())
+			ExplicitConstructorCall lateConstructorCall = getLateConstructorCall();
+			if (lateConstructorCall != null) {
+				this.scope.enterEarlyConstructionContext();
+				if (!sourceType.isRecord()) { // explicit constructor call is never legal for records
+					this.scope.problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES,
+							lateConstructorCall.sourceStart,
+							lateConstructorCall.sourceEnd);
+				}
+			} else {
 				this.constructorCall.resolve(this.scope);
+			}
 		}
 	}
 	if ((this.modifiers & ExtraCompilerModifiers.AccSemicolonBody) != 0) {
@@ -685,74 +690,20 @@ public void resolveStatements() {
 	super.resolveStatements();
 }
 
-private void partitionConstructorStatements() {
-	if (this.scope.compilerOptions().sourceLevel < ClassFileConstants.JDK22)
-			return;
-	if (!this.constructorCall.isImplicitSuper()) {
-		this.postPrologueConstructorCall = this.constructorCall;
-		this.postPrologueConstructorCall.firstStatement = true;
-		return;
+private ExplicitConstructorCall getLateConstructorCall() {
+	if (this.constructorCall != null && !this.constructorCall.isImplicitSuper()) {
+		return null;
 	}
-
 	if (this.statements == null)
-		return;
-
-	int postPrologueExplicitConstructorIndex = -1;
-	for (int i = 0, len = this.statements.length; i < len; ++i) {
-		Statement stmt = this.statements[i];
-		if (stmt instanceof ExplicitConstructorCall explicitContructorCall) {
-			this.postPrologueConstructorCall = explicitContructorCall;
-			this.postPrologueConstructorCall.firstStatement = false;
-			this.scope.problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES,
-					this.postPrologueConstructorCall.sourceStart,
-					this.postPrologueConstructorCall.sourceEnd);
-			this.constructorCall = this.postPrologueConstructorCall; //ignore implicitsuper
-			postPrologueExplicitConstructorIndex = i;
-			break;
+		return null;
+	for (int i = 0; i < this.statements.length; i++) {
+		if (this.statements[i] instanceof ExplicitConstructorCall ctorCall) {
+			return i > 0 ? ctorCall : null;
 		}
 	}
-
-	markPreConstructorContext(this.statements, postPrologueExplicitConstructorIndex);
+	return null;
 }
 
-/**
- * TODO: Update the link with the latest always until it becomes standard
- * https://cr.openjdk.org/~gbierman/jep447/jep447-20230927/specs/statements-before-super-jls.html#jls-8.8.7.1
- * Sec 8.8.7.1
- * An expression occurs in the pre-construction context of a class C if both of the following are true:
- * The innermost method declaration, field declaration, constructor declaration, instance initializer,
- * or static initializer which encloses the expression is a constructor c of class C; and
- * The expression appears in the prologue or is enclosed in the explicit constructor invocation of the
- * constructor c.
- * @param stmts list of statements in the constructor
- * @param prologueLength index in statements upto and including the constructor call
- */
-private void markPreConstructorContext(Statement[] stmts, int prologueLength) {
-
-	class MarkAllExpressionsPreConVisitor extends GenericAstVisitor {
-
-		@Override
-		protected boolean visitNode(ASTNode node) {
-			if (node instanceof Statement stmt) {
-				stmt.inPreConstructorContext = true;
-			}
-			return true;
-		}
-		@Override
-		public boolean visit(TypeDeclaration typeDeclaration, BlockScope skope) {
-			typeDeclaration.inPreConstructorContext = true;
-			return false;
-		}
-		@Override
-		public boolean visit(LambdaExpression lambda, BlockScope skope) {
-			lambda.inPreConstructorContext = true;
-			return true;
-		}
-	}
-	for (int i = 0; i <= prologueLength; ++i) {
-		stmts[i].traverse(new MarkAllExpressionsPreConVisitor(), this.scope);
-	}
-}
 @Override
 public void traverse(ASTVisitor visitor, ClassScope classScope) {
 	if (visitor.visit(this, classScope)) {
@@ -780,7 +731,7 @@ public void traverse(ASTVisitor visitor, ClassScope classScope) {
 			for (int i = 0; i < thrownExceptionsLength; i++)
 				this.thrownExceptions[i].traverse(visitor, this.scope);
 		}
-		if (useConstrucorCall())
+		if (getLateConstructorCall() == null && this.constructorCall != null)
 			this.constructorCall.traverse(visitor, this.scope);
 		if (this.statements != null) {
 			int statementsLength = this.statements.length;

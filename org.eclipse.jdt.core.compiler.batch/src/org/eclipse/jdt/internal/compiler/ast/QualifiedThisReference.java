@@ -129,7 +129,7 @@ public class QualifiedThisReference extends ThisReference {
 		if (methodScope != null) {
 			MethodBinding method = methodScope.referenceMethodBinding();
 			if (method != null) {
-				if (this.inPreConstructorContext
+				if (scope.isInsideEarlyConstructionContext()
 						&& TypeBinding.equalsEquals(method.declaringClass, this.resolvedType)) {
 					// TODO: 8.8.7.1 - check the qualifier
 					// any qualified this expression whose qualifier names the class C are disallowed
