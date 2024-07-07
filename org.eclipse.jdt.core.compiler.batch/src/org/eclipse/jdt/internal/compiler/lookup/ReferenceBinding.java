@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -1704,12 +1708,12 @@ public final boolean isProtected() {
 }
 
 /**
- * Answer true if the receiver definition is in preconstructor context 
- * - true only in such cases for anonymous type - 
- * Java 22 - preview - JEP 447
+ * Answer true if the receiver definition is in early constructor context
+ * - true only in such cases for local types -
+ * Java 23 - preview - JEP 482
  */
-public final boolean isInPreconstructorContext() {
-	return (this.extendedTagBits & ExtendedTagBits.IsInPreconstructorContext) != 0;
+public final boolean isInEarlyConstructionContext() {
+	return (this.extendedTagBits & ExtendedTagBits.IsInEarlyConstructionContext) != 0;
 }
 
 /**
@@ -2540,16 +2544,18 @@ public ModuleBinding module() {
 }
 
 public boolean hasEnclosingInstanceContext() {
-	if (isMemberType() && !isStatic())
-		return true;
-	if (isLocalType() && isStatic())
+	if (isInEarlyConstructionContext())
 		return false;
+	if (isStatic())
+		return false;
+	if (isNestedType())
+		return true;
 	MethodBinding enclosingMethod = enclosingMethod();
 	if (enclosingMethod != null)
 		return !enclosingMethod.isStatic();
+	// FIXME: should we consider enclosing instances of superclass??
 	return false;
 }
-
 @Override
 public List<ReferenceBinding> getAllEnumerableReferenceTypes() {
 	if (!isSealed())

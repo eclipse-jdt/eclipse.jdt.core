@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,7 +7,11 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
+  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+*
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -206,7 +210,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 
 	// handling innerclass instance allocation - enclosing instance arguments
-	if (allocatedType.isNestedType()) {
+	if (allocatedType.hasEnclosingInstanceContext()) {
 		codeStream.generateSyntheticEnclosingInstanceValues(
 			currentScope,
 			allocatedType,
@@ -216,7 +220,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	// generate the arguments for constructor
 	generateArguments(this.binding, this.arguments, currentScope, codeStream);
 	// handling innerclass instance allocation - outer local arguments
-	if (allocatedType.isNestedType()) {
+	if (allocatedType.hasEnclosingInstanceContext()) {
 		codeStream.generateSyntheticOuterArgumentValues(
 			currentScope,
 			allocatedType,
@@ -540,20 +544,11 @@ public TypeBinding resolveType(BlockScope scope) {
 }
 
 protected void checkPreConstructorContext(BlockScope scope) {
-	if (scope.isInsideEarlyConstructionContext() && this.type != null &&
-			this.type.resolvedType instanceof ReferenceBinding currentType
-			&& !(currentType.isStatic() || currentType.isInterface())) { // no enclosing instance
-		MethodScope ms = scope.methodScope();
-		MethodBinding method = ms != null ? ms.referenceMethodBinding() : null;
-		ReferenceBinding declaringClass = method != null ? method.declaringClass : null;
-		if (declaringClass != null) {
-			while ((currentType = currentType.enclosingType())!= null) {
-				if (TypeBinding.equalsEquals(declaringClass, currentType)) {
-					scope.problemReporter().errorExpressionInPreConstructorContext(this);
-					break;
-				}
-			}
-		}
+	if (this.type != null
+			&& this.type.resolvedType instanceof ReferenceBinding currentType
+			&& currentType.hasEnclosingInstanceContext()
+			&& scope.isInsideEarlyConstructionContext(currentType, !currentType.isLocalType())) {
+		scope.problemReporter().errorExpressionInPreConstructorContext(this);
 	}
 }
 

@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -1098,7 +1102,7 @@ public TypeBinding resolveType(BlockScope scope) {
 						}
 					} else {
 						boolean inStaticContext = scope.methodScope().isStatic;
-						if (scope.isInsideEarlyConstructionContext())
+						if (scope.isInsideEarlyConstructionContext(fieldBinding.declaringClass, true))
 							scope.problemReporter().errorExpressionInPreConstructorContext(this);
 						if (this.indexOfFirstFieldBinding == 1) {
 							if (scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {

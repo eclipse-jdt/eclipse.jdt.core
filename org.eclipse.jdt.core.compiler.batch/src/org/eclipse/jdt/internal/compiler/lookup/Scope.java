@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -5673,14 +5673,38 @@ public abstract class Scope {
 		return this.commonTypeBindings = t;
 	}
 
+	/** Called when a ctor with a late explicit constructor call starts processing statements. */
 	public void enterEarlyConstructionContext() {
 		classScope().insideEarlyConstructionContext = true;
 	}
+	/** Called at the end of processing a late explicit constructor call. */
 	public void leaveEarlyConstructionContext() {
 		classScope().insideEarlyConstructionContext = false;
 	}
-	public boolean isInsideEarlyConstructionContext() {
-		ClassScope classScope = classScope();
-		return classScope != null && classScope.insideEarlyConstructionContext;
+	/**
+	 * Is an instance of targetClass currently being constructed in this scope?
+	 * @param targetClass class which is queried for initialization-complete
+	 * 		if {@code null} is passed, this scope's enclosingReceiverType is used
+	 * @param considerEnclosings if {@code true} also enclosing types or targetClass must be initialized
+	 */
+	public boolean isInsideEarlyConstructionContext(TypeBinding targetClass, boolean considerEnclosings) {
+		if (targetClass == null)
+			targetClass = enclosingReceiverType();
+		ClassScope currentEnclosing = classScope();
+		while (currentEnclosing != null) {
+			SourceTypeBinding enclosingType = currentEnclosing.referenceContext.binding;
+			TypeBinding currentTarget = targetClass;
+			while (currentTarget != null) {
+				if (TypeBinding.equalsEquals(enclosingType, currentTarget)) {
+					if (currentEnclosing.insideEarlyConstructionContext)
+						return true;
+				}
+				if (!considerEnclosings || currentTarget.isStatic())
+					break;
+				currentTarget = currentTarget.enclosingType();
+			}
+			currentEnclosing = currentEnclosing.parent.classScope();
+		}
+		return false;
 	}
 }

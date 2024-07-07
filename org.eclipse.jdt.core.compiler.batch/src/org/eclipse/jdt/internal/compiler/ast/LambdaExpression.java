@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
@@ -286,7 +290,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				return new PolyTypeBinding(this);
 			}
 		}
-		this.inPreConstructorContext = blockScope.isInsideEarlyConstructionContext();
+		this.inPreConstructorContext = blockScope.isInsideEarlyConstructionContext(null, true);
 
 		MethodScope methodScope = blockScope.methodScope();
 		this.scope = new MethodScope(blockScope, this, methodScope.isStatic, methodScope.lastVisibleFieldID);
@@ -1290,10 +1294,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		}
 		try {
 			if (this.body instanceof Block) {
-				boolean prev = codeStream.stmtInPreConContext;
-				codeStream.stmtInPreConContext = this.scope.isInsideEarlyConstructionContext();
 				this.body.generateCode(this.scope, codeStream);
-				codeStream.stmtInPreConContext = prev;
 				if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
 					codeStream.return_();
 				}

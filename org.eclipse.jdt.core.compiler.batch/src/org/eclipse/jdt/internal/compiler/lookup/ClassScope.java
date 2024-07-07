@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -45,6 +49,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
@@ -68,6 +73,19 @@ public class ClassScope extends Scope {
 	java.util.ArrayList<TypeReference> deferredBoundChecks;
 	public boolean resolvingPolyExpressionArguments = false;
 	// temporarily set while processing statements in an early construction context of this type:
+	/**
+	 * This is the primary flag for detection of early construction contexts (JEP 482).
+	 * It is temporarily set on the scope of a class while processing statements of this class's
+	 * early construction context (during resolveType() and during generateCode())
+	 * <p>Main access is via {@link Scope#enterEarlyConstructionContext()}, {@link Scope#leaveEarlyConstructionContext()}
+	 * and {@link Scope#isInsideEarlyConstructionContext(TypeBinding, boolean)}.</p>
+	 * Other related flags:	 * <dl>
+	 * <dt>{@link ExtendedTagBits#IsInEarlyConstructionContext}
+	 * <dd>set on local types (named or anon) that are declared in early construction context
+	 * <dt>{@link LambdaExpression}.inPreConstructorContext
+	 * <dd>intermediate kludge to help generating lambda methods without the original enclosing scope context
+	 * </dl>
+	 */
 	protected boolean insideEarlyConstructionContext = false;
 
 	public ClassScope(Scope parent, TypeDeclaration context) {

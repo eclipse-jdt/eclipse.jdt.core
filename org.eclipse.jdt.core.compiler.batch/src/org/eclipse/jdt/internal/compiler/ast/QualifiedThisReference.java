@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -125,16 +129,13 @@ public class QualifiedThisReference extends ThisReference {
 			if (ms.isStatic)
 				ms.problemReporter().errorThisSuperInStatic(this);
 		}
+		if (scope.isInsideEarlyConstructionContext(this.resolvedType, true)) {
+			scope.problemReporter().errorExpressionInPreConstructorContext(this);
+		}
 		MethodScope methodScope = scope.namedMethodScope();
 		if (methodScope != null) {
 			MethodBinding method = methodScope.referenceMethodBinding();
 			if (method != null) {
-				if (scope.isInsideEarlyConstructionContext()
-						&& TypeBinding.equalsEquals(method.declaringClass, this.resolvedType)) {
-					// TODO: 8.8.7.1 - check the qualifier
-					// any qualified this expression whose qualifier names the class C are disallowed
-					scope.problemReporter().errorExpressionInPreConstructorContext(this);
-				}
 				TypeBinding receiver = method.receiver;
 				while (receiver != null) {
 					if (TypeBinding.equalsEquals(receiver, this.resolvedType))

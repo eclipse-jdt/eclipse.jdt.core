@@ -31,7 +31,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test038" };
+//		TESTS_NAMES = new String[] { "test007b" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -95,6 +95,19 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.customOptions = customOptions;
 		runner.expectedJavacOutputString = null;
 		runner.runNegativeTest();
+	}
+	class Runner extends AbstractRegressionTest.Runner {
+		public Runner(boolean reportPreview) {
+			this();
+			this.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		}
+		public Runner() {
+			super();
+			this.vmArguments = VMARGS;
+			this.javacTestOptions = JAVAC_OPTIONS;
+			this.customOptions = getCompilerOptions();
+			this.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		}
 	}
 	public void test001() {
 		runNegativeTest(new String[] {
@@ -325,6 +338,62 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"You are using a preview language feature that may or may not be supported in a future release\n" +
 			"----------\n"
 		);
+	}
+	public void test007b() {
+		// not a problem in outer early construction context
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+				"X.java",
+				"""
+					class D {
+						int i;
+					}
+					class X {
+						X() {
+							class E extends D {
+								E() {
+									super.i++;
+								}
+							}
+							System.out.print(new E().i);
+							super();
+						}
+						public static void main(String... args) {
+							new X();
+						}
+					}
+				"""
+			};
+		runner.runConformTest();
+	}
+	public void test007c() {
+		// but no access to outer this from local class
+		Runner runner = new Runner(false);
+		runner.testFiles = new String[] {
+				"X.java",
+				"""
+					class X {
+						X() {
+							class E {
+							    void m() {
+							        System.out.print(X.this);
+							    }
+							}
+							super();
+							new E();
+						}
+					}
+				"""
+			};
+		runner.expectedCompilerLog = """
+				----------
+				1. ERROR in X.java (at line 5)
+					System.out.print(X.this);
+					                 ^^^^^^
+				Cannot use X.this in a pre-construction context
+				----------
+				""";
+		runner.runNegativeTest();
 	}
 	// an illegal access does not need to contain a this or super keyword:
 	public void test008() {
@@ -815,12 +884,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"	        ^^^\n" +
 			"Cannot use a.i in a pre-construction context\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 13)\n" +
-			"	this.b = j == 0;\n" +
-			"	^^^^\n" +
-			"Cannot use this in a pre-construction context\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 14)\n" +
+			"2. WARNING in X.java (at line 14)\n" +
 			"	super();\n" +
 			"	^^^^^^^^\n" +
 			"You are using a preview language feature that may or may not be supported in a future release\n" +
@@ -925,12 +989,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"	        ^\n" +
 			"Cannot use a in a pre-construction context\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 14)\n" +
-			"	this.b = j == 0;\n" +
-			"	^^^^\n" +
-			"Cannot use this in a pre-construction context\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 15)\n" +
+			"2. WARNING in X.java (at line 15)\n" +
 			"	super();\n" +
 			"	^^^^^^^^\n" +
 			"You are using a preview language feature that may or may not be supported in a future release\n" +
@@ -1372,5 +1431,69 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				----------
 				""";
 		runner.runNegativeTest();
+	}
+	public void testOuterConstruction_1() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		runner.testFiles = new String[] {
+				"Test.java",
+				"""
+				public class Test {
+					Test() {
+						class Local {
+							Local() {
+								foo(this);
+							}
+						};
+						super();
+						new Local();
+					}
+					void foo(Object r) { System.out.print(r.getClass().getName()); }
+					public static void main(String... args) {
+						new Test();
+					}
+				}
+				"""
+			};
+		runner.expectedCompilerLog = """
+				----------
+				1. ERROR in Test.java (at line 5)
+					foo(this);
+					^^^^^^^^^
+				Cannot use foo(this) in a pre-construction context
+				----------
+				""";
+		runner.runNegativeTest();
+	}
+
+	public void testOuterConstruction_2() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		runner.testFiles = new String[] {
+				"Test.java",
+				"""
+				public class Test {
+					static class Inner {
+						Inner() {
+							foo(this);
+						}
+					};
+					Test() {
+						new Inner();
+						super();
+					}
+					static void foo(Object r) { System.out.print(r.getClass().getName()); }
+					public static void main(String... args) {
+						new Test();
+					}
+				}
+				"""
+			};
+		runner.expectedOutputString = "Test$Inner";
+		runner.runConformTest();
 	}
 }

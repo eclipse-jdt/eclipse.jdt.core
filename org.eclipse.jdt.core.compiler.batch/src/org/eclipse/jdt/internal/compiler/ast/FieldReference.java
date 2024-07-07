@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -661,6 +665,9 @@ public TypeBinding resolveType(BlockScope scope) {
 		this.receiver.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
 		receiverCast = true;
 	}
+	if (this.receiver instanceof ThisReference) {
+		this.receiver.bits |= this.bits & ASTNode.IsStrictlyAssigned; // mark as assignment-lhs, where 'this.f' is legal even in early construction context
+	}
 	this.actualReceiverType = this.receiver.resolveType(scope);
 	if (this.actualReceiverType == null) {
 		this.constant = Constant.NotAConstant;
@@ -744,14 +751,10 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 		}
 	} else {
-		if (scope.isInsideEarlyConstructionContext() && this.actualReceiverType != null &&
- 				(this.receiver instanceof ThisReference thisReference
- 						&& thisReference.isImplicitThis())) { // explicit thisReference error flagging taken care in ThisReference
-			MethodScope ms = scope.methodScope();
-			MethodBinding method = ms != null ? ms.referenceMethodBinding() : null;
-			if (method != null && TypeBinding.equalsEquals(method.declaringClass, this.actualReceiverType)) {
-				scope.problemReporter().errorExpressionInPreConstructorContext(this);
-			}
+		if ((this.bits & ASTNode.IsStrictlyAssigned) == 0
+				&& this.actualReceiverType != null && scope.isInsideEarlyConstructionContext(this.actualReceiverType, true)
+				&& (this.receiver instanceof ThisReference thisReference && thisReference.isImplicitThis())) { // explicit thisReference error flagging taken care in ThisReference
+			scope.problemReporter().errorExpressionInPreConstructorContext(this);
 		}
 	}
 	TypeBinding fieldType = fieldBinding.type;
