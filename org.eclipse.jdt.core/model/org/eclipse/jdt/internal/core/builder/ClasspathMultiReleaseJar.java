@@ -130,7 +130,7 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 		for (String path : supportedVersions(this.zipFile)) {
 			String s = null;
 			try {
-				s = META_INF_VERSIONS + path + "/" + binaryFileName;  //$NON-NLS-1$
+				s = path + "/" + qualifiedBinaryFileName;  //$NON-NLS-1$
 				ZipEntry entry = this.zipFile.getEntry(s);
 				if (entry == null)
 					continue;
