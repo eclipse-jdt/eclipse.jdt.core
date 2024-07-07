@@ -1344,4 +1344,33 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			true,
 			options);
 	}
+	public void testGH2467() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		runner.testFiles = new String[] {
+				"Test3.java",
+				"""
+				class Super {}
+				public class Test3 extends Super {
+					Test3(Test3 other) {
+						other.foo(); // bogus error:
+						foo(); // error is correct
+						super();
+					}
+					void foo() {}
+				}
+				"""
+			};
+		runner.expectedCompilerLog = """
+				----------
+				1. ERROR in Test3.java (at line 5)
+					foo(); // error is correct
+					^^^^^
+				Cannot use foo() in a pre-construction context
+				----------
+				""";
+		runner.runNegativeTest();
+	}
 }

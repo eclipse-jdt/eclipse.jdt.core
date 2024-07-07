@@ -1018,8 +1018,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 		}
 		if (scope.isInsideEarlyConstructionContext() && this.actualReceiverType != null &&
-				(this.receiver instanceof ThisReference thisReference && thisReference.isImplicitThis() ||
-				!(this.receiver instanceof ThisReference))) {
+				(this.receiver instanceof ThisReference thisReference && thisReference.isImplicitThis())) {
 			MethodScope ms = scope.methodScope();
 			MethodBinding method = ms != null ? ms.referenceMethodBinding() : null;
 			if (method != null && TypeBinding.equalsEquals(method.declaringClass, this.actualReceiverType)) {
