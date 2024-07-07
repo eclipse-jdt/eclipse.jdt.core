@@ -462,9 +462,12 @@ public class DOMCompletionEngine implements Runnable {
 	private CompletionProposal toProposal(IType type) {
 		// TODO add import if necessary
 		InternalCompletionProposal res = new InternalCompletionProposal(CompletionProposal.TYPE_REF, this.offset);
-		res.setName(type.getElementName().toCharArray());
+		char[] simpleName = type.getElementName().toCharArray();
+		char[] signature = Signature.createTypeSignature(type.getFullyQualifiedName(), true).toCharArray();
+
+		res.setName(simpleName);
 		res.setCompletion(type.getElementName().toCharArray());
-		res.setSignature(Signature.createTypeSignature(type.getFullyQualifiedName(), true).toCharArray());
+		res.setSignature(signature);
 		res.setReplaceRange(!(this.toComplete instanceof FieldAccess) ? this.toComplete.getStartPosition() : this.offset, this.offset);
 		try {
 			res.setFlags(type.getFlags());
@@ -477,6 +480,16 @@ public class DOMCompletionEngine implements Runnable {
 		res.completionEngine = this.nestedEngine;
 		res.nameLookup = this.nameEnvironment.nameLookup;
 		// set defaults for now to avoid error downstream
+		res.setRequiredProposals(new CompletionProposal[] { toImportProposal(simpleName, signature) });
+		return res;
+	}
+
+	private CompletionProposal toImportProposal(char[] simpleName, char[] signature) {
+		InternalCompletionProposal res = new InternalCompletionProposal(CompletionProposal.TYPE_IMPORT, this.offset);
+		res.setName(simpleName);
+		res.setSignature(signature);
+		res.completionEngine = this.nestedEngine;
+		res.nameLookup = this.nameEnvironment.nameLookup;
 		res.setRequiredProposals(new CompletionProposal[0]);
 		return res;
 	}
