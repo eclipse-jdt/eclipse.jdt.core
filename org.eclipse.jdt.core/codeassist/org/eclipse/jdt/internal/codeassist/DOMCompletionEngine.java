@@ -49,6 +49,7 @@ import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -284,13 +285,17 @@ public class DOMCompletionEngine implements Runnable {
 		}
 		var suitableBinding = this.recoveredNodeScanner.findClosestSuitableBinding(context, scope);
 		if (suitableBinding != null) {
-			processMembers(suitableBinding, scope);
-			scope.stream()
-					.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(),
-							binding.getName().toCharArray()))
-					.map(binding -> toProposal(binding)).forEach(this.requestor::accept);
-			this.requestor.endReporting();
-			return;
+			// this handle where we complete inside a expressions like
+			// Type type = new Type(); where complete after "Typ", since completion should support all type completions
+			// we should not return from this block at the end.
+			if (!(this.toComplete.getParent() instanceof Type)) {
+				processMembers(suitableBinding, scope);
+				scope.stream().filter(
+						binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
+						.map(binding -> toProposal(binding)).forEach(this.requestor::accept);
+				this.requestor.endReporting();
+				return;
+			}
 		}
 
 		ASTNode parent = this.toComplete;
