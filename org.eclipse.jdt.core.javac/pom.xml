@@ -24,7 +24,8 @@
 				<artifactId>tycho-compiler-plugin</artifactId>
 				<configuration>
 					<deriveReleaseCompilerArgumentFromTargetLevel>false</deriveReleaseCompilerArgumentFromTargetLevel>
-					<compilerArgs>
+					<compilerId>javac</compilerId>
+					<compilerArgs combine.self="override">
 						<arg>--add-exports</arg>
 						<arg>java.base/java.lang=ALL-UNNAMED</arg>
 						<arg>--add-exports</arg>

@@ -640,7 +640,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			@Override
 			protected com.sun.tools.javac.parser.Tokens.Comment processComment(int pos, int endPos, CommentStyle style) {
 				// workaround Java bug 9077218
-				if (style == CommentStyle.JAVADOC && endPos - pos <= 4) {
+				if (style == CommentStyle.JAVADOC_BLOCK && endPos - pos <= 4) {
 					style = CommentStyle.BLOCK;
 				}
 				var res = super.processComment(pos, endPos, style);

@@ -46,6 +46,7 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.parser.ParserFactory;
 import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
+import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
@@ -171,7 +172,7 @@ class JavacConverter {
 		if (javacCompilationUnit.getModule() != null) {
 			res.setModule(convert(javacCompilationUnit.getModuleDecl()));
 		}
-		javacCompilationUnit.getImports().stream().map(jc -> convert(jc)).forEach(res.imports()::add);
+		javacCompilationUnit.getImports().stream().filter(imp -> imp instanceof JCImport).map(jc -> convert((JCImport)jc)).forEach(res.imports()::add);
 		javacCompilationUnit.getTypeDecls().stream()
 			.map(n -> convertBodyDeclaration(n, res))
 			.filter(Objects::nonNull)
@@ -1077,7 +1078,7 @@ class JavacConverter {
 
 	private void setJavadocForNode(JCTree javac, ASTNode node) {
 		Comment c = this.javacCompilationUnit.docComments.getComment(javac);
-		if( c != null && c.getStyle() == Comment.CommentStyle.JAVADOC) {
+		if( c != null && c.getStyle() == Comment.CommentStyle.JAVADOC_BLOCK) {
 			Javadoc javadoc = (Javadoc)convert(c, javac);
 			if (node instanceof BodyDeclaration bodyDeclaration) {
 				bodyDeclaration.setJavadoc(javadoc);
@@ -3012,18 +3013,21 @@ class JavacConverter {
 	}
 
 	public org.eclipse.jdt.core.dom.Comment convert(Comment javac, JCTree context) {
-		if (javac.getStyle() == CommentStyle.JAVADOC && context != null) {
+		if (javac.getStyle() == CommentStyle.JAVADOC_BLOCK && context != null) {
 			var docCommentTree = this.javacCompilationUnit.docComments.getCommentTree(context);
-			JavadocConverter javadocConverter = new JavadocConverter(this, docCommentTree, TreePath.getPath(this.javacCompilationUnit, context), this.buildJavadoc);
+			if (docCommentTree instanceof DCDocComment dcDocComment) {
+			JavadocConverter javadocConverter = new JavadocConverter(this, dcDocComment, TreePath.getPath(this.javacCompilationUnit, context), this.buildJavadoc);
 			this.javadocConverters.add(javadocConverter);
 			Javadoc javadoc = javadocConverter.convertJavadoc();
 			this.javadocDiagnostics.addAll(javadocConverter.getDiagnostics());
 			return javadoc;
+			}
 		}
 		org.eclipse.jdt.core.dom.Comment jdt = switch (javac.getStyle()) {
 			case LINE -> this.ast.newLineComment();
 			case BLOCK -> this.ast.newBlockComment();
-			case JAVADOC -> this.ast.newJavadoc();
+			case JAVADOC_BLOCK -> this.ast.newJavadoc();
+			case JAVADOC_LINE -> this.ast.newJavadoc();
 		};
 		javac.isDeprecated(); javac.getText(); // initialize docComment
 		jdt.setSourceRange(javac.getSourcePos(0), javac.getText().length());
@@ -3031,7 +3035,7 @@ class JavacConverter {
 	}
 
 	public org.eclipse.jdt.core.dom.Comment convert(Comment javac, int pos, int endPos) {
-		if (javac.getStyle() == CommentStyle.JAVADOC) {
+		if (javac.getStyle() == CommentStyle.JAVADOC_BLOCK) {
 			var parser = new com.sun.tools.javac.parser.DocCommentParser(ParserFactory.instance(this.context), Log.instance(this.context).currentSource(), javac);
 			JavadocConverter javadocConverter = new JavadocConverter(this, parser.parse(), pos, endPos, this.buildJavadoc);
 			this.javadocConverters.add(javadocConverter);
@@ -3042,7 +3046,8 @@ class JavacConverter {
 		org.eclipse.jdt.core.dom.Comment jdt = switch (javac.getStyle()) {
 			case LINE -> this.ast.newLineComment();
 			case BLOCK -> this.ast.newBlockComment();
-			case JAVADOC -> this.ast.newJavadoc();
+			case JAVADOC_BLOCK -> this.ast.newJavadoc();
+			case JAVADOC_LINE -> this.ast.newJavadoc();
 		};
 		javac.isDeprecated(); javac.getText(); // initialize docComment
 		jdt.setSourceRange(pos, endPos - pos);
