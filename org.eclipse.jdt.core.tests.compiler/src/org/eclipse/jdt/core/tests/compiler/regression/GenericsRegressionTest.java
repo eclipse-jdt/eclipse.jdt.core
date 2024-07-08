@@ -35,7 +35,8 @@
  *								Bug 452194 - Code no longer compiles in 4.4.1, but with confusing error
  *								Bug 456459 - Discrepancy between Eclipse compiler and javac - Enums, interfaces, and generics
  *								Bug 456924 - StackOverflowError during compilation
- *     Kamil Krzywanski <kamilkrzywanski01@gmail.com> - <a href="https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2537">Issue #2537</a>
+ *     Kamil Krzywanski <kamilkrzywanski01@gmail.com> - Contributions for
+ *     							<a href="https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2537">Issue #2537</a>
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
