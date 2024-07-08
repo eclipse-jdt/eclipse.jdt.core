@@ -752,7 +752,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 	} else {
 		if ((this.bits & ASTNode.IsStrictlyAssigned) == 0
-				&& this.actualReceiverType != null && scope.isInsideEarlyConstructionContext(this.actualReceiverType, true)
+				&& this.actualReceiverType != null && scope.isInsideEarlyConstructionContext(this.actualReceiverType, false)
 				&& (this.receiver instanceof ThisReference thisReference && thisReference.isImplicitThis())) { // explicit thisReference error flagging taken care in ThisReference
 			scope.problemReporter().errorExpressionInPreConstructorContext(this);
 		}

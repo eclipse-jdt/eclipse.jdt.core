@@ -396,6 +396,39 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				""";
 		runner.runNegativeTest();
 	}
+	public void test007d() {
+		// early construction context of far outer, while inners happily use 'this'
+		Runner runner = new Runner(false);
+		runner.testFiles = new String[] {
+				"X.java",
+				"""
+					class X {
+						X() {
+							class E {
+								E() {
+									this.i = new Inner();
+									this.i.j++;
+								}
+								class Inner {
+									int j = 3;;
+									void m() {
+										E.this.i = this;
+									}
+								}
+								Inner i;
+							}
+							super();
+							System.out.print(new E().i.j);
+						}
+						public static void main(String... args) {
+							new X();
+						}
+					}
+				"""
+			};
+		runner.expectedOutputString = "4";
+		runner.runConformTest();
+	}
 	// an illegal access does not need to contain a this or super keyword:
 	public void test008() {
 		runNegativeTest(new String[] {
@@ -427,6 +460,32 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"	^^^^^^^^\n" +
 			"You are using a preview language feature that may or may not be supported in a future release\n" +
 			"----------\n");
+	}
+	public void test008_OK() {
+		// early construction context of outer
+		runConformTest(new String[] {
+			"A.java",
+				"""
+					class A {
+						A() {
+							class Local {
+								int i;
+								int getI() { return i; }
+								Local() {
+									i++;
+									System.out.print(getI());
+								}
+							}
+							new Local();
+							super();
+						}
+						public static void main(String... args) {
+							new A();
+						}
+					}
+				"""
+			},
+			"1");
 	}
 	//an expression involving this does not refer to the current instance but,
 	// rather, to the enclosing instance of an inner class:
@@ -534,6 +593,31 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"	^^^^^^^^\n" +
 			"You are using a preview language feature that may or may not be supported in a future release\n" +
 			"----------\n");
+	}
+	public void test011_nested() {
+		runConformTest(new String[] {
+			"Outer.java",
+				"""
+					class Outer {
+						Outer() {
+							class Local {
+								class Inner { }
+								Local() {
+									Object o = new Inner(); // No Error - enclosing Local is not in early construction
+									System.out.print(o.getClass().getName());
+								}
+							};
+							Local l = new Local();
+							Local.Inner i = l.new Inner();
+							super();
+						}
+						public static void main(String... args) {
+							new Outer();
+						}
+					}
+				"""
+			},
+			"Outer$1Local$Inner");
 	}
 	/* in a pre-construction context, class instance creation expressions that declare
 	 * anonymous classes cannot have the newly created object as the implicit enclosing

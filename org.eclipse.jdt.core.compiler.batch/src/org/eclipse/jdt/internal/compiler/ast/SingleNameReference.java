@@ -248,7 +248,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 		if (scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
 			scope.problemReporter().unqualifiedFieldAccess(this, fieldBinding);
 		}
-		if (this.actualReceiverType != null && scope.isInsideEarlyConstructionContext(this.actualReceiverType, true)) {
+		if (this.actualReceiverType != null && scope.isInsideEarlyConstructionContext(this.actualReceiverType, false)) {
 			scope.problemReporter().errorExpressionInPreConstructorContext(this);
 		}
 		// must check for the static status....

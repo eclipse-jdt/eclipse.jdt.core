@@ -1102,7 +1102,7 @@ public TypeBinding resolveType(BlockScope scope) {
 						}
 					} else {
 						boolean inStaticContext = scope.methodScope().isStatic;
-						if (scope.isInsideEarlyConstructionContext(fieldBinding.declaringClass, true))
+						if (scope.isInsideEarlyConstructionContext(fieldBinding.declaringClass, false))
 							scope.problemReporter().errorExpressionInPreConstructorContext(this);
 						if (this.indexOfFirstFieldBinding == 1) {
 							if (scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {

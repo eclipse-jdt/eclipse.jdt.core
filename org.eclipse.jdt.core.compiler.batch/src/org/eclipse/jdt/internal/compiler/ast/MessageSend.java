@@ -1020,7 +1020,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				this.bits |= NeedReceiverGenericCast;
 			}
 		}
-		if (this.actualReceiverType != null && scope.isInsideEarlyConstructionContext(this.actualReceiverType, true) &&
+		if (this.actualReceiverType != null && scope.isInsideEarlyConstructionContext(this.actualReceiverType, false) &&
 				(this.receiver instanceof ThisReference thisReference && thisReference.isImplicitThis())) {
 			scope.problemReporter().errorExpressionInPreConstructorContext(this);
 		}

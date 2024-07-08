@@ -5699,8 +5699,10 @@ public abstract class Scope {
 					if (currentEnclosing.insideEarlyConstructionContext)
 						return true;
 				}
-				if (!considerEnclosings || currentTarget.isStatic())
+				if (!considerEnclosings
+						|| (currentTarget instanceof ReferenceBinding currentRefBind && !currentRefBind.hasEnclosingInstanceContext())) {
 					break;
+				}
 				currentTarget = currentTarget.enclosingType();
 			}
 			currentEnclosing = currentEnclosing.parent.classScope();
