@@ -84,7 +84,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public int getModifiers() {
-		return toInt(this.methodSymbol.getModifiers());
+		return this.methodSymbol != null ? toInt(this.methodSymbol.getModifiers()) : 0;
 	}
 
 	static int toInt(Set<javax.lang.model.element.Modifier> javac) {
@@ -257,7 +257,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public boolean isConstructor() {
-		return this.methodSymbol.isConstructor();
+		return this.methodSymbol != null && this.methodSymbol.isConstructor();
 	}
 
 	@Override
@@ -325,25 +325,24 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public ITypeBinding[] getParameterTypes() {
-		return this.methodSymbol.params().stream()
-			.map(param -> param.type)
+		return this.methodType.getParameterTypes().stream()
 			.map(this.resolver.bindings::getTypeBinding)
 			.toArray(ITypeBinding[]::new);
 	}
 
 	@Override
 	public ITypeBinding getDeclaredReceiverType() {
-		return this.resolver.bindings.getTypeBinding(this.methodSymbol.getReceiverType());
+		return this.resolver.bindings.getTypeBinding(this.methodType.getReceiverType());
 	}
 
 	@Override
 	public ITypeBinding getReturnType() {
-		return this.resolver.bindings.getTypeBinding(this.methodSymbol.getReturnType());
+		return this.resolver.bindings.getTypeBinding(this.methodType.getReturnType());
 	}
 
 	@Override
 	public ITypeBinding[] getExceptionTypes() {
-		return this.methodSymbol.getThrownTypes().stream() //
+		return this.methodType.getThrownTypes().stream() //
 				.map(this.resolver.bindings::getTypeBinding) //
 				.toArray(ITypeBinding[]::new);
 	}

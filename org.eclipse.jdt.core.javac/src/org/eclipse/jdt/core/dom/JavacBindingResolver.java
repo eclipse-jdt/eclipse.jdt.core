@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.internal.javac.dom.JavacAnnotationBinding;
+import org.eclipse.jdt.internal.javac.dom.JavacErrorMethodBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacLambdaBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacMemberValuePairBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacMethodBinding;
@@ -111,6 +112,11 @@ public class JavacBindingResolver extends BindingResolver {
 			methodBindings.putIfAbsent(newInstance.getKey(), newInstance);
 			return methodBindings.get(newInstance.getKey());
 		}
+		public JavacMethodBinding getErrorMethodBinding(MethodType methodType, Symbol originatingSymbol) {
+			JavacMethodBinding newInstance = new JavacErrorMethodBinding(originatingSymbol, methodType, JavacBindingResolver.this) { };
+			methodBindings.putIfAbsent(newInstance.getKey(), newInstance);
+			return methodBindings.get(newInstance.getKey());
+		}
 		//
 		private Map<String, JavacModuleBinding> moduleBindings = new HashMap<>();
 		public JavacModuleBinding getModuleBinding(ModuleType moduleType) {
@@ -166,6 +172,11 @@ public class JavacBindingResolver extends BindingResolver {
 			Symbol recoveredSymbol = getRecoveredSymbol(type);
 			if (recoveredSymbol != null) {
 				return getBinding(recoveredSymbol, recoveredSymbol.type);
+			}
+			if (type instanceof ErrorType) {
+				if (type.getOriginalType() instanceof MethodType missingMethodType) {
+					return getErrorMethodBinding(missingMethodType, owner);
+				}
 			}
 			if (owner instanceof final PackageSymbol other) {
 				return getPackageBinding(other);
