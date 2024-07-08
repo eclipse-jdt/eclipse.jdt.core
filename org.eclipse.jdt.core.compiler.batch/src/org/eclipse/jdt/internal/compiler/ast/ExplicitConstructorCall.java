@@ -320,11 +320,10 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			}
 			if (methodDeclaration == null
 					|| !methodDeclaration.isConstructor()
-					|| (!scope.isInsideEarlyConstructionContext(null, true) &&
-							((ConstructorDeclaration) methodDeclaration).constructorCall != this)) {
+					|| (((ConstructorDeclaration) methodDeclaration).constructorCall != this
+							&& !scope.isInsideEarlyConstructionContext(null, true))) {
 				if (!(methodDeclaration instanceof CompactConstructorDeclaration)) {// already flagged for CCD
-					if (!scope.isInsideEarlyConstructionContext(null, true))
-						scope.problemReporter().invalidExplicitConstructorCall(this);
+					scope.problemReporter().invalidExplicitConstructorCall(this);
 				}
 				// fault-tolerance
 				if (this.qualification != null) {
