@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -4985,7 +4985,7 @@ public void testBug434044_comment36() {
 		"1. ERROR in EclipseJava8Generics.java (at line 28)\n" +
 		"	final Object propertyValue = typedProperty.getBar().doFoo(null);\n" +
 		"	                                                    ^^^^^\n" +
-		"The method doFoo(String) is ambiguous for the type capture#3-of ? extends EclipseJava8Generics.AbstractFoo<?>\n" +
+		"The method doFoo(String) is ambiguous for the type capture#2-of ? extends EclipseJava8Generics.AbstractFoo<?>\n" +
 		"----------\n");
 }
 public void testBug434793() {
