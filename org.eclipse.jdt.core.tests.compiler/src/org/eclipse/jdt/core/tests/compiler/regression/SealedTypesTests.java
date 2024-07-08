@@ -1099,10 +1099,31 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"}\n",
 			},
 			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 2)\n" +
+			"1. ERROR in p1\\X.java (at line 1)\n" +
+			"	package p1;\n" +
+			"	^^^^^^^^^^^\n" +
+			"Syntax error on token(s), misplaced construct(s)\n" +
+			"----------\n" +
+			"2. ERROR in p1\\X.java (at line 1)\n" +
+			"	package p1;\n" +
+			"public  non-sealed @interface X {\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Syntax error on token(s), misplaced construct(s)\n" +
+			"----------\n" +
+			"3. ERROR in p1\\X.java (at line 2)\n" +
 			"	public  non-sealed @interface X {\n" +
-			"	                              ^\n" +
-			"An interface X declared as non-sealed should have a sealed direct superinterface\n" +
+			"	            ^^^^^^\n" +
+			"Syntax error, insert \"Identifier (\" to complete MethodHeaderName\n" +
+			"----------\n" +
+			"4. ERROR in p1\\X.java (at line 2)\n" +
+			"	public  non-sealed @interface X {\n" +
+			"	            ^^^^^^\n" +
+			"Syntax error, insert \")\" to complete MethodDeclaration\n" +
+			"----------\n" +
+			"5. ERROR in p1\\X.java (at line 2)\n" +
+			"	public  non-sealed @interface X {\n" +
+			"	            ^^^^^^\n" +
+			"Syntax error, insert \";\" to complete RecordBodyDeclarations\n" +
 			"----------\n");
 	}
 	public void testBug563806_035() {
@@ -6258,5 +6279,47 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"	                                               ^^\n" +
 				"Syntax error on tokens, delete these tokens\n" +
 				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2654
+	// [Sealed Types] Compiler does not handle non-sealed contextual keyword correctly
+	public void testIssue2654() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						non-sealed public class X {
+							int foo(int non, int sealed) {
+								return non-sealed;
+							}
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	non-sealed public class X {\n" +
+				"	                        ^\n" +
+				"A class X declared as non-sealed should have either a sealed direct superclass or a sealed direct superinterface\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2654
+	// [Sealed Types] Compiler does not handle non-sealed contextual keyword correctly
+	public void testIssue2654_2() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							static int foo(int non, int sealed) {
+								return non-sealed;
+							}
+						    public static void main(String [] args) {
+						        System.out.println(foo(142, 100));
+						    }
+						}
+						"""
+				},
+				"42");
 	}
 }
