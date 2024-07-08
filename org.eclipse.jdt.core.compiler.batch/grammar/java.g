@@ -231,7 +231,7 @@ Goal ::= '@' TypeAnnotations
 -- JSR 354 Reconnaissance mission.
 Goal ::= '->' YieldStatement
 Goal ::= '->' SwitchLabelCaseLhs
--- JSR 360 Restricted
+-- JEP 409 Sealed types Reconnaissance mission.
 Goal ::= RestrictedIdentifiersealed Modifiersopt
 Goal ::= RestrictedIdentifierpermits PermittedSubtypes
 -- jsr 427 --
@@ -3205,4 +3205,5 @@ UNDERSCORE ::= '_'
 
 $end
 -- need a carriage return after the $end
+
 

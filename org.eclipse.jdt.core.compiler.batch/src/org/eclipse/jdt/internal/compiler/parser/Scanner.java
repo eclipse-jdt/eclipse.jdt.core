@@ -17,9 +17,7 @@ package org.eclipse.jdt.internal.compiler.parser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -209,9 +207,6 @@ public class Scanner implements TerminalTokens {
 
 	// text block support - 13
 	protected int textBlockOffset = -1;
-
-	//Java 15 - first _ keyword appears
-	Map<String, Integer> _Keywords = null;
 
 	private final CharDeduplication deduplication = CharDeduplication.getThreadLocalInstance();
 
@@ -3438,10 +3433,28 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 				case 3 :
 					if ((data[++index] == 'e') && (data[++index] == 'w'))
 						return TokenNamenew;
-					else {
-						int token = checkFor_KeyWord(index - 1, length, data);
-						return token != TokenNameNotAToken ? token : TokenNameIdentifier;
-					}
+					else if (data == this.source  // not handling unicode as of now in non-sealed
+							&& (data[index] == 'o')
+							&& (data[++index] == 'n')
+							&& (data[++index] == '-')
+							&& (data[++index] == 's')
+							&& (data[++index] == 'e')
+							&& (data[++index] == 'a')
+							&& (data[++index] == 'l')
+							&& (data[++index] == 'e')
+							&& (data[++index] == 'd')
+							&& !ScannerHelper.isJavaIdentifierPart(data[++index])) {
+								this.currentPosition += 7;
+								int t = disambiguatesRestrictedIdentifierWithLookAhead(x-> !isInModuleDeclaration() && this.sourceLevel >= ClassFileConstants.JDK17, TokenNamenon_sealed, Goal.RestrictedIdentifierSealedGoal);
+								if (t == TokenNamenon_sealed) {
+									return TokenNamenon_sealed;
+								} else {
+									this.currentPosition -= 7;
+									return TokenNameIdentifier;
+								}
+
+					} else
+						return TokenNameIdentifier;
 				case 4 :
 					if ((data[++index] == 'u') && (data[++index] == 'l') && (data[++index] == 'l'))
 						return TokenNamenull;
@@ -3514,7 +3527,9 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 								&& (data[++index] == 'i')
 								&& (data[++index] == 't')
 								&& (data[++index] == 's')) {
-							return disambiguatedRestrictedIdentifierpermits(TokenNameRestrictedIdentifierpermits);
+							return disambiguatesRestrictedIdentifierWithLookAhead(x -> !isInModuleDeclaration() && this.sourceLevel >= ClassFileConstants.JDK17,
+																						TokenNameRestrictedIdentifierpermits,
+																						Goal.RestrictedIdentifierPermitsGoal);
 							} else
 							return TokenNameIdentifier;
 					}
@@ -3616,7 +3631,9 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 							&& (data[++index] == 'l')
 							&& (data[++index] == 'e')
 							&& (data[++index] == 'd')) {
-								return disambiguatedRestrictedIdentifiersealed(TokenNameRestrictedIdentifiersealed);
+								return disambiguatesRestrictedIdentifierWithLookAhead(x -> !isInModuleDeclaration() && this.sourceLevel >= ClassFileConstants.JDK17,
+																					  TokenNameRestrictedIdentifiersealed,
+																					  Goal.RestrictedIdentifierSealedGoal);
 						} else
 							return TokenNameIdentifier;
 				case 8 :
@@ -3797,25 +3814,6 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 		default :
 			return TokenNameIdentifier;
 	}
-}
-
-
-private int checkFor_KeyWord(int index, int length, char[] data) {
-	if (this._Keywords == null) {
-		this._Keywords = new HashMap<>(0);
-		if (JavaFeature.RECORDS.isSupported(this.complianceLevel, this.previewEnabled)) {
-			this._Keywords.put("non-sealed", TerminalTokens.TokenNamenon_sealed); //$NON-NLS-1$
-		}
-	}
-	for (String key : this._Keywords.keySet()) {
-		if (CharOperation.prefixEquals(key.toCharArray(), data, true /* isCaseSensitive */, index)) {
-			this.currentPosition = this.currentPosition - length + key.length();
-			if (this.currentPosition < this.eofPosition)
-				this.currentCharacter = data[this.currentPosition];
-			return this._Keywords.get(key);
-		}
-	}
-	return TokenNameNotAToken;
 }
 
 public int scanNumber(boolean dotPrefix) throws InvalidInputException {
@@ -4624,7 +4622,7 @@ private static class Goal {
 	static int YieldStatementRule = 0;
 	static int SwitchLabelCaseLhsRule = 0;
 	static int[] RestrictedIdentifierSealedRule;
-	static int[] RestrictedIdentifierPermitsRule;
+	static int RestrictedIdentifierPermitsRule;
 	static int[] PatternRules;
 
 	static Goal LambdaParameterListGoal;
@@ -4646,7 +4644,6 @@ private static class Goal {
 	static {
 
 		List<Integer> ridSealed = new ArrayList<>(2);
-		List<Integer> ridPermits = new ArrayList<>();
 		List<Integer> patternStates = new ArrayList<>();
 		for (int i = 1; i <= ParserBasicInformation.NUM_RULES; i++) {  // 0 == $acc
 			// TODO: Change to switch
@@ -4672,7 +4669,7 @@ private static class Goal {
 				ridSealed.add(i);
 			else
 			if ("PermittedSubtypes".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
-				ridPermits.add(i);
+				RestrictedIdentifierPermitsRule = i;
 			else
 			if ("SwitchLabelCaseLhs".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				SwitchLabelCaseLhsRule = i;
@@ -4683,14 +4680,10 @@ private static class Goal {
 			if ("Pattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				patternStates.add(i);
 			else
-			if ("ParenthesizedPattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
-				patternStates.add(i);
-			else
 			if ("RecordPattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				patternStates.add(i);
 		}
 		RestrictedIdentifierSealedRule = ridSealed.stream().mapToInt(Integer :: intValue).toArray(); // overkill but future-proof
-		RestrictedIdentifierPermitsRule = ridPermits.stream().mapToInt(Integer :: intValue).toArray();
 		PatternRules = patternStates.stream().mapToInt(Integer :: intValue).toArray();
 
 		LambdaParameterListGoal =  new Goal(TokenNameARROW, new int[] { TokenNameARROW }, LambdaParameterListRule);
@@ -5049,17 +5042,6 @@ private boolean mayBeAtAnYieldStatement() {
 			return false;
 	}
 }
-private boolean mayBeAtASealedRestricedIdentifier(int restrictedIdentifier) {
-	if (isInModuleDeclaration())
-		return false;
-	switch (restrictedIdentifier) {
-		case TokenNameRestrictedIdentifiersealed:
-			break;
-		case TokenNameRestrictedIdentifierpermits:
-			break;
-	}
-	return true;
-}
 int disambiguatedRestrictedIdentifierrecord(int restrictedIdentifierToken) {
 	// and here's the kludge
 	if (restrictedIdentifierToken != TokenNameRestrictedIdentifierrecord)
@@ -5190,26 +5172,6 @@ private boolean disambiguateYieldWithLookAhead() {
 		}
 	}
 	return false; // IIE event;
-}
-int disambiguatedRestrictedIdentifierpermits(int restrictedIdentifierToken) {
-	// and here's the kludge
-	if (restrictedIdentifierToken != TokenNameRestrictedIdentifierpermits)
-		return restrictedIdentifierToken;
-	if (!JavaFeature.RECORDS.isSupported(this.complianceLevel, this.previewEnabled))
-		return TokenNameIdentifier;
-
-	return disambiguatesRestrictedIdentifierWithLookAhead(this::mayBeAtASealedRestricedIdentifier,
-			restrictedIdentifierToken, Goal.RestrictedIdentifierPermitsGoal);
-}
-int disambiguatedRestrictedIdentifiersealed(int restrictedIdentifierToken) {
-	// and here's the kludge
-	if (restrictedIdentifierToken != TokenNameRestrictedIdentifiersealed)
-		return restrictedIdentifierToken;
-	if (!JavaFeature.RECORDS.isSupported(this.complianceLevel, this.previewEnabled))
-		return TokenNameIdentifier;
-
-	return disambiguatesRestrictedIdentifierWithLookAhead(this::mayBeAtASealedRestricedIdentifier,
-			restrictedIdentifierToken, Goal.RestrictedIdentifierSealedGoal);
 }
 int disambiguatedRestrictedIdentifierWhen(int restrictedIdentifierToken) {
 	// and here's the kludge
