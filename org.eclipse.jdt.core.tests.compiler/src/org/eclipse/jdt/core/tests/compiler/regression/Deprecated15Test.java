@@ -21,6 +21,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -34,6 +35,7 @@ public static Test suite() {
 public void test001() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.WARNING);
+	boolean isJDK9 = this.complianceLevel >= ClassFileConstants.JDK9;
 	this.runNegativeTest(
 		new String[] {
 			"p/X.java",
@@ -57,8 +59,15 @@ public void test001() {
 			"  }\n" +
 			"}\n",
 		},
+		(isJDK9 ? "" :
 		"----------\n" +
-		"1. ERROR in Y.java (at line 3)\n" +
+		"1. WARNING in Y.java (at line 1)\n" +
+		"	import p.X;\n" +
+		"	       ^^^\n" +
+		"The type X<T> is deprecated\n"
+		) +
+		"----------\n" +
+		"2. ERROR in Y.java (at line 3)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +

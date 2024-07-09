@@ -618,8 +618,15 @@ public void test014() {
 			"  }\n" +
 			"}\n",
 		},
+		(this.complianceLevel >= ClassFileConstants.JDK9 ? "" :
 		"----------\n" +
-		"1. ERROR in Y.java (at line 3)\n" +
+		"1. WARNING in Y.java (at line 1)\n" +
+		"	import p.X;\n" +
+		"	       ^^^\n" +
+		"The type X is deprecated\n"
+		) +
+		"----------\n" +
+		"2. ERROR in Y.java (at line 3)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
@@ -962,6 +969,8 @@ public void test020() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 public void testJEP211_1() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
 			"p1/C1.java",
@@ -977,7 +986,23 @@ public void testJEP211_1() {
 			}
 			"""
 		};
-	runner.expectedCompilerLog = """
+	runner.expectedCompilerLog =
+			this.complianceLevel < ClassFileConstants.JDK9 ?
+			"""
+			----------
+			1. WARNING in Test.java (at line 1)
+				import p1.C1;
+				       ^^^^^
+			The type C1 is deprecated
+			----------
+			2. WARNING in Test.java (at line 3)
+				C1 c;
+				^^
+			The type C1 is deprecated
+			----------
+			"""
+			:
+			"""
 			----------
 			1. WARNING in Test.java (at line 3)
 				C1 c;

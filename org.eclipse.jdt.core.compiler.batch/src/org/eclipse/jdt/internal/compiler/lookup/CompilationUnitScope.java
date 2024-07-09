@@ -1099,6 +1099,14 @@ private int checkAndRecordImportBinding(
 	final char[] name = importReference.getSimpleName();
 	if (importBinding instanceof ReferenceBinding || conflictingType != null) {
 		ReferenceBinding referenceBinding = conflictingType == null ? (ReferenceBinding) importBinding : conflictingType;
+		if (compilerOptions().complianceLevel <= ClassFileConstants.JDK1_8) { // not any more since JEP 211 / JDK 9
+			ReferenceBinding typeToCheck = referenceBinding.problemId() == ProblemReasons.Ambiguous
+				? ((ProblemReferenceBinding) referenceBinding).closestMatch
+				: referenceBinding;
+			if (importReference.isTypeUseDeprecated(typeToCheck, this))
+				problemReporter().deprecatedType(typeToCheck, importReference);
+		}
+
 		ReferenceBinding existingType = typesBySimpleNames.get(name);
 		if (existingType != null) {
 			// duplicate test above should have caught this case, but make sure
