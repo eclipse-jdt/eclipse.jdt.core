@@ -11691,6 +11691,9 @@ public void getMethodBodies(CompilationUnitDeclaration unit) {
 
 	//real parse of the method....
 	CompilationResult compilationResult = unit.compilationResult;
+	if (this.readManager != null) {
+		throw new IllegalStateException("readManager used in getMethodBodies()"); //$NON-NLS-1$
+	}
 	char[] contents = this.readManager != null
 		? this.readManager.getContents(compilationResult.compilationUnit)
 		: compilationResult.compilationUnit.getContents();
