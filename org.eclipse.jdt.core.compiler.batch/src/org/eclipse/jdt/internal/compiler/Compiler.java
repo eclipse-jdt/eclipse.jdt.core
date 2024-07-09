@@ -843,17 +843,17 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					// diet parsing for large collection of units
 					CompilationUnitDeclaration parsedUnit;
 					unitResult = new CompilationResult(sourceUnits[i], i, maxUnits, this.options.maxProblemsPerUnit);
-					long parseStart = System.currentTimeMillis();
+					long parseStart = System.nanoTime() / 1000_000;
 					if (this.totalUnits < this.parseThreshold) {
 						parsedUnit = this.parser.parse(sourceUnits[i], unitResult);
 					} else {
 						parsedUnit = this.parser.dietParse(sourceUnits[i], unitResult);
 					}
-					long resolveStart = System.currentTimeMillis();
+					long resolveStart = System.nanoTime() / 1000_000;
 					this.stats.parseTime += resolveStart - parseStart;
 					// initial type binding creation
-					this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
-					this.stats.resolveTime += System.currentTimeMillis() - resolveStart;
+					this.lookupEnvironment.buildTypeBindings(parsedUnit, null /* no access restriction */);
+					this.stats.resolveTime += System.nanoTime() / 1000_000 - resolveStart;
 					addCompilationUnit(sourceUnits[i], parsedUnit);
 					ImportReference currentPackage = parsedUnit.currentPackage;
 					if (currentPackage != null) {
