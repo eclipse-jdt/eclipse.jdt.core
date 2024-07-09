@@ -32,10 +32,10 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -45,6 +45,7 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -201,8 +202,14 @@ public class DOMCompletionEngine implements Runnable {
 				computeEnclosingElement(), List.of());
 		this.requestor.acceptContext(completionContext);
 
+		// some flags to controls different applicable completion search strategies
+		boolean computeSuitableBindingFromContext = true;
+		boolean suggestPackageCompletions = true;
+
 		Bindings scope = new Bindings();
 		if (context instanceof FieldAccess fieldAccess) {
+			computeSuitableBindingFromContext = false;
+
 			processMembers(fieldAccess.getExpression().resolveTypeBinding(), scope);
 			if (scope.stream().findAny().isPresent()) {
 				scope.stream()
@@ -255,6 +262,7 @@ public class DOMCompletionEngine implements Runnable {
 			}
 		}
 		if (context instanceof MethodInvocation invocation) {
+			computeSuitableBindingFromContext = false;
 			if (this.offset <= invocation.getName().getStartPosition() + invocation.getName().getLength()) {
 				Expression expression = invocation.getExpression();
 				if (expression == null) {
@@ -281,69 +289,64 @@ public class DOMCompletionEngine implements Runnable {
 		ASTNode current = this.toComplete;
 		while (current != null) {
 			scope.addAll(visibleBindings(current));
+			// break if following conditions match, otherwise we get all visible symbols which is unwanted in this
+			// completion context.
+			if (current instanceof Annotation a) {
+				Arrays.stream(a.resolveTypeBinding().getDeclaredMethods()).forEach(scope::add);
+				computeSuitableBindingFromContext = false;
+				suggestPackageCompletions = false;
+				break;
+			}
+			if (current instanceof AbstractTypeDeclaration typeDecl) {
+				processMembers(typeDecl.resolveBinding(), scope);
+			}
 			current = current.getParent();
 		}
-		var suitableBinding = this.recoveredNodeScanner.findClosestSuitableBinding(context, scope);
-		if (suitableBinding != null) {
-			// this handle where we complete inside a expressions like
-			// Type type = new Type(); where complete after "Typ", since completion should support all type completions
-			// we should not return from this block at the end.
-			if (!(this.toComplete.getParent() instanceof Type)) {
+		scope.stream()
+				.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
+				.map(binding -> toProposal(binding)).forEach(this.requestor::accept);
+		if (!completeAfter.isBlank()) {
+			final int typeMatchRule = this.toComplete.getParent() instanceof Annotation
+					? IJavaSearchConstants.ANNOTATION_TYPE
+					: IJavaSearchConstants.TYPE;
+			findTypes(completeAfter, typeMatchRule, null).filter(
+					type -> this.pattern.matchesName(this.prefix.toCharArray(), type.getElementName().toCharArray()))
+					.map(this::toProposal).forEach(this.requestor::accept);
+		}
+
+		// this handle where we complete inside a expressions like
+		// Type type = new Type(); where complete after "Typ", since completion should support all type completions
+		// we should not return from this block at the end.
+		computeSuitableBindingFromContext = computeSuitableBindingFromContext
+				&& !(this.toComplete instanceof Name && (this.toComplete.getParent() instanceof Type));
+		if (computeSuitableBindingFromContext) {
+			// for documentation check code comments in DOMCompletionEngineRecoveredNodeScanner
+			var suitableBinding = this.recoveredNodeScanner.findClosestSuitableBinding(context, scope);
+			if (suitableBinding != null) {
 				processMembers(suitableBinding, scope);
 				scope.stream().filter(
 						binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
 						.map(binding -> toProposal(binding)).forEach(this.requestor::accept);
-				this.requestor.endReporting();
-				return;
 			}
-		}
-
-		ASTNode parent = this.toComplete;
-		while (parent != null) {
-			if (parent instanceof AbstractTypeDeclaration typeDecl) {
-				processMembers(typeDecl.resolveBinding(), scope);
-			}
-			parent = parent.getParent();
-		}
-		while (current != null) {
-			scope.addAll(visibleBindings(current));
-			current = current.getParent();
-		}
-		scope.stream()
-			.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
-			.map(binding -> toProposal(binding))
-			.forEach(this.requestor::accept);
-		if (!completeAfter.isBlank()) {
-			findTypes(completeAfter, null)
-				.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(), type.getElementName().toCharArray()))
-				.map(this::toProposal)
-				.forEach(this.requestor::accept);
 		}
 		try {
-			Arrays.stream(this.modelUnit.getJavaProject().getPackageFragments())
-				.map(IPackageFragment::getElementName)
-				.distinct()
-				.filter(name -> this.pattern.matchesName(this.prefix.toCharArray(), name.toCharArray()))
-				.map(pack -> toPackageProposal(pack, toComplete))
-				.forEach(this.requestor::accept);
+			if (suggestPackageCompletions) {
+				Arrays.stream(this.modelUnit.getJavaProject().getPackageFragments())
+						.map(IPackageFragment::getElementName).distinct()
+						.filter(name -> this.pattern.matchesName(this.prefix.toCharArray(), name.toCharArray()))
+						.map(pack -> toPackageProposal(pack, toComplete)).forEach(this.requestor::accept);
+			}
 		} catch (JavaModelException ex) {
 			ILog.get().error(ex.getMessage(), ex);
 		}
 		this.requestor.endReporting();
 	}
 
-	private boolean processExpressionStatementMembers(ExpressionStatement es, Bindings scope) {
-		var binding = es.getExpression().resolveTypeBinding();
-		if (binding != null) {
-			processMembers(binding, scope);
-			scope.stream().filter(b -> this.pattern.matchesName(this.prefix.toCharArray(), b.getName().toCharArray()))
-					.map(this::toProposal).forEach(this.requestor::accept);
-			return true;
-		}
-		return false;
+	private Stream<IType> findTypes(String namePrefix, String packageName) {
+		return findTypes(namePrefix, IJavaSearchConstants.TYPE, packageName);
 	}
 
-	private Stream<IType> findTypes(String namePrefix, String packageName) {
+	private Stream<IType> findTypes(String namePrefix, int typeMatchRule, String packageName) {
 		if (namePrefix == null) {
 			namePrefix = ""; //$NON-NLS-1$
 		}
@@ -356,13 +359,13 @@ public class DOMCompletionEngine implements Runnable {
 			}
 		};
 		try {
-			new SearchEngine(this.modelUnit.getOwner()).searchAllTypeNames(packageName == null ? null : packageName.toCharArray(), SearchPattern.R_EXACT_MATCH,
-					namePrefix.toCharArray(), SearchPattern.R_PREFIX_MATCH | (this.assistOptions.substringMatch ? SearchPattern.R_SUBSTRING_MATCH : 0) | (this.assistOptions.subwordMatch ? SearchPattern.R_SUBWORD_MATCH : 0),
-					IJavaSearchConstants.TYPE,
-					searchScope,
-					typeRequestor,
-					IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-					null);
+			new SearchEngine(this.modelUnit.getOwner()).searchAllTypeNames(
+					packageName == null ? null : packageName.toCharArray(), SearchPattern.R_EXACT_MATCH,
+					namePrefix.toCharArray(),
+					SearchPattern.R_PREFIX_MATCH
+							| (this.assistOptions.substringMatch ? SearchPattern.R_SUBSTRING_MATCH : 0)
+							| (this.assistOptions.subwordMatch ? SearchPattern.R_SUBWORD_MATCH : 0),
+					typeMatchRule, searchScope, typeRequestor, IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
 			// TODO also resolve potential sub-packages
 		} catch (JavaModelException ex) {
 			ILog.get().error(ex.getMessage(), ex);
@@ -389,50 +392,84 @@ public class DOMCompletionEngine implements Runnable {
 		if (binding instanceof ITypeBinding && binding.getJavaElement() instanceof IType type) {
 			return toProposal(type);
 		}
-		InternalCompletionProposal res = new InternalCompletionProposal(
-			binding instanceof ITypeBinding ? CompletionProposal.TYPE_REF :
-			binding instanceof IMethodBinding ? CompletionProposal.METHOD_REF :
-			binding instanceof IVariableBinding variableBinding ? CompletionProposal.LOCAL_VARIABLE_REF :
-			-1, this.offset);
+
+		int kind = -1;
+		if (binding instanceof ITypeBinding) {
+			kind = CompletionProposal.TYPE_REF;
+		} else if (binding instanceof IMethodBinding m) {
+			if (m.getDeclaringClass() != null && m.getDeclaringClass().isAnnotation()) {
+				kind = CompletionProposal.ANNOTATION_ATTRIBUTE_REF;
+			} else {
+				kind = CompletionProposal.METHOD_REF;
+			}
+		} else if (binding instanceof IVariableBinding) {
+			kind = CompletionProposal.LOCAL_VARIABLE_REF;
+		}
+
+		InternalCompletionProposal res = new InternalCompletionProposal(kind, this.offset);
 		res.setName(binding.getName().toCharArray());
-		if (binding instanceof IMethodBinding) {
+		if (kind == CompletionProposal.METHOD_REF) {
 			completion += "()"; //$NON-NLS-1$
 		}
 		res.setCompletion(completion.toCharArray());
-		if (binding instanceof IMethodBinding mb) {
-			res.setParameterNames(DOMCompletionEngineMethodDeclHandler.findVariableNames(mb).stream()
-					.map(String::toCharArray).toArray(i -> new char[i][]));
-		}
-		res.setSignature(
-			binding instanceof IMethodBinding methodBinding ?
-				Signature.createMethodSignature(
-					Arrays.stream(methodBinding.getParameterTypes())
-						.map(ITypeBinding::getName)
-						.map(String::toCharArray)
-						.map(type -> Signature.createTypeSignature(type, true).toCharArray())
-						.toArray(char[][]::new),
-								Signature.createTypeSignature(qualifiedTypeName(methodBinding.getReturnType()), true)
-										.toCharArray())
-						:
-			binding instanceof IVariableBinding variableBinding ?
-				Signature.createTypeSignature(variableBinding.getType().getQualifiedName().toCharArray(), true).toCharArray() :
-			binding instanceof ITypeBinding typeBinding ?
-				Signature.createTypeSignature(typeBinding.getQualifiedName().toCharArray(), true).toCharArray() :
-			new char[] {});
-		res.setReplaceRange(this.toComplete instanceof SimpleName ? this.toComplete.getStartPosition() : this.offset, DOMCompletionEngine.this.offset);
-		res.setReceiverSignature(
-			binding instanceof IMethodBinding method ?
-				Signature.createTypeSignature(method.getDeclaringClass().getQualifiedName().toCharArray(), true).toCharArray() :
-			binding instanceof IVariableBinding variable && variable.isField() ?
-				Signature.createTypeSignature(variable.getDeclaringClass().getQualifiedName().toCharArray(), true).toCharArray() :
-			new char[]{});
-		res.setDeclarationSignature(
-			binding instanceof IMethodBinding method ?
-				Signature.createTypeSignature(method.getDeclaringClass().getQualifiedName().toCharArray(), true).toCharArray() :
-			binding instanceof IVariableBinding variable && variable.isField() ?
-				Signature.createTypeSignature(variable.getDeclaringClass().getQualifiedName().toCharArray(), true).toCharArray() :
-			new char[]{});
 
+		if (kind == CompletionProposal.METHOD_REF) {
+			var methodBinding = (IMethodBinding) binding;
+			res.setParameterNames(DOMCompletionEngineMethodDeclHandler.findVariableNames(methodBinding).stream()
+					.map(String::toCharArray).toArray(i -> new char[i][]));
+			res.setSignature(Signature.createMethodSignature(
+					Arrays.stream(methodBinding.getParameterTypes()).map(ITypeBinding::getName).map(String::toCharArray)
+							.map(type -> Signature.createTypeSignature(type, true).toCharArray())
+							.toArray(char[][]::new),
+					Signature.createTypeSignature(qualifiedTypeName(methodBinding.getReturnType()), true)
+							.toCharArray()));
+			res.setReceiverSignature(Signature
+					.createTypeSignature(methodBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
+					.toCharArray());
+			res.setDeclarationSignature(Signature
+					.createTypeSignature(methodBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
+					.toCharArray());
+		} else if (kind == CompletionProposal.LOCAL_VARIABLE_REF) {
+			var variableBinding = (IVariableBinding) binding;
+			res.setSignature(
+					Signature.createTypeSignature(variableBinding.getType().getQualifiedName().toCharArray(), true)
+							.toCharArray());
+			res.setReceiverSignature(
+					variableBinding.isField()
+							? Signature
+									.createTypeSignature(
+											variableBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
+									.toCharArray()
+							: new char[] {});
+			res.setDeclarationSignature(
+					variableBinding.isField()
+							? Signature
+									.createTypeSignature(
+											variableBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
+									.toCharArray()
+							: new char[] {});
+
+		} else if (kind == CompletionProposal.TYPE_REF) {
+			var typeBinding = (ITypeBinding) binding;
+			res.setSignature(
+					Signature.createTypeSignature(typeBinding.getQualifiedName().toCharArray(), true).toCharArray());
+		} else if (kind == CompletionProposal.ANNOTATION_ATTRIBUTE_REF) {
+			var methodBinding = (IMethodBinding) binding;
+			res.setSignature(Signature.createTypeSignature(qualifiedTypeName(methodBinding.getReturnType()), true)
+					.toCharArray());
+			res.setReceiverSignature(Signature
+					.createTypeSignature(methodBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
+					.toCharArray());
+			res.setDeclarationSignature(Signature
+					.createTypeSignature(methodBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
+					.toCharArray());
+		} else {
+			res.setSignature(new char[] {});
+			res.setReceiverSignature(new char[] {});
+			res.setDeclarationSignature(new char[] {});
+		}
+		res.setReplaceRange(this.toComplete instanceof SimpleName ? this.toComplete.getStartPosition() : this.offset,
+				DOMCompletionEngine.this.offset);
 		var element = binding.getJavaElement();
 		if (element != null) {
 			res.setDeclarationTypeName(((IType)element.getAncestor(IJavaElement.TYPE)).getFullyQualifiedName().toCharArray());
