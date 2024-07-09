@@ -70,6 +70,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	public final TypeSymbol typeSymbol;
 	private final Types types;
 	private final Type type;
+	private boolean recovered = false;
 
 	public JavacTypeBinding(final Type type, final TypeSymbol typeSymbol, JavacBindingResolver resolver) {
 		if (type instanceof PackageType) {
@@ -112,6 +113,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isRecovered() {
+		if (recovered) {
+			return true;
+		}
 		if (isArray()) {
 			return getComponentType().isRecovered();
 		}
@@ -765,6 +769,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return this.resolver.bindings.getModuleBinding(ps.modle);
 		}
 		return null;
+	}
+
+	public void setRecovered(boolean recovered) {
+		this.recovered = recovered;
 	}
 
 	@Override
