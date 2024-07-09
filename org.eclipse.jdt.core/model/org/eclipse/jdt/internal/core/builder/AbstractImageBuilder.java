@@ -411,6 +411,7 @@ protected void compile(SourceFile[] units, SourceFile[] additionalUnits, boolean
 	this.notifier.checkCancel();
 	try {
 		this.inCompiler = true;
+		this.compiler.parseThreshold = Integer.MAX_VALUE; // fully parse to avoid second read of source
 		this.compiler.compile(units);
 	} catch (AbortCompilation ignored) {
 		// ignore the AbortCompilcation coming from BuildNotifier.checkCancelWithinCompiler()
