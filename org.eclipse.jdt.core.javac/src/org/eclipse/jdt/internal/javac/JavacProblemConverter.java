@@ -652,7 +652,11 @@ public class JavacProblemConverter {
 		if (diagnostic instanceof JCDiagnostic jcDiagnostic && jcDiagnostic.getDiagnosticPosition() instanceof JCTree tree) {
 			JCCompilationUnit unit = units.get(jcDiagnostic.getSource());
 			if (unit != null) {
+				// is the error in a method argument?
 				TreePath path = JavacTrees.instance(context).getPath(unit, tree);
+				if (path != null) {
+					path = path.getParentPath();
+				}
 				while (path != null && path.getLeaf() instanceof JCExpression) {
 					if (path.getLeaf() instanceof JCMethodInvocation) {
 						return IProblem.ParameterMismatch;
