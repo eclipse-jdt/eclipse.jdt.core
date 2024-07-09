@@ -667,6 +667,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (this.receiver instanceof ThisReference) {
 		this.receiver.bits |= this.bits & ASTNode.IsStrictlyAssigned; // mark as assignment-lhs, where 'this.f' is legal even in early construction context
+		((ThisReference) this.receiver).inFieldReference = true;
 	}
 	this.actualReceiverType = this.receiver.resolveType(scope);
 	if (this.actualReceiverType == null) {
@@ -749,12 +750,6 @@ public TypeBinding resolveType(BlockScope scope) {
 					&& methodScope.isInsideInitializerOrConstructor()) {
 				scope.problemReporter().enumStaticFieldUsedDuringInitialization(this.binding, this);
 			}
-		}
-	} else {
-		if ((this.bits & ASTNode.IsStrictlyAssigned) == 0
-				&& this.actualReceiverType != null && scope.isInsideEarlyConstructionContext(this.actualReceiverType, false)
-				&& (this.receiver instanceof ThisReference thisReference && thisReference.isImplicitThis())) { // explicit thisReference error flagging taken care in ThisReference
-			scope.problemReporter().errorExpressionInPreConstructorContext(this);
 		}
 	}
 	TypeBinding fieldType = fieldBinding.type;

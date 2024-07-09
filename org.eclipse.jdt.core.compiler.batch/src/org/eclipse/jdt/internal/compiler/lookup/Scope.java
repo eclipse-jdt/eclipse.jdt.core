@@ -5695,6 +5695,10 @@ public abstract class Scope {
 	 * @param considerEnclosings if {@code true} also enclosing types or targetClass must be initialized
 	 */
 	public boolean isInsideEarlyConstructionContext(TypeBinding targetClass, boolean considerEnclosings) {
+		return getMatchingUninitializedType(targetClass, considerEnclosings) != null;
+	}
+
+	public TypeBinding getMatchingUninitializedType(TypeBinding targetClass, boolean considerEnclosings) {
 		if (targetClass == null)
 			targetClass = enclosingReceiverType();
 		ClassScope currentEnclosing = classScope();
@@ -5704,7 +5708,7 @@ public abstract class Scope {
 			while (currentTarget != null) {
 				if (TypeBinding.equalsEquals(enclosingType, currentTarget)) {
 					if (currentEnclosing.insideEarlyConstructionContext)
-						return true;
+						return enclosingType;
 				}
 				if (!considerEnclosings
 						|| (currentTarget instanceof ReferenceBinding currentRefBind && !currentRefBind.hasEnclosingInstanceContext())) {
@@ -5714,6 +5718,6 @@ public abstract class Scope {
 			}
 			currentEnclosing = currentEnclosing.parent.classScope();
 		}
-		return false;
+		return null;
 	}
 }

@@ -251,7 +251,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 		if (this.actualReceiverType != null
 				&& scope.isInsideEarlyConstructionContext(this.actualReceiverType, false)
 				&& (this.bits & ASTNode.IsStrictlyAssigned) == 0) {
-			scope.problemReporter().errorExpressionInPreConstructorContext(this);
+			scope.problemReporter().fieldReadInEarlyConstructionContext(this.token, this.sourceStart, this.sourceEnd);
 		}
 		// must check for the static status....
 		if (methodScope.isStatic) {

@@ -130,7 +130,7 @@ public class QualifiedThisReference extends ThisReference {
 				ms.problemReporter().errorThisSuperInStatic(this);
 		}
 		if (scope.isInsideEarlyConstructionContext(this.resolvedType, false)) {
-			scope.problemReporter().errorExpressionInPreConstructorContext(this);
+			scope.problemReporter().errorExpressionInEarlyConstructionContext(this);
 		}
 		MethodScope methodScope = scope.namedMethodScope();
 		if (methodScope != null) {

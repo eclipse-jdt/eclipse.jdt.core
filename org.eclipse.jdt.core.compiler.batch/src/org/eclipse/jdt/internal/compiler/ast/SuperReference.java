@@ -72,7 +72,7 @@ public class SuperReference extends ThisReference {
 
 		this.constant = Constant.NotAConstant;
 		if (scope.isInsideEarlyConstructionContext(null, false))
-			scope.problemReporter().errorExpressionInPreConstructorContext(this);
+			scope.problemReporter().errorExpressionInEarlyConstructionContext(this);
 		ReferenceBinding enclosingReceiverType = scope.enclosingReceiverType();
 		if (!checkAccess(scope, enclosingReceiverType))
 			return null;

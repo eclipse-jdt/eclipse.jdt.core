@@ -2623,15 +2623,39 @@ void setSourceStart(int sourceStart);
 	int UnnamedVariableMustHaveInitializer = PreviewRelated + 2001;
 
 	/**
-	 * @since 3.38
+	 * @since 3.39
 	 * @noreference preview feature
 	 */
-	int ExpressionInPreConstructorContext = PreviewRelated + 2022;
+	int ExpressionInEarlyConstructionContext = PreviewRelated + 2022;
 
 	/**
-	 * @since 3.38
+	 * @since 3.39
 	 * @noreference preview feature
 	 */
-	int DisallowedStatementInPrologue = PreviewRelated + 2023;
+	int DisallowedStatementInEarlyConstructionContext = PreviewRelated + 2023;
+
+	/**
+	 * @since 3.39
+	 * @noreference preview feature
+	 */
+	int FieldReadInEarlyConstructionContext = PreviewRelated + 2024;
+
+	/**
+	 * @since 3.39
+	 * @noreference preview feature
+	 */
+	int ThisInEarlyConstructionContext = PreviewRelated + 2025;
+
+	/**
+	 * @since 3.39
+	 * @noreference preview feature
+	 */
+	int AllocationInEarlyConstructionContext = PreviewRelated + 2026;
+
+	/**
+	 * @since 3.39
+	 * @noreference preview feature
+	 */
+	int MessageSendInEarlyConstructionContext = PreviewRelated + 2027;
 
 }

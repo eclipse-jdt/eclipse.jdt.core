@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+* Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -39,6 +39,8 @@ public class ThisReference extends Reference {
 		return implicitThis;
 	}
 
+	public boolean inFieldReference = false;
+
 	public ThisReference(int sourceStart, int sourceEnd) {
 
 		this.sourceStart = sourceStart;
@@ -57,7 +59,7 @@ public class ThisReference extends Reference {
 		if (scope.isInsideEarlyConstructionContext(null, false)) {
 			// JEP 482
 			if (!isAssigment) {
-				scope.problemReporter().errorExpressionInPreConstructorContext(this);
+				scope.problemReporter().errorExpressionInEarlyConstructionContext(this);
 				return false;
 			}
 		} else {

@@ -79,7 +79,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// interface-qualified this selects a default method in a super interface,
 	// but here we are only interested in supers of *enclosing instances*:
 	if (enclosingReceiverType != null && !enclosingReceiverType.isInterface() && scope.isInsideEarlyConstructionContext(enclosingReceiverType, false))
-		scope.problemReporter().errorExpressionInPreConstructorContext(this);
+		scope.problemReporter().errorExpressionInEarlyConstructionContext(this);
 	return this.resolvedType = (this.currentCompatibleType.isInterface()
 			? this.currentCompatibleType
 			: this.currentCompatibleType.superclass());

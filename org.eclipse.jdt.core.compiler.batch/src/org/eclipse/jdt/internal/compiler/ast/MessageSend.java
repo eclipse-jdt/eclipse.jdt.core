@@ -1022,7 +1022,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 		if (this.actualReceiverType != null && scope.isInsideEarlyConstructionContext(this.actualReceiverType, false) &&
 				(this.receiver instanceof ThisReference thisReference && thisReference.isImplicitThis())) {
-			scope.problemReporter().errorExpressionInPreConstructorContext(this);
+			scope.problemReporter().messageSendInEarlyConstructionContext(this);
 		}
 	} else {
 		// static message invoked through receiver? legal but unoptimal (optional warning).

@@ -546,9 +546,10 @@ public TypeBinding resolveType(BlockScope scope) {
 protected void checkPreConstructorContext(BlockScope scope) {
 	if (this.type != null
 			&& this.type.resolvedType instanceof ReferenceBinding currentType
-			&& currentType.hasEnclosingInstanceContext()
-			&& scope.isInsideEarlyConstructionContext(currentType, !currentType.isLocalType())) {
-		scope.problemReporter().errorExpressionInPreConstructorContext(this);
+			&& currentType.hasEnclosingInstanceContext()) {
+		TypeBinding uninitialized = scope.getMatchingUninitializedType(currentType, !currentType.isLocalType());
+		if (uninitialized != null)
+			scope.problemReporter().allocationInEarlyConstructionContext(this, this.resolvedType, uninitialized);
 	}
 }
 

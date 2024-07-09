@@ -291,17 +291,17 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 4)\n" +
 				"	this.i++;                   // Error\n" +
 				"	^^^^\n" +
-				"Cannot use this in an early construction context\n" +
+				"Cannot use 'this' in an early construction context (except in a simple field assignment)\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 5)\n" +
 				"	this.hashCode();            // Error\n" +
 				"	^^^^\n" +
-				"Cannot use this in an early construction context\n" +
+				"Cannot use 'this' in an early construction context\n" +
 				"----------\n" +
 				"3. ERROR in X.java (at line 6)\n" +
 				"	System.out.print(this);     // Error\n" +
 				"	                 ^^^^\n" +
-				"Cannot use this in an early construction context\n" +
+				"Cannot use 'this' in an early construction context\n" +
 				"----------\n" +
 				"4. WARNING in X.java (at line 7)\n" +
 				"	super();\n" +
@@ -330,7 +330,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 6)\n" +
 			"	super.i++;                  // Error\n" +
 			"	^^^^^\n" +
-			"Cannot use super in an early construction context\n" +
+			"Cannot use 'super' in an early construction context (except in a simple field assignment)\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 7)\n" +
 			"	super();\n" +
@@ -391,7 +391,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				1. ERROR in X.java (at line 5)
 					System.out.print(X.this);
 					                 ^^^^^^
-				Cannot use X.this in an early construction context
+				Cannot use 'X.this' in an early construction context
 				----------
 				""";
 		runner.runNegativeTest();
@@ -448,12 +448,12 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	i++;                        // Error\n" +
 			"	^\n" +
-			"Cannot use i in an early construction context\n" +
+			"Cannot read field i in an early construction context\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 5)\n" +
 			"	hashCode();                 // Error\n" +
 			"	^^^^^^^^^^\n" +
-			"Cannot use hashCode() in an early construction context\n" +
+			"Cannot invoke method hashCode() in an early construction context\n" +
 			"----------\n" +
 			"3. WARNING in X.java (at line 6)\n" +
 			"	super();\n" +
@@ -508,7 +508,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"1. ERROR in B.java (at line 5)\n" +
 			"	C.this.c++;             // Error - same instance\n" +
 			"	^^^^^^\n" +
-			"Cannot use C.this in an early construction context\n" +
+			"Cannot use 'C.this' in an early construction context (except in a simple field assignment)\n" +
 			"----------\n" +
 			"2. WARNING in B.java (at line 6)\n" +
 			"	super();\n" +
@@ -586,7 +586,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	new Inner(); // Error - \'this\' is enclosing instance\n" +
 			"	^^^^^^^^^^^\n" +
-			"Cannot use new Inner() in an early construction context\n" +
+			"Cannot instantiate class Outer.Inner in an early construction context of class Outer\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 5)\n" +
 			"	super();\n" +
@@ -640,11 +640,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	var tmp = new S() { };      // Error\n" +
 			"	          ^^^^^^^^^^^\n" +
-			"Cannot use new S() {\n" +
-			"  x() {\n" +
-			"    super();\n" +
-			"  }\n" +
-			"} in an early construction context\n" +
+			"Cannot instantiate class new X.S(){} in an early construction context of class X\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 5)\n" +
 			"	super();\n" +
@@ -832,7 +828,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 9)\n" +
 			"	return; // Error - return not allowed here\n" +
 			"	^^^^^^^\n" +
-			"return ; statement not allowed in an early construction context\n" +
+			"return; statement not allowed in an early construction context\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 10)\n" +
 			"	super(i);\n" +
@@ -866,7 +862,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	return; // Error - return not allowed here\n" +
 			"	^^^^^^^\n" +
-			"return ; statement not allowed in an early construction context\n" +
+			"return; statement not allowed in an early construction context\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 5)\n" +
 			"	this(i, 0);\n" +
@@ -986,8 +982,8 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 12)\n" +
 			"	int j = a.i;\n" +
-			"	        ^^^\n" +
-			"Cannot use a.i in an early construction context\n" +
+			"	        ^\n" +
+			"Cannot read field a in an early construction context\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 14)\n" +
 			"	super();\n" +
@@ -1054,7 +1050,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 8)\n" +
 			"	I tos = super::toString;\n" +
 			"	        ^^^^^\n" +
-			"Cannot use super in an early construction context\n" +
+			"Cannot use 'super' in an early construction context\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 9)\n" +
 			"	this(i, 0);\n" +
@@ -1092,7 +1088,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 13)\n" +
 			"	int j = a.getI();\n" +
 			"	        ^\n" +
-			"Cannot use a in an early construction context\n" +
+			"Cannot read field a in an early construction context\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 15)\n" +
 			"	super();\n" +
@@ -1127,7 +1123,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 8)\n" +
 			"	int j = J.super.getI();\n" +
 			"	        ^^^^^^^\n" +
-			"Cannot use J.super in an early construction context\n" +
+			"Cannot use 'J.super' in an early construction context\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 9)\n" +
 			"	super();\n" +
@@ -1162,7 +1158,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 8)\n" +
 			"	int j = J.super.getI();\n" +
 			"	        ^^^^^^^\n" +
-			"Cannot use J.super in an early construction context\n" +
+			"Cannot use 'J.super' in an early construction context\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 9)\n" +
 			"	this(j);\n" +
@@ -1348,8 +1344,8 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		"----------\n"
 			);
 	}
-	// Disabled till https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2373 is fixed
-	public void _test037() {
+	// regression test for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2373
+	public void test037() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1532,7 +1528,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				1. ERROR in Test3.java (at line 5)
 					foo(); // error is correct
 					^^^^^
-				Cannot use foo() in an early construction context
+				Cannot invoke method foo() in an early construction context
 				----------
 				""";
 		runner.runNegativeTest();
@@ -1567,7 +1563,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				1. ERROR in Test.java (at line 5)
 					foo(this);
 					^^^^^^^^^
-				Cannot use foo(this) in an early construction context
+				Cannot invoke method foo() in an early construction context
 				----------
 				""";
 		runner.runNegativeTest();
@@ -1694,6 +1690,61 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				""";
 		runner.runNegativeTest();
 	}
+	public void testFieldCompoundAssignedInSuperArgument() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		runner.testFiles = new String[] {
+				"Test.java",
+				"""
+				class Super {
+					Super (int i) {}
+				}
+				public class Test extends Super {
+					int i;
+					Test(int n) {
+						super(i+=n);			// old syntax, single name reference
+					}
+					Test(int n, boolean f) {
+						super(this.i-=n);		// old syntax, this-qualified field reference
+					}
+					Test(int n, int m) {
+						int s = n+m;
+						super(i*=s);			// new syntax, single name reference
+					}
+					Test(int n, int m, boolean f) {
+						int s = n+m;
+						super(this.i/=s);		// new syntax, this-qualified field reference
+					}
+				}
+				"""
+			};
+		runner.expectedCompilerLog = """
+				----------
+				1. ERROR in Test.java (at line 7)
+					super(i+=n);			// old syntax, single name reference
+					      ^
+				Cannot refer to an instance field i while explicitly invoking a constructor
+				----------
+				2. ERROR in Test.java (at line 10)
+					super(this.i-=n);		// old syntax, this-qualified field reference
+					      ^^^^
+				Cannot refer to 'this' nor 'super' while explicitly invoking a constructor
+				----------
+				3. ERROR in Test.java (at line 14)
+					super(i*=s);			// new syntax, single name reference
+					      ^
+				Cannot read field i in an early construction context
+				----------
+				4. ERROR in Test.java (at line 18)
+					super(this.i/=s);		// new syntax, this-qualified field reference
+					      ^^^^
+				Cannot use 'this' in an early construction context (except in a simple field assignment)
+				----------
+				""";
+		runner.runNegativeTest();
+	}
 	public void testFieldReadInSuperArgument() {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
@@ -1734,7 +1785,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				2. ERROR in Test.java (at line 11)
 					super(i);
 					      ^
-				Cannot use i in an early construction context
+				Cannot read field i in an early construction context
 				----------
 				3. ERROR in Test.java (at line 14)
 					super(this.i);
@@ -1744,7 +1795,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				4. ERROR in Test.java (at line 18)
 					super(this.i);
 					      ^^^^
-				Cannot use this in an early construction context
+				Cannot use 'this' in an early construction context (except in a simple field assignment)
 				----------
 				""";
 		runner.runNegativeTest();
