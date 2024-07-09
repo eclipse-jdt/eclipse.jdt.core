@@ -106,7 +106,46 @@ public class JavacProblemConverter {
 	}
 
 	private org.eclipse.jface.text.Position getDiagnosticPosition(Diagnostic<? extends JavaFileObject> diagnostic, Context context, int problemId) {
-		if (diagnostic.getCode().contains(".dc")) { //javadoc
+		if (diagnostic.getCode().contains(".dc") || "compiler.warn.proc.messager".equals(diagnostic.getCode())) { //javadoc
+			if (problemId == IProblem.JavadocMissingParamTag) {
+				String message = diagnostic.getMessage(Locale.ENGLISH);
+				TreePath path = getTreePath(diagnostic);
+				if (message.startsWith("no @param for ") && path.getLeaf() instanceof JCMethodDecl method) {
+					String param = message.substring("no @param for ".length());
+					var position = method.getParameters().stream()
+						.filter(paramDecl -> param.equals(paramDecl.getName().toString()))
+						.map(paramDecl -> new org.eclipse.jface.text.Position(paramDecl.getPreferredPosition(), paramDecl.getName().toString().length()))
+						.findFirst()
+						.orElse(null);
+					if (position != null) {
+						return position;
+					}
+				}
+			}
+			if (problemId == IProblem.JavadocMissingReturnTag
+				&& diagnostic instanceof JCDiagnostic jcDiagnostic
+				&& jcDiagnostic.getDiagnosticPosition() instanceof JCMethodDecl methodDecl
+				&& methodDecl.getReturnType() != null) {
+				JCTree returnType = methodDecl.getReturnType();
+				JCCompilationUnit unit = units.get(jcDiagnostic.getSource());
+				if (unit != null) {
+					int end = unit.endPositions.getEndPos(returnType);
+					int start = returnType.getStartPosition();
+					return new org.eclipse.jface.text.Position(start, end - start);
+				}
+			}
+			if (problemId == IProblem.JavadocMissingThrowsTag
+					&& diagnostic instanceof JCDiagnostic jcDiagnostic
+					&& jcDiagnostic.getDiagnosticPosition() instanceof JCMethodDecl methodDecl
+					&& methodDecl.getThrows() != null && !methodDecl.getThrows().isEmpty()) {
+				JCTree ex = methodDecl.getThrows().head;
+				JCCompilationUnit unit = units.get(jcDiagnostic.getSource());
+				if (unit != null) {
+					int end = unit.endPositions.getEndPos(ex);
+					int start = ex.getStartPosition();
+					return new org.eclipse.jface.text.Position(start, end - start);
+				}
+			}
 			return getDefaultPosition(diagnostic);
 		}
 		if (diagnostic instanceof JCDiagnostic jcDiagnostic) {
@@ -466,6 +505,18 @@ public class JavacProblemConverter {
 				}
 				if (message.contains("@param name not found")) {
 					yield IProblem.JavadocInvalidParamName;
+				}
+				if (message.contains("no @throws for ")) {
+					yield IProblem.JavadocMissingThrowsTag;
+				}
+				if (message.contains("invalid use of @return")) {
+					yield IProblem.JavadocUnexpectedTag;
+				}
+				if (message.startsWith("exception not thrown: ")) {
+					yield IProblem.JavadocInvalidThrowsClassName;
+				}
+				if (message.startsWith("@param ") && message.endsWith(" has already been specified")) {
+					yield IProblem.JavadocDuplicateParamName;
 				}
 				// most others are ignored
 				yield 0;
