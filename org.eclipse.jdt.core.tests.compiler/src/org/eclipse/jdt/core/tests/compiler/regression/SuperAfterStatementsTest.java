@@ -1800,4 +1800,37 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				""";
 		runner.runNegativeTest();
 	}
+	public void testBug564263() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"Test.java",
+			"""
+			import java.util.function.Supplier;
+
+			public class Test {
+				private String message;
+
+				public class LambaError {
+					public LambaError(Supplier<String> message) {
+						System.out.print(message.get());
+					}
+				}
+
+				public class Broken extends LambaError {
+					public Broken(String message) {
+						super(() -> Test.this.message);
+					}
+				}
+				void test() {
+					this.message = "OK";
+					new Broken("NOK");
+				}
+				public static void main(String... args) {
+					new Test().test();
+				}
+			}
+			"""};
+		runner.expectedOutputString = "OK";
+		runner.runConformTest();
+	}
 }
