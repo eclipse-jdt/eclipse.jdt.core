@@ -124,7 +124,9 @@ public enum JavaFeature {
 			return preview;
 		return this.getCompliance() <= CompilerOptions.versionToJdkLevel(comp);
 	}
-
+	public boolean matchesCompliance(CompilerOptions options) {
+		return this.compliance == options.complianceLevel;
+	}
 	JavaFeature(long compliance, String name, char[][] restrictedKeywords, boolean isPreview) {
         this.compliance = compliance;
         this.name = name;

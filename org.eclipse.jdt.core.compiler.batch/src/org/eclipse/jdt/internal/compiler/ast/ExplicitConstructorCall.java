@@ -318,10 +318,15 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 				if (!checkAndFlagExplicitConstructorCallInCanonicalConstructor(methodDeclaration, scope))
 					return;
 			}
-			if (methodDeclaration == null
-					|| !methodDeclaration.isConstructor()
-					|| (((ConstructorDeclaration) methodDeclaration).constructorCall != this
-							&& !scope.isInsideEarlyConstructionContext(null, false))) {
+			boolean isFirstStatement = true;
+			boolean hasError = false;
+			if (methodDeclaration == null || !methodDeclaration.isConstructor()) {
+				hasError = true;
+			} else if (((ConstructorDeclaration) methodDeclaration).constructorCall != this) {
+				isFirstStatement = false;
+				hasError = !scope.isInsideEarlyConstructionContext(null, false);
+			}
+			if (hasError) {
 				if (!(methodDeclaration instanceof CompactConstructorDeclaration)) {// already flagged for CCD
 					scope.problemReporter().invalidExplicitConstructorCall(this);
 				}
@@ -341,7 +346,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 				}
 				return;
 			}
-			methodScope.isConstructorCall = true;
+			methodScope.isConstructorCall = isFirstStatement; // JEP 482 uses other mechanisms
 			ReferenceBinding receiverType = scope.enclosingReceiverType();
 			boolean rcvHasError = false;
 			if (this.accessMode != ExplicitConstructorCall.This) {

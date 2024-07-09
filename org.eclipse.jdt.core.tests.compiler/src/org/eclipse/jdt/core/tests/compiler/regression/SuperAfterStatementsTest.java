@@ -1601,4 +1601,152 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.expectedOutputString = "Test$Inner";
 		runner.runConformTest();
 	}
+	public void testFieldAssignedInSuperArgument_OK() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		runner.testFiles = new String[] {
+				"Test.java",
+				"""
+				class Super {
+					Super (int i) {}
+				}
+				public class Test extends Super {
+					int i;
+					Test(int n) {
+						super(i=n);				// old syntax, single name reference
+					}
+					Test(int n, boolean f) {
+						super(this.i=n);		// old syntax, this-qualified field reference
+					}
+					Test(int n, int m) {
+						int s = n+m;
+						super(i=s);				// new syntax, single name reference
+					}
+					Test(int n, int m, boolean f) {
+						int s = n+m;
+						super(this.i=s);		// new syntax, this-qualified field reference
+					}
+					public static void main(String... args) {
+						System.out.print(new Test(3).i);
+						System.out.print(new Test(4, true).i);
+						System.out.print(new Test(2,3).i);
+						System.out.print(new Test(3,3, true).i);
+					}
+				}
+				"""
+			};
+		runner.expectedOutputString = "3456";
+		runner.runConformTest();
+	}
+	public void testFieldAssignedInSuperArgument_notEnabled() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		runner.testFiles = new String[] {
+				"Test.java",
+				"""
+				class Super {
+					Super (int i) {}
+				}
+				public class Test extends Super {
+					int i;
+					Test(int n) {
+						super(i=n);				// old syntax, single name reference
+					}
+					Test(int n, boolean f) {
+						super(this.i=n);		// old syntax, this-qualified field reference
+					}
+					Test(int n, int m) {
+						int s = n+m;
+						super(i=s);				// new syntax, single name reference
+					}
+					Test(int n, int m, boolean f) {
+						int s = n+m;
+						super(this.i=s);		// new syntax, this-qualified field reference
+					}
+				}
+				"""
+			};
+		runner.expectedCompilerLog = """
+				----------
+				1. ERROR in Test.java (at line 7)
+					super(i=n);				// old syntax, single name reference
+					      ^
+				Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable
+				----------
+				2. ERROR in Test.java (at line 10)
+					super(this.i=n);		// old syntax, this-qualified field reference
+					      ^^^^
+				Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable
+				----------
+				3. ERROR in Test.java (at line 14)
+					super(i=s);				// new syntax, single name reference
+					^^^^^^^^^^^
+				Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable
+				----------
+				4. ERROR in Test.java (at line 18)
+					super(this.i=s);		// new syntax, this-qualified field reference
+					^^^^^^^^^^^^^^^^
+				Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable
+				----------
+				""";
+		runner.runNegativeTest();
+	}
+	public void testFieldReadInSuperArgument() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		runner.testFiles = new String[] {
+				"Test.java",
+				"""
+				class Super {
+					Super (int i) {}
+				}
+				public class Test extends Super {
+					int i;
+					Test() {
+						super(i);
+					}
+					Test(boolean f) {
+						System.out.print(f);
+						super(i);
+					}
+					Test(String s) {
+						super(this.i);
+					}
+					Test(String s, boolean f) {
+						System.out.print(f);
+						super(this.i);
+					}
+				}
+				"""
+			};
+		runner.expectedCompilerLog = """
+				----------
+				1. ERROR in Test.java (at line 7)
+					super(i);
+					      ^
+				Cannot refer to an instance field i while explicitly invoking a constructor
+				----------
+				2. ERROR in Test.java (at line 11)
+					super(i);
+					      ^
+				Cannot use i in an early construction context
+				----------
+				3. ERROR in Test.java (at line 14)
+					super(this.i);
+					      ^^^^
+				Cannot refer to 'this' nor 'super' while explicitly invoking a constructor
+				----------
+				4. ERROR in Test.java (at line 18)
+					super(this.i);
+					      ^^^^
+				Cannot use this in an early construction context
+				----------
+				""";
+		runner.runNegativeTest();
+	}
 }

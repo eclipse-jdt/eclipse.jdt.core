@@ -77,6 +77,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -2146,12 +2147,18 @@ public abstract class Scope {
 									if (fieldBinding.isValidBinding()) {
 										if (!fieldBinding.isStatic()) {
 											if (insideConstructorCall) {
-												insideProblem =
-													new ProblemFieldBinding(
-														fieldBinding, // closest match
-														fieldBinding.declaringClass,
-														name,
-														ProblemReasons.NonStaticReferenceInConstructorInvocation);
+												if (invocationSite instanceof ASTNode node
+														&& (node.bits & ASTNode.IsStrictlyAssigned) != 0
+														&& JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(compilerOptions())) {
+													problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES, invocationSite.sourceStart(), invocationSite.sourceEnd());
+												} else {
+													insideProblem =
+														new ProblemFieldBinding(
+															fieldBinding, // closest match
+															fieldBinding.declaringClass,
+															name,
+															ProblemReasons.NonStaticReferenceInConstructorInvocation);
+												}
 											} else if (insideStaticContext) {
 												insideProblem =
 													new ProblemFieldBinding(

@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class ThisReference extends Reference {
@@ -51,12 +52,25 @@ public class ThisReference extends Reference {
 	}
 
 	public boolean checkAccess(BlockScope scope, ReferenceBinding receiverType) {
-
+		boolean isAssigment = (this.bits & ASTNode.IsStrictlyAssigned) != 0;
 		MethodScope methodScope = scope.methodScope();
-		// this/super cannot be used in constructor call
-		if (methodScope.isConstructorCall) {
-			methodScope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);
-			return false;
+		if (scope.isInsideEarlyConstructionContext(null, false)) {
+			// JEP 482
+			if (!isAssigment) {
+				scope.problemReporter().errorExpressionInPreConstructorContext(this);
+				return false;
+			}
+		} else {
+			// old style: this/super cannot be used in constructor call
+			if (methodScope.isConstructorCall) {
+				if (isAssigment && JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(scope.compilerOptions())) {
+					if (scope.problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES, this.sourceStart, this.sourceEnd))
+						return false;
+				} else {
+					methodScope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);
+					return false;
+				}
+			}
 		}
 
 		// static may not refer to this/super
@@ -135,11 +149,6 @@ public class ThisReference extends Reference {
 	public TypeBinding resolveType(BlockScope scope) {
 
 		this.constant = Constant.NotAConstant;
-
-		if ((this.bits & ASTNode.IsStrictlyAssigned) == 0
-				&& !isImplicitThis()
-				&& scope.isInsideEarlyConstructionContext(null, false))
-			scope.problemReporter().errorExpressionInPreConstructorContext(this);
 
 		ReferenceBinding enclosingReceiverType = scope.enclosingReceiverType();
 		if (!isImplicitThis() &&!checkAccess(scope, enclosingReceiverType)) {
