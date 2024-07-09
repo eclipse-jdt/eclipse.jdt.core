@@ -1222,7 +1222,7 @@ public void testBug545766_JEP211() throws CoreException {
 			"}"
 		);
 		IJavaProject p2 = createJavaProject("P2", new String[] {"src"},
-				new String[] {"JCL9_LIB"}, "bin", "9");
+				new String[] {"JCL19_LIB"}, "bin", "9");
 		IClasspathEntry[] classpath = p2.getRawClasspath();
 		int length = classpath.length;
 		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);

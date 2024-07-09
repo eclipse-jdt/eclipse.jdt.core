@@ -5365,6 +5365,13 @@ public void test135() {
 			"	}\n" +
 			"}", // =================,
 		},
+		(this.complianceLevel >= ClassFileConstants.JDK9 ? "" :
+		"----------\n" +
+		"1. WARNING in p\\X.java (at line 2)\n" +
+		"	import p.A;\n" +
+		"	       ^^^\n" +
+		"The type A is deprecated\n"
+		) +
 		"----------\n" +
 		"1. WARNING in p\\X.java (at line 6)\n" +
 		"	A.M2.MM1 mm1 = (A.M2.MM1) o;\n" +
