@@ -41,9 +41,12 @@ import com.sun.tools.javac.parser.ScannerFactory;
 import com.sun.tools.javac.parser.Tokens.Token;
 import com.sun.tools.javac.parser.Tokens.TokenKind;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCAnnotation;
+import com.sun.tools.javac.tree.JCTree.JCAssign;
 import com.sun.tools.javac.tree.JCTree.JCBlock;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
@@ -108,8 +111,14 @@ public class JavacProblemConverter {
 		}
 		if (diagnostic instanceof JCDiagnostic jcDiagnostic) {
 			TreePath diagnosticPath = getTreePath(jcDiagnostic);
-			if (problemId == IProblem.ParameterMismatch && diagnosticPath != null && !(diagnosticPath.getLeaf() instanceof JCMethodInvocation)) {
+			if (problemId == IProblem.ParameterMismatch) {
+				// Javac points to the arg, which JDT expects the method name
 				diagnosticPath = diagnosticPath.getParentPath();
+				while (diagnosticPath != null
+					&& diagnosticPath.getLeaf() instanceof JCExpression
+					&& !(diagnosticPath.getLeaf() instanceof JCMethodInvocation)) {
+					diagnosticPath = diagnosticPath.getParentPath();
+				}
 				if (diagnosticPath.getLeaf() instanceof JCMethodInvocation method) {
 					var selectExpr = method.getMethodSelect();
 					if (selectExpr instanceof JCIdent methodNameIdent) {
@@ -516,6 +525,14 @@ public class JavacProblemConverter {
 			}
 		}
 
+		TreePath treePath = getTreePath(diagnostic);
+		if (treePath != null) {
+			// @Annot(unknownArg = 1)
+			if (treePath.getParentPath() != null && treePath.getParentPath().getLeaf() instanceof JCAssign
+				&& treePath.getParentPath().getParentPath() != null && treePath.getParentPath().getParentPath().getLeaf() instanceof JCAnnotation) {
+				return IProblem.UndefinedAnnotationMember;
+			}
+		}
 		return IProblem.UndefinedMethod;
 	}
 
@@ -585,8 +602,11 @@ public class JavacProblemConverter {
 			JCCompilationUnit unit = units.get(jcDiagnostic.getSource());
 			if (unit != null) {
 				TreePath path = JavacTrees.instance(context).getPath(unit, tree);
-				if (path.getParentPath().getLeaf() instanceof JCMethodInvocation) {
-					return IProblem.ParameterMismatch;
+				while (path != null && path.getLeaf() instanceof JCExpression) {
+					if (path.getLeaf() instanceof JCMethodInvocation) {
+						return IProblem.ParameterMismatch;
+					}
+					path = path.getParentPath();
 				}
 			}
 		}
