@@ -844,11 +844,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					CompilationUnitDeclaration parsedUnit;
 					unitResult = new CompilationResult(sourceUnits[i], i, maxUnits, this.options.maxProblemsPerUnit);
 					long parseStart = System.currentTimeMillis();
-					if (this.totalUnits < this.parseThreshold) {
-						parsedUnit = this.parser.parse(sourceUnits[i], unitResult);
-					} else {
-						parsedUnit = this.parser.dietParse(sourceUnits[i], unitResult);
-					}
+					parsedUnit = this.parser.parse(sourceUnits[i], unitResult);
 					long resolveStart = System.currentTimeMillis();
 					this.stats.parseTime += resolveStart - parseStart;
 					// initial type binding creation
