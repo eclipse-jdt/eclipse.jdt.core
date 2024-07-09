@@ -846,6 +846,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					long parseStart = System.currentTimeMillis();
 					if (this.totalUnits < this.parseThreshold) {
 						parsedUnit = this.parser.parse(sourceUnits[i], unitResult);
+						throw new IllegalStateException("full parse is used during compile"); //$NON-NLS-1$
 					} else {
 						parsedUnit = this.parser.dietParse(sourceUnits[i], unitResult);
 					}
