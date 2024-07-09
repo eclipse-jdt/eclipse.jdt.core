@@ -132,6 +132,9 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public IJavaElement getJavaElement() {
+		if (this.methodSymbol == null) {
+			return null;
+		}
 		// This can be invalid: it looks like it's possible to get some methodSymbol
 		// for a method that doesn't exist (eg `Runnable.equals()`). So we may be
 		// constructing incorrect bindings.

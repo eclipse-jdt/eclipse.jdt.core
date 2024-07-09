@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -457,12 +458,21 @@ public class JavacBindingResolver extends BindingResolver {
 		if (javacElement instanceof JCMethodInvocation javacMethodInvocation) {
 			javacElement = javacMethodInvocation.getMethodSelect();
 		}
-		if (javacElement instanceof JCIdent ident && ident.sym instanceof MethodSymbol methodSymbol) {
-			return this.bindings.getMethodBinding(ident.type != null ? ident.type.asMethodType() : methodSymbol.asType().asMethodType(), methodSymbol);
+		var type = javacElement.type;
+		var sym = javacElement instanceof JCIdent ident ? ident.sym :
+			javacElement instanceof JCFieldAccess fieldAccess ? fieldAccess.sym :
+				null;
+		if (type instanceof MethodType methodType && sym instanceof MethodSymbol methodSymbol) {
+			return this.bindings.getMethodBinding(methodType, methodSymbol);
 		}
-		if (javacElement instanceof JCFieldAccess fieldAccess && fieldAccess.sym instanceof MethodSymbol methodSymbol
-				&& fieldAccess.type != null /* when there are syntax errors */) {
-			return this.bindings.getMethodBinding(fieldAccess.type.asMethodType(), methodSymbol);
+		if (type instanceof ErrorType errorType && errorType.getOriginalType() instanceof MethodType methodType) {
+			if (sym.owner instanceof TypeSymbol typeSymbol) {
+				Iterator<Symbol> methods = typeSymbol.members().getSymbolsByName(sym.getSimpleName(), m -> m instanceof MethodSymbol && methodType.equals(m.type)).iterator();
+				if (methods.hasNext()) {
+					return this.bindings.getMethodBinding(methodType, (MethodSymbol)methods.next());
+				}
+			}
+			return this.bindings.getErrorMethodBinding(methodType, sym);
 		}
 		return null;
 	}
@@ -858,11 +868,11 @@ public class JavacBindingResolver extends BindingResolver {
 		} else if (attribute instanceof Attribute.Array array) {
 			return Stream.of(array.values) //
 					.map(nestedAttr -> {
-						if (attribute instanceof Attribute.Constant constant) {
+						if (nestedAttr instanceof Attribute.Constant constant) {
 							return constant.value;
-						} else if (attribute instanceof Attribute.Class clazz) {
+						} else if (nestedAttr instanceof Attribute.Class clazz) {
 							return this.bindings.getTypeBinding(clazz.classType);
-						} else if (attribute instanceof Attribute.Enum enumerable) {
+						} else if (nestedAttr instanceof Attribute.Enum enumerable) {
 							return this.bindings.getVariableBinding(enumerable.value);
 						}
 						throw new IllegalArgumentException("Unexpected attribute type: " + nestedAttr.getClass().getCanonicalName());
