@@ -18,7 +18,7 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class ASTHolderCUInfo extends CompilationUnitElementInfo {
-	int astLevel;
+	public int astLevel;
 	boolean resolveBindings;
 	int reconcileFlags;
 	Map<String, CategorizedProblem[]> problems = null;
