@@ -149,6 +149,16 @@ public class JavacProblemConverter {
 			return getDefaultPosition(diagnostic);
 		}
 		if (diagnostic instanceof JCDiagnostic jcDiagnostic) {
+			if (problemId == IProblem.IncompatibleExceptionInThrowsClause && jcDiagnostic.getDiagnosticPosition() instanceof JCMethodDecl method) {
+				int start = method.getPreferredPosition();
+				var unit = this.units.get(jcDiagnostic.getSource());
+				if (unit != null) {
+					int end = method.thrown.stream().mapToInt(unit.endPositions::getEndPos).max().orElse(-1);
+					if (end >= 0) {
+						return new org.eclipse.jface.text.Position(start, end - start);
+					}
+				}
+			}
 			TreePath diagnosticPath = getTreePath(jcDiagnostic);
 			if (problemId == IProblem.ParameterMismatch) {
 				// Javac points to the arg, which JDT expects the method name
@@ -470,6 +480,7 @@ public class JavacProblemConverter {
 			case "compiler.warn.redundant.cast" -> IProblem.UnnecessaryCast;
 			case "compiler.err.illegal.char" -> IProblem.InvalidCharacterConstant;
 			case "compiler.err.enum.label.must.be.unqualified.enum" -> IProblem.UndefinedField;
+			case "compiler.err.bad.initializer" -> IProblem.ParsingErrorInsertToComplete;
 			// next are javadoc; defaulting to JavadocUnexpectedText when no better problem could be found
 			case "compiler.err.dc.bad.entity" -> IProblem.JavadocUnexpectedText;
 			case "compiler.err.dc.bad.inline.tag" -> IProblem.JavadocUnexpectedText;
