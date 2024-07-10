@@ -28,11 +28,11 @@ import java.util.List;
  * Implementation of the WildcardType
  */
 public class IntersectionTypeImpl extends TypeMirrorImpl implements IntersectionType {
-	final List<? extends TypeMirror> bounds;
+	private final List<? extends TypeMirror> bounds;
 
 	IntersectionTypeImpl(BaseProcessingEnvImpl env, TypeVariableBinding binding) {
 		super(env, binding);
-		bounds = Arrays.stream(binding.superInterfaces).map(referenceBinding -> _env.getFactory().newTypeMirror(referenceBinding)).toList();
+		bounds = Arrays.stream(binding.superInterfaces).map(referenceBinding -> this._env.getFactory().newTypeMirror(referenceBinding)).toList();
 	}
 
 	/* (non-Javadoc)
