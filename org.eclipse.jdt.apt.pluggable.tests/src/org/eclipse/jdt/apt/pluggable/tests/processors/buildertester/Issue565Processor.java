@@ -36,10 +36,6 @@ public class Issue565Processor extends AbstractProcessor {
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-
-		System.out.println("WCHODZĘ");
-		annotations.forEach(System.out::println);
-
 			for (Element element : roundEnv.getElementsAnnotatedWith(annotations.stream().findAny().get())) {
 				if (element instanceof TypeElement) {
 					keyBuilder.visit(element.asType(), true);
