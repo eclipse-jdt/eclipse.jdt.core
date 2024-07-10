@@ -8875,6 +8875,45 @@ public void testMissingClassNeededForOverloadResolution() {
 		""";
 	runner.runNegativeTest();
 }
+public void testMissingClassNeededForOverloadResolution_pickByLateArg() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"p1/MissingType.java",
+			"""
+			package p1;
+			public class MissingType {}
+			""",
+			"p1/B.java",
+			"""
+			package p1;
+			import java.util.Date;
+			public interface B {
+				public void m(String s, MissingType m, Date d);
+				public void m(String s, Object o, Integer i);
+			}
+			"""
+		};
+	runner.runConformTest();
+
+	// delete binary file A (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p1" + File.separator + "MissingType.class"));
+	runner.shouldFlushOutputDirectory = false;
+
+	runner.testFiles = new String[] {
+			"p2/C.java",
+			"""
+			package p2;
+			import p1.B;
+			public class C {
+				void test(B b) {
+					b.m("Hello", new Object(), 42); // last arg rules out the overload with MissingType
+				}
+			}
+			"""
+		};
+	runner.runConformTest();
+}
 public void testMissingClassNeededForOverloadResolution_ctor() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // ignore different outcome below 1.8 since PR 2543
 	Runner runner = new Runner();
@@ -9144,6 +9183,9 @@ public void testMissingClassNeededForOverloadResolution_varargs1b() {
 					b.m(b);
 					b.m(b, b);
 					b.m(new B[0]);
+					b.m("");			// would like to check against A1 / A2
+					b.m("", "");		// would like to check against A1 / A2
+					b.m(new String[0]);	// exact match
 				}
 			}
 			"""
@@ -9172,6 +9214,16 @@ public void testMissingClassNeededForOverloadResolution_varargs1b() {
 			----------
 			5. ERROR in p2\\C.java (at line 9)
 				b.m(new B[0]);
+				  ^
+			The method m(A1...) from the type B refers to the missing type A1
+			----------
+			6. ERROR in p2\\C.java (at line 10)
+				b.m("");			// would like to check against A1 / A2
+				  ^
+			The method m(A1...) from the type B refers to the missing type A1
+			----------
+			7. ERROR in p2\\C.java (at line 11)
+				b.m("", "");		// would like to check against A1 / A2
 				  ^
 			The method m(A1...) from the type B refers to the missing type A1
 			----------

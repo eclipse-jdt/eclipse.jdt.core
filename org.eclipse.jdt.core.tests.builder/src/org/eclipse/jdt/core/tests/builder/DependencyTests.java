@@ -909,7 +909,7 @@ public class DependencyTests extends BuilderTests {
 			"import p2.A;\n" +
 			"public class B {\n"+ //$NON-NLS-1$
 			"	public static void main(String[] args) {\n" + //$NON-NLS-1$
-			"		new A().foo(new Object());\n" + // potentially ambiguous
+			"		new A().foo(new B());\n" + 		// applicability test would like to see MissingClass
 			"		new A().foo(new String());\n" + // exact match to fully resolved method
 			"	}\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
