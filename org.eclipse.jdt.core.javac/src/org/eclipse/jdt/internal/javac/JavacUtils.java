@@ -168,14 +168,15 @@ public class JavacUtils {
 			}
 
 			if (output != null) {
-				fileManager.setLocation(StandardLocation.CLASS_OUTPUT, List.of(output));
+				fileManager.setLocation(StandardLocation.CLASS_OUTPUT, List.of(ensureDirExists(output)));
 			} else if (compilerConfig != null && !compilerConfig.sourceOutputMapping().isEmpty()) {
-				fileManager.setLocation(StandardLocation.CLASS_OUTPUT, compilerConfig.sourceOutputMapping().values().stream().distinct().toList());
+				fileManager.setLocation(StandardLocation.CLASS_OUTPUT, compilerConfig.sourceOutputMapping().values().stream().distinct()
+						.map(container -> ensureDirExists(JavacClassFile.getMappedTempOutput(container).toFile())).toList());
 			} else if (javaProject.getProject() != null) {
 				IResource member = javaProject.getProject().getParent().findMember(javaProject.getOutputLocation());
 				if( member != null ) {
 					File f = member.getLocation().toFile();
-					fileManager.setLocation(StandardLocation.CLASS_OUTPUT, List.of(f));
+					fileManager.setLocation(StandardLocation.CLASS_OUTPUT, List.of(ensureDirExists(f)));
 				}
 			}
 
@@ -268,4 +269,11 @@ public class JavacUtils {
 		}
 	}
 
+	private static File ensureDirExists(File file) {
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+
+		return file;
+	}
 }

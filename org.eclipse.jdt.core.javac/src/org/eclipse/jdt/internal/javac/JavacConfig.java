@@ -13,7 +13,6 @@
 
 package org.eclipse.jdt.internal.javac;
 
-import java.io.File;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +51,7 @@ public record JavacConfig(
 	/**
 	 * The mapping of source files to output directories.
 	 */
-	Map<File, File> sourceOutputMapping,
+	Map<IContainer, IContainer> sourceOutputMapping,
 	/**
 	 * The compiler options used to control the compilation behavior.
 	 * See {@link org.eclipse.jdt.internal.compiler.impl.CompilerOptions} for a list of available options.
@@ -71,7 +70,7 @@ public record JavacConfig(
 			config.modulepaths().stream().map(URI::getPath).collect(Collectors.toList()),
 			config.annotationProcessorPaths().stream().map(URI::getPath).collect(Collectors.toList()),
 			config.generatedSourcePaths().stream().map(IContainer::getRawLocation).filter(path -> path != null).map(IPath::toOSString).collect(Collectors.toList()),
-			config.sourceOutputMapping().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getRawLocation().toFile(), e -> e.getValue().getRawLocation().toFile())),
+			config.sourceOutputMapping(),
 			config.compilerOptions(),
 			config);
 	}
