@@ -1277,7 +1277,7 @@ public class Util {
 	/*
 	 * Appends to the given buffer the fully qualified name (as it appears in the source) of the given type
 	 */
-	private static void getFullyQualifiedName(Type type, StringBuilder buffer) {
+	public static void getFullyQualifiedName(Type type, StringBuilder buffer) {
 		switch (type.getNodeType()) {
 			case ASTNode.ARRAY_TYPE:
 				ArrayType arrayType = (ArrayType) type;
