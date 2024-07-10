@@ -53,6 +53,7 @@ import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ErrorType;
+import com.sun.tools.javac.code.Type.IntersectionClassType;
 import com.sun.tools.javac.code.Type.JCNoType;
 import com.sun.tools.javac.code.Type.JCVoidType;
 import com.sun.tools.javac.code.Type.PackageType;
@@ -476,12 +477,32 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		if (this.type instanceof ArrayType at) {
 			return this.resolver.bindings.getTypeBinding(at.getComponentType()).getQualifiedName() + "[]";
 		}
+		if (this.type instanceof WildcardType wt) {
+			if (wt.type == null || this.resolver.resolveWellKnownType("java.lang.Object").equals(this.resolver.bindings.getTypeBinding(wt.type))) {
+				return "?";
+			}
+			StringBuilder builder = new StringBuilder("? ");
+			if (wt.isExtendsBound()) {
+				builder.append("extends ");
+			} else if (wt.isSuperBound()) {
+				builder.append("super ");
+			}
+			builder.append(this.resolver.bindings.getTypeBinding(wt.type).getQualifiedName());
+			return builder.toString();
+		}
 
 		StringBuilder res = new StringBuilder();
-		if (!isParameterizedType()) {
-			res.append(this.typeSymbol.getQualifiedName().toString());
-		} else {
-			res.append(this.type.toString()); // may include type parameters
+		res.append(this.typeSymbol.getQualifiedName().toString());
+		ITypeBinding[] typeArguments = this.getTypeArguments();
+		if (typeArguments.length > 0) {
+			res.append("<");
+			int i;
+			for (i = 0; i < typeArguments.length - 1; i++) {
+				res.append(typeArguments[i].getQualifiedName());
+				res.append(",");
+			}
+			res.append(typeArguments[i].getQualifiedName());
+			res.append(">");
 		}
 		// remove annotations here
 		int annotationIndex = -1;
@@ -577,6 +598,18 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				}
 			}
 			return l.toArray(JavacTypeBinding[]::new);
+		} else if (this.type instanceof TypeVar typeVar) {
+			Type bounds = typeVar.getUpperBound();
+			if (bounds instanceof IntersectionClassType intersectionType) {
+				return intersectionType.getBounds().stream() //
+						.filter(Type.class::isInstance) //
+						.map(Type.class::cast) //
+						.map(this.resolver.bindings::getTypeBinding) //
+						.toArray(ITypeBinding[]::new);
+			}
+			return new ITypeBinding[] { this.resolver.bindings.getTypeBinding(bounds) };
+		} else if (this.type instanceof WildcardType wildcardType) {
+			return new ITypeBinding[] { this.resolver.bindings.getTypeBinding(wildcardType.bound) };
 		}
 		return new ITypeBinding[0];
 	}
@@ -718,7 +751,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isParameterizedType() {
-		return !this.type.getTypeArguments().isEmpty() && this.type.getTypeArguments().stream().noneMatch(TypeVar.class::isInstance);
+		return !this.type.getTypeArguments().isEmpty();
 	}
 
 	@Override

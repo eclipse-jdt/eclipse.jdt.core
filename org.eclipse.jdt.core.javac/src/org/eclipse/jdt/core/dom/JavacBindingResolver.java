@@ -140,7 +140,10 @@ public class JavacBindingResolver extends BindingResolver {
 		//
 		private Map<String, JavacTypeBinding> typeBinding = new HashMap<>();
 		public JavacTypeBinding getTypeBinding(com.sun.tools.javac.code.Type type) {
-			if (type instanceof ErrorType errorType && (errorType.getOriginalType() != com.sun.tools.javac.code.Type.noType)) {
+			if (type instanceof ErrorType errorType
+						&& (errorType.getOriginalType() != com.sun.tools.javac.code.Type.noType)
+						&& !(errorType.getOriginalType() instanceof com.sun.tools.javac.code.Type.MethodType)
+						& !(errorType.getOriginalType() instanceof com.sun.tools.javac.code.Type.ForAll)) {
 				JavacTypeBinding binding = getTypeBinding(errorType.getOriginalType());
 				binding.setRecovered(true);
 				return binding;
@@ -248,7 +251,8 @@ public class JavacBindingResolver extends BindingResolver {
 					jdt instanceof EnumConstantDeclaration ||
 					jdt instanceof AnnotationTypeMemberDeclaration ||
 					jdt instanceof AbstractTypeDeclaration ||
-					jdt instanceof AnonymousClassDeclaration) {
+					jdt instanceof AnonymousClassDeclaration ||
+					jdt instanceof TypeParameter) {
 					symbol(javac).ifPresent(symbol -> this.symbolToDeclaration.put(symbol, jdt));
 				}
 			});
@@ -313,6 +317,9 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 		if (value instanceof JCTree.JCMethodDecl jcMethodDecl) {
 			return Optional.ofNullable(jcMethodDecl.sym);
+		}
+		if (value instanceof JCTree.JCTypeParameter jcTypeParam) {
+			return Optional.ofNullable(jcTypeParam.type.tsym);
 		}
 		// TODO fields, methods, variables...
 		return Optional.empty();
