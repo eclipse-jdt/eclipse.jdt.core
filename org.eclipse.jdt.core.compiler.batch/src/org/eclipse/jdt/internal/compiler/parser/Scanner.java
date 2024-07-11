@@ -3433,7 +3433,7 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 				case 3 :
 					if ((data[++index] == 'e') && (data[++index] == 'w'))
 						return TokenNamenew;
-					else if (data == this.source  // not handling unicode as of now in non-sealed
+					else if (data == this.source && data.length > 10 // "non-sealed".length();  not handling unicode as of now in non-sealed
 							&& (data[index] == 'o')
 							&& (data[++index] == 'n')
 							&& (data[++index] == '-')
