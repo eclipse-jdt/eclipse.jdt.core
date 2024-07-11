@@ -43246,6 +43246,11 @@ public void test1222() {
 		"	public class X<T extends Zork & Runnable> {\n" +
 		"	                         ^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	Runnable r = x2.get();\n" +
+		"	                ^^^\n" +
+		"The method get() from the type X<T> refers to the missing type Zork\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=211718

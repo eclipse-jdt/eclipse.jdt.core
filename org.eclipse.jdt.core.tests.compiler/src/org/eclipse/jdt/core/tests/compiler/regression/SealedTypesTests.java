@@ -2857,7 +2857,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"2. ERROR in X.java (at line 5)\n" +
 			"	<permits>this(t);\n" +
 			"	         ^^^^^^^^\n" +
-			"The parameterized constructor <permits>X(permits) of type X is not applicable for the arguments (Integer)\n" +
+			"The constructor X(permits) refers to the missing type permits\n" +
 			"----------\n");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -2884,7 +2884,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"3. ERROR in X.java (at line 5)\n" +
 			"	<permits>this(t);\n" +
 			"	         ^^^^^^^^\n" +
-			"The parameterized constructor <permits>X(permits) of type X is not applicable for the arguments (Integer)\n" +
+			"The constructor X(permits) refers to the missing type permits\n" +
 			"----------\n",
 			null,
 			true,
@@ -2908,7 +2908,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	new <permits>X(t).foo();\n" +
 			"	^^^^^^^^^^^^^^^^^\n" +
-			"The parameterized constructor <permits>X(permits) of type X is not applicable for the arguments (Integer)\n" +
+			"The constructor X(permits) refers to the missing type permits\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 5)\n" +
 			"	new <permits>X(t).foo();\n" +
@@ -2936,7 +2936,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	new <permits>X(t).foo();\n" +
 			"	^^^^^^^^^^^^^^^^^\n" +
-			"The parameterized constructor <permits>X(permits) of type X is not applicable for the arguments (Integer)\n" +
+			"The constructor X(permits) refers to the missing type permits\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 5)\n" +
 			"	new <permits>X(t).foo();\n" +
@@ -2970,7 +2970,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"2. ERROR in X.java (at line 6)\n" +
 			"	x.<permits>foo(0);\n" +
 			"	           ^^^\n" +
-			"The parameterized method <permits>foo(permits) of type X is not applicable for the arguments (Integer)\n" +
+			"The method foo(permits) from the type X refers to the missing type permits\n" +
 			"----------\n");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -2998,7 +2998,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"3. ERROR in X.java (at line 6)\n" +
 			"	x.<permits>foo(0);\n" +
 			"	           ^^^\n" +
-			"The parameterized method <permits>foo(permits) of type X is not applicable for the arguments (Integer)\n" +
+			"The method foo(permits) from the type X refers to the missing type permits\n" +
 			"----------\n",
 			null,
 			true,
@@ -4480,7 +4480,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"2. ERROR in X.java (at line 5)\n" +
 			"	<sealed>this(t);\n" +
 			"	        ^^^^^^^^\n" +
-			"The parameterized constructor <sealed>X(sealed) of type X is not applicable for the arguments (Integer)\n" +
+			"The constructor X(sealed) refers to the missing type sealed\n" +
 			"----------\n");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -4507,7 +4507,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"3. ERROR in X.java (at line 5)\n" +
 			"	<sealed>this(t);\n" +
 			"	        ^^^^^^^^\n" +
-			"The parameterized constructor <sealed>X(sealed) of type X is not applicable for the arguments (Integer)\n" +
+			"The constructor X(sealed) refers to the missing type sealed\n" +
 			"----------\n",
 			null,
 			true,
@@ -4531,7 +4531,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	new <sealed>X(t).foo();\n" +
 			"	^^^^^^^^^^^^^^^^\n" +
-			"The parameterized constructor <sealed>X(sealed) of type X is not applicable for the arguments (Integer)\n" +
+			"The constructor X(sealed) refers to the missing type sealed\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 5)\n" +
 			"	new <sealed>X(t).foo();\n" +
@@ -4559,7 +4559,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	new <sealed>X(t).foo();\n" +
 			"	^^^^^^^^^^^^^^^^\n" +
-			"The parameterized constructor <sealed>X(sealed) of type X is not applicable for the arguments (Integer)\n" +
+			"The constructor X(sealed) refers to the missing type sealed\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 5)\n" +
 			"	new <sealed>X(t).foo();\n" +
@@ -4593,7 +4593,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"2. ERROR in X.java (at line 6)\n" +
 			"	x.<sealed>foo(0);\n" +
 			"	          ^^^\n" +
-			"The parameterized method <sealed>foo(sealed) of type X is not applicable for the arguments (Integer)\n" +
+			"The method foo(sealed) from the type X refers to the missing type sealed\n" +
 			"----------\n");
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -4621,7 +4621,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"3. ERROR in X.java (at line 6)\n" +
 			"	x.<sealed>foo(0);\n" +
 			"	          ^^^\n" +
-			"The parameterized method <sealed>foo(sealed) of type X is not applicable for the arguments (Integer)\n" +
+			"The method foo(sealed) from the type X refers to the missing type sealed\n" +
 			"----------\n",
 			null,
 			true,

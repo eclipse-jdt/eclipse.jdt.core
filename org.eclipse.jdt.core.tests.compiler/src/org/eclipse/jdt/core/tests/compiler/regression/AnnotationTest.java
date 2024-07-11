@@ -7973,8 +7973,8 @@ public void test237() {
 		"----------\n" +
 		"2. ERROR in X.java (at line 6)\n" +
 		"	List<String> ls = get();\n" +
-		"	                  ^^^^^\n" +
-		"Type mismatch: cannot convert from B to List<String>\n" +
+		"	                  ^^^\n" +
+		"The method get() from the type X<B> refers to the missing type ArrayList\n" +
 		"----------\n");
 }
 public void test238() {
