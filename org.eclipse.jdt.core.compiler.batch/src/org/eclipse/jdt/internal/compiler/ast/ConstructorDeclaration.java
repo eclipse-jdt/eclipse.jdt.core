@@ -675,6 +675,7 @@ public void resolveStatements() {
 		} else {
 			ExplicitConstructorCall lateConstructorCall = getLateConstructorCall();
 			if (lateConstructorCall != null && JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
+				this.constructorCall = null;
 				this.scope.enterEarlyConstructionContext();
 				if (!sourceType.isRecord()) { // explicit constructor call is never legal for records
 					this.scope.problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES,
