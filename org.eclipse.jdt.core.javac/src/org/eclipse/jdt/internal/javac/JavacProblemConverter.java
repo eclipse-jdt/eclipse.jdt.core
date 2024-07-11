@@ -481,6 +481,10 @@ public class JavacProblemConverter {
 			case "compiler.err.illegal.char" -> IProblem.InvalidCharacterConstant;
 			case "compiler.err.enum.label.must.be.unqualified.enum" -> IProblem.UndefinedField;
 			case "compiler.err.bad.initializer" -> IProblem.ParsingErrorInsertToComplete;
+			case "compiler.err.cant.assign.val.to.var" -> IProblem.FinalFieldAssignment;
+			case "compiler.err.cant.inherit.from.final" -> IProblem.ClassExtendFinalClass;
+			case "compiler.err.qualified.new.of.static.class" -> IProblem.InvalidClassInstantiation;
+			case "compiler.err.abstract.cant.be.instantiated" -> IProblem.InvalidClassInstantiation;
 			// next are javadoc; defaulting to JavadocUnexpectedText when no better problem could be found
 			case "compiler.err.dc.bad.entity" -> IProblem.JavadocUnexpectedText;
 			case "compiler.err.dc.bad.inline.tag" -> IProblem.JavadocUnexpectedText;
@@ -554,7 +558,7 @@ public class JavacProblemConverter {
 			case "compiler.warn.override.equals.but.not.hashcode" -> IProblem.ShouldImplementHashcode;
 			case "compiler.warn.unchecked.call.mbr.of.raw.type" -> IProblem.UnsafeRawMethodInvocation;
 			default -> {
-				ILog.get().error("Could not convert diagnostic " + diagnostic);
+				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;
 			}
 		};
