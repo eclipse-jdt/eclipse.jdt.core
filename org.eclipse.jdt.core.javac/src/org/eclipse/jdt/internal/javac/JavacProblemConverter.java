@@ -181,6 +181,10 @@ public class JavacProblemConverter {
 						return new org.eclipse.jface.text.Position(start, end - start);
 					}
 				}
+			} else if (problemId == IProblem.NotVisibleConstructorInDefaultConstructor || problemId == IProblem.UndefinedConstructorInDefaultConstructor) {
+				while (diagnosticPath != null && !(diagnosticPath.getLeaf() instanceof JCClassDecl)) {
+					diagnosticPath = diagnosticPath.getParentPath();
+				}
 			}
 			Tree element = diagnosticPath != null ? diagnosticPath.getLeaf() :
 				jcDiagnostic.getDiagnosticPosition() instanceof Tree tree ? tree :
@@ -437,7 +441,21 @@ public class JavacProblemConverter {
 			case "compiler.err.cant.resolve.args.params" -> IProblem.UndefinedMethod;
 			case "compiler.err.cant.apply.symbols", "compiler.err.cant.apply.symbol" ->
 				switch (getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class)) {
-					case CONSTRUCTOR -> IProblem.UndefinedConstructor;
+					case CONSTRUCTOR -> {
+						if (diagnostic instanceof JCDiagnostic.MultilineDiagnostic) {
+							yield IProblem.UndefinedConstructorInDefaultConstructor;
+						}
+						JCDiagnostic rootCause = getDiagnosticArgumentByType(diagnostic, JCDiagnostic.class);
+						if (rootCause == null) {
+							yield IProblem.UndefinedConstructor;
+						}
+						String rootCauseCode = rootCause.getCode();
+						yield switch (rootCauseCode) {
+						case "compiler.misc.report.access" -> convertNotVisibleAccess(diagnostic);
+						case "compiler.misc.arg.length.mismatch" -> IProblem.UndefinedConstructorInDefaultConstructor;
+						default -> IProblem.UndefinedConstructor;
+						};
+					}
 					case METHOD -> IProblem.ParameterMismatch;
 					default -> 0;
 				};
