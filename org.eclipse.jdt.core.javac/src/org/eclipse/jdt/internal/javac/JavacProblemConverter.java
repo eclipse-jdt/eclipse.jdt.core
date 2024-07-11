@@ -15,8 +15,11 @@ package org.eclipse.jdt.internal.javac;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.tools.Diagnostic;
@@ -32,6 +35,7 @@ import com.sun.source.tree.Tree;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.util.TreePath;
 import com.sun.tools.javac.api.JavacTrees;
+import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Kinds.KindName;
 import com.sun.tools.javac.code.Symbol;
@@ -187,7 +191,26 @@ public class JavacProblemConverter {
 				while (diagnosticPath != null && !(diagnosticPath.getLeaf() instanceof JCClassDecl)) {
 					diagnosticPath = diagnosticPath.getParentPath();
 				}
+			} else if (problemId == IProblem.SealedSuperClassDoesNotPermit) {
+				// jdt expects the node in the extends clause with the name of the sealed class
+				if (diagnosticPath.getLeaf() instanceof JCTree.JCClassDecl classDecl) {
+					diagnosticPath = JavacTrees.instance(context).getPath(units.get(jcDiagnostic.getSource()), classDecl.getExtendsClause());
+				}
+			} else if (problemId == IProblem.SealedSuperInterfaceDoesNotPermit) {
+				// jdt expects the node in the implements clause with the name of the sealed class
+				if (diagnosticPath.getLeaf() instanceof JCTree.JCClassDecl classDecl) {
+					Symbol.ClassSymbol sym = getDiagnosticArgumentByType(jcDiagnostic, Symbol.ClassSymbol.class);
+					Optional<JCExpression> jcExpr = classDecl.getImplementsClause().stream() //
+							.filter(expression -> {
+								return expression instanceof JCIdent jcIdent && jcIdent.sym.equals(sym);
+							}) //
+							.findFirst();
+					if (jcExpr.isPresent()) {
+						diagnosticPath = JavacTrees.instance(context).getPath(units.get(jcDiagnostic.getSource()), jcExpr.get());
+					}
+				}
 			}
+
 			Tree element = diagnosticPath != null ? diagnosticPath.getLeaf() :
 				jcDiagnostic.getDiagnosticPosition() instanceof Tree tree ? tree :
 				null;
@@ -196,6 +219,7 @@ public class JavacProblemConverter {
 					case JCClassDecl jcClassDecl: return getDiagnosticPosition(jcDiagnostic, jcClassDecl);
 					case JCVariableDecl jcVariableDecl: return getDiagnosticPosition(jcDiagnostic, jcVariableDecl);
 					case JCMethodDecl jcMethodDecl: return getDiagnosticPosition(jcDiagnostic, jcMethodDecl, problemId);
+					case JCIdent jcIdent: return getDiagnosticPosition(jcDiagnostic, jcIdent);
 					case JCFieldAccess jcFieldAccess:
 						if (getDiagnosticArgumentByType(jcDiagnostic, KindName.class) != KindName.PACKAGE && getDiagnosticArgumentByType(jcDiagnostic, Symbol.PackageSymbol.class) == null) {
 							// TODO here, instead of recomputing a position, get the JDT DOM node and call the Name (which has a position)
@@ -234,6 +258,19 @@ public class JavacProblemConverter {
 						return new org.eclipse.jface.text.Position(startPosition, lastParenthesisIndex - startPosition + 1);
 					}
 				}
+				return getDiagnosticPosition(name, startPosition, jcDiagnostic);
+			} catch (IOException ex) {
+				ILog.get().error(ex.getMessage(), ex);
+			}
+		}
+		return getDefaultPosition(jcDiagnostic);
+	}
+	private static org.eclipse.jface.text.Position getDiagnosticPosition(JCDiagnostic jcDiagnostic,
+			JCIdent jcIdent) {
+		int startPosition = (int) jcDiagnostic.getPosition();
+		if (startPosition != Position.NOPOS) {
+			try {
+				String name = jcIdent.getName().toString();
 				return getDiagnosticPosition(name, startPosition, jcDiagnostic);
 			} catch (IOException ex) {
 				ILog.get().error(ex.getMessage(), ex);
@@ -373,9 +410,11 @@ public class JavacProblemConverter {
 
 	private static org.eclipse.jface.text.Position getDiagnosticPosition(JCDiagnostic jcDiagnostic, JCClassDecl jcClassDecl) {
 		int startPosition = (int) jcDiagnostic.getPosition();
+		List<JCTree> realMembers = jcClassDecl.getMembers().stream() //
+			.filter(member -> !(member instanceof JCMethodDecl methodDecl && methodDecl.sym != null && (methodDecl.sym.flags() & Flags.GENERATEDCONSTR) != 0))
+			.collect(Collectors.toList());
 		if (startPosition != Position.NOPOS &&
-			(jcClassDecl.getMembers().isEmpty() ||
-			(!jcClassDecl.getMembers().isEmpty() && jcClassDecl.getStartPosition() != jcClassDecl.getMembers().get(0).getStartPosition()))) {
+			(realMembers.isEmpty() || jcClassDecl.getStartPosition() != jcClassDecl.getMembers().get(0).getStartPosition())) {
 			try {
 				String name = jcClassDecl.getSimpleName().toString();
 				return getDiagnosticPosition(name, startPosition, jcDiagnostic);
@@ -520,7 +559,6 @@ public class JavacProblemConverter {
 			case "compiler.err.mod.not.allowed.here" -> illegalModifier(diagnostic);
 			case "compiler.warn.strictfp" -> uselessStrictfp(diagnostic);
 			case "compiler.err.invalid.permits.clause" -> illegalModifier(diagnostic);
-			case "compiler.err.cant.inherit.from.sealed" -> IProblem.SealedSuperClassDoesNotPermit;
 			case "compiler.err.sealed.class.must.have.subclasses" -> IProblem.SealedSealedTypeMissingPermits;
 			case "compiler.err.feature.not.supported.in.source.plural" ->
 				diagnostic.getMessage(Locale.ENGLISH).contains("not supported in -source 8") ? IProblem.IllegalModifierForInterfaceMethod18 :
@@ -602,6 +640,18 @@ public class JavacProblemConverter {
 			}
 			case "compiler.warn.override.equals.but.not.hashcode" -> IProblem.ShouldImplementHashcode;
 			case "compiler.warn.unchecked.call.mbr.of.raw.type" -> IProblem.UnsafeRawMethodInvocation;
+			case "compiler.err.cant.inherit.from.sealed" -> {
+				Symbol.ClassSymbol sym = getDiagnosticArgumentByType(diagnostic, Symbol.ClassSymbol.class);
+				if (sym == null) {
+					yield 0;
+				}
+				if (sym.isInterface()) {
+					yield IProblem.SealedSuperInterfaceDoesNotPermit;
+				} else {
+					yield IProblem.SealedSuperClassDoesNotPermit;
+				}
+			}
+			case "compiler.err.non.sealed.sealed.or.final.expected" -> IProblem.SealedMissingClassModifier;
 			default -> {
 				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;
