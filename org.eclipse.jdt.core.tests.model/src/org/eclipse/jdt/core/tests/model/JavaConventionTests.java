@@ -13,12 +13,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.util.*;
-import junit.framework.Test;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaConventionTests extends AbstractJavaModelTests {
@@ -147,7 +152,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	 * @see JavaConventions
 	 */
 	public void testInvalidIdentifier() {
-		String[] invalidIds = new String[] {" s\\u0069ze", " s\\u0069ze ", "", "1java", "Foo Bar", "#@$!", "Foo-Bar", "if", "InvalidEscapeSequence\\g", "true", "false", "null", null, " untrimmmed "};
+		String[] invalidIds = new String[] {"non-sealed", "non-sealed ", " s\\u0069ze", " s\\u0069ze ", "", "1java", "Foo Bar", "#@$!", "Foo-Bar", "if", "InvalidEscapeSequence\\g", "true", "false", "null", null, " untrimmmed "};
 		for (int i = 0; i < invalidIds.length; i++) {
 			assertEquals("identifier not recognized as invalid: " + invalidIds[i], IStatus.ERROR, validate(invalidIds[i], IDENTIFIER));
 		}
@@ -236,7 +241,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	 * @see JavaConventions
 	 */
 	public void testValidIdentifier() {
-		String[] validIds = new String[] {"s\\u0069ze", "Object", "An_Extremly_Long_Class_Name_With_Words_Separated_By_Undescores"};
+		String[] validIds = new String[] {"non", "s\\u0069ze", "Object", "An_Extremly_Long_Class_Name_With_Words_Separated_By_Undescores"};
 		for (int i = 0; i < validIds.length; i++) {
 			assertEquals("identifier not recognized as valid: " + validIds[i], IStatus.OK, validate(validIds[i], IDENTIFIER));
 		}
