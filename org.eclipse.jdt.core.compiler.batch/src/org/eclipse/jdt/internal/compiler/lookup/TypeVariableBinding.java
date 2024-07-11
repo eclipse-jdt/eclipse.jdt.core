@@ -1094,8 +1094,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 				annotatedType.firstBound = firstBound;
 			}
 		}
-		if (firstBound != null && firstBound.hasNullTypeAnnotations())
-			this.tagBits |= TagBits.HasNullTypeAnnotation;
+		if (firstBound != null)
+			this.tagBits |= firstBound.tagBits & (TagBits.HasNullTypeAnnotation|TagBits.HasMissingType);
 		return firstBound;
 	}
 	/* An annotated type variable use differs from its declaration exactly in its annotations and in nothing else.

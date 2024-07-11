@@ -209,7 +209,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 							this,
 							originalVariable.rank,
 							environment);
-				substitutedVariables[i].tagBits |= (originalVariable.tagBits & (TagBits.AnnotationNullMASK|TagBits.HasNullTypeAnnotation));
+				substitutedVariables[i].tagBits |= (originalVariable.tagBits & (TagBits.AnnotationNullMASK|TagBits.HasNullTypeAnnotation|TagBits.HasMissingType));
 			}
 			this.typeVariables = substitutedVariables;
 
