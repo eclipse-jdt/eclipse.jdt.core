@@ -51,6 +51,7 @@ import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
+import com.sun.tools.javac.tree.JCTree.JCNewClass;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.DiagnosticSource;
@@ -193,7 +194,7 @@ public class JavacProblemConverter {
 				switch (element) {
 					case JCClassDecl jcClassDecl: return getDiagnosticPosition(jcDiagnostic, jcClassDecl);
 					case JCVariableDecl jcVariableDecl: return getDiagnosticPosition(jcDiagnostic, jcVariableDecl);
-					case JCMethodDecl jcMethodDecl: return getDiagnosticPosition(jcDiagnostic, jcMethodDecl);
+					case JCMethodDecl jcMethodDecl: return getDiagnosticPosition(jcDiagnostic, jcMethodDecl, problemId);
 					case JCFieldAccess jcFieldAccess:
 						if (getDiagnosticArgumentByType(jcDiagnostic, KindName.class) != KindName.PACKAGE && getDiagnosticArgumentByType(jcDiagnostic, Symbol.PackageSymbol.class) == null) {
 							// TODO here, instead of recomputing a position, get the JDT DOM node and call the Name (which has a position)
@@ -214,12 +215,24 @@ public class JavacProblemConverter {
 		return getDefaultPosition(diagnostic);
 	}
 
-	private static org.eclipse.jface.text.Position getDiagnosticPosition(JCDiagnostic jcDiagnostic,
-			JCMethodDecl jcMethodDecl) {
+	private org.eclipse.jface.text.Position getDiagnosticPosition(JCDiagnostic jcDiagnostic,
+			JCMethodDecl jcMethodDecl, int problemId) {
 		int startPosition = (int) jcDiagnostic.getPosition();
+		boolean includeLastParenthesis =
+				problemId == IProblem.FinalMethodCannotBeOverridden
+				|| problemId == IProblem.CannotOverrideAStaticMethodWithAnInstanceMethod;
 		if (startPosition != Position.NOPOS) {
 			try {
 				String name = jcMethodDecl.getName().toString();
+				if (includeLastParenthesis) {
+					var unit = this.units.get(jcDiagnostic.getSource());
+					if (unit != null) {
+						var lastParenthesisIndex = unit.getSourceFile()
+								.getCharContent(false).toString()
+								.indexOf(')', startPosition);
+						return new org.eclipse.jface.text.Position(startPosition, lastParenthesisIndex - startPosition + 1);
+					}
+				}
 				return getDiagnosticPosition(name, startPosition, jcDiagnostic);
 			} catch (IOException ex) {
 				ILog.get().error(ex.getMessage(), ex);
@@ -500,9 +513,16 @@ public class JavacProblemConverter {
 			case "compiler.err.enum.label.must.be.unqualified.enum" -> IProblem.UndefinedField;
 			case "compiler.err.bad.initializer" -> IProblem.ParsingErrorInsertToComplete;
 			case "compiler.err.cant.assign.val.to.var" -> IProblem.FinalFieldAssignment;
-			case "compiler.err.cant.inherit.from.final" -> IProblem.ClassExtendFinalClass;
+			case "compiler.err.cant.inherit.from.final" -> isInAnonymousClass(diagnostic) ? IProblem.AnonymousClassCannotExtendFinalClass : IProblem.ClassExtendFinalClass;
 			case "compiler.err.qualified.new.of.static.class" -> IProblem.InvalidClassInstantiation;
 			case "compiler.err.abstract.cant.be.instantiated" -> IProblem.InvalidClassInstantiation;
+			case "compiler.err.mod.not.allowed.here" -> illegalModifier(diagnostic);
+			case "compiler.warn.strictfp" -> IProblem.StrictfpNotRequired;
+			case "compiler.err.invalid.permits.clause" -> illegalModifier(diagnostic);
+			case "compiler.err.cant.inherit.from.sealed" -> IProblem.SealedSuperClassDoesNotPermit;
+			case "compiler.err.sealed.class.must.have.subclasses" -> IProblem.SealedSealedTypeMissingPermits;
+			case "compiler.err.feature.not.supported.in.source.plural" -> IProblem.IllegalModifierForInterfaceMethod;
+			case "compiler.err.expression.not.allowable.as.annotation.value" -> IProblem.AnnotationValueMustBeConstant;
 			// next are javadoc; defaulting to JavadocUnexpectedText when no better problem could be found
 			case "compiler.err.dc.bad.entity" -> IProblem.JavadocUnexpectedText;
 			case "compiler.err.dc.bad.inline.tag" -> IProblem.JavadocUnexpectedText;
@@ -555,7 +575,9 @@ public class JavacProblemConverter {
 				yield 0;
 			}
 			case "compiler.err.doesnt.exist" -> IProblem.PackageDoesNotExistOrIsEmpty;
-			case "compiler.err.override.meth" -> IProblem.FinalMethodCannotBeOverridden;
+			case "compiler.err.override.meth" -> diagnostic.getMessage(Locale.ENGLISH).contains("static") ?
+					IProblem.CannotOverrideAStaticMethodWithAnInstanceMethod :
+					IProblem.FinalMethodCannotBeOverridden;
 			case "compiler.err.unclosed.char.lit", "compiler.err.empty.char.lit" -> IProblem.InvalidCharacterConstant;
 			case "compiler.err.malformed.fp.lit" -> IProblem.InvalidFloat;
 			case "compiler.warn.missing.deprecated.annotation" -> {
@@ -582,6 +604,49 @@ public class JavacProblemConverter {
 		};
 	}
 
+	private int illegalModifier(Diagnostic<? extends JavaFileObject> diagnostic) {
+		TreePath path = getTreePath(diagnostic);
+		while (path != null) {
+			var leaf = path.getLeaf();
+			if (leaf instanceof JCMethodDecl) {
+				return IProblem.IllegalModifierForMethod;
+			} else if (leaf instanceof JCClassDecl classDecl) {
+				switch (classDecl.getKind()) {
+				case CLASS: return IProblem.IllegalModifierForClass;
+				case ENUM: return IProblem.IllegalModifierForEnum;
+				case RECORD: return IProblem.RecordIllegalModifierForRecord;
+				case INTERFACE: return IProblem.IllegalModifierForInterface;
+				default: // fail through
+				}
+				return IProblem.IllegalModifierForClass;
+			} else if (leaf instanceof JCVariableDecl) {
+				TreePath parent = path.getParentPath();
+				if (parent != null) {
+					if (parent.getLeaf() instanceof JCMethodDecl) {
+						return IProblem.IllegalModifierForArgument;
+					} else if (parent.getLeaf() instanceof JCClassDecl) {
+						return IProblem.IllegalModifierForField;
+					}
+				}
+			}
+			path = path.getParentPath();
+		}
+		return IProblem.IllegalModifiers;
+	}
+
+	private boolean isInAnonymousClass(Diagnostic<? extends JavaFileObject> diagnostic) {
+		TreePath path = getTreePath(diagnostic);
+		while (path != null) {
+			if (path.getLeaf() instanceof JCNewClass newClass) {
+				return newClass.getClassBody() != null;
+			}
+			if (path.getLeaf() instanceof JCClassDecl) {
+				return false;
+			}
+			path = path.getParentPath();
+		}
+		return false;
+	}
 	// compiler.err.cant.resolve
 	private static int convertUnresolvedVariable(Diagnostic<?> diagnostic) {
 		if (diagnostic instanceof JCDiagnostic jcDiagnostic) {
