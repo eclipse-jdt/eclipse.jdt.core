@@ -233,7 +233,7 @@ Goal ::= '->' YieldStatement
 Goal ::= '->' SwitchLabelCaseLhs
 -- JEP 409 Sealed types Reconnaissance mission.
 Goal ::= RestrictedIdentifiersealed Modifiersopt
-Goal ::= RestrictedIdentifierpermits PermittedSubtypes
+Goal ::= RestrictedIdentifierpermits PermittedTypes
 -- jsr 427 --
 Goal ::= BeginCaseElement Pattern
 Goal ::= RestrictedIdentifierWhen Expression
@@ -2412,14 +2412,14 @@ ClassHeaderImplementsopt ::= $empty
 ClassHeaderImplementsopt -> ClassHeaderImplements
 /:$readableName ClassHeaderImplements:/
 
--- Production name hardcoded in parser. Must be ::= and not ->
-PermittedSubtypes ::= ClassTypeList
-/:$readableName PermittedSubtypes:/
+-- Production name hardcoded in scanner. Must be ::= and not ->
+PermittedTypes ::= ClassTypeList
+/:$readableName PermittedTypes:/
 
 PermittedTypesopt -> $empty
 PermittedTypesopt ::= RestrictedIdentifierpermits ClassTypeList
 /.$putCase consumePermittedTypes(); $break ./
-/:$readableName PermittedTypes:/
+/:$readableName PermittedTypesopt:/
 /:$compliance 17:/
 
 InterfaceMemberDeclarationsopt ::= $empty
@@ -3205,5 +3205,4 @@ UNDERSCORE ::= '_'
 
 $end
 -- need a carriage return after the $end
-
 
