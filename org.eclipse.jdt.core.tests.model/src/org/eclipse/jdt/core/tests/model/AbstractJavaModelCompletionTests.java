@@ -22,10 +22,11 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 
-import junit.framework.*;
+import junit.framework.ComparisonFailure;
 
 @SuppressWarnings("rawtypes")
 public abstract class AbstractJavaModelCompletionTests extends AbstractJavaModelTests implements RelevanceConstants {
@@ -166,7 +167,7 @@ protected CompletionResult snippetContextComplete(
 @Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getDefaultOptions();
 	Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
 	options.put(JavaCore.CODEASSIST_SUBWORD_MATCH, JavaCore.DISABLED);
 	JavaCore.setOptions(options);
@@ -187,13 +188,16 @@ public void tearDownSuite() throws Exception {
 	this.oldOptions = null;
 	if (COMPLETION_SUITES == null) {
 		deleteProject("Completion");
+		COMPLETION_PROJECT = null;
 	} else {
 		COMPLETION_SUITES.remove(getClass());
 		if (COMPLETION_SUITES.size() == 0) {
 			deleteProject("Completion");
 			COMPLETION_SUITES = null;
+			COMPLETION_PROJECT = null;
 		}
 	}
+	Util.cleanupClassPathVariablesAndContainers();
 	super.tearDownSuite();
 }
 

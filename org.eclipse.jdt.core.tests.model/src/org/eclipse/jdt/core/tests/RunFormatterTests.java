@@ -27,6 +27,7 @@ import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.formatter.*;
 import org.eclipse.jdt.core.tests.formatter.comment.CommentsTestSuite;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.core.tests.util.CleanupAfterSuiteTests;
 
 /**
  * Runs all formatter tests.
@@ -42,6 +43,9 @@ public class RunFormatterTests extends junit.framework.TestCase {
 		TEST_SUITES.add(FormatterJavadocDontIndentTagsTests.class);
 		TEST_SUITES.add(FormatterJavadocDontIndentTagsDescriptionTests.class);
 		TEST_SUITES.add(FormatterOldBugsGistTests.class);
+
+		// should always be the last one, to cleanup environment after messy tests
+		TEST_SUITES.add(CleanupAfterSuiteTests.class);
 	}
 
 	public static Class[] getTestClasses() {
