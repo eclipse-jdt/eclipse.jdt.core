@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
@@ -52,28 +53,19 @@ public CompletionTests(String name) {
 }
 @Override
 public void setUpSuite() throws Exception {
+	super.setUpSuite();
 	if (COMPLETION_PROJECT == null)  {
 		COMPLETION_PROJECT = setUpJavaProject("Completion");
 	} else {
 		setUpProjectCompliance(COMPLETION_PROJECT, "1.4");
-		this.currentProject = COMPLETION_PROJECT;
 	}
-	super.setUpSuite();
+	this.currentProject = COMPLETION_PROJECT;
 }
 @Override
 public void tearDownSuite() throws Exception {
-	if (COMPLETION_SUITES == null) {
-		deleteProject("Completion");
-	} else {
-		COMPLETION_SUITES.remove(getClass());
-		if (COMPLETION_SUITES.size() == 0) {
-			deleteProject("Completion");
-			COMPLETION_SUITES = null;
-		}
-	}
-	if (COMPLETION_SUITES == null) {
-		COMPLETION_PROJECT = null;
-	}
+	// We have to reset classpath variables because we've modified defaults
+	// in getExternalJCLPathString() below
+	Util.cleanupClassPathVariablesAndContainers();
 	super.tearDownSuite();
 }
 @Override

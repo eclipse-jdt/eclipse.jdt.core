@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.Test;
-
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
@@ -34,10 +32,13 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChange
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.osgi.service.prefs.BackingStoreException;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class OptionTests extends ModifyingResourceTests {
@@ -68,6 +69,14 @@ protected void tearDown() throws Exception {
 	JavaCore.setOptions(JavaCore.getDefaultOptions());
 
 	super.tearDown();
+}
+
+@Override
+public void tearDownSuite() throws Exception {
+	// We have to reset classpath variables because we've modified defaults
+	// in getExternalJCLPathString() below
+	Util.cleanupClassPathVariablesAndContainers();
+	super.tearDownSuite();
 }
 
 /**

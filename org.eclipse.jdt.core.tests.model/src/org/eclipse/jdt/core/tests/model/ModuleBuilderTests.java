@@ -105,8 +105,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 	@Override
 	public void tearDownSuite() throws Exception {
-		super.tearDownSuite();
 		deleteProject("P1");
+		super.tearDownSuite();
 	}
 
 	// Test that the java.base found as a module package fragment root in the project

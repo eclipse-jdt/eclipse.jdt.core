@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.model.Semaphore.TimeOutException;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
@@ -97,11 +98,7 @@ static {
 }
 @Override
 protected void tearDown() throws Exception {
-	// Cleanup caches
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	manager.containers = new HashMap(5);
-	manager.variables = new HashMap(5);
-
+	Util.cleanupClassPathVariablesAndContainers();
 	super.tearDown();
 }
 
