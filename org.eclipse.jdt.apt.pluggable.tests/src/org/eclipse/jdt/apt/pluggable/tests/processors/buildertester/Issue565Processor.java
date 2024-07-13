@@ -20,12 +20,13 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.type.TypeVariable;
-import javax.lang.model.type.TypeVisitor;
+import javax.lang.model.type.*;
 import javax.lang.model.util.SimpleTypeVisitor6;
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -36,7 +37,14 @@ public class Issue565Processor extends AbstractProcessor {
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-			for (Element element : roundEnv.getElementsAnnotatedWith(annotations.stream().findAny().get())) {
+
+		String classpath = System.getProperty("java.class.path");
+		String[] classPathValues = classpath.split(File.pathSeparator);
+		for (String classPath: classPathValues) {
+			System.out.println(classPath);
+		}
+
+		for (Element element : roundEnv.getElementsAnnotatedWith(annotations.stream().findAny().get())) {
 				if (element instanceof TypeElement) {
 					keyBuilder.visit(element.asType(), true);
 				}
@@ -49,10 +57,33 @@ public class Issue565Processor extends AbstractProcessor {
 	}
 
 
-	private final TypeVisitor<List<String>, Boolean> keyBuilder = new SimpleTypeVisitor6<>() {
+	private final TypeVisitor<List<String>, Boolean> keyBuilder = new SimpleTypeVisitor6<List<String>, Boolean>() {
+
+		private final List<String> defaultValue = Collections.singletonList("Object");
+
+
+		private static final Class<?> intersectionTypeClass;
+
+		private static final Method getBoundsMethod;
+
+		static {
+			Class<?> availableClass;
+			Method availableMethod;
+			try {
+				availableClass = Class.forName("javax.lang.model.type.IntersectionType");
+				availableMethod = availableClass.getMethod("getBounds");
+			} catch (Exception e) {
+				// Not using Java 8
+				availableClass = null;
+				availableMethod = null;
+			}
+			intersectionTypeClass = availableClass;
+			getBoundsMethod = availableMethod;
+		}
+
 
 		private List<String> visitBase(TypeMirror t) {
-			List<String> rv = new ArrayList<>();
+			List<String> rv = new ArrayList<String>();
 			String name = t.toString();
 			if (name.contains("<")) {
 				name = name.substring(0, name.indexOf('<'));
@@ -84,6 +115,25 @@ public class Issue565Processor extends AbstractProcessor {
 				rv.addAll(visit(t.getLowerBound(), p));
 			}
 			return rv;
+		}
+
+		@Override
+		public List<String> visitUnknown(TypeMirror t, Boolean p) {
+			if (intersectionTypeClass != null && intersectionTypeClass.isInstance(t)) {
+				try {
+					List<TypeMirror> bounds = (List<TypeMirror>) getBoundsMethod.invoke(t);
+					return bounds.get(0).accept(this, p);
+				} catch (IllegalAccessException | InvocationTargetException e) {
+					throw new RuntimeException(e.getMessage(), e);
+				}
+			} else {
+				return super.visitUnknown(t, p);
+			}
+		}
+
+		@Override
+		public List<String> visitNull(NullType t, Boolean p) {
+			return defaultValue;
 		}
 	};
 }
