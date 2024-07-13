@@ -2535,6 +2535,9 @@ public ModuleBinding module() {
 }
 
 public boolean hasEnclosingInstanceContext() {
+	// This method intentionally disregards early construction contexts (JEP 482).
+	// Details of how each outer level is handled are coordinated in
+	// TypeDeclaration.manageEnclosingInstanceAccessIfNecessary().
 	if (isStatic())
 		return false;
 	if (isNestedType())

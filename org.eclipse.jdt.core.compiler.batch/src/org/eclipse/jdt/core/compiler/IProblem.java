@@ -2658,4 +2658,9 @@ void setSourceStart(int sourceStart);
 	 */
 	int MessageSendInEarlyConstructionContext = PreviewRelated + 2027;
 
+	/**
+	 * @since 3.39
+	 * @noreference preview feature
+	 */
+	int DuplicateExplicitConstructorCall = PreviewRelated + 2028;
 }

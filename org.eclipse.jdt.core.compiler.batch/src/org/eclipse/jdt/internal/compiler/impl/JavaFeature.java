@@ -82,6 +82,8 @@ public enum JavaFeature {
 	 * JEP 482. The primary enabling check is in ConstructorDeclaration.getLateConstructor().
 	 * If that method returns non-null, then ClassScope.enterEarlyConstructionContext() will follow,
 	 * which enables further analysis and actions.
+	 * In particular, when scope.isInsideEarlyConstructionContext() answers true,
+	 * then we can be sure that availability of this feature has been checked / reported.
 	 */
 	FLEXIBLE_CONSTRUCTOR_BODIES(ClassFileConstants.JDK23,
 			Messages.bind(Messages.flexible_constructor_bodies),

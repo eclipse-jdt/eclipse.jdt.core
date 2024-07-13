@@ -76,12 +76,12 @@ public class ClassScope extends Scope {
 	/**
 	 * This is the primary flag for detection of early construction contexts (JEP 482).
 	 * It is temporarily set on the scope of a class while processing statements of this class's
-	 * early construction context (during resolveType() and during generateCode())
+	 * early construction context (during resolveType(), analyseCode() and generateCode())
 	 * <p>Main access is via {@link Scope#enterEarlyConstructionContext()}, {@link Scope#leaveEarlyConstructionContext()}
 	 * and {@link Scope#isInsideEarlyConstructionContext(TypeBinding, boolean)}.</p>
 	 * <p>For the case of {@link LambdaExpression} this information is captured during resolve
 	 * into {@code scopesInEarlyConstruction}, for use during generateCode(), which doesn't have the
-	 * scope of the lambda declaration.
+	 * context of the lambda declaration.
 	 * </p>
 	 */
 	public boolean insideEarlyConstructionContext = false;

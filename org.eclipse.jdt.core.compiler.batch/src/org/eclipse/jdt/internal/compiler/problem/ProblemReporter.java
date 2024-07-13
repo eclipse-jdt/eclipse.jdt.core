@@ -4240,6 +4240,14 @@ public void invalidExplicitConstructorCall(ASTNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void duplicateExplicitConstructorCall(ASTNode location) {
+	this.handle(
+			IProblem.DuplicateExplicitConstructorCall,
+			NoArgument,
+			NoArgument,
+			location.sourceStart,
+			location.sourceEnd);
+}
 public void invalidExpressionAsStatement(Expression expression){
 	this.handle(
 		IProblem.InvalidExpressionAsStatement,

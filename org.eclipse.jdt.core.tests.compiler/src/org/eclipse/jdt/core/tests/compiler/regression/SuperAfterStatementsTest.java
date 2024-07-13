@@ -1917,4 +1917,28 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				""";
 		runner.runNegativeTest();
 	}
+
+	public void testDuplicateCalls() {
+		// but no access to outer this from local class
+		Runner runner = new Runner(false);
+		runner.testFiles = new String[] {
+				"X.java",
+				"""
+					class X {
+						X() {
+							System.out.println();
+							super();
+							super(); // illegal
+						}
+					}
+				"""
+			};
+		runner.expectedCompilerLog = "----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	super(); // illegal\n" +
+				"	^^^^^^^^\n" +
+				"Constructor cannot have more than one explicit constructor call\n" +
+				"----------\n";
+		runner.runNegativeTest();
+	}
 }

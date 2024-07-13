@@ -695,7 +695,7 @@ public void resolveStatements() {
 	super.resolveStatements();
 }
 
-private ExplicitConstructorCall getLateConstructorCall() {
+ExplicitConstructorCall getLateConstructorCall() {
 	if (!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions()))
 		return null;
 	if (this.constructorCall != null && !this.constructorCall.isImplicitSuper()) {

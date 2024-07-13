@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
@@ -321,15 +322,22 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			}
 			boolean isFirstStatement = true;
 			boolean hasError = false;
+			ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
 			if (methodDeclaration == null || !methodDeclaration.isConstructor()) {
 				hasError = true;
-			} else if (((ConstructorDeclaration) methodDeclaration).constructorCall != this) {
+			} else if (constructorDeclaration.constructorCall != this) {
 				isFirstStatement = false;
 				hasError = !scope.isInsideEarlyConstructionContext(null, false);
 			}
 			if (hasError) {
 				if (!(methodDeclaration instanceof CompactConstructorDeclaration)) {// already flagged for CCD
-					scope.problemReporter().invalidExplicitConstructorCall(this);
+					ExplicitConstructorCall lateConstructorCall = constructorDeclaration.getLateConstructorCall();
+					if (lateConstructorCall != null && lateConstructorCall != this
+							&& JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
+						scope.problemReporter().duplicateExplicitConstructorCall(this);
+					} else {
+						scope.problemReporter().invalidExplicitConstructorCall(this);
+					}
 				}
 				// fault-tolerance
 				if (this.qualification != null) {
