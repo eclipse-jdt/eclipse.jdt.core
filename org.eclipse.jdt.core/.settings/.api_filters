@@ -329,6 +329,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="model/org/eclipse/jdt/core/SourceRange.java" type="org.eclipse.jdt.core.SourceRange">
+        <filter id="576725006">
+            <message_arguments>
+                <message_argument value="ISourceRange"/>
+                <message_argument value="SourceRange"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="model/org/eclipse/jdt/core/compiler/ITerminalSymbols.java" type="org.eclipse.jdt.core.compiler.ITerminalSymbols">
         <filter id="405864542">
             <message_arguments>

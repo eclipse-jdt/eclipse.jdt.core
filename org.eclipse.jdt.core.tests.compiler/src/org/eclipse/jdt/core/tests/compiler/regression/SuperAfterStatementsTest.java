@@ -100,7 +100,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	class Runner extends AbstractRegressionTest.Runner {
 		public Runner(boolean reportPreview) {
 			this();
-			this.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+			this.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, reportPreview ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 		}
 		public Runner() {
 			super();
@@ -1506,10 +1506,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			options);
 	}
 	public void testGH2467() {
-		Runner runner = new Runner();
-		runner.customOptions = getCompilerOptions();
-		runner.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		Runner runner = new Runner(false);
 		runner.testFiles = new String[] {
 				"Test3.java",
 				"""
@@ -1535,10 +1532,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 	public void testOuterConstruction_1() {
-		Runner runner = new Runner();
-		runner.customOptions = getCompilerOptions();
-		runner.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		Runner runner = new Runner(false);
 		runner.testFiles = new String[] {
 				"Test.java",
 				"""
@@ -1571,10 +1565,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 
 	public void testOuterConstruction_2() {
-		Runner runner = new Runner();
-		runner.customOptions = getCompilerOptions();
-		runner.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		Runner runner = new Runner(false);
 		runner.testFiles = new String[] {
 				"Test.java",
 				"""
@@ -1599,10 +1590,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runConformTest();
 	}
 	public void testFieldAssignedInSuperArgument_OK() {
-		Runner runner = new Runner();
-		runner.customOptions = getCompilerOptions();
-		runner.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		Runner runner = new Runner(false);
 		runner.testFiles = new String[] {
 				"Test.java",
 				"""
@@ -1641,6 +1629,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
 		runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		runner.javacTestOptions = JavacTestOptions.DEFAULT;
 		runner.testFiles = new String[] {
 				"Test.java",
 				"""
@@ -1692,10 +1681,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 	public void testFieldCompoundAssignedInSuperArgument() {
-		Runner runner = new Runner();
-		runner.customOptions = getCompilerOptions();
-		runner.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		Runner runner = new Runner(false);
 		runner.testFiles = new String[] {
 				"Test.java",
 				"""
@@ -1747,10 +1733,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 	public void testFieldReadInSuperArgument() {
-		Runner runner = new Runner();
-		runner.customOptions = getCompilerOptions();
-		runner.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		Runner runner = new Runner(false);
 		runner.testFiles = new String[] {
 				"Test.java",
 				"""
