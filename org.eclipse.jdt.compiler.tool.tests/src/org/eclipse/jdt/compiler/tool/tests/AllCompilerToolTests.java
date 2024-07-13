@@ -20,7 +20,7 @@ import junit.framework.TestSuite;
 /**
  * Helper class to run all the compiler tool tests
  */
-public class AllTests extends TestCase {
+public class AllCompilerToolTests extends TestCase {
 	// run all tests
 	public static Test suite() {
 		TestSuite suite = new TestSuite();

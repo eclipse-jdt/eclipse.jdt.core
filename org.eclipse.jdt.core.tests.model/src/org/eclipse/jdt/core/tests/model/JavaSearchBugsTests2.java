@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 IBM Corporation and others.
+ * Copyright (c) 2014, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -210,6 +210,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			// create the common project and create an interface
 			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
 			createFile("/P/Test.java",
+				"import java.io.Serializable;\n" +
 				"class Test {\n"+
 				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
 				"        prop.compute(null);\n"+
@@ -232,6 +233,36 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			deleteProject(project);
 		}
 	}
+	public void testBug123836c_missingImport() throws CoreException {
+		// original version with missing import, will now give POTENTIAL_MATCH
+		IJavaProject project = null;
+		try
+		{
+			// create the common project and create an interface
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			createFile("/P/Test.java",
+				"class Test {\n"+
+				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
+				"        prop.compute(null);\n"+
+				"        p2.compute(null);\n"+
+				"    }\n"+
+				"}\n"+
+				"abstract class Property<E> {\n"+
+				"    public abstract void compute(E e);\n"+
+				"}\n"+
+				"class StringProperty extends Property<String> {\n"+
+				"    @Override public void compute(String e) {\n"+
+				"        System.out.println(e);\n"+
+				"    }");
+			IType type = getCompilationUnit("/P/Test.java").getType("StringProperty");
+			IMethod method = type.getMethod("compute", new String[]{"QString;"});
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" +
+								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] POTENTIAL_MATCH");
+		} finally {
+			deleteProject(project);
+		}
+	}
 	// Test inner class
 	public void testBug123836d() throws CoreException {
 		IJavaProject project = null;
@@ -240,6 +271,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			// create the common project and create an interface
 			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
 			createFile("/P/Test.java",
+				"import java.io.Serializable;\n" +
 				"class Test {\n"+
 				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
 				"        prop.compute(null);\n"+
@@ -271,6 +303,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			// create the common project and create an interface
 			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
 			createFile("/P/Test.java",
+				"import java.io.Serializable;\n" +
 				"class Test {\n"+
 				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
 				"        prop.compute(null);\n"+
@@ -301,6 +334,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			// create the common project and create an interface
 			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
 			createFile("/P/Test.java",
+				"import java.io.Serializable;\n" +
 				"class Test {\n"+
 				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
 				"        prop.compute(null);\n"+
@@ -331,6 +365,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			// create the common project and create an interface
 			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
 			createFile("/P/Test.java",
+				"import java.io.Serializable;\n" +
 				"class Test {\n"+
 				"	{\n" +
 				"		new Property<String>() {\n" +
@@ -361,6 +396,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			// create the common project and create an interface
 			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
 			createFile("/P/Test.java",
+				"import java.io.Serializable;\n" +
 				"class Test {\n"+
 				"	static {\n" +
 				"		new Property<String>() {\n" +
@@ -391,6 +427,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			// create the common project and create an interface
 			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
 			createFile("/P/Test.java",
+				"import java.io.Serializable;\n" +
 				"class Test {\n"+
 				"	Property <?>p = new Property<String>() {\n" +
 				"			@Override public void compute(String e) {}\n" +
@@ -418,6 +455,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			// create the common project and create an interface
 			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
 			createFile("/P/Test.java",
+				"import java.io.Serializable;\n" +
 				"class Test {\n"+
 				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
 				"        prop.compute(null);\n"+

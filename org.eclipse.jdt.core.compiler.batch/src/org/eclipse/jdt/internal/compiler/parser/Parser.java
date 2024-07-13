@@ -4764,10 +4764,9 @@ protected void consumeInterfaceHeaderName1() {
 }
 protected void consumePermittedTypes() {
 	int length = this.astLengthStack[this.astLengthPtr--];
-	//permitted types
 	this.astPtr -= length;
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
-	typeDecl.restrictedIdentifierStart= this.intStack[this.intPtr--];
+	typeDecl.restrictedIdentifierStart = this.intStack[this.intPtr--];
 	System.arraycopy(
 		this.astStack,
 		this.astPtr + 1,
@@ -4778,7 +4777,7 @@ protected void consumePermittedTypes() {
 		rejectIllegalTypeAnnotations(typeReference);
 	}
 	typeDecl.bodyStart = typeDecl.permittedTypes[length-1].sourceEnd + 1;
-	this.listLength = 0; // reset after having read super-interfaces
+	this.listLength = 0; // reset after having read permitted types.
 	// recovery
 	if (this.currentElement != null) {
 		this.lastCheckPoint = typeDecl.bodyStart;
