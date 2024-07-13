@@ -46,6 +46,7 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class BlockScope extends Scope {
@@ -932,13 +933,28 @@ public Object[] getEmulationPath(ReferenceBinding targetEnclosingType, boolean o
 	// could be reached through a sequence of enclosing instance link (nested members)
 	Object[] path = new Object[2]; // probably at least 2 of them
 	ReferenceBinding currentType = sourceType.enclosingType();
-	if (insideConstructor) {
-		path[0] = ((NestedTypeBinding) sourceType).getSyntheticArgument(currentType, onlyExactMatch, currentMethodScope.isConstructorCall);
-	} else {
-		if (currentMethodScope.isConstructorCall){
-			return synEAoL != null ? synEAoL : BlockScope.NoEnclosingInstanceInConstructorCall;
+	if ((methodScope().referenceContext instanceof ConstructorDeclaration) && JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(compilerOptions())) {
+		// JEP 482: find the outermost arg up-to the target depth, available as a synthetic argument
+		// this allows us to "skip over" any intermediate early construction context not having an enclosing instance
+		ReferenceBinding outer = currentType;
+		while (outer != null && outer.depth() >= targetEnclosingType.depth()) {
+			SyntheticArgumentBinding arg = ((NestedTypeBinding) sourceType).getSyntheticArgument(outer, onlyExactMatch, currentMethodScope.isConstructorCall);
+			if (arg != null) {
+				currentType = outer;
+				path[0] = arg;
+			}
+			outer = outer.enclosingType();
 		}
-		path[0] = sourceType.getSyntheticField(currentType, onlyExactMatch);
+	}
+	if (path[0] == null) {
+		if (insideConstructor) {
+			path[0] = ((NestedTypeBinding) sourceType).getSyntheticArgument(currentType, onlyExactMatch, currentMethodScope.isConstructorCall);
+		} else {
+			if (currentMethodScope.isConstructorCall){
+				return synEAoL != null ? synEAoL : BlockScope.NoEnclosingInstanceInConstructorCall;
+			}
+			path[0] = sourceType.getSyntheticField(currentType, onlyExactMatch);
+		}
 	}
 	if (path[0] != null) { // keep accumulating
 
@@ -960,6 +976,7 @@ public Object[] getEmulationPath(ReferenceBinding targetEnclosingType, boolean o
 				}
 			}
 
+			// TODO JEP 482: do we need a search for far outer starting at currentType, like in the above JEP 482 section?
 			syntheticField = ((NestedTypeBinding) currentType).getSyntheticField(currentEnclosingType, onlyExactMatch);
 			if (syntheticField == null) break;
 

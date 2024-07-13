@@ -65,7 +65,7 @@ public class ThisReference extends Reference {
 		} else {
 			// old style: this/super cannot be used in constructor call
 			if (methodScope.isConstructorCall) {
-				if (isAssigment && JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(scope.compilerOptions())) {
+				if (isAssigment) {
 					if (scope.problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES, this.sourceStart, this.sourceEnd))
 						return false;
 				} else {

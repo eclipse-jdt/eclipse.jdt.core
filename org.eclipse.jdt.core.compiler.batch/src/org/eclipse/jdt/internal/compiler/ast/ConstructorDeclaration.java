@@ -175,6 +175,10 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		// reuse the reachMode from non static field info
 		flowInfo.setReachMode(nonStaticFieldInfoReachMode);
 
+		if (getLateConstructorCall() != null) { // TODO also for ctor arguments?
+			this.scope.enterEarlyConstructionContext();
+		}
+
 		// propagate to statements
 		if (this.statements != null) {
 			CompilerOptions compilerOptions = this.scope.compilerOptions();
@@ -350,8 +354,6 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 public void generateSyntheticFieldInitializationsIfNecessary(MethodScope methodScope, CodeStream codeStream, ReferenceBinding declaringClass) {
 	if (!declaringClass.isNestedType()) return;
 
-	if (declaringClass.isInEarlyConstructionContext()) return;
-
 	NestedTypeBinding nestedType = (NestedTypeBinding) declaringClass;
 
 	SyntheticArgumentBinding[] syntheticArgs = nestedType.syntheticEnclosingInstances();
@@ -437,7 +439,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			codeStream.recordPositionsFrom(0, this.bodyStart > 0 ? this.bodyStart : this.sourceStart);
 		}
 		// generate constructor call
-		if (getLateConstructorCall() == null && this.constructorCall != null) {
+		if (this.constructorCall != null) {
 			this.constructorCall.generateCode(this.scope, codeStream);
 		}
 		// generate field initialization - only if not invoking another constructor call of the same class
@@ -605,7 +607,7 @@ public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 @Override
 public StringBuilder printBody(int indent, StringBuilder output) {
 	output.append(" {"); //$NON-NLS-1$
-	if (getLateConstructorCall() == null && this.constructorCall != null) {
+	if (this.constructorCall != null) {
 		output.append('\n');
 		this.constructorCall.printStatement(indent, output);
 	}
@@ -674,8 +676,8 @@ public void resolveStatements() {
 			this.constructorCall = null;
 		} else {
 			ExplicitConstructorCall lateConstructorCall = getLateConstructorCall();
-			if (lateConstructorCall != null && JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
-				this.constructorCall = null;
+			if (lateConstructorCall != null) {
+				this.constructorCall = null; // not used with JEP 482, conversely, constructorCall!=null signals no JEP 482 context
 				this.scope.enterEarlyConstructionContext();
 				if (!sourceType.isRecord()) { // explicit constructor call is never legal for records
 					this.scope.problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES,
@@ -694,6 +696,8 @@ public void resolveStatements() {
 }
 
 private ExplicitConstructorCall getLateConstructorCall() {
+	if (!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions()))
+		return null;
 	if (this.constructorCall != null && !this.constructorCall.isImplicitSuper()) {
 		return null;
 	}
@@ -734,7 +738,7 @@ public void traverse(ASTVisitor visitor, ClassScope classScope) {
 			for (int i = 0; i < thrownExceptionsLength; i++)
 				this.thrownExceptions[i].traverse(visitor, this.scope);
 		}
-		if (getLateConstructorCall() == null && this.constructorCall != null)
+		if (this.constructorCall != null)
 			this.constructorCall.traverse(visitor, this.scope);
 		if (this.statements != null) {
 			int statementsLength = this.statements.length;

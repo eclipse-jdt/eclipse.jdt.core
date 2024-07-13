@@ -79,14 +79,12 @@ public class ClassScope extends Scope {
 	 * early construction context (during resolveType() and during generateCode())
 	 * <p>Main access is via {@link Scope#enterEarlyConstructionContext()}, {@link Scope#leaveEarlyConstructionContext()}
 	 * and {@link Scope#isInsideEarlyConstructionContext(TypeBinding, boolean)}.</p>
-	 * Other related flags:	 * <dl>
-	 * <dt>{@link ExtendedTagBits#IsInEarlyConstructionContext}
-	 * <dd>set on local types (named or anon) that are declared in early construction context
-	 * <dt>{@link LambdaExpression}.inPreConstructorContext
-	 * <dd>intermediate kludge to help generating lambda methods without the original enclosing scope context
-	 * </dl>
+	 * <p>For the case of {@link LambdaExpression} this information is captured during resolve
+	 * into {@code scopesInEarlyConstruction}, for use during generateCode(), which doesn't have the
+	 * scope of the lambda declaration.
+	 * </p>
 	 */
-	protected boolean insideEarlyConstructionContext = false;
+	public boolean insideEarlyConstructionContext = false;
 
 	public ClassScope(Scope parent, TypeDeclaration context) {
 		super(Scope.CLASS_SCOPE, parent);

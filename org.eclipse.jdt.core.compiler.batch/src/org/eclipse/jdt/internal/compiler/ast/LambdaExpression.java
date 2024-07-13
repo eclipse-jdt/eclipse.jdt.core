@@ -55,6 +55,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -142,7 +143,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	public boolean argumentsTypeVar = false;
 	int firstLocalLocal; // analysis index of first local variable (if any) post parameter(s) in the lambda; ("local local" as opposed to "outer local")
 
-	private boolean inPreConstructorContext = false; // generateCode is called out of band, so remember the context: FIXME: outer contexts??
+	private List<ClassScope> scopesInEarlyConstruction;
 
 	public LambdaExpression(CompilationResult compilationResult, boolean assistNode, boolean requiresGenericSignature) {
 		super(compilationResult);
@@ -290,7 +291,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				return new PolyTypeBinding(this);
 			}
 		}
-		this.inPreConstructorContext = blockScope.isInsideEarlyConstructionContext(null, true);
+		this.scopesInEarlyConstruction = blockScope.collectClassesBeingInitialized();
 
 		MethodScope methodScope = blockScope.methodScope();
 		this.scope = new MethodScope(blockScope, this, methodScope.isStatic, methodScope.lastVisibleFieldID);
@@ -1289,8 +1290,10 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			}
 		}
 		codeStream.pushPatternAccessTrapScope(this.scope);
-		if (this.inPreConstructorContext) {
-			this.scope.enterEarlyConstructionContext();
+		if (this.scopesInEarlyConstruction != null) {
+			// JEP 482: restore early construction context info into scopes:
+			for (ClassScope classScope : this.scopesInEarlyConstruction)
+				classScope.insideEarlyConstructionContext = true;
 		}
 		try {
 			if (this.body instanceof Block) {
@@ -1308,7 +1311,10 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				}
 			}
 		} finally {
-			this.scope.leaveEarlyConstructionContext();
+			if (this.scopesInEarlyConstruction != null) {
+				for (ClassScope classScope : this.scopesInEarlyConstruction)
+					classScope.insideEarlyConstructionContext = false;
+			}
 		}
 		// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1796#issuecomment-1933458054
 		codeStream.exitUserScope(this.scope, lvb -> !lvb.isParameter());

@@ -31,7 +31,8 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test007b" };
+//		TESTS_NAMES = new String[] { "testComplexNesting_OK" };
+//		TESTS_NAMES = new String[] { "test037" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -1832,5 +1833,88 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"""};
 		runner.expectedOutputString = "OK";
 		runner.runConformTest();
+	}
+	public void testComplexNesting_OK() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"C1.java",
+			"""
+			class C1 {
+				String f1 = "f1";
+			    C1() {
+			        super();
+			        class C2 { // not early for C1
+			            C2() {
+			                class C3 { // early for C2
+			                	String f3 = "f3";
+			                    C3() {
+			                        super();
+			                        class C4 { // not early for C3
+			                        	C4() {
+			                            	System.out.print(f3);
+			                            	System.out.print(f1);
+		                            	}
+			                        }
+			                        new C4();
+			                    }
+			                }
+			                super();
+			                new C3();
+			            }
+			        }
+			        new C2();
+			    }
+		        public static void main(String... args) {
+		        	new C1();
+		        }
+			}
+			"""};
+		runner.expectedOutputString = "f3f1";
+		runner.runConformTest();
+	}
+	public void testComplexNesting_NOK() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"C1.java",
+			"""
+			class C1 {
+			    C1() {
+			        super();
+			        class C2 { // not early for C1
+			        	String f2 = "f2";
+			            C2() {
+			                class C3 { // early for C2
+			                    C3() {
+			                        super();
+			                        class C4 { // not early for C3
+			                        	C4() {
+			                        		System.out.print(f2);
+		                            	}
+			                        }
+			                        new C4();
+			                    }
+			                }
+			                super();
+			                new C3();
+			            }
+			        }
+			        new C2();
+			    }
+			}
+			"""};
+		runner.expectedCompilerLog = """
+				----------
+				1. ERROR in C1.java (at line 12)
+					System.out.print(f2);
+					                 ^^
+				Cannot read field f2 in an early construction context
+				----------
+				2. WARNING in C1.java (at line 18)
+					super();
+					^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				""";
+		runner.runNegativeTest();
 	}
 }

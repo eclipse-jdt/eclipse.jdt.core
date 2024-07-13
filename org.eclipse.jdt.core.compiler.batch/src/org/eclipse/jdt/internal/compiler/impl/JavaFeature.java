@@ -78,6 +78,11 @@ public enum JavaFeature {
 			Messages.bind(Messages.implicit_classes_and_instance_main_methods),
 			new char[][] {},
 			true),
+	/**
+	 * JEP 482. The primary enabling check is in ConstructorDeclaration.getLateConstructor().
+	 * If that method returns non-null, then ClassScope.enterEarlyConstructionContext() will follow,
+	 * which enables further analysis and actions.
+	 */
 	FLEXIBLE_CONSTRUCTOR_BODIES(ClassFileConstants.JDK23,
 			Messages.bind(Messages.flexible_constructor_bodies),
 			new char[][] {},

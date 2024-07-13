@@ -48,9 +48,6 @@ public LocalTypeBinding(ClassScope scope, SourceTypeBinding enclosingType, CaseS
 	} else {
 		this.tagBits |= TagBits.LocalTypeMask;
 	}
-	if (scope.parent.isInsideEarlyConstructionContext(null, true)) {
-		this.extendedTagBits |= ExtendedTagBits.IsInEarlyConstructionContext;
-	}
 	this.enclosingCase = switchCase;
 	this.sourceStart = typeDeclaration.sourceStart;
 	MethodBinding methodBinding = scope.enclosingMethod();

@@ -140,6 +140,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			return flowInfo;
 		} finally {
 			((MethodScope) currentScope).isConstructorCall = false;
+			currentScope.leaveEarlyConstructionContext();
 		}
 	}
 

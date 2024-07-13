@@ -5720,4 +5720,24 @@ public abstract class Scope {
 		}
 		return null;
 	}
+
+	/**
+	 * This method captures the status of early construction context at the declaration
+	 * of a lambda expression. This information will be needed during generateCode()
+	 * where this (temporary) context is lost.
+	 */
+	public List<ClassScope> collectClassesBeingInitialized() {
+		List<ClassScope> list = null;
+		Scope skope = this;
+		while (skope != null) {
+			if (skope instanceof ClassScope cs && cs.insideEarlyConstructionContext) {
+				if (list == null)
+					list = new ArrayList<>();
+				list.add(cs);
+			}
+			skope = skope.parent;
+		}
+		return list;
+	}
+
 }

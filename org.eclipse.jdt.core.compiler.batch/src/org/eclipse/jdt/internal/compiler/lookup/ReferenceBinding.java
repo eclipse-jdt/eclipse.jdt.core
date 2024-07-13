@@ -1708,15 +1708,6 @@ public final boolean isProtected() {
 }
 
 /**
- * Answer true if the receiver definition is in early constructor context
- * - true only in such cases for local types -
- * Java 23 - preview - JEP 482
- */
-public final boolean isInEarlyConstructionContext() {
-	return (this.extendedTagBits & ExtendedTagBits.IsInEarlyConstructionContext) != 0;
-}
-
-/**
  * Answer true if the receiver has public visibility
  */
 public final boolean isPublic() {
@@ -2544,8 +2535,6 @@ public ModuleBinding module() {
 }
 
 public boolean hasEnclosingInstanceContext() {
-	if (isInEarlyConstructionContext())
-		return false;
 	if (isStatic())
 		return false;
 	if (isNestedType())
@@ -2556,6 +2545,7 @@ public boolean hasEnclosingInstanceContext() {
 	// FIXME: should we consider enclosing instances of superclass??
 	return false;
 }
+
 @Override
 public List<ReferenceBinding> getAllEnumerableReferenceTypes() {
 	if (!isSealed())
