@@ -67,7 +67,7 @@ public class TypeVariableImpl extends TypeMirrorImpl implements TypeVariable {
 			return this._env.getFactory().newTypeMirror(typeVariableBinding.upperBound());
 		}
         if (superInterfaces.length > 1) {
-            return new IntersectionTypeImpl(_env, typeVariableBinding);
+            return new IntersectionTypeImpl(this._env, typeVariableBinding);
         }
 
 		return this._env.getFactory().newTypeMirror(this._binding);
