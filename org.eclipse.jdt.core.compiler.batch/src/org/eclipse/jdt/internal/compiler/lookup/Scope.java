@@ -5697,29 +5697,47 @@ public abstract class Scope {
 	public boolean isInsideEarlyConstructionContext(TypeBinding targetClass, boolean considerEnclosings) {
 		return getMatchingUninitializedType(targetClass, considerEnclosings) != null;
 	}
-
+	private enum MatchPhase { WITHOUT_SUPERS, WITH_SUPERS }
+	private static MatchPhase[] SinglePass = new MatchPhase[] { MatchPhase.WITHOUT_SUPERS };
 	public TypeBinding getMatchingUninitializedType(TypeBinding targetClass, boolean considerEnclosings) {
+		MatchPhase[] phases = MatchPhase.values();
 		if (targetClass == null) {
 			targetClass = enclosingReceiverType();
+			phases = SinglePass;
 		} else if (!(targetClass instanceof ReferenceBinding)) {
 			return null;
 		}
-		ClassScope currentEnclosing = classScope();
-		while (currentEnclosing != null) {
-			SourceTypeBinding enclosingType = currentEnclosing.referenceContext.binding;
-			TypeBinding currentTarget = targetClass;
-			while (currentTarget != null) {
-				if (TypeBinding.equalsEquals(enclosingType, currentTarget.actualType())) {
-					if (currentEnclosing.insideEarlyConstructionContext)
-						return enclosingType;
+		// First iteration ignores superclasses, to prefer finding the target in outers, rather than supers.
+		// Note on performance: while deeply nested loops look painful, poor-man's measurements showed good results.
+		for (Enum phase : phases) {
+			// 1. Scope in->out
+			ClassScope currentEnclosing = classScope();
+			while (currentEnclosing != null) {
+				SourceTypeBinding enclosingType = currentEnclosing.referenceContext.binding;
+				// 2. targetClass to supers
+				TypeBinding currentTarget = targetClass;
+				while (currentTarget != null) {
+					// 3. enclosing type to supers (in phase 2 only)
+					TypeBinding tmpEnclosing = enclosingType;
+					while (tmpEnclosing != null) { // this loop is not effective during PHASE.WITHOUT_SUPERS
+						if (TypeBinding.equalsEquals(tmpEnclosing, currentTarget.actualType())) {
+							if (currentEnclosing.insideEarlyConstructionContext)
+								return enclosingType;
+							return null;
+						}
+						if (phase == MatchPhase.WITH_SUPERS)
+							tmpEnclosing = tmpEnclosing.superclass();
+						else
+							break;
+					}
+					if (!considerEnclosings
+							|| (currentTarget instanceof ReferenceBinding currentRefBind && !currentRefBind.hasEnclosingInstanceContext())) {
+						break;
+					}
+					currentTarget = currentTarget.enclosingType();
 				}
-				if (!considerEnclosings
-						|| (currentTarget instanceof ReferenceBinding currentRefBind && !currentRefBind.hasEnclosingInstanceContext())) {
-					break;
-				}
-				currentTarget = currentTarget.enclosingType();
+				currentEnclosing = currentEnclosing.parent.classScope();
 			}
-			currentEnclosing = currentEnclosing.parent.classScope();
 		}
 		return null;
 	}

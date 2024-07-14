@@ -320,7 +320,6 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 				if (!checkAndFlagExplicitConstructorCallInCanonicalConstructor(methodDeclaration, scope))
 					return;
 			}
-			boolean isFirstStatement = true;
 			boolean hasError = false;
 			ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
 			if (methodDeclaration == null || !methodDeclaration.isConstructor()) {
@@ -331,7 +330,6 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 					constructorCall = constructorDeclaration.getLateConstructorCall();
 				}
 				if (constructorCall != null && constructorCall != this) {
-					isFirstStatement = false;
 					hasError = true;
 				}
 			}
@@ -361,7 +359,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 				}
 				return;
 			}
-			methodScope.isConstructorCall = isFirstStatement; // JEP 482 uses other mechanisms
+			methodScope.isConstructorCall = true;
 			ReferenceBinding receiverType = scope.enclosingReceiverType();
 			boolean rcvHasError = false;
 			if (this.accessMode != ExplicitConstructorCall.This) {

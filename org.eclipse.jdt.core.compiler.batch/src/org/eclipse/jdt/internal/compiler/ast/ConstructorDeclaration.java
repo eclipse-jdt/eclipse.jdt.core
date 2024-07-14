@@ -156,6 +156,10 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		// nullity, owning and mark as assigned
 		analyseArguments(classScope.environment(), flowInfo, initializerFlowContext, this.arguments, this.binding);
 
+		if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
+			this.scope.enterEarlyConstructionContext();
+		}
+
 		// propagate to constructor call
 		if (this.constructorCall != null) {
 			// if calling 'this(...)', then flag all non-static fields as definitely
@@ -168,16 +172,11 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 					}
 				}
 			}
-			if (getLateConstructorCall() == null)
-				flowInfo = this.constructorCall.analyseCode(this.scope, constructorContext, flowInfo);
+			flowInfo = this.constructorCall.analyseCode(this.scope, constructorContext, flowInfo);
 		}
 
 		// reuse the reachMode from non static field info
 		flowInfo.setReachMode(nonStaticFieldInfoReachMode);
-
-		if (getLateConstructorCall() != null) { // TODO also for ctor arguments?
-			this.scope.enterEarlyConstructionContext();
-		}
 
 		// propagate to statements
 		if (this.statements != null) {
@@ -438,6 +437,11 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			generateSyntheticFieldInitializationsIfNecessary(this.scope, codeStream, declaringClass);
 			codeStream.recordPositionsFrom(0, this.bodyStart > 0 ? this.bodyStart : this.sourceStart);
 		}
+
+		if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
+			this.scope.enterEarlyConstructionContext();
+		}
+
 		// generate constructor call
 		if (this.constructorCall != null) {
 			this.constructorCall.generateCode(this.scope, codeStream);
@@ -459,9 +463,6 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		}
 		// generate statements
 		if (this.statements != null) {
-			if (getLateConstructorCall() != null) {
-				this.scope.enterEarlyConstructionContext();
-			}
 			for (Statement statement : this.statements) {
 				statement.generateCode(this.scope, codeStream);
 				if (!this.compilationResult.hasErrors() && (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)) {
@@ -682,11 +683,9 @@ public void resolveStatements() {
 			}
 			if (lateConstructorCall != null) {
 				this.constructorCall = null; // not used with JEP 482, conversely, constructorCall!=null signals no JEP 482 context
-				if (!sourceType.isRecord()) { // explicit constructor call is never legal for records
-					this.scope.problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES,
-							lateConstructorCall.sourceStart,
-							lateConstructorCall.sourceEnd);
-				}
+				this.scope.problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES,
+						lateConstructorCall.sourceStart,
+						lateConstructorCall.sourceEnd);
 			} else {
 				this.constructorCall.resolve(this.scope);
 			}

@@ -289,7 +289,7 @@ private void storeExpressionValue(CodeStream codeStream) {
 	LocalVariableBinding local = this.expression.localVariableBinding();
 	local = local != null ? local : this.secretExpressionValue;
 	if (local != null)
-		codeStream.store(local, false); // FIXME, see https://github.com/eclipse-jdt/eclipse.jdt.core/pull/2499#pullrequestreview-2161555334
+		codeStream.store(local, false);
 }
 
 @Override

@@ -595,6 +595,35 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"You are using a preview language feature that may or may not be supported in a future release\n" +
 			"----------\n");
 	}
+	public void test011_inherited() {
+		runNegativeTest(new String[] {
+			"X.java",
+				"""
+					class Super {
+					    class Inner {}
+					}
+					class Outer extends Super {
+					    Outer() {
+					        new Inner(); // Error - 'this' is enclosing instance
+					        super();
+					    }
+					}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 6)
+				new Inner(); // Error - 'this' is enclosing instance
+				^^^^^^^^^^^
+			Cannot instantiate class Super.Inner in an early construction context of class Outer
+			----------
+			2. WARNING in X.java (at line 7)
+				super();
+				^^^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			""");
+	}
 	public void test011_nested() {
 		runConformTest(new String[] {
 			"Outer.java",

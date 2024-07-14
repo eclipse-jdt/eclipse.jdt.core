@@ -551,6 +551,7 @@ protected void checkEarlyConstructionContext(BlockScope scope) {
 		if (uninitialized != null)
 			scope.problemReporter().allocationInEarlyConstructionContext(this, this.resolvedType, uninitialized);
 	}
+	// if JEP 482 is not enabled, problems will be detected when looking for enclosing instance(s)
 }
 
 /**

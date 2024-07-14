@@ -82,6 +82,8 @@ public class ClassScope extends Scope {
 	 * into {@code scopesInEarlyConstruction}, for use during generateCode(), which doesn't have the
 	 * context of the lambda declaration.
 	 * </p>
+	 * <p>All this is always active at compliance 23, see {@link JavaFeature#FLEXIBLE_CONSTRUCTOR_BODIES}
+	 * for details on where enablement is actually checked.</p>
 	 */
 	public boolean insideEarlyConstructionContext = false;
 
