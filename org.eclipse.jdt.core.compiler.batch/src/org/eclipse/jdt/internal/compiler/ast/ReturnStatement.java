@@ -331,7 +331,7 @@ public void resolve(BlockScope scope) {
 	if (methodBinding != null && methodBinding.isCompactConstructor())
 		scope.problemReporter().recordCompactConstructorHasReturnStatement(this);
 
-	if (scope.isInsideEarlyConstructionContext(null, false))
+	if (lambda == null && scope.isInsideEarlyConstructionContext(null, false))
 		scope.problemReporter().errorReturnInEarlyConstructionContext(this);
 
 	if (this.expression != null) {

@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class QualifiedThisReference extends ThisReference {
@@ -121,16 +122,13 @@ public class QualifiedThisReference extends ThisReference {
 		}
 
 		// Ensure one cannot write code like: B() { super(B.this); }
-		if (depth == 0) {
+		if (depth == 0 || JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
 			checkAccess(scope, null);
-		} // if depth>0, path emulation will diagnose bad scenarii
+		} // if depth>0, prior to JEP 482: path emulation will diagnose bad scenarii
 		else if (scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK16) {
 			MethodScope ms = scope.methodScope();
 			if (ms.isStatic)
 				ms.problemReporter().errorThisSuperInStatic(this);
-		}
-		if (scope.isInsideEarlyConstructionContext(this.resolvedType, false)) {
-			scope.problemReporter().errorExpressionInEarlyConstructionContext(this);
 		}
 		MethodScope methodScope = scope.namedMethodScope();
 		if (methodScope != null) {

@@ -248,11 +248,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 		if (scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
 			scope.problemReporter().unqualifiedFieldAccess(this, fieldBinding);
 		}
-		if (this.actualReceiverType != null
-				&& scope.isInsideEarlyConstructionContext(this.actualReceiverType, false)
-				&& (this.bits & ASTNode.IsStrictlyAssigned) == 0) {
-			scope.problemReporter().fieldReadInEarlyConstructionContext(this.token, this.sourceStart, this.sourceEnd);
-		}
+		checkFieldAccessInEarlyConstructionContext(scope, this.token, fieldBinding, this.actualReceiverType);
 		// must check for the static status....
 		if (methodScope.isStatic) {
 			scope.problemReporter().staticFieldAccessToNonStaticVariable(this, fieldBinding);

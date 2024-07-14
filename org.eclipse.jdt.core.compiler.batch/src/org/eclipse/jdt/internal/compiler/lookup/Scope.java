@@ -2150,8 +2150,8 @@ public abstract class Scope {
 												if (invocationSite instanceof ASTNode node
 														&& (node.bits & ASTNode.IsStrictlyAssigned) != 0
 														&& JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(compilerOptions())) {
-													problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES, invocationSite.sourceStart(), invocationSite.sourceEnd());
-												} else {
+													// enablement check for assignment deferred to Reference.checkFieldAccessInEarlyConstructionContext()
+												} else if (!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(compilerOptions())) {
 													insideProblem =
 														new ProblemFieldBinding(
 															fieldBinding, // closest match
@@ -5699,13 +5699,18 @@ public abstract class Scope {
 	}
 
 	public TypeBinding getMatchingUninitializedType(TypeBinding targetClass, boolean considerEnclosings) {
-		if (targetClass == null)
+		if (targetClass == null) {
 			targetClass = enclosingReceiverType();
+		} else if (!(targetClass instanceof ReferenceBinding)) {
+			return null;
+		}
 		ClassScope currentEnclosing = classScope();
 		while (currentEnclosing != null) {
 			SourceTypeBinding enclosingType = currentEnclosing.referenceContext.binding;
 			TypeBinding currentTarget = targetClass;
 			while (currentTarget != null) {
+				if (currentTarget instanceof ParameterizedTypeBinding)
+					currentTarget = currentTarget.actualType();
 				if (TypeBinding.equalsEquals(enclosingType, currentTarget)) {
 					if (currentEnclosing.insideEarlyConstructionContext)
 						return enclosingType;

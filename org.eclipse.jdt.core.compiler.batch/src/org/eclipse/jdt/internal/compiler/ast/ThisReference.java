@@ -54,21 +54,18 @@ public class ThisReference extends Reference {
 	}
 
 	public boolean checkAccess(BlockScope scope, ReferenceBinding receiverType) {
-		boolean isAssigment = (this.bits & ASTNode.IsStrictlyAssigned) != 0;
 		MethodScope methodScope = scope.methodScope();
-		if (scope.isInsideEarlyConstructionContext(null, false)) {
-			// JEP 482
-			if (!isAssigment) {
-				scope.problemReporter().errorExpressionInEarlyConstructionContext(this);
-				return false;
-			}
-		} else {
-			// old style: this/super cannot be used in constructor call
-			if (methodScope.isConstructorCall) {
-				if (isAssigment) {
-					if (scope.problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES, this.sourceStart, this.sourceEnd))
-						return false;
-				} else {
+		if ((this.bits & ASTNode.IsStrictlyAssigned) == 0) { // checking assignments is deferred to Reference.checkFieldAccessInEarlyConstructionContext()
+			if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
+				if (!this.inFieldReference  // this.f is also covered in Reference.checkFieldAccessInEarlyConstructionContext()
+						&& scope.isInsideEarlyConstructionContext(this.resolvedType, false)) {
+					// JEP 482 message
+					scope.problemReporter().errorExpressionInEarlyConstructionContext(this);
+					return false;
+				}
+			} else {
+				if (methodScope.isConstructorCall) {
+					// old style: this/super cannot be used in constructor call
 					methodScope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);
 					return false;
 				}

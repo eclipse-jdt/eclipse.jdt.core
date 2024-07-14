@@ -682,6 +682,9 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	// the case receiverType.isArrayType and token = 'length' is handled by the scope API
 	FieldBinding fieldBinding = this.binding = scope.getField(this.actualReceiverType, this.token, this);
+	if (this.receiver instanceof ThisReference) {
+		checkFieldAccessInEarlyConstructionContext(scope, fieldBinding.name, fieldBinding, this.actualReceiverType);
+	}
 	if (!fieldBinding.isValidBinding()) {
 		this.constant = Constant.NotAConstant;
 		if (this.receiver.resolvedType instanceof ProblemReferenceBinding) {

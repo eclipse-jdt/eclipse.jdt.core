@@ -675,10 +675,13 @@ public void resolveStatements() {
 			this.scope.problemReporter().recordMissingExplicitConstructorCallInNonCanonicalConstructor(this);
 			this.constructorCall = null;
 		} else {
-			ExplicitConstructorCall lateConstructorCall = getLateConstructorCall();
+			ExplicitConstructorCall lateConstructorCall = null;
+			if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
+				this.scope.enterEarlyConstructionContext(); // even if no late ctor call to also capture arguments of ctor call as 1st stmt
+				lateConstructorCall = getLateConstructorCall();
+			}
 			if (lateConstructorCall != null) {
 				this.constructorCall = null; // not used with JEP 482, conversely, constructorCall!=null signals no JEP 482 context
-				this.scope.enterEarlyConstructionContext();
 				if (!sourceType.isRecord()) { // explicit constructor call is never legal for records
 					this.scope.problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES,
 							lateConstructorCall.sourceStart,

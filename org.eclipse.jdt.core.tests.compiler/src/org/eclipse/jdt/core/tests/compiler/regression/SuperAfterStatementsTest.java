@@ -291,8 +291,8 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
 				"	this.i++;                   // Error\n" +
-				"	^^^^\n" +
-				"Cannot use 'this' in an early construction context (except in a simple field assignment)\n" +
+				"	^^^^^^\n" +
+				"Cannot read field i in an early construction context\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 5)\n" +
 				"	this.hashCode();            // Error\n" +
@@ -508,8 +508,8 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in B.java (at line 5)\n" +
 			"	C.this.c++;             // Error - same instance\n" +
-			"	^^^^^^\n" +
-			"Cannot use 'C.this' in an early construction context (except in a simple field assignment)\n" +
+			"	^^^^^^^^\n" +
+			"Cannot read field c in an early construction context\n" +
 			"----------\n" +
 			"2. WARNING in B.java (at line 6)\n" +
 			"	super();\n" +
@@ -986,7 +986,12 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"	        ^\n" +
 			"Cannot read field a in an early construction context\n" +
 			"----------\n" +
-			"2. WARNING in X.java (at line 14)\n" +
+			"2. WARNING in X.java (at line 13)\n" +
+			"	this.b = j == 0;\n" +
+			"	^^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 14)\n" +
 			"	super();\n" +
 			"	^^^^^^^^\n" +
 			"You are using a preview language feature that may or may not be supported in a future release\n" +
@@ -1017,7 +1022,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 6)\n" +
 			"	super(this); // Error - refers to \'this\'\n" +
 			"	      ^^^^\n" +
-			"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
+			"Cannot use 'this' in an early construction context\n" +
 			"----------\n");
 		}
 	/**
@@ -1091,7 +1096,12 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"	        ^\n" +
 			"Cannot read field a in an early construction context\n" +
 			"----------\n" +
-			"2. WARNING in X.java (at line 15)\n" +
+			"2. WARNING in X.java (at line 14)\n" +
+			"	this.b = j == 0;\n" +
+			"	^^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 15)\n" +
 			"	super();\n" +
 			"	^^^^^^^^\n" +
 			"You are using a preview language feature that may or may not be supported in a future release\n" +
@@ -1625,6 +1635,122 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.expectedOutputString = "3456";
 		runner.runConformTest();
 	}
+	public void testFieldAssignedInSuperArgument_NOK_superclass() {
+		Runner runner = new Runner(false);
+		runner.testFiles = new String[] {
+				"Test.java",
+				"""
+				class Super {
+					int i;
+					Super (int i) {}
+				}
+				public class Test extends Super {
+					Test(int n) {
+						super(i=n);				// old syntax, single name reference
+					}
+					Test(int n, boolean f) {
+						super(this.i=n);		// old syntax, this-qualified field reference
+					}
+					Test(int n, int m) {
+						int s = n+m;
+						super(i=s);				// new syntax, single name reference
+					}
+					Test(int n, int m, boolean f) {
+						int s = n+m;
+						super(this.i=s);		// new syntax, this-qualified field reference
+					}
+					public static void main(String... args) {
+						System.out.print(new Test(3).i);
+						System.out.print(new Test(4, true).i);
+						System.out.print(new Test(2,3).i);
+						System.out.print(new Test(3,3, true).i);
+					}
+				}
+				"""
+			};
+		runner.expectedCompilerLog = """
+				----------
+				1. ERROR in Test.java (at line 7)
+					super(i=n);				// old syntax, single name reference
+					      ^
+				Cannot assign field 'i' from class 'Super' in an early construction context
+				----------
+				2. ERROR in Test.java (at line 10)
+					super(this.i=n);		// old syntax, this-qualified field reference
+					      ^^^^^^
+				Cannot assign field 'i' from class 'Super' in an early construction context
+				----------
+				3. ERROR in Test.java (at line 14)
+					super(i=s);				// new syntax, single name reference
+					      ^
+				Cannot assign field 'i' from class 'Super' in an early construction context
+				----------
+				4. ERROR in Test.java (at line 18)
+					super(this.i=s);		// new syntax, this-qualified field reference
+					      ^^^^^^
+				Cannot assign field 'i' from class 'Super' in an early construction context
+				----------
+				""";
+		runner.runNegativeTest();
+	}
+	public void testFieldAssignedInSuperArgument_NOK_hasInitializer() {
+		Runner runner = new Runner(false);
+		runner.testFiles = new String[] {
+				"Test.java",
+				"""
+				class Super {
+					Super (int i) {}
+				}
+				public class Test extends Super {
+					int i = 3;
+					Test(int n) {
+						super(i=n);				// old syntax, single name reference
+					}
+					Test(int n, boolean f) {
+						super(this.i=n);		// old syntax, this-qualified field reference
+					}
+					Test(int n, int m) {
+						int s = n+m;
+						super(i=s);				// new syntax, single name reference
+					}
+					Test(int n, int m, boolean f) {
+						int s = n+m;
+						super(this.i=s);		// new syntax, this-qualified field reference
+					}
+					public static void main(String... args) {
+						System.out.print(new Test(3).i);
+						System.out.print(new Test(4, true).i);
+						System.out.print(new Test(2,3).i);
+						System.out.print(new Test(3,3, true).i);
+					}
+				}
+				"""
+			};
+		runner.expectedCompilerLog = """
+				----------
+				1. ERROR in Test.java (at line 7)
+					super(i=n);				// old syntax, single name reference
+					      ^
+				Cannot assign field 'i' in an early construction context, because it has an initializer
+				----------
+				2. ERROR in Test.java (at line 10)
+					super(this.i=n);		// old syntax, this-qualified field reference
+					      ^^^^^^
+				Cannot assign field 'i' in an early construction context, because it has an initializer
+				----------
+				3. ERROR in Test.java (at line 14)
+					super(i=s);				// new syntax, single name reference
+					      ^
+				Cannot assign field 'i' in an early construction context, because it has an initializer
+				----------
+				4. ERROR in Test.java (at line 18)
+					super(this.i=s);		// new syntax, this-qualified field reference
+					      ^^^^^^
+				Cannot assign field 'i' in an early construction context, because it has an initializer
+				----------
+				""";
+		runner.runNegativeTest();
+	}
 	public void testFieldAssignedInSuperArgument_notEnabled() {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
@@ -1664,7 +1790,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				----------
 				2. ERROR in Test.java (at line 10)
 					super(this.i=n);		// old syntax, this-qualified field reference
-					      ^^^^
+					      ^^^^^^
 				Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable
 				----------
 				3. ERROR in Test.java (at line 14)
@@ -1672,9 +1798,19 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					^^^^^^^^^^^
 				Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable
 				----------
-				4. ERROR in Test.java (at line 18)
+				4. ERROR in Test.java (at line 14)
+					super(i=s);				// new syntax, single name reference
+					      ^
+				Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable
+				----------
+				5. ERROR in Test.java (at line 18)
 					super(this.i=s);		// new syntax, this-qualified field reference
 					^^^^^^^^^^^^^^^^
+				Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable
+				----------
+				6. ERROR in Test.java (at line 18)
+					super(this.i=s);		// new syntax, this-qualified field reference
+					      ^^^^^^
 				Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable
 				----------
 				""";
@@ -1712,12 +1848,12 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				1. ERROR in Test.java (at line 7)
 					super(i+=n);			// old syntax, single name reference
 					      ^
-				Cannot refer to an instance field i while explicitly invoking a constructor
+				Cannot read field i in an early construction context
 				----------
 				2. ERROR in Test.java (at line 10)
 					super(this.i-=n);		// old syntax, this-qualified field reference
-					      ^^^^
-				Cannot refer to 'this' nor 'super' while explicitly invoking a constructor
+					      ^^^^^^
+				Cannot read field i in an early construction context
 				----------
 				3. ERROR in Test.java (at line 14)
 					super(i*=s);			// new syntax, single name reference
@@ -1726,8 +1862,8 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				----------
 				4. ERROR in Test.java (at line 18)
 					super(this.i/=s);		// new syntax, this-qualified field reference
-					      ^^^^
-				Cannot use 'this' in an early construction context (except in a simple field assignment)
+					      ^^^^^^
+				Cannot read field i in an early construction context
 				----------
 				""";
 		runner.runNegativeTest();
@@ -1764,7 +1900,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				1. ERROR in Test.java (at line 7)
 					super(i);
 					      ^
-				Cannot refer to an instance field i while explicitly invoking a constructor
+				Cannot read field i in an early construction context
 				----------
 				2. ERROR in Test.java (at line 11)
 					super(i);
@@ -1773,13 +1909,13 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				----------
 				3. ERROR in Test.java (at line 14)
 					super(this.i);
-					      ^^^^
-				Cannot refer to 'this' nor 'super' while explicitly invoking a constructor
+					      ^^^^^^
+				Cannot read field i in an early construction context
 				----------
 				4. ERROR in Test.java (at line 18)
 					super(this.i);
-					      ^^^^
-				Cannot use 'this' in an early construction context (except in a simple field assignment)
+					      ^^^^^^
+				Cannot read field i in an early construction context
 				----------
 				""";
 		runner.runNegativeTest();

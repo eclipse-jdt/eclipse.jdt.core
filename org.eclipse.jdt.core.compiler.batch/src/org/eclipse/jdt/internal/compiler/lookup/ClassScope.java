@@ -72,7 +72,6 @@ public class ClassScope extends Scope {
 	public TypeReference superTypeReference;
 	java.util.ArrayList<TypeReference> deferredBoundChecks;
 	public boolean resolvingPolyExpressionArguments = false;
-	// temporarily set while processing statements in an early construction context of this type:
 	/**
 	 * This is the primary flag for detection of early construction contexts (JEP 482).
 	 * It is temporarily set on the scope of a class while processing statements of this class's

@@ -69,6 +69,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -539,12 +540,13 @@ public TypeBinding resolveType(BlockScope scope) {
 			this.binding.getTypeAnnotations() != Binding.NO_ANNOTATIONS) {
 		this.resolvedType = scope.environment().createAnnotatedType(this.resolvedType, this.binding.getTypeAnnotations());
 	}
-	checkPreConstructorContext(scope);
+	checkEarlyConstructionContext(scope);
 	return this.resolvedType;
 }
 
-protected void checkPreConstructorContext(BlockScope scope) {
-	if (this.type != null && this.type.resolvedType instanceof ReferenceBinding currentType) {
+protected void checkEarlyConstructionContext(BlockScope scope) {
+	if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())
+			&& this.type != null && this.type.resolvedType instanceof ReferenceBinding currentType) {
 		TypeBinding uninitialized = scope.getMatchingUninitializedType(currentType, !currentType.isLocalType());
 		if (uninitialized != null)
 			scope.problemReporter().allocationInEarlyConstructionContext(this, this.resolvedType, uninitialized);

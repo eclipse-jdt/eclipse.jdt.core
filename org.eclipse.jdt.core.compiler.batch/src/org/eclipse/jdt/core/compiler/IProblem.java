@@ -2663,4 +2663,16 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature
 	 */
 	int DuplicateExplicitConstructorCall = PreviewRelated + 2028;
+
+	/**
+	 * @since 3.39
+	 * @noreference preview feature
+	 */
+	int SuperFieldAssignInEarlyConstructionContext = PreviewRelated + 2029;
+
+	/**
+	 * @since 3.39
+	 * @noreference preview feature
+	 */
+	int AssignFieldWithInitializerInEarlyConstructionContext = PreviewRelated + 2030;
 }

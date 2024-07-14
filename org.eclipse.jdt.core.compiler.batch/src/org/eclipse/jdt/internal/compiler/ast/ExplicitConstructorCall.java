@@ -325,9 +325,15 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
 			if (methodDeclaration == null || !methodDeclaration.isConstructor()) {
 				hasError = true;
-			} else if (constructorDeclaration.constructorCall != this) {
-				isFirstStatement = false;
-				hasError = !scope.isInsideEarlyConstructionContext(null, false);
+			} else {
+				ExplicitConstructorCall constructorCall = constructorDeclaration.constructorCall;
+				if (constructorCall == null) {
+					constructorCall = constructorDeclaration.getLateConstructorCall();
+				}
+				if (constructorCall != null && constructorCall != this) {
+					isFirstStatement = false;
+					hasError = true;
+				}
 			}
 			if (hasError) {
 				if (!(methodDeclaration instanceof CompactConstructorDeclaration)) {// already flagged for CCD

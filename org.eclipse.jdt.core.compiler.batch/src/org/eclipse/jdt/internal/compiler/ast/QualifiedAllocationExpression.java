@@ -324,7 +324,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				this.resolvedType = scope.environment().createAnnotatedType(this.resolvedType, this.binding.getTypeAnnotations());
 			}
 		}
-		checkPreConstructorContext(scope);
+		checkEarlyConstructionContext(scope);
 		return result;
 	}
 
