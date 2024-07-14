@@ -592,6 +592,8 @@ class JavacConverter {
 					SingleVariableDeclaration vdd = (SingleVariableDeclaration)convertVariableDeclaration(vd);
 					// Records cannot have modifiers
 					vdd.modifiers().clear();
+					// Add only annotation modifiers
+					vdd.modifiers().addAll(convertModifierAnnotations(vd.getModifiers(), vdd));
 					recordDecl.recordComponents().add(vdd);
 				} else {
 					ASTNode converted = convertBodyDeclaration(node, res);
