@@ -5709,9 +5709,7 @@ public abstract class Scope {
 			SourceTypeBinding enclosingType = currentEnclosing.referenceContext.binding;
 			TypeBinding currentTarget = targetClass;
 			while (currentTarget != null) {
-				if (currentTarget instanceof ParameterizedTypeBinding)
-					currentTarget = currentTarget.actualType();
-				if (TypeBinding.equalsEquals(enclosingType, currentTarget)) {
+				if (TypeBinding.equalsEquals(enclosingType, currentTarget.actualType())) {
 					if (currentEnclosing.insideEarlyConstructionContext)
 						return enclosingType;
 				}

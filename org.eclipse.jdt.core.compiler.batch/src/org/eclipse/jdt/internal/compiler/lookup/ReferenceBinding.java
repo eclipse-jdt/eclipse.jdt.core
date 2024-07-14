@@ -330,7 +330,7 @@ public boolean canBeSeenBy(PackageBinding invocationPackage) {
 public boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding invocationType) {
 	if (isPublic()) return true;
 
-	if (isStatic() && (receiverType.isRawType() || receiverType.isParameterizedType()))
+	if (isStatic())
 		receiverType = receiverType.actualType(); // outer generics are irrelevant
 
 	if (TypeBinding.equalsEquals(invocationType, this) && TypeBinding.equalsEquals(invocationType, receiverType)) return true;
@@ -1061,6 +1061,11 @@ public final ReferenceBinding enclosingTypeAt(int relativeDepth) {
 	while (relativeDepth-- > 0 && current != null)
 		current = current.enclosingType();
 	return current;
+}
+
+@Override
+public ReferenceBinding actualType() {
+	return this;
 }
 
 public int enumConstantCount() {

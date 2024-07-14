@@ -168,7 +168,8 @@ public static final TypeBinding wellKnownBaseType(int id) {
 }
 
 public ReferenceBinding actualType() {
-	return null; // overridden in ParameterizedTypeBinding & WildcardBinding
+	assert false : "Invocation on non-ReferenceBinding not expected"; //$NON-NLS-1$
+	return null; // overridden in ReferenceBinding, ParameterizedTypeBinding & WildcardBinding
 }
 
 TypeBinding [] additionalBounds() {
