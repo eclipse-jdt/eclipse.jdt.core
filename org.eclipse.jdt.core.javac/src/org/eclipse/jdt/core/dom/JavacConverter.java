@@ -3153,6 +3153,8 @@ class JavacConverter {
 					typeName.internalSetIdentifier(enumName);
 					typeName.setSourceRange(enumConstant.getStartPosition(), Math.max(0, enumName.length()));
 					enumConstantDeclaration.setName(typeName);
+					enumConstantDeclaration.modifiers()
+							.addAll(convert(enumConstant.getModifiers(), enumConstantDeclaration));
 				}
 				if( enumConstant.init instanceof JCNewClass jcnc ) {
 					if( jcnc.def instanceof JCClassDecl jccd) {
