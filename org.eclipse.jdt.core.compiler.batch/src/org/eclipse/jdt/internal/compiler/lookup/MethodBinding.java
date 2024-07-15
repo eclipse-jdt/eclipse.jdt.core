@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -1124,13 +1128,13 @@ public final char[] computeSignature(ClassFile classFile) {
 	}
 	boolean needSynthetics = isConstructor
 			&& this.declaringClass.isNestedType()
-			&& !this.declaringClass.isStatic()
-			&& !this.declaringClass.isInPreconstructorContext();
+			&& !this.declaringClass.isStatic();
 	if (needSynthetics) {
 		// take into account the synthetic argument type signatures as well
 		ReferenceBinding[] syntheticArgumentTypes = this.declaringClass.syntheticEnclosingInstanceTypes();
 		if (syntheticArgumentTypes != null) {
 			for (ReferenceBinding syntheticArgumentType : syntheticArgumentTypes) {
+
 				if ((syntheticArgumentType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
 					this.tagBits |= TagBits.ContainsNestedTypeReferences;
 					if (classFile != null)

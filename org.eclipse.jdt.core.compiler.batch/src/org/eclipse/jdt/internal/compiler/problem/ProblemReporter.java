@@ -4240,6 +4240,22 @@ public void invalidExplicitConstructorCall(ASTNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void duplicateExplicitConstructorCall(ASTNode location) {
+	this.handle(
+			IProblem.DuplicateExplicitConstructorCall,
+			NoArgument,
+			NoArgument,
+			location.sourceStart,
+			location.sourceEnd);
+}
+public void misplacedConstructorCall(ASTNode location) {
+	this.handle(
+			IProblem.ConstructorCallNotAllowedHere,
+			NoArgument,
+			NoArgument,
+			location.sourceStart,
+			location.sourceEnd);
+}
 public void invalidExpressionAsStatement(Expression expression){
 	this.handle(
 		IProblem.InvalidExpressionAsStatement,
@@ -12604,19 +12620,64 @@ public void unnamedVariableMustHaveInitializer(LocalDeclaration variableDeclarat
 			variableDeclaration.sourceStart,
 			variableDeclaration.sourceEnd);
 }
-public void errorExpressionInPreConstructorContext(Expression expr) {
+public void errorExpressionInEarlyConstructionContext(Expression expr) {
 	String[] arguments = new String[] {expr.toString()};
 	this.handle(
-		IProblem.ExpressionInPreConstructorContext,
+		expr instanceof ThisReference thisRef && thisRef.inFieldReference
+			? IProblem.ThisInEarlyConstructionContext
+			: IProblem.ExpressionInEarlyConstructionContext,
 		arguments,
 		arguments,
 		expr.sourceStart,
 		expr.sourceEnd);
 }
-public void errorReturnInPrologue(Statement stmt) {
+public void messageSendInEarlyConstructionContext(MessageSend location) {
+	String[] arguments = new String[] { String.valueOf(location.selector) };
+	this.handle(
+		IProblem.MessageSendInEarlyConstructionContext,
+		arguments,
+		arguments,
+		location.sourceStart,
+		location.sourceEnd);
+}
+public void allocationInEarlyConstructionContext(Expression expr, TypeBinding allocatedType, TypeBinding uninitializedType) {
+	this.handle(
+		IProblem.AllocationInEarlyConstructionContext,
+		new String[] { String.valueOf(allocatedType.readableName()), String.valueOf(uninitializedType.readableName())},
+		new String[] { String.valueOf(allocatedType.shortReadableName()), String.valueOf(uninitializedType.shortReadableName())},
+		expr.sourceStart,
+		expr.sourceEnd);
+}
+public void fieldReadInEarlyConstructionContext(char[] token, int sourceStart, int sourceEnd) {
+	String[] arguments = new String[] {String.valueOf(token)};
+	this.handle(
+		IProblem.FieldReadInEarlyConstructionContext,
+		arguments,
+		arguments,
+		sourceStart,
+		sourceEnd);
+}
+public void superFieldAssignInEarlyConstructionContext(ASTNode location, FieldBinding field) {
+	this.handle(
+		IProblem.SuperFieldAssignInEarlyConstructionContext,
+		new String[] {String.valueOf(field.name), String.valueOf(field.declaringClass.readableName())},
+		new String[] {String.valueOf(field.name), String.valueOf(field.declaringClass.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
+public void assignFieldWithInitializerInEarlyConstructionContext(char[] token, int sourceStart, int sourceEnd) {
+	String[] arguments = new String[] {String.valueOf(token)};
+	this.handle(
+		IProblem.AssignFieldWithInitializerInEarlyConstructionContext,
+		arguments,
+		arguments,
+		sourceStart,
+		sourceEnd);
+}
+public void errorReturnInEarlyConstructionContext(Statement stmt) {
 	String[] arguments = new String[] {stmt.toString()};
 	this.handle(
-		IProblem.DisallowedStatementInPrologue,
+		IProblem.DisallowedStatementInEarlyConstructionContext,
 		arguments,
 		arguments,
 		stmt.sourceStart,

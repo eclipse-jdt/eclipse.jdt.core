@@ -78,8 +78,32 @@ public enum JavaFeature {
 			Messages.bind(Messages.implicit_classes_and_instance_main_methods),
 			new char[][] {},
 			true),
-	STATEMENTS_BEFORE_SUPER(ClassFileConstants.JDK23,
-			Messages.bind(Messages.statements_before_super),
+	/**
+	 * JEP 482. Some locations only check if compliance is sufficient to use this feature,
+	 * to leave checking for actual enablement for later. This is done so we can report
+	 * that a preview feature could potentially kick in even when it is disabled.
+	 * <dl>
+	 * <dt>Initial check in ConstructorDeclaration.resolveStatements();
+	 * <dd>At 23 we always call enterEarlyConstructionContext() to enable many downstream analyses.<br>
+	 * Check actual support only when a "late constructor" has been found.<br>
+	 * Similar for analyseCode() and generateCode().
+	 * <dt>Differentiate error messages based on enablement:
+	 * <dd><ul>
+	 * 	<li>AllocationExpression.checkEarlyConstructionContext()
+	 * 	<li>ExplicitConstructorCall.resolve(BlockScope)
+	 * 	<li>ThisReference.checkAccess(BlockScope, ReferenceBinding)
+	 * 	</ul>
+	 * <dt>Main checks during resolve: Reference.checkFieldAccessInEarlyConstructionContext()
+	 * <dd>applies all strategy variants from above
+	 * <dt>Individual exceptions from old rules
+	 * <dd><ul><li>MethodScope.findField()<li>Scope.getBinding(char[], int, InvocationSite, boolean)</ul>
+	 * <dt>Main code gen change in TypeDeclaration.manageEnclosingInstanceAccessIfNecessary()
+	 * <dd>Only if feature is actually supported, we will generate special synthetid args & fields<br>
+	 * Uses some feature-specific help from BlockScope.getEmulationPath()
+	 * </dl>
+	 */
+	FLEXIBLE_CONSTRUCTOR_BODIES(ClassFileConstants.JDK23,
+			Messages.bind(Messages.flexible_constructor_bodies),
 			new char[][] {},
 			true),
 	PRIMITIVES_IN_PATTERNS(ClassFileConstants.JDK23,
@@ -124,7 +148,9 @@ public enum JavaFeature {
 			return preview;
 		return this.getCompliance() <= CompilerOptions.versionToJdkLevel(comp);
 	}
-
+	public boolean matchesCompliance(CompilerOptions options) {
+		return this.compliance == options.complianceLevel;
+	}
 	JavaFeature(long compliance, String name, char[][] restrictedKeywords, boolean isPreview) {
         this.compliance = compliance;
         this.name = name;

@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
@@ -51,6 +55,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -138,6 +143,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	public boolean argumentsTypeVar = false;
 	int firstLocalLocal; // analysis index of first local variable (if any) post parameter(s) in the lambda; ("local local" as opposed to "outer local")
 
+	private List<ClassScope> scopesInEarlyConstruction;
 
 	public LambdaExpression(CompilationResult compilationResult, boolean assistNode, boolean requiresGenericSignature) {
 		super(compilationResult);
@@ -285,6 +291,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				return new PolyTypeBinding(this);
 			}
 		}
+		this.scopesInEarlyConstruction = blockScope.collectClassesBeingInitialized();
 
 		MethodScope methodScope = blockScope.methodScope();
 		this.scope = new MethodScope(blockScope, this, methodScope.isStatic, methodScope.lastVisibleFieldID);
@@ -1283,21 +1290,30 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			}
 		}
 		codeStream.pushPatternAccessTrapScope(this.scope);
-		if (this.body instanceof Block) {
-			boolean prev = codeStream.stmtInPreConContext;
-			codeStream.stmtInPreConContext = this.inPreConstructorContext;
-			this.body.generateCode(this.scope, codeStream);
-			codeStream.stmtInPreConContext = prev;
-			if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
-				codeStream.return_();
-			}
-		} else {
-			Expression expression = (Expression) this.body;
-			expression.generateCode(this.scope, codeStream, true);
-			if (this.binding.returnType == TypeBinding.VOID) {
-				codeStream.return_();
+		if (this.scopesInEarlyConstruction != null) {
+			// JEP 482: restore early construction context info into scopes:
+			for (ClassScope classScope : this.scopesInEarlyConstruction)
+				classScope.insideEarlyConstructionContext = true;
+		}
+		try {
+			if (this.body instanceof Block) {
+				this.body.generateCode(this.scope, codeStream);
+				if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
+					codeStream.return_();
+				}
 			} else {
-				codeStream.generateReturnBytecode(expression);
+				Expression expression = (Expression) this.body;
+				expression.generateCode(this.scope, codeStream, true);
+				if (this.binding.returnType == TypeBinding.VOID) {
+					codeStream.return_();
+				} else {
+					codeStream.generateReturnBytecode(expression);
+				}
+			}
+		} finally {
+			if (this.scopesInEarlyConstruction != null) {
+				for (ClassScope classScope : this.scopesInEarlyConstruction)
+					classScope.insideEarlyConstructionContext = false;
 			}
 		}
 		// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1796#issuecomment-1933458054

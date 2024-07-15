@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -302,9 +306,11 @@ public void prepareSaveValueLocation(TryStatement targetTryStatement){
 
 @Override
 public StringBuilder printStatement(int tab, StringBuilder output){
-	printIndent(tab, output).append("return "); //$NON-NLS-1$
-	if (this.expression != null )
+	printIndent(tab, output).append("return"); //$NON-NLS-1$
+	if (this.expression != null ) {
+		output.append(' ');
 		this.expression.printExpression(0, output) ;
+	}
 	return output.append(';');
 }
 
@@ -325,8 +331,8 @@ public void resolve(BlockScope scope) {
 	if (methodBinding != null && methodBinding.isCompactConstructor())
 		scope.problemReporter().recordCompactConstructorHasReturnStatement(this);
 
-	if (this.inPreConstructorContext)
-		scope.problemReporter().errorReturnInPrologue(this);
+	if (lambda == null && scope.isInsideEarlyConstructionContext(null, false))
+		scope.problemReporter().errorReturnInEarlyConstructionContext(this);
 
 	if (this.expression != null) {
 		this.expression.setExpressionContext(ASSIGNMENT_CONTEXT);

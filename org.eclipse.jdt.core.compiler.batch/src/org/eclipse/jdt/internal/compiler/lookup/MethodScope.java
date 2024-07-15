@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  * Copyright (c) 2000, 2021 IBM Corporation and others.
+ *  * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -32,6 +36,7 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
@@ -486,7 +491,21 @@ public FieldBinding findField(TypeBinding receiverType, char[] fieldName, Invoca
 	if (field.isStatic())
 		return field; // static fields are always accessible
 
-	if (!this.isConstructorCall || TypeBinding.notEquals(receiverType, enclosingSourceType()))
+	if (this.isConstructorCall) {
+		// JEP 482 exception to old rules.
+		// 'this.field' is already detected when FieldReference triggers ThisReference.resolveType() -> checkAccess()
+		// hence here we only handle single name references:
+		if (invocationSite instanceof SingleNameReference nameRef
+				&& (nameRef.bits & ASTNode.IsStrictlyAssigned) != 0
+				&& JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(compilerOptions())) {
+			problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES, invocationSite.sourceStart(), invocationSite.sourceEnd());
+			return field;
+		}
+	} else {
+		return field;
+	}
+
+	if (TypeBinding.notEquals(receiverType, enclosingSourceType()))
 		return field;
 
 	if (invocationSite instanceof SingleNameReference)

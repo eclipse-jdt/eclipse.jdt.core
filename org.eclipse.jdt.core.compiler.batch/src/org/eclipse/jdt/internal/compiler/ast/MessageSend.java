@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Nick Teryaev - fix for bug (https://bugs.eclipse.org/bugs/show_bug.cgi?id=40752)
@@ -96,7 +100,6 @@ import org.eclipse.jdt.internal.compiler.lookup.InferenceVariable;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
@@ -1017,14 +1020,9 @@ public TypeBinding resolveType(BlockScope scope) {
 				this.bits |= NeedReceiverGenericCast;
 			}
 		}
-		if (this.inPreConstructorContext && this.actualReceiverType != null &&
-				(this.receiver instanceof ThisReference thisReference && thisReference.isImplicitThis() ||
-				!(this.receiver instanceof ThisReference))) {
-			MethodScope ms = scope.methodScope();
-			MethodBinding method = ms != null ? ms.referenceMethodBinding() : null;
-			if (method != null && TypeBinding.equalsEquals(method.declaringClass, this.actualReceiverType)) {
-				scope.problemReporter().errorExpressionInPreConstructorContext(this);
-			}
+		if (this.actualReceiverType != null && scope.isInsideEarlyConstructionContext(this.actualReceiverType, true) &&
+				(this.receiver instanceof ThisReference thisReference && thisReference.isImplicitThis())) {
+			scope.problemReporter().messageSendInEarlyConstructionContext(this);
 		}
 	} else {
 		// static message invoked through receiver? legal but unoptimal (optional warning).

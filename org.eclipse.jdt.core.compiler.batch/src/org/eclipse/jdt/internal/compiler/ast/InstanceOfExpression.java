@@ -289,7 +289,7 @@ private void storeExpressionValue(CodeStream codeStream) {
 	LocalVariableBinding local = this.expression.localVariableBinding();
 	local = local != null ? local : this.secretExpressionValue;
 	if (local != null)
-		codeStream.store(local, this.inPreConstructorContext);
+		codeStream.store(local, false);
 }
 
 @Override
