@@ -39,6 +39,8 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION_CONTEXT;
 
+import java.util.Arrays;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
@@ -325,9 +327,10 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			if (methodDeclaration == null || !methodDeclaration.isConstructor()) {
 				hasError = true;
 			} else {
+				// is it the first constructor call?
 				ExplicitConstructorCall constructorCall = constructorDeclaration.constructorCall;
 				if (constructorCall == null) {
-					constructorCall = constructorDeclaration.getLateConstructorCall();
+					constructorCall = constructorDeclaration.getLateConstructorCall(); // JEP 482
 				}
 				if (constructorCall != null && constructorCall != this) {
 					hasError = true;
@@ -335,10 +338,12 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			}
 			if (hasError) {
 				if (!(methodDeclaration instanceof CompactConstructorDeclaration)) {// already flagged for CCD
-					ExplicitConstructorCall lateConstructorCall = constructorDeclaration.getLateConstructorCall();
-					if (lateConstructorCall != null && lateConstructorCall != this
-							&& JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
-						scope.problemReporter().duplicateExplicitConstructorCall(this);
+					if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
+						boolean isTopLevel = Arrays.stream(constructorDeclaration.statements).anyMatch(this::equals);
+						if (isTopLevel)
+							scope.problemReporter().duplicateExplicitConstructorCall(this);
+						else // otherwise it's illegally nested in some control structure:
+							scope.problemReporter().misplacedConstructorCall(this);
 					} else {
 						scope.problemReporter().invalidExplicitConstructorCall(this);
 					}

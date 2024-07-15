@@ -1280,7 +1280,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		"1. ERROR in X.java (at line 10)\n" +
 		"	this(0);\n" +
 		"	^^^^^^^^\n" +
-		"Constructor call must be the first statement in a constructor\n" +
+		"Constructor cannot have more than one explicit constructor call\n" +
 		"----------\n"
 			);
 	}
@@ -1319,7 +1319,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		"3. ERROR in X.java (at line 9)\n" +
 		"	this(0);\n" +
 		"	^^^^^^^^\n" +
-		"Constructor call must be the first statement in a constructor\n" +
+		"Constructor cannot have more than one explicit constructor call\n" +
 		"----------\n"
 			);
 	}
@@ -1353,7 +1353,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		"2. ERROR in X.java (at line 9)\n" +
 		"	this(0);\n" +
 		"	^^^^^^^^\n" +
-		"Constructor call must be the first statement in a constructor\n" +
+		"Constructor cannot have more than one explicit constructor call\n" +
 		"----------\n"
 			);
 	}
@@ -1380,7 +1380,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		"1. ERROR in X.java (at line 7)\n" +
 		"	this();\n" +
 		"	^^^^^^^\n" +
-		"Constructor call must be the first statement in a constructor\n" +
+		"Constructor cannot have more than one explicit constructor call\n" +
 		"----------\n"
 			);
 	}
@@ -2087,6 +2087,104 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				"	^^^^^^^^\n" +
 				"Constructor cannot have more than one explicit constructor call\n" +
 				"----------\n";
+		runner.runNegativeTest();
+	}
+
+	public void testGH2464() {
+		Runner runner = new Runner(false);
+		runner.testFiles = new String[] {
+				"Test.java",
+				"""
+				public class Test {
+					String name = "Test";
+					Test() {
+						Runnable r = new Runnable() {
+							@Override
+							public void run() {
+								System.out.println(Test.this);
+								System.out.println(name);
+							}
+						};
+						r.run();
+						super();
+					}
+					public static void main(String[] args) {
+						new Test();
+					}
+				}
+				"""
+			};
+		runner.expectedCompilerLog = """
+				----------
+				1. ERROR in Test.java (at line 7)
+					System.out.println(Test.this);
+					                   ^^^^^^^^^
+				Cannot use 'Test.this' in an early construction context
+				----------
+				2. ERROR in Test.java (at line 8)
+					System.out.println(name);
+					                   ^^^^
+				Cannot read field name in an early construction context
+				----------
+				""";
+		runner.runNegativeTest();
+	}
+
+	public void testGH2468() {
+		Runner runner = new Runner(false);
+		runner.testFiles = new String[] {
+				"TestFlow.java",
+				"""
+				public class TestFlow {
+					TestFlow() {}
+					TestFlow(boolean f) {
+						if (f)
+							super();
+						else
+							this();
+					}
+				}
+				"""
+			};
+		runner.expectedCompilerLog = """
+				----------
+				1. ERROR in TestFlow.java (at line 5)
+					super();
+					^^^^^^^^
+				Constructor call is not allowed here
+				----------
+				2. ERROR in TestFlow.java (at line 7)
+					this();
+					^^^^^^^
+				Constructor call is not allowed here
+				----------
+				""";
+		runner.runNegativeTest();
+	}
+
+	public void testGH2466() {
+		Runner runner = new Runner(false);
+		runner.testFiles = new String[] {
+				"TestFlow.java",
+				"""
+				public class TestFlow {
+					TestFlow() {}
+					TestFlow(boolean f) {
+						if (f)
+							super();
+						this();
+					}
+				}
+				"""
+			};
+		runner.expectedCompilerLog = """
+				----------
+				1. ERROR in TestFlow.java (at line 5)
+					super();
+					^^^^^^^^
+				Constructor call is not allowed here
+				----------
+				""";
 		runner.runNegativeTest();
 	}
 }

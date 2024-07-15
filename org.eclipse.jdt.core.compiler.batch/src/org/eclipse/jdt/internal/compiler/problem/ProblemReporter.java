@@ -4248,6 +4248,14 @@ public void duplicateExplicitConstructorCall(ASTNode location) {
 			location.sourceStart,
 			location.sourceEnd);
 }
+public void misplacedConstructorCall(ASTNode location) {
+	this.handle(
+			IProblem.ConstructorCallNotAllowedHere,
+			NoArgument,
+			NoArgument,
+			location.sourceStart,
+			location.sourceEnd);
+}
 public void invalidExpressionAsStatement(Expression expression){
 	this.handle(
 		IProblem.InvalidExpressionAsStatement,

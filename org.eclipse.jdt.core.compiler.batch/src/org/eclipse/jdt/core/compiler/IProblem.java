@@ -2675,4 +2675,10 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature
 	 */
 	int AssignFieldWithInitializerInEarlyConstructionContext = PreviewRelated + 2030;
+
+	/**
+	 * @since 3.39
+	 * @noreference preview feature
+	 */
+	int ConstructorCallNotAllowedHere = PreviewRelated + 2031;
 }
