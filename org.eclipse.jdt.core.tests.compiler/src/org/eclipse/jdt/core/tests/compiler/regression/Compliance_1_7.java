@@ -29,7 +29,7 @@ public Compliance_1_7(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_7);
+	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 }
 static {
 // Names of tests to run: can be "testBugXXXX" or "BugXXXX")
@@ -85,9 +85,9 @@ public void test2() {
 // regular case
 public void testBug390889_a() {
 	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	this.runConformTest(
 			new String[] {
 					"MyComp.java",
@@ -130,9 +130,9 @@ public void testBug390889_b() {
 			});
 
 	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	this.runConformTest(
 			new String[] {
 					"C1.java",
@@ -160,9 +160,9 @@ public void testBug390889_c() {
 			});
 
 	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	this.runConformTest(
 			new String[] {
 				"CI.java",
@@ -186,9 +186,9 @@ public void testBug490988() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_8)
 		return;
 	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	this.runNegativeTest(
 			new String[] {
 				"Thing.java",

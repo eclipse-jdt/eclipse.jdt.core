@@ -39,7 +39,7 @@ public ResourceLeakAnnotatedTests(String name) {
 public static Test suite() {
 	TestSuite suite = new TestSuite(ResourceLeakAnnotatedTests.class.getName());
 	// argument 'inheritedDepth' is not exposed in original API, therefore these helpers are copied below with this arg added
-	buildMinimalComplianceTestSuite(F_1_7, 1, suite, ResourceLeakAnnotatedTests.class);
+	buildMinimalComplianceTestSuite(FIRST_SUPPORTED_JAVA_VERSION, 1, suite, ResourceLeakAnnotatedTests.class);
 	return suite;
 }
 

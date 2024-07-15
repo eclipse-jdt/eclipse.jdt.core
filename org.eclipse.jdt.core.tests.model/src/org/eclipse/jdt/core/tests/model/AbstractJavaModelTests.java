@@ -2596,11 +2596,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			setUpJCLClasspathVariables("1.8");
 			return new String[] {getExternalJCLPathString("1.8")};
 		}
-		if (compliance.charAt(compliance.length()-1) >= '5' && (AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_1_5) != 0) {
-			// ensure that the JCL 15 lib is setup (i.e. that the jclMin15.jar is copied)
-			setUpJCLClasspathVariables("1.5");
-			return new String[] {getExternalJCLPathString("1.5")};
-		}
 		return null;
 	}
 	/**

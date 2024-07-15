@@ -30,7 +30,7 @@ public Deprecated15Test(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_5);
+	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 }
 public void test001() {
 	Map options = getCompilerOptions();

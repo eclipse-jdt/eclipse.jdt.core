@@ -34,7 +34,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
-import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaModel;
@@ -991,37 +990,6 @@ public void testMissingOptionalProject() throws JavaModelException {
 	expectingNoProblems();
 	env.removeProject(project1Path);
 	env.removeProject(project2Path);
-}
-
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=160132
-public void test0100() throws JavaModelException {
-	if (!AbstractCompilerTest.isJRELevel(AbstractCompilerTest.F_1_5)) {
-		// expected to run only in 1.5 mode on top of a jre 1.5 or above
-		return;
-	}
-	IPath projectPath = env.addProject("P", "1.5");
-	IPath defaultPackagePath = env.addPackage(projectPath, "");
-	env.addExternalJars(projectPath, Util.getJavaClassLibs());
-	env.addClass(defaultPackagePath, "X",
-		"public interface X<E extends Object & X.Entry> {\n" +
-		"  interface Entry {\n" +
-		"    interface Internal extends Entry {\n" +
-		"      Internal createEntry();\n" +
-		"    }\n" +
-		"  }\n" +
-		"}"
-	);
-	fullBuild();
-	expectingNoProblems();
-	env.addClass(defaultPackagePath, "Y",
-		"public class Y implements X.Entry.Internal {\n" +
-		"  public Internal createEntry() {\n" +
-		"    return null;\n" +
-		"  }\n" +
-		"}");
-	incrementalBuild();
-	expectingNoProblems();
-	env.removeProject(projectPath);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=143025

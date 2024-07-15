@@ -36,7 +36,7 @@ public TryWithResourcesStatementTest(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_7);
+	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 }
 // Test resource type related errors
 public void test001() {
@@ -3153,9 +3153,9 @@ public void test048() {
 public void test049() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
-	runner.customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	runner.customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-	runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+	runner.customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	runner.customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+	runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	runner.testFiles =
 		new String[] {
 			"X.java",
@@ -3185,7 +3185,7 @@ public void test049() {
 		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Resource specification not allowed here for source level below 1.7\n" +
 		"----------\n";
-	runner.javacTestOptions = JavacTestOptions.forRelease("5");
+	runner.javacTestOptions = JavacTestOptions.forRelease("8");
 	runner.runNegativeTest();
 }
 public void test050() {
@@ -3259,9 +3259,9 @@ public void test051() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348406
 public void test052() {
 	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
