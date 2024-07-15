@@ -608,28 +608,41 @@ public class JavacProblemConverter {
 		TreePath path = getTreePath(diagnostic);
 		while (path != null) {
 			var leaf = path.getLeaf();
-			if (leaf instanceof JCMethodDecl) {
+			var parentPath = path.getParentPath();
+			var parentNode = parentPath != null ? parentPath.getLeaf() : null;
+			if (leaf instanceof JCMethodDecl methodDecl) {
+				if (parentNode instanceof JCClassDecl classDecl) {
+					return methodDecl.getReturnType() == null
+						? switch (classDecl.getKind()) {
+							case ENUM -> IProblem.IllegalModifierForEnumConstructor;
+							default -> IProblem.IllegalModifierForConstructor;
+						} : switch (classDecl.getKind()) {
+							case INTERFACE -> IProblem.IllegalModifierForInterfaceMethod;
+							case ANNOTATION_TYPE -> IProblem.IllegalModifierForAnnotationMethod;
+							default -> IProblem.IllegalModifierForMethod;
+						};
+				}
 				return IProblem.IllegalModifierForMethod;
 			} else if (leaf instanceof JCClassDecl classDecl) {
-				switch (classDecl.getKind()) {
-				case CLASS: return IProblem.IllegalModifierForClass;
-				case ENUM: return IProblem.IllegalModifierForEnum;
-				case RECORD: return IProblem.RecordIllegalModifierForRecord;
-				case INTERFACE: return IProblem.IllegalModifierForInterface;
-				default: // fail through
-				}
-				return IProblem.IllegalModifierForClass;
+				// TODO distinguish local, member
+				return switch (classDecl.getKind()) {
+					case CLASS -> IProblem.IllegalModifierForClass;
+					case ENUM -> IProblem.IllegalModifierForEnum;
+					case RECORD -> IProblem.RecordIllegalModifierForRecord;
+					case INTERFACE -> IProblem.IllegalModifierForInterface;
+					default -> IProblem.IllegalModifierForClass;
+				};
 			} else if (leaf instanceof JCVariableDecl) {
-				TreePath parent = path.getParentPath();
-				if (parent != null) {
-					if (parent.getLeaf() instanceof JCMethodDecl) {
+					if (parentNode instanceof JCMethodDecl) {
 						return IProblem.IllegalModifierForArgument;
-					} else if (parent.getLeaf() instanceof JCClassDecl) {
-						return IProblem.IllegalModifierForField;
+					} else if (parentNode instanceof JCClassDecl classDecl) {
+						return switch (classDecl.getKind()) {
+							case INTERFACE -> IProblem.IllegalModifierForInterfaceField;
+							default-> IProblem.IllegalModifierForField;
+						};
 					}
-				}
 			}
-			path = path.getParentPath();
+			path = parentPath;
 		}
 		return IProblem.IllegalModifiers;
 	}
