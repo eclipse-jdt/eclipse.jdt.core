@@ -135,14 +135,27 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		if (this.resolver.javaProject == null) {
 			return null;
 		}
+		if (this.isArray()) {
+			return (IType) this.getElementType().getJavaElement();
+		}
 		if (this.typeSymbol instanceof final ClassSymbol classSymbol) {
 			try {
-				return this.resolver.javaProject.findType(classSymbol.className(), new NullProgressMonitor());
+				return this.resolver.javaProject.findType(cleanedUpName(classSymbol), new NullProgressMonitor());
 			} catch (JavaModelException ex) {
 				ILog.get().error(ex.getMessage(), ex);
 			}
 		}
 		return null;
+	}
+
+	private static String cleanedUpName(ClassSymbol classSymbol) {
+		if (classSymbol.isInner()) {
+			ClassSymbol enclosing = (ClassSymbol)classSymbol.getEnclosingElement();
+			String fullClassName = classSymbol.className();
+			String lastSegment = fullClassName.substring(fullClassName.lastIndexOf('.') + 1);
+			return cleanedUpName(enclosing) + "$" + lastSegment;
+		}
+		return classSymbol.className();
 	}
 
 	@Override
