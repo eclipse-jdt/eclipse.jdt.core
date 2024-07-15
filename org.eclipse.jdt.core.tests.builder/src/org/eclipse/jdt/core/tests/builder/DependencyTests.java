@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class DependencyTests extends BuilderTests {
@@ -1149,9 +1150,9 @@ public class DependencyTests extends BuilderTests {
 	}
 
 	public void testTypeVariable() throws JavaModelException {
-		if ((AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_1_5) == 0) return;
+		if ((AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.FIRST_SUPPORTED_JAVA_VERSION) == 0) return;
 
-		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$
+		IPath projectPath = env.addProject("Project", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		// remove old package fragment root so that names don't collide

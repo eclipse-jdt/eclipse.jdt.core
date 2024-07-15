@@ -17,8 +17,8 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "rawtypes" })
 public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
@@ -29,7 +29,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	}
 
 	public static Test suite() {
-		return buildUniqueComplianceTestSuite(testClass(), ClassFileConstants.JDK1_4);
+		return buildUniqueComplianceTestSuite(testClass(), CompilerOptions.getFirstSupportedJdkLevel());
 	}
 	public static Class testClass() {
 		return ClassFileReaderTest_1_4.class;
@@ -2604,7 +2604,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"public interface I {\n" +
 			"}";
 		String expectedOutput =
-			"// Compiled from I.java (version 1.2 : 46.0, no super bit)\n" +
+			"// Compiled from I.java (version 1.8 : 52.0, no super bit)\n" +
 			"public abstract interface I {\n" +
 			"  Constant pool:\n" +
 			"    constant #1 class: #2 I\n" +

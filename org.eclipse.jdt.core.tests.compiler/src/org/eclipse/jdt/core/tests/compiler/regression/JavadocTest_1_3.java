@@ -47,7 +47,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_3);
+		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 	}
 
 	@Override

@@ -47,7 +47,7 @@ protected Map getCompilerOptions() {
 	return options;
 }
 public static Test suite() {
-		return buildUniqueComplianceTestSuite(testClass(), ClassFileConstants.JDK1_4);
+		return buildUniqueComplianceTestSuite(testClass(), CompilerOptions.getFirstSupportedJdkLevel());
 }
 public static Class testClass() {
 	return Compliance_1_4.class;

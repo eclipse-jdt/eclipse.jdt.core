@@ -43,7 +43,7 @@ public static Class testClass() {
 	return ParserTest1_7.class;
 }
 public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_7);
+	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 }
 public ParserTest1_7(String testName){
 	super(testName);
