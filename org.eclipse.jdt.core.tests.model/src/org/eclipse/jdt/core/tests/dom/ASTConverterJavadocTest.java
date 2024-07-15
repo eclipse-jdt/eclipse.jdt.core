@@ -22,9 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -70,6 +67,9 @@ import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * Class to test DOM/AST nodes built for Javadoc comments.
@@ -147,10 +147,24 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.unix = "true".equals(unix);
 	}
 	public ASTConverterJavadocTest(String name) {
-		this(name.substring(0, name.indexOf(" - ")),
-				name.substring(name.indexOf(" - Doc ") + 7, name.lastIndexOf("abled") + 5),
+		this(preHyphen(name), nameToSupport(name),
 				name.indexOf(" - Unix") != -1 ? "true" : "false");
 	}
+
+	private static String preHyphen(String name) {
+		int hyphenInd = name.indexOf(" - ");
+		String r = hyphenInd == -1 ? name : name.substring(0, hyphenInd);
+		return r;
+	}
+	private static String nameToSupport(String name) {
+		int ind1 = name.indexOf(" - Doc ");
+		int ind2 = name.lastIndexOf("abled");
+		if( ind1 == -1 || ind2 == -1 )
+			return name;
+		String s = name.substring(name.indexOf(" - Doc ") + 7, name.lastIndexOf("abled") + 5);
+		return s;
+	}
+
 
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#getName()
