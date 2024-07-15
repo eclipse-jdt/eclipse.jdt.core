@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 import com.sun.source.tree.Tree;
+import com.sun.source.tree.Tree.Kind;
 import com.sun.source.util.TreePath;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Kinds;
@@ -517,12 +518,16 @@ public class JavacProblemConverter {
 			case "compiler.err.qualified.new.of.static.class" -> IProblem.InvalidClassInstantiation;
 			case "compiler.err.abstract.cant.be.instantiated" -> IProblem.InvalidClassInstantiation;
 			case "compiler.err.mod.not.allowed.here" -> illegalModifier(diagnostic);
-			case "compiler.warn.strictfp" -> IProblem.StrictfpNotRequired;
+			case "compiler.warn.strictfp" -> uselessStrictfp(diagnostic);
 			case "compiler.err.invalid.permits.clause" -> illegalModifier(diagnostic);
 			case "compiler.err.cant.inherit.from.sealed" -> IProblem.SealedSuperClassDoesNotPermit;
 			case "compiler.err.sealed.class.must.have.subclasses" -> IProblem.SealedSealedTypeMissingPermits;
-			case "compiler.err.feature.not.supported.in.source.plural" -> IProblem.IllegalModifierForInterfaceMethod;
+			case "compiler.err.feature.not.supported.in.source.plural" ->
+				diagnostic.getMessage(Locale.ENGLISH).contains("not supported in -source 8") ? IProblem.IllegalModifierForInterfaceMethod18 :
+				diagnostic.getMessage(Locale.ENGLISH).contains("not supported in -source 9") ? IProblem.IllegalModifierForInterfaceMethod9 :
+				IProblem.IllegalModifierForInterfaceMethod;
 			case "compiler.err.expression.not.allowable.as.annotation.value" -> IProblem.AnnotationValueMustBeConstant;
+			case "compiler.err.illegal.combination.of.modifiers" -> illegalCombinationOfModifiers(diagnostic);
 			// next are javadoc; defaulting to JavadocUnexpectedText when no better problem could be found
 			case "compiler.err.dc.bad.entity" -> IProblem.JavadocUnexpectedText;
 			case "compiler.err.dc.bad.inline.tag" -> IProblem.JavadocUnexpectedText;
@@ -604,6 +609,50 @@ public class JavacProblemConverter {
 		};
 	}
 
+	private int uselessStrictfp(Diagnostic<? extends JavaFileObject> diagnostic) {
+		TreePath path = getTreePath(diagnostic);
+		if (path != null && path.getLeaf() instanceof JCMethodDecl && path.getParentPath() != null && path.getParentPath().getLeaf() instanceof JCClassDecl) {
+			return IProblem.IllegalStrictfpForAbstractInterfaceMethod;
+		}
+		return IProblem.StrictfpNotRequired;
+	}
+
+	private int illegalCombinationOfModifiers(Diagnostic<? extends JavaFileObject> diagnostic) {
+		String message = diagnostic.getMessage(Locale.ENGLISH);
+		TreePath path = getTreePath(diagnostic);
+		if (path != null) {
+			var leaf = path.getLeaf();
+			var parentPath = path.getParentPath();
+			var parentNode = parentPath != null ? parentPath.getLeaf() : null;
+			if (message.contains("public") || message.contains("protected") || message.contains("private")) {
+				if (leaf instanceof JCMethodDecl) {
+					return IProblem.IllegalVisibilityModifierCombinationForMethod;
+				} else if (leaf instanceof JCClassDecl && parentNode instanceof JCClassDecl parentDecl) {
+					return switch (parentDecl.getKind()) {
+						case INTERFACE -> IProblem.IllegalVisibilityModifierForInterfaceMemberType;
+						default -> IProblem.IllegalVisibilityModifierCombinationForMemberType;
+					};
+				} else if (leaf instanceof JCVariableDecl && parentNode instanceof JCClassDecl) {
+					return IProblem.IllegalVisibilityModifierCombinationForField;
+				}
+			} else if (leaf instanceof JCMethodDecl) {
+				if (parentNode instanceof JCClassDecl declaringClass) {
+					if (declaringClass.getKind() == Kind.INTERFACE) {
+						return IProblem.IllegalModifierCombinationForInterfaceMethod;
+					}
+					if (message.contains("abstract") && message.contains("final")) {
+						return IProblem.IllegalModifierCombinationFinalAbstractForClass;
+					}
+				}
+			} else if (leaf instanceof JCVariableDecl && parentNode instanceof JCClassDecl) {
+				if (message.contains("volatile") && message.contains("final")) {
+					return IProblem.IllegalModifierCombinationFinalVolatileForField;
+				}
+			}
+		}
+		return IProblem.IllegalModifiers;
+	}
+
 	private int illegalModifier(Diagnostic<? extends JavaFileObject> diagnostic) {
 		TreePath path = getTreePath(diagnostic);
 		while (path != null) {
@@ -624,13 +673,20 @@ public class JavacProblemConverter {
 				}
 				return IProblem.IllegalModifierForMethod;
 			} else if (leaf instanceof JCClassDecl classDecl) {
-				// TODO distinguish local, member
-				return switch (classDecl.getKind()) {
-					case CLASS -> IProblem.IllegalModifierForClass;
-					case ENUM -> IProblem.IllegalModifierForEnum;
+				return parentNode instanceof JCClassDecl ? switch (classDecl.getKind()) {
+					case RECORD -> IProblem.RecordIllegalModifierForInnerRecord;
+					case ENUM -> IProblem.IllegalModifierForMemberEnum;
+					case INTERFACE -> IProblem.IllegalModifierForMemberInterface;
+					default -> IProblem.IllegalModifierForMemberClass;
+				} : parentNode instanceof JCCompilationUnit ? switch (classDecl.getKind()) {
 					case RECORD -> IProblem.RecordIllegalModifierForRecord;
+					case ENUM -> IProblem.IllegalModifierForEnum;
 					case INTERFACE -> IProblem.IllegalModifierForInterface;
 					default -> IProblem.IllegalModifierForClass;
+				} : switch (classDecl.getKind()) {
+					case RECORD -> IProblem.RecordIllegalModifierForLocalRecord;
+					case ENUM -> IProblem.IllegalModifierForLocalEnumDeclaration;
+					default -> IProblem.IllegalModifierForLocalClass;
 				};
 			} else if (leaf instanceof JCVariableDecl) {
 					if (parentNode instanceof JCMethodDecl) {
