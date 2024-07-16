@@ -25,7 +25,7 @@ public class CleanupAfterSuiteTests extends junit.framework.TestCase {
 	}
 
 	public static Test suite() {
-		TestSuite testSuite = new TestSuite("HouseKeeping_" + count);
+		TestSuite testSuite = new TestSuite("HouseKeeping_" + (count ++));
 		testSuite.addTest(new TestSuite(CleanupAfterSuiteTests.class));
 		return testSuite;
 	}
