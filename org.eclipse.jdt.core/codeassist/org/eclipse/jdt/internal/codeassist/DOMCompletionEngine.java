@@ -205,6 +205,7 @@ public class DOMCompletionEngine implements Runnable {
 		// some flags to controls different applicable completion search strategies
 		boolean computeSuitableBindingFromContext = true;
 		boolean suggestPackageCompletions = true;
+		boolean suggestDefaultCompletions = true;
 
 		Bindings scope = new Bindings();
 		if (context instanceof FieldAccess fieldAccess) {
@@ -285,33 +286,41 @@ public class DOMCompletionEngine implements Runnable {
 				this.variableDeclHandler.findVariableNames(binding, completeAfter, scope).stream()
 						.map(name -> toProposal(binding, name)).forEach(this.requestor::accept);
 			}
+			// seems we are completing a variable name, no need for further completion search.
+			suggestDefaultCompletions = false;
+			suggestPackageCompletions = false;
+			computeSuitableBindingFromContext = false;
 		}
 		ASTNode current = this.toComplete;
-		while (current != null) {
-			scope.addAll(visibleBindings(current));
-			// break if following conditions match, otherwise we get all visible symbols which is unwanted in this
-			// completion context.
-			if (current instanceof Annotation a) {
-				Arrays.stream(a.resolveTypeBinding().getDeclaredMethods()).forEach(scope::add);
-				computeSuitableBindingFromContext = false;
-				suggestPackageCompletions = false;
-				break;
+		
+		if(suggestDefaultCompletions) {
+			while (current != null) {
+				scope.addAll(visibleBindings(current));
+				// break if following conditions match, otherwise we get all visible symbols which is unwanted in this
+				// completion context.
+				if (current instanceof Annotation a) {
+					Arrays.stream(a.resolveTypeBinding().getDeclaredMethods()).forEach(scope::add);
+					computeSuitableBindingFromContext = false;
+					suggestPackageCompletions = false;
+					break;
+				}
+				if (current instanceof AbstractTypeDeclaration typeDecl) {
+					processMembers(typeDecl.resolveBinding(), scope);
+				}
+				current = current.getParent();
 			}
-			if (current instanceof AbstractTypeDeclaration typeDecl) {
-				processMembers(typeDecl.resolveBinding(), scope);
+			scope.stream().filter(
+					binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
+					.map(binding -> toProposal(binding)).forEach(this.requestor::accept);
+			if (!completeAfter.isBlank()) {
+				final int typeMatchRule = this.toComplete.getParent() instanceof Annotation
+						? IJavaSearchConstants.ANNOTATION_TYPE
+						: IJavaSearchConstants.TYPE;
+				findTypes(completeAfter, typeMatchRule, null)
+						.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
+								type.getElementName().toCharArray()))
+						.map(this::toProposal).forEach(this.requestor::accept);
 			}
-			current = current.getParent();
-		}
-		scope.stream()
-				.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
-				.map(binding -> toProposal(binding)).forEach(this.requestor::accept);
-		if (!completeAfter.isBlank()) {
-			final int typeMatchRule = this.toComplete.getParent() instanceof Annotation
-					? IJavaSearchConstants.ANNOTATION_TYPE
-					: IJavaSearchConstants.TYPE;
-			findTypes(completeAfter, typeMatchRule, null).filter(
-					type -> this.pattern.matchesName(this.prefix.toCharArray(), type.getElementName().toCharArray()))
-					.map(this::toProposal).forEach(this.requestor::accept);
 		}
 
 		// this handle where we complete inside a expressions like
