@@ -3741,14 +3741,20 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			if(!variable.contains("JCL")) {
 				continue;
 			}
+			IPath varPath = JavaCore.getClasspathVariable(variable);
+			if(varPath != null) {
+				System.out.println("Classpath variable '" + variable + "', path: '" + varPath + "', file size: " + varPath.toFile().length());
+			}
 			if(variable.startsWith("CONVERTER_JCL") && variable.endsWith("_SRCROOT")) {
 				// CONVERTER_JCL10_SRCROOT is not properly defined
 				continue;
 			}
-			IPath varPath = JavaCore.getClasspathVariable(variable);
+			if(variable.equals("JCL_SRCROOT")) {
+				// JCL_SRCROOT points to "src" !?! which may not exist
+				continue;
+			}
 			assertNotNull("Should have path defined: '" + variable + "'", varPath);
 			assertTrue("Should exist on disk: '" + variable + "' defined as " + varPath, varPath.toFile().exists());
-			System.out.println("Defined classpath variable '" + variable + "' with path " + varPath + " and file size " + varPath.toFile().length());
 		}
 	}
 	@Override
