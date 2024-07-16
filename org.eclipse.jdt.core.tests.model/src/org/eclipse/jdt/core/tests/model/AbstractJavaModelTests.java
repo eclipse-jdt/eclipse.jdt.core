@@ -2409,7 +2409,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		};
 		getWorkspace().run(create, null);
-		return result[0];
+
+		// Trivial validation before we return the result
+		IJavaProject javaProject = result[0];
+		assertNotNull("Failed to create project " + projectName, javaProject);
+		IProject project = javaProject.getProject();
+		assertTrue("Project is not accessible: " + project, project.isAccessible());
+		assertTrue("Not Java project: " + project, project.hasNature(JavaCore.NATURE_ID));
+		IProject sameProject = getWorkspaceRoot().getProject(projectName);
+		assertEquals("Returned project doesn't match same project from workspace: " + sameProject + " vs " + project, sameProject, project);
+		return javaProject;
 	}
 	protected IJavaProject importJavaProject(String projectName, String[] sourceFolders, String[] libraries, String output) throws CoreException {
 		return
