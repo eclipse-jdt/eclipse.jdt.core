@@ -8357,7 +8357,7 @@ public void test230_sourcepath_vs_classpath() throws IOException, InterruptedExc
 			"}\n",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java\"" /* commandLine */
-		+ " -verbose -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
+		+ " -verbose -warn:-resource -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
 		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #1/1]\n" + /* expectedOutOutputString */
 		"[reading    java/lang/Object.class]\n" +
 		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #1/1]\n" +
@@ -8393,7 +8393,7 @@ public void test230_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "Y.java\""
 		+ " -classpath \"" + OUTPUT_DIR + File.separator + "bin1" + "\""
-		+ " -verbose -proc:none -d \"" + OUTPUT_DIR + "\"",
+		+ " -verbose -warn:-resource -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" +
 		"[reading    java/lang/Object.class]\n" +
 		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" +
@@ -8415,7 +8415,8 @@ public void test230_sourcepath_vs_classpath() throws IOException, InterruptedExc
 	String commonOptions =
 		" -classpath \"" + OUTPUT_DIR + File.separator + "bin1" + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src2" + "\""
-		+ " -d \"" + OUTPUT_DIR + File.separator + "bin2" + "\"";
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin2" + "\""
+		+ " -warn:-resource";
 	String setting= System.getProperty("jdt.compiler.useSingleThread");
 	try {
 		System.setProperty("jdt.compiler.useSingleThread", "true");

@@ -7269,4 +7269,26 @@ public void testGH2129() {
 		"",
 		options);
 }
+public void testGH2642() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
+	runLeakTest(
+		new String[] {
+			"DemoNonCloseableWarning.java",
+			"""
+			import java.io.FileWriter;
+			public class DemoNonCloseableWarning {
+			    public static void main(String[] args) throws Exception {
+			        try (FileWriter writer = new FileWriter("/dev/null")) {
+			            writer.append("\\n");
+			        }
+			    }
+			}
+			"""
+		},
+		"",
+		options);
+}
 }
