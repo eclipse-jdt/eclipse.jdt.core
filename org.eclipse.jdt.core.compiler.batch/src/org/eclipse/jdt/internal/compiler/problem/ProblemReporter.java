@@ -1345,7 +1345,6 @@ public void operandStackSizeInappropriate(ASTNode location) {
 		ProblemSeverities.Warning,
 		location.sourceStart,
 		location.sourceEnd);
-	throw new AssertionError("Anomalous/Inconsistent operand stack!"); //$NON-NLS-1$
 }
 public void bytecodeExceeds64KLimit(LambdaExpression location) {
 	bytecodeExceeds64KLimit(location.binding, location.sourceStart, location.diagnosticsSourceEnd());
