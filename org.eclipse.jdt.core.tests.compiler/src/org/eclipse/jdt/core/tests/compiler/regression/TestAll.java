@@ -230,6 +230,7 @@ public static Test suite() {
 	 // add 17 specific test here (check duplicates)
 	 ArrayList since_17 = new ArrayList();
 	 since_17.add(SealedTypesTests.class);
+	 since_17.add(SealedTypesSpecReviewTest.class);
 	 since_17.add(InstanceofPrimaryPatternTest.class);
 	 since_17.add(BatchCompilerTest_17.class);
 
