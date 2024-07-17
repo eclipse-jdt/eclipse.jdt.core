@@ -731,6 +731,20 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    return true;
 	}
 
+	@Override
+	public boolean isSealed() {
+		if (this.superclass != null && this.superclass.isSealed())
+			return true;
+
+		if (this.superInterfaces != null && this.superInterfaces != Binding.NO_SUPERINTERFACES) {
+		    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
+		        if (this.superInterfaces[i].isSealed())
+		        	return true;
+		    }
+		}
+		return false;
+	}
+
 //	/**
 //	 * Returns the original type variable for a given variable.
 //	 * Only different from receiver for type variables of generic methods of parameterized types
