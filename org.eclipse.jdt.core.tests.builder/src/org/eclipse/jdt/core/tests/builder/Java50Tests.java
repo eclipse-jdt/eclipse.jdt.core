@@ -113,7 +113,7 @@ public class Java50Tests extends BuilderTests {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=231293
-	public void testMissingRequiredBinaries() throws JavaModelException {
+	public void _2551_testMissingRequiredBinaries() throws JavaModelException {
 
 		IPath p1 = env.addProject("P1", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		IPath p2 = env.addProject("P2"); //$NON-NLS-1$

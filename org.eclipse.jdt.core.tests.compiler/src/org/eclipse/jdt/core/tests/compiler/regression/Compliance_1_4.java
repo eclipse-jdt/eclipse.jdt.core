@@ -2637,7 +2637,7 @@ public void test079() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=67643
  * from 1.5 source level on most specific common super type is allowed
  */
-public void test080() {
+public void _2551_test080() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -2825,7 +2825,7 @@ public void test087() {
 			"----------\n"
 		);
 }
-public void test088() {
+public void _2551_test088() {
 	this.runNegativeTest(
 		new String[] {
 			"p/X.java",

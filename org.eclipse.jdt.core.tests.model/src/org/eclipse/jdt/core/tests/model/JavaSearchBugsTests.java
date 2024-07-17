@@ -15291,7 +15291,7 @@ public void testBug547095_type_pattern_search_non_modular() throws Exception {
 	}
 }
 
-public void testBug573486_showReferences_inMethodsAndFields_whenNoSource() throws CoreException, IOException {
+public void _2551_testBug573486_showReferences_inMethodsAndFields_whenNoSource() throws CoreException, IOException {
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/search_lib_no_source.jar", false);
 	try {
 		IType type = getClassFile("JavaSearchBugs", "lib/search_lib_no_source.jar", "java.util", "Observable.class").getType();

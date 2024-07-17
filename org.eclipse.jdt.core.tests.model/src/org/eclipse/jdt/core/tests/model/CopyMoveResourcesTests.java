@@ -1081,7 +1081,7 @@ public void testMoveCU12() throws CoreException {
  * Ensures that the Javadoc comment is not lost if moving a cu to the default package
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=247757 )
  */
-public void testMoveCU13() throws CoreException {
+public void _2551_testMoveCU13() throws CoreException {
 	createFolder("/P/src/p1");
 	createFile(
 		"/P/src/p1/X.java",

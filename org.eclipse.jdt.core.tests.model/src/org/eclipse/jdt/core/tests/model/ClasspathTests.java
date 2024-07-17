@@ -436,13 +436,13 @@ public void test232816e() throws CoreException {
 	}
 }
 
-public void test232816f() throws Exception {
+public void _2551_test232816f() throws Exception {
 
 	IJavaProject p = null;
 	try {
 		p = createJavaProject("P");
-
-		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		setUpProjectCompliance(p, CompilerOptions.getFirstSupportedJavaVersion(), true);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 		p.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.WARNING);
 
 		JavaCore.setClasspathContainer(
@@ -454,7 +454,8 @@ public void test232816f() throws Exception {
 						JavaCore.newLibraryEntry(getExternalJCLPath(CompilerOptions.getLatestVersion()), new Path("/P0/SBlah"), new Path("/P0"))})
 			},
 			null);
-
+		// TODO See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2580
+		// jclMin22.jar contains classes compiled against Java 21
 		IClasspathEntry newClasspath = JavaCore.newContainerEntry(new Path("container/default"));
 
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(p, newClasspath, true);

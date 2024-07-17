@@ -2149,7 +2149,7 @@ public void test461074() throws JavaModelException {
 	env.removeProject(p3);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=461074, "indirectly referenced from required .class files" error for unreachable reference of type in overriding method declaration in a library on classpath
-public void test461074_error() throws JavaModelException {
+public void _2551_test461074_error() throws JavaModelException {
 	//----------------------------
 	//         Project1
 	//----------------------------

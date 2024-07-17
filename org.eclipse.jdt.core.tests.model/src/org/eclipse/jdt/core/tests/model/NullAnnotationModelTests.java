@@ -1123,7 +1123,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			deleteProject(project);
 		}
 	}
-	public void testBug565246() throws CoreException {
+	public void _2551_testBug565246() throws CoreException {
 		IJavaProject project = createJavaProject("Bug565246", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB_V1}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		try {
 			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);

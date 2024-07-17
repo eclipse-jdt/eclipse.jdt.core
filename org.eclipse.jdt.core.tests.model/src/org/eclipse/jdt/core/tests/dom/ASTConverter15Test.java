@@ -4764,7 +4764,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88548
     @SuppressWarnings("deprecation")
-	public void test0151() throws CoreException {
+	public void _2551_test0151() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
 	   		"public enum X {\n" +
@@ -7174,7 +7174,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=147875
 	 */
-	public void test0221() throws JavaModelException {
+	public void _2551_test0221() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
     		"import p1.p2.MyEnum;\n" +
