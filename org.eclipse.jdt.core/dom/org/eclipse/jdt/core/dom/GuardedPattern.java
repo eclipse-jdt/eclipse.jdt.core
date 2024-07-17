@@ -218,6 +218,7 @@ public class GuardedPattern extends Pattern{
 	 * @return the pattern node
 	 * 			(element type: {@link Pattern})
 	 * @exception UnsupportedOperationException if this operation is used other than JLS21
+	 * @since 3.39
 	 */
 	public Pattern getPattern() {
 		supportedOnlyIn21();
@@ -273,6 +274,7 @@ public class GuardedPattern extends Pattern{
 	 * A character index into the original restricted identifier source string, or <code>-1</code> if no restricted
 	 * identifier source position information is available for this node; <code>-1</code> by default.
 	 * since 3.30
+	 * @since 3.39
 	 */
 	protected void setRestrictedIdentifierStartPosition(int restrictedIdentifierStartPosition) {
 		if (restrictedIdentifierStartPosition < 0) {
@@ -287,7 +289,7 @@ public class GuardedPattern extends Pattern{
 	/**
 	 * A character index into the original restricted identifier source string, or <code>-1</code> if no restricted
 	 * identifier source position information is available for this node; <code>-1</code> by default.
-	 * @since 3.30
+	 * @since 3.39
 	 */
 	public int getRestrictedIdentifierStartPosition() {
 		return this.restrictedIdentifierStartPosition;
