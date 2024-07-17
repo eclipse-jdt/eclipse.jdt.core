@@ -63,6 +63,7 @@ import com.sun.tools.javac.code.Type.WildcardType;
 import com.sun.tools.javac.code.TypeTag;
 import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Types.FunctionDescriptorLookupError;
+import com.sun.tools.javac.util.Name;
 
 public abstract class JavacTypeBinding implements ITypeBinding {
 
@@ -170,15 +171,22 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public String getKey() {
-		return getKey(this.type);
+		return getKey(this.type, this.typeSymbol.flatName());
 	}
 	public String getKey(Type t) {
+		return getKey(t, this.typeSymbol.flatName());
+	}
+	public String getKey(Type t, Name n) {
 		StringBuilder builder = new StringBuilder();
-		getKey(builder, t, false);
+		getKey(builder, t, n, false);
 		return builder.toString();
 	}
 
 	static void getKey(StringBuilder builder, Type typeToBuild, boolean isLeaf) {
+		getKey(builder, typeToBuild, typeToBuild.asElement().flatName(), isLeaf);
+	}
+	
+	static void getKey(StringBuilder builder, Type typeToBuild, Name n, boolean isLeaf) {
 		if (typeToBuild instanceof Type.JCNoType) {
 			return;
 		}
@@ -211,7 +219,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					builder.append('L');
 				}
 			}
-			builder.append(typeToBuild.asElement().flatName().toString().replace('.', '/'));
+			builder.append(n.toString().replace('.', '/'));
 			if (typeToBuild.isParameterized()) {
 				builder.append('<');
 				for (var typeArgument : typeToBuild.getTypeArguments()) {

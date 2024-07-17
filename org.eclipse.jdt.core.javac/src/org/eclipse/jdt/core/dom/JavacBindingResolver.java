@@ -145,9 +145,11 @@ public class JavacBindingResolver extends BindingResolver {
 						&& !(errorType.getOriginalType() instanceof com.sun.tools.javac.code.Type.MethodType)
 						&& !(errorType.getOriginalType() instanceof com.sun.tools.javac.code.Type.ForAll)
 						&& !(errorType.getOriginalType() instanceof com.sun.tools.javac.code.Type.ErrorType)) {
-				JavacTypeBinding binding = getTypeBinding(errorType.getOriginalType());
-				binding.setRecovered(true);
-				return binding;
+				JavacTypeBinding newInstance = new JavacTypeBinding(errorType.getOriginalType(), type.tsym, JavacBindingResolver.this) { };
+				typeBinding.putIfAbsent(newInstance.getKey(), newInstance);
+				JavacTypeBinding jcb = typeBinding.get(newInstance.getKey());
+				jcb.setRecovered(true);
+				return jcb;
 			}
 			JavacTypeBinding newInstance = new JavacTypeBinding(type, type.tsym, JavacBindingResolver.this) { };
 			typeBinding.putIfAbsent(newInstance.getKey(), newInstance);
