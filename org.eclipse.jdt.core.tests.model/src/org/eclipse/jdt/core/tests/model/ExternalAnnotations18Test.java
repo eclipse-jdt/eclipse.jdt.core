@@ -25,8 +25,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -67,10 +65,13 @@ import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil.MergeStrategy;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.core.ClasspathAttribute;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.osgi.framework.Bundle;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ExternalAnnotations18Test extends ModifyingResourceTests {
@@ -171,7 +172,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			"}\n";
 
 	public ExternalAnnotations18Test(String name) {
-		this(name, "1.8", "JCL18_LIB");
+		this(name, CompilerOptions.getFirstSupportedJavaVersion(), "JCL18_LIB");
 	}
 
 	protected ExternalAnnotations18Test(String name, String compliance, String jclLib) {
@@ -3132,7 +3133,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		try {
 			final String projectName = eeaProjectName;
 			eeaProject = createJavaProject(projectName, location,
-					new String[] {""}, new String[] {"JCL_LIB"},
+					new String[] {""}, new String[] {"JCL_LIB"}, // XXX JCL18_LIB
 					null, null, null, null, null, true, null,
 					"", null, null, null, "", false, false);
 			createFolder('/'+eeaProjectName+"/lib/pgen");

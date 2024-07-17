@@ -22,6 +22,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
@@ -46,12 +47,12 @@ public class Bug376673Test extends ModifyingResourceTests {
 			if ("macosx".equals(System.getProperty("osgi.os"))) {
 				return;
 			}
-			IJavaProject p = createJavaProject("P", new String[] { "src" }, new String[] { "/P/lib376673.jar", "JCL17_LIB" }, "bin", "1.7");
+			IJavaProject p = createJavaProject("P", new String[] { "src" }, new String[] { "/P/lib376673.jar", "JCL18_LIB" }, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 
 			org.eclipse.jdt.core.tests.util.Util.createJar(
 					new String[] { "p\uD842\uDF9F/i\uD842\uDF9F/Test.java",
 							"package p\uD842\uDF9F.i\uD842\uDF9F;\n" + "public class Test{}\n" },
-					p.getProject().getLocation().append("lib376673.jar").toOSString(), "1.7");
+					p.getProject().getLocation().append("lib376673.jar").toOSString(), CompilerOptions.getFirstSupportedJavaVersion());
 
 			createFolder("/P/src/pkg");
 			String[] classFileContent = new String[] {

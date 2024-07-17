@@ -767,7 +767,7 @@ public void testBatchOperation() throws CoreException {
  */
 public void testBuildProjectUsedAsLib() throws CoreException {
 	try {
-		IJavaProject p1 = createJavaProject("P1", new String[] {"src1"}, new String[] {"JCL_LIB"}, "bin1");
+		IJavaProject p1 = createJavaProject("P1", new String[] {"src1"}, new String[] {"JCL18_LIB"}, "bin1");
 		createJavaProject("P2", new String[] {"src2"}, new String[] {"/P1/bin1"}, "bin2");
 		createFile(
 			"/P1/src1/X.java",

@@ -39,7 +39,6 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 public class AnnotationDietRecoveryTest extends AbstractCompilerTest {
 	private static final boolean CHECK_ALL_PARSE = true;
 	public static boolean optimizeStringLiterals = false;
-	public static long sourceLevel = CompilerOptions.getFirstSupportedJdkLevel(); //$NON-NLS-1$
 
 public AnnotationDietRecoveryTest(String testName){
 	super(testName);

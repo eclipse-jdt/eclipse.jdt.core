@@ -30,6 +30,7 @@ import org.eclipse.jdt.apt.tests.annotations.messager.MessagerAnnotationProcesso
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class AptBuilderTests extends APTTestBase
 {
@@ -53,7 +54,7 @@ public class AptBuilderTests extends APTTestBase
 		// project will be deleted by super-class's tearDown() method
 		// create a project with a src directory as the project root directory
 		//
-		IPath projectPath = env.addProject( getProjectName_ProjectRootAsSrcDir(), "1.5" );
+		IPath projectPath = env.addProject( getProjectName_ProjectRootAsSrcDir(), CompilerOptions.getFirstSupportedJavaVersion() );
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 		fullBuild( projectPath );
 

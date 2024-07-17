@@ -7111,12 +7111,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	public void testBug527569e() throws CoreException {
 		if (!isJRE9 || isJRE12) return;
-		IJavaProject p1 = createJava9Project("Bug527569", "1.8");
+		IJavaProject p1 = createJava9Project("Bug527569", CompilerOptions.getFirstSupportedJavaVersion());
 		Map<String, String> options = new HashMap<>();
 		// Make sure the new options map doesn't reset.
-		options.put(CompilerOptions.OPTION_Compliance, "1.7");
-		options.put(CompilerOptions.OPTION_Source, "1.7");
-		options.put(CompilerOptions.OPTION_TargetPlatform, "1.7");
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 		options.put(CompilerOptions.OPTION_Release, "enabled");
 		p1.setOptions(options);
 		try {
@@ -8477,85 +8477,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				Util.flushDirectoryContent(outputDir);
 		}
 	}
-	public void testReleaseOption6() throws Exception {
-		if (isJRE20) return; // Effectively disable it for most older versions.
-		Hashtable<String, String> options = JavaCore.getOptions();
-		IJavaProject p = createJava9Project("p");
-		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
-		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
-		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
-		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
-		String outputDirectory = Util.getOutputDirectory();
-		try {
-			String testSource = "interface I {\n" +
-								"  int add(int x, int y);\n" +
-								"}\n" +
-								"public class X {\n" +
-								"  public static void main(String[] args) {\n" +
-								"    I i = (x, y) -> {\n" +
-								"      return x + y;\n" +
-								"    };\n" +
-								"  }\n" +
-								"}\n";
-			String mPath = "p/src/X.java";
-			createFile(mPath,
-					testSource);
-			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
-			waitForAutoBuild();
-			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers",
-					"Lambda expressions are allowed only at source level 1.8 or above",  markers);
 
-		} finally {
-			JavaCore.setOptions(options);
-			deleteProject(p);
-			File outputDir = new File(outputDirectory);
-			if (outputDir.exists())
-				Util.flushDirectoryContent(outputDir);
-		}
-	}
-	public void testReleaseOption7() throws Exception {
-		if (isJRE12)
-			return;
-		Hashtable<String, String> options = JavaCore.getOptions();
-		IJavaProject p = createJava9Project("p");
-		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
-		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_6);
-		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_6);
-		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
-		String outputDirectory = Util.getOutputDirectory();
-		try {
-			String testSource = "import java.io.*;\n" +
-								"public class X {\n" +
-								"	public static void main(String[] args) {\n" +
-								"		try {\n" +
-								"			System.out.println();\n" +
-								"			Reader r = new FileReader(args[0]);\n" +
-								"			r.read();\n" +
-								"		} catch(IOException | FileNotFoundException e) {\n" +
-								"			e.printStackTrace();\n" +
-								"		}\n" +
-								"	}\n" +
-								"}";
-			String mPath = "p/src/X.java";
-			createFile(mPath,
-					testSource);
-			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
-			waitForAutoBuild();
-			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			sortMarkers(markers);
-			assertMarkers("Unexpected markers",
-							"Multi-catch parameters are not allowed for source level below 1.7\n" +
-							"The exception FileNotFoundException is already caught by the alternative IOException",  markers);
-
-		} finally {
-			JavaCore.setOptions(options);
-			deleteProject(p);
-			File outputDir = new File(outputDirectory);
-			if (outputDir.exists())
-				Util.flushDirectoryContent(outputDir);
-		}
-	}
 	public void testReleaseOption8() throws Exception {
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");

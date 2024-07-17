@@ -8,7 +8,7 @@ public class Test {
 	 * @param tho {@link getList(int, long)}
 	 * @version throwaway
 	 * @param from 1st param of {@link A#getList(int, long, boolean) me}
-	 * @see #getList(Object, java.util.AbstractList)
+	 * @see #getList(Object, java.util.SequencedCollection)
 	 * @param from 2nd
 	 * @see #getList(int from, tho long)
 	 * @see #getList(int from, long tho)

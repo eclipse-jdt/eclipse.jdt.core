@@ -15333,7 +15333,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84743 - variation in -source 1.4 mode but 1.5 compliance (ignore covariance)
 public void test0498(){
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	runNegativeTest(
 		// test directory preparation
 		true /* flush output directory */,
@@ -15372,7 +15372,7 @@ public void test0498(){
 		"----------\n",
 		// javac options
 		RUN_JAVAC ? /* javac test options */
-			new JavacTestOptions("-source 1.4") :
+			new JavacTestOptions("-source " + CompilerOptions.getFirstSupportedJavaVersion()) :
 			JavacTestOptions.DEFAULT );
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=85157
@@ -29215,7 +29215,7 @@ public void test0885() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=124943
 public void test0886() {
 	Map customOptions= getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	runConformTest(
 		// test directory preparation
 		true /* flush output directory */,
@@ -29236,7 +29236,7 @@ public void test0886() {
 		"" /* expected output string */,
 		null /* do not check error string */,
 		// javac options
-		new JavacTestOptions("-source 1.4 -Xlint:-options") /* javac test options */);
+		new JavacTestOptions("-source " + CompilerOptions.getFirstSupportedJavaVersion() + " -Xlint:-options") /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775
 public void test0887() {

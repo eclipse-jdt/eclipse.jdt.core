@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
     <classpathentry kind="src" path=""/>
-    <classpathentry kind="var" path="JCL_LIB" sourcepath="JCL_SRC" rootpath="JCL_SRCROOT"/>
+    <classpathentry kind="var" path="JCL18_LIB" sourcepath="JCL18_SRC" rootpath="JCL_SRCROOT"/>
     <classpathentry kind="lib" path="lib.jar"/>
     <classpathentry kind="lib" path="lib142530.jar"/>
     <classpathentry kind="lib" path="lib148949.jar"/>

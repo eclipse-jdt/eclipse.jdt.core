@@ -236,9 +236,9 @@ public void checkParse(
 @Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	return options;
 }
 public void test0001() {

@@ -15,8 +15,6 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
 
-import junit.framework.Test;
-
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -26,7 +24,10 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResultCollector;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.TypeNameMatchCollector;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
+
+import junit.framework.Test;
 
 /**
  * Tests the Java search engine accross multiple projects.
@@ -73,7 +74,7 @@ public void testFieldOccurencesInWorkingCopies() throws CoreException {
 		);
 
 		// setup project P2
-		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "");
 		createFolder("/P2/p2");
 		createFile(
 			"/P2/p2/Y.java",
@@ -150,7 +151,7 @@ public void testHierarchyScope1() throws CoreException {
 			"	}\n" +
 			"}"
 		);
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "");
 		createFile(
 			"/P2/Y.java",
 			"import p.X;\n" +
@@ -197,7 +198,7 @@ public void testHierarchyScope2() throws CoreException {
 			"	}\n" +
 			"}"
 		);
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "");
 		createFile(
 			"/P2/Y.java",
 			"import p.X;\n" +
@@ -249,7 +250,7 @@ public void testHierarchyScope3() throws CoreException {
 			"	}\n" +
 			"}"
 		);
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "");
 		createFolder("/P2/q");
 		createFile(
 			"/P2/q/Y.java",
@@ -298,7 +299,7 @@ public void testHierarchyScope4() throws CoreException {
 			"	}\n" +
 			"}"
 		);
-		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P0"}, "");
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P0"}, "");
 		createFolder("/P1/p1");
 		createFile(
 			"/P1/p1/T.java",
@@ -310,7 +311,7 @@ public void testHierarchyScope4() throws CoreException {
 			"	}\n" +
 			"}"
 		);
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P0", "/P1"}, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P0", "/P1"}, "");
 		createFolder("/P2/p2");
 		createFile(
 			"/P2/p2/Y.java",
@@ -323,7 +324,7 @@ public void testHierarchyScope4() throws CoreException {
 			"	}\n" +
 			"}"
 		);
-		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P0", "/P2"}, "");
+		createJavaProject("P3", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P0", "/P2"}, "");
 		createFolder("/P3/p3");
 		createFile(
 			"/P3/p3/Z.java",
@@ -464,7 +465,7 @@ public void testPackageReference1() throws CoreException {
 		IJavaProject p2 = createJavaProject(
 			"P2",
 			new String[] {""},
-			new String[] {"JCL_LIB"},
+			new String[] {"JCL18_LIB"},
 			new String[] {"/P1"},
 			"");
 		createFolder("/P2/p");
@@ -572,7 +573,7 @@ public void testReferenceInWorkingCopies() throws CoreException {
 		IJavaProject p2 = createJavaProject(
 			"P2",
 			new String[] {""},
-			new String[] {"JCL_LIB"},
+			new String[] {"JCL18_LIB"},
 			new String[] {"/P1"},
 			"");
 		createFolder("/P2/p2");
@@ -644,8 +645,8 @@ public void testReferenceInWorkingCopies() throws CoreException {
  */
 public void testTypeDeclarationInJar() throws CoreException {
 	try {
-		IJavaProject p1 = createJavaProject("P1", new String[] {}, new String[] {"JCL_LIB"}, "");
-		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {"JCL_LIB"}, "");
+		IJavaProject p1 = createJavaProject("P1", new String[] {}, new String[] {"JCL18_LIB"}, "");
+		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {"JCL18_LIB"}, "");
 
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -705,7 +706,7 @@ public void testBug151189_Workspace() throws CoreException {
 		);
 
 		// setup project P2
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P1" }, "");
 		createFolder("/P2/test");
 		createFile(
 			"/P2/test/Declaration_bis.java",
@@ -773,7 +774,7 @@ public void testBug151189_Project() throws CoreException {
 		);
 
 		// setup project P2
-		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "");
+		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P1" }, "");
 		createFolder("/P2/test");
 		createFile(
 			"/P2/test/Declaration_bis.java",
@@ -834,7 +835,7 @@ public void testBug163072() throws CoreException {
 		);
 
 		// setup project P2
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL15_LIB"}, new String[] { "/P1" }, "", "1.5");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P1" }, "", CompilerOptions.getLatestVersion());
 		createFolder("/P2/pack");
 		createFile(
 			"/P2/pack/FactoryContainer.java",
@@ -1250,7 +1251,7 @@ public void testBug210689() throws CoreException {
 		);
 
 		// setup project P2
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P1" }, "");
 		createFolder("/P2/p");
 		createFile(
 			"/P2/p/B.java",
@@ -1302,7 +1303,7 @@ public void testBug229128() throws CoreException {
 	ICompilationUnit[] copies = new ICompilationUnit[2];
 	try {
 		// setup project P1
-		createJavaProject("P1", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/MyAnnot.java",
@@ -1320,7 +1321,7 @@ public void testBug229128() throws CoreException {
 		);
 
 		// setup project P2
-		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL15_LIB"}, new String[] { "/P1" }, "", "1.5");
+		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P1" }, "", CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/P2/q");
 		copies[1] = getWorkingCopy(
 			"/P2/q/Y.java",
@@ -1380,7 +1381,7 @@ public void testBug229951a() throws Exception {
 			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
 			"</classpath>"
 		);
-		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P2"}, "");
+		createJavaProject("P3", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P2"}, "");
 		createFile(
 			"/P3/X229951.java",
 			"public class X229951 {\n" +
@@ -1427,7 +1428,7 @@ public void testBug229951b() throws Exception {
 			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
 			"</classpath>"
 		);
-		IJavaProject p3 = createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P2"}, "");
+		IJavaProject p3 = createJavaProject("P3", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P2"}, "");
 		createFile(
 			"/P3/X229951.java",
 			"public class X229951 {\n" +
@@ -1464,7 +1465,7 @@ public void testBug250454() throws CoreException {
 		);
 
 		// setup project P1
-		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P0" }, "");
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P0" }, "");
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/Square.java",
@@ -1475,7 +1476,7 @@ public void testBug250454() throws CoreException {
 		);
 
 		// setup project P2
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P0" }, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P0" }, "");
 		createFolder("/P2/p");
 		createFile(
 			"/P2/p/ShapeUser.java",
@@ -1525,7 +1526,7 @@ public void testBug250454_jars() throws CoreException, IOException {
 		createJar(pathsAndContents, jarPath);
 
 		// setup project P1
-		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB", jarPath}, "");
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB", jarPath}, "");
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/Square.java",
@@ -1536,7 +1537,7 @@ public void testBug250454_jars() throws CoreException, IOException {
 		);
 
 		// setup project P2
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB", jarPath}, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB", jarPath}, "");
 		createFolder("/P2/p");
 		createFile(
 			"/P2/p/ShapeUser.java",

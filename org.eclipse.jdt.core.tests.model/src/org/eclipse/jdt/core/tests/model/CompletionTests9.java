@@ -1297,7 +1297,7 @@ public void testBug528948_001() throws Exception {
 			assertTrue(start > 0);
 			assertTrue(end > 0);
 		}
-		assertTrue("Incorrect Number of Proposals", count == 2);
+		assertEquals("Incorrect Number of Proposals", 2, count);
 		String expected = "X11[TYPE_REF]{pack11.X11, pack11, Lpack11.X11;, null, 39}\n" +
 				"X12[TYPE_REF]{pack12.X12, pack12, Lpack12.X12;, null, 39}";
 		assertResults(expected,	requestor.getResults());
@@ -1354,7 +1354,7 @@ public void testBug528948_002() throws Exception {
 			assertTrue(start > 0);
 			assertTrue(end > 0);
 		}
-		assertTrue("Incorrect Number of Proposals", count == 2);
+		assertEquals("Incorrect Number of Proposals", 2, count);
 		String expected = "X11[TYPE_REF]{pack11.X11, pack11, Lpack11.X11;, null, 39}\n" +
 				"X12[TYPE_REF]{pack12.X12, pack12, Lpack12.X12;, null, 39}";
 		assertResults(expected,	requestor.getResults());

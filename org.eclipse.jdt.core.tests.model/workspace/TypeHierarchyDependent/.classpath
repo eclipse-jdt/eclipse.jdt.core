@@ -2,6 +2,6 @@
 <classpath>
     <classpathentry kind="src" path=""/>
     <classpathentry kind="src" path="/TypeHierarchyNotification"/>
-    <classpathentry kind="var" path="JCL_LIB" sourcepath="JCL_SRC" rootpath="JCL_SRCROOT"/>
+    <classpathentry kind="var" path="JCL18_LIB" sourcepath="JCL18_SRC" rootpath="JCL_SRCROOT"/>
     <classpathentry kind="output" path=""/>
 </classpath>

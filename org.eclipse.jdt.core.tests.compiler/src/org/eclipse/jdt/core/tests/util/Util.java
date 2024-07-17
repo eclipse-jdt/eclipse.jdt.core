@@ -221,6 +221,7 @@ private static IModule extractModuleDesc(String contents, String compliance,
 								IErrorHandlingPolicy errorHandlingPolicy, IProblemFactory problemFactory)
 {
 	Map<String,String> opts = new HashMap<>();
+	compliance = fixCompliance(compliance);
 	opts.put(CompilerOptions.OPTION_Source, compliance);
 	Parser parser = new Parser(new ProblemReporter(errorHandlingPolicy, new CompilerOptions(opts), problemFactory), false);
 	ICompilationUnit cu = new CompilationUnit(contents.toCharArray(), "module-info.java", null);
@@ -804,6 +805,7 @@ public static boolean flushDirectoryContent(File dir) {
 }
 private static Map getCompileOptions(String compliance) {
     Map options = new HashMap();
+    compliance = fixCompliance(compliance);
     options.put(CompilerOptions.OPTION_Compliance, compliance);
     options.put(CompilerOptions.OPTION_Source, compliance);
     options.put(CompilerOptions.OPTION_TargetPlatform, compliance);
@@ -816,6 +818,13 @@ private static Map getCompileOptions(String compliance) {
     options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
     options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
     return options;
+}
+
+private static String fixCompliance(String compliance) {
+	if(compliance == null || compliance.isBlank() || (compliance.startsWith("1.") && !compliance.equals("1.8") && !compliance.equals("1.9"))) {
+		throw new IllegalStateException("Unsupported compliance: '" + compliance + "'");
+    }
+	return compliance;
 }
 /**
  * Returns the next available port number on the local host.

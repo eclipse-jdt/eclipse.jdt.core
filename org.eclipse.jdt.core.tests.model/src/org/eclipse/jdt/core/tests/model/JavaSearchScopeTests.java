@@ -915,7 +915,7 @@ public void testBug101022() throws CoreException {
  */
 public void testBug101426() throws CoreException {
 	try {
-		IJavaProject project = createJavaProject("P1", new String[] {"src/", "test/", "test2/"}, new String[] {"JCL_LIB"}, "bin");
+		IJavaProject project = createJavaProject("P1", new String[] {"src/", "test/", "test2/"}, new String[] {"JCL18_LIB"}, "bin");
 		createFile(
 			"/P1/src/Test.java",
 			"public interface ITest {\n" +
@@ -1106,7 +1106,7 @@ public void testBug250211() throws CoreException {
 							exportedProjects[idx] = true; // export all projects
 						}
 					}
-					projects[i] = createJavaProject(projectName, new String[]{"src"}, new String[]{"JCL_LIB"}, dependents, exportedProjects, "bin");
+					projects[i] = createJavaProject(projectName, new String[]{"src"}, new String[]{"JCL18_LIB"}, dependents, exportedProjects, "bin");
 				}
 			}
 		},

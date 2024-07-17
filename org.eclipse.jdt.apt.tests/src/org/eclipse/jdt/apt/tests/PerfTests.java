@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.builder.BuilderTests;
 import org.eclipse.jdt.core.tests.builder.Problem;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -75,7 +76,7 @@ public class PerfTests extends BuilderTests
 		}
 
 		// project will be deleted by super-class's tearDown() method
-		projectPath = env.addProject( "org.eclipse.jdt.core", "1.4" ); //$NON-NLS-1$ //$NON-NLS-2$
+		projectPath = env.addProject( "org.eclipse.jdt.core", CompilerOptions.getFirstSupportedJavaVersion() ); //$NON-NLS-1$ //$NON-NLS-2$
 
 		System.out.println("Performing full build..."); //$NON-NLS-1$
 		fullBuild( projectPath );

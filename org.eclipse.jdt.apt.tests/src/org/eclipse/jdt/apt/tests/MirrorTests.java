@@ -26,6 +26,7 @@ import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.CodeExample;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class MirrorTests extends APTTestBase {
 
@@ -66,7 +67,7 @@ public class MirrorTests extends APTTestBase {
 
 	public void testTypeParmaterAPI() throws Exception{
 		final String projName = MirrorTests.class.getName() + "TypeParameter.Project"; //$NON-NLS-1$
-		IPath projectPath = env.addProject( projName, "1.5" ); //$NON-NLS-1$
+		IPath projectPath = env.addProject( projName, CompilerOptions.getFirstSupportedJavaVersion() ); //$NON-NLS-1$
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 
 		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$

@@ -1064,7 +1064,7 @@ public void testBug130778x() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=388137
 public void testbug388137() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
-	IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"CONVERTER_JCL15_LIB"}, "", "1.5");
+	IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"CONVERTER_JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 	try {
 		String contents = "package p;\n" +
 							"import java.util.List;\n" +
@@ -1078,7 +1078,7 @@ public void testbug388137() throws Exception {
 							"	}\n" +
 							"}\n" +
 							"interface Handler {}\n";
-		addLibrary(project, "lib.jar", "src.zip", new String[] {"/P1/p/X.java", contents}, "1.5");
+		addLibrary(project, "lib.jar", "src.zip", new String[] {"/P1/p/X.java", contents}, CompilerOptions.getFirstSupportedJavaVersion());
 
 		this.workingCopies[0] = getWorkingCopy("/P1/q/Y.java", true);
 		contents =
@@ -1113,7 +1113,7 @@ public void testbug388137() throws Exception {
 
 public void testBug405908() throws CoreException, IOException {
 	try {
-		createJavaProject("P", new String[] { "" }, new String[0], "", CompilerOptions.VERSION_1_5);
+		createJavaProject("P", new String[] { "" }, new String[0], "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile("P/A.java",
 					"@interface Generated {\n" +
 					"    String comment() default \"\";\n" +

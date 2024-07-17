@@ -15,8 +15,6 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.util.List;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
@@ -38,9 +36,11 @@ import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
+
+import junit.framework.Test;
 
 @SuppressWarnings("rawtypes")
 public class ASTConverterRecoveryTest extends ConverterTestSetup {
@@ -989,10 +989,6 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 				"	    ^^^^\n" +
 				"Comparing identical expressions\n" +
 				"2. ERROR in /Converter/src/p/X.java (at line 4)\n" +
-				"	if (1==1 && var.equals(1) {\n" +
-				"	                ^^^^^^\n" +
-				"The method equals(Object) in the type Object is not applicable for the arguments (int)\n" +
-				"3. ERROR in /Converter/src/p/X.java (at line 4)\n" +
 				"	if (1==1 && var.equals(1) {\n" +
 				"	                        ^\n" +
 				"Syntax error, insert \") Statement\" to complete BlockStatements\n",

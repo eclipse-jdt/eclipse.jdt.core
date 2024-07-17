@@ -46,7 +46,7 @@ public static Test suite() {
 @Override
 protected void setUp() throws Exception {
 	super.setUp();
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+	setUpProjectOptions(CompilerOptions.getFirstSupportedJavaVersion());
 }
 
 /*
@@ -136,6 +136,9 @@ public void test001() throws JavaModelException {
 		"category[JAVADOC_BLOCK_TAG]{@category, null, null, category, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"apiNote[JAVADOC_BLOCK_TAG]{@apiNote, null, null, apiNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implSpec[JAVADOC_BLOCK_TAG]{@implSpec, null, null, implSpec, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implNote[JAVADOC_BLOCK_TAG]{@implNote, null, null, implNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -163,7 +166,8 @@ public void test003() throws JavaModelException {
 		"package javadoc;\n";
 	completeInJavadoc("/Completion/src/javadoc/package-info.java", source, true, "@a");
 	assertResults(
-		"author[JAVADOC_BLOCK_TAG]{@author, null, null, author, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"author[JAVADOC_BLOCK_TAG]{@author, null, null, author, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"apiNote[JAVADOC_BLOCK_TAG]{@apiNote, null, null, apiNote, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
@@ -274,7 +278,8 @@ public void test013() throws JavaModelException {
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "java.la");
 	assertResults(
 		"java.lang.annotation[PACKAGE_REF]{java.lang.annotation, java.lang.annotation, null, null, null, "+this.positions+R_DRICQNR+"}\n" +
-		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+R_DRICQNR+"}"
+		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+R_DRICQNR+"}\n" +
+		"java.lang.invoke[PACKAGE_REF]{java.lang.invoke, java.lang.invoke, null, null, null, "+this.positions+R_DRICQNR+"}"
 	);
 }
 

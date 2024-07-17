@@ -41,7 +41,6 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 
 import org.eclipse.jdt.internal.compiler.batch.Main;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -82,7 +81,7 @@ protected void checkClassFiles(String[] fileNames) {
 			fail("IO exception for file " + fileNames[i]);
 		}
 		assertNotNull("Could not read " + fileNames[i], reader);
-		assertEquals("Wrong Java version for " + fileNames[i], ClassFileConstants.JDK1_8, reader.getVersion());
+		assertEquals("Wrong Java version for " + fileNames[i], CompilerOptions.getFirstSupportedJdkLevel(), reader.getVersion());
 	}
 }
 void runTest(
@@ -97,7 +96,7 @@ void runTest(
 		String[] classFileNames) {
 	List<String> opt = options == null ? new ArrayList<>() : new ArrayList<>(options);
 	opt.add("-source");
-	opt.add("1.8");
+	opt.add(CompilerOptions.getFirstSupportedJavaVersion());
 	super.runTest(
 		shouldCompileOK,
 		sourceFiles,

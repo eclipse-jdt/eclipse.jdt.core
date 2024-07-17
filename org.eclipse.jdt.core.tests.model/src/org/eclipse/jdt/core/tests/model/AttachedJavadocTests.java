@@ -22,8 +22,6 @@ import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -47,10 +45,13 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.util.Util;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class AttachedJavadocTests extends ModifyingResourceTests {
@@ -105,7 +106,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 
-		this.project = setUpJavaProject("AttachedJavadocProject", "1.5"); //$NON-NLS-1$
+		this.project = setUpJavaProject("AttachedJavadocProject", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		Map options = this.project.getOptions(true);
 		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "2000"); //$NON-NLS-1$
 		this.project.setOptions(options);
@@ -627,7 +628,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 								"Manifest-Version: 1.0\n" +
 								"Class-Path: test6.jar\n",
 							},
-							JavaCore.VERSION_1_4);
+							CompilerOptions.getFirstSupportedJavaVersion());
 					IPath jarPath = this.project.getPath().append("lib").append("chaining.jar");
 					entries[i] = JavaCore.newLibraryEntry(jarPath, entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath());
 					break;
@@ -679,7 +680,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 								"Manifest-Version: 1.0\n" +
 								"Class-Path: test6.jar\n",
 							},
-							JavaCore.VERSION_1_4);
+							CompilerOptions.getFirstSupportedJavaVersion());
 					IPath jarPath = this.project.getPath().append("lib").append("chaining.jar");
 					entries[i] = JavaCore.newLibraryEntry(jarPath, entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.getAccessRules(), entry.getExtraAttributes(), entry.isExported());
 					break;
@@ -1217,14 +1218,14 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 						"package p;\n" +
 						"/** Javadoc for class X */\n" +
 						"public class X {}"	},
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 			addLibrary(this.project, "invalid.jar", null,
 					new String[]{
 						"q/Y.java",
 						"package q;\n" +
 						"/** Javadoc for class Y */\n" +
 						"public class Y {}"	},
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 
 			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME, validUrl.toExternalForm());
 			IClasspathEntry validEntry =

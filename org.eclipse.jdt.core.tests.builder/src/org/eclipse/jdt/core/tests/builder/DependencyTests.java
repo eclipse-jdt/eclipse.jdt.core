@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
-import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -1150,8 +1149,6 @@ public class DependencyTests extends BuilderTests {
 	}
 
 	public void testTypeVariable() throws JavaModelException {
-		if ((AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.FIRST_SUPPORTED_JAVA_VERSION) == 0) return;
-
 		IPath projectPath = env.addProject("Project", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 

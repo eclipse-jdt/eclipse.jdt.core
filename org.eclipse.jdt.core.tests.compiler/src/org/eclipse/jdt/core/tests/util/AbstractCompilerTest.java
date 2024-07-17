@@ -393,7 +393,7 @@ public class AbstractCompilerTest extends TestCase {
 				if (!RUN_JAVAC) {
 					possibleComplianceLevels = FIRST_SUPPORTED_JAVA_VERSION;
 					boolean canRunPrevious = true;
-					String previousVersion = CompilerOptions.VERSION_1_4;
+					String previousVersion = CompilerOptions.getFirstSupportedJavaVersion();
 					for(int i = 0; i < complianceTestLevelMapping.length; i++) {
 						int[] versionMap = complianceTestLevelMapping[i];
 						long jdkLevel = ClassFileConstants.getComplianceLevelForJavaVersion(versionMap[1]);

@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil.MergeStrategy;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.osgi.framework.Bundle;
 
 import junit.framework.Test;
@@ -47,7 +48,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 
 
 	public ExternalAnnotations17Test(String name) {
-		super(name, "1.7", "JCL17_LIB");
+		super(name, CompilerOptions.getFirstSupportedJavaVersion(), "JCL18_LIB");
 	}
 
 // Use this static initializer to specify subset for tests
@@ -168,7 +169,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
 		assertProblems(problems, new String[] {
-			"Pb(933) Null type mismatch: required '@NonNull String' but the provided value is specified as @Nullable",
+			"Pb(953) Null type mismatch (type annotations): required '@NonNull String' but this expression has type '@Nullable String'",
 		}, new int[] { 8 });
 	}
 
@@ -226,7 +227,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 			CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			IProblem[] problems = reconciled.getProblems();
 			assertProblems(problems, new String[] {
-				"Pb(933) Null type mismatch: required '@NonNull String' but the provided value is specified as @Nullable",
+				"Pb(953) Null type mismatch (type annotations): required '@NonNull String' but this expression has type '@Nullable String'",
 			}, new int[] { 8 });
 
 			// test project #2:
@@ -336,7 +337,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 			reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			problems = reconciled.getProblems();
 			assertProblems(problems, new String[] {
-				"Pb(933) Null type mismatch: required '@NonNull String' but the provided value is specified as @Nullable",
+				"Pb(953) Null type mismatch (type annotations): required '@NonNull String' but this expression has type '@Nullable String'",
 			}, new int[] { 8 });
 		} finally {
 			if (prj2 != null)
@@ -364,52 +365,6 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 						"Pb(452) Potential null pointer access: The variable v may be null at this location"
 					},
 					new int[]{ 7, 8, 9});
-	}
-
-	@Override
-	public void testLibsWithFields() throws Exception {
-		myCreateJavaProject("TestLibs");
-		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
-				"/UnannotatedLib/libs/Lib1.java",
-				"package libs;\n" +
-				"\n" +
-				"public interface Lib1 {\n" +
-				"	String one = \"1\";\n" +
-				"	String none = null;\n" +
-				"}\n"
-			}, null);
-		createFileInProject("annots/libs", "Lib1.eea",
-				"class libs/Lib1\n" +
-				"\n" +
-				"one\n" +
-				" Ljava/lang/String;\n" +
-				" L1java/lang/String;\n" +
-				"\n" +
-				"none\n" +
-				" Ljava/lang/String;\n" +
-				" L0java/lang/String;\n" +
-				"\n");
-		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
-		ICompilationUnit unit = fragment.createCompilationUnit("Test1.java",
-				"package tests;\n" +
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"\n" +
-				"import libs.Lib1;\n" +
-				"\n" +
-				"public class Test1 {\n" +
-				"	@NonNull String test0() {\n" +
-				"		return Lib1.none;\n" +
-				"	}\n" +
-				"	@NonNull String test1() {\n" +
-				"		return Lib1.one;\n" +
-				"	}\n" +
-				"}\n",
-				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
-		IProblem[] problems = reconciled.getProblems();
-		assertProblems(problems, new String[] {
-			"Pb(933) Null type mismatch: required '@NonNull String' but the provided value is specified as @Nullable",
-		}, new int[] { 8 });
 	}
 
 	// ===== Full round trip: detect problem - annotated - detect problem change =====
@@ -539,7 +494,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		problems = reconciled.getProblems();
 		assertProblems(problems, new String[] {
-				"Pb(933) Null type mismatch: required '@NonNull Lib1<String>' but the provided value is specified as @Nullable",
+				"Pb(953) Null type mismatch (type annotations): required '@NonNull Lib1<String>' but this expression has type '@Nullable Lib1<String>'",
 		}, new int[] { 8 });
 	}
 
@@ -882,7 +837,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 				" ()TE;\n" +
 				" ()T1E;\n" + // this @NonNull should be respected by analysis of ForeachStatement
 				"\n");
-		addEeaToVariableEntry("JCL17_LIB", "annots");
+		addEeaToVariableEntry("JCL18_LIB", "annots");
 
 		fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
 		unit = fragment.createCompilationUnit("B.java",
@@ -944,6 +899,8 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
-		assertNoProblems(problems);
+		assertProblems(problems, new String[] {
+				"Pb(912) Null type safety: The expression of type 'E' needs unchecked conversion to conform to '@NonNull E'",
+		}, new int[] { 12 });
 	}
 }

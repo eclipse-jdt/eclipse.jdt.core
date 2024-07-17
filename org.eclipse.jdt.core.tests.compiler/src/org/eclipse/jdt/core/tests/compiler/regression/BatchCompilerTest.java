@@ -80,7 +80,7 @@ public class BatchCompilerTest extends AbstractBatchCompilerTest {
 	}
 	/**
 	 * This test suite only needs to be run on one compliance.
-	 * As it includes some specific 1.5 tests, it must be used with a least a 1.5 VM
+	 * As it includes some specific 1.8 tests, it must be used with a least a 1.8 VM
 	 * and not be duplicated in general test suite.
 	 * @see TestAll
 	 */
@@ -309,8 +309,8 @@ public class BatchCompilerTest extends AbstractBatchCompilerTest {
 
 public void test001() {
 
-		String commandLine = "-classpath \"D:/a folder\";d:/jdk1.4/jre/lib/rt.jar -1.4 -preserveAllLocals -g -verbose d:/eclipse/workspaces/development2.0/plugins/Bar/src2/ -d d:/test";
-		String expected = " <-classpath> <D:/a folder;d:/jdk1.4/jre/lib/rt.jar> <-1.4> <-preserveAllLocals> <-g> <-verbose> <d:/eclipse/workspaces/development2.0/plugins/Bar/src2/> <-d> <d:/test>";
+		String commandLine = "-classpath \"D:/a folder\";d:/jdk1.8/jre/lib/rt.jar -1.8 -preserveAllLocals -g -verbose d:/eclipse/workspaces/development2.0/plugins/Bar/src2/ -d d:/test";
+		String expected = " <-classpath> <D:/a folder;d:/jdk1.8/jre/lib/rt.jar> <-1.8> <-preserveAllLocals> <-g> <-verbose> <d:/eclipse/workspaces/development2.0/plugins/Bar/src2/> <-d> <d:/test>";
 
 		String[] args = Main.tokenize(commandLine);
 		StringBuilder  buffer = new StringBuilder(30);
@@ -423,7 +423,7 @@ public void test007(){
 			"}"
         },
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -bootclasspath " + getLibraryClassesAsQuotedString()
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -verbose -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -461,7 +461,7 @@ public void test008(){
 			"}"
         },
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -bootclasspath " + getLibraryClassesAsQuotedString()
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -511,7 +511,7 @@ public void test009(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + "[+OK2" + File.pathSeparator + "~Warn"
         	+ File.pathSeparator + "-KO]\""
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
@@ -556,7 +556,7 @@ public void test010(){
 			"}"
         },
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
@@ -582,7 +582,7 @@ public void test011_classpath(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + "[+**/OK2;~**/Warn;-KO]"
         + "\"" + File.pathSeparator
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -673,11 +673,6 @@ public void test012(){
         "    --release <release> compile for a specific VM version\n" +
         " \n" +
         " Compliance options:\n" +
-        "    -1.3               use 1.3 compliance (-source 1.3 -target 1.1)\n" +
-        "    -1.4             + use 1.4 compliance (-source 1.3 -target 1.2)\n" +
-        "    -1.5 -5 -5.0       use 1.5 compliance (-source 1.5 -target 1.5)\n" +
-        "    -1.6 -6 -6.0       use 1.6 compliance (-source 1.6 -target 1.6)\n" +
-        "    -1.7 -7 -7.0       use 1.7 compliance (-source 1.7 -target 1.7)\n" +
         "    -1.8 -8 -8.0       use 1.8 compliance (-source 1.8 -target 1.8)\n" +
         "    -1.9 -9 -9.0       use 1.9 compliance (-source 1.9 -target 1.9)\n" +
         "    -10 -10.0          use 10  compliance (-source 10  -target 10)\n" +
@@ -686,12 +681,10 @@ public void test012(){
         "    -13 -13.0          use 13  compliance (-source 13  -target 13)\n" +
         "    -14 -14.0          use 14  compliance (-source 14  -target 14)\n" +
         getVersionOptions() +
-        "    -source <version>  set source level: 1.3 to 1.9, 10 to "+ CompilerOptions.getLatestVersion() +"\n" +
-        "                       (or 6, 6.0, etc)\n" +
-        "    -target <version>  set classfile target: 1.3 to 1.9, 10 to "+ CompilerOptions.getLatestVersion() +"\n" +
-        "                       (or 6, 6.0, etc)\n" +
-        "                       cldc1.1 can also be used to generate the StackMap\n" +
-        "                       attribute\n" +
+        "    -source <version>  set source level: 1.8, 1.9, 10 to "+ CompilerOptions.getLatestVersion() +"\n" +
+        "                       (or 8, 8.0, etc)\n" +
+        "    -target <version>  set classfile target: 1.8, 1.9, 10 to "+ CompilerOptions.getLatestVersion() +"\n" +
+        "                       (or 8, 8.0, etc)\n" +
         "    --enable-preview   enable support for preview features of the\n" +
         "                       latest Java release\n" +
         " \n" +
@@ -734,7 +727,6 @@ public void test012(){
         "    -preserveAllLocals preserve unused local vars for debug purpose\n" +
         " \n" +
         " Annotation processing options:\n" +
-        "   These options are meaningful only in a 1.6 environment.\n" +
         "    -Akey[=value]        options that are passed to annotation processors\n" +
         "    -processorpath <directories and ZIP archives separated by " + File.pathSeparator + ">\n" +
         "                         specify locations where to find annotation processors.\n" +
@@ -771,7 +763,6 @@ public void test012(){
         "    -noExit            do not call System.exit(n) at end of compilation (n==0\n" +
         "                       if no error)\n" +
         "    -repeat <n>        repeat compilation process <n> times for perf analysis\n" +
-        "    -inlineJSR         inline JSR bytecode (implicit if target >= 1.5)\n" +
         "    -enableJavadoc     consider references in javadoc\n" +
         "    -parameters        generate method parameters attribute (for target >= 1.8)\n" +
         "    -genericsignature  generate generic signature for lambda expressions\n" +
@@ -1003,7 +994,7 @@ public void test012b(){
 				"	Zork z;\n" +
 				"}", },
 				"\"" + OUTPUT_DIR + File.separator + "X.java\""
-				+ " -1.5 -proceedOnError"
+				+ " -1.8 -proceedOnError"
 				+ " -log \"" + logFileName + "\" -d \"" + OUTPUT_DIR + "\"",
 				"",
 				"----------\n" +
@@ -1021,7 +1012,7 @@ public void test012b(){
 			"<compiler copyright=\"{2}\" name=\"{1}\" version=\"{3}\">\n" +
 			"	<command_line>\n" +
 			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---{0}X.java\"/>\n" +
-			"		<argument value=\"-1.5\"/>\n" +
+			"		<argument value=\"-1.8\"/>\n" +
 			"		<argument value=\"-proceedOnError\"/>\n" +
 			"		<argument value=\"-log\"/>\n" +
 			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---{0}log.xml\"/>\n" +
@@ -1041,15 +1032,14 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nullanalysis\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.owning\" value=\"org.eclipse.jdt.annotation.Owning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.resourceanalysis\" value=\"disabled\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.lambda.genericSignature\" value=\"do not generate\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.methodParameters\" value=\"do not generate\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.shareCommonFinallyBlocks\" value=\"disabled\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.targetPlatform\" value=\"1.5\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.targetPlatform\" value=\"1.8\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.unusedLocal\" value=\"optimize out\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.useStringConcatFactory\" value=\"enabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.validateOperandStack\" value=\"enabled\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.compliance\" value=\"1.5\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.compliance\" value=\"1.8\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.debug.lineNumber\" value=\"generate\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.debug.localVariable\" value=\"do not generate\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.debug.sourceFile\" value=\"generate\"/>\n" +
@@ -1175,9 +1165,9 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedTypeParameter\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedWarningToken\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast\" value=\"warning\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.processAnnotations\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.processAnnotations\" value=\"enabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.release\" value=\"disabled\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.source\" value=\"1.5\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.source\" value=\"1.8\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.storeAnnotations\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.taskCaseSensitive\" value=\"enabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.taskPriorities\" value=\"\"/>\n" +
@@ -1241,7 +1231,7 @@ public void test012b(){
 				"	Zork z;\n" +
 				"}", },
 				"\"" + OUTPUT_DIR + File.separator + "X.java\""
-				+ " -1.5 -proceedOnError"
+				+ " -1.8 -proceedOnError"
 				+ " -log \"" + logFileName + "\" -d \"" + OUTPUT_DIR + "\"",
 				"",
 				"----------\n" +
@@ -1288,7 +1278,7 @@ public void test012b(){
 				"	Zork z;\n" +
 				"}", },
 				"\"" + OUTPUT_DIR + File.separator + "X.java\""
-				+ " -1.5 -proceedOnError"
+				+ " -1.8 -proceedOnError"
 				+ " -log \"" + logFileName + "\" -d \"" + OUTPUT_DIR + "\"",
 				"",
 				"----------\n" +
@@ -1343,7 +1333,7 @@ public void test016(){
 					"}"
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-	        + " -1.5 -g -preserveAllLocals"
+	        + " -1.8 -g -preserveAllLocals"
 	        + " -cp ." + File.pathSeparator + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
 	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\"",
@@ -1379,7 +1369,7 @@ public void test017(){
 					"}"
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-	        + " -1.5 -g -preserveAllLocals"
+	        + " -1.8 -g -preserveAllLocals"
 	        + " -cp dummmy_dir" + File.pathSeparator + "dummy.jar" + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
 	        + " -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\"",
@@ -1405,7 +1395,7 @@ public void test017b(){
 			"}"
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp dummy.jar" + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
         + " -verbose -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "\"",
@@ -1431,7 +1421,7 @@ public void test017c(){
 			"}"
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp " + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
         + " -verbose -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "\"",
@@ -1481,7 +1471,7 @@ public void test018a(){
 					""
 				},
 		        "X.java"
-		        + " -1.5 -g -preserveAllLocals"
+		        + " -1.8 -g -preserveAllLocals"
 		        + " -verbose -proceedOnError"
 		        + " -sourcepath ."
 		        + " -d \"" + OUTPUT_DIR + "\"",
@@ -1532,7 +1522,7 @@ public void _test018b(){
 					""
 				},
 		        "X.java"
-		        + " -1.5 -g -preserveAllLocals"
+		        + " -1.8 -g -preserveAllLocals"
 		        + " -verbose -proceedOnError"
 		        + " -d \"" + OUTPUT_DIR + "\"",
 		        TWO_FILES_GENERATED_MATCHER,
@@ -1580,7 +1570,7 @@ public void test019(){
 				"}",
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-	        + " -1.5 -g -preserveAllLocals"
+	        + " -1.8 -g -preserveAllLocals"
 	        + " -cp \"" + OUTPUT_DIR + "[+OK2" + File.pathSeparator + "~Warn" + File.pathSeparator + "-KO]\""
 	        + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
 	        + " -proceedOnError -referenceInfo"
@@ -1615,7 +1605,7 @@ public void test019(){
 					"}",
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-	        + " -1.5 -g -preserveAllLocals"
+	        + " -1.8 -g -preserveAllLocals"
 	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\" -O -Xxxx -O -Jxyz -Xtyu -Jyu",
 			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
@@ -1647,7 +1637,7 @@ public void test019(){
 		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
 				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\""
 				  + File.pathSeparator + "\"" + OUTPUT_DIR +  File.separator + "src2\""
-		        + " -1.5 -g -preserveAllLocals"
+		        + " -1.8 -g -preserveAllLocals"
 		        + " -verbose -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + "\" ",
 				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" +
@@ -1684,7 +1674,7 @@ public void test019(){
 			" -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\""
 			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src2\""
 	        + " \"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
-	        + " -1.5 -g -preserveAllLocals"
+	        + " -1.8 -g -preserveAllLocals"
 	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\" ",
 	        "",
@@ -1707,7 +1697,7 @@ public void test019(){
 			" -extdirs \"" + OUTPUT_DIR +  File.separator + "src1\""
 			+ " -extdirs \"" + OUTPUT_DIR +  File.separator + "src2\""
 	        + " \"" + OUTPUT_DIR +  File.separator + "src1" + File.separator + "X.java\""
-	        + " -1.5 -g -preserveAllLocals"
+	        + " -1.8 -g -preserveAllLocals"
 	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\" ",
 	        "",
@@ -1730,7 +1720,7 @@ public void test019(){
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 				+ " -extdirs \"\""
-				+ " -1.5 -g -preserveAllLocals"
+				+ " -1.8 -g -preserveAllLocals"
 				+ " -proceedOnError -referenceInfo"
 				+ " -d \"" + OUTPUT_DIR + "\" ",
 				"",
@@ -1761,7 +1751,7 @@ public void test019(){
 					"}",
 				},
 				libPath,
-				JavaCore.VERSION_1_4);
+				JavaCore.VERSION_1_8);
 			System.setProperty("jdt.compiler.useSingleThread", "true");
 			this.runConformTest(
 				new String[] {
@@ -1776,9 +1766,10 @@ public void test019(){
 						"}",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
+		        + " -proc:none"
 				+ " -extdirs \"" + path + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\""
 				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\""
-		        + " -1.5 -g -preserveAllLocals"
+		        + " -1.8 -g -preserveAllLocals"
 		        + " -verbose -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + "\" ",
 		        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" +
@@ -1823,9 +1814,10 @@ public void test019(){
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
 				+ " -classpath \"" + OUTPUT_DIR +  File.separator + "src3\""
+			    + " -proc:none"
 				+ " -extdirs \"" + getExtDirectory() + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\""
 				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src2" + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\""
-		        + " -1.5 -g -preserveAllLocals"
+		        + " -1.8 -g -preserveAllLocals"
 		        + " -verbose -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + "\" ",
 				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" +
@@ -1880,7 +1872,7 @@ public void test027(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + "[+OK2" + File.pathSeparator + "-KO]" + File.pathSeparator
         + OUTPUT_DIR + File.separator + "p1[~Warn]\""
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
@@ -1916,7 +1908,7 @@ public void test028(){
 					"}",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "src1/X.java\""
-		        + " -1.5 -g -preserveAllLocals"
+		        + " -1.8 -g -preserveAllLocals"
 		        + " -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + File.separator + "bin/\"",
 		        "",
@@ -1930,7 +1922,7 @@ public void test028(){
 					"}",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
-		        + " -1.5 -g -preserveAllLocals"
+		        + " -1.8 -g -preserveAllLocals"
 		        + " -cp dummy" + File.pathSeparator + "\"" + OUTPUT_DIR + File.separator + "bin\"" + File.pathSeparator + "dummy"
 		        + " -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + File.separator + "bin/\"",
@@ -1961,7 +1953,7 @@ public void test030(){
 			"}\n",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + File.separator + "\""
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "\"",
@@ -1983,7 +1975,7 @@ public void test030(){
 			"}\n",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "\"",
         "",
@@ -1998,7 +1990,7 @@ public void test030(){
 			"}\n",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + File.separator + "\""
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "\"",
@@ -2131,7 +2123,7 @@ public void test032(){
 	        "\"" + OUTPUT_DIR +  File.separator + "p/X.java\""
 	        + " \"" + OUTPUT_DIR +  File.separator + "p/Y.java\""
 	        + " \"" + OUTPUT_DIR +  File.separator + "p/Z.java\""
-	        + " -1.5 -g -preserveAllLocals"
+	        + " -1.8 -g -preserveAllLocals"
 	        + " -cp \"" + OUTPUT_DIR + File.separator + "\""
 	        + " -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\"",
@@ -2175,7 +2167,7 @@ public void test032(){
 	        "8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" +
 	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" +
 	        "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" +
-	        "Type safety: Unchecked cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY>\n" +
+	        "Type safety: Unchecked cast from X.XX<capture#11-of ?,capture#12-of ?> to X.XX<?,X.XY>\n" +
 	        "----------\n" +
 	        "8 problems (8 warnings)\n",
 	        true);
@@ -2197,7 +2189,7 @@ public void test032(){
 			"}\n",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p/X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "\"",
         "",
@@ -2310,7 +2302,7 @@ public void test032(){
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p/Y.java\""
         + " \"" + OUTPUT_DIR +  File.separator + "p/Z.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + File.separator + "\""
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "\"",
@@ -2354,7 +2346,7 @@ public void test032(){
         "8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" +
         "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" +
         "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" +
-        "Type safety: Unchecked cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY>\n" +
+        "Type safety: Unchecked cast from X.XX<capture#11-of ?,capture#12-of ?> to X.XX<?,X.XY>\n" +
         "----------\n" +
         "8 problems (8 warnings)\n",
         false);
@@ -2369,7 +2361,7 @@ public void test033(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR
         + "\"" + File.pathSeparator
         + " -repeat 2 -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -2387,7 +2379,7 @@ public void test034(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp " + File.pathSeparator + "\"" + OUTPUT_DIR
         + "\"" + File.pathSeparator
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -2408,7 +2400,7 @@ public void test035(){
 				"public class Y { public static final String S = \"\"; }",
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "Y.java\""
-	        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+	        + " -1.8 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 	        "",
 	        "",
 	        true);
@@ -2424,7 +2416,7 @@ public void test035(){
 					"}",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+		        + " -1.8 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 		        "",// this is not the runtime output
 		        "no classpath defined, using default directory instead\n",
 		        false);
@@ -2456,7 +2448,7 @@ public void test036(){
 			"}",
 		},
         "\"" + OUTPUT_DIR + "/src1/p/X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "/bin1/\"",
         "",
@@ -2470,7 +2462,7 @@ public void test036(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + File.separator + "bin1[~**/X]\""
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + File.separator + "bin2/\"",
@@ -2498,7 +2490,7 @@ public void test037() {
 			"  }\n" +
 			"}\n"},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.5 "
+		+ " -1.8 "
 		+ " -cp \"" + OUTPUT_DIR + "\""
 		+ " -warn:+paramAssign"
 		+ " -proceedOnError"
@@ -2532,7 +2524,7 @@ public void test039(){
 			"}",
 		},
         "\"" + OUTPUT_DIR + "/src1/p/X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "/bin1/\"",
         "",
@@ -2548,7 +2540,7 @@ public void test039(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + File.separator + "bin1[~**/X]\""
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + File.separator + "bin2/\"",
@@ -2600,7 +2592,7 @@ public void test040(){
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " \"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "Z.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -nowarn"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
@@ -2616,7 +2608,7 @@ public void test040(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + "[+p/X" + File.pathSeparator + "-p/*]\""
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -2649,7 +2641,7 @@ public void test041(){
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " \"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "Z.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -nowarn"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
@@ -2665,7 +2657,7 @@ public void test041(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + "[~p/X" + File.pathSeparator + "-p/*]\""
         + " -warn:-discouraged -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -2698,7 +2690,7 @@ public void test042(){
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " \"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "Z.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -nowarn"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
@@ -2714,7 +2706,7 @@ public void test042(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + "[~p/X" + File.pathSeparator + "-p/*]\""
         + " -warn:-forbidden -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -2747,7 +2739,7 @@ public void test043(){
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " \"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "Z.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -nowarn"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
@@ -2763,7 +2755,7 @@ public void test043(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + "[~p/X" + File.pathSeparator + "-p/*]\""
         + " -warn:-discouraged,forbidden -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -2784,7 +2776,7 @@ public void test044(){
 			"  }\n" +
 			"}"},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -bootclasspath " + getLibraryClassesAsQuotedString()
         + " -warn:+null"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -2811,7 +2803,7 @@ public void test045(){
 			"  }\n" +
 			"}"},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -bootclasspath " + getLibraryClassesAsQuotedString()
         + " -warn:-null" // contrast with test036
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -2831,7 +2823,7 @@ public void test046(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -nowarn"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
@@ -2847,7 +2839,7 @@ public void test046(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + "[~p/X" + File.pathSeparator + "-p/*]\""
         + " -warn:+discouraged,forbidden,deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -2868,7 +2860,7 @@ public void test047(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -nowarn"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
@@ -2884,7 +2876,7 @@ public void test047(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + "[~p/X" + File.pathSeparator + "-p/*]\""
         + " -warn:+discouraged,forbidden,deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -2905,7 +2897,7 @@ public void test048(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -nowarn"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
@@ -2921,7 +2913,7 @@ public void test048(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + "[~p/X" + File.pathSeparator + "-p/*]\""
         + " -warn:+discouraged,forbidden,deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -2961,7 +2953,7 @@ public void test049(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -nowarn"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
@@ -2989,7 +2981,7 @@ public void test050(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -warn:-fallthrough"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
@@ -3017,7 +3009,7 @@ public void test051(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -warn:+fallthrough"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
@@ -3099,19 +3091,16 @@ public void test052(){
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=137053
 public void test053(){
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {}"
         },
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -d \"" + OUTPUT_DIR + File.separator + "X.java\"",
 		"",
-		"No .class file created for file X.class in ---OUTPUT_DIR_PLACEHOLDER" +
-			"---/X.java because of an IOException: Regular file " +
-			"---OUTPUT_DIR_PLACEHOLDER---/X.java cannot be used " +
-			"as output directory\n",
+		"file : ---OUTPUT_DIR_PLACEHOLDER---/X.java is not a directory\n",
 		true);
 }
 // suggested by https://bugs.eclipse.org/bugs/show_bug.cgi?id=141522
@@ -3127,7 +3116,7 @@ public void test054(){
 			""
         },
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -d \"" + OUTPUT_DIR + "/f/out\"",
 		"",
 		"No .class file created for file X.class in ---OUTPUT_DIR_PLACEHOLDER" +
@@ -3156,7 +3145,7 @@ public void test055(){
 				"public class X {}",
 	        },
 	        "\"" + OUTPUT_DIR +  File.separator + "p/X.java\""
-	        + " -1.5 -g -preserveAllLocals"
+	        + " -1.8 -g -preserveAllLocals"
 	        + " -d \"" + OUTPUT_DIR + "/out\"",
 			"",
 			"No .class file created for file p/X.class in " +
@@ -3182,7 +3171,7 @@ public void test056(){
 			""
         },
         "\"" + OUTPUT_DIR +  File.separator + "p/X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -d \"" + OUTPUT_DIR + tentativeOutputDirNameTail + "\"",
 		"",
 		"No .class file created for file p/X.class in " +
@@ -3224,7 +3213,7 @@ public void test057_access_restrictions_separator(){
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + "[+OK2" + oppositeSeparator + "-KO]\""
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
@@ -3243,7 +3232,7 @@ public void test058(){
 			"public class X {}",
         },
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -d \"" + OUTPUT_DIR + "/out\"",
 		"",
 		"",
@@ -3260,7 +3249,7 @@ public void test060(){
 			"public class X {}",
         },
 	    "\"" + OUTPUT_DIR + "\""
-	    + " -1.5 -g -preserveAllLocals"
+	    + " -1.8 -g -preserveAllLocals"
 	    + " -d \"" + OUTPUT_DIR + "/out\"",
 		"",
 		"",
@@ -3280,7 +3269,7 @@ public void test061(){
 				"}",
 	        },
 	    "\"" + OUTPUT_DIR + "\""
-	    + " -1.5 -g -preserveAllLocals"
+	    + " -1.8 -g -preserveAllLocals"
 	    + " -d \"" + OUTPUT_DIR + "/out\"",
 		"",
 		"----------\n" +
@@ -3323,7 +3312,7 @@ public void _test062(){
 			"public class Y {\n" +
 			"}"},
 	    "\"" + outputDirName + "\""
-	    + " -1.5 -g -preserveAllLocals"
+	    + " -1.8 -g -preserveAllLocals"
 	    + " -d \"" + outputDirName + "\"",
 		"",
 		"",
@@ -3352,7 +3341,7 @@ public void _test062(){
 			"  Y m;\n" +
 			"}"},
 	    "\"" + outputDirName + "\""
-	    + " -1.5 -g -preserveAllLocals"
+	    + " -1.8 -g -preserveAllLocals"
 	    + " -cp L.jar"
 	    + " -d \"" + OUTPUT_DIR + "\"",
 		"",
@@ -3372,7 +3361,7 @@ public void test063(){
 			"public class Y {\n" +
 			"}"},
 	    "\"" + outputDirName + "\""
-	    + " -1.5 -g -preserveAllLocals"
+	    + " -1.8 -g -preserveAllLocals"
 	    + " -d \"" + outputDirName + "\"",
 		"",
 		"",
@@ -3401,7 +3390,7 @@ public void test063(){
 			"  Y m;\n" +
 			"}"},
 	    "\"" + outputDirName + "\""
-	    + " -1.5 -g -preserveAllLocals"
+	    + " -1.8 -g -preserveAllLocals"
 	    + " -cp \"" + jarFileName + "\""
 	    + " -d \"" + OUTPUT_DIR + "\"",
 		"",
@@ -3424,7 +3413,7 @@ public void _test064_per_sourcepath_directory_default_encoding(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1
         + "[UTF-8]\"",
 		"",
@@ -3449,7 +3438,7 @@ public void test065_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + " -d \"" + OUTPUT_DIR + File.separator + output1 + "\"",
 		"",
@@ -3479,7 +3468,7 @@ public void test066_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\"",
 		"",
 		"",
@@ -3502,7 +3491,7 @@ public void test067_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
-        + " -1.5"
+        + " -1.8"
         + " -d none",
 		"",
 		"",
@@ -3529,7 +3518,7 @@ public void test068_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
@@ -3568,7 +3557,7 @@ public void test069_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
 		"",
@@ -3601,7 +3590,7 @@ public void test070_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d none]",
 		"",
@@ -3632,7 +3621,7 @@ public void test071_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d none",
@@ -3661,7 +3650,7 @@ public void test072_per_source_output_directory(){
 			"}"},
         "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
-        + " -1.5"
+        + " -1.8"
         + " -sourcepath \"" + OUTPUT_DIR + "\"" + "[-d dir][~**/internal/*]",
 		"",
 		"access rules cannot follow destination path entries: ---OUTPUT_DIR_PLACEHOLDER---[-d dir][~**/internal/*]\n",
@@ -3686,7 +3675,7 @@ public void test073_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\"" +
         	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
 		"",
@@ -3718,7 +3707,7 @@ public void test074_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -classpath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
@@ -3757,7 +3746,7 @@ public void test075_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -cp \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
 		"",
@@ -3790,7 +3779,7 @@ public void test076_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -classpath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d none]",
 		"",
@@ -3821,7 +3810,7 @@ public void test077_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -classpath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d none",
@@ -3850,7 +3839,7 @@ public void test078_per_source_output_directory(){
 			"}"},
         "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
-        + " -1.5"
+        + " -1.8"
         + " -classpath \"" + OUTPUT_DIR + "\"" + "[-d dir][~**/internal/*]",
 		"",
 		"access rules cannot follow destination path entries: ---OUTPUT_DIR_PLACEHOLDER---[-d dir][~**/internal/*]\n",
@@ -3875,7 +3864,7 @@ public void test079_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -classpath \"" + OUTPUT_DIR + File.separator + source1 + "\"" +
         	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
 		"",
@@ -3907,7 +3896,7 @@ public void test080_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -bootclasspath " + getLibraryClassesAsQuotedString() + File.pathSeparator + "\"" +
           OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
@@ -3947,7 +3936,7 @@ public void test081_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -bootclasspath " + getLibraryClassesAsQuotedString() + File.pathSeparator + "\"" +
           OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
@@ -3981,7 +3970,7 @@ public void test082_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -bootclasspath " + getLibraryClassesAsQuotedString() + File.pathSeparator + "\"" +
           OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d none]",
@@ -4013,7 +4002,7 @@ public void test083_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -bootclasspath " + getLibraryClassesAsQuotedString() + File.pathSeparator + "\"" +
           OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
@@ -4043,7 +4032,7 @@ public void test084_per_source_output_directory(){
 			"}"},
         "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
-        + " -1.5"
+        + " -1.8"
         + " -bootclasspath \"" + OUTPUT_DIR + "\"" + "[-d dir][~**/internal/*]",
 		"",
 		"access rules cannot follow destination path entries: ---OUTPUT_DIR_PLACEHOLDER---[-d dir][~**/internal/*]\n",
@@ -4068,7 +4057,7 @@ public void test085_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -bootclasspath " + getLibraryClassesAsQuotedString() + File.pathSeparator +
         	"\"" + OUTPUT_DIR + File.separator + source1 + "\"" +
         	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
@@ -4114,7 +4103,7 @@ public void test086_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + "X.jar\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
@@ -4149,7 +4138,7 @@ public void test087_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -classpath \"" + OUTPUT_DIR + File.separator + "X.jar\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
@@ -4171,7 +4160,7 @@ public void test088_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -bootclasspath \"" + OUTPUT_DIR + File.separator + "X.jar\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
@@ -4217,7 +4206,7 @@ public void test089_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + "X.jar\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         ,
@@ -4269,7 +4258,7 @@ public void test090_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + "X.jar\""
         + "[-d none]",
 		"",
@@ -4320,7 +4309,7 @@ public void test091_per_source_output_directory(){
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5"
+        + " -1.8"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d none",
@@ -4359,7 +4348,7 @@ public void test092_per_source_output_directory(){
         	"Z.java\""
         + " \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
-        + " -1.5"
+        + " -1.8"
         + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
 		"",
 		"",
@@ -4398,7 +4387,7 @@ public void test093_per_source_output_directory(){
         	"Z.java\""
         + " \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
-        + " -1.5",
+        + " -1.8",
 		"",
 		"",
 		true);
@@ -4431,7 +4420,7 @@ public void test094_per_source_output_directory(){
         	"Z.java\""
         + " \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d none]"
-        + " -1.5",
+        + " -1.8",
 		"",
 		"",
 		true);
@@ -4462,7 +4451,7 @@ public void test095_per_source_output_directory(){
         + "[-d none] "
         + "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
-        + " -1.5",
+        + " -1.8",
 		"",
 		"",
 		true);
@@ -4493,7 +4482,7 @@ public void test096_per_source_output_directory(){
         	"Z.java\""
         + " \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
-        + " -1.5"
+        + " -1.8"
         + " -d none",
 		"",
 		"",
@@ -4528,7 +4517,7 @@ public void test097_per_source_output_directory(){
         " \"" + OUTPUT_DIR + File.separator + source2 + "\""
         + " \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
-        + " -1.5"
+        + " -1.8"
         + " -d none",
 		"",
 		"",
@@ -4560,7 +4549,7 @@ public void test098_per_source_output_directory(){
 			"}"},
         "\"" + OUTPUT_DIR +  File.separator + source1 + "\""
         + "[~**/internal/*]"
-        + " -1.5",
+        + " -1.8",
 		"",
 		"unsupported encoding format: ~**/internal/*\n",
 		true);
@@ -4586,7 +4575,7 @@ public void test099_per_source_output_directory() {
         },
         "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
-        + " -1.5"
+        + " -1.8"
         + " -d none",
 		"",
 		"",
@@ -4606,7 +4595,7 @@ public void test100_per_source_output_directory(){
 			"}"},
         "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
-        + " -1.5"
+        + " -1.8"
         + " -extdirs \"" + OUTPUT_DIR + "\"" + "[-d dir]",
 		"",
 		"unexpected destination path entry in -extdir option\n",
@@ -4624,7 +4613,7 @@ public void test101_per_source_output_directory(){
 			"}"},
         "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
-        + " -1.5"
+        + " -1.8"
         + " -endorseddirs \"" + OUTPUT_DIR + "\"" + "[-d dir]",
 		"",
 		"unexpected destination path entry in -endorseddirs option\n",
@@ -4644,7 +4633,7 @@ public void test102_per_source_output_directory(){
         },
         " \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\""
-        + " -1.5"
+        + " -1.8"
         + " -d none",
 		"",
 		"incorrect destination path entry: [-d ---OUTPUT_DIR_PLACEHOLDER---/bin1\n",
@@ -4664,7 +4653,7 @@ public void test103_per_source_output_directory(){
         },
         " \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + " [-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
-        + " -1.5",
+        + " -1.8",
 		"",
 		"unexpected bracket: [-d\n",
 		true);
@@ -4681,7 +4670,7 @@ public void test104_per_source_output_directory(){
 			"}"},
         "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
-        + " -1.5"
+        + " -1.8"
         + " -sourcepath \"" + OUTPUT_DIR + "\"" + "[[-d dir]",
 		"",
 		"unexpected bracket: ---OUTPUT_DIR_PLACEHOLDER---[[-d\n",
@@ -4699,7 +4688,7 @@ public void test105_per_source_output_directory(){
 			"}"},
         "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
-        + " -1.5"
+        + " -1.8"
         + " -cp \"" + OUTPUT_DIR + "\"" + "[-d dir]]",
 		"",
 		"unexpected bracket: dir]]\n",
@@ -4717,7 +4706,7 @@ public void test106_per_source_output_directory(){
 			"}"},
         "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
-        + " -1.5"
+        + " -1.8"
         + " -cp \"" + OUTPUT_DIR + "\"" + "[-d dir1" + File.pathSeparator +
         	"dir2]",
 		"",
@@ -4726,7 +4715,7 @@ public void test106_per_source_output_directory(){
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
-// source 1.3 compliance 1.3
+// source 1.8 compliance 1.8
 public void test107() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -4735,106 +4724,16 @@ public void test107() throws Exception {
 			"public class X {\n" +
 			"}",
 		},
-     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-     + " -1.3 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
-     "",
-     "",
-     true);
-	String expectedOutput = "// Compiled from X.java (version 1.1 : 45.3, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
-//compliance 1.4 source 1.3
-public void test108() throws Exception {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
-		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.4 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
+		+ " -1.8 -source 1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
 		true);
-	String expectedOutput = "// Compiled from X.java (version 1.2 : 46.0, super bit)";
+	String expectedOutput = "// Compiled from X.java (version 1.8 : 52.0, super bit)";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
-//compliance 1.4 source 1.4
-public void test109() throws Exception {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.4 -source 1.4 -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"",
-		true);
-	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
-//compliance 1.5 source 1.3
-public void test110() throws Exception {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.5 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"",
-		true);
-	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
-//compliance 1.5 source 1.4
-public void test111() throws Exception {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.5 -source 1.4 -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"",
-		true);
-	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
-//compliance 1.5 source 1.5
-public void test112() throws Exception {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.5 -source 1.5 -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"",
-		true);
-	String expectedOutput = "// Compiled from X.java (version 1.5 : 49.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
-//compliance 1.6 source 1.3
+//compliance 1.6 source 1.8
 public void test113() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -4844,158 +4743,14 @@ public void test113() throws Exception {
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.6 -source 1.3 -proc:none -d \"" + OUTPUT_DIR + "\"",
+		+ " -1.8 -source 1.8 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
 		true);
-	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
+	String expectedOutput = "// Compiled from X.java (version 1.8 : 52.0, super bit)";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
-//compliance 1.6 source 1.4
-public void test114() throws Exception {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.6 -source 1.4 -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"",
-		true);
-	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
-//compliance 1.6 source 1.5
-public void test115() throws Exception {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.6 -source 1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"",
-		true);
-	String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
-//compliance 1.6 source 1.6
-public void test116() throws Exception {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.6 -source 1.6 -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"",
-		true);
-	String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
-//compliance 1.7 source 1.3
-public void test117() throws Exception {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.7 -source 1.3 -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"",
-		true);
-	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
-//compliance 1.7 source 1.4
-public void test118() throws Exception {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.7 -source 1.4 -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"",
-		true);
-	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
-//compliance 1.7 source 1.5
-public void test119() throws Exception {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.7 -source 1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"",
-		true);
-	String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
-//compliance 1.7 source 1.6
-public void test120() throws Exception {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.7 -source 1.6 -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"",
-		true);
-	String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
-//compliance 1.7 source 1.7
-// TODO part of the changes for 206483
-public void test121() throws Exception {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"/** */\n" +
-			"public class X {\n" +
-			"}",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.7 -source 1.7 -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"",
-		true);
-	String expectedOutput = "// Compiled from X.java (version 1.7 : 51.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-}
+
 // command line - unusual classpath (ends with ';;;', still OK)
 public void test122_classpath(){
 	runClasspathTest(
@@ -5199,7 +4954,7 @@ public void test141_null_ref_option(){
 			"  }\n" +
 			"}"},
      "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-     + " -1.5 -g -preserveAllLocals"
+     + " -1.8 -g -preserveAllLocals"
      + " -bootclasspath " + getLibraryClassesAsQuotedString()
      + " -warn:+nullDereference"
      + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -5227,7 +4982,7 @@ public void test142_null_ref_option(){
 			"  }\n" +
 			"}"},
   "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-  + " -1.5 -g -preserveAllLocals"
+  + " -1.8 -g -preserveAllLocals"
   + " -bootclasspath " + getLibraryClassesAsQuotedString()
   + " -warn:+null"
   + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -5255,7 +5010,7 @@ public void test143_null_ref_option(){
 			"  }\n" +
 			"}"},
 "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-+ " -1.5 -g -preserveAllLocals"
++ " -1.8 -g -preserveAllLocals"
 + " -bootclasspath " + getLibraryClassesAsQuotedString()
 + " -warn:+nullDereference"
 + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -5263,26 +5018,7 @@ public void test143_null_ref_option(){
 "",
 true);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=190493
-public void test144() throws Exception {
-	String version = System.getProperty("java.class.version");
-	if ("49.0".equals(version)) {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"/** */\n" +
-				"public class X {\n" +
-				"}",
-			},
-			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-			+ " -1.6 -source 1.6 -d \"" + OUTPUT_DIR + "\"",
-			"",
-			"Annotation processing got disabled, since it requires a 1.6 compliant JVM\n",
-			true);
-		String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-	}
-}
+
 // reporting unnecessary declaration of thrown checked exceptions
 // default is off
 public void test145_declared_thrown_checked_exceptions(){
@@ -5295,7 +5031,7 @@ public void test145_declared_thrown_checked_exceptions(){
 			"  }\n" +
 			"}\n"},
   "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-  + " -1.5 -g -preserveAllLocals"
+  + " -1.8 -g -preserveAllLocals"
   + " -bootclasspath " + getLibraryClassesAsQuotedString()
   + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
   "",
@@ -5313,7 +5049,7 @@ public void test146_declared_thrown_checked_exceptions(){
 			"  }\n" +
 			"}\n"},
   "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-  + " -1.5 -g -preserveAllLocals"
+  + " -1.8 -g -preserveAllLocals"
   + " -bootclasspath " + getLibraryClassesAsQuotedString()
   + " -warn:+unusedThrown"
   + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -5352,7 +5088,7 @@ public void test148_access_restrictions(){
 			"}",
 		},
   "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-  + " -1.5 -g -preserveAllLocals"
+  + " -1.8 -g -preserveAllLocals"
   + " -cp \"" + OUTPUT_DIR + "[-KO]\""
   + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
   + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -5404,7 +5140,7 @@ public void test149() {
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.7 -warn:-unused -proc:none -d \"" + OUTPUT_DIR + "\"",
+		+ " -1.8 -warn:-unused -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
 		true);
@@ -6828,7 +6564,7 @@ public void test190_warn_options() {
 			"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
@@ -6862,7 +6598,7 @@ public void test190_warn_options() {
 	this.runConformTest(
 		new String[] { },
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -nowarn -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -nowarn -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
 		false);
@@ -6891,7 +6627,7 @@ public void test191_warn_options() {
 			"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unused -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:unused -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
@@ -6961,7 +6697,7 @@ public void test192_warn_options() {
 			"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unusedArgument -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:unusedArgument -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
@@ -6996,7 +6732,7 @@ public void test193_warn_options() {
 			"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unusedImport -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:unusedImport -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
@@ -7031,7 +6767,7 @@ public void test194_warn_options() {
 			"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unusedLabel -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:unusedLabel -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
@@ -7066,7 +6802,7 @@ public void test195_warn_options() {
 			"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unusedLocal -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:unusedLocal -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
@@ -7101,7 +6837,7 @@ public void test196_warn_options() {
 			"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unusedPrivate -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:unusedPrivate -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
@@ -7136,7 +6872,7 @@ public void test197_warn_options() {
 			"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unusedTypeArgs -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:unusedTypeArgs -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
@@ -7171,7 +6907,7 @@ public void test198_warn_options() {
 			"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unusedThrown -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:unusedThrown -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
@@ -7206,7 +6942,7 @@ public void test199_warn_options() {
 			"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unused -warn:-unusedArgument -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:unused -warn:-unusedArgument -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
@@ -7271,7 +7007,7 @@ public void test200_warn_options() {
 			"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unused -warn:-unusedImport -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:unused -warn:-unusedImport -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
@@ -7336,7 +7072,7 @@ public void test201_warn_options() {
 			"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unused -warn:-unusedLabel -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:unused -warn:-unusedLabel -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
@@ -7401,7 +7137,7 @@ public void test202_warn_options() {
 			"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unused -warn:-unusedLocal -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:unused -warn:-unusedLocal -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
@@ -7466,7 +7202,7 @@ public void test203_warn_options() {
 			"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unused -warn:-unusedPrivate -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:unused -warn:-unusedPrivate -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
@@ -7531,7 +7267,7 @@ public void test204_warn_options() {
 			"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unused -warn:-unusedThrown -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:unused -warn:-unusedThrown -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
@@ -7596,7 +7332,7 @@ public void test205_warn_options() {
 			"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unused -warn:-unusedTypeArgs -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:unused -warn:-unusedTypeArgs -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
@@ -8195,7 +7931,7 @@ public void test225_warn_options() {
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.5 -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -1.8 -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -deprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
@@ -8221,7 +7957,7 @@ public void _test226_warn_options() {
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.5 -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -1.8 -sourcepath \"" + OUTPUT_DIR + "\""
 		// default -warn:+suppress gets overriden
 		+ " -warn:deprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
@@ -8326,7 +8062,7 @@ public void test230_warn_options() {
 			"}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unusedTypeArgs -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:unusedTypeArgs -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
@@ -8334,7 +8070,12 @@ public void test230_warn_options() {
 		"	                  ^\n" +
 		"Redundant specification of type arguments <String>\n" +
 		"----------\n" +
-		"1 problem (1 warning)\n",
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 8)\n" +
+		"	X<Number> x1 = new X<Number>(1);\n" +
+		"	                   ^\n" +
+		"Redundant specification of type arguments <Number>\n" +
+		"----------\n" +
+		"2 problems (2 warnings)\n",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
@@ -8462,16 +8203,14 @@ public void test230_sourcepath_vs_classpath() throws IOException, InterruptedExc
 			this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin2"});
 			assertEquals('1', this.verifier.getExecutionOutput().charAt(0)); // skip trailing newline
 			// 1 means javac selected bin1 by default
-			if (javacCompiler.version.compareTo(JavaCore.VERSION_1_6) >= 0) {
-				assertTrue(javacCompiler.compile(
-						outputDir, /* directory */
-						specialOptions /* options */,
-						sourceFileNames /* source file names */,
-						null /* log */) == 0);
-				this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin2"});
-				assertEquals('2', this.verifier.getExecutionOutput().charAt(0)); // skip trailing newline
-				// 2 means javac selected src2
-			}
+			assertTrue(javacCompiler.compile(
+					outputDir, /* directory */
+					specialOptions /* options */,
+					sourceFileNames /* source file names */,
+					null /* log */) == 0);
+			this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin2"});
+			assertEquals('2', this.verifier.getExecutionOutput().charAt(0)); // skip trailing newline
+			// 2 means javac selected src2
 		}
 	}
 }
@@ -9013,7 +8752,7 @@ public void test239_jar_ref_in_jar(){
      "\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib1.jar\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-     + " -1.5 -g -preserveAllLocals"
+     + " -1.8 -g -preserveAllLocals"
      + " -proceedOnError -referenceInfo"
      + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
      "",
@@ -9039,7 +8778,7 @@ public void test240_jar_ref_in_jar(){
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -9064,7 +8803,7 @@ public void test241_jar_ref_in_jar(){
 			+ " -cp \"" + LIB_DIR + File.separator + "lib1.jar\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar\""
 			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-			+ " -1.5 -g -preserveAllLocals"
+			+ " -1.8 -g -preserveAllLocals"
 			+ " -proceedOnError -referenceInfo"
 			+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 			"",
@@ -9094,7 +8833,7 @@ public void test242_jar_ref_in_jar(){
 			"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib4.jar\""
 			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-			+ " -1.5 -g -preserveAllLocals"
+			+ " -1.8 -g -preserveAllLocals"
 			+ " -proceedOnError -referenceInfo"
 			+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 			"",
@@ -9126,7 +8865,7 @@ public void test243_jar_ref_in_jar(){
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib5.jar\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -9149,7 +8888,7 @@ public void test244_jar_ref_in_jar(){
   "\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib4.jar\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-  + " -1.5 -g -preserveAllLocals"
+  + " -1.8 -g -preserveAllLocals"
   + " -proceedOnError -referenceInfo"
   + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
   "",
@@ -9172,7 +8911,7 @@ public void test245_jar_ref_in_jar(){
 	"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib8.jar\""
 			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-	+ " -1.5 -g -preserveAllLocals"
+	+ " -1.8 -g -preserveAllLocals"
 	+ " -proceedOnError -referenceInfo"
 	+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 	"",
@@ -9196,7 +8935,7 @@ public void test246_jar_ref_in_jar(){
 	"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib8.jar\""
 			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-	+ " -1.5 -g -preserveAllLocals"
+	+ " -1.8 -g -preserveAllLocals"
 	+ " -proceedOnError -referenceInfo"
 	+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 	"",
@@ -9219,7 +8958,7 @@ public void test247_jar_ref_in_jar(){
 	"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib8.jar\""
 			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-	+ " -1.5 -g -preserveAllLocals"
+	+ " -1.8 -g -preserveAllLocals"
 	+ " -proceedOnError -referenceInfo"
 	+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 	"",
@@ -9250,7 +8989,7 @@ public void test248_jar_ref_in_jar(){
 	"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib9.jar\""
 			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-	+ " -1.5 -g -preserveAllLocals"
+	+ " -1.8 -g -preserveAllLocals"
 	+ " -proceedOnError -referenceInfo"
 	+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 	"",
@@ -9275,7 +9014,7 @@ public void test249_jar_ref_in_jar(){
 	"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib9.jar\""
 			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-	+ " -1.5 -g -preserveAllLocals"
+	+ " -1.8 -g -preserveAllLocals"
 	+ " -proceedOnError -referenceInfo"
 	+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 	"",
@@ -9300,7 +9039,7 @@ public void test250_jar_ref_in_jar(){
 	  	+ " -bootclasspath " + getLibraryClassesAsQuotedString()
 	  	+ File.pathSeparator + "\"" + LIB_DIR + File.separator + "lib1.jar\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -9330,7 +9069,7 @@ public void test251_jar_ref_in_jar(){
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[~p/A]\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -9492,7 +9231,7 @@ public void test256_jar_ref_in_jar(){
 		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[~p/A]\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib1.jar[-p/A]\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -9524,7 +9263,7 @@ public void test257_jar_ref_in_jar(){
 		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[-DUMMY]\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib1.jar[-p/A]\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -9550,7 +9289,7 @@ public void test258_jar_ref_in_jar(){
 		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib1.jar[-p/A]\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -9572,7 +9311,7 @@ public void test259_jar_ref_in_jar(){
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -sourcepath \"" + LIB_DIR + File.separator + "lib1.jar\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -9595,7 +9334,7 @@ public void test260_jar_ref_in_jar(){
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -sourcepath \"" + LIB_DIR + File.separator + "lib1.jar\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -9625,7 +9364,7 @@ public void test261_jar_ref_in_jar(){
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 				+ " -cp \"" + LIB_DIR + File.separator + "lib10.jar\""
 				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -9659,7 +9398,7 @@ public void test262_jar_ref_in_jar(){
 					"Class-Path: lib2.jar\n",
 				},
 				lib1Path,
-				JavaCore.VERSION_1_4);
+				JavaCore.VERSION_1_8);
 			Util.createJar(
 				new String[] {
 					"p/A.java",
@@ -9669,7 +9408,7 @@ public void test262_jar_ref_in_jar(){
 				},
 				null,
 				lib2Path,
-				JavaCore.VERSION_1_4);
+				JavaCore.VERSION_1_8);
 			this.runConformTest(
 				new String[] {
 					"src/p/X.java",
@@ -9682,7 +9421,7 @@ public void test262_jar_ref_in_jar(){
 		        "\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 				+ " -cp lib1.jar" // relative
 				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		        + " -1.5 -g -preserveAllLocals"
+		        + " -1.8 -g -preserveAllLocals"
 		        + " -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		        "",
@@ -9716,7 +9455,7 @@ public void test263_jar_ref_in_jar(){
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -classpath \"" + LIB_DIR + File.separator + "lib11.jar\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -verbose -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		ONE_FILE_GENERATED_MATCHER,
@@ -9741,7 +9480,7 @@ public void test264_jar_ref_in_jar(){
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -classpath \"" + LIB_DIR + File.separator + "lib12.jar\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -9759,7 +9498,7 @@ public void test264_jar_ref_in_jar(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // missing space after ClassPath
 // javac reports an error (including an explicit manifest header error since
-// version 1.5); moreover, it stops interpreting the said header
+// version 1.4); moreover, it stops interpreting the said header
 // design: we report a warning and eat up the remainding of the line
 public void test265_jar_ref_in_jar(){
 	createCascadedJars();
@@ -9775,7 +9514,7 @@ public void test265_jar_ref_in_jar(){
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -classpath \"" + LIB_DIR + File.separator + "lib13.jar\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -9808,7 +9547,7 @@ public void test266_jar_ref_in_jar(){
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -classpath \"" + LIB_DIR + File.separator + "lib14.jar\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -9840,7 +9579,7 @@ public void test267_jar_ref_in_jar(){
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -classpath \"" + LIB_DIR + File.separator + "lib15.jar\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -9931,7 +9670,7 @@ public void test271_jar_ref_in_jar(){
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 				+ " -cp \"" + LIB_DIR + File.separator + "lib16.jar\""
 				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -10047,9 +9786,10 @@ public void test277_jar_ref_in_jar(){
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -proc:none"
 	  	+ " -extdirs \"" + LIB_DIR + File.separator + "dir\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -10079,7 +9819,7 @@ public void test278_jar_ref_in_jar(){
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 	  	+ " -endorseddirs \"" + LIB_DIR + File.separator + "dir\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -10264,7 +10004,7 @@ public void test285_option_files() {
 			"public @interface X {\n" +
 			"}",
 			"options.txt",
-			"-source 1.5"
+			"-source 1.8"
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\" " +
         "\"@" + OUTPUT_DIR +  File.separator + "options.txt\"",
@@ -10273,28 +10013,6 @@ public void test285_option_files() {
         true /*shouldFlushOutput*/);
 }
 
-// command-line expansion
-public void test286_option_files() {
-	runNegativeTest(
-		new String[] {
-			"X.java",
-			"public @interface X {\n" +
-			"}",
-			"options.txt",
-			"-source 1.4"
-		},
-        "\"" + OUTPUT_DIR +  File.separator + "X.java\" " +
-        "\"@" + OUTPUT_DIR +  File.separator + "options.txt\"",
-        "" /* expectedOutOutputString */,
-        "----------\n" + /* stderr */
-        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
-        "	public @interface X {\n" +
-        "	                  ^\n" +
-        "Syntax error, annotation declarations are only available if source level is 1.5 or greater\n" +
-        "----------\n" +
-        "1 problem (1 error)\n",
-        true /*shouldFlushOutput*/);
-}
 // command-line expansion
 // shows that we don't recurse
 public void test287_option_files() {
@@ -10413,7 +10131,7 @@ public void test292_warn_options() {
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -warn:allOver-ann -1.6 -proc:none -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:allOver-ann -1.8 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
@@ -10474,7 +10192,7 @@ public void test293_warn_options() {
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -warn:null,includeAssertNull -1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:null,includeAssertNull -1.8 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
@@ -10640,7 +10358,7 @@ public void test293(){
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[~p/A]\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo -err:+discouraged"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -10664,7 +10382,7 @@ public void test294(){
 		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
 		+ " -cp \"" + LIB_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo -err:+discouraged2"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -10682,7 +10400,7 @@ public void test296(){
 		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
 		+ " -cp \"" + LIB_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo -err:"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -10700,7 +10418,7 @@ public void test297(){
 		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
 		+ " -cp \"" + LIB_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo -err"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -10718,7 +10436,7 @@ public void test298(){
 			"}",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "X.java\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -err:+unused,suppress -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
@@ -10735,7 +10453,7 @@ public void test299(){
 			"}",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "X.java\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -err:+unused -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
@@ -10763,7 +10481,7 @@ public void test300(){
 			"}",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "X.java\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -warn:-suppress -err:+suppress,unused -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
@@ -10780,7 +10498,7 @@ public void test301(){
 			"}",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "X.java\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -warn:-suppress -err:+unused -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
@@ -10803,7 +10521,7 @@ public void test302(){
 			"}",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "X.java\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -warn:-suppress -err:+suppress,unused -warn:-suppress -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
@@ -10826,7 +10544,7 @@ public void test303(){
 			"}",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "X.java\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -warn:-suppress -err:+suppress,unused -warn:+suppress -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
@@ -10854,7 +10572,7 @@ public void test304(){
 			"}",
 		},
 		"\"" + OUTPUT_DIR + File.separator + "X.java\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -err:+suppress,unused -warn:-suppress -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
@@ -10874,7 +10592,7 @@ public void test305(){
 			"public class X {}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
-		+ " -encoding UTF-8 -1.5 -g -encoding ISO-8859-1",
+		+ " -encoding UTF-8 -1.8 -g -encoding ISO-8859-1",
 		"Found encoding ISO-8859-1. A different encoding was specified: UTF-8\n" +
 		"Multiple encoding specified: ISO-8859-1, UTF-8. The default encoding has been set to ISO-8859-1\n",
 		"",
@@ -10888,7 +10606,7 @@ public void test306(){
 			"public class X {}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
-		+ " -encoding UTF-8 -1.5 -encoding Cp1252 -g -encoding ISO-8859-1",
+		+ " -encoding UTF-8 -1.8 -encoding Cp1252 -g -encoding ISO-8859-1",
 		"Found encoding Cp1252. A different encoding was specified: UTF-8\n" +
 		"Found encoding ISO-8859-1. Different encodings were specified: Cp1252, UTF-8\n" +
 		"Multiple encoding specified: Cp1252, ISO-8859-1, UTF-8. The default encoding has been set to ISO-8859-1\n",
@@ -10912,7 +10630,7 @@ public void test0307(){
 				"public class Y { public class I {}; }",
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "Y.java\""
-	        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+	        + " -1.8 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 	        "",
 	        "",
 	        true);
@@ -10929,7 +10647,7 @@ public void test0307(){
 					"}",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+		        + " -1.8 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 		        "",// this is not the runtime output
 		        "no classpath defined, using default directory instead\n",
 		        false);
@@ -10965,7 +10683,7 @@ public void test0307a(){
 				"public class Y { public class I {}; }",
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "P" + File.separator + "Y.java\""
-	        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+	        + " -1.8 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 	        "",
 	        "",
 	        true);
@@ -10982,7 +10700,7 @@ public void test0307a(){
 					"}",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+		        + " -1.8 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 		        "",// this is not the runtime output
 		        "no classpath defined, using default directory instead\n" +
 		        "----------\n" +
@@ -11030,7 +10748,7 @@ public void test0307b(){
 				"public class y { public class I {}; }",
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "y.java\""
-	        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+	        + " -1.8 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 	        "",
 	        "",
 	        true);
@@ -11047,7 +10765,7 @@ public void test0307b(){
 					"}",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+		        + " -1.8 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 		        "",// this is not the runtime output
 		        "no classpath defined, using default directory instead\n" +
 		        "----------\n" +
@@ -11095,7 +10813,7 @@ public void test0307c(){
 				"public class Y { public class i {}; }",
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "Y.java\""
-	        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+	        + " -1.8 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 	        "",
 	        "",
 	        true);
@@ -11112,7 +10830,7 @@ public void test0307c(){
 					"}",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+		        + " -1.8 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 		        "",// this is not the runtime output
 		        "no classpath defined, using default directory instead\n" +
 		        "----------\n" +
@@ -11160,7 +10878,7 @@ public void test0307d(){
 				"public class Y { public class I {}; }",
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "Y.java\""
-	        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+	        + " -1.8 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 	        "",
 	        "",
 	        true);
@@ -11177,7 +10895,7 @@ public void test0307d(){
 					"}",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+		        + " -1.8 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 		        "",// this is not the runtime output
 		        "no classpath defined, using default directory instead\n" +
 		        "----------\n" +
@@ -11225,7 +10943,7 @@ public void test0307e(){
 				"public class Y { public class I {}; }",
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "P" + File.separator + "Y.java\""
-	        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+	        + " -1.8 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 	        "",
 	        "",
 	        true);
@@ -11242,7 +10960,7 @@ public void test0307e(){
 					"}",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+		        + " -1.8 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 		        "",// this is not the runtime output
 		        "no classpath defined, using default directory instead\n" +
 		        "----------\n" +
@@ -11274,7 +10992,7 @@ public void test0307e(){
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=328775 - Compiler fails to warn about invalid cast in 1.4 mode.
-public void testInferenceIn14Project(){
+public void testInferenceIn15Project(){  // ensure 1.8 complains too
 	String currentWorkingDirectoryPath = System.getProperty("user.dir");
 	if (currentWorkingDirectoryPath == null) {
 		fail("BatchCompilerTest#testInference14 could not access the current working directory " + currentWorkingDirectoryPath);
@@ -11294,7 +11012,7 @@ public void testInferenceIn14Project(){
 				},
 				null,
 				lib1Path,
-				JavaCore.VERSION_1_5);
+				JavaCore.VERSION_1_8);
 		this.runNegativeTest(
 				new String[] {
 						"src/X.java",
@@ -11306,58 +11024,7 @@ public void testInferenceIn14Project(){
 				"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
 				+ " -cp lib1.jar" // relative
 				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-				+ " -1.4 -g -preserveAllLocals"
-				+ " -proceedOnError -referenceInfo"
-				+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
-		        "",
-		        "----------\n" +
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 2)\n" +
-		        "	Bundle b = Bundle.adapt(BundleWiring.class);\n" +
-		        "	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		        "Type mismatch: cannot convert from Object to Bundle\n" +
-		        "----------\n" +
-		        "1 problem (1 error)\n",
-		        true);
-	} catch (IOException e) {
-		System.err.println("BatchCompilerTest#testInference14 could not write to current working directory " + currentWorkingDirectoryPath);
-	} finally {
-		new File(lib1Path).delete();
-	}
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328775 - Compiler fails to warn about invalid cast in 1.4 mode.
-public void testInferenceIn15Project(){  // ensure 1.5 complains too
-	String currentWorkingDirectoryPath = System.getProperty("user.dir");
-	if (currentWorkingDirectoryPath == null) {
-		fail("BatchCompilerTest#testInference14 could not access the current working directory " + currentWorkingDirectoryPath);
-	} else if (!new File(currentWorkingDirectoryPath).isDirectory()) {
-		fail("BatchCompilerTest#testInference14 current working directory is not a directory " + currentWorkingDirectoryPath);
-	}
-	String lib1Path = currentWorkingDirectoryPath + File.separator + "lib1.jar";
-	try {
-		Util.createJar(
-				new String[] {
-						"Bundle.java",
-						"public class Bundle {\n" +
-						"    static <A> A adapt(Class<A> type) {\n" +
-						"        return null;\n" +
-						"    }\n" +
-						"}"
-				},
-				null,
-				lib1Path,
-				JavaCore.VERSION_1_5);
-		this.runNegativeTest(
-				new String[] {
-						"src/X.java",
-						"public class X {\n" +
-						"    Bundle b = Bundle.adapt(BundleWiring.class);\n" +
-						"}\n" +
-						"class BundleWiring {}\n",
-				},
-				"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
-				+ " -cp lib1.jar" // relative
-				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-				+ " -1.5 -g -preserveAllLocals"
+				+ " -1.8 -g -preserveAllLocals"
 				+ " -proceedOnError -referenceInfo"
 				+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		        "",
@@ -11375,62 +11042,7 @@ public void testInferenceIn15Project(){  // ensure 1.5 complains too
 		new File(lib1Path).delete();
 	}
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=186565 Test interaction between 1.4 and 1.5 class files
-public void test186565(){
-	String outputDirName = OUTPUT_DIR + File.separator + "d",
-	  metaInfDirName = outputDirName + File.separator + "META-INF",
-	  jarFileName = outputDirName + File.separator + "classB15.jar";
-	this.runConformTest(
-		new String[] {
-			"d/B.java",
-			"public class B<T> extends A<T> {\n" +
-			"}",
-			"d/A.java",
-			"public class A<T> {\n" +
-			"}",
-			},
-	    "\"" + outputDirName + "\""
-	    + " -1.5 -g -preserveAllLocals"
-	    + " -d \"" + outputDirName + "\"",
-		"",
-		"",
-		true /* flush output directory */);
-	File outputDirectory = new File(outputDirName);
-	File metaInfDirectory = new File(metaInfDirName);
-	metaInfDirectory.mkdirs();
-	try {
-		Util.createFile(metaInfDirName + File.separator + "MANIFEST.MF",
-			"Manifest-Version: 1.0\n" +
-			"Class-Path: ../d/classB15.jar\n");
-	} catch (IOException e) {
-		fail("could not create manifest file");
-	}
-	Util.delete(outputDirName + File.separator + "A.class");
-	Util.delete(outputDirName + File.separator + "A.java");
-	try {
-		Util.zip(outputDirectory, jarFileName);
-	} catch (IOException e) {
-		fail("could not create jar file");
-	}
-	Util.delete(outputDirName + File.separator + "B.class");
-	Util.delete(outputDirName + File.separator + "B.java");
-	this.runConformTest(
-		new String[] {
-			"d/A.java",
-			"public class A {\n" +
-			"}",
-			"d/C.java",
-			"public class C extends B<String> {\n" +
-			"}",
-			},
-	    "\"" + outputDirName + "\""
-	    + " -1.5 -g -preserveAllLocals"
-	    + " -cp \"" + jarFileName + "\""
-	    + " -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"",
-		false /* do not flush output directory */);
-}
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=330347 - Test retention of bridge methods.
 public void testBridgeMethodRetention(){
 	String currentWorkingDirectoryPath = System.getProperty("user.dir");
@@ -11456,13 +11068,13 @@ public void testBridgeMethodRetention(){
 				},
 				null,
 				lib1Path,
-				JavaCore.VERSION_1_5);
+				JavaCore.VERSION_1_8);
 		this.runConformTest(
 				new String[] {
 						"src/X.java",
 						"public class X {\n" +
 						"    Object fValue;\n" +
-						"    public int compareTo(Object obj) {\n" +
+						"    public int compareTo(Character obj) {\n" +
 						"            return ((Character)fValue).compareTo(obj);\n" +
 						"    }\n" +
 						"}\n",
@@ -11470,7 +11082,7 @@ public void testBridgeMethodRetention(){
 				"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
 				+ " -cp lib1.jar" // relative
 				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-				+ " -1.4 -g -preserveAllLocals"
+				+ " -1.8 -g -preserveAllLocals"
 				+ " -proceedOnError -referenceInfo"
 				+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		        "",
@@ -11498,7 +11110,7 @@ public void testReportingUnavoidableGenericProblems() {
 			"}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.5 -warn:-unavoidableGenericProblems -proc:none -d \"" + OUTPUT_DIR + "\"",
+		+ " -1.8 -warn:-unavoidableGenericProblems -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
@@ -11530,7 +11142,7 @@ public void testReportingUnavoidableGenericProblems2() {
 			"}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.5 -warn:+unavoidableGenericProblems -proc:none -d \"" + OUTPUT_DIR + "\"",
+		+ " -1.8 -warn:+unavoidableGenericProblems -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
@@ -11567,7 +11179,7 @@ public void test0308_warn_options() {
 			"}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:-resource -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:-resource -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
 		true);
@@ -11589,7 +11201,7 @@ public void test0309_warn_options() {
 			"}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:+resource -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:+resource -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
@@ -11613,7 +11225,7 @@ public void test310_warn_options() {
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -warn:syncOverride -1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:syncOverride -1.8 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
@@ -11639,7 +11251,7 @@ public void test310b_warn_options() {
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -warn:syncOverride -1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:syncOverride -1.8 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
@@ -11701,7 +11313,7 @@ public void test312_warn_options() {
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 //		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -1.5"
+		+ " -1.8"
 		+ " -warn:+nullAnnot(p.Nullable|p.NonNull|p.NonNullByDefault) -warn:+null -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
@@ -11773,7 +11385,7 @@ public void test317_warn_options() {
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -1.5"
+		+ " -1.8"
 		+ " -warn:+enumSwitchPedantic -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
@@ -11805,7 +11417,7 @@ public void test318_warn_options() {
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 			+ " -sourcepath \"" + OUTPUT_DIR + "\""
-			+ " -1.5"
+			+ " -1.8"
 			+ " -err:+enumSwitchPedantic -proc:none -d \"" + OUTPUT_DIR + "\"",
 			"",
 			"----------\n" +
@@ -11838,7 +11450,7 @@ public void test319_warn_options() {
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -1.5"
+		+ " -1.8"
 		+ " -warn:+switchDefault -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
@@ -12212,7 +11824,7 @@ public void test330_warn_options() {
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -1.5"
+		+ " -1.8"
 		+ " -warn:-unlikelyCollectionMethodArgumentType -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
@@ -12232,7 +11844,7 @@ public void test331_warn_options() {
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -1.5"
+		+ " -1.8"
 		+ " -info:-unlikelyEqualsArgumentType -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
@@ -12254,7 +11866,7 @@ public void testBug375409a() {
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -1.5"
+		+ " -1.8"
 		+ " -warn:invalidJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
@@ -12291,7 +11903,7 @@ public void testBug375409b() {
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -1.5"
+		+ " -1.8"
 		+ " -warn:missingJavadocTags,missingJavadocTagsVisibility(public) -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
@@ -12318,7 +11930,7 @@ public void testBug375409c() {
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -1.5"
+		+ " -1.8"
 		+ " -warn:missingJavadocComments -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
@@ -12350,7 +11962,7 @@ public void testBug375409d() {
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -1.5"
+		+ " -1.8"
 		+ " -warn:missingJavadocTags,missingJavadocTagsVisibility(public) -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
@@ -12398,7 +12010,7 @@ public void testBug375409e() {
 				"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
-		+ " -1.5"
+		+ " -1.8"
 		+ " -warn:+nullAnnot(p.Nullable|p.NonNull|p.NonNullByDefault),+null,-nullAnnotConflict "
 		+ "-proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
@@ -12436,7 +12048,7 @@ public void testBug375409f() {
 				"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
-		+ " -1.5"
+		+ " -1.8"
 		+ " -warn:+nullAnnot(p.Nullable|p.NonNull|p.NonNullByDefault),+null,-nullAnnotRedundant "
 		+ "-proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
@@ -12483,7 +12095,7 @@ public void testBug375409g() {
 				"}"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
-		+ " -1.5"
+		+ " -1.8"
 		+ " -warn:+nullAnnot(p.Nullable|p.NonNull|p.NonNullByDefault) -warn:+null -warn:-nullUncheckedConversion "
 		+ "-proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
@@ -12515,7 +12127,7 @@ public void testBug375366a() throws IOException {
 			"}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "bugs" + File.separator + "warning" + File.separator + "ShowBug.java\""
-		+ " -1.5"
+		+ " -1.8"
 		+ " -properties " + OUTPUT_DIR + File.separator +".settings" + File.separator + "org.eclipse.jdt.core.prefs "
 		+ " -d \"" + OUTPUT_DIR + "\"",
 		"",
@@ -12548,7 +12160,7 @@ public void testBug375366b() throws IOException {
 			"}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "bugs" + File.separator + "warning" + File.separator + "ShowBug.java\""
-		+ " -1.5"
+		+ " -1.8"
 		+ " -properties " + OUTPUT_DIR + File.separator +".settings" + File.separator + "org.eclipse.jdt.core.prefs "
 		+ " -d \"" + OUTPUT_DIR + "\"",
 		"",
@@ -12589,7 +12201,7 @@ public void test385780_warn_option() {
 			"}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unusedTypeParameter -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:unusedTypeParameter -proc:none -1.8 -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
@@ -12632,7 +12244,7 @@ public void test405225_extdirs() {
 			"}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:-resource -1.7 -extdirs \"" + LIB_DIR + "\" -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:-resource -1.8 -extdirs \"" + LIB_DIR + "\" -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
 		true);
@@ -12659,7 +12271,7 @@ public void test408038a() {
 			"}",
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "externalizable" + File.separator + "warning" + File.separator + "X.java\""
-			+ " -1.6 -d none",
+			+ " -1.8 -d none",
 			"",
 			"----------\n" +
 			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 6)\n" +
@@ -12692,7 +12304,7 @@ public void test408038b() {
 			"}",
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "externalizable" + File.separator + "warning" + File.separator + "X.java\""
-			+ " -1.6 -d none",
+			+ " -1.8 -d none",
 			"",
 			"----------\n" +
 			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 6)\n" +
@@ -12738,7 +12350,7 @@ public void test408038c() {
 			"}",
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "externalizable" + File.separator + "warning" + File.separator + "X.java\""
-			+ " -1.6 -d none",
+			+ " -1.8 -d none",
 			"",
 			"",
 			true);
@@ -12778,7 +12390,7 @@ public void test408038d() {
 			"}",
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "externalizable" + File.separator + "warning" + File.separator + "X.java\""
-			+ " -1.6 -d none",
+			+ " -1.8 -d none",
 			"",
 			"----------\n" +
 			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 10)\n" +
@@ -12808,7 +12420,7 @@ public void test408038e() {
 			"}\n"
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "externalizable" + File.separator + "warning" + File.separator + "X.java\""
-			+ " -1.6 -d none",
+			+ " -1.8 -d none",
 			"",
 			"----------\n" +
 			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 4)\n" +
@@ -12899,7 +12511,7 @@ public void testBug419351() {
 				},
 				null,
 				lib1Path,
-				JavaCore.VERSION_1_5);
+				JavaCore.VERSION_1_8);
 		this.runConformTest(
 				new String[] {
 						"src/X.java",
@@ -12911,7 +12523,7 @@ public void testBug419351() {
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
 				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-				+ " -1.4 -nowarn"
+				+ " -1.8 -nowarn"
 				+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 				"",
 				"",
@@ -12968,7 +12580,7 @@ public void test439750() {
 			"}\n"
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "externalizable" + File.separator + "warning" + File.separator + "X.java\""
-			+ " -1.6 -warn:unused -warn:unusedExceptionParam -d none",
+			+ " -1.8 -warn:unused -warn:unusedExceptionParam -d none",
 			"",
 			"----------\n" +
 			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 14)\n" +
@@ -13032,7 +12644,7 @@ public void test496137a(){
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[~p/A]\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo -info:+discouraged"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -13056,7 +12668,7 @@ public void test496137b(){
 		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
 		+ " -cp \"" + LIB_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo -info:+discouraged2"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -13074,7 +12686,7 @@ public void test496137c(){
 		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
 		+ " -cp \"" + LIB_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo -info:"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -13092,7 +12704,7 @@ public void test496137d(){
 		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
 		+ " -cp \"" + LIB_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo -info"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -13123,7 +12735,7 @@ public void test496137e() throws IOException {
 			"}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "bugs" + File.separator + "warning" + File.separator + "ShowBug.java\""
-		+ " -1.5"
+		+ " -1.8"
 		+ " -properties " + OUTPUT_DIR + File.separator +".settings" + File.separator + "org.eclipse.jdt.core.prefs "
 		+ " -d \"" + OUTPUT_DIR + "\"",
 		"",
@@ -13152,7 +12764,7 @@ public void test496137f(){
 		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[~p/A]\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
+		+ " -1.8 -g -preserveAllLocals"
 		+ " -proceedOnError -referenceInfo -info:+discouraged -warn:none"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
@@ -13299,13 +12911,13 @@ public void testUnusedObjectAllocation() {
 }
 public void testBug573153() {
 	String output = MAIN.bind("configure.source", "10");
-	String template = "source level should be in '1.1'...'1.8','9'...'15' (or '5.0'..'15.0'): 10";
-	template = template.replace("15", CompilerOptions.getLatestVersion());
+	String template = "source level should be in '1.8','9'...'22' (or '8.0'..'22.0'): 10";
+	template = template.replace("22", CompilerOptions.getLatestVersion());
 	assertEquals("configure.source is not updated", template, output);
 
 	output = MAIN.bind("configure.targetJDK", "10");
-	template = "target level should be in '1.1'...'1.8','9'...'15' (or '5.0'..'15.0') or cldc1.1: 10";
-	template = template.replace("15", CompilerOptions.getLatestVersion());
+	template = "target level should be in '1.8','9'...'22' (or '8.0'..'22.0'): 10";
+	template = template.replace("22", CompilerOptions.getLatestVersion());
 	assertEquals("configure.source is not updated", template, output);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=413873
@@ -13327,7 +12939,7 @@ public void test413873() {
 			"}"
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "OuterClass.java\""
-			+ " -1.6 -warn:all-static-method -proc:none -d none",
+			+ " -1.8 -warn:all-static-method -proc:none -d none",
 			"",
 			"",
 			true);
@@ -13349,7 +12961,7 @@ public void testIssue89_1() {
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "X.java\" "
 				+ " -failOnWarning"
-				+ " -1.6 -warn:all-static-method -proc:none -d none",
+				+ " -1.8 -warn:all-static-method -proc:none -d none",
 				"",
 				"----------\n" +
 				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
@@ -13384,7 +12996,7 @@ public void testIssue89_2() {
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "X.java\" "
 				+ " -failOnWarning"
-				+ " -1.6 -warn:all-static-method -proc:none -d none",
+				+ " -1.8 -warn:all-static-method -proc:none -d none",
 				"",
 				"",
 				true);
@@ -13406,7 +13018,7 @@ public void testIssue89_3() {
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "X.java\" "
 				+ " -failOnWarning"
-				+ " -1.6 -warn:all-static-method -proc:none -d none",
+				+ " -1.8 -warn:all-static-method -proc:none -d none",
 				"",
 				"----------\n" +
 				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
@@ -13435,7 +13047,7 @@ public void testIssue89_4() {
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "X.java\" "
 				+ " -failOnWarning"
-				+ " -1.6 -warn:all-static-method -proc:none -d none",
+				+ " -1.8 -warn:all-static-method -proc:none -d none",
 				"",
 				"----------\n" +
 				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
@@ -13461,7 +13073,7 @@ public void testIssue89_5() {
 				},
 				"\"" + OUTPUT_DIR +  File.separator + "X.java\" "
 				+ " -failOnWarning"
-				+ " -1.6 -warn:all-static-method -proc:none -d none",
+				+ " -1.8 -warn:all-static-method -proc:none -d none",
 				"",
 				"----------\n" +
 				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
@@ -13545,7 +13157,7 @@ public void testGH2434(){
 				+ "}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
+        + " -1.8 -g -preserveAllLocals"
         + " -d \"" + OUTPUT_DIR + "\" -O -Xxxx -O -Jxyz -Xtyu -Jyu",
 		"",
         "",
