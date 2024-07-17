@@ -2711,7 +2711,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42839
 	 */
-	public void test0493() throws JavaModelException {
+	public void _2551_test0493() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0493", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(getJLS4(), sourceUnit, true);
@@ -2737,7 +2737,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42839
 	 */
-	public void test0494() throws JavaModelException {
+	public void _2551_test0494() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0494", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(getJLS4(), sourceUnit, true);
@@ -2767,7 +2767,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42839
 	 */
-	public void test0495() throws JavaModelException {
+	public void _2551_test0495() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0495", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(getJLS4(), sourceUnit, true);
@@ -2797,7 +2797,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42839
 	 */
-	public void test0496() throws JavaModelException {
+	public void _2551_test0496() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0496", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(getJLS4(), sourceUnit, true);
@@ -6359,7 +6359,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=89014
 	 */
-	public void test0606() throws JavaModelException {
+	public void _2551_test0606() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
 			String contents =
@@ -9535,7 +9535,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=196514
 	 */
-	public void test0683() throws JavaModelException {
+	public void _2551_test0683() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0683", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode node = runConversion(getJLS4(), sourceUnit, true, true);
 		assertTrue("Not a compilation unit", node.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
@@ -9678,7 +9678,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=207754
 	 */
-	public void test0687() throws JavaModelException {
+	public void _2551_test0687() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
 			String contents =

@@ -285,7 +285,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 	 * Bug 83804: [1.5][javadoc] Missing Javadoc node for package declaration
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83804"
 	 */
-	public void testBug83804() {
+	public void _2551_testBug83804() {
 		runNegativeTest(
 			new String[] {
 				"pack/package-info.java",

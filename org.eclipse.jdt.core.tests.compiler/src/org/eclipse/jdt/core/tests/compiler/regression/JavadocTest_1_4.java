@@ -143,7 +143,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"""
 		);
 	}
-	public void test021() {
+	public void _2551_test021() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -183,7 +183,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 				"----------\n"
 		);
 	}
-	public void test022() {
+	public void _2551_test022() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -319,7 +319,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 	 * Bug 83804: [1.5][javadoc] Missing Javadoc node for package declaration
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83804"
 	 */
-	public void testBug83804() {
+	public void _2551_testBug83804() {
 		runNegativeTest(
 			new String[] {
 				"pack/package-info.java",

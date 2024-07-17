@@ -15331,7 +15331,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84743 - variation in -source 1.4 mode but 1.5 compliance (ignore covariance)
-public void test0498(){
+public void _2551_test0498(){
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	runNegativeTest(
@@ -29213,7 +29213,7 @@ public void test0885() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=124943
-public void test0886() {
+public void _2551_test0886() {
 	Map customOptions= getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	runConformTest(

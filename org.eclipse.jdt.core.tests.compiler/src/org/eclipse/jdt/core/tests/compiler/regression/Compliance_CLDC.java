@@ -79,7 +79,7 @@ public void test001() {
 		},
 		"OK");
 }
-public void test002() throws Exception {
+public void _2551_test002() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",

@@ -511,7 +511,7 @@ public void testChangeClasspath2() throws CoreException {
  * Ensure that performing a concurrent job while indexing a jar doesn't use the old index.
  * (regression test for bug 35306 Index update request can be incorrectly handled)
  */
-public void testConcurrentJob() throws Exception {
+public void _2551_testConcurrentJob() throws Exception {
 	WaitingJob job = new WaitingJob();
 	final String library = "jclMin" + CompilerOptions.getFirstSupportedJavaVersion() + ".jar";
 	try {
