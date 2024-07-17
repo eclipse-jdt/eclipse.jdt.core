@@ -100,7 +100,7 @@ public class JavacProblemConverter {
 		String[] arguments = getDiagnosticStringArguments(diagnostic);
 		return new JavacProblem(
 				diagnostic.getSource().getName().toCharArray(),
-				diagnostic.getMessage(Locale.getDefault()),
+				convertDiagnosticMessage(diagnostic.getMessage(Locale.getDefault()), problemId, arguments),
 				diagnostic.getCode(),
 				problemId,
 				arguments,
@@ -111,6 +111,14 @@ public class JavacProblemConverter {
 				(int) diagnostic.getColumnNumber());
 	}
 
+	private String convertDiagnosticMessage(String original, int problemId, Object[] arguments) {
+		if( IProblem.NotVisibleType == problemId ) {
+			int lastDot = ((String)arguments[0]).lastIndexOf(".");
+			return "The type " + ((String)arguments[0]).substring(lastDot == -1 ? 0 : lastDot+1) + " is not visible";
+		}
+		return original;
+	}
+	
 	private org.eclipse.jface.text.Position getDiagnosticPosition(Diagnostic<? extends JavaFileObject> diagnostic, Context context, int problemId) {
 		if (diagnostic.getCode().contains(".dc") || "compiler.warn.proc.messager".equals(diagnostic.getCode())) { //javadoc
 			if (problemId == IProblem.JavadocMissingParamTag) {
