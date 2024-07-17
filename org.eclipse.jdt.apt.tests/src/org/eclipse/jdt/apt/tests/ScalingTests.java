@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
  *
@@ -61,7 +62,7 @@ public class ScalingTests extends APTTestBase {
 
 		// set up project with unique name
 		final String projName = ScalingTests.class.getName() + "LotsOfFilesProject"; //$NON-NLS-1$
-		IPath projectPath = env.addProject( projName, "1.5" ); //$NON-NLS-1$
+		IPath projectPath = env.addProject( projName, CompilerOptions.getFirstSupportedJavaVersion());
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 
 		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$

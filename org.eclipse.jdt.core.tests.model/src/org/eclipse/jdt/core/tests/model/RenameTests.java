@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class RenameTests extends CopyMoveTests {
 	ICompilationUnit cu;
@@ -166,7 +167,7 @@ public void setUp() throws Exception {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	IJavaProject project = this.createJavaProject("BinaryProject", new String[] {"src"}, new String[] {"JCL_LIB"}, "lib");
+	IJavaProject project = this.createJavaProject("BinaryProject", new String[] {"src"}, new String[] {"JCL18_LIB"}, "lib");
 	this.createFile(
 		"/BinaryProject/src/X.java",
 		"public class X {\n" +
@@ -430,7 +431,7 @@ public void testRenameEmptyPF() throws CoreException {
  */
 public void testRenameEnum() throws CoreException {
 	try {
-		createJavaProject("P15", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createJavaProject("P15", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 		createFile(
 			"/P15/En.java",
 			"public enum En {\n" +
@@ -461,7 +462,7 @@ public void testRenameEnum() throws CoreException {
  */
 public void testRenameEnum2() throws CoreException {
 	try {
-		createJavaProject("P15", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createJavaProject("P15", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 		createFile(
 			"/P15/En.java",
 			"public enum En {\n" +

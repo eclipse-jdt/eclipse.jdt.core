@@ -14,8 +14,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -23,7 +21,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.util.Util;
+
+import junit.framework.Test;
 
 public class CopyMoveResourcesTests extends CopyMoveTests {
 public CopyMoveResourcesTests(String name) {
@@ -211,7 +212,7 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 public void setUp() throws Exception {
 	super.setUp();
 
-	this.createJavaProject("P", new String[] {"src", "src2"}, new String[] { "JCL_LIB" }, "bin", "1.4");
+	this.createJavaProject("P", new String[] {"src", "src2"}, new String[] { "JCL18_LIB" }, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 }
 static {
 //	TESTS_NAMES = new String[] { "testCopyWorkingCopyDestination"};

@@ -28,6 +28,7 @@ import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.IFactoryPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class RegressionTests extends APTTestBase {
 
@@ -53,7 +54,7 @@ public class RegressionTests extends APTTestBase {
 	{
 		// set up project with unique name
 		final String projName = RegressionTests.class.getName() + "104032.Project"; //$NON-NLS-1$
-		IPath projectPath = env.addProject( projName, "1.5" ); //$NON-NLS-1$
+		IPath projectPath = env.addProject( projName, CompilerOptions.getFirstSupportedJavaVersion());
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 
 		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$
@@ -99,7 +100,7 @@ public class RegressionTests extends APTTestBase {
     public void testBugzilla106541() throws Exception
     {
         final String projName = RegressionTests.class.getName() + "104032.Project"; //$NON-NLS-1$
-        IPath projectPath = env.addProject( projName, "1.5" ); //$NON-NLS-1$
+        IPath projectPath = env.addProject( projName, CompilerOptions.getFirstSupportedJavaVersion());
         env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 
         env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$
@@ -131,7 +132,7 @@ public class RegressionTests extends APTTestBase {
     // doesn't work because of a jdt.core type system universe problem.
     public void testBugzilla120255() throws Exception{
     	final String projName = RegressionTests.class.getName() + "120255.Project"; //$NON-NLS-1$
-		IPath projectPath = env.addProject( projName, "1.5" ); //$NON-NLS-1$
+		IPath projectPath = env.addProject( projName, CompilerOptions.getFirstSupportedJavaVersion());
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 
 		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$
@@ -175,7 +176,7 @@ public class RegressionTests extends APTTestBase {
      */
     public void testBugzilla206591A() throws Exception {
     	final String projName = RegressionTests.class.getName() + "206591.Project"; //$NON-NLS-1$
-		IPath projectPath = env.addProject( projName, "1.5" ); //$NON-NLS-1$
+		IPath projectPath = env.addProject( projName, CompilerOptions.getFirstSupportedJavaVersion());
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 
 		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$
@@ -244,7 +245,7 @@ public class RegressionTests extends APTTestBase {
      */
     public void testBugzilla206591B() throws Exception {
     	final String projName = RegressionTests.class.getName() + "206591.Project"; //$NON-NLS-1$
-		IPath projectPath = env.addProject( projName, "1.5" ); //$NON-NLS-1$
+		IPath projectPath = env.addProject( projName, CompilerOptions.getFirstSupportedJavaVersion());
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 
 		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$
@@ -298,7 +299,7 @@ public class RegressionTests extends APTTestBase {
 	public void testBugzilla423254() throws Exception {
 		final String projName = RegressionTests.class.getName()
 				+ "423254.Project"; //$NON-NLS-1$
-		IPath projectPath = env.addProject(projName, "1.5"); //$NON-NLS-1$
+		IPath projectPath = env.addProject(projName, CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$

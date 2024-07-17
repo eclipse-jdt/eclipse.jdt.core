@@ -71,18 +71,8 @@ public static Test buildUniqueComplianceTestSuite(Class<?> evaluationTestClass, 
 			complianceString = "10";
 		else if (highestLevel == ClassFileConstants.JDK9)
 			complianceString = "9";
-		else if (highestLevel == ClassFileConstants.JDK1_8)
-			complianceString = "1.8";
-		else if (highestLevel == ClassFileConstants.JDK1_7)
-			complianceString = "1.7";
-		else if (highestLevel == ClassFileConstants.JDK1_6)
-			complianceString = "1.6";
-		else if (highestLevel == ClassFileConstants.JDK1_5)
-			complianceString = "1.5";
-		else if (highestLevel == ClassFileConstants.JDK1_4)
-			complianceString = "1.4";
-		else if (highestLevel == ClassFileConstants.JDK1_3)
-			complianceString = "1.3";
+		else if (highestLevel <= CompilerOptions.getFirstSupportedJdkLevel())
+			complianceString = CompilerOptions.getFirstSupportedJavaVersion();
 		else {
 			highestLevel = ClassFileConstants.getLatestJDKLevel();
 			if (highestLevel > 0) {

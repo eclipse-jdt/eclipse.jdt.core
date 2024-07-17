@@ -18,6 +18,7 @@ import junit.framework.Test;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class WorkingCopyNotInClasspathTests extends ModifyingResourceTests {
@@ -90,7 +91,7 @@ public void testCommitWorkingCopy1() throws CoreException {
 public void testCommitWorkingCopy2() throws CoreException {
 	ICompilationUnit copy = null;
 	try {
-		createJavaProject( "P2", new String[] {"src"}, null, null, null, "bin", null, null, new String[][] {new String[] {"p1/"}}, "1.4");
+		createJavaProject( "P2", new String[] {"src"}, null, null, null, "bin", null, null, new String[][] {new String[] {"p1/"}}, CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/P2/src/p1/p2");
 		createFile("/P2/src/p1/p2/X.java", "");
 		copy = getCompilationUnit("P2", "src", "p1.p2", "X.java").getWorkingCopy(null);

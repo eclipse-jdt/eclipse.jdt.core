@@ -326,7 +326,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 				else
 					classpath[i] = JavaCore.newSourceEntry(new Path("/P/src" + i));
 			}
-			classpath[rootSize] = JavaCore.newVariableEntry(new Path("JCL_LIB"), null, null);
+			classpath[rootSize] = JavaCore.newVariableEntry(new Path("JCL18_LIB"), null, null);
 			project.setRawClasspath(classpath, new Path("/P/bin"), null);
 
 			// Open all roots

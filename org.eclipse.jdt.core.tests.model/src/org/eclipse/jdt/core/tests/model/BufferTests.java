@@ -112,7 +112,7 @@ public void testAppend() throws CoreException {
 public void testAppendReadOnly() throws CoreException {
 	IBuffer buffer = null;
 	try {
-		createJavaProject("P1", new String[] {}, new String[] {"JCL_LIB,JCL_SRC,JCL_SRCROOT"}, "");
+		createJavaProject("P1", new String[] {}, new String[] {"JCL18_LIB,JCL18_SRC,JCL_SRCROOT"}, "");
 		IClassFile classFile = getClassFile("P1", getExternalJCLPathString(), "java.lang", "String.class");
 		buffer = classFile.getBuffer();
 		buffer.addBufferChangedListener(this);
@@ -123,7 +123,8 @@ public void testAppendReadOnly() throws CoreException {
 			"unexpected buffer contents",
 			"package java.lang;\n" +
 			"\n" +
-			"public class String {\n" +
+			"public class String implements Comparable<String>, CharSequence {\n" +
+			"	public int length() { return 0; }\n" +
 			"}\n",
 			buffer.getContents()
 		);

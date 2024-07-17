@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="var" path="JCL15_LIB"/>
+	<classpathentry kind="var" path="JCL18_LIB"/>
 	<classpathentry kind="lib" path="lib/test6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

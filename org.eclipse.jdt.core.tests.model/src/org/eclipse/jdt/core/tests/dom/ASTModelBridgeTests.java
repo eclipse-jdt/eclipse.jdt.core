@@ -79,6 +79,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.Member;
 
 import junit.framework.Test;
@@ -187,7 +188,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 
 	private void setUpJavaProject() throws CoreException, IOException, JavaModelException {
-		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB,JCL15_SRC", "/P/lib"}, "bin", "1.5");
+		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB,JCL18_SRC", "/P/lib"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 		project.setOption(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
 		project.setOption(JavaCore.COMPILER_PB_FIELD_HIDING, JavaCore.IGNORE);
@@ -242,7 +243,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"@interface MyAnnot {\n" +
 				"}",
 			},
-			"1.5");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		setUpWorkingCopy();
 	}
 
@@ -668,7 +669,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IJavaElement element = binding.getJavaElement();
 		assertElementExists(
 			"Unexpected Java element",
-			"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
+			"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]",
 			element
 		);
 	}
@@ -698,7 +699,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * (regression test for bug 91445 IMethodBinding.getJavaElement() returns an "unopen" IMethod)
 	 */
 	public void testBinaryMethod() throws JavaModelException {
-		IOrdinaryClassFile classFile = getClassFile("P", getExternalJCLPathString("1.5"), "java.lang", "Enum.class");
+		IOrdinaryClassFile classFile = getClassFile("P", getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()), "java.lang", "Enum.class");
 		String source = classFile.getSource();
 		MarkerInfo markerInfo = new MarkerInfo(source);
 		markerInfo.astStarts = new int[] {source.indexOf("protected Enum")};
@@ -708,7 +709,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IJavaElement element = binding.getJavaElement();
 		assertElementExists(
 			"Unexpected Java element",
-			"Enum(java.lang.String, int) [in Enum [in Enum.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]]",
+			"Enum(java.lang.String, int) [in Enum [in Enum.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]]",
 			element
 		);
 	}
@@ -733,7 +734,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * Ensures that the IJavaElement of an IBinding representing a type coming from a class file is correct.
 	 */
 	public void testBinaryType() throws JavaModelException {
-		IOrdinaryClassFile classFile = getClassFile("P", getExternalJCLPathString("1.5"), "java.lang", "String.class");
+		IOrdinaryClassFile classFile = getClassFile("P", getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()), "java.lang", "String.class");
 		String source = classFile.getSource();
 		MarkerInfo markerInfo = new MarkerInfo(source);
 		markerInfo.astStarts = new int[] {source.indexOf("public")};
@@ -743,7 +744,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IJavaElement element = binding.getJavaElement();
 		assertElementExists(
 			"Unexpected Java element",
-			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
+			"String [in String.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]",
 			element
 		);
 	}
@@ -801,7 +802,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		try {
 			tearDownJavaProject();
 
-			createJavaProject("P1", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+			createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile(
 				"/P1/X.java",
 				"public class X {\n" +
@@ -813,7 +814,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			IJavaElement element = binding.getJavaElement();
 			assertElementExists(
 				"Unexpected Java element",
-				"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
+				"String [in String.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]",
 				element
 			);
 		} finally {
@@ -891,7 +892,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IType typeX = this.workingCopies[0].getType("X");
 		IJavaElement[] elements = new IJavaElement[] {
 			typeX,
-			getClassFile("P", getExternalJCLPathString("1.5"), "java.lang", "Object.class").getType(),
+			getClassFile("P", getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()), "java.lang", "Object.class").getType(),
 			typeX.getMethod("foo", new String[] {"I", "QString;"}),
 			this.workingCopies[2].getType("I").getField("BAR"),
 			this.workingCopies[1].getType("Y").getMethod("bar", new String[0]).getType("", 1)
@@ -1673,7 +1674,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		assertFindElement(
 			bindingKey,
-			"java.lang [in "+ getExternalJCLPathString("1.5") + "]"
+			"java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]"
 		);
 	}
 
@@ -2407,7 +2408,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IJavaElement element = binding.getJavaElement();
 		assertElementExists(
 			"Unexpected Java element",
-			"java.lang [in "+ getExternalJCLPathString("1.5") + "]",
+			"java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]",
 			element
 		);
 	}
@@ -2445,7 +2446,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IJavaElement element = binding.getJavaElement();
 		assertElementExists(
 			"Unexpected Java element",
-			"Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
+			"Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]",
 			element
 		);
 	}
@@ -2485,7 +2486,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IJavaElement element = binding.getJavaElement();
 		assertElementExists(
 			"Unexpected Java element",
-			"Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
+			"Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]",
 			element
 		);
 	}
@@ -2496,14 +2497,14 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testRecoveredTypeBinding1() throws Exception {
 		try {
-			IJavaProject p = createJavaProject("P15", new String[] {""}, new String[] {"JCL15_LIB", "/P15/util.jar"}, "", "1.5");
+			IJavaProject p = createJavaProject("P15", new String[] {""}, new String[] {"JCL18_LIB", "/P15/util.jar"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 				"java/util/List.java",
 				"package java.util;\n" +
 				"public class List<T> {\n" +
 				"}"
 			}, p.getProject().getLocation() + File.separator + "util.jar",
-			"1.5");
+			CompilerOptions.getFirstSupportedJavaVersion());
 			p.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 			createFile("/P15/X.java", "");
 			ASTNode node = buildAST(
@@ -2531,7 +2532,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testRecoveredTypeBinding2() throws Exception {
 		try {
-			createJavaProject("P15", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+			createJavaProject("P15", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile("/P15/X.java", "");
 			ASTNode node = buildAST(
 				"public class X {\n" +
@@ -2610,7 +2611,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IJavaElement element = binding.getJavaElement();
 		assertElementExists(
 			"Unexpected Java element",
-			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
+			"String [in String.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]",
 			element
 		);
 	}

@@ -4482,7 +4482,7 @@ public void testBug435480_0002() throws CoreException {
 public void testBug454401() throws CoreException, JavaModelException {
 	try {
 		createJavaProject("P", new String[] { "src" },
-				new String[] {"JCL_LIB"}, "bin");
+				new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/P/src/com/test");
 		createFile("/P/src/com/test/X.java",
 				"package com.test;\n" +

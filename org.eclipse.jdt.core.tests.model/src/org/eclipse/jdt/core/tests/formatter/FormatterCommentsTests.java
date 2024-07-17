@@ -23,9 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.ComparisonFailure;
-import junit.framework.Test;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -45,6 +42,9 @@ import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.core.util.SimpleDocument;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
+
+import junit.framework.ComparisonFailure;
+import junit.framework.Test;
 
 /**
  * Javadoc formatter test suite using the Eclipse default settings.
@@ -78,7 +78,7 @@ public FormatterCommentsTests(String name) {
 @Override
 public void setUpSuite() throws Exception {
 	if (JAVA_PROJECT == null) {
-		JAVA_PROJECT = setUpJavaProject("FormatterJavadoc", "1.5"); //$NON-NLS-1$
+		JAVA_PROJECT = setUpJavaProject("FormatterJavadoc", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 	}
 	super.setUpSuite();
 }

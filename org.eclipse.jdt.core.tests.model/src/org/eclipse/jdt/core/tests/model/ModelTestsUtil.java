@@ -442,22 +442,6 @@ static public void setUpJCLClasspathVariables(String compliance) throws JavaMode
 				new IPath[] {getExternalJCLPath(compliance), getExternalJCLSourcePath(compliance), getExternalJCLRootSourcePath()},
 				null);
 		}
-	} else if ("1.7".equals(compliance)) {
-		if (JavaCore.getClasspathVariable("JCL17_LIB") == null) {
-			setupExternalJCL("jclMin1.7");
-			JavaCore.setClasspathVariables(
-				new String[] {"JCL17_LIB", "JCL17_SRC", "JCL_SRCROOT"},
-				new IPath[] {getExternalJCLPath(compliance), getExternalJCLSourcePath(compliance), getExternalJCLRootSourcePath()},
-				null);
-		}
-	} else if ("1.5".equals(compliance)) {
-		if (JavaCore.getClasspathVariable("JCL15_LIB") == null) {
-			setupExternalJCL("jclMin1.5");
-			JavaCore.setClasspathVariables(
-				new String[] {"JCL15_LIB", "JCL15_SRC", "JCL_SRCROOT"},
-				new IPath[] {getExternalJCLPath(compliance), getExternalJCLSourcePath(compliance), getExternalJCLRootSourcePath()},
-				null);
-		}
 	} else {
 		if (JavaCore.getClasspathVariable("JCL_LIB") == null) {
 			setupExternalJCL("jclMin");

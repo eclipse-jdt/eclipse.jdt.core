@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 
 import junit.framework.Test;
@@ -53,7 +54,7 @@ public static Test suite() {
 @Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {"JCL15_LIB", "/P/lib"}, "", JavaCore.VERSION_9);
+	IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {"JCL18_LIB", "/P/lib"}, "", JavaCore.VERSION_9);
 	String[] pathAndContents = new String[] {
 		"nongeneric/A.java",
 		"package nongeneric;\n" +
@@ -227,7 +228,7 @@ public void setUpSuite() throws Exception {
 		"@Retention(CLASS)\n" +
 		"@interface Annot {}",
 	};
-	addLibrary(javaProject, "lib.jar", "libsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
+	addLibrary(javaProject, "lib.jar", "libsrc.zip", pathAndContents, CompilerOptions.getFirstSupportedJavaVersion());
 	this.jarRoot = javaProject.getPackageFragmentRoot(getFile("/P/lib.jar"));
 }
 
@@ -250,7 +251,7 @@ protected void tearDown() throws Exception {
 
 private IOrdinaryClassFile createClassFile(String contents) throws CoreException, IOException {
 	IJavaProject project = getJavaProject("P");
-	addLibrary(project, "lib2.jar", "src2.zip", new String[] {"p/X.java", contents}, "1.5");
+	addLibrary(project, "lib2.jar", "src2.zip", new String[] {"p/X.java", contents}, CompilerOptions.getFirstSupportedJavaVersion());
 	this.classFile =  project.getPackageFragmentRoot(getFile("/P/lib2.jar")).getPackageFragment("p").getOrdinaryClassFile("X.class");
 	return this.classFile;
 }
@@ -900,7 +901,7 @@ public void testDefaultValue3() throws JavaModelException {
  * Ensures that the default value for an regular method is correct.
  */
 public void testDefaultValue4() throws JavaModelException {
-	IType type = getPackageFragmentRoot("P", getExternalJCLPathString(JavaCore.VERSION_1_5)).getPackageFragment("java.lang").getOrdinaryClassFile("Object.class").getType();
+	IType type = getPackageFragmentRoot("P", getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion())).getPackageFragment("java.lang").getOrdinaryClassFile("Object.class").getType();
 	IMethod method = type.getMethod("toString", new String[0]);
 	assertMemberValuePairEquals(
 		"<null>",
@@ -1605,7 +1606,7 @@ public void testGenericFieldGetTypeSignature() throws JavaModelException {
 							+ "		public Bar(int a, int b) {}\n" + "	}\n"
 							+ "}\n" };
 			addLibrary(project, "lib316937.jar", "src316937.zip",
-					pathAndContents, JavaCore.VERSION_1_5);
+					pathAndContents, CompilerOptions.getFirstSupportedJavaVersion());
 			IPackageFragmentRoot packageFragRoot = project
 					.getPackageFragmentRoot(getFile("/P/lib316937.jar"));
 

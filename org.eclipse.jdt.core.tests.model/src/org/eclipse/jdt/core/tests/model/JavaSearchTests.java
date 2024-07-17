@@ -54,6 +54,7 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 
@@ -100,7 +101,7 @@ public void setUpSuite() throws Exception {
 
 	if (JAVA_PROJECT == null) {
 		JAVA_PROJECT = setUpJavaProject("JavaSearch");
-		setUpJavaProject("JavaSearch15", "1.5");
+		setUpJavaProject("JavaSearch15", CompilerOptions.getFirstSupportedJavaVersion());
 	}
 }
 @Override
@@ -546,7 +547,7 @@ public void testDeclarationOfReferencedTypes09() throws CoreException {
 	);
 	assertSearchResults(
 		"Starting search...\n" +
-		getExternalJCLPathString("1.5") + " java.lang.Object\n" +
+		getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + " java.lang.Object\n" +
 		"Done searching.",
 		result);
 }
@@ -903,7 +904,7 @@ public void testFieldReference05() throws CoreException {
 	// Set 1.4 compliance level (no constant yet)
 	Hashtable options = JavaCore.getOptions();
 	String currentOption = (String)options.get("org.eclipse.jdt.core.compiler.compliance");
-	options.put("org.eclipse.jdt.core.compiler.compliance", "1.4");
+	options.put("org.eclipse.jdt.core.compiler.compliance", CompilerOptions.getFirstSupportedJavaVersion());
 	JavaCore.setOptions(options);
 
 	try {
@@ -1987,6 +1988,9 @@ public void testPackageDeclarationBug183062b() throws CoreException {
 		""+ getExternalJCLPathString() + " java\n" +
 		""+ getExternalJCLPathString() + " java.io\n" +
 		""+ getExternalJCLPathString() + " java.lang\n" +
+		""+ getExternalJCLPathString() + " java.lang.annotation\n" +
+		""+ getExternalJCLPathString() + " java.lang.invoke\n" +
+		""+ getExternalJCLPathString() + " java.util\n" +
 		"src/j1 j1\n" +
 		"src/j2 j2\n" +
 		"src/j3 j3\n" +
@@ -2033,7 +2037,8 @@ public void testPackageDeclarationBug183062e() throws CoreException {
 		getJavaSearchScope(),
 		packageCollector);
 	assertSearchResults(
-		""+ getExternalJCLPathString() + " java.lang",
+		""+ getExternalJCLPathString() + " java.lang\n" +
+		""+ getExternalJCLPathString() + " java.util",
 		packageCollector);
 }
 /**
@@ -4180,7 +4185,9 @@ public void testCamelCaseTypePattern01_CamelCase() throws CoreException {
 	search("RE", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/a3/References.java a3.References [References]\n" +
-		""+ getExternalJCLPathString() + " java.lang.RuntimeException"
+		""+ getExternalJCLPathString() + " java.lang.RuntimeException\n" +
+		""+ getExternalJCLPathString() + " java.lang.annotation.Retention\n" +
+		""+ getExternalJCLPathString() + " java.lang.annotation.RetentionPolicy"
 	);
 }
 public void testCamelCaseTypePattern02_CamelCase() throws CoreException {
@@ -4205,7 +4212,9 @@ public void testCamelCaseTypePattern05_CamelCase() throws CoreException {
 	search("R*E*", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/a3/References.java a3.References [References]\n" +
-		""+ getExternalJCLPathString() + " java.lang.RuntimeException"
+		""+ getExternalJCLPathString() + " java.lang.RuntimeException\n" +
+		""+ getExternalJCLPathString() + " java.lang.annotation.Retention\n" +
+		""+ getExternalJCLPathString() + " java.lang.annotation.RetentionPolicy"
 	);
 }
 public void testCamelCaseTypePattern06_CamelCase() throws CoreException {
@@ -4357,7 +4366,9 @@ public void testCamelCaseTypePattern05_CamelCaseSamePartCount() throws CoreExcep
 	search("R*E*", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
 		"src/a3/References.java a3.References [References]\n" +
-		""+ getExternalJCLPathString() + " java.lang.RuntimeException"
+		""+ getExternalJCLPathString() + " java.lang.RuntimeException\n" +
+		""+ getExternalJCLPathString() + " java.lang.annotation.Retention\n" +
+		""+ getExternalJCLPathString() + " java.lang.annotation.RetentionPolicy"
 	);
 }
 public void testCamelCaseTypePattern06_CamelCaseSamePartCount() throws CoreException {

@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -265,7 +266,7 @@ public void testFindPackageFragmentWithWorkingCopy() throws CoreException {
  */
 public void testFindPackageFragment2() throws CoreException {
 	try {
-		JavaProject project = (JavaProject)createJavaProject("P", new String[0], new String[] {"JCL_LIB"}, "bin");
+		JavaProject project = (JavaProject)createJavaProject("P", new String[0], new String[] {"JCL18_LIB"}, "bin");
 		NameLookup nameLookup =getNameLookup(project);
 		IPath pathToSearch = new Path(getExternalJCLPathString() + 'a');
 		IPackageFragment pkg = nameLookup.findPackageFragment(pathToSearch);
@@ -296,7 +297,7 @@ public void testFindBinaryTypeWithDollarName() throws CoreException, IOException
 				"  }\n" +
 				"}"
 			},
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		IType type = getNameLookup((JavaProject) project).findType("p.X$$1", false, NameLookup.ACCEPT_ALL);
 		assertTypesEqual(
 			"Unexpected type",
@@ -377,7 +378,7 @@ public void testTransitionFromInvalidToValidJar() throws CoreException, IOExcept
 					"Manifest-Version: 1.0\n"
 				},
 				transitioningJar,
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 
 		// Set up the project with the invalid jar and allow all of the classpath validation
 		// and delta processing to complete.

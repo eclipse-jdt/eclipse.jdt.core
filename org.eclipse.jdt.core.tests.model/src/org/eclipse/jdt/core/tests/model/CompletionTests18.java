@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
@@ -43,9 +44,9 @@ public CompletionTests18(String name) {
 @Override
 public void setUpSuite() throws Exception {
 	if (COMPLETION_PROJECT == null)  {
-		COMPLETION_PROJECT = setUpJavaProject("Completion", "1.8", true);
+		COMPLETION_PROJECT = setUpJavaProject("Completion", CompilerOptions.getFirstSupportedJavaVersion(), true);
 	} else {
-		setUpProjectCompliance(COMPLETION_PROJECT, "1.8", true);
+		setUpProjectCompliance(COMPLETION_PROJECT, CompilerOptions.getFirstSupportedJavaVersion(), true);
 	}
 	super.setUpSuite();
 }
