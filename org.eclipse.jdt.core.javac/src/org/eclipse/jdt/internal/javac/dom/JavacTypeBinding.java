@@ -23,6 +23,7 @@ import javax.lang.model.type.TypeKind;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -139,6 +140,14 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return (IType) this.getElementType().getJavaElement();
 		}
 		if (this.typeSymbol instanceof final ClassSymbol classSymbol) {
+			if (isAnonymous()) {
+				if (getDeclaringMethod() != null && getDeclaringMethod().getJavaElement() instanceof IMethod method) {
+					// TODO find proper occurenceCount (eg checking the source range)
+					return method.getType("", 1);
+				} else if (getDeclaringClass() != null && getDeclaringClass().getJavaElement() instanceof IType type) {
+					return type.getType("", 1);
+				}
+			}
 			try {
 				return this.resolver.javaProject.findType(cleanedUpName(classSymbol), new NullProgressMonitor());
 			} catch (JavaModelException ex) {
@@ -150,10 +159,11 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	private static String cleanedUpName(ClassSymbol classSymbol) {
 		if (classSymbol.isInner()) {
-			ClassSymbol enclosing = (ClassSymbol)classSymbol.getEnclosingElement();
-			String fullClassName = classSymbol.className();
-			String lastSegment = fullClassName.substring(fullClassName.lastIndexOf('.') + 1);
-			return cleanedUpName(enclosing) + "$" + lastSegment;
+			if (classSymbol.getEnclosingElement() instanceof ClassSymbol enclosing) {
+				String fullClassName = classSymbol.className();
+				String lastSegment = fullClassName.substring(fullClassName.lastIndexOf('.') + 1);
+				return cleanedUpName(enclosing) + "$" + lastSegment;
+			}
 		}
 		return classSymbol.className();
 	}
