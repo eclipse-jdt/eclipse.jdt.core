@@ -993,12 +993,9 @@ class JavacConverter {
 		int fragmentEnd = javac.getEndPosition(this.javacCompilationUnit.endPositions);
 		int fragmentStart = javac.pos;
 		int fragmentLength = fragmentEnd - fragmentStart; // ????  - 1;
-		char c = this.rawText.charAt(fragmentEnd-1);
-		if( c == ';' || c == ',') {
-			fragmentLength--;
-		}
 		fragment.setSourceRange(fragmentStart, Math.max(0, fragmentLength));
-
+		removeTrailingCharFromRange(fragment, new char[] {';', ','});
+		
 		if (convertName(javac.getName()) instanceof SimpleName simpleName) {
 			fragment.setName(simpleName);
 		}
@@ -1905,11 +1902,7 @@ class JavacConverter {
 	private SuperConstructorInvocation convertSuperConstructorInvocation(JCMethodInvocation javac) {
 		SuperConstructorInvocation res = this.ast.newSuperConstructorInvocation();
 		commonSettings(res, javac);
-		int end = res.getStartPosition() + res.getLength();
-		if( end < this.rawText.length() && this.rawText.charAt(end-1) != ';' && this.rawText.charAt(end) == ';') {
-			// jdt expects semicolon to be part of the range
-			res.setSourceRange(res.getStartPosition(), res.getLength() + 1);
-		}
+		ensureTrailingSemicolonInRange(res);
 		javac.getArguments().stream().map(this::convertExpression).forEach(res.arguments()::add);
 
 		//res.setFlags(javac.getFlags() | ASTNode.MALFORMED);
@@ -2111,6 +2104,7 @@ class JavacConverter {
 			}
 			VariableDeclarationStatement res = this.ast.newVariableDeclarationStatement(fragment);
 			commonSettings(res, javac);
+			
 			if (jcVariableDecl.vartype != null) {
 				if( jcVariableDecl.vartype instanceof JCArrayTypeTree jcatt) {
 					int extraDims = 0;
@@ -2481,6 +2475,7 @@ class JavacConverter {
 			}
 			VariableDeclarationExpression res = this.ast.newVariableDeclarationExpression(fragment);
 			commonSettings(res, javac);
+			removeTrailingSemicolonFromRange(res);
 			res.setType(convertToType(decl.getType()));
 			if( this.ast.apiLevel > AST.JLS2_INTERNAL) {
 				res.modifiers().addAll(convert(decl.getModifiers(), res));
@@ -2498,6 +2493,31 @@ class JavacConverter {
 		return null;
 	}
 
+	private void removeTrailingSemicolonFromRange(ASTNode res) {
+		removeTrailingCharFromRange(res, new char[] {';'});
+	}
+	private void ensureTrailingSemicolonInRange(ASTNode res) {
+		int end = res.getStartPosition() + res.getLength();
+		if( end < this.rawText.length() && this.rawText.charAt(end-1) != ';' && this.rawText.charAt(end) == ';') {
+			// jdt expects semicolon to be part of the range
+			res.setSourceRange(res.getStartPosition(), res.getLength() + 1);
+		}
+	}
+	
+	private void removeTrailingCharFromRange(ASTNode res, char[] possible) {
+		int endPos = res.getStartPosition() + res.getLength();
+		char lastChar = this.rawText.charAt(endPos-1);
+		boolean found = false;
+		for( int i = 0; i < possible.length; i++ ) {
+			if( lastChar == possible[i]) {
+				found = true;
+			}
+		}
+		if( found ) {
+			res.setSourceRange(res.getStartPosition(), res.getLength() - 1);
+		}
+	}
+	
 	private CatchClause convertCatcher(JCCatch javac) {
 		CatchClause res = this.ast.newCatchClause();
 		commonSettings(res, javac);
