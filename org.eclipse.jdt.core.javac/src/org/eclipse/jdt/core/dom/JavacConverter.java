@@ -2099,6 +2099,7 @@ class JavacConverter {
 					fd.fragments().add(fragment);
 					int newParentEnd = fragment.getStartPosition() + fragment.getLength();
 					fd.setSourceRange(fd.getStartPosition(), newParentEnd - fd.getStartPosition() + 1);
+					removeTrailingSemicolonFromRange(fd);
 				}
 				return null;
 			}
