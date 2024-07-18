@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.javac.dom.JavacAnnotationBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacErrorMethodBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacLambdaBinding;
@@ -231,12 +232,14 @@ public class JavacBindingResolver extends BindingResolver {
 
 	}
 	public final Bindings bindings = new Bindings();
+	private WorkingCopyOwner owner;
 
-	public JavacBindingResolver(IJavaProject javaProject, JavacTask javacTask, Context context, JavacConverter converter) {
+	public JavacBindingResolver(IJavaProject javaProject, JavacTask javacTask, Context context, JavacConverter converter, WorkingCopyOwner owner) {
 		this.javac = javacTask;
 		this.context = context;
 		this.javaProject = javaProject;
 		this.converter = converter;
+		this.owner = owner;
 	}
 
 	private void resolve() {
@@ -1002,5 +1005,10 @@ public class JavacBindingResolver extends BindingResolver {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public WorkingCopyOwner getWorkingCopyOwner() {
+		return this.owner;
 	}
 }

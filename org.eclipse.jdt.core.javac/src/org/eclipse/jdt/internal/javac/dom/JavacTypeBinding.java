@@ -150,7 +150,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				}
 			}
 			try {
-				return this.resolver.javaProject.findType(cleanedUpName(classSymbol), new NullProgressMonitor());
+				return this.resolver.javaProject.findType(cleanedUpName(classSymbol), this.resolver.getWorkingCopyOwner(), new NullProgressMonitor());
 			} catch (JavaModelException ex) {
 				ILog.get().error(ex.getMessage(), ex);
 			}
@@ -159,12 +159,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	}
 
 	private static String cleanedUpName(ClassSymbol classSymbol) {
-		if (classSymbol.isInner()) {
-			if (classSymbol.getEnclosingElement() instanceof ClassSymbol enclosing) {
-				String fullClassName = classSymbol.className();
-				String lastSegment = fullClassName.substring(fullClassName.lastIndexOf('.') + 1);
-				return cleanedUpName(enclosing) + "$" + lastSegment;
-			}
+		if (classSymbol.getEnclosingElement() instanceof ClassSymbol enclosing) {
+			String fullClassName = classSymbol.className();
+			String lastSegment = fullClassName.substring(fullClassName.lastIndexOf('.') + 1);
+			return cleanedUpName(enclosing) + "$" + lastSegment;
 		}
 		return classSymbol.className();
 	}
