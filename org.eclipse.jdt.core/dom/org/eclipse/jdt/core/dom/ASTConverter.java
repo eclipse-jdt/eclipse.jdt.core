@@ -3639,7 +3639,7 @@ class ASTConverter {
 			typePattern = new TypePattern(this.ast);
 		} else {
 			char char1 = '_';
-			if(pattern.local != null && pattern.local.name[0] == char1 && pattern.local.type != null) { //$NON-NLS-1$
+			if(pattern.local != null && pattern.local.name[0] == char1 && pattern.local.type != null) {
 				typePattern = new TypePattern(this.ast, true);
 			} else {
 				typePattern = new TypePattern(this.ast, false);
@@ -3654,7 +3654,7 @@ class ASTConverter {
 			typePattern.setPatternVariable(convertToSingleVariableDeclaration(pattern.local));
 		} else {
 			char char1 = '_';
-			if(pattern.local != null && pattern.local.name[0] == char1 && pattern.local.type != null) { //$NON-NLS-1$
+			if(pattern.local != null && pattern.local.name[0] == char1 && pattern.local.type != null) {
 				typePattern.setPatternVariable((VariableDeclaration)convertToSingleVariableDeclaration(pattern.local));
 			} else {
 				typePattern.setPatternVariable(convertToVariableDeclarationFragment(pattern.local));
