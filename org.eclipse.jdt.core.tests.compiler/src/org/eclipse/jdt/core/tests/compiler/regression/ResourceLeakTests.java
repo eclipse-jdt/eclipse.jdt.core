@@ -7280,6 +7280,7 @@ public void testGH2642() {
 			"""
 			import java.io.FileWriter;
 			public class DemoNonCloseableWarning {
+				Zork err;
 			    public static void main(String[] args) throws Exception {
 			        try (FileWriter writer = new FileWriter("/dev/null")) {
 			            writer.append("\\n");
@@ -7288,7 +7289,14 @@ public void testGH2642() {
 			}
 			"""
 		},
-		"",
+		"""
+		----------
+		1. ERROR in DemoNonCloseableWarning.java (at line 3)
+			Zork err;
+			^^^^
+		Zork cannot be resolved to a type
+		----------
+		""",
 		options);
 }
 }
