@@ -65,17 +65,14 @@ public class SplitPackageBinding extends PackageBinding {
 			numRanked[rank]++;
 		}
 		SplitPackageBinding split = null;
-		for (int rank = 3; rank >= 0; rank--) {
+		for (int rank = RANK_VALID; rank >= 0; rank--) {
 			int num = numRanked[rank];
 			if (num > 0) {
 				// rank is the best we have, so take all bindings at this rank:
 				for (PackageBinding packageBinding : bindings) {
 					if (rank(packageBinding) == rank) {
-						if (num == 1) {
-							return packageBinding;	// singleton doesn't need SplitPackageBinding
-						}
-						if (rank == 0) {
-							return null;			// only null, nothing to combine
+						if (num == 1 || rank != RANK_VALID) {
+							return packageBinding;	// singleton, problem & null don't need SplitPackageBinding
 						}
 						// finally collect all relevant:
 						if (split == null)
