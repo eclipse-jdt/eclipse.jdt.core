@@ -13,15 +13,21 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 public class SplitPackageBinding extends PackageBinding {
 	Set<ModuleBinding> declaringModules;
 	public Set<PlainPackageBinding> incarnations;
+
+	/** TEST ONLY */
+	public static Consumer<SplitPackageBinding> instanceListener;
 
 	/**
 	 * Combine two potential package bindings, answering either the better of those if the other has a problem,
@@ -51,6 +57,39 @@ public class SplitPackageBinding extends PackageBinding {
 		split.add(binding);
 		return split;
 	}
+	public static PackageBinding combineAll(List<PackageBinding> bindings, ModuleBinding primaryModule) {
+		// collect statistics per rank:
+		int[] numRanked = new int[RANK_VALID+1];
+		for (PackageBinding packageBinding : bindings) {
+			int rank = rank(packageBinding);
+			numRanked[rank]++;
+		}
+		SplitPackageBinding split = null;
+		for (int rank = 3; rank >= 0; rank--) {
+			int num = numRanked[rank];
+			if (num > 0) {
+				// rank is the best we have, so take all bindings at this rank:
+				for (PackageBinding packageBinding : bindings) {
+					if (rank(packageBinding) == rank) {
+						if (num == 1) {
+							return packageBinding;	// singleton doesn't need SplitPackageBinding
+						}
+						if (rank == 0) {
+							return null;			// only null, nothing to combine
+						}
+						// finally collect all relevant:
+						if (split == null)
+							split = new SplitPackageBinding(packageBinding, primaryModule);
+						else
+							split.add(packageBinding);
+					}
+				}
+				return split;
+			}
+		}
+		return null;
+	}
+	private static int RANK_VALID = 3;
 	private static int rank(PackageBinding candidate) {
 		if (candidate == null)
 			return 0;
@@ -58,7 +97,7 @@ public class SplitPackageBinding extends PackageBinding {
 			return 1;
 		if (!candidate.isValidBinding())
 			return 2;
-		return 3;
+		return RANK_VALID;
 	}
 
 	public SplitPackageBinding(PackageBinding initialBinding, ModuleBinding primaryModule) {
@@ -66,6 +105,10 @@ public class SplitPackageBinding extends PackageBinding {
 		this.declaringModules = new LinkedHashSet<>();
 		this.incarnations = new LinkedHashSet<>();
 		add(initialBinding);
+		// TEST hook:
+		if (instanceListener != null) {
+			instanceListener.accept(this);
+		}
 	}
 	public void add(PackageBinding packageBinding) {
 		if (packageBinding instanceof SplitPackageBinding) {
@@ -108,6 +151,7 @@ public class SplitPackageBinding extends PackageBinding {
 		ModuleBinding primaryModule = childPackage.enclosingModule;
 		// see if other incarnations contribute to the child package, too:
 		char[] flatName = CharOperation.concatWith(childPackage.compoundName, '.');
+		List<PackageBinding> bindings = new ArrayList<>();
 		for (PackageBinding incarnation :  this.incarnations) {
 			ModuleBinding moduleBinding = incarnation.enclosingModule;
 			if (moduleBinding == module)
@@ -115,9 +159,13 @@ public class SplitPackageBinding extends PackageBinding {
 			if (childPackage.isDeclaredIn(moduleBinding))
 				continue;
 			PlainPackageBinding next = moduleBinding.getDeclaredPackage(flatName);
-			childPackage = combine(next, childPackage, primaryModule);
+			if (next != null)
+				bindings.add(next);
 		}
-		return childPackage;
+		if (bindings.isEmpty())
+			return childPackage;
+		bindings.add(childPackage);
+		return combineAll(bindings, primaryModule);
 	}
 
 	@Override
@@ -131,13 +179,14 @@ public class SplitPackageBinding extends PackageBinding {
 		if (knownPackage != null)
 			return knownPackage;
 
-		PackageBinding candidate = null;
+		List<PackageBinding> bindings = new ArrayList<>();
 		for (PackageBinding incarnation : this.incarnations) {
 			PackageBinding package0 = incarnation.getPackage0(name);
 			if (package0 == null)
 				return null; // if any incarnation lacks cached info, a full findPackage will be necessary
-			candidate = combine(package0, candidate, this.enclosingModule);
+			bindings.add(package0);
 		}
+		PackageBinding candidate = combineAll(bindings, this.enclosingModule);
 		if (candidate != null)
 			this.knownPackages.put(name, candidate);
 
@@ -150,15 +199,15 @@ public class SplitPackageBinding extends PackageBinding {
 		if (knownPackage != null)
 			return knownPackage;
 
-		PackageBinding candidate = null;
+		List<PackageBinding> bindings = new ArrayList<>();
 		for (PackageBinding incarnation : this.incarnations) {
 			PackageBinding package0 = incarnation.getPackage0(name);
 			if (package0 == null)
 				continue;
-			candidate = combine(package0, candidate, this.enclosingModule);
+			bindings.add(package0);
 		}
 		// don't cache the result, maybe incomplete
-		return candidate;
+		return combineAll(bindings, this.enclosingModule);
 	}
 
 	@Override

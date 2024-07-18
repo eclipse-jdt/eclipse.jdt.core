@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -49,6 +50,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.SplitPackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.ClasspathAttribute;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
@@ -7983,6 +7985,15 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void testBug543701() throws Exception {
 		IJavaProject p = createJava9Project("p");
 		String outputDirectory = Util.getOutputDirectory();
+		class Counter implements Consumer<SplitPackageBinding> {
+			int count;
+			@Override
+			public void accept(SplitPackageBinding t) {
+				this.count++;
+			}
+		}
+		Counter counter = new Counter();
+		SplitPackageBinding.instanceListener = counter;
 		try {
 			String jar1Path = outputDirectory + File.separator + "lib1.jar";
 			Util.createJar(new String[] {
@@ -8026,7 +8037,9 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"----------\n" +
 					"----------\n",
 					this.problemRequestor);
+			assertTrue("Number of SplitPackageBinding created: "+counter.count, counter.count <= 80);
 		} finally {
+			SplitPackageBinding.instanceListener = null;
 			deleteProject(p);
 			// clean up output dir
 			File outputDir = new File(outputDirectory);

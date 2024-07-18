@@ -769,11 +769,14 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 			if (this.module.isUnnamed()) {
 				char[][] declaringModules = ((IModuleAwareNameEnvironment) this.nameEnvironment).getUniqueModulesDeclaringPackage(new char[][] {constantPoolName[0]}, ModuleBinding.ANY);
 				if (declaringModules != null) {
+					List<PackageBinding> bindings = new ArrayList<>();
 					for (char[] mod : declaringModules) {
 						ModuleBinding declaringModule = this.root.getModule(mod);
 						if (declaringModule != null)
-							packageBinding = SplitPackageBinding.combine(declaringModule.getTopLevelPackage(constantPoolName[0]), packageBinding, this.module);
+							bindings.add(declaringModule.getTopLevelPackage(constantPoolName[0]));
 					}
+					if (!bindings.isEmpty())
+						packageBinding = SplitPackageBinding.combineAll(bindings, this.module);
 				}
 			} else {
 				packageBinding = this.module.getTopLevelPackage(constantPoolName[0]);
@@ -794,12 +797,15 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 					char[][] currentCompoundName = CharOperation.arrayConcat(parent.compoundName, constantPoolName[i]);
 					char[][] declaringModules = ((IModuleAwareNameEnvironment) this.nameEnvironment).getModulesDeclaringPackage(
 							currentCompoundName, ModuleBinding.ANY);
+					List<PackageBinding> bindings = new ArrayList<>();
 					if (declaringModules != null) {
 						for (char[] mod : declaringModules) {
 							ModuleBinding declaringModule = this.root.getModule(mod);
 							if (declaringModule != null)
-								packageBinding = SplitPackageBinding.combine(declaringModule.getVisiblePackage(currentCompoundName), packageBinding, this.module);
+								bindings.add(declaringModule.getVisiblePackage(currentCompoundName));
 						}
+						if (!bindings.isEmpty())
+							packageBinding = SplitPackageBinding.combineAll(bindings, this.module);
 					}
 				} else {
 					packageBinding = this.module.getVisiblePackage(parent, constantPoolName[i]);
