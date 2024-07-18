@@ -6264,6 +6264,65 @@ public void testBug387612c() {
 		false/*shouldFlush*/);
 }
 
+public void testGH2726() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"ExceptionTest.java",
+			"""
+			public class ExceptionTest {
+
+				public void doStuff() throws Exception {
+				}
+
+				public void test() {
+					final Exception ex;
+					try {
+						doStuff();
+						return;
+					} catch (NullPointerException e) {
+						ex = e;
+					} catch (Exception e) {
+						// compile error here, only in the IDE
+						ex = e;
+					}
+					ex.printStackTrace();
+				 }
+			}
+			"""
+		};
+	runner.runConformTest();
+}
+public void testGH2726b() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"ExceptionTest.java",
+			"""
+			public class ExceptionTest {
+
+				public void doStuff() throws Exception {
+				}
+
+				public void test() {
+					final Exception ex;
+					try {
+						doStuff();
+						return;
+					} catch (NullPointerException e) {
+						ex = e;
+					} catch (Exception e) {
+						// compile error here, only in the IDE
+						ex = e;
+					} finally {
+						System.out.print(1); // non-empty finally block causes other code branch to be used
+					}
+					ex.printStackTrace();
+				 }
+			}
+			"""
+		};
+	runner.runConformTest();
+}
+
 public static Class testClass() {
 	return TryStatementTest.class;
 }
