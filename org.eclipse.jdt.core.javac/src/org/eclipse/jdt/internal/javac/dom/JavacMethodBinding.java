@@ -151,7 +151,13 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 					MethodDeclaration methodDeclaration = (MethodDeclaration)this.resolver.findDeclaringNode(this);
 					if (methodDeclaration != null) {
 						String[] params = ((List<SingleVariableDeclaration>)methodDeclaration.parameters()).stream() //
-								.map(param -> Util.getSignature(param.getType())) //
+								.map(param -> {
+									String sig = Util.getSignature(param.getType());
+									if (param.isVarargs()) {
+										sig = Signature.createArraySignature(sig, 1);
+									}
+									return sig;
+								}) //
 								.toArray(String[]::new);
 						IMethod method = currentType.getMethod(getName(), params);
 						if (method.exists()) {
