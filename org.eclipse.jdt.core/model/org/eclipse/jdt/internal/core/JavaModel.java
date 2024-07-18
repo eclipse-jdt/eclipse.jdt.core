@@ -402,7 +402,10 @@ public static boolean isJimage(File file) {
 }
 public static boolean isJmod(File file) {
 	IPath path = Path.fromOSString(file.getPath());
-	return SuffixConstants.EXTENSION_jmod.equalsIgnoreCase(path.getFileExtension());
+	if (path != null && SuffixConstants.EXTENSION_jmod.equalsIgnoreCase(path.getFileExtension())) {
+		return true;
+	}
+	return false;
 }
 
 /**
