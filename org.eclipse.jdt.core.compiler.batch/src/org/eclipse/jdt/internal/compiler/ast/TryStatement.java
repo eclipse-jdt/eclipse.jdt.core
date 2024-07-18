@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -204,9 +204,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			int catchCount;
 			this.catchExits = new boolean[catchCount = this.catchBlocks.length];
 			this.catchExitInitStateIndexes = new int[catchCount];
+			FlowInfo incoming = tryInfo.copy();
 			for (int i = 0; i < catchCount; i++) {
 				// keep track of the inits that could potentially have led to this exception handler (for final assignments diagnosis)
-				FlowInfo catchInfo = prepareCatchInfo(flowInfo, handlingContext, tryInfo, i);
+				FlowInfo catchInfo = prepareCatchInfo(flowInfo, handlingContext, incoming, i);
 				flowContext.conditionalLevel++;
 				catchInfo =
 					this.catchBlocks[i].analyseCode(
@@ -332,9 +333,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			int catchCount;
 			this.catchExits = new boolean[catchCount = this.catchBlocks.length];
 			this.catchExitInitStateIndexes = new int[catchCount];
+			FlowInfo incoming = tryInfo.copy();
 			for (int i = 0; i < catchCount; i++) {
 				// keep track of the inits that could potentially have led to this exception handler (for final assignments diagnosis)
-				FlowInfo catchInfo = prepareCatchInfo(flowInfo, handlingContext, tryInfo, i);
+				FlowInfo catchInfo = prepareCatchInfo(flowInfo, handlingContext, incoming, i);
 				insideSubContext.conditionalLevel = 1;
 				catchInfo =
 					this.catchBlocks[i].analyseCode(
