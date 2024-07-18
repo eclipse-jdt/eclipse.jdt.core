@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.core.tests.junit.extension;
+package org.eclipse.jdt.core.tests.performance;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
