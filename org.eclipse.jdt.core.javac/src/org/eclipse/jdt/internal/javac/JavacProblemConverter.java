@@ -118,7 +118,7 @@ public class JavacProblemConverter {
 		}
 		return original;
 	}
-	
+
 	private org.eclipse.jface.text.Position getDiagnosticPosition(Diagnostic<? extends JavaFileObject> diagnostic, Context context, int problemId) {
 		if (diagnostic.getCode().contains(".dc") || "compiler.warn.proc.messager".equals(diagnostic.getCode())) { //javadoc
 			if (problemId == IProblem.JavadocMissingParamTag) {
@@ -553,7 +553,20 @@ public class JavacProblemConverter {
 			case "compiler.err.not.def.public.cant.access" -> IProblem.NotVisibleType; // TODO different according to target node
 			case "compiler.err.already.defined" -> IProblem.DuplicateMethod; // TODO different according to target node
 			case "compiler.err.var.might.not.have.been.initialized" -> IProblem.UninitializedLocalVariable;
-			case "compiler.err.missing.meth.body.or.decl.abstract" -> IProblem.MethodRequiresBody;
+			case "compiler.err.missing.meth.body.or.decl.abstract" -> {
+				if (diagnostic instanceof JCDiagnostic jcDiagnostic
+						&& jcDiagnostic.getDiagnosticPosition() instanceof JCMethodDecl jcMethodDecl
+						&& jcMethodDecl.sym != null
+						&& jcMethodDecl.sym.enclClass() != null
+						&& jcMethodDecl.sym.enclClass().type != null
+						&& jcMethodDecl.sym.enclClass().type.isInterface()) {
+					// javac states that the method must have a body or be abstract;
+					// in the case of an interface where neither are required,
+					// this likely means the method has a private modifier.
+					yield IProblem.IllegalModifierForInterfaceMethod;
+				}
+				yield IProblem.MethodRequiresBody;
+			}
 			case "compiler.err.intf.meth.cant.have.body" -> IProblem.BodyForAbstractMethod;
 			case "compiler.warn.empty.if" -> IProblem.EmptyControlFlowStatement;
 			case "compiler.warn.redundant.cast" -> IProblem.UnnecessaryCast;
@@ -661,6 +674,7 @@ public class JavacProblemConverter {
 			}
 			case "compiler.err.non.sealed.sealed.or.final.expected" -> IProblem.SealedMissingClassModifier;
 			case "compiler.err.enum.annotation.must.be.enum.constant" -> IProblem.AnnotationValueMustBeAnEnumConstant;
+			case "compiler.err.package.in.other.module" -> IProblem.ConflictingPackageFromOtherModules;
 			default -> {
 				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;
@@ -941,4 +955,5 @@ public class JavacProblemConverter {
 	public void registerUnit(JavaFileObject javaFileObject, JCCompilationUnit unit) {
 		this.units.put(javaFileObject, unit);
 	}
+
 }
