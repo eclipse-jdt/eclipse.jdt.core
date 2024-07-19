@@ -384,6 +384,12 @@ public class JavacBindingResolver extends BindingResolver {
 		if (type instanceof PrimitiveType primitive) { // a type can be requested even if there is no token for it in JCTree
 			return resolveWellKnownType(primitive.getPrimitiveTypeCode().toString());
 		}
+		if (type.isVar() && type.getParent() instanceof VariableDeclaration varDecl) {
+			IVariableBinding varBinding = resolveVariable(varDecl);
+			if (varBinding != null) {
+				return varBinding.getType();
+			}
+		}
 		return super.resolveType(type);
 	}
 
@@ -627,6 +633,9 @@ public class JavacBindingResolver extends BindingResolver {
 //				}
 //			}
 //		}
+		if (name.getParent() instanceof Type type) { // case of "var"
+			return resolveType(type);
+		}
 		return null;
 	}
 

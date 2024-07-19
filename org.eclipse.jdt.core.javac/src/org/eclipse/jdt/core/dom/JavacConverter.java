@@ -932,7 +932,7 @@ class JavacConverter {
 	}
 
 	private VariableDeclaration convertVariableDeclarationForLambda(JCVariableDecl javac) {
-		if( javac.getType() == null ) {
+		if( javac.getType() == null && javac.getStartPosition() == javac.getPreferredPosition() /* check no "var" */) {
 			return createVariableDeclarationFragment(javac);
 		} else {
 			return convertVariableDeclaration(javac);
@@ -984,6 +984,13 @@ class JavacConverter {
 						res.setType(type);
 					}
 				}
+			} else if (javac.getStartPosition() != javac.getPreferredPosition()
+					&& this.rawText.substring(javac.getStartPosition(), javac.getPreferredPosition()).matches("var(\\s)+")) {
+				SimpleName varName = this.ast.newSimpleName("var");
+				varName.setSourceRange(javac.getStartPosition(), varName.getIdentifier().length());
+				Type varType = this.ast.newSimpleType(varName);
+				varType.setSourceRange(varName.getStartPosition(), varName.getLength());
+				res.setType(varType);
 			}
 		}
 		if (javac.getInitializer() != null) {
