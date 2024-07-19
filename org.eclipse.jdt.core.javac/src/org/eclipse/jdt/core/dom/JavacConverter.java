@@ -48,6 +48,7 @@ import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
 import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCAnyPattern;
@@ -385,6 +386,26 @@ class JavacConverter {
 			}
 			this.domToJavac.put(res, javac);
 			setJavadocForNode(javac, res);
+		}
+	}
+
+	private void nameSettings(SimpleName name, JCMethodDecl javac, String selector, boolean isConstructor) {
+		if ((selector.equals(ERROR) || selector.equals(FAKE_IDENTIFIER)))
+			return;
+		var start = javac.getPreferredPosition();
+		if (start > -1) {
+			// handle constructor length using type name instead of selector.
+			var length = isConstructor ? name.toString().length() : selector.length();
+			name.setSourceRange(start, length);
+		}
+	}
+
+	private void nameSettings(SimpleName name, JCVariableDecl javac, String varName) {
+		if (varName.equals(ERROR) || varName.equals(FAKE_IDENTIFIER))
+			return;
+		var start = javac.getPreferredPosition();
+		if (start > -1) {
+			name.setSourceRange(start, varName.length());
 		}
 	}
 
@@ -783,13 +804,17 @@ class JavacConverter {
 		JCTree retTypeTree = javac.getReturnType();
 		Type retType = null;
 		if( !javacNameMatchesError) {
-			res.setName(this.ast.newSimpleName(methodDeclName));
+			var name = this.ast.newSimpleName(methodDeclName);
+			nameSettings(name, javac, javacName, isConstructor);
+			res.setName(name);
 		} else {
 			// javac name is an error, so let's treat the return type as the name
-			if( retTypeTree instanceof JCIdent jcid) {
-				res.setName(this.ast.newSimpleName(jcid.getName().toString()));
+			if (retTypeTree instanceof JCIdent jcid) {
+				var name = this.ast.newSimpleName(jcid.getName().toString());
+				nameSettings(name, javac, javacName, isConstructor);
+				res.setName(name);
 				retTypeTree = null;
-				if( jcid.toString().equals(getNodeName(parent))) {
+				if (jcid.toString().equals(getNodeName(parent))) {
 					res.setConstructor(true);
 					isConstructor = true;
 				}
@@ -918,19 +943,7 @@ class JavacConverter {
 		SingleVariableDeclaration res = this.ast.newSingleVariableDeclaration();
 		commonSettings(res, javac);
 		if (convertName(javac.getName()) instanceof SimpleName simpleName) {
-			int endPos = javac.getEndPosition(this.javacCompilationUnit.endPositions);
-			if( !simpleName.toString().equals(FAKE_IDENTIFIER)) {
-				char theChar = this.rawText.charAt(endPos);
-				char soughtLastChar = simpleName.toString().charAt(simpleName.toString().length() - 1);
-				while (endPos > res.getStartPosition() && theChar != soughtLastChar) {
-					theChar = this.rawText.charAt(--endPos);
-				}
-				endPos++;
-				int length = simpleName.toString().length();
-				if( endPos != -1 && endPos - length > 0) {
-					simpleName.setSourceRange(endPos - length, length);
-				}
-			}
+			nameSettings(simpleName, javac, simpleName.toString());
 			res.setName(simpleName);
 		}
 		if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
