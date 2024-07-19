@@ -1250,7 +1250,6 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, enabled);
 			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, enabled);
 			optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, enabled);
-			optionsMap.put(CompilerOptions.OPTION_InlineJsr, enabled);
 		}
 
 		// Ignore 3.1 options
