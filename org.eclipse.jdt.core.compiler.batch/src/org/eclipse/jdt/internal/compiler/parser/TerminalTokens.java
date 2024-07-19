@@ -40,7 +40,8 @@ public interface TerminalTokens {
 							TokenNameCOMMENT_LINE = 1001,
 							TokenNameCOMMENT_BLOCK = 1002,
 							TokenNameCOMMENT_JAVADOC = 1003,
-							TokenNameSingleQuoteStringLiteral = 1004;
+							TokenNameSingleQuoteStringLiteral = 1004,
+							TokenNameCOMMENT_MARKDOWN = 1005;
 
 	static boolean isRestrictedKeyword(int tokenType) {
 		return switch (tokenType) {

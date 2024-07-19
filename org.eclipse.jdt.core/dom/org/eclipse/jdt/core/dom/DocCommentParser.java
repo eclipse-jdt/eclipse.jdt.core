@@ -719,6 +719,12 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	@Override
+	protected boolean parseMarkdownLinks() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
 
 		// Read tag name

@@ -133,6 +133,7 @@ public final class Messages {
 	public static String flexible_constructor_bodies;
 	public static String primitives_in_patterns;
 	public static String module_imports;
+	public static String markdown_comments;
 
 	static {
 		initializeMessages(BUNDLE_NAME, Messages.class);

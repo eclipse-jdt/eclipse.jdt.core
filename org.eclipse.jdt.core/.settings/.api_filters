@@ -350,6 +350,11 @@
                 <message_argument value="TokenNameTextBlockTemplate"/>
             </message_arguments>
         </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="TokenNameCOMMENT_MARKDOWN"/>
+            </message_arguments>
+        </filter>
     </resource>
     <resource path="model/org/eclipse/jdt/core/util/ByteCodeVisitorAdapter.java" type="org.eclipse.jdt.core.util.ByteCodeVisitorAdapter">
         <filter id="576725006">
