@@ -675,6 +675,20 @@ public class JavacProblemConverter {
 			case "compiler.err.non.sealed.sealed.or.final.expected" -> IProblem.SealedMissingClassModifier;
 			case "compiler.err.enum.annotation.must.be.enum.constant" -> IProblem.AnnotationValueMustBeAnEnumConstant;
 			case "compiler.err.package.in.other.module" -> IProblem.ConflictingPackageFromOtherModules;
+			case "compiler.err.module.decl.sb.in.module-info.java" -> {
+				if (!(diagnostic instanceof JCDiagnostic jcDiagnostic)) {
+					yield 0;
+				}
+				DiagnosticPosition pos = jcDiagnostic.getDiagnosticPosition();
+				if (pos instanceof JCTree.JCModuleDecl) {
+					yield IProblem.ParsingErrorOnKeywordNoSuggestion;
+				} else if (pos instanceof JCTree.JCModuleImport) {
+				}
+				ILog.get().error("Could not convert diagnostic " + diagnostic);
+				yield 0;
+			}
+			case "compiler.err.file.sb.on.source.or.patch.path.for.module" -> IProblem.ParsingErrorOnKeywordNoSuggestion;
+			case "compiler.err.package.not.visible" -> IProblem.NotVisibleType;
 			default -> {
 				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;

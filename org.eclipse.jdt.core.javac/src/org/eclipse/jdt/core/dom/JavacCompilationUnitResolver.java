@@ -384,28 +384,32 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 	}
 
 	private void resolveBindings(CompilationUnit unit, Map<String, IBinding> bindingMap, int apiLevel) {
-		if (unit.getPackage() != null) {
-			IPackageBinding pb = unit.getPackage().resolveBinding();
-			if (pb != null) {
-				bindingMap.put(pb.getKey(), pb);
-			}
-		}
-		if (!unit.types().isEmpty()) {
-			List<AbstractTypeDeclaration> types = unit.types();
-			for( int i = 0; i < types.size(); i++ ) {
-				ITypeBinding tb = ((AbstractTypeDeclaration) types.get(i)).resolveBinding();
-				if (tb != null) {
-					bindingMap.put(tb.getKey(), tb);
+		try {
+			if (unit.getPackage() != null) {
+				IPackageBinding pb = unit.getPackage().resolveBinding();
+				if (pb != null) {
+					bindingMap.put(pb.getKey(), pb);
 				}
 			}
-		}
-		if( apiLevel >= AST.JLS9_INTERNAL) {
-			if (unit.getModule() != null) {
-				IModuleBinding mb = unit.getModule().resolveBinding();
-				if (mb != null) {
-					bindingMap.put(mb.getKey(), mb);
+			if (!unit.types().isEmpty()) {
+				List<AbstractTypeDeclaration> types = unit.types();
+				for( int i = 0; i < types.size(); i++ ) {
+					ITypeBinding tb = ((AbstractTypeDeclaration) types.get(i)).resolveBinding();
+					if (tb != null) {
+						bindingMap.put(tb.getKey(), tb);
+					}
 				}
 			}
+			if( apiLevel >= AST.JLS9_INTERNAL) {
+				if (unit.getModule() != null) {
+					IModuleBinding mb = unit.getModule().resolveBinding();
+					if (mb != null) {
+						bindingMap.put(mb.getKey(), mb);
+					}
+				}
+			}
+		} catch (Exception e) {
+			ILog.get().warn("Failed to resolve binding", e);
 		}
 	}
 
