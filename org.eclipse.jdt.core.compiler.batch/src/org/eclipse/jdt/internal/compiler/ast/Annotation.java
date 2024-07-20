@@ -53,7 +53,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 /**
  * Annotation
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class Annotation extends Expression {
 
 	Annotation persistibleAnnotation = this;  // Emit this into class file, unless this is a repeating annotation, in which case package this into the designated container.
@@ -66,12 +65,12 @@ public abstract class Annotation extends Expression {
 			final Annotation annotation) {
 
 		class LocationCollector extends ASTVisitor {
-			Stack typePathEntries;
+			Stack<int[]> typePathEntries;
 			Annotation searchedAnnotation;
 			boolean continueSearch = true;
 
 			public LocationCollector(Annotation currentAnnotation) {
-				this.typePathEntries = new Stack();
+				this.typePathEntries = new Stack<>();
 				this.searchedAnnotation = currentAnnotation;
 			}
 
@@ -213,8 +212,7 @@ public abstract class Annotation extends Expression {
 					.append("search location for ") //$NON-NLS-1$
 					.append(this.searchedAnnotation)
 					.append("\ncurrent type_path entries : "); //$NON-NLS-1$
-				for (Object entry : this.typePathEntries) {
-					int[] typePathEntry = (int[]) entry;
+				for (int[] typePathEntry : this.typePathEntries) {
 					buffer
 						.append('(')
 						.append(typePathEntry[0])
@@ -235,7 +233,7 @@ public abstract class Annotation extends Expression {
 		int[] result = new int[size*2];
 		int offset=0;
 		for (int i = 0; i < size; i++) {
-			int[] pathElement = (int[])collector.typePathEntries.get(i);
+			int[] pathElement = collector.typePathEntries.get(i);
 			result[offset++] = pathElement[0];
 			result[offset++] = pathElement[1];
 		}
