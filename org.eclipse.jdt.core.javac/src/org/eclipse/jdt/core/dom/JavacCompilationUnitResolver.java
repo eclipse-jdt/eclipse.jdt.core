@@ -534,8 +534,6 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					}
 					CompilationUnit res = result.get(sourceUnits[i]);
 					AST ast = res.ast;
-					int savedDefaultNodeFlag = ast.getDefaultNodeFlag();
-					ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 					JavacConverter converter = new JavacConverter(ast, javacCompilationUnit, context, rawText, docEnabled);
 					converter.populateCompilationUnit(res, javacCompilationUnit);
 					// javadoc problems explicitly set as they're not sent to DiagnosticListener (maybe find a flag to do it?)
@@ -574,7 +572,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					ast.setBindingResolver(new JavacBindingResolver(javaProject, task, context, converter, workingCopyOwner));
 					//
 					ast.setOriginalModificationCount(ast.modificationCount()); // "un-dirty" AST so Rewrite can process it
-					ast.setDefaultNodeFlag(savedDefaultNodeFlag);
+					ast.setDefaultNodeFlag(ast.getDefaultNodeFlag() & ~ASTNode.ORIGINAL);
 				} catch (Throwable thrown) {
 					if (cachedThrown == null) {
 						cachedThrown = thrown;
@@ -612,6 +610,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 	private AST createAST(Map<String, String> options, int level, Context context, int flags) {
 		AST ast = AST.newAST(level, JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)));
 		ast.setFlag(flags);
+		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 		String sourceModeSetting = options.get(JavaCore.COMPILER_SOURCE);
 		long sourceLevel = CompilerOptions.versionToJdkLevel(sourceModeSetting);
 		if (sourceLevel == 0) {
