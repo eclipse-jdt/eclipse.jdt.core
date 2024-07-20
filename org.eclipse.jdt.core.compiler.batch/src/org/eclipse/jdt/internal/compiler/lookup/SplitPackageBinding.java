@@ -81,6 +81,8 @@ public class SplitPackageBinding extends PackageBinding {
 							split.add(packageBinding);
 					}
 				}
+				if (split.incarnations.size() == 1) // we don't want singleton SplitPackageBinding
+					return split.incarnations.iterator().next(); // simply peel the only incarnation
 				return split;
 			}
 		}

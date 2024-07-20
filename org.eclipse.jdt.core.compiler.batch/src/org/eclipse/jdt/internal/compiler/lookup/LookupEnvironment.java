@@ -795,7 +795,7 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 			if (this.useModuleSystem) {
 				if (this.module.isUnnamed()) {
 					char[][] currentCompoundName = CharOperation.arrayConcat(parent.compoundName, constantPoolName[i]);
-					char[][] declaringModules = ((IModuleAwareNameEnvironment) this.nameEnvironment).getModulesDeclaringPackage(
+					char[][] declaringModules = ((IModuleAwareNameEnvironment) this.nameEnvironment).getUniqueModulesDeclaringPackage(
 							currentCompoundName, ModuleBinding.ANY);
 					List<PackageBinding> bindings = new ArrayList<>();
 					if (declaringModules != null) {
@@ -2403,7 +2403,7 @@ public Binding getInaccessibleBinding(char[][] compoundName, ModuleBinding clien
 		int length = compoundName.length;
 		for (int j=length; j>0; j--) {
 			char[][] candidateName = CharOperation.subarray(compoundName, 0, j);
-			char[][] moduleNames = moduleEnv.getModulesDeclaringPackage(candidateName, ModuleBinding.ANY);
+			char[][] moduleNames = moduleEnv.getUniqueModulesDeclaringPackage(candidateName, ModuleBinding.ANY);
 			if (moduleNames != null) {
 				// in some module a package named candidateName exists, verify observability & inaccessibility:
 				PackageBinding inaccessiblePackage = null;
