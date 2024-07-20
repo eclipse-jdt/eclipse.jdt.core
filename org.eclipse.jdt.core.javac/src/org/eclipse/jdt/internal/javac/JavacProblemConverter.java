@@ -497,7 +497,7 @@ public class JavacProblemConverter {
 				};
 			case "compiler.err.cant.resolve.location.args" -> convertUndefinedMethod(diagnostic);
 			case "compiler.err.cant.resolve.location.args.params" -> IProblem.UndefinedMethod;
-			case "compiler.err.cant.resolve" -> convertUnresolvedVariable(diagnostic);
+			case "compiler.err.cant.resolve" -> convertUnresolved(diagnostic);
 			case "compiler.err.cant.resolve.args" -> convertUndefinedMethod(diagnostic);
 			case "compiler.err.cant.resolve.args.params" -> IProblem.UndefinedMethod;
 			case "compiler.err.cant.apply.symbols", "compiler.err.cant.apply.symbol" ->
@@ -790,14 +790,19 @@ public class JavacProblemConverter {
 		return false;
 	}
 	// compiler.err.cant.resolve
-	private static int convertUnresolvedVariable(Diagnostic<?> diagnostic) {
+	private int convertUnresolved(Diagnostic<?> diagnostic) {
 		if (diagnostic instanceof JCDiagnostic jcDiagnostic) {
 			if (jcDiagnostic.getDiagnosticPosition() instanceof JCTree.JCFieldAccess) {
 				return IProblem.UndefinedField;
 			}
 		}
-
-		return IProblem.UnresolvedVariable;
+		return switch (getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class)) {
+			case CLASS, INTERFACE, RECORD, ENUM -> IProblem.UndefinedType;
+			case METHOD -> IProblem.UndefinedMethod;
+			case MODULE -> IProblem.UndefinedModule;
+			case VAR -> IProblem.UnresolvedVariable;
+			default -> IProblem.UnresolvedVariable;
+		};
 	}
 
 	private int convertUndefinedMethod(Diagnostic<?> diagnostic) {
