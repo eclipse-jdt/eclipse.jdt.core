@@ -13681,15 +13681,20 @@ public final class CompletionEngine
 	 * <code>false</code> otherwise
 	 */
 	private boolean isFailedMatch(char[] token, char[] name) {
-		if ((this.options.substringMatch && CharOperation.substringMatch(token, name))
-				|| (this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, name))
+		return isFailedMatch(token, name, this.options);
+	}
+
+	static boolean isFailedMatch(char[] token, char[] name, AssistOptions opt) {
+		if ((opt.substringMatch && CharOperation.substringMatch(token, name))
+				|| (opt.camelCaseMatch && CharOperation.camelCaseMatch(token, name))
 				|| CharOperation.prefixEquals(token, name, false)
-				|| (this.options.subwordMatch && CharOperation.subWordMatch(token, name))) {
+				|| (opt.subwordMatch && CharOperation.subWordMatch(token, name))) {
 			return false;
 		}
 
 		return true;
 	}
+
 	private boolean isForbidden(ReferenceBinding binding) {
 		for (int i = 0; i <= this.forbbidenBindingsPtr; i++) {
 			if(this.forbbidenBindings[i] == binding) {

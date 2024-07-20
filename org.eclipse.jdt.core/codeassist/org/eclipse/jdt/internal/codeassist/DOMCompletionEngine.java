@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
@@ -25,11 +26,15 @@ import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Annotation;
@@ -45,6 +50,7 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.PrimitiveType;
@@ -60,7 +66,11 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.JavaElementRequestor;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.ModuleSourcePathManager;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 
 /**
@@ -291,6 +301,10 @@ public class DOMCompletionEngine implements Runnable {
 			suggestPackageCompletions = false;
 			computeSuitableBindingFromContext = false;
 		}
+		if (context instanceof ModuleDeclaration mod) {
+			findModules(this.prefix.toCharArray(), this.modelUnit.getJavaProject(), this.assistOptions, Set.of(mod.getName().toString()));
+		}
+		
 		ASTNode current = this.toComplete;
 		
 		if(suggestDefaultCompletions) {
@@ -598,4 +612,74 @@ public class DOMCompletionEngine implements Runnable {
 		return 0;
 	}
 
+	private HashSet<String> getAllJarModuleNames(IJavaProject project) {
+		HashSet<String> modules = new HashSet<>();
+		try {
+			for (IPackageFragmentRoot root : project.getAllPackageFragmentRoots()) {
+				if (root instanceof JarPackageFragmentRoot) {
+					IModuleDescription desc = root.getModuleDescription();
+					desc = desc == null ? ((JarPackageFragmentRoot) root).getAutomaticModuleDescription() : desc;
+					String name = desc != null ? desc.getElementName() : null;
+					if (name != null && name.length() > 0)
+						modules.add(name);
+				}
+			}
+		} catch (JavaModelException e) {
+			// do nothing
+		}
+		return modules;
+	}
+
+	private void findModules(char[] prefix, IJavaProject project, AssistOptions options, Set<String> skip) {
+		if(this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
+			return;
+		}
+
+		HashSet<String> probableModules = new HashSet<>();
+		ModuleSourcePathManager mManager = JavaModelManager.getModulePathManager();
+		JavaElementRequestor javaElementRequestor = new JavaElementRequestor();
+		try {
+			mManager.seekModule(prefix, true, javaElementRequestor);
+			IModuleDescription[] modules = javaElementRequestor.getModules();
+			for (IModuleDescription module : modules) {
+				String name = module.getElementName();
+				if (name == null || name.equals("")) //$NON-NLS-1$
+					continue;
+				probableModules.add(name);
+			}
+		} catch (JavaModelException e) {
+			// ignore the error
+		}
+		probableModules.addAll(getAllJarModuleNames(project));
+		if (prefix != CharOperation.ALL_PREFIX && prefix != null && prefix.length > 0) {
+			probableModules.removeIf(e -> CompletionEngine.isFailedMatch(prefix, e.toCharArray(), options));
+		}
+		probableModules.removeIf(skip::contains);
+		probableModules.forEach(m -> this.requestor.accept(toModuleCompletion(m, prefix)));
+	}
+
+	private CompletionProposal toModuleCompletion(String moduleName, char[] prefix) {
+		char[] completion = moduleName.toCharArray();
+		int relevance = CompletionEngine.computeBaseRelevance();
+		relevance += CompletionEngine.computeRelevanceForResolution();
+		relevance += this.nestedEngine.computeRelevanceForInterestingProposal();
+		relevance += this.nestedEngine.computeRelevanceForCaseMatching(prefix, completion);
+		relevance += this.nestedEngine.computeRelevanceForQualification(true);
+		relevance += this.nestedEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+		InternalCompletionProposal proposal = new InternalCompletionProposal(CompletionProposal.MODULE_REF,
+				this.offset);
+		proposal.setModuleName(completion);
+		proposal.setDeclarationSignature(completion);
+		proposal.setCompletion(completion);
+		proposal.setReplaceRange(
+				this.toComplete instanceof SimpleName ? this.toComplete.getStartPosition() : this.offset,
+				DOMCompletionEngine.this.offset);
+		proposal.setRelevance(relevance);
+		proposal.completionEngine = this.nestedEngine;
+		proposal.nameLookup = this.nameEnvironment.nameLookup;
+
+		// set defaults for now to avoid error downstream
+		proposal.setRequiredProposals(new CompletionProposal[0]);
+		return proposal;
+	}
 }
