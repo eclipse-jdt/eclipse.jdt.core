@@ -23,6 +23,7 @@ import javax.lang.model.type.TypeKind;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -133,7 +134,15 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	}
 
 	@Override
-	public IType getJavaElement() {
+	public IJavaElement getJavaElement() {
+		if (isTypeVariable()
+			&& this.typeSymbol != null
+			&& this.typeSymbol.owner instanceof ClassSymbol ownerSymbol
+			&& ownerSymbol.type != null
+			&& this.resolver.bindings.getTypeBinding(ownerSymbol.type).getJavaElement() instanceof IType ownerType
+			&& ownerType.getTypeParameter(this.getName()) != null) {
+			return ownerType.getTypeParameter(this.getName());
+		}
 		if (this.resolver.javaProject == null) {
 			return null;
 		}

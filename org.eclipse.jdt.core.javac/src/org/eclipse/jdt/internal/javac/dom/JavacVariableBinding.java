@@ -13,8 +13,6 @@ package org.eclipse.jdt.internal.javac.dom;
 import java.util.Arrays;
 import java.util.Objects;
 
-import javax.lang.model.element.ElementKind;
-
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
@@ -128,11 +126,9 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 				}
 			}
 		}
-		if (this.variableSymbol.owner instanceof TypeSymbol parentType) {//field
-			IType type = this.resolver.bindings.getTypeBinding(parentType.type).getJavaElement();
-			if (type != null) {
-				return type.getField(this.variableSymbol.name.toString());
-			}
+		if (this.variableSymbol.owner instanceof TypeSymbol parentType // field
+			&& this.resolver.bindings.getTypeBinding(parentType.type).getJavaElement() instanceof IType type) {
+			return type.getField(this.variableSymbol.name.toString());
 		}
 
 		return null;
