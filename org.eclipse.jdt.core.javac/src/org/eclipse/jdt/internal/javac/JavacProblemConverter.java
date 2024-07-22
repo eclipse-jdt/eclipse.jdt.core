@@ -503,7 +503,16 @@ public class JavacProblemConverter {
 			case "compiler.err.cant.apply.symbols", "compiler.err.cant.apply.symbol" ->
 				switch (getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class)) {
 					case CONSTRUCTOR -> {
-						if (diagnostic instanceof JCDiagnostic.MultilineDiagnostic) {
+						TreePath treePath = getTreePath((JCDiagnostic)diagnostic);
+						while (!(treePath.getLeaf() instanceof JCMethodDecl) && treePath != null) {
+							treePath = treePath.getParentPath();
+						}
+						if (treePath == null || !(treePath.getLeaf() instanceof JCMethodDecl methodDecl)) {
+							ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic + ". Expected the constructor invocation to be in a constructor.");
+							yield 0;
+						}
+						boolean isDefault = (methodDecl.sym.flags() & Flags.GENERATEDCONSTR) != 0;
+						if (diagnostic instanceof JCDiagnostic.MultilineDiagnostic && isDefault) {
 							yield IProblem.UndefinedConstructorInDefaultConstructor;
 						}
 						JCDiagnostic rootCause = getDiagnosticArgumentByType(diagnostic, JCDiagnostic.class);
@@ -513,7 +522,7 @@ public class JavacProblemConverter {
 						String rootCauseCode = rootCause.getCode();
 						yield switch (rootCauseCode) {
 						case "compiler.misc.report.access" -> convertNotVisibleAccess(diagnostic);
-						case "compiler.misc.arg.length.mismatch" -> IProblem.UndefinedConstructorInDefaultConstructor;
+						case "compiler.misc.arg.length.mismatch" -> isDefault ? IProblem.UndefinedConstructorInDefaultConstructor : IProblem.UndefinedConstructor;
 						default -> IProblem.UndefinedConstructor;
 						};
 					}
