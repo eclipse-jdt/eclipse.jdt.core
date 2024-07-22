@@ -193,9 +193,9 @@ public class GuardedPattern extends Pattern{
 
 	/**
 	 * Returns the conditional expression of this pattern, or
-	 * <code>this.ast.newNullLiteral()</code> if there is none (the "default:" case).
+	 * <code>{@link NullLiteral}</code> if there is none (the "default:" case).
 	 *
-	 * @return the <code>{@link Expression}</code> node, or <code>this.ast.newNullLiteral()</code> if there is none
+	 * @return the <code>{@link Expression}</code> node, or <code>{@link NullLiteral}</code> if there is none
 	 * @since 3.38
 	 */
 	public Expression getExpression() {
@@ -214,7 +214,7 @@ public class GuardedPattern extends Pattern{
 
 	/**
 	 * Returns the pattern of this Guarded Pattern, or
-	 * <code>this.ast.newNullPattern()</code> if there is none.
+	 * <code>{@link NullPattern}</code> if there is none.
 	 * @return the pattern node
 	 * 			(element type: {@link Pattern})
 	 * @exception UnsupportedOperationException if this operation is used other than JLS21
