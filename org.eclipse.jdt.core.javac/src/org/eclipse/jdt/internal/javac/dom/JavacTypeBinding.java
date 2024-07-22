@@ -192,7 +192,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	static void getKey(StringBuilder builder, Type typeToBuild, boolean isLeaf) {
 		getKey(builder, typeToBuild, typeToBuild.asElement().flatName(), isLeaf);
 	}
-	
+
 	static void getKey(StringBuilder builder, Type typeToBuild, Name n, boolean isLeaf) {
 		if (typeToBuild instanceof Type.JCNoType) {
 			return;
@@ -670,16 +670,8 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding getWildcard() {
-		//TODO low confidence on this implem.
-		if (this.type instanceof WildcardType wildcardType) {
-			Type extendsBound = wildcardType.getExtendsBound();
-			if (extendsBound != null) {
-				return this.resolver.bindings.getTypeBinding(extendsBound);
-			}
-			Type superBound = wildcardType.getSuperBound();
-			if (superBound != null) {
-				return this.resolver.bindings.getTypeBinding(superBound);
-			}
+		if (this.type instanceof Type.CapturedType capturedType) {
+			return this.resolver.bindings.getTypeBinding(capturedType.wildcard);
 		}
 		return null;
 	}
@@ -741,7 +733,8 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	public boolean isFromSource() {
 		return this.resolver.findDeclaringNode(this) != null ||
 				getJavaElement() instanceof SourceType ||
-				(getDeclaringClass() != null && getDeclaringClass().isFromSource());
+				(getDeclaringClass() != null && getDeclaringClass().isFromSource()) ||
+				this.isCapture();
 	}
 
 	@Override
