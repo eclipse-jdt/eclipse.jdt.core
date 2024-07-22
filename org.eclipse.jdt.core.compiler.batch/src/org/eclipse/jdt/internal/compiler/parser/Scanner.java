@@ -571,6 +571,10 @@ protected final boolean scanForMarkdownBeginning() {
 	try {
 		int temp = this.currentPosition;
 		int count = 0;
+		// The scanner is already at \r, look for matching \n
+		if (this.currentCharacter == '\r' && this.source[temp] == '\n') {
+			temp++;
+		}
 		while(true) {
 			char c = this.source[temp++];
 			switch(c) {
@@ -580,7 +584,6 @@ protected final boolean scanForMarkdownBeginning() {
 						return true;
 					}
 					break;
-				case '\r' :
 				case '\n' :
 					return false;
 				default:
@@ -1953,6 +1956,9 @@ protected int getNextToken0() throws InvalidInputException {
 											pushLineSeparator();
 										}
 									}
+									if (!scanForMarkdownBeginning()) {
+										break;
+									}
 								}
 								isUnicode = false;
 								previous = this.currentPosition;
@@ -2846,6 +2852,9 @@ public final void jumpOverMethodBody() {
 										} else {
 											pushLineSeparator();
 										}
+									}
+									if (!scanForMarkdownBeginning()) {
+										break;
 									}
 								}
 								isUnicode = false;
