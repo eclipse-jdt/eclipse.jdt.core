@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
@@ -149,7 +150,7 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 			}
 			return builder.toString();
 		} else if (this.variableSymbol.owner instanceof MethodSymbol methodSymbol) {
-			JavacMethodBinding.getKey(builder, methodSymbol, this.resolver);
+			JavacMethodBinding.getKey(builder, methodSymbol, methodSymbol.type instanceof Type.MethodType methodType ? methodType : null, this.resolver);
 			builder.append('#');
 			builder.append(this.variableSymbol.name);
 			// FIXME: is it possible for the javac AST to contain multiple definitions of the same variable?
@@ -229,7 +230,10 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 		Symbol parentSymbol = this.variableSymbol.owner;
 		do {
 			if (parentSymbol instanceof MethodSymbol method) {
-				return this.resolver.bindings.getMethodBinding(method.type.asMethodType(), method);
+				if (!(method.type instanceof Type.MethodType methodType)) {
+					return null;
+				}
+				return this.resolver.bindings.getMethodBinding(methodType, method);
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);

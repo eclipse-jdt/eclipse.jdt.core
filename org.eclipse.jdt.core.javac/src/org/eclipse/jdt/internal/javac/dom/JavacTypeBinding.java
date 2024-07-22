@@ -135,13 +135,18 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public IJavaElement getJavaElement() {
-		if (isTypeVariable()
-			&& this.typeSymbol != null
-			&& this.typeSymbol.owner instanceof ClassSymbol ownerSymbol
-			&& ownerSymbol.type != null
-			&& this.resolver.bindings.getTypeBinding(ownerSymbol.type).getJavaElement() instanceof IType ownerType
-			&& ownerType.getTypeParameter(this.getName()) != null) {
-			return ownerType.getTypeParameter(this.getName());
+		if (isTypeVariable() && this.typeSymbol != null) {
+			if (this.typeSymbol.owner instanceof ClassSymbol ownerSymbol
+					&& ownerSymbol.type != null
+					&& this.resolver.bindings.getTypeBinding(ownerSymbol.type).getJavaElement() instanceof IType ownerType
+					&& ownerType.getTypeParameter(this.getName()) != null) {
+				return ownerType.getTypeParameter(this.getName());
+			} else if (this.typeSymbol.owner instanceof MethodSymbol ownerSymbol
+					&& ownerSymbol.type != null
+					&& this.resolver.bindings.getMethodBinding(ownerSymbol.type.asMethodType(), ownerSymbol).getJavaElement() instanceof IMethod ownerMethod
+					&& ownerMethod.getTypeParameter(this.getName()) != null) {
+				return ownerMethod.getTypeParameter(this.getName());
+			}
 		}
 		if (this.resolver.javaProject == null) {
 			return null;
@@ -353,7 +358,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		return StreamSupport.stream(l.spliterator(), false)
 			.filter(MethodSymbol.class::isInstance)
 			.map(MethodSymbol.class::cast)
-			.map(sym -> this.resolver.bindings.getMethodBinding(sym.type.asMethodType(), sym))
+			.map(sym -> {
+				Type.MethodType methodType = this.types.memberType(this.type, sym).asMethodType();
+				return this.resolver.bindings.getMethodBinding(methodType, sym);
+			})
 			.toArray(IMethodBinding[]::new);
 	}
 
@@ -394,7 +402,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		Symbol parentSymbol = this.typeSymbol.owner;
 		do {
 			if (parentSymbol instanceof final MethodSymbol method) {
-				return this.resolver.bindings.getMethodBinding(method.type.asMethodType(), method);
+				if (!(method.type instanceof Type.MethodType methodType)) {
+					return null;
+				}
+				return this.resolver.bindings.getMethodBinding(methodType, method);
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);
@@ -428,7 +439,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding getErasure() {
-		return this.resolver.bindings.getTypeBinding(this.types.erasure(this.type));
+		return this.resolver.bindings.getTypeBinding(this.types.erasureRecursive(this.type));
 	}
 
 	@Override
@@ -530,7 +541,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		}
 
 		StringBuilder res = new StringBuilder();
-		res.append(this.typeSymbol.getQualifiedName().toString());
+		res.append(this.typeSymbol.toString());
 		ITypeBinding[] typeArguments = this.getTypeArguments();
 		if (typeArguments.length > 0) {
 			res.append("<");

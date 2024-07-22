@@ -701,6 +701,8 @@ public class JavacProblemConverter {
 			case "compiler.err.expected4" -> IProblem.Syntax;
 			case "compiler.err.no.intf.expected.here" -> IProblem.SuperclassMustBeAClass;
 			case "compiler.err.intf.expected.here" -> IProblem.SuperInterfaceMustBeAnInterface;
+			case "compiler.err.method.does.not.override.superclass" -> IProblem.MethodMustOverrideOrImplement;
+			case "compiler.err.name.clash.same.erasure.no.override" -> IProblem.DuplicateMethodErasure;
 			default -> {
 				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;

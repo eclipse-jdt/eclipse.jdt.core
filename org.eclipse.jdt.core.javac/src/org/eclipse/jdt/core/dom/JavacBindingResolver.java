@@ -52,6 +52,7 @@ import com.sun.tools.javac.code.Type.ErrorType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.ModuleType;
 import com.sun.tools.javac.code.Type.PackageType;
+import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.code.TypeTag;
 import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.tree.JCTree;
@@ -149,6 +150,12 @@ public class JavacBindingResolver extends BindingResolver {
 		//
 		private Map<String, JavacTypeBinding> typeBinding = new HashMap<>();
 		public JavacTypeBinding getTypeBinding(com.sun.tools.javac.code.Type type) {
+			if (type instanceof com.sun.tools.javac.code.Type.TypeVar typeVar) {
+				return getTypeVariableBinding(typeVar);
+			}
+			if (type == null || type == com.sun.tools.javac.code.Type.noType) {
+				return null;
+			}
 			if (type instanceof ErrorType errorType
 						&& (errorType.getOriginalType() != com.sun.tools.javac.code.Type.noType)
 						&& !(errorType.getOriginalType() instanceof com.sun.tools.javac.code.Type.MethodType)
@@ -166,8 +173,8 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 		//
 		private Map<String, JavacTypeVariableBinding> typeVariableBindings = new HashMap<>();
-		public JavacTypeVariableBinding getTypeVariableBinding(TypeVariableSymbol typeVariableSymbol) {
-			JavacTypeVariableBinding newInstance = new JavacTypeVariableBinding(typeVariableSymbol) { };
+		public JavacTypeVariableBinding getTypeVariableBinding(TypeVar typeVar) {
+			JavacTypeVariableBinding newInstance = new JavacTypeVariableBinding(typeVar, (TypeVariableSymbol)typeVar.tsym, JavacBindingResolver.this) { };
 			typeVariableBindings.putIfAbsent(newInstance.getKey(), newInstance);
 			return typeVariableBindings.get(newInstance.getKey());
 		}
@@ -200,6 +207,13 @@ public class JavacBindingResolver extends BindingResolver {
 				return getPackageBinding(other);
 			} else if (owner instanceof ModuleSymbol typeSymbol) {
 				return getModuleBinding(typeSymbol);
+			} else if (owner instanceof Symbol.TypeVariableSymbol typeVariableSymbol) {
+				if (type instanceof TypeVar typeVar) {
+					return getTypeVariableBinding(typeVar);
+				} else if (typeVariableSymbol.type instanceof TypeVar typeVar) {
+					return getTypeVariableBinding(typeVar);
+				}
+				// without the type there is not much we can do; fallthrough to null
 			} else if (owner instanceof TypeSymbol typeSymbol) {
 				return getTypeBinding(typeSymbol.type);
 			} else if (owner instanceof final MethodSymbol other) {
@@ -797,7 +811,7 @@ public class JavacBindingResolver extends BindingResolver {
 	IMethodBinding resolveConstructor(ClassInstanceCreation expression) {
 		return (IMethodBinding)resolveCached(expression, (n) -> resolveConstructorImpl((ClassInstanceCreation)n));
 	}
-	
+
 	private IMethodBinding resolveConstructorImpl(ClassInstanceCreation expression) {
 		resolve();
 		return this.converter.domToJavac.get(expression) instanceof JCNewClass jcExpr
@@ -811,7 +825,7 @@ public class JavacBindingResolver extends BindingResolver {
 	IMethodBinding resolveConstructor(ConstructorInvocation invocation) {
 		return (IMethodBinding)resolveCached(invocation, (n) -> resolveConstructorImpl((ConstructorInvocation)n));
 	}
-	
+
 	private IMethodBinding resolveConstructorImpl(ConstructorInvocation invocation) {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(invocation);
@@ -895,7 +909,7 @@ public class JavacBindingResolver extends BindingResolver {
 	IModuleBinding resolveModule(ModuleDeclaration module) {
 		return (IModuleBinding)resolveCached(module, (n) -> resolveModuleImpl((ModuleDeclaration)n));
 	}
-	
+
 	private IBinding resolveModuleImpl(ModuleDeclaration module) {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(module);
@@ -947,7 +961,7 @@ public class JavacBindingResolver extends BindingResolver {
 	IBinding resolveImport(ImportDeclaration importDeclaration) {
 		return resolveCached(importDeclaration, (n) -> resolveImportImpl((ImportDeclaration)n));
 	}
-	
+
 	private IBinding resolveImportImpl(ImportDeclaration importDeclaration) {
 		var javac = this.converter.domToJavac.get(importDeclaration.getName());
 		if (javac instanceof JCFieldAccess fieldAccess) {
@@ -1008,7 +1022,7 @@ public class JavacBindingResolver extends BindingResolver {
 	IAnnotationBinding resolveAnnotation(Annotation annotation) {
 		return (IAnnotationBinding)resolveCached(annotation, (n) -> resolveAnnotationImpl((Annotation)n));
 	}
-	
+
 	IAnnotationBinding resolveAnnotationImpl(Annotation annotation) {
 		resolve();
 		IBinding recipient = null;
@@ -1028,7 +1042,7 @@ public class JavacBindingResolver extends BindingResolver {
 	IBinding resolveReference(MethodRef ref) {
 		return resolveCached(ref, (n) -> resolveReferenceImpl((MethodRef)n));
 	}
-	
+
 	private IBinding resolveReferenceImpl(MethodRef ref) {
 		resolve();
 		DocTreePath path = this.converter.findDocTreePath(ref);
@@ -1042,7 +1056,7 @@ public class JavacBindingResolver extends BindingResolver {
 	IBinding resolveReference(MemberRef ref) {
 		return resolveCached(ref, (n) -> resolveReferenceImpl((MemberRef)n));
 	}
-	
+
 	private IBinding resolveReferenceImpl(MemberRef ref) {
 		resolve();
 		DocTreePath path = this.converter.findDocTreePath(ref);

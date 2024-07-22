@@ -11,12 +11,13 @@
 package org.eclipse.jdt.internal.javac.dom;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.IJavaElement;
@@ -41,14 +42,17 @@ import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.JCNoType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.TypeVar;
+import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Names;
 
 public abstract class JavacMethodBinding implements IMethodBinding {
 
 	private static final ITypeBinding[] NO_TYPE_ARGUMENTS = new ITypeBinding[0];
+	private static final ITypeBinding[] NO_TYPE_PARAMS = new ITypeBinding[0];
 
 	public final MethodSymbol methodSymbol;
 	final MethodType methodType;
@@ -211,11 +215,11 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	@Override
 	public String getKey() {
 		StringBuilder builder = new StringBuilder();
-		getKey(builder, this.methodSymbol, this.resolver);
+		getKey(builder, this.methodSymbol, this.methodType, this.resolver);
 		return builder.toString();
 	}
 
-	static void getKey(StringBuilder builder, MethodSymbol methodSymbol, JavacBindingResolver resolver) {
+	static void getKey(StringBuilder builder, MethodSymbol methodSymbol, MethodType methodType, JavacBindingResolver resolver) {
 		Symbol ownerSymbol = methodSymbol.owner;
 		while (ownerSymbol != null && !(ownerSymbol instanceof TypeSymbol)) {
 			ownerSymbol = ownerSymbol.owner;
@@ -230,17 +234,28 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			builder.append(methodSymbol.getSimpleName());
 		}
 		if (methodSymbol.type != null) { // initializer
-			if (!methodSymbol.getTypeParameters().isEmpty()) {
+			if (methodType != null && !methodType.getTypeArguments().isEmpty()) {
+				builder.append('<');
+				for (var typeParam : methodType.getTypeArguments()) {
+					JavacTypeBinding.getKey(builder, typeParam, false);
+				}
+				builder.append('>');
+			} else if (!methodSymbol.getTypeParameters().isEmpty()) {
 				builder.append('<');
 				for (var typeParam : methodSymbol.getTypeParameters()) {
-					JavacTypeVariableBinding typeVarBinding = resolver.bindings.getTypeVariableBinding(typeParam);
-					builder.append(typeVarBinding.getKey());
+					builder.append(JavacTypeVariableBinding.getTypeVariableKey(typeParam));
 				}
 				builder.append('>');
 			}
 			builder.append('(');
-			for (var param : methodSymbol.getParameters()) {
-				JavacTypeBinding.getKey(builder, param.type, false);
+			if (methodType != null) {
+				for (var param : methodType.getParameterTypes()) {
+					JavacTypeBinding.getKey(builder, param, false);
+				}
+			} else {
+				for (var param : methodSymbol.getParameters()) {
+					JavacTypeBinding.getKey(builder, param.type, false);
+				}
 			}
 			builder.append(')');
 			if (!(methodSymbol.getReturnType() instanceof JCNoType)) {
@@ -358,6 +373,9 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public ITypeBinding[] getTypeParameters() {
+		if (this.getTypeArguments().length != 0) {
+			return NO_TYPE_PARAMS;
+		}
 		return this.methodSymbol.getTypeParameters().stream()
 				.map(symbol -> this.resolver.bindings.getTypeBinding(symbol.type))
 				.toArray(ITypeBinding[]::new);
@@ -375,33 +393,78 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public boolean isParameterizedMethod() {
-		return !this.methodType.getTypeArguments().isEmpty();
+		return this.getTypeArguments().length != 0;
 	}
 
 	@Override
 	public ITypeBinding[] getTypeArguments() {
-		if (this.methodType.getTypeArguments().isEmpty()) {
+		// methodType.getTypeArguments() is always null
+		// we must compute the arguments ourselves by computing a mapping from the method with type variables
+		// to the specific instance that potentially has the type variables substituted for real types
+		Map<Type, Type> typeMap = new HashMap<>();
+		// scrape the parameters
+		for (int i = 0; i < methodSymbol.type.getParameterTypes().size(); i++) {
+			ListBuffer<Type> originalTypes = new ListBuffer<>();
+			ListBuffer<Type> substitutedTypes = new ListBuffer<>();
+			this.resolver.getTypes().adapt(
+					methodSymbol.type.getParameterTypes().get(i),
+					methodType.getParameterTypes().get(i), originalTypes, substitutedTypes);
+			List<Type> originalTypesList = originalTypes.toList();
+			List<Type> substitutedTypesList = substitutedTypes.toList();
+			for (int j = 0; j < originalTypesList.size(); j++) {
+				typeMap.putIfAbsent(originalTypesList.get(j), substitutedTypesList.get(j));
+			}
+		}
+		{
+			// also scrape the return type
+			ListBuffer<Type> originalTypes = new ListBuffer<>();
+			ListBuffer<Type> substitutedTypes = new ListBuffer<>();
+			this.resolver.getTypes().adapt(methodSymbol.type.getReturnType(), methodType.getReturnType(), originalTypes, substitutedTypes);
+			List<Type> originalTypesList = originalTypes.toList();
+			List<Type> substitutedTypesList = substitutedTypes.toList();
+			for (int j = 0; j < originalTypesList.size(); j++) {
+				typeMap.putIfAbsent(originalTypesList.get(j), substitutedTypesList.get(j));
+			}
+		}
+
+		boolean allEqual = true;
+		for (Map.Entry<Type, Type> entry : typeMap.entrySet()) {
+			if (!entry.getKey().equals(entry.getValue())) {
+				allEqual = false;
+			}
+			if (entry.getValue() == null) {
+				return NO_TYPE_ARGUMENTS;
+			}
+		}
+		if (allEqual) {
+			// methodType also contains all the type variables,
+			// which means it's also generic and no type arguments have been applied.
 			return NO_TYPE_ARGUMENTS;
 		}
-		return this.methodType.getTypeArguments().stream()
-				.map(this.resolver.bindings::getTypeBinding)
+
+		return this.methodSymbol.getTypeParameters().stream() //
+				.map(tvSym -> typeMap.get(tvSym.type)) //
+				.map(this.resolver.bindings::getTypeBinding) //
 				.toArray(ITypeBinding[]::new);
 	}
 
 	@Override
 	public IMethodBinding getMethodDeclaration() {
-		return this;
+		// This method intentionally converts the type to its generic type,
+		// i.e. drops the type arguments
+		// i.e. <code>this.<String>getValue(12);</code> will be converted back to <code><T> T getValue(int i) {</code>
+		return this.resolver.bindings.getMethodBinding(methodSymbol.type.asMethodType(), methodSymbol);
 	}
 
 	@Override
 	public boolean isRawMethod() {
-		return this.methodSymbol.type.isRaw();
+		return this.methodType.isRaw();
 	}
 
 	@Override
 	public boolean isSubsignature(IMethodBinding otherMethod) {
 		if (otherMethod instanceof JavacMethodBinding otherJavacMethod) {
-			return resolver.getTypes().isSubSignature(this.methodSymbol.asType(), otherJavacMethod.methodSymbol.asType());
+			return resolver.getTypes().isSubSignature(this.methodType, otherJavacMethod.methodType);
 		}
 		return false;
 	}
