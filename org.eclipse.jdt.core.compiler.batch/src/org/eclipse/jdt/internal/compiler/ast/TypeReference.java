@@ -758,7 +758,8 @@ protected void resolveAnnotations(Scope scope, int location) {
 }
 
 protected static boolean hasCompletedHierarchyCheckWithMembers(TypeBinding type) {
- 	if (type != null && (type.original() instanceof SourceTypeBinding stb)) {
+ 	if (type != null && (type.original() instanceof SourceTypeBinding)) {
+         final SourceTypeBinding stb = (SourceTypeBinding) type.original();
 		if ((stb.tagBits & TagBits.EndHierarchyCheck) == 0) {
 			return false;
 		}

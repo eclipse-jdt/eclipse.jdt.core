@@ -61,10 +61,11 @@ public class EqualExpression extends BinaryExpression {
 				if ((local.type.tagBits & TagBits.IsBaseType) == 0) {
 					checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, rightStatus, this.left);
 				}
-			} else if (this.left instanceof Reference reference
+			} else if (this.left instanceof Reference
 							&& ((contextualCheckEquality ? rightStatus == FlowInfo.NON_NULL : rightStatus == FlowInfo.NULL))
-							&& shouldPerformSyntacticAnalsysisFor(scope, reference))
+							&& shouldPerformSyntacticAnalsysisFor(scope, (Reference)this.left))
 			{
+                final Reference reference = (Reference)this.left;
 				FieldBinding field = reference.lastFieldBinding();
 				if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
 					flowContext.recordNullCheckedFieldReference((Reference) this.left, 1);
@@ -77,10 +78,11 @@ public class EqualExpression extends BinaryExpression {
 				if ((local.type.tagBits & TagBits.IsBaseType) == 0) {
 					checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, leftStatus, this.right);
 				}
-			} else if (this.right instanceof Reference reference
+			} else if (this.right instanceof Reference
 							&& ((contextualCheckEquality ? leftStatus == FlowInfo.NON_NULL : leftStatus == FlowInfo.NULL))
-							&& shouldPerformSyntacticAnalsysisFor(scope, reference))
+							&& shouldPerformSyntacticAnalsysisFor(scope, (Reference)this.right))
 			{
+                final Reference reference = (Reference)this.right;
 				FieldBinding field = reference.lastFieldBinding();
 				if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
 					flowContext.recordNullCheckedFieldReference((Reference) this.right, 1);

@@ -48,9 +48,10 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 	}
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof Annotation other)) {
+		if (!(o instanceof Annotation)) {
 			return false;
 		}
+        final Annotation other = (Annotation) o;
 		if (this.memberValuePairName == null) {
 			if (other.memberValuePairName != null)
 				return false;

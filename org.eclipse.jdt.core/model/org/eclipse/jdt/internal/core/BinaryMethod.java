@@ -76,7 +76,8 @@ protected BinaryMethod(JavaElement parent, String name, String[] paramTypes, int
 
 @Override
 public boolean equals(Object o) {
-	if (!(o instanceof BinaryMethod other)) return false;
+	if (!(o instanceof BinaryMethod)) return false;
+    final BinaryMethod other = (BinaryMethod) o;
 	return super.equals(o) && Util.equalArraysOrNull(getErasedParameterTypes(), other.getErasedParameterTypes());
 }
 

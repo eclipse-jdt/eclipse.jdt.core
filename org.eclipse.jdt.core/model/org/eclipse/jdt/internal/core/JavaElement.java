@@ -247,7 +247,8 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	public IJavaElement[] getChildren() throws JavaModelException {
 		Object elementInfo = getElementInfo();
-		if (elementInfo instanceof JavaElementInfo ji) {
+		if (elementInfo instanceof JavaElementInfo) {
+            final JavaElementInfo ji = (JavaElementInfo) elementInfo;
 			return ji.getChildren();
 		} else {
 			return NO_ELEMENTS;

@@ -1844,11 +1844,12 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	if ((rightIsCast = this.right instanceof CastExpression) == true) this.right.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
 
-	LocalVariableBinding [] patternVars = switch ((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
-		case AND_AND -> this.left.bindingsWhenTrue();
-		case OR_OR   -> this.left.bindingsWhenFalse();
-		default      -> NO_VARIABLES;
-	};
+	final LocalVariableBinding [] patternVars;
+    switch ((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
+        case AND_AND: { patternVars = this.left.bindingsWhenTrue(); break; }
+        case OR_OR: { patternVars = this.left.bindingsWhenFalse(); break; }
+        default: { patternVars = NO_VARIABLES; break; }
+	}
 
 	TypeBinding rightType = this.right.resolveTypeWithBindings(patternVars, scope);
 
@@ -1875,11 +1876,13 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	// We handle only the cases NOT already diagnosed in due course to avoid double jeopardy
 	switch ((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
-		case AND_AND -> {
+        case AND_AND: {
 			scope.reportClashingDeclarations(this.left.bindingsWhenFalse(), this.right.bindingsWhenFalse());
+            break;
 		}
-		case OR_OR -> {
+        case OR_OR: {
 			scope.reportClashingDeclarations(this.left.bindingsWhenTrue(), this.right.bindingsWhenTrue());
+            break;
 		}
 	}
 

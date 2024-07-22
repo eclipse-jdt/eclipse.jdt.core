@@ -113,7 +113,8 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (o instanceof JrtPackageFragmentRoot other) {
+		if (o instanceof JrtPackageFragmentRoot) {
+            final JrtPackageFragmentRoot other = (JrtPackageFragmentRoot) o;
 			return this.moduleName.equals(other.moduleName) &&
 					this.jarPath.equals(other.jarPath) &&
 					Arrays.equals(this.extraAttributes, other.extraAttributes);

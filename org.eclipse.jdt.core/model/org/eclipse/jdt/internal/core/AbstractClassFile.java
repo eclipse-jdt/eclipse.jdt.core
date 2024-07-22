@@ -128,7 +128,8 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 	}
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof AbstractClassFile other)) return false;
+		if (!(o instanceof AbstractClassFile)) return false;
+        final AbstractClassFile other = (AbstractClassFile) o;
 		return this.name.equals(other.name) && this.getParent().equals(other.getParent());
 	}
 	@Override

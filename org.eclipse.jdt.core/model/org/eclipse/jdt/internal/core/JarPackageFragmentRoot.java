@@ -179,7 +179,8 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 				children[index++] = getPackageFragment(pkgName);
 			}
 		} catch (CoreException e) {
-			if (e.getCause() instanceof ZipException zipex) {
+			if (e.getCause() instanceof ZipException) {
+                final ZipException zipex = (ZipException) e.getCause();
 				// not a ZIP archive, leave the children empty
 				Util.log(zipex, "Invalid ZIP archive: " + toStringWithAncestors()); //$NON-NLS-1$
 				children = NO_ELEMENTS;
@@ -232,7 +233,8 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (o instanceof JarPackageFragmentRoot other) {
+		if (o instanceof JarPackageFragmentRoot) {
+            final JarPackageFragmentRoot other = (JarPackageFragmentRoot) o;
 			return this.jarPath.equals(other.jarPath) && Arrays.equals(this.extraAttributes, other.extraAttributes);
 		}
 		return false;

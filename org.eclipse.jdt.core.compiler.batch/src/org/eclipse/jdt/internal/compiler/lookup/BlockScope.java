@@ -1241,7 +1241,8 @@ private boolean isLastInMethod(Block block, ASTNode location) {
 	Statement[] blockStatements = null;
 	if (block != null) {
 		blockStatements = block.statements;
-	} else if (this.referenceContext() instanceof AbstractMethodDeclaration method) {
+	} else if (this.referenceContext() instanceof AbstractMethodDeclaration) {
+        final AbstractMethodDeclaration method = (AbstractMethodDeclaration) this.referenceContext();
 		blockStatements = method.statements;
 	}
 	if (blockStatements != null && blockStatements.length > 0) {
@@ -1259,9 +1260,11 @@ private boolean isLastInMethod(Block block, ASTNode location) {
 				current = currentParent;
 			}
 			return true;
-		} else if (lastStatement instanceof Block aBlock) {
+		} else if (lastStatement instanceof Block) {
+            final Block aBlock = (Block) lastStatement;
 			return block != null && block.scope.isLastInMethod(aBlock, location);
-		} else if (lastStatement instanceof TryStatement tryStatement) {
+		} else if (lastStatement instanceof TryStatement) {
+            final TryStatement tryStatement = (TryStatement) lastStatement;
 			// which block is last (try or finally)?
 			if (tryStatement.finallyBlock == null || tryStatement.finallyBlock.statements == null) {
 				return tryStatement.tryBlock.scope.isLastInMethod(tryStatement.tryBlock, location);

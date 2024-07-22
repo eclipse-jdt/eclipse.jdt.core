@@ -3196,7 +3196,8 @@ public class ASTMatcher {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public boolean match(StringTemplateExpression node, Object other) {
-		if ((other instanceof StringTemplateExpression exp)) {
+		if ((other instanceof StringTemplateExpression)) {
+            final StringTemplateExpression exp = (StringTemplateExpression) other;
 			return	node.isMultiline() == exp.isMultiline() &&
 					safeSubtreeMatch(node.getProcessor(), exp.getProcessor()) &&
 					safeSubtreeMatch(node.getFirstFragment(), exp.getFirstFragment()) &&
@@ -3243,7 +3244,8 @@ public class ASTMatcher {
 	 * @since 3.37
 	 */
 	public boolean match(StringTemplateComponent node, Object other) {
-		if (other instanceof StringTemplateComponent exp) {
+		if (other instanceof StringTemplateComponent) {
+            final StringTemplateComponent exp = (StringTemplateComponent) other;
 			return safeSubtreeMatch(node.getStringFragment(), exp.getStringFragment()) &&
 					safeSubtreeMatch(node.getEmbeddedExpression(), exp.getEmbeddedExpression());
 		}

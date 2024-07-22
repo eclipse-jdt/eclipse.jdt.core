@@ -513,7 +513,8 @@ public void discardWorkingCopy() throws JavaModelException {
  */
 @Override
 public boolean equals(Object obj) {
-	if (!(obj instanceof CompilationUnit other)) return false;
+	if (!(obj instanceof CompilationUnit)) return false;
+    final CompilationUnit other = (CompilationUnit) obj;
 	return this.owner.equals(other.owner) && super.equals(obj);
 }
 

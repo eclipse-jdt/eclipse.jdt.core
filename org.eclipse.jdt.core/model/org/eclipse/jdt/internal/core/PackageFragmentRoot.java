@@ -346,8 +346,9 @@ protected int determineKind(IResource underlyingResource) throws JavaModelExcept
 public boolean equals(Object o) {
 	if (this == o)
 		return true;
-	if (!(o instanceof PackageFragmentRoot other))
+	if (!(o instanceof PackageFragmentRoot))
 		return false;
+    final PackageFragmentRoot other = (PackageFragmentRoot) o;
 	return resource().equals(other.resource()) &&
 			this.getParent().equals(other.getParent());
 }

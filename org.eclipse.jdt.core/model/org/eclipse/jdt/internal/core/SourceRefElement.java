@@ -93,7 +93,8 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
 }
 @Override
 public boolean equals(Object o) {
-	if (!(o instanceof SourceRefElement other)) return false;
+	if (!(o instanceof SourceRefElement)) return false;
+    final SourceRefElement other = (SourceRefElement) o;
 	return this.occurrenceCount == other.occurrenceCount &&
 			super.equals(o);
 }

@@ -123,7 +123,7 @@ public class JavadocScanner extends Scanner{
 	}
 
 	@Override
-	protected int scanForStringLiteral() throws InvalidInputException {
+	public int scanForStringLiteral() throws InvalidInputException {
 		if (this.considerRegexInStringLiteral) {
 			this.unicodeAsBackSlash = false;
 			boolean isUnicode = false;

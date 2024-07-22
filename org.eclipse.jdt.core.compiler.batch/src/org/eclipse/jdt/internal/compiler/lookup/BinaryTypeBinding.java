@@ -1166,11 +1166,12 @@ protected ITypeAnnotationWalker provideSyntheticEEA(IBinaryMethod method, ITypeA
 			if (this.environment.globalOptions.complianceLevel >= ClassFileConstants.JDK1_8
 					&& CharOperation.equals(method.getSelector(), TypeConstants.REQUIRE_NON_NULL))
 			{
-				String eeaSource = switch(method.getParameterCount()) {
-					case 1 -> "<TT;>(T0T;)T1T;"; //$NON-NLS-1$
-					case 2 -> "<TT;>(T0T;L0java/lang/String;)T1T;"; //$NON-NLS-1$
-					default -> null;
-				};
+				final String eeaSource;
+                switch(method.getParameterCount()) {
+                    case 1 : { eeaSource = "<TT;>(T0T;)T1T;"; break; } //$NON-NLS-1$
+                    case 2 : { eeaSource = "<TT;>(T0T;L0java/lang/String;)T1T;"; break; }  //$NON-NLS-1$
+                    default : { eeaSource = null; break; }
+                }
 				if (eeaSource != null) {
 					walker = ExternalAnnotationProvider.synthesizeForMethod(eeaSource.toCharArray(), this.environment);
 				}

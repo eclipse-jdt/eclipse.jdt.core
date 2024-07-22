@@ -1423,9 +1423,10 @@ public class JavaProject
 		if (this == o)
 			return true;
 
-		if (!(o instanceof JavaProject other))
+		if (!(o instanceof JavaProject))
 			return false;
 
+        final JavaProject other = (JavaProject) o;
 		return this.project.equals(other.getProject());
 	}
 

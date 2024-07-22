@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import java.util.Objects;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -561,7 +563,7 @@ public char[] getCurrentTokenSourceString() {
 	}
 	return result;
 }
-protected final boolean scanForTextBlockBeginning() {
+public boolean scanForTextBlockBeginning() {
 	try {
 		// Don't change the position and current character unless we are certain
 		// to be dealing with a text block. For producing all errors like before
@@ -1845,16 +1847,84 @@ protected int processSingleQuotes(boolean checkIfUnicode) throws InvalidInputExc
 	throw invalidCharacter();
 }
 
-public sealed interface IStringTemplateComponent permits TextFragment, EmbeddedExpression {
+public interface IStringTemplateComponent {
 	// marker
 }
 
-public record TextFragment(int start, int end, char [] text) implements IStringTemplateComponent {
+    public class TextFragment implements IStringTemplateComponent {
+        private final int start;
+        private final int end;
+        private final char[] text;
 
-}
-public record EmbeddedExpression (int start, int end) implements IStringTemplateComponent {
+        public TextFragment(int start, int end, char[] text) {
+            this.start = start;
+            this.end = end;
+            this.text = text;
+        }
 
-}
+        public int start() {
+            return start;
+        }
+
+        public int end() {
+            return end;
+        }
+
+        public char[] text() {
+            return text;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof TextFragment)) {
+                return false;
+            }
+            final TextFragment that = (TextFragment) o;
+            return this.start == that.start && this.end == that.end && Objects.deepEquals(this.text, that.text);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.start, this.end, Arrays.hashCode(text));
+        }
+    }
+    public class EmbeddedExpression implements IStringTemplateComponent {
+        private final int start;
+        private final int end;
+
+        public EmbeddedExpression(int start, int end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        public int start() {
+            return start;
+        }
+
+        public int end() {
+            return end;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof EmbeddedExpression)) {
+                return false;
+            }
+            final EmbeddedExpression that = (EmbeddedExpression) o;
+            return this.start == that.start && this.end == that.end;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.start, this.end);
+        }
+    }
 List<IStringTemplateComponent> templateComponents = null;
 void addStringTemplateComponent(IStringTemplateComponent stc) {
 	if (this.templateComponents == null) {
@@ -1870,7 +1940,7 @@ void clearStringTemplateComponents() {
 }
 
 
-protected int scanForStringLiteral() throws InvalidInputException {
+public int scanForStringLiteral() throws InvalidInputException {
 	boolean isTextBlock = false;
 
 	// consume next character
@@ -2014,7 +2084,7 @@ protected int scanForStringLiteral() throws InvalidInputException {
 	}
 }
 
-protected int scanForTextBlock() throws InvalidInputException {
+public int scanForTextBlock() throws InvalidInputException {
 	int lastQuotePos = 0;
 	try {
 		this.textBlockOffset = this.currentPosition - this.startPosition;
@@ -2222,16 +2292,16 @@ public boolean[] getIdentityComparisonLines() {
 public char[] getSource(){
 	return this.source;
 }
-protected boolean isFirstTag() {
+public boolean isFirstTag() {
 	return true;
 }
-public final void jumpOverMethodBody() {
+public void jumpOverMethodBody() {
 	jumpOverBody();
 }
 
-private int jumpingOverEmbeddedExpression = 0;
+public int jumpingOverEmbeddedExpression = 0;
 
-public final void jumpOverEmbeddedExpression() {
+public void jumpOverEmbeddedExpression() {
 	this.jumpingOverEmbeddedExpression++;
 	jumpOverBody();
 	this.jumpingOverEmbeddedExpression--;
@@ -2239,7 +2309,7 @@ public final void jumpOverEmbeddedExpression() {
 
 // jump over the body of methods, embedded expressions, blocks etc, taking care to handle
 // comments, strings, text blocks etc which may have braces in them
-public final void jumpOverBody() {
+public void jumpOverBody() {
 
 	this.wasAcr = false;
 	int found = 1;
@@ -2554,7 +2624,7 @@ public final void jumpOverBody() {
 	}
 	return;
 }
-public final boolean jumpOverUnicodeWhiteSpace() throws InvalidInputException {
+public boolean jumpOverUnicodeWhiteSpace() throws InvalidInputException {
 	//BOOLEAN
 	//handle the case of unicode. Jump over the next whiteSpace
 	//making startPosition pointing on the next available char
@@ -2569,7 +2639,7 @@ public final boolean jumpOverUnicodeWhiteSpace() throws InvalidInputException {
 public boolean isInModuleDeclaration() {
 	return this.fakeInModule || this.insideModuleInfo;
 }
-protected boolean areRestrictedModuleKeywordsActive() {
+public boolean areRestrictedModuleKeywordsActive() {
 	return this.scanContext != null && this.scanContext != ScanContext.INACTIVE;
 }
 void updateScanContext(int token) {
@@ -2729,7 +2799,7 @@ private int extractInt(char[] array, int start, int end) {
 	}
 	return value;
 }
-public final void pushLineSeparator() {
+public void pushLineSeparator() {
 	//see comment on isLineDelimiter(char) for the use of '\n' and '\r'
 	final int INCREMENT = 250;
 	//currentCharacter is at position currentPosition-1
@@ -2772,7 +2842,7 @@ public final void pushLineSeparator() {
 		}
 	}
 }
-public final void pushUnicodeLineSeparator() {
+public void pushUnicodeLineSeparator() {
 	// cr 000D
 	if (this.currentCharacter == '\r') {
 		if (this.source[this.currentPosition] == '\n') {
@@ -2860,13 +2930,13 @@ public void resetTo(int begin, int end, boolean isModuleInfo, ScanContext contex
 /**
  * @see #lookBack
  */
-final void resetLookBack() {
+void resetLookBack() {
 	this.lookBack[0] = this.lookBack[1] = TokenNameNotAToken;
 }
 /**
  * @see #lookBack
  */
-final void addTokenToLookBack(int newToken) {
+void addTokenToLookBack(int newToken) {
 	// ignore whitespace and comments
 	switch (newToken) {
 		case TokenNameWHITESPACE:
@@ -2889,7 +2959,7 @@ private ScanContext getScanContext(int begin) {
 	ModuleScanContextDetector parser = new ModuleScanContextDetector(options);
 	return parser.getScanContext(this.source, begin - 1);
 }
-protected final void scanEscapeCharacter() throws InvalidInputException {
+public void scanEscapeCharacter() throws InvalidInputException {
 	// the string with "\\u" is a legal string of two chars \ and u
 	//thus we use a direct access to the source (for regular cases).
 	switch (this.currentCharacter) {
@@ -4126,10 +4196,10 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
  * @param position int
  * @return int
  */
-public final int getLineNumber(int position) {
+public int getLineNumber(int position) {
 	return Util.getLineNumber(position, this.lineEnds, 0, this.linePtr);
 }
-public final void setSource(char[] sourceString){
+public void setSource(char[] sourceString){
 	//the source-buffer is set to sourceString
 
 	int sourceLength;
@@ -4153,7 +4223,7 @@ public final void setSource(char[] sourceString){
  * Should be used if a parse (usually a diet parse) has already been performed on the unit,
  * so as to get the already computed line end positions.
  */
-public final void setSource(char[] contents, CompilationResult compilationResult) {
+public void setSource(char[] contents, CompilationResult compilationResult) {
 	if (contents == null) {
 		char[] cuContents = compilationResult.compilationUnit.getContents();
 		setSource(cuContents);
@@ -4170,7 +4240,7 @@ public final void setSource(char[] contents, CompilationResult compilationResult
  * Should be used if a parse (usually a diet parse) has already been performed on the unit,
  * so as to get the already computed line end positions.
  */
-public final void setSource(CompilationResult compilationResult) {
+public void setSource(CompilationResult compilationResult) {
 	setSource(null, compilationResult);
 }
 @Override
@@ -4558,7 +4628,7 @@ public static boolean isKeyword(int token) {
 }
 
 // Vanguard Scanner - A Private utility helper class for the scanner.
-private static final class VanguardScanner extends Scanner {
+public static final class VanguardScanner extends Scanner {
 
 	public VanguardScanner(long sourceLevel, long complianceLevel, boolean previewEnabled) {
 		super (false /*comment*/, false /*whitespace*/, false /*nls*/, sourceLevel, complianceLevel, null/*taskTag*/,
@@ -4604,7 +4674,7 @@ private static final class VanguardScanner extends Scanner {
 	}
 }
 
-private static class Goal {
+public static class Goal {
 
 	int first;      // steer the parser towards a single minded pursuit.
 	int [] follow;  // the definite terminal symbols that signal the successful reduction to goal.
@@ -4744,7 +4814,7 @@ private static class Goal {
 	}
 }
 // Vanguard Parser - A Private utility helper class for the scanner.
-private static class VanguardParser extends Parser {
+public static class VanguardParser extends Parser {
 
 	public static final boolean SUCCESS = true;
 	public static final boolean FAILURE = false;
@@ -4826,7 +4896,7 @@ private static class VanguardParser extends Parser {
 	}
 }
 
-private class ModuleScanContextDetector extends VanguardParser {
+public class ModuleScanContextDetector extends VanguardParser {
 	ModuleScanContextDetector(CompilerOptions options) {
 		super(new ProblemReporter(
 					DefaultErrorHandlingPolicies.ignoreAllProblems(),
@@ -4903,12 +4973,12 @@ private VanguardScanner getNewVanguardScanner() {
 	vs.resetTo(this.startPosition, this.eofPosition - 1, isInModuleDeclaration(), this.scanContext);
 	return vs;
 }
-protected final boolean mayBeAtCasePattern(int token) {
+public boolean mayBeAtCasePattern(int token) {
 	return ((token == TokenNamecase || this.multiCaseLabelComma)
 			&& JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.complianceLevel, this.previewEnabled))
 			&& !isInModuleDeclaration();
 }
-protected final boolean maybeAtLambdaOrCast() { // Could the '(' we saw just now herald a lambda parameter list or a cast expression ? (the possible locations for both are identical.)
+public boolean maybeAtLambdaOrCast() { // Could the '(' we saw just now herald a lambda parameter list or a cast expression ? (the possible locations for both are identical.)
 
 	if (isInModuleDeclaration())
 		return false;
@@ -4930,7 +5000,7 @@ protected final boolean maybeAtLambdaOrCast() { // Could the '(' we saw just now
 	}
 }
 
-protected final boolean maybeAtReferenceExpression() { // Did the '<' we saw just now herald a reference expression's type arguments and trunk ?
+public boolean maybeAtReferenceExpression() { // Did the '<' we saw just now herald a reference expression's type arguments and trunk ?
 	if (isInModuleDeclaration())
 		return false;
 	switch (this.lookBack[1]) {
@@ -4974,7 +5044,7 @@ protected final boolean maybeAtReferenceExpression() { // Did the '<' we saw jus
 	}
 	return this.activeParser.atConflictScenario(TokenNameLESS);
 }
-private final boolean maybeAtEllipsisAnnotationsStart() { // Did the '@' we saw just now herald a type annotation on a ... ? Presumed to be at type annotation already.
+public boolean maybeAtEllipsisAnnotationsStart() { // Did the '@' we saw just now herald a type annotation on a ... ? Presumed to be at type annotation already.
 	if (this.consumingEllipsisAnnotations)
 		return false;
 	switch (this.lookBack[1]) {
@@ -4995,7 +5065,7 @@ private final boolean maybeAtEllipsisAnnotationsStart() { // Did the '@' we saw 
 			return true;
 	}
 }
-protected final boolean atTypeAnnotation() { // Did the '@' we saw just now herald a type annotation ? We should not ask the parser whether it would shift @308 !
+public boolean atTypeAnnotation() { // Did the '@' we saw just now herald a type annotation ? We should not ask the parser whether it would shift @308 !
 	return !this.activeParser.atConflictScenario(TokenNameAT);
 }
 
@@ -5324,7 +5394,7 @@ int disambiguatedToken(int token, Scanner scanner) {
 	return token;
 }
 
-protected int disambiguateArrowWithCaseExpr(Scanner scanner, int retToken) {
+public int disambiguateArrowWithCaseExpr(Scanner scanner, int retToken) {
 	char[] nSource = CharOperation.append(Arrays.copyOfRange(scanner.source, scanner.caseStartPosition, scanner.startPosition), ':');
 	VanguardParser vp = getNewVanguardParser(nSource);
 	if (vp.parse(Goal.SwitchLabelCaseLhsGoal) == VanguardParser.SUCCESS) {
@@ -5353,7 +5423,7 @@ int disambiguateCasePattern(int token, Scanner scanner) {
 	return token;
 }
 
-protected boolean mayBeAtCaseLabelExpr() {
+public boolean mayBeAtCaseLabelExpr() {
 	if (isInModuleDeclaration() || this.caseStartPosition <= 0)
 		return false;
 	if (this.lookBack[1] == TokenNamedefault) {
@@ -5364,7 +5434,7 @@ protected boolean mayBeAtCaseLabelExpr() {
 	return true;
 }
 
-protected boolean isAtAssistIdentifier() {
+public boolean isAtAssistIdentifier() {
 	return false;
 }
 
@@ -5464,59 +5534,59 @@ public int fastForward(Statement unused) {
 }
 
 /** Overridable hook, to allow CompletionScanner to hide a faked identifier token. */
-protected int getNextNotFakedToken() throws InvalidInputException {
+public int getNextNotFakedToken() throws InvalidInputException {
 	return getNextToken();
 }
 
-protected static InvalidInputException invalidCharacter() {
+public static InvalidInputException invalidCharacter() {
 	return new InvalidInputException(INVALID_CHARACTER_CONSTANT);
 }
-protected static InvalidInputException invalidCharInString() {
+public static InvalidInputException invalidCharInString() {
 	return new InvalidInputException(INVALID_CHAR_IN_STRING);
 }
-protected static InvalidInputException unterminatedString() {
+public static InvalidInputException unterminatedString() {
 	return new InvalidInputException(UNTERMINATED_STRING);
 }
-protected static InvalidInputException invalidUnicodeEscape() {
+public static InvalidInputException invalidUnicodeEscape() {
 	return new InvalidInputException(INVALID_UNICODE_ESCAPE);
 }
-protected static InvalidInputException invalidLowSurrogate() {
+public static InvalidInputException invalidLowSurrogate() {
 	return new InvalidInputException(INVALID_LOW_SURROGATE);
 }
-protected static InvalidInputException invalidHighSurrogate() {
+public static InvalidInputException invalidHighSurrogate() {
 	return new InvalidInputException(INVALID_HIGH_SURROGATE);
 }
-protected static InvalidInputException unterminatedComment() {
+public static InvalidInputException unterminatedComment() {
 	return new InvalidInputException(UNTERMINATED_COMMENT);
 }
-protected static InvalidInputException unterminatedTextBlock() {
+public static InvalidInputException unterminatedTextBlock() {
 	return new InvalidInputException(UNTERMINATED_TEXT_BLOCK);
 }
-protected static InvalidInputException invalidEof() {
+public static InvalidInputException invalidEof() {
 	return new InvalidInputException("Ctrl-Z"); //$NON-NLS-1$
 }
-protected static InvalidInputException invalidUnderscore() {
+public static InvalidInputException invalidUnderscore() {
 	return new InvalidInputException(INVALID_UNDERSCORE);
 }
-protected static InvalidInputException invalidUnderscoresInLiterals() {
+public static InvalidInputException invalidUnderscoresInLiterals() {
 	return new InvalidInputException(UNDERSCORES_IN_LITERALS_NOT_BELOW_17);
 }
-protected static InvalidInputException invalidEscape() {
+public static InvalidInputException invalidEscape() {
 	return new InvalidInputException(INVALID_ESCAPE);
 }
-protected static InvalidInputException invalidHexa() {
+public static InvalidInputException invalidHexa() {
 	return new InvalidInputException(INVALID_HEXA);
 }
-protected static InvalidInputException illegalHexaLiteral() {
+public static InvalidInputException illegalHexaLiteral() {
 	return new InvalidInputException(ILLEGAL_HEXA_LITERAL);
 }
-protected static InvalidInputException invalidFloat() {
+public static InvalidInputException invalidFloat() {
 	return new InvalidInputException(INVALID_FLOAT);
 }
-protected static InvalidInputException invalidBinaryLiteral() {
+public static InvalidInputException invalidBinaryLiteral() {
 	return new InvalidInputException(BINARY_LITERAL_NOT_BELOW_17);
 }
-protected static InvalidInputException invalidBinary() {
+public static InvalidInputException invalidBinary() {
 	return new InvalidInputException(INVALID_BINARY);
 }
 public static InvalidInputException invalidToken(int token) {

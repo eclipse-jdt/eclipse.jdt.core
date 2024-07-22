@@ -220,12 +220,12 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			MessageSend message = new MessageSend();
 			message.selector = this.selector;
 			Expression receiver = generateSecretReceiverVariable ? new SingleNameReference(this.receiverVariable.name, 0) : copy.lhs;
-			if (this.lhs instanceof NameReference nr
-					&& nr.binding instanceof LocalVariableBinding receiverLocal
-					&& receiverLocal.isValidBinding()
-					&& (receiverLocal.modifiers & ExtraCompilerModifiers.AccOutOfFlowScope) != 0) {
+			if (this.lhs instanceof NameReference
+					&& ((NameReference)this.lhs).binding instanceof LocalVariableBinding
+					&& ((LocalVariableBinding)((NameReference)this.lhs).binding).isValidBinding()
+					&& (((LocalVariableBinding)((NameReference)this.lhs).binding).modifiers & ExtraCompilerModifiers.AccOutOfFlowScope) != 0) {
 				// what was in scope during initial resolve must be in scope during resolve of synthetic AST, too:
-				patternVariablesInScope = new LocalVariableBinding[] { receiverLocal };
+				patternVariablesInScope = new LocalVariableBinding[] { ((LocalVariableBinding)((NameReference)this.lhs).binding) };
 			}
 			message.receiver = this.receiverPrecedesParameters ?
 					new SingleNameReference(CharOperation.append(ImplicitArgName, Integer.toString(0).toCharArray()), 0) : receiver;

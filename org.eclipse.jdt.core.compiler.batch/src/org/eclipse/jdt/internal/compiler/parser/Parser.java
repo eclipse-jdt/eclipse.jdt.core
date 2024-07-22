@@ -1041,7 +1041,8 @@ public RecoveredElement buildInitialRecoveryState(){
 		this.endPosition = 0;
 		this.endStatementPosition = 0;
 		return element;
-	} else if (this.referenceContext instanceof AbstractMethodDeclaration methodDeclaration){
+	} else if (this.referenceContext instanceof AbstractMethodDeclaration){
+        final AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration) this.referenceContext;
 		element = new RecoveredMethod(methodDeclaration, null, 0, this);
 		this.lastCheckPoint = methodDeclaration.bodyStart;
 		if(this.statementRecoveryActivated) {
@@ -1049,7 +1050,8 @@ public RecoveredElement buildInitialRecoveryState(){
 		}
 	} else {
 		/* Initializer bodies are parsed in the context of the type declaration, we must thus search it inside */
-		if (this.referenceContext instanceof TypeDeclaration type){
+		if (this.referenceContext instanceof TypeDeclaration){
+            final TypeDeclaration type = (TypeDeclaration) this.referenceContext;
 			FieldDeclaration[] fieldDeclarations = type.fields;
 			int length = fieldDeclarations == null ? 0 : fieldDeclarations.length;
 			for (int i = 0; i < length; i++){
@@ -1072,7 +1074,8 @@ public RecoveredElement buildInitialRecoveryState(){
 
 	for(int i = 0; i <= this.astPtr; i++){
 		ASTNode node = this.astStack[i];
-		if (node instanceof AbstractMethodDeclaration method){
+		if (node instanceof AbstractMethodDeclaration){
+            final AbstractMethodDeclaration method = (AbstractMethodDeclaration) node;
 			if (method.declarationSourceEnd == 0){
 				element = element.add(method, 0);
 				this.lastCheckPoint = method.bodyStart;
@@ -1082,7 +1085,8 @@ public RecoveredElement buildInitialRecoveryState(){
 			}
 			continue;
 		}
-		if (node instanceof Initializer initializer){
+		if (node instanceof Initializer){
+            final Initializer initializer = (Initializer) node;
 			// ignore initializer with no block
 			if (initializer.block == null) continue;
 			if (initializer.declarationSourceEnd == 0){
@@ -1094,7 +1098,8 @@ public RecoveredElement buildInitialRecoveryState(){
 			}
 			continue;
 		}
-		if (node instanceof FieldDeclaration field){
+		if (node instanceof FieldDeclaration){
+            final FieldDeclaration field = (FieldDeclaration) node;
 			if (field.declarationSourceEnd == 0){
 				element = element.add(field, 0);
 				if (field.initialization == null){
@@ -1108,7 +1113,8 @@ public RecoveredElement buildInitialRecoveryState(){
 			}
 			continue;
 		}
-		if (node instanceof TypeDeclaration type){
+		if (node instanceof TypeDeclaration){
+            final TypeDeclaration type = (TypeDeclaration) node;
 			if ((type.modifiers & ClassFileConstants.AccEnum) != 0) {
 				// do not allow enums to be build as recovery types
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340691
@@ -1123,18 +1129,22 @@ public RecoveredElement buildInitialRecoveryState(){
 			}
 			continue;
 		}
-		if (node instanceof ImportReference importRef){
+		if (node instanceof ImportReference){
+            final ImportReference importRef = (ImportReference) node;
 			element = element.add(importRef, 0);
 			this.lastCheckPoint = importRef.declarationSourceEnd + 1;
 		}
 		if(this.statementRecoveryActivated) {
-			if(node instanceof Block block) {
+			if(node instanceof Block) {
+                final Block block = (Block) node;
 				element = element.add(block, 0);
 				this.lastCheckPoint = block.sourceEnd + 1;
-			} else if(node instanceof LocalDeclaration statement) {
+			} else if(node instanceof LocalDeclaration) {
+                final LocalDeclaration statement = (LocalDeclaration) node;
 				element = element.add(statement, 0);
 				this.lastCheckPoint = statement.sourceEnd + 1;
-			} else if(node instanceof Expression statement &&  statement.isTrulyExpression()) {
+			} else if(node instanceof Expression && ((Expression) node).isTrulyExpression()) {
+                final Expression statement = (Expression) node;
 				if(node instanceof Assignment ||
 						node instanceof PrefixExpression ||
 						node instanceof PostfixExpression ||
@@ -1148,7 +1158,8 @@ public RecoveredElement buildInitialRecoveryState(){
 						this.lastCheckPoint = statement.sourceEnd + 1;
 					}
 				}
-			} else if(node instanceof Statement statement) {
+			} else if(node instanceof Statement) {
+                final Statement statement = (Statement) node;
 				element = element.add(statement, 0);
 				this.lastCheckPoint = statement.sourceEnd + 1;
 			}
@@ -1305,7 +1316,8 @@ protected AllocationExpression newAllocationExpression(boolean isQualified) {
 	return alloc;
 }
 protected void checkForDiamond(TypeReference allocType) {
-	if (allocType instanceof ParameterizedSingleTypeReference type) {
+	if (allocType instanceof ParameterizedSingleTypeReference) {
+        final ParameterizedSingleTypeReference type = (ParameterizedSingleTypeReference) allocType;
 		if (type.typeArguments == TypeReference.NO_TYPE_ARGUMENTS) {
 			if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
 				problemReporter().diamondNotBelow17(allocType);
@@ -1315,7 +1327,8 @@ protected void checkForDiamond(TypeReference allocType) {
 			} // else don't even bother to recognize this as <>
 		}
 	}
-	else if (allocType instanceof ParameterizedQualifiedTypeReference type) {
+	else if (allocType instanceof ParameterizedQualifiedTypeReference) {
+        final ParameterizedQualifiedTypeReference type = (ParameterizedQualifiedTypeReference) allocType;
 		if (type.typeArguments[type.typeArguments.length - 1] == TypeReference.NO_TYPE_ARGUMENTS) { // Don't care for X<>.Y<> and X<>.Y<String>
 			if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
 				problemReporter().diamondNotBelow17(allocType, type.typeArguments.length - 1);
@@ -1340,7 +1353,8 @@ protected ParameterizedQualifiedTypeReference computeQualifiedGenericsFromRightS
 	char[][] tokens = new char[tokensSize][];
 	long[] positions = new long[tokensSize];
 	Annotation [][] typeAnnotations = null;
-	if (rightSide instanceof ParameterizedSingleTypeReference singleParameterizedTypeReference) {
+	if (rightSide instanceof ParameterizedSingleTypeReference) {
+        final ParameterizedSingleTypeReference singleParameterizedTypeReference = (ParameterizedSingleTypeReference) rightSide;
 		tokens[nameSize] = singleParameterizedTypeReference.token;
 		positions[nameSize] = (((long) singleParameterizedTypeReference.sourceStart) << 32) + singleParameterizedTypeReference.sourceEnd;
 		typeArguments[nameSize] = singleParameterizedTypeReference.typeArguments;
@@ -1348,14 +1362,16 @@ protected ParameterizedQualifiedTypeReference computeQualifiedGenericsFromRightS
 			typeAnnotations = new Annotation[tokensSize][];
 		    typeAnnotations[nameSize] = singleParameterizedTypeReference.annotations[0];
 		}
-	} else if (rightSide instanceof SingleTypeReference singleTypeReference) {
+	} else if (rightSide instanceof SingleTypeReference) {
+        final SingleTypeReference singleTypeReference = (SingleTypeReference) rightSide;
 		tokens[nameSize] = singleTypeReference.token;
 		positions[nameSize] = (((long) singleTypeReference.sourceStart) << 32) + singleTypeReference.sourceEnd;
 		if (singleTypeReference.annotations != null) {
 			typeAnnotations = new Annotation[tokensSize][];
 			typeAnnotations[nameSize] =  singleTypeReference.annotations[0];
 		}
-	} else if (rightSide instanceof ParameterizedQualifiedTypeReference parameterizedTypeReference) {
+	} else if (rightSide instanceof ParameterizedQualifiedTypeReference) {
+        final ParameterizedQualifiedTypeReference parameterizedTypeReference = (ParameterizedQualifiedTypeReference) rightSide;
 		TypeReference[][] rightSideTypeArguments = parameterizedTypeReference.typeArguments;
 		System.arraycopy(rightSideTypeArguments, 0, typeArguments, nameSize, rightSideTypeArguments.length);
 		char[][] rightSideTokens = parameterizedTypeReference.tokens;
@@ -1367,7 +1383,8 @@ protected ParameterizedQualifiedTypeReference computeQualifiedGenericsFromRightS
 			typeAnnotations = new Annotation[tokensSize][];
 			System.arraycopy(rightSideAnnotations, 0, typeAnnotations, nameSize, rightSideAnnotations.length);
 		}
-	} else if (rightSide instanceof QualifiedTypeReference qualifiedTypeReference) {
+	} else if (rightSide instanceof QualifiedTypeReference) {
+        final QualifiedTypeReference qualifiedTypeReference = (QualifiedTypeReference) rightSide;
 		char[][] rightSideTokens = qualifiedTypeReference.tokens;
 		System.arraycopy(rightSideTokens, 0, tokens, nameSize, rightSideTokens.length);
 		long[] rightSidePositions = qualifiedTypeReference.sourcePositions;
@@ -1935,12 +1952,15 @@ protected void consumeBinaryExpression(int op) {
 		case PLUS :
 			// look for "string1" + "string2"
 			if (this.optimizeStringLiterals) {
-				if (expr1 instanceof StringLiteral string1) {
+				if (expr1 instanceof StringLiteral) {
+                    final StringLiteral string1 = (StringLiteral) expr1;
 					if (((expr1.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0) {
-						if (expr2 instanceof CharLiteral charLiteral) { // string+char
+						if (expr2 instanceof CharLiteral) { // string+char
+                            final CharLiteral charLiteral = (CharLiteral) expr2;
 							this.expressionStack[this.expressionPtr] =
 								string1.extendWith(charLiteral);
-						} else if (expr2 instanceof StringLiteral string2) { //string+string
+						} else if (expr2 instanceof StringLiteral) { //string+string
+                            final StringLiteral string2 = (StringLiteral) expr2;
 							this.expressionStack[this.expressionPtr] =
 								string1.extendWith(string2);
 						} else {
@@ -1949,7 +1969,8 @@ protected void consumeBinaryExpression(int op) {
 					} else {
 						this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, PLUS);
 					}
-				} else if (expr1 instanceof CombinedBinaryExpression expr) {
+				} else if (expr1 instanceof CombinedBinaryExpression) {
+                    final CombinedBinaryExpression expr = (CombinedBinaryExpression) expr1;
 					CombinedBinaryExpression cursor;
 					// left branch is comprised of PLUS BEs
 					// cursor is shifted upwards, while needed BEs are added
@@ -1983,7 +2004,8 @@ protected void consumeBinaryExpression(int op) {
 					this.expressionStack[this.expressionPtr] =
 						new BinaryExpression(expr1, expr2, PLUS);
 				}
-			} else if (expr1 instanceof StringLiteral string) {
+			} else if (expr1 instanceof StringLiteral) {
+                final StringLiteral string = (StringLiteral) expr1;
 				if (expr2 instanceof StringLiteral
 						&& ((expr1.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0) {
 					// string + string
@@ -1994,7 +2016,8 @@ protected void consumeBinaryExpression(int op) {
 					this.expressionStack[this.expressionPtr] =
 						new BinaryExpression(expr1, expr2, PLUS);
 				}
-			} else if (expr1 instanceof CombinedBinaryExpression expr) {
+			} else if (expr1 instanceof CombinedBinaryExpression) {
+                    final CombinedBinaryExpression expr = (CombinedBinaryExpression) expr1;
 					CombinedBinaryExpression cursor;
 					// shift cursor; create BE/CBE as needed
 					if ((cursor = expr).arity < cursor.arityMax) {
@@ -2115,12 +2138,15 @@ protected void consumeBinaryExpressionWithName(int op) {
 		case PLUS :
 			// look for "string1" + "string2"
 			if (this.optimizeStringLiterals) {
-				if (expr1 instanceof StringLiteral string1
+				if (expr1 instanceof StringLiteral
 						&& ((expr1.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0) {
-					if (expr2 instanceof CharLiteral char2) { // string+char
+                    final StringLiteral string1 = (StringLiteral) expr1;
+					if (expr2 instanceof CharLiteral) { // string+char
+                        final CharLiteral char2 = (CharLiteral) expr2;
 						this.expressionStack[this.expressionPtr] =
 							string1.extendWith(char2);
-					} else if (expr2 instanceof StringLiteral string2) { //string+string
+					} else if (expr2 instanceof StringLiteral) { //string+string
+                        final StringLiteral string2 = (StringLiteral) expr2;
 						this.expressionStack[this.expressionPtr] =
 							string1.extendWith(string2);
 					} else {
@@ -2129,9 +2155,11 @@ protected void consumeBinaryExpressionWithName(int op) {
 				} else {
 					this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, PLUS);
 				}
-			} else if (expr1 instanceof StringLiteral string1) {
-				if (expr2 instanceof StringLiteral string2
+			} else if (expr1 instanceof StringLiteral) {
+                final StringLiteral string1 = (StringLiteral) expr1;
+				if (expr2 instanceof StringLiteral
 						&& ((expr1.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0) {
+                    final StringLiteral string2 = (StringLiteral) expr2;
 					// string + string
 					this.expressionStack[this.expressionPtr] = string1.extendsWith(string2);
 				} else {
@@ -2947,7 +2975,8 @@ protected void consumeConstructorDeclaration() {
 	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
 		this.astPtr -= length;
 		if (!this.options.ignoreMethodBodies) {
-			if (this.astStack[this.astPtr + 1] instanceof ExplicitConstructorCall explicitCall) {
+			if (this.astStack[this.astPtr + 1] instanceof ExplicitConstructorCall) {
+                final ExplicitConstructorCall explicitCall = (ExplicitConstructorCall) this.astStack[this.astPtr + 1];
 				//avoid a isSomeThing that would only be used here BUT what is faster between two alternatives ?
 				System.arraycopy(
 					this.astStack,
@@ -3532,7 +3561,8 @@ protected void consumeEnterCompilationUnit() {
 }
 protected void consumeEnterMemberValue() {
 	// EnterMemberValue ::= $empty
-	if (this.currentElement instanceof RecoveredAnnotation recoveredAnnotation) {
+	if (this.currentElement instanceof RecoveredAnnotation) {
+        final RecoveredAnnotation recoveredAnnotation = (RecoveredAnnotation) this.currentElement;
 		recoveredAnnotation.hasPendingMemberValueName = true;
 	}
 }
@@ -3549,7 +3579,8 @@ private boolean isAFieldDeclarationInRecord() {
 	int recordIndex = -1;
 	Integer[] nestingTypeAndMethod = null;
 	for (int i = this.astPtr; i >= 0; --i) {
-		if (this.astStack[i] instanceof TypeDeclaration node) {
+		if (this.astStack[i] instanceof TypeDeclaration) {
+            final TypeDeclaration node = (TypeDeclaration) this.astStack[i];
 			if (!node.isRecord())
 				continue;
 			nestingTypeAndMethod = this.recordNestedMethodLevels.get(node);
@@ -3776,7 +3807,7 @@ protected void consumeEnumConstantHeader() {
 protected void consumeEnumConstantHeaderName() {
 	if (this.currentElement != null) {
 		if (!(this.currentElement instanceof RecoveredType
-					|| (this.currentElement instanceof RecoveredField recoveredField && recoveredField.fieldDeclaration.type == null))
+					|| (this.currentElement instanceof RecoveredField && ((RecoveredField)this.currentElement).fieldDeclaration.type == null))
 				|| (this.lastIgnoredToken == TokenNameDOT)) {
 			this.lastCheckPoint = this.scanner.startPosition;
 			this.restartRecovery = true;
@@ -4093,7 +4124,8 @@ protected void consumeEqualityExpressionWithName(int op) {
 }
 protected void consumeExitMemberValue() {
 	// ExitMemberValue ::= $empty
-	if (this.currentElement instanceof RecoveredAnnotation recoveredAnnotation) {
+	if (this.currentElement instanceof RecoveredAnnotation) {
+        final RecoveredAnnotation recoveredAnnotation = (RecoveredAnnotation) this.currentElement;
 		recoveredAnnotation.hasPendingMemberValueName = false;
 		recoveredAnnotation.memberValuPairEqualEnd = -1;
 	}
@@ -5040,7 +5072,8 @@ protected void consumeLocalVariableDeclarationStatement() {
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430336, [1.8][compiler] Bad syntax error recovery: Lonely identifier should be variable name, not type
 			// Mutate foo $missing; into foo = $missing$;
 			Expression left;
-			if (localDeclaration.type instanceof QualifiedTypeReference qtr) {
+			if (localDeclaration.type instanceof QualifiedTypeReference) {
+                final QualifiedTypeReference qtr = (QualifiedTypeReference) localDeclaration.type;
 				left = new QualifiedNameReference(qtr.tokens, qtr.sourcePositions, 0, 0);
 			} else {
 				left = new SingleNameReference(localDeclaration.type.getLastToken(), 0L);
@@ -5113,7 +5146,8 @@ protected void consumeMarkerAnnotation(boolean isTypeAnnotation) {
 	}
 	this.recordStringLiterals = true;
 
-	if (this.currentElement instanceof RecoveredAnnotation recoveredAnnotation) {
+	if (this.currentElement instanceof RecoveredAnnotation) {
+        final RecoveredAnnotation recoveredAnnotation = (RecoveredAnnotation) this.currentElement;
 		this.currentElement = recoveredAnnotation.addAnnotation(markerAnnotation, oldIndex);
 	}
 }
@@ -5137,7 +5171,8 @@ protected void consumeMemberValuePair() {
 	MemberValuePair memberValuePair = new MemberValuePair(simpleName, start, end, value);
 	pushOnAstStack(memberValuePair);
 
-	if (this.currentElement instanceof RecoveredAnnotation recoveredAnnotation) {
+	if (this.currentElement instanceof RecoveredAnnotation) {
+        final RecoveredAnnotation recoveredAnnotation = (RecoveredAnnotation) this.currentElement;
 		recoveredAnnotation.setKind(RecoveredAnnotation.NORMAL);
 	}
 }
@@ -5245,8 +5280,8 @@ protected void consumeMethodHeader() {
 				this.currentElement = this.currentElement.parent;
 			}
 		} else if(this.currentToken == TokenNameLBRACE) {
-			if (this.currentElement instanceof RecoveredMethod recoveredMethod &&
-					recoveredMethod.methodDeclaration != method) {
+			if (this.currentElement instanceof RecoveredMethod &&
+					((RecoveredMethod)this.currentElement).methodDeclaration != method) {
 				this.ignoreNextOpeningBrace = true;
 				this.currentElement.bracketBalance++;
 			}
@@ -5733,7 +5768,8 @@ protected void consumeNormalAnnotation(boolean isTypeAnnotation) {
 	if(this.currentElement != null) {
 		annotationRecoveryCheckPoint(normalAnnotation.sourceStart, normalAnnotation.declarationSourceEnd);
 
-		if (this.currentElement instanceof RecoveredAnnotation recoveredAnnotation) {
+		if (this.currentElement instanceof RecoveredAnnotation) {
+            final RecoveredAnnotation recoveredAnnotation = (RecoveredAnnotation) this.currentElement;
 			this.currentElement = recoveredAnnotation.addAnnotation(normalAnnotation, oldIndex);
 		}
 	}
@@ -6568,7 +6604,8 @@ protected void consumeUnannotatableQualifiedName() {
 protected void consumeRecoveryMethodHeaderName() {
 	// this method is call only inside recovery
 	boolean isAnnotationMethod = false;
-	if(this.currentElement instanceof RecoveredType recoveredType) {
+	if(this.currentElement instanceof RecoveredType) {
+        final RecoveredType recoveredType = (RecoveredType) this.currentElement;
 		isAnnotationMethod = (recoveredType.typeDeclaration.modifiers & ClassFileConstants.AccAnnotation) != 0;
 	} else {
 		RecoveredType recoveredType = this.currentElement.enclosingType();
@@ -6581,7 +6618,8 @@ protected void consumeRecoveryMethodHeaderName() {
 protected void consumeRecoveryMethodHeaderNameWithTypeParameters() {
 	// this method is call only inside recovery
 	boolean isAnnotationMethod = false;
-	if(this.currentElement instanceof RecoveredType recoveredType) {
+	if(this.currentElement instanceof RecoveredType) {
+        final RecoveredType recoveredType = (RecoveredType) this.currentElement;
 		isAnnotationMethod = (recoveredType.typeDeclaration.modifiers & ClassFileConstants.AccAnnotation) != 0;
 	} else {
 		RecoveredType recoveredType = this.currentElement.enclosingType();
@@ -6646,7 +6684,8 @@ protected void consumeResourceOptionalTrailingSemiColon(boolean punctuated) {
 	Statement statement = (Statement) this.astStack[this.astPtr];
 
 	if (punctuated) {
-		if (statement instanceof LocalDeclaration declaration) {
+		if (statement instanceof LocalDeclaration) {
+            final LocalDeclaration declaration = (LocalDeclaration) statement;
 			declaration.declarationSourceEnd = this.endStatementPosition;
 		}
 	}
@@ -8555,7 +8594,8 @@ protected void consumeLambdaExpression() {
 	lexp.setBody(body);
 	lexp.sourceEnd = body.sourceEnd;
 
-	if (body instanceof Expression expression && expression.isTrulyExpression()) {
+	if (body instanceof Expression && ((Expression)body).isTrulyExpression()) {
+        final Expression expression = (Expression) body;
 		expression.statementEnd = body.sourceEnd;
 	}
 	if (!this.parsingJava8Plus) {
@@ -8854,7 +8894,8 @@ protected void consumeSingleMemberAnnotation(boolean isTypeAnnotation) {
 	if(this.currentElement != null) {
 		annotationRecoveryCheckPoint(singleMemberAnnotation.sourceStart, singleMemberAnnotation.declarationSourceEnd);
 
-		if (this.currentElement instanceof RecoveredAnnotation recoveredAnnotation) {
+		if (this.currentElement instanceof RecoveredAnnotation) {
+            final RecoveredAnnotation recoveredAnnotation = (RecoveredAnnotation) this.currentElement;
 			this.currentElement = recoveredAnnotation.addAnnotation(singleMemberAnnotation, oldIndex);
 		}
 	}
@@ -8868,7 +8909,8 @@ protected void consumeSingleMemberAnnotation(boolean isTypeAnnotation) {
 }
 protected void consumeSingleMemberAnnotationMemberValue() {
 	// this rule is used for syntax recovery only
-	if (this.currentElement != null && this.currentElement instanceof RecoveredAnnotation recoveredAnnotation) {
+	if (this.currentElement != null && this.currentElement instanceof RecoveredAnnotation) {
+        final RecoveredAnnotation recoveredAnnotation = (RecoveredAnnotation) this.currentElement;
 		recoveredAnnotation.setKind(RecoveredAnnotation.SINGLE_MEMBER);
 	}
 
@@ -9414,7 +9456,8 @@ protected void consumeTemplate(int token) {
 	boolean isMultiline = token == TerminalTokens.TokenNameTextBlockTemplate;
 	for (int i = 0, fi = 0, ei = 0; i < size; i++) {
 		IStringTemplateComponent component = components.get(i);
-		if (component instanceof TextFragment tf) {
+		if (component instanceof TextFragment) {
+            final TextFragment tf = (TextFragment) component;
 			StringLiteral s;
 			if (isMultiline) {
 				s = createTextBlock(tf.text(), tf.start(), tf.end());
@@ -9592,10 +9635,12 @@ protected void collectResultExpressionsYield(SwitchExpression s) {
 	int l = s.statements == null ? 0 : s.statements.length;
 	for (int i = 0; i < l; ++i) {
 		Statement stmt = s.statements[i];
-		if (stmt instanceof CaseStatement caseStatement) {
+		if (stmt instanceof CaseStatement) {
+            final CaseStatement caseStatement = (CaseStatement) stmt;
 			if (!caseStatement.isExpr) continue;
 			stmt = s.statements[++i];
-			if (stmt instanceof Expression expression && expression.isTrulyExpression()) {
+			if (stmt instanceof Expression && ((Expression) stmt).isTrulyExpression()) {
+                final Expression expression = (Expression) stmt;
 				s.resultExpressions.add(expression);
 				continue;
 			} else if (stmt instanceof ThrowStatement) {
@@ -10058,7 +10103,8 @@ protected void consumeToken(int type) {
 			pushOnIntStack(this.scanner.currentPosition - 1);
 			break;
 		case TokenNameEQUAL  :
-			if (this.currentElement instanceof RecoveredAnnotation recoveredAnnotation) {
+			if (this.currentElement instanceof RecoveredAnnotation) {
+                final RecoveredAnnotation recoveredAnnotation = (RecoveredAnnotation) this.currentElement;
 				if (recoveredAnnotation.memberValuPairEqualEnd == -1) {
 					recoveredAnnotation.memberValuPairEqualEnd = this.scanner.currentPosition - 1;
 				}
@@ -10169,7 +10215,8 @@ protected void consumeTypeHeaderNameWithTypeParameters() {
 
 	if (this.currentElement != null) {
 		// is recovering
-		if (this.currentElement instanceof RecoveredType recoveredType) {
+		if (this.currentElement instanceof RecoveredType) {
+            final RecoveredType recoveredType = (RecoveredType) this.currentElement;
 			recoveredType.pendingTypeParameters = null;
 			this.lastCheckPoint = typeDecl.bodyStart;
 		} else {
@@ -10282,7 +10329,8 @@ protected void consumeTypeParameterList1() {
 protected void consumeTypeParameters() {
 	int startPos = this.intStack[this.intPtr--];
 
-	if(this.currentElement instanceof RecoveredType recoveredType) {
+	if(this.currentElement instanceof RecoveredType) {
+        final RecoveredType recoveredType = (RecoveredType) this.currentElement;
 		int length = this.genericsLengthStack[this.genericsLengthPtr];
 		TypeParameter[] typeParameters = new TypeParameter[length];
 		System.arraycopy(this.genericsStack, this.genericsPtr - length + 1, typeParameters, 0, length);
@@ -10468,7 +10516,8 @@ protected void consumeUnaryExpression(int op) {
 
 	Expression r, exp = this.expressionStack[this.expressionPtr];
 	if (op == MINUS) {
-		if (exp instanceof IntLiteral intLiteral) {
+		if (exp instanceof IntLiteral) {
+            final IntLiteral intLiteral = (IntLiteral) exp;
 			IntLiteral convertToMinValue = intLiteral.convertToMinValue();
 			if (convertToMinValue ==  intLiteral) {
 				// not a min value literal so we convert it to an unary expression
@@ -10476,7 +10525,8 @@ protected void consumeUnaryExpression(int op) {
 			} else {
 				r = convertToMinValue;
 			}
-		} else if (exp instanceof LongLiteral longLiteral) {
+		} else if (exp instanceof LongLiteral) {
+            final LongLiteral longLiteral = (LongLiteral) exp;
 			LongLiteral convertToMinValue = longLiteral.convertToMinValue();
 			if (convertToMinValue ==  longLiteral) {
 				// not a min value literal so we convert it to an unary expression
@@ -11041,7 +11091,8 @@ protected void dispatchDeclarationIntoRecordDeclaration(int length) {
 	boolean hasAbstractMethods = false;
 	for (int i = length - 1; i >= 0; i--) {
 		ASTNode astNode = this.astStack[this.astPtr--];
-		if (astNode instanceof AbstractMethodDeclaration methodDeclaration) {
+		if (astNode instanceof AbstractMethodDeclaration) {
+            final AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration) astNode;
 			//methods and constructors have been regrouped into one single list
 			flag[i] = 2;
 			size2++;
@@ -11135,8 +11186,10 @@ private void checkForRecordMemberErrors(TypeDeclaration typeDecl, int nCreatedFi
 	for (int i = nCreatedFields; i < typeDecl.fields.length; i++) {
 		FieldDeclaration f = typeDecl.fields[i];
 		if (f != null && !f.isStatic()) {
-			if (f instanceof Initializer initializer)
-				problemReporter().recordInstanceInitializerBlockInRecord(initializer);
+			if (f instanceof Initializer) {
+                final Initializer initializer = (Initializer) f;
+                problemReporter().recordInstanceInitializerBlockInRecord(initializer);
+            }
 			else
 				problemReporter().recordNonStaticFieldDeclarationInRecord(f);
 		}
@@ -11217,7 +11270,8 @@ protected StringLiteral createStringLiteral(char[] token, int start, int end, in
 }
 protected RecoveredType currentRecoveryType() {
 	if(this.currentElement != null) {
-		if(this.currentElement instanceof RecoveredType recoveredType) {
+		if(this.currentElement instanceof RecoveredType) {
+            final RecoveredType recoveredType = (RecoveredType) this.currentElement;
 			return recoveredType;
 		} else {
 			return this.currentElement.enclosingType();
@@ -11256,7 +11310,8 @@ protected void dispatchDeclarationInto(int length) {
 	boolean hasAbstractMethods = false;
 	for (int i = length - 1; i >= 0; i--) {
 		ASTNode astNode = this.astStack[this.astPtr--];
-		if (astNode instanceof AbstractMethodDeclaration method) {
+		if (astNode instanceof AbstractMethodDeclaration) {
+            final AbstractMethodDeclaration method = (AbstractMethodDeclaration) astNode;
 			//methods and constructors have been regrouped into one single list
 			flag[i] = 2;
 			size2++;
@@ -11345,7 +11400,8 @@ protected void dispatchDeclarationIntoEnumDeclaration(int length) {
 	int enumConstantsCounter = 0;
 	for (int i = length - 1; i >= 0; i--) {
 		ASTNode astNode = this.astStack[this.astPtr--];
-		if (astNode instanceof AbstractMethodDeclaration method) {
+		if (astNode instanceof AbstractMethodDeclaration) {
+            final AbstractMethodDeclaration method = (AbstractMethodDeclaration) astNode;
 			//methods and constructors have been regrouped into one single list
 			flag[i] = 2;
 			size2++;
@@ -11355,7 +11411,8 @@ protected void dispatchDeclarationIntoEnumDeclaration(int length) {
 		} else if (astNode instanceof TypeDeclaration) {
 			flag[i] = 3;
 			size3++;
-		} else if (astNode instanceof FieldDeclaration field) {
+		} else if (astNode instanceof FieldDeclaration) {
+            final FieldDeclaration field = (FieldDeclaration) astNode;
 			flag[i] = 1;
 			size1++;
 			if (field.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
@@ -12247,9 +12304,9 @@ protected void markEnclosingMemberWithLocalOrFunctionalType(LocalTypeKind contex
 		ASTNode node = this.astStack[i];
 		if (node instanceof AbstractMethodDeclaration
 				|| node instanceof FieldDeclaration
-				|| (node instanceof TypeDeclaration type // mark type for now: all initializers will be marked when added to this type
+				|| (node instanceof TypeDeclaration // mark type for now: all initializers will be marked when added to this type
 						// and enclosing type must not be closed (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=147485)
-						&& type.declarationSourceEnd == 0)) {
+						&& ((TypeDeclaration)node).declarationSourceEnd == 0)) {
 			switch (context) {
 				case METHOD_REFERENCE:
 					node.bits |= ASTNode.HasFunctionalInterfaceTypes;
@@ -12768,9 +12825,10 @@ public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit, bo
 	if (this.astLengthPtr > -1 && (length = this.astLengthStack[this.astLengthPtr--]) != 0) {
 		this.astPtr -= length;
 		if (!this.options.ignoreMethodBodies) {
-			if (this.astStack[this.astPtr + 1] instanceof ExplicitConstructorCall explicitCall)
+			if (this.astStack[this.astPtr + 1] instanceof ExplicitConstructorCall)
 				//avoid a isSomeThing that would only be used here BUT what is faster between two alternatives ?
 				{
+                    final ExplicitConstructorCall explicitCall = (ExplicitConstructorCall) this.astStack[this.astPtr + 1];
 				System.arraycopy(
 					this.astStack,
 					this.astPtr + 2,
@@ -13134,11 +13192,14 @@ private ASTNode[] parseBodyDeclarations(char[] source, int offset, int length, C
 	for (int i = 0, max = result.length; i < max; i++) {
 		// parse each class or record body declaration
 		ASTNode node = result[i];
-		if (node instanceof TypeDeclaration type) {
+		if (node instanceof TypeDeclaration) {
+            final TypeDeclaration type = (TypeDeclaration) node;
 			type.parseMethods(this, unit);
-		} else if (node instanceof AbstractMethodDeclaration method) {
+		} else if (node instanceof AbstractMethodDeclaration) {
+            final AbstractMethodDeclaration method = (AbstractMethodDeclaration) node;
 			method.parseStatements(this, unit);
-		} else if (node instanceof FieldDeclaration fieldDeclaration) {
+		} else if (node instanceof FieldDeclaration) {
+            final FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 			switch(fieldDeclaration.getKind()) {
 				case AbstractVariableDeclaration.INITIALIZER:
 					containsInitializers = true;
@@ -13739,9 +13800,11 @@ protected void recoverStatements() {
 	methodVisitor.typeVisitor = typeVisitor;
 	typeVisitor.methodVisitor = methodVisitor;
 
-	if(this.referenceContext instanceof AbstractMethodDeclaration method) {
+	if(this.referenceContext instanceof AbstractMethodDeclaration) {
+        final AbstractMethodDeclaration method = (AbstractMethodDeclaration) this.referenceContext;
 		method.traverse(methodVisitor, (ClassScope)null);
-	} else if(this.referenceContext instanceof TypeDeclaration typeContext) {
+	} else if(this.referenceContext instanceof TypeDeclaration) {
+        final TypeDeclaration typeContext = (TypeDeclaration) this.referenceContext;
 		int length = typeContext.fields.length;
 		for (int i = 0; i < length; i++) {
 			final FieldDeclaration fieldDeclaration = typeContext.fields[i];
@@ -13759,16 +13822,17 @@ protected void recoverStatements() {
 
 public void recoveryExitFromVariable() {
 	if(this.currentElement != null && this.currentElement.parent != null) {
-		if(this.currentElement instanceof RecoveredLocalVariable recoveredLocalVariable) {
-
+		if(this.currentElement instanceof RecoveredLocalVariable) {
+            final RecoveredLocalVariable recoveredLocalVariable = (RecoveredLocalVariable) this.currentElement;
 			int end = recoveredLocalVariable.localDeclaration.sourceEnd;
 			this.currentElement.updateSourceEndIfNecessary(end);
 			this.currentElement = this.currentElement.parent;
-		} else if(this.currentElement instanceof RecoveredField recoveredField
+		} else if(this.currentElement instanceof RecoveredField
 			&& !(this.currentElement instanceof RecoveredInitializer)) {
 			// Do not move focus to parent if we are still inside an array initializer
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
 			if (this.currentElement.bracketBalance <= 0) {
+                final RecoveredField recoveredField = (RecoveredField) this.currentElement;
 				int end = recoveredField.fieldDeclaration.sourceEnd;
 				this.currentElement.updateSourceEndIfNecessary(end);
 				this.currentElement = this.currentElement.parent;
@@ -13845,7 +13909,8 @@ public void recoveryTokenCheck() {
 }
 // A P I
 protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
-	if(this.referenceContext instanceof MethodDeclaration methodDeclaration) {
+	if(this.referenceContext instanceof MethodDeclaration) {
+        final MethodDeclaration methodDeclaration = (MethodDeclaration) this.referenceContext;
 		if((methodDeclaration.bits & ASTNode.ErrorInSignature) != 0){
 			return;
 		}
@@ -13897,7 +13962,8 @@ private void reportSyntaxErrorsForSkippedMethod(TypeDeclaration[] types){
 			if (fields != null) {
 				int length = fields.length;
 				for (int j = 0; j < length; j++) {
-					if (fields[j] instanceof Initializer initializer) {
+					if (fields[j] instanceof Initializer) {
+                        final Initializer initializer = (Initializer) fields[j];
 						if((initializer.bits & ASTNode.ErrorInSignature) != 0){
 							DiagnoseParser diagnoseParser = new DiagnoseParser(this, TokenNameRIGHT_SHIFT, initializer.declarationSourceStart, initializer.declarationSourceEnd, this.options);
 							diagnoseParser.diagnoseParse(this.options.performStatementsRecovery);
@@ -14147,7 +14213,8 @@ protected void updateSourcePosition(Expression exp) {
 
 	exp.sourceEnd = this.intStack[this.intPtr--];
 	exp.sourceStart = this.intStack[this.intPtr--];
-	if (exp instanceof FunctionalExpression functionalExp) {
+	if (exp instanceof FunctionalExpression) {
+        final FunctionalExpression functionalExp = (FunctionalExpression) exp;
 		stashTextualRepresentation(functionalExp);
 	}
 }

@@ -57,7 +57,8 @@ public class StringLiteralConcatenation extends StringLiteral {
 
 	private static int append(StringLiteral[] result, int length, StringLiteral o) {
 		do {
-			if (o.tail instanceof StringLiteral l) {
+			if (o.tail instanceof StringLiteral) {
+                final StringLiteral l = (StringLiteral) o.tail;
 				if (result != null) {
 					result[result.length - 1 - length] = l;
 				}

@@ -24,6 +24,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
  *  n  means completion behind the n-th character
  */
 import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
@@ -61,7 +62,7 @@ public CompletionScanner(long sourceLevel, boolean previewEnabled) {
 		previewEnabled);
 }
 @Override
-protected boolean isAtAssistIdentifier() {
+public boolean isAtAssistIdentifier() {
 	if (this.cursorLocation < this.startPosition && this.currentPosition == this.startPosition) { // fake empty identifier got issued
 		return true;
 	}
@@ -564,7 +565,7 @@ protected int getNextToken0() throws InvalidInputException {
 										}
 									}
 							   	}
-								recordComment(TokenNameCOMMENT_LINE);
+								recordComment(TerminalTokens.TokenNameCOMMENT_LINE);
 								if (this.startPosition <= this.cursorLocation && this.cursorLocation < this.currentPosition-1){
 									throw new InvalidCursorLocation(InvalidCursorLocation.NO_COMPLETION_INSIDE_COMMENT);
 								}
@@ -580,14 +581,14 @@ protected int getNextToken0() throws InvalidInputException {
 									}
 								}
 								if (this.tokenizeComments) {
-									return TokenNameCOMMENT_LINE;
+									return TerminalTokens.TokenNameCOMMENT_LINE;
 								}
 							} catch (IndexOutOfBoundsException e) {
 								this.currentPosition--;
-								recordComment(TokenNameCOMMENT_LINE);
+								recordComment(TerminalTokens.TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if (this.tokenizeComments) {
-									return TokenNameCOMMENT_LINE;
+									return TerminalTokens.TokenNameCOMMENT_LINE;
 								} else {
 									this.currentPosition++;
 								}
@@ -773,7 +774,7 @@ protected int getNextToken0() throws InvalidInputException {
 	return TokenNameEOF;
 }
 @Override
-protected int getNextNotFakedToken() throws InvalidInputException {
+public int getNextNotFakedToken() throws InvalidInputException {
 	int token;
 	boolean fromUnget = false;
 	if (this.nextToken != TokenNameNotAToken) {
@@ -802,7 +803,7 @@ public final void getNextUnicodeChar() throws InvalidInputException {
 	}
 }
 @Override
-protected boolean isFirstTag() {
+public boolean isFirstTag() {
 	return
 		getNextChar('d') &&
 		getNextChar('e') &&

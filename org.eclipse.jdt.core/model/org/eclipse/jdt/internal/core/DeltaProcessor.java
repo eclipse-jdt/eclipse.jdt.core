@@ -2072,7 +2072,8 @@ public class DeltaProcessor {
 
 		switch(eventType){
 			case IResourceChangeEvent.PRE_DELETE :
-				if(resource  instanceof IProject prj && JavaProject.hasJavaNature(prj)) {
+				if(resource instanceof IProject && JavaProject.hasJavaNature((IProject) resource)) {
+                    final IProject prj = (IProject) resource;
 					deleting(prj);
 				}
 				return;
@@ -2080,7 +2081,8 @@ public class DeltaProcessor {
 			case IResourceChangeEvent.PRE_REFRESH:
 				IProject [] projects = null;
 				Object o = event.getSource();
-				if (o instanceof IProject prj) {
+				if (o instanceof IProject) {
+                    final IProject prj = (IProject) o;
 					projects = new IProject[] { prj };
 				} else if (o instanceof IWorkspace) {
 					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=261594. The single workspace refresh

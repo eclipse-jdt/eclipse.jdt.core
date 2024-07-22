@@ -302,9 +302,11 @@ public class LineBreaksPreparator extends ASTVisitor {
 			return true; // braces have been handled in #visit(MethodDeclaration)
 
 		String bracePosition = this.options.brace_position_for_block;
-		if (parent instanceof SwitchStatement sw) {
+		if (parent instanceof SwitchStatement) {
+            final SwitchStatement sw = (SwitchStatement) parent;
 			bracePosition = getBracePositionInSwitch(node, sw.statements());
-		} else if (parent instanceof SwitchExpression se) {
+		} else if (parent instanceof SwitchExpression) {
+            final SwitchExpression se = (SwitchExpression) parent;
 			bracePosition = getBracePositionInSwitch(node, se.statements());
 		} else if (parent instanceof LambdaExpression) {
 			bracePosition = this.options.brace_position_for_lambda_body;
@@ -323,7 +325,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	private String getBracePositionInSwitch(Block node, List<Statement> siblings) {
 		int blockPosition = siblings.indexOf(node);
-		if (blockPosition > 0 && siblings.get(blockPosition - 1) instanceof SwitchCase switchCase) {
+		if (blockPosition > 0 && siblings.get(blockPosition - 1) instanceof SwitchCase) {
+            final SwitchCase switchCase = (SwitchCase) siblings.get(blockPosition - 1);
 			return switchCase.isSwitchLabeledRule() ? this.options.brace_position_for_block_in_case_after_arrow
 					: this.options.brace_position_for_block_in_case;
 		}

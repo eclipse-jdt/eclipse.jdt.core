@@ -1198,7 +1198,8 @@ public class SwitchStatement extends Expression {
 				for (int i = 0; i < length; i++) {
 					ResolvedCase[] constantsList;
 					final Statement statement = this.statements[i];
-					if (statement instanceof CaseStatement caseStmt) {
+					if (statement instanceof CaseStatement) {
+                        final CaseStatement caseStmt = (CaseStatement) statement;
 						caseNullDefaultFound = caseNullDefaultFound ? caseNullDefaultFound
 								: isCaseStmtNullDefault(caseStmt);
 						defaultFound |= caseStmt.constantExpressions == null;

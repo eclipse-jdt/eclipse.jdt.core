@@ -156,7 +156,8 @@ public class BasicSearchEngine {
 		Set<JavaProject> projectsToBeAdded = new HashSet<>(2);
 		for (int i = 0, length = elements.length; i < length; i++) {
 			IJavaElement element = elements[i];
-			if (element instanceof JavaProject p) {
+			if (element instanceof JavaProject) {
+                final JavaProject p = (JavaProject) element;
 				projectsToBeAdded.add(p);
 			}
 		}

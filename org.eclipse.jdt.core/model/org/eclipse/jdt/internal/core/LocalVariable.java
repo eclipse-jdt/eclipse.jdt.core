@@ -113,7 +113,8 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof LocalVariable other)) return false;
+		if (!(o instanceof LocalVariable)) return false;
+        final LocalVariable other = (LocalVariable) o;
 		return
 			this.declarationSourceStart == other.declarationSourceStart
 			&& this.declarationSourceEnd == other.declarationSourceEnd

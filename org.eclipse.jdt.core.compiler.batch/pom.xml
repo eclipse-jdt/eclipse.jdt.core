@@ -25,6 +25,7 @@
     <compilerBaselineMode>warn</compilerBaselineMode>
     <defaultSigning-excludeInnerJars>true</defaultSigning-excludeInnerJars>
     <localEcjVersion>${project.version}</localEcjVersion>
+      <maven.compiler.target>11</maven.compiler.target>
   </properties>
 
   <build>

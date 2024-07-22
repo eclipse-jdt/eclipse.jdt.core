@@ -1887,7 +1887,8 @@ public class Util {
 	}
 
 	public static void log(Throwable e) {
-		if (e instanceof CoreException ce && ce.getStatus().getException() != null) {
+		if (e instanceof CoreException && ((CoreException) e).getStatus().getException() != null) {
+            final CoreException ce = (CoreException) e;
 			log(ce.getStatus());
 		} else {
 			log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Messages.internal_error, e));
@@ -2850,7 +2851,8 @@ public class Util {
 					// values are heterogeneous, value kind is thus unknown
 					memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
 				}
-				if (value instanceof Annotation annotation) {
+				if (value instanceof Annotation) {
+                    final Annotation annotation = (Annotation) value;
 					for (int j = 0; j < i; j++) {
 						if (annotation.equals(values[j])) {
 							annotation.incOccurrenceCount();

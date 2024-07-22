@@ -69,7 +69,8 @@ public class ExternalPackageFragmentRoot extends PackageFragmentRoot {
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (o instanceof ExternalPackageFragmentRoot other) {
+		if (o instanceof ExternalPackageFragmentRoot) {
+            final ExternalPackageFragmentRoot other = (ExternalPackageFragmentRoot) o;
 			return this.externalPath.equals(other.externalPath);
 		}
 		return false;

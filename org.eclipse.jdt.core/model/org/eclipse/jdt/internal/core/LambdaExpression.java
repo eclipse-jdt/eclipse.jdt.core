@@ -153,7 +153,8 @@ public class LambdaExpression extends SourceType {
 		   This results in spurious failures. See JavaSearchBugs8Tests.testBug400905_0021()
 		   For now exclude the working copy owner and compare
 		*/
-		if (o instanceof LambdaExpression that) {
+		if (o instanceof LambdaExpression) {
+            final LambdaExpression that = (LambdaExpression) o;
 			if (this.sourceStart != that.sourceStart)
 				return false;
 			ITypeRoot thisTR = this.getTypeRoot();

@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.compiler.parser;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import java.util.Objects;
 
 /**
  * Javadoc tag constants.
@@ -189,7 +190,33 @@ public interface JavadocTagConstants {
 	 * This class is intended to prevent maintainers from having to add
 	 * empty arrays for each new java version that is released.
 	 */
-	record LevelTags(int level, char[][] tags) { }
+	class LevelTags
+    {
+        public final int level;
+        public final char[][] tags;
+
+        public LevelTags(int level, char[][] tags) {
+            this.level = level;
+            this.tags = tags;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof LevelTags)) {
+                return false;
+            }
+            LevelTags levelTags = (LevelTags) o;
+            return Integer.compare(this.level, levelTags.level) == 0 && Objects.equals(this.tags, levelTags.tags);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.level, this.tags);
+        }
+    }
 	/**
 	 * Convert an array of LevelTags into the char[][][] structure that is currently used to
 	 * discover the additional tags available at a given java version.

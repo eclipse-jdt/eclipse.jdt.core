@@ -170,12 +170,12 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 		void perform(CompilationUnitScope scope) {
 			switch (this) {
-				case CHECK_AND_SET_IMPORTS -> scope.checkAndSetImports();
-				case CONNECT_TYPE_HIERARCHY -> scope.connectTypeHierarchy();
-				case BUILD_FIELDS_AND_METHODS -> scope.buildFieldsAndMethods();
-				case INTEGRATE_ANNOTATIONS_IN_HIERARCHY -> scope.integrateAnnotationsInHierarchy();
-				case CHECK_PARAMETERIZED_TYPES -> scope.checkParameterizedTypes();
-				default -> throw new IllegalArgumentException("No implementation for: " + this); //$NON-NLS-1$
+                case CHECK_AND_SET_IMPORTS: { scope.checkAndSetImports(); break; }
+				case CONNECT_TYPE_HIERARCHY: { scope.connectTypeHierarchy(); break; }
+				case BUILD_FIELDS_AND_METHODS: { scope.buildFieldsAndMethods(); break; }
+				case INTEGRATE_ANNOTATIONS_IN_HIERARCHY: {  scope.integrateAnnotationsInHierarchy(); break; }
+				case CHECK_PARAMETERIZED_TYPES: { scope.checkParameterizedTypes(); break; }
+                default: { throw new IllegalArgumentException("No implementation for: " + this); } //$NON-NLS-1$
 			}
 		}
 	}

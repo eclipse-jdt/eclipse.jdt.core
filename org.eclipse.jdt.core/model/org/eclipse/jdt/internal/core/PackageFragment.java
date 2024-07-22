@@ -183,7 +183,8 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
 @Override
 public boolean equals(Object o) {
 	if (this == o) return true;
-	if (!(o instanceof PackageFragment other)) return false;
+	if (!(o instanceof PackageFragment)) return false;
+    final PackageFragment other = (PackageFragment) o;
 	return Util.equalArraysOrNull(this.names, other.names) &&
 			this.getParent().equals(other.getParent());
 }

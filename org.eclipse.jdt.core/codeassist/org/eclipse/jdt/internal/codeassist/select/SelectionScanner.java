@@ -35,7 +35,7 @@ public SelectionScanner(long sourceLevel, boolean previewEnabled) {
 }
 
 @Override
-protected boolean isAtAssistIdentifier() {
+public boolean isAtAssistIdentifier() {
 	return this.selectionStart == this.startPosition && this.selectionEnd == this.currentPosition - 1;
 }
 

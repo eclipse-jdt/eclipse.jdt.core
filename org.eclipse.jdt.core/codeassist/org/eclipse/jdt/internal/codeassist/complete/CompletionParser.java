@@ -5825,8 +5825,8 @@ private boolean checkIfAtFirstArgumentOfConstructor() {
 
 	if (this.assistNode instanceof CompletionOnSingleNameReference) {
 		return startPos == this.assistNode.sourceEnd;
-	} else if (this.assistNode instanceof CompletionOnMessageSendName ms) {
-		return startPos == ms.sourceStart - 1;
+	} else if (this.assistNode instanceof CompletionOnMessageSendName) {
+		return startPos == ((CompletionOnMessageSendName)this.assistNode).sourceStart - 1;
 	}
 	return false;
 }

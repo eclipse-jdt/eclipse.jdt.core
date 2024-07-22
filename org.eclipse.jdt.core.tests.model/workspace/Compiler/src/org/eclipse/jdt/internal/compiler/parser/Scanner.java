@@ -106,6 +106,22 @@ public class Scanner implements TerminalTokens {
 	public static final String INVALID_CHAR_IN_STRING = "Invalid_Char_In_String"; //$NON-NLS-1$
 	public static final String INVALID_DIGIT = "Invalid_Digit"; //$NON-NLS-1$	
 
+    protected static InvalidInputException invalidCharInString() {
+        return new InvalidInputException(INVALID_CHAR_IN_STRING);
+    }
+
+    protected static InvalidInputException invalidCharacter() {
+        return new InvalidInputException(INVALID_CHARACTER_CONSTANT);
+    }
+
+    protected boolean isAtAssistIdentifier() {
+        return false;
+    }
+
+    public final void jumpOverMethodBody() {
+        jumpOverBody();
+    }
+
 	//----------------optimized identifier managment------------------
 	static final char[] charArray_a = new char[] {'a'}, 
 		charArray_b = new char[] {'b'}, 

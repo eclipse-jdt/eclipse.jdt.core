@@ -100,9 +100,9 @@ public class StringLiteral extends Literal {
 
 	@Override
 	public char[] source() {
-		if (this.optionalHead == null && this.tail instanceof char[] ch) {
+		if (this.optionalHead == null && this.tail instanceof char[]) {
 			// fast path without copy
-			return ch;
+			return (char[])this.tail;
 		}
 		// flatten linked list to char[]
 		int size = append(null, 0, this);
@@ -118,7 +118,8 @@ public class StringLiteral extends Literal {
 
 	private static int append(char[] result, int length, StringLiteral o) {
 		do {
-			if (o.tail instanceof char[] c) {
+			if (o.tail instanceof char[]) {
+                final char[] c = (char[])o.tail;
 				if (result != null) {
 					System.arraycopy(c, 0, result, result.length - c.length - length, c.length);
 				}

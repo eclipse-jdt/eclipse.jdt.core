@@ -58,7 +58,8 @@ protected void closing(Object info) throws JavaModelException {
 }
 @Override
 public boolean equals(Object o) {
-	if (!(o instanceof SourceMethod other)) return false;
+	if (!(o instanceof SourceMethod)) return false;
+    final SourceMethod other = (SourceMethod) o;
 	return super.equals(o) && Util.equalArraysOrNull(this.parameterTypes, other.parameterTypes);
 }
 

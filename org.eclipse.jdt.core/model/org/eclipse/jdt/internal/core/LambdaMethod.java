@@ -68,7 +68,8 @@ public class LambdaMethod extends SourceMethod {
 
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof LambdaMethod that)) return false;
+		if (!(o instanceof LambdaMethod)) return false;
+        final LambdaMethod that = (LambdaMethod) o;
 		return super.equals(o) && this.sourceStart == that.sourceStart;
 	}
 

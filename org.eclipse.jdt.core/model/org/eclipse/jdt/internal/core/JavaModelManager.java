@@ -1306,13 +1306,48 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 *            the temporary structure used while indexing, previously known as INDEXED_SECONDARY_TYPES entry. If it
 	 *            is null, no cache updates are running now
 	 */
-	private static record SecondaryTypesCache(Hashtable<String, Map<String, IType>> secondaryTypes,
-			Map<IFile, Map<String, Map<String, IType>>> indexingSecondaryCache) {
+    private static class SecondaryTypesCache {
 
-		boolean isIndexingDone() {
-			return this.secondaryTypes != null && this.indexingSecondaryCache == null;
-		}
-	}
+        private final Hashtable<String, Map<String, IType>> secondaryTypes;
+        private final Map<IFile, Map<String, Map<String, IType>>> indexingSecondaryCache;
+
+        public SecondaryTypesCache(
+            Hashtable<String, Map<String, IType>> secondaryTypes,
+            Map<IFile, Map<String, Map<String, IType>>> indexingSecondaryCache
+        ) {
+            this.secondaryTypes = secondaryTypes;
+            this.indexingSecondaryCache = indexingSecondaryCache;
+        }
+
+        public Hashtable<String, Map<String, IType>> secondaryTypes() {
+            return secondaryTypes;
+        }
+
+        public Map<IFile, Map<String, Map<String, IType>>> indexingSecondaryCache() {
+            return indexingSecondaryCache;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof SecondaryTypesCache)) {
+                return false;
+            }
+            final SecondaryTypesCache that = (SecondaryTypesCache) o;
+            return Objects.equals(secondaryTypes, that.secondaryTypes) && Objects.equals(indexingSecondaryCache, that.indexingSecondaryCache);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(secondaryTypes, indexingSecondaryCache);
+        }
+
+        boolean isIndexingDone() {
+            return this.secondaryTypes != null && this.indexingSecondaryCache == null;
+        }
+    }
 
 	/**
 	 * Secondary types cache management code for a {@link PerProjectInfo}

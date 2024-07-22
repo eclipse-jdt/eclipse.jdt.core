@@ -154,7 +154,8 @@ public class RecordPattern extends TypePattern {
 		RecordComponentBinding[] components = this.resolvedType.capture(scope, this.sourceStart, this.sourceEnd).components();
 		for (int i = 0; i < components.length; i++) {
 			Pattern p1 = this.patterns[i];
-			if (p1 instanceof TypePattern tp) {
+			if (p1 instanceof TypePattern) {
+                final TypePattern tp = (TypePattern) p1;
 				RecordComponentBinding componentBinding = components[i];
 				if (p1.getType() == null || p1.getType().isTypeNameVar(scope)) {
 					if (tp.local.binding != null) // rewrite with the inferred type
@@ -247,7 +248,7 @@ public class RecordPattern extends TypePattern {
 					if (current.index != outer.patterns.length - 1)
 						pops++;
 					current = outer;
-					outer = outer.getEnclosingPattern() instanceof RecordPattern rp ? rp : null;
+					outer = outer.getEnclosingPattern() instanceof RecordPattern ? (RecordPattern) outer.getEnclosingPattern() : null;
 				}
 				while (pops > 1) {
 					codeStream.pop2();
