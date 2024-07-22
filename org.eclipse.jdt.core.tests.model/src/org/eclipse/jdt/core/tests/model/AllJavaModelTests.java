@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.tests.compiler.DeduplicationUtilTest;
 import org.eclipse.jdt.core.tests.compiler.IrritantSetTest;
 import org.eclipse.jdt.core.tests.compiler.map.CharArrayMapperTest;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.core.tests.util.CleanupAfterSuiteTests;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -119,8 +120,14 @@ private static Class[] getAllTestClasses() {
 		ResolveTests21.class,
 		SelectionJavadocModelTests.class,
 
+		// Some test suite above breaks completion tests below
+		CleanupAfterSuiteTests.class,
+
 		// Support for completion tests
 		RunCompletionModelTests.class,
+
+		// Some test suite above breaks completion tests below
+		CleanupAfterSuiteTests.class,
 
 		// Prefix and suffix tests
 		NamingConventionTests.class,
@@ -248,6 +255,9 @@ private static Class[] getAllTestClasses() {
 		RecordsElementTests.class,
 
 		IrritantSetTest.class,
+
+		// should always be the last one, to cleanup environment after messy tests
+		CleanupAfterSuiteTests.class
 	};
 
 	Class[] deprecatedClasses = getDeprecatedJDOMTestClasses();

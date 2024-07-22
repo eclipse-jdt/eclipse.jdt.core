@@ -47,7 +47,6 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.InternalCompletionContext;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.SourceType;
 
 import junit.framework.Test;
@@ -168,23 +167,6 @@ public void setUpSuite() throws Exception {
 protected void setUp() throws Exception {
 	this.indexDisabledForTest = false;
 	super.setUp();
-}
-
-@Override
-public void tearDownSuite() throws Exception {
-	if (AbstractJavaModelCompletionTests.COMPLETION_SUITES == null) {
-		deleteProject("Completion");
-	} else {
-		AbstractJavaModelCompletionTests.COMPLETION_SUITES.remove(getClass());
-		if (AbstractJavaModelCompletionTests.COMPLETION_SUITES.size() == 0) {
-			deleteProject("Completion");
-			AbstractJavaModelCompletionTests.COMPLETION_SUITES = null;
-		}
-	}
-	if (AbstractJavaModelCompletionTests.COMPLETION_SUITES == null) {
-		AbstractJavaModelCompletionTests.COMPLETION_PROJECT = null;
-	}
-	super.tearDownSuite();
 }
 
 static {
@@ -2685,12 +2667,7 @@ public void testBug91772() throws Exception {
 		this.deleteProject("P2");
 		this.deleteProject("P3");
 
-
-		// TODO the following code is not the correct way to remove the container
-		// Cleanup caches
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		manager.containers = new HashMap(5);
-		manager.variables = new HashMap(5);
+		Util.cleanupClassPathVariablesAndContainers();
 	}
 }
 public void testBug93891() throws Exception {
@@ -2767,13 +2744,7 @@ public void testBug93891() throws Exception {
 	} finally {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
-
-		// TODO the following code is not the correct way to remove the container
-		// Cleanup caches
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		manager.containers = new HashMap(5);
-		manager.variables = new HashMap(5);
-
+		Util.cleanupClassPathVariablesAndContainers();
 	}
 }
 public void testAccessRestriction1() throws Exception {

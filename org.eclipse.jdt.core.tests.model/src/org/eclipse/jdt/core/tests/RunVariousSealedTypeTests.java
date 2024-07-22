@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.RecordPatternProjectTest;
 import org.eclipse.jdt.core.tests.compiler.regression.RecordPatternTest;
 import org.eclipse.jdt.core.tests.compiler.regression.RecordsRestrictedClassTest;
 import org.eclipse.jdt.core.tests.compiler.regression.ScannerTest;
+import org.eclipse.jdt.core.tests.compiler.regression.SealedTypesSpecReviewTest;
 import org.eclipse.jdt.core.tests.compiler.regression.SealedTypesTests;
 import org.eclipse.jdt.core.tests.compiler.regression.SwitchPatternTest;
 import org.eclipse.jdt.core.tests.compiler.regression.SwitchPatternTest21;
@@ -75,6 +76,7 @@ public class RunVariousSealedTypeTests extends TestCase {
 				RecordsRestrictedClassTest.class,
 				ScannerTest.class,
 				SealedTypesTests.class,
+				SealedTypesSpecReviewTest.class,
 				SwitchPatternTest.class,
 				SwitchPatternTest21.class,
 				UnnamedPatternsAndVariablesTest.class,

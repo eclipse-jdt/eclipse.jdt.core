@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
@@ -38,6 +39,7 @@ import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IModuleAttribute;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
+import org.eclipse.jdt.internal.compiler.lookup.SplitPackageBinding;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
@@ -6313,5 +6315,45 @@ public void testBug521362_emptyFile() {
 				"",
 				"",
 				false);
+	}
+	public void testGH2646() {
+		try {
+			class Counter implements Consumer<SplitPackageBinding> {
+				int count;
+				@Override
+				public void accept(SplitPackageBinding t) {
+					this.count++;
+				}
+			}
+			Counter counter = new Counter();
+			SplitPackageBinding.instanceListener = counter;
+			runConformModuleTest(
+				new String[] {
+					"p/X.java",
+					"package p;\n" +
+					"public class X {\n" +
+					"	java.sql.Connection con;\n" +
+					"}",
+					"module-info.java",
+					"module mod.one { \n" +
+					"	requires java.se;\n" +
+					"}",
+					"q/Y.java",
+					"package q;\n" +
+					"public class Y {\n" +
+					"   java.awt.Image image;\n" +
+					"}"
+				},
+				" -9 \"" + OUTPUT_DIR + File.separator + "module-info.java\" "
+				+ "\"" + OUTPUT_DIR + File.separator + "q/Y.java\" "
+				+ "\"" + OUTPUT_DIR + File.separator + "p/X.java\" "
+				+ "-d " + OUTPUT_DIR ,
+				"",
+				"",
+				true);
+			assertTrue("Number of SplitPackageBinding created: "+counter.count, counter.count <= 20);
+		} finally {
+			SplitPackageBinding.instanceListener = null;
+		}
 	}
 }
