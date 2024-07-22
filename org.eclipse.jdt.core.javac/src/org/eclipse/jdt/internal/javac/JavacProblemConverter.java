@@ -318,7 +318,7 @@ public class JavacProblemConverter {
 			if (isTokenBadChoiceForHighlight(t) && !isTokenBadChoiceForHighlight(javacScanner.prevToken())) {
 				toHighlight = javacScanner.prevToken();
 			}
-			return new org.eclipse.jface.text.Position(Math.min(charContent.length() - 1, toHighlight.pos), Math.max(0, toHighlight.endPos - toHighlight.pos - 1));
+			return new org.eclipse.jface.text.Position(Math.min(charContent.length() - 1, toHighlight.pos), Math.max(1, toHighlight.endPos - toHighlight.pos - 1));
 		} catch (IOException ex) {
 			ILog.get().error(ex.getMessage(), ex);
 		}
@@ -698,6 +698,7 @@ public class JavacProblemConverter {
 			}
 			case "compiler.err.file.sb.on.source.or.patch.path.for.module" -> IProblem.ParsingErrorOnKeywordNoSuggestion;
 			case "compiler.err.package.not.visible" -> IProblem.NotVisibleType;
+			case "compiler.err.expected4" -> IProblem.Syntax;
 			default -> {
 				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;
