@@ -578,7 +578,7 @@ public class SelectionMarkdownTest extends AbstractSelectionTest {
 			"/// \n" +
 			"/// Javadoc of {@link Other}\n" +
 			"/// @see Test\n" +
-			"// \n" +
+			"/// \n" +
 			"class Other {}\n"
 		);
 		findJavadoc("Test");

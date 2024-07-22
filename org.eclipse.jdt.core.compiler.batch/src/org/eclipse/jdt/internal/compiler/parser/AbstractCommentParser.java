@@ -244,11 +244,6 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 
 				// Consume rules depending on the read character
 				switch (nextCharacter) {
-					case '[':
-						if (this.markdown) {
-							parseMarkdownLinks();
-						}
-						break;
 					case '@' :
 						// Start tag parsing only if we are on line beginning or at inline tag beginning
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: ignore all tags when inside @literal or @code tags
@@ -455,6 +450,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						}
 						// $FALL-THROUGH$ - fall through default case
 					default :
+						if (this.markdown && nextCharacter == '[') {
+							if (parseMarkdownLinks())
+								break;
+						}
 						if (isFormatterParser && nextCharacter == '<') {
 							// html tags are meaningful for formatter parser
 							int initialIndex = this.index;
