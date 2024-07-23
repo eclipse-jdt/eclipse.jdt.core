@@ -22,7 +22,10 @@ import java.util.*;
 import java.util.zip.*;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -48,6 +51,7 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Util {
@@ -1594,5 +1598,43 @@ public static long getMajorMinorVMVersion() {
 		}
 	}
 	return -1;
+}
+
+/**
+ * Discards all classpath variables and containers
+ */
+public static void cleanupClassPathVariablesAndContainers() {
+	// TODO the following code is not the correct way to remove CP containers
+	// but it was used since years...
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	manager.containers = new HashMap<>(5);
+	manager.variables = new HashMap<>(5);
+}
+
+/**
+ * Deletes every single project in the workspace
+ */
+public static void cleanupWorkspace(String testName) throws CoreException {
+	IWorkspace workspace = ResourcesPlugin.getWorkspace();
+	// Remove whatever left from previous tests
+	IProject[] projects = workspace.getRoot().getProjects(IContainer.INCLUDE_HIDDEN);
+	if(projects.length > 0) {
+		System.out.println("\n\nWorkspace cleanup before " + testName);
+		System.out.println("Found following projects: " + Arrays.toString(projects));
+		for (IProject project : projects) {
+			System.out.println("Deleting project: " + project);
+			try {
+				project.delete(true, null);
+			} catch (Exception e) {
+				e.printStackTrace(System.out);
+			}
+		}
+	}
+	projects = workspace.getRoot().getProjects(IContainer.INCLUDE_HIDDEN);
+	if(projects.length > 0) {
+		System.out.println("Still found projects: " + Arrays.toString(projects));
+	} else {
+		System.out.println("Workspace cleanup done for " + testName + "\n\n");
+	}
 }
 }

@@ -4663,6 +4663,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return false;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean visit(TypePattern node) {
 		if (!DOMASTUtil.isPatternSupported(node.getAST())) {
@@ -4671,8 +4672,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-
-		rewriteRequiredNode(node, TypePattern.PATTERN_VARIABLE_PROPERTY);
+		if(node.getAST().apiLevel() < AST.JLS22) {
+			rewriteRequiredNode(node, TypePattern.PATTERN_VARIABLE_PROPERTY);
+		} else {
+			rewriteRequiredNode(node, TypePattern.PATTERN_VARIABLE_PROPERTY2);
+		}
 		return false;
 	}
 

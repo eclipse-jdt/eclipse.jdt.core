@@ -18,6 +18,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -603,13 +604,17 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 						}
 					} else {
 						// visible but foreign (when current is unnamed or auto):
+						List<PackageBinding> bindings = new ArrayList<>();
 						for (char[] declaringModuleName : declaringModuleNames) {
 							ModuleBinding declaringModule = this.environment.root.getModule(declaringModuleName);
 							if (declaringModule != null) {
 								PlainPackageBinding declaredPackage = declaringModule.getDeclaredPackage(fullFlatName);
-								binding = SplitPackageBinding.combine(declaredPackage, binding, this);
+								if (declaredPackage != null)
+									bindings.add(declaredPackage);
 							}
 						}
+						if (!bindings.isEmpty())
+							binding = SplitPackageBinding.combineAll(bindings, this);
 					}
 				}
 			}
@@ -672,11 +677,14 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	}
 
 	PackageBinding combineWithPackagesFromOtherRelevantModules(PackageBinding currentBinding, char[][] compoundName, char[][] declaringModuleNames) {
-		for (ModuleBinding moduleBinding : otherRelevantModules(declaringModuleNames)) {
-			PlainPackageBinding nextBinding = moduleBinding.getDeclaredPackage(CharOperation.concatWith(compoundName, '.'));
-			currentBinding = SplitPackageBinding.combine(nextBinding, currentBinding, this);
-		}
-		return currentBinding;
+		char[] packageName = CharOperation.concatWith(compoundName, '.');
+		List<PackageBinding> bindings = otherRelevantModules(declaringModuleNames).stream()
+				.map(m -> m.getDeclaredPackage(packageName))
+				.collect(Collectors.toList());
+		if (bindings.isEmpty())
+			return currentBinding;
+		bindings.add(currentBinding);
+		return SplitPackageBinding.combineAll(bindings, this);
 	}
 
 	List<ModuleBinding> otherRelevantModules(char[][] declaringModuleNames) {

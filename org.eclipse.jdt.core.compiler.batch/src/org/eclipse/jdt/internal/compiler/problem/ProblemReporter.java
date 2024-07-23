@@ -1349,7 +1349,6 @@ public void operandStackSizeInappropriate(ASTNode location) {
 		ProblemSeverities.Warning,
 		location.sourceStart,
 		location.sourceEnd);
-	throw new AssertionError("Anomalous/Inconsistent operand stack!"); //$NON-NLS-1$
 }
 public void bytecodeExceeds64KLimit(LambdaExpression location) {
 	bytecodeExceeds64KLimit(location.binding, location.sourceStart, location.diagnosticsSourceEnd());
@@ -4178,6 +4177,10 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 			problemConstructor = (ProblemMethodBinding) targetConstructor;
 			contradictoryNullAnnotationsInferred(problemConstructor.closestMatch, statement);
 			return;
+		case ProblemReasons.MissingTypeInSignature:
+			problemConstructor = (ProblemMethodBinding) targetConstructor;
+			missingTypeInConstructor(statement, problemConstructor.closestMatch);
+			return;
 		case ProblemReasons.NoError : // 0
 		default :
 			needImplementation(statement); // want to fail to see why we were here...
@@ -4814,6 +4817,10 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method, Scope s
 		case ProblemReasons.ContradictoryNullAnnotations:
 			problemMethod = (ProblemMethodBinding) method;
 			contradictoryNullAnnotationsInferred(problemMethod.closestMatch, messageSend);
+			return;
+		case ProblemReasons.MissingTypeInSignature:
+			problemMethod = (ProblemMethodBinding) method;
+			missingTypeInMethod(messageSend, problemMethod.closestMatch);
 			return;
 		case ProblemReasons.NoError : // 0
 		default :
@@ -6973,7 +6980,7 @@ public void missingSynchronizedOnInheritedMethod(MethodBinding currentMethod, Me
 			currentMethod.sourceEnd());
 }
 public void missingTypeInConstructor(ASTNode location, MethodBinding constructor) {
-	List<TypeBinding> missingTypes = constructor.collectMissingTypes(null);
+	List<TypeBinding> missingTypes = constructor.collectMissingTypes(null, true);
 	if (missingTypes == null) {
 		System.err.println("The constructor " + constructor + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
 		return;
@@ -7006,7 +7013,7 @@ public void missingTypeInConstructor(ASTNode location, MethodBinding constructor
 public void missingTypeInLambda(LambdaExpression lambda, MethodBinding method) {
 	int nameSourceStart = lambda.sourceStart();
 	int nameSourceEnd = lambda.diagnosticsSourceEnd();
-	List<TypeBinding> missingTypes = method.collectMissingTypes(null);
+	List<TypeBinding> missingTypes = method.collectMissingTypes(null, true);
 	if (missingTypes == null) {
 		System.err.println("The lambda expression " + method + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
 		return;
@@ -7033,7 +7040,7 @@ public void missingTypeInMethod(ASTNode astNode, MethodBinding method) {
 		nameSourceStart = astNode.sourceStart;
 		nameSourceEnd = astNode.sourceEnd;
 	}
-	List<TypeBinding> missingTypes = method.collectMissingTypes(null);
+	List<TypeBinding> missingTypes = method.collectMissingTypes(null, true);
 	if (missingTypes == null) {
 		System.err.println("The method " + method + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
 		return;

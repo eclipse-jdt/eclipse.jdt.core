@@ -510,7 +510,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().invalidConstructor(this, this.binding);
 		return this.resolvedType;
 	}
-	if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
+	if ((this.binding.tagBits & TagBits.HasMissingType) != 0 && isMissingTypeRelevant()) {
 		scope.problemReporter().missingTypeInConstructor(this, this.binding);
 	}
 	if (isMethodUseDeprecated(this.binding, scope, true, this)) {
@@ -552,6 +552,19 @@ protected void checkEarlyConstructionContext(BlockScope scope) {
 			scope.problemReporter().allocationInEarlyConstructionContext(this, this.resolvedType, uninitialized);
 	}
 	// if JEP 482 is not enabled, problems will be detected when looking for enclosing instance(s)
+}
+protected boolean isMissingTypeRelevant() {
+	if (this.binding != null && this.binding.isVarargs()) {
+		if (this.arguments.length < this.binding.parameters.length) {
+			// are all but the irrelevant varargs type present?
+			for (int i = 0; i < this.arguments.length; i++) {
+				if ((this.binding.parameters[i].tagBits & TagBits.HasMissingType) != 0)
+					return true; // this one *is* relevant - actually this case is already detected during findConstructorBinding()
+			}
+			return false;
+		}
+	}
+	return true;
 }
 
 /**

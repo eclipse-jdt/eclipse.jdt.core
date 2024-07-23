@@ -4450,7 +4450,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 		}
 		if ((methodBinding.tagBits & TagBits.HasMissingType) != 0) {
-			this.missingTypes = methodBinding.collectMissingTypes(this.missingTypes);
+			this.missingTypes = methodBinding.collectMissingTypes(this.missingTypes, true);
 		}
 		return attributesNumber;
 	}

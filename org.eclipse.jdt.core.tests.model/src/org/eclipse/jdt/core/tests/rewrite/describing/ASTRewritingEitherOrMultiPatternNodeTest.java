@@ -12,7 +12,7 @@
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
 import java.util.List;
-import junit.framework.Test;
+
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
@@ -28,12 +28,14 @@ import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.GuardedPattern;
+import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.Pattern;
+import org.eclipse.jdt.core.dom.PatternInstanceofExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
@@ -50,6 +52,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
+
+import junit.framework.Test;
 
 public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 
@@ -1568,5 +1572,117 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 				""";
 		preview= evaluateRewrite(cu, rewrite);
 		assertEqualString(preview, replaceMultipleNodesEndCode);
+	}
+
+	//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2623
+	public void test0007_a() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String baseCode = """
+				package x;
+				public class X {
+					public static void main(Object object) {
+						if (object instanceof Path(Pos(int x1, int y1),Pos _)) {
+								System.out.printf("object is a path starting at x = %d, y = %d%n", x1, y1);
+						}
+					}
+				}
+				record Pos(int x, int y) {}
+				record Path(Pos p1, Pos p2) {}
+				""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", baseCode, false, null);
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast = AST.newAST(AST.JLS22, true);
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "main");
+		Block block= methodDecl.getBody();
+		List<?> blockStatements= block.statements();
+		IfStatement ifStatement = (IfStatement) blockStatements.get(0);
+		PatternInstanceofExpression expression = (PatternInstanceofExpression) ifStatement.getExpression();
+		RecordPattern recordPattern = (RecordPattern) expression.getPattern();
+		List<?> patterns = recordPattern.patterns();
+		TypePattern typePattern = (TypePattern) patterns.get(1);
+		{
+			VariableDeclarationFragment vdf = ast.newVariableDeclarationFragment();
+			vdf.setName(ast.newSimpleName("_"));
+			TypePattern newTypePattern = ast.newTypePattern();
+			newTypePattern.setPatternVariable(vdf);
+			rewrite.replace(typePattern, newTypePattern, null);
+		}
+		String ASTConvertedCode = """
+				package x;
+				public class X {
+					public static void main(Object object) {
+						if (object instanceof Path(Pos(int x1, int y1),_)) {
+								System.out.printf("object is a path starting at x = %d, y = %d%n", x1, y1);
+						}
+					}
+				}
+				record Pos(int x, int y) {}
+				record Path(Pos p1, Pos p2) {}
+				""";
+		String preview= evaluateRewrite(cu, rewrite);
+		assertEqualString(preview, ASTConvertedCode);
+
+	}
+
+	//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2623
+	public void test0007_b() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String baseCode = """
+				package x;
+				public class X {
+					public static void main(Object object) {
+						if (object instanceof Path(Pos(int x1, int y1), _)) {
+								System.out.printf("object is a path starting at x = %d, y = %d%n", x1, y1);
+						}
+					}
+				}
+				record Pos(int x, int y) {}
+				record Path(Pos p1, Pos p2) {}
+				""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", baseCode, false, null);
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast = AST.newAST(AST.JLS22, true);
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "main");
+		Block block= methodDecl.getBody();
+		List<?> blockStatements= block.statements();
+		IfStatement ifStatement = (IfStatement) blockStatements.get(0);
+		PatternInstanceofExpression expression = (PatternInstanceofExpression) ifStatement.getExpression();
+		RecordPattern recordPattern = (RecordPattern) expression.getPattern();
+		List<?> patterns = recordPattern.patterns();
+		TypePattern typePattern = (TypePattern) patterns.get(1);
+		{
+			SingleVariableDeclaration svd = ast.newSingleVariableDeclaration();
+			svd.setName(ast.newSimpleName("_"));
+			svd.setType(ast.newSimpleType(ast.newSimpleName("Pos")));
+
+
+			TypePattern newTypePattern = ast.newTypePattern();
+			newTypePattern.setPatternVariable(svd);
+			newTypePattern.setSourceRange(typePattern.getStartPosition(), 1);
+			rewrite.replace(typePattern, newTypePattern, null);
+		}
+		String ASTConvertedCode = """
+				package x;
+				public class X {
+					public static void main(Object object) {
+						if (object instanceof Path(Pos(int x1, int y1), Pos _)) {
+								System.out.printf("object is a path starting at x = %d, y = %d%n", x1, y1);
+						}
+					}
+				}
+				record Pos(int x, int y) {}
+				record Path(Pos p1, Pos p2) {}
+				""";
+		String preview= evaluateRewrite(cu, rewrite);
+		assertEqualString(preview, ASTConvertedCode);
+
 	}
 }

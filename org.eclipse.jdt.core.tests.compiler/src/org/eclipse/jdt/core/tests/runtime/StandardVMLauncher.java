@@ -130,6 +130,7 @@ public String[] getCommandLine() {
 	// debug mode
 	if (this.debugPort != -1) {
 		addDebugOptions(commandLine);
+		addXnoagent(commandLine);
 		// commandLine.add("-Djava.compiler=NONE");
 		commandLine.add(
 			"-Xrunjdwp:transport=dt_socket,address=" +
@@ -193,6 +194,14 @@ public String[] getCommandLine() {
 
 	return result;
 }
+
+private void addXnoagent(List<String> commandLine) {
+    long vmVersion = Util.getMajorMinorVMVersion();
+    if (vmVersion != -1 && vmVersion < ClassFileConstants.JDK22) {
+        commandLine.add("-Xnoagent");
+    }
+}
+
 /**
  * Sets the name of the batch file used to launch the VM.
  * When this option is set, the launcher writes the command line to the given batch file,

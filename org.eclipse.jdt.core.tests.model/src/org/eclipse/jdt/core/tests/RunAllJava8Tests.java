@@ -59,7 +59,7 @@ public class RunAllJava8Tests extends TestCase {
 			ResolveTests18.class,
 			CompletionTests18.class,
 			IncrementalTests18.class,
-			org.eclipse.jdt.compiler.apt.tests.AllTests.class,
+			org.eclipse.jdt.compiler.apt.tests.AllAptTests.class,
 			JavaElement8Tests.class,
 		};
 	}
