@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -123,6 +127,7 @@ public class JavadocParser extends AbstractCommentParser {
 		try {
 			this.source = this.sourceParser.scanner.source;
 			this.scanner.setSource(this.source); // updating source in scanner
+			this.markdown = this.source[this.javadocStart + 1] == '/';
 			if (this.checkDocComment) {
 				// Initialization
 				this.scanner.lineEnds = this.sourceParser.scanner.lineEnds;
@@ -150,6 +155,11 @@ public class JavadocParser extends AbstractCommentParser {
 					nextCharacter : while (this.index < this.lineEnd) {
 						char c = readChar(); // consider unicodes
 						switch (c) {
+							case '/' :
+								if (!this.markdown) {
+									break;
+								}
+								//$FALL-THROUGH$
 							case '*' :
 							case '\u000c' :	/* FORM FEED               */
 							case ' ' :			/* SPACE                   */
@@ -560,7 +570,54 @@ public class JavadocParser extends AbstractCommentParser {
 				break;
 		}
 	}
-
+	@Override
+	protected boolean parseMarkdownLinks() throws InvalidInputException {
+		boolean valid = false;
+		// The markdown links can come in single [] or pair of [] with no space between them
+		// We are here after we have seen [
+		// Look for closing ] and then an option [
+		// immediately without any other characters, including whitespace
+		// If there are two [], then the first one becomes the link text
+		// and the second one is the reference
+		// in case of just one [], then that is the reference
+		int start = this.index;
+		char currentChar = readChar();
+		loop: while (this.index < this.scanner.eofPosition) {
+			switch(currentChar) {
+				case '\\':
+					char c = peekChar();
+					if (c == '[' || c == ']') {
+						readChar();
+					}
+					break;
+				case ']':
+					if (peekChar() == '[') {
+						// We might want to store the description in case of DOM parser
+						// but the compiler does not need it
+						//int length = this.index - start - 1;
+						//System.arraycopy(this.scanner.source, start, desc = new char[length], 0, length);
+						// move it past '['
+						currentChar = readChar();
+						start = this.index;
+					} else {
+						int eofBkup = this.scanner.eofPosition;
+						this.scanner.eofPosition = this.index - 1;
+						this.scanner.resetTo(start, this.javadocEnd);
+						valid = parseReference(true);
+						this.scanner.eofPosition = eofBkup;
+						break loop;
+					}
+					break;
+				case '\r':
+				case '\n':
+					return false;
+				default:
+					break;
+			}
+			currentChar = readChar();
+		}
+		return valid;
+	}
 	@Override
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
 

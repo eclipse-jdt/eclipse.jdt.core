@@ -149,6 +149,7 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 			case TerminalTokens.TokenNameCOMMA : nextToken = ITerminalSymbols.TokenNameCOMMA; break;
 			case TerminalTokens.TokenNameCOMMENT_BLOCK : nextToken = ITerminalSymbols.TokenNameCOMMENT_BLOCK; break;
 			case TerminalTokens.TokenNameCOMMENT_JAVADOC : nextToken = ITerminalSymbols.TokenNameCOMMENT_JAVADOC; break;
+			case TerminalTokens.TokenNameCOMMENT_MARKDOWN : nextToken = ITerminalSymbols.TokenNameCOMMENT_MARKDOWN; break;
 			case TerminalTokens.TokenNameCOMMENT_LINE : nextToken = ITerminalSymbols.TokenNameCOMMENT_LINE; break;
 			case TerminalTokens.TokenNameCharacterLiteral : nextToken = ITerminalSymbols.TokenNameCharacterLiteral; break;
 			case TerminalTokens.TokenNameDIVIDE : nextToken = ITerminalSymbols.TokenNameDIVIDE; break;

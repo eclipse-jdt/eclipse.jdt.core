@@ -567,6 +567,39 @@ protected final boolean scanForTextBlockBeginning() {
 	}
 	return false;
 }
+protected final boolean scanForMarkdownBeginning() {
+	try {
+		int temp = this.currentPosition;
+		int count = 0;
+		// The scanner is already at \r, look for matching \n
+		if (this.currentCharacter == '\r' && this.source[temp] == '\n') {
+			temp++;
+		}
+		while(true) {
+			char c = this.source[temp++];
+			switch(c) {
+				case '/':
+					if (++count > 2) {
+						this.currentPosition = temp;
+						return true;
+					}
+					break;
+				case '\n' :
+					return false;
+				default:
+					if (ScannerHelper.isWhitespace(c)) {
+						if (count == 0)
+							break;
+					} else {
+						return false;
+					}
+			}
+		}
+	} catch(IndexOutOfBoundsException e) {
+		//let it return false;
+	}
+	return false;
+}
 protected final boolean scanForTextBlockClose() throws InvalidInputException {
 	try {
 		if (this.source[this.currentPosition] == '\"' && this.source[this.currentPosition + 1] == '\"') {
@@ -1444,6 +1477,16 @@ public int getNextToken() throws InvalidInputException {
 	this.multiCaseLabelComma = false;
 	return token;
 }
+private int findCommentType() {
+	int test = getNextChar('/', '*');
+	if (test == 0) { //line comment or markdown
+		if (JavaFeature.MARKDOWN_COMMENTS.isSupported(this.complianceLevel, this.previewEnabled)
+						&& getNextChar('/')) {
+			return 2;
+		}
+	}
+	return test;
+}
 protected int getNextToken0() throws InvalidInputException {
 	this.wasAcr = false;
 	if (this.diet) {
@@ -1694,7 +1737,7 @@ protected int getNextToken0() throws InvalidInputException {
 					return scanForStringLiteral();
 				case '/' :
 					if (!this.skipComments) {
-						int test = getNextChar('/', '*');
+						int test = findCommentType();
 						if (test == 0) { //line comment
 							this.lastCommentLinePosition = this.currentPosition;
 							try { //get the next char
@@ -1777,8 +1820,7 @@ protected int getNextToken0() throws InvalidInputException {
 								}
 							}
 							break;
-						}
-						if (test > 0) { //traditional and javadoc comment
+						} else if (test == 1) { //traditional and javadoc comment
 							try { //get the next char
 								boolean isJavadoc = false, star = false;
 								boolean isUnicode = false;
@@ -1881,6 +1923,107 @@ protected int getNextToken0() throws InvalidInputException {
 										return TokenNameCOMMENT_JAVADOC;
 									return TokenNameCOMMENT_BLOCK;
 									*/
+									return token;
+								}
+							} catch (IndexOutOfBoundsException e) {
+								this.currentPosition--;
+								throw unterminatedComment();
+							}
+							break;
+						} else if (test == 2) { // markdown commments
+							// this block is mostly copied from the block (test == 1)
+							try {
+								boolean isUnicode = false;
+								int previous;
+								// consume next character
+								this.unicodeAsBackSlash = false;
+								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+									&& (this.source[this.currentPosition] == 'u')) {
+									getNextUnicodeChar();
+									isUnicode = true;
+								} else {
+									isUnicode = false;
+									if (this.withoutUnicodePtr != 0) {
+										unicodeStore();
+									}
+								}
+
+								if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
+									if (this.recordLineSeparator) {
+										if (isUnicode) {
+											pushUnicodeLineSeparator();
+										} else {
+											pushLineSeparator();
+										}
+									}
+									if (!scanForMarkdownBeginning()) {
+										break;
+									}
+								}
+								isUnicode = false;
+								previous = this.currentPosition;
+								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+									&& (this.source[this.currentPosition] == 'u')) {
+									//-------------unicode traitement ------------
+									getNextUnicodeChar();
+									isUnicode = true;
+								} else {
+									isUnicode = false;
+								}
+								//handle the \\u case manually into comment
+								if (this.currentCharacter == '\\') {
+									if (this.source[this.currentPosition] == '\\')
+										this.currentPosition++; //jump over the \\
+								}
+								//loop as long as lines start with ///
+								int firstTag = 0;
+								while(true) {
+									if (this.currentPosition > this.eofPosition) {
+										throw unterminatedComment();
+									}
+									if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
+										if (this.recordLineSeparator) {
+											if (isUnicode) {
+												pushUnicodeLineSeparator();
+											} else {
+												pushLineSeparator();
+											}
+										}
+										if (!scanForMarkdownBeginning()) {
+											break;
+										}
+									}
+									switch (this.currentCharacter) {
+										case '*':
+											break;
+										case '[':
+										case '@':
+											if (firstTag == 0 && this.isFirstTag()) {
+												firstTag = previous;
+											}
+											break;
+									}
+									//get next char
+									previous = this.currentPosition;
+									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+										&& (this.source[this.currentPosition] == 'u')) {
+										//-------------unicode traitement ------------
+										getNextUnicodeChar();
+										isUnicode = true;
+									} else {
+										isUnicode = false;
+									}
+									//handle the \\u case manually into comment
+									if (this.currentCharacter == '\\') {
+										if (this.source[this.currentPosition] == '\\')
+											this.currentPosition++;
+									} //jump over the \\
+								}
+								int token = TokenNameCOMMENT_MARKDOWN;
+								recordComment(token);
+								this.commentTagStarts[this.commentPtr] = firstTag;
+								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
+								if (this.tokenizeComments) {
 									return token;
 								}
 							} catch (IndexOutOfBoundsException e) {
@@ -2508,8 +2651,8 @@ public final void jumpOverMethodBody() {
 					break NextToken;
 				case '/' :
 					{
-						int test;
-						if ((test = getNextChar('/', '*')) == 0) { //line comment
+						int test = findCommentType();
+						if (test == 0) { //line comment
 							try {
 								this.lastCommentLinePosition = this.currentPosition;
 								//get the next char
@@ -2586,8 +2729,7 @@ public final void jumpOverMethodBody() {
 								}
 							}
 							break NextToken;
-						}
-						if (test > 0) { //traditional and javadoc comment
+						} else if (test == 1) { //traditional and javadoc comment
 							boolean isJavadoc = false;
 							try { //get the next char
 								boolean star = false;
@@ -2680,6 +2822,101 @@ public final void jumpOverMethodBody() {
 									} //jump over the \\
 								}
 								recordComment(isJavadoc ? TokenNameCOMMENT_JAVADOC : TokenNameCOMMENT_BLOCK);
+								this.commentTagStarts[this.commentPtr] = firstTag;
+							} catch (IndexOutOfBoundsException e) {
+								return;
+							}
+							break NextToken;
+						} else if (test == 2) { // markdown commments
+							// this block is mostly copied from the block (test == 1)
+							try {
+								boolean isUnicode = false;
+								int previous;
+								// consume next character
+								this.unicodeAsBackSlash = false;
+								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+										&& (this.source[this.currentPosition] == 'u')) {
+									getNextUnicodeChar();
+									isUnicode = true;
+								} else {
+									isUnicode = false;
+									if (this.withoutUnicodePtr != 0) {
+										unicodeStore();
+									}
+								}
+
+								if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
+									if (this.recordLineSeparator) {
+										if (isUnicode) {
+											pushUnicodeLineSeparator();
+										} else {
+											pushLineSeparator();
+										}
+									}
+									if (!scanForMarkdownBeginning()) {
+										break;
+									}
+								}
+								isUnicode = false;
+								previous = this.currentPosition;
+								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+										&& (this.source[this.currentPosition] == 'u')) {
+									//-------------unicode traitement ------------
+									getNextUnicodeChar();
+									isUnicode = true;
+								} else {
+									isUnicode = false;
+								}
+								//handle the \\u case manually into comment
+								if (this.currentCharacter == '\\') {
+									if (this.source[this.currentPosition] == '\\')
+										this.currentPosition++; //jump over the \\
+								}
+								//loop as long as lines start with ///
+								int firstTag = 0;
+								while(true) {
+									if (this.currentPosition > this.eofPosition) {
+										throw unterminatedComment();
+									}
+									if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
+										if (this.recordLineSeparator) {
+											if (isUnicode) {
+												pushUnicodeLineSeparator();
+											} else {
+												pushLineSeparator();
+											}
+										}
+										if (!scanForMarkdownBeginning()) {
+											break;
+										}
+									}
+									switch (this.currentCharacter) {
+										case '*':
+											break;
+										case '[':
+										case '@':
+											if (firstTag == 0 && this.isFirstTag()) {
+												firstTag = previous;
+											}
+											break;
+									}
+									//get next char
+									previous = this.currentPosition;
+									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+											&& (this.source[this.currentPosition] == 'u')) {
+										//-------------unicode traitement ------------
+										getNextUnicodeChar();
+										isUnicode = true;
+									} else {
+										isUnicode = false;
+									}
+									//handle the \\u case manually into comment
+									if (this.currentCharacter == '\\') {
+										if (this.source[this.currentPosition] == '\\')
+											this.currentPosition++;
+									} //jump over the \\
+								}
+								recordComment(TokenNameCOMMENT_MARKDOWN);
 								this.commentTagStarts[this.commentPtr] = firstTag;
 							} catch (IndexOutOfBoundsException e) {
 								return;
@@ -2994,6 +3231,8 @@ public void recordComment(int token) {
 		case TokenNameCOMMENT_BLOCK:
 			// only end position is negative
 			stopPosition = -this.currentPosition;
+			break;
+		case TokenNameCOMMENT_MARKDOWN:
 			break;
 	}
 

@@ -260,6 +260,7 @@ public static Test suite() {
 	 since_23.add(SuperAfterStatementsTest.class);
 	 since_23.add(ImplicitlyDeclaredClassesTest.class);
 	 since_23.add(PrimitiveInPatternsTest.class);
+	 since_23.add(MarkdownCommentsTest.class);
 
 	 // Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());

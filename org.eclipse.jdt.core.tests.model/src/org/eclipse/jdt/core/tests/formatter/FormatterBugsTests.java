@@ -6112,9 +6112,9 @@ public void testBug311578a() throws JavaModelException {
 		"\n" +
 		"char                       x;\n" +
 		"\n" +
-		"////J-\n" +
+		"//J-\n" +
 		"int c      =  -     1  +    42;\n" +
-		"////J+\n" +
+		"//J+\n" +
 		"\n" +
 		"char                       y;\n" +
 		"\n" +
@@ -6143,9 +6143,9 @@ public void testBug311578a() throws JavaModelException {
 		"\n" +
 		"	char x;\n" +
 		"\n" +
-		"////J-\n" +
+		"//J-\n" +
 		"int c      =  -     1  +    42;\n" +
-		"////J+\n" +
+		"//J+\n" +
 		"\n" +
 		"	char y;\n" +
 		"\n" +
@@ -6180,9 +6180,9 @@ public void testBug311578b() throws JavaModelException {
 		"\n" +
 		"char                       x;\n" +
 		"\n" +
-		"////J-\n" +
+		"//J-\n" +
 		"int c      =  -     1  +    42;\n" +
-		"////J+\n" +
+		"//J+\n" +
 		"\n" +
 		"char                       y;\n" +
 		"\n" +
@@ -6211,9 +6211,9 @@ public void testBug311578b() throws JavaModelException {
 		"\n" +
 		"	char x;\n" +
 		"\n" +
-		"	//// J-\n" +
+		"	// J-\n" +
 		"	int c = -1 + 42;\n" +
-		"	//// J+\n" +
+		"	// J+\n" +
 		"\n" +
 		"	char y;\n" +
 		"\n" +
@@ -6248,9 +6248,9 @@ public void testBug311578c() throws JavaModelException {
 		"\n" +
 		"char                       x;\n" +
 		"\n" +
-		"////F--\n" +
+		"//F--\n" +
 		"int c      =  -     1  +    42;\n" +
-		"////F++\n" +
+		"//F++\n" +
 		"\n" +
 		"char                       y;\n" +
 		"\n" +
@@ -6279,9 +6279,9 @@ public void testBug311578c() throws JavaModelException {
 		"\n" +
 		"	char x;\n" +
 		"\n" +
-		"////F--\n" +
+		"//F--\n" +
 		"int c      =  -     1  +    42;\n" +
-		"////F++\n" +
+		"//F++\n" +
 		"\n" +
 		"	char y;\n" +
 		"\n" +
@@ -6318,9 +6318,9 @@ public void testBug311578d() throws JavaModelException {
 		"\n" +
 		"char                       x;\n" +
 		"\n" +
-		"////F--\n" +
+		"//F--\n" +
 		"int c      =  -     1  +    42;\n" +
-		"////F++\n" +
+		"//F++\n" +
 		"\n" +
 		"char                       y;\n" +
 		"\n" +
@@ -6355,9 +6355,9 @@ public void testBug311578d() throws JavaModelException {
 		"\n" +
 		"	char x;\n" +
 		"\n" +
-		"	//// F--\n" +
+		"	// F--\n" +
 		"	int c = -1 + 42;\n" +
-		"	//// F++\n" +
+		"	// F++\n" +
 		"\n" +
 		"	char y;\n" +
 		"\n" +

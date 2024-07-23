@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -88,6 +92,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected int[] lineEnds;
 
 	// Flags
+	protected boolean markdown = false;
 	protected boolean lineStarted = false;
 	protected boolean inlineTagStarted = false;
 	protected boolean inlineReturn= false;
@@ -187,10 +192,13 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			}
 			int previousPosition = this.index;
 			char nextCharacter = 0;
+			this.markdown = this.source[this.javadocStart + 1] == '/';
 			if (realStart == this.javadocStart) {
-				nextCharacter = readChar(); // second '*'
-				while (peekChar() == '*') {
-					nextCharacter = readChar(); // read all contiguous '*'
+				nextCharacter = readChar(); // second '*' or '/'
+				if (!this.markdown) {
+					while (peekChar() == '*') {
+						nextCharacter = readChar(); // read all contiguous '*'
+					}
 				}
 				this.javadocTextStart = this.index;
 			}
@@ -398,25 +406,6 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: do not update tag start position when ignoring tags
 						if (!considerTagAsPlainText) this.inlineTagStart = previousPosition;
 						break;
-					case '*' :
-						// Store the star position as text start while formatting
-						lastStarPosition = previousPosition;
-						if (previousChar != '*') {
-							this.starPosition = previousPosition;
-							if (isDomParser || isFormatterParser) {
-								if (lineHasStar) {
-									this.lineStarted = true;
-									if (this.textStart == -1) {
-										this.textStart = previousPosition;
-										if (this.index <= this.javadocTextEnd) textEndPosition = this.index;
-									}
-								}
-								if (!this.lineStarted) {
-									lineHasStar = true;
-								}
-							}
-						}
-						break;
 					case '\u000c' :	/* FORM FEED               */
 					case ' ' :			/* SPACE                   */
 					case '\t' :			/* HORIZONTAL TABULATION   */
@@ -429,13 +418,42 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							textEndPosition = this.index;
 						}
 						break;
+					case '*' :
+						// Store the star position as text start while formatting
+						if (!this.markdown) {
+							lastStarPosition = previousPosition;
+							if (previousChar != '*') {
+								this.starPosition = previousPosition;
+								if (isDomParser || isFormatterParser) {
+									if (lineHasStar) {
+										this.lineStarted = true;
+										if (this.textStart == -1) {
+											this.textStart = previousPosition;
+											if (this.index <= this.javadocTextEnd) textEndPosition = this.index;
+										}
+									}
+									if (!this.lineStarted) {
+										lineHasStar = true;
+									}
+								}
+							}
+							break;
+						}
+						//$FALL-THROUGH$
 					case '/':
-						if (previousChar == '*') {
+						if (this.markdown) {
+							if (nextCharacter != '*') // fall-through
+								break;
+						} else if (previousChar == '*') {
 							// End of javadoc
 							break;
 						}
 						// $FALL-THROUGH$ - fall through default case
 					default :
+						if (this.markdown && nextCharacter == '[') {
+							if (parseMarkdownLinks())
+								break;
+						}
 						if (isFormatterParser && nextCharacter == '<') {
 							// html tags are meaningful for formatter parser
 							int initialIndex = this.index;
@@ -2957,6 +2975,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	}
 
 	/*
+	 * Parse markdown links that are replacing @link and @linkplain
+	 */
+	protected abstract boolean parseMarkdownLinks() throws InvalidInputException;
+	/*
 	 * Parse tag declaration
 	 */
 	protected abstract boolean parseTag(int previousPosition) throws InvalidInputException;
@@ -3442,6 +3464,11 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		// Whitespace or inline tag closing brace
 		char ch = peekChar();
 		switch (ch) {
+			case ']':
+				// TODO: Check if we need to exclude escaped ]
+				if (this.markdown)
+					return true;
+				break;
 			case '}':
 				return this.inlineTagStarted;
 			default:
