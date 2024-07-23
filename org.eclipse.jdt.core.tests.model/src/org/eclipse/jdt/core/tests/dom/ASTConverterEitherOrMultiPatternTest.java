@@ -428,4 +428,45 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 		assertEquals("SingleVariableDeclaration type", typePattern.getPatternVariable2().getNodeType(), ASTNode.SINGLE_VARIABLE_DECLARATION);
 		assertEquals("pattern variable name", ((SingleVariableDeclaration) typePattern.getPatternVariable2()).getType().toString(), "Pos");
 	}
+
+	//https://github.com/eclipse-jdt/eclipse.jdt.ui/issues/1526
+	public void test007() throws JavaModelException {
+		if (!isJRE22) {
+			printJREError();
+			return;
+		}
+		String contents = """
+				public class X {
+				    protected String getString(Number number) {
+				        if (number instanceof Long n) {
+				            return n.toString();
+				        }
+				        if (number instanceof Float n) {
+				            return n.toString();
+				        }
+				        if (number instanceof Double n) {
+				            return n.toString();
+				        }
+				        if (number instanceof Float n && n.isInfinite()) {
+				            return "Inf"; //$NON-NLS-1$
+				        }
+				        if (number instanceof Double m && m.isInfinite()) {
+				            return "Inf"; //$NON-NLS-1$
+				        }
+				        return null;
+				    }
+				}
+				""";
+
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) getASTNode(compilationUnit, 0, 0);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+		Block block = methodDeclaration.getBody();
+		assertEquals("statements size", block.statements().size(), 1);
+		//System.out.println("sasi");
+	}
 }
