@@ -614,7 +614,11 @@ public MethodBinding inferConstructorOfElidedParameterizedType(final Scope scope
 }
 
 public static MethodBinding inferDiamondConstructor(Scope scope, InvocationSite site, TypeBinding type, TypeBinding[] argumentTypes, boolean[] inferredReturnTypeOut) {
-	ReferenceBinding genericType = ((ParameterizedTypeBinding) type).genericType();
+    if (type instanceof ProblemReferenceBinding) {
+        return null;
+    }
+
+    ReferenceBinding genericType = ((ParameterizedTypeBinding) type).genericType();
 	ReferenceBinding enclosingType = type.enclosingType();
 	ParameterizedTypeBinding allocationType = scope.environment().createParameterizedType(genericType, genericType.typeVariables(), enclosingType);
 
