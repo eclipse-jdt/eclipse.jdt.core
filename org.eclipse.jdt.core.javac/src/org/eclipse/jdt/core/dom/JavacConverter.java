@@ -214,6 +214,7 @@ class JavacConverter {
 	private ModuleDeclaration convert(JCModuleDecl javac) {
 		ModuleDeclaration res = this.ast.newModuleDeclaration();
 		res.setName(toName(javac.getName()));
+		this.domToJavac.put(res.getName(), javac);
 		boolean isOpen = javac.getModuleType() == ModuleKind.OPEN;
 		res.setOpen(isOpen);
 		if (javac.getDirectives() != null) {

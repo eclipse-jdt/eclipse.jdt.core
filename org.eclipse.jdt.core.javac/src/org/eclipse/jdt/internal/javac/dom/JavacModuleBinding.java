@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.javac.dom;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.lang.model.element.ModuleElement.DirectiveKind;
 
@@ -34,12 +37,18 @@ import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol.ModuleSymbol;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ModuleType;
+import com.sun.tools.javac.tree.JCTree.JCDirective;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCIdent;
+import com.sun.tools.javac.tree.JCTree.JCModuleDecl;
+import com.sun.tools.javac.tree.JCTree.JCRequires;
 public abstract class JavacModuleBinding implements IModuleBinding {
 
 	private static final ITypeBinding[] NO_TYPE_ARGUMENTS = new ITypeBinding[0];
 	final JavacBindingResolver resolver;
 	public final ModuleSymbol moduleSymbol;
 	private final ModuleType moduleType;
+	private JCModuleDecl moduleDecl;
 
 	public JavacModuleBinding(final ModuleType moduleType, final JavacBindingResolver resolver) {
 		this((ModuleSymbol) moduleType.tsym, moduleType, resolver);
@@ -49,6 +58,11 @@ public abstract class JavacModuleBinding implements IModuleBinding {
 		this(moduleSymbol, (ModuleType)moduleSymbol.type, resolver);
 	}
 
+	public JavacModuleBinding(final JCModuleDecl decl, final JavacBindingResolver resolver) {
+		this(decl.sym, (ModuleType)decl.sym.type, resolver);
+		this.moduleDecl = decl;
+	}
+	
 	public JavacModuleBinding(final ModuleSymbol moduleSymbol, final ModuleType moduleType, JavacBindingResolver resolver) {
 		this.moduleType = moduleType;
 		this.moduleSymbol = moduleSymbol;
@@ -112,15 +126,29 @@ public abstract class JavacModuleBinding implements IModuleBinding {
 
 	@Override
 	public IModuleBinding[] getRequiredModules() {
-		RequiresDirective[] arr = this.moduleSymbol.getDirectives().stream() //
-					.filter(x -> x.getKind() == DirectiveKind.REQUIRES) //
-					.map(x -> (RequiresDirective)x) //
-					.toArray(RequiresDirective[]::new);
-		IModuleBinding[] arr2 = new IModuleBinding[arr.length];
-		for( int i = 0; i < arr.length; i++ ) {
-			arr2[i] = this.resolver.bindings.getModuleBinding((ModuleType)arr[i].module.type);
+		ArrayList<ModuleSymbol> mods = new ArrayList<>();
+		this.moduleSymbol.getDirectives().stream() 
+				.filter(x -> x.getKind() == DirectiveKind.REQUIRES) 
+				.map(x -> ((RequiresDirective)x).module) 
+				.forEachOrdered(mods::add);
+		if( this.moduleDecl != null ) {
+			List<JCDirective> directives = this.moduleDecl.getDirectives();
+			for( JCDirective jcd : directives ) {
+				if( jcd instanceof JCRequires jcr) {
+					JCExpression jce = jcr.moduleName;
+					if( jce instanceof JCIdent jcid && jcid.sym instanceof ModuleSymbol mss) {
+						if( !mods.contains(mss)) {
+							mods.add(mss);
+						}
+					}
+				}
+			}
 		}
-		return arr2;
+		IModuleBinding[] ret = new IModuleBinding[mods.size()];
+		for( int i = 0; i < mods.size(); i++ ) {
+			ret[i] = this.resolver.bindings.getModuleBinding(mods.get(i));
+		}
+		return ret;
 	}
 
 	@Override
