@@ -699,6 +699,8 @@ public class JavacProblemConverter {
 			case "compiler.err.file.sb.on.source.or.patch.path.for.module" -> IProblem.ParsingErrorOnKeywordNoSuggestion;
 			case "compiler.err.package.not.visible" -> IProblem.NotVisibleType;
 			case "compiler.err.expected4" -> IProblem.Syntax;
+			case "compiler.err.no.intf.expected.here" -> IProblem.SuperclassMustBeAClass;
+			case "compiler.err.intf.expected.here" -> IProblem.SuperInterfaceMustBeAnInterface;
 			default -> {
 				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;
