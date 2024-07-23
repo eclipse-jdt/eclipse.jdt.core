@@ -429,7 +429,7 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 		assertEquals("pattern variable name", ((SingleVariableDeclaration) typePattern.getPatternVariable2()).getType().toString(), "Pos");
 	}
 
-	//https://github.com/eclipse-jdt/eclipse.jdt.ui/issues/1526
+	//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2741
 	public void test007() throws JavaModelException {
 		if (!isJRE22) {
 			printJREError();
@@ -447,12 +447,6 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 				        if (number instanceof Double n) {
 				            return n.toString();
 				        }
-				        if (number instanceof Float n && n.isInfinite()) {
-				            return "Inf"; //$NON-NLS-1$
-				        }
-				        if (number instanceof Double m && m.isInfinite()) {
-				            return "Inf"; //$NON-NLS-1$
-				        }
 				        return null;
 				    }
 				}
@@ -466,7 +460,11 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 		BodyDeclaration bodyDeclaration = (BodyDeclaration) getASTNode(compilationUnit, 0, 0);
 		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
 		Block block = methodDeclaration.getBody();
-		assertEquals("statements size", block.statements().size(), 1);
-		//System.out.println("sasi");
+		assertEquals("statements size", block.statements().size(), 4);
+		IfStatement ifStatement = (IfStatement) block.statements().get(0);
+		PatternInstanceofExpression expression = (PatternInstanceofExpression) ifStatement.getExpression();
+		TypePattern typePattern = (TypePattern) expression.getPattern();
+		assertEquals("SingleVariableDeclaration type", typePattern.getPatternVariable2().getNodeType(), ASTNode.SINGLE_VARIABLE_DECLARATION);
+		assertEquals("pattern variable name", ((SingleVariableDeclaration) typePattern.getPatternVariable2()).getType().toString(), "Long");
 	}
 }
