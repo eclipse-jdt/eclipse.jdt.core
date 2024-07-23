@@ -21,6 +21,7 @@ import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -6355,5 +6356,118 @@ public void testBug521362_emptyFile() {
 		} finally {
 			SplitPackageBinding.instanceListener = null;
 		}
+	}
+
+	public void testGH2748() throws IOException {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+
+		List<String> modules = new ArrayList<>();
+		// compile two explicit modules
+		for (String m : new String[] { "A", "B" }) {
+			String out = OUTPUT_DIR + File.separator + "module" + m + File.separator + "bin";
+			String src = OUTPUT_DIR + File.separator + "module" + m + File.separator + "src";
+			modules.add(out);
+
+			List<String> files = new ArrayList<>();
+			writeFileCollecting(files, src,
+					"module-info.java",
+					"module split.module" + m + " {\n"
+					+ "	exports pkg.bug.split.sub" + m + ";\n"
+					+ "}");
+			writeFileCollecting(files, Paths.get(src, "pkg", "bug", "split", "sub" + m).toString(),
+					"SubModule" + m + ".java",
+					"package pkg.bug.split.sub" + m + ";\n"
+					+ "\n"
+					+ "public class SubModule" + m + " {\n"
+					+ "	\n"
+					+ "}");
+
+			StringBuilder buffer = new StringBuilder();
+			buffer.append("-d " + out )
+				.append(" -9 ")
+				.append(" -proc:none ")
+				.append(" -classpath \"")
+				.append(Util.getJavaClassLibsAsString())
+				.append("\" ");
+			runConformModuleTest(
+					files,
+					buffer,
+					"",
+					"",
+					false);
+		}
+
+		// compile a jar which serves as auto-module
+		String[] sources = {
+			"pkg/bug/service/IService.java",
+			"package pkg.bug.service;\n"
+			+ "\n"
+			+ "public interface IService {\n"
+			+ "\n"
+			+ "}",
+		};
+		String jarPath = OUTPUT_DIR + File.separator + "autoModule.jar";
+		Util.createJar(sources, jarPath, "1.8");
+		modules.add(jarPath);
+
+		// compile the main code which requires the other modules
+		String outFinal = OUTPUT_DIR + File.separator + "modularizedApp" + File.separator + "bin";
+		String srcFinal = OUTPUT_DIR + File.separator + "modularizedApp" + File.separator + "src";
+
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, srcFinal,
+				"module-info.java",
+				"module split.app {	\n"
+				+ "	requires autoModule;\n"
+				+ "	requires split.moduleA;\n"
+				+ "	requires split.moduleB;\n"
+				+ "	\n"
+				+ "	exports pkg.bug.app;\n"
+				+ "}");
+		writeFileCollecting(files, Paths.get(srcFinal, "pkg", "bug", "app").toString(),
+				"App.java",
+				"package pkg.bug.app;\n"
+				+ "\n"
+				+ "import pkg.bug.split.subA.SubModuleA;\n"
+				+ "\n"
+				+ "public class App {\n"
+				+ "	public static void main(String[] args) {\n"
+				+ "		new SubModuleA();\n"
+				+ "	}\n"
+				+ "}");
+		writeFileCollecting(files, Paths.get(srcFinal, "pkg", "bug", "service", "impl").toString(),
+				"AppServiceImpl.java",
+				"package pkg.bug.service.impl;\n"
+				+ "\n"
+				+ "import pkg.bug.service.IService;\n"
+				+ "\n"
+				+ "public class AppServiceImpl implements IService {\n"
+				+ "\n"
+				+ "}");
+
+		String modulePath = String.join(File.pathSeparator, modules);
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("-d " + outFinal )
+			.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --module-path \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append(File.pathSeparatorChar)
+			.append(modulePath)
+			.append("\" ")
+			.append(" --add-modules autoModule ");
+		runConformModuleTest(
+				files,
+				buffer,
+				"",
+				"----------\n" +
+				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/modularizedApp/src/module-info.java (at line 2)\n" +
+				"	requires autoModule;\n" +
+				"	         ^^^^^^^^^^\n" +
+				"Name of automatic module 'autoModule' is unstable, it is derived from the module's file name.\n" +
+				"----------\n" +
+				"1 problem (1 warning)\n",
+				false, outFinal);
 	}
 }
