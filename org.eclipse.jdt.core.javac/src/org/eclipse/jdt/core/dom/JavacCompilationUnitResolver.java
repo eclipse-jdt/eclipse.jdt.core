@@ -719,49 +719,63 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		@Override
 		public boolean visit(TypeDeclaration node) {
 			IBinding binding = node.resolveBinding();
-			bindingMap.putIfAbsent(binding.getKey(), binding);
+			if (binding != null) {
+				bindingMap.putIfAbsent(binding.getKey(), binding);
+			}
 			return true;
 		}
 
 		@Override
 		public boolean visit(MethodDeclaration node) {
 			IBinding binding = node.resolveBinding();
-			bindingMap.putIfAbsent(binding.getKey(), binding);
+			if (binding != null) {
+				bindingMap.putIfAbsent(binding.getKey(), binding);
+			}
 			return true;
 		}
 
 		@Override
 		public boolean visit(EnumDeclaration node) {
 			IBinding binding = node.resolveBinding();
-			bindingMap.putIfAbsent(binding.getKey(), binding);
+			if (binding != null) {
+				bindingMap.putIfAbsent(binding.getKey(), binding);
+			}
 			return true;
 		}
 
 		@Override
 		public boolean visit(RecordDeclaration node) {
 			IBinding binding = node.resolveBinding();
-			bindingMap.putIfAbsent(binding.getKey(), binding);
+			if (binding != null) {
+				bindingMap.putIfAbsent(binding.getKey(), binding);
+			}
 			return true;
 		}
 
 		@Override
 		public boolean visit(SingleVariableDeclaration node) {
 			IBinding binding = node.resolveBinding();
-			bindingMap.putIfAbsent(binding.getKey(), binding);
+			if (binding != null) {
+				bindingMap.putIfAbsent(binding.getKey(), binding);
+			}
 			return true;
 		}
 
 		@Override
 		public boolean visit(VariableDeclarationFragment node) {
 			IBinding binding = node.resolveBinding();
-			bindingMap.putIfAbsent(binding.getKey(), binding);
+			if (binding != null) {
+				bindingMap.putIfAbsent(binding.getKey(), binding);
+			}
 			return true;
 		}
 
 		@Override
 		public boolean visit(AnnotationTypeDeclaration node) {
 			IBinding binding = node.resolveBinding();
-			bindingMap.putIfAbsent(binding.getKey(), binding);
+			if (binding != null) {
+				bindingMap.putIfAbsent(binding.getKey(), binding);
+			}
 			return true;
 		}
 	}
