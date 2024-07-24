@@ -45,6 +45,12 @@ public abstract class Pattern extends Expression {
 		WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION,
 		BOXING_CONVERSION,
 		BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION,
+		// following for reference
+		WIDENING_REFERENCE_AND_UNBOXING_COVERSION,
+		WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION,
+		NARROWING_AND_UNBOXING_CONVERSION,
+		UNBOXING_CONVERSION,
+		UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION,
 		NO_CONVERSION_ROUTE
 	}
 
@@ -140,22 +146,59 @@ public abstract class Pattern extends Expression {
 	public void setIsGuarded() {
 		this.isUnguarded = false;
 	}
-	public static PrimitiveConversionRoute findPrimitiveConversionRoute(TypeBinding left, TypeBinding right, BlockScope scope) {
+	public static boolean isBoxing(TypeBinding left, TypeBinding right) {
+
+		if (right.isBaseType() && !left.isBaseType()) {
+			int expected = switch(right.id) {
+				case T_char     -> T_JavaLangCharacter;
+				case T_byte     -> T_JavaLangByte;
+				case T_short    -> T_JavaLangShort;
+				case T_boolean  -> T_JavaLangBoolean;
+				case T_long     -> T_JavaLangLong;
+				case T_double   -> T_JavaLangDouble;
+				case T_float    -> T_JavaLangFloat;
+				case T_int      -> T_JavaLangInteger;
+				default -> -1;
+			};
+			return left.id == expected;
+		}
+		return false;
+	}
+	public static PrimitiveConversionRoute findPrimitiveConversionRoute(TypeBinding destinationType, TypeBinding expressionType, BlockScope scope) {
 		if (!(JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
 				scope.compilerOptions().sourceLevel,
 				scope.compilerOptions().enablePreviewFeatures))) {
 			return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 		}
-		if (left.isBaseType() && right.isBaseType()) {
-			if (TypeBinding.equalsEquals(left, right)) {
+		boolean destinationIsBaseType = destinationType.isBaseType();
+		boolean expressionIsBaseType = expressionType.isBaseType();
+		if (destinationIsBaseType && expressionIsBaseType) {
+			if (TypeBinding.equalsEquals(destinationType, expressionType)) {
 				return PrimitiveConversionRoute.IDENTITY_CONVERSION;
 			}
-			if (BaseTypeBinding.isWidening(left.id, right.id))
+			if (BaseTypeBinding.isWidening(destinationType.id, expressionType.id))
 				return PrimitiveConversionRoute.WIDENING_PRIMITIVE_CONVERSION;
-			if (BaseTypeBinding.isNarrowing(left.id, right.id))
+			if (BaseTypeBinding.isNarrowing(destinationType.id, expressionType.id))
 				return PrimitiveConversionRoute.NARROWING_PRIMITVE_CONVERSION;
-			if (BaseTypeBinding.isWideningAndNarrowing(left.id, right.id))
+			if (BaseTypeBinding.isWideningAndNarrowing(destinationType.id, expressionType.id))
 				return PrimitiveConversionRoute.WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION;
+		} else {
+			if (expressionIsBaseType) {
+				if (isBoxing(destinationType, expressionType))
+					return PrimitiveConversionRoute.BOXING_CONVERSION;
+				if (scope.environment().computeBoxingType(expressionType).isCompatibleWith(destinationType))
+					return PrimitiveConversionRoute.BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION;
+
+			} else if (expressionType.isBoxedPrimitiveType() && destinationIsBaseType) {
+				TypeBinding unboxedExpressionType = scope.environment().computeBoxingType(expressionType);
+				 //TODO: a widening reference conversion followed by an unboxing conversion
+				 //TODO: a widening reference conversion followed by an unboxing conversion, then followed by a widening primitive conversion
+				 //TODO: a narrowing reference conversion that is checked followed by an unboxing conversion
+				 //TODO: an unboxing conversion (5.1.8)
+				if (TypeBinding.equalsEquals(destinationType, unboxedExpressionType))
+					return PrimitiveConversionRoute.UNBOXING_CONVERSION;
+				 //TODO: an unboxing conversion followed by a widening primitive conversion
+			}
 		}
 		return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 	}

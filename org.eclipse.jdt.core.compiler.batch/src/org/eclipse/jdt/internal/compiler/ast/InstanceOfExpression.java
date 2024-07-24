@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class InstanceOfExpression extends OperatorExpression {
@@ -169,7 +170,7 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 	}
 
 	BranchLabel internalFalseLabel = falseLabel != null ? falseLabel : this.pattern != null ? new BranchLabel(codeStream) : null;
-	generateTypeCheck(currentScope, codeStream);
+	generateTypeCheck(currentScope, codeStream, internalFalseLabel);
 
 	if (this.pattern != null) {
 		codeStream.ifeq(internalFalseLabel);
@@ -216,29 +217,47 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 		internalFalseLabel.place();
 }
 
-private void generateTypeCheck(BlockScope scope, CodeStream codeStream) {
+private void generateTypeCheck(BlockScope scope, CodeStream codeStream, BranchLabel internalFalseLabel) {
 	PrimitiveConversionRoute route = this.testContextRecord != null ?
 			this.testContextRecord.route() : PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 	switch (route) {
 		case IDENTITY_CONVERSION:
 			storeExpressionValue(codeStream);
 			codeStream.iconst_1();
+			setPatternIsTotalType();
 			break;
 		case WIDENING_PRIMITIVE_CONVERSION:
 		case NARROWING_PRIMITVE_CONVERSION:
 		case WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION:
 			generateExactConversions(scope, codeStream);
+			setPatternIsTotalType();
 			break;
 		case BOXING_CONVERSION:
-			//TODO
-			break;
 		case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
-			//TODO
+			storeExpressionValue(codeStream);
+			codeStream.iconst_1();
+			setPatternIsTotalType();
 			break;
+//	TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION:
+//	TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION:
+//	TODO:	case NARROWING_AND_UNBOXING_CONVERSION:
+		case UNBOXING_CONVERSION:
+//			codeStream.load(this.secretExpressionValue);
+			codeStream.ifnull(internalFalseLabel);
+			codeStream.iconst_1();
+			setPatternIsTotalType();
+			break;
+//	TODO:	case UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION:
 		case NO_CONVERSION_ROUTE:
 		default:
 			codeStream.instance_of(this.type, this.type.resolvedType);
 			break;
+	}
+}
+
+private void setPatternIsTotalType() {
+	if (this.pattern != null) {
+		this.pattern.isTotalTypeNode = true;
 	}
 }
 
@@ -266,11 +285,21 @@ private void generateTestingConversion(BlockScope scope, CodeStream codeStream) 
 			conversionCode(scope, codeStream);
 			break;
 		case BOXING_CONVERSION:
-			//TODO
+			codeStream.generateBoxingConversion(this.testContextRecord.right().id);
 			break;
 		case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
-			//TODO
+			int rightId = this.testContextRecord.right().id;
+			codeStream.generateBoxingConversion(rightId);
+			TypeBinding unboxedType = scope.environment().computeBoxingType(TypeBinding.wellKnownBaseType(rightId));
+			this.expression.computeConversion(scope, this.testContextRecord.left(), unboxedType);
 			break;
+//			TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION:
+//			TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION:
+//			TODO:	case NARROWING_AND_UNBOXING_CONVERSION:
+			case UNBOXING_CONVERSION:
+				codeStream.generateUnboxingConversion(this.testContextRecord.left().id);
+				break;
+//			TODO:	case UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION:
 		case NO_CONVERSION_ROUTE:
 		default:
 			break;
@@ -338,6 +367,10 @@ public TypeBinding resolveType(BlockScope scope) {
 				boolean isLegal = checkCastTypesCompatibility(scope, checkedType, expressionType, this.expression, true);
 				if (!isLegal || (this.bits & ASTNode.UnsafeCast) != 0) {
 					scope.problemReporter().unsafeCastInInstanceof(this.expression, checkedType, expressionType);
+				} else if ((JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
+						scope.compilerOptions().sourceLevel,
+						scope.compilerOptions().enablePreviewFeatures))) {
+					checkForPrimitives(scope, checkedType, expressionType, false /* flagError */);
 				}
 			}
 		}
@@ -346,26 +379,30 @@ public TypeBinding resolveType(BlockScope scope) {
 		if ((expressionType != TypeBinding.NULL && expressionType.isBaseType()) // disallow autoboxing
 				|| checkedType.isBaseType()
 				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null, true)) {
-			checkForPrimitives(scope, checkedType, expressionType);
+			checkForPrimitives(scope, checkedType, expressionType, true  /* flagError */);
 		}
 	}
 
 	return this.resolvedType = TypeBinding.BOOLEAN;
 }
 
-private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeBinding expressionType) {
+private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeBinding expressionType, boolean flagError) {
 	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope);
 	this.testContextRecord = new TestContextRecord(checkedType, expressionType, route);
 
 	if (route == PrimitiveConversionRoute.WIDENING_PRIMITIVE_CONVERSION
 			|| route == PrimitiveConversionRoute.NARROWING_PRIMITVE_CONVERSION
 			|| route == PrimitiveConversionRoute.WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION) {
-//				this.expression.computeConversion(scope, expressionType, checkedType);
+
+		// Do Nothing - no additional steps required for conversion later.
+
+	} else if (route == PrimitiveConversionRoute.BOXING_CONVERSION
+			|| route == PrimitiveConversionRoute.BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION
+			|| route == PrimitiveConversionRoute.UNBOXING_CONVERSION) {
 		addSecretExpressionValue(scope, expressionType);
 	} else if (route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
-		scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
-	} else {
-		addSecretExpressionValue(scope, expressionType);
+		if (flagError)
+			scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
 	}
 }
 
