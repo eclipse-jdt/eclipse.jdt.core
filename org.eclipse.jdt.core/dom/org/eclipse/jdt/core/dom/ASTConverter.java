@@ -3638,9 +3638,9 @@ class ASTConverter {
 		if(this.ast.apiLevel < AST.JLS22_INTERNAL) {
 			typePattern = new TypePattern(this.ast);
 		} else {
-			if(pattern.local != null && pattern.local.type != null) {
+			if(pattern.local.type != null) {//If there is a type, then SingleVariableDeclaration
 				typePattern = new TypePattern(this.ast, true);
-			} else {
+			} else {//No type, then VariableDeclarationFragment
 				typePattern = new TypePattern(this.ast, false);
 			}
 		}
