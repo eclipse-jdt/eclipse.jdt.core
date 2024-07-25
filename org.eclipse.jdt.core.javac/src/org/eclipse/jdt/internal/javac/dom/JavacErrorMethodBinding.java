@@ -12,6 +12,8 @@ package org.eclipse.jdt.internal.javac.dom;
 
 import java.util.Objects;
 
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 
@@ -75,4 +77,20 @@ public abstract class JavacErrorMethodBinding extends JavacMethodBinding {
 		}
 		return null;
 	}
+
+	@Override
+	public boolean isDeprecated() {
+		return this.originatingSymbol.isDeprecated();
+	}
+
+	@Override
+	public IMethodBinding getMethodDeclaration() {
+		return this.resolver.bindings.getErrorMethodBinding(this.resolver.getTypes().erasure(methodType).asMethodType(), originatingSymbol.type.tsym);
+	}
+
+	@Override
+	public IAnnotationBinding[] getAnnotations() {
+		return this.originatingSymbol.getAnnotationMirrors().stream().map(ann -> this.resolver.bindings.getAnnotationBinding(ann, this)).toArray(IAnnotationBinding[]::new);
+	}
+
 }

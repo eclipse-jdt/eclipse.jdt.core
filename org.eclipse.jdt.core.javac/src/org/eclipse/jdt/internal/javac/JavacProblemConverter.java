@@ -488,6 +488,7 @@ public class JavacProblemConverter {
 			case "compiler.err.illegal.start.of.type" -> IProblem.Syntax;
 			case "compiler.err.illegal.start.of.expr" -> IProblem.Syntax;
 			case "compiler.err.variable.not.allowed" -> IProblem.Syntax;
+			case "compiler.err.illegal.dot" -> IProblem.Syntax;
 			case "compiler.warn.raw.class.use" -> IProblem.RawTypeReference;
 			case "compiler.err.cant.resolve.location" -> switch (getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class)) {
 					case CLASS -> IProblem.UndefinedType;
@@ -706,6 +707,7 @@ public class JavacProblemConverter {
 			case "compiler.err.name.clash.same.erasure.no.override" -> IProblem.DuplicateMethodErasure;
 			case "compiler.err.cant.deref" -> IProblem.NoMessageSendOnBaseType;
 			case "compiler.err.cant.infer.local.var.type" -> IProblem.VarLocalWithoutInitizalier;
+			case "compiler.err.array.and.varargs" -> IProblem.RedefinedArgument;
 			default -> {
 				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;
