@@ -14,7 +14,12 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -70,7 +75,21 @@ public class BinaryModuleBinding extends ModuleBinding {
 			}
 			return this.declaredPackages.get(flatName);
 		}
-
+		@Override
+		List<ModuleBinding> otherRelevantModules(char[][] declaringModuleNames) {
+			if (declaringModuleNames != null) {
+				// an automatic module reads all other automatic modules
+				// so all auto-modules declaring the given package are relevant:
+				return Arrays.stream(declaringModuleNames)
+					.filter(modName -> modName != UNNAMED)
+					.map(modName -> this.environment.getModule(modName))
+					.filter(Objects::nonNull)
+					.filter(ModuleBinding::isAutomatic)
+					.collect(Collectors.toList());
+			} else {
+				return Collections.emptyList();
+			}
+		}
 		@Override
 		public char[] nameForLookup() {
 			return ANY_NAMED;

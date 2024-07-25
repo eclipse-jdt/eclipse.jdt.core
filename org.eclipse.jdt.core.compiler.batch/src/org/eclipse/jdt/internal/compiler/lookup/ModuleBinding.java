@@ -680,7 +680,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	}
 
 	List<ModuleBinding> otherRelevantModules(char[][] declaringModuleNames) {
-		if ((isUnnamed() || isAutomatic()) && declaringModuleNames != null) {
+		if (isUnnamed() && declaringModuleNames != null) {
 			// unnamed module reads all named modules,
 			// so all modules declaring the given package are relevant:
 			return Arrays.stream(declaringModuleNames)
