@@ -6372,16 +6372,16 @@ public void testBug521362_emptyFile() {
 			List<String> files = new ArrayList<>();
 			writeFileCollecting(files, src,
 					"module-info.java",
-					"module split.module" + m + " {\n"
-					+ "	exports pkg.bug.split.sub" + m + ";\n"
-					+ "}");
+					"module split.module" + m + " {\n" +
+					"	exports pkg.bug.split.sub" + m + ";\n" +
+					"}");
 			writeFileCollecting(files, Paths.get(src, "pkg", "bug", "split", "sub" + m).toString(),
 					"SubModule" + m + ".java",
-					"package pkg.bug.split.sub" + m + ";\n"
-					+ "\n"
-					+ "public class SubModule" + m + " {\n"
-					+ "	\n"
-					+ "}");
+					"package pkg.bug.split.sub" + m + ";\n" +
+					"\n" +
+					"public class SubModule" + m + " {\n" +
+					"	\n" +
+					"}");
 
 			StringBuilder buffer = new StringBuilder();
 			buffer.append("-d " + out )
@@ -6401,11 +6401,12 @@ public void testBug521362_emptyFile() {
 		// compile a jar which serves as auto-module
 		String[] sources = {
 			"pkg/bug/service/IService.java",
-			"package pkg.bug.service;\n"
-			+ "\n"
-			+ "public interface IService {\n"
-			+ "\n"
-			+ "}",
+			"""
+				package pkg.bug.service;
+
+				public interface IService {
+
+				}""",
 		};
 		String jarPath = OUTPUT_DIR + File.separator + "autoModule.jar";
 		Util.createJar(sources, jarPath, "1.8");
@@ -6418,33 +6419,36 @@ public void testBug521362_emptyFile() {
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, srcFinal,
 				"module-info.java",
-				"module split.app {	\n"
-				+ "	requires autoModule;\n"
-				+ "	requires split.moduleA;\n"
-				+ "	requires split.moduleB;\n"
-				+ "	\n"
-				+ "	exports pkg.bug.app;\n"
-				+ "}");
+				"""
+					module split.app {\t
+						requires autoModule;
+						requires split.moduleA;
+						requires split.moduleB;
+					\t
+						exports pkg.bug.app;
+					}""");
 		writeFileCollecting(files, Paths.get(srcFinal, "pkg", "bug", "app").toString(),
 				"App.java",
-				"package pkg.bug.app;\n"
-				+ "\n"
-				+ "import pkg.bug.split.subA.SubModuleA;\n"
-				+ "\n"
-				+ "public class App {\n"
-				+ "	public static void main(String[] args) {\n"
-				+ "		new SubModuleA();\n"
-				+ "	}\n"
-				+ "}");
+				"""
+					package pkg.bug.app;
+
+					import pkg.bug.split.subA.SubModuleA;
+
+					public class App {
+						public static void main(String[] args) {
+							new SubModuleA();
+						}
+					}""");
 		writeFileCollecting(files, Paths.get(srcFinal, "pkg", "bug", "service", "impl").toString(),
 				"AppServiceImpl.java",
-				"package pkg.bug.service.impl;\n"
-				+ "\n"
-				+ "import pkg.bug.service.IService;\n"
-				+ "\n"
-				+ "public class AppServiceImpl implements IService {\n"
-				+ "\n"
-				+ "}");
+				"""
+					package pkg.bug.service.impl;
+
+					import pkg.bug.service.IService;
+
+					public class AppServiceImpl implements IService {
+
+					}""");
 
 		String modulePath = String.join(File.pathSeparator, modules);
 		StringBuilder buffer = new StringBuilder();
@@ -6461,13 +6465,15 @@ public void testBug521362_emptyFile() {
 				files,
 				buffer,
 				"",
-				"----------\n" +
-				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/modularizedApp/src/module-info.java (at line 2)\n" +
-				"	requires autoModule;\n" +
-				"	         ^^^^^^^^^^\n" +
-				"Name of automatic module 'autoModule' is unstable, it is derived from the module's file name.\n" +
-				"----------\n" +
-				"1 problem (1 warning)\n",
+				"""
+					----------
+					1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/modularizedApp/src/module-info.java (at line 2)
+						requires autoModule;
+						         ^^^^^^^^^^
+					Name of automatic module 'autoModule' is unstable, it is derived from the module's file name.
+					----------
+					1 problem (1 warning)
+					""",
 				false, outFinal);
 	}
 }
