@@ -294,12 +294,11 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding getBound() {
-		if (!this.isWildcardType()) {
-			return null;
-		}
-		ITypeBinding[] boundsArray = this.getTypeBounds();
-		if (boundsArray.length == 1) {
-			return boundsArray[0];
+		if (this.type instanceof WildcardType wildcardType && !wildcardType.isUnbound()) {
+			ITypeBinding[] boundsArray = this.getTypeBounds();
+			if (boundsArray.length == 1) {
+				return boundsArray[0];
+			}
 		}
 		return null;
 	}
@@ -658,7 +657,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			}
 			return new ITypeBinding[] { this.resolver.bindings.getTypeBinding(bounds) };
 		} else if (this.type instanceof WildcardType wildcardType) {
-			return new ITypeBinding[] { this.resolver.bindings.getTypeBinding(wildcardType.bound) };
+			Type upperBound = wildcardType.getUpperBound();
+			return new ITypeBinding[] { upperBound == null ?
+					this.resolver.resolveWellKnownType(Object.class.getName()) :
+					this.resolver.bindings.getTypeBinding(wildcardType.bound) };
 		}
 		return new ITypeBinding[0];
 	}
