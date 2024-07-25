@@ -329,6 +329,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			);
 			assertSearchResults(
 				"Unexpected all type names",
+				"java.lang.annotation.Annotation\n" +
 				"p2.A2\n" +
 				"p2.A2$A2Inner1\n" +
 				"p2.A2$A2Inner2",

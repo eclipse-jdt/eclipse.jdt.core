@@ -4002,7 +4002,7 @@ public void testBug521362_emptyFile() {
 					"}",
 				},
 		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		     + " --release 6 -source 1.6 -d \"" + OUTPUT_DIR + "\"",
+		     + " --release 8 -source 1.6 -d \"" + OUTPUT_DIR + "\"",
 		     "",
 		     "option -source is not supported when --release is used\n",
 		     true);
@@ -4057,26 +4057,22 @@ public void testBug521362_emptyFile() {
 	public void testReleaseOption8() throws Exception {
 		if (isJRE20Plus) return;
 		String output =
-				isJRE12Plus ?
-						"	public java.util.stream.Stream<String> emptyStream() {\n" +
-						"	       ^^^^^^^^^^^^^^^^\n" +
-						"java.util.stream cannot be resolved to a type\n" :
-							"	public java.util.stream.Stream<String> emptyStream() {\n" +
-							"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-							"java.util.stream.Stream cannot be resolved to a type\n";
+						"	public java.util.SequencedCollection<String> emptyCollection() {\n" +
+						"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+						"java.util.SequencedCollection cannot be resolved to a type\n";
 
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
 					"/** */\n" +
 					"public class X {\n" +
-					"	public java.util.stream.Stream<String> emptyStream() {\n" +
+					"	public java.util.SequencedCollection<String> emptyCollection() {\n" +
 					"		return null;\n" +
 					"	}\n" +
 					"}",
 				},
 		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		     + " --release 7 -d \"" + OUTPUT_DIR + "\"",
+		     + " --release 8 -d \"" + OUTPUT_DIR + "\"",
 		     "",
 		     "----------\n" +
     		 "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
@@ -4095,20 +4091,22 @@ public void testBug521362_emptyFile() {
 					"}\n" +
 					"public class X {\n" +
 					"  public static void main(String[] args) {\n" +
-					"    I i = (x, y) -> {\n" +
-					"      return x + y;\n" +
-					"    };\n" +
+					"    String i = \"\"\"\n" +
+					"    		\"\"\";\n" +
 					"  }\n" +
 					"}\n",
 				},
 		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		     + " --release 7 -d \"" + OUTPUT_DIR + "\"",
+		     + " --release 8 -d \"" + OUTPUT_DIR + "\"",
 		     "",
 		     "----------\n" +
-    		 "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-    		 "	I i = (x, y) -> {\n" +
-    		 "	      ^^^^^^^^^\n" +
-    		 "Lambda expressions are allowed only at source level 1.8 or above\n" +
+			"""
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)
+				String i = \"\"\"
+			    		\"\"\";
+				           ^^^^^^^^^^^^^
+			The Java feature 'Text Blocks' is only available with source level 15 and above
+			""" +
     		 "----------\n" +
     		 "1 problem (1 error)\n",
 		     true);
@@ -4133,7 +4131,7 @@ public void testBug521362_emptyFile() {
 					"}",
 				},
 		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		     + " --release 6 -d \"" + OUTPUT_DIR + "\"",
+		     + " --release 8 -d \"" + OUTPUT_DIR + "\"",
 		     "",
 		     "----------\n" +
     		 "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" +
@@ -4177,7 +4175,7 @@ public void testBug521362_emptyFile() {
 				},
 		     "\"" + OUTPUT_DIR +  File.separator + "X.java\"" +
 		      " --system \"" + javaHome + "\"" +
-		     " --release 6 -d \"" + OUTPUT_DIR + "\"",
+		     " --release 8 -d \"" + OUTPUT_DIR + "\"",
 		     "",
 		     "----------\n" +
     		 "option --system not supported below compliance level 9",
@@ -4356,23 +4354,25 @@ public void testBug521362_emptyFile() {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"import java.io.*;\n" +
+					"import java.util.*;\n" +
 					"\n" +
 					"public class X {\n" +
 					"	public static void main(String[] args) {\n" +
-					"		String str = Integer.toUnsignedString(1, 1);\n" +
+					"		String[] strings = List.of(\"\").toArray(String[]::new);\n" +
 					"	}\n" +
 					"}",
 				},
 		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		     + " --release 7 -d \"" + OUTPUT_DIR + "\"",
+		     + " --release 8 -d \"" + OUTPUT_DIR + "\"",
 		     "",
 		     "----------\n" +
-    		 "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-    		 "	String str = Integer.toUnsignedString(1, 1);\n" +
-    		 "	                     ^^^^^^^^^^^^^^^^\n" +
-    		 "The method toUnsignedString(int, int) is undefined for the type Integer\n" +
-    		 "----------\n" +
+		     """
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+					String[] strings = List.of("").toArray(String[]::new);
+					                        ^^
+				The method of(String) is undefined for the type List
+		     """ +
+		     "----------\n" +
     		 "1 problem (1 error)\n",
 		     true);
 	}

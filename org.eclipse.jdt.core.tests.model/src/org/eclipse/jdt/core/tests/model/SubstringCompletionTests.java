@@ -40,22 +40,7 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	System.setProperty(AssistOptions.PROPERTY_SubstringMatch, "true");
 }
-@Override
-public void tearDownSuite() throws Exception {
-	if (COMPLETION_SUITES == null) {
-		deleteProject("Completion");
-	} else {
-		COMPLETION_SUITES.remove(getClass());
-		if (COMPLETION_SUITES.size() == 0) {
-			deleteProject("Completion");
-			COMPLETION_SUITES = null;
-		}
-	}
-	if (COMPLETION_SUITES == null) {
-		COMPLETION_PROJECT = null;
-	}
-	super.tearDownSuite();
-}
+
 private CompletionTestsRequestor2 createFilteredRequestor() {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	Predicate<CompletionProposal> javaTypeRef = p -> p.getKind() == CompletionProposal.TYPE_REF && new String(p.getSignature()).startsWith("Ljava.");

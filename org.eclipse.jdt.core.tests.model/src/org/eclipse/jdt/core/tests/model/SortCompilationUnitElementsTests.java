@@ -16,7 +16,6 @@ package org.eclipse.jdt.core.tests.model;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -34,6 +33,8 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
+import junit.framework.Test;
+
 /**
  *
  * @since 2.1
@@ -50,7 +51,7 @@ public SortCompilationUnitElementsTests(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	final String compliance = "1.5"; //$NON-NLS-1$
+	final String compliance = CompilerOptions.getFirstSupportedJavaVersion(); //$NON-NLS-1$
 	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString(compliance)}, "bin", compliance); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	this.createFolder("/P/src/p"); //$NON-NLS-1$
 }

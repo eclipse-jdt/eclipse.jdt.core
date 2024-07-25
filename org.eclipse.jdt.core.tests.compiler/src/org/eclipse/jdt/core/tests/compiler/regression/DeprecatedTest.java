@@ -379,7 +379,7 @@ public void test008a() throws IOException {
 			"}\n",
 		},
 		jarPath,
-		"1.5");
+		CompilerOptions.getFirstSupportedJavaVersion());
 
 	Runner runner = new Runner();
 	runner.testFiles =

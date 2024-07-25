@@ -21,8 +21,6 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import junit.framework.Test;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,12 +36,15 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.Buffer;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.UndoEdit;
+
+import junit.framework.Test;
 
 public class CompilationUnitTests extends ModifyingResourceTests {
 	ICompilationUnit cu;
@@ -64,8 +65,8 @@ public CompilationUnitTests(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	final String compliance = "1.5"; //$NON-NLS-1$
-	this.testProject = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", compliance); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	final String compliance = CompilerOptions.getFirstSupportedJavaVersion(); //$NON-NLS-1$
+	this.testProject = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", compliance); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	createFolder("/P/src/p");
 	createFile(
 		"/P/src/p/X.java",

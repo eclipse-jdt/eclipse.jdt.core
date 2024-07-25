@@ -66,6 +66,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 import junit.framework.Test;
@@ -1245,8 +1246,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			if (this.astLevel == getJLS3()) {
 				complianceLevel = this.currentProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 				sourceLevel = this.currentProject.getOption(JavaCore.COMPILER_SOURCE, true);
-				this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-				this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+				this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+				this.currentProject.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 			}
 		}
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(testedSource, fileName, this.currentProject, options);
@@ -1958,7 +1959,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.stopOnFailure = false;
 		String [] unbound = { "tho",
 				"A#getList(int,long,boolean)",
-				"#getList(Object,java.util.AbstractList)",
+				"#getList(Object,java.util.SequencedCollection)",
 		};
 		verifyComments("testBug54424");
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {

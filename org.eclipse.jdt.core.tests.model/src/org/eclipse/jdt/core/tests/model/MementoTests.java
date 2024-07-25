@@ -43,6 +43,7 @@ import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
@@ -116,7 +117,7 @@ public void setUpSuite() throws Exception {
 		"public class X {}"
 		},
 		getExternalResourcePath("myLib"),
-		"1.4");
+		CompilerOptions.getFirstSupportedJavaVersion());
 	this.createJavaProject(
 			"P",
 			new String[] {"src", "!"},
@@ -549,7 +550,7 @@ public void testLocalVariableMemento3() {
  */
 public void testLocalVariableMemento4() throws Exception {
 	try {
-		createJavaProject("P1", new String[] {"src"}, new String[] {getExternalJCLPathString("1.5")}, "bin", "1.5");
+		createJavaProject("P1", new String[] {"src"}, new String[] {getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion())}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		createFile(
 			"/P1/src/X.java",
 			"public class X<T> {\n" +

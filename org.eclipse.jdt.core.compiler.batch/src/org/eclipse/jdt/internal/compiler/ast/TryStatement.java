@@ -501,10 +501,8 @@ private int finallyMode() {
 		return NO_FINALLY;
 	} else if (isSubRoutineEscaping()) {
 		return FINALLY_DOES_NOT_COMPLETE;
-	} else if (this.scope.compilerOptions().inlineJsrBytecode) {
-		return FINALLY_INLINE;
 	} else {
-		return FINALLY_SUBROUTINE;
+		return FINALLY_INLINE;
 	}
 }
 /**
@@ -1190,13 +1188,6 @@ public void resolve(BlockScope upperScope) {
 			// provision for returning and forcing the finally block to run
 			MethodScope methodScope = this.scope.methodScope();
 
-			// the type does not matter as long as it is not a base type
-			if (!upperScope.compilerOptions().inlineJsrBytecode) {
-				this.returnAddressVariable =
-					new LocalVariableBinding(TryStatement.SECRET_RETURN_ADDRESS_NAME, upperScope.getJavaLangObject(), ClassFileConstants.AccDefault, false);
-				finallyScope.addLocalVariable(this.returnAddressVariable);
-				this.returnAddressVariable.setConstant(Constant.NotAConstant); // not inlinable
-			}
 			this.subRoutineStartLabel = new BranchLabel();
 
 			this.anyExceptionVariable =

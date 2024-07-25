@@ -336,13 +336,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Compiler option ID: Defining Target Java Platform.
 	 * <p>For binary compatibility reasons, .class files are tagged with a minimal required VM version.</p>
-	 * <p>Note that <code>"1.4"</code> and higher target versions require the compliance mode to be at least as high
+	 * <p>Note that <code>"1.8"</code> and higher target versions require the compliance mode to be at least as high
 	 *    as the target version. Usually, compliance, target, and source versions are set to the same values.</p>
-	 * <p><code>"cldc1.1"</code> requires the source version to be <code>"1.3"</code> and the compliance version to be <code>"1.4"</code> or lower.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.codegen.targetPlatform"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "1.1", "cldc1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "9", "10", "11" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"1.2"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "1.8", "9", ..., {@link #latestSupportedJavaVersion()} }</code></dd>
+	 * <dt>Default:</dt><dd><code>"1.8"</code></dd>
 	 * </dl>
 	 * @category CompilerOptionID
 	 * @see #COMPILER_COMPLIANCE
@@ -356,16 +355,17 @@ public final class JavaCore extends Plugin {
 	 *    subroutine code sequences (mostly corresponding to try finally blocks). The generated code will thus
 	 *    get bigger, but will load faster on virtual machines since the verification process is then much simpler.</p>
 	 * <p>This mode is anticipating support for the Java Specification Request 202.</p>
-	 * <p>Note that JSR inlining is optional only for target platform lesser than 1.5. From 1.5 on, the JSR
-	 *    inlining is mandatory (also see related setting {@link #COMPILER_CODEGEN_TARGET_PLATFORM}).</p>
+	 * <p>Note that from 1.5 on, the JSR inlining is mandatory (also see related setting {@link #COMPILER_CODEGEN_TARGET_PLATFORM}).</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
+	 * <dt>Default:</dt><dd><code>"enabled"</code></dd>
 	 * </dl>
 	 * @since 3.0
 	 * @category CompilerOptionID
+	 * @deprecated this option is implicitly enabled and can't be switched off anymore
 	 */
+	@Deprecated
 	public static final String COMPILER_CODEGEN_INLINE_JSR_BYTECODE = PLUGIN_ID + ".compiler.codegen.inlineJsrBytecode"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Javadoc Comment Support.
@@ -2222,8 +2222,8 @@ public final class JavaCore extends Plugin {
 	 *    set to the same version as the source level.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.source"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "9", "10", "11" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"1.3"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "1.8", "9", ..., {@link #latestSupportedJavaVersion()} }</code></dd>
+	 * <dt>Default:</dt><dd><code>"1.8"</code></dd>
 	 * </dl>
 	 * @since 2.0
 	 * @category CompilerOptionID
@@ -2240,8 +2240,8 @@ public final class JavaCore extends Plugin {
 	 *    should match the compliance setting.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.compliance"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "9", "10", "11" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"1.4"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "1.8", "9", ..., {@link #latestSupportedJavaVersion()} }</code></dd>
+	 * <dt>Default:</dt><dd><code>"1.8"</code></dd>
 	 * </dl>
 	 * @since 2.0
 	 * @category CompilerOptionID
@@ -6389,51 +6389,12 @@ public final class JavaCore extends Plugin {
 		long jdkLevel = CompilerOptions.versionToJdkLevel(compliance);
 		int major = (int) (jdkLevel >>> 16);
 		switch(major) {
-			case ClassFileConstants.MAJOR_VERSION_1_3:
-				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_3);
-				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_1);
-				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.IGNORE);
-				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.IGNORE);
-				break;
-			case ClassFileConstants.MAJOR_VERSION_1_4:
-				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
-				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.WARNING);
-				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.WARNING);
-				break;
-			case ClassFileConstants.MAJOR_VERSION_1_5:
-				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
-				break;
-			case ClassFileConstants.MAJOR_VERSION_1_6:
-				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_6);
-				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
-				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_6);
-				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
-				break;
-			case ClassFileConstants.MAJOR_VERSION_1_7:
-				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
-				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
-				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
-				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
-				break;
 			case ClassFileConstants.MAJOR_VERSION_1_8:
 				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
 				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
 				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
 				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
 				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
 				break;
 			case ClassFileConstants.MAJOR_VERSION_9:
 				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_9);
@@ -6441,7 +6402,6 @@ public final class JavaCore extends Plugin {
 				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_9);
 				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
 				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
 				options.put(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 				break;
 			case ClassFileConstants.MAJOR_VERSION_10:
@@ -6450,7 +6410,6 @@ public final class JavaCore extends Plugin {
 				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_10);
 				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
 				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
 				options.put(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 				break;
 			default:
@@ -6461,7 +6420,6 @@ public final class JavaCore extends Plugin {
 					options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, version);
 					options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
 					options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
-					options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
 					options.put(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 					options.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 					options.put(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.WARNING);

@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
@@ -525,7 +526,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 	 */
 	public void testNameRange08() throws CoreException {
 		try {
-			createJavaProject("P15", new String[] {""}, new String[0], "", "1.5");
+			createJavaProject("P15", new String[] {""}, new String[0], "", CompilerOptions.getFirstSupportedJavaVersion());
 			String cuSource =
 				"public enum X {\n" +
 				"  GREEN() {\n" +
@@ -665,7 +666,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 	 */
 	public void testSourceRange03() throws CoreException {
 		try {
-			createJavaProject("P15", new String[] {""}, new String[0], "", "1.5");
+			createJavaProject("P15", new String[] {""}, new String[0], "", CompilerOptions.getFirstSupportedJavaVersion());
 			String cuSource =
 				"public enum X {\n" +
 				"  GREEN() {};\n" +

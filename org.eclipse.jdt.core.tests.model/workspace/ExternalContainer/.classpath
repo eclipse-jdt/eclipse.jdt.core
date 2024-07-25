@@ -2,6 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.core.tests.model.TEST_EXTERNAL_LIB_CONTAINER"/>
-	<classpathentry kind="var" path="JCL_LIB"/>
+	<classpathentry kind="var" path="JCL18_LIB"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

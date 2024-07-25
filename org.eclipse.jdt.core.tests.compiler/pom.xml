@@ -62,7 +62,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,14,17</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,14,17</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>
@@ -83,7 +83,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,15,18</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,15,18</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>
@@ -104,7 +104,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,17,19</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,19</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>
@@ -125,7 +125,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,17,20</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,20</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>
@@ -146,7 +146,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.8,17,19,21</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,19,21</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>

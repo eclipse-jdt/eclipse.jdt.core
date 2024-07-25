@@ -2,7 +2,7 @@
 <classpath>
     <classpathentry kind="src" path="src"/>
     <classpathentry kind="src" path="/JavaSearchMultipleProjects1"/>
-    <classpathentry kind="var" path="JCL_LIB"/>
+    <classpathentry kind="var" path="JCL18_LIB"/>
     <classpathentry kind="lib" path="lib"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>

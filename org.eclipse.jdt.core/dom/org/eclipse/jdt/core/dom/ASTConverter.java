@@ -3638,11 +3638,8 @@ class ASTConverter {
 		if(this.ast.apiLevel < AST.JLS22_INTERNAL) {
 			typePattern = new TypePattern(this.ast);
 		} else {
-			if(pattern.local != null && pattern.local.name[0] == '_' && pattern.local.type != null) {
-				typePattern = new TypePattern(this.ast, true);
-			} else {
-				typePattern = new TypePattern(this.ast, false);
-			}
+			//If there is a type then SingleVariableDeclaration | No type then VariableDeclarationFragment
+			typePattern = new TypePattern(this.ast, pattern.local.type != null);
 		}
 
 		if (this.resolveBindings) {
@@ -3652,7 +3649,7 @@ class ASTConverter {
 		if(this.ast.apiLevel < AST.JLS22_INTERNAL) {
 			typePattern.setPatternVariable(convertToSingleVariableDeclaration(pattern.local));
 		} else {
-			if(pattern.local != null && pattern.local.name[0] == '_' && pattern.local.type != null) {
+			if(pattern.local != null && pattern.local.type != null) {
 				typePattern.setPatternVariable((VariableDeclaration)convertToSingleVariableDeclaration(pattern.local));
 			} else {
 				typePattern.setPatternVariable(convertToVariableDeclarationFragment(pattern.local));

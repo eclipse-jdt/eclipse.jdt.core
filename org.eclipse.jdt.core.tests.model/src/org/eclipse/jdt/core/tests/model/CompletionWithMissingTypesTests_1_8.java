@@ -18,6 +18,7 @@ import java.util.Hashtable;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
@@ -29,9 +30,9 @@ public CompletionWithMissingTypesTests_1_8(String name) {
 @Override
 public void setUpSuite() throws Exception {
 	if (COMPLETION_PROJECT == null)  {
-		COMPLETION_PROJECT = setUpJavaProject("Completion", "1.8");
+		COMPLETION_PROJECT = setUpJavaProject("Completion", CompilerOptions.getFirstSupportedJavaVersion());
 	} else {
-		setUpProjectCompliance(COMPLETION_PROJECT, "1.8");
+		setUpProjectCompliance(COMPLETION_PROJECT, CompilerOptions.getFirstSupportedJavaVersion());
 	}
 	super.setUpSuite();
 }

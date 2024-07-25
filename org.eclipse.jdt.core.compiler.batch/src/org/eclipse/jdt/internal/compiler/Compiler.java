@@ -818,11 +818,31 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			throw a;
 		}
 	}
+
+	private  void abortIfVersionNotAllowed(ICompilationUnit[] sourceUnits, int maxUnits) {
+		try {
+			long firstSupportedJdkLevel = CompilerOptions.getFirstSupportedJdkLevel();
+			if (this.options.sourceLevel < firstSupportedJdkLevel
+					|| this.options.targetJDK < firstSupportedJdkLevel
+					|| this.options.complianceLevel < firstSupportedJdkLevel) {
+				long badVersion = Math.min(this.options.complianceLevel, Math.min(this.options.sourceLevel, this.options.targetJDK));
+				this.problemReporter.abortDueToNotSupportedJavaVersion(CompilerOptions.versionFromJdkLevel(badVersion),
+						CompilerOptions.getFirstSupportedJavaVersion());
+			}
+		} catch (AbortCompilation a) {
+			// best effort to find a way for reporting this problem: report on the first source
+			if (a.compilationResult == null) {
+				a.compilationResult = new CompilationResult(sourceUnits[0], 0, maxUnits, this.options.maxProblemsPerUnit);
+			}
+			throw a;
+		}
+	}
 	/**
 	 * Add the initial set of compilation units into the loop
 	 *  ->  build compilation unit declarations, their bindings and record their results.
 	 */
 	protected void internalBeginToCompile(ICompilationUnit[] sourceUnits, int maxUnits) {
+		abortIfVersionNotAllowed(sourceUnits,maxUnits);
 		abortIfPreviewNotAllowed(sourceUnits,maxUnits);
 		if (!this.useSingleThread)
 			this.parser.readManager = new ReadManager(sourceUnits, maxUnits);
