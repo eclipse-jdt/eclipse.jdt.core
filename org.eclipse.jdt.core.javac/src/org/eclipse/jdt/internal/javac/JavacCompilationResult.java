@@ -13,11 +13,14 @@
 
 package org.eclipse.jdt.internal.javac;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 
@@ -26,6 +29,8 @@ public class JavacCompilationResult extends CompilationResult {
 	private Set<String> javacSimpleNameReferences = new TreeSet<>();
 	private Set<String> javacRootReferences = new TreeSet<>();
 	private boolean isMigrated = false;
+	private List<CategorizedProblem> unusedMembers = null;
+	private List<CategorizedProblem> unusedImports = null;
 
 	public JavacCompilationResult(ICompilationUnit compilationUnit) {
 		this(compilationUnit, 0, 0, Integer.MAX_VALUE);
@@ -64,5 +69,32 @@ public class JavacCompilationResult extends CompilationResult {
 		this.javacRootReferences.clear();
 		this.javacQualifiedReferences.clear();
 		this.isMigrated = true;
+	}
+
+	public void setUnusedImports(List<CategorizedProblem> newUnusedImports) {
+		this.unusedImports = newUnusedImports;
+	}
+
+	public void addUnusedMembers(List<CategorizedProblem> problems) {
+		if (this.unusedMembers == null) {
+			this.unusedMembers = new ArrayList<>();
+		}
+
+		this.unusedMembers.addAll(problems);
+	}
+
+	public List<CategorizedProblem> getAdditionalProblems() {
+		if (this.unusedMembers == null && this.unusedImports == null) {
+			return null;
+		}
+
+		List<CategorizedProblem> problems = new ArrayList<>();
+		if (this.unusedImports != null) {
+			problems.addAll(this.unusedImports);
+		}
+		if (this.unusedMembers != null) {
+			problems.addAll(this.unusedMembers);
+		}
+		return problems;
 	}
 }

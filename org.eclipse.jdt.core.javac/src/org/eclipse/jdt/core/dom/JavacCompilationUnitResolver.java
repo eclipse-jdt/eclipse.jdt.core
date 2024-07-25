@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileManager;
@@ -42,6 +43,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -57,6 +59,7 @@ import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -65,18 +68,25 @@ import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
 import org.eclipse.jdt.internal.core.util.BindingKeyParser;
 import org.eclipse.jdt.internal.javac.JavacProblemConverter;
 import org.eclipse.jdt.internal.javac.JavacUtils;
+import org.eclipse.jdt.internal.javac.UnusedProblemFactory;
+import org.eclipse.jdt.internal.javac.UnusedTreeScanner;
 
+import com.sun.source.tree.ClassTree;
+import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.Tree;
 import com.sun.source.util.JavacTask;
 import com.sun.source.util.TaskEvent;
 import com.sun.source.util.TaskListener;
 import com.sun.tools.javac.api.JavacTool;
 import com.sun.tools.javac.api.MultiTaskListener;
+import com.sun.tools.javac.code.Symbol.PackageSymbol;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.parser.JavadocTokenizer;
 import com.sun.tools.javac.parser.Scanner;
 import com.sun.tools.javac.parser.ScannerFactory;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
 import com.sun.tools.javac.parser.Tokens.TokenKind;
+import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.DiagnosticSource;
@@ -470,6 +480,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		Context context = new Context();
 		Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> result = new HashMap<>(sourceUnits.length, 1.f);
 		Map<JavaFileObject, CompilationUnit> filesToUnits = new HashMap<>();
+		final UnusedProblemFactory unusedProblemFactory = new UnusedProblemFactory(new DefaultProblemFactory(), compilerOptions);
 		var problemConverter = new JavacProblemConverter(compilerOptions, context);
 		DiagnosticListener<JavaFileObject> diagnosticListener = diagnostic -> {
 			findTargetDOM(filesToUnits, diagnostic).ifPresent(dom -> {
@@ -487,6 +498,63 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			public void finished(TaskEvent e) {
 				if (e.getCompilationUnit() instanceof JCCompilationUnit u) {
 					problemConverter.registerUnit(e.getSourceFile(), u);
+				}
+
+				if (e.getKind() == TaskEvent.Kind.ANALYZE) {
+					final JavaFileObject file = e.getSourceFile();
+					final CompilationUnit dom = filesToUnits.get(file);
+					if (dom == null) {
+						return;
+					}
+
+					final TypeElement currentTopLevelType = e.getTypeElement();
+					UnusedTreeScanner<Void, Void> scanner = new UnusedTreeScanner<>() {
+						@Override
+						public Void visitClass(ClassTree node, Void p) {
+							if (node instanceof JCClassDecl classDecl) {
+								/**
+								 * If a Java file contains multiple top-level types, it will
+								 * trigger multiple ANALYZE taskEvents for the same compilation
+								 * unit. Each ANALYZE taskEvent corresponds to the completion
+								 * of analysis for a single top-level type. Therefore, in the
+								 * ANALYZE task event listener, we only visit the class and nested
+								 * classes that belong to the currently analyzed top-level type.
+								 */
+								if (Objects.equals(currentTopLevelType, classDecl.sym)
+									|| !(classDecl.sym.owner instanceof PackageSymbol)) {
+									return super.visitClass(node, p);
+								} else {
+									return null; // Skip if it does not belong to the currently analyzed top-level type.
+								}
+							}
+
+							return super.visitClass(node, p);
+						}
+					};
+					final CompilationUnitTree unit = e.getCompilationUnit();
+					try {
+						scanner.scan(unit, null);
+					} catch (Exception ex) {
+						ILog.get().error("Internal error when visiting the AST Tree. " + ex.getMessage(), ex);
+					}
+
+					List<CategorizedProblem> unusedProblems = scanner.getUnusedPrivateMembers(unusedProblemFactory);
+					if (!unusedProblems.isEmpty()) {
+						addProblemsToDOM(dom, unusedProblems);
+					}
+
+					List<CategorizedProblem> unusedImports = scanner.getUnusedImports(unusedProblemFactory);
+					List<? extends Tree> topTypes = unit.getTypeDecls();
+					int typeCount = topTypes.size();
+					// Once all top level types of this Java file have been resolved,
+					// we can report the unused import to the DOM.
+					if (typeCount <= 1) {
+						addProblemsToDOM(dom, unusedImports);
+					} else if (typeCount > 1 && topTypes.get(typeCount - 1) instanceof JCClassDecl lastType) {
+						if (Objects.equals(currentTopLevelType, lastType.sym)) {
+							addProblemsToDOM(dom, unusedImports);
+						}
+					}
 				}
 			}
 		});
@@ -600,6 +668,17 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		}
 
 		return result;
+	}
+
+	private void addProblemsToDOM(CompilationUnit dom, Collection<CategorizedProblem> problems) {
+		IProblem[] previous = dom.getProblems();
+		IProblem[] newProblems = Arrays.copyOf(previous, previous.length + problems.size());
+		int start = previous.length;
+		for (CategorizedProblem problem : problems) {
+			newProblems[start] = problem;
+			start++;
+		}
+		dom.setProblems(newProblems);
 	}
 
 	private Optional<CompilationUnit> findTargetDOM(Map<JavaFileObject, CompilationUnit> filesToUnits, Object obj) {

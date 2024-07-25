@@ -26,7 +26,9 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.internal.compiler.ClassFile;
+import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 
 import com.sun.source.tree.ClassTree;
@@ -35,7 +37,6 @@ import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.util.TaskEvent;
 import com.sun.source.util.TaskListener;
-import com.sun.source.util.TreeScanner;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
@@ -52,6 +53,7 @@ import com.sun.tools.javac.tree.JCTree.JCIdent;
 public class JavacTaskListener implements TaskListener {
 	private Map<ICompilationUnit, IContainer> sourceOutputMapping = new HashMap<>();
 	private Map<ICompilationUnit, JavacCompilationResult> results = new HashMap<>();
+	private UnusedProblemFactory problemFactory;
 	private static final Set<String> PRIMITIVE_TYPES = new HashSet<String>(Arrays.asList(
 		"byte",
 		"short",
@@ -63,7 +65,9 @@ public class JavacTaskListener implements TaskListener {
 		"boolean"
 	));
 
-	public JavacTaskListener(JavacConfig config, Map<IContainer, List<ICompilationUnit>> outputSourceMapping) {
+	public JavacTaskListener(JavacConfig config, Map<IContainer, List<ICompilationUnit>> outputSourceMapping,
+			IProblemFactory problemFactory) {
+		this.problemFactory = new UnusedProblemFactory(problemFactory, config.compilerOptions());
 		for (Entry<IContainer, List<ICompilationUnit>> entry : outputSourceMapping.entrySet()) {
 			IContainer currentOutput = entry.getKey();
 			entry.getValue().forEach(cu -> sourceOutputMapping.put(cu, currentOutput));
@@ -84,9 +88,9 @@ public class JavacTaskListener implements TaskListener {
 			final Map<Symbol, ClassFile> visitedClasses = new HashMap<Symbol, ClassFile>();
 			final Set<ClassSymbol> hierarchyRecorded = new HashSet<>();
 			final TypeElement currentTopLevelType = e.getTypeElement();
-			TreeScanner scanner = new TreeScanner() {
+			UnusedTreeScanner<Void, Void> scanner = new UnusedTreeScanner<>() {
 				@Override
-				public Object visitClass(ClassTree node, Object p) {
+				public Void visitClass(ClassTree node, Void p) {
 					if (node instanceof JCClassDecl classDecl) {
 						/**
 						 * If a Java file contains multiple top-level types, it will
@@ -116,7 +120,7 @@ public class JavacTaskListener implements TaskListener {
 				}
 
 				@Override
-				public Object visitIdentifier(IdentifierTree node, Object p) {
+				public Void visitIdentifier(IdentifierTree node, Void p) {
 					if (node instanceof JCIdent id
 							&& id.sym instanceof TypeSymbol typeSymbol) {
 						String qualifiedName = typeSymbol.getQualifiedName().toString();
@@ -126,7 +130,7 @@ public class JavacTaskListener implements TaskListener {
 				}
 
 				@Override
-				public Object visitMemberSelect(MemberSelectTree node, Object p) {
+				public Void visitMemberSelect(MemberSelectTree node, Void p) {
 					if (node instanceof JCFieldAccess field) {
 						if (field.sym != null &&
 							!(field.type instanceof MethodType || field.type instanceof UnknownType)) {
@@ -221,7 +225,14 @@ public class JavacTaskListener implements TaskListener {
 			};
 
 			final CompilationUnitTree unit = e.getCompilationUnit();
-			scanner.scan(unit, null);
+			try {
+				scanner.scan(unit, null);
+			} catch (Exception ex) {
+				ILog.get().error("Internal error when visiting the AST Tree. " + ex.getMessage(), ex);
+			}
+
+			result.addUnusedMembers(scanner.getUnusedPrivateMembers(this.problemFactory));
+			result.setUnusedImports(scanner.getUnusedImports(this.problemFactory));
 		}
 	}
 

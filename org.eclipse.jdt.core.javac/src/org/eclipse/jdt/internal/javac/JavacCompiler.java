@@ -31,6 +31,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
@@ -53,11 +54,13 @@ import com.sun.tools.javac.util.Pair;
 
 public class JavacCompiler extends Compiler {
 	JavacConfig compilerConfig;
+	IProblemFactory problemFactory;
 
 	public JavacCompiler(INameEnvironment environment, IErrorHandlingPolicy policy, CompilerConfiguration compilerConfig,
 			ICompilerRequestor requestor, IProblemFactory problemFactory) {
 		super(environment, policy, compilerConfig.compilerOptions(), requestor, problemFactory);
 		this.compilerConfig = JavacConfig.createFrom(compilerConfig);
+		this.problemFactory = problemFactory;
 	}
 
 	@Override
@@ -105,7 +108,7 @@ public class JavacCompiler extends Compiler {
 			.collect(Collectors.groupingBy(this::computeOutputDirectory));
 
 		// Register listener to intercept intermediate results from Javac task.
-		JavacTaskListener javacListener = new JavacTaskListener(this.compilerConfig, outputSourceMapping);
+		JavacTaskListener javacListener = new JavacTaskListener(this.compilerConfig, outputSourceMapping, this.problemFactory);
 		MultiTaskListener mtl = MultiTaskListener.instance(javacContext);
 		mtl.add(javacListener);
 
@@ -167,20 +170,24 @@ public class JavacCompiler extends Compiler {
 			for (int i = 0; i < sourceUnits.length; i++) {
 				ICompilationUnit in = sourceUnits[i];
 				CompilationResult result = new CompilationResult(in, i, sourceUnits.length, Integer.MAX_VALUE);
+				List<IProblem> problems = new ArrayList<>();
 				if (javacListener.getResults().containsKey(in)) {
 					result = javacListener.getResults().get(in);
 					((JavacCompilationResult) result).migrateReferenceInfo();
 					result.unitIndex = i;
 					result.totalUnitsKnown = sourceUnits.length;
+					List<CategorizedProblem> additionalProblems = ((JavacCompilationResult) result).getAdditionalProblems();
+					if (additionalProblems != null && !additionalProblems.isEmpty()) {
+						problems.addAll(additionalProblems);
+					}
 				}
 
 				if (javacProblems.containsKey(in)) {
-					JavacProblem[] problems = javacProblems.get(in).toArray(new JavacProblem[0]);
-					result.problems = problems; // JavaBuilder is responsible
-					                            // for converting the problems
-					                            // to IMarkers
-					result.problemCount = problems.length;
+					problems.addAll(javacProblems.get(in));
 				}
+				// JavaBuilder is responsible for converting the problems to IMarkers
+				result.problems = problems.toArray(new CategorizedProblem[0]);
+				result.problemCount = problems.size();
 				this.requestor.acceptResult(result);
 				if (result.compiledTypes != null) {
 					for (Object type : result.compiledTypes.values()) {
