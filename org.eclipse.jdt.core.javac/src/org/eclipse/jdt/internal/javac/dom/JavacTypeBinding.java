@@ -657,8 +657,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			}
 			return new ITypeBinding[] { this.resolver.bindings.getTypeBinding(bounds) };
 		} else if (this.type instanceof WildcardType wildcardType) {
-			Type upperBound = wildcardType.getUpperBound();
-			return new ITypeBinding[] { upperBound == null ?
+			return new ITypeBinding[] { wildcardType.isUnbound() || wildcardType.isSuperBound() ?
 					this.resolver.resolveWellKnownType(Object.class.getName()) :
 					this.resolver.bindings.getTypeBinding(wildcardType.bound) };
 		}
