@@ -806,7 +806,7 @@ class JavacConverter {
 		Type retType = null;
 		if( !javacNameMatchesError) {
 			var name = this.ast.newSimpleName(methodDeclName);
-			nameSettings(name, javac, javacName, isConstructor);
+			nameSettings(name, javac, methodDeclName, isConstructor);
 			res.setName(name);
 		} else {
 			// javac name is an error, so let's treat the return type as the name
