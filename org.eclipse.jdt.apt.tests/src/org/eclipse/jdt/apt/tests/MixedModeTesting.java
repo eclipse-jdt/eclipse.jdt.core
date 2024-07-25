@@ -180,11 +180,11 @@ public class MixedModeTesting extends APTTestBase{
 
 		// drop something to possibily fire off an incremental build
 		String codeB = "package p1;\n"
-			+ "public class B {}\n";
+			+ "public class X {}\n";
 
-		env.addClass( srcRoot, "p1", "B", codeB );
+		env.addClass( srcRoot, "p1", "X", codeB );
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
-		expectingMarkers(new String[]{"Called the third time."});
+		expectingMarkers(new String[]{"Called the third time.", "Called the third time."});
 	}
 }
