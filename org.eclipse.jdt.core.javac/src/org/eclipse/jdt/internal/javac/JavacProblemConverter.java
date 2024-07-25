@@ -598,6 +598,27 @@ public class JavacProblemConverter {
 			case "compiler.err.expression.not.allowable.as.annotation.value" -> IProblem.AnnotationValueMustBeConstant;
 			case "compiler.err.illegal.combination.of.modifiers" -> illegalCombinationOfModifiers(diagnostic);
 			case "compiler.err.duplicate.class" -> IProblem.DuplicateTypes;
+			case "compiler.err.module.not.found", "compiler.warn.module.not.found" -> IProblem.UndefinedModule;
+			case "compiler.err.package.empty.or.not.found" -> IProblem.PackageDoesNotExistOrIsEmpty;
+			case "compiler.warn.service.provided.but.not.exported.or.used" -> IProblem.UnusedImport; //?
+			case "compiler.warn.missing-explicit-ctor" -> IProblem.ConstructorRelated;
+			case "compiler.warn.has.been.deprecated" -> switch (getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class)) {
+					case CONSTRUCTOR -> IProblem.UsingDeprecatedConstructor;
+					case METHOD -> IProblem.UsingDeprecatedMethod;
+					case VAR, RECORD_COMPONENT -> IProblem.UsingDeprecatedField;
+					case ANNOTATION -> IProblem.UsingDeprecatedType;
+					case PACKAGE -> IProblem.UsingDeprecatedPackage;
+					case MODULE -> IProblem.UsingDeprecatedModule;
+					case CLASS, RECORD, INTERFACE, ENUM -> IProblem.UsingDeprecatedType;
+					default -> IProblem.UsingDeprecatedField;
+				};
+			case "compiler.warn.inconsistent.white.space.indentation" -> -1;
+			case "compiler.warn.trailing.white.space.will.be.removed" -> -1;
+			case "compiler.warn.possible.fall-through.into.case" -> IProblem.FallthroughCase;
+			case "compiler.warn.restricted.type.not.allowed.preview" -> IProblem.RestrictedTypeName;
+			case "compiler.err.illegal.esc.char" -> IProblem.InvalidEscape;
+			case "compiler.err.preview.feature.disabled", "compiler.err.preview.feature.disabled.plural" -> IProblem.PreviewFeatureDisabled;
+			case "compiler.err.is.preview" -> IProblem.PreviewAPIUsed;
 			// next are javadoc; defaulting to JavadocUnexpectedText when no better problem could be found
 			case "compiler.err.dc.bad.entity" -> IProblem.JavadocUnexpectedText;
 			case "compiler.err.dc.bad.inline.tag" -> IProblem.JavadocUnexpectedText;
