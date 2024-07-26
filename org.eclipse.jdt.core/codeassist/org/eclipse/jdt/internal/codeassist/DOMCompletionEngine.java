@@ -54,6 +54,7 @@ import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.Type;
@@ -203,7 +204,7 @@ public class DOMCompletionEngine implements Runnable {
 			int charCount = this.offset - simpleName.getStartPosition();
 			completeAfter = simpleName.getIdentifier().substring(0, charCount);
 			if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation
-					|| simpleName.getParent() instanceof VariableDeclaration) {
+					|| simpleName.getParent() instanceof VariableDeclaration || simpleName.getParent() instanceof QualifiedName) {
 				context = this.toComplete.getParent();
 			}
 		}
@@ -304,9 +305,9 @@ public class DOMCompletionEngine implements Runnable {
 		if (context instanceof ModuleDeclaration mod) {
 			findModules(this.prefix.toCharArray(), this.modelUnit.getJavaProject(), this.assistOptions, Set.of(mod.getName().toString()));
 		}
-		
+
 		ASTNode current = this.toComplete;
-		
+
 		if(suggestDefaultCompletions) {
 			while (current != null) {
 				scope.addAll(visibleBindings(current));

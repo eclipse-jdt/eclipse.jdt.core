@@ -1010,7 +1010,7 @@ class JavacConverter {
 		int fragmentLength = fragmentEnd - fragmentStart; // ????  - 1;
 		fragment.setSourceRange(fragmentStart, Math.max(0, fragmentLength));
 		removeTrailingCharFromRange(fragment, new char[] {';', ','});
-		
+
 		if (convertName(javac.getName()) instanceof SimpleName simpleName) {
 			fragment.setName(simpleName);
 		}
@@ -2120,7 +2120,7 @@ class JavacConverter {
 			}
 			VariableDeclarationStatement res = this.ast.newVariableDeclarationStatement(fragment);
 			commonSettings(res, javac);
-			
+
 			if (jcVariableDecl.vartype != null) {
 				if( jcVariableDecl.vartype instanceof JCArrayTypeTree jcatt) {
 					int extraDims = 0;
@@ -2520,7 +2520,7 @@ class JavacConverter {
 			res.setSourceRange(res.getStartPosition(), res.getLength() + 1);
 		}
 	}
-	
+
 	private void removeTrailingCharFromRange(ASTNode res, char[] possible) {
 		int endPos = res.getStartPosition() + res.getLength();
 		char lastChar = this.rawText.charAt(endPos-1);
@@ -2534,7 +2534,7 @@ class JavacConverter {
 			res.setSourceRange(res.getStartPosition(), res.getLength() - 1);
 		}
 	}
-	
+
 	private CatchClause convertCatcher(JCCatch javac) {
 		CatchClause res = this.ast.newCatchClause();
 		commonSettings(res, javac);
@@ -2596,7 +2596,13 @@ class JavacConverter {
 			Type qualifierType = convertToType(qualified.getExpression());
 			SimpleName simpleName = (SimpleName)convertName(qualified.getIdentifier());
 			int simpleNameStart = this.rawText.indexOf(simpleName.getIdentifier(), qualifierType.getStartPosition() + qualifierType.getLength());
-			simpleName.setSourceRange(simpleNameStart, simpleName.getIdentifier().length());
+			if (simpleNameStart > 0) {
+				simpleName.setSourceRange(simpleNameStart, simpleName.getIdentifier().length());
+			} else {
+				// the name second segment is invalid
+				simpleName.delete();
+				return qualifierType;
+			}
 			if(qualifierType instanceof SimpleType simpleType && (ast.apiLevel() < AST.JLS8 || simpleType.annotations().isEmpty())) {
 				simpleType.delete();
 				Name parentName = simpleType.getName();

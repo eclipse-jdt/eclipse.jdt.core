@@ -90,7 +90,7 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public boolean isRecovered() {
-		return this.variableSymbol.kind == Kinds.Kind.ERR;
+		return this.variableSymbol.kind == Kinds.Kind.ERR || this.variableSymbol.type instanceof Type.ErrorType;
 	}
 
 	@Override
