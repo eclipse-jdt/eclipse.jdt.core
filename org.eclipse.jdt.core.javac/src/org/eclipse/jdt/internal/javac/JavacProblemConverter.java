@@ -602,16 +602,20 @@ public class JavacProblemConverter {
 			case "compiler.err.package.empty.or.not.found" -> IProblem.PackageDoesNotExistOrIsEmpty;
 			case "compiler.warn.service.provided.but.not.exported.or.used" -> IProblem.UnusedImport; //?
 			case "compiler.warn.missing-explicit-ctor" -> IProblem.ConstructorRelated;
-			case "compiler.warn.has.been.deprecated" -> switch (getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class)) {
-					case CONSTRUCTOR -> IProblem.UsingDeprecatedConstructor;
-					case METHOD -> IProblem.UsingDeprecatedMethod;
-					case VAR, RECORD_COMPONENT -> IProblem.UsingDeprecatedField;
-					case ANNOTATION -> IProblem.UsingDeprecatedType;
-					case PACKAGE -> IProblem.UsingDeprecatedPackage;
-					case MODULE -> IProblem.UsingDeprecatedModule;
-					case CLASS, RECORD, INTERFACE, ENUM -> IProblem.UsingDeprecatedType;
-					default -> IProblem.UsingDeprecatedField;
-				};
+			case "compiler.warn.has.been.deprecated" -> {
+				var kind = getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class);
+				yield kind == null ? IProblem.UsingDeprecatedField : 
+					switch (kind) {
+						case CONSTRUCTOR -> IProblem.UsingDeprecatedConstructor;
+						case METHOD -> IProblem.UsingDeprecatedMethod;
+						case VAR, RECORD_COMPONENT -> IProblem.UsingDeprecatedField;
+						case ANNOTATION -> IProblem.UsingDeprecatedType;
+						case PACKAGE -> IProblem.UsingDeprecatedPackage;
+						case MODULE -> IProblem.UsingDeprecatedModule;
+						case CLASS, RECORD, INTERFACE, ENUM -> IProblem.UsingDeprecatedType;
+						default -> IProblem.UsingDeprecatedField;
+					};
+				}
 			case "compiler.warn.inconsistent.white.space.indentation" -> -1;
 			case "compiler.warn.trailing.white.space.will.be.removed" -> -1;
 			case "compiler.warn.possible.fall-through.into.case" -> IProblem.FallthroughCase;
