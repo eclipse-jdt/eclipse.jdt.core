@@ -48,7 +48,6 @@ import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
 import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCAnyPattern;
@@ -556,7 +555,6 @@ class JavacConverter {
 							int siblingEnds = previous.getStartPosition() + previous.getLength();
 							if( siblingEnds > istart ) {
 								previous.setSourceRange(previous.getStartPosition(), istart - previous.getStartPosition()-1);
-								int z = 0; // help
 							}
 						}
 					}
@@ -708,7 +706,7 @@ class JavacConverter {
 			res.setBody(convertBlock(block));
 			return res;
 		}
-		if (tree instanceof JCErroneous erroneous || tree instanceof JCSkip) {
+		if (tree instanceof JCErroneous || tree instanceof JCSkip) {
 			return null;
 		}
 		ILog.get().error("Unsupported " + tree + " of type" + tree.getClass());
@@ -1002,10 +1000,6 @@ class JavacConverter {
 
 	private int getJLS2ModifiersFlags(JCModifiers mods) {
 		return getJLS2ModifiersFlags(mods.flags);
-	}
-
-	private FieldDeclaration convertFieldDeclaration(JCVariableDecl javac) {
-		return convertFieldDeclaration(javac, null);
 	}
 
 	private VariableDeclarationFragment createVariableDeclarationFragment(JCVariableDecl javac) {
@@ -1959,7 +1953,7 @@ class JavacConverter {
 
 	private Expression convertLiteral(JCLiteral literal) {
 		Object value = literal.getValue();
-		if (value instanceof Number number) {
+		if (value instanceof Number) {
 			// to check if the literal is actually a prefix expression of it is a hex
 			// negative value we need to check the source char value.
 			char firstChar = this.rawText.substring(literal.getStartPosition(), literal.getStartPosition() + 1)
@@ -2645,7 +2639,6 @@ class JavacConverter {
 				res.dimensions().addFirst(this.ast.newDimension());
 				commonSettings(res, jcArrayType.getType());
 			} else {
-				JCTree innerType = jcArrayType.getType();
 				int dims = countDimensions(jcArrayType);
 				res = this.ast.newArrayType(t);
 				if( dims == 0 ) {
@@ -3044,17 +3037,6 @@ class JavacConverter {
 		// position is set later, in FixPositions, as computing them depends on the sibling
 	}
 
-	private Name convert(com.sun.tools.javac.util.Name javac, String selected) {
-		if (javac == null || Objects.equals(javac, Names.instance(this.context).error) || Objects.equals(javac, Names.instance(this.context).empty)) {
-			return null;
-		}
-		if (selected == null) {
-			return this.ast.newSimpleName(javac.toString());
-		} else {
-			return this.ast.newQualifiedName(this.ast.newName(selected), this.ast.newSimpleName(javac.toString()));
-		}
-		// position is set later, in FixPositions, as computing them depends on the sibling
-	}
 
 	public org.eclipse.jdt.core.dom.Comment convert(Comment javac, JCTree context) {
 		if (javac.getStyle() == CommentStyle.JAVADOC_BLOCK && context != null) {
@@ -3226,24 +3208,6 @@ class JavacConverter {
 			}
 		}
 		return enumConstantDeclaration;
-	}
-
-	private BodyDeclaration convertEnumFieldOrMethodDeclaration(JCTree var, BodyDeclaration parent, EnumDeclaration enumDecl) {
-		if( var instanceof JCVariableDecl field ) {
-			if( !(field.getType() instanceof JCIdent jcid)) {
-				return convertFieldDeclaration(field);
-			}
-			String o = jcid.getName().toString();
-			String o2 = enumDecl.getName().toString();
-			if( !o.equals(o2)) {
-				return convertFieldDeclaration(field);
-			}
-		}
-		if( var instanceof JCMethodDecl method) {
-			return convertMethodDecl(method, parent);
-		}
-
-		return null;
 	}
 
 	private static List<ASTNode> siblingsOf(ASTNode node) {
