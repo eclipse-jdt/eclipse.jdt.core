@@ -1029,7 +1029,7 @@ class JavacConverter {
 	private FieldDeclaration convertFieldDeclaration(JCVariableDecl javac, ASTNode parent) {
 		VariableDeclarationFragment fragment = createVariableDeclarationFragment(javac);
 		List<ASTNode> sameStartPosition = new ArrayList<>();
-		if( parent instanceof TypeDeclaration decl) {
+		if( parent instanceof AbstractTypeDeclaration decl) {
 			decl.bodyDeclarations().stream().filter(x -> x instanceof FieldDeclaration)
 					.filter(x -> ((FieldDeclaration)x).getType().getStartPosition() == javac.vartype.getStartPosition())
 					.forEach(x -> sameStartPosition.add((ASTNode)x));
