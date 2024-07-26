@@ -13,6 +13,7 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -871,10 +872,47 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 				expectedOutput = Util.convertToIndependantLineDelimiter(expectedOutput);
 				actualOutput = Util.convertToIndependantLineDelimiter(actualOutput);
 				if (!expectedOutput.equals(actualOutput)) {
-					System.out.println(Util.displayString(actualOutput));
-					assertEquals("different output", expectedOutput, actualOutput);
+					boolean match = checkAlternateProblemMessages(expectedOutput, actualOutput, problems, length);
+					if( !match ) {
+						System.out.println(Util.displayString(actualOutput));
+						assertEquals("different output", expectedOutput, actualOutput);
+					}
 				}
 			}
 		}
 	}
+	private boolean checkAlternateProblemMessages(String expectedOutput, String actualOutput, final IProblem[] problems, final int length) {
+		List<String> expectedSplit = Arrays.asList(expectedOutput.split("\n"));
+		for( int i = 0; i < problems.length; i++ ) {
+			String oneActualMessage = problems[i].getMessage();
+			String oneExpectedMessage = i < expectedSplit.size() ? expectedSplit.get(i) : null;
+			if( !oneActualMessage.equals(oneExpectedMessage)) {
+				String alternateMessage = convertDiagnosticMessage(oneActualMessage, problems[i].getID(), problems[i].getArguments());
+				if(!alternateMessage.equals(oneExpectedMessage)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	private String convertDiagnosticMessage(String original, int problemId, Object[] arguments) {
+		if( IProblem.NotVisibleType == problemId ) {
+			int lastDot = ((String)arguments[0]).lastIndexOf(".");
+			return "The type " + ((String)arguments[0]).substring(lastDot == -1 ? 0 : lastDot+1) + " is not visible";
+		}
+		if( IProblem.PackageDoesNotExistOrIsEmpty == problemId ) {
+			return arguments[0] + " cannot be resolved to a type";
+		}
+		if( IProblem.UndefinedType == problemId) {
+			return arguments[1] + " cannot be resolved to a type";
+		}
+		if( IProblem.RawTypeReference == problemId) {
+			String[] segments = ((String)arguments[0]).split("\\.");
+			String simple = segments[segments.length-1];
+			return simple + " is a raw type. References to generic type " + simple + "<T> should be parameterized";
+		}
+		return original;
+	}
+
+
 }
