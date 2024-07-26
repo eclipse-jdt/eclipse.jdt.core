@@ -623,6 +623,7 @@ public class JavacProblemConverter {
 			case "compiler.err.illegal.esc.char" -> IProblem.InvalidEscape;
 			case "compiler.err.preview.feature.disabled", "compiler.err.preview.feature.disabled.plural" -> IProblem.PreviewFeatureDisabled;
 			case "compiler.err.is.preview" -> IProblem.PreviewAPIUsed;
+			case "compiler.err.cant.access" -> IProblem.NotAccessibleType;
 			// next are javadoc; defaulting to JavadocUnexpectedText when no better problem could be found
 			case "compiler.err.dc.bad.entity" -> IProblem.JavadocUnexpectedText;
 			case "compiler.err.dc.bad.inline.tag" -> IProblem.JavadocUnexpectedText;

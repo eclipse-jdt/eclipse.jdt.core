@@ -297,7 +297,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		if (this.type instanceof WildcardType wildcardType && !wildcardType.isUnbound()) {
 			Type bound = wildcardType.getExtendsBound();
 			if (bound == null) {
-				wildcardType.getSuperBound();
+				bound = wildcardType.getSuperBound();
 			}
 			if (bound != null) {
 				return this.resolver.bindings.getTypeBinding(bound);

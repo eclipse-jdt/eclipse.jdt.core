@@ -671,6 +671,9 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 	}
 
 	private void addProblemsToDOM(CompilationUnit dom, Collection<CategorizedProblem> problems) {
+		if (problems == null) {
+			return;
+		}
 		IProblem[] previous = dom.getProblems();
 		IProblem[] newProblems = Arrays.copyOf(previous, previous.length + problems.size());
 		int start = previous.length;
