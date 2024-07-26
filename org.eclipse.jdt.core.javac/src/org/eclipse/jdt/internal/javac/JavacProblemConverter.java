@@ -222,6 +222,24 @@ public class JavacProblemConverter {
 				int start = fieldAccess.getStartPosition();
 				int end = fieldAccess.getEndPosition(this.units.get(jcDiagnostic.getSource()).endPositions);
 				return new org.eclipse.jface.text.Position(start, end - start);
+			} else if (problemId == IProblem.MethodMustOverrideOrImplement) {
+				Tree tree = diagnosticPath.getParentPath() == null ? null
+						: diagnosticPath.getParentPath().getParentPath() == null ? null
+								: diagnosticPath.getParentPath().getParentPath().getLeaf();
+				if (tree != null) {
+					var unit = this.units.get(jcDiagnostic.getSource());
+					if (unit != null && tree instanceof JCMethodDecl methodDecl) {
+						try {
+							int startPosition = methodDecl.pos;
+							var lastParenthesisIndex = unit.getSourceFile()
+									.getCharContent(false).toString()
+									.indexOf(')', startPosition);
+							return new org.eclipse.jface.text.Position(startPosition, lastParenthesisIndex - startPosition + 1);
+						} catch (IOException e) {
+							// fall through to default behaviour
+						}
+					}
+				}
 			}
 
 			Tree element = diagnosticPath != null ? diagnosticPath.getLeaf() :
@@ -609,7 +627,7 @@ public class JavacProblemConverter {
 			case "compiler.warn.missing-explicit-ctor" -> IProblem.ConstructorRelated;
 			case "compiler.warn.has.been.deprecated", "compiler.warn.has.been.deprecated.for.removal" -> {
 				var kind = getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class);
-				yield kind == null ? IProblem.UsingDeprecatedField : 
+				yield kind == null ? IProblem.UsingDeprecatedField :
 					switch (kind) {
 						case CONSTRUCTOR -> IProblem.UsingDeprecatedConstructor;
 						case METHOD -> IProblem.UsingDeprecatedMethod;
