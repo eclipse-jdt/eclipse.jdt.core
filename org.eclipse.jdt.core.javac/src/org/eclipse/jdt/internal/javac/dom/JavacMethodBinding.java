@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.javac.dom;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -23,7 +24,9 @@ import java.util.stream.Collectors;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -32,7 +35,11 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import com.sun.tools.javac.code.Flags;
@@ -154,20 +161,9 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 				if (currentBinding.getJavaElement() instanceof IType currentType) {
 					MethodDeclaration methodDeclaration = (MethodDeclaration)this.resolver.findDeclaringNode(this);
 					if (methodDeclaration != null) {
-						String[] params = ((List<SingleVariableDeclaration>)methodDeclaration.parameters()).stream() //
-								.map(param -> {
-									String sig = Util.getSignature(param.getType());
-									if (param.isVarargs()) {
-										sig = Signature.createArraySignature(sig, 1);
-									}
-									return sig;
-								}) //
-								.toArray(String[]::new);
-						IMethod method = currentType.getMethod(getName(), params);
-						if (method.exists()) {
-							return method;
-						}
-					}
+						return getJavaElementForMethodDeclaration(currentType, methodDeclaration);
+					} 
+					
 					var parametersResolved = this.methodSymbol.params().stream()
 							.map(varSymbol -> varSymbol.type)
 							.map(t ->
@@ -198,6 +194,42 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			}
 		}
 		return null;
+	}
+
+	private IJavaElement getJavaElementForMethodDeclaration(IType currentType, MethodDeclaration methodDeclaration) {
+		ArrayList<String> typeParamsList = new ArrayList<>();
+		List typeParams = methodDeclaration.typeParameters();
+		if( typeParams == null ) {
+			typeParams = new ArrayList();
+		}
+		for( int i = 0; i < typeParams.size(); i++ ) {
+			typeParamsList.add(((TypeParameter)typeParams.get(i)).getName().toString());
+		}
+	
+		List<SingleVariableDeclaration> p = methodDeclaration.parameters();
+		String[] params = ((List<SingleVariableDeclaration>)p).stream() //
+				.map(param -> {
+					String sig = Util.getSignature(param.getType());
+					if (param.isVarargs()) {
+						sig = Signature.createArraySignature(sig, 1);
+					}
+					return sig;
+				}).toArray(String[]::new);
+		IMethod result = currentType.getMethod(getName(), params);
+		if (currentType.isBinary() || result.exists()) {
+			return result;
+		}
+		IMethod[] methods = null;
+		try {
+			methods = currentType.getMethods();
+		} catch (JavaModelException e) {
+			// declaring type doesn't exist
+			return null;
+		}
+		IMethod[] candidates = Member.findMethods(result, methods);
+		if (candidates == null || candidates.length == 0)
+			return null;
+		return (JavaElement) candidates[0];
 	}
 
 	private String resolveTypeName(com.sun.tools.javac.code.Type type, boolean binary) {

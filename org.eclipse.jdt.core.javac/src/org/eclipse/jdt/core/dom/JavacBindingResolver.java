@@ -676,6 +676,16 @@ public class JavacBindingResolver extends BindingResolver {
 	}
 
 	IBinding resolveNameToJavac(Name name, JCTree tree) {
+		if( name.getParent() instanceof AnnotatableType st && st.getParent() instanceof ParameterizedType pt) {
+			if( st == pt.getType()) {
+				tree = this.converter.domToJavac.get(pt);
+				IBinding b = this.bindings.getTypeBinding(tree.type);
+				if( b != null ) {
+					return b;
+				}
+			}
+		}
+		
 		if (tree instanceof JCIdent ident && ident.sym != null) {
 			return this.bindings.getBinding(ident.sym, ident.type != null ? ident.type : ident.sym.type);
 		}

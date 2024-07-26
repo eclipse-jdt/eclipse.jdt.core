@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.javac.dom;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,14 +21,23 @@ import java.util.stream.StreamSupport;
 
 import javax.lang.model.type.NullType;
 import javax.lang.model.type.TypeKind;
+import javax.tools.JavaFileObject;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -40,6 +50,7 @@ import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.core.SourceType;
+import org.eclipse.jdt.internal.core.util.Util;
 
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
@@ -48,6 +59,7 @@ import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
+import com.sun.tools.javac.code.Symbol.RootPackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
@@ -58,6 +70,7 @@ import com.sun.tools.javac.code.Type.ErrorType;
 import com.sun.tools.javac.code.Type.IntersectionClassType;
 import com.sun.tools.javac.code.Type.JCNoType;
 import com.sun.tools.javac.code.Type.JCVoidType;
+import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.code.Type.WildcardType;
@@ -163,11 +176,55 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					return type.getType("", 1);
 				}
 			}
+			
+			JavaFileObject jfo = classSymbol == null ? null : classSymbol.sourcefile;
+			ICompilationUnit tmp = jfo == null ? null : getCompilationUnit(jfo.getName().toCharArray(), this.resolver.getWorkingCopyOwner());
+			if( tmp != null ) {
+				String[] cleaned = cleanedUpName(classSymbol).split("\\$");
+				if( cleaned.length > 0 ) {
+					cleaned[0] = cleaned[0].substring(cleaned[0].lastIndexOf('.') + 1);
+				}
+				IType ret = null;
+				boolean done = false;
+				for( int i = 0; i < cleaned.length && !done; i++ ) {
+					ret = (ret == null ? tmp.getType(cleaned[i]) : ret.getType(cleaned[i]));
+					if( ret == null )
+						done = true;
+				}
+				if( ret != null ) 
+					return ret;
+			} 
 			try {
-				return this.resolver.javaProject.findType(cleanedUpName(classSymbol), this.resolver.getWorkingCopyOwner(), new NullProgressMonitor());
+				IType ret = this.resolver.javaProject.findType(cleanedUpName(classSymbol), this.resolver.getWorkingCopyOwner(), new NullProgressMonitor());
+				return ret;
 			} catch (JavaModelException ex) {
 				ILog.get().error(ex.getMessage(), ex);
 			}
+		}
+		return null;
+	}
+
+	private static ICompilationUnit getCompilationUnit(char[] fileName, WorkingCopyOwner workingCopyOwner) {
+		char[] slashSeparatedFileName = CharOperation.replaceOnCopy(fileName, File.separatorChar, '/');
+		int pkgEnd = CharOperation.lastIndexOf('/', slashSeparatedFileName); // pkgEnd is exclusive
+		if (pkgEnd == -1)
+			return null;
+		IPackageFragment pkg = Util.getPackageFragment(slashSeparatedFileName, pkgEnd, -1/*no jar separator for .java files*/);
+		if (pkg != null) {
+			int start;
+			ICompilationUnit cu = pkg.getCompilationUnit(new String(slashSeparatedFileName, start =  pkgEnd+1, slashSeparatedFileName.length - start));
+			if (workingCopyOwner != null) {
+				ICompilationUnit workingCopy = cu.findWorkingCopy(workingCopyOwner);
+				if (workingCopy != null)
+					return workingCopy;
+			}
+			return cu;
+		}
+		IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
+		IFile file = wsRoot.getFile(new Path(String.valueOf(fileName)));
+		if (file.exists()) {
+			// this approach works if file exists but is not on the project's build path:
+			return JavaCore.createCompilationUnitFrom(file);
 		}
 		return null;
 	}
@@ -408,10 +465,14 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		Symbol parentSymbol = this.typeSymbol.owner;
 		do {
 			if (parentSymbol instanceof final MethodSymbol method) {
-				if (!(method.type instanceof Type.MethodType methodType)) {
-					return null;
+				if (method.type instanceof Type.MethodType methodType) {
+					return this.resolver.bindings.getMethodBinding(methodType, method);
 				}
-				return this.resolver.bindings.getMethodBinding(methodType, method);
+				if( method.type instanceof Type.ForAll faType && faType.qtype instanceof MethodType mtt) {
+					IMethodBinding found = this.resolver.bindings.getMethodBinding(mtt, method);
+					return found;
+				}
+				return null;
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);
@@ -523,19 +584,26 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public String getQualifiedName() {
-		if (this.typeSymbol.owner instanceof MethodSymbol) {
+		return getQualifiedNameImpl(this.type, this.typeSymbol, this.typeSymbol.owner);
+	}
+	private String getQualifiedNameImpl(Type type, TypeSymbol typeSymbol, Symbol owner) {
+		if (owner instanceof MethodSymbol) {
 			return "";
 		}
-		if (this.type instanceof NullType) {
+
+		if (owner instanceof MethodSymbol) {
+			return "";
+		}
+		if (type instanceof NullType) {
 			return "null";
 		}
-		if (this.type instanceof ArrayType at) {
-			if( this.type.tsym.isAnonymous()) {
+		if (type instanceof ArrayType at) {
+			if( type.tsym.isAnonymous()) {
 				return "";
 			}
 			return this.resolver.bindings.getTypeBinding(at.getComponentType()).getQualifiedName() + "[]";
 		}
-		if (this.type instanceof WildcardType wt) {
+		if (type instanceof WildcardType wt) {
 			if (wt.type == null || this.resolver.resolveWellKnownType("java.lang.Object").equals(this.resolver.bindings.getTypeBinding(wt.type))) {
 				return "?";
 			}
@@ -553,8 +621,20 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return "";
 		}
 		StringBuilder res = new StringBuilder();
-		res.append(this.typeSymbol.toString());
-		ITypeBinding[] typeArguments = this.getTypeArguments();
+		if( owner instanceof RootPackageSymbol rps ) {
+			return type.tsym.name.toString();
+		} else if( owner instanceof TypeSymbol tss) {
+			Type parentType = (type instanceof ClassType ct && ct.getEnclosingType() != Type.noType ? ct.getEnclosingType() : tss.type);
+			String parentName = getQualifiedNameImpl(parentType, tss, tss.owner);
+			res.append(parentName);
+			if( !"".equals(parentName)) {
+				res.append(".");
+			}
+			res.append(typeSymbol.name.toString());
+		} else {
+			res.append(typeSymbol.toString());
+		}
+		ITypeBinding[] typeArguments = getUncheckedTypeArguments(type, typeSymbol);
 		if (typeArguments.length > 0) {
 			res.append("<");
 			int i;
@@ -626,10 +706,17 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding[] getTypeArguments() {
-		if (this.type.getTypeArguments().isEmpty() || this.type == this.typeSymbol.type || isTargettingPreGenerics()) {
+		return getTypeArguments(this.type, this.typeSymbol);
+	}
+	
+	private ITypeBinding[] getTypeArguments(Type t, TypeSymbol ts) {
+		if (t.getTypeArguments().isEmpty() || t == ts.type || isTargettingPreGenerics()) {
 			return NO_TYPE_ARGUMENTS;
 		}
-		return this.type.getTypeArguments()
+		return getUncheckedTypeArguments(t, ts);
+	}
+	private ITypeBinding[] getUncheckedTypeArguments(Type t, TypeSymbol ts) {
+		return t.getTypeArguments()
 				.stream()
 				.map(this.resolver.bindings::getTypeBinding)
 				.toArray(ITypeBinding[]::new);
