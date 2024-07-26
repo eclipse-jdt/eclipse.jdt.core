@@ -48,6 +48,7 @@ import com.sun.tools.javac.code.Symbol.PackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.Type.ErrorType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.ModuleType;
@@ -762,6 +763,11 @@ public class JavacBindingResolver extends BindingResolver {
 				}
 			}
 			return null;
+		}
+		if (jcTree instanceof JCNewClass newClass
+			&& newClass.type != null
+			&& Symtab.instance(this.context).errSymbol == newClass.type.tsym) {
+			jcTree = newClass.getIdentifier();
 		}
 		if (jcTree instanceof JCFieldAccess jcFieldAccess) {
 			if (jcFieldAccess.type instanceof PackageType) {
