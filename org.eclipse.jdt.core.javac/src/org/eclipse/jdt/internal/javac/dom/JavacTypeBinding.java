@@ -574,6 +574,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	public ITypeBinding getSuperclass() {
 		Type superType = this.types.supertype(this.type);
 		if (superType != null && !(superType instanceof JCNoType)) {
+			if( this.isInterface() && superType.toString().equals("java.lang.Object")) {
+				return null;
+			}
 			return this.resolver.bindings.getTypeBinding(superType);
 		}
 		String jlObject = this.typeSymbol.getQualifiedName().toString();
