@@ -689,11 +689,11 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding[] getTypeParameters() {
-		return isRawType()
-			? new ITypeBinding[0]
-			: this.type.getParameterTypes()
+		return !isRawType() && this.type instanceof ClassType classType
+			? classType.getTypeArguments()
 				.map(this.resolver.bindings::getTypeBinding)
-				.toArray(ITypeBinding[]::new);
+				.toArray(ITypeBinding[]::new)
+			: new ITypeBinding[0];
 	}
 
 	@Override

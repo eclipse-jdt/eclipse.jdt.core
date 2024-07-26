@@ -607,7 +607,7 @@ public class JavacProblemConverter {
 			case "compiler.err.package.empty.or.not.found" -> IProblem.PackageDoesNotExistOrIsEmpty;
 			case "compiler.warn.service.provided.but.not.exported.or.used" -> IProblem.UnusedImport; //?
 			case "compiler.warn.missing-explicit-ctor" -> IProblem.ConstructorRelated;
-			case "compiler.warn.has.been.deprecated" -> {
+			case "compiler.warn.has.been.deprecated", "compiler.warn.has.been.deprecated.for.removal" -> {
 				var kind = getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class);
 				yield kind == null ? IProblem.UsingDeprecatedField : 
 					switch (kind) {
