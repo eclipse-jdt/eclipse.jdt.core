@@ -530,6 +530,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return "null";
 		}
 		if (this.type instanceof ArrayType at) {
+			if( this.type.tsym.isAnonymous()) {
+				return "";
+			}
 			return this.resolver.bindings.getTypeBinding(at.getComponentType()).getQualifiedName() + "[]";
 		}
 		if (this.type instanceof WildcardType wt) {
@@ -546,6 +549,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return builder.toString();
 		}
 
+		if( this.isAnonymous()) {
+			return "";
+		}
 		StringBuilder res = new StringBuilder();
 		res.append(this.typeSymbol.toString());
 		ITypeBinding[] typeArguments = this.getTypeArguments();
