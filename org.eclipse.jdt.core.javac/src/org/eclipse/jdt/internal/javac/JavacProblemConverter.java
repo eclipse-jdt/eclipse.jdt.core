@@ -51,6 +51,7 @@ import com.sun.tools.javac.tree.JCTree.JCAssign;
 import com.sun.tools.javac.tree.JCTree.JCBlock;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.javac.tree.JCTree.JCEnhancedForLoop;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
@@ -217,6 +218,10 @@ public class JavacProblemConverter {
 						diagnosticPath = JavacTrees.instance(context).getPath(units.get(jcDiagnostic.getSource()), jcExpr.get());
 					}
 				}
+			} else if (problemId == IProblem.TypeMismatch && diagnosticPath.getLeaf() instanceof JCFieldAccess fieldAccess) {
+				int start = fieldAccess.getStartPosition();
+				int end = fieldAccess.getEndPosition(this.units.get(jcDiagnostic.getSource()).endPositions);
+				return new org.eclipse.jface.text.Position(start, end - start);
 			}
 
 			Tree element = diagnosticPath != null ? diagnosticPath.getLeaf() :
@@ -960,6 +965,9 @@ public class JavacProblemConverter {
 				TreePath path = JavacTrees.instance(context).getPath(unit, tree);
 				if (path != null) {
 					path = path.getParentPath();
+				}
+				if (path.getLeaf() instanceof JCEnhancedForLoop) {
+					return IProblem.IncompatibleTypesInForeach;
 				}
 				while (path != null && path.getLeaf() instanceof JCExpression) {
 					if (path.getLeaf() instanceof JCMethodInvocation) {
