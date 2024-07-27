@@ -438,8 +438,12 @@ public class DOMCompletionEngine implements Runnable {
 
 		if (kind == CompletionProposal.METHOD_REF) {
 			var methodBinding = (IMethodBinding) binding;
-			res.setParameterNames(DOMCompletionEngineMethodDeclHandler.findVariableNames(methodBinding).stream()
-					.map(String::toCharArray).toArray(i -> new char[i][]));
+			var paramNames = DOMCompletionEngineMethodDeclHandler.findVariableNames(methodBinding);
+			if (paramNames.isEmpty()) {
+				res.setParameterNames(null);
+			} else {
+				res.setParameterNames(paramNames.stream().map(String::toCharArray).toArray(i -> new char[i][]));
+			}
 			res.setSignature(Signature.createMethodSignature(
 					Arrays.stream(methodBinding.getParameterTypes()).map(ITypeBinding::getName).map(String::toCharArray)
 							.map(type -> Signature.createTypeSignature(type, true).toCharArray())
@@ -564,6 +568,7 @@ public class DOMCompletionEngine implements Runnable {
 		res.setName(packageName.toCharArray());
 		res.setCompletion(packageName.toCharArray());
 		res.setDeclarationSignature(packageName.toCharArray());
+		res.setSignature(packageName.toCharArray());
 		configureProposal(res, completing);
 		return res;
 	}

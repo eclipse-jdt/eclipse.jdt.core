@@ -93,6 +93,10 @@ final class DOMCompletionEngineRecoveredNodeScanner {
             // actual recoverable type, if not treat the type name as a variable name and search for such variable in
             // the context.
             var binding = node.resolveBinding();
+            if(binding == null) {
+                return super.visit(node);
+            }
+            
             if (!binding.isRecovered()) {
                 this.foundBinding = binding;
                 return false;
