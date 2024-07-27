@@ -510,6 +510,7 @@ public class JavacProblemConverter {
 			case "compiler.err.unclosed.comment" -> IProblem.UnterminatedComment;
 			case "compiler.err.illegal.start.of.type" -> IProblem.Syntax;
 			case "compiler.err.illegal.start.of.expr" -> IProblem.Syntax;
+			case "compiler.err.illegal.start.of.stmt" -> IProblem.Syntax;
 			case "compiler.err.variable.not.allowed" -> IProblem.Syntax;
 			case "compiler.err.illegal.dot" -> IProblem.Syntax;
 			case "compiler.warn.raw.class.use" -> IProblem.RawTypeReference;
@@ -521,7 +522,7 @@ public class JavacProblemConverter {
 				};
 			case "compiler.err.cant.resolve.location.args" -> convertUndefinedMethod(diagnostic);
 			case "compiler.err.cant.resolve.location.args.params" -> IProblem.UndefinedMethod;
-			case "compiler.err.cant.resolve" -> convertUnresolved(diagnostic);
+			case "compiler.err.cant.resolve", "compiler.err.invalid.mref" -> convertUnresolved(diagnostic);
 			case "compiler.err.cant.resolve.args" -> convertUndefinedMethod(diagnostic);
 			case "compiler.err.cant.resolve.args.params" -> IProblem.UndefinedMethod;
 			case "compiler.err.cant.apply.symbols", "compiler.err.cant.apply.symbol" ->
@@ -647,6 +648,27 @@ public class JavacProblemConverter {
 			case "compiler.err.preview.feature.disabled", "compiler.err.preview.feature.disabled.plural" -> IProblem.PreviewFeatureDisabled;
 			case "compiler.err.is.preview" -> IProblem.PreviewAPIUsed;
 			case "compiler.err.cant.access" -> IProblem.NotAccessibleType;
+			case "compiler.err.var.not.initialized.in.default.constructor" -> IProblem.UninitializedBlankFinalField;
+			case "compiler.err.assert.as.identifier" -> IProblem.UseAssertAsAnIdentifier;
+			case "compiler.warn.unchecked.varargs.non.reifiable.type" -> IProblem.PotentialHeapPollutionFromVararg;
+			case "compiler.err.var.might.already.be.assigned" -> IProblem.FinalFieldAssignment;
+			case "compiler.err.annotation.missing.default.value.1" -> IProblem.MissingValueForAnnotationMember;
+			case "compiler.warn.static.not.qualified.by.type" -> {
+				var kind = getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class);
+				yield kind == null ? IProblem.NonStaticAccessToStaticField : 
+					switch (kind) {
+						case METHOD -> IProblem.NonStaticAccessToStaticMethod;
+						case VAR, RECORD_COMPONENT -> IProblem.NonStaticAccessToStaticField;
+						default -> IProblem.NonStaticAccessToStaticField;
+				};
+			}
+			case "compiler.err.illegal.static.intf.meth.call" -> IProblem.InterfaceStaticMethodInvocationNotBelow18;
+			case "compiler.err.recursive.ctor.invocation" -> IProblem.RecursiveConstructorInvocation;
+			case "compiler.err.illegal.text.block.open" -> IProblem.Syntax;
+			case "compiler.warn.prob.found.req" -> IProblem.UncheckedAccessOfValueOfFreeTypeVariable;
+			case "compiler.warn.restricted.type.not.allowed" -> IProblem.RestrictedTypeName;
+			case "compiler.err.override.weaker.access" -> IProblem.MethodReducesVisibility;
+			case "compiler.err.enum.constant.expected" -> IProblem.Syntax;
 			// next are javadoc; defaulting to JavadocUnexpectedText when no better problem could be found
 			case "compiler.err.dc.bad.entity" -> IProblem.JavadocUnexpectedText;
 			case "compiler.err.dc.bad.inline.tag" -> IProblem.JavadocUnexpectedText;
