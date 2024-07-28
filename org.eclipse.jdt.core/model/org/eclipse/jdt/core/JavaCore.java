@@ -121,6 +121,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -128,6 +129,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipFile;
@@ -3336,12 +3339,19 @@ public final class JavaCore extends Plugin {
 	 * Ordered set (from oldest to latest) of all Java source versions <b>supported</b> by compiler.
 	 * The values are from {@link JavaCore}{@code #VERSION_*}.
 	 */
-	private static final List<String> SUPPORTED_VERSIONS;
+	private static final SortedSet<String> SUPPORTED_VERSIONS;
 	static {
-		ArrayList<String> temp = new ArrayList<>();
+		Comparator<String> byVersion = Comparator.comparingDouble((String v) -> {
+			try {
+				return Double.parseDouble(v);
+			} catch (RuntimeException e) {
+				return 0;
+			}
+		}).thenComparing(Comparator.naturalOrder());
+		SortedSet<String> temp = new TreeSet<>(byVersion);
 		temp.addAll(allVersions);
 		temp.removeAll(UNSUPPORTED_VERSIONS);
-		SUPPORTED_VERSIONS = Collections.unmodifiableList(temp);
+		SUPPORTED_VERSIONS = Collections.unmodifiableSortedSet(temp);
 	}
 
 	/**
@@ -3367,7 +3377,7 @@ public final class JavaCore extends Plugin {
 	 * @see #getFirstJavaSourceVersionSupportedByCompiler()
 	 * @since 3.39
 	 */
-	public static List<String> getAllJavaSourceVersionsSupportedByCompiler() {
+	public static SortedSet<String> getAllJavaSourceVersionsSupportedByCompiler() {
 		return SUPPORTED_VERSIONS;
 	}
 
@@ -6472,7 +6482,7 @@ public final class JavaCore extends Plugin {
 	 * @since 3.39
 	 */
 	public static String getFirstJavaSourceVersionSupportedByCompiler() {
-		return SUPPORTED_VERSIONS.get(0);
+		return SUPPORTED_VERSIONS.first();
 	}
 
 	/**
