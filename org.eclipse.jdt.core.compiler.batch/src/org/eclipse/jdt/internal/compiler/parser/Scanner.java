@@ -560,7 +560,7 @@ protected final boolean scanForTextBlockBeginning() {
 	}
 	return false;
 }
-protected final boolean scanForMarkdownBeginning() {
+protected final boolean lineBeginsWithMarkdown() {
 	try {
 		int temp = this.currentPosition;
 		int count = 0;
@@ -1470,10 +1470,10 @@ public int getNextToken() throws InvalidInputException {
 	this.multiCaseLabelComma = false;
 	return token;
 }
-private int findCommentType() {
+protected int findCommentType() {
 	int test = getNextChar('/', '*');
 	if (test == 0) { //line comment or markdown
-		if (JavaFeature.MARKDOWN_COMMENTS.isSupported(this.complianceLevel, this.previewEnabled)
+		if (JavaFeature.MARKDOWN_COMMENTS.isSupported(this.sourceLevel, this.previewEnabled)
 						&& getNextChar('/')) {
 			return 2;
 		}
@@ -1949,7 +1949,7 @@ protected int getNextToken0() throws InvalidInputException {
 											pushLineSeparator();
 										}
 									}
-									if (!scanForMarkdownBeginning()) {
+									if (!lineBeginsWithMarkdown()) {
 										break;
 									}
 								}
@@ -1982,7 +1982,7 @@ protected int getNextToken0() throws InvalidInputException {
 												pushLineSeparator();
 											}
 										}
-										if (!scanForMarkdownBeginning()) {
+										if (!lineBeginsWithMarkdown()) {
 											break;
 										}
 									}
@@ -2846,7 +2846,7 @@ public final void jumpOverMethodBody() {
 											pushLineSeparator();
 										}
 									}
-									if (!scanForMarkdownBeginning()) {
+									if (!lineBeginsWithMarkdown()) {
 										break;
 									}
 								}
@@ -2879,7 +2879,7 @@ public final void jumpOverMethodBody() {
 												pushLineSeparator();
 											}
 										}
-										if (!scanForMarkdownBeginning()) {
+										if (!lineBeginsWithMarkdown()) {
 											break;
 										}
 									}

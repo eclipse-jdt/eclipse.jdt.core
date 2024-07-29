@@ -583,8 +583,8 @@ public class AbstractCompilerTest extends TestCase {
 		super(name);
 	}
 
-	protected Map getCompilerOptions() {
-		Map options = new CompilerOptions().getMap();
+	protected Map<String, String> getCompilerOptions() {
+		Map<String, String> options = new CompilerOptions().getMap();
 		options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
 		if (this.complianceLevel == ClassFileConstants.JDK1_3) {
 			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
