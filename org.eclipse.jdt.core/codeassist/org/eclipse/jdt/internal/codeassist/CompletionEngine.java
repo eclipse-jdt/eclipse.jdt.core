@@ -2019,8 +2019,8 @@ public final class CompletionEngine
 		} else if (astNode instanceof CompletionOnMethodReturnType) {
 			completionOnMethodReturnType(astNode, scope);
 		} else if (astNode instanceof CompletionOnSingleNameReference) {
-			if(astNodeParent instanceof SwitchStatement ss && ss.caseCount > 0) {
-				completionAtSwitchCase(astNode, ss, scope);
+			if(astNodeParent instanceof SwitchStatement ss && ss.expression != astNode) {
+				completionAtSwitchCase(astNode, ss, scope, insideTypeAnnotation);
 			} else {
 				completionOnSingleNameReference(astNode, astNodeParent, scope, insideTypeAnnotation);
 			}
@@ -2034,7 +2034,7 @@ public final class CompletionEngine
 			completionOnProvidesImplementationsSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnSingleTypeReference) {
 			if (astNodeParent instanceof InstanceOfExpression ioe) {
-				completionAtInstanceOf(astNode, ioe, qualifiedBinding, scope);
+				completionAtInstanceOf((CompletionOnSingleTypeReference) astNode, ioe, qualifiedBinding, scope);
 			} else {
 				completionOnSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 			}
@@ -3952,42 +3952,7 @@ public final class CompletionEngine
 			boolean insideTypeAnnotation) {
 		CompletionOnSingleNameReference singleNameReference = (CompletionOnSingleNameReference) astNode;
 		this.completionToken = singleNameReference.token;
-		SwitchStatement switchStatement = astNodeParent instanceof SwitchStatement ? (SwitchStatement) astNodeParent : null;
-		boolean isSwitchEnumOrType = false;
-		if((switchStatement != null
-				&& switchStatement.expression.resolvedType != null)) {
-			TypeBinding resolvedType = switchStatement.expression.resolvedType;
-			isSwitchEnumOrType = resolvedType.isEnum();
-			if(!isSwitchEnumOrType) {
-				if( this.compilerOptions.complianceLevel >= ClassFileConstants.JDK17)
-					isSwitchEnumOrType = resolvedType.isClass() || resolvedType.isInterface() || resolvedType.isRecord();
-			}
-
-		}
-		if (isSwitchEnumOrType) {
-			TypeBinding resolvedType = switchStatement.expression.resolvedType;
-			if(resolvedType.isEnum()) {
-				if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
-					this.assistNodeIsEnum = true;
-					findEnumConstantsFromSwithStatement(this.completionToken, switchStatement);
-				}
-			}
-			else {
-					findTypesAndPackages(this.completionToken, scope, true, false, new ObjectVector());
-					// if switch with class/interface/record - J17 onwards
-					char[][] keywords = new char[2][];
-					int count = 0;
-					if (switchStatement.defaultCase == null) {
-						keywords[count++] = Keywords.DEFAULT;
-					}
-					if (switchStatement.nullCase == null) {
-						keywords[count++] = Keywords.NULL;
-					}
-					System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
-					findKeywords(this.completionToken, keywords, false, false);
-				}
-
-		} else if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
+		if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
 			findTypesAndPackages(this.completionToken, scope, false, false, new ObjectVector());
 			if (scope instanceof BlockScope && !this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
 				findVariablesAndMethods(
@@ -14813,56 +14778,86 @@ public final class CompletionEngine
 		}
 	}
 
-	private void completionAtSwitchCase(ASTNode astNode, SwitchStatement switchStatement, Scope scope) {
+	private void completionAtSwitchCase(ASTNode astNode, SwitchStatement switchStatement, Scope scope,
+			boolean insideTypeAnnotation) {
 		final CompletionOnSingleNameReference singleNameReference = (CompletionOnSingleNameReference) astNode;
-
 		this.completionToken = singleNameReference.token;
-		if(switchStatement.expression.resolvedType != null) {
+		if (switchStatement.expression.resolvedType != null) {
 			TypeBinding exprType = switchStatement.expression.resolvedType;
 			// handle completions of enum literals
-			if(exprType.isEnum()) {
+			if (exprType.isEnum()) {
 				if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
 					this.assistNodeIsEnum = true;
 					findEnumConstantsFromSwithStatement(this.completionToken, switchStatement);
 				}
 			} else if (exprType.isClass() || exprType.isInterface() || exprType.isRecord()) {
 				// suggest type reference completions for now if its java 21 and above or it is a string
-				
+
 				// We can later suggest more smart completions such as
 				// - completion for Subtypes
 				// - completion for subtypes with variable name, <<TypeName varName>>
 				// - completions for extracing record components a.k.a Record desctructions
-				
-				final boolean isPatternMatchingSupported = JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.compilerOptions);
-				final boolean isJavaLangString = CharOperation.equals(JAVA_LANG_STRING_SIGNATURE, exprType.signableName());
-				final boolean isApplicableForPatternMatching = isPatternMatchingSupported && (!isJavaLangString && (exprType.isInterface() || exprType.isClass()));
-				if (isApplicableForPatternMatching
-						|| CharOperation.equals(JAVA_LANG_STRING_SIGNATURE, exprType.signableName())) {
+
+				final boolean isPatternMatchingSupported = JavaFeature.PATTERN_MATCHING_IN_SWITCH
+						.isSupported(this.compilerOptions);
+				final boolean isJavaLangString = CharOperation.equals(JAVA_LANG_STRING_SIGNATURE,
+						exprType.signableName());
+				final boolean isApplicableForTypeSuggestions = (isPatternMatchingSupported
+						&& (exprType.isInterface() || exprType.isClass()))
+						// this will control that type suggestions for string expression are given only if there is a
+						// token. That is if the user
+						// is trying find a string constant from another class.
+						|| (isJavaLangString && this.completionToken.length > 0);
+
+				if (isApplicableForTypeSuggestions) {
 					findTypesAndPackages(this.completionToken, scope.enclosingMethodScope(), true, false,
 							new ObjectVector());
-				}
 
-				if (isApplicableForPatternMatching) {
-					for (char[] fqn : this.knownTypes.keyTable) {
-						checkCancel();
-						if (fqn == null)
-							continue;
-						char[][] simpleNames = Signature.getSimpleNames(fqn);
+					if (isPatternMatchingSupported) {
+						findDestructors(scope);
+					}
 
-						ReferenceBinding binding = (ReferenceBinding) scope.getType(simpleNames, simpleNames.length);
-						if (binding != null && binding.isRecord()) {
-							computeDestructors(binding);
-						}
+					if (isJavaLangString) {
+						// suggest constants and variable which matches
+						completionOnSingleNameReference(astNode, switchStatement, scope, insideTypeAnnotation);
 					}
 				}
+				
+				if (this.compilerOptions.complianceLevel >= ClassFileConstants.JDK17) {
+					char[][] keywords = new char[2][];
+					int count = 0;
+					if (switchStatement.defaultCase == null) {
+						keywords[count++] = Keywords.DEFAULT;
+					}
+					if (switchStatement.nullCase == null) {
+						keywords[count++] = Keywords.NULL;
+					}
+					System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
+					findKeywords(this.completionToken, keywords, false, false);
+				}
 			} else {
-				// fallback to old behavior for primitives
-				completionOnSingleNameReference(astNode, switchStatement, scope, false);
+				// handle usacase for primitives
+				completionOnSingleNameReference(astNode, switchStatement, scope, insideTypeAnnotation);
 			}
 		}
 	}
 
-	private void computeDestructors(ReferenceBinding recordType) {
+	private void findDestructors(Scope scope) {
+		for (char[] fqn : this.knownTypes.keyTable) {
+			checkCancel();
+			if (fqn == null)
+				continue;
+			char[][] simpleNames = Signature.getSimpleNames(fqn);
+
+			ReferenceBinding binding = (ReferenceBinding) scope.getType(simpleNames,
+					simpleNames.length);
+			if (binding != null && binding.isRecord()) {
+				computeDestructorProposals(binding);
+			}
+		}
+	}
+
+	private void computeDestructorProposals(ReferenceBinding recordType) {
 		if (this.requestor.isIgnored(CompletionProposal.TYPE_PATTERN)) {
 			return;
 		}
@@ -14872,6 +14867,7 @@ public final class CompletionEngine
 				recordType.qualifiedSourceName(), '.');
 		char[] packageName = recordType.isLocalType() ? null : recordType.qualifiedPackageName();
 		char[] typeName = recordType.qualifiedSourceName();
+		char[] simpleTypeName = recordType.sourceName();
 
 		int componentsLength = recordType.components().length;
 		StringBuilder builder = new StringBuilder(String.valueOf(recordType.sourceName()));
@@ -14886,9 +14882,11 @@ public final class CompletionEngine
 		builder.append(')');
 
 		char[] completion = builder.toString().toCharArray();
-		int relevance = computeRelevanceForConstructor();
+		int relevance = computeBaseRelevance();
 		relevance += computeRelevanceForExpectingType(recordType);
-
+		relevance += computeRelevanceForResolution();
+		relevance += computeRelevanceForCaseMatching(this.completionToken, simpleTypeName);
+	
 		InternalCompletionProposal typeProposal = createProposal(CompletionProposal.TYPE_REF,
 				this.actualCompletionPosition);
 		typeProposal.nameLookup = this.nameEnvironment.nameLookup;
@@ -14915,10 +14913,19 @@ public final class CompletionEngine
 		this.requestor.accept(proposal);
 	}
 
-	private void completionAtInstanceOf(ASTNode astNode, InstanceOfExpression ioExpr, Binding qualifiedBinding,
+	private void completionAtInstanceOf(CompletionOnSingleTypeReference node, InstanceOfExpression ioExpr, Binding qualifiedBinding,
 			Scope scope) {
-		// use same behavior for now
-		completionOnSingleTypeReference(astNode, ioExpr, qualifiedBinding, scope);
+		this.completionToken = node.token;
+		final boolean isPatternMatchingSupported = JavaFeature.PATTERN_MATCHING_IN_SWITCH
+				.isSupported(this.compilerOptions);
+		final TypeBinding expressionType = ioExpr.expression.resolvedType;
+		if (isPatternMatchingSupported && expressionType != null
+				&& (expressionType.isInterface() || CharOperation.equals(JAVA_LANG_OBJECT_SIGNATURE, expressionType.signableName()))) {
+			findTypesAndPackages(this.completionToken, scope, true, false, new ObjectVector());
+			findDestructors(scope);
+		} else {
+			completionOnSingleTypeReference(node, ioExpr, qualifiedBinding, scope);
+		}
 	}
 
 }

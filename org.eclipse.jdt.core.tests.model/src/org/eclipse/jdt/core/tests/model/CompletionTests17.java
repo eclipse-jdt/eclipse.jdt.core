@@ -27,7 +27,7 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 	private static int unqualifiedExact_Rel = R_DEFAULT+R_RESOLVED+R_EXACT_EXPECTED_TYPE+ R_CASE+ R_INTERESTING +R_UNQUALIFIED+R_NON_RESTRICTED;
 	private static int keyword_Rel= R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
 	static {
-		// TESTS_NAMES = new String[]{"test034"};
+		 // TESTS_NAMES = new String[]{"test034"};
 	}
 
 	public CompletionTests17(String name) {
@@ -36,9 +36,9 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 
 	public void setUpSuite() throws Exception {
 		if (COMPLETION_PROJECT == null) {
-			COMPLETION_PROJECT = setUpJavaProject("Completion", "21");
+			COMPLETION_PROJECT = setUpJavaProject("Completion", "17");
 		} else {
-			setUpProjectCompliance(COMPLETION_PROJECT, "21");
+			setUpProjectCompliance(COMPLETION_PROJECT, "17");
 		}
 		super.setUpSuite();
 		COMPLETION_PROJECT.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
@@ -706,69 +706,38 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 
 	}
 
-	public void testGH2260_CaseTypePattern_NonRecord() throws JavaModelException {
+	public void testGH2256() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchTypePattern.java", """
-				public class SwitchTypePattern  {
-					public class Shape {}
-					public class Circle extends Shape {}
+		this.workingCopies[0] = getWorkingCopy("/Completion/src/EnumClass.java", """
+				public enum EnumClass  {
 
-					public foo(Shape s) {
-						switch(s) {
-							case Circ
-						}
-					}
 				}\
 				""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
-		String completeBehind = "case Circ";
+		String completeBehind = "EnumClass ";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults("""
-			SwitchTypePattern.Circle[TYPE_REF]{Circle, , LSwitchTypePattern$Circle;, null, null, 72}\
+				implements[KEYWORD]{implements, null, null, implements, null, 49}\
 					""", requestor.getResults());
 	}
 
-	public void testGH2260_CaseTypePattern_Destructor() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[3];
-		this.workingCopies[0] = getWorkingCopy("/Completion/src/Shape.java", """
-				public interface Shape  {
-					public record Circle1(String name, int radius) implements Shape  {
-					}
-	
-				}\
-				""");
-		this.workingCopies[1] = getWorkingCopy("/Completion/src/Circle.java", """
-				public record Circle(String name, int radius) implements Shape  {
-				}\
-				""");
-	
-		this.workingCopies[2] = getWorkingCopy("/Completion/src/SwitchTypePattern.java", """
-				public class SwitchTypePattern  {
-					public record Circle2(String name, int radius) implements Shape  {
-					}
-					public foo(Shape s) {
-						switch(s) {
-							case Circle
-						}
-					}
+	public void testGH2261() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Completion/src/SealedI.java", """
+				public sealed interface SealedI p  {
 				}\
 				""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
-		String str = this.workingCopies[2].getSource();
-		String completeBehind = "case Circle";
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "SealedI p";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults("""
-			[TYPE_PATTERN]{Circle(String name,int radius), LCircle;, null, null, null, 20}
-			[TYPE_PATTERN]{Circle1(String name,int radius), LShape$Circle1;, null, null, null, 20}
-			[TYPE_PATTERN]{Circle2(String name,int radius), LSwitchTypePattern$Circle2;, null, null, null, 20}
-			Shape.Circle1[TYPE_REF]{Shape.Circle1, , LShape$Circle1;, null, null, 49}
-			Circle[TYPE_REF]{Circle, , LCircle;, null, null, 56}
-			SwitchTypePattern.Circle2[TYPE_REF]{Circle2, , LSwitchTypePattern$Circle2;, null, null, 72}\
+				permits[RESTRICTED_IDENTIFIER]{permits, null, null, permits, null, 49}\
 					""", requestor.getResults());
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2540

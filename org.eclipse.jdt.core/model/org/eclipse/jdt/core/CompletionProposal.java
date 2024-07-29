@@ -896,7 +896,7 @@ public class CompletionProposal {
 	 * <code>"case ^"</code> and complete it to
 	 * <code>"case List list"</code>
 	 * @see #getKind()
-	 * @since 3.28
+	 * @since 3.39
 	 */
 	public static final int TYPE_PATTERN = 31;
 
