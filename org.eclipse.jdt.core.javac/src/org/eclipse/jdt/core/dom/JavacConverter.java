@@ -2333,6 +2333,7 @@ class JavacConverter {
 			if (jcCase.getGuard() != null && (jcCase.getLabels().size() > 1 || jcCase.getLabels().get(0) instanceof JCPatternCaseLabel)) {
 				GuardedPattern guardedPattern = this.ast.newGuardedPattern();
 				guardedPattern.setExpression(convertExpression(jcCase.getGuard()));
+				guardedPattern.setRestrictedIdentifierStartPosition(jcCase.guard.getStartPosition() - 5); // javac gives start position without "when " while jdt expects it with
 				if (jcCase.getLabels().length() > 1) {
 					int start = Integer.MAX_VALUE;
 					int end = Integer.MIN_VALUE;
