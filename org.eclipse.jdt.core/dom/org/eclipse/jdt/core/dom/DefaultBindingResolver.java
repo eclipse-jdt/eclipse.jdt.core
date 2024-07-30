@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -574,7 +574,7 @@ class DefaultBindingResolver extends BindingResolver {
 			org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding = messageSend.binding;
 			if (methodBinding instanceof ParameterizedGenericMethodBinding) {
 				ParameterizedGenericMethodBinding genericMethodBinding = (ParameterizedGenericMethodBinding) methodBinding;
-				return genericMethodBinding.inferredReturnType;
+				return genericMethodBinding.inferredReturnType || genericMethodBinding.wasInferred;
 			}
 		}
 		return false;
