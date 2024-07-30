@@ -574,7 +574,7 @@ class DefaultBindingResolver extends BindingResolver {
 			org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding = messageSend.binding;
 			if (methodBinding instanceof ParameterizedGenericMethodBinding) {
 				ParameterizedGenericMethodBinding genericMethodBinding = (ParameterizedGenericMethodBinding) methodBinding;
-				return genericMethodBinding.inferredReturnType || genericMethodBinding.wasInferred;
+				return genericMethodBinding.inferredReturnType;
 			}
 		}
 		return false;
