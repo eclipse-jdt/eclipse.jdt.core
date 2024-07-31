@@ -668,7 +668,7 @@ public void test012(){
         "                       resolved to be root modules\n" +
         "    --limit-modules <module>(,<module>)*\n" +
         "                       specify the observable module names\n" +
-        "    --patch-modules <module>=<directories separated by " + File.pathSeparator + ">\n" +
+        "    --patch-module  <module>=<directories separated by " + File.pathSeparator + ">\n" +
         "                       specify source locations for patching the given module\n" +
         "    --release <release> compile for a specific VM version\n" +
         " \n" +
