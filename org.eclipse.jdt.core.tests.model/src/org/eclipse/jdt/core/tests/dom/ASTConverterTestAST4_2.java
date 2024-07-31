@@ -2684,9 +2684,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 			project.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS, JavaCore.ERROR);
 			project.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, JavaCore.ERROR);
 			CompilationUnit result = (CompilationUnit)runConversion(sourceUnit, true);
-			IProblem[] problems= result.getProblems();
-			assertTrue(problems.length == 1);
-			assertEquals("Invalid warning", "Javadoc: Missing tag for parameter a", problems[0].getMessage());
+			assertProblemsSize(result, 1, "Javadoc: Missing tag for parameter a");
 		} finally {
 			project.setOptions(originalOptions);
 		}

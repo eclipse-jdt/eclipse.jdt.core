@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleModifier.ModuleModifierKeyword;
 import org.eclipse.jdt.core.dom.PrefixExpression.Operator;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 
 import com.sun.source.tree.CaseTree.CaseKind;
@@ -384,6 +385,7 @@ class JavacConverter {
 			if (length >= 0) {
 				int start = javac.getStartPosition();
 				res.setSourceRange(start, Math.max(0, length));
+				removeSurroundingWhitespaceFromRange(res);
 			}
 			this.domToJavac.put(res, javac);
 			setJavadocForNode(javac, res);
@@ -456,15 +458,19 @@ class JavacConverter {
 	}
 
 	private AbstractTypeDeclaration convertClassDecl(JCClassDecl javacClassDecl, ASTNode parent) {
-		if( javacClassDecl.getKind() == Kind.ANNOTATION_TYPE && this.ast.apiLevel == AST.JLS2_INTERNAL) {
+		if( javacClassDecl.getKind() == Kind.ANNOTATION_TYPE && 
+				(this.ast.apiLevel <= AST.JLS2_INTERNAL || this.ast.scanner.complianceLevel < ClassFileConstants.JDK1_5)) {
 			return null;
 		}
-		if( javacClassDecl.getKind() == Kind.ENUM && this.ast.apiLevel == AST.JLS2_INTERNAL) {
+		if( javacClassDecl.getKind() == Kind.ENUM && 
+				(this.ast.apiLevel <= AST.JLS2_INTERNAL || this.ast.scanner.complianceLevel < ClassFileConstants.JDK1_5)) {
 			return null;
 		}
-		if( javacClassDecl.getKind() == Kind.RECORD && this.ast.apiLevel < AST.JLS16_INTERNAL) {
+		if( javacClassDecl.getKind() == Kind.RECORD && 
+				(this.ast.apiLevel < AST.JLS16_INTERNAL || this.ast.scanner.complianceLevel < ClassFileConstants.JDK16)) {
 			return null;
 		}
+		
 		AbstractTypeDeclaration	res = switch (javacClassDecl.getKind()) {
 			case ANNOTATION_TYPE -> this.ast.newAnnotationTypeDeclaration();
 			case ENUM -> this.ast.newEnumDeclaration();
@@ -1011,7 +1017,7 @@ class JavacConverter {
 		int fragmentLength = fragmentEnd - fragmentStart; // ????  - 1;
 		fragment.setSourceRange(fragmentStart, Math.max(0, fragmentLength));
 		removeTrailingCharFromRange(fragment, new char[] {';', ','});
-
+		removeSurroundingWhitespaceFromRange(fragment);
 		if (convertName(javac.getName()) instanceof SimpleName simpleName) {
 			fragment.setName(simpleName);
 		}
@@ -2125,11 +2131,13 @@ class JavacConverter {
 					fd.fragments().add(fragment);
 					int newParentEnd = fragment.getStartPosition() + fragment.getLength();
 					fd.setSourceRange(fd.getStartPosition(), newParentEnd - fd.getStartPosition() + 1);
+					removeSurroundingWhitespaceFromRange(fd);
 				} else if( obj0 instanceof VariableDeclarationExpression fd ) {
 					fd.fragments().add(fragment);
 					int newParentEnd = fragment.getStartPosition() + fragment.getLength();
 					fd.setSourceRange(fd.getStartPosition(), newParentEnd - fd.getStartPosition() + 1);
 					removeTrailingSemicolonFromRange(fd);
+					removeSurroundingWhitespaceFromRange(fd);
 				}
 				return null;
 			}
@@ -2559,6 +2567,17 @@ class JavacConverter {
 		if( end < this.rawText.length() && this.rawText.charAt(end-1) != ';' && this.rawText.charAt(end) == ';') {
 			// jdt expects semicolon to be part of the range
 			res.setSourceRange(res.getStartPosition(), res.getLength() + 1);
+		}
+	}
+
+	private void removeSurroundingWhitespaceFromRange(ASTNode res) {
+		int start = res.getStartPosition();
+		String rawSource = this.rawText.substring(start, start + res.getLength());
+		int trimLeading = rawSource.length() - rawSource.stripLeading().length();
+		int trimTrailing = rawSource.length() - rawSource.stripTrailing().length();
+		if( (trimLeading != 0 || trimTrailing != 0) && res.getLength() > trimLeading + trimTrailing ) {
+			//String newContent = this.rawText.substring(start+trimLeading, start+trimLeading+res.getLength()-trimLeading-trimTrailing);
+			res.setSourceRange(start+trimLeading, res.getLength() - trimLeading - trimTrailing);
 		}
 	}
 

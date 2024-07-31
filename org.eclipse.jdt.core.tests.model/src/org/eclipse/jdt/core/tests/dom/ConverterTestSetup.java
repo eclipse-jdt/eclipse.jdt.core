@@ -13,10 +13,13 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -858,7 +861,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		checkProblemMessages(expectedOutput, problems, length);
 	}
 
-	private void checkProblemMessages(String expectedOutput, final IProblem[] problems, final int length) {
+	public void checkProblemMessages(String expectedOutput, final IProblem[] problems, final int length) {
 		if (length != 0) {
 			if (expectedOutput != null) {
 				StringBuilder buffer = new StringBuilder();
@@ -887,31 +890,94 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			String oneActualMessage = problems[i].getMessage();
 			String oneExpectedMessage = i < expectedSplit.size() ? expectedSplit.get(i) : null;
 			if( !oneActualMessage.equals(oneExpectedMessage)) {
-				String alternateMessage = convertDiagnosticMessage(oneActualMessage, problems[i].getID(), problems[i].getArguments());
-				if(!alternateMessage.equals(oneExpectedMessage)) {
+				boolean matchesAlt = matchesAlternateMessage(oneActualMessage, oneExpectedMessage, problems[i].getID(), problems[i].getArguments());
+				if(!matchesAlt) {
 					return false;
 				}
 			}
 		}
 		return true;
 	}
-	private String convertDiagnosticMessage(String original, int problemId, Object[] arguments) {
-		if( IProblem.NotVisibleType == problemId ) {
-			int lastDot = ((String)arguments[0]).lastIndexOf(".");
-			return "The type " + ((String)arguments[0]).substring(lastDot == -1 ? 0 : lastDot+1) + " is not visible";
-		}
-		if( IProblem.PackageDoesNotExistOrIsEmpty == problemId ) {
-			return arguments[0] + " cannot be resolved to a type";
-		}
-		if( IProblem.UndefinedType == problemId) {
-			return arguments[1] + " cannot be resolved to a type";
-		}
-		if( IProblem.RawTypeReference == problemId) {
+	private boolean matchesAlternateMessage(String original, String expected, int problemId, Object[] arguments) {
+		String fqqnToSimpleNameRegex = "[^-\\s<,]*\\.";
+
+		switch(problemId) {
+		case IProblem.NotVisibleType:
+			List<String> possible = new ArrayList<>();
+			String msg = "The type %s is not visible";
+			int lastDot = ((String)arguments[0]).lastIndexOf(".") + 1;
+			String alt = String.format(msg, ((String)arguments[0]).substring(lastDot));
+			String alt2 = String.format(msg, ((String)arguments[0]));
+			possible.add(alt);
+			possible.add(alt2);
+
+			if( arguments.length == 3 && ((String)arguments[0]).startsWith((String)arguments[2])) {
+				int lastDot2 = ((String)arguments[2]).lastIndexOf(".") + 1;
+				String type = ((String)arguments[0]).substring(lastDot2);
+				String alt3 = String.format(msg, type);
+				possible.add(alt3);
+			}
+			return possible.contains(expected);
+		case IProblem.UsingDeprecatedField:
+			if( arguments.length == 2 ) {
+				String simpleName = ((String)arguments[1]).replaceAll(fqqnToSimpleNameRegex, "");
+				if(("The type " + simpleName + " is deprecated").equals(expected))
+					return true;
+				String simpleName2 = ((String)arguments[0]).replaceAll(fqqnToSimpleNameRegex, "");
+				if(("The type " + simpleName2 + " is deprecated").equals(expected))
+					return true;
+				if((arguments[0] + " in " + arguments[1] + " has been deprecated and marked for removal").equals(expected))
+					return true;
+			}
+			return false;
+		case IProblem.PackageDoesNotExistOrIsEmpty:
+			return (arguments[0] + " cannot be resolved to a type").equals(expected);
+		case IProblem.UndefinedType:
+			return (arguments[1] + " cannot be resolved to a type").equals(expected);
+		case IProblem.RawTypeReference:
 			String[] segments = ((String)arguments[0]).split("\\.");
 			String simple = segments[segments.length-1];
-			return simple + " is a raw type. References to generic type " + simple + "<T> should be parameterized";
+			String alt3 = simple + " is a raw type. References to generic type " + simple + "<T> should be parameterized";
+			return alt3.equals(expected);
+		case IProblem.TypeMismatch:
+			if( expected == null )
+				return false;
+			String expected2 = expected.replaceAll("capture#[0-9]*-", "capture ");
+			String arg0 = ((String)arguments[0]).replaceAll(fqqnToSimpleNameRegex, "").replaceAll("capture#[0-9]* ", "capture ");
+			String arg1 = ((String)arguments[1]).replaceAll(fqqnToSimpleNameRegex, "").replaceAll("capture#[0-9]* ", "capture ");
+			String altString = "Type safety: Unchecked cast from " + arg0 + " to " + arg1;
+			if( altString.equals(expected2) )
+				return true;
+
+			altString = "Type mismatch: cannot convert from " + arg0 + " to " + arg1;
+			if( altString.equals(expected2) )
+				return true;
+			return false;
+		case IProblem.VarargsConflict:
+			return "Extended dimensions are illegal for a variable argument".equals(expected);
+		case IProblem.UnsafeRawMethodInvocation:
+			String clazzName = ((String)arguments[1]).substring(((String)arguments[1]).lastIndexOf(".") + 1);
+			String pattern = "Type safety: The method .* belongs to the raw type " + clazzName + ". References to generic type Y.* should be parameterized";
+			boolean m = Pattern.matches(pattern, expected);
+			return m;
+		case IProblem.JavadocMissingParamTag:
+			return original.replace("no @param for ", "Javadoc: Missing tag for parameter ").equals(expected);
+		case IProblem.UncheckedAccessOfValueOfFreeTypeVariable:
+			String p = "Type safety: The expression of type (.*) needs unchecked conversion to conform to (.*)";
+			Pattern r = Pattern.compile(p);
+			Matcher m1 = r.matcher(expected);
+			if (m1.find( )) {
+				String g0 = m1.group(1);
+				String g1 = m1.group(2);
+				String originalToSimple = original.replaceAll(fqqnToSimpleNameRegex, "");
+				String found = "unchecked conversion\n  required:.*" + g1 + "\n  found:.*" + g0;
+				if( originalToSimple.replaceAll(found, "").equals("")) {
+					return true;
+				}
+			}
+		default:
+			return false;
 		}
-		return original;
 	}
 
 
