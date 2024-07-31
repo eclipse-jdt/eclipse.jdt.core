@@ -344,7 +344,6 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 								((ReferenceExpression) invocationSite).registerInferenceContext(methodSubstitute, infCtx18); // keep context so we can finish later
 						}
 					}
-					methodSubstitute.inferredReturnType= invocationTypeInferred;
 					return methodSubstitute;
 				}
 			}
