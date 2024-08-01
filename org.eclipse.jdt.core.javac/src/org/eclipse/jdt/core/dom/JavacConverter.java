@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -1988,31 +1989,37 @@ class JavacConverter {
 			}
 		}
 		if (value instanceof String string) {
+			boolean malformed = false;
 			if (this.rawText.charAt(literal.pos) == '"'
 					&& this.rawText.charAt(literal.pos + 1) == '"'
 					&& this.rawText.charAt(literal.pos + 2) == '"') {
-				TextBlock res = this.ast.newTextBlock();
-				commonSettings(res, literal);
-				String rawValue = this.rawText.substring(literal.pos, literal.getEndPosition(this.javacCompilationUnit.endPositions));
-				res.internalSetEscapedValue(rawValue, string);
-				return res;
-			} else {
-				StringLiteral res = this.ast.newStringLiteral();
-				commonSettings(res, literal);
-				int startPos = res.getStartPosition();
-				int len = res.getLength();
-				if( string.length() != len && len > 2) {
-					try {
-						string = this.rawText.substring(startPos, startPos + len);
-						res.internalSetEscapedValue(string);
-					} catch(IndexOutOfBoundsException ignore) {
-						res.setLiteralValue(string);  // TODO: we want the token here
-					}
-				} else {
+				if (this.ast.apiLevel() > AST.JLS14) {
+					TextBlock res = this.ast.newTextBlock();
+					commonSettings(res, literal);
+					String rawValue = this.rawText.substring(literal.pos, literal.getEndPosition(this.javacCompilationUnit.endPositions));
+					res.internalSetEscapedValue(rawValue, string);
+					return res;
+				}
+				malformed = true;
+			}
+			StringLiteral res = this.ast.newStringLiteral();
+			commonSettings(res, literal);
+			int startPos = res.getStartPosition();
+			int len = res.getLength();
+			if( string.length() != len && len > 2) {
+				try {
+					string = this.rawText.substring(startPos, startPos + len);
+					res.internalSetEscapedValue(string);
+				} catch(IndexOutOfBoundsException ignore) {
 					res.setLiteralValue(string);  // TODO: we want the token here
 				}
-				return res;
+			} else {
+				res.setLiteralValue(string);  // TODO: we want the token here
 			}
+			if (malformed) {
+				res.setFlags(res.getFlags() | ASTNode.MALFORMED);
+			}
+			return res;
 		}
 		if (value instanceof Boolean string) {
 			BooleanLiteral res = this.ast.newBooleanLiteral(string.booleanValue());
@@ -2491,9 +2498,11 @@ class JavacConverter {
 					initializer.delete();
 					fragment.setInitializer(initializer);
 				}
-				for (Dimension extraDimension : (List<Dimension>)single.extraDimensions()) {
-					extraDimension.delete();
-					fragment.extraDimensions().add(extraDimension);
+				if (parent.getAST().apiLevel() > AST.JLS4) {
+					for (Dimension extraDimension : (List<Dimension>)single.extraDimensions()) {
+						extraDimension.delete();
+						fragment.extraDimensions().add(extraDimension);
+					}
 				}
 			} else {
 				fragment = this.ast.newVariableDeclarationFragment();
@@ -2635,13 +2644,19 @@ class JavacConverter {
 			return res;
 		}
 		if (javac instanceof JCTypeUnion union) {
-			UnionType res = this.ast.newUnionType();
-			commonSettings(res, javac);
-			union.getTypeAlternatives().stream()
-				.map(this::convertToType)
-				.filter(Objects::nonNull)
-				.forEach(res.types()::add);
-			return res;
+			if (this.ast.apiLevel() > AST.JLS3) {
+				UnionType res = this.ast.newUnionType();
+				commonSettings(res, javac);
+				union.getTypeAlternatives().stream()
+					.map(this::convertToType)
+					.filter(Objects::nonNull)
+					.forEach(res.types()::add);
+				return res;
+			} else {
+				Optional<Type> lastType = union.getTypeAlternatives().reverse().stream().map(this::convertToType).filter(Objects::nonNull).findFirst();
+				lastType.ifPresent(a -> a.setFlags(a.getFlags() | ASTNode.MALFORMED));
+				return lastType.get();
+			}
 		}
 		if (javac instanceof JCArrayTypeTree jcArrayType) {
 			Type t = convertToType(jcArrayType.getType());

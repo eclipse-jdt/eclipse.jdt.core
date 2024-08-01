@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -162,8 +163,8 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 					MethodDeclaration methodDeclaration = (MethodDeclaration)this.resolver.findDeclaringNode(this);
 					if (methodDeclaration != null) {
 						return getJavaElementForMethodDeclaration(currentType, methodDeclaration);
-					} 
-					
+					}
+
 					var parametersResolved = this.methodSymbol.params().stream()
 							.map(varSymbol -> varSymbol.type)
 							.map(t ->
@@ -198,19 +199,22 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	private IJavaElement getJavaElementForMethodDeclaration(IType currentType, MethodDeclaration methodDeclaration) {
 		ArrayList<String> typeParamsList = new ArrayList<>();
-		List typeParams = methodDeclaration.typeParameters();
+		List typeParams = null;
+		if (methodDeclaration.getAST().apiLevel() > AST.JLS2) {
+			typeParams = methodDeclaration.typeParameters();
+		}
 		if( typeParams == null ) {
 			typeParams = new ArrayList();
 		}
 		for( int i = 0; i < typeParams.size(); i++ ) {
 			typeParamsList.add(((TypeParameter)typeParams.get(i)).getName().toString());
 		}
-	
+
 		List<SingleVariableDeclaration> p = methodDeclaration.parameters();
 		String[] params = ((List<SingleVariableDeclaration>)p).stream() //
 				.map(param -> {
 					String sig = Util.getSignature(param.getType());
-					if (param.isVarargs()) {
+					if (param.getAST().apiLevel() > AST.JLS2 && param.isVarargs()) {
 						sig = Signature.createArraySignature(sig, 1);
 					}
 					return sig;

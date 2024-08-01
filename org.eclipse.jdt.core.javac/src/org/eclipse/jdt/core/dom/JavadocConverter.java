@@ -206,7 +206,7 @@ class JavadocConverter {
 		    version.body.stream().flatMap(this::convertElement).forEach(res.fragments::add);
 		}  else if (javac instanceof DCSee see) {
 			res.setTagName(TagElement.TAG_SEE);
-			see.reference.stream().flatMap(this::convertElement).forEach(res.fragments::add);
+			see.reference.stream().filter(a -> a != null).flatMap(this::convertElement).forEach(res.fragments::add);
 		} else if (javac instanceof DCDeprecated deprecated) {
 			res.setTagName(TagElement.TAG_DEPRECATED);
 			deprecated.body.stream().flatMap(this::convertElement).forEach(res.fragments::add);
