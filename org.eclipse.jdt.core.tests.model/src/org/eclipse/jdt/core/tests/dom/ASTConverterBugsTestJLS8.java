@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2016 IBM Corporation and others.
+ * Copyright (c) 2011, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,7 +21,13 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFlattener;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 
@@ -1109,6 +1115,51 @@ public void testGH1376() throws CoreException, IOException {
 		ICompilationUnit cuB = getCompilationUnit("P/p/B.java"); // during checkParameterizedTypes() we re-enter LE.completeTypeBinding(..)
 		// just ensure that bound check during completion doesn't trigger NPE:
 		resolveASTs(new ICompilationUnit[] {cuA, cuB}, new String[0], new BindingRequestor(), project, this.wcOwner);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testGH2275() throws CoreException {
+	try {
+		createJavaProject("P", new String[] { "" }, new String[] { "CONVERTER_JCL_LIB" }, "", "1.8", true);
+		createFolder("P/p");
+		createFile("P/p/A.java",
+			"""
+				package p;
+				import java.util.Collections;
+				import java.util.Map;
+
+				class A {
+					public A(Map<String, Integer> map) {
+						Map<String, Integer> emptyMap= Collections.emptyMap();	// return type inferred from the target type
+						Map<String, Integer> emptyMap2= foo(A.class);			// inference used, but not influencing the return type
+					}
+					<T> Map<String, Integer> foo(Class<T> clazz) {
+						return Collections.emptyMap();
+					}
+				}
+				"""
+		);
+		ICompilationUnit cuA = getCompilationUnit("P/p/A.java");
+		ASTParser parser = createASTParser();
+		parser.setResolveBindings(true);
+		parser.setSource(cuA);
+		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+
+		TypeDeclaration classA = (TypeDeclaration) cu.types().get(0);
+		MethodDeclaration constructor = classA.getMethods()[0];
+		assertTrue(constructor.isConstructor());
+		List statements = constructor.getBody().statements();
+
+		VariableDeclarationStatement local = (VariableDeclarationStatement) statements.get(0);
+		MethodInvocation invocation = (MethodInvocation) ((VariableDeclarationFragment) local.fragments().get(0)).getInitializer();
+		assertEquals("emptyMap", invocation.getName().getIdentifier());
+		assertTrue(invocation.isResolvedTypeInferredFromExpectedType());
+
+		VariableDeclarationStatement local2 = (VariableDeclarationStatement) statements.get(1);
+		MethodInvocation invocation2 = (MethodInvocation) ((VariableDeclarationFragment) local2.fragments().get(0)).getInitializer();
+		assertEquals("foo", invocation2.getName().getIdentifier());
+		assertFalse(invocation2.isResolvedTypeInferredFromExpectedType());
 	} finally {
 		deleteProject("P");
 	}

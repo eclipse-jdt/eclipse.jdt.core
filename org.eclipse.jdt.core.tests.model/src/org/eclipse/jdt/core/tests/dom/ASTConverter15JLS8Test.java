@@ -8196,7 +8196,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 		expression = fragment.getInitializer();
 		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
 		methodInvocation = (MethodInvocation) expression;
-		assertFalse("Wrong value", methodInvocation.isResolvedTypeInferredFromExpectedType());
+		assertTrue("Wrong value", methodInvocation.isResolvedTypeInferredFromExpectedType());
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174436
