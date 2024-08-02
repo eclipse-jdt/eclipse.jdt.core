@@ -350,10 +350,11 @@ public TypeBinding resolveType(BlockScope scope) {
 				boolean isLegal = checkCastTypesCompatibility(scope, checkedType, expressionType, this.expression, true);
 				if (!isLegal || (this.bits & ASTNode.UnsafeCast) != 0) {
 					scope.problemReporter().unsafeCastInInstanceof(this.expression, checkedType, expressionType);
-				} else if ((JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
-						scope.compilerOptions().sourceLevel,
-						scope.compilerOptions().enablePreviewFeatures))) {
-					checkForPrimitives(scope, checkedType, expressionType, false);
+				} else if (expressionType.isPrimitiveOrBoxedPrimitiveType()
+						&& (JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
+								scope.compilerOptions().sourceLevel,
+								scope.compilerOptions().enablePreviewFeatures))) {
+					checkForPrimitives(scope, checkedType, expressionType);
 				}
 			}
 		}
@@ -362,14 +363,14 @@ public TypeBinding resolveType(BlockScope scope) {
 		if ((expressionType != TypeBinding.NULL && expressionType.isBaseType()) // disallow autoboxing
 				|| checkedType.isBaseType()
 				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null, true)) {
-			checkForPrimitives(scope, checkedType, expressionType, true);
+			checkForPrimitives(scope, checkedType, expressionType);
 		}
 	}
 
 	return this.resolvedType = TypeBinding.BOOLEAN;
 }
 
-private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeBinding expressionType, boolean flagError) {
+private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeBinding expressionType) {
 	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope);
 	this.testContextRecord = new TestContextRecord(checkedType, expressionType, route);
 
@@ -383,8 +384,7 @@ private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeB
 			|| route == PrimitiveConversionRoute.BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION) {
 		addSecretExpressionValue(scope, expressionType);
 	} else if (route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
-		if (flagError)
-			scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
+		scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
 	}
 }
 
