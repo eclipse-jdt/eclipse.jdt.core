@@ -8737,7 +8737,7 @@ public void test238_classpath() throws IOException, InterruptedException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // basic link: a jar only referenced in the manifest of the first one is found
-public void test239_jar_ref_in_jar(){
+public void test239_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
 		new String[] {
@@ -8761,7 +8761,7 @@ public void test239_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // links are followed recursively, eliminating dupes
-public void test240_jar_ref_in_jar(){
+public void test240_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
 		new String[] {
@@ -8787,7 +8787,7 @@ public void test240_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // at first level, this is depth first, masking tailing libs
-public void test241_jar_ref_in_jar(){
+public void test241_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
 			new String[] {
@@ -8818,7 +8818,7 @@ public void test241_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // using only links, we adopt a depth first algorithm
-public void test242_jar_ref_in_jar(){
+public void test242_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
 			new String[] {
@@ -8848,7 +8848,7 @@ public void test242_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // managing subdirectories and .. properly
-public void test243_jar_ref_in_jar(){
+public void test243_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
 		new String[] {
@@ -8874,7 +8874,7 @@ public void test243_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // variant: the second jar on a line is found as well
-public void test244_jar_ref_in_jar(){
+public void test244_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
 		new String[] {
@@ -8897,7 +8897,7 @@ public void test244_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // we eat up absolute links silently
-public void test245_jar_ref_in_jar(){
+public void test245_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
 		new String[] {
@@ -8920,7 +8920,7 @@ public void test245_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // absolute links do not mask following relative links
-public void test246_jar_ref_in_jar(){
+public void test246_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
 		new String[] {
@@ -8944,7 +8944,7 @@ public void test246_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // absolute links are not followed
-public void test247_jar_ref_in_jar(){
+public void test247_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
 		new String[] {
@@ -8974,7 +8974,7 @@ public void test247_jar_ref_in_jar(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // we accept duplicate classpath lines in manifest and we follow the jars of the
 // second and following lines as well as the first line (emit a warning as javac does)
-public void test248_jar_ref_in_jar(){
+public void test248_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
 		new String[] {
@@ -8999,7 +8999,7 @@ public void test248_jar_ref_in_jar(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // we accept duplicate classpath lines in manifest and we follow the jars of the
 // second and following lines as well as the first line (emit a warning as javac does)
-public void test249_jar_ref_in_jar(){
+public void test249_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
 		new String[] {
@@ -9023,7 +9023,7 @@ public void test249_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // bootclasspath does not get expanded with linked files
-public void test250_jar_ref_in_jar(){
+public void test250_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
 		new String[] {
@@ -9055,7 +9055,7 @@ public void test250_jar_ref_in_jar(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // jar files reached indirectly bear the access rules of the entry that
 // references them
-public void test251_jar_ref_in_jar(){
+public void test251_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
 		new String[] {
@@ -9216,7 +9216,7 @@ public void test255_progress() {
 // jar files reached indirectly bear the access rules of the entry that
 // references them - this hides the access rules of further instances of the
 // same jar on the classpath
-public void test256_jar_ref_in_jar(){
+public void test256_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
 		new String[] {
@@ -9248,7 +9248,7 @@ public void test256_jar_ref_in_jar(){
 // jar files reached indirectly bear the access rules of the entry that
 // references them - this hides the access rules of further instances of the
 // same jar on the classpath
-public void test257_jar_ref_in_jar(){
+public void test257_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
 		new String[] {
@@ -9274,7 +9274,7 @@ public void test257_jar_ref_in_jar(){
 // jar files reached indirectly bear the access rules of the entry that
 // references them - this hides the access rules of further instances of the
 // same jar on the classpath, to the point of absorbing it if none is specified
-public void test258_jar_ref_in_jar(){
+public void test258_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
 		new String[] {
@@ -9298,7 +9298,7 @@ public void test258_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // -sourcepath is OK at first level
-public void test259_jar_ref_in_jar(){
+public void test259_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
 		new String[] {
@@ -9321,7 +9321,7 @@ public void test259_jar_ref_in_jar(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // -sourcepath is KO at second level (that is, it does not leverage the links
 // at all)
-public void test260_jar_ref_in_jar(){
+public void test260_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
 		new String[] {
@@ -9349,7 +9349,7 @@ public void test260_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // error case: the MANIFEST.MF is a directory; should fail gracefully
-public void test261_jar_ref_in_jar(){
+public void test261_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
 		new String[] {
@@ -9379,7 +9379,7 @@ public void test261_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // using relative paths for libs
-public void test262_jar_ref_in_jar(){
+public void test262_jar_ref_in_jar() throws Exception {
 	String currentWorkingDirectoryPath = System.getProperty("user.dir");
 	if (currentWorkingDirectoryPath == null) {
 		System.err.println("BatchCompilerTest#235 could not access the current working directory " + currentWorkingDirectoryPath);
@@ -9441,7 +9441,7 @@ public void test262_jar_ref_in_jar(){
 // java accepts the same jar (which makes the compiler responsible for the
 // error detection)
 // design: will issue a warning
-public void test263_jar_ref_in_jar(){
+public void test263_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runTest(
 		true,
@@ -9466,7 +9466,7 @@ public void test263_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // missing space after ClassPath:
-public void test264_jar_ref_in_jar(){
+public void test264_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runTest(
 		false,
@@ -9500,7 +9500,7 @@ public void test264_jar_ref_in_jar(){
 // javac reports an error (including an explicit manifest header error since
 // version 1.4); moreover, it stops interpreting the said header
 // design: we report a warning and eat up the remainding of the line
-public void test265_jar_ref_in_jar(){
+public void test265_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runTest(
 		false,
@@ -9533,7 +9533,7 @@ public void test265_jar_ref_in_jar(){
 // extra space before Class-Path header
 // the net result is that the line is part of the value of the previous header
 // we then simply don't see the remainding of the line as jars
-public void test266_jar_ref_in_jar(){
+public void test266_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runTest(
 		false,
@@ -9565,7 +9565,7 @@ public void test266_jar_ref_in_jar(){
 // missing newline at the end of the line
 // javac eats the line silently, which results into not finding A
 // design: we report a warning and eat up the remainding of the line
-public void test267_jar_ref_in_jar(){
+public void test267_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runTest(
 		false,
@@ -9597,7 +9597,7 @@ public void test267_jar_ref_in_jar(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // white-box test for duplicate classpath lines variant (empty line between the
 // entries)
-public void test268_jar_ref_in_jar(){
+public void test268_jar_ref_in_jar() throws Exception {
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
 		assertTrue(analyzeManifestContents(
@@ -9618,7 +9618,7 @@ public void test268_jar_ref_in_jar(){
 // white-box test for duplicate classpath lines variant (other header between the
 // entries - note that since we are not doing a full-fledged manifest analysis,
 // a dummy header passes)
-public void test269_jar_ref_in_jar(){
+public void test269_jar_ref_in_jar() throws Exception {
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
 		assertTrue(analyzeManifestContents(
@@ -9638,7 +9638,7 @@ public void test269_jar_ref_in_jar(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // white-box test: tabs are not seen as URI separator, but as parts of URI instead
 // will trigger downstream errors if the jars are really needed
-public void test270_jar_ref_in_jar(){
+public void test270_jar_ref_in_jar() throws Exception {
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
 		assertTrue(analyzeManifestContents(
@@ -9655,7 +9655,7 @@ public void test270_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // managing continuations properly
-public void test271_jar_ref_in_jar(){
+public void test271_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
 		new String[] {
@@ -9679,7 +9679,7 @@ public void test271_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // white-box test: variants on continuations
-public void test272_jar_ref_in_jar(){
+public void test272_jar_ref_in_jar() throws Exception {
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
 		assertTrue(analyzeManifestContents(
@@ -9698,7 +9698,7 @@ public void test272_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // white-box test: variants on continuations
-public void test273_jar_ref_in_jar(){
+public void test273_jar_ref_in_jar() throws Exception {
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
 		assertTrue(analyzeManifestContents(
@@ -9720,7 +9720,7 @@ public void test273_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // white-box test: variants on continuations
-public void test274_jar_ref_in_jar(){
+public void test274_jar_ref_in_jar() throws Exception {
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
 		assertFalse(analyzeManifestContents(
@@ -9736,7 +9736,7 @@ public void test274_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // white-box test: variants on continuations
-public void test275_jar_ref_in_jar(){
+public void test275_jar_ref_in_jar() throws Exception {
 	try {
 		assertFalse(analyzeManifestContents(
 			new ManifestAnalyzer(),
@@ -9758,7 +9758,7 @@ private boolean analyzeManifestContents(ManifestAnalyzer manifestAnalyzer,
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // white-box test: variants on continuations
-public void test276_jar_ref_in_jar(){
+public void test276_jar_ref_in_jar() throws Exception {
 	try {
 		assertFalse(analyzeManifestContents(
 			new ManifestAnalyzer(),
@@ -9773,7 +9773,7 @@ public void test276_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // extdirs jars do not follow links
-public void test277_jar_ref_in_jar(){
+public void test277_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
 		new String[] {
@@ -9804,7 +9804,7 @@ public void test277_jar_ref_in_jar(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // endorseddirs does not get expanded with linked files
-public void test278_jar_ref_in_jar(){
+public void test278_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
 		new String[] {
@@ -10344,7 +10344,7 @@ public void test295_warn_options() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=280784
-public void test293(){
+public void test293() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
 		new String[] {
@@ -12630,7 +12630,7 @@ public void testFileSystem_findSecondaryInClass() {
 	}
 }
 //same as test293, but for -info: instead of -err:
-public void test496137a(){
+public void test496137a() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
 		new String[] {
@@ -12750,7 +12750,7 @@ public void test496137e() throws IOException {
 		null /* progress */);
 }
 // variation of test496137a to test that -warn:none turns off all info, too
-public void test496137f(){
+public void test496137f() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
 		new String[] {
