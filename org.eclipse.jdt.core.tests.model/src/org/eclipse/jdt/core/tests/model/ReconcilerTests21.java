@@ -260,6 +260,7 @@ public void testGH2782() throws CoreException {
 				""");
 		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		sortMarkers(markers);
 		assertMarkers("markers in p",
 				"""
 				Constructor call must be the first statement in a constructor
