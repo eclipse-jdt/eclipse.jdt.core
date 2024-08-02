@@ -323,11 +323,11 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 					return;
 			}
 			boolean hasError = false;
-			ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
 			if (methodDeclaration == null || !methodDeclaration.isConstructor()) {
 				hasError = true;
 			} else {
 				// is it the first constructor call?
+				ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
 				ExplicitConstructorCall constructorCall = constructorDeclaration.constructorCall;
 				if (constructorCall == null) {
 					constructorCall = constructorDeclaration.getLateConstructorCall(); // JEP 482
@@ -339,7 +339,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			if (hasError) {
 				if (!(methodDeclaration instanceof CompactConstructorDeclaration)) {// already flagged for CCD
 					if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
-						boolean isTopLevel = Arrays.stream(constructorDeclaration.statements).anyMatch(this::equals);
+						boolean isTopLevel = Arrays.stream(methodDeclaration.statements).anyMatch(this::equals);
 						if (isTopLevel)
 							scope.problemReporter().duplicateExplicitConstructorCall(this);
 						else // otherwise it's illegally nested in some control structure:
