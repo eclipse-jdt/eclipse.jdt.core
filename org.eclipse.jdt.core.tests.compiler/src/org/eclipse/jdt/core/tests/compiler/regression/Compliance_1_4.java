@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2019, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,6 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
+ *     Nikifor Fedorov <nikifor.fedorov@arsysop.ru> - Bug #2758 - expected compiler outputs extended with 1.8 warnings
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -2636,8 +2637,11 @@ public void test079() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=67643
  * from 1.5 source level on most specific common super type is allowed
+ *
+ * Seems to be a bug fixed in JDK 6 hence the test needs to be removed:
+ * https://bugs.java.com/bugdatabase/view_bug?bug_id=5080917
  */
-public void _2551_test080() {
+public void test080() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -2659,15 +2663,35 @@ public void _2551_test080() {
 		"	                     ^^\n" +
 		"The serializable class C1 does not declare a static final serialVersionUID field of type long\n" +
 		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
+		"2. WARNING in X.java (at line 3)\n" +
+		"	private static class C1 extends ArrayList {\n" +
+		"	                                ^^^^^^^^^\n" +
+		"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 5)\n" +
 		"	private static class C2 extends ArrayList {\n" +
 		"	                     ^^\n" +
 		"The serializable class C2 does not declare a static final serialVersionUID field of type long\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 8)\n" +
+		"4. WARNING in X.java (at line 5)\n" +
+		"	private static class C2 extends ArrayList {\n" +
+		"	                                ^^^^^^^^^\n" +
+		"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" +
+		"----------\n" +
+		"5. WARNING in X.java (at line 8)\n" +
 		"	ArrayList list = args == null ? new C1(): new C2();\n" +
-		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Incompatible conditional operand types X.C1 and X.C2\n" +
+		"	^^^^^^^^^\n" +
+		"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" +
+		"----------\n" +
+		"6. WARNING in X.java (at line 8)\n" +
+		"	ArrayList list = args == null ? new C1(): new C2();\n" +
+		"	                                ^^^^^^^^\n" +
+		"Access to enclosing constructor X.C1() is emulated by a synthetic accessor method\n" +
+		"----------\n" +
+		"7. WARNING in X.java (at line 8)\n" +
+		"	ArrayList list = args == null ? new C1(): new C2();\n" +
+		"	                                          ^^^^^^^^\n" +
+		"Access to enclosing constructor X.C2() is emulated by a synthetic accessor method\n" +
 		"----------\n");
 }
 public void test081() {
@@ -2825,7 +2849,7 @@ public void test087() {
 			"----------\n"
 		);
 }
-public void _2551_test088() {
+public void test088() {
 	this.runNegativeTest(
 		new String[] {
 			"p/X.java",
@@ -2892,6 +2916,31 @@ public void _2551_test088() {
 		"	private void a() { System.out.println(\"A\");} \n" +
 		"	             ^^^\n" +
 		"The method a() from the type X is never used locally\n" +
+		"----------\n" +
+		"4. WARNING in p\\X.java (at line 31)\n" +
+		"	Class c = b.getClass();\n" +
+		"	^^^^^\n" +
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
+		"----------\n" +
+		"5. WARNING in p\\X.java (at line 32)\n" +
+		"	Class _getClasses [] = X.class.getClasses(); \n" +
+		"	^^^^^\n" +
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
+		"----------\n" +
+		"6. WARNING in p\\X.java (at line 36)\n" +
+		"	Constructor _getConstructors[] = c.getConstructors(); \n" +
+		"	^^^^^^^^^^^\n" +
+		"Constructor is a raw type. References to generic type Constructor<T> should be parameterized\n" +
+		"----------\n" +
+		"7. WARNING in p\\X.java (at line 39)\n" +
+		"	Method _getMethod = c.getMethod(\"d\",null);\n" +
+		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Type null of the last argument to method getMethod(String, Class...) doesn\'t exactly match the vararg parameter type. Cast to Class[] to confirm the non-varargs invocation, or pass individual arguments of type Class for a varargs invocation.\n" +
+		"----------\n" +
+		"8. WARNING in p\\X.java (at line 39)\n" +
+		"	Method _getMethod = c.getMethod(\"d\",null);\n" +
+		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Type safety: The method getMethod(String, Class...) belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" +
 		"----------\n");
 }
 /*
