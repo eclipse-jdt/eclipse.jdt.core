@@ -2486,8 +2486,12 @@ public void testBug148859() throws CoreException {
 				}
 			},
 			null);
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		waitForManualRefresh();
-		waitForAutoBuild();
 		IPackageFragmentRoot root = getPackageFragmentRoot("P", "");
 		assertElementsEqual(
 			"Unexpected children size in 'P' default source folder",
