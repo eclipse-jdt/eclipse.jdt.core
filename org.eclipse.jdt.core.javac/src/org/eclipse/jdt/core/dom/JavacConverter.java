@@ -1775,6 +1775,14 @@ class JavacConverter {
 				jdtPattern.patterns().add(convert(nestedJcPattern));
 			}
 			return jdtPattern;
+		} else if (jcPattern instanceof JCAnyPattern jcAnyPattern) {
+			TypePattern jdtPattern = this.ast.newTypePattern();
+			commonSettings(jdtPattern, jcAnyPattern);
+			VariableDeclarationFragment variable = this.ast.newVariableDeclarationFragment();
+			commonSettings(variable, jcAnyPattern);
+			variable.setName(this.ast.newSimpleName("_"));
+			jdtPattern.setPatternVariable(variable);
+			return jdtPattern;
 		}
 		throw new UnsupportedOperationException("Missing support to convert '" + jcPattern);
 	}
