@@ -464,7 +464,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		@Override
 		public boolean belongsTo(Object family) {
-			return ResourcesPlugin.FAMILY_MANUAL_REFRESH == family;
+			return ResourcesPlugin.FAMILY_MANUAL_REFRESH == family || JavaModelManager.class == family;
 		}
 	}
 

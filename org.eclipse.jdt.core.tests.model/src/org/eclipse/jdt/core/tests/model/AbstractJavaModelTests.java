@@ -65,6 +65,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.IAnnotation;
@@ -2394,8 +2395,37 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertTrue("Not Java project: " + project, project.hasNature(JavaCore.NATURE_ID));
 		IProject sameProject = getWorkspaceRoot().getProject(projectName);
 		assertEquals("Returned project doesn't match same project from workspace: " + sameProject + " vs " + project, sameProject, project);
+
+		List<IJavaProject> javaProjects = List.of(getJavaModel().getJavaProjects());
+		boolean foundInModel = javaProjects.stream().anyMatch(p -> projectName.equals(p.getElementName()));
+		if (!foundInModel) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			waitForAutoBuild();
+			waitForManualRefresh();
+			javaProjects = List.of(getJavaModel().getJavaProjects());
+			foundInModel = javaProjects.stream().anyMatch(p -> projectName.equals(p.getElementName()));
+		}
+		boolean isNestedWorkspaceCall = isWorkspaceRuleAlreadyInUse(getWorkspaceRoot());
+		if (!isNestedWorkspaceCall) {
+			assertTrue("Project '" + projectName + "' should be present in JavaModel, but we found only: " + javaProjects, foundInModel);
+		} else {
+			// No assert here, caller has to check it *after* the workspace task
+			// is executed and events are sent / processed by JavaModel
+		}
 		return javaProject;
 	}
+
+
+	public static boolean isWorkspaceRuleAlreadyInUse(ISchedulingRule rule) {
+		ISchedulingRule currentJobRule = Job.getJobManager().currentRule();
+		boolean workspaceRuleActive = currentJobRule != null && rule.contains(currentJobRule);
+		return workspaceRuleActive;
+	}
+
 	protected IJavaProject importJavaProject(String projectName, String[] sourceFolders, String[] libraries, String output) throws CoreException {
 		return
 			createJavaProject(
@@ -2428,7 +2458,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				project.open(null);
 			}
 		};
-		getWorkspace().run(create, null);
+		if(isWorkspaceRuleAlreadyInUse(getWorkspaceRoot())) {
+			create.run(null);
+		} else {
+			getWorkspace().run(create, null);
+		}
+		List<IJavaProject> javaProjects = List.of(getJavaModel().getJavaProjects());
+		boolean foundInModel = javaProjects.stream().anyMatch(p -> projectName.equals(p.getElementName()));
+		if (!foundInModel) {
+			waitForManualRefresh();
+		}
 		return project;
 	}
 	protected IProject createExternalProject(final String projectName, URI location) throws CoreException {
@@ -3738,9 +3777,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IWorkspaceDescription description = getWorkspace().getDescription();
 		if (description.isAutoBuilding()) {
 			description.setAutoBuilding(false);
+			// Modify resources workspace preferences to avoid disturbing tests while running them
+			description.setSnapshotInterval(Long.MAX_VALUE);
 			getWorkspace().setDescription(description);
 		}
-
+		// description.setAutoBuilding(false); may trigger AutoBuildOffJob
+		waitForAutoBuild();
+		waitForManualRefresh();
 		if (!systemConfigReported) {
 			printSystemEnv();
 			systemConfigReported = true;
@@ -3996,6 +4039,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				JavaCore.setOptions(defaultOptions);
 			}
 		}
+		waitForManualRefresh();
 		super.tearDown();
 	}
 
@@ -4028,6 +4072,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Wait for autobuild notification to occur
 	 */
 	public void waitForAutoBuild() {
+		if (isWorkspaceRuleAlreadyInUse(getWorkspaceRoot())) {
+			// Don't wait holding workspace lock on FAMILY_AUTO_BUILD, because
+			// we might deadlock with AutoBuildOffJob
+			System.out.println("\n\nAborted waitForAutoBuild() because running with the workspace rule\n\n");
+			return;
+		}
 		boolean wasInterrupted = false;
 		do {
 			try {
@@ -4044,6 +4094,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 
 	public void waitForManualRefresh() {
+		boolean touchRunning = isTouchJobRunning();
+		if (touchRunning && isWorkspaceRuleAlreadyInUse(getWorkspaceRoot())) {
+			// Don't wait holding workspace lock on FAMILY_MANUAL_REFRESH, because
+			// we might deadlock with JavaModelManager.TouchJob
+			System.out.println("\n\nAborted waitForManualRefresh() because running with the workspace rule\n\n");
+			return;
+		}
+
 		boolean wasInterrupted = false;
 		do {
 			try {
@@ -4057,6 +4115,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				wasInterrupted = true;
 			}
 		} while (wasInterrupted);
+	}
+
+	public static boolean isTouchJobRunning() {
+		Job[] jobs = Job.getJobManager().find(JavaModelManager.class);
+		for (Job job : jobs) {
+			if(job.belongsTo(ResourcesPlugin.FAMILY_MANUAL_REFRESH)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void waitUntilIndexesReady() {
