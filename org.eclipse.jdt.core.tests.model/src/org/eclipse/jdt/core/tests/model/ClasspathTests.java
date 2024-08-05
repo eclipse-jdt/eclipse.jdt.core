@@ -5782,6 +5782,13 @@ public void testUnknownElements1() throws CoreException {
 		classpath[1] = src1;
 		project.setRawClasspath(classpath, null);
 
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		waitForManualRefresh();
+
 		// check that .classpath has correct content
 		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath")));
 		assertSourceEquals(
