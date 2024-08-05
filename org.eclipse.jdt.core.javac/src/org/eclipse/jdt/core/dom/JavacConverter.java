@@ -1376,14 +1376,14 @@ class JavacConverter {
 			return res;
 		}
 		if (javac instanceof JCInstanceOf jcInstanceOf) {
-			if (jcInstanceOf.getType() != null) {
+			JCPattern jcPattern = jcInstanceOf.getPattern();
+			if (jcInstanceOf.getType() != null && jcPattern == null) {
 				InstanceofExpression res = this.ast.newInstanceofExpression();
 				commonSettings(res, javac);
 				res.setLeftOperand(convertExpression(jcInstanceOf.getExpression()));
 				res.setRightOperand(convertToType(jcInstanceOf.getType()));
 				return res;
 			}
-			JCPattern jcPattern = jcInstanceOf.getPattern();
 			if (jcPattern instanceof JCAnyPattern) {
 				InstanceofExpression res = this.ast.newInstanceofExpression();
 				commonSettings(res, javac);
