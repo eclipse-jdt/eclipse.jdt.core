@@ -4107,6 +4107,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			try {
 				Job.getJobManager().wakeUp(ResourcesPlugin.FAMILY_MANUAL_REFRESH);
 				Job.getJobManager().join(ResourcesPlugin.FAMILY_MANUAL_REFRESH, null);
+				waitForSnapShot();
 				JavaModelManager.getIndexManager().waitForIndex(isIndexDisabledForTest(), null);
 				wasInterrupted = false;
 			} catch (OperationCanceledException e) {
@@ -4125,6 +4126,27 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		return false;
+	}
+
+	public void waitForSnapShot() {
+		if (isWorkspaceRuleAlreadyInUse(getWorkspaceRoot())){
+			// Don't wait holding workspace lock on FAMILY_SNAPSHOT, because
+			// we might deadlock with DelayedSnapshotJob
+			System.out.println("\n\nAborted waitForSnapShot() because running with the workspace rule\n\n");
+			return;
+		}
+		boolean wasInterrupted = false;
+		do {
+			try {
+				Job.getJobManager().wakeUp(ResourcesPlugin.FAMILY_SNAPSHOT);
+				Job.getJobManager().join(ResourcesPlugin.FAMILY_SNAPSHOT, null);
+				wasInterrupted = false;
+			} catch (OperationCanceledException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				wasInterrupted = true;
+			}
+		} while (wasInterrupted);
 	}
 
 	public void waitUntilIndexesReady() {
