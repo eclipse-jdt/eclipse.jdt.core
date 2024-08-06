@@ -621,8 +621,8 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return "";
 		}
 		StringBuilder res = new StringBuilder();
-		if( owner instanceof RootPackageSymbol rps ) {
-			return type.tsym.name.toString();
+		if( owner instanceof RootPackageSymbol ) {
+			return type == null || type.tsym == null || type.tsym.name == null ? "" : type.tsym.name.toString();
 		} else if( owner instanceof TypeSymbol tss) {
 			Type parentType = (type instanceof ClassType ct && ct.getEnclosingType() != Type.noType ? ct.getEnclosingType() : tss.type);
 			String parentName = getQualifiedNameImpl(parentType, tss, tss.owner);
