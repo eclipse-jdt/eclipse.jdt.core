@@ -136,7 +136,7 @@ private void compileVerifyTests(String verifierDir) {
 	}
 	String fileName = dir + File.separator + simpleName + ".java";
 	Util.writeToFile(getVerifyTestsCode(), fileName);
-	BatchCompiler.compile("\"" + fileName + "\" -d \"" + verifierDir + "\" -warn:-resource -classpath \"" + Util.getJavaClassLibsAsString() + "\"", new PrintWriter(System.out), new PrintWriter(System.err), null/*progress*/);
+	BatchCompiler.compile("\"" + fileName + "\" -d \"" + verifierDir + "\" -warn:-resource -warn:-raw -warn:-unsafe -classpath \"" + Util.getJavaClassLibsAsString() + "\"", new PrintWriter(System.out), new PrintWriter(System.err), null/*progress*/);
 }
 public void execute(String className, String[] classpaths) {
 	setOutputBuffer(new StringBuilder());
