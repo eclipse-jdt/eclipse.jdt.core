@@ -635,7 +635,8 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			res.append(typeSymbol.toString());
 		}
 		ITypeBinding[] typeArguments = getUncheckedTypeArguments(type, typeSymbol);
-		if (typeArguments.length > 0) {
+		boolean isTypeDeclaration = typeSymbol != null && typeSymbol.type == type;
+		if (!isTypeDeclaration && typeArguments.length > 0) {
 			res.append("<");
 			int i;
 			for (i = 0; i < typeArguments.length - 1; i++) {
