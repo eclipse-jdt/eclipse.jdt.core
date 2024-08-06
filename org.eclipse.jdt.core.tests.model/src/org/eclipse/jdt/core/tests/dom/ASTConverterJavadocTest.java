@@ -79,7 +79,7 @@ import junit.framework.TestSuite;
  * create one or several CUs and put them in org.eclipse.jdt.core.model.tests/workspace/Converter/src/javadoc/testXXX
  * folder and add the corresponding test in this class:
  * <pre>
- * public void testXXX() throws JavaModelException {
+ * public void _testXXX() throws JavaModelException {
  * 	verifyComments("testXXX");
  * }
  * </pre>
@@ -1330,77 +1330,77 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/**
 	 * Check javadoc for invalid syntax
 	 */
-	public void test001() throws JavaModelException {
+	public void _test001() throws JavaModelException {
 		verifyComments("test001");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50781"
 	 */
-	public void test002() throws JavaModelException {
+	public void _test002() throws JavaModelException {
 		verifyComments("test002");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50784"
 	 */
-	public void test003() throws JavaModelException {
+	public void _test003() throws JavaModelException {
 		verifyComments("test003");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50785"
 	 */
-	public void test004() throws JavaModelException {
+	public void _test004() throws JavaModelException {
 		verifyComments("test004");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50838"
 	 */
-	public void test005() throws JavaModelException {
+	public void _test005() throws JavaModelException {
 		verifyComments("test005");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50877"
 	 */
-	public void test006() throws JavaModelException {
+	public void _test006() throws JavaModelException {
 		verifyComments("test006");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50877"
 	 */
-	public void test007() throws JavaModelException {
+	public void _test007() throws JavaModelException {
 		verifyComments("test007");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50877"
 	 */
-	public void test008() throws JavaModelException {
+	public void _test008() throws JavaModelException {
 		verifyComments("test008");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50877"
 	 */
-	public void test009() throws JavaModelException {
+	public void _test009() throws JavaModelException {
 		verifyComments("test009");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50880"
 	 */
-	public void test010() throws JavaModelException {
+	public void _test010() throws JavaModelException {
 		verifyComments("test010");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=47396"
 	 */
-	public void test011() throws JavaModelException {
+	public void _test011() throws JavaModelException {
 		this.problems = new StringBuilder();
 		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.test011", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(this.sourceUnit, true);
@@ -1410,14 +1410,14 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50938"
 	 */
-	public void test012() throws JavaModelException {
+	public void _test012() throws JavaModelException {
 		verifyComments("test012");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51104"
 	 */
-	public void test013() throws JavaModelException {
+	public void _test013() throws JavaModelException {
 		verifyComments("test013");
 	}
 
@@ -1425,7 +1425,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Verify that text on next line following empty tag element
 	 * is well positionned.
 	 */
-	public void test014() throws JavaModelException {
+	public void _test014() throws JavaModelException {
 		verifyComments("test014");
 	}
 
@@ -1433,7 +1433,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Verify that we do not report failure when types are written on several lines
 	 * in Javadoc comments.
 	 */
-	public void test015() throws JavaModelException {
+	public void _test015() throws JavaModelException {
 		verifyComments("test015");
 	}
 
@@ -1495,38 +1495,38 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Verify DefaultCommentMapper heuristic to get leading and trailing comments
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=53445"
 	 */
-	public void test100() throws JavaModelException {
+	public void _test100() throws JavaModelException {
 		verifyMapper("test100", 16, new int[] {2,7,8,15});
 	}
-	public void test101() throws JavaModelException {
+	public void _test101() throws JavaModelException {
 		verifyMapper("test101", 8, new int[] {1,3,4,7});
 	}
-	public void test102() throws JavaModelException {
+	public void _test102() throws JavaModelException {
 		verifyMapper("test102", 16, new int[] {4,9,10,13});
 	}
-	public void test103() throws JavaModelException {
+	public void _test103() throws JavaModelException {
 		verifyMapper("test103", 8, new int[] {2,4,5,6});
 	}
-	public void test104() throws JavaModelException {
+	public void _test104() throws JavaModelException {
 		verifyMapper("test104", 16, new int[] {2,7,8,15});
 	}
-	public void test105() throws JavaModelException {
+	public void _test105() throws JavaModelException {
 		verifyMapper("test105", 16, new int[] {-1,11,-1,15});
 	}
-	public void test106() throws JavaModelException {
+	public void _test106() throws JavaModelException {
 		verifyMapper("test106", 8, new int[] {-1,5,-1,7});
 	}
-	public void test107() throws JavaModelException {
+	public void _test107() throws JavaModelException {
 		verifyMapper("test107", 16, new int[] {2,7,8,-1});
 	}
-	public void test108() throws JavaModelException {
+	public void _test108() throws JavaModelException {
 		verifyMapper("test108", 8, new int[] {1,3,4,-1});
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=54776"
 	 */
-	public void testBug54776() throws JavaModelException {
+	public void _testBug54776() throws JavaModelException {
 		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug54776", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(this.sourceUnit, false);
 		final CompilationUnit compilUnit = (CompilationUnit) result;
@@ -1559,7 +1559,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=55221"
 	 */
-	public void testBug55221a() throws JavaModelException {
+	public void _testBug55221a() throws JavaModelException {
 		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55221.a", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(this.sourceUnit, false);
 		final CompilationUnit compilUnit = (CompilationUnit) result;
@@ -1596,7 +1596,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// verify that second method start includes comment
 		assumeEquals("Method declaration "+method+" does not start at the right position", commentStart, method.getStartPosition());
 	}
-	public void testBug55221b() throws JavaModelException {
+	public void _testBug55221b() throws JavaModelException {
 		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55221.b", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(this.sourceUnit, false);
 		final CompilationUnit compilUnit = (CompilationUnit) result;
@@ -1633,7 +1633,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// verify that second method start includes comment
 		assumeEquals("Method declaration "+method+" does not start at the right position", commentStart, method.getStartPosition());
 	}
-	public void testBug55221c() throws JavaModelException {
+	public void _testBug55221c() throws JavaModelException {
 		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55221.c", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(this.sourceUnit, false);
 		final CompilationUnit compilUnit = (CompilationUnit) result;
@@ -1675,7 +1675,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		assumeEquals("Method declaration "+method+" does not end at the right position",method.getLength(), methodLength);
 	}
 	/** @deprecated using deprecated code */
-	public void testBug55221d() throws JavaModelException {
+	public void _testBug55221d() throws JavaModelException {
 		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55221.d", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(this.sourceUnit, false);
 		final CompilationUnit compilUnit = (CompilationUnit) result;
@@ -1702,7 +1702,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		int returnLength = compilUnit.getExtendedLength(returnType);
 		assumeEquals("Return type "+returnType+" does not have the right length", returnType.getLength(), returnLength);
 	}
-	public void testBug55223a() throws JavaModelException {
+	public void _testBug55223a() throws JavaModelException {
 //		stopOnFailure = false;
 		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55223", "TestA.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(this.sourceUnit, false);
@@ -1742,7 +1742,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		}
 	}
 	/** @deprecated using deprecated code */
-	public void testBug55223b() throws JavaModelException {
+	public void _testBug55223b() throws JavaModelException {
 		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55223", "TestB.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(this.sourceUnit, false);
 		final CompilationUnit compilUnit = (CompilationUnit) result;
@@ -1774,14 +1774,14 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=48489"
 	 */
-	public void testBug48489() throws JavaModelException {
+	public void _testBug48489() throws JavaModelException {
 		verifyComments("testBug48489");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50898"
 	 */
-	public void testBug50898() throws JavaModelException {
+	public void _testBug50898() throws JavaModelException {
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug50898", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		this.packageBinding = false;
 		verifyComments(unit);
@@ -1790,7 +1790,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51226"
 	 */
-	public void testBug51226() throws JavaModelException {
+	public void _testBug51226() throws JavaModelException {
 		ICompilationUnit[] units = getCompilationUnits("Converter" , "src", "javadoc.testBug51226"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		for (int i=0; i<units.length; i++) {
 			ASTNode result = runConversion(units[i], false);
@@ -1817,14 +1817,14 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51241"
 	 */
-	public void testBug51241() throws JavaModelException {
+	public void _testBug51241() throws JavaModelException {
 		verifyComments("testBug51241");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51363"
 	 */
-	public void testBug51363() throws JavaModelException {
+	public void _testBug51363() throws JavaModelException {
 		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug51363", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(this.sourceUnit, false);
 		final CompilationUnit unit = (CompilationUnit) result;
@@ -1850,62 +1850,62 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51476"
 	 */
-	public void testBug51476() throws JavaModelException {
+	public void _testBug51476() throws JavaModelException {
 		verifyComments("testBug51476");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51478"
 	 */
-	public void testBug51478() throws JavaModelException {
+	public void _testBug51478() throws JavaModelException {
 		verifyComments("testBug51478");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51508"
 	 */
-	public void testBug51508() throws JavaModelException {
+	public void _testBug51508() throws JavaModelException {
 		verifyComments("testBug51508");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51650"
 	 */
-	public void testBug51650() throws JavaModelException {
+	public void _testBug51650() throws JavaModelException {
 		verifyComments("testBug51650");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51770"
 	 */
-	public void testBug51770() throws JavaModelException {
+	public void _testBug51770() throws JavaModelException {
 		verifyComments("testBug51770");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=52908"
 	 */
-	public void testBug52908() throws JavaModelException {
+	public void _testBug52908() throws JavaModelException {
 		verifyComments("testBug52908");
 	}
-	public void testBug52908a() throws JavaModelException {
+	public void _testBug52908a() throws JavaModelException {
 		verifyComments("testBug52908a");
 	}
-	public void testBug52908unicode() throws JavaModelException {
+	public void _testBug52908unicode() throws JavaModelException {
 		verifyComments("testBug52908unicode");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=53276"
 	 */
-	public void testBug53276() throws JavaModelException {
+	public void _testBug53276() throws JavaModelException {
 		verifyComments("testBug53276");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=53075"
 	 */
-	public void testBug53075() throws JavaModelException {
+	public void _testBug53075() throws JavaModelException {
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug53075", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		boolean pb = this.packageBinding;
 		this.packageBinding = false;
@@ -1925,17 +1925,17 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=53757"
 	 */
-	public void testBug53757() throws JavaModelException {
+	public void _testBug53757() throws JavaModelException {
 		verifyComments("testBug53757");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600"
 	 */
-	public void testBug51600() throws JavaModelException {
+	public void _testBug51600() throws JavaModelException {
 		verifyComments("testBug51600");
 	}
-	public void testBug51617() throws JavaModelException {
+	public void _testBug51617() throws JavaModelException {
 		this.stopOnFailure = false;
 		String [] unbound = { "e" };
 		verifyComments("testBug51617");
@@ -1955,7 +1955,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		}
 		this.stopOnFailure = true;
 	}
-	public void testBug54424() throws JavaModelException {
+	public void _testBug54424() throws JavaModelException {
 		this.stopOnFailure = false;
 		String [] unbound = { "tho",
 				"A#getList(int,long,boolean)",
@@ -1982,14 +1982,14 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=63044"
 	 */
-	public void testBug63044() throws JavaModelException {
+	public void _testBug63044() throws JavaModelException {
 		verifyComments("testBug63044");
 	}
 
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660"
 	 */
-	public void testBug51660() throws JavaModelException {
+	public void _testBug51660() throws JavaModelException {
 		this.stopOnFailure = false;
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug51660", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		CompilationUnit compilUnit = verifyComments(unit);
@@ -2081,7 +2081,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 65174: Spurious "Javadoc: Missing reference" error
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=65174"
 	 */
-	public void testBug65174() throws JavaModelException {
+	public void _testBug65174() throws JavaModelException {
 		verifyComments("testBug65174");
 	}
 
@@ -2089,7 +2089,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 65253: [Javadoc] @@tag is wrongly parsed as @tag
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=65253"
 	 */
-	public void testBug65253() throws JavaModelException {
+	public void _testBug65253() throws JavaModelException {
 		verifyComments("testBug65253");
 	}
 
@@ -2097,7 +2097,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 65288: Javadoc: tag gets mangled when javadoc closing on same line without whitespace
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=65288"
 	 */
-	public void testBug65288() throws JavaModelException {
+	public void _testBug65288() throws JavaModelException {
 		verifyComments("testBug65288");
 	}
 
@@ -2105,7 +2105,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 68017: Javadoc processing does not detect missing argument to @return
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=68017"
 	 */
-	public void testBug68017() throws JavaModelException {
+	public void _testBug68017() throws JavaModelException {
 		verifyComments("testBug68017");
 	}
 
@@ -2113,7 +2113,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 68025: Javadoc processing does not detect some wrong links
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=68025"
 	 */
-	public void testBug68025() throws JavaModelException {
+	public void _testBug68025() throws JavaModelException {
 		verifyComments("testBug68025");
 	}
 
@@ -2121,7 +2121,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 69272: [Javadoc] Invalid malformed reference (missing separator)
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=69272"
 	 */
-	public void testBug69272() throws JavaModelException {
+	public void _testBug69272() throws JavaModelException {
 		verifyComments("testBug69272");
 	}
 
@@ -2129,7 +2129,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 69275: [Javadoc] Invalid warning on @see link
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=69275"
 	 */
-	public void testBug69275() throws JavaModelException {
+	public void _testBug69275() throws JavaModelException {
 		verifyComments("testBug69275");
 	}
 
@@ -2137,7 +2137,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 69302: [Javadoc] Invalid reference warning inconsistent with javadoc tool
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=69302"
 	 */
-	public void testBug69302() throws JavaModelException {
+	public void _testBug69302() throws JavaModelException {
 		verifyComments("testBug69302");
 	}
 
@@ -2145,7 +2145,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 68726: [Javadoc] Target attribute in @see link triggers warning
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=68726"
 	 */
-	public void testBug68726() throws JavaModelException {
+	public void _testBug68726() throws JavaModelException {
 		verifyComments("testBug68726");
 	}
 
@@ -2154,13 +2154,13 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892"
 	 * @deprecated using deprecated code
 	 */
-	public void testBug70892_JLS2() throws JavaModelException {
+	public void _testBug70892_JLS2() throws JavaModelException {
 		int level = this.astLevel;
 		this.astLevel = AST.JLS2;
 		verifyComments("testBug70892");
 		this.astLevel = level;
 	}
-	public void testBug70892_JLS3() throws JavaModelException {
+	public void _testBug70892_JLS3() throws JavaModelException {
 		int level = this.astLevel;
 		this.astLevel = getJLS3();
 		verifyComments("testBug70892");
@@ -2171,7 +2171,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 51911: [Javadoc] @see method w/out ()
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=51911"
 	 */
-	public void testBug51911() throws JavaModelException {
+	public void _testBug51911() throws JavaModelException {
 		verifyComments("testBug51911");
 	}
 
@@ -2179,7 +2179,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 73348: [Javadoc] Missing description for return tag is not always warned
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=73348"
 	 */
-	public void testBug73348() throws JavaModelException {
+	public void _testBug73348() throws JavaModelException {
 		verifyComments("testBug73348");
 	}
 
@@ -2187,7 +2187,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 77644: [dom] AST node extended positions may be wrong while moving
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=77644"
 	 */
-	public void testBug77644() throws JavaModelException {
+	public void _testBug77644() throws JavaModelException {
 		verifyComments("testBug77644");
 	}
 
@@ -2195,7 +2195,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 79809: [1.5][dom][javadoc] Need better support for type parameter Javadoc tags
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=79809"
 	 */
-	public void testBug79809() throws JavaModelException {
+	public void _testBug79809() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b79809/Test.java",
@@ -2213,7 +2213,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			"}\n");
 		verifyWorkingCopiesComments();
 	}
-	public void testBug79809b() throws JavaModelException {
+	public void _testBug79809b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b79809/Test.java",
@@ -2235,7 +2235,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 79904: [1.5][dom][javadoc] TagElement range not complete for type parameter tags
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=79904"
 	 */
-	public void testBug79904() throws JavaModelException {
+	public void _testBug79904() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b79904/Test.java",
@@ -2258,7 +2258,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 80221: [1.5][dom][javadoc] Need better support for type parameter Javadoc tags
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=80221"
 	 */
-	public void testBug80221() throws JavaModelException {
+	public void _testBug80221() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b80221/Test.java",
@@ -2279,7 +2279,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 80257: [1.5][javadoc][dom] Type references in javadocs should have generic binding, not raw
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=80257"
 	 */
-	public void testBug80257() throws JavaModelException {
+	public void _testBug80257() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b80257/Test.java",
@@ -2337,14 +2337,14 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 83804: [1.5][javadoc] Missing Javadoc node for package declaration
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83804"
 	 */
-	public void testBug83804() throws CoreException, JavaModelException {
+	public void _testBug83804() throws CoreException, JavaModelException {
 		this.astLevel = getJLS3();
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getCompilationUnit("Converter15", "src", "javadoc.b83804", "package-info.java");
 		this.workingCopies[1] = getCompilationUnit("Converter15", "src", "javadoc.b83804", "Test.java");
 		verifyWorkingCopiesComments();
 	}
-	public void testBug83804a() throws CoreException, JavaModelException {
+	public void _testBug83804a() throws CoreException, JavaModelException {
 		this.astLevel = getJLS3();
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getCompilationUnit("Converter15", "src", "javadoc.b83804a", "package-info.java");
@@ -2356,7 +2356,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 84049: [javadoc][dom] Extended ranges wrong for method name without return type
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84049"
 	 */
-	public void testBug84049() throws JavaModelException {
+	public void _testBug84049() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b84049/Test.java",
@@ -2392,7 +2392,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 87845: [1.5][javadoc][dom] Type references in javadocs should have generic binding, not raw
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=87845"
 	 */
-	public void testBug87845() throws JavaModelException {
+	public void _testBug87845() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b87845/Test.java",
@@ -2467,7 +2467,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 93880: [1.5][javadoc] Source range of PackageDeclaration does not include Javadoc child
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=93880"
 	 */
-	public void testBug93880_15a() throws JavaModelException {
+	public void _testBug93880_15a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/Test.java",
@@ -2491,7 +2491,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
 		}
 	}
-	public void testBug93880_15b() throws JavaModelException {
+	public void _testBug93880_15b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
@@ -2513,7 +2513,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
 		}
 	}
-	public void testBug93880_15c() throws JavaModelException {
+	public void _testBug93880_15c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
@@ -2535,7 +2535,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
 		}
 	}
-	public void testBug93880_15d() throws JavaModelException {
+	public void _testBug93880_15d() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
@@ -2559,7 +2559,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
 		}
 	}
-	public void testBug93880_15e() throws JavaModelException {
+	public void _testBug93880_15e() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
@@ -2583,7 +2583,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertTrue("Source range of PackageDeclaration should NOT include Javadoc child", packDecl.getStartPosition() > comment.getStartPosition()+comment.getLength());
 		}
 	}
-	public void testBug93880_14a() throws JavaModelException {
+	public void _testBug93880_14a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/Test.java",
@@ -2604,7 +2604,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
 		}
 	}
-	public void testBug93880_14b() throws JavaModelException {
+	public void _testBug93880_14b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
@@ -2623,7 +2623,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
 		}
 	}
-	public void testBug93880_14c() throws JavaModelException {
+	public void _testBug93880_14c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
@@ -2642,7 +2642,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
 		}
 	}
-	public void testBug93880_14d() throws JavaModelException {
+	public void _testBug93880_14d() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
@@ -2663,7 +2663,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
 		}
 	}
-	public void testBug93880_14e() throws JavaModelException {
+	public void _testBug93880_14e() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
@@ -2689,7 +2689,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 94150: [javadoc][dom] Extended ranges wrong for method name without return type
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94150"
 	 */
-	public void testBug94150() throws JavaModelException {
+	public void _testBug94150() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b94150/Category.java",
@@ -2730,7 +2730,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 99507: [javadoc] Infinit loop in DocCommentParser
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=99507"
 	 */
-	public void testBug99507() throws JavaModelException {
+	public void _testBug99507() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b99507/X.java",
 			"package javadoc.b99507;\n" +
@@ -2740,7 +2740,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		);
 		verifyComments(this.workingCopies[0]);
 	}
-	public void testBug99507b() throws JavaModelException {
+	public void _testBug99507b() throws JavaModelException {
         String source = "/**\n@param country*/";
 		ASTParser parser = ASTParser.newParser(getJLS3());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -2752,7 +2752,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 100041: [javadoc] Infinit loop in DocCommentParser
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=100041"
 	 */
-	public void testBug100041() throws JavaModelException {
+	public void _testBug100041() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b100041/X.java",
 			"package javadoc.b100041;\n" +
@@ -2794,7 +2794,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertTrue("Invalid start position for : VariableDeclarationStatement"+varDecl, varDecl.getStartPosition() > commentEnd);
 		}
 	}
-	public void testBug100041b() throws JavaModelException {
+	public void _testBug100041b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b100041/X.java",
 			"package javadoc.b100041;\n" +
@@ -2829,7 +2829,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertTrue("Invalid start position for Block: "+returnStatement, returnStatement.getStartPosition() > commentEnd);
 		}
 	}
-	public void testBug100041c() throws JavaModelException {
+	public void _testBug100041c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b100041/Z.java",
 			"package javadoc.b100041;\n" +
@@ -2913,7 +2913,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * bug103304: [Javadoc] Wrong reference proposal for inner classes.
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=103304"
 	 */
-	public void testBug103304() throws JavaModelException {
+	public void _testBug103304() throws JavaModelException {
 		this.packageBinding = false; // do NOT verify that qualification only can be package name
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b103304/Test.java",
@@ -2959,7 +2959,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 106581: [javadoc] null type binding for parameter in javadoc
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=106581"
 	 */
-	public void testBug106581() throws JavaModelException {
+	public void _testBug106581() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b106581/A.java",
@@ -2994,7 +2994,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 108622: [javadoc][dom] ASTNode not including javadoc
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=108622"
 	 */
-	public void testBug108622() throws JavaModelException {
+	public void _testBug108622() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b108622/Test.java",
@@ -3043,7 +3043,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 113108: [API][comments] CompilationUnit.getNodeComments(ASTNode)
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113108"
 	 */
-	public void testBug113108a() throws JavaModelException {
+	public void _testBug113108a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b113108/Test.java",
@@ -3080,7 +3080,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Invalid last trailing comment for "+methodDeclaration, 7, index);
 		}
 	}
-	public void testBug113108b() throws JavaModelException {
+	public void _testBug113108b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b113108/Test.java",
@@ -3117,7 +3117,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Invalid last trailing comment for "+methodDeclaration, 7, index);
 		}
 	}
-	public void testBug113108c() throws JavaModelException {
+	public void _testBug113108c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b113108/Test.java",
@@ -3159,7 +3159,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * bug125676: [javadoc] @category should not read beyond end of line
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=125676"
 	 */
-	public void testBug125676() throws JavaModelException {
+	public void _testBug125676() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b125676/A.java",
@@ -3222,7 +3222,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * bug125903: [javadoc] Treat whitespace in javadoc tags as invalid tags
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=125903"
 	 */
-	public void testBug125903() throws JavaModelException {
+	public void _testBug125903() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b125903/Test.java",
@@ -3257,7 +3257,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * bug130752: [comments] first BlockComment parsed as LineComment
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=130752"
 	 */
-	public void testBug130752() throws JavaModelException {
+	public void _testBug130752() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b130752/Test.java",
 			"/* Ceci n'est pas\n" +
@@ -3276,7 +3276,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.BLOCK_COMMENT);
 		}
 	}
-	public void testBug130752b() throws JavaModelException {
+	public void _testBug130752b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b130752/Test.java",
 			"// Line comment\n" +
@@ -3294,7 +3294,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.LINE_COMMENT);
 		}
 	}
-	public void testBug130752c() throws JavaModelException {
+	public void _testBug130752c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b130752/Test.java",
 			"/** Javadoc comment */\n" +
@@ -3318,7 +3318,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * test Ensure that extended ranges are correct for enum constants and last comments of enum declaration
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=165525"
 	 */
-	public void testBug165525() throws JavaModelException {
+	public void _testBug165525() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b165525/Test.java",
 			"package javadoc.b165525;\n" +
@@ -3374,21 +3374,21 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * bug228648: AST: no binding for Javadoc reference to inner class
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=228648"
 	 */
-	public void testBug228648() throws JavaModelException {
+	public void _testBug228648() throws JavaModelException {
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug228648", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		verifyComments(unit);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=196714
-	public void test109() throws JavaModelException {
+	public void _test109() throws JavaModelException {
 		verifyComments("test109");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=336821
-	public void testBug336821() throws JavaModelException {
+	public void _testBug336821() throws JavaModelException {
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug336821", "Try.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		verifyComments(unit);
 	}
 
-	public void testBug347100() throws Exception {
+	public void _testBug347100() throws Exception {
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug347100", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		CompilationUnit compilUnit = verifyComments(unit);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -3419,7 +3419,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/481143 - [parser] Parser missing some line comments
 	 */
-	public void testBug481143a() throws JavaModelException {
+	public void _testBug481143a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/a/X.java",
 			"package a;\n" +
@@ -3435,7 +3435,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/481143 - [parser] Parser missing some line comments
 	 */
-	public void testBug481143b() throws JavaModelException {
+	public void _testBug481143b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/a/X.java",
 				"package a;\n" +
@@ -3449,7 +3449,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/481143 - [parser] Parser missing some line comments
 	 */
-	public void testBug481143c() throws JavaModelException {
+	public void _testBug481143c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/a/X.java",
 				"package a;\n" +
@@ -3466,7 +3466,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345"
 	 * @deprecated
 	 */
-	public void testBug206345a() throws JavaModelException {
+	public void _testBug206345a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = AST.JLS3;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b206345/X.java",
@@ -3513,7 +3513,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 *
 	 * @deprecated
 	 */
-	public void testBug206345b() throws JavaModelException {
+	public void _testBug206345b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = AST.JLS3;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b206345/X.java",

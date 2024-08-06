@@ -86,7 +86,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected int firstTagPosition;
 	protected int index, lineEnd;
 	protected int tokenPreviousPosition, lastIdentifierEndPosition, starPosition;
-	protected int textStart, memberStart;
+	protected int textStart;
+	protected int memberStart;
 	protected int tagSourceStart, tagSourceEnd;
 	protected int inlineTagStart;
 	protected int[] lineEnds;
@@ -451,8 +452,15 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						// $FALL-THROUGH$ - fall through default case
 					default :
 						if (this.markdown && nextCharacter == '[') {
-							if (parseMarkdownLinks())
+							if (this.textStart != -1) {
+								if (this.textStart < textEndPosition) {
+									pushText(this.textStart, textEndPosition);
+								}
+							}
+							if (parseMarkdownLinks(previousPosition)) {
+								this.textStart = this.index;
 								break;
+							}
 						}
 						if (isFormatterParser && nextCharacter == '<') {
 							// html tags are meaningful for formatter parser
@@ -2977,7 +2985,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	/*
 	 * Parse markdown links that are replacing @link and @linkplain
 	 */
-	protected abstract boolean parseMarkdownLinks() throws InvalidInputException;
+	protected abstract boolean parseMarkdownLinks(int previousPosition) throws InvalidInputException;
 	/*
 	 * Parse tag declaration
 	 */
