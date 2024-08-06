@@ -69,6 +69,15 @@ public class UnusedProblemFactory {
 			JCImport importNode = unusedImport.getValue();
 			int pos = importNode.qualid.getStartPosition();
 			int endPos = pos + importName.length() - 1;
+			if (importName.endsWith(".*")) {
+				/**
+				 * For the unused star imports (e.g., java.util.*), display the
+				 * diagnostic on the java.util part instead of java.util.* to
+				 * be compatible with 'remove unused import' quickfix in JDT.
+				 */
+				importName = importName.substring(0, importName.length() - 2);
+				endPos = endPos - 2;
+			}
 			int line = (int) unit.getLineMap().getLineNumber(pos);
 			int column = (int) unit.getLineMap().getColumnNumber(pos);
 			String[] arguments = new String[] { importName };
