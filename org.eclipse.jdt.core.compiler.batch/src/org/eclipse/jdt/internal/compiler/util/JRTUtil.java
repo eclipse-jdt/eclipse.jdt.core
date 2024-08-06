@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.file.DirectoryStream;
@@ -132,11 +133,11 @@ public class JRTUtil {
 					// Needs better error handling downstream? But for now, make sure
 					// a dummy JrtFileSystem is not created.
 					String errorMessage = "Error: failed to create JrtFileSystem from " + image; //$NON-NLS-1$
-					throw new RuntimeIOException(errorMessage, e);
+					throw new UncheckedIOException(errorMessage, e);
 				}
 			});
 			return system;
-		} catch (RuntimeIOException e) {
+		} catch (UncheckedIOException e) {
 			throw e.getCause();
 		}
 	}
@@ -154,11 +155,11 @@ public class JRTUtil {
 				try {
 					return FileSystems.newFileSystem(JRTUtil.JRT_URI, Map.of("java.home", p.toString())); //$NON-NLS-1$
 				} catch (IOException e) {
-					throw new RuntimeIOException(e);
+					throw new UncheckedIOException(e);
 				}
 			});
 			return fs;
-		} catch (RuntimeIOException e) {
+		} catch (UncheckedIOException e) {
 			throw e.getCause();
 		}
 	}
@@ -201,12 +202,12 @@ public class JRTUtil {
 					try {
 						return new CtSym(x);
 					} catch (IOException e) {
-						throw new RuntimeIOException(e);
+						throw new UncheckedIOException(e);
 					}
 				}
 				return current;
 			});
-		} catch (RuntimeIOException rio) {
+		} catch (UncheckedIOException rio) {
 			throw rio.getCause();
 		}
 		return ctSym;
@@ -415,23 +416,6 @@ class JrtFileSystemWithOlderRelease extends JrtFileSystem {
 
 }
 
-final class RuntimeIOException extends RuntimeException {
-	private static final long serialVersionUID = 1L;
-
-	public RuntimeIOException(String message, IOException cause) {
-		super(message, cause);
-	}
-
-	public RuntimeIOException(IOException cause) {
-		super(cause);
-	}
-
-	@Override
-	public synchronized IOException getCause() {
-		return (IOException) super.getCause();
-	}
-}
-
 class Jdk {
 	final Path path;
 	final String release;
@@ -444,10 +428,10 @@ class Jdk {
 				try {
 					return readJdkReleaseFile(p);
 				} catch (IOException e) {
-					throw new RuntimeIOException(e);
+					throw new UncheckedIOException(e);
 				}
 			});
-		} catch (RuntimeIOException rio) {
+		} catch (UncheckedIOException rio) {
 			throw rio.getCause();
 		}
 	}
