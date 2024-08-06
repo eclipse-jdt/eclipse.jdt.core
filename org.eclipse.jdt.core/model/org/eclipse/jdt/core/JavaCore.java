@@ -3374,7 +3374,6 @@ public final class JavaCore extends Plugin {
 	 *
 	 * @return all Java source versions fully supported by Eclipse compiler
 	 * @see #isJavaSourceVersionSupportedByCompiler(String)
-	 * @see #getFirstJavaSourceVersionSupportedByCompiler()
 	 * @since 3.39
 	 */
 	public static SortedSet<String> getAllJavaSourceVersionsSupportedByCompiler() {
@@ -3402,7 +3401,6 @@ public final class JavaCore extends Plugin {
 	 *
 	 * @return {@code true} if the given string represents Java language version is fully supported by Eclipse compiler
 	 * @see #getAllJavaSourceVersionsSupportedByCompiler()
-	 * @see #getFirstJavaSourceVersionSupportedByCompiler()
 	 * @since 3.39
 	 */
 	public static boolean isJavaSourceVersionSupportedByCompiler(String version) {
@@ -6470,19 +6468,6 @@ public final class JavaCore extends Plugin {
 	 */
 	public static String latestSupportedJavaVersion() {
 		return allVersions.get(allVersions.size() - 1);
-	}
-
-	/**
-	 * First (oldest) Java source version supported by the Eclipse compiler.
-	 * This is the first entry from {@link JavaCore#getAllJavaSourceVersionsSupportedByCompiler()}.
-	 *
-	 * @return first (oldest) Java source version supported by the Eclipse compiler
-	 * @see #getAllJavaSourceVersionsSupportedByCompiler()
-	 * @see #isJavaSourceVersionSupportedByCompiler(String)
-	 * @since 3.39
-	 */
-	public static String getFirstJavaSourceVersionSupportedByCompiler() {
-		return SUPPORTED_VERSIONS.first();
 	}
 
 	/**
