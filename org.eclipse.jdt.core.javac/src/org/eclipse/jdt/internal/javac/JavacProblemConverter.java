@@ -239,6 +239,7 @@ public class JavacProblemConverter {
 				null;
 			if (element != null) {
 				switch (element) {
+					case JCTree.JCTypeApply jcTypeApply: return getPositionByNodeRangeOnly(jcDiagnostic, (JCTree)jcTypeApply.clazz);
 					case JCClassDecl jcClassDecl: return getDiagnosticPosition(jcDiagnostic, jcClassDecl);
 					case JCVariableDecl jcVariableDecl: return getDiagnosticPosition(jcDiagnostic, jcVariableDecl);
 					case JCMethodDecl jcMethodDecl: return getDiagnosticPosition(jcDiagnostic, jcMethodDecl, problemId);
@@ -263,6 +264,14 @@ public class JavacProblemConverter {
 		return getDefaultPosition(diagnostic);
 	}
 
+	private org.eclipse.jface.text.Position getPositionByNodeRangeOnly(JCDiagnostic jcDiagnostic, JCTree jcTree) {
+		int startPosition = jcTree.getStartPosition();
+		if (startPosition != Position.NOPOS) {
+			int endPosition = jcTree.getEndPosition(this.units.get(jcDiagnostic.getSource()).endPositions);
+			return new org.eclipse.jface.text.Position(startPosition, endPosition - startPosition);
+		}
+		return getDefaultPosition(jcDiagnostic);
+	}
 	private org.eclipse.jface.text.Position getDiagnosticPosition(JCDiagnostic jcDiagnostic,
 			JCMethodDecl jcMethodDecl, int problemId) {
 		int startPosition = (int) jcDiagnostic.getPosition();
@@ -647,7 +656,7 @@ public class JavacProblemConverter {
 			case "compiler.err.annotation.missing.default.value.1" -> IProblem.MissingValueForAnnotationMember;
 			case "compiler.warn.static.not.qualified.by.type" -> {
 				var kind = getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class);
-				yield kind == null ? IProblem.NonStaticAccessToStaticField : 
+				yield kind == null ? IProblem.NonStaticAccessToStaticField :
 					switch (kind) {
 						case METHOD -> IProblem.NonStaticAccessToStaticMethod;
 						case VAR, RECORD_COMPONENT -> IProblem.NonStaticAccessToStaticField;
@@ -771,6 +780,7 @@ public class JavacProblemConverter {
 			case "compiler.err.cant.deref" -> IProblem.NoMessageSendOnBaseType;
 			case "compiler.err.cant.infer.local.var.type" -> IProblem.VarLocalWithoutInitizalier;
 			case "compiler.err.array.and.varargs" -> IProblem.RedefinedArgument;
+			case "compiler.err.type.doesnt.take.params" -> IProblem.NonGenericType;
 			default -> {
 				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;
