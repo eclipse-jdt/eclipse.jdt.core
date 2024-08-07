@@ -1012,7 +1012,6 @@ public class CompilerOptions {
 	public static String[] warningOptionNames() {
 		String[] result = {
 			OPTION_ReportAnnotationSuperInterface,
-			OPTION_ReportAssertIdentifier,
 			OPTION_ReportAutoboxing,
 			OPTION_ReportComparingIdentical,
 			OPTION_ReportDeadCode,
@@ -1022,7 +1021,6 @@ public class CompilerOptions {
 			OPTION_ReportDeprecationWhenOverridingDeprecatedMethod,
 			OPTION_ReportDiscouragedReference,
 			OPTION_ReportEmptyStatement,
-			OPTION_ReportEnumIdentifier,
 			OPTION_ReportFallthroughCase,
 			OPTION_ReportFieldHiding,
 			OPTION_ReportFinallyBlockNotCompletingNormally,
@@ -1372,8 +1370,8 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportTypeParameterHiding, getSeverityString(TypeHiding));
 		optionsMap.put(OPTION_ReportPossibleAccidentalBooleanAssignment, getSeverityString(AccidentalBooleanAssign));
 		optionsMap.put(OPTION_ReportEmptyStatement, getSeverityString(EmptyStatement));
-		optionsMap.put(OPTION_ReportAssertIdentifier, getSeverityString(AssertUsedAsAnIdentifier));
-		optionsMap.put(OPTION_ReportEnumIdentifier, getSeverityString(EnumUsedAsAnIdentifier));
+		optionsMap.put(OPTION_ReportAssertIdentifier, ERROR);
+		optionsMap.put(OPTION_ReportEnumIdentifier, ERROR);
 		optionsMap.put(OPTION_ReportUndocumentedEmptyBlock, getSeverityString(UndocumentedEmptyBlock));
 		optionsMap.put(OPTION_ReportUnnecessaryTypeCheck, getSeverityString(UnnecessaryTypeCheck));
 		optionsMap.put(OPTION_ReportUnnecessaryElse, getSeverityString(UnnecessaryElse));
@@ -1956,8 +1954,8 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportPossibleAccidentalBooleanAssignment)) != null) updateSeverity(AccidentalBooleanAssign, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportEmptyStatement)) != null) updateSeverity(EmptyStatement, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportNonExternalizedStringLiteral)) != null) updateSeverity(NonExternalizedString, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportAssertIdentifier)) != null) updateSeverity(AssertUsedAsAnIdentifier, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportEnumIdentifier)) != null) updateSeverity(EnumUsedAsAnIdentifier, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportAssertIdentifier)) != null) updateSeverity(AssertUsedAsAnIdentifier, ERROR);
+		if ((optionValue = optionsMap.get(OPTION_ReportEnumIdentifier)) != null) updateSeverity(EnumUsedAsAnIdentifier, ERROR);
 		if ((optionValue = optionsMap.get(OPTION_ReportNonStaticAccessToStatic)) != null) updateSeverity(NonStaticAccessToStatic, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportIndirectStaticAccess)) != null) updateSeverity(IndirectStaticAccess, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportIncompatibleNonInheritedInterfaceMethod)) != null) updateSeverity(IncompatibleNonInheritedInterfaceMethod, optionValue);

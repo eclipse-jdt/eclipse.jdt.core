@@ -1233,7 +1233,6 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			optionsMap.put(CompilerOptions.OPTION_ReportFieldHiding, warning);
 			optionsMap.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, warning);
 			optionsMap.put(CompilerOptions.OPTION_ReportEmptyStatement, warning);
-			optionsMap.put(CompilerOptions.OPTION_ReportAssertIdentifier, warning);
 			optionsMap.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, warning);
 			optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, warning);
 			optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryElse, warning);
@@ -1254,7 +1253,6 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 		// Ignore 3.1 options
 		optionsMap.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
-		optionsMap.put(CompilerOptions.OPTION_ReportEnumIdentifier, CompilerOptions.IGNORE);
 
 		// Ignore 3.2 options
 		optionsMap.put(CompilerOptions.OPTION_ReportUnusedLabel, CompilerOptions.IGNORE);
