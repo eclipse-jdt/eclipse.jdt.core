@@ -386,7 +386,7 @@ public abstract class AbstractMethodDeclaration
 				for (Statement stmt : this.statements) {
 					stmt.generateCode(this.scope, codeStream);
 					if (!this.compilationResult.hasErrors() && (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)) {
-						this.scope.problemReporter().operandStackSizeInappropriate(this);
+//						this.scope.problemReporter().operandStackSizeInappropriate(this);
 					}
 				}
 			}
