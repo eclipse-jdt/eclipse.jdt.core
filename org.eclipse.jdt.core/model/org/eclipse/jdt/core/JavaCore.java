@@ -647,7 +647,7 @@ public final class JavaCore extends Plugin {
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.assertIdentifier"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
+	 * <dt>Default:</dt><dd><code>"error"</code></dd>
 	 * </dl>
 	 * @since 2.0
 	 * @category CompilerOptionID
@@ -660,7 +660,7 @@ public final class JavaCore extends Plugin {
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.enumIdentifier"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
+	 * <dt>Default:</dt><dd><code>"error"</code></dd>
 	 * </dl>
 	 * @since 3.1
 	 * @category CompilerOptionID

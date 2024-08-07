@@ -3869,7 +3869,7 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				setSeverity(CompilerOptions.OPTION_ReportMissingJavadocComments, severity, isEnabling);
 				return;
 			} else if (token.equals("assertIdentifier")) { //$NON-NLS-1$
-				setSeverity(CompilerOptions.OPTION_ReportAssertIdentifier, severity, isEnabling);
+				// error by default, no other values accepted
 				return;
 			} else if (token.equals("allDeadCode")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportDeadCode, severity, isEnabling);
@@ -3966,7 +3966,7 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				setSeverity(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, severity, isEnabling);
 				return;
 			} else if (token.equals("enumIdentifier")) { //$NON-NLS-1$
-				setSeverity(CompilerOptions.OPTION_ReportEnumIdentifier, severity, isEnabling);
+				// error by default, no other values accepted
 				return;
 			} else if (token.equals("exports")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportAPILeak, severity, isEnabling);
