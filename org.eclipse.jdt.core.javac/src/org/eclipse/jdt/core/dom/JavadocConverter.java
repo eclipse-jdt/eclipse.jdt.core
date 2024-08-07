@@ -226,7 +226,7 @@ class JavadocConverter {
 			res.fragments().addAll(convertElement(uses.serviceType).toList());
 			uses.description.stream().flatMap(this::convertElement).forEach(res.fragments::add);
 		} else if (javac instanceof DCUnknownBlockTag unknown) {
-			res.setTagName(unknown.getTagName());
+			res.setTagName("@" + unknown.getTagName());
 			unknown.content.stream().flatMap(this::convertElement).forEach(res.fragments::add);
 		} else {
 			return Optional.empty();
@@ -427,11 +427,21 @@ class JavadocConverter {
 				return blockTag.get();
 			}
 		} else if (javac instanceof DCErroneous erroneous) {
-		    JavaDocTextElement res = this.ast.newJavaDocTextElement();
-	        commonSettings(res, erroneous);
-	        res.setText(res.text);
-	        diagnostics.add(erroneous.diag);
-	        return Stream.of(res);
+			String body = erroneous.body;
+			MethodRef match = matchesMethodReference(erroneous, body);
+			if( match != null ) {
+				TagElement res = this.ast.newTagElement();
+				res.setTagName(TagElement.TAG_SEE);
+				res.fragments.add(match);
+				res.setSourceRange(this.docComment.getSourcePosition(erroneous.getStartPosition()), body.length());
+				return Stream.of(res);
+			} else {
+				JavaDocTextElement res = this.ast.newJavaDocTextElement();
+				commonSettings(res, erroneous);
+				res.setText(res.text);
+				diagnostics.add(erroneous.diag);
+				return Stream.of(res);
+			}
 		} else if (javac instanceof DCComment comment) {
             TextElement res = this.ast.newTextElement();
             commonSettings(res, comment);
@@ -449,6 +459,50 @@ class JavadocConverter {
 		commonSettings(res, javac);
 		res.setText(this.docComment.comment.getText().substring(javac.getStartPosition(), javac.getEndPosition()) + System.lineSeparator() + message);
 		return Stream.of(res);
+	}
+
+	private MethodRef matchesMethodReference(DCErroneous tree, String body) {
+		if( body.startsWith("@see")) {
+			String value = body.substring(4);
+			int hash = value.indexOf("#");
+			if( hash != -1 ) {
+				int startPosition = this.docComment.getSourcePosition(tree.getStartPosition()) + 4;
+				String prefix = value.substring(0, hash);
+				MethodRef ref = this.ast.newMethodRef();
+				if( prefix != null && !prefix.isEmpty()) {
+					Name n = toName(prefix, startPosition);
+					ref.setQualifier(n);
+				}
+				String suffix = value.substring(hash+1);
+				String qualifiedMethod = suffix.substring(0, suffix.indexOf("("));
+				int methodNameStart = qualifiedMethod.lastIndexOf(".") + 1;
+				String methodName = qualifiedMethod.substring(methodNameStart);
+				SimpleName sn = (SimpleName)toName(methodName, startPosition + prefix.length() + 1 + methodNameStart);
+				ref.setName(sn);
+				commonSettings(ref, tree);
+				diagnostics.add(tree.diag);
+				return ref;
+			}
+		}
+		return null;
+	}
+
+	private Name toName(String val, int startPosition) {
+		String stripped = val.stripLeading();
+		int strippedAmt = val.length() - stripped.length();
+		int lastDot = stripped.lastIndexOf(".");
+		if( lastDot == -1 ) {
+			SimpleName sn = this.ast.newSimpleName(stripped);
+			sn.setSourceRange(startPosition + strippedAmt, stripped.length());
+			return sn;
+		} else {
+			SimpleName sn = this.ast.newSimpleName(stripped.substring(lastDot+1));
+			sn.setSourceRange(startPosition + strippedAmt + lastDot+1, sn.getIdentifier().length());
+			
+			QualifiedName qn = this.ast.newQualifiedName(toName(stripped.substring(0,lastDot), startPosition + strippedAmt), sn);
+			qn.setSourceRange(startPosition + strippedAmt, stripped.length());
+			return qn;
+		}
 	}
 
 	private JavaDocTextElement toDefaultTextElement(DCTree javac) {
