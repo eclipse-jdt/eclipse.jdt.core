@@ -237,6 +237,13 @@ public class JavacProblemConverter {
 			Tree element = diagnosticPath != null ? diagnosticPath.getLeaf() :
 				jcDiagnostic.getDiagnosticPosition() instanceof Tree tree ? tree :
 				null;
+			if (problemId == IProblem.NoMessageSendOnArrayType
+				&& element instanceof JCFieldAccess
+				&& diagnosticPath != null
+				&& diagnosticPath.getParentPath().getLeaf() instanceof JCMethodInvocation methodInvocation
+				&& methodInvocation.getMethodSelect() == element) {
+				element = methodInvocation;
+			}
 			if (element != null) {
 				switch (element) {
 					case JCTree.JCTypeApply jcTypeApply: return getPositionByNodeRangeOnly(jcDiagnostic, (JCTree)jcTypeApply.clazz);
@@ -244,12 +251,13 @@ public class JavacProblemConverter {
 					case JCVariableDecl jcVariableDecl: return getDiagnosticPosition(jcDiagnostic, jcVariableDecl);
 					case JCMethodDecl jcMethodDecl: return getDiagnosticPosition(jcDiagnostic, jcMethodDecl, problemId);
 					case JCIdent jcIdent: return getDiagnosticPosition(jcDiagnostic, jcIdent);
+					case JCMethodInvocation methodInvocation: return getPositionByNodeRangeOnly(jcDiagnostic, methodInvocation);
 					case JCFieldAccess jcFieldAccess:
 						if (getDiagnosticArgumentByType(jcDiagnostic, KindName.class) != KindName.PACKAGE && getDiagnosticArgumentByType(jcDiagnostic, Symbol.PackageSymbol.class) == null) {
 							// TODO here, instead of recomputing a position, get the JDT DOM node and call the Name (which has a position)
 							return new org.eclipse.jface.text.Position(jcFieldAccess.getPreferredPosition() + 1, jcFieldAccess.getIdentifier().length());
 						}
-						// else: fail-through
+					// else: fail-through
 					default:
 						org.eclipse.jface.text.Position result = getMissingReturnMethodDiagnostic(jcDiagnostic, context);
 						if (result != null) {
