@@ -721,7 +721,15 @@ public class JavacProblemConverter {
 				// most others are ignored
 				yield 0;
 			}
-			case "compiler.err.doesnt.exist" -> IProblem.PackageDoesNotExistOrIsEmpty;
+			case "compiler.err.doesnt.exist" -> {
+				JCCompilationUnit unit = units.get(diagnostic.getSource());
+				if (unit != null) {
+					long diagPos = diagnostic.getPosition();
+					boolean isImport = unit.getImports().stream().anyMatch(jcImport -> diagPos >= jcImport.getStartPosition() && diagPos <= jcImport.getEndPosition(unit.endPositions));
+					yield isImport ? IProblem.ImportNotFound : IProblem.PackageDoesNotExistOrIsEmpty;
+				}
+				yield IProblem.PackageDoesNotExistOrIsEmpty;
+			}
 			case "compiler.err.override.meth" -> diagnostic.getMessage(Locale.ENGLISH).contains("static") ?
 					IProblem.CannotOverrideAStaticMethodWithAnInstanceMethod :
 					IProblem.FinalMethodCannotBeOverridden;
