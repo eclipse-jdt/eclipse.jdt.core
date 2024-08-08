@@ -170,7 +170,7 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 	}
 
 	BranchLabel internalFalseLabel = falseLabel != null ? falseLabel : this.pattern != null ? new BranchLabel(codeStream) : null;
-	generateTypeCheck(currentScope, codeStream);
+	generateTypeCheck(currentScope, codeStream, internalFalseLabel);
 
 	if (this.pattern != null) {
 		codeStream.ifeq(internalFalseLabel);
@@ -217,7 +217,7 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 		internalFalseLabel.place();
 }
 
-private void generateTypeCheck(BlockScope scope, CodeStream codeStream) {
+private void generateTypeCheck(BlockScope scope, CodeStream codeStream, BranchLabel internalFalseLabel) {
 	PrimitiveConversionRoute route = this.testContextRecord != null ?
 			this.testContextRecord.route() : PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 	switch (route) {
@@ -238,6 +238,16 @@ private void generateTypeCheck(BlockScope scope, CodeStream codeStream) {
 			codeStream.iconst_1();
 			setPatternIsTotalType();
 			break;
+//			TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION:
+//			TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION:
+//			TODO:	case NARROWING_AND_UNBOXING_CONVERSION:
+		case UNBOXING_CONVERSION:
+//			codeStream.load(this.secretExpressionValue);
+			codeStream.ifnull(internalFalseLabel);
+			codeStream.iconst_1();
+			setPatternIsTotalType();
+			break;
+//			TODO:	case UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION:
 		case NO_CONVERSION_ROUTE:
 		default:
 			codeStream.instance_of(this.type, this.type.resolvedType);
@@ -283,6 +293,13 @@ private void generateTestingConversion(BlockScope scope, CodeStream codeStream) 
 			TypeBinding unboxedType = scope.environment().computeBoxingType(TypeBinding.wellKnownBaseType(rightId));
 			this.expression.computeConversion(scope, this.testContextRecord.left(), unboxedType);
 			break;
+//			TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION:
+//			TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION:
+//			TODO:	case NARROWING_AND_UNBOXING_CONVERSION:
+		case UNBOXING_CONVERSION:
+			codeStream.generateUnboxingConversion(this.testContextRecord.left().id);
+			break;
+//			TODO:	case UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION:
 		case NO_CONVERSION_ROUTE:
 		default:
 			break;
@@ -393,7 +410,8 @@ private void checkRefForPrimitivesAndAddSecretVariable(BlockScope scope, TypeBin
 	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope);
 	this.testContextRecord = new TestContextRecord(checkedType, expressionType, route);
 	if (route == PrimitiveConversionRoute.BOXING_CONVERSION
-			|| route == PrimitiveConversionRoute.BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION) {
+//			|| route == PrimitiveConversionRoute.BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION
+		) {
 		addSecretExpressionValue(scope, expressionType);
 	}
 }
