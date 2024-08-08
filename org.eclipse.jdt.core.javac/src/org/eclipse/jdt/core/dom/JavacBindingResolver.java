@@ -160,6 +160,10 @@ public class JavacBindingResolver extends BindingResolver {
 				return null;
 			}
 			if (type instanceof ErrorType errorType
+					&& errorType.getOriginalType() instanceof ErrorType) {
+				return null;
+			}
+			if (type instanceof ErrorType errorType
 						&& (errorType.getOriginalType() != com.sun.tools.javac.code.Type.noType)
 						&& !(errorType.getOriginalType() instanceof com.sun.tools.javac.code.Type.MethodType)
 						&& !(errorType.getOriginalType() instanceof com.sun.tools.javac.code.Type.ForAll)
