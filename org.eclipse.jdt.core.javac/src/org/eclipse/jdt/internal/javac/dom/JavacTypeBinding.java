@@ -235,6 +235,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		if (type instanceof ClassType classType && classType.getEnclosingType() instanceof ClassType enclosing) {
 			return cleanedUpName(enclosing) + "$" + type.tsym.getSimpleName().toString();
 		}
+		// For static inner types, type.getEnclosingType() returns null, so let's also check owner
+		if (type.tsym instanceof ClassSymbol classSymbol && type.tsym.owner instanceof ClassSymbol enclosingSymbol) {
+			return enclosingSymbol.getQualifiedName().toString() + '$' + classSymbol.getSimpleName().toString();
+		}
 		return type.tsym.getQualifiedName().toString();
 	}
 
