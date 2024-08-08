@@ -2248,11 +2248,24 @@ class JavacConverter {
 			res.setExpression(convertExpression(switchExpr));
 			jcSwitch.getCases().stream()
 				.flatMap(switchCase -> {
-					int numStatements = switchCase.getStatements() != null ? switchCase.getStatements().size() : 0;
-					List<JCStatement> stmts = new ArrayList<>(numStatements + 1);
-					stmts.add(switchCase);
-					if (numStatements > 0) {
-						stmts.addAll(switchCase.getStatements());
+					List<JCStatement> stmts = new ArrayList<>();
+					switch(switchCase.getCaseKind()) {
+						case CaseKind.STATEMENT: {
+							int numStatements = switchCase.getStatements() != null ? switchCase.getStatements().size()
+									: 0;
+							stmts.add(switchCase);
+							if (numStatements > 0) {
+								stmts.addAll(switchCase.getStatements());
+							}
+							return stmts.stream();
+						}
+						case CaseKind.RULE: {
+							stmts.add(switchCase);
+							JCTree body = switchCase.getBody();
+							if (body instanceof JCExpressionStatement stmt) {
+								stmts.add(stmt);
+							}
+						}
 					}
 					return stmts.stream();
 				}).map(x -> convertStatement(x, res))
@@ -2380,11 +2393,22 @@ class JavacConverter {
 				guardedPattern.setSourceRange(start, end - start);
 				res.expressions().add(guardedPattern);
 			} else {
-				// Override length to just be `case blah:`
-				int start1 = res.getStartPosition();
-				int colon = this.rawText.indexOf(":", start1);
-				if( colon != -1 ) {
-					res.setSourceRange(start1, colon - start1 + 1);
+				if (jcCase.getLabels().length() == 1 && jcCase.getLabels().get(0) instanceof JCPatternCaseLabel jcPattern) {
+					TypePattern typePattern = this.ast.newTypePattern();
+					if (jcPattern.getPattern() instanceof JCBindingPattern bindPattern) {
+						typePattern.setPatternVariable(convertVariableDeclaration(bindPattern.var));
+					}
+					int start = jcPattern.getStartPosition();
+					typePattern.setSourceRange(start, jcPattern.getEndPosition(this.javacCompilationUnit.endPositions)-start);
+					res.expressions().add(typePattern);
+					
+				} else {
+					// Override length to just be `case blah:`
+					int start1 = res.getStartPosition();
+					int colon = this.rawText.indexOf(":", start1);
+					if( colon != -1 ) {
+						res.setSourceRange(start1, colon - start1 + 1);
+					}
 				}
 				jcCase.getExpressions().stream().map(this::convertExpression).forEach(res.expressions()::add);
 			}
