@@ -26,7 +26,6 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -36,7 +35,6 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -96,7 +94,11 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public int getModifiers() {
-		return this.methodSymbol != null ? toInt(this.methodSymbol.getModifiers()) : 0;
+		int extraModifiers = getDeclaringClass().isInterface() &&
+				this.methodSymbol != null &&
+				!this.methodSymbol.isDefault() &&
+				!this.methodSymbol.isStatic() ? Modifier.ABSTRACT : 0;
+		return this.methodSymbol != null ? toInt(this.methodSymbol.getModifiers()) | extraModifiers : extraModifiers;
 	}
 
 	static int toInt(Set<javax.lang.model.element.Modifier> javac) {
@@ -204,7 +206,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			typeParams = methodDeclaration.typeParameters();
 		}
 		if( typeParams == null ) {
-			typeParams = new ArrayList();
+			typeParams = new ArrayList<>();
 		}
 		for( int i = 0; i < typeParams.size(); i++ ) {
 			typeParamsList.add(((TypeParameter)typeParams.get(i)).getName().toString());

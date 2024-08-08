@@ -612,18 +612,14 @@ public class JavacBindingResolver extends BindingResolver {
 	}
 
 	IBinding resolveCached(ASTNode node, Function<ASTNode, IBinding> l) {
-		IBinding ret = resolvedBindingsCache.get(node);
-		if( ret == null ) {
-			ret = l.apply(node);
-			if( ret != null )
-				resolvedBindingsCache.put(node, ret);
-		}
-		return ret;
+		return resolvedBindingsCache.computeIfAbsent(node, l);
 	}
+
 	@Override
 	IBinding resolveName(Name name) {
 		return resolveCached(name, (n) -> resolveNameImpl((Name)n));
 	}
+
 	private IBinding resolveNameImpl(Name name) {
 		resolve();
 		JCTree tree = this.converter.domToJavac.get(name);
@@ -679,9 +675,11 @@ public class JavacBindingResolver extends BindingResolver {
 		if( name.getParent() instanceof AnnotatableType st && st.getParent() instanceof ParameterizedType pt) {
 			if( st == pt.getType()) {
 				tree = this.converter.domToJavac.get(pt);
-				IBinding b = this.bindings.getTypeBinding(tree.type);
-				if( b != null ) {
-					return b;
+				if (!tree.type.isErroneous()) {
+					IBinding b = this.bindings.getTypeBinding(tree.type);
+					if( b != null ) {
+						return b;
+					}
 				}
 			}
 		}

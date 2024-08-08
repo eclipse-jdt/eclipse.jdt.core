@@ -54,6 +54,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
+import com.sun.tools.javac.code.Kinds.Kind;
 import com.sun.tools.javac.code.Kinds.KindSelector;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
@@ -94,9 +95,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			throw new IllegalArgumentException("Use JavacPackageBinding");
 		}
 		this.type = type;
-		this.typeSymbol = typeSymbol;
 		this.resolver = resolver;
 		this.types = Types.instance(this.resolver.context);
+		// TODO: consider getting rid of typeSymbol in constructor and always derive it from type
+		this.typeSymbol = typeSymbol.kind == Kind.ERR ? this.type.tsym : typeSymbol;
 	}
 
 	@Override
@@ -180,7 +182,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			JavaFileObject jfo = classSymbol == null ? null : classSymbol.sourcefile;
 			ICompilationUnit tmp = jfo == null ? null : getCompilationUnit(jfo.getName().toCharArray(), this.resolver.getWorkingCopyOwner());
 			if( tmp != null ) {
-				String[] cleaned = cleanedUpName(classSymbol).split("\\$");
+				String[] cleaned = cleanedUpName(this.type).split("\\$");
 				if( cleaned.length > 0 ) {
 					cleaned[0] = cleaned[0].substring(cleaned[0].lastIndexOf('.') + 1);
 				}
@@ -195,7 +197,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					return ret;
 			} 
 			try {
-				IType ret = this.resolver.javaProject.findType(cleanedUpName(classSymbol), this.resolver.getWorkingCopyOwner(), new NullProgressMonitor());
+				IType ret = this.resolver.javaProject.findType(cleanedUpName(this.type), this.resolver.getWorkingCopyOwner(), new NullProgressMonitor());
 				return ret;
 			} catch (JavaModelException ex) {
 				ILog.get().error(ex.getMessage(), ex);
@@ -229,13 +231,11 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		return null;
 	}
 
-	private static String cleanedUpName(ClassSymbol classSymbol) {
-		if (classSymbol.getEnclosingElement() instanceof ClassSymbol enclosing) {
-			String fullClassName = classSymbol.className();
-			String lastSegment = fullClassName.substring(fullClassName.lastIndexOf('.') + 1);
-			return cleanedUpName(enclosing) + "$" + lastSegment;
+	private static String cleanedUpName(Type type) {
+		if (type instanceof ClassType classType && classType.getEnclosingType() instanceof ClassType enclosing) {
+			return cleanedUpName(enclosing) + "$" + type.tsym.getSimpleName().toString();
 		}
-		return classSymbol.className();
+		return type.tsym.getQualifiedName().toString();
 	}
 
 	@Override
