@@ -94,7 +94,9 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public int getModifiers() {
-		int extraModifiers = getDeclaringClass().isInterface() &&
+		var outerClass = getDeclaringClass();
+		int extraModifiers = outerClass != null &&
+				outerClass.isInterface() &&
 				this.methodSymbol != null &&
 				!this.methodSymbol.isDefault() &&
 				!this.methodSymbol.isStatic() ? Modifier.ABSTRACT : 0;
