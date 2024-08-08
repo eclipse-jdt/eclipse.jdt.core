@@ -23,7 +23,6 @@ import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -46,6 +45,12 @@ public abstract class Pattern extends Expression {
 		WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION,
 		BOXING_CONVERSION,
 		BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION,
+		// following for reference
+		WIDENING_REFERENCE_AND_UNBOXING_COVERSION,
+		WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION,
+		NARROWING_AND_UNBOXING_CONVERSION,
+		UNBOXING_CONVERSION,
+		UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION,
 		NO_CONVERSION_ROUTE
 	}
 
@@ -183,17 +188,16 @@ public abstract class Pattern extends Expression {
 					return PrimitiveConversionRoute.BOXING_CONVERSION;
 				if (scope.environment().computeBoxingType(expressionType).isCompatibleWith(destinationType))
 					return PrimitiveConversionRoute.BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION;
-			} else if (destinationIsBaseType && expressionType instanceof ReferenceBinding) {
-				TypeBinding boxedVersionDest = scope.environment().computeBoxingType(destinationType);
-				if (boxedVersionDest != null) {
-					/*
-					 * a widening reference conversion followed by an unboxing conversion
-					 * a widening reference conversion followed by an unboxing conversion, then followed by a widening primitive conversion
-					 * a narrowing reference conversion that is checked followed by an unboxing conversion
-					 * an unboxing conversion (5.1.8)
-					 * an unboxing conversion followed by a widening primitive conversion
-					 */
-				}
+
+			} else if (expressionType.isBoxedPrimitiveType() && destinationIsBaseType) {
+				TypeBinding unboxedExpressionType = scope.environment().computeBoxingType(expressionType);
+				 //TODO: a widening reference conversion followed by an unboxing conversion
+				 //TODO: a widening reference conversion followed by an unboxing conversion, then followed by a widening primitive conversion
+				 //TODO: a narrowing reference conversion that is checked followed by an unboxing conversion
+				 //TODO: an unboxing conversion (5.1.8)
+				if (TypeBinding.equalsEquals(destinationType, unboxedExpressionType))
+					return PrimitiveConversionRoute.UNBOXING_CONVERSION;
+				 //TODO: an unboxing conversion followed by a widening primitive conversion
 			}
 		}
 		return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
