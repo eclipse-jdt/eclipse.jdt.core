@@ -42,6 +42,7 @@ import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Attribute.Compound;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.ModuleSymbol;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
@@ -49,6 +50,7 @@ import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Symtab;
+import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ErrorType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.ModuleType;
@@ -504,6 +506,27 @@ public class JavacBindingResolver extends BindingResolver {
 			javacElement = javacMethodInvocation.getMethodSelect();
 		}
 		var type = javacElement.type;
+		// next condition matches `localMethod(this::missingMethod)`
+		if (javacElement instanceof JCIdent ident && type == null) {
+			ASTNode node = method;
+			while (node != null && !(node instanceof AbstractTypeDeclaration)) {
+				node = node.getParent();
+			}
+			if (node instanceof AbstractTypeDeclaration decl &&
+				this.converter.domToJavac.get(decl) instanceof JCClassDecl javacClassDecl &&
+				javacClassDecl.type instanceof ClassType classType &&
+				!classType.isErroneous()) {
+				type = classType;
+			}
+			if (type != null &&
+				type.tsym.members().findFirst(ident.getName(), MethodSymbol.class::isInstance) instanceof MethodSymbol methodSymbol &&
+				methodSymbol.type instanceof MethodType methodType) {
+				var res = this.bindings.getMethodBinding(methodType, methodSymbol);
+				if (res != null) {
+					return res;
+				}
+			}
+		}
 		var sym = javacElement instanceof JCIdent ident ? ident.sym :
 			javacElement instanceof JCFieldAccess fieldAccess ? fieldAccess.sym :
 				null;
