@@ -1100,4 +1100,12 @@ public class JavacBindingResolver extends BindingResolver {
 	public WorkingCopyOwner getWorkingCopyOwner() {
 		return this.owner;
 	}
+
+	@Override
+	Object resolveConstantExpressionValue(Expression expression) {
+		if (this.converter.domToJavac.get(expression) instanceof JCLiteral literal) {
+			return literal.getValue();
+		}
+		return null;
+	}
 }
