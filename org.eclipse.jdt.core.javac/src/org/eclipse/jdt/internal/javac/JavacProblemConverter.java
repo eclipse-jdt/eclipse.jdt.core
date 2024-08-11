@@ -58,6 +58,7 @@ import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCNewClass;
+import com.sun.tools.javac.tree.JCTree.JCReturn;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.DiagnosticSource;
@@ -232,9 +233,14 @@ public class JavacProblemConverter {
 						}
 					}
 				}
+			} else if (problemId == IProblem.VoidMethodReturnsValue
+					&& diagnosticPath != null
+					&& diagnosticPath.getParentPath() != null
+					&& diagnosticPath.getParentPath().getLeaf() instanceof JCReturn returnStmt) {
+				return getPositionByNodeRangeOnly(jcDiagnostic, returnStmt);
 			}
 
-			Tree element = diagnosticPath != null ? diagnosticPath.getLeaf() :
+ 			Tree element = diagnosticPath != null ? diagnosticPath.getLeaf() :
 				jcDiagnostic.getDiagnosticPosition() instanceof Tree tree ? tree :
 				null;
 			if (problemId == IProblem.NoMessageSendOnArrayType
