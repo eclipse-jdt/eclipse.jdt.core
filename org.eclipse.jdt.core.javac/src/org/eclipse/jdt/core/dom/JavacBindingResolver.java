@@ -160,10 +160,6 @@ public class JavacBindingResolver extends BindingResolver {
 				return null;
 			}
 			if (type instanceof ErrorType errorType
-					&& errorType.getOriginalType() instanceof ErrorType) {
-				return null;
-			}
-			if (type instanceof ErrorType errorType
 						&& (errorType.getOriginalType() != com.sun.tools.javac.code.Type.noType)
 						&& !(errorType.getOriginalType() instanceof com.sun.tools.javac.code.Type.MethodType)
 						&& !(errorType.getOriginalType() instanceof com.sun.tools.javac.code.Type.ForAll)
@@ -712,6 +708,10 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 		
 		if (tree instanceof JCIdent ident && ident.sym != null) {
+			if (ident.type instanceof ErrorType errorType
+					&& errorType.getOriginalType() instanceof ErrorType) {
+				return null;
+			}
 			return this.bindings.getBinding(ident.sym, ident.type != null ? ident.type : ident.sym.type);
 		}
 		if (tree instanceof JCFieldAccess fieldAccess && fieldAccess.sym != null) {
