@@ -56,7 +56,7 @@ public class JavacUtils {
 	private static void configureJavacContext(Context context, Map<String, String> compilerOptions,
 	        IJavaProject javaProject, JavacConfig compilerConfig, File output) {
 		IClasspathEntry[] classpath = new IClasspathEntry[0];
-		if (javaProject != null) {
+		if (javaProject != null && javaProject.getProject() != null) {
 			try {
 				classpath = javaProject.getRawClasspath();
 			} catch (JavaModelException ex) {
