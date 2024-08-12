@@ -103,6 +103,7 @@ public abstract class JavacAnnotationBinding implements IAnnotationBinding {
 	public IMemberValuePairBinding[] getAllMemberValuePairs() {
 		return this.annotation.getElementValues().entrySet().stream()
 			.map(entry -> this.resolver.bindings.getMemberValuePairBinding(entry.getKey(), entry.getValue()))
+			.filter(Objects::nonNull)
 			.toArray(IMemberValuePairBinding[]::new);
 	}
 

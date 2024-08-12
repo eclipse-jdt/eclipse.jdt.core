@@ -15,6 +15,7 @@ package org.eclipse.jdt.internal.javac.dom;
 
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Type.TypeVar;
@@ -28,7 +29,7 @@ public abstract class JavacTypeVariableBinding extends JavacTypeBinding {
 	private final JavacBindingResolver bindingResolver;
 
 	public JavacTypeVariableBinding(TypeVar type, TypeVariableSymbol sym, JavacBindingResolver bindingResolver) {
-		super(type, sym, bindingResolver);
+		super(type, sym, false, bindingResolver);
 		this.sym = sym;
 		this.bindingResolver = bindingResolver;
 	}
@@ -57,8 +58,9 @@ public abstract class JavacTypeVariableBinding extends JavacTypeBinding {
 	 * this is the one that's used in method params and such, not the one that's actually used as it's final resting place (RIP)
 	 * @param sym
 	 * @return
+	 * @throws BindingKeyException 
 	 */
-	static String getTypeVariableKey(TypeVariableSymbol sym) {
+	static String getTypeVariableKey(TypeVariableSymbol sym) throws BindingKeyException {
 		StringBuilder builder = new StringBuilder();
 		builder.append(sym.getSimpleName());
 		builder.append(':');

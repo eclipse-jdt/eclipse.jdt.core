@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
@@ -137,6 +138,13 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public String getKey() {
+		try {
+			return getKeyImpl();
+		} catch(BindingKeyException bke) {
+			return null;
+		}
+	}
+	private String getKeyImpl() throws BindingKeyException {
 		StringBuilder builder = new StringBuilder();
 		if (this.variableSymbol.owner instanceof ClassSymbol classSymbol) {
 			JavacTypeBinding.getKey(builder, classSymbol.type, false);

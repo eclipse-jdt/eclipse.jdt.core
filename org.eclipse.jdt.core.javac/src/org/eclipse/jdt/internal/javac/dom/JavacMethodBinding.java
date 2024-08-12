@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -254,12 +255,16 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public String getKey() {
-		StringBuilder builder = new StringBuilder();
-		getKey(builder, this.methodSymbol, this.methodType, this.resolver);
-		return builder.toString();
+		try {
+			StringBuilder builder = new StringBuilder();
+			getKey(builder, this.methodSymbol, this.methodType, this.resolver);
+			return builder.toString();
+		} catch(BindingKeyException bke) {
+			return null;
+		}
 	}
 
-	static void getKey(StringBuilder builder, MethodSymbol methodSymbol, MethodType methodType, JavacBindingResolver resolver) {
+	static void getKey(StringBuilder builder, MethodSymbol methodSymbol, MethodType methodType, JavacBindingResolver resolver) throws BindingKeyException {
 		Symbol ownerSymbol = methodSymbol.owner;
 		while (ownerSymbol != null && !(ownerSymbol instanceof TypeSymbol)) {
 			ownerSymbol = ownerSymbol.owner;
@@ -267,7 +272,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		if (ownerSymbol instanceof TypeSymbol ownerTypeSymbol) {
 			JavacTypeBinding.getKey(builder, resolver.getTypes().erasure(ownerTypeSymbol.type), false);
 		} else {
-			throw new IllegalArgumentException("Method has no owning class");
+			throw new BindingKeyException(new IllegalArgumentException("Method has no owning class"));
 		}
 		builder.append('.');
 		if (!methodSymbol.isConstructor()) {

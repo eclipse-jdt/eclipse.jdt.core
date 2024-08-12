@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
@@ -35,6 +36,13 @@ public abstract class JavacErrorMethodBinding extends JavacMethodBinding {
 
 	@Override
 	public String getKey() {
+		try {
+			return getKeyImpl();
+		} catch(BindingKeyException bke) {
+			return null;
+		}
+	}
+	private String getKeyImpl() throws BindingKeyException {
 		StringBuilder builder = new StringBuilder();
 		if (this.originatingSymbol instanceof TypeSymbol typeSymbol) {
 			JavacTypeBinding.getKey(builder, resolver.getTypes().erasure(typeSymbol.type), false);
