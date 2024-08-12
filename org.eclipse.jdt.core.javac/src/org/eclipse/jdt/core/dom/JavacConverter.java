@@ -206,7 +206,7 @@ class JavacConverter {
 			res.annotations().add(convert(it.next()));
 		}
 		String raw = this.rawText.substring(res.getStartPosition(), res.getStartPosition() + res.getLength());
-		if( (raw.endsWith("\n") && !raw.endsWith(";\n")) || (raw.endsWith("\r\n") && !raw.endsWith(";\r\n"))) {
+		if( !raw.trim().endsWith(";")) {
 			res.setFlags(res.getFlags() | ASTNode.MALFORMED);
 		}
 		return res;
