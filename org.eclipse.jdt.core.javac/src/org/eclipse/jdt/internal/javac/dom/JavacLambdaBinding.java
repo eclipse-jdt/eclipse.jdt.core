@@ -15,7 +15,7 @@ import org.eclipse.jdt.core.dom.Modifier;
 public class JavacLambdaBinding extends JavacMethodBinding {
 
 	public JavacLambdaBinding(JavacMethodBinding methodBinding) {
-		super(methodBinding.methodType, methodBinding.methodSymbol, methodBinding.resolver);
+		super(methodBinding.methodType, methodBinding.methodSymbol, methodBinding.parentType, methodBinding.resolver);
 	}
 
 	@Override

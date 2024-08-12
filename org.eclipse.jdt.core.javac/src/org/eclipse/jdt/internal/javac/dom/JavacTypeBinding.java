@@ -162,7 +162,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				return ownerType.getTypeParameter(this.getName());
 			} else if (this.typeSymbol.owner instanceof MethodSymbol ownerSymbol
 					&& ownerSymbol.type != null
-					&& this.resolver.bindings.getMethodBinding(ownerSymbol.type.asMethodType(), ownerSymbol).getJavaElement() instanceof IMethod ownerMethod
+					&& this.resolver.bindings.getMethodBinding(ownerSymbol.type.asMethodType(), ownerSymbol, null).getJavaElement() instanceof IMethod ownerMethod
 					&& ownerMethod.getTypeParameter(this.getName()) != null) {
 				return ownerMethod.getTypeParameter(this.getName());
 			}
@@ -182,7 +182,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					return type.getType("", 1);
 				}
 			}
-			
+
 			JavaFileObject jfo = classSymbol == null ? null : classSymbol.sourcefile;
 			ICompilationUnit tmp = jfo == null ? null : getCompilationUnit(jfo.getName().toCharArray(), this.resolver.getWorkingCopyOwner());
 			if( tmp != null ) {
@@ -197,9 +197,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					if( ret == null )
 						done = true;
 				}
-				if( ret != null ) 
+				if( ret != null )
 					return ret;
-			} 
+			}
 			try {
 				IType ret = this.resolver.javaProject.findType(cleanedUpName(this.type), this.resolver.getWorkingCopyOwner(), new NullProgressMonitor());
 				return ret;
@@ -446,7 +446,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			.map(MethodSymbol.class::cast)
 			.map(sym -> {
 				Type.MethodType methodType = this.types.memberType(this.type, sym).asMethodType();
-				return this.resolver.bindings.getMethodBinding(methodType, sym);
+				return this.resolver.bindings.getMethodBinding(methodType, sym, this.type);
 			})
 			.filter(Objects::nonNull)
 			.toArray(IMethodBinding[]::new);
@@ -490,10 +490,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		do {
 			if (parentSymbol instanceof final MethodSymbol method) {
 				if (method.type instanceof Type.MethodType methodType) {
-					return this.resolver.bindings.getMethodBinding(methodType, method);
+					return this.resolver.bindings.getMethodBinding(methodType, method, null);
 				}
 				if( method.type instanceof Type.ForAll faType && faType.qtype instanceof MethodType mtt) {
-					IMethodBinding found = this.resolver.bindings.getMethodBinding(mtt, method);
+					IMethodBinding found = this.resolver.bindings.getMethodBinding(mtt, method, null);
 					return found;
 				}
 				return null;
@@ -538,7 +538,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		try {
 			Symbol symbol = types.findDescriptorSymbol(this.typeSymbol);
 			if (symbol instanceof MethodSymbol methodSymbol) {
-				return this.resolver.bindings.getMethodBinding(methodSymbol.type.asMethodType(), methodSymbol);
+				return this.resolver.bindings.getMethodBinding(methodSymbol.type.asMethodType(), methodSymbol, null);
 			}
 		} catch (FunctionDescriptorLookupError ignore) {
 		}
@@ -583,6 +583,19 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			for (int i = 0; i < this.getDimensions(); i++) {
 				builder.append("[]");
 			}
+			return builder.toString();
+		}
+		if (type instanceof WildcardType wt) {
+			if (wt.type == null || this.resolver.resolveWellKnownType("java.lang.Object").equals(this.resolver.bindings.getTypeBinding(wt.type))) {
+				return "?";
+			}
+			StringBuilder builder = new StringBuilder("? ");
+			if (wt.isExtendsBound()) {
+				builder.append("extends ");
+			} else if (wt.isSuperBound()) {
+				builder.append("super ");
+			}
+			builder.append(this.resolver.bindings.getTypeBinding(wt.type).getName());
 			return builder.toString();
 		}
 		StringBuilder builder = new StringBuilder(this.typeSymbol.getSimpleName().toString());
@@ -739,7 +752,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	public ITypeBinding[] getTypeArguments() {
 		return getTypeArguments(this.type, this.typeSymbol);
 	}
-	
+
 	private ITypeBinding[] getTypeArguments(Type t, TypeSymbol ts) {
 		if (t == ts.type || t.getTypeArguments().isEmpty() || isTargettingPreGenerics()) {
 			return NO_TYPE_ARGUMENTS;

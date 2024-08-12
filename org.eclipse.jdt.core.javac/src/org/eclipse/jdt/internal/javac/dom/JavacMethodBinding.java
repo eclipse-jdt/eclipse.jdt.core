@@ -63,11 +63,20 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	public final MethodSymbol methodSymbol;
 	final MethodType methodType;
+	final Type parentType;
 	final JavacBindingResolver resolver;
 
-	public JavacMethodBinding(MethodType methodType, MethodSymbol methodSymbol, JavacBindingResolver resolver) {
+	/**
+	 *
+	 * @param methodType
+	 * @param methodSymbol
+	 * @param parentType can be null, in which case <code>methodSymbol.owner.type</code> will be used instead
+	 * @param resolver
+	 */
+	public JavacMethodBinding(MethodType methodType, MethodSymbol methodSymbol, Type parentType, JavacBindingResolver resolver) {
 		this.methodType = methodType;
 		this.methodSymbol = methodSymbol;
+		this.parentType = parentType;
 		this.resolver = resolver;
 	}
 
@@ -257,22 +266,26 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	public String getKey() {
 		try {
 			StringBuilder builder = new StringBuilder();
-			getKey(builder, this.methodSymbol, this.methodType, this.resolver);
+			getKey(builder, this.methodSymbol, this.methodType, this.parentType, this.resolver);
 			return builder.toString();
 		} catch(BindingKeyException bke) {
 			return null;
 		}
 	}
 
-	static void getKey(StringBuilder builder, MethodSymbol methodSymbol, MethodType methodType, JavacBindingResolver resolver) throws BindingKeyException {
-		Symbol ownerSymbol = methodSymbol.owner;
-		while (ownerSymbol != null && !(ownerSymbol instanceof TypeSymbol)) {
-			ownerSymbol = ownerSymbol.owner;
-		}
-		if (ownerSymbol instanceof TypeSymbol ownerTypeSymbol) {
-			JavacTypeBinding.getKey(builder, resolver.getTypes().erasure(ownerTypeSymbol.type), false);
+	static void getKey(StringBuilder builder, MethodSymbol methodSymbol, MethodType methodType, Type parentType, JavacBindingResolver resolver) throws BindingKeyException {
+		if (parentType != null) {
+			JavacTypeBinding.getKey(builder, parentType, false);
 		} else {
-			throw new BindingKeyException(new IllegalArgumentException("Method has no owning class"));
+			Symbol ownerSymbol = methodSymbol.owner;
+			while (ownerSymbol != null && !(ownerSymbol instanceof TypeSymbol)) {
+				ownerSymbol = ownerSymbol.owner;
+			}
+			if (ownerSymbol instanceof TypeSymbol ownerTypeSymbol) {
+				JavacTypeBinding.getKey(builder, resolver.getTypes().erasure(ownerTypeSymbol.type), false);
+			} else {
+				throw new BindingKeyException(new IllegalArgumentException("Method has no owning class"));
+			}
 		}
 		builder.append('.');
 		if (!methodSymbol.isConstructor()) {
@@ -303,7 +316,9 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 				}
 			}
 			builder.append(')');
-			if (!(methodSymbol.getReturnType() instanceof JCNoType)) {
+			if (methodType != null && !(methodType.getReturnType() instanceof JCNoType)) {
+				JavacTypeBinding.getKey(builder, methodType.getReturnType(), false);
+			} else if (!(methodSymbol.getReturnType() instanceof JCNoType)) {
 				JavacTypeBinding.getKey(builder, methodSymbol.getReturnType(), false);
 			}
 			if (
@@ -355,6 +370,9 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public ITypeBinding getDeclaringClass() {
+		if (this.parentType != null) {
+			return this.resolver.bindings.getTypeBinding(this.parentType);
+		}
 		// probably incorrect as it may not return the actual declaring type, see getJavaElement()
 		Symbol parentSymbol = this.methodSymbol.owner;
 		do {
@@ -372,7 +390,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			return null;
 		}
 		if (this.methodSymbol.owner instanceof MethodSymbol methodSymbol) {
-			return this.resolver.bindings.getMethodBinding(methodSymbol.type.asMethodType(), methodSymbol);
+			return this.resolver.bindings.getMethodBinding(methodSymbol.type.asMethodType(), methodSymbol, null);
 		} else if (this.methodSymbol.owner instanceof VarSymbol variableSymbol) {
 			return this.resolver.bindings.getVariableBinding(variableSymbol);
 		}
@@ -498,7 +516,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		// This method intentionally converts the type to its generic type,
 		// i.e. drops the type arguments
 		// i.e. <code>this.<String>getValue(12);</code> will be converted back to <code><T> T getValue(int i) {</code>
-		return this.resolver.bindings.getMethodBinding(methodSymbol.type.asMethodType(), methodSymbol);
+		return this.resolver.bindings.getMethodBinding(methodSymbol.type.asMethodType(), methodSymbol, null);
 	}
 
 	@Override
