@@ -504,7 +504,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				}
 				refreshInlineTagPosition(textEndPosition);
 				setInlineTagStarted(false);
-			} else if (this.lineStarted && this.textStart != -1 && this.textStart <= textEndPosition && (this.textStart < this.starPosition || this.starPosition == lastStarPosition)) {
+			} else if (this.lineStarted && this.textStart != -1 && this.textStart <= textEndPosition && (this.textStart < this.starPosition || this.starPosition == lastStarPosition || this.markdown)) {
 				pushText(this.textStart, textEndPosition);
 			}
 			updateDocComment();

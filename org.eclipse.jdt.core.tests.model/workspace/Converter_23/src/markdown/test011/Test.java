@@ -1,5 +1,5 @@
 package javadoc.test011;
 public class Test {
-	/** @deprecated *//
+	/// @deprecated
 	public Test(int myParam) { }
 }

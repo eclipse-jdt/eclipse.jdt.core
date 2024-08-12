@@ -1,7 +1,7 @@
 package javadoc.testBug65288;
-/**
- * @see
- * @see*/
+///
+/// @see
+/// @see
 public class Test {
 
 }

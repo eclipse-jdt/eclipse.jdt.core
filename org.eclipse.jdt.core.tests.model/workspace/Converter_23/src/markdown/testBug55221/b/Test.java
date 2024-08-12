@@ -8,10 +8,10 @@ public class Test {
 			x=2;
 		}
 		return x;
-	}	/**
-	 * This comment should not be attached to previous method body!
-	 * @return int
-	 */
+	}	///
+	 /// This comment should not be attached to previous method body!
+	 /// @return int
+	 ///
 
 	public int foo() { return 1; }
 }

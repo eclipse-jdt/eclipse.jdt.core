@@ -1,10 +1,10 @@
 package javadoc.testBug69272;
 public class TestClassInvalid {
-	/**@see Object* */
+	///@see Object* 
 	public void foo1() {}
-	/**@see Object*** ***/
+	///@see Object*** 
 	public void foo2() {}
-	/**@see Object***
-	 */
+	///@see Object***
+	///
 	public void foo3() {}
 }

@@ -9,10 +9,10 @@ public class Test {
 		}
 		return x;
 	}
-	/**
-	 * This comment should not be attached to previous method body!
-	 * @return int
-	 */
+	///
+	/// This comment should not be attached to previous method body!
+	/// @return int
+	///
 
 	public int foo() { return 1; }
 }

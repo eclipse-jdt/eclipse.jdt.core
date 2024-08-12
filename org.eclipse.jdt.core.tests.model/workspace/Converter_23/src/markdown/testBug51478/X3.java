@@ -1,6 +1,6 @@
 package javadoc.testBug51478;
-/**
- * @deprecated
- */
+///
+/// @deprecated
+///
 public class X3 {
 }

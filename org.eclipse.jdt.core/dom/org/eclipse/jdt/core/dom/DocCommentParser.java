@@ -761,8 +761,7 @@ class DocCommentParser extends AbstractCommentParser {
 						// Both tag elements must get the same source range.
 						TagElement previousTag = (TagElement) this.astStack[this.astPtr];
 						int parentStart = previousTag.getStartPosition();
-						int length = this.index - previousPosition + 1;
-						previousTag.setSourceRange(parentStart, this.index - parentStart + 1);
+						previousTag.setSourceRange(parentStart, this.index - parentStart);
 						List fragments = previousTag.fragments();
 						int size = fragments.size();
 						if (size == 0) {
@@ -774,7 +773,6 @@ class DocCommentParser extends AbstractCommentParser {
 							// If last fragment is a tag, then use it as previous tag
 							ASTNode lastFragment = (ASTNode) fragments.get(size-1);
 							if (lastFragment.getNodeType() == ASTNode.TAG_ELEMENT) {
-								//lastFragment.setSourceRange(lastFragment.getStartPosition(), length);
 								previousTag = (TagElement) lastFragment;
 							}
 						}

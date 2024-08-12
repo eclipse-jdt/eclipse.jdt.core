@@ -1,6 +1,6 @@
 package javadoc.testBug51478;
-/**
- * {@inheritDoc}
- */
+///
+/// {@inheritDoc}
+///
 public class X2 {
 }

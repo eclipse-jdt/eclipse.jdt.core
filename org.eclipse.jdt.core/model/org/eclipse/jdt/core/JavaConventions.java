@@ -126,7 +126,7 @@ public final class JavaConventions {
 		// Set scanner for given source and compliance levels
 		SCANNER.sourceLevel = sourceLevel == null ? ClassFileConstants.JDK1_3 : CompilerOptions.versionToJdkLevel(sourceLevel);
 		SCANNER.complianceLevel = complianceLevel == null ? ClassFileConstants.JDK1_3 : CompilerOptions.versionToJdkLevel(complianceLevel);
-		SCANNER.previewEnabled = previewEnabled == null ? true : JavaCore.ENABLED.equals(previewEnabled);
+		SCANNER.previewEnabled = previewEnabled == null ? false : JavaCore.ENABLED.equals(previewEnabled);
 
 		try {
 			SCANNER.setSource(id.toCharArray());

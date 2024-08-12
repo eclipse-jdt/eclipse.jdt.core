@@ -1772,6 +1772,7 @@ public class Util {
 	public static boolean isValidFolderNameForPackage(String folderName, String sourceLevel, String complianceLevel) {
 		return JavaConventions.validateIdentifier(folderName, sourceLevel, complianceLevel).getSeverity() != IStatus.ERROR;
 	}
+
 	/**
 	 * Returns true if the given method signature is valid,
 	 * false if it is not.

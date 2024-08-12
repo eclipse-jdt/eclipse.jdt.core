@@ -1,7 +1,7 @@
 package javadoc.testBug51478;
-/**
- * {@inheritDoc}
- * @deprecated
- */
+///
+/// {@inheritDoc}
+/// @deprecated
+///
 public class X1 {
 }
