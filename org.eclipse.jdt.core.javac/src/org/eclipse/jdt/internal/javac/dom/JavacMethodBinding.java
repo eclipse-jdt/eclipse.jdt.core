@@ -252,6 +252,9 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	private String resolveTypeName(com.sun.tools.javac.code.Type type, boolean binary) {
 		if (binary) {
+			if (type instanceof com.sun.tools.javac.code.Type.ArrayType arrayType) {
+				return resolveTypeName(arrayType.elemtype, binary) + "[]";
+			}
 			TypeSymbol sym = type.asElement();
 			if (sym != null) {
 				return sym.getQualifiedName().toString();
