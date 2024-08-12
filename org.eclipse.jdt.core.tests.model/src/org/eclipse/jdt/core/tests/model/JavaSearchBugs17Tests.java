@@ -958,7 +958,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	//not a working copy test
 	public void testBug573943_022() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "21");
+			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "21");
 			project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			project.open(null);
 			createFolder("/first/src/p1");
@@ -1161,7 +1161,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	// find all occurrence on a class in switch pattern - without select
 	public void testBug573943_029() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "21");
+			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "21");
 			project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			project.open(null);
 			createFolder("/first/src/p1");
@@ -1207,7 +1207,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	// find all references on a class in switch pattern - without select
 	public void testBug573943_030() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "21");
+			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "21");
 			project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			project.open(null);
 			createFolder("/first/src/p1");
@@ -1523,7 +1523,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 		// JavaElementHyperlinkDetector: Parser runs into NegativeArraySizeException in some cases
 		public void testGH968() throws CoreException {
 			try {
-				IJavaProject project = createJavaProject("p", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "17");
+				IJavaProject project = createJavaProject("p", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "17");
 				project.open(null);
 				createFile("/p/src/TestEcl.java",
 						"import java.lang.StackWalker.Option;\n" +

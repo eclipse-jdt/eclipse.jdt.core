@@ -917,6 +917,16 @@ public void abortDueToPreviewEnablingNotAllowed(String sourceLevel, String expec
 			0,
 			0);
 }
+public void abortDueToNotSupportedJavaVersion(String notSupportedVersion, String firstSupportedVersion) {
+	String[] args = new String[] {notSupportedVersion, firstSupportedVersion};
+	this.handle(
+			IProblem.JavaVersionNotSupported,
+			args,
+			args,
+			ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
+			0,
+			0);
+}
 public void abstractMethodCannotBeOverridden(SourceTypeBinding type, MethodBinding concreteMethod) {
 
 	this.handle(

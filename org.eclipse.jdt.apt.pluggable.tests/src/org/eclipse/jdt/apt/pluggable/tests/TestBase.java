@@ -41,7 +41,6 @@ import junit.framework.Test;
 public class TestBase extends BuilderTests
 {
 
-	protected static final String JAVA_16_COMPLIANCE = "1.6";
 	protected static final String JAVA_18_COMPLIANCE = "1.8";
 	protected static final String JAVA_9_COMPLIANCE = "9";
 
@@ -91,7 +90,7 @@ public class TestBase extends BuilderTests
 	 */
 	protected static IJavaProject createJavaProject(final String projectName) throws Exception
 	{
-		IPath projectPath = env.addProject(projectName, JAVA_16_COMPLIANCE);
+		IPath projectPath = env.addProject(projectName, JAVA_18_COMPLIANCE);
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$

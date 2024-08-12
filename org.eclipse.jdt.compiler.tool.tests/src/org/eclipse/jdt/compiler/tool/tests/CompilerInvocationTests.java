@@ -41,9 +41,9 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 
 import org.eclipse.jdt.internal.compiler.batch.Main;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
@@ -57,7 +57,7 @@ public CompilerInvocationTests(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildUniqueComplianceTestSuite(CompilerInvocationTests.class, ClassFileConstants.JDK1_6);
+	return buildUniqueComplianceTestSuite(CompilerInvocationTests.class, CompilerOptions.getFirstSupportedJdkLevel());
 }
 public static Class<CompilerInvocationTests> testClass() {
 	return CompilerInvocationTests.class;
@@ -81,7 +81,7 @@ protected void checkClassFiles(String[] fileNames) {
 			fail("IO exception for file " + fileNames[i]);
 		}
 		assertNotNull("Could not read " + fileNames[i], reader);
-		assertEquals("Wrong Java version for " + fileNames[i], ClassFileConstants.JDK1_6, reader.getVersion());
+		assertEquals("Wrong Java version for " + fileNames[i], CompilerOptions.getFirstSupportedJdkLevel(), reader.getVersion());
 	}
 }
 void runTest(
@@ -96,7 +96,7 @@ void runTest(
 		String[] classFileNames) {
 	List<String> opt = options == null ? new ArrayList<>() : new ArrayList<>(options);
 	opt.add("-source");
-	opt.add("1.6");
+	opt.add(CompilerOptions.getFirstSupportedJavaVersion());
 	super.runTest(
 		shouldCompileOK,
 		sourceFiles,

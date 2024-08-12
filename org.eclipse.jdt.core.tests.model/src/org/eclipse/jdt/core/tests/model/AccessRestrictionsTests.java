@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
@@ -110,7 +111,7 @@ public void test001() throws CoreException {
 		createJavaProject(
 			"P1",
 			new String[] {"src"},
-			new String[] {"JCL_LIB"},
+			new String[] {"JCL18_LIB"},
 			"bin");
 		this.problemRequestor = new ProblemRequestor();
 		x1 = getWorkingCopy(
@@ -140,7 +141,7 @@ public void test001() throws CoreException {
 			"----------\n"
 		);
 		IJavaProject p2 = createJavaProject("P2", new String[] {"src"},
-				new String[] {"JCL_LIB"}, "bin");
+				new String[] {"JCL18_LIB"}, "bin");
 		IClasspathEntry[] classpath = p2.getRawClasspath();
 		int length = classpath.length;
 		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);
@@ -213,7 +214,7 @@ public void test002() throws CoreException {
 		createJavaProject(
 			"P1",
 			new String[] {"src"},
-			new String[] {"JCL_LIB"},
+			new String[] {"JCL18_LIB"},
 			"bin");
 		this.problemRequestor = new ProblemRequestor();
 		x1 = getWorkingCopy(
@@ -241,7 +242,7 @@ public void test002() throws CoreException {
 			"----------\n"
 		);
 		IJavaProject p2 = createJavaProject("P2", new String[] {"src"},
-				new String[] {"JCL_LIB"}, "bin");
+				new String[] {"JCL18_LIB"}, "bin");
 		IClasspathEntry[] classpath = p2.getRawClasspath();
 		int length = classpath.length;
 		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);
@@ -293,7 +294,7 @@ public void test003() throws CoreException {
 		createJavaProject(
 			"P1",
 			new String[] {"src"},
-			new String[] {"JCL_LIB"},
+			new String[] {"JCL18_LIB"},
 			"bin");
 		this.problemRequestor = new ProblemRequestor();
 		x1 = getWorkingCopy(
@@ -326,7 +327,7 @@ public void test003() throws CoreException {
 			"----------\n"
 		);
 		IJavaProject p2 = createJavaProject("P2", new String[] {"src"},
-				new String[] {"JCL_LIB"}, "bin");
+				new String[] {"JCL18_LIB"}, "bin");
 		IClasspathEntry[] classpath = p2.getRawClasspath();
 		int length = classpath.length;
 		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);
@@ -408,7 +409,7 @@ public void test004() throws CoreException {
 		createJavaProject(
 			"P1",
 			new String[] {"src"},
-			new String[] {"JCL_LIB"},
+			new String[] {"JCL18_LIB"},
 			"bin");
 		this.problemRequestor = new ProblemRequestor();
 		x1 = getWorkingCopy(
@@ -425,7 +426,7 @@ public void test004() throws CoreException {
 			"----------\n"
 		);
 		IJavaProject p2 = createJavaProject("P2", new String[] {"src"},
-				new String[] {"JCL_LIB"}, "bin");
+				new String[] {"JCL18_LIB"}, "bin");
 		IClasspathEntry[] classpath = p2.getRawClasspath();
 		int length = classpath.length;
 		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);
@@ -477,7 +478,7 @@ public void test005() throws CoreException {
 		createJavaProject(
 			"P1",
 			new String[] {"src"},
-			new String[] {"JCL_LIB"},
+			new String[] {"JCL18_LIB"},
 			"bin");
 		this.problemRequestor = new ProblemRequestor();
 		x1 = getWorkingCopy(
@@ -522,7 +523,7 @@ public void test005() throws CoreException {
 		IJavaProject p2 = createJavaProject(
 			"P2",
 			new String[] {"src"},
-			new String[] {"JCL_LIB"},
+			new String[] {"JCL18_LIB"},
 			"bin");
 		IClasspathEntry[] classpath = p2.getRawClasspath();
 		int length = classpath.length;
@@ -575,11 +576,11 @@ public void test006() throws CoreException {
 		IJavaProject p1 = createJavaProject(
 			"P1",
 			new String[] {"src"},
-			new String[] {"JCL_LIB"},
+			new String[] {"JCL18_LIB"},
 			"bin");
-		p1.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
-		p1.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
-		p1.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");
+		p1.setOption("org.eclipse.jdt.core.compiler.compliance", CompilerOptions.getFirstSupportedJavaVersion());
+		p1.setOption("org.eclipse.jdt.core.compiler.source", CompilerOptions.getFirstSupportedJavaVersion());
+		p1.setOption("org.eclipse.jdt.core.compiler.targetPlatform", CompilerOptions.getFirstSupportedJavaVersion());
 		p1.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 		this.problemRequestor = new ProblemRequestor();
 		x = getWorkingCopy(
@@ -597,11 +598,11 @@ public void test006() throws CoreException {
 		IJavaProject p2 = createJavaProject(
 				"P2",
 				new String[] {"src"},
-				new String[] {"JCL_LIB"},
+				new String[] {"JCL18_LIB"},
 				"bin");
-		p2.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
-		p2.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
-		p2.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");
+		p2.setOption("org.eclipse.jdt.core.compiler.compliance", CompilerOptions.getFirstSupportedJavaVersion());
+		p2.setOption("org.eclipse.jdt.core.compiler.source", CompilerOptions.getFirstSupportedJavaVersion());
+		p2.setOption("org.eclipse.jdt.core.compiler.targetPlatform", CompilerOptions.getFirstSupportedJavaVersion());
 		p2.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 		IClasspathEntry[] classpath = p2.getRawClasspath();
 		int length = classpath.length;
@@ -664,11 +665,11 @@ public void test007() throws CoreException {
 		IJavaProject p1 = createJavaProject(
 			"P1",
 			new String[] {"src"},
-			new String[] {"JCL_LIB"},
+			new String[] {"JCL18_LIB"},
 			"bin");
-		p1.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
-		p1.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
-		p1.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");
+		p1.setOption("org.eclipse.jdt.core.compiler.compliance", CompilerOptions.getFirstSupportedJavaVersion());
+		p1.setOption("org.eclipse.jdt.core.compiler.source", CompilerOptions.getFirstSupportedJavaVersion());
+		p1.setOption("org.eclipse.jdt.core.compiler.targetPlatform", CompilerOptions.getFirstSupportedJavaVersion());
 		p1.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 		this.problemRequestor = new ProblemRequestor();
 		x = getWorkingCopy(
@@ -689,11 +690,11 @@ public void test007() throws CoreException {
 		IJavaProject p2 = createJavaProject(
 				"P2",
 				new String[] {"src"},
-				new String[] {"JCL_LIB"},
+				new String[] {"JCL18_LIB"},
 				"bin");
-		p2.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
-		p2.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
-		p2.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");
+		p2.setOption("org.eclipse.jdt.core.compiler.compliance", CompilerOptions.getFirstSupportedJavaVersion());
+		p2.setOption("org.eclipse.jdt.core.compiler.source", CompilerOptions.getFirstSupportedJavaVersion());
+		p2.setOption("org.eclipse.jdt.core.compiler.targetPlatform", CompilerOptions.getFirstSupportedJavaVersion());
 		p2.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 		IClasspathEntry[] classpath = p2.getRawClasspath();
 		int length = classpath.length;
@@ -756,11 +757,11 @@ public void test008() throws CoreException {
 		IJavaProject p1 = createJavaProject(
 			"P1",
 			new String[] {"src"},
-			new String[] {"JCL_LIB"},
+			new String[] {"JCL18_LIB"},
 			"bin");
-		p1.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
-		p1.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
-		p1.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");
+		p1.setOption("org.eclipse.jdt.core.compiler.compliance", CompilerOptions.getFirstSupportedJavaVersion());
+		p1.setOption("org.eclipse.jdt.core.compiler.source", CompilerOptions.getFirstSupportedJavaVersion());
+		p1.setOption("org.eclipse.jdt.core.compiler.targetPlatform", CompilerOptions.getFirstSupportedJavaVersion());
 		p1.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 		this.problemRequestor = new ProblemRequestor();
 		x1 = getWorkingCopy(
@@ -790,10 +791,10 @@ public void test008() throws CoreException {
 			"----------\n"
 		);
 		IJavaProject p2 = createJavaProject("P2", new String[] {"src"},
-				new String[] {"JCL_LIB"}, "bin");
-		p2.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
-		p2.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
-		p2.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");
+				new String[] {"JCL18_LIB"}, "bin");
+		p2.setOption("org.eclipse.jdt.core.compiler.compliance", CompilerOptions.getFirstSupportedJavaVersion());
+		p2.setOption("org.eclipse.jdt.core.compiler.source", CompilerOptions.getFirstSupportedJavaVersion());
+		p2.setOption("org.eclipse.jdt.core.compiler.targetPlatform", CompilerOptions.getFirstSupportedJavaVersion());
 		IClasspathEntry[] classpath = p2.getRawClasspath();
 		int length = classpath.length;
 		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);
@@ -843,11 +844,11 @@ public void test009() throws CoreException {
 		IJavaProject p1 = createJavaProject(
 			"P1",
 			new String[] {"src"},
-			new String[] {"JCL_LIB"},
+			new String[] {"JCL18_LIB"},
 			"bin");
-		p1.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
-		p1.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
-		p1.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");
+		p1.setOption("org.eclipse.jdt.core.compiler.compliance", CompilerOptions.getFirstSupportedJavaVersion());
+		p1.setOption("org.eclipse.jdt.core.compiler.source", CompilerOptions.getFirstSupportedJavaVersion());
+		p1.setOption("org.eclipse.jdt.core.compiler.targetPlatform", CompilerOptions.getFirstSupportedJavaVersion());
 		p1.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 		this.problemRequestor = new ProblemRequestor();
 		x1 = getWorkingCopy(
@@ -875,10 +876,10 @@ public void test009() throws CoreException {
 			"----------\n"
 		);
 		IJavaProject p2 = createJavaProject("P2", new String[] {"src"},
-				new String[] {"JCL_LIB"}, "bin");
-		p2.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
-		p2.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
-		p2.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");
+				new String[] {"JCL18_LIB"}, "bin");
+		p2.setOption("org.eclipse.jdt.core.compiler.compliance", CompilerOptions.getFirstSupportedJavaVersion());
+		p2.setOption("org.eclipse.jdt.core.compiler.source", CompilerOptions.getFirstSupportedJavaVersion());
+		p2.setOption("org.eclipse.jdt.core.compiler.targetPlatform", CompilerOptions.getFirstSupportedJavaVersion());
 		IClasspathEntry[] classpath = p2.getRawClasspath();
 		int length = classpath.length;
 		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);
@@ -929,11 +930,11 @@ public void test010() throws CoreException {
 		IJavaProject p1 = createJavaProject(
 			"P1",
 			new String[] {"src"},
-			new String[] {"JCL_LIB"},
+			new String[] {"JCL18_LIB"},
 			"bin");
-		p1.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
-		p1.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
-		p1.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");
+		p1.setOption("org.eclipse.jdt.core.compiler.compliance", CompilerOptions.getFirstSupportedJavaVersion());
+		p1.setOption("org.eclipse.jdt.core.compiler.source", CompilerOptions.getFirstSupportedJavaVersion());
+		p1.setOption("org.eclipse.jdt.core.compiler.targetPlatform", CompilerOptions.getFirstSupportedJavaVersion());
 		p1.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 		this.problemRequestor = new ProblemRequestor();
 		x1 = getWorkingCopy(
@@ -966,10 +967,10 @@ public void test010() throws CoreException {
 			"----------\n"
 		);
 		IJavaProject p2 = createJavaProject("P2", new String[] {"src"},
-				new String[] {"JCL_LIB"}, "bin");
-		p2.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
-		p2.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
-		p2.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");
+				new String[] {"JCL18_LIB"}, "bin");
+		p2.setOption("org.eclipse.jdt.core.compiler.compliance", CompilerOptions.getFirstSupportedJavaVersion());
+		p2.setOption("org.eclipse.jdt.core.compiler.source", CompilerOptions.getFirstSupportedJavaVersion());
+		p2.setOption("org.eclipse.jdt.core.compiler.targetPlatform", CompilerOptions.getFirstSupportedJavaVersion());
 		p2.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 		IClasspathEntry[] classpath = p2.getRawClasspath();
 		int length = classpath.length;
@@ -1053,7 +1054,7 @@ public void test011() throws CoreException {
 		createJavaProject(
 			"P1",
 			new String[] {"src"},
-			new String[] {"JCL_LIB", "/AccessRestrictions/lib.jar"},
+			new String[] {"JCL18_LIB", "/AccessRestrictions/lib.jar"},
 			new String[][]{{}, {}},
 			new String[][]{{}, {"**/*"}},
 			null/*no project*/,
@@ -1064,7 +1065,7 @@ public void test011() throws CoreException {
 			null/*no source outputs*/,
 			null/*no inclusion pattern*/,
 			null/*no exclusion pattern*/,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		this.problemRequestor = new ProblemRequestor();
 		y = getWorkingCopy(
 			"/P1/src/q/Y.java",
@@ -1118,9 +1119,9 @@ public void testBug545766() throws CoreException {
 		createJavaProject(
 			"P1",
 			new String[] {"src"},
-			new String[] {"JCL15_LIB"},
+			new String[] {"JCL18_LIB"},
 			"bin",
-			"1.5");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/P1/src/p");
 		createFile("/P1/src/p/X1.java",
 			"package p;\n" +
@@ -1131,7 +1132,7 @@ public void testBug545766() throws CoreException {
 			"}"
 		);
 		IJavaProject p2 = createJavaProject("P2", new String[] {"src"},
-				new String[] {"JCL15_LIB"}, "bin", "1.5");
+				new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		IClasspathEntry[] classpath = p2.getRawClasspath();
 		int length = classpath.length;
 		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);

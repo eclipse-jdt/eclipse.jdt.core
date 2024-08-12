@@ -53,7 +53,7 @@ import junit.framework.Test;
 public class ASTConverter_15Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
-	//private static final String jclLib = "CONVERTER_JCL15_LIB";
+	//private static final String jclLib = "CONVERTER_JCL18_LIB";
 
 	@SuppressWarnings("deprecation")
 	public void setUpSuite() throws Exception {

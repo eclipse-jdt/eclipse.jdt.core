@@ -701,7 +701,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=350897
 	 */
-	public void test0018() throws JavaModelException {
+	public void _2551_test0018() throws JavaModelException {
 		String contents =
 			"public class X<T> {\n" +
 			"	T field1;\n" +
@@ -802,7 +802,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	/**
      * https://bugs.eclipse.org/bugs/show_bug.cgi?id=402673
      */
-    public void test402673a() throws JavaModelException {
+    public void _2551_test402673a() throws JavaModelException {
             String contents = "package test402673;"
                     + "public class X {\n"
                     + "    Runnable r = () -> System.out.println(\"hi\");\n"
@@ -830,7 +830,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
     /**
      * https://bugs.eclipse.org/bugs/show_bug.cgi?id=402673
      */
-    public void test402673b() throws JavaModelException {
+    public void _2551_test402673b() throws JavaModelException {
             String contents = "package test402673;"
                     + "public class X {\n"
             		+ "    public void foo() {\n"
@@ -862,7 +862,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=402674
 	 */
-	public void test403444() throws JavaModelException {
+	public void _2551_test403444() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test403444/X.java",
 				true/* resolve */);
 		String contents = "package test403444;" +
@@ -942,7 +942,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399791
 	 */
-	public void test0021() throws JavaModelException {
+	public void _2551_test0021() throws JavaModelException {
 		String contents =
 				"public interface X {\n" +
 				"	static void foo(){}\n" +
@@ -966,7 +966,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 *
 	 * @deprecated as it uses deprecated methods
 	 */
-	public void test0022() throws JavaModelException {
+	public void _2551_test0022() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
 				"	void foo() throws  @NonNull EOFException, java.io.@NonNull FileNotFoundException {}\n" +

@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 
 import junit.framework.Test;
@@ -458,7 +459,7 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 			COMPLETION_PROJECT = setUpJavaProject("Completion");
 			createFolder(new Path("/Completion/src/javadoc/tags"));
 		} else {
-			setUpProjectCompliance(COMPLETION_PROJECT, "1.4");
+			setUpProjectCompliance(COMPLETION_PROJECT, CompilerOptions.getFirstSupportedJavaVersion());
 			this.currentProject = COMPLETION_PROJECT;
 		}
 	}
@@ -476,9 +477,6 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 	public void tearDownSuite() throws Exception {
 		deleteFolder(new Path("/Completion/src/javadoc/tags"));
 		super.tearDownSuite();
-		if (COMPLETION_SUITES == null) {
-			COMPLETION_PROJECT = null;
-		}
 	}
 
 	/*

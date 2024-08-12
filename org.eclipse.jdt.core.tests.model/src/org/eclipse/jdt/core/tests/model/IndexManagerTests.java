@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.EntryResult;
 import org.eclipse.jdt.internal.core.index.Index;
@@ -72,7 +73,7 @@ public class IndexManagerTests extends ModifyingResourceTests {
 	protected void setUp() throws Exception {
 		this.indexDisabledForTest = false;
 		super.setUp();
-		this.project = createJavaProject("IndexProject", new String[] { "src" }, new String[0], "bin", "1.8");
+		this.project = createJavaProject("IndexProject", new String[] { "src" }, new String[0], "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		addClasspathEntry(this.project, getJRTLibraryEntry());
 	}
 

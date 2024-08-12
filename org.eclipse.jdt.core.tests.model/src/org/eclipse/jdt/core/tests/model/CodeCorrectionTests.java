@@ -14,8 +14,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import junit.framework.Test;
-
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -33,6 +31,9 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import junit.framework.Test;
 
 public class CodeCorrectionTests extends AbstractJavaModelTests {
 	public static boolean DEBUG = false;
@@ -70,7 +71,7 @@ public static String[] getProjectNames() {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	IJavaProject project = setUpJavaProject("CodeCorrection", "1.5");
+	IJavaProject project = setUpJavaProject("CodeCorrection", CompilerOptions.getFirstSupportedJavaVersion());
 
 	// dummy query for waiting until the indexes are ready
 	SearchEngine engine = new SearchEngine();

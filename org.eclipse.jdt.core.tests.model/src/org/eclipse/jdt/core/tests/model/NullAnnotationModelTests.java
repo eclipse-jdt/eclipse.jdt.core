@@ -13,18 +13,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
-import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -59,7 +57,10 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.osgi.framework.Bundle;
+
+import junit.framework.Test;
 
 @SuppressWarnings("rawtypes")
 public class NullAnnotationModelTests extends ReconcilerTests {
@@ -102,7 +103,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	public void testConvertedSourceType1() throws CoreException, InterruptedException {
     	try {
 			// Resources creation
-			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB", this.ANNOTATION_LIB}, "bin", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			p.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 
 			this.createFolder("/P/p1");
@@ -140,12 +141,19 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 
 			getCompilationUnit("/P/p2/C2.java").getWorkingCopy(this.wcOwner, null);
 
-			assertProblems("Unexpected problems", "----------\n" +
-					"1. WARNING in /P/p2/C2.java (at line 8)\n" +
-					"	return arg == null ? null : arg.toString();\n" +
-					"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Null type safety: The expression of type 'String' needs unchecked conversion to conform to \'@NonNull String\'\n" +
-					"----------\n");
+			assertProblems("Unexpected problems", """
+					----------
+					1. ERROR in /P/p2/C2.java (at line 8)
+						return arg == null ? null : arg.toString();
+						                     ^^^^
+					Null type mismatch: required '@NonNull String' but the provided value is null
+					----------
+					2. WARNING in /P/p2/C2.java (at line 8)
+						return arg == null ? null : arg.toString();
+						                            ^^^^^^^^^^^^^^
+					Null type safety (type annotations): The expression of type 'String' needs unchecked conversion to conform to '@NonNull String'
+					----------
+					""");
     	} finally {
     		deleteProject("P");
     	}
@@ -155,8 +163,8 @@ public class NullAnnotationModelTests extends ReconcilerTests {
     	try {
 			// Resources creation
 			IJavaProject p = createJavaProject("P", new String[] {""},
-											   new String[] {"JCL15_LIB", this.ANNOTATION_LIB, testJarPath("example.jar")},
-											   "bin", "1.5");
+											   new String[] {"JCL18_LIB", this.ANNOTATION_LIB, testJarPath("example.jar")},
+											   "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			p.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 
 			// example.jar contains p1/C1.java just like testConvertedSourceType1()
@@ -182,12 +190,19 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 
 			getCompilationUnit("/P/p2/C2.java").getWorkingCopy(this.wcOwner, null);
 
-			assertProblems("Unexpected problems", "----------\n" +
-					"1. WARNING in /P/p2/C2.java (at line 8)\n" +
-					"	return arg == null ? null : arg.toString();\n" +
-					"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Null type safety: The expression of type 'String' needs unchecked conversion to conform to \'@NonNull String\'\n" +
-					"----------\n");
+			assertProblems("Unexpected problems", """
+					----------
+					1. ERROR in /P/p2/C2.java (at line 8)
+						return arg == null ? null : arg.toString();
+						                     ^^^^
+					Null type mismatch: required '@NonNull String' but the provided value is null
+					----------
+					2. WARNING in /P/p2/C2.java (at line 8)
+						return arg == null ? null : arg.toString();
+						                            ^^^^^^^^^^^^^^
+					Null type safety (type annotations): The expression of type 'String' needs unchecked conversion to conform to '@NonNull String'
+					----------
+					""");
     	} finally {
     		deleteProject("P");
     	}
@@ -197,7 +212,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	public void _testMissingAnnotation1() throws CoreException {
     	try {
 			// Resources creation
-			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB", this.ANNOTATION_LIB}, "bin", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			p.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 			p.setOption(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "in.valid");
 
@@ -235,7 +250,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 		Hashtable<String, String> javaOptions = JavaCore.getOptions();
     	try {
 			// Resources creation
-			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB", this.ANNOTATION_LIB}, "bin", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			IFile settings = (IFile) p.getProject().findMember(".settings/org.eclipse.jdt.core.prefs");
 			settings.appendContents(new ByteArrayInputStream("\norg.eclipse.jdt.core.compiler.annotation.nonnull=not.valid\n".getBytes()), 0, null);
 			p.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
@@ -279,7 +294,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	public void _testMissingAnnotation3() throws CoreException {
     	try {
 			// Resources creation
-			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB", this.ANNOTATION_LIB}, "bin", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			p.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 			p.setOption(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "invalid");
 
@@ -334,7 +349,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	public void testMissingAnnotation4() throws CoreException, InterruptedException {
     	try {
 			// Resources creation
-			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB", this.ANNOTATION_LIB}, "bin", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			p.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 			p.setOption(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "invalid");
 
@@ -396,7 +411,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	public void _testMissingAnnotation5() throws CoreException, InterruptedException {
     	try {
 			// Resources creation
-			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB", this.ANNOTATION_LIB}, "bin", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			p.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 			p.setOption(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "pack.Missing");
 
@@ -462,7 +477,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	public void testAnnotationAST1() throws CoreException, InterruptedException {
     	try {
 			// Resources creation
-			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB", this.ANNOTATION_LIB}, "bin", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			p.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 
 			this.createFolder("/P/p1");
@@ -522,7 +537,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	public void testBug372012() throws JavaModelException, IOException, CoreException, InterruptedException {
 		try {
 			// Resources creation
-			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB", this.ANNOTATION_LIB}, "bin", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			p.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 			p.setOption(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "in.valid");
 			p.setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
@@ -546,7 +561,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	public void testNonNullDefaultInInner()  throws CoreException, IOException, InterruptedException  {
 		IJavaProject project15 = null;
 		try {
-			project15 = createJavaProject("TestAnnot", new String[] {"src"}, new String[] {"JCL15_LIB", this.ANNOTATION_LIB}, "bin", "1.5");
+			project15 = createJavaProject("TestAnnot", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			createFolder("/TestAnnot/src/p1");
 			createFile(
 					"/TestAnnot/src/p1/Interfaces.java",
@@ -574,8 +589,8 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"/TestAnnot/src/p1/Implementations.java",
 					source
 				);
-			project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-			project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+			project15.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+			project15.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
 			project15.setOption(JavaCore.COMPILER_PB_NULL_REFERENCE, JavaCore.ERROR);
 			project15.setOption(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
 			project15.setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
@@ -704,7 +719,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	public void testBug458361b() throws CoreException {
 		IJavaProject project = null;
 		try {
-			project = createJavaProject("Bug458361", new String[] {"src"}, new String[] {"JCL17_LIB", this.ANNOTATION_LIB_V1}, "bin", "1.7");
+			project = createJavaProject("Bug458361", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB_V1}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 
 			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 			project.setOption(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.ERROR);
@@ -726,7 +741,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"1. ERROR in /Bug458361/src/Sub.java (at line 3)\n" +
 					"	@Nullable String getName();\n" +
 					"	^^^^^^^^^^^^^^^^\n" +
-					"The return type is incompatible with \'@NonNull String\' returned from Super.getName() (mismatching null constraints)\n" +
+					"The return type is incompatible with \'String\' returned from Super.getName() (mismatching null constraints)\n" +
 					"----------\n");
 		} finally {
 			if (project != null)
@@ -984,46 +999,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 				deleteProject(project);
 		}
 	}
-	public void testBug543304() throws Exception {
-		IJavaProject annotations = createJavaProject("Annotations", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
-		IJavaProject client = createJavaProject("Client", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "1.7");
-		try {
-			createFolder("Annotations/src/p");
-			createFile("Annotations/src/p/NonNull.java",
-					"package p;\n" +
-					"import java.lang.annotation.*;\n" +
-					"import static java.lang.annotation.ElementType.*;\n" +
-					"@Target({METHOD, PARAMETER, FIELD, TYPE_USE})\n" +
-					"public @interface NonNull {}\n");
-			createFile("Annotations/src/p/Nullable.java",
-					"package p;\n" +
-					"import java.lang.annotation.*;\n" +
-					"import static java.lang.annotation.ElementType.*;\n" +
-					"@Target({METHOD, PARAMETER, FIELD, TYPE_USE})\n" +
-					"public @interface Nullable {}\n");
 
-			addClasspathEntry(client, JavaCore.newProjectEntry(annotations.getPath()));
-			client.setOption(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "p.NonNull");
-			client.setOption(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "p.Nullable");
-			client.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
-
-			createFile("Client/src/Test.java",
-					"import p.*;\n" +
-					"public class Test {\n" +
-					"  @Nullable int[] ints = null;\n" +
-					"  public @NonNull Object foo(@NonNull byte[] data) {\n" +
-					"    return data;\n" +
-					"  }\n" +
-					"}\n");
-
-			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
-			IMarker[] markers = client.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers", "", markers);
-		} finally {
-			deleteProject(annotations);
-			deleteProject(client);
-		}
-	}
 	public void testBug549764() throws CoreException, IOException {
 		IJavaProject project = null;
     	try {
@@ -1147,8 +1123,8 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			deleteProject(project);
 		}
 	}
-	public void testBug565246() throws CoreException {
-		IJavaProject project = createJavaProject("Bug565246", new String[] {"src"}, new String[] {"JCL17_LIB", this.ANNOTATION_LIB_V1}, "bin", "1.7");
+	public void _2551_testBug565246() throws CoreException {
+		IJavaProject project = createJavaProject("Bug565246", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB_V1}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		try {
 			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 			createFolder("Bug565246/src/java/util");
@@ -1188,7 +1164,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	}
 	public void testGH875() throws CoreException, InterruptedException {
 		// first fixed by commit da0a6d8d5088b92dbc3602cdccff8d667b6d5e8b
-		IJavaProject project = createJavaProject("GH875", new String[] {"src"}, new String[] {"JCL17_LIB", this.ANNOTATION_LIB_V1}, "bin", "1.7");
+		IJavaProject project = createJavaProject("GH875", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB_V1}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		try {
 			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 			createFile("GH875/src/ICheckValidatorImpl.java",

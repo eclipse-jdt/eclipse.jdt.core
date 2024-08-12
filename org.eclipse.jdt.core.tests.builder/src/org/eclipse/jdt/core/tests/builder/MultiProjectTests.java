@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.test.OrderedTestSuite;
 
 import junit.framework.Test;
@@ -1932,20 +1933,20 @@ public void test103_missing_required_binaries() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=460993
 public void test104_missing_required_binaries() throws CoreException {
 
-	IPath p0 = env.addProject("JRE17", "1.7");
+	IPath p0 = env.addProject("JRE17", CompilerOptions.getFirstSupportedJavaVersion());
 	env.addExternalJars(p0, Util.getJavaClassLibs());
 	env.removePackageFragmentRoot(p0, "");
 	IPath root0 = env.addPackageFragmentRoot(p0, "src");
 	env.setOutputFolder(p0, "bin");
 
-	IPath p1 = env.addProject("org.eclipse.jgit", "1.7");
+	IPath p1 = env.addProject("org.eclipse.jgit", CompilerOptions.getFirstSupportedJavaVersion());
 	env.addExternalJars(p1, Util.getJavaClassLibs());
 	env.removePackageFragmentRoot(p1, "");
 	IPath root1 = env.addPackageFragmentRoot(p1, "src");
 	env.addRequiredProject(p1, p0);
 	env.setOutputFolder(p1, "bin");
 
-	IPath p2 = env.addProject("org.eclipse.releng.tools", "1.5");
+	IPath p2 = env.addProject("org.eclipse.releng.tools", CompilerOptions.getFirstSupportedJavaVersion());
 	env.addExternalJars(p2, Util.getJavaClassLibs());
 	env.removePackageFragmentRoot(p2, "");
 	IPath root2 = env.addPackageFragmentRoot(p2, "src");
@@ -2097,7 +2098,7 @@ public void test461074() throws JavaModelException {
 	//----------------------------
 	//         Project2
 	//----------------------------
-	IPath p2 = env.addProject("SampleLib", "1.5"); //$NON-NLS-1$
+	IPath p2 = env.addProject("SampleLib", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 	env.addExternalJars(p2, Util.getJavaClassLibs());
 	// remove old package fragment root so that names don't collide
 	env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
@@ -2122,7 +2123,7 @@ public void test461074() throws JavaModelException {
 	//----------------------------
 	//         Project3
 	//----------------------------
-	IPath p3 = env.addProject("SampleTest", "1.5"); //$NON-NLS-1$
+	IPath p3 = env.addProject("SampleTest", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 	env.addExternalJars(p3, Util.getJavaClassLibs());
 	// remove old package fragment root so that names don't collide
 	env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$
@@ -2148,7 +2149,7 @@ public void test461074() throws JavaModelException {
 	env.removeProject(p3);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=461074, "indirectly referenced from required .class files" error for unreachable reference of type in overriding method declaration in a library on classpath
-public void test461074_error() throws JavaModelException {
+public void _2551_test461074_error() throws JavaModelException {
 	//----------------------------
 	//         Project1
 	//----------------------------
@@ -2168,7 +2169,7 @@ public void test461074_error() throws JavaModelException {
 	//----------------------------
 	//         Project2
 	//----------------------------
-	IPath p2 = env.addProject("SampleLib", "1.5"); //$NON-NLS-1$
+	IPath p2 = env.addProject("SampleLib", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 	env.addExternalJars(p2, Util.getJavaClassLibs());
 	// remove old package fragment root so that names don't collide
 	env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
@@ -2193,7 +2194,7 @@ public void test461074_error() throws JavaModelException {
 	//----------------------------
 	//         Project3
 	//----------------------------
-	IPath p3 = env.addProject("SampleTest", "1.5"); //$NON-NLS-1$
+	IPath p3 = env.addProject("SampleTest", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 	env.addExternalJars(p3, Util.getJavaClassLibs());
 	// remove old package fragment root so that names don't collide
 	env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$

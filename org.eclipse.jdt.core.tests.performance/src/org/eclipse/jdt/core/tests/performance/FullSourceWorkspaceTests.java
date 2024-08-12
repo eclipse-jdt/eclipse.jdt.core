@@ -125,17 +125,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		}
 	}
 	protected static String compliance() {
-		String compliance = null;
-		if ("1.3".equals(COMPLIANCE)) {
-			compliance = CompilerOptions.VERSION_1_3;
-		} else if ("1.4".equals(COMPLIANCE)) {
-			compliance = CompilerOptions.VERSION_1_4;
-		} else if ("1.5".equals(COMPLIANCE) || "5.0".equals(COMPLIANCE)) {
-			compliance = CompilerOptions.VERSION_1_5;
-		} else if ("1.6".equals(COMPLIANCE) || "6.0".equals(COMPLIANCE)) {
-			compliance = CompilerOptions.VERSION_1_6;
-		}
-		return compliance;
+		return null;
 	}
 
 	// Garbage collect constants
@@ -965,16 +955,6 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 				// set classpath and output location
 				IJavaProject javaProject = ENV.getJavaProject(projectName);
 				javaProject.setRawClasspath(entries, projectPath.append(outputPath), null);
-
-				// set compliance level options
-				if ("1.5".equals(compliance)) {
-					Map options = new HashMap();
-					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-					javaProject.setOptions(options);
-				}
-
 				result[0] = javaProject;
 			}
 		};
@@ -1253,7 +1233,6 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			optionsMap.put(CompilerOptions.OPTION_ReportFieldHiding, warning);
 			optionsMap.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, warning);
 			optionsMap.put(CompilerOptions.OPTION_ReportEmptyStatement, warning);
-			optionsMap.put(CompilerOptions.OPTION_ReportAssertIdentifier, warning);
 			optionsMap.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, warning);
 			optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, warning);
 			optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryElse, warning);
@@ -1270,12 +1249,10 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, enabled);
 			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, enabled);
 			optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, enabled);
-			optionsMap.put(CompilerOptions.OPTION_InlineJsr, enabled);
 		}
 
 		// Ignore 3.1 options
 		optionsMap.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
-		optionsMap.put(CompilerOptions.OPTION_ReportEnumIdentifier, CompilerOptions.IGNORE);
 
 		// Ignore 3.2 options
 		optionsMap.put(CompilerOptions.OPTION_ReportUnusedLabel, CompilerOptions.IGNORE);

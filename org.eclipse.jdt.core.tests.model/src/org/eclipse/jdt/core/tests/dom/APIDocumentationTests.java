@@ -192,6 +192,8 @@ public void testJavaCoreAPI() throws CoreException, IllegalArgumentException, Il
 	// This option is set in LaunchingPreferenceInitializer and always
 	// differs from empty default value
 	realOptionNames.remove(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER);
+	// This option is always on by default
+	realOptionNames.remove("org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode");
 
 	// fetch default option values
 	Hashtable<String, String> realDefaultValues = JavaCore.getDefaultOptions();
