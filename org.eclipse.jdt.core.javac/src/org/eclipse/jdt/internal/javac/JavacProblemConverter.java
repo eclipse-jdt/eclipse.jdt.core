@@ -1072,6 +1072,14 @@ public class JavacProblemConverter {
 		if (diagnostic instanceof JCDiagnostic jcDiagnostic) {
 			Object[] args = jcDiagnostic.getArgs();
 			if (args != null && args.length > 0) {
+				if (args[0] instanceof Kinds.KindName kindName && kindName == Kinds.KindName.CONSTRUCTOR) {
+					Object lastArg = args[args.length - 1];
+					if (lastArg instanceof JCDiagnostic subDiagnostic) {
+						args = subDiagnostic.getArgs();
+					} else {
+						return IProblem.NotVisibleConstructor;
+					}
+				}
 				if (args[0] instanceof Symbol.MethodSymbol methodSymbol) {
 					if (methodSymbol.isConstructor()) {
 						if (jcDiagnostic.getDiagnosticPosition() instanceof JCTree.JCIdent id
