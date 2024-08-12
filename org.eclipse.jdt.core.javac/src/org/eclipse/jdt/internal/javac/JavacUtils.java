@@ -72,7 +72,7 @@ public class JavacUtils {
 				.map(value -> value.split(":"))
 				.flatMap(Arrays::stream)
 				.collect(Collectors.joining("\0")); //$NON-NLS-1$ // \0 as expected by javac
-		configureOptions(context, compilerOptions, addExports);
+		configureOptions(javaProject, context, compilerOptions, addExports);
 		// TODO populate more from compilerOptions and/or project settings
 		if (context.get(JavaFileManager.class) == null) {
 			JavacFileManager.preRegister(context);
@@ -82,43 +82,52 @@ public class JavacUtils {
 		}
 	}
 
-	private static void configureOptions(Context context, Map<String, String> compilerOptions, String addExports) {
+	private static void configureOptions(IJavaProject javaProject, Context context, Map<String, String> compilerOptions, String addExports) {
+		boolean nineOrLater = false;
 		Options options = Options.instance(context);
 		options.put("allowStringFolding", Boolean.FALSE.toString());
 		final Version complianceVersion;
 		String compliance = compilerOptions.get(CompilerOptions.OPTION_Compliance);
 		if (CompilerOptions.VERSION_1_8.equals(compliance)) {
 			compliance = "8";
+			nineOrLater = false;
 		}
 		if (CompilerOptions.ENABLED.equals(compilerOptions.get(CompilerOptions.OPTION_Release))
 			&& compliance != null && !compliance.isEmpty()) {
 			complianceVersion = Version.parse(compliance);
 			options.put(Option.RELEASE, compliance);
+			nineOrLater = complianceVersion.compareTo(Version.parse("9")) >= 0;
 		} else {
 			String source = compilerOptions.get(CompilerOptions.OPTION_Source);
 			if (CompilerOptions.VERSION_1_8.equals(source)) {
 				source = "8";
+				nineOrLater = false;
 			}
 			if (source != null && !source.isBlank()) {
 				complianceVersion = Version.parse(source);
 				if (complianceVersion.compareToIgnoreOptional(Version.parse("8")) < 0) {
 					ILog.get().warn("Unsupported source level: " + source + ", using 8 instead");
 					options.put(Option.SOURCE, "8");
+					nineOrLater = false;
 				} else {
 					options.put(Option.SOURCE, source);
+					nineOrLater = complianceVersion.compareTo(Version.parse("9")) >= 0;
 				}
 			} else {
 				complianceVersion = Runtime.version();
+				nineOrLater = true;
 			}
 			String target = compilerOptions.get(CompilerOptions.OPTION_TargetPlatform);
 			if (CompilerOptions.VERSION_1_8.equals(target)) {
 				target = "8";
+				nineOrLater = false;
 			}
 			if (target != null && !target.isEmpty()) {
 				Version version = Version.parse(target);
 				if (version.compareToIgnoreOptional(Version.parse("8")) < 0) {
 					ILog.get().warn("Unsupported target level: " + target + ", using 8 instead");
 					options.put(Option.TARGET, "8");
+					nineOrLater = false;
 				} else {
 					if (Integer.parseInt(target) < Integer.parseInt(source)) {
 						ILog.get().warn("javac requires the source version to be less than or equal to the target version. Targetting " + source + " instead");
@@ -139,6 +148,19 @@ public class JavacUtils {
 		}
 		if (JavaCore.ENABLED.equals(compilerOptions.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT))) {
 			options.put(Option.XDOCLINT, Boolean.toString(true));
+		}
+		if (nineOrLater && javaProject instanceof JavaProject javaProjectImpl) {
+			try {
+				for (IClasspathEntry entry : javaProject.getRawClasspath()) {
+					if (entry.getPath() != null && entry.getPath().toString().startsWith("org.eclipse.jdt.launching.JRE_CONTAINER")) {
+						for (IClasspathEntry resolved : javaProjectImpl.resolveClasspath(new IClasspathEntry[] { entry })) {
+							options.put(Option.SYSTEM, resolved.getPath().toString());
+						}
+					}
+				}
+			} catch (JavaModelException ex) {
+				ILog.get().error(ex.getMessage(), ex);
+			}
 		}
 	}
 
