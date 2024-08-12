@@ -38,6 +38,8 @@ import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Kinds.KindName;
+import com.sun.tools.javac.code.Symbol.ClassSymbol;
+import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.TypeTag;
@@ -165,6 +167,13 @@ public class JavacProblemConverter {
 					if (end >= 0) {
 						return new org.eclipse.jface.text.Position(start, end - start);
 					}
+				}
+			}
+			if (problemId == IProblem.UninitializedBlankFinalField ||
+				problemId == IProblem.UninitializedLocalVariable) {
+				var varSymbol = getDiagnosticArgumentByType(diagnostic, VarSymbol.class);
+				if (varSymbol != null) {
+					return new org.eclipse.jface.text.Position(varSymbol.pos, varSymbol.getSimpleName().length());
 				}
 			}
 			TreePath diagnosticPath = getTreePath(jcDiagnostic);
@@ -601,7 +610,12 @@ public class JavacProblemConverter {
 			case "compiler.err.cant.ref.before.ctor.called" -> IProblem.InstanceFieldDuringConstructorInvocation; // TODO different according to target node
 			case "compiler.err.not.def.public.cant.access" -> IProblem.NotVisibleType; // TODO different according to target node
 			case "compiler.err.already.defined" -> IProblem.DuplicateMethod; // TODO different according to target node
-			case "compiler.err.var.might.not.have.been.initialized" -> IProblem.UninitializedLocalVariable;
+			case "compiler.err.var.might.not.have.been.initialized" -> {
+				VarSymbol symbol = getDiagnosticArgumentByType(diagnostic, VarSymbol.class);
+				yield symbol.owner instanceof ClassSymbol ?
+						IProblem.UninitializedBlankFinalField :
+						IProblem.UninitializedLocalVariable;
+			}
 			case "compiler.err.missing.meth.body.or.decl.abstract" -> {
 				if (diagnostic instanceof JCDiagnostic jcDiagnostic
 						&& jcDiagnostic.getDiagnosticPosition() instanceof JCMethodDecl jcMethodDecl
