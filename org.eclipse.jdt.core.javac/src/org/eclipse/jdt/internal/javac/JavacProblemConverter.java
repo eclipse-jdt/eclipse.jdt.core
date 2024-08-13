@@ -570,7 +570,7 @@ public class JavacProblemConverter {
 						}
 						String rootCauseCode = rootCause.getCode();
 						yield switch (rootCauseCode) {
-						case "compiler.misc.report.access" -> convertNotVisibleAccess(diagnostic);
+						case "compiler.misc.report.access" -> isDefault ? IProblem.NotVisibleConstructorInDefaultConstructor : IProblem.NotVisibleConstructor;
 						case "compiler.misc.arg.length.mismatch" -> isDefault ? IProblem.UndefinedConstructorInDefaultConstructor : IProblem.UndefinedConstructor;
 						default -> IProblem.UndefinedConstructor;
 						};
@@ -1072,7 +1072,7 @@ public class JavacProblemConverter {
 		if (diagnostic instanceof JCDiagnostic jcDiagnostic) {
 			Object[] args = jcDiagnostic.getArgs();
 			if (args != null && args.length > 0) {
-				if (args[0] instanceof Kinds.KindName kindName && kindName == Kinds.KindName.CONSTRUCTOR) {
+				if (args[0] == Kinds.KindName.CONSTRUCTOR) {
 					Object lastArg = args[args.length - 1];
 					if (lastArg instanceof JCDiagnostic subDiagnostic) {
 						args = subDiagnostic.getArgs();
@@ -1082,11 +1082,16 @@ public class JavacProblemConverter {
 				}
 				if (args[0] instanceof Symbol.MethodSymbol methodSymbol) {
 					if (methodSymbol.isConstructor()) {
-						if (jcDiagnostic.getDiagnosticPosition() instanceof JCTree.JCIdent id
-							&& id.getName() != null && id.getName().toString().equals("super")) {
-							return IProblem.NotVisibleConstructorInDefaultConstructor;
+						TreePath treePath = getTreePath(jcDiagnostic);
+						while (!(treePath.getLeaf() instanceof JCMethodDecl) && treePath != null) {
+							treePath = treePath.getParentPath();
 						}
-						return IProblem.NotVisibleConstructor;
+						if (treePath == null || !(treePath.getLeaf() instanceof JCMethodDecl methodDecl)) {
+							ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic + ". Expected the constructor invocation to be in a constructor.");
+							return 0;
+						}
+						boolean isDefault = (methodDecl.sym.flags() & Flags.GENERATEDCONSTR) != 0;
+						return isDefault ? IProblem.NotVisibleConstructorInDefaultConstructor : IProblem.NotVisibleConstructor;
 					}
 
 					return IProblem.NotVisibleMethod;
