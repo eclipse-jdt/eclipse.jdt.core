@@ -149,7 +149,7 @@ public class JavacUtils {
 		if (JavaCore.ENABLED.equals(compilerOptions.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT))) {
 			options.put(Option.XDOCLINT, Boolean.toString(true));
 		}
-		if (nineOrLater && javaProject instanceof JavaProject javaProjectImpl) {
+		if (nineOrLater && !options.isSet(Option.RELEASE) && javaProject instanceof JavaProject javaProjectImpl) {
 			try {
 				for (IClasspathEntry entry : javaProject.getRawClasspath()) {
 					if (entry.getPath() != null && entry.getPath().toString().startsWith("org.eclipse.jdt.launching.JRE_CONTAINER")) {
