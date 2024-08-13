@@ -40,7 +40,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
  * This gets all its tests from JavadocCompletionParserTest
  * but instead of regular Javadoc, the tests use markdown format
  */
-@SuppressWarnings({ "unchecked", "rawtypes" })
+@SuppressWarnings({ "unchecked" })
 public class MarkdownCompletionParserTest extends AbstractCompletionTest implements JavadocTagConstants {
 	public static int INLINE_ALL_TAGS_LENGTH = 0;
 	public static int BLOCK_ALL_TAGS_LENGTH = 0;
