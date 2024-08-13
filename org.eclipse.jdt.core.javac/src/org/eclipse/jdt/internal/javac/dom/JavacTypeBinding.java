@@ -619,14 +619,15 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return builder.toString();
 		}
 		StringBuilder builder = new StringBuilder(this.typeSymbol.getSimpleName().toString());
-		ITypeBinding[] types = this.getUncheckedTypeArguments(this.type, this.typeSymbol);
-
-		if (types != null && types.length > 0) {
-			builder.append("<");
-			for (var typeArgument : types) {
-				builder.append(typeArgument.getName());
+		if( !this.isDeclaration) {
+			ITypeBinding[] types = this.getUncheckedTypeArguments(this.type, this.typeSymbol);
+			if (types != null && types.length > 0) {
+				builder.append("<");
+				for (var typeArgument : types) {
+					builder.append(typeArgument.getName());
+				}
+				builder.append(">");
 			}
-			builder.append(">");
 		}
 		return builder.toString();
 	}
@@ -918,7 +919,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isGenericType() {
-		return this.type.isParameterized() && getTypeArguments() != NO_TYPE_ARGUMENTS && this.type.getTypeArguments().stream().anyMatch(TypeVar.class::isInstance);
+		return this.type.isParameterized() && this.isDeclaration && this.type.getTypeArguments().stream().anyMatch(TypeVar.class::isInstance);
 	}
 
 	@Override
