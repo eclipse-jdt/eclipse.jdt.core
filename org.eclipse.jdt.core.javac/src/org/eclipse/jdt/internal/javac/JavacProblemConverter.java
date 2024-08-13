@@ -27,6 +27,7 @@ import javax.tools.JavaFileObject;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -626,7 +627,13 @@ public class JavacProblemConverter {
 					// javac states that the method must have a body or be abstract;
 					// in the case of an interface where neither are required,
 					// this likely means the method has a private modifier.
-					yield IProblem.IllegalModifierForInterfaceMethod;
+					if (compilerOptions.complianceLevel < ClassFileConstants.JDK1_8) {
+						yield IProblem.IllegalModifierForInterfaceMethod;
+					} else if (compilerOptions.complianceLevel < ClassFileConstants.JDK9) {
+						yield IProblem.IllegalModifierForInterfaceMethod18;
+					} else {
+						yield IProblem.IllegalModifierForInterfaceMethod9;
+					}
 				}
 				yield IProblem.MethodRequiresBody;
 			}
@@ -644,10 +651,15 @@ public class JavacProblemConverter {
 			case "compiler.warn.strictfp" -> uselessStrictfp(diagnostic);
 			case "compiler.err.invalid.permits.clause" -> illegalModifier(diagnostic);
 			case "compiler.err.sealed.class.must.have.subclasses" -> IProblem.SealedSealedTypeMissingPermits;
-			case "compiler.err.feature.not.supported.in.source.plural" ->
-				diagnostic.getMessage(Locale.ENGLISH).contains("not supported in -source 8") ? IProblem.IllegalModifierForInterfaceMethod18 :
-				diagnostic.getMessage(Locale.ENGLISH).contains("not supported in -source 9") ? IProblem.IllegalModifierForInterfaceMethod9 :
-				IProblem.IllegalModifierForInterfaceMethod;
+			case "compiler.err.feature.not.supported.in.source.plural" -> {
+				if (compilerOptions.complianceLevel < ClassFileConstants.JDK1_8) {
+					yield IProblem.IllegalModifierForInterfaceMethod;
+				} else if (compilerOptions.complianceLevel < ClassFileConstants.JDK9) {
+					yield IProblem.IllegalModifierForInterfaceMethod18;
+				} else {
+					yield IProblem.IllegalModifierForInterfaceMethod9;
+				}
+			}
 			case "compiler.err.expression.not.allowable.as.annotation.value" -> IProblem.AnnotationValueMustBeConstant;
 			case "compiler.err.illegal.combination.of.modifiers" -> illegalCombinationOfModifiers(diagnostic);
 			case "compiler.err.duplicate.class" -> IProblem.DuplicateTypes;
@@ -881,7 +893,15 @@ public class JavacProblemConverter {
 							case ENUM -> IProblem.IllegalModifierForEnumConstructor;
 							default -> IProblem.IllegalModifierForConstructor;
 						} : switch (classDecl.getKind()) {
-							case INTERFACE -> IProblem.IllegalModifierForInterfaceMethod;
+							case INTERFACE -> {
+								if (compilerOptions.complianceLevel < ClassFileConstants.JDK1_8) {
+									yield IProblem.IllegalModifierForInterfaceMethod;
+								} else if (compilerOptions.complianceLevel < ClassFileConstants.JDK9) {
+									yield IProblem.IllegalModifierForInterfaceMethod18;
+								} else {
+									yield IProblem.IllegalModifierForInterfaceMethod9;
+								}
+							}
 							case ANNOTATION_TYPE -> IProblem.IllegalModifierForAnnotationMethod;
 							default -> IProblem.IllegalModifierForMethod;
 						};
