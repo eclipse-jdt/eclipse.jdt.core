@@ -105,6 +105,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	private int nonRegionTagCount, inlineTagCount;
 	final static String SINGLE_LINE_COMMENT = "//"; //$NON-NLS-1$
 
+	protected IMarkdownCommentHelper markdownHelper;
+
 	// Line pointers
 	private int linePtr, lastLinePtr;
 
@@ -194,6 +196,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			int previousPosition = this.index;
 			char nextCharacter = 0;
 			this.markdown = this.source[this.javadocStart + 1] == '/';
+			this.markdownHelper = IMarkdownCommentHelper.create(this);
 			if (realStart == this.javadocStart) {
 				nextCharacter = readChar(); // second '*' or '/'
 				if (!this.markdown) {
@@ -248,7 +251,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					case '@' :
 						// Start tag parsing only if we are on line beginning or at inline tag beginning
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: ignore all tags when inside @literal or @code tags
-						if (considerTagAsPlainText) {
+						if (considerTagAsPlainText || this.markdownHelper.isInCodeBlock()) {
 							// new tag found
 							if (!this.lineStarted) {
 								// we may want to report invalid syntax when no closing brace found,
@@ -287,7 +290,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								invalidInlineTagLineEnd = this.lineEnd;
 							} else if (this.textStart != -1 && this.textStart < invalidTagLineEnd) {
 								if(!lookForTagsInSnippets())
-								pushText(this.textStart, invalidTagLineEnd);
+									pushText(this.textStart, invalidTagLineEnd);
 							}
 							this.scanner.resetTo(this.index, this.javadocEnd);
 							this.currentTokenType = -1; // flush token cache at line begin
@@ -338,6 +341,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						lineHasStar = false;
 						// Fix bug 51650
 						this.textStart = -1;
+						this.markdownHelper.resetAtLineEnd();
 						break;
 					case '}' :
 						if (verifText && this.tagValue == TAG_RETURN_VALUE && this.returnStatement != null) {
@@ -417,6 +421,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							}
 						} else if (this.lineStarted && isDomParser) {
 							textEndPosition = this.index;
+						} else if (this.markdownHelper.recordSignificantLeadingSpace()) {
+							if (this.textStart == -1)
+								this.textStart = this.index; // first relevant whitespace is start of text
 						}
 						break;
 					case '*' :
@@ -443,23 +450,27 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						//$FALL-THROUGH$
 					case '/':
 						if (this.markdown) {
-							if (nextCharacter != '*') // fall-through
-								break;
+							this.markdownHelper.recordSlash(this.index);
+							break;
 						} else if (previousChar == '*') {
 							// End of javadoc
 							break;
 						}
 						// $FALL-THROUGH$ - fall through default case
 					default :
-						if (this.markdown && nextCharacter == '[') {
-							if (this.textStart != -1) {
-								if (this.textStart < textEndPosition) {
-									pushText(this.textStart, textEndPosition);
+						if (this.markdown) {
+							if (nextCharacter == '[') {
+								if (this.textStart != -1) {
+									if (this.textStart < textEndPosition) {
+										pushText(this.textStart, textEndPosition);
+									}
 								}
-							}
-							if (parseMarkdownLinks(previousPosition)) {
-								this.textStart = this.index;
-								break;
+								if (parseMarkdownLinks(previousPosition)) {
+									this.textStart = this.index;
+									break;
+								}
+							} else if (nextCharacter == '`') {
+								this.markdownHelper.recordBackTick(this.lineStarted);
 							}
 						}
 						if (isFormatterParser && nextCharacter == '<') {
@@ -1460,7 +1471,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			}
 
 			// Verify that we got a reference
-			if (reference == null) reference = typeRef;
+			reference = typeRef;
 			if (reference == null) {
 				this.index = this.tokenPreviousPosition;
 				this.scanner.currentPosition = this.tokenPreviousPosition;
@@ -3232,6 +3243,75 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			consider = false;
 		}
 		return consider;
+	}
+
+	/** compute the amount of indentation common to all non-blank lines of this markdown comment. */
+	int peekMarkdownCommonIndent(int start) {
+		final int START = 0;
+		final int TEXT = 1;
+		final int NEWLINE = 2;
+		int slashesSeen = 3;
+		int min = Integer.MAX_VALUE;
+		int textLineStart = start;
+		int state = START;
+		int idxSave = this.index;
+		this.index = start;
+		char nlChar = '\0';
+		try {
+			while (true) {
+				if (this.index >= this.scanner.eofPosition)
+					return min;
+				char c = readChar();
+				switch (state) {
+					case START -> {
+						if (c != ' ') {
+							if (c == '\r' || c == '\n') {
+								// "blank" line, i.e., no text after "///"
+								state = NEWLINE;
+								nlChar = c;
+								slashesSeen = 0;
+							} else {
+								min = Math.min(min, this.index - 1 - textLineStart);
+								state = TEXT;
+							}
+						}
+					}
+					case TEXT -> {
+						if (c == '\r' || c == '\n') {
+							state = NEWLINE;
+							nlChar = c;
+							slashesSeen = 0;
+						}
+					}
+					case NEWLINE -> {
+						switch (c) {
+							case '\n' -> {
+								if (nlChar == '\r') {
+									// saw "\r\n" -> no change
+								} else {
+									return min; // blank line seen
+								}
+							}
+							case ' ', '\t' -> {
+								nlChar = '\0';
+							}
+							case '/' -> {
+								if (++slashesSeen == 3) {
+									textLineStart = this.index;
+									state = START;
+									slashesSeen = 0;
+								}
+							}
+							default -> {
+								return min; // not a markdown line
+							}
+						}
+					}
+				}
+			}
+		} finally {
+			this.index = idxSave;
+		}
 	}
 
 	/*

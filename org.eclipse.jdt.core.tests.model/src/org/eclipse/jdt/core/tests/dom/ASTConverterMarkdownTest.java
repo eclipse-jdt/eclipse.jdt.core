@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -741,7 +742,12 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 				assumeEquals(this.prefix+"Wrong start position <"+tagStart+"> for "+tagElement, '{', source[tagStart++]);
 			}
 		}
-		if (tagName != null) {
+		checkTagName: if (tagName != null) {
+			if (tagName.equals(TagElement.TAG_LINK)) {
+				if (source[tagStart] != '@') {
+					break checkTagName; // @link is fabricated from "[...]", no tagName to check
+				}
+			}
 			text= new String(source, tagStart, tagName.length());
 			assumeEquals(this.prefix+"Misplaced tag name at <"+tagStart+">: ", tagName, text);
 			tagStart += tagName.length();
@@ -830,7 +836,6 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 				}
 				tagStart = getLinkTagStartPosition(tagName, source, tagStart);
 				if (fragment.getNodeType() == ASTNode.SIMPLE_NAME || fragment.getNodeType() == ASTNode.QUALIFIED_NAME) {
-					tagStart = getLinkTagStartPosition(tagName, source, tagStart);
 					verifyNamePositions(tagStart, (Name) fragment, source);
 				} else if (fragment.getNodeType() == ASTNode.TAG_ELEMENT) {
 					TagElement inlineTag = (TagElement) fragment;
@@ -975,7 +980,20 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 		}
 	}
 	private int getLinkTagStartPosition(String tagName, char[] source, int tagStart) {
-		if (tagName != null && tagName.equals("@link")) {
+		// recognize both "@link ref" and "[ref]" links:
+		if (tagName != null && tagName.equals(TagElement.TAG_LINK)) {
+			int tagLinkLength = TagElement.TAG_LINK.length();
+			if (tagStart + tagLinkLength < source.length) {
+				char[] tag = Arrays.copyOfRange(source, tagStart, tagStart+tagLinkLength);
+				if (TagElement.TAG_LINK.equals(String.valueOf(tag))) {
+					tagStart+=tagLinkLength;
+					while (Character.isWhitespace(source[tagStart])) {
+						tagStart++;
+					}
+					return tagStart;
+				}
+			}
+
 			while (source[tagStart] == '[' || source[tagStart] == ']') {
 				tagStart++; // purge non-stored characters
 			}
@@ -3234,6 +3252,122 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
 			TextElement textElement = (TextElement) fragment;
 			assumeEquals(this.prefix+"Invalid content for text element ", "{@link BadLink} is just text}", textElement.getText());
+		}
+	}
+
+	public void testGH2808() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/gh2808/LineStarts.java",
+				"""
+				package markdown.gh2808;
+
+				public class LineStarts {
+					/// Three
+					//// Four - show one slash
+					///// Five - show two slashes
+					/// Drei
+					void numberOfSlashes() { }
+
+					///  two
+					///
+					///none - all leadings spaces will be relevant
+					///
+					/// public void one()
+					///
+					///    public void four() // four spaces suffice for code
+					///
+					void numberOfSpaces1() { }
+
+					///  two
+					///
+					/// public void one()
+					///
+					///  public void two()
+					///
+					///    public void four()
+					///
+					///     public void five() // 4 leading blanks
+					///
+					/// public void one()
+					///
+					///    public void four()
+					///
+					///     public void five() // 4 leading blanks
+					void numberOfSpaces2() { }
+				}
+				"""
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		// verifyWorkingCopiesComments(); // not useful because it doesn't understand relevant line beginnings
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Verify comment type
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 3, unitComments.size());
+
+			{ // comments on numberOfSlashes()
+				Comment comment = (Comment) unitComments.get(0);
+				assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+				Javadoc docComment = (Javadoc) comment;
+				assertEquals(this.prefix+"Wrong number of tags", 1, docComment.tags().size());
+
+				TagElement tagElement = (TagElement) docComment.tags().get(0);
+				assumeNull(this.prefix+"Wrong type of tag ["+tagElement+"]", tagElement.getTagName());
+				assertEquals(this.prefix+"Wrong number of fragments in tag ["+tagElement+"]", 4, tagElement.fragments().size());
+				String[] lines = { " Three", "/ Four - show one slash", "// Five - show two slashes", " Drei" };
+				for (int i = 0; i < lines.length; i++) {
+					ASTNode fragment = (ASTNode) tagElement.fragments().get(i);
+					assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
+					assertEquals(this.prefix+"Wrong text content", lines[i], ((TextElement) fragment).getText());
+				}
+			}
+
+			{ // comments on numberOfSpaces1()
+				Comment comment = (Comment) unitComments.get(1);
+				assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+				Javadoc docComment = (Javadoc) comment;
+				assertEquals(this.prefix+"Wrong number of tags", 1, docComment.tags().size());
+
+				TagElement tagElement = (TagElement) docComment.tags().get(0);
+				assumeNull(this.prefix+"Wrong type of tag ["+tagElement+"]", tagElement.getTagName());
+				assertEquals(this.prefix+"Wrong number of fragments in tag ["+tagElement+"]", 4, tagElement.fragments().size());
+				String[] lines = {
+						"  two",
+						"none - all leadings spaces will be relevant",
+						" public void one()",
+						"    public void four() // four spaces suffice for code"
+					};
+				for (int i = 0; i < lines.length; i++) {
+					ASTNode fragment = (ASTNode) tagElement.fragments().get(i);
+					assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
+					assertEquals(this.prefix+"Wrong text content", lines[i], ((TextElement) fragment).getText());
+				}
+			}
+
+			{ // comments on numberOfSpaces2()
+				Comment comment = (Comment) unitComments.get(2);
+				assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+				Javadoc docComment = (Javadoc) comment;
+				assertEquals(this.prefix+"Wrong number of tags", 1, docComment.tags().size());
+
+				TagElement tagElement = (TagElement) docComment.tags().get(0);
+				assumeNull(this.prefix+"Wrong type of tag ["+tagElement+"]", tagElement.getTagName());
+				assertEquals(this.prefix+"Wrong number of fragments in tag ["+tagElement+"]", 8, tagElement.fragments().size());
+				String[] lines = {
+						" two",
+						"public void one()",
+						" public void two()",
+						"   public void four()",
+						"    public void five() // 4 leading blanks",
+						"public void one()",
+						"   public void four()",
+						"    public void five() // 4 leading blanks"
+					};
+				for (int i = 0; i < lines.length; i++) {
+					ASTNode fragment = (ASTNode) tagElement.fragments().get(i);
+					assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
+					assertEquals(this.prefix+"Wrong text content", lines[i], ((TextElement) fragment).getText());
+				}
+			}
 		}
 	}
 }
