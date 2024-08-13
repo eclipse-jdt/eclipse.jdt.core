@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Type.TypeVar;
 
@@ -27,9 +28,11 @@ import com.sun.tools.javac.code.Type.TypeVar;
 public abstract class JavacTypeVariableBinding extends JavacTypeBinding {
 	private final TypeVariableSymbol sym;
 	private final JavacBindingResolver bindingResolver;
+	private final TypeVar typeVar;
 
 	public JavacTypeVariableBinding(TypeVar type, TypeVariableSymbol sym, JavacBindingResolver bindingResolver) {
 		super(type, sym, false, bindingResolver);
+		this.typeVar = type;
 		this.sym = sym;
 		this.bindingResolver = bindingResolver;
 	}
@@ -37,6 +40,18 @@ public abstract class JavacTypeVariableBinding extends JavacTypeBinding {
 	@Override
 	public String getKey() {
 		StringBuilder builder = new StringBuilder();
+		if (this.typeVar instanceof Type.CapturedType capturedType) {
+			try {
+				builder.append('!');
+				JavacTypeBinding.getKey(builder, capturedType.wildcard, false, true);
+				// taken from Type.CapturedType.toString()
+				builder.append((capturedType.hashCode() & 0xFFFFFFFFL) % 997);
+				builder.append(';');
+				return builder.toString();
+			} catch (BindingKeyException e) {
+				return null;
+			}
+		}
 		if (this.sym.owner != null) {
 			IBinding ownerBinding = this.bindingResolver.bindings.getBinding(this.sym.owner, null);
 			if (ownerBinding != null) {
@@ -51,6 +66,9 @@ public abstract class JavacTypeVariableBinding extends JavacTypeBinding {
 
 	@Override
 	public String getQualifiedName() {
+		if (this.typeVar instanceof Type.CapturedType) {
+			return "";
+		}
 		return sym.getSimpleName().toString();
 	}
 
@@ -58,7 +76,7 @@ public abstract class JavacTypeVariableBinding extends JavacTypeBinding {
 	 * this is the one that's used in method params and such, not the one that's actually used as it's final resting place (RIP)
 	 * @param sym
 	 * @return
-	 * @throws BindingKeyException 
+	 * @throws BindingKeyException
 	 */
 	static String getTypeVariableKey(TypeVariableSymbol sym) throws BindingKeyException {
 		StringBuilder builder = new StringBuilder();
@@ -77,6 +95,14 @@ public abstract class JavacTypeVariableBinding extends JavacTypeBinding {
 
 	@Override
 	public String toString() {
+		if (this.typeVar instanceof Type.CapturedType capturedType) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("capture#");
+			builder.append((capturedType.hashCode() & 0xFFFFFFFFL) % 997);
+			builder.append("-of");
+			builder.append(getQualifiedNameImpl(capturedType.wildcard, capturedType.wildcard.tsym, capturedType.wildcard.tsym.owner, true));
+			return builder.toString();
+		}
 		return getKey();
 	}
 }

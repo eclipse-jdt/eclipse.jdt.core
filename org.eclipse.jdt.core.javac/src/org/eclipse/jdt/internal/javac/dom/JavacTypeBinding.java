@@ -49,12 +49,14 @@ import org.eclipse.jdt.core.dom.JavacBindingResolver;
 import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
+import com.sun.tools.javac.code.Printer;
 import com.sun.tools.javac.code.Kinds.Kind;
 import com.sun.tools.javac.code.Kinds.KindSelector;
 import com.sun.tools.javac.code.Symbol;
@@ -266,13 +268,21 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	static void getKey(StringBuilder builder, Type typeToBuild, boolean isLeaf) throws BindingKeyException {
 		getKey(builder, typeToBuild, typeToBuild.asElement().flatName(), isLeaf, false);
 	}
-	
+
 	static void getKey(StringBuilder builder, Type typeToBuild, boolean isLeaf, boolean includeParameters) throws BindingKeyException {
 		getKey(builder, typeToBuild, typeToBuild.asElement().flatName(), isLeaf, includeParameters);
 	}
 
 	static void getKey(StringBuilder builder, Type typeToBuild, Name n, boolean isLeaf, boolean includeParameters) throws BindingKeyException {
 		if (typeToBuild instanceof Type.JCNoType) {
+			return;
+		}
+		if (typeToBuild instanceof Type.CapturedType capturedType) {
+			builder.append('!');
+			getKey(builder, capturedType.wildcard, false, includeParameters);
+			// taken from Type.CapturedType.toString()
+			builder.append((capturedType.hashCode() & 0xFFFFFFFFL) % 997);
+			builder.append(';');
 			return;
 		}
 		if (typeToBuild.hasTag(TypeTag.UNKNOWN)) {
@@ -600,7 +610,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		}
 		StringBuilder builder = new StringBuilder(this.typeSymbol.getSimpleName().toString());
 		ITypeBinding[] types = this.getUncheckedTypeArguments(this.type, this.typeSymbol);
-		
+
 		if (types != null && types.length > 0) {
 			builder.append("<");
 			for (var typeArgument : types) {
@@ -625,11 +635,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	public String getQualifiedName() {
 		return getQualifiedNameImpl(this.type, this.typeSymbol, this.typeSymbol.owner, !this.isDeclaration);
 	}
-	private String getQualifiedNameImpl(Type type, TypeSymbol typeSymbol, Symbol owner, boolean includeParameters) {
-		if (owner instanceof MethodSymbol) {
-			return "";
-		}
-
+	protected String getQualifiedNameImpl(Type type, TypeSymbol typeSymbol, Symbol owner, boolean includeParameters) {
 		if (owner instanceof MethodSymbol) {
 			return "";
 		}
@@ -688,7 +694,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				res.append(">");
 			}
 		}
-		
+
 		// remove annotations here
 		int annotationIndex = -1;
 		while ((annotationIndex = res.lastIndexOf("@")) >= 0) {
@@ -804,6 +810,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			}
 			return new ITypeBinding[] { this.resolver.bindings.getTypeBinding(bounds) };
 		} else if (this.type instanceof WildcardType wildcardType) {
+			if (wildcardType.bound instanceof Type.TypeVar typeVar) {
+				return this.resolver.bindings.getTypeVariableBinding(typeVar).getTypeBounds();
+			}
 			return new ITypeBinding[] { wildcardType.isUnbound() || wildcardType.isSuperBound() ?
 					this.resolver.resolveWellKnownType(Object.class.getName()) :
 					this.resolver.bindings.getTypeBinding(wildcardType.bound) };
