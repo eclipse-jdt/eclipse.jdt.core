@@ -1034,6 +1034,8 @@ public class JavacProblemConverter {
 				return IProblem.VoidMethodReturnsValue;
 			} else if ("compiler.misc.missing.ret.val".equals(diagnosticArg.getCode())) {
 				return IProblem.ShouldReturnValue;
+			} else if ("compiler.misc.incompatible.ret.type.in.lambda".equals(diagnosticArg.getCode())) {
+				return IProblem.ShouldReturnValue;
 			}
 		}
 		if (diagnostic instanceof JCDiagnostic jcDiagnostic && jcDiagnostic.getDiagnosticPosition() instanceof JCTree tree) {
