@@ -252,18 +252,28 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	public String getKey() {
 		return getKey(this.type, this.typeSymbol.flatName());
 	}
+	
 	public String getKey(Type t) {
 		return getKey(t, this.typeSymbol.flatName());
 	}
+	
+	public String getKey(boolean includeTypeParameters) {
+		return getKey(this.type, this.typeSymbol.flatName(), includeTypeParameters);
+	}
+
 	public String getKey(Type t, Name n) {
+		return getKey(type, n, true);
+	}
+	public String getKey(Type t, Name n, boolean includeTypeParameters) {
 		try {
 			StringBuilder builder = new StringBuilder();
-			getKey(builder, t, n, false, true);
+			getKey(builder, t, n, false, includeTypeParameters);
 			return builder.toString();
 		} catch(BindingKeyException bke) {
 			return null;
 		}
 	}
+
 
 	static void getKey(StringBuilder builder, Type typeToBuild, boolean isLeaf) throws BindingKeyException {
 		getKey(builder, typeToBuild, typeToBuild.asElement().flatName(), isLeaf, false);

@@ -55,7 +55,11 @@ public abstract class JavacTypeVariableBinding extends JavacTypeBinding {
 		if (this.sym.owner != null) {
 			IBinding ownerBinding = this.bindingResolver.bindings.getBinding(this.sym.owner, null);
 			if (ownerBinding != null) {
-				builder.append(ownerBinding.getKey());
+				if( ownerBinding instanceof JavacTypeBinding jctb && !(ownerBinding instanceof JavacTypeVariableBinding)) {
+					builder.append(jctb.getKey(false));
+				} else {
+					builder.append(ownerBinding.getKey());
+				}
 			}
 		}
 		builder.append(":T");
