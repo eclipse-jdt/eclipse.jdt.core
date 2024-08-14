@@ -92,7 +92,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	public final TypeSymbol typeSymbol;
 	private final Types types;
 	private final Type type;
-	private boolean isDeclaration;
+	private final boolean isGeneric; // only relevent for parameterized types
 	private boolean recovered = false;
 
 	public JavacTypeBinding(final Type type, final TypeSymbol typeSymbol, boolean isDeclaration, JavacBindingResolver resolver) {
@@ -100,7 +100,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			throw new IllegalArgumentException("Use JavacPackageBinding");
 		}
 		this.type = type;
-		this.isDeclaration = isDeclaration;
+		this.isGeneric = type.isParameterized() && isDeclaration;
 		this.resolver = resolver;
 		this.types = Types.instance(this.resolver.context);
 		// TODO: consider getting rid of typeSymbol in constructor and always derive it from type
@@ -112,11 +112,12 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		return obj instanceof JavacTypeBinding other
 				&& Objects.equals(this.resolver, other.resolver)
 				&& Objects.equals(this.type, other.type)
-				&& Objects.equals(this.typeSymbol, other.typeSymbol);
+				&& Objects.equals(this.typeSymbol, other.typeSymbol)
+				&& Objects.equals(this.isGeneric, other.isGeneric);
 	}
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.resolver, this.type, this.typeSymbol);
+		return Objects.hash(this.resolver, this.type, this.typeSymbol, this.isGeneric);
 	}
 
 	@Override
@@ -250,10 +251,27 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public String getKey() {
+		if (isGenericType()) {
+			return removeTrailingSemicolon(getKey(false)) + '<'
+				+ Arrays.stream(getTypeParameters())
+					.map(ITypeBinding::getName)
+					.map(name -> 'T' + name + ';')
+					.collect(Collectors.joining())
+				+ ">;";
+		} else if (isParameterizedType()) {
+			return removeTrailingSemicolon(getKey(false)) + '<'
+				+ Arrays.stream(getTypeArguments()).map(ITypeBinding::getKey).collect(Collectors.joining())
+				+ ">;";
+		}
 		return getKey(this.type, this.typeSymbol.flatName());
 	}
 	
-	public String getKey(Type t) {
+
+	private static String removeTrailingSemicolon(String key) {
+		return key.endsWith(";") ? key.substring(0, key.length() - 1) : key;
+	}
+
+	private String getKey(Type t) {
 		return getKey(t, this.typeSymbol.flatName());
 	}
 	
@@ -497,7 +515,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		Symbol parentSymbol = this.typeSymbol.owner;
 		do {
 			if (parentSymbol instanceof final ClassSymbol clazz) {
-				return this.resolver.bindings.getTypeBinding(clazz.type);
+				return this.resolver.bindings.getTypeBinding(clazz.type, true);
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);
@@ -550,6 +568,14 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding getErasure() {
+		if (isParameterizedType()) {
+			// generic binding
+			return this.resolver.bindings.getTypeBinding(this.type, true);
+		}
+		if (isRawType() && this.typeSymbol.type.isParameterized()) {
+			// generic binding
+			return this.resolver.bindings.getTypeBinding(this.typeSymbol.type, true);
+		}
 		return this.resolver.bindings.getTypeBinding(this.types.erasureRecursive(this.type));
 	}
 
@@ -619,7 +645,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return builder.toString();
 		}
 		StringBuilder builder = new StringBuilder(this.typeSymbol.getSimpleName().toString());
-		if( !this.isDeclaration) {
+		if(isParameterizedType()) {
 			ITypeBinding[] types = this.getUncheckedTypeArguments(this.type, this.typeSymbol);
 			if (types != null && types.length > 0) {
 				builder.append("<");
@@ -644,7 +670,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public String getQualifiedName() {
-		return getQualifiedNameImpl(this.type, this.typeSymbol, this.typeSymbol.owner, !this.isDeclaration);
+		return getQualifiedNameImpl(this.type, this.typeSymbol, this.typeSymbol.owner, !this.isGeneric);
 	}
 	protected String getQualifiedNameImpl(Type type, TypeSymbol typeSymbol, Symbol owner, boolean includeParameters) {
 		if (owner instanceof MethodSymbol) {
@@ -691,7 +717,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			res.append(typeSymbol.toString());
 		}
 
-		if( includeParameters ) {
+		if (includeParameters) {
 			ITypeBinding[] typeArguments = getUncheckedTypeArguments(type, typeSymbol);
 			boolean isTypeDeclaration = typeSymbol != null && typeSymbol.type == type;
 			if (!isTypeDeclaration && typeArguments.length > 0) {
@@ -767,15 +793,12 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding[] getTypeArguments() {
-		return getTypeArguments(this.type, this.typeSymbol);
-	}
-
-	private ITypeBinding[] getTypeArguments(Type t, TypeSymbol ts) {
-		if (t == ts.type || t.getTypeArguments().isEmpty() || isTargettingPreGenerics()) {
+		if (!isParameterizedType() || isTargettingPreGenerics()) {
 			return NO_TYPE_ARGUMENTS;
 		}
-		return getUncheckedTypeArguments(t, ts);
+		return getUncheckedTypeArguments(this.type, this.typeSymbol);
 	}
+
 	private ITypeBinding[] getUncheckedTypeArguments(Type t, TypeSymbol ts) {
 		return t.getTypeArguments()
 				.stream()
@@ -833,6 +856,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding getTypeDeclaration() {
+		if (this.isParameterizedType() || this.isRawType()) {
+			return getErasure();
+		}
 		return this.typeSymbol.type == this.type
 			? this
 			: this.resolver.bindings.getTypeBinding(this.typeSymbol.type);
@@ -840,7 +866,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding[] getTypeParameters() {
-		if( isRawType() || getTypeArguments() == NO_TYPE_ARGUMENTS || !(this.type instanceof ClassType)) {
+		if(!isGenericType() || isTargettingPreGenerics()) {
 			return new ITypeBinding[0];
 		}
 		return ((ClassType)this.type).getTypeArguments()
@@ -919,7 +945,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isGenericType() {
-		return this.type.isParameterized() && this.isDeclaration && this.type.getTypeArguments().stream().anyMatch(TypeVar.class::isInstance);
+		return this.type.isParameterized() && this.isGeneric;
 	}
 
 	@Override
@@ -962,7 +988,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isParameterizedType() {
-		return !this.type.getTypeArguments().isEmpty();
+		return this.type.isParameterized() && !this.isGeneric;
 	}
 
 	@Override

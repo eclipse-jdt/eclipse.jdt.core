@@ -197,7 +197,7 @@ public class JavacBindingResolver extends BindingResolver {
 			return getTypeBinding(type, tree instanceof JCClassDecl);
 		}
 		public JavacTypeBinding getTypeBinding(com.sun.tools.javac.code.Type type) {
-			return getTypeBinding(type, false);
+			return getTypeBinding(type.baseType() /* remove metadata for constant values */, false);
 		}
 		public JavacTypeBinding getTypeBinding(com.sun.tools.javac.code.Type type, boolean isDeclaration) {
 			if (type instanceof com.sun.tools.javac.code.Type.TypeVar typeVar) {
@@ -513,7 +513,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(enumDecl);
 		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
-			return this.bindings.getTypeBinding(jcClassDecl.type);
+			return this.bindings.getTypeBinding(jcClassDecl.type, true);
 		}
 		return null;
 	}
@@ -523,7 +523,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(anonymousClassDecl);
 		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
-			return this.bindings.getTypeBinding(jcClassDecl.type);
+			return this.bindings.getTypeBinding(jcClassDecl.type, true);
 		}
 		return null;
 	}
@@ -753,11 +753,13 @@ public class JavacBindingResolver extends BindingResolver {
 	}
 
 	IBinding resolveNameToJavac(Name name, JCTree tree) {
+		boolean isTypeDeclaration = (name.getParent() instanceof AbstractTypeDeclaration typeDeclaration && typeDeclaration.getName() == name)
+				|| (name.getParent() instanceof SimpleType type && type.getName() == name);
 		if( name.getParent() instanceof AnnotatableType st && st.getParent() instanceof ParameterizedType pt) {
 			if( st == pt.getType()) {
 				tree = this.converter.domToJavac.get(pt);
 				if (!tree.type.isErroneous()) {
-					IBinding b = this.bindings.getTypeBinding(tree.type);
+					IBinding b = this.bindings.getTypeBinding(tree.type, isTypeDeclaration);
 					if( b != null ) {
 						return b;
 					}
@@ -769,6 +771,9 @@ public class JavacBindingResolver extends BindingResolver {
 			if (ident.type instanceof ErrorType errorType
 					&& errorType.getOriginalType() instanceof ErrorType) {
 				return null;
+			}
+			if (isTypeDeclaration) {
+				return this.bindings.getTypeBinding(ident.type != null ? ident.type : ident.sym.type, true);
 			}
 			return this.bindings.getBinding(ident.sym, ident.type != null ? ident.type : ident.sym.type);
 		}
@@ -1114,7 +1119,7 @@ public class JavacBindingResolver extends BindingResolver {
 		if (type == null) {
 			return null;
 		}
-		return this.bindings.getTypeBinding(type);
+		return this.bindings.getTypeBinding(type, true);
 	}
 
 	@Override
