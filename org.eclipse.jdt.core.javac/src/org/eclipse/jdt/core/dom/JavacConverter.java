@@ -1401,7 +1401,12 @@ class JavacConverter {
 			PatternInstanceofExpression res = this.ast.newPatternInstanceofExpression();
 			commonSettings(res, javac);
 			res.setLeftOperand(convertExpression(jcInstanceOf.getExpression()));
-			res.setPattern(convert(jcPattern));
+			Pattern p = convert(jcPattern);
+			if( p != null && this.ast.apiLevel >= AST.JLS20_INTERNAL)
+				res.setPattern(convert(jcPattern));
+			else {
+				res.setRightOperand(convertToSingleVarDecl(jcPattern));
+			}
 			return res;
 		}
 		if (javac instanceof JCArrayAccess jcArrayAccess) {
@@ -1625,6 +1630,14 @@ class JavacConverter {
 		return null;
 	}
 
+	private SingleVariableDeclaration convertToSingleVarDecl(JCPattern jcPattern) {
+		if( jcPattern instanceof JCBindingPattern jcbp && jcbp.var instanceof JCVariableDecl decl) {
+			SingleVariableDeclaration vdd = (SingleVariableDeclaration)convertVariableDeclaration(decl);
+			return vdd;
+		}
+		return null;
+	}
+
 	private List<JCExpression> consecutiveInfixExpressionsWithEqualOps(JCBinary binary, Tag opcode) {
 		return consecutiveInfixExpressionsWithEqualOps(binary, opcode, new ArrayList<JCExpression>());
 	}
@@ -1769,29 +1782,31 @@ class JavacConverter {
 	}
 
 	private Pattern convert(JCPattern jcPattern) {
-		if (jcPattern instanceof JCBindingPattern jcBindingPattern) {
-			TypePattern jdtPattern = this.ast.newTypePattern();
-			commonSettings(jdtPattern, jcBindingPattern);
-			jdtPattern.setPatternVariable((SingleVariableDeclaration)convertVariableDeclaration(jcBindingPattern.var));
-			return jdtPattern;
-		} else if (jcPattern instanceof JCRecordPattern jcRecordPattern) {
-			RecordPattern jdtPattern = this.ast.newRecordPattern();
-			commonSettings(jdtPattern, jcRecordPattern);
-			jdtPattern.setPatternType(convertToType(jcRecordPattern.deconstructor));
-			for (JCPattern nestedJcPattern : jcRecordPattern.nested) {
-				jdtPattern.patterns().add(convert(nestedJcPattern));
+		if (this.ast.apiLevel >= AST.JLS21_INTERNAL) {
+			if (jcPattern instanceof JCBindingPattern jcBindingPattern) {
+				TypePattern jdtPattern = this.ast.newTypePattern();
+				commonSettings(jdtPattern, jcBindingPattern);
+				jdtPattern.setPatternVariable((SingleVariableDeclaration)convertVariableDeclaration(jcBindingPattern.var));
+				return jdtPattern;
+			} else if (jcPattern instanceof JCRecordPattern jcRecordPattern) {
+				RecordPattern jdtPattern = this.ast.newRecordPattern();
+				commonSettings(jdtPattern, jcRecordPattern);
+				jdtPattern.setPatternType(convertToType(jcRecordPattern.deconstructor));
+				for (JCPattern nestedJcPattern : jcRecordPattern.nested) {
+					jdtPattern.patterns().add(convert(nestedJcPattern));
+				}
+				return jdtPattern;
+			} else if (jcPattern instanceof JCAnyPattern jcAnyPattern) {
+				TypePattern jdtPattern = this.ast.newTypePattern();
+				commonSettings(jdtPattern, jcAnyPattern);
+				VariableDeclarationFragment variable = this.ast.newVariableDeclarationFragment();
+				commonSettings(variable, jcAnyPattern);
+				variable.setName(this.ast.newSimpleName("_"));
+				jdtPattern.setPatternVariable(variable);
+				return jdtPattern;
 			}
-			return jdtPattern;
-		} else if (jcPattern instanceof JCAnyPattern jcAnyPattern) {
-			TypePattern jdtPattern = this.ast.newTypePattern();
-			commonSettings(jdtPattern, jcAnyPattern);
-			VariableDeclarationFragment variable = this.ast.newVariableDeclarationFragment();
-			commonSettings(variable, jcAnyPattern);
-			variable.setName(this.ast.newSimpleName("_"));
-			jdtPattern.setPatternVariable(variable);
-			return jdtPattern;
 		}
-		throw new UnsupportedOperationException("Missing support to convert '" + jcPattern);
+		return null;
 	}
 
 	private ArrayInitializer createArrayInitializerFromJCNewArray(JCNewArray jcNewArray) {
