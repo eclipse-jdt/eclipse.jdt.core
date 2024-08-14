@@ -194,10 +194,12 @@ public abstract class Pattern extends Expression {
 				 //TODO: a widening reference conversion followed by an unboxing conversion
 				 //TODO: a widening reference conversion followed by an unboxing conversion, then followed by a widening primitive conversion
 				 //TODO: a narrowing reference conversion that is checked followed by an unboxing conversion
-				 //TODO: an unboxing conversion (5.1.8)
+				 //an unboxing conversion (5.1.8)
 				if (TypeBinding.equalsEquals(destinationType, unboxedExpressionType))
 					return PrimitiveConversionRoute.UNBOXING_CONVERSION;
-				 //TODO: an unboxing conversion followed by a widening primitive conversion
+				 //an unboxing conversion followed by a widening primitive conversion
+				if (BaseTypeBinding.isWidening(destinationType.id, unboxedExpressionType.id))
+					return PrimitiveConversionRoute.UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION;
 			}
 		}
 		return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
