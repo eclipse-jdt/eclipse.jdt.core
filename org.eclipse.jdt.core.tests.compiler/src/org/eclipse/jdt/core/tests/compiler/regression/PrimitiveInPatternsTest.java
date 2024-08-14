@@ -31,7 +31,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testNonPrim001" };
+//		TESTS_NAMES = new String[] { "test192" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -5119,6 +5119,455 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+
+    // reference - unboxing plus widening primitive
+	public void test191() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static short Byte2short(Byte b) {
+						if (b instanceof short) {
+							short r = (short) b;
+							return r;
+						}
+						return 0;
+					}
+					public static void main(String[] args) {
+						byte b = 1;
+						System.out.println(X.Byte2short(b));
+					}
+				}
+			    """
+			},
+			"1");
+	}
+
+	public void test192() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+					public class X {
+						public static short Byte2short(Byte b) {
+							if (b instanceof short r) {
+								return r;
+							}
+							return 0;
+						}
+						public static void main(String[] args) {
+							byte b = 1;
+							System.out.println(X.Byte2short(b));
+						}
+					}
+			    """
+			},
+			"1");
+	}
+
+	public void test193() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static short Byte2short() {
+						if (getByte() instanceof short) {
+							short r = (short) getByte();
+							return r;
+						}
+						return 0;
+					}
+					private static Byte getByte() {
+						return 1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.Byte2short());
+					}
+				}
+			    """
+			},
+			"1");
+	}
+
+	public void test194() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static short Byte2short() {
+						if (getByte() instanceof short r) {
+							return r;
+						}
+						return 0;
+					}
+					private static Byte getByte() {
+						return 1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.Byte2short());
+					}
+				}
+			    """
+			},
+			"1");
+	}
+
+    public void test195() {
+        runConformTest(new String[] {
+            "X.java",
+                """
+                public class X {
+                    public static int Byte2int(Byte b) {
+                        if (b instanceof int) {
+                            int r = (int) b;
+                            return r;
+                        }
+                        return 0;
+                    }
+                    public static void main(String[] args) {
+                        byte b = 1;
+                        System.out.println(X.Byte2int(b));
+                    }
+                }
+                """
+            },
+            "1");
+    }
+
+    public void test196() {
+        runConformTest(new String[] {
+            "X.java",
+                """
+                    public class X {
+                        public static int Byte2int(Byte b) {
+                            if (b instanceof int r) {
+                                return r;
+                            }
+                            return 0;
+                        }
+                        public static void main(String[] args) {
+                            byte b = 1;
+                            System.out.println(X.Byte2int(b));
+                        }
+                    }
+                """
+            },
+            "1");
+    }
+
+    public void test197() {
+        runConformTest(new String[] {
+            "X.java",
+                """
+                public class X {
+                    public static int Byte2int() {
+                        if (getByte() instanceof int) {
+                            int r = (int) getByte();
+                            return r;
+                        }
+                        return 0;
+                    }
+                    private static Byte getByte() {
+                        return 1;
+                    }
+                    public static void main(String[] args) {
+                        System.out.println(X.Byte2int());
+                    }
+                }
+                """
+            },
+            "1");
+    }
+
+    public void test198() {
+        runConformTest(new String[] {
+            "X.java",
+                """
+                public class X {
+                    public static int Byte2int() {
+                        if (getByte() instanceof int r) {
+                            return r;
+                        }
+                        return 0;
+                    }
+                    private static Byte getByte() {
+                        return 1;
+                    }
+                    public static void main(String[] args) {
+                        System.out.println(X.Byte2int());
+                    }
+                }
+                """
+            },
+            "1");
+    }
+    public void test199() {
+        runConformTest(new String[] {
+            "X.java",
+                """
+                public class X {
+                    public static long Byte2long(Byte b) {
+                        if (b instanceof long) {
+                            long r = (long) b;
+                            return r;
+                        }
+                        return 0;
+                    }
+                    public static void main(String[] args) {
+                        byte b = 1;
+                        System.out.println(X.Byte2long(b));
+                    }
+                }
+                """
+            },
+            "1");
+    }
+
+    public void test200() {
+        runConformTest(new String[] {
+            "X.java",
+                """
+                    public class X {
+                        public static long Byte2long(Byte b) {
+                            if (b instanceof long r) {
+                                return r;
+                            }
+                            return 0;
+                        }
+                        public static void main(String[] args) {
+                            byte b = 1;
+                            System.out.println(X.Byte2long(b));
+                        }
+                    }
+                """
+            },
+            "1");
+    }
+
+    public void test201() {
+        runConformTest(new String[] {
+            "X.java",
+                """
+                public class X {
+                    public static long Byte2long() {
+                        if (getByte() instanceof long) {
+                            long r = (long) getByte();
+                            return r;
+                        }
+                        return 0;
+                    }
+                    private static Byte getByte() {
+                        return 1;
+                    }
+                    public static void main(String[] args) {
+                        System.out.println(X.Byte2long());
+                    }
+                }
+                """
+            },
+            "1");
+    }
+
+    public void test202() {
+        runConformTest(new String[] {
+            "X.java",
+                """
+                public class X {
+                    public static long Byte2long() {
+                        if (getByte() instanceof long r) {
+                            return r;
+                        }
+                        return 0;
+                    }
+                    private static Byte getByte() {
+                        return 1;
+                    }
+                    public static void main(String[] args) {
+                        System.out.println(X.Byte2long());
+                    }
+                }
+                """
+            },
+            "1");
+    }
+    public void test203() {
+        runConformTest(new String[] {
+            "X.java",
+                """
+                public class X {
+                    public static float Byte2float(Byte b) {
+                        if (b instanceof float) {
+                            float r = (float) b;
+                            return r;
+                        }
+                        return 0.0f;
+                    }
+                    public static void main(String[] args) {
+                        byte b = 1;
+                        System.out.println(X.Byte2float(b));
+                    }
+                }
+                """
+            },
+            "1.0");
+    }
+
+    public void test204() {
+        runConformTest(new String[] {
+            "X.java",
+                """
+                    public class X {
+                        public static float Byte2float(Byte b) {
+                            if (b instanceof float r) {
+                                return r;
+                            }
+                            return 0.0f;
+                        }
+                        public static void main(String[] args) {
+                            byte b = 1;
+                            System.out.println(X.Byte2float(b));
+                        }
+                    }
+                """
+            },
+            "1.0");
+    }
+
+    public void test205() {
+        runConformTest(new String[] {
+            "X.java",
+                """
+                public class X {
+                    public static float Byte2float() {
+                        if (getByte() instanceof float) {
+                            float r = (float) getByte();
+                            return r;
+                        }
+                        return 0.0f;
+                    }
+                    private static Byte getByte() {
+                        return 1;
+                    }
+                    public static void main(String[] args) {
+                        System.out.println(X.Byte2float());
+                    }
+                }
+                """
+            },
+            "1.0");
+    }
+
+    public void test206() {
+        runConformTest(new String[] {
+            "X.java",
+                """
+                public class X {
+                    public static float Byte2float() {
+                        if (getByte() instanceof float r) {
+                            return r;
+                        }
+                        return 0.0f;
+                    }
+                    private static Byte getByte() {
+                        return 1;
+                    }
+                    public static void main(String[] args) {
+                        System.out.println(X.Byte2float());
+                    }
+                }
+                """
+            },
+            "1.0");
+    }
+    public void test207() {
+        runConformTest(new String[] {
+            "X.java",
+                """
+                public class X {
+                    public static double Byte2double(Byte b) {
+                        if (b instanceof double) {
+                            double r = (double) b;
+                            return r;
+                        }
+                        return 0.0d;
+                    }
+                    public static void main(String[] args) {
+                        byte b = 1;
+                        System.out.println(X.Byte2double(b));
+                    }
+                }
+                """
+            },
+            "1.0");
+    }
+
+    public void test208() {
+        runConformTest(new String[] {
+            "X.java",
+                """
+                    public class X {
+                        public static double Byte2double(Byte b) {
+                            if (b instanceof double r) {
+                                return r;
+                            }
+                            return 0.0d;
+                        }
+                        public static void main(String[] args) {
+                            byte b = 1;
+                            System.out.println(X.Byte2double(b));
+                        }
+                    }
+                """
+            },
+            "1.0");
+    }
+
+    public void test209() {
+        runConformTest(new String[] {
+            "X.java",
+                """
+                public class X {
+                    public static double Byte2double() {
+                        if (getByte() instanceof double) {
+                            double r = (double) getByte();
+                            return r;
+                        }
+                        return 0.0d;
+                    }
+                    private static Byte getByte() {
+                        return 1;
+                    }
+                    public static void main(String[] args) {
+                        System.out.println(X.Byte2double());
+                    }
+                }
+                """
+            },
+            "1.0");
+    }
+
+    public void test210() {
+        runConformTest(new String[] {
+            "X.java",
+                """
+                public class X {
+                    public static double Byte2double() {
+                        if (getByte() instanceof double r) {
+                            return r;
+                        }
+                        return 0.0d;
+                    }
+                    private static Byte getByte() {
+                        return 1;
+                    }
+                    public static void main(String[] args) {
+                        System.out.println(X.Byte2double());
+                    }
+                }
+                """
+            },
+            "1.0");
+    }
+
     public void testNonPrim001() {
 		runConformTest(new String[] {
 			"X.java",
