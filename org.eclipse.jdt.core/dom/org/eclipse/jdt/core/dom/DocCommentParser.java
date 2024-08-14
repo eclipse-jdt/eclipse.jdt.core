@@ -259,6 +259,7 @@ class DocCommentParser extends AbstractCommentParser {
 		}
 		tagElement.setSourceRange(start, this.tagSourceEnd-start+1);
 		this.scanner.resetTo(position, this.javadocEnd);
+		this.markdownHelper.resetLineStart();
 	}
 
 	@Override
@@ -773,6 +774,7 @@ class DocCommentParser extends AbstractCommentParser {
 							// If last fragment is a tag, then use it as previous tag
 							ASTNode lastFragment = (ASTNode) fragments.get(size-1);
 							if (lastFragment.getNodeType() == ASTNode.TAG_ELEMENT) {
+								lastFragment.setSourceRange(lastFragment.getStartPosition(), this.index - previousPosition);
 								previousTag = (TagElement) lastFragment;
 							}
 						}
@@ -797,11 +799,13 @@ class DocCommentParser extends AbstractCommentParser {
 			}
 			currentChar = readChar();
 		}
+		this.markdownHelper.resetLineStart();
 		return valid;
 	}
 
 	@Override
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
+		this.markdownHelper.resetLineStart();
 
 		// Read tag name
 		int currentPosition = this.index;
@@ -1127,6 +1131,7 @@ class DocCommentParser extends AbstractCommentParser {
 
 	@Override
 	protected void pushText(int start, int end) {
+		start = this.markdownHelper.getTextStart(start);
 
 		// Create text element
 		TextElement text = this.ast.newTextElement();
