@@ -1306,12 +1306,17 @@ private static boolean waitUntilFileDeleted(File file) {
         System.out.print("	- wait for ("+DELETE_MAX_WAIT+"ms max): ");
     }
     int count = 0;
-    int delay = 10; // ms
+    int delay = 1; // ms
     int maxRetry = DELETE_MAX_WAIT / delay;
     int time = 0;
     while (count < maxRetry) {
         try {
             count++;
+
+            // manually trigger GC to invoke Cleaner for ZipFile that is forgotten to be closed
+            // see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2766
+            System.gc(); // workaround
+
             Thread.sleep(delay);
             time += delay;
             if (time > DELETE_MAX_TIME) DELETE_MAX_TIME = time;
