@@ -184,9 +184,38 @@ public class JavacBindingResolver extends BindingResolver {
 		private Map<String, JavacPackageBinding> packageBindings = new HashMap<>();
 		public JavacPackageBinding getPackageBinding(PackageSymbol packageSymbol) {
 			JavacPackageBinding newInstance = new JavacPackageBinding(packageSymbol, JavacBindingResolver.this) { };
-			String k = newInstance.getKey();
+			return preferentiallyInsertPackageBinding(newInstance);
+		}
+		public JavacPackageBinding getPackageBinding(Name name) {
+			String n = null;
+			if( name instanceof QualifiedName ) 
+				n = name.toString();
+			else if( name instanceof SimpleName snn) {
+				if( name.getParent() instanceof QualifiedName qn) {
+					if( qn.getName() == name ) {
+						n = qn.toString();
+					} else if( qn.getQualifier() == name) {
+						n = name.toString();
+					}
+				}
+			}
+			if( n == null )
+				return null;
+			JavacPackageBinding newInstance = new JavacPackageBinding(n, JavacBindingResolver.this) {};
+			return preferentiallyInsertPackageBinding(newInstance);
+		}
+		private JavacPackageBinding preferentiallyInsertPackageBinding(JavacPackageBinding newest) {
+			// A package binding may be created while traversing something as simple as a name. 
+			// The binding using name-only logic should be instantiated, but 
+			// when a proper symbol is found, it should be added to that object. 
+			String k = newest == null ? null : newest.getKey();
 			if( k != null ) {
-				packageBindings.putIfAbsent(k, newInstance);
+				JavacPackageBinding current = packageBindings.get(k);
+				if( current == null ) {
+					packageBindings.putIfAbsent(k, newest);
+				} else if( current.getPackageSymbol() == null && newest.getPackageSymbol() != null) {
+					current.setPackageSymbol(newest.getPackageSymbol());
+				}
 				return packageBindings.get(k);
 			}
 			return null;
@@ -309,7 +338,6 @@ public class JavacBindingResolver extends BindingResolver {
 			}
 			return this.variableBindings.get(key);
 		}
-
 	}
 	public final Bindings bindings = new Bindings();
 	private WorkingCopyOwner owner;
@@ -374,7 +402,7 @@ public class JavacBindingResolver extends BindingResolver {
 			return method.methodSymbol;
 		}
 		if (binding instanceof JavacPackageBinding packageBinding) {
-			return packageBinding.packageSymbol;
+			return packageBinding.getPackageSymbol();
 		}
 		if (binding instanceof JavacTypeBinding type) {
 			return type.typeSymbol;
@@ -716,6 +744,14 @@ public class JavacBindingResolver extends BindingResolver {
 				return this.bindings.getBinding(symbol, null);
 			}
 		}
+		
+		PackageSymbol ps = findPackageSymbol(name);
+		if( ps != null ) {
+			return this.bindings.getPackageBinding(ps);
+		}
+		if( isPackageName(name)) {
+			return this.bindings.getPackageBinding(name);
+		}
 		if (tree == null && (name.getFlags() & ASTNode.ORIGINAL) != 0) {
 			tree = this.converter.domToJavac.get(name.getParent());
 			if( tree instanceof JCFieldAccess jcfa) {
@@ -728,26 +764,50 @@ public class JavacBindingResolver extends BindingResolver {
 			IBinding ret = resolveNameToJavac(name, tree);
 			return ret;
 		}
-//		if (name.getParent() instanceof MethodRef methodRef && methodRef.getQualifier() == name) {
-//			path = this.converter.findDocTreePath(methodRef);
-//			if (path != null) {
-//				if (JavacTrees.instance(this.context).getElement(path) instanceof Symbol symbol
-//						&& this.bindings.getBinding(symbol, null) instanceof IMethodBinding method) {
-//					return method.getDeclaringClass();
-//				}
-//			}
-//		}
-//		if (name.getParent() instanceof MethodRef methodRef && methodRef.getQualifier() == name) {
-//			path = this.converter.findDocTreePath(methodRef);
-//			if (path != null) {
-//				if (JavacTrees.instance(this.context).getElement(path) instanceof Symbol symbol
-//						&& this.bindings.getBinding(symbol, null) instanceof IMethodBinding method) {
-//					return method.getDeclaringClass();
-//				}
-//			}
-//		}
 		if (name.getParent() instanceof Type type) { // case of "var"
 			return resolveType(type);
+		}
+		return null;
+	}
+
+	private boolean isPackageName(Name name) {
+		ASTNode working = name;
+		boolean insideQualifier = false;
+		while( working instanceof Name ) {
+			JCTree tree = this.converter.domToJavac.get(working);
+			if( tree instanceof JCFieldAccess jcfa) {
+				return jcfa.sym instanceof PackageSymbol;
+			}
+			if( working instanceof QualifiedName qnn) {
+				if( qnn.getQualifier() == working) {
+					insideQualifier = true;
+				}
+			}
+			working = working.getParent();
+		}
+		return insideQualifier;
+	}
+	
+	private PackageSymbol findPackageSymbol(Name name) {
+		if( name instanceof SimpleName sn) {
+			ASTNode parent = sn.getParent();
+			if( parent instanceof QualifiedName qn) {
+				JCTree tree = this.converter.domToJavac.get(parent);
+				if( tree instanceof JCFieldAccess jcfa) {
+					if( qn.getQualifier().equals(name)) {
+						if( jcfa.selected instanceof JCIdent jcid && jcid.sym instanceof PackageSymbol pss)
+							return  pss;
+					} else if( qn.getName().equals(name)) {
+						return jcfa.sym instanceof PackageSymbol pss ? pss : null;
+					}
+				}
+			}
+		}
+		if( name instanceof QualifiedName qn ) {
+			JCTree tree = this.converter.domToJavac.get(qn);
+			if( tree instanceof JCFieldAccess jcfa) {
+				return jcfa.sym instanceof PackageSymbol pss ? pss : null;
+			}
 		}
 		return null;
 	}
@@ -776,6 +836,9 @@ public class JavacBindingResolver extends BindingResolver {
 				return this.bindings.getTypeBinding(ident.type != null ? ident.type : ident.sym.type, true);
 			}
 			return this.bindings.getBinding(ident.sym, ident.type != null ? ident.type : ident.sym.type);
+		}
+		if (tree instanceof JCTypeApply variableDecl && variableDecl.type != null) {
+			return this.bindings.getTypeBinding(variableDecl.type);
 		}
 		if (tree instanceof JCFieldAccess fieldAccess && fieldAccess.sym != null) {
 			return this.bindings.getBinding(fieldAccess.sym, fieldAccess.type);

@@ -26,28 +26,26 @@ import com.sun.tools.javac.code.Symbol.PackageSymbol;
 
 public abstract class JavacPackageBinding implements IPackageBinding {
 
-	public final PackageSymbol packageSymbol;
+	private PackageSymbol packageSymbol;
 	final JavacBindingResolver resolver;
+	private String nameString;
 
 	public JavacPackageBinding(PackageSymbol packge, JavacBindingResolver resolver) {
-		this.packageSymbol = packge;
+		this.setPackageSymbol(packge);
+		this.nameString = packge.getQualifiedName().toString();
+		this.resolver = resolver;
+	}
+	
+	public JavacPackageBinding(String nameString, JavacBindingResolver resolver) {
+		this.nameString = nameString;
 		this.resolver = resolver;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		return obj instanceof JavacPackageBinding other
-				&& Objects.equals(this.resolver, other.resolver)
-				&& Objects.equals(this.packageSymbol, other.packageSymbol);
-	}
-	@Override
-	public int hashCode() {
-		return Objects.hash(this.resolver, this.packageSymbol);
-	}
-
-	@Override
 	public IAnnotationBinding[] getAnnotations() {
-		return this.packageSymbol.getAnnotationMirrors().stream()
+		return this.getPackageSymbol() == null ? 
+				new IAnnotationBinding[0] : 
+				this.getPackageSymbol().getAnnotationMirrors().stream()
 				.map(am -> this.resolver.bindings.getAnnotationBinding(am, this))
 				.toArray(IAnnotationBinding[]::new);
 	}
@@ -59,12 +57,12 @@ public abstract class JavacPackageBinding implements IPackageBinding {
 
 	@Override
 	public int getModifiers() {
-		return JavacMethodBinding.toInt(this.packageSymbol.getModifiers());
+		return this.getPackageSymbol() == null ? 0 : JavacMethodBinding.toInt(this.getPackageSymbol().getModifiers());
 	}
 
 	@Override
 	public boolean isDeprecated() {
-		return this.packageSymbol.isDeprecated();
+		return this.getPackageSymbol() == null ? false : this.getPackageSymbol().isDeprecated();
 	}
 
 	@Override
@@ -85,7 +83,7 @@ public abstract class JavacPackageBinding implements IPackageBinding {
 		}
 		try {
 			IJavaElement ret = Arrays.stream(this.resolver.javaProject.getAllPackageFragmentRoots())
-				.map(root -> root.getPackageFragment(this.packageSymbol.getQualifiedName().toString()))
+				.map(root -> root.getPackageFragment(this.getQualifiedNameInternal()))
 				.filter(Objects::nonNull)
 				.filter(IPackageFragment::exists)
 				.findFirst()
@@ -101,41 +99,68 @@ public abstract class JavacPackageBinding implements IPackageBinding {
 	}
 
 	public IModuleBinding getModule() {
-		return this.resolver.bindings.getModuleBinding(this.packageSymbol.modle);
+		return this.getPackageSymbol() != null ? 
+				this.resolver.bindings.getModuleBinding(this.getPackageSymbol().modle) :
+				null;
 	}
 
 	@Override
 	public String getKey() {
-		if (this.packageSymbol.isUnnamed()) {
+		if (this.isUnnamed()) {
 			return "";
 		}
-		return this.packageSymbol.getQualifiedName().toString().replace('.', '/');
-	}
-
-	@Override
-	public boolean isEqualTo(IBinding binding) {
-		return binding instanceof JavacPackageBinding other && //
-			Objects.equals(this.packageSymbol, other.packageSymbol) && //
-			Objects.equals(this.resolver, other.resolver);
+		return getQualifiedNameInternal().replace('.', '/');
 	}
 
 	@Override
 	public String getName() {
-		return isUnnamed() ? "" : this.packageSymbol.getQualifiedName().toString(); //$NON-NLS-1$
+		return isUnnamed() ? "" : this.getQualifiedNameInternal(); //$NON-NLS-1$
 	}
 
 	@Override
 	public boolean isUnnamed() {
-		return this.packageSymbol.isUnnamed();
+		PackageSymbol ps = this.getPackageSymbol();
+		return ps != null ? ps.isUnnamed() : "".equals(this.nameString);
 	}
 
 	@Override
 	public String[] getNameComponents() {
-		return isUnnamed()? new String[0] : this.packageSymbol.getQualifiedName().toString().split("\\."); //$NON-NLS-1$
+		return isUnnamed()? new String[0] : getQualifiedNameInternal().split("\\."); //$NON-NLS-1$
 	}
 
+	private String getQualifiedNameInternal() {
+		return this.getPackageSymbol() != null ? this.getPackageSymbol().getQualifiedName().toString() :
+			this.nameString;
+	}
+	
 	@Override
 	public String toString() {
 		return "package " + getName();
+	}
+
+	public PackageSymbol getPackageSymbol() {
+		return packageSymbol;
+	}
+
+	public void setPackageSymbol(PackageSymbol packageSymbol) {
+		this.packageSymbol = packageSymbol;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.resolver, this.getPackageSymbol(), this.nameString);
+	}
+
+	@Override
+	public boolean isEqualTo(IBinding binding) {
+		return equals(binding);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof JavacPackageBinding other
+				&& Objects.equals(this.resolver, other.resolver)
+				&& Objects.equals(this.getPackageSymbol(), other.getPackageSymbol())
+				&& Objects.equals(this.nameString, other.nameString);
 	}
 }
