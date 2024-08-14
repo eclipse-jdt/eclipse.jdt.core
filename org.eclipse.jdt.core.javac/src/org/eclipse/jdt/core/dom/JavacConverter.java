@@ -2534,13 +2534,21 @@ class JavacConverter {
 			res.setFinally(convertBlock(javac.getFinallyBlock()));
 		}
 
-		if( this.ast.apiLevel >= AST.JLS4_INTERNAL) {
-			Iterator<JCTree> it = javac.getResources().iterator();
-			while(it.hasNext()) {
-				ASTNode working = convertTryResource(it.next(), parent);
-				if( working != null ) {
-					res.resources().add(working);
+		if( this.ast.apiLevel >= AST.JLS8_INTERNAL) {
+			if( javac.getResources().size() > 0) {
+				Iterator<JCTree> it = javac.getResources().iterator();
+				while(it.hasNext()) {
+					ASTNode working = convertTryResource(it.next(), parent);
+					if( working instanceof VariableDeclarationExpression) {
+						res.resources().add(working);
+					} else if( this.ast.apiLevel >= AST.JLS9_INTERNAL && working instanceof Name){
+						res.resources().add(working);
+					} else {
+						res.setFlags(res.getFlags() | ASTNode.MALFORMED);
+					}
 				}
+			} else {
+				res.setFlags(res.getFlags() | ASTNode.MALFORMED);
 			}
 		}
 		javac.getCatches().stream().map(this::convertCatcher).forEach(res.catchClauses()::add);
