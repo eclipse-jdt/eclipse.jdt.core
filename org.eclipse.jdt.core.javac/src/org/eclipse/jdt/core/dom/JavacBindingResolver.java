@@ -332,7 +332,11 @@ public class JavacBindingResolver extends BindingResolver {
 			if (binding != null) {
 				return binding;
 			}
-			binding = this.typeBinding.get(key);
+			binding = this.typeBinding.values()
+					.stream()
+					.filter(typeBinding -> key.equals(typeBinding.getKey()))
+					.findAny()
+					.orElse(null);
 			if (binding != null) {
 				return binding;
 			}

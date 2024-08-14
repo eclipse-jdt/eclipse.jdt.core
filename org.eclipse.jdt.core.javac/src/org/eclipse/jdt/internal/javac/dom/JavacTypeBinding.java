@@ -49,14 +49,12 @@ import org.eclipse.jdt.core.dom.JavacBindingResolver;
 import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
-import com.sun.tools.javac.code.Printer;
 import com.sun.tools.javac.code.Kinds.Kind;
 import com.sun.tools.javac.code.Kinds.KindSelector;
 import com.sun.tools.javac.code.Symbol;
