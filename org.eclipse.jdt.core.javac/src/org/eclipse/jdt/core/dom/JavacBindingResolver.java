@@ -192,7 +192,7 @@ public class JavacBindingResolver extends BindingResolver {
 			return null;
 		}
 		//
-		private Map<String, JavacTypeBinding> typeBinding = new HashMap<>();
+		private Map<JavacTypeBinding, JavacTypeBinding> typeBinding = new HashMap<>();
 		public JavacTypeBinding getTypeBinding(JCTree tree, com.sun.tools.javac.code.Type type) {
 			return getTypeBinding(type, tree instanceof JCClassDecl);
 		}
@@ -212,29 +212,21 @@ public class JavacBindingResolver extends BindingResolver {
 						&& !(errorType.getOriginalType() instanceof com.sun.tools.javac.code.Type.ForAll)
 						&& !(errorType.getOriginalType() instanceof com.sun.tools.javac.code.Type.ErrorType)) {
 				JavacTypeBinding newInstance = new JavacTypeBinding(errorType.getOriginalType(), type.tsym, isDeclaration, JavacBindingResolver.this) { };
-				typeBinding.putIfAbsent(newInstance.getKey(), newInstance);
-				JavacTypeBinding jcb = typeBinding.get(newInstance.getKey());
+				typeBinding.putIfAbsent(newInstance, newInstance);
+				JavacTypeBinding jcb = typeBinding.get(newInstance);
 				jcb.setRecovered(true);
 				return jcb;
 			}
 			JavacTypeBinding newInstance = new JavacTypeBinding(type, type.tsym, isDeclaration, JavacBindingResolver.this) { };
-			String k = newInstance.getKey();
-			if( k != null ) {
-				typeBinding.putIfAbsent(k, newInstance);
-				return typeBinding.get(k);
-			}
-			return null;
+			typeBinding.putIfAbsent(newInstance, newInstance);
+			return typeBinding.get(newInstance);
 		}
 		//
-		private Map<String, JavacTypeVariableBinding> typeVariableBindings = new HashMap<>();
+		private Map<JavacTypeVariableBinding, JavacTypeVariableBinding> typeVariableBindings = new HashMap<>();
 		public JavacTypeVariableBinding getTypeVariableBinding(TypeVar typeVar) {
 			JavacTypeVariableBinding newInstance = new JavacTypeVariableBinding(typeVar, (TypeVariableSymbol)typeVar.tsym, JavacBindingResolver.this) { };
-			String k = newInstance.getKey();
-			if( k != null ) {
-				typeVariableBindings.putIfAbsent(k, newInstance);
-				return typeVariableBindings.get(k);
-			}
-			return null;
+			typeVariableBindings.putIfAbsent(newInstance, newInstance);
+			return typeVariableBindings.get(newInstance);
 		}
 		//
 		private Map<String, JavacVariableBinding> variableBindings = new HashMap<>();
