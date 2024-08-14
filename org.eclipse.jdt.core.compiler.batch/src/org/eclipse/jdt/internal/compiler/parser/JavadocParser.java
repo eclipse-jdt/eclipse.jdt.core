@@ -571,7 +571,7 @@ public class JavadocParser extends AbstractCommentParser {
 		}
 	}
 	@Override
-	protected boolean parseMarkdownLinks() throws InvalidInputException {
+	protected boolean parseMarkdownLinks(int previousPosition) throws InvalidInputException {
 		boolean valid = false;
 		// The markdown links can come in single [] or pair of [] with no space between them
 		// We are here after we have seen [
