@@ -416,6 +416,9 @@ public class JavacBindingResolver extends BindingResolver {
 		if (value instanceof JCTree.JCTypeParameter jcTypeParam) {
 			return Optional.ofNullable(jcTypeParam.type.tsym);
 		}
+		if (value instanceof JCIdent ident) {
+			return Optional.ofNullable(ident.sym);
+		}
 		// TODO fields, methods, variables...
 		return Optional.empty();
 	}
@@ -1193,9 +1196,14 @@ public class JavacBindingResolver extends BindingResolver {
 
 	@Override
 	Object resolveConstantExpressionValue(Expression expression) {
-		if (this.converter.domToJavac.get(expression) instanceof JCLiteral literal) {
+		JCTree jcTree = this.converter.domToJavac.get(expression);
+		if (jcTree instanceof JCLiteral literal) {
 			return literal.getValue();
 		}
-		return null;
+		return symbol(jcTree)
+			.filter(VarSymbol.class::isInstance)
+			.map(VarSymbol.class::cast)
+			.map(VarSymbol::getConstValue)
+			.orElse(null);
 	}
 }
