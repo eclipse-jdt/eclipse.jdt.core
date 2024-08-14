@@ -421,7 +421,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							}
 						} else if (this.lineStarted && isDomParser) {
 							textEndPosition = this.index;
-						} else if (this.markdownHelper.recordSignificantLeadingSpace()) {
+						} else if (!this.lineStarted && this.markdownHelper.recordSignificantLeadingSpace()) {
 							if (this.textStart == -1)
 								this.textStart = this.index; // first relevant whitespace is start of text
 						}

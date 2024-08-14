@@ -808,14 +808,12 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 							}
 						} else {
 							int start = tagStart;
-							boolean newLine = false;
-							while (source[start+1] == '/' || Character.isWhitespace(source[start+1])) {
-								start++; // purge non-stored characters
-								if (source[tagStart] == '\r' || source[tagStart] == '\n') {
-									newLine = true;
+							if (source[tagStart] == '\r' || source[tagStart] == '\n') {
+								while (source[start] == '/' || Character.isWhitespace(source[start])) {
+									start++; // purge non-stored characters
 								}
+								tagStart = start;
 							}
-							if (newLine) tagStart = start;
 						}
 					}
 					tagStart = getLinkTagStartPosition(tagName, source, tagStart);

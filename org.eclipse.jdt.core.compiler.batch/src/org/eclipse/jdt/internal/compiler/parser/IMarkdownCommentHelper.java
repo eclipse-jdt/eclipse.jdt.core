@@ -108,8 +108,10 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 	@Override
 	public void recordSlash(int nextIndex) {
 		if (this.slashCount < 3) {
-			if (++this.slashCount == 3)
+			if (++this.slashCount == 3) {
 				this.markdownLineStart = nextIndex;
+				this.leadingSpaces = 0;
+			}
 		}
 	}
 
@@ -136,7 +138,7 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 
 	@Override
 	public boolean isInCodeBlock() {
-		return this.insideFence || this.leadingSpaces > this.commonIndent;
+		return this.insideFence || (this.leadingSpaces - this.commonIndent >= 4);
 	}
 
 	@Override

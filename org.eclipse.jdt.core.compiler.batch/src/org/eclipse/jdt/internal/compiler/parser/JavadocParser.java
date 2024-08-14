@@ -359,6 +359,7 @@ public class JavadocParser extends AbstractCommentParser {
 	@Override
 	protected void createTag() {
 		this.tagValue = TAG_OTHERS_VALUE;
+		this.markdownHelper.resetLineStart();
 	}
 
 	@Override
@@ -616,10 +617,12 @@ public class JavadocParser extends AbstractCommentParser {
 			}
 			currentChar = readChar();
 		}
+		this.markdownHelper.resetLineStart();
 		return valid;
 	}
 	@Override
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
+		this.markdownHelper.resetLineStart();
 
 		// Complain when tag is missing a description
 		// Note that if the parse of an inline tag has already started, consider it

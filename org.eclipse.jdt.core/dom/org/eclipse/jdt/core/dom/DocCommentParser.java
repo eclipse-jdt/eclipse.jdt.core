@@ -805,6 +805,7 @@ class DocCommentParser extends AbstractCommentParser {
 
 	@Override
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
+		this.markdownHelper.resetLineStart();
 
 		// Read tag name
 		int currentPosition = this.index;
@@ -1050,7 +1051,6 @@ class DocCommentParser extends AbstractCommentParser {
 				break;
 		}
 		this.textStart = this.index;
-		this.markdownHelper.resetLineStart();
 		return valid;
 	}
 
@@ -1173,7 +1173,6 @@ class DocCommentParser extends AbstractCommentParser {
 		previousTag.fragments().add(text);
 		previousTag.setSourceRange(previousStart, end-previousStart);
 		this.textStart = -1;
-		this.markdownHelper.resetLineStart();
 	}
 
 	@Override
