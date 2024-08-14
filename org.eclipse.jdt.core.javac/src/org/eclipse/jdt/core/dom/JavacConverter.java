@@ -97,6 +97,8 @@ import com.sun.tools.javac.tree.JCTree.JCPackageDecl;
 import com.sun.tools.javac.tree.JCTree.JCParens;
 import com.sun.tools.javac.tree.JCTree.JCPattern;
 import com.sun.tools.javac.tree.JCTree.JCPatternCaseLabel;
+import com.sun.tools.javac.tree.JCTree.JCConstantCaseLabel;
+import com.sun.tools.javac.tree.JCTree.JCDefaultCaseLabel;
 import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCProvides;
 import com.sun.tools.javac.tree.JCTree.JCRecordPattern;
@@ -2427,6 +2429,25 @@ class JavacConverter {
 					
 				} else {
 					// Override length to just be `case blah:`
+					for (JCCaseLabel jcLabel : jcCase.getLabels()) {
+						switch (jcLabel) {
+						case JCConstantCaseLabel constantLabel: {
+							if (constantLabel.expr.toString().equals("null")) {
+								res.expressions().add(this.ast.newNullLiteral());
+							}
+							break;
+						}
+						case JCDefaultCaseLabel defaultCase: {
+							if (jcCase.getLabels().size() != 1) {
+								res.expressions().add(this.ast.newCaseDefaultExpression());
+							}
+							break;
+						}
+						default: {
+							break;
+						}
+						}
+					}
 					int start1 = res.getStartPosition();
 					int colon = this.rawText.indexOf(":", start1);
 					if( colon != -1 ) {
