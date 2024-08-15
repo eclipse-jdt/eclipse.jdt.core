@@ -43,7 +43,7 @@ public abstract class JavacTypeVariableBinding extends JavacTypeBinding {
 		if (this.typeVar instanceof Type.CapturedType capturedType) {
 			try {
 				builder.append('!');
-				JavacTypeBinding.getKey(builder, capturedType.wildcard, false, true);
+				JavacTypeBinding.getKey(builder, capturedType.wildcard, false, true, this.resolver);
 				// taken from Type.CapturedType.toString()
 				builder.append((capturedType.hashCode() & 0xFFFFFFFFL) % 997);
 				builder.append(';');
@@ -82,7 +82,7 @@ public abstract class JavacTypeVariableBinding extends JavacTypeBinding {
 	 * @return
 	 * @throws BindingKeyException
 	 */
-	static String getTypeVariableKey(TypeVariableSymbol sym) throws BindingKeyException {
+	static String getTypeVariableKey(TypeVariableSymbol sym, JavacBindingResolver resolver) throws BindingKeyException {
 		StringBuilder builder = new StringBuilder();
 		builder.append(sym.getSimpleName());
 		builder.append(':');
@@ -92,7 +92,7 @@ public abstract class JavacTypeVariableBinding extends JavacTypeBinding {
 			if (prependColon) {
 				builder.append(":");
 			}
-			JavacTypeBinding.getKey(builder, bound, false);
+			JavacTypeBinding.getKey(builder, bound, false, resolver);
 		}
 		return builder.toString();
 	}

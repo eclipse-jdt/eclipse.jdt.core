@@ -147,12 +147,12 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 	private String getKeyImpl() throws BindingKeyException {
 		StringBuilder builder = new StringBuilder();
 		if (this.variableSymbol.owner instanceof ClassSymbol classSymbol) {
-			JavacTypeBinding.getKey(builder, classSymbol.type, false);
+			JavacTypeBinding.getKey(builder, classSymbol.type, false, this.resolver);
 			builder.append('.');
 			builder.append(this.variableSymbol.name);
 			builder.append(')');
 			if (this.variableSymbol.type != null) {
-				JavacTypeBinding.getKey(builder, this.variableSymbol.type, false);
+				JavacTypeBinding.getKey(builder, this.variableSymbol.type, false, this.resolver);
 			} else {
 				builder.append('V');
 			}

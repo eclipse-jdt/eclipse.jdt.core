@@ -45,16 +45,16 @@ public abstract class JavacErrorMethodBinding extends JavacMethodBinding {
 	private String getKeyImpl() throws BindingKeyException {
 		StringBuilder builder = new StringBuilder();
 		if (this.originatingSymbol instanceof TypeSymbol typeSymbol) {
-			JavacTypeBinding.getKey(builder, resolver.getTypes().erasure(typeSymbol.type), false);
+			JavacTypeBinding.getKey(builder, resolver.getTypes().erasure(typeSymbol.type), false, this.resolver);
 		}
 		builder.append('(');
 		for (Type param : this.methodType.getParameterTypes()) {
-			JavacTypeBinding.getKey(builder, param, false);
+			JavacTypeBinding.getKey(builder, param, false, this.resolver);
 		}
 		builder.append(')');
 		Type returnType = this.methodType.getReturnType();
 		if (returnType != null && !(returnType instanceof JCNoType)) {
-			JavacTypeBinding.getKey(builder, returnType, false);
+			JavacTypeBinding.getKey(builder, returnType, false, this.resolver);
 		}
 		return builder.toString();
 	}

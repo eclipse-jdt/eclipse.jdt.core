@@ -5625,6 +5625,8 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 			"class Y<E> {\n" +
 			"}";
 	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
+	   	assertEquals("LX~Y<LX;:TE;>;", bindings[0].getKey());
+	   	assertEquals("LX~Y<LX$Other;:TE;>;", bindings[1].getKey());
 	   	assertTrue("2 different parameterized type bindings should not be equals", !bindings[0].isEqualTo(bindings[1]));
 	}
 

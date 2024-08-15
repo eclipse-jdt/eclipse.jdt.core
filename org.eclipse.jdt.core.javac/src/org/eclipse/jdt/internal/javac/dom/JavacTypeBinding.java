@@ -34,10 +34,13 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -283,7 +286,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	public String getKey(Type t, Name n, boolean includeTypeParameters) {
 		try {
 			StringBuilder builder = new StringBuilder();
-			getKey(builder, t, n, false, includeTypeParameters);
+			getKey(builder, t, n, false, includeTypeParameters, this.resolver);
 			return builder.toString();
 		} catch(BindingKeyException bke) {
 			return null;
@@ -291,21 +294,21 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	}
 
 
-	static void getKey(StringBuilder builder, Type typeToBuild, boolean isLeaf) throws BindingKeyException {
-		getKey(builder, typeToBuild, typeToBuild.asElement().flatName(), isLeaf, false);
+	static void getKey(StringBuilder builder, Type typeToBuild, boolean isLeaf, JavacBindingResolver resolver) throws BindingKeyException {
+		getKey(builder, typeToBuild, typeToBuild.asElement().flatName(), isLeaf, false, resolver);
 	}
 
-	static void getKey(StringBuilder builder, Type typeToBuild, boolean isLeaf, boolean includeParameters) throws BindingKeyException {
-		getKey(builder, typeToBuild, typeToBuild.asElement().flatName(), isLeaf, includeParameters);
+	static void getKey(StringBuilder builder, Type typeToBuild, boolean isLeaf, boolean includeParameters, JavacBindingResolver resolver) throws BindingKeyException {
+		getKey(builder, typeToBuild, typeToBuild.asElement().flatName(), isLeaf, includeParameters, resolver);
 	}
 
-	static void getKey(StringBuilder builder, Type typeToBuild, Name n, boolean isLeaf, boolean includeParameters) throws BindingKeyException {
+	static void getKey(StringBuilder builder, Type typeToBuild, Name n, boolean isLeaf, boolean includeParameters, JavacBindingResolver resolver) throws BindingKeyException {
 		if (typeToBuild instanceof Type.JCNoType) {
 			return;
 		}
 		if (typeToBuild instanceof Type.CapturedType capturedType) {
 			builder.append('!');
-			getKey(builder, capturedType.wildcard, false, includeParameters);
+			getKey(builder, capturedType.wildcard, false, includeParameters, resolver);
 			// taken from Type.CapturedType.toString()
 			builder.append((capturedType.hashCode() & 0xFFFFFFFFL) % 997);
 			builder.append(';');
@@ -317,7 +320,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		}
 		if (typeToBuild instanceof ArrayType arrayType) {
 			builder.append('[');
-			getKey(builder, arrayType.elemtype, isLeaf, includeParameters);
+			getKey(builder, arrayType.elemtype, isLeaf, includeParameters, resolver);
 			return;
 		}
 		if (typeToBuild instanceof Type.WildcardType wildcardType) {
@@ -325,10 +328,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				builder.append('*');
 			} else if (wildcardType.isExtendsBound()) {
 				builder.append('+');
-				getKey(builder, wildcardType.getExtendsBound(), isLeaf, includeParameters);
+				getKey(builder, wildcardType.getExtendsBound(), isLeaf, includeParameters, resolver);
 			} else if (wildcardType.isSuperBound()) {
 				builder.append('-');
-				getKey(builder, wildcardType.getSuperBound(), isLeaf, includeParameters);
+				getKey(builder, wildcardType.getSuperBound(), isLeaf, includeParameters, resolver);
 			}
 			return;
 		}
@@ -340,7 +343,25 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					builder.append('L');
 				}
 			}
+			
+			// This is a hack and will likely need to be enhanced
+			ASTNode o1 = resolver.symbolToDeclaration.get(typeToBuild.tsym);
+			if( o1 instanceof TypeDeclaration td && td.getParent() instanceof CompilationUnit cu) {
+				IJavaElement typeRoot = cu.getJavaElement();
+				if( typeRoot instanceof ITypeRoot itr) {
+					IType itype = itr.findPrimaryType();
+					if( itype != null) {
+						String primaryTypeName = itype.getElementName();
+						String nameLastSegment = n.toString().substring(n.toString().lastIndexOf('.')+1);
+						if( !nameLastSegment.equals(primaryTypeName)) {
+							builder.append(primaryTypeName + "~");
+						}
+					}
+				}
+			}
 			builder.append(n.toString().replace('.', '/'));
+			
+			
 			boolean b1 = typeToBuild.isParameterized();
 			boolean b2 = false;
 			try {
@@ -351,7 +372,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			if ((b1 || b2) && includeParameters) {
 				builder.append('<');
 				for (var typeArgument : typeToBuild.getTypeArguments()) {
-					getKey(builder, typeArgument, false, includeParameters);
+					getKey(builder, typeArgument, false, includeParameters, resolver);
 				}
 				builder.append('>');
 			}
