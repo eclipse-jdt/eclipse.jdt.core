@@ -738,6 +738,10 @@ class JavacConverter {
 		}
 		if (convertName(javac.getName()) instanceof SimpleName simpleName) {
 			res.setName(simpleName);
+			int start = javac.getPreferredPosition();
+			if (start > -1) {
+				simpleName.setSourceRange(start, javac.getName().toString().length());
+			}
 		}
 		return res;
 	}
