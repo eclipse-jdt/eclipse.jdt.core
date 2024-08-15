@@ -138,42 +138,46 @@ class JavadocConverter {
 	Javadoc convertJavadoc() {
 		Javadoc res = this.ast.newJavadoc();
 		res.setSourceRange(this.initialOffset, this.endOffset - this.initialOffset);
-		if( this.javacConverter.ast.apiLevel == AST.JLS2_INTERNAL) {
-			String rawContent = this.javacConverter.rawText.substring(this.initialOffset, this.endOffset);
-			try {
-				res.setComment(rawContent);
-			} catch( IllegalArgumentException iae) {
-				// Ignore
-			}
-		}
-		if (this.buildJavadoc) {
-			List<? extends IDocElement> elements = Stream.of(docComment.preamble, docComment.fullBody, docComment.postamble, docComment.tags)
-				.flatMap(List::stream)
-				.flatMap(this::convertElement)
-				.toList();
-			TagElement host = null;
-			for (IDocElement docElement : elements) {
-				if (docElement instanceof TagElement tag && !isInline(tag)) {
-					if (host != null) {
-						res.tags().add(host);
-						host = null;
-					}
-					res.tags().add(tag);
-				} else {
-					if (host == null) {
-						host = this.ast.newTagElement();
-						if(docElement instanceof ASTNode astn) {
-							host.setSourceRange(astn.getStartPosition(), astn.getLength());
-						}
-					} else if (docElement instanceof ASTNode extraNode){
-						host.setSourceRange(host.getStartPosition(), extraNode.getStartPosition() + extraNode.getLength() - host.getStartPosition());
-					}
-					host.fragments().add(docElement);
+		try {
+			if( this.javacConverter.ast.apiLevel == AST.JLS2_INTERNAL) {
+				String rawContent = this.javacConverter.rawText.substring(this.initialOffset, this.endOffset);
+				try {
+					res.setComment(rawContent);
+				} catch( IllegalArgumentException iae) {
+					// Ignore
 				}
 			}
-			if (host != null) {
-				res.tags().add(host);
+			if (this.buildJavadoc) {
+				List<? extends IDocElement> elements = Stream.of(docComment.preamble, docComment.fullBody, docComment.postamble, docComment.tags)
+					.flatMap(List::stream)
+					.flatMap(this::convertElement)
+					.toList();
+				TagElement host = null;
+				for (IDocElement docElement : elements) {
+					if (docElement instanceof TagElement tag && !isInline(tag)) {
+						if (host != null) {
+							res.tags().add(host);
+							host = null;
+						}
+						res.tags().add(tag);
+					} else {
+						if (host == null) {
+							host = this.ast.newTagElement();
+							if(docElement instanceof ASTNode astn) {
+								host.setSourceRange(astn.getStartPosition(), astn.getLength());
+							}
+						} else if (docElement instanceof ASTNode extraNode){
+							host.setSourceRange(host.getStartPosition(), extraNode.getStartPosition() + extraNode.getLength() - host.getStartPosition());
+						}
+						host.fragments().add(docElement);
+					}
+				}
+				if (host != null) {
+					res.tags().add(host);
+				}
 			}
+		} catch (Exception ex) {
+			ILog.get().error("Failed to convert Javadoc", ex);
 		}
 		return res;
 	}
@@ -472,8 +476,13 @@ class JavadocConverter {
 			if( hash != -1 ) {
 				int startPosition = this.docComment.getSourcePosition(tree.getStartPosition()) + 4;
 				String prefix = value.substring(0, hash);
+				int link = prefix.indexOf("@link");
+				if (link != -1) {
+					prefix = prefix.substring(link + 5);
+					startPosition = startPosition + link + 5;
+				}
 				MethodRef ref = this.ast.newMethodRef();
-				if( prefix != null && !prefix.isEmpty() && !prefix.trim().isEmpty()) {
+				if( prefix != null && !prefix.isBlank()) {
 					Name n = toName(prefix, startPosition);
 					ref.setQualifier(n);
 				}
