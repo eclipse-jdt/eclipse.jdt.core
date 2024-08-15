@@ -11,6 +11,8 @@
 package org.eclipse.jdt.internal.javac.dom;
 
 import java.io.File;
+import java.net.URI;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -269,7 +271,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		}
 		return getKey(this.type, this.typeSymbol.flatName());
 	}
-	
+
 
 	private static String removeTrailingSemicolon(String key) {
 		return key.endsWith(";") ? key.substring(0, key.length() - 1) : key;
@@ -278,7 +280,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	private String getKey(Type t) {
 		return getKey(t, this.typeSymbol.flatName());
 	}
-	
+
 	public String getKey(boolean includeTypeParameters) {
 		return getKey(this.type, this.typeSymbol.flatName(), includeTypeParameters);
 	}
@@ -346,25 +348,27 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					builder.append('L');
 				}
 			}
-			
+
 			// This is a hack and will likely need to be enhanced
-			ASTNode o1 = resolver.symbolToDeclaration.get(typeToBuild.tsym);
-			if( o1 instanceof TypeDeclaration td && td.getParent() instanceof CompilationUnit cu) {
-				IJavaElement typeRoot = cu.getJavaElement();
-				if( typeRoot instanceof ITypeRoot itr) {
-					IType itype = itr.findPrimaryType();
-					if( itype != null) {
-						String primaryTypeName = itype.getElementName();
-						String nameLastSegment = n.toString().substring(n.toString().lastIndexOf('.')+1);
-						if( !nameLastSegment.equals(primaryTypeName)) {
-							builder.append(primaryTypeName + "~");
-						}
+			if (typeToBuild.tsym instanceof ClassSymbol classSymbol && !(classSymbol.type instanceof ErrorType) && classSymbol.owner instanceof PackageSymbol) {
+				JavaFileObject sourcefile = classSymbol.sourcefile;
+				if (sourcefile != null && sourcefile.getKind() == JavaFileObject.Kind.SOURCE) {
+					URI uri = sourcefile.toUri();
+					String fileName = null;
+					try {
+						fileName = Paths.get(uri).getFileName().toString();
+					} catch (IllegalArgumentException e) {
+						// probably: uri is not a valid path
+					}
+					if (fileName != null && !fileName.startsWith(classSymbol.getSimpleName().toString())) {
+						builder.append(fileName.substring(0, fileName.indexOf(".java")));
+						builder.append("~");
 					}
 				}
 			}
 			builder.append(n.toString().replace('.', '/'));
-			
-			
+
+
 			boolean b1 = typeToBuild.isParameterized();
 			boolean b2 = false;
 			try {
@@ -538,7 +542,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				.collect(Collectors.toList());
 		explicitMethods.add("<init>");
 		// TODO this list is very basic, only method names. Need more usecases to do it better
-		
+
 		//ArrayList<String> explicitRecordMethods = node.bodyDeclarations();
 		return StreamSupport.stream(l.spliterator(), false)
 			.filter(MethodSymbol.class::isInstance)
