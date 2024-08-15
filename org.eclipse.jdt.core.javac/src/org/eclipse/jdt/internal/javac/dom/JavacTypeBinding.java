@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -50,7 +51,9 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.core.SourceType;
@@ -498,12 +501,53 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		// the order of these members in the file has been challenging
 		Collections.reverse(l);
 
+		if( this.isRecord()) {
+			IMethodBinding[] ret = getDeclaredMethodsForRecords(l);
+			if( ret != null ) {
+				return ret;
+			}
+		}
+		return getDeclaredMethodsDefaultImpl(l);
+	}
+
+	private IMethodBinding[] getDeclaredMethodsDefaultImpl(ArrayList<Symbol> l) {
+		return StreamSupport.stream(l.spliterator(), false)
+				.filter(MethodSymbol.class::isInstance)
+				.map(MethodSymbol.class::cast)
+				.map(sym -> {
+					Type.MethodType methodType = this.types.memberType(this.type, sym).asMethodType();
+					return this.resolver.bindings.getMethodBinding(methodType, sym, this.type);
+				})
+				.filter(Objects::nonNull)
+				.toArray(IMethodBinding[]::new);
+	}
+
+	private IMethodBinding[] getDeclaredMethodsForRecords(ArrayList<Symbol> l) {
+		ASTNode node = this.resolver.symbolToDeclaration.get(this.typeSymbol);
+		boolean isRecord = this.isRecord() && node instanceof RecordDeclaration;
+		if( !isRecord )
+			return null;
+		RecordDeclaration rd = (RecordDeclaration)node;
+		List<BodyDeclaration> bodies = rd.bodyDeclarations();
+		List<String> explicitMethods = bodies.stream()
+				.filter(MethodDeclaration.class::isInstance)
+				.map(MethodDeclaration.class::cast)
+				.filter(Objects::nonNull)
+				.map(x -> x.getName().toString())
+				.map(String.class::cast)
+				.collect(Collectors.toList());
+		explicitMethods.add("<init>");
+		// TODO this list is very basic, only method names. Need more usecases to do it better
+		
+		//ArrayList<String> explicitRecordMethods = node.bodyDeclarations();
 		return StreamSupport.stream(l.spliterator(), false)
 			.filter(MethodSymbol.class::isInstance)
 			.map(MethodSymbol.class::cast)
 			.map(sym -> {
+				String symName = sym.name.toString();
+				boolean isSynthetic = !explicitMethods.contains(symName);
 				Type.MethodType methodType = this.types.memberType(this.type, sym).asMethodType();
-				return this.resolver.bindings.getMethodBinding(methodType, sym, this.type);
+				return this.resolver.bindings.getMethodBinding(methodType, sym, this.type, isSynthetic);
 			})
 			.filter(Objects::nonNull)
 			.toArray(IMethodBinding[]::new);

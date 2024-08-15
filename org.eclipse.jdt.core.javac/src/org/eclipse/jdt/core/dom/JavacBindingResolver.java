@@ -131,17 +131,28 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 		//
 		private Map<String, JavacMethodBinding> methodBindings = new HashMap<>();
+		public JavacMethodBinding getMethodBinding(MethodType methodType, MethodSymbol sym, com.sun.tools.javac.code.Type type,
+				boolean isSynthetic) {
+			if( isSynthetic ) {
+				return getSyntheticMethodBinding(methodType, sym, type);
+			} else {
+				return getMethodBinding(methodType, sym, type);
+			}
+		}
+
 		public JavacMethodBinding getMethodBinding(MethodType methodType, MethodSymbol methodSymbol, com.sun.tools.javac.code.Type parentType) {
 			JavacMethodBinding newInstance = new JavacMethodBinding(methodType, methodSymbol, parentType, JavacBindingResolver.this) { };
-			String k = newInstance.getKey();
-			if( k != null ) {
-				methodBindings.putIfAbsent(k, newInstance);
-				return methodBindings.get(k);
-			}
-			return null;
+			return insertAndReturn(newInstance);
+		}
+		public JavacMethodBinding getSyntheticMethodBinding(MethodType methodType, MethodSymbol methodSymbol, com.sun.tools.javac.code.Type parentType) {
+			JavacMethodBinding newInstance = new JavacMethodBinding(methodType, methodSymbol, parentType, JavacBindingResolver.this, true) { };
+			return insertAndReturn(newInstance);
 		}
 		public JavacMethodBinding getErrorMethodBinding(MethodType methodType, Symbol originatingSymbol) {
 			JavacMethodBinding newInstance = new JavacErrorMethodBinding(originatingSymbol, methodType, JavacBindingResolver.this) { };
+			return insertAndReturn(newInstance);
+		}
+		private JavacMethodBinding insertAndReturn(JavacMethodBinding newInstance) {
 			String k = newInstance.getKey();
 			if( k != null ) {
 				methodBindings.putIfAbsent(k, newInstance);

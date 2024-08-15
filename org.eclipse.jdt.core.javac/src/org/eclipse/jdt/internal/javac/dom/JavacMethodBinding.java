@@ -65,6 +65,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	final MethodType methodType;
 	final Type parentType;
 	final JavacBindingResolver resolver;
+	final boolean explicitSynthetic;
 
 	/**
 	 *
@@ -74,10 +75,15 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	 * @param resolver
 	 */
 	public JavacMethodBinding(MethodType methodType, MethodSymbol methodSymbol, Type parentType, JavacBindingResolver resolver) {
+		this(methodType, methodSymbol, parentType, resolver, false);
+	}
+	
+	public JavacMethodBinding(MethodType methodType, MethodSymbol methodSymbol, Type parentType, JavacBindingResolver resolver, boolean explicitSynthetic) {
 		this.methodType = methodType;
 		this.methodSymbol = methodSymbol;
 		this.parentType = parentType;
 		this.resolver = resolver;
+		this.explicitSynthetic = explicitSynthetic;
 	}
 
 	@Override
@@ -561,9 +567,9 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public boolean isSyntheticRecordMethod() {
-		return !this.methodSymbol.isStatic()
+		return this.explicitSynthetic || (!this.methodSymbol.isStatic()
 				&& (this.methodSymbol.flags() & Flags.SYNTHETIC) != 0
-				&& (this.methodSymbol.type.tsym.flags() & Flags.RECORD) != 0;
+				&& (this.methodSymbol.type.tsym.flags() & Flags.RECORD) != 0);
 	}
 
 	@Override
