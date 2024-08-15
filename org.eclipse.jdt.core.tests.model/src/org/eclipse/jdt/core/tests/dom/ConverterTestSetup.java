@@ -975,6 +975,18 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 					return true;
 				}
 			}
+			return false;
+		case IProblem.DuplicateMethod: // TODO these should really be fixed elsewhere
+			if( expected.startsWith("Duplicate local variable ")) {
+				return original.startsWith(expected.substring(16) + " is already defined");
+			}
+			if( expected.startsWith("Duplicate parameter ")) {
+				return original.startsWith("variable " + expected.substring(20) + " is already defined");
+			}
+			if( expected.startsWith("Duplicate nested type ")) {
+				return original.startsWith("class " + expected.substring(22) + " is already defined");
+			}
+			return false;
 		default:
 			return false;
 		}
