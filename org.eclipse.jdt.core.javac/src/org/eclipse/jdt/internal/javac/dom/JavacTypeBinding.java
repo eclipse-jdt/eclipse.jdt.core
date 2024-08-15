@@ -97,12 +97,12 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		if (type instanceof PackageType) {
 			throw new IllegalArgumentException("Use JavacPackageBinding");
 		}
-		this.type = type;
 		this.isGeneric = type.isParameterized() && isDeclaration;
+		this.typeSymbol = typeSymbol.kind == Kind.ERR ? type.tsym : typeSymbol;
+		this.type = this.isGeneric ? this.typeSymbol.type /*generic*/ : type /*specific instance*/;
 		this.resolver = resolver;
 		this.types = Types.instance(this.resolver.context);
 		// TODO: consider getting rid of typeSymbol in constructor and always derive it from type
-		this.typeSymbol = typeSymbol.kind == Kind.ERR ? this.type.tsym : typeSymbol;
 	}
 
 	@Override
@@ -859,7 +859,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		}
 		return this.typeSymbol.type == this.type
 			? this
-			: this.resolver.bindings.getTypeBinding(this.typeSymbol.type);
+			: this.resolver.bindings.getTypeBinding(this.typeSymbol.type, true);
 	}
 
 	@Override

@@ -248,6 +248,11 @@ public class JavacProblemConverter {
 					&& diagnosticPath.getParentPath() != null
 					&& diagnosticPath.getParentPath().getLeaf() instanceof JCReturn returnStmt) {
 				return getPositionByNodeRangeOnly(jcDiagnostic, returnStmt);
+			} else if (problemId == IProblem.IncompatibleReturnType
+					&& diagnosticPath != null
+					&& diagnosticPath.getParentPath() != null
+					&& diagnosticPath.getParentPath().getLeaf() instanceof JCMethodDecl methodDecl) {
+				return getPositionByNodeRangeOnly(jcDiagnostic, methodDecl.getReturnType());
 			}
 
  			Tree element = diagnosticPath != null ? diagnosticPath.getLeaf() :
