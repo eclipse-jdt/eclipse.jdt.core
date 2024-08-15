@@ -616,6 +616,10 @@ class JavacConverter {
 //			}
 
 		} else if (res instanceof RecordDeclaration recordDecl) {
+			int start = javacClassDecl.getPreferredPosition();
+			if( start != -1 ) {
+				recordDecl.setRestrictedIdentifierStartPosition(start);
+			}
 			for (JCTree node : javacClassDecl.getMembers()) {
 				if (node instanceof JCVariableDecl vd && !vd.getModifiers().getFlags().contains(javax.lang.model.element.Modifier.STATIC)) {
 					SingleVariableDeclaration vdd = (SingleVariableDeclaration)convertVariableDeclaration(vd);

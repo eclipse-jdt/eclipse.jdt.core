@@ -248,6 +248,7 @@ public static Test suite() {
 	 ArrayList since_22 = new ArrayList();
 	 since_22.add(UnnamedPatternsAndVariablesTest.class);
 	 since_22.add(UseOfUnderscoreJava22Test.class);
+	 since_22.add(SuperAfterStatementsTest.class);
 	 since_22.add(SwitchPatternTest22.class);
 
 	 ArrayList since_23 = new ArrayList();
