@@ -2419,14 +2419,12 @@ class JavacConverter {
 				res.expressions().add(guardedPattern);
 			} else {
 				if (jcCase.getLabels().length() == 1 && jcCase.getLabels().get(0) instanceof JCPatternCaseLabel jcPattern) {
-					TypePattern typePattern = this.ast.newTypePattern();
-					if (jcPattern.getPattern() instanceof JCBindingPattern bindPattern) {
-						typePattern.setPatternVariable(convertVariableDeclaration(bindPattern.var));
+					Pattern p = convert(jcPattern.getPattern());
+					if( p != null ) {
+						int start = jcPattern.getStartPosition();
+						p.setSourceRange(start, jcPattern.getEndPosition(this.javacCompilationUnit.endPositions)-start);
+						res.expressions().add(p);
 					}
-					int start = jcPattern.getStartPosition();
-					typePattern.setSourceRange(start, jcPattern.getEndPosition(this.javacCompilationUnit.endPositions)-start);
-					res.expressions().add(typePattern);
-					
 				} else {
 					// Override length to just be `case blah:`
 					for (JCCaseLabel jcLabel : jcCase.getLabels()) {

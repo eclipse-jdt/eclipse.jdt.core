@@ -540,6 +540,16 @@ public void testBug213509_invocation() throws CoreException, IOException {
 	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[1], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	MethodInvocation methodInvocation = (MethodInvocation) ((ExpressionStatement) methodDeclaration.getBody().statements().get(0)).getExpression();
+
+	/*
+	 * TODO JAVAC test,
+	 * getting the keys for the parameters here seem to not be able to access information in
+	 * the  type declaration because it's in another file and thus has a different resolver.
+	 * The main issue here is that Foo, Bar, and Annot are defined in a file where they aren't the primary
+	 * type.
+	 *
+	 * So Foo needs a key @LTest~Foo instead of @LFoo because the type 'Foo' is inside the CU 'Test'
+	 */
 	checkParameterAnnotations(methodInvocation+" has invalid parameter annotations!",
 		"----- param 1-----\n" +
 		"@LTest~Foo;\n" +
