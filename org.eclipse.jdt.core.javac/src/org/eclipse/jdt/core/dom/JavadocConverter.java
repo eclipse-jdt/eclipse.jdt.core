@@ -140,7 +140,11 @@ class JavadocConverter {
 		res.setSourceRange(this.initialOffset, this.endOffset - this.initialOffset);
 		if( this.javacConverter.ast.apiLevel == AST.JLS2_INTERNAL) {
 			String rawContent = this.javacConverter.rawText.substring(this.initialOffset, this.endOffset);
-			res.setComment(rawContent);
+			try {
+				res.setComment(rawContent);
+			} catch( IllegalArgumentException iae) {
+				// Ignore
+			}
 		}
 		if (this.buildJavadoc) {
 			List<? extends IDocElement> elements = Stream.of(docComment.preamble, docComment.fullBody, docComment.postamble, docComment.tags)
@@ -469,40 +473,48 @@ class JavadocConverter {
 				int startPosition = this.docComment.getSourcePosition(tree.getStartPosition()) + 4;
 				String prefix = value.substring(0, hash);
 				MethodRef ref = this.ast.newMethodRef();
-				if( prefix != null && !prefix.isEmpty()) {
+				if( prefix != null && !prefix.isEmpty() && !prefix.trim().isEmpty()) {
 					Name n = toName(prefix, startPosition);
 					ref.setQualifier(n);
 				}
-				String suffix = value.substring(hash+1);
-				String qualifiedMethod = suffix.substring(0, suffix.indexOf("("));
-				int methodNameStart = qualifiedMethod.lastIndexOf(".") + 1;
-				String methodName = qualifiedMethod.substring(methodNameStart);
-				SimpleName sn = (SimpleName)toName(methodName, startPosition + prefix.length() + 1 + methodNameStart);
-				ref.setName(sn);
-				commonSettings(ref, tree);
-				diagnostics.add(tree.diag);
-				return ref;
+				String suffix = hash+1 > value.length() ? "" : value.substring(hash+1);
+				if( suffix.indexOf("(") != -1 ) {
+					String qualifiedMethod = suffix.substring(0, suffix.indexOf("("));
+					int methodNameStart = qualifiedMethod.lastIndexOf(".") + 1;
+					String methodName = qualifiedMethod.substring(methodNameStart);
+					SimpleName sn = (SimpleName)toName(methodName, startPosition + prefix.length() + 1 + methodNameStart);
+					ref.setName(sn);
+					commonSettings(ref, tree);
+					diagnostics.add(tree.diag);
+					return ref;
+				}
 			}
 		}
 		return null;
 	}
 
 	private Name toName(String val, int startPosition) {
-		String stripped = val.stripLeading();
-		int strippedAmt = val.length() - stripped.length();
-		int lastDot = stripped.lastIndexOf(".");
-		if( lastDot == -1 ) {
-			SimpleName sn = this.ast.newSimpleName(stripped);
-			sn.setSourceRange(startPosition + strippedAmt, stripped.length());
-			return sn;
-		} else {
-			SimpleName sn = this.ast.newSimpleName(stripped.substring(lastDot+1));
-			sn.setSourceRange(startPosition + strippedAmt + lastDot+1, sn.getIdentifier().length());
-			
-			QualifiedName qn = this.ast.newQualifiedName(toName(stripped.substring(0,lastDot), startPosition + strippedAmt), sn);
-			qn.setSourceRange(startPosition + strippedAmt, stripped.length());
-			return qn;
+		try {
+			String stripped = val.stripLeading();
+			int strippedAmt = val.length() - stripped.length();
+			int lastDot = stripped.lastIndexOf(".");
+			if( lastDot == -1 ) {
+				SimpleName sn = this.ast.newSimpleName(stripped); // TODO error here, testBug51600
+				sn.setSourceRange(startPosition + strippedAmt, stripped.length());
+				return sn;
+			} else {
+				SimpleName sn = this.ast.newSimpleName(stripped.substring(lastDot+1));
+				sn.setSourceRange(startPosition + strippedAmt + lastDot+1, sn.getIdentifier().length());
+				
+				QualifiedName qn = this.ast.newQualifiedName(toName(stripped.substring(0,lastDot), startPosition + strippedAmt), sn);
+				qn.setSourceRange(startPosition + strippedAmt, stripped.length());
+				return qn;
+			}
+		} catch(IllegalArgumentException iae) {
+			//
+			int z = 4;
 		}
+		return null;
 	}
 
 	private JavaDocTextElement toDefaultTextElement(DCTree javac) {
