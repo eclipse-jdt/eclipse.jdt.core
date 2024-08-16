@@ -241,7 +241,7 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 				if (!(method.type instanceof Type.MethodType methodType)) {
 					return null;
 				}
-				return this.resolver.bindings.getMethodBinding(methodType, method, null);
+				return this.resolver.bindings.getMethodBinding(methodType, method, null, false);
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);
