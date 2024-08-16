@@ -3612,7 +3612,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 						new Path(newJclSrcString),
 						entry.getSourceAttachmentRootPath(),
 						entry.getAccessRules(),
-						new IClasspathAttribute[0],
+						entry.getExtraAttributes(),
 						entry.isExported());
 				jclPathEntrySet = true;
 			}

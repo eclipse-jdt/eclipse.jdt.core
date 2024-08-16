@@ -3987,8 +3987,8 @@ protected void consumeSingleMemberAnnotation(boolean isTypeAnnotation) {
 	}
 }
 @Override
-protected void consumeSingleStaticImportDeclarationName() {
-	super.consumeSingleStaticImportDeclarationName();
+protected void consumeSingleModifierImportDeclarationName(int modifier) {
+	super.consumeSingleModifierImportDeclarationName(modifier);
 	this.pendingAnnotation = null; // the pending annotation cannot be attached to next nodes
 }
 @Override
