@@ -244,8 +244,7 @@ class MethodBinding implements IMethodBinding {
 			final boolean isConstructor = this.isConstructor();
 			for (int i = 0; i < length; i++) {
 				org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalAnnotation = internalAnnotations[i];
-				//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2402
-				if(internalAnnotation == null) {// issues can be folded if the internalAnnotation is null
+				if(internalAnnotation == null) {
 					continue;
 				}
 				final ReferenceBinding annotationType = internalAnnotation.getAnnotationType();
