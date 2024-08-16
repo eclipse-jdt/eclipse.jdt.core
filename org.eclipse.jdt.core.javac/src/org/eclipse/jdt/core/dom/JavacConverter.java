@@ -1272,6 +1272,9 @@ class JavacConverter {
 				}
 				if (convertName(access.getIdentifier()) instanceof SimpleName simpleName) {
 					res.setName(simpleName);
+					String asString = access.getIdentifier().toString();
+					commonSettings(simpleName, access);
+					simpleName.setSourceRange(this.rawText.indexOf(asString, access.getPreferredPosition()), asString.length());
 				}
 				res.setExpression(convertExpression(access.getExpression()));
 			}
