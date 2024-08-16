@@ -130,7 +130,7 @@ public class JavacBindingResolver extends BindingResolver {
 			return null;
 		}
 		//
-		private Map<String, JavacMethodBinding> methodBindings = new HashMap<>();
+		private Map<JavacMethodBinding, JavacMethodBinding> methodBindings = new HashMap<>();
 		public JavacMethodBinding getMethodBinding(MethodType methodType, MethodSymbol sym, com.sun.tools.javac.code.Type type,
 				boolean isSynthetic) {
 			if( isSynthetic ) {
@@ -153,12 +153,8 @@ public class JavacBindingResolver extends BindingResolver {
 			return insertAndReturn(newInstance);
 		}
 		private JavacMethodBinding insertAndReturn(JavacMethodBinding newInstance) {
-			String k = newInstance.getKey();
-			if( k != null ) {
-				methodBindings.putIfAbsent(k, newInstance);
-				return methodBindings.get(k);
-			}
-			return null;
+			methodBindings.putIfAbsent(newInstance, newInstance);
+			return methodBindings.get(newInstance);
 		}
 		//
 		private Map<String, JavacModuleBinding> moduleBindings = new HashMap<>();
@@ -331,7 +327,11 @@ public class JavacBindingResolver extends BindingResolver {
 			if (binding != null) {
 				return binding;
 			}
-			binding = this.methodBindings.get(key);
+			binding = this.methodBindings.values()
+					.stream()
+					.filter(methodBindings -> key.equals(methodBindings.getKey()))
+					.findAny()
+					.orElse(null);
 			if (binding != null) {
 				return binding;
 			}
