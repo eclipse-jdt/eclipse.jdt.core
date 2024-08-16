@@ -6,8 +6,5 @@
 			<attribute name="module" value="true"/>
 		</attributes>
     </classpathentry>
-<!--
-    <classpathentry kind="lib" path="test285379.jar"/>
--->
     <classpathentry kind="output" path="bin"/>
 </classpath>
