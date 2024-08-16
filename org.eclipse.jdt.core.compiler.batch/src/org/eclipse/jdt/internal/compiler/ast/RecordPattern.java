@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.codegen.ExceptionLabel;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -34,8 +35,6 @@ public class RecordPattern extends Pattern {
 
 	public Pattern[] patterns;
 	public TypeReference type;
-
-	private TypeBinding expectedType; // for record pattern type inference
 
 	public RecordPattern(TypeReference type, int sourceStart, int sourceEnd) {
 		this.type = type;
@@ -110,6 +109,7 @@ public class RecordPattern extends Pattern {
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
 
+		this.constant = Constant.NotAConstant;
 		if (this.resolvedType != null)
 			return this.resolvedType;
 
@@ -138,9 +138,11 @@ public class RecordPattern extends Pattern {
 		}
 
 		LocalVariableBinding [] bindings = NO_VARIABLES;
-		for (Pattern p : this.patterns) {
+		for (int i = 0, l = this.patterns.length; i < l; ++i) {
+			Pattern p = this.patterns[i];
 			p.resolveTypeWithBindings(bindings, scope);
 			bindings = LocalVariableBinding.merge(bindings, p.bindingsWhenTrue());
+			p.setExpectedType(this.resolvedType.components()[i].type);
 		}
 
 		if (this.resolvedType == null || !this.resolvedType.isValidBinding()) {
@@ -170,6 +172,7 @@ public class RecordPattern extends Pattern {
 		}
 		return this.resolvedType;
 	}
+
 
 	private ReferenceBinding inferRecordParameterization(BlockScope scope, ReferenceBinding proposedMatchingType) {
 		InferenceContext18 freshInferenceContext = new InferenceContext18(scope);

@@ -54,6 +54,7 @@ public abstract class Pattern extends Expression {
 		NO_CONVERSION_ROUTE
 	}
 
+	protected TypeBinding expectedType;
 	record TestContextRecord(TypeBinding left, TypeBinding right, PrimitiveConversionRoute route) {}
 
 	public Pattern getEnclosingPattern() {
@@ -92,6 +93,11 @@ public abstract class Pattern extends Expression {
 
 	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel);
 
+	public void generateTestingConversion(BlockScope scope, CodeStream codeStream) {
+		// TODO: MAKE THIS abstract
+	}
+
+
 	@Override
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
 		if (!castType.isReifiable())
@@ -115,7 +121,9 @@ public abstract class Pattern extends Expression {
 			return false;
 		}
 		if (patternType.isBaseType()) {
-			if (!TypeBinding.equalsEquals(other, patternType)) {
+			PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(this.resolvedType, this.expectedType, scope);
+			if (!TypeBinding.equalsEquals(other, patternType)
+					&& route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
 				scope.problemReporter().incompatiblePatternType(this, other, patternType);
 				return false;
 			}
@@ -138,6 +146,11 @@ public abstract class Pattern extends Expression {
 	}
 
 	public abstract void setIsEitherOrPattern(); // if set, is one of multiple (case label) patterns and so pattern variables can't be named.
+
+	@Override
+	public void setExpectedType(TypeBinding expectedType) {
+		this.expectedType = expectedType;
+	}
 
 	public boolean isUnguarded() {
 		return this.isUnguarded;
