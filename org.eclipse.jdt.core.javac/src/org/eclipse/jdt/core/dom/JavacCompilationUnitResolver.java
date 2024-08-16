@@ -35,7 +35,9 @@ import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.ILog;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -568,7 +570,18 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		var fileManager = (JavacFileManager)context.get(JavaFileManager.class);
 		List<JavaFileObject> fileObjects = new ArrayList<>(); // we need an ordered list of them
 		for (var sourceUnit : sourceUnits) {
-			File unitFile = new File(new String(sourceUnit.getFileName()));
+			File unitFile;
+			if (javaProject != null) {
+				// path is relative to the workspace, make it absolute
+				IResource asResource = javaProject.getProject().getParent().findMember(new String(sourceUnit.getFileName()));
+				if (asResource != null) {
+					unitFile = asResource.getLocation().toFile();
+				} else {
+					unitFile = new File(new String(sourceUnit.getFileName()));
+				}
+			} else {
+				unitFile = new File(new String(sourceUnit.getFileName()));
+			}
 			Path sourceUnitPath;
 			if (!unitFile.getName().endsWith(".java") || sourceUnit.getFileName() == null || sourceUnit.getFileName().length == 0) {
 				sourceUnitPath = Path.of(new File("whatever.java").toURI());
