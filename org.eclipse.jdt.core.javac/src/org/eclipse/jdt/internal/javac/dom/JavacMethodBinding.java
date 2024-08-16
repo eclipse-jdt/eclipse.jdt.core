@@ -102,13 +102,26 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		return obj instanceof JavacMethodBinding other
 				&& Objects.equals(this.resolver, other.resolver)
 				&& Objects.equals(this.methodSymbol, other.methodSymbol)
-				&& Objects.equals(this.methodType, other.methodType)
+				&& equals(this.methodType, other.methodType) // workaround non-uniqueness MethodType and missing equals/hashCode (ASTConverter15JLS8Test.test0214)
 				&& Objects.equals(this.explicitSynthetic, other.explicitSynthetic)
 				&& Objects.equals(this.isDeclaration, other.isDeclaration);
 	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.resolver, this.methodSymbol, this.methodType, this.explicitSynthetic, this.isDeclaration);
+		return Objects.hash(this.resolver, this.methodSymbol, this.explicitSynthetic, this.isDeclaration) ^ hashCode(this.methodType);
+	}
+
+	private static boolean equals(MethodType second, MethodType first) {
+		return second == first ||
+				(Objects.equals(first.argtypes, second.argtypes) &&
+				Objects.equals(first.restype, second.restype) &&
+				Objects.equals(first.thrown, second.thrown) &&
+				Objects.equals(first.recvtype, second.recvtype) &&
+				Objects.equals(first.tsym, second.tsym));
+	}
+	private static int hashCode(MethodType methodType) {
+		return Objects.hash(methodType.tsym, methodType.argtypes, methodType.restype, methodType.thrown, methodType.recvtype);
 	}
 
 	@Override
