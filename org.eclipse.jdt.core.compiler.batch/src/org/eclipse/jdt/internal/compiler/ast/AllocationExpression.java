@@ -542,7 +542,7 @@ public TypeBinding resolveType(BlockScope scope) {
 protected boolean isMissingTypeRelevant() {
 	if (this.binding != null && this.binding.isVarargs()) {
 		int argLen = this.arguments != null ? this.arguments.length : 0;
-		if (0 < this.binding.parameters.length) {
+		if (argLen < this.binding.parameters.length) {
 			// are all but the irrelevant varargs type present?
 			for (int i = 0; i < argLen; i++) {
 				if ((this.binding.parameters[i].tagBits & TagBits.HasMissingType) != 0)
