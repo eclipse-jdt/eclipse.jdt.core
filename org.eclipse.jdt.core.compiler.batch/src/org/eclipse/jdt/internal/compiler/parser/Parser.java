@@ -8894,7 +8894,13 @@ protected void consumeSingleModifierImportDeclarationName(int modifier) {
 	pushOnAstStack(impt = new ImportReference(tokens, positions, false, modifier));
 
 	this.modifiers = ClassFileConstants.AccDefault;
-	this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
+	// 'module' stores position on stack, 'static' sets modifiersSourceStart:
+	if (modifier == ClassFileConstants.AccModule) {
+		impt.modifiersSourceStart = this.intStack[this.intPtr--];
+	} else { // static
+		impt.modifiersSourceStart = this.modifiersSourceStart;
+	}
+	this.modifiersSourceStart = -1; // see checkAndSetModifiers()
 
 	if (this.currentToken == TokenNameSEMICOLON){
 		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
@@ -9334,6 +9340,7 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	// star end position
 	impt.trailingStarPosition = this.intStack[this.intPtr--];
 	this.modifiers = ClassFileConstants.AccDefault;
+	impt.modifiersSourceStart = this.modifiersSourceStart;
 	this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
 
 	if (this.currentToken == TokenNameSEMICOLON){

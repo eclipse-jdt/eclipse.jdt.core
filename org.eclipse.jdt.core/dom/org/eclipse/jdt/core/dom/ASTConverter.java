@@ -3687,16 +3687,27 @@ class ASTConverter {
 		importDeclaration.setOnDemand(onDemand);
 		int modifiers = importReference.modifiers;
 		if (modifiers != ClassFileConstants.AccDefault) {
-			switch(this.ast.apiLevel) {
-				case AST.JLS2_INTERNAL :
+			if (this.ast.apiLevel == AST.JLS2_INTERNAL) {
+				importDeclaration.setFlags(importDeclaration.getFlags() | ASTNode.MALFORMED);
+			} else if (this.ast.apiLevel < AST.JLS23_INTERNAL) {
+				if (modifiers == ClassFileConstants.AccStatic) {
+					importDeclaration.setStatic(true);
+				} else {
 					importDeclaration.setFlags(importDeclaration.getFlags() | ASTNode.MALFORMED);
-					break;
-				default :
-					if (modifiers == ClassFileConstants.AccStatic) {
-						importDeclaration.setStatic(true);
-					} else {
-						importDeclaration.setFlags(importDeclaration.getFlags() | ASTNode.MALFORMED);
-					}
+				}
+			} else {
+				ModifierKeyword keyword = switch (modifiers) {
+					case ClassFileConstants.AccStatic -> ModifierKeyword.STATIC_KEYWORD;
+					case ClassFileConstants.AccModule -> ModifierKeyword.MODULE_KEYWORD;
+					default -> null;
+				};
+				if (keyword != null) {
+					Modifier newModifier = this.ast.newModifier(keyword);
+					newModifier.setSourceRange(importReference.modifiersSourceStart, keyword.toString().length());
+					importDeclaration.modifiers().add(newModifier);
+				} else {
+					importDeclaration.setFlags(importDeclaration.getFlags() | ASTNode.MALFORMED);
+				}
 			}
 		}
 		if (this.resolveBindings) {
