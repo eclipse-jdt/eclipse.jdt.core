@@ -253,6 +253,14 @@ public class JavacBindingResolver extends BindingResolver {
 				jcb.setRecovered(true);
 				return jcb;
 			}
+			if (!type.isParameterized() && !type.isRaw() && type instanceof ClassType classType
+					&& classType.interfaces_field == null) {
+				// workaround faulty case of TypeMismatchQuickfixText.testMismatchingReturnTypeOnGenericMethod
+				// interfaces/supertypes are not set which seem to imply that the compiler generated
+				// a dummy type object that's not suitable for a binding.
+				// Fail back to an hopefully better type
+				type = type.tsym.type;
+			}
 			JavacTypeBinding newInstance = new JavacTypeBinding(type, type.tsym, isDeclaration, JavacBindingResolver.this) { };
 			typeBinding.putIfAbsent(newInstance, newInstance);
 			return typeBinding.get(newInstance);
