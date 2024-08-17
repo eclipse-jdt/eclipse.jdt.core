@@ -3368,4 +3368,154 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			}
 		}
 	}
+
+	public void testGH2808_codeAfterPara() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/gh2808/CodeAfterPara.java",
+				"""
+				package markdown.gh2808;
+
+				public class CodeAfterPara {
+					/// Plain Text
+					///     @Override public void four() // four significant spaces but no blank line
+					void noBlankLine() { }
+
+					/// Plain Text
+					///  \s
+					///     @Override public void four() // four significant spaces after blank line
+					void withBlankLine() { }
+				}
+				"""
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 2, unitComments.size());
+
+			{ // comments on noBlankLine()
+				Comment comment = (Comment) unitComments.get(0);
+				assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+				List tagList = ((Javadoc) comment).tags();
+
+				String[] tags = {
+						null,
+						"@Override" // parsed as tag, due to lack of blank line
+					};
+				String[][] lines = {
+						{"Plain Text"},
+						{" public void four() // four significant spaces but no blank line"}
+					};
+				assertTagsAndTexts(tagList, tags, lines);
+			}
+
+			{ // comments on withBlankLine()
+				Comment comment = (Comment) unitComments.get(1);
+				assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+				String[] tags = {
+						null
+					};
+				String[][] lines = {
+						{ // one TagElement with 2 TextElements
+							"Plain Text",
+							"    @Override public void four() // four significant spaces after blank line"
+						}
+					};
+				assertTagsAndTexts(((Javadoc) comment).tags(), tags, lines);
+
+			}
+		}
+	}
+
+	public void testGH2808_terminatingAnIndentedCodeBlock() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/gh2808/BlockEnding.java",
+				"""
+				package markdown.gh2808;
+
+				public class BlockEnding {
+					/// Plain Text
+					///
+					///     @Override public void four()
+					///     ```
+					///     /// doc
+					///     /// ```
+					///     /// @Override Nested Code
+					///     /// ```
+					///     ```
+					void indentedWithFence() { }
+
+					/// Plain Text
+					///
+					///     @Override public void four()
+					/// Plain again
+					void paraAfterCode() { }
+				}
+				"""
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 2, unitComments.size());
+
+			{ // comments on indentedWithFence(): fence does not terminate indented code block, even nested doc comment is give verbatim
+				Comment comment = (Comment) unitComments.get(0);
+				assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+				List tagList = ((Javadoc) comment).tags();
+
+				String[] tags = {
+						null
+					};
+				String[][] lines = {
+						{ // one TagElement with many TextElements
+							"Plain Text",
+							"    @Override public void four()",
+							"    ```",
+							"    /// doc",
+							"    /// ```",
+							"    /// @Override Nested Code",
+							"    /// ```",
+							"    ```"
+						}
+					};
+				assertTagsAndTexts(tagList, tags, lines);
+			}
+
+			{ // comments on paraAfterCode() (requires jdt.ui to see what is rendered as code)
+				Comment comment = (Comment) unitComments.get(1);
+				assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+				String[] tags = {
+						null
+					};
+				String[][] lines = {
+						{
+							"Plain Text",
+							"    @Override public void four()",
+							"Plain again"
+						}
+					};
+				assertTagsAndTexts(((Javadoc) comment).tags(), tags, lines);
+			}
+		}
+	}
+
+	protected void assertTagsAndTexts(List<ASTNode> tagList, String[] tags, String[][] liness) {
+		assertEquals(this.prefix+"Wrong number of tags", tags.length, tagList.size());
+
+		for (int i = 0; i < liness.length; i++) {
+			ASTNode tagNode = tagList.get(i);
+			String tag = tags[i];
+			assertEquals(this.prefix+"Invalid type for fragment ["+tagNode+"]", ASTNode.TAG_ELEMENT, tagNode.getNodeType());
+			TagElement tagElement = (TagElement) tagNode;
+			assertEquals(this.prefix+"Invalid tag", tag, tagElement.getTagName());
+			List<? extends ASTNode> fragments = tagElement.fragments();
+			String[] lines = liness[i];
+			assertEquals(this.prefix+"Wrong number of fragments", lines.length, fragments.size());
+			for (int j = 0; j < lines.length; j++) {
+				ASTNode fragment = fragments.get(j);
+				String line = lines[j];
+				assertEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
+				assertEquals(this.prefix+"Wrong text content", line, ((TextElement) fragment).getText());
+			}
+		}
+	}
 }

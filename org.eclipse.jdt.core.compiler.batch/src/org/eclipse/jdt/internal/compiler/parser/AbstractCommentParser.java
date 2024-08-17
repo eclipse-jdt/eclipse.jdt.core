@@ -246,6 +246,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					consumeToken();
 				}
 
+				if (this.markdown && !Character.isWhitespace(nextCharacter) && nextCharacter != '/' && nextCharacter != '`') {
+					this.markdownHelper.recordText();
+				}
 				// Consume rules depending on the read character
 				switch (nextCharacter) {
 					case '@' :

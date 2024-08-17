@@ -35,6 +35,8 @@ public interface IMarkdownCommentHelper {
 	 */
 	boolean recordSignificantLeadingSpace();
 
+	void recordText();
+
 	boolean isInCodeBlock();
 
 	/** Retrieve the start of the current text, possibly including significant leading whitespace. */
@@ -56,7 +58,6 @@ public interface IMarkdownCommentHelper {
 			return new NullMarkdownHelper();
 		}
 	}
-
 }
 
 class NullMarkdownHelper implements IMarkdownCommentHelper {
@@ -73,6 +74,10 @@ class NullMarkdownHelper implements IMarkdownCommentHelper {
 	@Override
 	public boolean recordSignificantLeadingSpace() {
 		return false;
+	}
+	@Override
+	public void recordText() {
+		// nop
 	}
 	@Override
 	public boolean isInCodeBlock() {
@@ -98,7 +103,10 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 	int leadingSpaces = 0;
 	int markdownLineStart = -1;
 	int backTickCount = 0;
-	boolean insideFence = false;
+	boolean insideIndentedCodeBlock = false;
+	boolean insideFencedCodeBlock = false;
+	boolean isBlankLine = true;
+	boolean previousIsBlankLine = true;
 
 	public MarkdownCommentHelper(int lineStart, int commonIndent) {
 		this.markdownLineStart = lineStart;
@@ -117,12 +125,15 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 
 	@Override
 	public void recordBackTick(boolean lineStarted) {
+		if (this.insideIndentedCodeBlock) {
+			return;
+		}
 		if (this.backTickCount < 3) {
 			if (this.backTickCount == 0 && lineStarted) {
 				return;
 			}
 			if (++this.backTickCount == 3) {
-				this.insideFence^=true;
+				this.insideFencedCodeBlock^=true;
 			}
 		}
 	}
@@ -130,15 +141,25 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 	@Override
 	public boolean recordSignificantLeadingSpace() {
 		if (this.markdownLineStart != -1) {
-			if (++this.leadingSpaces > this.commonIndent)
+			if (++this.leadingSpaces > this.commonIndent) {
+				if (!this.insideFencedCodeBlock && this.previousIsBlankLine && this.leadingSpaces - this.commonIndent >= 4)
+					this.insideIndentedCodeBlock = true;
 				return true;
+			}
 		}
 		return false;
 	}
 
 	@Override
+	public void recordText() {
+		this.isBlankLine = false;
+		if (this.leadingSpaces - this.commonIndent < 4)
+			this.insideIndentedCodeBlock = false;
+	}
+
+	@Override
 	public boolean isInCodeBlock() {
-		return this.insideFence || (this.leadingSpaces - this.commonIndent >= 4);
+		return this.insideIndentedCodeBlock || this.insideFencedCodeBlock;
 	}
 
 	@Override
@@ -156,6 +177,8 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 
 	@Override
 	public void resetAtLineEnd() {
+		this.previousIsBlankLine = this.isBlankLine;
+		this.isBlankLine = true;
 		this.slashCount = 0;
 		this.leadingSpaces = 0;
 		this.markdownLineStart = -1;
