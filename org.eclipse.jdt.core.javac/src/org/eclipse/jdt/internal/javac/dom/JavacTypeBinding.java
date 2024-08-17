@@ -980,7 +980,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	@Override
 	public boolean isCastCompatible(final ITypeBinding type) {
 		if (type instanceof JavacTypeBinding other) {
-			return this.types.isCastable(this.type, other.type);
+			return this.types.isCastable(other.type, this.type);
 		}
 		throw new UnsupportedOperationException("Cannot mix with non Javac binding"); //$NON-NLS-1$
 	}
