@@ -653,12 +653,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				// Read possible additional type info
 				dim = 0;
 				isVarargs = false;
-				if (readToken() == TerminalTokens.TokenNameLBRACKET) {
+				if (readMarkdownEscapedToken(TerminalTokens.TokenNameLBRACKET)) {
 					// array declaration
-					while (readToken() == TerminalTokens.TokenNameLBRACKET) {
+					while (readMarkdownEscapedToken(TerminalTokens.TokenNameLBRACKET)) {
 						int dimStart = this.scanner.getCurrentTokenStartPosition();
 						consumeToken();
-						if (readToken() != TerminalTokens.TokenNameRBRACKET) {
+						if (!readMarkdownEscapedToken(TerminalTokens.TokenNameRBRACKET)) {
 							break nextArg;
 						}
 						consumeToken();
@@ -734,6 +734,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			}
 
 			// Something wrong happened => Invalid input
+			if (this.markdown) {
+				// skip over bogus token
+				this.currentTokenType = -1;
+			}
 			throw Scanner.invalidInput();
 		} finally {
 			// we have to make sure that this is reset to the previous value even if an exception occurs
@@ -3334,6 +3338,26 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			this.lineStarted = true; // after having read a token, line is obviously started...
 		}
 		return this.currentTokenType;
+	}
+
+	protected boolean readMarkdownEscapedToken(int expectedToken) throws InvalidInputException {
+		if (!this.markdown)
+			return readToken() == expectedToken;
+		if (this.currentTokenType < 0) {
+			this.tokenPreviousPosition = this.scanner.currentPosition;
+			if (peekChar() != '\\')
+				return false;
+			this.scanner.currentPosition++;
+			this.currentTokenType = this.scanner.getNextToken();
+			if (this.currentTokenType != expectedToken) {
+				this.scanner.currentPosition = this.tokenPreviousPosition;
+				this.currentTokenType = -1;
+				return false;
+			}
+			this.index = this.scanner.currentPosition;
+			this.lineStarted = true; // after having read a token, line is obviously started...
+		}
+		return this.currentTokenType == expectedToken;
 	}
 
 	protected int readTokenAndConsume() throws InvalidInputException {

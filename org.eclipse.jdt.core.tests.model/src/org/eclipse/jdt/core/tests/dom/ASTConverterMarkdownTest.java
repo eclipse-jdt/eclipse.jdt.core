@@ -1337,6 +1337,27 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 	}
 	*/
 
+	protected void assertTagsAndTexts(List<ASTNode> tagList, String[] tags, String[][] liness) {
+		assertEquals(this.prefix+"Wrong number of tags", tags.length, tagList.size());
+
+		for (int i = 0; i < liness.length; i++) {
+			ASTNode tagNode = tagList.get(i);
+			String tag = tags[i];
+			assertEquals(this.prefix+"Invalid type for fragment ["+tagNode+"]", ASTNode.TAG_ELEMENT, tagNode.getNodeType());
+			TagElement tagElement = (TagElement) tagNode;
+			assertEquals(this.prefix+"Invalid tag", tag, tagElement.getTagName());
+			List<? extends ASTNode> fragments = tagElement.fragments();
+			String[] lines = liness[i];
+			assertEquals(this.prefix+"Wrong number of fragments", lines.length, fragments.size());
+			for (int j = 0; j < lines.length; j++) {
+				ASTNode fragment = fragments.get(j);
+				String line = lines[j];
+				assertEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
+				assertEquals(this.prefix+"Wrong text content", line, ((TextElement) fragment).getText());
+			}
+		}
+	}
+
 	/**
 	 * Check javadoc for MethodDeclaration
 	 */
@@ -3498,23 +3519,64 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 		}
 	}
 
-	protected void assertTagsAndTexts(List<ASTNode> tagList, String[] tags, String[][] liness) {
-		assertEquals(this.prefix+"Wrong number of tags", tags.length, tagList.size());
+	public void testGH2808_linkWithArrayReference() throws JavaModelException {
+		// for a negative variant see org.eclipse.jdt.core.tests.compiler.regression.MarkdownCommentsTest.test021()
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/gh2808/LinkWithArray.java",
+				"""
+				package markdown.gh2808;
 
-		for (int i = 0; i < liness.length; i++) {
-			ASTNode tagNode = tagList.get(i);
-			String tag = tags[i];
-			assertEquals(this.prefix+"Invalid type for fragment ["+tagNode+"]", ASTNode.TAG_ELEMENT, tagNode.getNodeType());
-			TagElement tagElement = (TagElement) tagNode;
-			assertEquals(this.prefix+"Invalid tag", tag, tagElement.getTagName());
-			List<? extends ASTNode> fragments = tagElement.fragments();
-			String[] lines = liness[i];
-			assertEquals(this.prefix+"Wrong number of fragments", lines.length, fragments.size());
-			for (int j = 0; j < lines.length; j++) {
-				ASTNode fragment = fragments.get(j);
-				String line = lines[j];
-				assertEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
-				assertEquals(this.prefix+"Wrong text content", line, ((TextElement) fragment).getText());
+				///
+				/// Simple escaped link [#m1(int\\[\\])].
+				/// Escaped link with custom text [method 1][#m1(int\\[\\])].
+				///
+				public class LinkWithArray {
+					public void m1(int[] i) {}
+				}
+				"""
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 1, unitComments.size());
+
+			Comment comment = (Comment) unitComments.get(0);
+			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+			List tagList = ((Javadoc) comment).tags();
+			assertEquals("Should be one tag element", 1, tagList.size());
+			TagElement tagElement = (TagElement) tagList.get(0);
+			tagList = tagElement.fragments();
+
+			String[] tags = {
+					null,
+					"@link",
+					null,
+					null,
+					"@link",
+					null
+				};
+			String[] lines = {
+					"Simple escaped link ",
+					"m1(int [])",
+					".",
+					"Escaped link with custom text ",
+					"method 1",
+					"."
+				};
+			for (int i = 0; i < lines.length; i++) {
+				String tag = tags[i];
+				String line = lines[i];
+				ASTNode elem = (ASTNode) tagList.get(i);
+				if (tag != null) {
+					assertEquals("Node type", ASTNode.TAG_ELEMENT, elem.getNodeType());
+					assertEquals("Tag name", tag, ((TagElement) elem).getTagName());
+					elem = (ASTNode) ((TagElement) elem).fragments().get(0);
+					if (!(elem instanceof TextElement))
+						continue; // @link without custom text
+				} else {
+					assertEquals("Node type", ASTNode.TEXT_ELEMENT, elem.getNodeType());
+				}
+				assertEquals("Text", line, ((TextElement) elem).getText());
 			}
 		}
 	}
