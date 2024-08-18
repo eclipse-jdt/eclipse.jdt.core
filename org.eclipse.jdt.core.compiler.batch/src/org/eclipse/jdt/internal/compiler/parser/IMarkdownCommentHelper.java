@@ -26,7 +26,7 @@ public interface IMarkdownCommentHelper {
 
 	void recordSlash(int nextIndex);
 
-	void recordBackTick(boolean lineStarted);
+	void recordFenceChar(char previous, char next, boolean lineStarted);
 
 	/**
 	 * When at the beginning of a comment line, record that a whitespace was seen.
@@ -68,7 +68,7 @@ class NullMarkdownHelper implements IMarkdownCommentHelper {
 		// nop
 	}
 	@Override
-	public void recordBackTick(boolean lineStarted) {
+	public void recordFenceChar(char previous, char next, boolean lineStarted) {
 		// nop
 	}
 	@Override
@@ -102,9 +102,11 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 	int slashCount = 0;
 	int leadingSpaces = 0;
 	int markdownLineStart = -1;
-	int backTickCount = 0;
 	boolean insideIndentedCodeBlock = false;
 	boolean insideFencedCodeBlock = false;
+	char fenceChar;
+	int fenceCharCount;
+	int fenceLength;
 	boolean isBlankLine = true;
 	boolean previousIsBlankLine = true;
 
@@ -124,18 +126,24 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 	}
 
 	@Override
-	public void recordBackTick(boolean lineStarted) {
+	public void recordFenceChar(char previous, char next, boolean lineStarted) {
 		if (this.insideIndentedCodeBlock) {
 			return;
 		}
-		if (this.backTickCount < 3) {
-			if (this.backTickCount == 0 && lineStarted) {
+		if (this.fenceCharCount == 0) {
+			if (lineStarted)
 				return;
-			}
-			if (++this.backTickCount == 3) {
-				this.insideFencedCodeBlock^=true;
-			}
+			this.fenceChar = next;
+			this.fenceCharCount = 1;
+			return;
 		}
+		if (next != this.fenceChar || previous != next)
+			return;
+		int required = this.insideFencedCodeBlock ? this.fenceLength : 3;
+		if (++this.fenceCharCount == required) {
+			this.insideFencedCodeBlock^=true;
+		}
+		this.fenceLength = this.fenceCharCount;
 	}
 
 	@Override
@@ -182,7 +190,7 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 		this.slashCount = 0;
 		this.leadingSpaces = 0;
 		this.markdownLineStart = -1;
-		this.backTickCount = 0;
+		this.fenceCharCount = 0;
 		// do not reset `insideFence`
 	}
 }

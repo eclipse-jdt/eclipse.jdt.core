@@ -472,8 +472,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 									this.textStart = this.index;
 									break;
 								}
-							} else if (nextCharacter == '`') {
-								this.markdownHelper.recordBackTick(this.lineStarted);
+							} else if (nextCharacter == '`' || nextCharacter == '~') {
+								this.markdownHelper.recordFenceChar(previousChar, nextCharacter, this.lineStarted);
 							}
 						}
 						if (isFormatterParser && nextCharacter == '<') {

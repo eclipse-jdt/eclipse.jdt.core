@@ -3519,6 +3519,57 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 		}
 	}
 
+	public void testGH2808_fencedCode() throws JavaModelException {
+		// fence can only be terminated by same number of same fence chars
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/gh2808/FencedCode.java",
+				"""
+				package markdown.gh2808;
+
+				public class FencedCode {
+					/// ``~~mix is not a fence
+					/// Plain Text
+					///
+					/// ~~~~script
+					/// @Override // not a tag even after ...
+					/// ~~~
+					/// or
+					/// ````
+					/// @Override
+					/// ~~~~
+					void indentedWithFence() { }
+				}
+				"""
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 1, unitComments.size());
+
+			Comment comment = (Comment) unitComments.get(0);
+			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+			List tagList = ((Javadoc) comment).tags();
+
+			String[] tags = {
+					null
+				};
+			String[][] lines = {
+					{ // one TagElement with many TextElements
+						"``~~mix is not a fence",
+						"Plain Text",
+						"~~~~script",
+						"@Override // not a tag even after ...",
+						"~~~",
+						"or",
+						"````",
+						"@Override",
+						"~~~~"
+					}
+				};
+			assertTagsAndTexts(tagList, tags, lines);
+		}
+	}
+
 	public void testGH2808_linkWithArrayReference() throws JavaModelException {
 		// for a negative variant see org.eclipse.jdt.core.tests.compiler.regression.MarkdownCommentsTest.test021()
 		this.workingCopies = new ICompilationUnit[1];
