@@ -447,9 +447,21 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public ITypeBinding[] getParameterTypes() {
-		return this.methodType.getParameterTypes().stream()
-			.map(this.resolver.bindings::getTypeBinding)
-			.toArray(ITypeBinding[]::new);
+		ITypeBinding[] res = new ITypeBinding[this.methodType.getParameterTypes().length()];
+		for (int i = 0; i < res.length; i++) {
+			Type paramType = methodType.getParameterTypes().get(i);
+			ITypeBinding paramBinding = this.resolver.bindings.getTypeBinding(paramType);
+			if (paramBinding == null) {
+				// workaround javac missing recovery symbols for unresolved parameterized types
+				if (this.resolver.findDeclaringNode(this) instanceof MethodDeclaration methodDecl) {
+					if (methodDecl.parameters().get(i) instanceof SingleVariableDeclaration paramDeclaration) {
+						paramBinding = this.resolver.resolveType(paramDeclaration.getType());
+					}
+				}
+			}
+			res[i] = paramBinding;
+		}
+		return res;
 	}
 
 	@Override

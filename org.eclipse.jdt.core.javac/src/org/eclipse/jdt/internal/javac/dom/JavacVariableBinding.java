@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -214,7 +215,25 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public ITypeBinding getType() {
-		return this.resolver.bindings.getTypeBinding(this.variableSymbol.type);
+		var res = this.resolver.bindings.getTypeBinding(this.variableSymbol.type);
+		if (res != null) {
+			return res;
+		}
+		// workaround: Javac doesn't typeSymbol for the variable
+		// that does match the recovered one on the type definition
+		// In case the typeBinding is wrong, just lookup the declaration
+		// in AST to resolve the type definition directly
+		ASTNode node = this.resolver.findDeclaringNode(this);
+		if (node instanceof SingleVariableDeclaration decl) {
+			return decl.getType().resolveBinding();
+		} else if (node instanceof VariableDeclarationFragment fragment) {
+			if (fragment.getParent() instanceof VariableDeclarationExpression expr) {
+				return expr.getType().resolveBinding();
+			} else if (fragment.getParent() instanceof FieldDeclaration fieldDecl) {
+				return fieldDecl.getType().resolveBinding();
+			}
+		}
+		return null;
 	}
 
 	@Override

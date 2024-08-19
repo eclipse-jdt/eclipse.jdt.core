@@ -42,6 +42,7 @@ import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Attribute.Compound;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.ModuleSymbol;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
@@ -242,16 +243,28 @@ public class JavacBindingResolver extends BindingResolver {
 			if (type == null || type == com.sun.tools.javac.code.Type.noType) {
 				return null;
 			}
-			if (type instanceof ErrorType errorType
-						&& (errorType.getOriginalType() != com.sun.tools.javac.code.Type.noType)
-						&& !(errorType.getOriginalType() instanceof com.sun.tools.javac.code.Type.MethodType)
-						&& !(errorType.getOriginalType() instanceof com.sun.tools.javac.code.Type.ForAll)
-						&& !(errorType.getOriginalType() instanceof com.sun.tools.javac.code.Type.ErrorType)) {
-				JavacTypeBinding newInstance = new JavacTypeBinding(errorType.getOriginalType(), type.tsym, isDeclaration, JavacBindingResolver.this) { };
-				typeBinding.putIfAbsent(newInstance, newInstance);
-				JavacTypeBinding jcb = typeBinding.get(newInstance);
-				jcb.setRecovered(true);
-				return jcb;
+			if (type instanceof ErrorType errorType) {
+				var originalType = errorType.getOriginalType();
+				if (originalType != com.sun.tools.javac.code.Type.noType
+						&& !(originalType instanceof com.sun.tools.javac.code.Type.MethodType)
+						&& !(originalType instanceof com.sun.tools.javac.code.Type.ForAll)
+						&& !(originalType instanceof com.sun.tools.javac.code.Type.ErrorType)) {
+					JavacTypeBinding newInstance = new JavacTypeBinding(originalType, type.tsym, isDeclaration, JavacBindingResolver.this) { };
+					typeBinding.putIfAbsent(newInstance, newInstance);
+					JavacTypeBinding jcb = typeBinding.get(newInstance);
+					jcb.setRecovered(true);
+					return jcb;
+				} else if (errorType.tsym instanceof ClassSymbol classErrorSymbol &&
+							Character.isJavaIdentifierStart(classErrorSymbol.getSimpleName().charAt(0))) {
+					// non usable original type: try symbol
+					JavacTypeBinding newInstance = new JavacTypeBinding(classErrorSymbol.type, classErrorSymbol, isDeclaration, JavacBindingResolver.this) { };
+					typeBinding.putIfAbsent(newInstance, newInstance);
+					JavacTypeBinding jcb = typeBinding.get(newInstance);
+					jcb.setRecovered(true);
+					return jcb;
+				}
+				// no type information  we could recover from
+				return null;
 			}
 			if (!type.isParameterized() && !type.isRaw() && type instanceof ClassType classType
 					&& classType.interfaces_field == null) {
@@ -467,7 +480,7 @@ public class JavacBindingResolver extends BindingResolver {
 	}
 
 	@Override
-	ITypeBinding resolveType(Type type) {
+	public ITypeBinding resolveType(Type type) {
 		if (type.getParent() instanceof ParameterizedType parameterized
 			&& type.getLocationInParent() == ParameterizedType.TYPE_PROPERTY) {
 			// use parent type for this as it keeps generics info
@@ -498,7 +511,10 @@ public class JavacBindingResolver extends BindingResolver {
 			return this.bindings.getTypeBinding(wcType.type);
 		}
 		if (jcTree instanceof JCTypeApply jcta && jcta.type != null) {
-			return this.bindings.getTypeBinding(jcta.type);
+			var res = this.bindings.getTypeBinding(jcta.type);
+			if (res != null) {
+				return res;
+			}
 		}
 		if (jcTree instanceof JCAnnotatedType annotated && annotated.type != null) {
 			return this.bindings.getTypeBinding(annotated.type);
@@ -525,7 +541,37 @@ public class JavacBindingResolver extends BindingResolver {
 				return varBinding.getType();
 			}
 		}
-		return super.resolveType(type);
+		// Recovery: sometime with Javac, there is no suitable type/symbol
+		// Workaround: use a RecoveredTypeBinding
+		// Caveats: cascade to other workarounds
+		return createRecoveredTypeBinding(type);
+	}
+
+	private RecoveredTypeBinding createRecoveredTypeBinding(Type type) {
+		return new RecoveredTypeBinding(this, type) {
+			@Override
+			public ITypeBinding getTypeDeclaration() {
+				if (isParameterizedType()) {
+					return new GenericRecoveredTypeBinding(JavacBindingResolver.this, type, this);
+				}
+				return super.getTypeDeclaration();
+			}
+			@Override
+			public IPackageBinding getPackage() {
+				if (type instanceof SimpleType simpleType && simpleType.getName() instanceof SimpleName) {
+					return JavacBindingResolver.this.converter.domToJavac
+						.values()
+						.stream()
+						.filter(CompilationUnit.class::isInstance)
+						.map(CompilationUnit.class::cast)
+						.map(CompilationUnit::getPackage)
+						.map(PackageDeclaration::resolveBinding)
+						.findAny()
+						.orElse(super.getPackage());
+				}
+				return super.getPackage();
+			}
+		};
 	}
 
 	@Override
@@ -992,7 +1038,14 @@ public class JavacBindingResolver extends BindingResolver {
 					return null;
 				}
 			}
-			return this.bindings.getTypeBinding(jcExpr.type);
+			var res = this.bindings.getTypeBinding(jcExpr.type);
+			if (res != null) {
+				return res;
+			}
+			// workaround Javac missing bindings in some cases
+			if (expr instanceof ClassInstanceCreation classInstanceCreation) {
+				return createRecoveredTypeBinding(classInstanceCreation.getType());
+			}
 		}
 		return null;
 	}
