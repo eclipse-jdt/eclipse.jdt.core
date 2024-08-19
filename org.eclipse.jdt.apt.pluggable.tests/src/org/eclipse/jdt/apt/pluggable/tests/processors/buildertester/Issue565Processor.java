@@ -35,14 +35,12 @@ public class Issue565Processor extends AbstractProcessor {
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        if (roundEnv.processingOver()) {
+            // We're not interested in the postprocessing round.
+            return false;
+        }
 
-		String classpath = System.getProperty("java.class.path");
-		String[] classPathValues = classpath.split(File.pathSeparator);
-		for (String classPath: classPathValues) {
-			System.out.println(classPath);
-		}
-
-		for (Element element : roundEnv.getElementsAnnotatedWith(annotations.stream().findAny().get())) {
+		for (Element element : roundEnv.getElementsAnnotatedWith(Annotation565.class)) {
 				if (element instanceof TypeElement) {
 					keyBuilder.visit(element.asType(), true);
 				}
@@ -54,7 +52,7 @@ public class Issue565Processor extends AbstractProcessor {
 		return status;
 	}
 
-
+    //This is a fragment of querydsl visitor
 	private final TypeVisitor<List<String>, Boolean> keyBuilder = new SimpleTypeVisitor8<>() {
         private final List<String> defaultValue = Collections.singletonList("Object");
 
