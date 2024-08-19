@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2023 IBM Corporation.
+ * Copyright (c) 2017, 2024 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -73,6 +73,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 	boolean reportSuccessAlready = true;
 	RoundEnvironment roundEnv = null;
 	Messager _messager = null;
+	boolean isJre23;
 	boolean isJre20;
 	boolean isJre19;
 	boolean isJre18;
@@ -109,6 +110,9 @@ public class Java9ElementProcessor extends BaseProcessor {
 								this.isJre19 = true;
 								if (current >= ClassFileConstants.MAJOR_VERSION_20) {
 									this.isJre20 = true;
+									if (current >= ClassFileConstants.MAJOR_VERSION_23) {
+	                                    this.isJre23 = true;
+	                                }
 								}
 							}
 						}
@@ -515,7 +519,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("java.base module null", base);
 		List<? extends Directive> directives = base.getDirectives();
 		List<Directive> filterDirective = filterDirective(directives, DirectiveKind.USES);
-		int modCount =  (this.isJre11 || this.isJre12) ? 33 : (this.isJre18 ? (this.isJre20 ? 36 : 35) : 34);
+		int modCount =  (this.isJre11 || this.isJre12) ? 33 : (this.isJre18 ? (this.isJre20 ? (this.isJre23 ? 35 : 36) : 35) : 34);
 		assertEquals("incorrect no of uses", modCount, filterDirective.size());
 	}
 	/*
@@ -532,7 +536,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("java.base module null", base);
 		List<? extends Directive> directives = base.getDirectives();
 		List<Directive> filterDirective = filterDirective(directives, DirectiveKind.PROVIDES);
-		assertEquals("incorrect no of provides", (isJre17 ? (this.isJavac ? 4 : 2) : 1), filterDirective.size());
+		assertEquals("incorrect no of provides", ((isJre17 && !isJre23) ? (this.isJavac ? 4 : 2) : 1), filterDirective.size());
 		ProvidesDirective provides = (ProvidesDirective) filterDirective.get(0);
 		assertEquals("incorrect service name", "java.nio.file.spi.FileSystemProvider", provides.getService().getQualifiedName().toString());
 		List<? extends TypeElement> implementations = provides.getImplementations();
