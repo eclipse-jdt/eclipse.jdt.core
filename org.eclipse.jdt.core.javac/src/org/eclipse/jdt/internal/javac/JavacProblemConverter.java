@@ -1136,7 +1136,7 @@ public class JavacProblemConverter {
 	private int convertAmbiguous(Diagnostic<?> diagnostic) {
 		Kinds.KindName kind = getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class);
 		return switch (kind) {
-			case CLASS -> IProblem.AmbiguousType;
+			case CLASS, INTERFACE -> IProblem.AmbiguousType;
 			case METHOD -> IProblem.AmbiguousMethod;
 			default -> 0;
 		};
