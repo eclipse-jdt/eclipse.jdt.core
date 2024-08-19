@@ -67,7 +67,8 @@ public abstract class JavacPackageBinding implements IPackageBinding {
 
 	@Override
 	public boolean isRecovered() {
-		return false;
+		var element = getJavaElement();
+		return element == null || !element.exists();
 	}
 
 	@Override

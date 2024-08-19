@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.lang.model.element.PackageElement;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
@@ -265,13 +266,19 @@ public class JavacProblemConverter {
 				&& methodInvocation.getMethodSelect() == element) {
 				element = methodInvocation;
 			}
+			if (problemId == IProblem.UndefinedType
+				&& element instanceof JCFieldAccess fieldAccess
+				&& jcDiagnostic.getArgs().length > 0
+				&& jcDiagnostic.getArgs()[0] instanceof PackageElement) {
+				element = fieldAccess.getExpression();
+			}
 			if (element != null) {
 				switch (element) {
 					case JCTree.JCTypeApply jcTypeApply: return getPositionByNodeRangeOnly(jcDiagnostic, (JCTree)jcTypeApply.clazz);
 					case JCClassDecl jcClassDecl: return getDiagnosticPosition(jcDiagnostic, jcClassDecl);
 					case JCVariableDecl jcVariableDecl: return getDiagnosticPosition(jcDiagnostic, jcVariableDecl);
 					case JCMethodDecl jcMethodDecl: return getDiagnosticPosition(jcDiagnostic, jcMethodDecl, problemId);
-					case JCIdent jcIdent: return getDiagnosticPosition(jcDiagnostic, jcIdent);
+					case JCIdent jcIdent: return getPositionByNodeRangeOnly(jcDiagnostic, jcIdent);
 					case JCMethodInvocation methodInvocation: return getPositionByNodeRangeOnly(jcDiagnostic, methodInvocation);
 					case JCFieldAccess jcFieldAccess:
 						if (getDiagnosticArgumentByType(jcDiagnostic, KindName.class) != KindName.PACKAGE && getDiagnosticArgumentByType(jcDiagnostic, Symbol.PackageSymbol.class) == null) {
@@ -296,8 +303,13 @@ public class JavacProblemConverter {
 	private org.eclipse.jface.text.Position getPositionByNodeRangeOnly(JCDiagnostic jcDiagnostic, JCTree jcTree) {
 		int startPosition = jcTree.getStartPosition();
 		if (startPosition != Position.NOPOS) {
-			int endPosition = jcTree.getEndPosition(this.units.get(jcDiagnostic.getSource()).endPositions);
-			return new org.eclipse.jface.text.Position(startPosition, endPosition - startPosition);
+			JCCompilationUnit trackedUnit = this.units.get(jcDiagnostic.getSource());
+			if (trackedUnit != null && trackedUnit.endPositions != null) {
+				int endPosition = jcTree.getEndPosition(trackedUnit.endPositions);
+				return new org.eclipse.jface.text.Position(startPosition, endPosition - startPosition);
+			} else if (jcTree instanceof JCIdent ident) {
+				return new org.eclipse.jface.text.Position(startPosition, ident.getName().length());
+			}
 		}
 		return getDefaultPosition(jcDiagnostic);
 	}
@@ -319,19 +331,6 @@ public class JavacProblemConverter {
 						return new org.eclipse.jface.text.Position(startPosition, lastParenthesisIndex - startPosition + 1);
 					}
 				}
-				return getDiagnosticPosition(name, startPosition, jcDiagnostic);
-			} catch (IOException ex) {
-				ILog.get().error(ex.getMessage(), ex);
-			}
-		}
-		return getDefaultPosition(jcDiagnostic);
-	}
-	private static org.eclipse.jface.text.Position getDiagnosticPosition(JCDiagnostic jcDiagnostic,
-			JCIdent jcIdent) {
-		int startPosition = (int) jcDiagnostic.getPosition();
-		if (startPosition != Position.NOPOS) {
-			try {
-				String name = jcIdent.getName().toString();
 				return getDiagnosticPosition(name, startPosition, jcDiagnostic);
 			} catch (IOException ex) {
 				ILog.get().error(ex.getMessage(), ex);
@@ -771,9 +770,14 @@ public class JavacProblemConverter {
 				if (unit != null) {
 					long diagPos = diagnostic.getPosition();
 					boolean isImport = unit.getImports().stream().anyMatch(jcImport -> diagPos >= jcImport.getStartPosition() && diagPos <= jcImport.getEndPosition(unit.endPositions));
-					yield isImport ? IProblem.ImportNotFound : IProblem.PackageDoesNotExistOrIsEmpty;
+					if (isImport) {
+						yield IProblem.ImportNotFound;
+					}
+					if (unit.getModule() != null) {
+						yield IProblem.PackageDoesNotExistOrIsEmpty;
+					}
 				}
-				yield IProblem.PackageDoesNotExistOrIsEmpty;
+				yield IProblem.UndefinedType;
 			}
 			case "compiler.err.override.meth" -> diagnostic.getMessage(Locale.ENGLISH).contains("static") ?
 					IProblem.CannotOverrideAStaticMethodWithAnInstanceMethod :
