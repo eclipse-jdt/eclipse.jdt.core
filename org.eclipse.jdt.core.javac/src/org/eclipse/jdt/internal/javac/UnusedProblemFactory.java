@@ -50,7 +50,7 @@ public class UnusedProblemFactory {
 		this.problemFactory = problemFactory;
 		this.compilerOptions = compilerOptions;
 	}
-	
+
 	public UnusedProblemFactory(IProblemFactory problemFactory, Map<String, String> compilerOptions) {
 		this.problemFactory = problemFactory;
 		this.compilerOptions = new CompilerOptions(compilerOptions);
@@ -134,9 +134,9 @@ public class UnusedProblemFactory {
 				int column = (int) unit.getLineMap().getColumnNumber(startPos);
 				problem = problemFactory.createProblem(fileName,
 						IProblem.UnusedPrivateType, new String[] {
-							shortName	
+							shortName
 						}, new String[] {
-							shortName	
+							shortName
 						},
 						severity, startPos, endPos, line, column);
 			} else if (decl instanceof JCMethodDecl methodDecl) {
@@ -179,7 +179,7 @@ public class UnusedProblemFactory {
 						typeName, name
 					};
 				} else if (varSymbol.owner instanceof MethodSymbol methodSymbol) {
-					if (methodSymbol.params().indexOf(varSymbol) >= 0) {
+					if (methodSymbol.type != null && methodSymbol.params().indexOf(varSymbol) >= 0) {
 						problemId = IProblem.ArgumentIsNeverUsed;
 					} else {
 						problemId = IProblem.LocalVariableIsNeverUsed;

@@ -29,6 +29,7 @@ import javax.tools.JavaFileObject.Kind;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -85,7 +86,7 @@ public class JavacCompiler extends Compiler {
 		IJavaProject javaProject = Stream.of(sourceUnits).filter(SourceFile.class::isInstance).map(
 		        SourceFile.class::cast).map(source -> source.resource).map(IResource::getProject).filter(
 		                JavaProject::hasJavaNature).map(JavaCore::create).findFirst().orElse(null);
-		
+
 		Map<IContainer, List<ICompilationUnit>> outputSourceMapping = Arrays.stream(sourceUnits)
 			.filter(unit -> {
 				/**
@@ -158,14 +159,27 @@ public class JavacCompiler extends Compiler {
 			javacContext.put(JavaCompiler.compilerKey, javac);
 			javac.shouldStopPolicyIfError = CompileState.GENERATE;
 			try {
-				javac.compile(com.sun.tools.javac.util.List.from(
-				        outputSourceSet.getValue().stream().filter(SourceFile.class::isInstance).map(
-				                SourceFile.class::cast).map(
-				                        source -> new JavacFileObject(source, null, source.resource.getLocationURI(),
-				                                Kind.SOURCE, Charset.defaultCharset())).map(
-				                                        JavaFileObject.class::cast).toList()));
+				javac.compile(com.sun.tools.javac.util.List.from(outputSourceSet.getValue().stream()
+						.filter(SourceFile.class::isInstance).map(SourceFile.class::cast).map(source -> {
+							File unitFile;
+							if (javaProject != null) {
+								// path is relative to the workspace, make it absolute
+								IResource asResource = javaProject.getProject().getParent()
+										.findMember(new String(source.getFileName()));
+								if (asResource != null) {
+									unitFile = asResource.getLocation().toFile();
+								} else {
+									unitFile = new File(new String(source.getFileName()));
+								}
+							} else {
+								unitFile = new File(new String(source.getFileName()));
+							}
+							return new JavacFileObject(source, null, unitFile.toURI(), Kind.SOURCE,
+									Charset.defaultCharset());
+						}).map(JavaFileObject.class::cast).toList()));
 			} catch (Throwable e) {
 				// TODO fail
+				ILog.get().error("compilation failed", e);
 			}
 			for (int i = 0; i < sourceUnits.length; i++) {
 				ICompilationUnit in = sourceUnits[i];

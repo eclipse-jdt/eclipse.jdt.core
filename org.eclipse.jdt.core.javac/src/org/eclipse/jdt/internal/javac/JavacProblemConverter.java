@@ -834,6 +834,7 @@ public class JavacProblemConverter {
 			case "compiler.err.cant.infer.local.var.type" -> IProblem.VarLocalWithoutInitizalier;
 			case "compiler.err.array.and.varargs" -> IProblem.RedefinedArgument;
 			case "compiler.err.type.doesnt.take.params" -> IProblem.NonGenericType;
+			case "compiler.err.static.imp.only.classes.and.interfaces" -> IProblem.InvalidTypeForStaticImport;
 			default -> {
 				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;
