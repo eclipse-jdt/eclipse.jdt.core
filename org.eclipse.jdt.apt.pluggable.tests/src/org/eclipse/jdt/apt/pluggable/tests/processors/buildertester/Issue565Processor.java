@@ -22,7 +22,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.*;
 import javax.lang.model.util.SimpleTypeVisitor8;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
