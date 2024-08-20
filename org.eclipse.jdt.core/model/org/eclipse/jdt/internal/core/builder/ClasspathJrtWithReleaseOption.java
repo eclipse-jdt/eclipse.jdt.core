@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileVisitResult;
@@ -39,45 +40,71 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.CtSym;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
+import org.eclipse.jdt.internal.compiler.util.JrtFileSystem;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 
-	static String MODULE_INFO = "module-info.sig"; //$NON-NLS-1$
+	private static final String MODULE_INFO = "module-info.sig"; //$NON-NLS-1$
 
 	final String release;
-	String releaseCode;
+	private final String releaseCode;
 	/**
 	 * Null for releases without ct.sym file or for releases matching current one
 	 */
 	private FileSystem fs;
-	protected Path releasePath;
-	protected Path modulePath;
-	private String modPathString;
-	CtSym ctSym;
-
+	private final Path releasePath;
+	private final String modPathString;
+	private CtSym ctSym;
+	private final JrtFileSystem jrtFileSystemForRelease;
 
 
 	public ClasspathJrtWithReleaseOption(String zipFilename, AccessRuleSet accessRuleSet, IPath externalAnnotationPath,
 			String release) throws CoreException {
-		super();
+		super(zipFilename);
 		if (release == null || release.equals("")) { //$NON-NLS-1$
 			throw new IllegalArgumentException("--release argument can not be null"); //$NON-NLS-1$
 		}
-		setZipFile(zipFilename);
 		this.accessRuleSet = accessRuleSet;
 		if (externalAnnotationPath != null) {
 			this.externalAnnotationPath = externalAnnotationPath.toString();
 		}
 		this.release = getReleaseOptionFromCompliance(release);
+		JrtFileSystem systemForRelease = null;
+		try {
+			systemForRelease = JRTUtil.getJrtSystem(new File(zipFilename), this.release);
+		} catch (IOException e) {
+			Util.log(e, "Failed to init packages for " + zipFilename); //$NON-NLS-1$
+		}
+		this.jrtFileSystemForRelease = systemForRelease;
 		try {
 			this.ctSym = JRTUtil.getCtSym(Path.of(this.zipFilename).getParent().getParent());
 		} catch (IOException e) {
 			throw new CoreException(Status.error("Failed to init ct.sym for " + this.zipFilename, e)); //$NON-NLS-1$
 		}
-		initialize();
+
+		/**
+		 * Set up the paths where modules and regular classes need to be read. We need to deal with two different kind of
+		 * formats of cy.sym, see {@link CtSym} javadoc.
+		 *
+		 * @see CtSym
+		 */
+		this.releaseCode = CtSym.getReleaseCode(this.release);
+		this.fs = this.ctSym.getFs();
+		this.releasePath = this.ctSym.getRoot();
+		Path modPath = this.fs.getPath(this.releaseCode + (this.ctSym.isJRE12Plus() ? "" : "-modules")); //$NON-NLS-1$ //$NON-NLS-2$
+		this.modPathString = !Files.exists(modPath) ? null: (this.zipFilename + "|"+ modPath.toString()); //$NON-NLS-1$
+
+		if (!Files.exists(this.releasePath.resolve(this.releaseCode))) {
+			Exception e = new IllegalArgumentException("release " + this.release + " is not found in the system"); //$NON-NLS-1$//$NON-NLS-2$
+			throw new CoreException(Status.error(e.getMessage(), e));
+		}
+		if (Files.exists(this.fs.getPath(this.releaseCode, "system-modules"))) { //$NON-NLS-1$
+			this.fs = null;  // Fallback to default version, all classes are on jrt fs, not here.
+		}
+
 		loadModules();
 	}
 	/*
@@ -100,31 +127,6 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 		}
 	}
 
-	/**
-	 * Set up the paths where modules and regular classes need to be read. We need to deal with two different kind of
-	 * formats of cy.sym, see {@link CtSym} javadoc.
-	 *
-	 * @see CtSym
-	 */
-	protected void initialize() throws CoreException {
-		this.releaseCode = CtSym.getReleaseCode(this.release);
-		this.fs = this.ctSym.getFs();
-		this.releasePath = this.ctSym.getRoot();
-		Path modPath = this.fs.getPath(this.releaseCode + (this.ctSym.isJRE12Plus() ? "" : "-modules")); //$NON-NLS-1$ //$NON-NLS-2$
-		if (Files.exists(modPath)) {
-			this.modulePath = modPath;
-			this.modPathString = this.zipFilename + "|"+ modPath.toString(); //$NON-NLS-1$
-		}
-
-		if (!Files.exists(this.releasePath.resolve(this.releaseCode))) {
-			Exception e = new IllegalArgumentException("release " + this.release + " is not found in the system"); //$NON-NLS-1$//$NON-NLS-2$
-			throw new CoreException(Status.error(e.getMessage(), e));
-		}
-		if (Files.exists(this.fs.getPath(this.releaseCode, "system-modules"))) { //$NON-NLS-1$
-			this.fs = null;  // Fallback to default version, all classes are on jrt fs, not here.
-		}
-	}
-
 	Map<String, SimpleSet> findPackagesInModules() {
 		// In JDK 11 and before, classes are not listed under their respective modules
 		// Hence, we simply go to the default module system for package-module mapping
@@ -137,7 +139,7 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 		Map<String, SimpleSet> cache = PackageCache.computeIfAbsent(this.modPathString, key -> {
 			final Map<String, SimpleSet> packagesInModule = new HashMap<>();
 			try {
-				JRTUtil.walkModuleImage(this.jrtFile, this.release, new JrtPackageVisitor(packagesInModule), JRTUtil.NOTIFY_PACKAGES | JRTUtil.NOTIFY_MODULES);
+				JRTUtil.walkModuleImage(this.jrtFileSystemForRelease, new JrtPackageVisitor(packagesInModule), JRTUtil.NOTIFY_PACKAGES | JRTUtil.NOTIFY_MODULES);
 			} catch (IOException e) {
 				Util.log(e, "Failed to init packages for " + this.modPathString); //$NON-NLS-1$
 			}
@@ -223,15 +225,19 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 				}
 			} else {
 				// Read the file in a "classic" way from the JDK itself
-				reader = ClassFileReader.readFromModule(this.jrtFile, moduleName, qualifiedBinaryFileName,
-						moduleNameFilter);
+				if (this.jrtFileSystem == null) {
+					return null;
+				}
+				reader = JRTUtil.getClassfile(this.jrtFileSystem, qualifiedBinaryFileName, moduleName, moduleNameFilter);
 			}
-			if (reader != null)
-				return createAnswer(fileNameWithoutExtension, reader, reader.getModule());
+			if (reader == null) {
+				return null;
+			}
+			return createAnswer(fileNameWithoutExtension, reader, reader.getModule());
 		} catch (ClassFormatException | IOException e) {
 			// treat as if class file is missing
+			return null;
 		}
-		return null;
 	}
 
 	@Override
