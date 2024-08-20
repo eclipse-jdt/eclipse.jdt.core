@@ -762,8 +762,13 @@ public class JavacBindingResolver extends BindingResolver {
 	IMethodBinding resolveMethod(MethodDeclaration method) {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(method);
-		if (javacElement instanceof JCMethodDecl methodDecl && methodDecl.type != null) {
-			return this.bindings.getMethodBinding(methodDecl.type.asMethodType(), methodDecl.sym, null, true);
+		if (javacElement instanceof JCMethodDecl methodDecl) {
+			if (methodDecl.type != null) {
+				return this.bindings.getMethodBinding(methodDecl.type.asMethodType(), methodDecl.sym, null, true);
+			}
+			if (methodDecl.sym instanceof MethodSymbol methodSymbol && methodSymbol.type != null) {
+				return this.bindings.getMethodBinding(methodSymbol.type.asMethodType(), methodSymbol, null, true);
+			}
 		}
 		return null;
 	}
@@ -1088,17 +1093,18 @@ public class JavacBindingResolver extends BindingResolver {
 			Symbol recoveredSymbol = getRecoveredSymbol(jcExpr.type);
 			if (recoveredSymbol != null) {
 				IBinding recoveredBinding = this.bindings.getBinding(recoveredSymbol, recoveredSymbol.type);
-				switch (recoveredBinding) {
-				case IVariableBinding variableBinding: return variableBinding.getType();
-				case ITypeBinding typeBinding: return typeBinding;
-				case IMethodBinding methodBinding: return methodBinding.getReturnType();
-				default:
-					return null;
-				}
+				return switch (recoveredBinding) {
+					case IVariableBinding variableBinding -> variableBinding.getType();
+					case ITypeBinding typeBinding -> typeBinding;
+					case IMethodBinding methodBinding -> methodBinding.getReturnType();
+					default -> null;
+				};
 			}
-			var res = this.bindings.getTypeBinding(jcExpr.type);
-			if (res != null) {
-				return res;
+			if (jcExpr.type != null) {
+				var res = this.bindings.getTypeBinding(jcExpr.type);
+				if (res != null) {
+					return res;
+				}
 			}
 			// workaround Javac missing bindings in some cases
 			if (expr instanceof ClassInstanceCreation classInstanceCreation) {
