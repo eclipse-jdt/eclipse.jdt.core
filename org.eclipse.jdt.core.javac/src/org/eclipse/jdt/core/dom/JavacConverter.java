@@ -1788,10 +1788,14 @@ class JavacConverter {
 					}
 				}
 			}
-			return this.ast.newSimpleName(FAKE_IDENTIFIER);
+			var res = this.ast.newSimpleName(FAKE_IDENTIFIER);
+			commonSettings(res, javac);
+			return res;
 		}
 		ILog.get().error("Unsupported " + javac + " of type" + (javac == null ? "null" : javac.getClass()));
-		return this.ast.newSimpleName(FAKE_IDENTIFIER);
+		var res = this.ast.newSimpleName(FAKE_IDENTIFIER);
+		commonSettings(res, javac);
+		return res;
 	}
 
 	private Pattern convert(JCPattern jcPattern) {
