@@ -20,10 +20,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.tools.JavaFileManager;
 import javax.tools.StandardLocation;
@@ -36,6 +38,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -233,7 +236,7 @@ public class JavacUtils {
 			if (!sourcePathEnabled) {
 				fileManager.setLocation(StandardLocation.SOURCE_PATH, classpathEntriesToFiles(javaProject, entry -> entry.getEntryKind() == IClasspathEntry.CPE_SOURCE  && (isTest || !entry.isTest())));
 			}
-
+			
 			boolean classpathEnabled = false;
 			if (compilerConfig != null && !isEmpty(compilerConfig.classpaths())) {
 				fileManager.setLocation(StandardLocation.CLASS_PATH,
@@ -243,6 +246,7 @@ public class JavacUtils {
 						.toList());
 				classpathEnabled = true;
 			}
+			
 			if (compilerConfig != null && !isEmpty(compilerConfig.modulepaths())) {
 				fileManager.setLocation(StandardLocation.MODULE_PATH,
 					compilerConfig.modulepaths()
@@ -252,7 +256,37 @@ public class JavacUtils {
 				classpathEnabled = true;
 			}
 			if (!classpathEnabled) {
+				Set<JavaProject> moduleProjects = Stream.of(javaProject.getExpandedClasspath())
+						.filter(classpath -> classpath.getEntryKind() == IClasspathEntry.CPE_PROJECT)
+						.map(classpath -> javaProject.getJavaModel().getJavaProject(classpath.getPath().lastSegment()))
+						.filter(Objects::nonNull)
+						.filter(classpathJavaProject -> {
+							try {
+								return classpathJavaProject.getModuleDescription() != null;
+							} catch (JavaModelException e) {
+								return false;
+							}
+						})
+						.collect(Collectors.toSet());
+				
 				fileManager.setLocation(StandardLocation.CLASS_PATH, classpathEntriesToFiles(javaProject, entry -> entry.getEntryKind() != IClasspathEntry.CPE_SOURCE && (isTest || !entry.isTest())));
+				
+				if (!moduleProjects.isEmpty()) {
+					fileManager.setLocation(StandardLocation.MODULE_PATH, moduleProjects.stream()
+							.map(project -> {
+								try {
+									IPath relativeOutputPath = project.getOutputLocation();
+									IPath absPath = javaProject.getProject().getParent()
+											.findMember(relativeOutputPath).getLocation();
+									return absPath.toOSString();
+								} catch (JavaModelException e) {
+									return null;
+								}
+							})
+							.filter(Objects::nonNull)
+							.map(File::new)
+							.toList());
+				}
 			}
 		} catch (Exception ex) {
 			ILog.get().error(ex.getMessage(), ex);
@@ -270,14 +304,22 @@ public class JavacUtils {
 			toProcess.addAll(Arrays.asList(project.resolveClasspath(project.getExpandedClasspath())));
 			while (!toProcess.isEmpty()) {
 				IClasspathEntry current = toProcess.poll();
-				if (current.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+				if (current.getEntryKind() == IClasspathEntry.CPE_PROJECT && select.test(current)) {
 					IResource referencedResource = project.getProject().getParent().findMember(current.getPath());
 					if (referencedResource instanceof IProject referencedProject) {
 						JavaProject referencedJavaProject = (JavaProject) JavaCore.create(referencedProject);
 						if (referencedJavaProject.exists()) {
-							for (IClasspathEntry transitiveEntry : referencedJavaProject.resolveClasspath(referencedJavaProject.getExpandedClasspath()) ) {
-								if (transitiveEntry.isExported() || transitiveEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-									toProcess.add(transitiveEntry);
+							IModuleDescription moduleDescription = null;
+							try {
+								moduleDescription = referencedJavaProject.getModuleDescription();
+							} catch (JavaModelException e) {
+								// do nothing
+							}
+							if (moduleDescription == null) {
+								for (IClasspathEntry transitiveEntry : referencedJavaProject.resolveClasspath(referencedJavaProject.getExpandedClasspath()) ) {
+									if (transitiveEntry.isExported() || transitiveEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+										toProcess.add(transitiveEntry);
+									}
 								}
 							}
 						}

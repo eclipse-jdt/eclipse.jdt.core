@@ -27,6 +27,8 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
+import com.sun.tools.javac.tree.JCTree.JCModuleDecl;
+
 public class JavacClassFile extends ClassFile {
 	private String fullName;
 	private IContainer outputDir;
@@ -37,6 +39,14 @@ public class JavacClassFile extends ClassFile {
 		this.fullName = qualifiedName;
 		this.isNestedType = enclosingClass != null;
 		this.enclosingClassFile = enclosingClass;
+		this.outputDir = outputDir;
+	}
+
+	public JavacClassFile(JCModuleDecl moduleDecl, IContainer outputDir) {
+		// TODO: moduleDecl probably needs to be used, but how?
+		this.fullName = "module-info";
+		this.isNestedType = false;
+		this.enclosingClassFile = null;
 		this.outputDir = outputDir;
 	}
 

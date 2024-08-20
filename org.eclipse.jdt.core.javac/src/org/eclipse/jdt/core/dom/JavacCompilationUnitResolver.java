@@ -451,6 +451,9 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		}
 		var pathToUnit = new HashMap<String, org.eclipse.jdt.internal.compiler.env.ICompilationUnit>();
 		Arrays.stream(workingCopies) //
+				.filter(inMemoryCu -> {
+					return project == null || (inMemoryCu.getElementName() != null && !inMemoryCu.getElementName().contains("module-info")) || inMemoryCu.getJavaProject() == project;
+				})
 				.map(org.eclipse.jdt.internal.compiler.env.ICompilationUnit.class::cast) //
 				.forEach(inMemoryCu -> {
 					pathToUnit.put(new String(inMemoryCu.getFileName()), inMemoryCu);

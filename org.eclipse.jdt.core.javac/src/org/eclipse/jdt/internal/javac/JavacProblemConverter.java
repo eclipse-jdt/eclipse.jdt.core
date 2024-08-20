@@ -429,7 +429,7 @@ public class JavacProblemConverter {
 		return getDefaultPosition(jcDiagnostic);
 	}
 	private org.eclipse.jface.text.Position getDefaultPosition(Diagnostic<?> diagnostic) {
-		if (diagnostic.getPosition() > 0) {
+		if (diagnostic.getPosition() >= 0) {
 			int start = (int) Math.min(diagnostic.getPosition(), diagnostic.getStartPosition());
 			int end = (int) Math.max(diagnostic.getEndPosition(), start);
 			return new org.eclipse.jface.text.Position(start, end - start);
@@ -1069,6 +1069,7 @@ public class JavacProblemConverter {
 			case "compiler.err.incorrect.receiver.type" -> IProblem.IllegalTypeForExplicitThis;
 			case "compiler.err.incorrect.constructor.receiver.type" -> IProblem.IllegalTypeForExplicitThis;
 			case "compiler.err.incorrect.constructor.receiver.name" -> IProblem.IllegalQualifierForExplicitThis;
+			case "compiler.err.too.many.modules" -> IProblem.ModuleRelated;
 			default -> {
 				ILog.get().error("Could not accurately convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				if (diagnostic.getKind() == javax.tools.Diagnostic.Kind.ERROR && diagnostic.getCode().startsWith("compiler.err")) {

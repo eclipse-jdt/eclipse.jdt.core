@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.javac;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,8 +23,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.tools.DiagnosticListener;
+import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
-import javax.tools.JavaFileObject.Kind;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -51,6 +50,7 @@ import com.sun.tools.javac.api.MultiTaskListener;
 import com.sun.tools.javac.comp.AttrContext;
 import com.sun.tools.javac.comp.CompileStates.CompileState;
 import com.sun.tools.javac.comp.Env;
+import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.main.JavaCompiler;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
@@ -60,6 +60,8 @@ import com.sun.tools.javac.util.Pair;
 public class JavacCompiler extends Compiler {
 	JavacConfig compilerConfig;
 	IProblemFactory problemFactory;
+
+	Map<JavaFileObject, ICompilationUnit> fileObjectToCUMap = new HashMap<>();
 
 	public JavacCompiler(INameEnvironment environment, IErrorHandlingPolicy policy, CompilerConfiguration compilerConfig,
 			ICompilerRequestor requestor, IProblemFactory problemFactory) {
@@ -74,13 +76,17 @@ public class JavacCompiler extends Compiler {
 		Map<ICompilationUnit, List<IProblem>> javacProblems = new HashMap<>();
 		JavacProblemConverter problemConverter = new JavacProblemConverter(this.compilerConfig.compilerOptions(), javacContext);
 		javacContext.put(DiagnosticListener.class, diagnostic -> {
-			if (diagnostic.getSource() instanceof JavacFileObject fileObject) {
+			if (diagnostic.getSource() instanceof JavaFileObject fileObject) {
 				JavacProblem javacProblem = problemConverter.createJavacProblem(diagnostic);
 				if (javacProblem != null) {
-					List<IProblem> previous = javacProblems.get(fileObject.getOriginalUnit());
+					ICompilationUnit originalUnit = this.fileObjectToCUMap.get(fileObject);
+					if (originalUnit == null) {
+						return;
+					}
+					List<IProblem> previous = javacProblems.get(originalUnit);
 					if (previous == null) {
 						previous = new ArrayList<>();
-						javacProblems.put(fileObject.getOriginalUnit(), previous);
+						javacProblems.put(originalUnit, previous);
 					}
 					previous.add(javacProblem);
 				}
@@ -113,13 +119,13 @@ public class JavacCompiler extends Compiler {
 			.collect(Collectors.groupingBy(this::computeOutputDirectory));
 
 		// Register listener to intercept intermediate results from Javac task.
-		JavacTaskListener javacListener = new JavacTaskListener(this.compilerConfig, outputSourceMapping, this.problemFactory);
+		JavacTaskListener javacListener = new JavacTaskListener(this.compilerConfig, outputSourceMapping, this.problemFactory, this.fileObjectToCUMap);
 		MultiTaskListener mtl = MultiTaskListener.instance(javacContext);
 		mtl.add(javacListener);
 		mtl.add(new TaskListener() {
 			@Override
 			public void finished(TaskEvent e) {
-				if (e.getSourceFile() instanceof JavacFileObject && e.getCompilationUnit() instanceof JCCompilationUnit u) {
+				if (e.getSourceFile() != null && fileObjectToCUMap.get(e.getSourceFile()) instanceof JCCompilationUnit u) {
 					problemConverter.registerUnit(e.getSourceFile(), u);
 				}
 			}
@@ -170,25 +176,23 @@ public class JavacCompiler extends Compiler {
 			};
 			javacContext.put(JavaCompiler.compilerKey, javac);
 			javac.shouldStopPolicyIfError = CompileState.GENERATE;
+			JavacFileManager fileManager = (JavacFileManager)javacContext.get(JavaFileManager.class);
 			try {
 				javac.compile(com.sun.tools.javac.util.List.from(outputSourceSet.getValue().stream()
 						.filter(SourceFile.class::isInstance).map(SourceFile.class::cast).map(source -> {
 							File unitFile;
-							if (javaProject != null) {
-								// path is relative to the workspace, make it absolute
-								IResource asResource = javaProject.getProject().getParent()
-										.findMember(new String(source.getFileName()));
-								if (asResource != null) {
-									unitFile = asResource.getLocation().toFile();
-								} else {
-									unitFile = new File(new String(source.getFileName()));
-								}
+							// path is relative to the workspace, make it absolute
+							IResource asResource = javaProject.getProject().getParent()
+									.findMember(new String(source.getFileName()));
+							if (asResource != null) {
+								unitFile = asResource.getLocation().toFile();
 							} else {
 								unitFile = new File(new String(source.getFileName()));
 							}
-							return new JavacFileObject(source, null, unitFile.toURI(), Kind.SOURCE,
-									Charset.defaultCharset());
-						}).map(JavaFileObject.class::cast).toList()));
+							JavaFileObject jfo = fileManager.getJavaFileObject(unitFile.getAbsolutePath());
+							fileObjectToCUMap.put(jfo, source);
+							return jfo;
+						}).toList()));
 			} catch (Throwable e) {
 				// TODO fail
 				ILog.get().error("compilation failed", e);

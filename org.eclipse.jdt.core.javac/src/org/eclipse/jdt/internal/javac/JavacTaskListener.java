@@ -48,12 +48,14 @@ import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.UnknownType;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
+import com.sun.tools.javac.tree.JCTree.JCModuleDecl;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
 
 public class JavacTaskListener implements TaskListener {
 	private Map<ICompilationUnit, IContainer> sourceOutputMapping = new HashMap<>();
 	private Map<ICompilationUnit, JavacCompilationResult> results = new HashMap<>();
 	private UnusedProblemFactory problemFactory;
+	private final Map<JavaFileObject, ICompilationUnit> fileObjectToCUMap;
 	private static final Set<String> PRIMITIVE_TYPES = new HashSet<String>(Arrays.asList(
 		"byte",
 		"short",
@@ -65,9 +67,12 @@ public class JavacTaskListener implements TaskListener {
 		"boolean"
 	));
 
+	private static final char[] MODULE_INFO_NAME = "module-info".toCharArray();
+
 	public JavacTaskListener(JavacConfig config, Map<IContainer, List<ICompilationUnit>> outputSourceMapping,
-			IProblemFactory problemFactory) {
+			IProblemFactory problemFactory, Map<JavaFileObject, ICompilationUnit> fileObjectToCUMap) {
 		this.problemFactory = new UnusedProblemFactory(problemFactory, config.compilerOptions());
+		this.fileObjectToCUMap = fileObjectToCUMap;
 		for (Entry<IContainer, List<ICompilationUnit>> entry : outputSourceMapping.entrySet()) {
 			IContainer currentOutput = entry.getKey();
 			entry.getValue().forEach(cu -> sourceOutputMapping.put(cu, currentOutput));
@@ -78,17 +83,27 @@ public class JavacTaskListener implements TaskListener {
 	public void finished(TaskEvent e) {
 		if (e.getKind() == TaskEvent.Kind.ANALYZE) {
 			final JavaFileObject file = e.getSourceFile();
-			if (!(file instanceof JavacFileObject)) {
+			final ICompilationUnit cu = this.fileObjectToCUMap.get(file);
+			if (cu == null) {
 				return;
 			}
-
-			final ICompilationUnit cu = ((JavacFileObject) file).getOriginalUnit();
 			final JavacCompilationResult result = this.results.computeIfAbsent(cu, (cu1) ->
 					new JavacCompilationResult(cu1));
 			final Map<Symbol, ClassFile> visitedClasses = new HashMap<Symbol, ClassFile>();
 			final Set<ClassSymbol> hierarchyRecorded = new HashSet<>();
 			final TypeElement currentTopLevelType = e.getTypeElement();
 			UnusedTreeScanner<Void, Void> scanner = new UnusedTreeScanner<>() {
+
+				@Override
+				public Void visitModule(com.sun.source.tree.ModuleTree node, Void p) {
+					if (node instanceof JCModuleDecl moduleDecl) {
+						IContainer expectedOutputDir = sourceOutputMapping.get(cu);
+						ClassFile currentClass = new JavacClassFile(moduleDecl, expectedOutputDir);
+						result.record(MODULE_INFO_NAME, currentClass);
+					}
+					return super.visitModule(node, p);
+				}
+
 				@Override
 				public Void visitClass(ClassTree node, Void p) {
 					if (node instanceof JCClassDecl classDecl) {
