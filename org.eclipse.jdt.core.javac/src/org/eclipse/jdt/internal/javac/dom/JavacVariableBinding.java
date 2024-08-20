@@ -328,4 +328,10 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 	public String toString() {
 		return getType().getQualifiedName() + " " + getName();
 	}
+
+	@Override
+	public boolean isRecordComponent() {
+		return this.variableSymbol.owner instanceof ClassSymbol ownerType
+				&& ownerType.isRecord();
+	}
 }
