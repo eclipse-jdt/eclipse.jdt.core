@@ -105,7 +105,7 @@ private FlowInfo analyseConstantExpression(
 			&& !e.resolvedType.isEnum()) {
 		boolean caseNullorDefaultAllowed =
 				JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(currentScope.compilerOptions())
-				&& (e instanceof NullLiteral || e instanceof FakeDefaultLiteral);
+				&& (e instanceof NullLiteral || e instanceof FakeDefaultLiteral || e instanceof Pattern);
 		if (!caseNullorDefaultAllowed)
 			currentScope.problemReporter().caseExpressionMustBeConstant(e);
 		if (e instanceof NullLiteral && flowContext.associatedNode instanceof SwitchStatement) {
