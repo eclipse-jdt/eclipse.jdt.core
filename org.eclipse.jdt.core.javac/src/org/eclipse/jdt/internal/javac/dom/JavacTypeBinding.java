@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -521,6 +522,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					return this.resolver.bindings.getMethodBinding(methodType, sym, this.type, isGeneric);
 				})
 				.filter(Objects::nonNull)
+				.sorted(Comparator.comparing(IMethodBinding::getName))
 				.toArray(IMethodBinding[]::new);
 	}
 
