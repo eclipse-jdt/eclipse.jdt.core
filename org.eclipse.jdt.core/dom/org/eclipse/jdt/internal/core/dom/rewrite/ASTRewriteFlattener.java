@@ -98,6 +98,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	/** @deprecated using deprecated code */
 	private static final int JLS14_INTERNAL = AST.JLS14;
 
+	/** @deprecated using deprecated code */
+	private static final int JLS23_INTERNAL = AST.JLS23;
+
 	public static String asString(ASTNode node, RewriteEventStore store) {
 		ASTRewriteFlattener flattener= new ASTRewriteFlattener(store);
 		node.accept(flattener);
@@ -603,7 +606,12 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	@Override
 	public boolean visit(ImportDeclaration node) {
 		this.result.append("import "); //$NON-NLS-1$
-		if (node.getAST().apiLevel() >= JLS3_INTERNAL) {
+		if (node.getAST().apiLevel() >= JLS23_INTERNAL) {
+			List<Modifier> modifiers = node.modifiers();
+			for (Modifier modifier : modifiers) {
+				this.result.append(modifier.getKeyword().toString()).append(' ');
+			}
+		} else if (node.getAST().apiLevel() >= JLS3_INTERNAL) {
 			if (getBooleanAttribute(node, ImportDeclaration.STATIC_PROPERTY)) {
 				this.result.append("static ");//$NON-NLS-1$
 			}

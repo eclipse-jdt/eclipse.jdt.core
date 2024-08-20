@@ -120,6 +120,12 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 		 */
 		public static final ModifierKeyword NON_SEALED_KEYWORD = new ModifierKeyword("non-sealed", NON_SEALED);//$NON-NLS-1$
 
+		/**
+		 * @since 3.39
+		 * @noreference preview feature
+		 */
+		public static final ModifierKeyword MODULE_KEYWORD = new ModifierKeyword("module", MODULE);//$NON-NLS-1$
+
 		static {
 			KEYWORDS = new HashMap(20);
 			ModifierKeyword[] ops = {
@@ -136,7 +142,8 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 					STRICTFP_KEYWORD,
 					DEFAULT_KEYWORD,
 					SEALED_KEYWORD,
-					NON_SEALED_KEYWORD
+					NON_SEALED_KEYWORD,
+					MODULE_KEYWORD
 				};
 			for (ModifierKeyword op : ops) {
 				KEYWORDS.put(op.toString(), op);
@@ -348,6 +355,13 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * @noreference preview feature
 	 */
 	public static final int WHEN = 0x2000;
+	/**
+	 * "module" modifier constant (bit mask).
+	 * Applicable only to imports.
+	 * @since 3.39
+	 * @noreference preview feature
+	 */
+	public static final int MODULE = 0x8000;
 
 	/**
 	 * "default" modifier constant (bit mask) (added in JLS8 API).
@@ -786,6 +800,16 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 */
 	public boolean isNonSealed() {
 		return this.modifierKeyword == ModifierKeyword.NON_SEALED_KEYWORD;
+	}
+
+	/**
+	 * Answer true if the receiver is the module modifier, false otherwise.
+	 *
+	 * @return true if the receiver is the module modifier, false otherwise
+	 * @since 3.39
+	 */
+	public static boolean isModule(int flags) {
+		return (flags & Modifier.MODULE) != 0;
 	}
 
 	@Override

@@ -33,6 +33,7 @@ public class ImportReference extends ASTNode {
 	public int declarationSourceStart;
 	public int declarationSourceEnd;
 	public int modifiers; // 1.5 addition for static imports
+	public int modifiersSourceStart;
 	public Annotation[] annotations;
 	// star end position
 	public int trailingStarPosition;
