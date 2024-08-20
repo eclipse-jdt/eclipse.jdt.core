@@ -15,6 +15,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -50,8 +51,13 @@ import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Symtab;
+import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ErrorType;
+import com.sun.tools.javac.code.Type.ForAll;
+import com.sun.tools.javac.code.Type.JCNoType;
+import com.sun.tools.javac.code.Type.JCPrimitiveType;
+import com.sun.tools.javac.code.Type.JCVoidType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.ModuleType;
 import com.sun.tools.javac.code.Type.PackageType;
@@ -657,8 +663,10 @@ public class JavacBindingResolver extends BindingResolver {
 	IMethodBinding resolveMethod(MethodInvocation method) {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(method);
+		List<com.sun.tools.javac.code.Type> typeArgs = List.of();
 		if (javacElement instanceof JCMethodInvocation javacMethodInvocation) {
 			javacElement = javacMethodInvocation.getMethodSelect();
+			typeArgs = javacMethodInvocation.getTypeArguments().stream().map(jcExpr -> jcExpr.type).toList();
 		}
 		var type = javacElement.type;
 		// next condition matches `localMethod(this::missingMethod)`
@@ -697,7 +705,57 @@ public class JavacBindingResolver extends BindingResolver {
 			}
 			return this.bindings.getErrorMethodBinding(methodType, sym);
 		}
+		if (type == null && sym instanceof MethodSymbol methodSym && methodSym.type instanceof ForAll methodTemplateType) {
+			// build type from template
+			Map<TypeVar, com.sun.tools.javac.code.Type> resolutionMapping = new HashMap<>();
+			var templateParameters = methodTemplateType.getTypeVariables();
+			for (int i = 0; i < typeArgs.size() && i < templateParameters.size(); i++) {
+				resolutionMapping.put(templateParameters.get(i), typeArgs.get(i));
+			}
+			MethodType methodType = new MethodType(
+					methodTemplateType.asMethodType().getParameterTypes().map(t -> applyType(t, resolutionMapping)),
+					applyType(methodTemplateType.asMethodType().getReturnType(), resolutionMapping),
+					methodTemplateType.asMethodType().getThrownTypes().map(t -> applyType(t, resolutionMapping)),
+					methodTemplateType.tsym);
+			return this.bindings.getMethodBinding(methodType, methodSym, methodSym.owner.type, false);
+		}
 		return null;
+	}
+
+	/**
+	 * Derives an "applied" type replacing know TypeVar with their current value
+	 * @param from The type to check for replacement of TypeVars
+	 * @param resolutionMapping a dictionary defining which concrete type must replace TypeVar
+	 * @return The derived "applied" type: recursively checks the type, replacing
+	 * 	known {@link TypeVar} instances in those with their value defined in `resolutionMapping`
+	 */
+	private static com.sun.tools.javac.code.Type applyType(com.sun.tools.javac.code.Type from, Map<TypeVar, com.sun.tools.javac.code.Type> resolutionMapping) {
+		if (from instanceof TypeVar typeVar) {
+			var directMapping = resolutionMapping.get(from);
+			if (directMapping != null) {
+				return directMapping;
+			}
+			return typeVar;
+		}
+		if (from instanceof JCNoType || from instanceof JCVoidType ||
+			from instanceof JCPrimitiveType) {
+			return from;
+		}
+		if (from instanceof ClassType classType) {
+			var args = classType.getTypeArguments().map(typeArg -> applyType(typeArg, resolutionMapping));
+			if (Objects.equals(args, classType.getTypeArguments())) {
+				return classType;
+			}
+			return new ClassType(classType.getEnclosingType(), args, classType.tsym);
+		}
+		if (from instanceof ArrayType arrayType) {
+			var targetElemType = applyType(arrayType.elemtype, resolutionMapping);
+			if (Objects.equals(targetElemType, arrayType.elemtype)) {
+				return arrayType;
+			}
+			return new ArrayType(targetElemType, arrayType.tsym);
+		}
+		return from;
 	}
 
 	@Override
