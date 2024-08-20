@@ -894,10 +894,18 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 		if( tree != null ) {
 			IBinding ret = resolveNameToJavac(name, tree);
-			return ret;
+			if (ret != null) {
+				return ret;
+			}
 		}
 		if (name.getParent() instanceof Type type) { // case of "var"
 			return resolveType(type);
+		}
+		if (name.getParent() instanceof ImportDeclaration importDecl) {
+			return resolveImport(importDecl);
+		}
+		if (name.getParent() instanceof Name parentName) {
+			return resolveNameImpl(parentName);
 		}
 		return null;
 	}
