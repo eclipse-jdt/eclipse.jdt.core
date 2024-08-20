@@ -59,6 +59,9 @@
          <java6processor
                class="org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug341298Processor">
          </java6processor>
+         <java6processor
+                 class="org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Issue565Processor">
+         </java6processor>
       </java6processors>
    </extension>
 </plugin>
