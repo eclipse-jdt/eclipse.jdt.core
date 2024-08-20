@@ -23,8 +23,10 @@ import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.NullTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.VoidTypeBinding;
 
 public abstract class Pattern extends Expression {
 
@@ -197,6 +199,10 @@ public abstract class Pattern extends Expression {
 				return PrimitiveConversionRoute.WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION;
 		} else {
 			if (expressionIsBaseType) {
+				if (expressionType instanceof NullTypeBinding
+						|| expressionType instanceof VoidTypeBinding)
+					return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
+
 				if (isBoxing(destinationType, expressionType))
 					return PrimitiveConversionRoute.BOXING_CONVERSION;
 				if (scope.environment().computeBoxingType(expressionType).isCompatibleWith(destinationType))
