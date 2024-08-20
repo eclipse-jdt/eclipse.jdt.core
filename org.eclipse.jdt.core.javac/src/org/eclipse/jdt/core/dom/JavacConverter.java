@@ -3017,7 +3017,13 @@ class JavacConverter {
 	private void convertModifiers(JCModifiers modifiers, ASTNode parent, List<IExtendedModifier> res) {
 		Iterator<javax.lang.model.element.Modifier> mods = modifiers.getFlags().iterator();
 		while(mods.hasNext()) {
-			res.add(convert(mods.next(), modifiers.pos, parent.getStartPosition() + parent.getLength()));
+			Modifier converted = convert(mods.next(), modifiers.pos, modifiers.getEndPosition(this.javacCompilationUnit.endPositions) + 1);
+			if (converted.getStartPosition() >= 0) {
+				// some modifiers are added to the list without being really part of
+				// the text/DOM. JDT doesn't like it, so we filter out the "implicit"
+				// modifiers
+				res.add(converted);
+			}
 		}
 	}
 
@@ -3135,14 +3141,10 @@ class JavacConverter {
 
 	private Modifier convert(javax.lang.model.element.Modifier javac, int startPos, int endPos) {
 		Modifier res = modifierToDom(javac);
-		if (startPos >= 0) {
-			// This needs work... It's not a great solution.
-			if( endPos >= startPos && endPos >= 0 && endPos <= this.rawText.length()) {
-				String sub = this.rawText.substring(startPos, endPos);
-				int indOf = sub.indexOf(res.getKeyword().toString());
-				if( indOf != -1 ) {
-					res.setSourceRange(startPos+indOf, res.getKeyword().toString().length());
-				}
+		if (startPos >= 0 && endPos >= startPos && endPos <= this.rawText.length()) {
+			int indOf = this.rawText.indexOf(res.getKeyword().toString(), startPos, endPos);
+			if( indOf != -1 ) {
+				res.setSourceRange(indOf, res.getKeyword().toString().length());
 			}
 		}
 		return res;
@@ -3259,8 +3261,6 @@ class JavacConverter {
 			int relativeStart = this.contents.substring(parentStart, parentStart + modifier.getParent().getLength()).indexOf(modifier.getKeyword().toString());
 			if (relativeStart >= 0 && relativeStart < modifier.getParent().getLength()) {
 				modifier.setSourceRange(parentStart + relativeStart, modifier.getKeyword().toString().length());
-			} else {
-				ILog.get().warn("Couldn't compute position of " + modifier);
 			}
 			return true;
 		}
