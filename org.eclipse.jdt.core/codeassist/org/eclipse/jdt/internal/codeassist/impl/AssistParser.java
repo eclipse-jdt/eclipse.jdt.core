@@ -1091,7 +1091,10 @@ protected void consumeSingleModifierImportDeclarationName(int modifier) {
 	/* retrieve identifiers subset and whole positions, the assist node positions
 		should include the entire replaced source. */
 	int length = this.identifierLengthStack[this.identifierLengthPtr];
-	char[][] subset = identifierSubSet(index+1); // include the assistIdentifier
+	int subsetLength = modifier == ClassFileConstants.AccStatic
+							? index + 1 // include the assistIdentifier
+							: length; // segments of a module name have no semantic relevance, use the entire name
+	char[][] subset = identifierSubSet(subsetLength);
 	this.identifierLengthPtr--;
 	this.identifierPtr -= length;
 	long[] positions = new long[length];
