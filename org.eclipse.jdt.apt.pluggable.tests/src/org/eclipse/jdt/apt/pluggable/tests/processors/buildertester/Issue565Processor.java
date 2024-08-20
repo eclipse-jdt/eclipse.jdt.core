@@ -34,70 +34,71 @@ public class Issue565Processor extends AbstractProcessor {
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        if (roundEnv.processingOver()) {
-            // We're not interested in the postprocessing round.
-            return false;
-        }
-
-		for (Element element : roundEnv.getElementsAnnotatedWith(Annotation565.class)) {
-				if (element instanceof TypeElement) {
-					keyBuilder.visit(element.asType(), true);
-				}
-			}
-			status = true;
+		if (roundEnv.processingOver()) {
+			// We're not interested in the postprocessing round.
 			return false;
+		}
+
+		for (Element element : roundEnv.getElementsAnnotatedWith(annotations.stream().findAny().get())) {
+			if (element instanceof TypeElement) {
+				keyBuilder.visit(element.asType(), true);
+			}
+		}
+		status = true;
+		return false;
 	}
+
 	public static boolean status() {
 		return status;
 	}
 
-    //This is a fragment of querydsl visitor
+	// This is a fragment of querydsl visitor
 	private final TypeVisitor<List<String>, Boolean> keyBuilder = new SimpleTypeVisitor8<>() {
-        private final List<String> defaultValue = Collections.singletonList("Object");
+		private final List<String> defaultValue = Collections.singletonList("Object");
 
-        private List<String> visitBase(TypeMirror t) {
-            List<String> rv = new ArrayList<>();
-            String name = t.toString();
-            if (name.contains("<")) {
-                name = name.substring(0, name.indexOf('<'));
-            }
-            rv.add(name);
-            return rv;
-        }
+		private List<String> visitBase(TypeMirror t) {
+			List<String> rv = new ArrayList<>();
+			String name = t.toString();
+			if (name.contains("<")) {
+				name = name.substring(0, name.indexOf('<'));
+			}
+			rv.add(name);
+			return rv;
+		}
 
-        @Override
-        public List<String> visitDeclared(DeclaredType t, Boolean p) {
-            List<String> rv = visitBase(t);
-            for (TypeMirror arg : t.getTypeArguments()) {
-                if (p) {
-                    rv.addAll(visit(arg, false));
-                } else {
-                    rv.add(arg.toString());
-                }
-            }
-            return rv;
-        }
+		@Override
+		public List<String> visitDeclared(DeclaredType t, Boolean p) {
+			List<String> rv = visitBase(t);
+			for (TypeMirror arg : t.getTypeArguments()) {
+				if (p) {
+					rv.addAll(visit(arg, false));
+				} else {
+					rv.add(arg.toString());
+				}
+			}
+			return rv;
+		}
 
-        @Override
-        public List<String> visitTypeVariable(TypeVariable t, Boolean p) {
-            List<String> rv = visitBase(t);
-            if (t.getUpperBound() != null) {
-                rv.addAll(visit(t.getUpperBound(), p));
-            }
-            if (t.getLowerBound() != null) {
-                rv.addAll(visit(t.getLowerBound(), p));
-            }
-            return rv;
-        }
+		@Override
+		public List<String> visitTypeVariable(TypeVariable t, Boolean p) {
+			List<String> rv = visitBase(t);
+			if (t.getUpperBound() != null) {
+				rv.addAll(visit(t.getUpperBound(), p));
+			}
+			if (t.getLowerBound() != null) {
+				rv.addAll(visit(t.getLowerBound(), p));
+			}
+			return rv;
+		}
 
-        @Override
-        public List<String> visitIntersection(IntersectionType t, Boolean p) {
-            return t.getBounds().get(0).accept(this, p);
-        }
+		@Override
+		public List<String> visitIntersection(IntersectionType t, Boolean p) {
+			return t.getBounds().get(0).accept(this, p);
+		}
 
-        @Override
-        public List<String> visitNull(NullType t, Boolean p) {
-            return defaultValue;
-        }
-    };
+		@Override
+		public List<String> visitNull(NullType t, Boolean p) {
+			return defaultValue;
+		}
+	};
 }
