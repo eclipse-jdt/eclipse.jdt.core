@@ -17,6 +17,8 @@ package org.eclipse.jdt.core.dom;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
+
 /**
  * Import declaration AST node type.
  *
@@ -202,14 +204,14 @@ public class ImportDeclaration extends ASTNode {
 	 * @since 3.39
 	 */
 	public int getModifiers() {
-		int computedmodifierFlags = this.isStatic ? Modifier.STATIC : Modifier.NONE;
 		if (this.modifiers == null) {
 			// JLS3 behavior (for JLS2 this is constantly 0)
-			return computedmodifierFlags;
+			return this.isStatic ? Modifier.STATIC : Modifier.NONE;
 		}
 		// JLS23 behavior - convenience method
 		// performance could be improved by caching computed flags
 		// but this would require tracking changes to this.modifiers
+		int computedmodifierFlags = Modifier.NONE;
 		for (Object x : modifiers()) {
 			if (x instanceof Modifier modifier) {
 				computedmodifierFlags |= modifier.getKeyword().toFlagValue();
@@ -411,13 +413,35 @@ public class ImportDeclaration extends ASTNode {
 	/**
 	 * Sets whether this import declaration is a static import (added in JLS3 API).
 	 *
+	 * Note, that in JLS23 API this method creates a {@link Modifier} without source positions
+	 * (or removes, if {@code isStatic == false}), so it should not be invoked in situations where
+	 * valid source positions are required.
+	 *
 	 * @param isStatic <code>true</code> if this is a static import,
 	 *    and <code>false</code> if this is a regular import
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
 	 * @since 3.1
+	 *
+	 * @see #modifiers()
 	 */
+	@SuppressWarnings("unchecked")
 	public void setStatic(boolean isStatic) {
+		if (this.ast.apiLevel >= AST.JLS23_INTERNAL) {
+			List<Modifier> mods = modifiers();
+			for (Modifier mod : mods) {
+				if (mod.isStatic()) {
+					if (!isStatic)
+						this.modifiers.remove(mod);
+					return;
+				}
+			}
+			if (isStatic) {
+				Modifier newMod = this.ast.newModifier(ModifierKeyword.STATIC_KEYWORD);
+				this.modifiers.add(newMod);
+			}
+			return;
+		}
 		unsupportedIn2();
 		preValueChange(STATIC_PROPERTY);
 		this.isStatic = isStatic;
