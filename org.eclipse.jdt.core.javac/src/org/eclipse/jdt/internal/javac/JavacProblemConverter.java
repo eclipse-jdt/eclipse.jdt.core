@@ -254,6 +254,9 @@ public class JavacProblemConverter {
 					&& diagnosticPath.getParentPath() != null
 					&& diagnosticPath.getParentPath().getLeaf() instanceof JCMethodDecl methodDecl) {
 				return getPositionByNodeRangeOnly(jcDiagnostic, methodDecl.getReturnType());
+			} else if (problemId == IProblem.ProviderMethodOrConstructorRequiredForServiceImpl
+					&& diagnosticPath != null) {
+				return getPositionByNodeRangeOnly(jcDiagnostic, (JCTree)diagnosticPath.getLeaf());
 			}
 
  			Tree element = diagnosticPath != null ? diagnosticPath.getLeaf() :
@@ -679,7 +682,7 @@ public class JavacProblemConverter {
 			case "compiler.err.duplicate.class" -> IProblem.DuplicateTypes;
 			case "compiler.err.module.not.found", "compiler.warn.module.not.found" -> IProblem.UndefinedModule;
 			case "compiler.err.package.empty.or.not.found" -> IProblem.PackageDoesNotExistOrIsEmpty;
-			case "compiler.warn.service.provided.but.not.exported.or.used" -> IProblem.UnusedImport; //?
+			case "compiler.warn.service.provided.but.not.exported.or.used" -> 0; // ECJ doesn't have this diagnostic TODO: file upstream
 			case "compiler.warn.missing-explicit-ctor" -> IProblem.ConstructorRelated;
 			case "compiler.warn.has.been.deprecated", "compiler.warn.has.been.deprecated.for.removal" -> {
 				var kind = getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class);
@@ -849,6 +852,9 @@ public class JavacProblemConverter {
 			case "compiler.err.array.and.varargs" -> IProblem.RedefinedArgument;
 			case "compiler.err.type.doesnt.take.params" -> IProblem.NonGenericType;
 			case "compiler.err.static.imp.only.classes.and.interfaces" -> IProblem.InvalidTypeForStaticImport;
+			case "compiler.err.service.implementation.is.abstract" -> IProblem.AbstractServiceImplementation;
+			case "compiler.err.service.implementation.no.args.constructor.not.public" -> IProblem.ServiceImplDefaultConstructorNotPublic;
+			case "compiler.err.service.implementation.doesnt.have.a.no.args.constructor" -> IProblem.ProviderMethodOrConstructorRequiredForServiceImpl;
 			default -> {
 				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;
