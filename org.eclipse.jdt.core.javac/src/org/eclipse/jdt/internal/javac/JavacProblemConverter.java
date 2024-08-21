@@ -588,7 +588,14 @@ public class JavacProblemConverter {
 				};
 			case "compiler.err.premature.eof" -> IProblem.ParsingErrorUnexpectedEOF; // syntax error
 			case "compiler.err.report.access" -> convertNotVisibleAccess(diagnostic);
-			case "compiler.err.does.not.override.abstract" -> IProblem.AbstractMethodMustBeImplemented;
+			case "compiler.err.does.not.override.abstract" -> {
+				Object[] args = getDiagnosticArguments(diagnostic);
+				yield args.length > 2 && args[0] instanceof ClassSymbol classSymbol
+					&& !classSymbol.isEnum() && !classSymbol.isInterface()
+					&& args[0] == args[2] ? // means abstract method defined in Concrete class
+					IProblem.AbstractMethodsInConcreteClass :
+					IProblem.AbstractMethodMustBeImplemented;
+			}
 			case COMPILER_WARN_MISSING_SVUID -> IProblem.MissingSerialVersion;
 			case COMPILER_WARN_NON_SERIALIZABLE_INSTANCE_FIELD -> 99999999; // JDT doesn't have this diagnostic
 			case "compiler.err.ref.ambiguous" -> convertAmbiguous(diagnostic);

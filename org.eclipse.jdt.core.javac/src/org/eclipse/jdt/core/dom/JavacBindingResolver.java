@@ -724,6 +724,14 @@ public class JavacBindingResolver extends BindingResolver {
 					methodTemplateType.tsym);
 			return this.bindings.getMethodBinding(methodType, methodSym, methodSym.owner.type, false);
 		}
+		if (type == null && sym != null && sym.type.isErroneous()
+			&& sym.owner.type instanceof ClassType classType) {
+			var parentTypeBinding = this.bindings.getTypeBinding(classType);
+			return Arrays.stream(parentTypeBinding.getDeclaredMethods())
+				.filter(binding -> binding.getName().equals(sym.getSimpleName().toString()))
+				.findAny()
+				.orElse(null);
+		}
 		return null;
 	}
 

@@ -432,7 +432,25 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public String getBinaryName() {
-		return this.typeSymbol.flatName().toString();
+		StringBuilder res = new StringBuilder();
+		var generator = new Types.SignatureGenerator(this.types) {
+			@Override
+			protected void append(char ch) {
+				res.append(ch);
+			}
+
+			@Override
+			protected void append(byte[] ba) {
+				res.append(new String(ba));
+			}
+
+			@Override
+			protected void append(Name name) {
+				res.append(name.toString());
+			}
+		};
+		generator.assembleSig(this.type);
+		return res.toString();
 	}
 
 	@Override
@@ -651,7 +669,11 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		try {
 			Symbol symbol = types.findDescriptorSymbol(this.typeSymbol);
 			if (symbol instanceof MethodSymbol methodSymbol) {
-				return this.resolver.bindings.getMethodBinding(methodSymbol.type.asMethodType(), methodSymbol, null, isGeneric);
+				// is a functional interface
+				var res = this.types.memberType(this.type, methodSymbol).asMethodType();
+				if (res != null) {
+					return this.resolver.bindings.getMethodBinding(res, methodSymbol, this.type, false);
+				}
 			}
 		} catch (FunctionDescriptorLookupError ignore) {
 		}
