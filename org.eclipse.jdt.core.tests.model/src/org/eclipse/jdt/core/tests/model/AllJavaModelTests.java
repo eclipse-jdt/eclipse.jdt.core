@@ -117,6 +117,8 @@ private static Class[] getAllTestClasses() {
 		ResolveTests9.class,
 		ResolveTests10.class,
 		ResolveTests12To15.class,
+		ResolveTests21.class,
+		ResolveTests23.class,
 		SelectionJavadocModelTests.class,
 
 		// Some test suite above breaks completion tests below

@@ -26,7 +26,7 @@ public interface IMarkdownCommentHelper {
 
 	void recordSlash(int nextIndex);
 
-	void recordBackTick(boolean lineStarted);
+	void recordFenceChar(char previous, char next, boolean lineStarted);
 
 	/**
 	 * When at the beginning of a comment line, record that a whitespace was seen.
@@ -34,6 +34,8 @@ public interface IMarkdownCommentHelper {
 	 *  i.e., beyond the common indent of all lines of this commonmark comment.
 	 */
 	boolean recordSignificantLeadingSpace();
+
+	void recordText();
 
 	boolean isInCodeBlock();
 
@@ -56,7 +58,6 @@ public interface IMarkdownCommentHelper {
 			return new NullMarkdownHelper();
 		}
 	}
-
 }
 
 class NullMarkdownHelper implements IMarkdownCommentHelper {
@@ -67,12 +68,16 @@ class NullMarkdownHelper implements IMarkdownCommentHelper {
 		// nop
 	}
 	@Override
-	public void recordBackTick(boolean lineStarted) {
+	public void recordFenceChar(char previous, char next, boolean lineStarted) {
 		// nop
 	}
 	@Override
 	public boolean recordSignificantLeadingSpace() {
 		return false;
+	}
+	@Override
+	public void recordText() {
+		// nop
 	}
 	@Override
 	public boolean isInCodeBlock() {
@@ -97,8 +102,13 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 	int slashCount = 0;
 	int leadingSpaces = 0;
 	int markdownLineStart = -1;
-	int backTickCount = 0;
-	boolean insideFence = false;
+	boolean insideIndentedCodeBlock = false;
+	boolean insideFencedCodeBlock = false;
+	char fenceChar;
+	int fenceCharCount;
+	int fenceLength;
+	boolean isBlankLine = true;
+	boolean previousIsBlankLine = true;
 
 	public MarkdownCommentHelper(int lineStart, int commonIndent) {
 		this.markdownLineStart = lineStart;
@@ -116,29 +126,48 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 	}
 
 	@Override
-	public void recordBackTick(boolean lineStarted) {
-		if (this.backTickCount < 3) {
-			if (this.backTickCount == 0 && lineStarted) {
-				return;
-			}
-			if (++this.backTickCount == 3) {
-				this.insideFence^=true;
-			}
+	public void recordFenceChar(char previous, char next, boolean lineStarted) {
+		if (this.insideIndentedCodeBlock) {
+			return;
 		}
+		if (this.fenceCharCount == 0) {
+			if (lineStarted)
+				return;
+			this.fenceChar = next;
+			this.fenceCharCount = 1;
+			return;
+		}
+		if (next != this.fenceChar || previous != next)
+			return;
+		int required = this.insideFencedCodeBlock ? this.fenceLength : 3;
+		if (++this.fenceCharCount == required) {
+			this.insideFencedCodeBlock^=true;
+		}
+		this.fenceLength = this.fenceCharCount;
 	}
 
 	@Override
 	public boolean recordSignificantLeadingSpace() {
 		if (this.markdownLineStart != -1) {
-			if (++this.leadingSpaces > this.commonIndent)
+			if (++this.leadingSpaces > this.commonIndent) {
+				if (!this.insideFencedCodeBlock && this.previousIsBlankLine && this.leadingSpaces - this.commonIndent >= 4)
+					this.insideIndentedCodeBlock = true;
 				return true;
+			}
 		}
 		return false;
 	}
 
 	@Override
+	public void recordText() {
+		this.isBlankLine = false;
+		if (this.leadingSpaces - this.commonIndent < 4)
+			this.insideIndentedCodeBlock = false;
+	}
+
+	@Override
 	public boolean isInCodeBlock() {
-		return this.insideFence || (this.leadingSpaces - this.commonIndent >= 4);
+		return this.insideIndentedCodeBlock || this.insideFencedCodeBlock;
 	}
 
 	@Override
@@ -156,10 +185,12 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 
 	@Override
 	public void resetAtLineEnd() {
+		this.previousIsBlankLine = this.isBlankLine;
+		this.isBlankLine = true;
 		this.slashCount = 0;
 		this.leadingSpaces = 0;
 		this.markdownLineStart = -1;
-		this.backTickCount = 0;
+		this.fenceCharCount = 0;
 		// do not reset `insideFence`
 	}
 }

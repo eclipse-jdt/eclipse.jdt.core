@@ -96,6 +96,13 @@ public class NaiveASTFlattener extends ASTVisitor {
 	private static final int JLS21 = AST.JLS21;
 
 	/**
+	 * Internal synonym for {@link AST#JLS23}. Use to alleviate
+	 * deprecation warnings.
+	 * @deprecated
+	 */
+	private static final int JLS23 = AST.JLS23;
+
+	/**
 	 * The string buffer into which the serialized representation of the AST is
 	 * written.
 	 */
@@ -845,7 +852,11 @@ public class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(ImportDeclaration node) {
 		printIndent();
 		this.buffer.append("import ");//$NON-NLS-1$
-		if (node.getAST().apiLevel() >= JLS3) {
+		if (node.getAST().apiLevel() >= JLS23) {
+			if (node.modifiers().size() == 1) {
+				this.buffer.append(((Modifier) node.modifiers().get(0)).getKeyword().toString()).append(' ');
+			}
+		} else if (node.getAST().apiLevel() >= JLS3) {
 			if (node.isStatic()) {
 				this.buffer.append("static ");//$NON-NLS-1$
 			}

@@ -2499,6 +2499,9 @@ public final class AST {
 		if (Modifier.isNonSealed(flags)) {
 			result.add(newModifier(Modifier.ModifierKeyword.NON_SEALED_KEYWORD));
 		}
+		if (Modifier.isModule(flags)) {
+			result.add(newModifier(Modifier.ModifierKeyword.MODULE_KEYWORD));
+		}
 		return result;
 	}
 

@@ -1129,7 +1129,11 @@ public class ASTMatcher {
 			return false;
 		}
 		ImportDeclaration o = (ImportDeclaration) other;
-		if (node.getAST().apiLevel >= AST.JLS3_INTERNAL) {
+		if (node.getAST().apiLevel >= AST.JLS23_INTERNAL) {
+			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
+				return false;
+			}
+		} else if (node.getAST().apiLevel >= AST.JLS3_INTERNAL) {
 			if (node.isStatic() != o.isStatic()) {
 				return false;
 			}

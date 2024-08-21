@@ -87,6 +87,7 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.MethodRefParameter;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
@@ -150,6 +151,13 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	 * @deprecated
 	 */
 	protected static final int AST_INTERNAL_JLS9 = AST.JLS9;
+
+	/**
+	 * Internal synonym for constant AST.JSL9
+	 * to alleviate deprecation warnings once AST.JLS9 is deprecated in future.
+	 * @deprecated
+	 */
+	protected static final int AST_INTERNAL_JLS23 = AST.JLS23;
 
 	class CheckPositionsMatcher extends ASTMatcher {
 
@@ -862,6 +870,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				suite.addTest(new ASTTest(methods[i].getName(), JLS3_INTERNAL));
 				suite.addTest(new ASTTest(methods[i].getName(), AST.JLS4));
 				suite.addTest(new ASTTest(methods[i].getName(), getJLS8()));
+				suite.addTest(new ASTTest(methods[i].getName(), AST_INTERNAL_JLS23));
 			}
 		}
 		return suite;
@@ -2734,7 +2743,19 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(this.ast.modificationCount() > previousCount);
 		assertTrue(x.isOnDemand() == true);
 
-		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
+		if (this.ast.apiLevel() >= AST_INTERNAL_JLS23) {
+			Modifier mod = this.ast.newModifier(ModifierKeyword.STATIC_KEYWORD);
+			x.modifiers().add(mod);
+			assertTrue(this.ast.modificationCount() > previousCount);
+			assertTrue(x.isStatic() == true);
+			previousCount = this.ast.modificationCount();
+			x.modifiers().clear();
+			mod = this.ast.newModifier(ModifierKeyword.MODULE_KEYWORD);
+			x.modifiers().add(mod);
+			assertTrue(this.ast.modificationCount() > previousCount);
+			assertTrue(x.modifiers().size() == 1);
+			assertEquals(((Modifier) x.modifiers().get(0)).getKeyword(), ModifierKeyword.MODULE_KEYWORD);
+		} else if (this.ast.apiLevel() >= JLS3_INTERNAL) {
 			x.setStatic(true);
 			assertTrue(this.ast.modificationCount() > previousCount);
 			assertTrue(x.isStatic() == true);
@@ -6643,7 +6664,11 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression().getParent() == x);
 		assertTrue(x.getLeadingComment() == null);
-		assertTrue(!x.isDefault());
+		if (this.ast.apiLevel() < AST_INTERNAL_JLS23) {
+			assertTrue(!x.isDefault());
+		} else {
+			assertEquals(0, x.expressions().size());
+		}
 		assertTrue(x.getNodeType() == ASTNode.SWITCH_CASE);
 		assertTrue(x.structuralPropertiesForType() ==
 			SwitchCase.propertyDescriptors(this.ast.apiLevel()));

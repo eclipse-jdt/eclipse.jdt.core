@@ -301,6 +301,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 					public class X {
 						/// Some text here without the necessary tags for main method
 						/// @param arguments array of strings
+						/// @return java.lang.Str -- should not raise an error
 
 						/// no tags here
 						public static void main(String[] arguments) {
@@ -309,7 +310,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 					}
 					""", },
 					"----------\n" +
-					"1. ERROR in X.java (at line 6)\n" +
+					"1. ERROR in X.java (at line 7)\n" +
 					"	public static void main(String[] arguments) {\n" +
 					"	                                 ^^^^^^^^^\n" +
 					"Javadoc: Missing tag for parameter arguments\n" +
@@ -590,6 +591,34 @@ public class MarkdownCommentsTest extends JavadocTest {
 					"	/// Reference to an invalid method in a valid type [\\[\\]][java.lang.String#toCharArrays()]\n" +
 					"	                                                                           ^^^^^^^^^^^^\n" +
 					"Javadoc: The method toCharArrays() is undefined for the type String\n" +
+					"----------\n",
+					JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+		} finally {
+			this.reportMissingJavadocTags = bkup;
+		}
+	}
+	public void test021() {
+		// arrays in method reference lack escaping.
+		// TODO specific error message?
+		String bkup = this.reportMissingJavadocTags;
+		try {
+			this.reportMissingJavadocTags = CompilerOptions.IGNORE;
+			this.runNegativeTest(new String[] { "X.java",
+					"""
+					///
+					/// Reference to method with array parameter: [#main(String[])]
+					///
+					public class X {
+						public static void main(String[] args) {
+							System.out.println("Hello");
+						}
+					}
+					""", },
+					"----------\n" +
+					"1. ERROR in X.java (at line 2)\n" +
+					"	/// Reference to method with array parameter: [#main(String[])]\n" +
+					"	                                                    ^^^^^^^^\n" +
+					"Javadoc: Invalid parameters declaration\n" +
 					"----------\n",
 					JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 		} finally {
