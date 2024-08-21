@@ -18,6 +18,7 @@ package org.eclipse.jdt.core.tests.util;
 import java.io.*;
 import java.net.ServerSocket;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.zip.*;
 
@@ -1218,68 +1219,31 @@ public static String toString(String[] strings, boolean addExtraNewLine) {
 	}
 	return buffer.toString();
 }
-private static String  getZipEntryFileName(File destDir, ZipEntry e, String canonicalDestDirPath) throws IOException {
-	  String result = e.getName();
-	  File destfile = new File(destDir, result);
-	  String canonicalDestFile = destfile.getCanonicalPath();
-	  if (!canonicalDestFile.startsWith(canonicalDestDirPath + File.separator)) {
-		  throw new ZipEntryStorageException("Entry is outside of the target dir: " + e.getName());
-	  }
-	  return result;
-}
 /**
  * Unzip the contents of the given zip in the given directory (create it if it doesn't exist)
  */
 public static void unzip(String zipPath, String destDirPath) throws IOException {
-
-    InputStream zipIn = new FileInputStream(zipPath);
-    byte[] buf = new byte[8192];
-    File destDir = new File(destDirPath);
-    String canonicalDestDirPath = destDir.getCanonicalPath();
-    ZipInputStream zis = new ZipInputStream(zipIn);
-    FileOutputStream fos = null;
-    try {
-        ZipEntry zEntry;
-        while ((zEntry = zis.getNextEntry()) != null) {
-            // if it is empty directory, create it
-            if (zEntry.isDirectory()) {
-                new File(destDir, zEntry.getName()).mkdirs();
-                continue;
-            }
-            // if it is a file, extract it
-            String filePath = getZipEntryFileName(destDir, zEntry, canonicalDestDirPath);
-            int lastSeparator = filePath.lastIndexOf("/"); //$NON-NLS-1$
-            String fileDir = ""; //$NON-NLS-1$
-            if (lastSeparator >= 0) {
-                fileDir = filePath.substring(0, lastSeparator);
-            }
-            //create directory for a file
-            new File(destDir, fileDir).mkdirs();
-            //write file
-            File outFile = new File(destDir, filePath);
-            fos = new FileOutputStream(outFile);
-            int n = 0;
-            while ((n = zis.read(buf)) >= 0) {
-                fos.write(buf, 0, n);
-            }
-            fos.close();
-        }
-    } catch (IOException ioe) {
-        if (fos != null) {
-            try {
-                fos.close();
-            } catch (IOException ioe2) {
-            }
-        }
-    } finally {
-        try {
-            zipIn.close();
-            if (zis != null)
-                zis.close();
-        } catch (IOException ioe) {
-        }
-    }
+	File destDir = new File(destDirPath);
+	try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipPath))) {
+		ZipEntry zEntry;
+		while ((zEntry = zis.getNextEntry()) != null) {
+			// if it is empty directory, create it
+			String filePath = org.eclipse.jdt.internal.core.util.Util.getEntryName(destDirPath, zEntry);
+			File outFile = new File(destDir, filePath);
+			if (zEntry.isDirectory()) {
+				outFile.mkdirs();
+				continue;
+			}
+			// if it is a file, extract it
+			Path entryTarget = outFile.toPath();
+			// create directory for a file
+			Files.createDirectories(entryTarget.getParent());
+			// write file
+			Files.copy(zis, entryTarget);
+		}
+	}
 }
+
 public static void waitAtLeast(int time) {
 	long start = System.currentTimeMillis();
 	do {
