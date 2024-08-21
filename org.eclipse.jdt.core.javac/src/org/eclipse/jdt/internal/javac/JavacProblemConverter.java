@@ -318,7 +318,10 @@ public class JavacProblemConverter {
 		int startPosition = (int) jcDiagnostic.getPosition();
 		boolean includeLastParenthesis =
 				problemId == IProblem.FinalMethodCannotBeOverridden
-				|| problemId == IProblem.CannotOverrideAStaticMethodWithAnInstanceMethod;
+				|| problemId == IProblem.CannotOverrideAStaticMethodWithAnInstanceMethod
+				|| problemId == IProblem.InheritedMethodReducesVisibility
+				|| problemId == IProblem.MethodReducesVisibility
+				|| problemId == IProblem.OverridingNonVisibleMethod;
 		if (startPosition != Position.NOPOS) {
 			try {
 				String name = jcMethodDecl.getName().toString();
