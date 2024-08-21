@@ -866,7 +866,14 @@ public class JavacBindingResolver extends BindingResolver {
 	}
 
 	IBinding resolveCached(ASTNode node, Function<ASTNode, IBinding> l) {
-		return resolvedBindingsCache.computeIfAbsent(node, l);
+		// Avoid using `computeIfAbsent` because it throws
+		// ConcurrentModificationException when nesting calls
+		var res = resolvedBindingsCache.get(node);
+		if (res == null) {
+			res = l.apply(node);
+			resolvedBindingsCache.put(node, res);
+		}
+		return res;
 	}
 
 	@Override
@@ -911,20 +918,41 @@ public class JavacBindingResolver extends BindingResolver {
 				return ret;
 			}
 		}
-		if (name.getParent() instanceof Type type) { // case of "var"
+		if (name.getParent() instanceof Type type
+			&& (name.getLocationInParent() == SimpleType.NAME_PROPERTY
+					|| name.getLocationInParent() == QualifiedType.NAME_PROPERTY
+					|| name.getLocationInParent() == NameQualifiedType.NAME_PROPERTY)) { // case of "var"
 			return resolveType(type);
 		}
-		if (name.getParent() instanceof ImportDeclaration importDecl) {
+		if (name.getParent() instanceof ImportDeclaration importDecl && importDecl.getName() == name) {
 			return resolveImport(importDecl);
 		}
-		if (name.getParent() instanceof Name parentName) {
+		if (name.getParent() instanceof QualifiedName parentName && parentName.getName() == name) {
 			return resolveNameImpl(parentName);
 		}
-		if( name.getParent() instanceof MethodRef mref) {
+		if( name.getParent() instanceof MethodRef mref && mref.getName() == name) {
 			return resolveReference(mref);
 		}
-		if( name.getParent() instanceof MemberRef mref) {
+		if( name.getParent() instanceof MemberRef mref && mref.getName() == name) {
 			return resolveReference(mref);
+		}
+		if (name.getParent() instanceof MethodInvocation methodInvocation && methodInvocation.getName() == name) {
+			return resolveMethod(methodInvocation);
+		}
+		if (name.getParent() instanceof MethodDeclaration methodDeclaration && methodDeclaration.getName() == name) {
+			return resolveMethod(methodDeclaration);
+		}
+		if (name.getParent() instanceof ExpressionMethodReference methodRef && methodRef.getName() == name) {
+			return resolveMethod(methodRef);
+		}
+		if (name.getParent() instanceof TypeMethodReference methodRef && methodRef.getName() == name) {
+			return resolveMethod(methodRef);
+		}
+		if (name.getParent() instanceof SuperMethodReference methodRef && methodRef.getName() == name) {
+			return resolveMethod(methodRef);
+		}
+		if (name.getParent() instanceof VariableDeclaration decl && decl.getName() == name) {
+			return resolveVariable(decl);
 		}
 		return null;
 	}
