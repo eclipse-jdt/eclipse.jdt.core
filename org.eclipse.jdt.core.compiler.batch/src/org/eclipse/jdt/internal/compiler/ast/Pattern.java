@@ -185,6 +185,8 @@ public abstract class Pattern extends Expression {
 				scope.compilerOptions().enablePreviewFeatures))) {
 			return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 		}
+		if (destinationType == null || expressionType == null)
+			return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 		boolean destinationIsBaseType = destinationType.isBaseType();
 		boolean expressionIsBaseType = expressionType.isBaseType();
 		if (destinationIsBaseType && expressionIsBaseType) {

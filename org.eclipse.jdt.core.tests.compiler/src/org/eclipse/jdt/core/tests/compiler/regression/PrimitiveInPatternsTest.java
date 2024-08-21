@@ -31,7 +31,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test267" };
+//		TESTS_NAMES = new String[] { "testSP001" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -6782,6 +6782,28 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		         },
 		         "1");
 		 }
+
+		 // switch
+		 public void testSP001() {
+			runConformTest(new String[] {
+				"X.java",
+					"""
+					public class X {
+					    public static boolean foo(Object o) {
+					        return switch (o) {
+					            case Boolean b when b.equals(o) -> b.equals(o);
+					            case null, default -> false;
+					        };
+					    }
+					    public static void main(String argv[]) {
+					    	System.out.println(X.foo(Boolean.TRUE));
+					    }
+					}
+					"""
+				},
+				"true");
+		}
+
    public void testNonPrim001() {
 		runConformTest(new String[] {
 			"X.java",
@@ -6802,9 +6824,11 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
  			    """
 			},
 			"true");
-	}	// test from spec
-	public void _testSpec001() {
-		runConformTest(new String[] {
+	}
+
+   // test from spec
+	public void testSpec001() {
+		runNegativeTest(new String[] {
 			"X.java",
 				"""
 					public class X {
@@ -6824,7 +6848,13 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-			"100");
+
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	default -> -1;\n" +
+			"	^^^^^^^\n" +
+			"Switch case cannot have both unconditional pattern and default label\n" +
+			"----------\n");
 	}
 	public void _testSpec002() {
 		runConformTest(new String[] {

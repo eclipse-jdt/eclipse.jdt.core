@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.ast.Pattern.PrimitiveConversionRoute;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
@@ -360,12 +361,16 @@ private Constant resolveCasePattern(BlockScope scope, TypeBinding caseType, Type
 				}
 			}
 		} else if (type.isValidBinding()) {
+			PrimitiveConversionRoute route = PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 			// if not a valid binding, an error has already been reported for unresolved type
 			if (type.isPrimitiveType()) {
-				scope.problemReporter().unexpectedTypeinSwitchPattern(type, e);
-				return Constant.NotAConstant;
+				route = Pattern.findPrimitiveConversionRoute(type, expressionType, scope);
+				if (route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
+					scope.problemReporter().unexpectedTypeinSwitchPattern(type, e);
+					return Constant.NotAConstant;
+				}
 			}
-			if (type.isBaseType()
+			if ((type.isBaseType() && route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE)
 					|| !e.checkCastTypesCompatibility(scope, type, expressionType, null, false)) {
 				scope.problemReporter().typeMismatchError(expressionType, type, e, null);
 				return Constant.NotAConstant;
