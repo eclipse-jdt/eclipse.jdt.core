@@ -276,17 +276,24 @@ class JavadocConverter {
 
 	
 	
-	private Optional<TagElement> convertInlineTag(DCTree javac) {
+	private Stream<IDocElement> convertInlineTag(DCTree javac) {
+		ArrayList<IDocElement> collector = new ArrayList<>();
 		TagElement res = this.ast.newTagElement();
 		commonSettings(res, javac);
-//		res.setSourceRange(res.getStartPosition(), res.getLength() + 1); // include `@` prefix
+		collector.add(res);
 		if (javac instanceof DCLiteral literal) {
 			res.setTagName(switch (literal.getKind()) {
 				case CODE -> TagElement.TAG_CODE;
 				case LITERAL -> TagElement.TAG_LITERAL;
 				default -> TagElement.TAG_LITERAL;
 			});
-			res.fragments().addAll(convertElement(literal.body).toList());
+			List<? extends IDocElement> fragments = convertElement(literal.body).toList();
+			ArrayList<IDocElement> tmp = new ArrayList<>(fragments);
+			if( fragments.size() > 0 ) {
+				res.fragments().add(fragments.get(0));
+				tmp.remove(0);
+			}
+			collector.addAll(tmp);
 		} else if (javac instanceof DCLink link) {
 			res.setTagName(TagElement.TAG_LINK);
 			res.fragments().addAll(convertElement(link.ref).toList());
@@ -306,9 +313,9 @@ class JavadocConverter {
 		} else if (javac instanceof DCUnknownInlineTag unknown) {
 			res.fragments().add(toDefaultTextElement(unknown));
 		} else {
-			return Optional.empty();
+			return Stream.empty();
 		}
-		return Optional.of(res);
+		return collector.stream();
 	}
 
 	private Name toName(JCTree expression, int parentOffset) {
@@ -365,6 +372,7 @@ class JavadocConverter {
 		String strippedLeading = suggestedText.stripLeading();
 		int leadingWhitespace = suggestedText.length() - strippedLeading.length();
 		res.setSourceRange(line.startOffset + leadingWhitespace, line.length - leadingWhitespace);
+		String fromSource = this.javacConverter.rawText.substring(res.getStartPosition(), res.getStartPosition() + res.getLength());
 		res.setText(strippedLeading);
 		return res;
 	}
@@ -419,18 +427,21 @@ class JavadocConverter {
 					if( de == null ) {
 						combinable.add(oneTree);
 					} else {
-						elements.addAll(convertElementGroup(combinable.toArray(new DCTree[0])).toList());
+						if( combinable.size() > 0 ) 
+							elements.addAll(convertElementGroup(combinable.toArray(new DCTree[0])).toList());
 						combinable.clear();
 						elements.addAll(convertElement(oneTree).toList());
 					}
 				} else {
-					elements.addAll(convertElementGroup(combinable.toArray(new DCTree[0])).toList());
+					if( combinable.size() > 0 ) 
+						elements.addAll(convertElementGroup(combinable.toArray(new DCTree[0])).toList());
 					combinable.clear();
 					elements.addAll(convertElement(oneTree).toList());
 				}
 			}
 		}
-		elements.addAll(convertElementGroup(combinable.toArray(new DCTree[0])).toList());
+		if( combinable.size() > 0 ) 
+			elements.addAll(convertElementGroup(combinable.toArray(new DCTree[0])).toList());
 		return elements;
 	}
 
@@ -493,10 +504,8 @@ class JavadocConverter {
             res.setText(res.text);
             return Stream.of(res);
 		} else {
-			Optional<Stream<TagElement>> inlineTag = convertInlineTag(javac).map(Stream::of);
-			if (inlineTag.isPresent()) {
-				return inlineTag.get();
-			}
+			Stream<IDocElement> inlineTag = convertInlineTag(javac);
+			return inlineTag;
 		}
 		var message = "💥🐛 Not supported yet conversion of " + javac.getClass().getSimpleName() + " to element";
 		ILog.get().error(message);
