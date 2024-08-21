@@ -308,7 +308,7 @@ public class JavacProblemConverter {
 						&& diagnosticPath.getParentPath() != null
 						&& diagnosticPath.getParentPath().getLeaf() instanceof JCMethodDecl methodDecl) {
 					return getPositionByNodeRangeOnly(jcDiagnostic, methodDecl.getReturnType());
-				} else if (problemId == IProblem.ProviderMethodOrConstructorRequiredForServiceImpl) {
+				} else if (problemId == IProblem.ProviderMethodOrConstructorRequiredForServiceImpl || problemId == IProblem.AbstractServiceImplementation) {
 					return getPositionByNodeRangeOnly(jcDiagnostic, (JCTree)diagnosticPath.getLeaf());
 				} else if (problemId == IProblem.SwitchExpressionsYieldMissingDefaultCase
 						&& diagnosticPath.getLeaf() instanceof JCTree.JCSwitchExpression switchExpr) {
