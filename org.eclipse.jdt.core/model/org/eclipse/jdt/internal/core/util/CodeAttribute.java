@@ -37,7 +37,9 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 	private final int attributesCount;
 	private byte[] bytecodes;
 	private final byte[] classFileBytes;
-	private final long codeLength;
+	/** unsigned integer */
+	private final int codeLength;
+	/** unsigned integer */
 	private final int codeOffset;
 	private final IConstantPool constantPool;
 	private IExceptionTableEntry[] exceptionTableEntries;
@@ -55,7 +57,7 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 		this.maxLocals = u2At(classFileBytes, 8, offset);
 		this.codeLength = u4At(classFileBytes, 10, offset);
 		this.codeOffset = offset + 14;
-		int readOffset = (int) (14 + this.codeLength);
+		int readOffset = 14 + this.codeLength;
 		this.exceptionTableLength = u2At(classFileBytes, readOffset, offset);
 		readOffset += 2;
 		this.exceptionTableEntries = NO_EXCEPTION_TABLE;
@@ -123,7 +125,7 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 	@Override
 	public byte[] getBytecodes() {
 		if (this.bytecodes == null) {
-			System.arraycopy(this.classFileBytes, this.codeOffset, (this.bytecodes = new byte[(int) this.codeLength]), 0, (int) this.codeLength);
+			System.arraycopy(this.classFileBytes, this.codeOffset, (this.bytecodes = new byte[this.codeLength]), 0, this.codeLength);
 		}
 		return this.bytecodes;
 	}
@@ -133,7 +135,7 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 	 */
 	@Override
 	public long getCodeLength() {
-		return this.codeLength;
+		return Integer.toUnsignedLong(this.codeLength);
 	}
 
 	/**
@@ -944,7 +946,7 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 					}
 					defaultOffset = i4At(this.classFileBytes, 0, pc);
 					pc += 4;
-					int npairs = (int) u4At(this.classFileBytes, 0, pc);
+					int npairs = u4At(this.classFileBytes, 0, pc);
 					int[][] offset_pairs = new int[npairs][2];
 					pc += 4;
 					for (int i = 0; i < npairs; i++) {
@@ -1185,7 +1187,7 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 				default:
 					throw new ClassFormatException(ClassFormatException.INVALID_BYTECODE);
 			}
-			if (pc >= (this.codeLength + this.codeOffset)) {
+			if (Integer.compareUnsigned(pc, this.codeLength + this.codeOffset) >= 0) {
 				break;
 			}
 		}

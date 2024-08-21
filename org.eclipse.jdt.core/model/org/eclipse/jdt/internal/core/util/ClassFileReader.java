@@ -85,7 +85,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 		int constantPoolCount;
 		int[] constantPoolOffsets;
 		try {
-			this.magicNumber = (int) u4At(classFileBytes, 0, 0);
+			this.magicNumber = u4At(classFileBytes, 0, 0);
 			if (this.magicNumber != 0xCAFEBABE) {
 				throw new ClassFormatException(ClassFormatException.INVALID_MAGIC_NUMBER);
 			}
@@ -237,7 +237,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 						readOffset += 8;
 						if (attributeCountForField != 0) {
 							for (int j = 0; j < attributeCountForField; j++) {
-								int attributeLength = (int) u4At(classFileBytes, 2, readOffset);
+								int attributeLength = u4At(classFileBytes, 2, readOffset);
 								readOffset += (6 + attributeLength);
 							}
 						}
@@ -263,7 +263,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 						readOffset += 8;
 						if (attributeCountForMethod != 0) {
 							for (int j = 0; j < attributeCountForMethod; j++) {
-								int attributeLength = (int) u4At(classFileBytes, 2, readOffset);
+								int attributeLength = u4At(classFileBytes, 2, readOffset);
 								readOffset += (6 + attributeLength);
 							}
 						}
@@ -323,7 +323,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 						} else {
 							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 						}
-						long tmp = u4At(classFileBytes, readOffset + 2, 0);
+						int tmp = u4At(classFileBytes, readOffset + 2, 0);
 						readOffset += (6 + tmp);
 					}
 				} else {
