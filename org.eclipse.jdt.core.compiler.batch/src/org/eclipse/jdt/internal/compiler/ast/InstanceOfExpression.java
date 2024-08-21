@@ -170,7 +170,10 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 	}
 
 	BranchLabel internalFalseLabel = falseLabel != null ? falseLabel : this.pattern != null ? new BranchLabel(codeStream) : null;
-	generateTypeCheck(currentScope, codeStream, internalFalseLabel);
+	PrimitiveConversionRoute route = this.testContextRecord != null ?
+			this.testContextRecord.route() : PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
+
+	generateTypeCheck(currentScope, codeStream, internalFalseLabel, route);
 
 	if (this.pattern != null) {
 		codeStream.ifeq(internalFalseLabel);
@@ -180,7 +183,6 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 		} else {
 			this.expression.generateCode(currentScope, codeStream, true);
 		}
-		generateTestingConversion(currentScope, codeStream);
 		this.pattern.generateCode(currentScope, codeStream, trueLabel, internalFalseLabel);
 	} else if (!valueRequired) {
 		codeStream.pop();
@@ -217,9 +219,7 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 		internalFalseLabel.place();
 }
 
-private void generateTypeCheck(BlockScope scope, CodeStream codeStream, BranchLabel internalFalseLabel) {
-	PrimitiveConversionRoute route = this.testContextRecord != null ?
-			this.testContextRecord.route() : PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
+private void generateTypeCheck(BlockScope scope, CodeStream codeStream, BranchLabel internalFalseLabel, PrimitiveConversionRoute route) {
 	switch (route) {
 		case IDENTITY_CONVERSION:
 			storeExpressionValue(codeStream);
@@ -269,51 +269,6 @@ private void generateExactConversions(BlockScope scope, CodeStream codeStream) {
 	} else {
 		codeStream.invokeExactConversionsSupport(BaseTypeBinding.getRightToLeft(left.id, right.id));
 	}
-}
-
-private void generateTestingConversion(BlockScope scope, CodeStream codeStream) {
-	PrimitiveConversionRoute route = this.testContextRecord != null ?
-			this.testContextRecord.route() :PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
-	switch (route) {
-		case IDENTITY_CONVERSION:
-			// Do nothing
-			break;
-		case WIDENING_PRIMITIVE_CONVERSION:
-		case NARROWING_PRIMITVE_CONVERSION:
-		case WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION:
-			conversionCode(scope, codeStream);
-			break;
-		case BOXING_CONVERSION:
-			codeStream.generateBoxingConversion(this.testContextRecord.right().id);
-			break;
-		case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
-			int rightId = this.testContextRecord.right().id;
-			codeStream.generateBoxingConversion(rightId);
-			TypeBinding unboxedType = scope.environment().computeBoxingType(TypeBinding.wellKnownBaseType(rightId));
-			this.expression.computeConversion(scope, this.testContextRecord.left(), unboxedType);
-			break;
-//			TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION:
-//			TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION:
-//			TODO:	case NARROWING_AND_UNBOXING_CONVERSION:
-		case UNBOXING_CONVERSION:
-			codeStream.generateUnboxingConversion(this.testContextRecord.left().id);
-			break;
-		case UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION:
-			this.expression.computeConversion(scope, this.testContextRecord.left(), this.expression.resolvedType);
-			codeStream.generateImplicitConversion(this.expression.implicitConversion);
-			break;
-		case NO_CONVERSION_ROUTE:
-		default:
-			break;
-	}
-}
-
-private void conversionCode(BlockScope scope, CodeStream codeStream) {
-	TypeBinding left = this.testContextRecord.left();
-	TypeBinding right = this.testContextRecord.right();
-	this.expression.computeConversion(scope, left, right);
-	int i = this.expression.implicitConversion;
-	codeStream.generateImplicitConversion(i);
 }
 
 private void storeExpressionValue(CodeStream codeStream) {

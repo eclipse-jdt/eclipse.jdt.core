@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -96,6 +97,7 @@ public class TypePattern extends Pattern {
 
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel) {
+		generateTestingConversion(currentScope, codeStream);
 		if (isUnnamed()) {
 			if (this.getEnclosingPattern() == null || this.isTotalTypeNode) {
 				switch (this.local.binding.type.id) {
@@ -108,6 +110,7 @@ public class TypePattern extends Pattern {
 				}
 			} // else we don't value on stack.
 		} else {
+
 			if (!this.isTotalTypeNode) {
 				boolean checkCast = ((JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
 						currentScope.compilerOptions().sourceLevel,
@@ -121,6 +124,45 @@ public class TypePattern extends Pattern {
 	}
 
 	@Override
+	public void generateTestingConversion(BlockScope scope, CodeStream codeStream) {
+		TypeBinding rhs = this.expectedType;
+		TypeBinding lhs = this.resolvedType;
+		PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(lhs, rhs, scope);
+		switch (route) {
+			case IDENTITY_CONVERSION:
+				// Do nothing
+				break;
+			case WIDENING_PRIMITIVE_CONVERSION:
+			case NARROWING_PRIMITVE_CONVERSION:
+			case WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION:
+				this.computeConversion(scope, lhs, rhs);
+				codeStream.generateImplicitConversion(this.implicitConversion);
+				break;
+			case BOXING_CONVERSION:
+				codeStream.generateBoxingConversion(rhs.id);
+				break;
+			case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
+				int rightId = rhs.id;
+				codeStream.generateBoxingConversion(rightId);
+				TypeBinding unboxedType = scope.environment().computeBoxingType(TypeBinding.wellKnownBaseType(rightId));
+				this.computeConversion(scope, lhs, unboxedType);
+				break;
+//				TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION:
+//				TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION:
+//				TODO:	case NARROWING_AND_UNBOXING_CONVERSION:
+			case UNBOXING_CONVERSION:
+				codeStream.generateUnboxingConversion(lhs.id);
+				break;
+			case UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION:
+				this.computeConversion(scope, lhs, rhs);
+				codeStream.generateImplicitConversion(this.implicitConversion);
+				break;
+			case NO_CONVERSION_ROUTE:
+			default:
+				break;
+		}
+	}
+	@Override
 	public boolean dominates(Pattern p) {
 		if (!isUnguarded())
 			return false;
@@ -131,6 +173,7 @@ public class TypePattern extends Pattern {
 
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
+		this.constant = Constant.NotAConstant;
 		if (this.resolvedType != null)
 			return this.resolvedType;
 
