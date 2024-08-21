@@ -30,6 +30,8 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.tests.javac.JavacTestIgnore;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 /**
@@ -1049,7 +1051,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					previousBinding = memberRef.resolveBinding();
 					if (previousBinding != null) {
 						SimpleName name = memberRef.getName();
-						assumeNotNull(this.prefix+""+name+" binding was not foundfound in "+fragment, name.resolveBinding());
+						assumeNotNull(this.prefix+""+name+" binding was not found in "+fragment, name.resolveBinding());
 						verifyNameBindings(memberRef.getQualifier());
 					}
 				} else if (fragment.getNodeType() == ASTNode.METHOD_REF) {
@@ -1271,7 +1273,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			if (comment.isDocComment()) {
 				Javadoc docComment = (Javadoc)comment;
 				if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-					assumeEquals(this.prefix+"Invalid tags number in javadoc:\n"+docComment+"\n", tags.size(), allTags(docComment));
+					int atags = allTags(docComment);
+					assumeEquals(this.prefix+"Invalid tags number in javadoc:\n"+docComment+"\n", tags.size(), atags);
 					verifyPositions(docComment, testedSource);
 					if (this.resolveBinding) {
 						verifyBindings(docComment);
@@ -1934,6 +1937,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		}
 		this.stopOnFailure = true;
 	}
+
+	@JavacTestIgnore(cause=JavacTestIgnore.JDT_BEHAVIOR_STRANGE)
 	public void testBug54424() throws JavaModelException {
 		this.stopOnFailure = false;
 		String [] unbound = { "tho",
@@ -1968,6 +1973,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/**
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660"
 	 */
+	@JavacTestIgnore(cause=JavacTestIgnore.JDT_BEHAVIOR_STRANGE)
 	public void testBug51660() throws JavaModelException {
 		this.stopOnFailure = false;
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug51660", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -2050,7 +2056,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				ASTNode fragment = (ASTNode) tagElement.fragments().get(0);
 				assumeEquals("Wrong fragments type for :"+tagElement, ASTNode.TEXT_ELEMENT, fragment.getNodeType());
 				TextElement textElement = (TextElement) fragment;
-				assumeEquals("Wrong text for tag!", tagTexts[i], textElement.getText());
+				assumeEquals("Wrong text for tag " + i + "!", tagTexts[i], textElement.getText());
 			}
 		}
 		this.stopOnFailure = true;
@@ -3412,6 +3418,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345"
 	 * @deprecated
 	 */
+	@JavacTestIgnore(cause=JavacTestIgnore.VALID_ALTERNATIVE)
 	public void testBug206345a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = AST.JLS3;

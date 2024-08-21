@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 import org.eclipse.core.runtime.ILog;
 
 import com.sun.source.doctree.DocTree;
+import com.sun.source.doctree.DocTree.Kind;
 import com.sun.source.util.DocTreePath;
 import com.sun.source.util.TreePath;
 import com.sun.tools.javac.parser.UnicodeReader;
@@ -125,9 +126,9 @@ class JavadocConverter {
 			int startPosition = this.docComment.getSourcePosition(javac.getStartPosition());
 			int endPosition = this.docComment.getSourcePosition(javac.getEndPosition());
 			int length = endPosition - startPosition;
-			if (res instanceof TextElement) {
-				length++;
-			}
+//			if (res instanceof TextElement) {
+//				length++;
+//			}
 			res.setSourceRange(startPosition, length);
 			if (this.contextTreePath != null) {
 				this.converted.put(res, DocTreePath.getPath(this.contextTreePath, this.docComment, javac));
@@ -148,10 +149,11 @@ class JavadocConverter {
 				}
 			}
 			if (this.buildJavadoc) {
-				List<? extends IDocElement> elements = Stream.of(docComment.preamble, docComment.fullBody, docComment.postamble, docComment.tags)
-					.flatMap(List::stream)
-					.flatMap(this::convertElement)
-					.toList();
+				List<DCTree> treeElements = Stream.of(docComment.preamble, docComment.fullBody, docComment.postamble, docComment.tags)
+						.flatMap(List::stream).toList();
+				List<IDocElement> elements2 = convertElementCombiningNodes(treeElements);
+				List<IDocElement> elements = convertNestedTagElements(elements2);
+				
 				TagElement host = null;
 				for (IDocElement docElement : elements) {
 					if (docElement instanceof TagElement tag && !isInline(tag)) {
@@ -169,6 +171,7 @@ class JavadocConverter {
 						} else if (docElement instanceof ASTNode extraNode){
 							host.setSourceRange(host.getStartPosition(), extraNode.getStartPosition() + extraNode.getLength() - host.getStartPosition());
 						}
+						
 						host.fragments().add(docElement);
 					}
 				}
@@ -180,6 +183,33 @@ class JavadocConverter {
 			ILog.get().error("Failed to convert Javadoc", ex);
 		}
 		return res;
+	}
+
+	private List<IDocElement> convertNestedTagElements(List<IDocElement> elements2) {
+		return elements2.stream().map(x -> {
+			if( x instanceof TextElement te) {
+				String s = te.getText();
+				if( s != null && s.startsWith("{@") && s.trim().endsWith("}")) {
+					String txt = this.javacConverter.rawText.substring(te.getStartPosition(), te.getStartPosition() + te.getLength());
+					TextElement innerMost = this.ast.newTextElement();
+					innerMost.setSourceRange(te.getStartPosition()+2, te.getLength()-3);
+					innerMost.setText(txt.substring(2, txt.length() - 1));
+					
+					TagElement nested = this.ast.newTagElement();
+					int atLoc = txt.indexOf("@");
+					String name = atLoc == -1 ? txt : ("@" + txt.substring(atLoc + 1)).split("\\s+")[0];
+					nested.setTagName(name);
+					nested.setSourceRange(te.getStartPosition(), te.getLength());
+					nested.fragments().add(innerMost);
+					
+					TagElement wrapper = this.ast.newTagElement();
+					wrapper.setSourceRange(te.getStartPosition(), te.getLength());
+					wrapper.fragments().add(nested);
+					return wrapper;
+				}
+			}
+			return x;
+		}).toList();
 	}
 
 	Set<JCDiagnostic> getDiagnostics() {
@@ -205,43 +235,47 @@ class JavadocConverter {
 		commonSettings(res, javac);
 		if (javac instanceof DCAuthor author) {
 			res.setTagName(TagElement.TAG_AUTHOR);
-			author.name.stream().flatMap(this::convertElement).forEach(res.fragments::add);
+			convertElementCombiningNodes(author.name.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
 		} else if (javac instanceof DCSince since) {
 			res.setTagName(TagElement.TAG_SINCE);
-			since.body.stream().flatMap(this::convertElement).forEach(res.fragments::add);
+			convertElementCombiningNodes(since.body.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
 		} else if (javac instanceof DCVersion version) {
 		    res.setTagName(TagElement.TAG_VERSION);
-		    version.body.stream().flatMap(this::convertElement).forEach(res.fragments::add);
+			convertElementCombiningNodes(version.body.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
 		}  else if (javac instanceof DCSee see) {
 			res.setTagName(TagElement.TAG_SEE);
-			see.reference.stream().filter(a -> a != null).flatMap(this::convertElement).forEach(res.fragments::add);
+			convertElementCombiningNodes(see.reference.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
+			//see.reference.stream().filter(a -> a != null).flatMap(this::convertElement).forEach(res.fragments::add);
 		} else if (javac instanceof DCDeprecated deprecated) {
 			res.setTagName(TagElement.TAG_DEPRECATED);
-			deprecated.body.stream().flatMap(this::convertElement).forEach(res.fragments::add);
+			convertElementCombiningNodes(deprecated.body.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
 		} else if (javac instanceof DCParam param) {
 			res.setTagName(TagElement.TAG_PARAM);
 			res.fragments().addAll(convertElement(param.name).toList());
-			param.description.stream().flatMap(this::convertElement).forEach(res.fragments::add);
+			convertElementCombiningNodes(param.description.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
 		} else if (javac instanceof DCReturn ret) {
 			res.setTagName(TagElement.TAG_RETURN);
-			ret.description.stream().flatMap(this::convertElement).forEach(res.fragments::add);
+			convertElementCombiningNodes(ret.description.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
 		} else if (javac instanceof DCThrows thrown) {
-			res.setTagName(TagElement.TAG_THROWS);
+			String tagName = thrown.kind == Kind.THROWS ? TagElement.TAG_THROWS : TagElement.TAG_EXCEPTION;
+			res.setTagName(tagName);
 			res.fragments().addAll(convertElement(thrown.name).toList());
-			thrown.description.stream().flatMap(this::convertElement).forEach(res.fragments::add);
+			convertElementCombiningNodes(thrown.description.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
 		} else if (javac instanceof DCUses uses) {
 			res.setTagName(TagElement.TAG_USES);
 			res.fragments().addAll(convertElement(uses.serviceType).toList());
-			uses.description.stream().flatMap(this::convertElement).forEach(res.fragments::add);
+			convertElementCombiningNodes(uses.description.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
 		} else if (javac instanceof DCUnknownBlockTag unknown) {
 			res.setTagName("@" + unknown.getTagName());
-			unknown.content.stream().flatMap(this::convertElement).forEach(res.fragments::add);
+			convertElementCombiningNodes(unknown.content.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
 		} else {
 			return Optional.empty();
 		}
 		return Optional.of(res);
 	}
 
+	
+	
 	private Optional<TagElement> convertInlineTag(DCTree javac) {
 		TagElement res = this.ast.newTagElement();
 		commonSettings(res, javac);
@@ -327,8 +361,11 @@ class JavadocConverter {
 
 	private TextElement toTextElement(Region line) {
 		TextElement res = this.ast.newTextElement();
-		res.setSourceRange(line.startOffset, line.length);
-		res.setText(this.javacConverter.rawText.substring(line.startOffset, line.startOffset + line.length));
+		String suggestedText = this.javacConverter.rawText.substring(line.startOffset, line.startOffset + line.length);
+		String strippedLeading = suggestedText.stripLeading();
+		int leadingWhitespace = suggestedText.length() - strippedLeading.length();
+		res.setSourceRange(line.startOffset + leadingWhitespace, line.length - leadingWhitespace);
+		res.setText(strippedLeading);
 		return res;
 	}
 
@@ -346,6 +383,59 @@ class JavadocConverter {
 			}).filter(Objects::nonNull);
 	}
 
+	private Stream<Region> splitLines(DCTree[] allPositions) {
+		if( allPositions.length > 0 ) {
+			int[] startPosition = { this.docComment.getSourcePosition(allPositions[0].getStartPosition()) };
+			int endPosition = this.docComment.getSourcePosition(allPositions[allPositions.length - 1].getEndPosition());
+			return Arrays.stream(this.javacConverter.rawText.substring(startPosition[0], endPosition).split("(\r)?\n\\s*\\*\\s")) //$NON-NLS-1$
+				.map(string -> {
+					int index = this.javacConverter.rawText.indexOf(string, startPosition[0]);
+					if (index < 0) {
+						return null;
+					}
+					startPosition[0] = index + string.length();
+					return new Region(index, string.length());
+				}).filter(Objects::nonNull);
+		}
+		return Stream.<Region>empty();
+	}
+
+	private Stream<IDocElement> convertElementGroup(DCTree[] javac) {
+		return splitLines(javac).map(this::toTextElement);
+	}
+	
+	
+	private List<IDocElement> convertElementCombiningNodes(List<DCTree> treeElements) {
+		List<IDocElement> elements = new ArrayList<>();
+		List<DCTree> combinable = new ArrayList<>();
+		int size = treeElements.size();
+		for( int i = 0; i < size; i++ ) {
+			DCTree oneTree = treeElements.get(i);
+			if( oneTree instanceof DCText || oneTree instanceof DCStartElement || oneTree instanceof DCEndElement || oneTree instanceof DCEntity) {
+				combinable.add(oneTree);
+			} else {
+				if( oneTree instanceof DCErroneous derror) {
+					IDocElement de = convertDCErroneousElement(derror);
+					if( de == null ) {
+						combinable.add(oneTree);
+					} else {
+						elements.addAll(convertElementGroup(combinable.toArray(new DCTree[0])).toList());
+						combinable.clear();
+						elements.addAll(convertElement(oneTree).toList());
+					}
+				} else {
+					elements.addAll(convertElementGroup(combinable.toArray(new DCTree[0])).toList());
+					combinable.clear();
+					elements.addAll(convertElement(oneTree).toList());
+				}
+			}
+		}
+		elements.addAll(convertElementGroup(combinable.toArray(new DCTree[0])).toList());
+		return elements;
+	}
+
+	
+	
 	private Stream<? extends IDocElement> convertElement(DCTree javac) {
 		if (javac instanceof DCText text) {
 			return splitLines(text).map(this::toTextElement);
@@ -355,78 +445,31 @@ class JavadocConverter {
 			return Stream.of(res);
 		} else if (javac instanceof DCReference reference) {
 			String signature = reference.getSignature();
-			if (reference.memberName != null) {
-				if (signature.charAt(signature.length() - 1) == ')') {
-					MethodRef res = this.ast.newMethodRef();
-					commonSettings(res, javac);
-					int currentOffset = this.docComment.getSourcePosition(reference.getStartPosition());
-					if (reference.qualifierExpression != null) {
-						Name qualifierExpressionName = toName(reference.qualifierExpression, res.getStartPosition());
-						qualifierExpressionName.setSourceRange(currentOffset, Math.max(0, reference.qualifierExpression.toString().length()));
-						res.setQualifier(qualifierExpressionName);
-						currentOffset += qualifierExpressionName.getLength();
-					}
-					currentOffset++; // #
-					SimpleName name = this.ast.newSimpleName(reference.memberName.toString());
-					name.setSourceRange(currentOffset, Math.max(0, reference.memberName.toString().length()));
-					currentOffset += name.getLength();
-					res.setName(name);
-					if (this.contextTreePath != null) {
-						this.converted.put(name, DocTreePath.getPath(this.contextTreePath, this.docComment, reference));
-					}
-					currentOffset++; // (
-					final int paramListOffset = currentOffset;
-					List<Region> params = new ArrayList<>();
-					int separatorOffset = currentOffset;
-					while (separatorOffset < res.getStartPosition() + res.getLength()
-							&& this.javacConverter.rawText.charAt(separatorOffset) != ')') {
-						while (separatorOffset < res.getStartPosition() + res.getLength()
-							&& this.javacConverter.rawText.charAt(separatorOffset) != ')'
-							&& this.javacConverter.rawText.charAt(separatorOffset) != ',') {
-							separatorOffset++;
+			if (!signature.contains("#")) {
+				if( reference.qualifierExpression != null ) {
+					Name res = this.javacConverter.toName(reference.qualifierExpression, (dom, javacNode) -> {
+						int startPosition = this.docComment.getSourcePosition(reference.getPreferredPosition()) + javacNode.getStartPosition();
+						dom.setSourceRange(startPosition, dom.getLength());
+						if (this.contextTreePath != null) {
+							this.converted.put(dom, DocTreePath.getPath(this.contextTreePath, this.docComment, javac));
 						}
-						params.add(new Region(currentOffset, separatorOffset - currentOffset));
-						separatorOffset++; // consume separator
-						currentOffset = separatorOffset;
-					}
-					for (int i = 0; i < reference.paramTypes.size(); i++) {
-						JCTree type = reference.paramTypes.get(i);
-						Region range = i < params.size() ? params.get(i) : null;
-						res.parameters().add(toMethodRefParam(type, range, paramListOffset));
-					}
+					});
 					return Stream.of(res);
 				} else {
-					MemberRef res = this.ast.newMemberRef();
-					commonSettings(res, javac);
-					SimpleName name = this.ast.newSimpleName(reference.memberName.toString());
-					name.setSourceRange(this.docComment.getSourcePosition(javac.getStartPosition()), Math.max(0, reference.memberName.toString().length()));
-					if (this.contextTreePath != null) {
-						this.converted.put(res, DocTreePath.getPath(this.contextTreePath, this.docComment, reference));
-					}
-					res.setName(name);
-					if (reference.qualifierExpression != null) {
-						Name qualifierExpressionName = toName(reference.qualifierExpression, res.getStartPosition());
-						qualifierExpressionName.setSourceRange(this.docComment.getSourcePosition(reference.pos), Math.max(0, reference.qualifierExpression.toString().length()));
-						res.setQualifier(qualifierExpressionName);
-					}
+					// just return it as text
+					int startPosition = this.docComment.getSourcePosition(reference.getPreferredPosition());
+					TextElement res = this.ast.newTextElement();
+					res.setText(signature);
+					res.setSourceRange(startPosition, reference.getEndPos() - reference.pos);
 					return Stream.of(res);
 				}
-			} else if (!signature.contains("#")) {
-				Name res = this.javacConverter.toName(reference.qualifierExpression, (dom, javacNode) -> {
-					int startPosition = this.docComment.getSourcePosition(reference.getPreferredPosition()) + javacNode.getStartPosition();
-					dom.setSourceRange(startPosition, dom.getLength());
-					if (this.contextTreePath != null) {
-						this.converted.put(dom, DocTreePath.getPath(this.contextTreePath, this.docComment, javac));
-					}
-				});
-//				res.accept(new ASTVisitor() {
-//					@Override
-//					public void preVisit(ASTNode node) {
-//						JavadocConverter.this.converted.put(node, DocTreePath.getPath(JavadocConverter.this.contextTreePath, JavadocConverter.this.docComment, reference));
-//					}
-//				});
-				return Stream.of(res);
-			}
+			} else if (reference.memberName != null) {
+				if (signature.charAt(signature.length() - 1) == ')') {
+					return Stream.of(convertMemberReferenceWithParens(reference));
+				} else {
+					return Stream.of(convertReferenceToNameOnly(reference));
+				}
+			} 
 		} else if (javac instanceof DCStartElement || javac instanceof DCEndElement || javac instanceof DCEntity) {
 			return Stream.of(toDefaultTextElement(javac));
 		} else if (javac instanceof DCBlockTag || javac instanceof DCReturn) {
@@ -435,21 +478,15 @@ class JavadocConverter {
 				return blockTag.get();
 			}
 		} else if (javac instanceof DCErroneous erroneous) {
-			String body = erroneous.body;
-			MethodRef match = matchesMethodReference(erroneous, body);
-			if( match != null ) {
-				TagElement res = this.ast.newTagElement();
-				res.setTagName(TagElement.TAG_SEE);
-				res.fragments.add(match);
-				res.setSourceRange(this.docComment.getSourcePosition(erroneous.getStartPosition()), body.length());
-				return Stream.of(res);
-			} else {
-				JavaDocTextElement res = this.ast.newJavaDocTextElement();
-				commonSettings(res, erroneous);
-				res.setText(res.text);
-				diagnostics.add(erroneous.diag);
-				return Stream.of(res);
+			IDocElement docE = convertDCErroneousElement(erroneous);
+			if( docE != null ) {
+				return Stream.of(docE);
 			}
+			TextElement res = this.ast.newTextElement();
+			commonSettings(res, erroneous);
+			res.setText(erroneous.body);
+			diagnostics.add(erroneous.diag);
+			return Stream.of(res);
 		} else if (javac instanceof DCComment comment) {
             TextElement res = this.ast.newTextElement();
             commonSettings(res, comment);
@@ -469,6 +506,84 @@ class JavadocConverter {
 		return Stream.of(res);
 	}
 
+	private IDocElement convertMemberReferenceWithParens(DCReference reference) {
+		MethodRef res = this.ast.newMethodRef();
+		commonSettings(res, reference);
+		int currentOffset = this.docComment.getSourcePosition(reference.getStartPosition());
+		if (reference.qualifierExpression != null) {
+			Name qualifierExpressionName = toName(reference.qualifierExpression, res.getStartPosition());
+			qualifierExpressionName.setSourceRange(currentOffset, Math.max(0, reference.qualifierExpression.toString().length()));
+			res.setQualifier(qualifierExpressionName);
+			currentOffset += qualifierExpressionName.getLength();
+		}
+		currentOffset++; // #
+		SimpleName name = this.ast.newSimpleName(reference.memberName.toString());
+		name.setSourceRange(currentOffset, Math.max(0, reference.memberName.toString().length()));
+		currentOffset += name.getLength();
+		res.setName(name);
+		if (this.contextTreePath != null) {
+			this.converted.put(name, DocTreePath.getPath(this.contextTreePath, this.docComment, reference));
+		}
+		currentOffset++; // (
+		final int paramListOffset = currentOffset;
+		List<Region> params = new ArrayList<>();
+		int separatorOffset = currentOffset;
+		while (separatorOffset < res.getStartPosition() + res.getLength()
+				&& this.javacConverter.rawText.charAt(separatorOffset) != ')') {
+			while (separatorOffset < res.getStartPosition() + res.getLength()
+				&& this.javacConverter.rawText.charAt(separatorOffset) != ')'
+				&& this.javacConverter.rawText.charAt(separatorOffset) != ',') {
+				separatorOffset++;
+			}
+			params.add(new Region(currentOffset, separatorOffset - currentOffset));
+			separatorOffset++; // consume separator
+			currentOffset = separatorOffset;
+		}
+		for (int i = 0; i < reference.paramTypes.size(); i++) {
+			JCTree type = reference.paramTypes.get(i);
+			Region range = i < params.size() ? params.get(i) : null;
+			res.parameters().add(toMethodRefParam(type, range, paramListOffset));
+		}
+		return res;
+	}
+
+	private IDocElement convertReferenceToNameOnly(DCReference reference) {
+		MemberRef res = this.ast.newMemberRef();
+		commonSettings(res, reference);
+		SimpleName name = this.ast.newSimpleName(reference.memberName.toString());
+		name.setSourceRange(this.docComment.getSourcePosition(reference.getStartPosition()), Math.max(0, reference.memberName.toString().length()));
+		if (this.contextTreePath != null) {
+			this.converted.put(res, DocTreePath.getPath(this.contextTreePath, this.docComment, reference));
+		}
+		res.setName(name);
+		if (reference.qualifierExpression != null) {
+			Name qualifierExpressionName = toName(reference.qualifierExpression, res.getStartPosition());
+			qualifierExpressionName.setSourceRange(this.docComment.getSourcePosition(reference.pos), Math.max(0, reference.qualifierExpression.toString().length()));
+			res.setQualifier(qualifierExpressionName);
+		}
+		return res;
+	}
+
+	private IDocElement convertDCErroneousElement(DCErroneous erroneous) {
+		String body = erroneous.body;
+		MethodRef match = matchesMethodReference(erroneous, body);
+		if( match != null) {
+			TagElement res = this.ast.newTagElement();
+			res.setTagName(TagElement.TAG_SEE);
+			res.fragments.add(match);
+			res.setSourceRange(this.docComment.getSourcePosition(erroneous.getStartPosition()), body.length());
+			return res;
+		} else if( body.startsWith("@")) {
+			TagElement res = this.ast.newTagElement();
+			String tagName = body.split("\\s+")[0];
+			res.setTagName(tagName);
+			//res.fragments.add(match);
+			res.setSourceRange(this.docComment.getSourcePosition(erroneous.getStartPosition()), body.length());
+			return res;
+		}
+		return null;
+	}
+	
 	private MethodRef matchesMethodReference(DCErroneous tree, String body) {
 		if( body.startsWith("@see")) {
 			String value = body.substring(4);
@@ -526,10 +641,13 @@ class JavadocConverter {
 		return null;
 	}
 
-	private JavaDocTextElement toDefaultTextElement(DCTree javac) {
-		JavaDocTextElement res = this.ast.newJavaDocTextElement();
+	private TextElement toDefaultTextElement(DCTree javac) {
+		TextElement res = this.ast.newTextElement();
 		commonSettings(res, javac);
-		res.setText(this.docComment.comment.getText().substring(javac.getStartPosition(), javac.getEndPosition()));
+		String r = this.docComment.comment.getText();
+		String s1 = r.substring(javac.getStartPosition(), javac.getEndPosition());
+		int len = s1.length();
+		res.setText(s1);
 		return res;
 	}
 
@@ -559,14 +677,17 @@ class JavadocConverter {
 				super.preVisit(node);
 			}
 		});
+		String[] segments = range.getContents().trim().split("\s");
 		if (jdtType.getStartPosition() + jdtType.getLength() < res.getStartPosition() + res.getLength()) {
-			String[] segments = range.getContents().trim().split("\s");
 			if (segments.length > 1) {
 				String nameSegment = segments[segments.length - 1];
 				SimpleName name = this.ast.newSimpleName(nameSegment);
 				name.setSourceRange(this.javacConverter.rawText.lastIndexOf(nameSegment, range.endPosition()), nameSegment.length());
 				res.setName(name);
 			}
+		}
+		if( segments.length > 0 && segments[segments.length-1].endsWith("...")) {
+			res.setVarargs(true);
 		}
 		return res;
 	}
