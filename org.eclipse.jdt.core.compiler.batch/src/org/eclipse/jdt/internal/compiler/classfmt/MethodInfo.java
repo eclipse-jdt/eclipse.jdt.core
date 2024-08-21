@@ -482,7 +482,7 @@ private synchronized void readCodeAttribute() {
 }
 private void decodeCodeAttribute(int offset) {
 	int readOffset = offset + 10;
-	int codeLength = (int) u4At(readOffset);
+	int codeLength = u4At(readOffset);
 	readOffset += (4 + codeLength);
 	int exceptionTableLength = u2At(readOffset);
 	readOffset += 2;

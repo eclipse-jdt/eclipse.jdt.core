@@ -56,7 +56,7 @@ public class StackMapTableAttribute
 		} else {
 			this.frames = NO_FRAMES;
 		}
-		final int byteLength = (int) u4At(classFileBytes, 2, offset);
+		final int byteLength = u4At(classFileBytes, 2, offset);
 
 		if (length != 0) {
 			System.arraycopy(classFileBytes, offset + 6, this.bytes = new byte[byteLength], 0, byteLength);
