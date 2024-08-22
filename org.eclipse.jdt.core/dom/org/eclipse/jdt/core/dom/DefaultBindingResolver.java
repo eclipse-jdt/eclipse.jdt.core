@@ -839,7 +839,7 @@ class DefaultBindingResolver extends BindingResolver {
 				ImportReference importReference = (ImportReference) node;
 				final boolean isStatic = importReference.isStatic();
 				if ((importReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OnDemand) != 0) {
-					Binding binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length), true, isStatic);
+					Binding binding = this.scope.getImport(importReference.tokens, true, importReference.modifiers);
 					if (binding != null) {
 						if (isStatic) {
 							if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
@@ -864,7 +864,7 @@ class DefaultBindingResolver extends BindingResolver {
 						}
 					}
 				} else {
-					Binding binding = this.scope.getImport(importReference.tokens, false, isStatic);
+					Binding binding = this.scope.getImport(importReference.tokens, false, importReference.modifiers);
 					if (binding != null) {
 						if (isStatic) {
 							if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
@@ -1172,13 +1172,13 @@ class DefaultBindingResolver extends BindingResolver {
 				if (this.scope == null) return null;
 				if (importReferenceLength == index) {
 					try {
-						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), (importReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OnDemand) != 0, importReference.isStatic());
+						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), (importReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OnDemand) != 0, importReference.modifiers);
 					} catch (AbortCompilation e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
 				} else {
 					try {
-						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), true, importReference.isStatic());
+						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), true, importReference.modifiers);
 					} catch (AbortCompilation e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
@@ -1404,13 +1404,13 @@ class DefaultBindingResolver extends BindingResolver {
 				if (this.scope == null) return null;
 				if (importReferenceLength == index && !inModule) {
 					try {
-						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), (importReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OnDemand) != 0, importReference.isStatic());
+						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), (importReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OnDemand) != 0, importReference.modifiers);
 					} catch (AbortCompilation e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
 				} else {
 					try {
-						binding = this.scope.getImport(inModule ? importReference.tokens : CharOperation.subarray(importReference.tokens, 0, index), true, importReference.isStatic());
+						binding = this.scope.getImport(inModule ? importReference.tokens : CharOperation.subarray(importReference.tokens, 0, index), true, importReference.modifiers);
 					} catch (AbortCompilation e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
