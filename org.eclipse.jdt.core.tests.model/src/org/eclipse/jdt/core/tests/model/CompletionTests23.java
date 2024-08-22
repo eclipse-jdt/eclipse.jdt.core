@@ -118,14 +118,15 @@ public void test001() throws JavaModelException {
 			public class X {}
 			""");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true);
 	requestor.allowAllRequiredProposals();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "java.";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	int nameStart = str.lastIndexOf(completeBehind);
+	int cursorLocation = nameStart + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"[MODULE_REF]{java.base, java.base, null, null, null, " + DEFAULT_RELEVANCE + "}",
+			"[MODULE_REF]{java.base, java.base, null, null, null, ["+nameStart+", "+cursorLocation+"], "+DEFAULT_RELEVANCE + "}",
 			requestor.getResults());
 }
 
