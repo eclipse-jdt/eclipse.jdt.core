@@ -257,6 +257,9 @@ public class JavacProblemConverter {
 			} else if (problemId == IProblem.ProviderMethodOrConstructorRequiredForServiceImpl
 					&& diagnosticPath != null) {
 				return getPositionByNodeRangeOnly(jcDiagnostic, (JCTree)diagnosticPath.getLeaf());
+			} else if (problemId == IProblem.SwitchExpressionsYieldMissingDefaultCase
+					&& diagnosticPath != null && diagnosticPath.getLeaf() instanceof JCTree.JCSwitchExpression switchExpr) {
+				return getPositionByNodeRangeOnly(jcDiagnostic, switchExpr.selector instanceof JCTree.JCParens parens? parens.expr : switchExpr.selector);
 			}
 
  			Tree element = diagnosticPath != null ? diagnosticPath.getLeaf() :
@@ -855,6 +858,9 @@ public class JavacProblemConverter {
 			case "compiler.err.service.implementation.is.abstract" -> IProblem.AbstractServiceImplementation;
 			case "compiler.err.service.implementation.no.args.constructor.not.public" -> IProblem.ServiceImplDefaultConstructorNotPublic;
 			case "compiler.err.service.implementation.doesnt.have.a.no.args.constructor" -> IProblem.ProviderMethodOrConstructorRequiredForServiceImpl;
+			case "compiler.err.not.exhaustive" -> IProblem.SwitchExpressionsYieldMissingDefaultCase;
+			case "compiler.err.switch.expression.empty" -> IProblem.SwitchExpressionsYieldMissingDefaultCase;
+			case "compiler.err.return.outside.switch.expression" -> IProblem.SwitchExpressionsReturnWithinSwitchExpression;
 			default -> {
 				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;

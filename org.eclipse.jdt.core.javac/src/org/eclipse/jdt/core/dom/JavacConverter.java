@@ -460,19 +460,19 @@ class JavacConverter {
 	}
 
 	private AbstractTypeDeclaration convertClassDecl(JCClassDecl javacClassDecl, ASTNode parent) {
-		if( javacClassDecl.getKind() == Kind.ANNOTATION_TYPE && 
+		if( javacClassDecl.getKind() == Kind.ANNOTATION_TYPE &&
 				(this.ast.apiLevel <= AST.JLS2_INTERNAL || this.ast.scanner.complianceLevel < ClassFileConstants.JDK1_5)) {
 			return null;
 		}
-		if( javacClassDecl.getKind() == Kind.ENUM && 
+		if( javacClassDecl.getKind() == Kind.ENUM &&
 				(this.ast.apiLevel <= AST.JLS2_INTERNAL || this.ast.scanner.complianceLevel < ClassFileConstants.JDK1_5)) {
 			return null;
 		}
-		if( javacClassDecl.getKind() == Kind.RECORD && 
+		if( javacClassDecl.getKind() == Kind.RECORD &&
 				(this.ast.apiLevel < AST.JLS16_INTERNAL || this.ast.scanner.complianceLevel < ClassFileConstants.JDK16)) {
 			return null;
 		}
-		
+
 		AbstractTypeDeclaration	res = switch (javacClassDecl.getKind()) {
 			case ANNOTATION_TYPE -> this.ast.newAnnotationTypeDeclaration();
 			case ENUM -> this.ast.newEnumDeclaration();
@@ -1632,7 +1632,7 @@ class JavacConverter {
 					if( s1 != null ) {
 						// make a yield statement out of it??
 						YieldStatement r1 = this.ast.newYieldStatement();
-						commonSettings(r1, javac);
+						commonSettings(r1, jce);
 						r1.setExpression(s1);
 						res.statements().add(r1);
 					}
@@ -3363,13 +3363,13 @@ class JavacConverter {
 	public DocTreePath[] searchRelatedDocTreePath(MethodRef ref) {
 		ArrayList<ASTNode> possibleNodes = new ArrayList<>();
 		this.javadocConverters.forEach(x -> possibleNodes.addAll(x.converted.keySet()));
-		DocTreePath[] r = possibleNodes.stream().filter(x -> x != ref && x instanceof MethodRef mr 
+		DocTreePath[] r = possibleNodes.stream().filter(x -> x != ref && x instanceof MethodRef mr
 				&& mr.getName().toString().equals(ref.getName().toString())
-				&& Objects.equals(mr.getQualifier() == null ? null : mr.getQualifier().toString(), 
+				&& Objects.equals(mr.getQualifier() == null ? null : mr.getQualifier().toString(),
 						ref.getQualifier() == null ? null : ref.getQualifier().toString()))
 				.map(x -> findDocTreePath(x))
 				.toArray(size -> new DocTreePath[size]);
-		return r; 
+		return r;
 	}
 
 
