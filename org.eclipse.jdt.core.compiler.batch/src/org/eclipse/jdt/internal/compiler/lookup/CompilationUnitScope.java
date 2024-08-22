@@ -792,10 +792,19 @@ ImportBinding[] getDefaultImports() {
 	return this.environment.root.defaultImports = new ImportBinding[] {new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null)};
 }
 // NOT Public API
-public final Binding getImport(char[][] compoundName, boolean onDemand, boolean isStaticImport) {
-	if (onDemand)
-		return findImport(compoundName, compoundName.length);
-	return findSingleImport(compoundName, Binding.TYPE | Binding.FIELD | Binding.METHOD, isStaticImport);
+public final Binding getImport(char[][] compoundName, boolean onDemand, int modifiers) {
+	if (onDemand) {
+		if ((modifiers & ClassFileConstants.AccModule) != 0) {
+			ModuleBinding importedModule = this.environment.getModule(CharOperation.concatWith(compoundName, '.'));
+			if (importedModule != null && module().reads(importedModule))
+				return importedModule;
+			return null;
+		} else {
+			return findImport(compoundName, compoundName.length);
+		}
+	} else {
+		return findSingleImport(compoundName, Binding.TYPE | Binding.FIELD | Binding.METHOD, (modifiers & ClassFileConstants.AccStatic) != 0);
+	}
 }
 
 public int nextCaptureID() {
