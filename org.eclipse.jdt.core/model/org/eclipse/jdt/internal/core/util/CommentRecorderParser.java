@@ -143,8 +143,13 @@ public class CommentRecorderParser extends Parser {
 	@Override
 	public int flushCommentsDefinedPriorTo(int position) {
 
+		if (this.scanner.commentStarts[0] > 0 && this.scanner.commentStops[0] > 0 && this.scanner.commentPtr >= 0) {
+			this.scanner.commentPtr = -1;
+		}
 		int lastCommentIndex = getCommentPtr();
-		if (lastCommentIndex < 0) return position; // no comment
+		if (lastCommentIndex < 0) {
+			return position; // no comment
+		}
 
 		// compute the index of the first obsolete comment
 		int index = lastCommentIndex;
@@ -203,6 +208,10 @@ public class CommentRecorderParser extends Parser {
 		return position;
 	}
 
+	@Override
+	protected void consumeExitTryBlock() {
+		flushCommentsDefinedPriorTo(this.scanner.currentPosition);
+	}
 	protected int getCommentPtr() {
 		int lastComment = this.scanner.commentPtr;
 		if (lastComment == -1 && this.currentElement != null) {
