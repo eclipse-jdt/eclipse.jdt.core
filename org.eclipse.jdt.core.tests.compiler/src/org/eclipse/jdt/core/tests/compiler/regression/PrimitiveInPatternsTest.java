@@ -31,7 +31,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test264" };
+//		TESTS_NAMES = new String[] { "test267" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -6761,6 +6761,26 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		             """
 		         },
 		         "1.0");
+		 }
+		 public void test267() {
+		     runConformTest(new String[] {
+		         "X.java",
+		             """
+						record R(byte b) {}
+						public class X {
+							public static short Byte2Recshort(R r) {
+								if (r instanceof R(short y)) {
+									return y;
+								}
+								return 0;
+							}
+							public static void main(String[] args) {
+								System.out.println(X.Byte2Recshort(new R((byte)1)));
+							}
+						}
+		           """
+		         },
+		         "1");
 		 }
    public void testNonPrim001() {
 		runConformTest(new String[] {

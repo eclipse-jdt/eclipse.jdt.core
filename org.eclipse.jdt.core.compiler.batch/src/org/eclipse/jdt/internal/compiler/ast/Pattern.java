@@ -23,8 +23,10 @@ import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.NullTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.VoidTypeBinding;
 
 public abstract class Pattern extends Expression {
 
@@ -54,6 +56,7 @@ public abstract class Pattern extends Expression {
 		NO_CONVERSION_ROUTE
 	}
 
+	protected TypeBinding expectedType;
 	record TestContextRecord(TypeBinding left, TypeBinding right, PrimitiveConversionRoute route) {}
 
 	public Pattern getEnclosingPattern() {
@@ -92,6 +95,11 @@ public abstract class Pattern extends Expression {
 
 	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel);
 
+	public void generateTestingConversion(BlockScope scope, CodeStream codeStream) {
+		// TODO: MAKE THIS abstract
+	}
+
+
 	@Override
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
 		if (!castType.isReifiable())
@@ -115,7 +123,9 @@ public abstract class Pattern extends Expression {
 			return false;
 		}
 		if (patternType.isBaseType()) {
-			if (!TypeBinding.equalsEquals(other, patternType)) {
+			PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(this.resolvedType, this.expectedType, scope);
+			if (!TypeBinding.equalsEquals(other, patternType)
+					&& route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
 				scope.problemReporter().incompatiblePatternType(this, other, patternType);
 				return false;
 			}
@@ -138,6 +148,11 @@ public abstract class Pattern extends Expression {
 	}
 
 	public abstract void setIsEitherOrPattern(); // if set, is one of multiple (case label) patterns and so pattern variables can't be named.
+
+	@Override
+	public void setExpectedType(TypeBinding expectedType) {
+		this.expectedType = expectedType;
+	}
 
 	public boolean isUnguarded() {
 		return this.isUnguarded;
@@ -170,6 +185,8 @@ public abstract class Pattern extends Expression {
 				scope.compilerOptions().enablePreviewFeatures))) {
 			return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 		}
+		if (destinationType == null || expressionType == null)
+			return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 		boolean destinationIsBaseType = destinationType.isBaseType();
 		boolean expressionIsBaseType = expressionType.isBaseType();
 		if (destinationIsBaseType && expressionIsBaseType) {
@@ -184,6 +201,10 @@ public abstract class Pattern extends Expression {
 				return PrimitiveConversionRoute.WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION;
 		} else {
 			if (expressionIsBaseType) {
+				if (expressionType instanceof NullTypeBinding
+						|| expressionType instanceof VoidTypeBinding)
+					return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
+
 				if (isBoxing(destinationType, expressionType))
 					return PrimitiveConversionRoute.BOXING_CONVERSION;
 				if (scope.environment().computeBoxingType(expressionType).isCompatibleWith(destinationType))
