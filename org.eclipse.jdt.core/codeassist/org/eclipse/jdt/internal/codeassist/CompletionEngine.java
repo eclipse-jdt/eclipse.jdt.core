@@ -2291,6 +2291,8 @@ public final class CompletionEngine
 								if ((importReference.modifiers & ClassFileConstants.AccModule) != 0 && this.compilerOptions.enablePreviewFeatures) {
 									this.currentModule = this.unitScope.module(); // enable module-graph analysis for readability
 									this.completionToken = CharOperation.concatWithAll(importReference.tokens, '.');
+									this.tokenStart = importReference.sourceStart;
+									this.startPosition = importReference.sourceStart;
 									findModules(this.completionToken, true);
 									return;
 								}
