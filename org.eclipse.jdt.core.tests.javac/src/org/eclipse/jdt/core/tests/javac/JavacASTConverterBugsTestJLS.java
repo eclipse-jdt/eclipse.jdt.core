@@ -23,6 +23,10 @@ import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.tests.dom.ASTConverterBugsTest;
 import org.eclipse.jdt.core.tests.dom.ASTConverterBugsTestSetup;
 
@@ -167,5 +171,28 @@ public class JavacASTConverterBugsTestJLS extends ASTConverterBugsTestSetup {
 		} finally {
 			deleteProject("P");
 		}
+	}
+
+	public void testIncubatorIssue740() throws Exception {
+		ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+		parser.setSource("""
+		 public class A {
+		   package B;
+		   public class A {
+		   }
+		}""".toCharArray());
+
+		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+		List l = cu.types();
+		assertNotNull(l);
+		assertEquals(l.size(), 1);
+		TypeDeclaration td = (TypeDeclaration)l.get(0);
+		assertNotNull(td);
+		List nested = td.bodyDeclarations();
+		assertNotNull(nested);
+		assertTrue(nested.size() > 0);
+		ASTNode firstNode = (ASTNode) nested.get(0);
+		assertTrue(firstNode instanceof TypeDeclaration);
+		assertEquals(nested.size(), 1);
 	}
 }
