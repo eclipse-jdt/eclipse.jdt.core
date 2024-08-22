@@ -432,25 +432,29 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public String getBinaryName() {
-		StringBuilder res = new StringBuilder();
-		var generator = new Types.SignatureGenerator(this.types) {
-			@Override
-			protected void append(char ch) {
-				res.append(ch);
-			}
-
-			@Override
-			protected void append(byte[] ba) {
-				res.append(new String(ba));
-			}
-
-			@Override
-			protected void append(Name name) {
-				res.append(name.toString());
-			}
-		};
-		generator.assembleSig(this.type);
-		return res.toString();
+		if (this.type.isPrimitive()) {
+			// use Javac signature to get correct variable name
+			StringBuilder res = new StringBuilder();
+			var generator = new Types.SignatureGenerator(this.types) {
+				@Override
+				protected void append(char ch) {
+					res.append(ch);
+				}
+	
+				@Override
+				protected void append(byte[] ba) {
+					res.append(new String(ba));
+				}
+	
+				@Override
+				protected void append(Name name) {
+					res.append(name.toString());
+				}
+			};
+			generator.assembleSig(this.type);
+			return res.toString();
+		}
+		return this.typeSymbol.flatName().toString();
 	}
 
 	@Override
