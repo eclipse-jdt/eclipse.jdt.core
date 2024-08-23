@@ -217,7 +217,7 @@ class JavadocConverter {
     }
 
 	private boolean isInline(TagElement tag) {
-		return tag.getTagName() != null && switch (tag.getTagName()) {
+		return tag.getTagName() == null || switch (tag.getTagName()) {
 			case TagElement.TAG_CODE,
 				TagElement.TAG_DOCROOT,
 				TagElement.TAG_INHERITDOC,
@@ -409,7 +409,41 @@ class JavadocConverter {
 	}
 
 	private Stream<IDocElement> convertElementGroup(DCTree[] javac) {
-		return splitLines(javac).map(this::toTextElement);
+		return splitLines(javac).filter(x -> x.length != 0).flatMap(this::toTextOrTag);
+	}
+	private Stream<IDocElement> toTextOrTag(Region line) {
+		String suggestedText = this.javacConverter.rawText.substring(line.startOffset, line.startOffset + line.length);
+		TextElement postElement = null;
+		if( suggestedText.startsWith("{@")) {
+			int closeBracket = suggestedText.indexOf("}");
+			int firstWhite = findFirstWhitespace(suggestedText);
+			if( closeBracket > firstWhite && firstWhite != -1 ) {
+				Region postRegion = new Region(line.startOffset + closeBracket + 1, line.length - closeBracket - 1);
+				if( postRegion.length > 0 )
+					postElement = toTextElement(postRegion);
+				String tagName = suggestedText.substring(1, firstWhite).trim();
+				TagElement res = this.ast.newTagElement();
+				res.setTagName(tagName);
+				res.fragments.add(toTextElement(new Region(line.startOffset + firstWhite + 1, closeBracket - firstWhite - 1)));
+				res.setSourceRange(line.startOffset, closeBracket);
+				if( postElement == null )
+					return Stream.of(res);
+				else
+					return Stream.of(res, postElement);
+			}
+		} 
+		
+		return Stream.of(toTextElement(line));
+	}
+	
+	private int findFirstWhitespace(String s) {
+		int len = s.length();
+		for (int index = 0; index < len; index++) {
+		   if (Character.isWhitespace(s.charAt(index))) { 
+		     return index;
+		   }
+		}
+		return -1;
 	}
 	
 	
@@ -417,28 +451,41 @@ class JavadocConverter {
 		List<IDocElement> elements = new ArrayList<>();
 		List<DCTree> combinable = new ArrayList<>();
 		int size = treeElements.size();
+		DCTree prev = null;
 		for( int i = 0; i < size; i++ ) {
+			boolean shouldCombine = false;
+			boolean lineBreakBefore = false;
 			DCTree oneTree = treeElements.get(i);
 			if( oneTree instanceof DCText || oneTree instanceof DCStartElement || oneTree instanceof DCEndElement || oneTree instanceof DCEntity) {
-				combinable.add(oneTree);
+				shouldCombine = true;
+				if( oneTree instanceof DCText dct && dct.text.startsWith("\n")) {
+					lineBreakBefore = true;
+				}
 			} else {
 				if( oneTree instanceof DCErroneous derror) {
 					IDocElement de = convertDCErroneousElement(derror);
 					if( de == null ) {
-						combinable.add(oneTree);
-					} else {
-						if( combinable.size() > 0 ) 
-							elements.addAll(convertElementGroup(combinable.toArray(new DCTree[0])).toList());
-						combinable.clear();
-						elements.addAll(convertElement(oneTree).toList());
+						shouldCombine = true;
+						if( derror.body.startsWith("{@")) {
+							lineBreakBefore = true;
+						}
 					}
-				} else {
-					if( combinable.size() > 0 ) 
-						elements.addAll(convertElementGroup(combinable.toArray(new DCTree[0])).toList());
-					combinable.clear();
-					elements.addAll(convertElement(oneTree).toList());
 				}
 			}
+			
+			if( lineBreakBefore || !shouldCombine) {
+				if( combinable.size() > 0 ) {
+					elements.addAll(convertElementGroup(combinable.toArray(new DCTree[0])).toList());
+					combinable.clear();
+				}
+			}
+			
+			if( shouldCombine ) {
+				combinable.add(oneTree);
+			} else {
+				elements.addAll(convertElement(oneTree).toList());
+			}
+			prev = oneTree;
 		}
 		if( combinable.size() > 0 ) 
 			elements.addAll(convertElementGroup(combinable.toArray(new DCTree[0])).toList());
