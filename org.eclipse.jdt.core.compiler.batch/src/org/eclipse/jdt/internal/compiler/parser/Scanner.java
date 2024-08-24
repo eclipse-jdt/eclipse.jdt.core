@@ -92,6 +92,7 @@ public class Scanner implements TerminalTokens {
 	public final static int COMMENT_ARRAYS_SIZE = 30;
 	public int[] commentStops = new int[COMMENT_ARRAYS_SIZE];
 	public int[] commentStarts = new int[COMMENT_ARRAYS_SIZE];
+	public boolean[] commentIsMarkdown = new boolean[COMMENT_ARRAYS_SIZE];
 	public int[] commentTagStarts = new int[COMMENT_ARRAYS_SIZE];
 	public int commentPtr = -1; // no comment test with commentPtr value -1
 	public int lastCommentLinePosition = -1;
@@ -3215,6 +3216,7 @@ public void recordComment(int token) {
 	// compute position
 	int commentStart = this.startPosition;
 	int stopPosition = this.currentPosition;
+	boolean isMarkdown = false;
 	switch (token) {
 		case TokenNameCOMMENT_LINE:
 			// both positions are negative
@@ -3226,6 +3228,7 @@ public void recordComment(int token) {
 			stopPosition = -this.currentPosition;
 			break;
 		case TokenNameCOMMENT_MARKDOWN:
+			isMarkdown = true;
 			break;
 	}
 
@@ -3233,12 +3236,11 @@ public void recordComment(int token) {
 	int length = this.commentStops.length;
 	if (++this.commentPtr >=  length) {
 		int newLength = length + COMMENT_ARRAYS_SIZE*10;
-		System.arraycopy(this.commentStops, 0, this.commentStops = new int[newLength], 0, length);
-		System.arraycopy(this.commentStarts, 0, this.commentStarts = new int[newLength], 0, length);
-		System.arraycopy(this.commentTagStarts, 0, this.commentTagStarts = new int[newLength], 0, length);
+		growCommentInfoArrays(length, newLength);
 	}
 	this.commentStops[this.commentPtr] = stopPosition;
 	this.commentStarts[this.commentPtr] = commentStart;
+	this.commentIsMarkdown[this.commentPtr] = isMarkdown;
 }
 
 /**
@@ -5938,6 +5940,25 @@ public static InvalidInputException invalidInput() {
 	return new InvalidInputException();
 }
 
+public void copyCommentInfo(int to, int from) {
+	this.commentStarts[to] = this.commentStarts[from];
+	this.commentStops[to] = this.commentStops[from];
+	this.commentTagStarts[to] = this.commentTagStarts[from];
+	this.commentIsMarkdown[to] = this.commentIsMarkdown[from];
+}
 
+public void copyAllCommentInfo(int from, int to, int length) {
+	System.arraycopy(this.commentStarts, from, this.commentStarts, to, length);
+	System.arraycopy(this.commentStops, from, this.commentStops, to, length);
+	System.arraycopy(this.commentTagStarts, from, this.commentTagStarts, to, length);
+	System.arraycopy(this.commentIsMarkdown, from, this.commentIsMarkdown, 0, length);
+}
+
+protected void growCommentInfoArrays(int length, int newLength) {
+	System.arraycopy(this.commentStops, 0, this.commentStops = new int[newLength], 0, length);
+	System.arraycopy(this.commentStarts, 0, this.commentStarts = new int[newLength], 0, length);
+	System.arraycopy(this.commentIsMarkdown, 0, this.commentIsMarkdown = new boolean[newLength], 0, length);
+	System.arraycopy(this.commentTagStarts, 0, this.commentTagStarts = new int[newLength], 0, length);
+}
 
 }

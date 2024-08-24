@@ -205,6 +205,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/Javadoc.java" type="org.eclipse.jdt.core.dom.Javadoc">
+        <filter comment="Evolution: add property for markdown javadoc" id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.Javadoc"/>
+                <message_argument value="MARKDOWN_PROPERTY"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/MemberRef.java" type="org.eclipse.jdt.core.dom.MemberRef">
         <filter id="576725006">
             <message_arguments>
