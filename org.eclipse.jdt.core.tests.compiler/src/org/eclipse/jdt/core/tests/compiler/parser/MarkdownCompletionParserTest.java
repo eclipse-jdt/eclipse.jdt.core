@@ -765,5 +765,50 @@ public void test037() {
 	verifyCompletionOnJavadocTag("lin".toCharArray(), allTags, false);
 
 }
-
+public void testTypeLink() {
+	// create assist node for unfinished markdown link
+	String source = """
+		package javadoc;
+		///
+		/// see [Te
+		///
+		public class Test {}
+		""";
+	verifyCompletionInJavadoc(source, "[Te");
+	assertCompletionNodeResult(source, """
+			<CompletionOnJavadocSingleTypeReference:Te
+				infos:formal reference
+			>"""
+	);
+}
+public void testTypeLink_lastLine() {
+	// create assist node for unfinished markdown link at end of comment
+	String source = """
+		package javadoc;
+		///
+		/// see [Te
+		public class Test {}
+		""";
+	verifyCompletionInJavadoc(source, "[Te");
+	assertCompletionNodeResult(source, """
+			<CompletionOnJavadocSingleTypeReference:Te
+				infos:formal reference
+			>"""
+	);
+}
+public void testTypeLink_lastLine_emptyReference() {
+	// create assist node for unfinished markdown link at end of comment
+	String source = """
+		package javadoc;
+		///
+		/// see [
+		public class Test {}
+		""";
+	verifyCompletionInJavadoc(source, "[");
+	assertCompletionNodeResult(source, """
+			<CompletionOnJavadocSingleTypeReference:
+				infos:formal reference
+			>"""
+	);
+}
 }

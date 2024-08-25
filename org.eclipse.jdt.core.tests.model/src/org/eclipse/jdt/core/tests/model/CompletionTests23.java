@@ -320,4 +320,98 @@ public void test006() throws CoreException {
 		removeClasspathEntry(this.completion23Project, jarTwoPath);
 	}
 }
+
+public void testMarkdownTypeLink1() throws CoreException {
+	createFolder("/Completion23/src/javadoc");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("Completion23/src/javadoc/Test.java", """
+			package javadoc;
+			///
+			/// see [Te]
+			///
+			public class Test {}
+			""");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "[Te";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"TemplateRuntime[TYPE_REF]{java.lang.runtime.TemplateRuntime, java.lang.runtime, Ljava.lang.runtime.TemplateRuntime;, null, null, "+(DEFAULT_RELEVANCE + R_JAVA_LIBRARY)+"}\n" +
+			"Test[TYPE_REF]{Test, javadoc, Ljavadoc.Test;, null, null, "+(DEFAULT_RELEVANCE + R_UNQUALIFIED)+"}",
+			requestor.getResults());
+}
+
+public void testMarkdownMethodLink1() throws CoreException {
+	createFolder("/Completion23/src/javadoc");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("Completion23/src/javadoc/Test.java", """
+			package javadoc;
+			///
+			/// see [#me] for details
+			public class Test {
+				void method() {}
+			}
+			""");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "[#me";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"method[METHOD_REF]{method(), Ljavadoc.Test;, ()V, method, null, "+(DEFAULT_RELEVANCE + R_NON_STATIC)+"}",
+			requestor.getResults());
+}
+
+public void testMarkdownMethodLink2_qualified() throws CoreException {
+	// type-prefixed
+	// missing ']' at end of line
+	createFolder("/Completion23/src/javadoc");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("Completion23/src/javadoc/Test.java", """
+			package javadoc;
+			///
+			/// see [String#le
+			///
+			public class Test {
+				void method() {}
+			}
+			""");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "#le";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, "+(DEFAULT_RELEVANCE + R_NON_STATIC)+"}",
+			requestor.getResults());
+}
+
+public void testMarkdownMethodLink2_qualified2() throws CoreException {
+	// type-prefixed
+	// missing ']' at end of line
+	// link is on the last comment line
+	createFolder("/Completion23/src/javadoc");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("Completion23/src/javadoc/Test.java", """
+			package javadoc;
+			///
+			/// see [String#le
+			public class Test {
+				void method() {}
+			}
+			""");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "#le";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, "+(DEFAULT_RELEVANCE + R_NON_STATIC)+"}",
+			requestor.getResults());
+}
 }
