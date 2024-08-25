@@ -601,22 +601,27 @@ public class JavadocParser extends AbstractCommentParser {
 						currentChar = readChar();
 						start = this.index;
 					} else {
-						int eofBkup = this.scanner.eofPosition;
-						this.scanner.eofPosition = this.index - 1;
-						this.scanner.resetTo(start, this.javadocEnd);
-						valid = parseReference(true);
-						this.scanner.eofPosition = eofBkup;
 						break loop;
 					}
 					break;
 				case '\r':
 				case '\n':
+					if ((this.kind & PARSER_KIND) == COMPLETION_PARSER) {
+						// TODO would like to trigger parseReference() with more tokens,
+						// but in "[some text][#theLink]" arbitrary chars are allowed which do not imply end of link identifier.
+						// To resolve this we would need to scan for detection of a second pair of brackets ...
+						break loop;
+					}
 					return false;
 				default:
 					break;
 			}
 			currentChar = readChar();
 		}
+		int eofBkup = this.scanner.eofPosition;
+		this.scanner.resetTo(start, Math.max(this.javadocEnd, this.index));
+		valid = parseReference(true);
+		this.scanner.eofPosition = eofBkup;
 		this.markdownHelper.resetLineStart();
 		return valid;
 	}
