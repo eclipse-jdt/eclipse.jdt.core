@@ -37,7 +37,6 @@ import javax.tools.ToolProvider;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.ILog;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -49,8 +48,6 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
-import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
-import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
@@ -64,13 +61,13 @@ import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
-import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
 import org.eclipse.jdt.internal.core.util.BindingKeyParser;
+import org.eclipse.jdt.internal.javac.JavacConfig;
 import org.eclipse.jdt.internal.javac.JavacProblemConverter;
 import org.eclipse.jdt.internal.javac.JavacUtils;
 import org.eclipse.jdt.internal.javac.UnusedProblemFactory;
@@ -566,7 +563,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		// must be 1st thing added to context
 		context.put(DiagnosticListener.class, diagnosticListener);
 		boolean docEnabled = JavaCore.ENABLED.equals(compilerOptions.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT));
-		JavacUtils.configureJavacContext(context, compilerOptions, javaProject);
+		JavacUtils.configureJavacContext(context, compilerOptions, javaProject, JavacUtils.isTest(javaProject, sourceUnits));
 		var fileManager = (JavacFileManager)context.get(JavaFileManager.class);
 		List<JavaFileObject> fileObjects = new ArrayList<>(); // we need an ordered list of them
 		for (var sourceUnit : sourceUnits) {
@@ -684,6 +681,11 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		}
 
 		return result;
+	}
+
+	private JavacConfig isTest(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] sourceUnits) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private void addProblemsToDOM(CompilationUnit dom, Collection<CategorizedProblem> problems) {
@@ -916,7 +918,6 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 			return null;
 		};
-
 	}
 
 }

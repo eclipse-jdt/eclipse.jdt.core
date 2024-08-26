@@ -116,7 +116,7 @@ public class JavacCompiler extends Compiler {
 		for (Entry<IContainer, List<ICompilationUnit>> outputSourceSet : outputSourceMapping.entrySet()) {
 			// Configure Javac to generate the class files in a mapped temporary location
 			var outputDir = JavacClassFile.getMappedTempOutput(outputSourceSet.getKey()).toFile();
-			JavacUtils.configureJavacContext(javacContext, this.compilerConfig, javaProject, outputDir);
+			JavacUtils.configureJavacContext(javacContext, this.compilerConfig, javaProject, outputDir, true);
 			JavaCompiler javac = new JavaCompiler(javacContext) {
 				boolean isInGeneration = false;
 

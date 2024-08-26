@@ -14,23 +14,27 @@ import java.io.File;
 import java.lang.Runtime.Version;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.tools.JavaFileManager;
 import javax.tools.StandardLocation;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -44,17 +48,17 @@ import com.sun.tools.javac.util.Options;
 
 public class JavacUtils {
 
-	public static void configureJavacContext(Context context, Map<String, String> compilerOptions, IJavaProject javaProject) {
-		configureJavacContext(context, compilerOptions, javaProject, null, null);
+	public static void configureJavacContext(Context context, Map<String, String> compilerOptions, IJavaProject javaProject, boolean isTest) {
+		configureJavacContext(context, compilerOptions, javaProject, null, null, isTest);
 	}
 
 	public static void configureJavacContext(Context context, JavacConfig compilerConfig,
-	        IJavaProject javaProject, File output) {
-		configureJavacContext(context, compilerConfig.compilerOptions().getMap(), javaProject, compilerConfig, output);
+	        IJavaProject javaProject, File output, boolean isTest) {
+		configureJavacContext(context, compilerConfig.compilerOptions().getMap(), javaProject, compilerConfig, output, isTest);
 	}
 
 	private static void configureJavacContext(Context context, Map<String, String> compilerOptions,
-	        IJavaProject javaProject, JavacConfig compilerConfig, File output) {
+	        IJavaProject javaProject, JavacConfig compilerConfig, File output, boolean isTest) {
 		IClasspathEntry[] classpath = new IClasspathEntry[0];
 		if (javaProject != null && javaProject.getProject() != null) {
 			try {
@@ -78,7 +82,7 @@ public class JavacUtils {
 			JavacFileManager.preRegister(context);
 		}
 		if (javaProject instanceof JavaProject internal) {
-			configurePaths(internal, context, compilerConfig, output);
+			configurePaths(internal, context, compilerConfig, output, isTest);
 		}
 	}
 
@@ -165,7 +169,7 @@ public class JavacUtils {
 	}
 
 	private static void configurePaths(JavaProject javaProject, Context context, JavacConfig compilerConfig,
-	        File output) {
+	        File output, boolean isTest) {
 		JavacFileManager fileManager = (JavacFileManager)context.get(JavaFileManager.class);
 		try {
 			if (compilerConfig != null && !isEmpty(compilerConfig.annotationProcessorPaths())) {
@@ -220,7 +224,7 @@ public class JavacUtils {
 				sourcePathEnabled = true;
 			}
 			if (!sourcePathEnabled) {
-				fileManager.setLocation(StandardLocation.SOURCE_PATH, classpathEntriesToFiles(javaProject, entry -> entry.getEntryKind() == IClasspathEntry.CPE_SOURCE));
+				fileManager.setLocation(StandardLocation.SOURCE_PATH, classpathEntriesToFiles(javaProject, entry -> entry.getEntryKind() == IClasspathEntry.CPE_SOURCE  && (isTest || !entry.isTest())));
 			}
 
 			boolean classpathEnabled = false;
@@ -241,7 +245,7 @@ public class JavacUtils {
 				classpathEnabled = true;
 			}
 			if (!classpathEnabled) {
-				fileManager.setLocation(StandardLocation.CLASS_PATH, classpathEntriesToFiles(javaProject, entry -> entry.getEntryKind() != IClasspathEntry.CPE_SOURCE));
+				fileManager.setLocation(StandardLocation.CLASS_PATH, classpathEntriesToFiles(javaProject, entry -> entry.getEntryKind() != IClasspathEntry.CPE_SOURCE && (isTest || !entry.isTest())));
 			}
 		} catch (Exception ex) {
 			ILog.get().error(ex.getMessage(), ex);
@@ -295,7 +299,27 @@ public class JavacUtils {
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-
 		return file;
+	}
+
+	public static boolean isTest(IJavaProject project, org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] units) {
+		if (units == null || project == null) {
+			return false;
+		}
+		Set<IFolder> testFolders = new HashSet<>();
+		try {
+			for (IClasspathEntry entry : project.getResolvedClasspath(false)) {
+				if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE && entry.isTest()) {
+					testFolders.add(project.getProject().getWorkspace().getRoot().getFolder(entry.getPath()));
+				}
+			}
+			return Arrays.stream(units)
+					.filter(ICompilationUnit.class::isInstance)
+					.map(ICompilationUnit.class::cast)
+					.map(ICompilationUnit::getResource)
+					.anyMatch(file -> testFolders.stream().anyMatch(folder -> folder.getFullPath().isPrefixOf(file.getFullPath())));
+		} catch (Exception ex) {
+			return false;
+		}
 	}
 }
