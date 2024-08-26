@@ -85,5 +85,13 @@ pipeline {
 				}
 			}
 		}
+		stage('trigger JDT-LS with Javac build and tests') {
+			when {
+				branch 'dom-with-javac'
+			}
+			steps {
+				build job: 'jdt-ls-javac'
+			}
+		}
 	}
 }
