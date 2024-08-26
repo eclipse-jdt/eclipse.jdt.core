@@ -429,6 +429,7 @@ class JavacConverter {
 			SimpleName n = (SimpleName)convertName(fieldAccess.getIdentifier());
 			if (n == null) {
 				n = this.ast.newSimpleName(FAKE_IDENTIFIER);
+				n.setFlags(ASTNode.MALFORMED);
 			}
 			commonSettings(n, fieldAccess);
 
@@ -1183,6 +1184,7 @@ class JavacConverter {
 				if (qualifiedName == null) {
 					// when there are syntax errors where the statement is not completed.
 					qualifiedName = this.ast.newSimpleName(FAKE_IDENTIFIER);
+					qualifiedName.setFlags(ASTNode.MALFORMED);
 				}
 				QualifiedName res = this.ast.newQualifiedName(qualifierName, qualifiedName);
 				commonSettings(res, javac);
@@ -1789,11 +1791,13 @@ class JavacConverter {
 				}
 			}
 			var res = this.ast.newSimpleName(FAKE_IDENTIFIER);
+			res.setFlags(ASTNode.MALFORMED);
 			commonSettings(res, javac);
 			return res;
 		}
 		ILog.get().error("Unsupported " + javac + " of type" + (javac == null ? "null" : javac.getClass()));
 		var res = this.ast.newSimpleName(FAKE_IDENTIFIER);
+		res.setFlags(ASTNode.MALFORMED);
 		commonSettings(res, javac);
 		return res;
 	}
@@ -2869,7 +2873,9 @@ class JavacConverter {
 		}
 		if (javac instanceof JCErroneous || javac == null /* when there are syntax errors */) {
 			// returning null could result in upstream errors, so return a fake type
-			return this.ast.newSimpleType(this.ast.newSimpleName(FAKE_IDENTIFIER));
+			var res = this.ast.newSimpleType(this.ast.newSimpleName(FAKE_IDENTIFIER));
+			res.setFlags(ASTNode.MALFORMED);
+			return res;
 		}
 		throw new UnsupportedOperationException("Not supported yet, type " + javac + " of class" + javac.getClass());
 	}
@@ -3153,7 +3159,9 @@ class JavacConverter {
 
 	private Name convertName(com.sun.tools.javac.util.Name javac) {
 		if (javac == null || Objects.equals(javac, Names.instance(this.context).error) || Objects.equals(javac, Names.instance(this.context).empty)) {
-			return this.ast.newSimpleName(FAKE_IDENTIFIER);
+			var res = this.ast.newSimpleName(FAKE_IDENTIFIER);
+			res.setFlags(ASTNode.MALFORMED);
+			return res;
 		}
 		String nameString = javac.toString();
 		int lastDot = nameString.lastIndexOf(".");
@@ -3161,7 +3169,9 @@ class JavacConverter {
 			try {
 				return this.ast.newSimpleName(nameString);
 			} catch (IllegalArgumentException ex) { // invalid name: super, this...
-				return this.ast.newSimpleName(FAKE_IDENTIFIER);
+				var res = this.ast.newSimpleName(FAKE_IDENTIFIER);
+				res.setFlags(ASTNode.MALFORMED);
+				return res;
 			}
 		} else {
 			return this.ast.newQualifiedName(convertName(javac.subName(0, lastDot)), (SimpleName)convertName(javac.subName(lastDot + 1, javac.length() - 1)));
