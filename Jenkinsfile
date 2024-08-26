@@ -90,7 +90,7 @@ pipeline {
 				branch 'dom-with-javac'
 			}
 			steps {
-				build job: 'jdt-ls-javac'
+				build(job: 'jdt-ls-javac', wait: false, propagate: false)
 			}
 		}
 	}
