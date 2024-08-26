@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.lang.model.type.NullType;
@@ -27,20 +28,16 @@ import javax.lang.model.type.TypeKind;
 import javax.tools.JavaFileObject;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
@@ -58,7 +55,6 @@ import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.core.SourceType;
-import org.eclipse.jdt.internal.core.util.Util;
 
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
@@ -192,8 +188,24 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			}
 
 			JavaFileObject jfo = classSymbol == null ? null : classSymbol.sourcefile;
-			ICompilationUnit tmp = jfo == null ? null : getCompilationUnit(jfo.getName().toCharArray(), this.resolver.getWorkingCopyOwner());
-			if( tmp != null ) {
+			ITypeRoot typeRoot = null;
+			if (jfo != null) {
+				var jfoFile = new File(jfo.getName());
+				var jfoPath = new Path(jfo.getName());
+				Stream<IFile> fileStream = jfoFile.isFile()	?
+						Arrays.stream(this.resolver.javaProject.getResource().getWorkspace().getRoot().findFilesForLocationURI(jfoFile.toURI())) :
+						jfoPath.segmentCount() > 1 ?
+							Stream.of(this.resolver.javaProject.getResource().getWorkspace().getRoot().getFile(jfoPath)) :
+							Stream.of();
+				typeRoot = fileStream
+					.map(JavaCore::create)
+					.filter(ITypeRoot.class::isInstance)
+					.map(ITypeRoot.class::cast)
+					.findAny()
+					.orElse(null);
+			}
+			if(typeRoot instanceof ICompilationUnit tmp) {
+				tmp = tmp.findWorkingCopy(this.resolver.getWorkingCopyOwner());
 				String[] cleaned = cleanedUpName(this.type).split("\\$");
 				if( cleaned.length > 0 ) {
 					cleaned[0] = cleaned[0].substring(cleaned[0].lastIndexOf('.') + 1);
@@ -214,31 +226,6 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			} catch (JavaModelException ex) {
 				ILog.get().error(ex.getMessage(), ex);
 			}
-		}
-		return null;
-	}
-
-	private static ICompilationUnit getCompilationUnit(char[] fileName, WorkingCopyOwner workingCopyOwner) {
-		char[] slashSeparatedFileName = CharOperation.replaceOnCopy(fileName, File.separatorChar, '/');
-		int pkgEnd = CharOperation.lastIndexOf('/', slashSeparatedFileName); // pkgEnd is exclusive
-		if (pkgEnd == -1)
-			return null;
-		IPackageFragment pkg = Util.getPackageFragment(slashSeparatedFileName, pkgEnd, -1/*no jar separator for .java files*/);
-		if (pkg != null) {
-			int start;
-			ICompilationUnit cu = pkg.getCompilationUnit(new String(slashSeparatedFileName, start =  pkgEnd+1, slashSeparatedFileName.length - start));
-			if (workingCopyOwner != null) {
-				ICompilationUnit workingCopy = cu.findWorkingCopy(workingCopyOwner);
-				if (workingCopy != null)
-					return workingCopy;
-			}
-			return cu;
-		}
-		IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
-		IFile file = wsRoot.getFile(new Path(String.valueOf(fileName)));
-		if (file.exists()) {
-			// this approach works if file exists but is not on the project's build path:
-			return JavaCore.createCompilationUnitFrom(file);
 		}
 		return null;
 	}
