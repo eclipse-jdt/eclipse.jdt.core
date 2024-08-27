@@ -203,6 +203,11 @@ public class CommentRecorderParser extends Parser {
 		return position;
 	}
 
+	@Override
+	protected void consumeExitTryBlock() {
+		flushCommentsDefinedPriorTo(this.scanner.currentPosition);
+	}
+
 	protected int getCommentPtr() {
 		int lastComment = this.scanner.commentPtr;
 		if (lastComment == -1 && this.currentElement != null) {
