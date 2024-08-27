@@ -27,11 +27,14 @@ import java.util.stream.Collectors;
 import javax.tools.JavaFileManager;
 import javax.tools.StandardLocation;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -306,20 +309,21 @@ public class JavacUtils {
 		if (units == null || project == null) {
 			return false;
 		}
-		Set<IFolder> testFolders = new HashSet<>();
+		Set<IPath> testFolders = new HashSet<>();
 		try {
 			for (IClasspathEntry entry : project.getResolvedClasspath(false)) {
 				if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE && entry.isTest()) {
-					testFolders.add(project.getProject().getWorkspace().getRoot().getFolder(entry.getPath()));
+					testFolders.add(entry.getPath());
 				}
 			}
 			return Arrays.stream(units)
-					.filter(ICompilationUnit.class::isInstance)
-					.map(ICompilationUnit.class::cast)
-					.map(ICompilationUnit::getResource)
-					.anyMatch(file -> testFolders.stream().anyMatch(folder -> folder.getFullPath().isPrefixOf(file.getFullPath())));
-		} catch (Exception ex) {
-			return false;
+					.map(org.eclipse.jdt.internal.compiler.env.ICompilationUnit::getFileName)
+					.map(String::new)
+					.map(Path::new)
+					.anyMatch(file -> testFolders.stream().anyMatch(folder -> folder.isPrefixOf(file)));
+		}  catch (JavaModelException ex) {
+			ILog.get().error(ex.getMessage(), ex);
+			return true;
 		}
 	}
 }
