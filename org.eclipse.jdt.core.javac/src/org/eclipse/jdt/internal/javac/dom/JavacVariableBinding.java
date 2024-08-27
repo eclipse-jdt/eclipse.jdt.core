@@ -92,7 +92,7 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public boolean isRecovered() {
-		return this.variableSymbol.kind == Kinds.Kind.ERR || this.variableSymbol.type instanceof Type.ErrorType;
+		return this.variableSymbol.kind == Kinds.Kind.ERR || this.variableSymbol.type == null || this.variableSymbol.type instanceof Type.ErrorType;
 	}
 
 	@Override
@@ -130,6 +130,7 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 			}
 		}
 		if (this.variableSymbol.owner instanceof TypeSymbol parentType // field
+			&& parentType.type != null
 			&& this.resolver.bindings.getTypeBinding(parentType.type).getJavaElement() instanceof IType type) {
 			return type.getField(this.variableSymbol.name.toString());
 		}
@@ -206,7 +207,9 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 				if( clazz.name.toString().equals("Array") && clazz.owner != null && clazz.owner.kind == Kinds.Kind.NIL) {
 					return null;
 				}
-				return this.resolver.bindings.getTypeBinding(clazz.type);
+				if (clazz.type != null) {
+					return this.resolver.bindings.getTypeBinding(clazz.type);
+				}
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);

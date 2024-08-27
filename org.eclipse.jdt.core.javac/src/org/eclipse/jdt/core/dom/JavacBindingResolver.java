@@ -245,6 +245,9 @@ public class JavacBindingResolver extends BindingResolver {
 			return getTypeBinding(type, tree instanceof JCClassDecl);
 		}
 		public JavacTypeBinding getTypeBinding(com.sun.tools.javac.code.Type type) {
+			if (type == null) {
+				return null;
+			}
 			return getTypeBinding(type.baseType() /* remove metadata for constant values */, false);
 		}
 		public JavacTypeBinding getTypeBinding(com.sun.tools.javac.code.Type type, boolean isDeclaration) {
@@ -299,6 +302,9 @@ public class JavacBindingResolver extends BindingResolver {
 		//
 		private Map<String, JavacVariableBinding> variableBindings = new HashMap<>();
 		public JavacVariableBinding getVariableBinding(VarSymbol varSymbol) {
+			if (varSymbol == null) {
+				return null;
+			}
 			JavacVariableBinding newInstance = new JavacVariableBinding(varSymbol, JavacBindingResolver.this) { };
 			String k = newInstance.getKey();
 			if( k != null ) {
@@ -480,7 +486,7 @@ public class JavacBindingResolver extends BindingResolver {
 		if (value instanceof JCTree.JCMethodDecl jcMethodDecl) {
 			return Optional.ofNullable(jcMethodDecl.sym);
 		}
-		if (value instanceof JCTree.JCTypeParameter jcTypeParam) {
+		if (value instanceof JCTree.JCTypeParameter jcTypeParam && jcTypeParam.type != null) {
 			return Optional.ofNullable(jcTypeParam.type.tsym);
 		}
 		if (value instanceof JCIdent ident) {
@@ -1005,7 +1011,7 @@ public class JavacBindingResolver extends BindingResolver {
 		if( name.getParent() instanceof AnnotatableType st && st.getParent() instanceof ParameterizedType pt) {
 			if( st == pt.getType()) {
 				tree = this.converter.domToJavac.get(pt);
-				if (!tree.type.isErroneous()) {
+				if (tree.type != null && !tree.type.isErroneous()) {
 					IBinding b = this.bindings.getTypeBinding(tree.type, isTypeDeclaration);
 					if( b != null ) {
 						return b;
@@ -1351,6 +1357,7 @@ public class JavacBindingResolver extends BindingResolver {
 
 	@Override
 	public ITypeBinding resolveWellKnownType(String typeName) {
+		resolve(); // could be skipped, but this method is used by ReconcileWorkingCopyOperation to generate errors
 		com.sun.tools.javac.code.Symtab symtab = com.sun.tools.javac.code.Symtab.instance(this.context);
 		com.sun.tools.javac.code.Type type = switch (typeName) {
 		case "byte", "java.lang.Byte" -> symtab.byteType;
