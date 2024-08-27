@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -24,7 +28,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ast.CaseStatement.ResolvedCase;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
@@ -88,6 +94,7 @@ public class SwitchStatement extends Expression {
 	public final static int TotalPattern = ASTNode.Bit3;
 	public final static int Exhaustive = ASTNode.Bit4;
 	public final static int QualifiedEnum = ASTNode.Bit5;
+	public final static int Primitive = ASTNode.Bit6;
 
 	// for switch on strings
 	private static final char[] SecretStringVariableName = " switchDispatchString".toCharArray(); //$NON-NLS-1$
@@ -954,7 +961,7 @@ public class SwitchStatement extends Expression {
 
 	private void generateCodeSwitchPatternPrologue(BlockScope currentScope, CodeStream codeStream) {
 		this.expression.generateCode(currentScope, codeStream, true);
-		if ((this.switchBits & NullCase) == 0) {
+		if ((this.switchBits & NullCase) == 0 && (this.switchBits & Primitive) == 0) {
 			codeStream.dup();
 			codeStream.invokeJavaUtilObjectsrequireNonNull();
 			codeStream.pop();
@@ -984,6 +991,18 @@ public class SwitchStatement extends Expression {
 			if (hasQualifiedEnums) {
 				c.index = i;
 			}
+			if ((this.switchBits & Primitive) != 0) {
+				Object token = null;
+				if (c.isPattern()) {
+					token = ClassFile.PRIMITIVE_CLASS__TOKEN;
+				} else if (c.t.id == TypeIds.T_boolean) {
+					token = ClassFile.GET_STATIC_FINAL__TOKEN;
+				}
+				if (token != null) {
+					c.primitivesBootstrapIdx = codeStream.classFile.recordBootstrapMethodForPrimitiveHandling(token);
+				}
+				continue;
+			}
 			if (!c.isQualifiedEnum())
 				continue;
 			int classdescIdx = codeStream.classFile.recordBootstrapMethod(c.t);
@@ -993,12 +1012,14 @@ public class SwitchStatement extends Expression {
 		}
 	}
 	private void generateTypeSwitchPatternPrologue(CodeStream codeStream, int invokeDynamicNumber) {
+		char[] signature = (this.switchBits & Primitive) != 0
+				? "(XI)I".replace("X", String.valueOf(this.expression.resolvedType.signature())).toCharArray() //$NON-NLS-1$ //$NON-NLS-2$
+				: "(Ljava/lang/Object;I)I".toCharArray(); //$NON-NLS-1$
 		codeStream.invokeDynamic(invokeDynamicNumber,
-				2, // Object, restartIndex
+				2, // Object / PRIM, restartIndex (PRIM = Z|S|I..)
 				1, // int
 				ConstantPool.TYPESWITCH,
-				"(Ljava/lang/Object;I)I".toCharArray(), //$NON-NLS-1$
-				TypeIds.T_int,
+				signature,
 				TypeBinding.INT);
 	}
 	private void generateEnumSwitchPatternPrologue(CodeStream codeStream, int invokeDynamicNumber) {
@@ -1009,7 +1030,6 @@ public class SwitchStatement extends Expression {
 				1, // int
 				"enumSwitch".toCharArray(), //$NON-NLS-1$
 				callingParams.toCharArray(),
-				TypeIds.T_int,
 				TypeBinding.INT);
 	}
 	protected void statementGenerateCode(BlockScope currentScope, CodeStream codeStream, Statement statement) {
@@ -1089,6 +1109,9 @@ public class SwitchStatement extends Expression {
 						expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
 						break checkType;
 					} else if (expressionType.isBaseType()) {
+						if (JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(compilerOptions)) {
+							this.switchBits |= Primitive;
+						}
 						if (this.expression.isConstantValueOfTypeAssignableToType(expressionType, TypeBinding.INT))
 							break checkType;
 						if (expressionType.isCompatibleWith(TypeBinding.INT))
@@ -1112,8 +1135,10 @@ public class SwitchStatement extends Expression {
 						break checkType;
 					}
 					if (!JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions) || (expressionType.isBaseType() && expressionType.id != T_null && expressionType.id != T_void)) {
-						upperScope.problemReporter().incorrectSwitchType(this.expression, expressionType);
-						expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
+						if ((this.switchBits & Primitive) == 0) { // when Primitive is set it is approved above
+							upperScope.problemReporter().incorrectSwitchType(this.expression, expressionType);
+							expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
+						}
 					} else {
 						this.isNonTraditional = true;
 					}
