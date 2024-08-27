@@ -393,6 +393,15 @@ class JavadocConverter {
 		res.setText(strippedLeading);
 		return res;
 	}
+	
+	private TextElement toTextElementPreserveWhitespace(Region line) {
+		TextElement res = this.ast.newTextElement();
+		String suggestedText = this.javacConverter.rawText.substring(line.startOffset, line.startOffset + line.length);
+		res.setSourceRange(line.startOffset, line.length);
+		res.setText(suggestedText);
+		return res;
+	}
+
 
 	private Stream<Region> splitLines(DCText text) {
 		return splitLines(text.getBody(), text.getStartPosition(), text.getEndPosition());
@@ -461,7 +470,7 @@ class JavadocConverter {
 				String tagName = suggestedText.substring(1, firstWhite).trim();
 				TagElement res = this.ast.newTagElement();
 				res.setTagName(tagName);
-				res.fragments.add(toTextElement(new Region(line.startOffset + firstWhite + 1, closeBracket - firstWhite - 1)));
+				res.fragments.add(toTextElementPreserveWhitespace(new Region(line.startOffset + firstWhite, closeBracket - firstWhite)));
 				res.setSourceRange(line.startOffset, closeBracket);
 				if( postElement == null )
 					return Stream.of(res);

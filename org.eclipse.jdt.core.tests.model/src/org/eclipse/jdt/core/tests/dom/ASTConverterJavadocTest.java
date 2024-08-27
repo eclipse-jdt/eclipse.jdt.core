@@ -3356,7 +3356,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		verifyComments(unit);
 	}
 
-	@JavacTestIgnore(cause=JavacTestIgnore.VALID_ALTERNATIVE_IMPL)
 	public void testBug347100() throws Exception {
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug347100", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		CompilationUnit compilUnit = verifyComments(unit);
