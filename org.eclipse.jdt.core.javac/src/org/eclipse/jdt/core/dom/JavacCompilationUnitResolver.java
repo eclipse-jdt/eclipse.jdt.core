@@ -139,7 +139,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 		// parse source units
 		Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> res =
-				parse(sourceUnitList.toArray(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[]::new), apiLevel, compilerOptions, flags, (IJavaProject)null, null, monitor);
+				parse(sourceUnitList.toArray(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[]::new), apiLevel, compilerOptions, true, flags, (IJavaProject)null, null, monitor);
 
 		for (var entry : res.entrySet()) {
 			CompilationUnit cu = entry.getValue();
@@ -160,7 +160,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 	public void resolve(ICompilationUnit[] compilationUnits, String[] bindingKeys, ASTRequestor requestor, int apiLevel,
 			Map<String, String> compilerOptions, IJavaProject project, WorkingCopyOwner workingCopyOwner, int flags,
 			IProgressMonitor monitor) {
-		Map<ICompilationUnit, CompilationUnit> units = parse(compilationUnits, apiLevel, compilerOptions, flags, workingCopyOwner, monitor);
+		Map<ICompilationUnit, CompilationUnit> units = parse(compilationUnits, apiLevel, compilerOptions, true, flags, workingCopyOwner, monitor);
 		if (requestor != null) {
 			final JavacBindingResolver[] bindingResolver = new JavacBindingResolver[1];
 			bindingResolver[0] = null;
@@ -347,14 +347,14 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					.filter(Objects::nonNull)
 					.findFirst()
 					.orElse(null);
-		Map<ICompilationUnit, CompilationUnit>  units = parse(compilationUnits, apiLevel, compilerOptions, flags, workingCopyOwner, monitor);
+		Map<ICompilationUnit, CompilationUnit>  units = parse(compilationUnits, apiLevel, compilerOptions, (flags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0, flags, workingCopyOwner, monitor);
 		if (requestor != null) {
 			units.forEach(requestor::acceptAST);
 		}
 	}
 
 	private Map<ICompilationUnit, CompilationUnit> parse(ICompilationUnit[] compilationUnits, int apiLevel,
-			Map<String, String> compilerOptions, int flags, WorkingCopyOwner workingCopyOwner, IProgressMonitor monitor) {
+			Map<String, String> compilerOptions, boolean resolveBindings, int flags, WorkingCopyOwner workingCopyOwner, IProgressMonitor monitor) {
 		// TODO ECJCompilationUnitResolver has support for dietParse and ignore method body
 		// is this something we need?
 		if (compilationUnits.length > 0
@@ -365,7 +365,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				parse(Arrays.stream(compilationUnits)
 						.map(org.eclipse.jdt.internal.compiler.env.ICompilationUnit.class::cast)
 						.toArray(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[]::new),
-					apiLevel, compilerOptions, flags, compilationUnits[0].getJavaProject(), workingCopyOwner, monitor)
+					apiLevel, compilerOptions, resolveBindings, flags, compilationUnits[0].getJavaProject(), workingCopyOwner, monitor)
 				.entrySet().stream().collect(Collectors.toMap(entry -> (ICompilationUnit)entry.getKey(), entry -> entry.getValue()));
 			for (ICompilationUnit in : compilationUnits) {
 				res.get(in).setTypeRoot(in);
@@ -377,7 +377,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		for (ICompilationUnit in : compilationUnits) {
 			if (in instanceof org.eclipse.jdt.internal.compiler.env.ICompilationUnit compilerUnit) {
 				res.put(in, parse(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] { compilerUnit },
-						apiLevel, compilerOptions, flags, in.getJavaProject(), workingCopyOwner, monitor).get(compilerUnit));
+						apiLevel, compilerOptions, resolveBindings, flags, in.getJavaProject(), workingCopyOwner, monitor).get(compilerUnit));
 				res.get(in).setTypeRoot(in);
 			}
 		}
@@ -391,7 +391,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		for( int i = 0; i < sourceFilePaths.length; i++ ) {
 			org.eclipse.jdt.internal.compiler.env.ICompilationUnit ast = createSourceUnit(sourceFilePaths[i], encodings[i]);
 			Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> res =
-					parse(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] {ast}, apiLevel, compilerOptions, flags, (IJavaProject)null, null, monitor);
+					parse(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] {ast}, apiLevel, compilerOptions, (flags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0, flags, (IJavaProject)null, null, monitor);
 			CompilationUnit result = res.get(ast);
 			requestor.acceptAST(sourceFilePaths[i], result);
 		}
@@ -434,7 +434,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 	@Override
 	public CompilationUnit toCompilationUnit(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
-			boolean initialNeedsToResolveBinding, IJavaProject project, List<Classpath> classpaths,
+			boolean resolveBindings, IJavaProject project, List<Classpath> classpaths,
 			int focalPoint, int apiLevel, Map<String, String> compilerOptions,
 			WorkingCopyOwner workingCopyOwner, WorkingCopyOwner typeRootWorkingCopyOwner, int flags, IProgressMonitor monitor) {
 
@@ -455,9 +455,8 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 		// TODO currently only parse
 		CompilationUnit res = parse(pathToUnit.values().toArray(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[]::new),
-				apiLevel, compilerOptions, flags, project, workingCopyOwner, monitor).get(sourceUnit);
-		if (initialNeedsToResolveBinding) {
-			((JavacBindingResolver)res.ast.getBindingResolver()).isRecoveringBindings = (flags & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0;
+				apiLevel, compilerOptions, resolveBindings, flags, project, workingCopyOwner, monitor).get(sourceUnit);
+		if (resolveBindings) {
 			resolveBindings(res, apiLevel);
 		}
 		// For comparison
@@ -474,7 +473,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 	}
 
 	private Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> parse(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] sourceUnits, int apiLevel, Map<String, String> compilerOptions,
-			int flags, IJavaProject javaProject, WorkingCopyOwner workingCopyOwner, IProgressMonitor monitor) {
+			boolean resolveBindings, int flags, IJavaProject javaProject, WorkingCopyOwner workingCopyOwner, IProgressMonitor monitor) {
 		if (sourceUnits.length == 0) {
 			return Collections.emptyMap();
 		}
@@ -661,7 +660,11 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					addCommentsToUnit(javadocComments, res);
 					addCommentsToUnit(converter.notAttachedComments, res);
 					attachMissingComments(res, context, rawText, converter, compilerOptions);
-					ast.setBindingResolver(new JavacBindingResolver(javaProject, task, context, converter, workingCopyOwner));
+					if (resolveBindings) {
+						JavacBindingResolver resolver = new JavacBindingResolver(javaProject, task, context, converter, workingCopyOwner);
+						resolver.isRecoveringBindings = (flags & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0;
+						ast.setBindingResolver(resolver);
+					}
 					//
 					ast.setOriginalModificationCount(ast.modificationCount()); // "un-dirty" AST so Rewrite can process it
 					ast.setDefaultNodeFlag(ast.getDefaultNodeFlag() & ~ASTNode.ORIGINAL);
