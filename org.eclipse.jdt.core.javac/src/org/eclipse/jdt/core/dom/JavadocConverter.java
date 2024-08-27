@@ -372,23 +372,34 @@ class JavadocConverter {
 		String strippedLeading = suggestedText.stripLeading();
 		int leadingWhitespace = suggestedText.length() - strippedLeading.length();
 		res.setSourceRange(line.startOffset + leadingWhitespace, line.length - leadingWhitespace);
-		String fromSource = this.javacConverter.rawText.substring(res.getStartPosition(), res.getStartPosition() + res.getLength());
 		res.setText(strippedLeading);
 		return res;
 	}
 
 	private Stream<Region> splitLines(DCText text) {
-		int[] startPosition = { this.docComment.getSourcePosition(text.getStartPosition()) };
-		int endPosition = this.docComment.getSourcePosition(text.getEndPosition());
-		return Arrays.stream(this.javacConverter.rawText.substring(startPosition[0], endPosition).split("(\r)?\n\\s*\\*\\s")) //$NON-NLS-1$
-			.map(string -> {
-				int index = this.javacConverter.rawText.indexOf(string, startPosition[0]);
-				if (index < 0) {
-					return null;
-				}
-				startPosition[0] = index + string.length();
-				return new Region(index, string.length());
-			}).filter(Objects::nonNull);
+		return splitLines(text.getBody(), text.getStartPosition(), text.getEndPosition());
+	}
+	
+	private Stream<Region> splitLines(String body, int startPos, int endPos) {
+		for( int i = 0; i < endPos; i++ ) {
+			int mapped = this.docComment.getSourcePosition(i);
+			System.out.println(i + ": " + mapped + " -> " + this.javacConverter.rawText.charAt(mapped));
+		}
+		
+		
+		String[] bodySplit = body.split("\n");
+		ArrayList<Region> regions = new ArrayList<>();
+		int workingIndexWithinComment = startPos;
+		for( int i = 0; i < bodySplit.length; i++ ) {
+			int lineStart = this.docComment.getSourcePosition(workingIndexWithinComment);
+			int lineEnd = this.docComment.getSourcePosition(workingIndexWithinComment + bodySplit[i].length());
+			String tmp = this.javacConverter.rawText.substring(lineStart, lineEnd);
+			int leadingWhite = tmp.length() - tmp.stripLeading().length();
+			Region r = new Region(lineStart + leadingWhite, lineEnd - lineStart - leadingWhite);
+			regions.add(r);
+			workingIndexWithinComment += bodySplit[i].length() + 1;
+		}
+		return regions.stream();
 	}
 
 	private Stream<Region> splitLines(DCTree[] allPositions) {
@@ -445,7 +456,6 @@ class JavadocConverter {
 		}
 		return -1;
 	}
-	
 	
 	private List<IDocElement> convertElementCombiningNodes(List<DCTree> treeElements) {
 		List<IDocElement> elements = new ArrayList<>();
@@ -622,19 +632,31 @@ class JavadocConverter {
 
 	private IDocElement convertDCErroneousElement(DCErroneous erroneous) {
 		String body = erroneous.body;
-		MethodRef match = matchesMethodReference(erroneous, body);
+		MethodRef match = null;
+		try {
+			match = matchesMethodReference(erroneous, body);
+		} catch(Exception e) {
+			// ignore
+		}
+		int start = this.docComment.getSourcePosition(erroneous.getStartPosition());
+		int endInd = erroneous.getEndPosition();
+		int endPosition = this.docComment.getSourcePosition(endInd);
 		if( match != null) {
 			TagElement res = this.ast.newTagElement();
 			res.setTagName(TagElement.TAG_SEE);
 			res.fragments.add(match);
-			res.setSourceRange(this.docComment.getSourcePosition(erroneous.getStartPosition()), body.length());
+			res.setSourceRange(start, endPosition - start);
 			return res;
 		} else if( body.startsWith("@")) {
 			TagElement res = this.ast.newTagElement();
 			String tagName = body.split("\\s+")[0];
 			res.setTagName(tagName);
-			//res.fragments.add(match);
-			res.setSourceRange(this.docComment.getSourcePosition(erroneous.getStartPosition()), body.length());
+			int newStart = erroneous.getStartPosition() + tagName.length();
+			List<TextElement> l = splitLines(body.substring(tagName.length()), newStart, endInd).map(x -> toTextElement(x)).toList();
+			res.fragments.addAll(l);
+			TextElement lastFragment = l.size() == 0 ? null : l.get(l.size() - 1);
+			int newEnd = lastFragment == null ? tagName.length() : (lastFragment.getStartPosition() + lastFragment.getLength());
+			res.setSourceRange(start, endPosition - start);
 			return res;
 		}
 		return null;

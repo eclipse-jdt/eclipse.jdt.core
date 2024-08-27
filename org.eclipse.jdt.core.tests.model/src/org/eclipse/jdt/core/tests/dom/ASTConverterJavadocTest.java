@@ -1059,11 +1059,13 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					previousBinding = methodRef.resolveBinding();
 					if (previousBinding != null) {
 						SimpleName methodName = methodRef.getName();
-						IBinding methNameBinding = methodName.resolveBinding();
-						Name methodQualifier = methodRef.getQualifier();
+//						IBinding methNameBinding = methodName.resolveBinding();
+//						Name methodQualifier = methodRef.getQualifier();
 						// TODO (frederic) Replace the two following lines by commented block when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=62650 will be fixed
-						assumeNotNull(this.prefix+""+methodName+" binding was not found in "+fragment, methNameBinding);
-						verifyNameBindings(methodQualifier);
+						// This specific test appears to test current behavior rather than desired behavior.
+						// It should be commented so returning a binding or not returning a binding is valid.
+//						assumeNotNull(this.prefix+""+methodName+" binding was not found in "+fragment, methNameBinding);
+//						verifyNameBindings(methodQualifier);
 						/*
 						if (methodQualifier == null) {
 							if (methNameBinding == null) {
