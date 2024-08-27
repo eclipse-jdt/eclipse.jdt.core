@@ -181,6 +181,7 @@ public class ImportDeclaration extends ASTNode {
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST below JLS23
 	 * @since 3.39
+	 * @noreference preview feature
 	 */
 	public List modifiers() {
 		if (this.ast.apiLevel < AST.JLS23_INTERNAL)
@@ -202,6 +203,7 @@ public class ImportDeclaration extends ASTNode {
 	 * @return the bit-wise "or" of <code>Modifier</code> constants
 	 * @see Modifier
 	 * @since 3.39
+	 * @noreference preview feature
 	 */
 	public int getModifiers() {
 		if (this.modifiers == null) {

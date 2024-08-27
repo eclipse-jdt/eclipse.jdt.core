@@ -807,6 +807,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 *
 	 * @return true if the receiver is the module modifier, false otherwise
 	 * @since 3.39
+	 * @noreference preview feature
 	 */
 	public static boolean isModule(int flags) {
 		return (flags & Modifier.MODULE) != 0;
