@@ -2703,6 +2703,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * Bug 99507: [javadoc] Infinit loop in DocCommentParser
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=99507"
 	 */
+	@JavacTestIgnore(cause=JavacTestIgnore.JDT_VIOLATES_SPEC)
 	public void testBug99507() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b99507/X.java",

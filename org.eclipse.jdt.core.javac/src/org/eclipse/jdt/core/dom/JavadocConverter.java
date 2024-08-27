@@ -406,7 +406,10 @@ class JavadocConverter {
 		if( allPositions.length > 0 ) {
 			int[] startPosition = { this.docComment.getSourcePosition(allPositions[0].getStartPosition()) };
 			int endPosition = this.docComment.getSourcePosition(allPositions[allPositions.length - 1].getEndPosition());
-			return Arrays.stream(this.javacConverter.rawText.substring(startPosition[0], endPosition).split("(\r)?\n\\s*\\*\\s")) //$NON-NLS-1$
+			String sub = this.javacConverter.rawText.substring(startPosition[0], endPosition);
+			String[] split = sub.split("(\r)?\n\\s*[*][ \t]*");
+			return Arrays.stream(split)
+				.filter(x -> x.length() > 0)//$NON-NLS-1$
 				.map(string -> {
 					int index = this.javacConverter.rawText.indexOf(string, startPosition[0]);
 					if (index < 0) {
