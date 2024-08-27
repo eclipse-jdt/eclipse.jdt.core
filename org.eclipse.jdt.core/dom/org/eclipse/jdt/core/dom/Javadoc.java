@@ -334,6 +334,7 @@ public class Javadoc extends Comment {
 	 * @return <code>true</code> if this is a markdown comment,
 	 *    and <code>false</code> if this is a traditional javadoc comment.
 	 * @since 3.39
+	 * @noreference preview feature
 	 */
 	public boolean isMarkdown() {
 		if (this.ast.apiLevel < AST.JLS23_INTERNAL) {
@@ -348,6 +349,7 @@ public class Javadoc extends Comment {
 	 * @param isMarkdown <code>true</code> if this is a markdown comment,
 	 *    and <code>false</code> if this is a traditional javadoc comment.
 	 * @since 3.39
+	 * @noreference preview feature
 	 */
 	public void setMarkdown(boolean isMarkdown) {
 		if (this.ast.apiLevel < AST.JLS23_INTERNAL) {
