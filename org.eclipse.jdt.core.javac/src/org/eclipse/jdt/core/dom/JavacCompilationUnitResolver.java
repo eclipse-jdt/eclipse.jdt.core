@@ -567,7 +567,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		List<JavaFileObject> fileObjects = new ArrayList<>(); // we need an ordered list of them
 		for (var sourceUnit : sourceUnits) {
 			File unitFile;
-			if (javaProject != null) {
+			if (javaProject != null && javaProject.getResource() != null) {
 				// path is relative to the workspace, make it absolute
 				IResource asResource = javaProject.getProject().getParent().findMember(new String(sourceUnit.getFileName()));
 				if (asResource != null) {

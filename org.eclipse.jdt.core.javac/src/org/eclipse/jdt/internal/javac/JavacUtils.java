@@ -306,7 +306,7 @@ public class JavacUtils {
 	}
 
 	public static boolean isTest(IJavaProject project, org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] units) {
-		if (units == null || project == null) {
+		if (units == null || project == null || project.getResource() == null) {
 			return false;
 		}
 		Set<IPath> testFolders = new HashSet<>();
