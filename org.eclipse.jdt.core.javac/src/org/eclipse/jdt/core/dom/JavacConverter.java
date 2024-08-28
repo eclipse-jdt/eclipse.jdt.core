@@ -429,7 +429,7 @@ class JavacConverter {
 			SimpleName n = (SimpleName)convertName(fieldAccess.getIdentifier());
 			if (n == null) {
 				n = this.ast.newSimpleName(FAKE_IDENTIFIER);
-				n.setFlags(ASTNode.MALFORMED);
+				n.setFlags(ASTNode.RECOVERED);
 			}
 			commonSettings(n, fieldAccess);
 
@@ -1184,7 +1184,7 @@ class JavacConverter {
 				if (qualifiedName == null) {
 					// when there are syntax errors where the statement is not completed.
 					qualifiedName = this.ast.newSimpleName(FAKE_IDENTIFIER);
-					qualifiedName.setFlags(ASTNode.MALFORMED);
+					qualifiedName.setFlags(ASTNode.RECOVERED);
 				}
 				QualifiedName res = this.ast.newQualifiedName(qualifierName, qualifiedName);
 				commonSettings(res, javac);
@@ -1791,13 +1791,13 @@ class JavacConverter {
 				}
 			}
 			var res = this.ast.newSimpleName(FAKE_IDENTIFIER);
-			res.setFlags(ASTNode.MALFORMED);
+			res.setFlags(ASTNode.RECOVERED);
 			commonSettings(res, javac);
 			return res;
 		}
 		ILog.get().error("Unsupported " + javac + " of type" + (javac == null ? "null" : javac.getClass()));
 		var res = this.ast.newSimpleName(FAKE_IDENTIFIER);
-		res.setFlags(ASTNode.MALFORMED);
+		res.setFlags(ASTNode.RECOVERED);
 		commonSettings(res, javac);
 		return res;
 	}
@@ -2874,7 +2874,7 @@ class JavacConverter {
 		if (javac instanceof JCErroneous || javac == null /* when there are syntax errors */) {
 			// returning null could result in upstream errors, so return a fake type
 			var res = this.ast.newSimpleType(this.ast.newSimpleName(FAKE_IDENTIFIER));
-			res.setFlags(ASTNode.MALFORMED);
+			res.setFlags(ASTNode.RECOVERED);
 			return res;
 		}
 		throw new UnsupportedOperationException("Not supported yet, type " + javac + " of class" + javac.getClass());
@@ -3160,7 +3160,7 @@ class JavacConverter {
 	private Name convertName(com.sun.tools.javac.util.Name javac) {
 		if (javac == null || Objects.equals(javac, Names.instance(this.context).error) || Objects.equals(javac, Names.instance(this.context).empty)) {
 			var res = this.ast.newSimpleName(FAKE_IDENTIFIER);
-			res.setFlags(ASTNode.MALFORMED);
+			res.setFlags(ASTNode.RECOVERED);
 			return res;
 		}
 		String nameString = javac.toString();
@@ -3170,7 +3170,7 @@ class JavacConverter {
 				return this.ast.newSimpleName(nameString);
 			} catch (IllegalArgumentException ex) { // invalid name: super, this...
 				var res = this.ast.newSimpleName(FAKE_IDENTIFIER);
-				res.setFlags(ASTNode.MALFORMED);
+				res.setFlags(ASTNode.RECOVERED);
 				return res;
 			}
 		} else {

@@ -718,11 +718,6 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		return result;
 	}
 
-	private JavacConfig isTest(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] sourceUnits) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	private void addProblemsToDOM(CompilationUnit dom, Collection<CategorizedProblem> problems) {
 		if (problems == null) {
 			return;
