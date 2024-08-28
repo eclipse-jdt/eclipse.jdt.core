@@ -39,7 +39,6 @@ import org.eclipse.jdt.internal.javac.dom.JavacTypeBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacTypeVariableBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacVariableBinding;
 
-import com.sun.source.doctree.DocTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.util.DocTreePath;
 import com.sun.source.util.JavacTask;
@@ -552,10 +551,17 @@ public class JavacBindingResolver extends BindingResolver {
 		if (type instanceof PrimitiveType primitive) { // a type can be requested even if there is no token for it in JCTree
 			return resolveWellKnownType(primitive.getPrimitiveTypeCode().toString());
 		}
-		if (type.isVar() && type.getParent() instanceof VariableDeclaration varDecl) {
-			IVariableBinding varBinding = resolveVariable(varDecl);
-			if (varBinding != null) {
-				return varBinding.getType();
+		if (type.isVar()) {
+			if (type.getParent() instanceof VariableDeclaration varDecl) {
+				IVariableBinding varBinding = resolveVariable(varDecl);
+				if (varBinding != null) {
+					return varBinding.getType();
+				}
+			}
+			if (type.getParent() instanceof VariableDeclarationStatement statement &&
+				this.converter.domToJavac.get(statement) instanceof JCVariableDecl jcDecl &&
+				jcDecl.type != null) {
+				return this.bindings.getTypeBinding(jcDecl.type);
 			}
 		}
 		// Recovery: sometime with Javac, there is no suitable type/symbol
