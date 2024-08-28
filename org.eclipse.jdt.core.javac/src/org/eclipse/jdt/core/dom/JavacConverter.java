@@ -557,20 +557,18 @@ class JavacConverter {
 				List<JCTree> members = javacClassDecl.getMembers();
 				ASTNode previous = null;
 				for( int i = 0; i < members.size(); i++ ) {
-					if( !matchesFailedPackageFieldDecl(i == 0 ? null : members.get(i-1), members.get(i))) {
-						ASTNode decl = convertBodyDeclaration(members.get(i), res);
-						if( decl != null ) {
-							typeDeclaration.bodyDeclarations().add(decl);
-							if( previous != null ) {
-								int istart = decl.getStartPosition();
-								int siblingEnds = previous.getStartPosition() + previous.getLength();
-								if( siblingEnds > istart ) {
-									previous.setSourceRange(previous.getStartPosition(), istart - previous.getStartPosition()-1);
-								}
+					ASTNode decl = convertBodyDeclaration(members.get(i), res);
+					if( decl != null ) {
+						typeDeclaration.bodyDeclarations().add(decl);
+						if( previous != null ) {
+							int istart = decl.getStartPosition();
+							int siblingEnds = previous.getStartPosition() + previous.getLength();
+							if( siblingEnds > istart ) {
+								previous.setSourceRange(previous.getStartPosition(), istart - previous.getStartPosition()-1);
 							}
 						}
-						previous = decl;
 					}
+					previous = decl;
 				}
 			}
 		} else if (res instanceof EnumDeclaration enumDecl) {
@@ -640,22 +638,6 @@ class JavacConverter {
 			}
 		}
 		return res;
-	}
-
-	/* 
-	 * Check for a specific case where an input has `package B;` in a place
-	 * expecting a field declaration 
-	 */
-	private boolean matchesFailedPackageFieldDecl(JCTree prev, JCTree curr) {
-		if( prev instanceof JCVariableDecl prevTree && curr instanceof JCVariableDecl currTree) {
-			if( matchesFieldErrorNameNoType(prevTree)) {
-				String nameString = currTree == null ? null : currTree.name == null ? null : currTree.name.toString();
-				if (ERROR.equals(nameString) || FAKE_IDENTIFIER.equals(nameString)) {
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 
 	private TypeParameter convert(JCTypeParameter typeParameter) {
@@ -1062,23 +1044,7 @@ class JavacConverter {
 		return fragment;
 	}
 
-	private boolean matchesFieldErrorNameNoType(JCVariableDecl javac) {
-		String nameString = javac == null ? null : javac.name == null ? null : javac.name.toString();
-		if (ERROR.equals(nameString) || FAKE_IDENTIFIER.equals(nameString)) {
-			if( javac.vartype instanceof JCErroneous jcer) {
-				if( jcer.type == null ) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
 	private FieldDeclaration convertFieldDeclaration(JCVariableDecl javac, ASTNode parent) {
-		if( matchesFieldErrorNameNoType(javac)) {
-			return null;
-		}
-		
 		VariableDeclarationFragment fragment = createVariableDeclarationFragment(javac);
 		List<ASTNode> sameStartPosition = new ArrayList<>();
 		if( parent instanceof AbstractTypeDeclaration decl) {
