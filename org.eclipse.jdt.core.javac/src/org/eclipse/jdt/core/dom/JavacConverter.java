@@ -3158,10 +3158,13 @@ class JavacConverter {
 
 
 	private Name convertName(com.sun.tools.javac.util.Name javac) {
-		if (javac == null || Objects.equals(javac, Names.instance(this.context).error) || Objects.equals(javac, Names.instance(this.context).empty)) {
+		if (javac == null || Objects.equals(javac, Names.instance(this.context).error)) {
 			var res = this.ast.newSimpleName(FAKE_IDENTIFIER);
 			res.setFlags(ASTNode.RECOVERED);
 			return res;
+		}
+		if (Objects.equals(javac, Names.instance(this.context).empty)) {
+			return this.ast.newSimpleName("_");
 		}
 		String nameString = javac.toString();
 		int lastDot = nameString.lastIndexOf(".");
