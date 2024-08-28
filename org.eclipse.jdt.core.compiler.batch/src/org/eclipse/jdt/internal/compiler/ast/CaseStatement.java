@@ -389,7 +389,8 @@ private Constant resolveCasePattern(BlockScope scope, TypeBinding caseType, Type
 				switchStatement.totalPattern = e;
 			}
 			e.isTotalTypeNode = true;
-			if (switchStatement.nullCase == null)
+			if (switchStatement.nullCase == null
+					&& SwitchStatement.IsNullRequiredWithPrimitivesInPatterns(scope, expressionType))
 				constant = IntConstant.fromValue(-1);
 		}
 	}

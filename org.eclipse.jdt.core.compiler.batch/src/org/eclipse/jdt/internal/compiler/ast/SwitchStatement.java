@@ -933,7 +933,8 @@ public class SwitchStatement extends Expression {
 		}
 	}
 	private void transformConstants() {
-		if (this.nullCase == null) {
+		if (this.nullCase == null
+				&& SwitchStatement.IsNullRequiredWithPrimitivesInPatterns(this.scope, this.expression.resolvedType)) {
 			for (int i = 0,l = this.otherConstants.length; i < l; ++i) {
 				if (this.otherConstants[i].e == this.totalPattern) {
 					this.otherConstants[i].index = -1;
@@ -945,6 +946,12 @@ public class SwitchStatement extends Expression {
 			this.constants[i] = this.otherConstants[i].index;
 		}
 	}
+	public static boolean IsNullRequiredWithPrimitivesInPatterns(BlockScope scope,
+			TypeBinding expressionType) {
+		return  !(expressionType.isBaseType() && JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
+				scope.compilerOptions().sourceLevel,
+				scope.compilerOptions().enablePreviewFeatures));
+	}
 	private void generateCodeSwitchPatternEpilogue(CodeStream codeStream) {
 		if (needPatternDispatchCopy()) {
 			codeStream.removeVariable(this.dispatchPatternCopy);
@@ -954,7 +961,7 @@ public class SwitchStatement extends Expression {
 
 	private void generateCodeSwitchPatternPrologue(BlockScope currentScope, CodeStream codeStream) {
 		this.expression.generateCode(currentScope, codeStream, true);
-		if ((this.switchBits & NullCase) == 0) {
+		if ((this.switchBits & NullCase) == 0 && !this.expression.resolvedType.isBaseType()) {
 			codeStream.dup();
 			codeStream.invokeJavaUtilObjectsrequireNonNull();
 			codeStream.pop();
