@@ -204,28 +204,31 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					.findAny()
 					.orElse(null);
 			}
+			IType candidate = null;
 			if(typeRoot instanceof ICompilationUnit tmp) {
 				tmp = tmp.findWorkingCopy(this.resolver.getWorkingCopyOwner());
 				String[] cleaned = cleanedUpName(this.type).split("\\$");
 				if( cleaned.length > 0 ) {
 					cleaned[0] = cleaned[0].substring(cleaned[0].lastIndexOf('.') + 1);
 				}
-				IType ret = null;
 				boolean done = false;
 				for( int i = 0; i < cleaned.length && !done; i++ ) {
-					ret = (ret == null ? tmp.getType(cleaned[i]) : ret.getType(cleaned[i]));
-					if( ret == null )
-						done = true;
+					candidate = (candidate == null ? tmp.getType(cleaned[i]) : candidate.getType(cleaned[i]));
+					done |= (candidate == null);
 				}
-				if( ret != null )
-					return ret;
+				if(candidate != null && candidate.exists()) {
+					return candidate;
+				}
 			}
 			try {
 				IType ret = this.resolver.javaProject.findType(cleanedUpName(this.type), this.resolver.getWorkingCopyOwner(), new NullProgressMonitor());
-				return ret;
+				if (ret != null) {
+					return ret;
+				}
 			} catch (JavaModelException ex) {
 				ILog.get().error(ex.getMessage(), ex);
 			}
+			return candidate;
 		}
 		return null;
 	}
