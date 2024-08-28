@@ -585,8 +585,9 @@ static class JavacCompiler {
 			}
 		}
 		if (version == JavaCore.VERSION_23) {
-			if ("23-ea".equals(rawVersion)) {
-				return 0000;
+			switch(rawVersion) {
+				case "23-ea", "23":
+					return 0000;
 			}
 		}
 		throw new RuntimeException("unknown raw javac version: " + rawVersion);

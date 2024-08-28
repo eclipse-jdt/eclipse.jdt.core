@@ -1094,9 +1094,6 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 							case PRIM v -> v;
 						};
 					}
-					static PRIM barPRIM() {
-						return VAL;
-					}
 				""";
 		String callTmpl =
 				"""
@@ -1108,7 +1105,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 						System.out.print('|');
 				""";
 		// for all primitive types:
-		for (int i = 0; i < PRIMITIVES.length-3; i++) { // TODO skipping long, float, double for now
+		for (int i = 0; i < PRIMITIVES.length; i++) {
 			methods.append(fillIn(methodTmpl, i));
 			calls.append(fillIn(callTmpl, i));
 		}
@@ -1118,7 +1115,43 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		classX.append(calls);
 		classX.append("}}\n");
 		runConformTest(new String[] { "X.java", classX.toString() },
-				"false|false|49|-1|1|-|49|-1|49|-1|");
+				"false|false|49|-1|1|-|49|-1|49|-1|49|-1|49.0|-1.0|49.0|-1.0|");
+	}
+
+	public void testPrimitivePatternInSwitch_more() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static String switchbool(boolean in) {
+						// generic test couldn't differentiate cases by output
+						return switch (in) {
+							case true -> "true";
+							case boolean v -> "v="+String.valueOf(v);
+						};
+					}
+					public static String switchfloatMoreCases(float f) {
+						return switch (f) {
+							case 1.0f -> "1.0";
+							case 1.5f -> "1.5";
+							case float v -> "v="+String.valueOf(v);
+						};
+					}
+					public static void main(String... args) {
+						System.out.print(switchbool(true));
+						System.out.print("|");
+						System.out.print(switchbool(false));
+						System.out.print("|");
+						System.out.print(switchfloatMoreCases(1.0f));
+						System.out.print("|");
+						System.out.print(switchfloatMoreCases(1.5f));
+						System.out.print("|");
+						System.out.print(switchfloatMoreCases(1.6f));
+						System.out.print("|");
+					}
+				}
+				"""},
+				"true|v=false|1.0|1.5|v=1.6|");
 	}
 
 	// test from spec

@@ -1012,11 +1012,13 @@ public class SwitchStatement extends Expression {
 		}
 	}
 	private void generateTypeSwitchPatternPrologue(CodeStream codeStream, int invokeDynamicNumber) {
+		TypeBinding exprType = this.expression.resolvedType;
 		char[] signature = (this.switchBits & Primitive) != 0
-				? "(XI)I".replace("X", String.valueOf(this.expression.resolvedType.signature())).toCharArray() //$NON-NLS-1$ //$NON-NLS-2$
+				? "(XI)I".replace("X", String.valueOf(exprType.signature())).toCharArray() //$NON-NLS-1$ //$NON-NLS-2$
 				: "(Ljava/lang/Object;I)I".toCharArray(); //$NON-NLS-1$
+		int argsSize = TypeIds.getCategory(exprType.id) + 1; // Object | PRIM, restartIndex (PRIM = Z|S|I..)
 		codeStream.invokeDynamic(invokeDynamicNumber,
-				2, // Object / PRIM, restartIndex (PRIM = Z|S|I..)
+				argsSize,
 				1, // int
 				ConstantPool.TYPESWITCH,
 				signature,
@@ -1199,7 +1201,7 @@ public class SwitchStatement extends Expression {
 									} else {
 										if (c2.typeID() == TypeIds.T_JavaLangString)
 											return false;
-										if (con.intValue() == c2.intValue())
+										if (con.equals(c2))
 											return true;
 										return this.constants[idx] == c1;
 									}
@@ -1229,7 +1231,7 @@ public class SwitchStatement extends Expression {
 								} else {
 									if (!c.isPattern() && check.test(j)) {
 										if (this.isNonTraditional) {
-										if (c.e instanceof NullLiteral && this.otherConstants[j].e instanceof NullLiteral) {
+											if (c.e instanceof NullLiteral && this.otherConstants[j].e instanceof NullLiteral) {
 												reportDuplicateCase(c.e, this.otherConstants[j].e, length);
 											}
 										} else {
