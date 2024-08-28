@@ -720,37 +720,16 @@ class JavadocConverter {
 		}
 		return null;
 	}
-
 	private Name toName(String val, int startPosition) {
-		try {
-			String stripped = val.stripLeading();
-			int strippedAmt = val.length() - stripped.length();
-			int lastDot = stripped.lastIndexOf(".");
-			if( lastDot == -1 ) {
-				SimpleName sn = this.ast.newSimpleName(stripped); // TODO error here, testBug51600
-				sn.setSourceRange(startPosition + strippedAmt, stripped.length());
-				return sn;
-			} else {
-				SimpleName sn = this.ast.newSimpleName(stripped.substring(lastDot+1));
-				sn.setSourceRange(startPosition + strippedAmt + lastDot+1, sn.getIdentifier().length());
-				
-				QualifiedName qn = this.ast.newQualifiedName(toName(stripped.substring(0,lastDot), startPosition + strippedAmt), sn);
-				qn.setSourceRange(startPosition + strippedAmt, stripped.length());
-				return qn;
-			}
-		} catch(IllegalArgumentException iae) {
-			//
-			int z = 4;
-		}
-		return null;
+		return JavacConverter.toName(val, startPosition, this.ast);
 	}
+	
 
 	private TextElement toDefaultTextElement(DCTree javac) {
 		TextElement res = this.ast.newTextElement();
 		commonSettings(res, javac);
 		String r = this.docComment.comment.getText();
 		String s1 = r.substring(javac.getStartPosition(), javac.getEndPosition());
-		int len = s1.length();
 		res.setText(s1);
 		return res;
 	}

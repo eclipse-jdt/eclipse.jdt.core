@@ -172,6 +172,11 @@ class JavacConverter {
 		res.setLineEndTable(toLineEndPosTable(javacCompilationUnit.getLineMap(), res.getLength()));
 		if (javacCompilationUnit.getPackage() != null) {
 			res.setPackage(convert(javacCompilationUnit.getPackage()));
+		} else if( javacCompilationUnit.defs != null && javacCompilationUnit.defs.size() > 0 && javacCompilationUnit.defs.get(0) instanceof JCErroneous jcer) {
+			PackageDeclaration possible = convertMalformedPackageDeclaration(jcer);
+			if( possible != null ) {
+				res.setPackage(possible);
+			}
 		}
 		if (javacCompilationUnit.getModule() != null) {
 			res.setModule(convert(javacCompilationUnit.getModuleDecl()));
@@ -184,7 +189,35 @@ class JavacConverter {
 		res.accept(new FixPositions());
 	}
 
-    private int[] toLineEndPosTable(LineMap lineMap, int fileLength) {
+    private PackageDeclaration convertMalformedPackageDeclaration(JCErroneous jcer) {
+    	if( jcer.errs != null && jcer.errs.size() > 0 && jcer.errs.get(0) instanceof JCModifiers) {
+    		// Legitimate chance this is a misplaced modifier, private package, etc
+    		int errEndPos = jcer.getEndPosition(this.javacCompilationUnit.endPositions);
+    		String possiblePackageDecl = this.rawText.length() > (errEndPos + 7) ? this.rawText.substring(errEndPos, errEndPos + 7) : null;
+    		if( "package".equals(possiblePackageDecl)) {
+    			int newLine = this.rawText.indexOf("\n", errEndPos);
+    			String decl = null;
+    			if( newLine != -1 ) {
+    				decl = this.rawText.substring(errEndPos, newLine).trim();
+    			} else {
+    				decl = this.rawText.substring(errEndPos);
+    			}
+    			String pkgName = decl.substring(7).trim();
+    			if( pkgName.endsWith(";")) {
+    				pkgName = pkgName.substring(0,pkgName.length()-1);
+    			}
+    			PackageDeclaration res = this.ast.newPackageDeclaration();
+    			res.setName(toName(pkgName, 0, this.ast));
+    			setJavadocForNode(jcer, res);
+				res.setSourceRange(errEndPos, Math.max(0, pkgName.length()));
+    			res.setFlags(res.getFlags() | ASTNode.MALFORMED);
+    			return res;
+    		}
+    	}
+		return null;
+	}
+
+	private int[] toLineEndPosTable(LineMap lineMap, int fileLength) {
 		List<Integer> lineEnds = new ArrayList<>();
 		int line = 1;
 		try {
@@ -421,7 +454,8 @@ class JavacConverter {
 		if (expression instanceof JCIdent ident) {
 			Name res = convertName(ident.getName());
 			commonSettings(res, expression);
-			extraSettings.accept(res, ident);
+			if( extraSettings != null ) 
+				extraSettings.accept(res, ident);
 			return res;
 		}
 		if (expression instanceof JCFieldAccess fieldAccess) {
@@ -436,7 +470,8 @@ class JavacConverter {
 			Name qualifier = toName(faExpression, extraSettings);
 			QualifiedName res = this.ast.newQualifiedName(qualifier, n);
 			commonSettings(res, fieldAccess);
-			extraSettings.accept(res, fieldAccess);
+			if( extraSettings != null ) 
+				extraSettings.accept(res, fieldAccess);
 			// don't calculate source range if the identifier is not valid.
 			if (!fieldAccess.getIdentifier().contentEquals(FAKE_IDENTIFIER)
 					&& !fieldAccess.getIdentifier().contentEquals(ERROR)) {
@@ -3362,6 +3397,28 @@ class JavacConverter {
 		return childrenOf(node.getParent());
 	}
 
+	public static Name toName(String val, int startPosition, AST ast) {
+		try {
+			String stripped = val.stripLeading();
+			int strippedAmt = val.length() - stripped.length();
+			int lastDot = stripped.lastIndexOf(".");
+			if( lastDot == -1 ) {
+				SimpleName sn = ast.newSimpleName(stripped); // TODO error here, testBug51600
+				sn.setSourceRange(startPosition + strippedAmt, stripped.length());
+				return sn;
+			} else {
+				SimpleName sn = ast.newSimpleName(stripped.substring(lastDot+1));
+				sn.setSourceRange(startPosition + strippedAmt + lastDot+1, sn.getIdentifier().length());
+				
+				QualifiedName qn = ast.newQualifiedName(toName(stripped.substring(0,lastDot), startPosition + strippedAmt, ast), sn);
+				qn.setSourceRange(startPosition + strippedAmt, stripped.length());
+				return qn;
+			}
+		} catch(IllegalArgumentException iae) {
+			return null;
+		}
+		//return null;
+	}
 	private static List<ASTNode> childrenOf(ASTNode node) {
 		return ((Collection<Object>)node.properties().values()).stream()
 			.filter(ASTNode.class::isInstance)
