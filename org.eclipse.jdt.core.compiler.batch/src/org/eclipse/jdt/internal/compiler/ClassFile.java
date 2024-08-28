@@ -83,6 +83,7 @@ import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
+import org.eclipse.jdt.internal.compiler.ast.SwitchStatement.SingletonBootstrap;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -212,8 +213,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 			TYPESWITCH_STRING, ENUMSWITCH_STRING, CONCAT_CONSTANTS, INVOKE_STRING, ENUMDESC_OF, CLASSDESC, CLASSDESC_OF,
 			CONSTANT_BOOTSTRAP__GET_STATIC_FINAL, CONSTANT_BOOTSTRAP__PRIMITIVE_CLASS };
 
-	public static final Object PRIMITIVE_CLASS__TOKEN = new Object();
-	public static final Object GET_STATIC_FINAL__TOKEN = new Object();
 	/**
 	 * INTERNAL USE-ONLY
 	 * Request the creation of a ClassFile compatible representation of a problematic type
@@ -3682,10 +3681,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				localContentsOffset = addBootStrapTypeCaseConstantEntry(localContentsOffset, (ResolvedCase) o, fPtr);
 			} else if (o instanceof TypeBinding) {
 				localContentsOffset = addClassDescBootstrap(localContentsOffset, (TypeBinding) o, fPtr);
-			} else if (o == PRIMITIVE_CLASS__TOKEN) {
-				localContentsOffset = addPrimitiveClassBootstrap(localContentsOffset, fPtr);
-			} else if (o == GET_STATIC_FINAL__TOKEN) {
-				localContentsOffset = addGetBooleanConstantsBootstrap(localContentsOffset, fPtr);
+			} else if (o instanceof SingletonBootstrap sb) {
+				localContentsOffset = addSingletonBootstrap(localContentsOffset, sb, fPtr);
 			}
 		}
 
@@ -3970,9 +3967,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		return localContentsOffset;
 	}
-	private int addPrimitiveClassBootstrap(int localContentsOffset, Map<String, Integer> fPtr) {
+
+	private int addSingletonBootstrap(int localContentsOffset, SingletonBootstrap sb, Map<String, Integer> fPtr) {
 		final int contentsEntries = 4;
-		int idx = fPtr.get(CONSTANT_BOOTSTRAP__PRIMITIVE_CLASS);
+		int idx = fPtr.get(sb.id());
 		if (contentsEntries + localContentsOffset >= this.contents.length) {
 			resizeContents(contentsEntries);
 		}
@@ -3980,34 +3978,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 			idx = this.constantPool.literalIndexForMethodHandle(
 					ClassFileConstants.MethodHandleRefKindInvokeStatic,
 					this.referenceBinding.scope.getJavaLangInvokeConstantBootstraps(),
-					TypeConstants.PRIMITIVE_CLASS,
-					TypeConstants.PRIMITIVE_CLASS__SIGNATURE,
+					sb.selector(),
+					sb.signature(),
 					false);
-			fPtr.put(CONSTANT_BOOTSTRAP__PRIMITIVE_CLASS, idx);
-		}
-		this.contents[localContentsOffset++] = (byte) (idx >> 8);
-		this.contents[localContentsOffset++] = (byte) idx;
-
-		// u2 num_bootstrap_arguments
-		this.contents[localContentsOffset++] = 0;
-		this.contents[localContentsOffset++] = (byte) 0;
-
-		return localContentsOffset;
-	}
-	private int addGetBooleanConstantsBootstrap(int localContentsOffset, Map<String, Integer> fPtr) {
-		final int contentsEntries = 4;
-		int idx = fPtr.get(CONSTANT_BOOTSTRAP__GET_STATIC_FINAL);
-		if (contentsEntries + localContentsOffset >= this.contents.length) {
-			resizeContents(contentsEntries);
-		}
-		if (idx == 0) {
-			idx = this.constantPool.literalIndexForMethodHandle(
-					ClassFileConstants.MethodHandleRefKindInvokeStatic,
-					this.referenceBinding.scope.getJavaLangInvokeConstantBootstraps(),
-					TypeConstants.GET_STATIC_FINAL,
-					TypeConstants.GET_STATIC_FINAL__SIGNATURE,
-					false);
-			fPtr.put(CONSTANT_BOOTSTRAP__GET_STATIC_FINAL, idx);
+			fPtr.put(sb.id(), idx);
 		}
 		this.contents[localContentsOffset++] = (byte) (idx >> 8);
 		this.contents[localContentsOffset++] = (byte) idx;
@@ -6480,23 +6454,19 @@ public class ClassFile implements TypeConstants, TypeIds {
 	}
 	/**
 	 * Record a singleton bootstrap method for the given token.
-	 * @param token supported values:
-	 * <dl>
-	 * <dt>{@link #GET_STATIC_FINAL__TOKEN}<dd>handled by {@link #addPrimitiveClassBootstrap(int, Map)}
-	 * <dt>{@link #PRIMITIVE_CLASS__TOKEN}<dd>handled by {@link #addGetBooleanConstantsBootstrap(int, Map)}
-	 * </dl>
+	 * @param descriptor represents the method to be bootstrapped
 	 * @return the bootstrap index
 	 */
-	public int recordBootstrapMethodForPrimitiveHandling(Object token) {
+	public int recordSingletonBootstrapMethod(SingletonBootstrap descriptor) {
 		if (this.bootstrapMethods == null) {
 			this.bootstrapMethods = new ArrayList<>();
 		} else {
-			int idx = this.bootstrapMethods.indexOf(token);
+			int idx = this.bootstrapMethods.indexOf(descriptor);
 			if (idx != -1) {
 				return idx;
 			}
 		}
-		this.bootstrapMethods.add(token);
+		this.bootstrapMethods.add(descriptor);
 		return this.bootstrapMethods.size() - 1;
 	}
 	public int recordBootstrapMethod(String expression) {

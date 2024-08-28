@@ -23,6 +23,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import static org.eclipse.jdt.internal.compiler.ClassFile.CONSTANT_BOOTSTRAP__PRIMITIVE_CLASS;
+import static org.eclipse.jdt.internal.compiler.ClassFile.CONSTANT_BOOTSTRAP__GET_STATIC_FINAL;
+
+import java.lang.invoke.ConstantBootstraps;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +34,6 @@ import java.util.function.Function;
 import java.util.function.IntPredicate;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ast.CaseStatement.ResolvedCase;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
@@ -58,6 +61,15 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 @SuppressWarnings("rawtypes")
 public class SwitchStatement extends Expression {
+
+	/** Descriptor for a bootstrap method that is created only once but can be used more than once. */
+	public static record SingletonBootstrap(String id, char[] selector, char[] signature) { }
+	/** represents {@link ConstantBootstraps#primitiveClass(java.lang.invoke.MethodHandles.Lookup, String, Class)}*/
+	public static final SingletonBootstrap PRIMITIVE_CLASS__BOOTSTRAP = new SingletonBootstrap(
+			CONSTANT_BOOTSTRAP__PRIMITIVE_CLASS, PRIMITIVE_CLASS, PRIMITIVE_CLASS__SIGNATURE);
+	/** represents {@link ConstantBootstraps#getStaticFinal(java.lang.invoke.MethodHandles.Lookup, String, Class)}*/
+	public static final SingletonBootstrap GET_STATIC_FINAL__BOOTSTRAP = new SingletonBootstrap(
+			CONSTANT_BOOTSTRAP__GET_STATIC_FINAL, GET_STATIC_FINAL, GET_STATIC_FINAL__SIGNATURE);
 
 	public Expression expression;
 	public Statement[] statements;
@@ -992,14 +1004,14 @@ public class SwitchStatement extends Expression {
 				c.index = i;
 			}
 			if ((this.switchBits & Primitive) != 0) {
-				Object token = null;
+				SingletonBootstrap descriptor = null;
 				if (c.isPattern()) {
-					token = ClassFile.PRIMITIVE_CLASS__TOKEN;
+					descriptor = PRIMITIVE_CLASS__BOOTSTRAP;
 				} else if (c.t.id == TypeIds.T_boolean) {
-					token = ClassFile.GET_STATIC_FINAL__TOKEN;
+					descriptor = GET_STATIC_FINAL__BOOTSTRAP;
 				}
-				if (token != null) {
-					c.primitivesBootstrapIdx = codeStream.classFile.recordBootstrapMethodForPrimitiveHandling(token);
+				if (descriptor != null) {
+					c.primitivesBootstrapIdx = codeStream.classFile.recordSingletonBootstrapMethod(descriptor);
 				}
 				continue;
 			}
