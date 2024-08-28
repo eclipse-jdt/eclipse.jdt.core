@@ -660,6 +660,38 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					addCommentsToUnit(javadocComments, res);
 					addCommentsToUnit(converter.notAttachedComments, res);
 					attachMissingComments(res, context, rawText, converter, compilerOptions);
+					if ((flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) == 0) {
+						// remove all possible RECOVERED node
+						res.accept(new ASTVisitor(false) {
+							private boolean reject(ASTNode node) {
+								return (node.getFlags() & ASTNode.RECOVERED) != 0
+									|| (node instanceof FieldDeclaration field && field.fragments().isEmpty())
+									|| (node instanceof VariableDeclarationStatement decl && decl.fragments().isEmpty());
+							}
+
+							@Override
+							public boolean preVisit2(ASTNode node) {
+								if (reject(node)) {
+									StructuralPropertyDescriptor prop = node.getLocationInParent();
+									if ((prop instanceof SimplePropertyDescriptor simple && !simple.isMandatory())
+										|| (prop instanceof ChildPropertyDescriptor child && !child.isMandatory())
+										|| (prop instanceof ChildListPropertyDescriptor)) {
+										node.delete();
+									} else {
+										node.getParent().setFlags(node.getParent().getFlags() | ASTNode.RECOVERED);
+									}
+									return false; // branch will be cut, no need to inspect deeper
+								}
+								return true;
+							}
+
+							@Override
+							public void postVisit(ASTNode node) {
+								// repeat on postVisit so trimming applies bottom-up
+								preVisit2(node);
+							}
+						});
+					}
 					if (resolveBindings) {
 						JavacBindingResolver resolver = new JavacBindingResolver(javaProject, task, context, converter, workingCopyOwner);
 						resolver.isRecoveringBindings = (flags & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0;
