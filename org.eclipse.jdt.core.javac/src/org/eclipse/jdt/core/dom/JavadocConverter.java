@@ -316,8 +316,9 @@ class JavadocConverter {
 			res.setTagName(TagElement.TAG_LINK);
 			res.fragments().addAll(convertElement(link.ref).toList());
 			link.label.stream().flatMap(this::convertElement).forEach(res.fragments()::add);
-		} else if (javac instanceof DCValue) {
-            res.setTagName(TagElement.TAG_VALUE);
+		} else if (javac instanceof DCValue dcv) {
+			res.setTagName(TagElement.TAG_VALUE);
+			res.fragments().addAll(convertElement(dcv.format).toList());
 		} else if (javac instanceof DCInheritDoc inheritDoc) {
 			res.setTagName(TagElement.TAG_INHERITDOC);
 		} else if (javac instanceof DCSnippet snippet) {
@@ -471,7 +472,7 @@ class JavadocConverter {
 				TagElement res = this.ast.newTagElement();
 				res.setTagName(tagName);
 				res.fragments.add(toTextElementPreserveWhitespace(new Region(line.startOffset + firstWhite, closeBracket - firstWhite)));
-				res.setSourceRange(line.startOffset, closeBracket);
+				res.setSourceRange(line.startOffset, closeBracket + 1);
 				if( postElement == null )
 					return Stream.of(res);
 				else
@@ -508,7 +509,7 @@ class JavadocConverter {
 				}
 			} else {
 				if( oneTree instanceof DCErroneous derror) {
-					IDocElement de = convertDCErroneousElement(derror);
+					Stream<IDocElement> de = convertDCErroneousElement(derror);
 					if( de == null ) {
 						shouldCombine = true;
 						if( derror.body.startsWith("{@")) {
@@ -581,9 +582,9 @@ class JavadocConverter {
 				return blockTag.get();
 			}
 		} else if (javac instanceof DCErroneous erroneous) {
-			IDocElement docE = convertDCErroneousElement(erroneous);
+			Stream<IDocElement> docE = convertDCErroneousElement(erroneous);
 			if( docE != null ) {
-				return Stream.of(docE);
+				return docE;
 			}
 			TextElement res = this.ast.newTextElement();
 			commonSettings(res, erroneous);
@@ -665,7 +666,8 @@ class JavadocConverter {
 		return res;
 	}
 
-	private IDocElement convertDCErroneousElement(DCErroneous erroneous) {
+	// Return a stream, or null if empty
+	private Stream<IDocElement> convertDCErroneousElement(DCErroneous erroneous) {
 		String body = erroneous.body;
 		MethodRef match = null;
 		try {
@@ -681,7 +683,7 @@ class JavadocConverter {
 			res.setTagName(TagElement.TAG_SEE);
 			res.fragments.add(match);
 			res.setSourceRange(start, endPosition - start);
-			return res;
+			return Stream.of(res);
 		} else if( body.startsWith("@")) {
 			TagElement res = this.ast.newTagElement();
 			String tagName = body.split("\\s+")[0];
@@ -692,7 +694,9 @@ class JavadocConverter {
 			TextElement lastFragment = l.size() == 0 ? null : l.get(l.size() - 1);
 			int newEnd = lastFragment == null ? tagName.length() : (lastFragment.getStartPosition() + lastFragment.getLength());
 			res.setSourceRange(start, endPosition - start);
-			return res;
+			return Stream.of(res);
+//		} else if( body.startsWith("{@")) {
+//			return convertElementGroup(new DCTree[] {erroneous});
 		}
 		return null;
 	}
