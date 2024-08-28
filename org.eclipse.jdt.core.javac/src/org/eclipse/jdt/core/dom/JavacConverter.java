@@ -1027,6 +1027,7 @@ class JavacConverter {
 		int fragmentStart = javac.pos;
 		int fragmentLength = fragmentEnd - fragmentStart; // ????  - 1;
 		fragment.setSourceRange(fragmentStart, Math.max(0, fragmentLength));
+		removeSurroundingWhitespaceFromRange(fragment);
 		removeTrailingCharFromRange(fragment, new char[] {';', ','});
 		removeSurroundingWhitespaceFromRange(fragment);
 		if (convertName(javac.getName()) instanceof SimpleName simpleName) {
@@ -1039,7 +1040,11 @@ class JavacConverter {
 			fragment.extraDimensions().addAll(dims);
 		}
 		if (javac.getInitializer() != null) {
-			fragment.setInitializer(convertExpression(javac.getInitializer()));
+			Expression initializer = convertExpression(javac.getInitializer());
+			fragment.setInitializer(initializer);
+			// we may receive range for `int i = 0;` (with semicolon and newline). If we
+			// have an initializer, use it's endPos instead for the fragment
+			fragment.setSourceRange(fragment.getStartPosition(), initializer.getStartPosition() + initializer.getLength() - fragment.getStartPosition());
 		}
 		return fragment;
 	}
