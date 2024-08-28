@@ -677,7 +677,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 										|| (prop instanceof ChildPropertyDescriptor child && !child.isMandatory())
 										|| (prop instanceof ChildListPropertyDescriptor)) {
 										node.delete();
-									} else {
+									} else if (node.getParent() != null) {
 										node.getParent().setFlags(node.getParent().getFlags() | ASTNode.RECOVERED);
 									}
 									return false; // branch will be cut, no need to inspect deeper
