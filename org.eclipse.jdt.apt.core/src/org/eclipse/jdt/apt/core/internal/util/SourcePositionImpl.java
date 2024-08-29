@@ -14,7 +14,6 @@
 
 package org.eclipse.jdt.apt.core.internal.util;
 
-import com.sun.mirror.util.SourcePosition;
 import java.io.File;
 
 import org.eclipse.core.resources.IFile;
@@ -24,6 +23,8 @@ import org.eclipse.jdt.apt.core.internal.declaration.AnnotationMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.AnnotationValueImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.EclipseDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorObject;
+
+import com.sun.mirror.util.SourcePosition;
 
 public class SourcePositionImpl implements SourcePosition
 {

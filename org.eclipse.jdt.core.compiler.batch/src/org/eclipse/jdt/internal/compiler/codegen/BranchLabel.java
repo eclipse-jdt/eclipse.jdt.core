@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.compiler.codegen;
 
 import java.util.Arrays;
+
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.OperandStack.NullStack;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;

@@ -16,9 +16,6 @@ package org.eclipse.jdt.apt.pluggable.tests;
 
 import java.io.File;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -26,6 +23,9 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class ScalingTests extends TestBase
 {

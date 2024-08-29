@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.search;
 
-import org.eclipse.jdt.internal.core.search.processing.*;
+import org.eclipse.jdt.internal.core.search.processing.IJob;
 
 /**
  * <p>

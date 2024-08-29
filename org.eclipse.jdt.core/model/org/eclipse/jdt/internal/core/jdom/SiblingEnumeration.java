@@ -15,7 +15,7 @@ package org.eclipse.jdt.internal.core.jdom;
 
 import java.util.Enumeration;
 
-import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.core.jdom.IDOMNode;
 
 /**
  * SiblingEnumeration provides an enumeration on a linked list

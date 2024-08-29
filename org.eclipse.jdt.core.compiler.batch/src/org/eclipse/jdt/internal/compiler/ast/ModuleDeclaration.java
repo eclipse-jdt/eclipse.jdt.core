@@ -14,7 +14,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import static org.eclipse.jdt.internal.compiler.problem.ProblemSeverities.*;
+import static org.eclipse.jdt.internal.compiler.problem.ProblemSeverities.AbortCompilation;
+import static org.eclipse.jdt.internal.compiler.problem.ProblemSeverities.AbortCompilationUnit;
+import static org.eclipse.jdt.internal.compiler.problem.ProblemSeverities.AbortMethod;
 
 import java.util.Collection;
 import java.util.HashMap;

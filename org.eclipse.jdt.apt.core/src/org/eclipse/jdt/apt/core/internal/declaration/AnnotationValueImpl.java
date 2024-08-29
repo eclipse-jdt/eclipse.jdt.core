@@ -18,11 +18,6 @@ package org.eclipse.jdt.apt.core.internal.declaration;
 import java.util.Collection;
 import java.util.List;
 
-import com.sun.mirror.declaration.AnnotationValue;
-import com.sun.mirror.declaration.EnumConstantDeclaration;
-import com.sun.mirror.type.TypeMirror;
-import com.sun.mirror.util.SourcePosition;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
@@ -30,6 +25,11 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.util.Util;
+
+import com.sun.mirror.declaration.AnnotationValue;
+import com.sun.mirror.declaration.EnumConstantDeclaration;
+import com.sun.mirror.type.TypeMirror;
+import com.sun.mirror.util.SourcePosition;
 
 public class AnnotationValueImpl implements EclipseMirrorObject, AnnotationValue
 {

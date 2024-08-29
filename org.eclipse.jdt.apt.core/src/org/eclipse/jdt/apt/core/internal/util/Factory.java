@@ -15,22 +15,34 @@
 
 package org.eclipse.jdt.apt.core.internal.util;
 
-import com.sun.mirror.declaration.AnnotationMirror;
-import com.sun.mirror.declaration.AnnotationValue;
-import com.sun.mirror.declaration.ParameterDeclaration;
-import com.sun.mirror.type.AnnotationType;
-import com.sun.mirror.type.ArrayType;
-import com.sun.mirror.type.ClassType;
-import com.sun.mirror.type.InterfaceType;
-import com.sun.mirror.type.PrimitiveType;
-import com.sun.mirror.type.TypeMirror;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.apt.core.internal.declaration.*;
+import org.eclipse.jdt.apt.core.internal.declaration.ASTBasedAnnotationElementDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.ASTBasedConstructorDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.ASTBasedFieldDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.ASTBasedMethodDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.AnnotationDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.AnnotationElementDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.AnnotationMirrorImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.AnnotationValueImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.BinaryParameterDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.ClassDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.ConstructorDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorObject;
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorType;
+import org.eclipse.jdt.apt.core.internal.declaration.EnumConstantDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.EnumDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.ExecutableDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.FieldDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.InterfaceDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.MethodDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.SourceParameterDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.TypeParameterDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.type.ArrayTypeImpl;
 import org.eclipse.jdt.apt.core.internal.type.ErrorType;
@@ -44,6 +56,16 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+
+import com.sun.mirror.declaration.AnnotationMirror;
+import com.sun.mirror.declaration.AnnotationValue;
+import com.sun.mirror.declaration.ParameterDeclaration;
+import com.sun.mirror.type.AnnotationType;
+import com.sun.mirror.type.ArrayType;
+import com.sun.mirror.type.ClassType;
+import com.sun.mirror.type.InterfaceType;
+import com.sun.mirror.type.PrimitiveType;
+import com.sun.mirror.type.TypeMirror;
 
 public class Factory
 {

@@ -34,7 +34,8 @@ package com.sun.mirror.declaration;
 
 import java.util.Collection;
 
-import com.sun.mirror.type.*;
+import com.sun.mirror.type.ReferenceType;
+import com.sun.mirror.type.TypeVariable;
 
 
 /**

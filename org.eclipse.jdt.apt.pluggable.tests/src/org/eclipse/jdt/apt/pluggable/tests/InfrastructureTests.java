@@ -16,9 +16,6 @@ package org.eclipse.jdt.apt.pluggable.tests;
 
 import java.util.Map;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
@@ -27,6 +24,9 @@ import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.pluggable.tests.processors.message6.Message6Proc;
 import org.eclipse.jdt.core.IJavaProject;
 import org.osgi.framework.Bundle;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * Ensure that the apt.pluggable code is getting loaded, the test environment is as expected,

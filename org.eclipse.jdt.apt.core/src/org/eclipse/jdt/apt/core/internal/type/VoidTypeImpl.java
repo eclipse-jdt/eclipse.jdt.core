@@ -14,13 +14,12 @@
 
 package org.eclipse.jdt.apt.core.internal.type;
 
-import com.sun.mirror.type.VoidType;
-import com.sun.mirror.util.TypeVisitor;
-
 import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorType;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
-
 import org.eclipse.jdt.core.dom.ITypeBinding;
+
+import com.sun.mirror.type.VoidType;
+import com.sun.mirror.util.TypeVisitor;
 
 public class VoidTypeImpl implements VoidType, EclipseMirrorType
 {

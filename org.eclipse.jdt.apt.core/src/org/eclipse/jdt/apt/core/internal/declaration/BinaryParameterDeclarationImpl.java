@@ -14,13 +14,6 @@
 
 package org.eclipse.jdt.apt.core.internal.declaration;
 
-import com.sun.mirror.declaration.AnnotationMirror;
-import com.sun.mirror.declaration.Modifier;
-import com.sun.mirror.declaration.ParameterDeclaration;
-import com.sun.mirror.type.TypeMirror;
-import com.sun.mirror.util.DeclarationVisitor;
-import com.sun.mirror.util.SourcePosition;
-
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,12 +22,19 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+
+import com.sun.mirror.declaration.AnnotationMirror;
+import com.sun.mirror.declaration.Modifier;
+import com.sun.mirror.declaration.ParameterDeclaration;
+import com.sun.mirror.type.TypeMirror;
+import com.sun.mirror.util.DeclarationVisitor;
+import com.sun.mirror.util.SourcePosition;
 
 /**
  * Represents a formal parameter that came from binary.

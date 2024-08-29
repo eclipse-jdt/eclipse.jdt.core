@@ -1,6 +1,7 @@
 package org.eclipse.jdt.internal.core.search.indexing;
 
 import java.nio.charset.Charset;
+
 import org.eclipse.jdt.core.search.SearchDocument;
 
 public class ManifestIndexer extends AbstractIndexer {

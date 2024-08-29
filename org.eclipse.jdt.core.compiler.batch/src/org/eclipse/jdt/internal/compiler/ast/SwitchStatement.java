@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.CaseStatement.ResolvedCase;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;

@@ -31,16 +31,16 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameO
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameQUESTION;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRBRACE;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRPAREN;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRestrictedIdentifierpermits;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameSEMICOLON;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameTextBlock;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamecase;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameenum;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameextends;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameimplements;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamenew;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRestrictedIdentifierpermits;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamesuper;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameTextBlock;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamethis;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamethrows;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameto;
@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
+
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Annotation;

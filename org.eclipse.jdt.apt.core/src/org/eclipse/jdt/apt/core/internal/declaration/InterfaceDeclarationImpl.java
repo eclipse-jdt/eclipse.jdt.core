@@ -14,15 +14,16 @@
 
 package org.eclipse.jdt.apt.core.internal.declaration;
 
+import java.util.Collection;
+
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+
 import com.sun.mirror.declaration.InterfaceDeclaration;
 import com.sun.mirror.declaration.MethodDeclaration;
 import com.sun.mirror.type.InterfaceType;
 import com.sun.mirror.util.DeclarationVisitor;
 import com.sun.mirror.util.TypeVisitor;
-import java.util.Collection;
-
-import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
-import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class InterfaceDeclarationImpl extends TypeDeclarationImpl implements InterfaceDeclaration, InterfaceType
 {

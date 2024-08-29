@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 
 /** Reads a list of ICompilationUnit before actually needed (ahead) **/

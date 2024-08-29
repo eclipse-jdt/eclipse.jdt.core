@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+
 import com.sun.mirror.declaration.MemberDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.util.DeclarationVisitor;

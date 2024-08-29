@@ -17,9 +17,6 @@ package org.eclipse.jdt.apt.pluggable.tests;
 
 import javax.lang.model.SourceVersion;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -30,6 +27,9 @@ import org.eclipse.jdt.apt.pluggable.tests.processors.modeltester.ModelTester8Pr
 import org.eclipse.jdt.apt.pluggable.tests.processors.modeltester.ModelTesterProc;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * Basic tests for the typesystem model interfaces in the IDE.

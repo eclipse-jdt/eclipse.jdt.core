@@ -14,9 +14,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.util;
 
-import java.io.IOException;
+import static org.eclipse.jdt.apt.core.internal.util.AnnotationScanner.State.IN_COMMENT;
+import static org.eclipse.jdt.apt.core.internal.util.AnnotationScanner.State.IN_COMMENT_SEEN_STAR;
+import static org.eclipse.jdt.apt.core.internal.util.AnnotationScanner.State.IN_DOUBLE_QUOTE;
+import static org.eclipse.jdt.apt.core.internal.util.AnnotationScanner.State.IN_SINGLE_LINE_COMMENT;
+import static org.eclipse.jdt.apt.core.internal.util.AnnotationScanner.State.IN_SINGLE_QUOTE;
+import static org.eclipse.jdt.apt.core.internal.util.AnnotationScanner.State.NORMAL;
+import static org.eclipse.jdt.apt.core.internal.util.AnnotationScanner.State.SEEN_SLASH;
 
-import static org.eclipse.jdt.apt.core.internal.util.AnnotationScanner.State.*;
+import java.io.IOException;
 
 /**
  * Utility scanner for quickly determining if a file contains annotations

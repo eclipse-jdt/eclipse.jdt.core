@@ -15,12 +15,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter.linewrap;
 
+import static java.util.stream.Collectors.toList;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameARROW;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_BLOCK;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameEQUAL;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameIdentifier;
-import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.List;

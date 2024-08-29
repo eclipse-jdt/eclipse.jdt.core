@@ -15,7 +15,44 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.*;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameAND;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameARROW;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameAT;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOLON;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMA;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameELLIPSIS;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameEQUAL;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameGREATER;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameIdentifier;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameLBRACE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameLBRACKET;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameLESS;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameLPAREN;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameMINUS;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameMINUS_MINUS;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameOR;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamePLUS;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamePLUS_PLUS;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameQUESTION;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRBRACE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRBRACKET;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRIGHT_SHIFT;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRPAREN;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRestrictedIdentifierWhen;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRestrictedIdentifierpermits;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameSEMICOLON;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameassert;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamecase;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamedefault;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameextends;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameimplements;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameinstanceof;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamenew;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamereturn;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamethrow;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamethrows;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamewhile;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -14,9 +14,6 @@
 
 package org.eclipse.jdt.apt.core.internal.type;
 
-import com.sun.mirror.type.ReferenceType;
-import com.sun.mirror.type.WildcardType;
-import com.sun.mirror.util.TypeVisitor;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -24,6 +21,10 @@ import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorType;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+
+import com.sun.mirror.type.ReferenceType;
+import com.sun.mirror.type.WildcardType;
+import com.sun.mirror.util.TypeVisitor;
 
 public class WildcardTypeImpl implements WildcardType, EclipseMirrorType
 {

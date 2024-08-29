@@ -13,6 +13,38 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.ANCHOR_PREFIX_END;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.ANCHOR_PREFIX_START;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.ANCHOR_PREFIX_START2_LENGTH;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.ANCHOR_PREFIX_START_2;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.ANCHOR_PREFIX_START_LENGTH;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.ANCHOR_SUFFIX;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.ANCHOR_SUFFIX_LENGTH;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.ANNOTATION_TYPE_OPTIONAL_MEMBER_SUMMARY;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.ANNOTATION_TYPE_REQUIRED_MEMBER_SUMMARY;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.BOTTOM_NAVBAR;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.CONSTRUCTOR_DETAIL;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.CONSTRUCTOR_SUMMARY;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.DIV_CLASS_BLOCK;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.END_OF_CLASS_DATA;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.ENUM_CONSTANT_SUMMARY;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.FIELD_DETAIL;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.FIELD_SUMMARY;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.H2_PREFIX;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.H2_SUFFIX;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.H2_SUFFIX_LENGTH;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.METHOD_DETAIL;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.METHOD_SUMMARY;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.MODULE_DESCRIPTION_START;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.NESTED_CLASS_SUMMARY;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.P;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.PACKAGE_DESCRIPTION_START;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.PACKAGE_DESCRIPTION_START2;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.PACKAGE_DESCRIPTION_START3;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.SEPARATOR_START;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.START_OF_CLASS_DATA;
+import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.START_OF_CLASS_DATA_LENGTH;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,8 +58,6 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.core.util.Util;
-
-import static org.eclipse.jdt.internal.core.ExternalJavadocSupport.*;
 
 /**
  * Javadoc tool format compatible with Java 11 and earlier versions

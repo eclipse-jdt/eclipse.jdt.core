@@ -25,8 +25,8 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
 import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.compiler.env.IModule.IService;
-import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class BinaryModuleBinding extends ModuleBinding {
 

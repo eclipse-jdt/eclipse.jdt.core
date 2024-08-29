@@ -15,12 +15,6 @@
 package org.eclipse.jdt.apt.core.internal.declaration;
 
 
-import com.sun.mirror.declaration.Declaration;
-import com.sun.mirror.declaration.EnumConstantDeclaration;
-import com.sun.mirror.declaration.EnumDeclaration;
-import com.sun.mirror.type.EnumType;
-import com.sun.mirror.util.DeclarationVisitor;
-import com.sun.mirror.util.TypeVisitor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -29,6 +23,13 @@ import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+
+import com.sun.mirror.declaration.Declaration;
+import com.sun.mirror.declaration.EnumConstantDeclaration;
+import com.sun.mirror.declaration.EnumDeclaration;
+import com.sun.mirror.type.EnumType;
+import com.sun.mirror.util.DeclarationVisitor;
+import com.sun.mirror.util.TypeVisitor;
 
 public class EnumDeclarationImpl extends ClassDeclarationImpl implements EnumDeclaration, EnumType
 {

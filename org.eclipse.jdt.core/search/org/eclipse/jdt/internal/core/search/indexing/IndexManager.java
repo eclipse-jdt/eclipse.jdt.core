@@ -13,8 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
-import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 import static org.eclipse.jdt.internal.compiler.util.Util.isJrt;
+import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
 import java.io.BufferedWriter;
 import java.io.File;

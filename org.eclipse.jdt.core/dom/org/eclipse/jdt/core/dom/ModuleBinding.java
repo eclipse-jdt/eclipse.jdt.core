@@ -15,6 +15,7 @@
 package org.eclipse.jdt.core.dom;
 
 import java.util.Arrays;
+
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;

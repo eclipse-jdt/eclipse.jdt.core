@@ -15,8 +15,8 @@ package org.eclipse.jdt.apt.core.internal.declaration;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
-import com.sun.mirror.declaration.ConstructorDeclaration;
 
+import com.sun.mirror.declaration.ConstructorDeclaration;
 import com.sun.mirror.util.DeclarationVisitor;
 
 public class ASTBasedConstructorDeclarationImpl

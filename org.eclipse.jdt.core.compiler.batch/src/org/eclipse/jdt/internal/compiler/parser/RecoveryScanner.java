@@ -15,6 +15,7 @@
 package org.eclipse.jdt.internal.compiler.parser;
 
 import java.util.Arrays;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 

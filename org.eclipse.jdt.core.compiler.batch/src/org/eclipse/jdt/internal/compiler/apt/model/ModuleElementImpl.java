@@ -14,8 +14,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.model;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;

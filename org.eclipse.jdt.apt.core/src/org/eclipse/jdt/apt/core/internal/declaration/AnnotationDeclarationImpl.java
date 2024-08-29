@@ -14,15 +14,16 @@
 
 package org.eclipse.jdt.apt.core.internal.declaration;
 
+import java.util.Collection;
+
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
 import com.sun.mirror.type.AnnotationType;
 import com.sun.mirror.util.DeclarationVisitor;
 import com.sun.mirror.util.TypeVisitor;
-import java.util.Collection;
-
-import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
-import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class AnnotationDeclarationImpl extends InterfaceDeclarationImpl implements AnnotationTypeDeclaration, AnnotationType
 {
