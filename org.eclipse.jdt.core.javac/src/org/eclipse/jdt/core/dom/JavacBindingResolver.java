@@ -817,8 +817,8 @@ public class JavacBindingResolver extends BindingResolver {
 		JCTree javacElement = this.converter.domToJavac.get(lambda);
 		if (javacElement instanceof JCLambda jcLambda) {
 			JavacTypeBinding typeBinding = this.bindings.getTypeBinding(jcLambda.type);
-			if (typeBinding != null && typeBinding.getDeclaredMethods().length == 1 && typeBinding.getDeclaredMethods()[0] instanceof JavacMethodBinding javacMethodBinding) {
-				return this.bindings.getLambdaBinding(javacMethodBinding);
+			if (typeBinding != null && typeBinding.getFunctionalInterfaceMethod() instanceof JavacMethodBinding methodBinding) {
+				return this.bindings.getLambdaBinding(methodBinding);
 			}
 		}
 		return null;
