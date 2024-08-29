@@ -348,7 +348,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					.filter(Objects::nonNull)
 					.findFirst()
 					.orElse(null);
-		Map<ICompilationUnit, CompilationUnit>  units = parse(compilationUnits, apiLevel, compilerOptions, (flags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0, flags, workingCopyOwner, monitor);
+		Map<ICompilationUnit, CompilationUnit>  units = parse(compilationUnits, apiLevel, compilerOptions, false, flags, workingCopyOwner, monitor);
 		if (requestor != null) {
 			units.forEach(requestor::acceptAST);
 		}
@@ -392,7 +392,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		for( int i = 0; i < sourceFilePaths.length; i++ ) {
 			org.eclipse.jdt.internal.compiler.env.ICompilationUnit ast = createSourceUnit(sourceFilePaths[i], encodings[i]);
 			Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> res =
-					parse(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] {ast}, apiLevel, compilerOptions, (flags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0, flags, (IJavaProject)null, null, monitor);
+					parse(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] {ast}, apiLevel, compilerOptions, false, flags, (IJavaProject)null, null, monitor);
 			CompilationUnit result = res.get(ast);
 			requestor.acceptAST(sourceFilePaths[i], result);
 		}
@@ -711,6 +711,14 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			}
 			if (cachedThrown != null) {
 				throw new RuntimeException(cachedThrown);
+			}
+			if ((flags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0) {
+				if (resolveBindings) {
+					// use binding resolvers as it will run analyze()
+					result.values().forEach(cu -> cu.getAST().resolveWellKnownType(Object.class.getName()));
+				} else {
+					task.analyze();
+				}
 			}
 		} catch (IOException ex) {
 			ILog.get().error(ex.getMessage(), ex);

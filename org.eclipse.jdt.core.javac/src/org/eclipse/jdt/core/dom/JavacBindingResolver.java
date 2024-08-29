@@ -404,27 +404,40 @@ public class JavacBindingResolver extends BindingResolver {
 	}
 
 	private void resolve() {
-		if (this.symbolToDeclaration == null) {
-			try {
-				this.javac.analyze();
-			} catch (IOException e) {
-				ILog.get().error(e.getMessage(), e);
-			}
-			this.symbolToDeclaration = new HashMap<>();
-			this.converter.domToJavac.forEach((jdt, javac) -> {
-				// We don't want FieldDeclaration (ref ASTConverterTest2.test0433)
-				if (jdt instanceof MethodDeclaration ||
-					jdt instanceof VariableDeclaration ||
-					jdt instanceof EnumConstantDeclaration ||
-					jdt instanceof AnnotationTypeMemberDeclaration ||
-					jdt instanceof AbstractTypeDeclaration ||
-					jdt instanceof AnonymousClassDeclaration ||
-					jdt instanceof TypeParameter) {
-					symbol(javac).ifPresent(symbol -> this.symbolToDeclaration.put(symbol, jdt));
+		if (this.symbolToDeclaration != null) {
+			// already done and ready
+			return;
+		}
+		synchronized (this.javac) { // prevents from multiple `analyze` for the same task
+			boolean alreadyAnalyzed = this.converter.domToJavac.values().stream().map(this::symbol).anyMatch(Optional::isPresent);
+			if (!alreadyAnalyzed) {
+				// symbols not already present: analyze
+				try {
+					this.javac.analyze();
+				} catch (IOException e) {
+					ILog.get().error(e.getMessage(), e);
 				}
-			});
-			// prefill the binding so that they're already searchable by key
-			this.symbolToDeclaration.keySet().forEach(sym -> this.bindings.getBinding(sym, null));
+			}
+		}
+		synchronized (this) {
+			if (this.symbolToDeclaration == null) {
+				Map<Symbol, ASTNode> wipSymbolToDeclaration = new HashMap<>();
+				this.converter.domToJavac.forEach((jdt, javac) -> {
+					// We don't want FieldDeclaration (ref ASTConverterTest2.test0433)
+					if (jdt instanceof MethodDeclaration ||
+						jdt instanceof VariableDeclaration ||
+						jdt instanceof EnumConstantDeclaration ||
+						jdt instanceof AnnotationTypeMemberDeclaration ||
+						jdt instanceof AbstractTypeDeclaration ||
+						jdt instanceof AnonymousClassDeclaration ||
+						jdt instanceof TypeParameter) {
+						symbol(javac).ifPresent(symbol -> wipSymbolToDeclaration.put(symbol, jdt));
+					}
+				});
+				// prefill the binding so that they're already searchable by key
+				wipSymbolToDeclaration.keySet().forEach(sym -> this.bindings.getBinding(sym, null));
+				this.symbolToDeclaration = wipSymbolToDeclaration;
+			}
 		}
 	}
 
