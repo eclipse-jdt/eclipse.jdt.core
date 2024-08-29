@@ -137,6 +137,7 @@ public static class ResolvedCase {
 	private final boolean isQualifiedEnum;
 	public int enumDescIdx;
 	public int classDescIdx;
+	public int primitivesBootstrapIdx; // index for a bootstrap method to args to indy typeSwitch for primitives
 	ResolvedCase(Constant c, Expression e, TypeBinding t, int index, boolean isQualifiedEnum) {
 		this.c = c;
 		this.e = e;
@@ -234,6 +235,25 @@ public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpression
 					}
 				}
 			} else {
+				// check from §14.11.1 (JEP 455):
+				// For each case constant associated with the switch block that is a constant expression, one of the following is true:
+				//  - [...]
+				//  - if T is one of long, float, double, or boolean, the type of the case constant is T.
+				//  - if T is one of Long, Float, Double, or Boolean, the type of the case constant is, respectively, long, float, double, or boolean.
+				TypeBinding expectedCaseType = switchExpressionType;
+				if (switchExpressionType.isBoxedPrimitiveType()) {
+					expectedCaseType = scope.environment().computeBoxingType(switchExpressionType); // in this case it's actually 'computeUnboxingType()'
+				}
+				switch (expectedCaseType.id) {
+					case TypeIds.T_long, TypeIds.T_float, TypeIds.T_double, TypeIds.T_boolean -> {
+						if (caseType.id != expectedCaseType.id) {
+							scope.problemReporter().caseExpressionWrongType(e, switchExpressionType, expectedCaseType);
+							continue;
+						}
+						switchExpressionType = expectedCaseType;
+					}
+				}
+				//
 				Constant con = resolveConstantExpression(scope, caseType, switchExpressionType, switchStatement, e, cases);
 				if (con != Constant.NotAConstant) {
 					int index = this == switchStatement.nullCase && e instanceof NullLiteral ?
