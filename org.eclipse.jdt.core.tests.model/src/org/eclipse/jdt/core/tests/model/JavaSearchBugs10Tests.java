@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.search.ReferenceMatch;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
+
 import junit.framework.Test;
 
 public class JavaSearchBugs10Tests extends AbstractJavaSearchTests {

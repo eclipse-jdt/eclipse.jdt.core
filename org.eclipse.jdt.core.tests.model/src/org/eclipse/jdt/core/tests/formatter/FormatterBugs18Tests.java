@@ -14,8 +14,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaModelException;
+
+import junit.framework.Test;
 
 public class FormatterBugs18Tests extends FormatterRegressionTests {
 

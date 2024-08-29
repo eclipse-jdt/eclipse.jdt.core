@@ -40,8 +40,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -66,6 +64,8 @@ import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.junit.Assert;
+
+import junit.framework.Test;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AnnotationTest extends AbstractComparableTest {

@@ -13,10 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
-import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
+
+import junit.framework.Test;
 
 public class StaticFinalTests extends BuilderTests {
 

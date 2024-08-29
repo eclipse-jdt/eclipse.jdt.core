@@ -14,18 +14,29 @@
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
 import java.util.List;
-import junit.framework.Test;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ExportsDirective;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.ModuleDeclaration;
+import org.eclipse.jdt.core.dom.ModuleDirective;
 import org.eclipse.jdt.core.dom.ModuleModifier.ModuleModifierKeyword;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.ProvidesDirective;
+import org.eclipse.jdt.core.dom.RequiresDirective;
+import org.eclipse.jdt.core.dom.UsesDirective;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.internal.compiler.util.Util;
+
+import junit.framework.Test;
 
 public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 

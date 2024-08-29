@@ -13,6 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import static org.eclipse.jdt.core.IJavaElement.CLASS_FILE;
+import static org.eclipse.jdt.core.IJavaElement.COMPILATION_UNIT;
+import static org.eclipse.jdt.core.IJavaElement.PACKAGE_FRAGMENT;
+import static org.eclipse.jdt.core.IJavaElement.PACKAGE_FRAGMENT_ROOT;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,8 +58,6 @@ import org.eclipse.jdt.internal.core.BinaryModule;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 
 import junit.framework.Test;
-
-import static org.eclipse.jdt.core.IJavaElement.*;
 
 public class Java9ElementTests extends AbstractJavaModelTests {
 

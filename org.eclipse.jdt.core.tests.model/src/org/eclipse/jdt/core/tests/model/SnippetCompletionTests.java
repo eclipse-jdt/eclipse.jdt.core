@@ -20,7 +20,8 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
-import junit.framework.*;
+import junit.framework.ComparisonFailure;
+import junit.framework.Test;
 
 public class SnippetCompletionTests extends AbstractJavaModelTests implements RelevanceConstants {
 

@@ -13,9 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.eval;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.internal.eval.GlobalVariable;
+
+import junit.framework.Test;
 /**
  * Test the global variable evaluation.
  * This assumes that the EvaluationContext class and that the GlobalVariable class

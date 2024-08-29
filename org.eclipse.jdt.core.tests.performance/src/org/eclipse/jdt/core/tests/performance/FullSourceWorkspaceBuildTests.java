@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-import junit.framework.Test;
-
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -52,6 +50,8 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
+
+import junit.framework.Test;
 
 /**
  * Class to test compiler performance.

@@ -15,12 +15,12 @@ package org.eclipse.jdt.core.tests.formatter;
 
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * Javadoc formatter test suite with following options changes from the Eclipse

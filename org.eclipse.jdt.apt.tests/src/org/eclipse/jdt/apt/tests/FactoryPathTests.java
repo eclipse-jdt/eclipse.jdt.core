@@ -26,8 +26,8 @@ import org.eclipse.jdt.apt.core.internal.VarJarFactoryContainer;
 import org.eclipse.jdt.apt.core.internal.WkspJarFactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
-import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath.Attributes;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

@@ -16,8 +16,6 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 import java.util.Locale;
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -30,6 +28,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+
+import junit.framework.Test;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class StatementRecoveryTest_1_5 extends AbstractCompilerTest {

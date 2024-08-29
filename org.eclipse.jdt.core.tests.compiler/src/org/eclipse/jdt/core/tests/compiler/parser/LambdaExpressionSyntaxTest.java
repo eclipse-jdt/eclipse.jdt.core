@@ -15,9 +15,10 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.io.File;
 import java.io.IOException;
-import junit.framework.Test;
 
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
+
+import junit.framework.Test;
 
 @SuppressWarnings({ "rawtypes" })
 public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {

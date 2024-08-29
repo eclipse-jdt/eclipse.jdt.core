@@ -13,12 +13,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.eval;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.eval.GlobalVariable;
+
+import junit.framework.Test;
 /**
  * Negative tests for variables. Only compilation problems should be reported in
  * these tests.

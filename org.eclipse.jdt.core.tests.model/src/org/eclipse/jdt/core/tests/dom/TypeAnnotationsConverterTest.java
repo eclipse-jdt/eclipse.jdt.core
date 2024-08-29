@@ -13,12 +13,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+
+import junit.framework.Test;
 
 public class TypeAnnotationsConverterTest extends ConverterTestSetup {
 

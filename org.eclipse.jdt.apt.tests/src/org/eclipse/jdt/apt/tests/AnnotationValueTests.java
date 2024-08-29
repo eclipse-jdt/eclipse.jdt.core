@@ -15,9 +15,6 @@ package org.eclipse.jdt.apt.tests;
 
 import java.io.File;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -25,6 +22,9 @@ import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.annotationvalue.CodeExample;
 import org.eclipse.jdt.apt.tests.plugin.AptTestsPlugin;
 import org.eclipse.jdt.core.IJavaProject;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class AnnotationValueTests extends APTTestBase {
 	public AnnotationValueTests(final String name) {

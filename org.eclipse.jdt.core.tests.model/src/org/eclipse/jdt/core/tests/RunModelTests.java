@@ -13,11 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests;
 
+import org.eclipse.jdt.core.tests.model.AllJavaModelTests;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
-import org.eclipse.jdt.core.tests.model.AllJavaModelTests;
 
 /**
  * Runs all Java model tests.

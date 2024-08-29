@@ -14,8 +14,6 @@
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.dom.AST;
@@ -29,6 +27,8 @@ import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+
+import junit.framework.Test;
 
 public class ASTRewritingGroupNodeTest extends ASTRewritingTest {
 

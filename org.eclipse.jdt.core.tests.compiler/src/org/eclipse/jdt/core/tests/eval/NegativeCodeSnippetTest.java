@@ -15,14 +15,14 @@ package org.eclipse.jdt.core.tests.eval;
 
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.eval.GlobalVariable;
+
+import junit.framework.Test;
 /**
  * Negative tests for code snippet. Only compilation problems should be reported in
  * these tests.

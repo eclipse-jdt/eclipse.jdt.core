@@ -18,8 +18,6 @@ package org.eclipse.jdt.apt.tests;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IPath;
@@ -34,6 +32,9 @@ import org.eclipse.jdt.apt.tests.annotations.messager.MessagerCodeExample;
 import org.eclipse.jdt.core.IJavaProject;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class APITests extends APTTestBase {
 

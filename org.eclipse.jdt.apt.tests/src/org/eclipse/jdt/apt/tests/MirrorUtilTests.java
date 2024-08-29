@@ -15,18 +15,17 @@
 
 package org.eclipse.jdt.apt.tests;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorUtilTestAnnotationProcessor;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorUtilTestCodeExample;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.Problem;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class MirrorUtilTests extends APTTestBase {
 

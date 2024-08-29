@@ -20,8 +20,6 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import junit.framework.*;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -37,6 +35,8 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class AbstractMethodTests extends BuilderTests {

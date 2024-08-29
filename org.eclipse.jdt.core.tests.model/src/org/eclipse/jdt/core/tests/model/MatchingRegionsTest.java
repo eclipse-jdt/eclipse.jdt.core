@@ -13,10 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import junit.framework.Test;
-
-
 import org.eclipse.jdt.core.search.SearchPattern;
+
+import junit.framework.Test;
 
 /**
  * Class to test the matching regions API method added on {@link SearchPattern}

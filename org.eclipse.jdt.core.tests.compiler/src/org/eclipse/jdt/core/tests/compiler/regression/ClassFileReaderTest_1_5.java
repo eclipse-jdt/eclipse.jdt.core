@@ -18,13 +18,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+
+import junit.framework.Test;
 
 @SuppressWarnings({ "rawtypes" })
 public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {

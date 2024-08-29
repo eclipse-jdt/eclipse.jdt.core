@@ -17,10 +17,10 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import junit.framework.Test;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ConcurrentBatchCompilerTest extends BatchCompilerTest {

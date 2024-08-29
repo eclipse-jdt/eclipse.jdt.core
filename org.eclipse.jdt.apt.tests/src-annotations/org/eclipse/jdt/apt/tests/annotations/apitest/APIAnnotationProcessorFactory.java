@@ -15,8 +15,8 @@ package org.eclipse.jdt.apt.tests.annotations.apitest;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.jdt.apt.tests.annotations.BaseFactory;
 import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;

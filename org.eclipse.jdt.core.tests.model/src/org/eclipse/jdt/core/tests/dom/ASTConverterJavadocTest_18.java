@@ -22,9 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -42,6 +39,9 @@ import org.eclipse.jdt.core.dom.TagProperty;
 import org.eclipse.jdt.core.dom.TextElement;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * Class to test DOM/AST nodes built for Javadoc comments.

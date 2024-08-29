@@ -20,12 +20,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import junit.framework.Test;
 
 /* See also NullReferenceTests for general null reference tests */
 @SuppressWarnings({ "unchecked", "rawtypes" })

@@ -13,12 +13,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.eval;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.IRequestor;
 import org.eclipse.jdt.internal.eval.InstallException;
+
+import junit.framework.Test;
 /**
  * Sanity test the IEvaluationResult interface.
  * For in depth tests, see VariableTest or CodeSnippetTest.

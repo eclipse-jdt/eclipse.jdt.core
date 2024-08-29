@@ -35,8 +35,8 @@ import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 
-import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 
 /**
  * A processor that explores the java 13 specific elements and validates the lambda and

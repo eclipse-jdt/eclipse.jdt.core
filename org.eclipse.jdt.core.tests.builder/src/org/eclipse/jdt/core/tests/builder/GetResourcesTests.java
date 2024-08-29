@@ -18,7 +18,6 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import junit.framework.Test;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -30,6 +29,8 @@ import org.eclipse.jdt.core.IRegion;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
+
+import junit.framework.Test;
 
 /**
  * Basic tests of {@link JavaCore#getGeneratedResources(IRegion, boolean)}.

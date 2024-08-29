@@ -16,6 +16,7 @@ package org.eclipse.jdt.apt.tests.annotations.mirrortest;
 import java.util.Collection;
 
 import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
+
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Messager;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;

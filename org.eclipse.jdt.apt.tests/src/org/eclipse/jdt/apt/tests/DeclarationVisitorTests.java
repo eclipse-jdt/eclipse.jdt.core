@@ -18,9 +18,6 @@ package org.eclipse.jdt.apt.tests;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.tests.annotations.generic.AbstractGenericProcessor;
@@ -43,6 +40,9 @@ import com.sun.mirror.declaration.ParameterDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.declaration.TypeParameterDeclaration;
 import com.sun.mirror.util.DeclarationVisitor;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * Tests for the JDT-APT implementation of Declaration Visitors

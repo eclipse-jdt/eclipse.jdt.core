@@ -14,11 +14,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter.comment;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+
+import junit.framework.Test;
 
 public class SingleLineTestCase extends CommentTestCase {
 

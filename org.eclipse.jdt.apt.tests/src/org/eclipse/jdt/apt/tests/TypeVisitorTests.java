@@ -18,9 +18,6 @@ package org.eclipse.jdt.apt.tests;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.tests.annotations.generic.AbstractGenericProcessor;
@@ -46,6 +43,9 @@ import com.sun.mirror.type.VoidType;
 import com.sun.mirror.type.WildcardType;
 import com.sun.mirror.util.TypeVisitor;
 import com.sun.mirror.util.Types;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * Tests for the JDT-APT implementation of Type Visitors

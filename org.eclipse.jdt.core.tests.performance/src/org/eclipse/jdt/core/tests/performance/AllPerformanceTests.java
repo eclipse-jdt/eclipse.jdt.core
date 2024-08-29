@@ -13,10 +13,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.performance;
 
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.NumberFormat;
 
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+
 import junit.framework.Test;
 
 /**

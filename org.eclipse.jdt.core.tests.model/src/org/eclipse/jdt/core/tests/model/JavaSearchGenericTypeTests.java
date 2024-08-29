@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.core.ResolvedSourceType;
+
+import junit.framework.Test;
 
 
 /**

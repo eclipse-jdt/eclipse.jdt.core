@@ -17,14 +17,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
+import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.core.tests.model.SuiteOfTestCases;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextUtilities;
 
-import org.eclipse.jdt.core.formatter.CodeFormatter;
-import org.eclipse.jdt.core.tests.model.SuiteOfTestCases;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class CommentTestCase extends SuiteOfTestCases {

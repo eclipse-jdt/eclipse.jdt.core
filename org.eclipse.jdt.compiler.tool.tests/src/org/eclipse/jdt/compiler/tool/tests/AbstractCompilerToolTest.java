@@ -23,10 +23,10 @@ import java.util.List;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
+import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
-import javax.tools.JavaCompiler.CompilationTask;
 
 import org.eclipse.jdt.core.tests.compiler.regression.BatchCompilerTest;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;

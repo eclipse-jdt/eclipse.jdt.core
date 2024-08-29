@@ -17,12 +17,12 @@ package org.eclipse.jdt.core.tests.dom;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
+
+import junit.framework.Test;
 
 @SuppressWarnings("rawtypes")
 public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {

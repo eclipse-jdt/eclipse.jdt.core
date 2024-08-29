@@ -16,8 +16,6 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 import java.util.Locale;
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
@@ -31,6 +29,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+
+import junit.framework.Test;
 
 // This test suite test the first implementation of the annotation recovery.
 // Tests must be updated with annotation recovery improvment

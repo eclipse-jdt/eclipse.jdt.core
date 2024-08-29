@@ -16,8 +16,6 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.File;
 import java.io.IOException;
 
-import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -27,6 +25,8 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
+
+import junit.framework.Test;
 /**
  * These test ensure that modifications in external jar are correctly reported as
  * IJavaEllementDeltas after a JavaModel#refreshExternalArchives().

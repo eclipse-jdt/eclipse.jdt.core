@@ -56,8 +56,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -68,6 +66,8 @@ import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+
+import junit.framework.Test;
 
 /**
  * This class is meant to gather test cases related to the invocation of the

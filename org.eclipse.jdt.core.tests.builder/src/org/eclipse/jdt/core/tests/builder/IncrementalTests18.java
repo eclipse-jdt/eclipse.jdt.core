@@ -16,8 +16,6 @@ package org.eclipse.jdt.core.tests.builder;
 import java.io.File;
 import java.io.IOException;
 
-import junit.framework.Test;
-
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -33,6 +31,8 @@ import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.osgi.framework.Bundle;
+
+import junit.framework.Test;
 
 public class IncrementalTests18 extends BuilderTests {
 	static {

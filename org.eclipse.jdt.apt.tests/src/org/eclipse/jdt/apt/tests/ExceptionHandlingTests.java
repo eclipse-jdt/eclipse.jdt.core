@@ -15,12 +15,12 @@
 
 package org.eclipse.jdt.apt.tests;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class ExceptionHandlingTests extends APTTestBase {
 

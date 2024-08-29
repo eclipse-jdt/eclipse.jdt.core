@@ -15,11 +15,11 @@
 package org.eclipse.jdt.apt.tests.annotations;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
-import java.util.Arrays;
 
 /**
  * Base class for annotation factories. Takes care of supported

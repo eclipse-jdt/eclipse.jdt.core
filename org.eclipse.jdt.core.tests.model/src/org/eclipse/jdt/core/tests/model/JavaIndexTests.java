@@ -20,8 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.zip.CRC32;
 
-import junit.framework.Test;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -34,7 +32,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.index.*;
+import org.eclipse.jdt.core.index.JavaIndexer;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
@@ -44,6 +42,8 @@ import org.eclipse.jdt.internal.core.index.DiskIndex;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.osgi.service.prefs.BackingStoreException;
+
+import junit.framework.Test;
 
 public class JavaIndexTests extends AbstractJavaSearchTests  {
 

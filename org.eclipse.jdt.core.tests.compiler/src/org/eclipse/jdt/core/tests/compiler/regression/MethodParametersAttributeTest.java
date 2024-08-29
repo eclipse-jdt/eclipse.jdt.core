@@ -19,8 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -30,6 +28,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import junit.framework.Test;
 
 public class MethodParametersAttributeTest extends AbstractRegressionTest {
 	String versionString = null;

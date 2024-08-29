@@ -13,10 +13,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.internal.codeassist.complete.InvalidCursorLocation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+
+import junit.framework.Test;
 
 public class CompletionParserTest extends AbstractCompletionTest {
 public CompletionParserTest(String testName) {

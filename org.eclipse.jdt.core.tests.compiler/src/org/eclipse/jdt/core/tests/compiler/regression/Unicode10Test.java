@@ -15,9 +15,9 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import junit.framework.Test;
 
 public class Unicode10Test extends AbstractRegressionTest {
 public Unicode10Test(String name) {

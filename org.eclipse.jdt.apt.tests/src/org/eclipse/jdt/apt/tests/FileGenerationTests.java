@@ -18,9 +18,6 @@ package org.eclipse.jdt.apt.tests;
 import java.io.File;
 import java.util.Map;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
@@ -31,6 +28,9 @@ import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.filegen.TextGenAnnotationProcessor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class FileGenerationTests extends APTTestBase {
 

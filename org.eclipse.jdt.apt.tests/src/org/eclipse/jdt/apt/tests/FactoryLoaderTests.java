@@ -16,9 +16,6 @@ package org.eclipse.jdt.apt.tests;
 
 import java.io.File;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
@@ -32,6 +29,9 @@ import org.eclipse.jdt.apt.tests.external.annotations.loadertest.LoaderTestAnnot
 import org.eclipse.jdt.apt.tests.external.annotations.loadertest.LoaderTestCodeExample;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class FactoryLoaderTests extends APTTestBase {
 

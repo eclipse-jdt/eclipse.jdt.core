@@ -15,8 +15,6 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.util.List;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
@@ -25,6 +23,8 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+
+import junit.framework.Test;
 
 @SuppressWarnings("rawtypes")
 public class ASTConverter16Test extends ConverterTestSetup {

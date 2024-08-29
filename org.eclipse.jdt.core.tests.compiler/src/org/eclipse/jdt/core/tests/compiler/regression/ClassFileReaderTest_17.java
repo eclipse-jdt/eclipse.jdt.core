@@ -12,12 +12,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+
+import junit.framework.Test;
 
 @SuppressWarnings({ "rawtypes" })
 public class ClassFileReaderTest_17 extends AbstractRegressionTest {

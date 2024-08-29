@@ -13,8 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
-import junit.framework.Test;
-
 import java.util.Map;
 
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -22,6 +20,8 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.builder.ReferenceCollection;
 import org.eclipse.jdt.internal.core.builder.State;
 import org.eclipse.jdt.internal.core.builder.StringSet;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class FriendDependencyTests extends BuilderTests {

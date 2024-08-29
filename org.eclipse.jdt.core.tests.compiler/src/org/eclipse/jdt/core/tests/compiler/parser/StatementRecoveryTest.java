@@ -15,8 +15,6 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -29,6 +27,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+
+import junit.framework.Test;
 
 public class StatementRecoveryTest extends AbstractCompilerTest {
 	public static final boolean ONLY_DIET_PLUS_BODY_WITH_STATEMENT_RECOVERY = false;

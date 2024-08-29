@@ -18,7 +18,6 @@
 package org.eclipse.jdt.core.tests.builder;
 
 import java.io.File;
-import junit.framework.Test;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.FileLocator;
@@ -33,6 +32,8 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.osgi.framework.Bundle;
+
+import junit.framework.Test;
 
 /**
  * Tests to verify that annotation changes cause recompilation of dependent types.

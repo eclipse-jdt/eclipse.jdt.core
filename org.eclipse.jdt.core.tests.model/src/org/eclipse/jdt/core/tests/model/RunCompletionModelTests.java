@@ -16,7 +16,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 

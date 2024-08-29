@@ -24,7 +24,7 @@ import java.util.Map;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
-import junit.framework.*;
+import junit.framework.Test;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AmbiguousMethodTest extends AbstractComparableTest {

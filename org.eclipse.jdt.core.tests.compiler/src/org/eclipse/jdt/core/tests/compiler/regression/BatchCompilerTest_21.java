@@ -17,6 +17,7 @@ import java.io.File;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.Util;
+
 import junit.framework.Test;
 
 public class BatchCompilerTest_21 extends AbstractBatchCompilerTest {

@@ -16,9 +16,9 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.lang.reflect.Method;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.dom.*;
+
+import junit.framework.Test;
 
 @SuppressWarnings("rawtypes")
 public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {

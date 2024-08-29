@@ -16,6 +16,7 @@ https://www.eclipse.org/legal/epl-2.0/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 import org.eclipse.jdt.core.JavaModelException;
+
 import junit.framework.Test;
 
 public class EmbeddedExpressionSelectionTest extends AbstractSelectionTest {

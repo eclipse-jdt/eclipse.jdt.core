@@ -17,14 +17,15 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public abstract class JavadocTest extends AbstractRegressionTest {

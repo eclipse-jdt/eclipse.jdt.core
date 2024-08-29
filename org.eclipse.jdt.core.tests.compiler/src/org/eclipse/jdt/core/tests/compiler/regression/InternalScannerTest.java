@@ -13,11 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+
+import junit.framework.Test;
 @SuppressWarnings({ "rawtypes" })
 public class InternalScannerTest extends AbstractRegressionTest {
 

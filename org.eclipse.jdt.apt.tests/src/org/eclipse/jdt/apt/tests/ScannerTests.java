@@ -17,13 +17,13 @@ package org.eclipse.jdt.apt.tests;
 
 import java.io.File;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.internal.util.ScannerUtil;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class ScannerTests extends APTTestBase {
 

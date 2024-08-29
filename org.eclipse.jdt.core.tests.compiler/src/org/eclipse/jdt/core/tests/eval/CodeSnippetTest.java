@@ -15,8 +15,6 @@ package org.eclipse.jdt.core.tests.eval;
 
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -24,6 +22,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.IRequestor;
+
+import junit.framework.Test;
 /**
  * Test the code snippet evaluation.
  * This assumes that the EvaluationContext class and that the EvaluationResult class

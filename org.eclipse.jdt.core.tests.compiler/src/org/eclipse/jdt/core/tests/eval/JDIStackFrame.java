@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jdt.core.tests.runtime.RuntimeConstants;
 import org.eclipse.jdt.internal.eval.EvaluationConstants;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
@@ -45,6 +43,8 @@ import com.sun.jdi.event.Event;
 import com.sun.jdi.event.EventSet;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.EventRequest;
+
+import junit.framework.TestCase;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class JDIStackFrame implements EvaluationConstants, RuntimeConstants {

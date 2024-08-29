@@ -17,8 +17,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.internal.codeassist.complete.CompletionJavadoc;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocTag;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
@@ -32,6 +30,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+
+import junit.framework.Test;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class JavadocCompletionParserTest extends AbstractCompletionTest implements JavadocTagConstants {

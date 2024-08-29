@@ -17,8 +17,6 @@ package org.eclipse.jdt.core.tests.formatter;
 
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -30,6 +28,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.text.edits.TextEdit;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class FormatterJSR308Tests extends AbstractJavaModelTests {

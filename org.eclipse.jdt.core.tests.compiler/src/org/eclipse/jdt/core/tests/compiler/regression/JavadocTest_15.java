@@ -17,8 +17,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -33,6 +31,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+
+import junit.framework.Test;
 
 
 @SuppressWarnings({ "unchecked", "rawtypes" })

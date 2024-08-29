@@ -21,8 +21,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
@@ -36,6 +34,8 @@ import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.InstallException;
 
 import com.sun.jdi.VirtualMachine;
+
+import junit.framework.Test;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class DebugEvaluationTest extends EvaluationTest {

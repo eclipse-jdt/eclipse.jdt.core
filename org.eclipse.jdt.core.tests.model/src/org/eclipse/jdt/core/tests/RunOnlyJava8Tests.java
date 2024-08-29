@@ -20,10 +20,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
 import org.eclipse.jdt.core.tests.builder.IncrementalTests18;
 import org.eclipse.jdt.core.tests.compiler.parser.CompletionParserTest18;
 import org.eclipse.jdt.core.tests.compiler.parser.ComplianceDiagnoseTest;
@@ -32,10 +28,10 @@ import org.eclipse.jdt.core.tests.compiler.parser.ReferenceExpressionSyntaxTest;
 import org.eclipse.jdt.core.tests.compiler.parser.SelectionParserTest18;
 import org.eclipse.jdt.core.tests.compiler.parser.TypeAnnotationSyntaxTest;
 import org.eclipse.jdt.core.tests.compiler.regression.ClassFileReaderTest_1_8;
+import org.eclipse.jdt.core.tests.compiler.regression.CompilerInvocationTests;
 import org.eclipse.jdt.core.tests.compiler.regression.ConditionalExpressionTest;
 import org.eclipse.jdt.core.tests.compiler.regression.Deprecated18Test;
 import org.eclipse.jdt.core.tests.compiler.regression.ExpressionContextTests;
-import org.eclipse.jdt.core.tests.compiler.regression.CompilerInvocationTests;
 import org.eclipse.jdt.core.tests.compiler.regression.FlowAnalysisTest8;
 import org.eclipse.jdt.core.tests.compiler.regression.GenericsRegressionTest_1_8;
 import org.eclipse.jdt.core.tests.compiler.regression.GrammarCoverageTests308;
@@ -70,6 +66,10 @@ import org.eclipse.jdt.core.tests.model.JavaElement8Tests;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs8Tests;
 import org.eclipse.jdt.core.tests.model.ResolveTests18;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunOnlyJava8Tests extends TestCase {

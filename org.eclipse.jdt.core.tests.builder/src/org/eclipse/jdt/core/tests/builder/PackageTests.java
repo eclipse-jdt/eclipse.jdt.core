@@ -15,8 +15,6 @@ package org.eclipse.jdt.core.tests.builder;
 
 import java.io.File;
 
-import junit.framework.*;
-
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -25,6 +23,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
+
+import junit.framework.Test;
 
 public class PackageTests extends BuilderTests {
 
