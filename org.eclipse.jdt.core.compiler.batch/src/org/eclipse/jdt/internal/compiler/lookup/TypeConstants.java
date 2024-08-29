@@ -263,6 +263,10 @@ public interface TypeConstants {
 	char[][] JAVA_LANG_RUNTIME_OBJECTMETHODS = {JAVA, LANG, RUNTIME, "ObjectMethods".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS = {JAVA, LANG, RUNTIME, "SwitchBootstraps".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_INVOKE_CONSTANTBOOTSTRAP = {JAVA, LANG, INVOKE, "ConstantBootstraps".toCharArray()}; //$NON-NLS-1$
+	char[] PRIMITIVE_CLASS = "primitiveClass".toCharArray(); //$NON-NLS-1$
+	char[] PRIMITIVE_CLASS__SIGNATURE = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Class;".toCharArray(); //$NON-NLS-1$
+	char[] GET_STATIC_FINAL = "getStaticFinal".toCharArray(); //$NON-NLS-1$
+	char[] GET_STATIC_FINAL__SIGNATURE = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 	char[][] JAVA_LANG_ENUM_ENUMDESC = {JAVA, LANG, "Enum$EnumDesc".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_CONSTANT_CLASSDESC = {JAVA, LANG, "constant".toCharArray(), "ClassDesc".toCharArray()}; //$NON-NLS-1$ //$NON-NLS-2$
 
