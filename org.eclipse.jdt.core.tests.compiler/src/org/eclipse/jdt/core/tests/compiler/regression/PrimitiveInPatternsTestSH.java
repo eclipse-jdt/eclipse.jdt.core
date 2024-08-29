@@ -35,6 +35,9 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	private static final String[] MAXVALUES = { "true", "Byte.MAX_VALUE", "'z'", "Short.MAX_VALUE", "Integer.MAX_VALUE", "Long.MAX_VALUE", "Float.MAX_VALUE", "Double.MAX_VALUE" };
 	private static final String[] GOODVALUES = { "true", "49", "'1'", "49", "49", "49L", "49.0f", "49.0d" }; // 49 ~ '1'
 	private static final String[] NEGVALUES = { "false", "-1", "'-'", "-1", "-1", "-1L", "-1.0f", "-1.0d" };
+
+	// larger then MAX of previous type, still needs suffix added via toConstantOfType
+	private static final String[] CONSTANTS = { "true", "1", "'1'", "300", "40000", "5000000000", "6.0E20", "7.0E40" };
 	private static final boolean[] IS_NUMERICAL = { false, true, false, true, true, true, true, true };
 	private static String MAX_VALUES_STRING = "true|127|z|32767|2147483647|9223372036854775807|3.4028235E38|1.7976931348623157E308|";
 	/**
@@ -58,6 +61,16 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		return template.replaceAll("PRIM", PRIMITIVES[idx]).replaceAll("BOX", BOXES[idx])
 						.replace("NEGVAL", NEGVALUES[idx]).replace("VAL", useMax ? MAXVALUES[idx] : GOODVALUES[idx]);
 	}
+
+	static String toConstantOfType(String constVal, String ptype) {
+		return switch (ptype) {
+			case "long" -> constVal+"L";
+			case "float" -> constVal+"f";
+			case "double" -> constVal+"d";
+			default -> constVal;
+		};
+	}
+
 
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
@@ -453,7 +466,6 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		testWideningFrom_both("float", 6, true, String.valueOf((double) Float.MAX_VALUE)+"|");
 	}
 
-	// Narrowing Primitive Double
 	private void testNarrowingFrom(String from, int idx, boolean useMax, String expectedOut) {
 		assert from.equals(PRIMITIVES[idx]) : "mismatch between from and idx";
 		// example (from="short", idx=3, useMax=false):
@@ -1154,6 +1166,263 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				"true|v=false|1.0|1.5|v=1.6|");
 	}
 
+	private void testNarrowingInSwitchFrom(String from, int idx, String expectedOut) {
+		// case statements (constant & type pattern) apply narrowing to each smaller numerical type
+
+		assert from.equals(PRIMITIVES[idx]) : "mismatch between from and idx";
+		// example (from="short", idx=3):
+		//	public class X {
+		//		public static int doswitch(short v) { // return type: at least 'int' or <from>
+		//			return switch(v) {
+		//				case 1 -> 10;
+		//				case byte vv -> 10+vv;
+		//				case 300 -> 30;
+		//				case short vv -> 30+vv;
+		//			}
+		//		}
+		//		static void print(Object o) {
+		//			System.out.print(o);
+		//			System.out.print('|');
+		//		}
+		//		public static void main(String[] args) {
+		//			print(X.doswitch((short)1);
+		//			print(X.doswitch((short)(1+1));
+		//			print(X.doswitch((short)300);
+		//			print(X.doswitch((short)(300+300));
+		//		}
+		//	}
+
+		String classTmpl =
+				"""
+				public class X {
+					public static RET doswitch(FROM v) {
+						return switch(v) {
+				BODY
+						};
+					}
+					static void print(Object o) {
+						System.out.print(o);
+						System.out.print('|');
+					}
+					public static void main(String[] args) {
+				CALLS
+					}
+				}
+				""";
+		String casesTmpl =
+				"""
+							case CONST -> VAL;
+							case PRIM vv -> VAL+vv;
+				""";
+		String callsTmpl =
+				"""
+						print(X.doswitch((FROM)CONST));
+						print(X.doswitch((FROM)(CONST+CONST)));
+				""";
+		// for all numerical primitive types up-to 'from':
+		StringBuilder cases = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		for (int i = 0; i <= idx; i++) {
+			if (!IS_NUMERICAL[i]) continue;
+			String constVal = toConstantOfType(CONSTANTS[i], from);
+			String val10 = String.valueOf(i*10);
+			cases.append(casesTmpl.replaceAll("PRIM", PRIMITIVES[i]).replace("CONST", constVal).replace("VAL", val10));
+			calls.append(callsTmpl.replaceAll("FROM", from).replaceAll("CONST", constVal));
+		}
+		String retType = idx <= 4 /*int*/ ? "int" : from; // no syntax exists for constants below int
+		String classX = classTmpl.replace("FROM", from).replace("RET", retType)
+					.replace("BODY", cases.toString())
+					.replace("CALLS", calls.toString());
+		runConformTest(new String[] { "X.java", classX }, expectedOut);
+	}
+	public void testNarrowingInSwitchFromShort() {
+		testNarrowingInSwitchFrom("short", 3, "10|12|30|630|");
+	}
+	public void testNarrowingInSwitchFromInt() {
+		testNarrowingInSwitchFrom("int", 4, "10|12|30|630|40|80040|");
+	}
+	public void testNarrowingInSwitchFromLong() {
+		testNarrowingInSwitchFrom("long", 5, "10|12|30|630|40|80040|50|10000000050|");
+	}
+	public void testNarrowingInSwitchFromFloat() {
+		testNarrowingInSwitchFrom("float", 6, "10.0|12.0|30.0|630.0|40.0|80040.0|50.0|1.0E10|60.0|1.2E21|");
+	}
+	public void testNarrowingInSwitchFromDouble() {
+		testNarrowingInSwitchFrom("double", 7, "10.0|12.0|30.0|630.0|40.0|80040.0|50.0|1.000000005E10|60.0|1.2E21|70.0|1.4E41|");
+	}
+
+	public void testSwitchOn_long_wrongSelector() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+				int m1(long in) {
+					return switch(in) {
+						case 1 -> 1;
+						case 'a' -> 2;
+						case 3L -> 3;
+						case 4.0f -> 4;
+						case 5.0d -> 5;
+						default -> -1;
+					};
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 4)
+			case 1 -> 1;
+			     ^
+		Case constants in a switch on 'long' must have type 'long'
+		----------
+		2. ERROR in X.java (at line 5)
+			case 'a' -> 2;
+			     ^^^
+		Case constants in a switch on 'long' must have type 'long'
+		----------
+		3. ERROR in X.java (at line 7)
+			case 4.0f -> 4;
+			     ^^^^
+		Case constants in a switch on 'long' must have type 'long'
+		----------
+		4. ERROR in X.java (at line 8)
+			case 5.0d -> 5;
+			     ^^^^
+		Case constants in a switch on 'long' must have type 'long'
+		----------
+		""");
+	}
+	public void testSwitchOn_Float_wrongSelector() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+				int m1(Float in) {
+					return switch(in) {
+						case 1 -> 1;
+						case 'a' -> 2;
+						case 3L -> 3;
+						case 4.0f -> 4;
+						case 5.0d -> 5;
+						default -> -1;
+					};
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 4)
+			case 1 -> 1;
+			     ^
+		Case constants in a switch on 'Float' must have type 'float'
+		----------
+		2. ERROR in X.java (at line 5)
+			case 'a' -> 2;
+			     ^^^
+		Case constants in a switch on 'Float' must have type 'float'
+		----------
+		3. ERROR in X.java (at line 6)
+			case 3L -> 3;
+			     ^^
+		Case constants in a switch on 'Float' must have type 'float'
+		----------
+		4. ERROR in X.java (at line 8)
+			case 5.0d -> 5;
+			     ^^^^
+		Case constants in a switch on 'Float' must have type 'float'
+		----------
+		""");
+	}
+	public void testSwitchOnBoxed_OK() {
+		// constant cases for all boxed primitive types except Boolean
+		// run as separate tests.
+		String classTmpl = """
+				public class XBOX {
+					static int m1(BOX in) {
+						return switch(in) {
+							case VAL -> 1;
+							case MAX -> 2;
+							default -> -2;
+						};
+					}
+					public static void main(String... args) {
+				CALLS
+					}
+				}
+				""";
+		String callsTmpl =
+				"""
+						System.out.print(m1((PRIM)VAL));
+						System.out.print(m1((PRIM)MAX));
+						System.out.print(m1((PRIM)NEGVAL));
+				""";
+		// for all primitive types other than boolean (boolean would have duplicate cases):
+		for (int i = 1; i < PRIMITIVES.length; i++) { // 1
+			String calls = fillIn(callsTmpl, i);
+			String classX = fillIn(classTmpl, i)
+					.replace("CALLS", calls);
+			runConformTest(new String[] { "XBOX.java".replace("BOX", BOXES[i]), classX }, "12-2");
+		}
+	}
+	public void testSwitchOn_Boolean_OK() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+				static int m1(Boolean in) {
+					return switch(in) {
+						case true-> 1;
+						default -> -1;
+					};
+				}
+				public static void main(String... args) {
+					System.out.print(m1(true));
+					System.out.print(m1(false));
+				}
+			}
+			"""
+		},
+		"1-1");
+	}
+
+	public void testDuplicateBoolCase() {
+		// saw SOE when executing bogus byte code:
+		runNegativeTest(new String[] {
+				"XBoolean.java",
+				"""
+				public class XBoolean {
+					static int m1(Boolean in) {
+						return switch(in) {
+							case true -> 1;
+							case true -> 2;
+							default -> -1;
+						};
+					}
+					public static void main(String... args) {
+						System.out.print(m1(true));
+						System.out.print(m1(true));
+						System.out.print(m1(false));
+
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in XBoolean.java (at line 4)
+				case true -> 1;
+				     ^^^^
+			Duplicate case
+			----------
+			2. ERROR in XBoolean.java (at line 5)
+				case true -> 2;
+				     ^^^^
+			Duplicate case
+			----------
+			""");
+	}
 	// test from spec
 	public void _testSpec001() {
 		runConformTest(new String[] {

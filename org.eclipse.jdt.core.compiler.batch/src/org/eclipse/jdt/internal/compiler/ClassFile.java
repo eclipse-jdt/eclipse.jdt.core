@@ -4048,8 +4048,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 						this.constantPool.literalIndexForDynamic(c.primitivesBootstrapIdx,
 								c.c.booleanValue() ? BooleanConstant.TRUE_STRING : BooleanConstant.FALSE_STRING,
 								ConstantPool.JavaLangBooleanSignature);
-					case TypeIds.T_byte, TypeIds.T_char, TypeIds.T_short, TypeIds.T_int, TypeIds.T_long ->
+					case TypeIds.T_byte, TypeIds.T_char, TypeIds.T_short, TypeIds.T_int ->
 						this.constantPool.literalIndex(c.intValue());
+					case TypeIds.T_long ->
+						this.constantPool.literalIndex(c.c.longValue());
 					case TypeIds.T_float ->
 						this.constantPool.literalIndex(c.c.floatValue());
 					case TypeIds.T_double ->
