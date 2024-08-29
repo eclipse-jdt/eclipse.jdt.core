@@ -33,6 +33,7 @@ import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
 import org.eclipse.core.resources.IResource;
@@ -595,7 +596,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 
 		JCCompilationUnit javacCompilationUnit = null;
-		Iterable<String> options = Arrays.asList("-proc:none"); // disable annotation processing in the parser.
+		Iterable<String> options = configureAPIfNecessary(fileManager) ? null : Arrays.asList("-proc:none");
 		JavacTask task = ((JavacTool)compiler).getTask(null, fileManager, null /* already added to context */, options, List.of() /* already set */, fileObjects, context);
 		{
 			// don't know yet a better way to ensure those necessary flags get configured
@@ -950,4 +951,47 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		};
 	}
 
+	private boolean configureAPIfNecessary(JavacFileManager fileManager) {
+		Iterable<? extends File> apPaths = fileManager.getLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH);
+		if (apPaths != null) {
+			return true;
+		}
+
+		Iterable<? extends File> apModulePaths = fileManager.getLocation(StandardLocation.ANNOTATION_PROCESSOR_MODULE_PATH);
+		if (apModulePaths != null) {
+			return true;
+		}
+
+		Iterable<? extends File> classPaths = fileManager.getLocation(StandardLocation.CLASS_PATH);
+		if (classPaths != null) {
+			for(File cp : classPaths) {
+				String fileName = cp.getName();
+				if (fileName != null && fileName.startsWith("lombok") && fileName.endsWith(".jar")) {
+					try {
+						fileManager.setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, List.of(cp));
+						return true;
+					} catch (IOException ex) {
+						ILog.get().error(ex.getMessage(), ex);
+					}
+				}
+			}
+		}
+
+		Iterable<? extends File> modulePaths = fileManager.getLocation(StandardLocation.MODULE_PATH);
+		if (modulePaths != null) {
+			for(File mp : modulePaths) {
+				String fileName = mp.getName();
+				if (fileName != null && fileName.startsWith("lombok") && fileName.endsWith(".jar")) {
+					try {
+						fileManager.setLocation(StandardLocation.ANNOTATION_PROCESSOR_MODULE_PATH, List.of(mp));
+						return true;
+					} catch (IOException ex) {
+						ILog.get().error(ex.getMessage(), ex);
+					}
+				}
+			}
+		}
+
+		return false;
+	}
 }
