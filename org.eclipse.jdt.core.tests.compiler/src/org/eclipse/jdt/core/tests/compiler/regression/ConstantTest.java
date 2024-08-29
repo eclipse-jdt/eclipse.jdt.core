@@ -1326,12 +1326,7 @@ private void verifyValues(
 	// intValue()
 	byteConstant.intValue();
 	charConstant.intValue();
-	try {
-		booleanConstant.intValue();
-		assertTrue(false);
-	} catch(ShouldNotImplement e) {
-		// ignore
-	}
+	booleanConstant.intValue();
 	doubleConstant.intValue();
 	floatConstant.intValue();
 	intConstant.intValue();

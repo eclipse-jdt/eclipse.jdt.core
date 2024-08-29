@@ -2524,7 +2524,6 @@ public void invokeDynamicForStringConcat(StringBuilder recipe, List<TypeBinding>
 			1, // Ljava/lang/String;
 			ConstantPool.ConcatWithConstants,
 			signature.toString().toCharArray(),
-			TypeIds.T_JavaLangObject,
 			getPopularBinding(ConstantPool.JavaLangStringConstantPoolName));
 }
 /**
@@ -2951,7 +2950,7 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 			}
 			// Example: invokeDynamic(0, 0, 1, "m".toCharArray(), "()Lcom/foo/X$Foo;".toCharArray());
 			invokeDynamic(funcEx.bootstrapMethodNumber, index, 1, funcEx.descriptor.selector,
-					sig.toString().toCharArray(), funcEx.resolvedType.id, funcEx.resolvedType);
+					sig.toString().toCharArray(), funcEx.resolvedType);
 			areturn();
 			if (j < count - 1) {
 				nextOne.place();
@@ -3385,7 +3384,7 @@ public void generateSyntheticBodyForRecordEquals(SyntheticMethodBinding methodBi
 	String sig = new String(methodBinding.signature());
 	sig = sig.substring(0, 1)+ new String(methodBinding.declaringClass.signature()) + sig.substring(1);
 	invokeDynamic(index, methodBinding.parameters.length, 1, methodBinding.selector, sig.toCharArray(),
-			TypeIds.T_boolean, TypeBinding.BOOLEAN);
+			TypeBinding.BOOLEAN);
 	ireturn();
 }
 public void generateSyntheticBodyForRecordHashCode(SyntheticMethodBinding methodBinding, int index) {
@@ -3393,7 +3392,7 @@ public void generateSyntheticBodyForRecordHashCode(SyntheticMethodBinding method
 	String sig = new String(methodBinding.signature());
 	sig = sig.substring(0, 1)+ new String(methodBinding.declaringClass.signature()) + sig.substring(1);
 	invokeDynamic(index, methodBinding.parameters.length, 1, methodBinding.selector, sig.toCharArray(),
-			TypeIds.T_int, TypeBinding.INT);
+			TypeBinding.INT);
 	ireturn();
 }
 public void generateSyntheticBodyForRecordToString(SyntheticMethodBinding methodBinding, int index) {
@@ -3401,7 +3400,7 @@ public void generateSyntheticBodyForRecordToString(SyntheticMethodBinding method
 	String sig = new String(methodBinding.signature());
 	sig = sig.substring(0, 1)+ new String(methodBinding.declaringClass.signature()) + sig.substring(1);
 	invokeDynamic(index, methodBinding.parameters.length, 1, methodBinding.selector, sig.toCharArray(),
-			TypeIds.T_JavaLangObject, getPopularBinding(ConstantPool.JavaLangStringConstantPoolName));
+			getPopularBinding(ConstantPool.JavaLangStringConstantPoolName));
 	areturn();
 }
 
@@ -4549,12 +4548,12 @@ private void invoke18(byte opcode, int receiverAndArgsSize, int returnTypeSize, 
 }
 
 public void invokeDynamic(int bootStrapIndex, int argsSize, int returnTypeSize, char[] selector, char[] signature,
-		int typeId, TypeBinding type) {
-	this.invokeDynamic(bootStrapIndex, argsSize, returnTypeSize, selector, signature, false, null, null, typeId, type);
+		TypeBinding type) {
+	this.invokeDynamic(bootStrapIndex, argsSize, returnTypeSize, selector, signature, false, null, null, type);
 }
 
 public void invokeDynamic(int bootStrapIndex, int argsSize, int returnTypeSize, char[] selector, char[] signature, boolean isConstructorReference, TypeReference lhsTypeReference, TypeReference [] typeArguments,
-		int typeId, TypeBinding type) {
+		TypeBinding type) {
 	if (this.classFileOffset + 4 >= this.bCodeStream.length) {
 		resizeByteArray();
 	}
