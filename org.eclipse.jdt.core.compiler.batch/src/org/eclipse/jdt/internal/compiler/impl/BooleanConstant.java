@@ -8,12 +8,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.impl;
 
 public class BooleanConstant extends Constant {
+
+	public static final char[] TRUE_STRING = "TRUE".toCharArray(); //$NON-NLS-1$
+	public static final char[] FALSE_STRING = "FALSE".toCharArray(); //$NON-NLS-1$
 
 	private final boolean value;
 
@@ -31,6 +38,11 @@ public class BooleanConstant extends Constant {
 	@Override
 	public boolean booleanValue() {
 		return this.value;
+	}
+
+	@Override
+	public int intValue() {
+		return this.value ? 1 : 0;
 	}
 
 	@Override

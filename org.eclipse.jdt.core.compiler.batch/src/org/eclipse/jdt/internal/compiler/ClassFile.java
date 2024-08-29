@@ -83,6 +83,7 @@ import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
+import org.eclipse.jdt.internal.compiler.ast.SwitchStatement.SingletonBootstrap;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -100,6 +101,7 @@ import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream.ExceptionMarker;
 import org.eclipse.jdt.internal.compiler.codegen.TypeAnnotationCodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.VerificationTypeInfo;
+import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
@@ -205,8 +207,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 	public static final String ENUMDESC_OF = "EnumDesc.of"; //$NON-NLS-1$
 	public static final String CLASSDESC = "ClassDesc"; //$NON-NLS-1$
 	public static final String CLASSDESC_OF = "ClassDesc.of"; //$NON-NLS-1$
+	public static final String CONSTANT_BOOTSTRAP__GET_STATIC_FINAL = "ConstantBootStraps.getStaticFinal"; //$NON-NLS-1$
+	public static final String CONSTANT_BOOTSTRAP__PRIMITIVE_CLASS = "ConstantBootStraps.primitiveClass"; //$NON-NLS-1$
 	public static final String[] BOOTSTRAP_METHODS = { ALTMETAFACTORY_STRING, METAFACTORY_STRING, BOOTSTRAP_STRING,
-			TYPESWITCH_STRING, ENUMSWITCH_STRING, CONCAT_CONSTANTS, INVOKE_STRING, ENUMDESC_OF, CLASSDESC, CLASSDESC_OF};
+			TYPESWITCH_STRING, ENUMSWITCH_STRING, CONCAT_CONSTANTS, INVOKE_STRING, ENUMDESC_OF, CLASSDESC, CLASSDESC_OF,
+			CONSTANT_BOOTSTRAP__GET_STATIC_FINAL, CONSTANT_BOOTSTRAP__PRIMITIVE_CLASS };
+
 	/**
 	 * INTERNAL USE-ONLY
 	 * Request the creation of a ClassFile compatible representation of a problematic type
@@ -3675,6 +3681,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				localContentsOffset = addBootStrapTypeCaseConstantEntry(localContentsOffset, (ResolvedCase) o, fPtr);
 			} else if (o instanceof TypeBinding) {
 				localContentsOffset = addClassDescBootstrap(localContentsOffset, (TypeBinding) o, fPtr);
+			} else if (o instanceof SingletonBootstrap sb) {
+				localContentsOffset = addSingletonBootstrap(localContentsOffset, sb, fPtr);
 			}
 		}
 
@@ -3959,6 +3967,32 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		return localContentsOffset;
 	}
+
+	private int addSingletonBootstrap(int localContentsOffset, SingletonBootstrap sb, Map<String, Integer> fPtr) {
+		final int contentsEntries = 4;
+		int idx = fPtr.get(sb.id());
+		if (contentsEntries + localContentsOffset >= this.contents.length) {
+			resizeContents(contentsEntries);
+		}
+		if (idx == 0) {
+			idx = this.constantPool.literalIndexForMethodHandle(
+					ClassFileConstants.MethodHandleRefKindInvokeStatic,
+					this.referenceBinding.scope.getJavaLangInvokeConstantBootstraps(),
+					sb.selector(),
+					sb.signature(),
+					false);
+			fPtr.put(sb.id(), idx);
+		}
+		this.contents[localContentsOffset++] = (byte) (idx >> 8);
+		this.contents[localContentsOffset++] = (byte) idx;
+
+		// u2 num_bootstrap_arguments
+		this.contents[localContentsOffset++] = 0;
+		this.contents[localContentsOffset++] = (byte) 0;
+
+		return localContentsOffset;
+	}
+
 	private int addBootStrapTypeSwitchEntry(int localContentsOffset, SwitchStatement switchStatement, Map<String, Integer> fPtr) {
 		CaseStatement.ResolvedCase[] constants = switchStatement.otherConstants;
 		int numArgs = constants.length;
@@ -3984,10 +4018,18 @@ public class ClassFile implements TypeConstants, TypeIds {
 		localContentsOffset += 2;
 		for (CaseStatement.ResolvedCase c : constants) {
 			if (c.isPattern()) {
-				char[] typeName = c.t.constantPoolName();
-				int typeIndex = this.constantPool.literalIndexForType(typeName);
-				this.contents[localContentsOffset++] = (byte) (typeIndex >> 8);
-				this.contents[localContentsOffset++] = (byte) typeIndex;
+				int typeOrDynIndex;
+				if ((switchStatement.switchBits & SwitchStatement.Primitive) != 0) {
+					// Dynamic for Class.getPrimitiveClass(Z) or such
+					typeOrDynIndex = this.constantPool.literalIndexForDynamic(c.primitivesBootstrapIdx,
+							c.t.signature(),
+							ConstantPool.JavaLangClassSignature);
+				} else {
+					char[] typeName = c.t.constantPoolName();
+					typeOrDynIndex = this.constantPool.literalIndexForType(typeName);
+				}
+				this.contents[localContentsOffset++] = (byte) (typeOrDynIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) typeOrDynIndex;
 			} else if (c.isQualifiedEnum()){
 				int typeIndex = this.constantPool.literalIndexForDynamic(c.enumDescIdx,
 						ConstantPool.INVOKE_METHOD_METHOD_NAME,
@@ -4001,10 +4043,24 @@ public class ClassFile implements TypeConstants, TypeIds {
 				this.contents[localContentsOffset++] = (byte) intValIdx;
 			} else {
 				if (c.e instanceof NullLiteral) continue;
-				int intValIdx =
+				int valIdx = switch (c.t.id) {
+					case TypeIds.T_boolean -> // Dynamic for Boolean.getStaticFinal(TRUE|FALSE) :
+						this.constantPool.literalIndexForDynamic(c.primitivesBootstrapIdx,
+								c.c.booleanValue() ? BooleanConstant.TRUE_STRING : BooleanConstant.FALSE_STRING,
+								ConstantPool.JavaLangBooleanSignature);
+					case TypeIds.T_byte, TypeIds.T_char, TypeIds.T_short, TypeIds.T_int ->
 						this.constantPool.literalIndex(c.intValue());
-				this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
-				this.contents[localContentsOffset++] = (byte) intValIdx;
+					case TypeIds.T_long ->
+						this.constantPool.literalIndex(c.c.longValue());
+					case TypeIds.T_float ->
+						this.constantPool.literalIndex(c.c.floatValue());
+					case TypeIds.T_double ->
+						this.constantPool.literalIndex(c.c.doubleValue());
+					default ->
+						throw new IllegalArgumentException("Switch has unexpected type: "+switchStatement); //$NON-NLS-1$
+				};
+				this.contents[localContentsOffset++] = (byte) (valIdx >> 8);
+				this.contents[localContentsOffset++] = (byte) valIdx;
 			}
 		}
 
@@ -6396,6 +6452,23 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 		}
 		this.bootstrapMethods.add(type);
+		return this.bootstrapMethods.size() - 1;
+	}
+	/**
+	 * Record a singleton bootstrap method for the given token.
+	 * @param descriptor represents the method to be bootstrapped
+	 * @return the bootstrap index
+	 */
+	public int recordSingletonBootstrapMethod(SingletonBootstrap descriptor) {
+		if (this.bootstrapMethods == null) {
+			this.bootstrapMethods = new ArrayList<>();
+		} else {
+			int idx = this.bootstrapMethods.indexOf(descriptor);
+			if (idx != -1) {
+				return idx;
+			}
+		}
+		this.bootstrapMethods.add(descriptor);
 		return this.bootstrapMethods.size() - 1;
 	}
 	public int recordBootstrapMethod(String expression) {

@@ -1218,6 +1218,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("WildcardConstructorInvocation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("WildcardFieldAssignment", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("WildcardMethodInvocation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("WrongCaseType", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 		expectedProblemAttributes.put("illFormedParameterizationOfFunctionalInterface", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("lambdaParameterTypeMismatched", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("lambdaSignatureMismatched", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -2333,6 +2334,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("WildcardConstructorInvocation", SKIP);
 		expectedProblemAttributes.put("WildcardFieldAssignment", SKIP);
 		expectedProblemAttributes.put("WildcardMethodInvocation", SKIP);
+		expectedProblemAttributes.put("WrongCaseType", SKIP);
 		expectedProblemAttributes.put("illFormedParameterizationOfFunctionalInterface", SKIP);
 		expectedProblemAttributes.put("lambdaParameterTypeMismatched", SKIP);
 		expectedProblemAttributes.put("lambdaSignatureMismatched", SKIP);
