@@ -3346,6 +3346,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		verifyComments(unit);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=196714
+	@JavacTestIgnore(cause=JavacTestIgnore.VALID_ALTERNATIVE_IMPL)
 	public void test109() throws JavaModelException {
 		verifyComments("test109");
 	}

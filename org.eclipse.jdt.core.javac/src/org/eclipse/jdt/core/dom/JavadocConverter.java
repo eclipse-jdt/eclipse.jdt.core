@@ -12,20 +12,16 @@ package org.eclipse.jdt.core.dom;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
 
-import com.sun.source.doctree.DocTree;
 import com.sun.source.doctree.DocTree.Kind;
 import com.sun.source.util.DocTreePath;
 import com.sun.source.util.TreePath;
@@ -59,6 +55,7 @@ import com.sun.tools.javac.tree.DCTree.DCValue;
 import com.sun.tools.javac.tree.DCTree.DCVersion;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeScanner;
+import com.sun.tools.javac.util.Convert;
 import com.sun.tools.javac.util.JCDiagnostic;
 
 class JavadocConverter {
@@ -282,6 +279,16 @@ class JavadocConverter {
 		} else {
 			return Optional.empty();
 		}
+		if( res != null ) {
+			if( res.fragments().size() != 0 ) {
+				// Make sure the tag wrapper has a proper source range
+				ASTNode lastFrag = ((ASTNode)res.fragments().get(res.fragments().size() - 1));
+				int trueEnd = lastFrag.getStartPosition() + lastFrag.getLength();
+				if( trueEnd > (res.getStartPosition() + res.getLength())) {
+					res.setSourceRange(res.getStartPosition(), trueEnd - res.getStartPosition());
+				}
+			}
+		}
 		return Optional.of(res);
 	}
 
@@ -392,12 +399,6 @@ class JavadocConverter {
 	}
 	
 	private Stream<Region> splitLines(String body, int startPos, int endPos) {
-		for( int i = 0; i < endPos; i++ ) {
-			int mapped = this.docComment.getSourcePosition(i);
-			System.out.println(i + ": " + mapped + " -> " + this.javacConverter.rawText.charAt(mapped));
-		}
-		
-		
 		String[] bodySplit = body.split("\n");
 		ArrayList<Region> regions = new ArrayList<>();
 		int workingIndexWithinComment = startPos;
@@ -416,21 +417,32 @@ class JavadocConverter {
 	private Stream<Region> splitLines(DCTree[] allPositions) {
 		if( allPositions.length > 0 ) {
 			int[] startPosition = { this.docComment.getSourcePosition(allPositions[0].getStartPosition()) };
+			int lastNodeStart = this.docComment.getSourcePosition(allPositions[allPositions.length - 1].getStartPosition());
 			int endPosition = this.docComment.getSourcePosition(allPositions[allPositions.length - 1].getEndPosition());
+			if( allPositions[allPositions.length-1] instanceof DCText dct) {
+				String lastText = dct.text;
+				String lastTextFromSrc = this.javacConverter.rawText.substring(lastNodeStart, endPosition);
+				if( !lastTextFromSrc.equals(lastText)) {
+					// We need to fix this. There might be unicode in here
+					String convertedText = Convert.escapeUnicode(lastText);
+					if( convertedText.startsWith(lastTextFromSrc)) {
+						endPosition = lastNodeStart + convertedText.length();
+					}
+				}
+			}
 			String sub = this.javacConverter.rawText.substring(startPosition[0], endPosition);
 			String[] split = sub.split("(\r)?\n\\s*[*][ \t]*");
-			return Arrays.stream(split)
-				.filter(x -> x.length() > 0)//$NON-NLS-1$
-				.map(string -> {
-					int index = this.javacConverter.rawText.indexOf(string, startPosition[0]);
-					if (index < 0) {
-						return null;
-					}
-					startPosition[0] = index + string.length();
-					return new Region(index, string.length());
-				}).filter(Objects::nonNull);
+			List<Region> regions = new ArrayList<>();
+			for( int i = 0; i < split.length; i++ ) {
+				int index = this.javacConverter.rawText.indexOf(split[i], startPosition[0]);
+				if (index >= 0) {
+					regions.add(new Region(index, split[i].length()));
+					startPosition[0] = index + split[i].length();
+				}
+			}
+			return regions.stream();
 		}
-		return Stream.<Region>empty();
+		return Stream.empty();
 	}
 
 	private Stream<IDocElement> convertElementGroup(DCTree[] javac) {
