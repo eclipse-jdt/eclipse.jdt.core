@@ -3193,6 +3193,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * bug125903: [javadoc] Treat whitespace in javadoc tags as invalid tags
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=125903"
 	 */
+	@JavacTestIgnore(cause=JavacTestIgnore.TESTS_SPECIFIC_RESULT_FOR_UNDEFINED_BEHAVIOR)
 	public void testBug125903() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b125903/Test.java",
@@ -3437,7 +3438,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345"
 	 * @deprecated
 	 */
-	@JavacTestIgnore(cause=JavacTestIgnore.VALID_ALTERNATIVE_IMPL)
+	@JavacTestIgnore(cause=JavacTestIgnore.TESTS_SPECIFIC_RESULT_FOR_UNDEFINED_BEHAVIOR)
 	public void testBug206345a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = AST.JLS3;
