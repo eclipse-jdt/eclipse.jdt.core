@@ -392,8 +392,15 @@ class JavacConverter {
 
 	void commonSettings(ASTNode res, JCTree javac) {
 		if( javac != null ) {
+			int length = commonSettingsGetLength(res, javac);
+			commonSettings(res, javac, length, true);
+		}
+	}
+	
+	int commonSettingsGetLength(ASTNode res, JCTree javac) {
+		int length = -1;
+		if( javac != null ) {
 			int start = javac.getStartPosition();
-			int length = -1;
 			if (start >= 0) {
 				int endPos = javac.getEndPosition(this.javacCompilationUnit.endPositions);
 				if( endPos < 0 ) {
@@ -409,17 +416,16 @@ class JavacConverter {
 				if (start + Math.max(0, length) > this.rawText.length()) {
 					length = this.rawText.length() - start;
 				}
-				res.setSourceRange(start, Math.max(0, length));
 			}
-			commonSettings(res, javac, length);
+			return Math.max(0, length);
 		}
+		return length;
 	}
 
-	void commonSettings(ASTNode res, JCTree javac, int length) {
-		if( javac != null ) {
-			if (length >= 0) {
-				int start = javac.getStartPosition();
-				res.setSourceRange(start, Math.max(0, length));
+	void commonSettings(ASTNode res, JCTree javac, int length, boolean removeWhitespace) {
+		if( javac != null && length >= 0) {
+			res.setSourceRange(javac.getStartPosition(), Math.max(0, length));
+			if( removeWhitespace ) {
 				removeSurroundingWhitespaceFromRange(res);
 			}
 			this.domToJavac.put(res, javac);
@@ -448,8 +454,9 @@ class JavacConverter {
 	}
 
 	private Name toName(JCTree expression) {
-		return toName(expression, this::commonSettings);
+		return toName(expression, null);
 	}
+	
 	Name toName(JCTree expression, BiConsumer<ASTNode, JCTree> extraSettings ) {
 		if (expression instanceof JCIdent ident) {
 			Name res = convertName(ident.getName());
@@ -2825,7 +2832,7 @@ class JavacConverter {
 						int ordinal = ordinalIndexOf(raw, "]", dims);
 						if( ordinal != -1 ) {
 							int indOf = ordinal + 1;
-							commonSettings(res, jcArrayType, indOf);
+							commonSettings(res, jcArrayType, indOf, true);
 							return res;
 						}
 					} catch( Throwable tErr) {

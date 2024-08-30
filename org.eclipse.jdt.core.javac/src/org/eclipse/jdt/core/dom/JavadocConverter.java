@@ -242,7 +242,6 @@ class JavadocConverter {
 		}  else if (javac instanceof DCSee see) {
 			res.setTagName(TagElement.TAG_SEE);
 			convertElementCombiningNodes(see.reference.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
-			//see.reference.stream().filter(a -> a != null).flatMap(this::convertElement).forEach(res.fragments::add);
 		} else if (javac instanceof DCDeprecated deprecated) {
 			res.setTagName(TagElement.TAG_DEPRECATED);
 			convertElementCombiningNodes(deprecated.body.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
@@ -537,9 +536,6 @@ class JavadocConverter {
 			elements.addAll(convertElementGroup(combinable.toArray(new DCTree[0])).toList());
 		return elements;
 	}
-
-	
-	
 	private Stream<? extends IDocElement> convertElement(DCTree javac) {
 		if (javac instanceof DCText text) {
 			return splitLines(text).map(this::toTextElement);
@@ -553,7 +549,8 @@ class JavadocConverter {
 				if( reference.qualifierExpression != null ) {
 					Name res = this.javacConverter.toName(reference.qualifierExpression, (dom, javacNode) -> {
 						int startPosition = this.docComment.getSourcePosition(reference.getPreferredPosition()) + javacNode.getStartPosition();
-						dom.setSourceRange(startPosition, dom.getLength());
+						int len = this.javacConverter.commonSettingsGetLength(dom, javacNode);
+						dom.setSourceRange(startPosition, len);
 						if (this.contextTreePath != null) {
 							this.converted.put(dom, DocTreePath.getPath(this.contextTreePath, this.docComment, javac));
 						}
