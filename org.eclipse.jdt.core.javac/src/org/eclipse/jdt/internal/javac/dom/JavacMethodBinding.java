@@ -421,15 +421,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public IBinding getDeclaringMember() {
-		if (!this.methodSymbol.isLambdaMethod()) {
-			return null;
-		}
-		if (this.methodSymbol.owner instanceof MethodSymbol methodSymbol) {
-			return this.resolver.bindings.getMethodBinding(methodSymbol.type.asMethodType(), methodSymbol, null, isDeclaration);
-		} else if (this.methodSymbol.owner instanceof VarSymbol variableSymbol) {
-			return this.resolver.bindings.getVariableBinding(variableSymbol);
-		}
-		throw new IllegalArgumentException("Unexpected owner type: " + this.methodSymbol.owner.getClass().getCanonicalName());
+		return null; // overriden in JavacLambdaBinding
 	}
 
 	@Override

@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
@@ -26,6 +27,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
+import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -35,6 +37,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.internal.core.DOMToModelPopulator;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.LambdaMethod;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -108,6 +111,15 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 		IMethodBinding methodBinding = getDeclaringMethod();
 		if (methodBinding != null && methodBinding.getJavaElement() instanceof IMethod method) {
 			if (isParameter()) {
+				if (method instanceof LambdaMethod parentLambda && this.resolver.findDeclaringNode(this) instanceof VariableDeclarationFragment decl) {
+					return new LocalVariable(parentLambda, getName(),
+							decl.getStartPosition(), decl.getStartPosition() + decl.getLength() - 1,
+							decl.getName().getStartPosition(), decl.getName().getStartPosition() + decl.getName().getLength() - 1,
+							Signature.createTypeSignature(getType().getQualifiedName(), true),
+							null,
+							getModifiers(),
+							true);
+				}
 				try {
 					return Arrays.stream(method.getParameters())
 							.filter(param -> Objects.equals(param.getElementName(), getName()))
@@ -134,7 +146,6 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 			&& this.resolver.bindings.getTypeBinding(parentType.type).getJavaElement() instanceof IType type) {
 			return type.getField(this.variableSymbol.name.toString());
 		}
-
 		return null;
 	}
 
@@ -263,7 +274,11 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 				if (!(method.type instanceof Type.MethodType methodType)) {
 					return null;
 				}
-				return this.resolver.bindings.getMethodBinding(methodType, method, null, false);
+				JavacMethodBinding res = this.resolver.bindings.getMethodBinding(methodType, method, null, false);
+				if (this.resolver.findDeclaringNode(this).getParent() instanceof LambdaExpression lambda) {
+					return lambda.resolveMethodBinding();
+				}
+				return res;
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);
