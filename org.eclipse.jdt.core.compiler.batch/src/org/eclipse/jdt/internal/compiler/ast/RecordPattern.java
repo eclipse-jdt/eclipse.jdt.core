@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class RecordPattern extends Pattern {
@@ -72,7 +73,7 @@ public class RecordPattern extends Pattern {
 	}
 
 	@Override
-	public boolean coversType(TypeBinding t) {
+	public boolean coversType(TypeBinding t, Scope scope) {
 
 		if (!isUnguarded())
 			return false;
@@ -89,7 +90,7 @@ public class RecordPattern extends Pattern {
 		for (int i = 0; i < components.length; i++) {
 			Pattern p = this.patterns[i];
 			RecordComponentBinding componentBinding = components[i];
-			if (!p.coversType(componentBinding.type)) {
+			if (!p.coversType(componentBinding.type, scope)) {
 				return false;
 			}
 		}
@@ -149,7 +150,7 @@ public class RecordPattern extends Pattern {
 			return this.resolvedType;
 		}
 
-		this.isTotalTypeNode = super.coversType(this.resolvedType);
+		this.isTotalTypeNode = super.coversType(this.resolvedType, scope);
 		RecordComponentBinding[] components = this.resolvedType.capture(scope, this.sourceStart, this.sourceEnd).components();
 		for (int i = 0; i < components.length; i++) {
 			Pattern p1 = this.patterns[i];
@@ -162,7 +163,7 @@ public class RecordPattern extends Pattern {
 			}
 			TypeBinding expressionType = componentBinding.type;
 			if (p1.isApplicable(expressionType, scope)) {
-				p1.isTotalTypeNode = p1.coversType(componentBinding.type);
+				p1.isTotalTypeNode = p1.coversType(componentBinding.type, scope);
 				MethodBinding[] methods = this.resolvedType.getMethods(componentBinding.name);
 				if (methods != null && methods.length > 0) {
 					p1.accessorMethod = methods[0];
@@ -189,7 +190,7 @@ public class RecordPattern extends Pattern {
 	}
 
 	@Override
-	public boolean isUnconditional(TypeBinding t) {
+	public boolean isUnconditional(TypeBinding t, Scope scope) {
 		return false;
 	}
 

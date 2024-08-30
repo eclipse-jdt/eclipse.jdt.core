@@ -1423,6 +1423,193 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	public void testBooleanSwitchExhaustive_OK() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static int m1(boolean b) {
+						return switch (b) {
+							case true -> 1;
+							case false -> 0;
+						};
+					}
+					public static void main(String... args) {
+						System.out.print(m1(true));
+						System.out.print(m1(false));
+					}
+				}
+				"""
+			},
+			"10");
+	}
+	public void testBooleanSwitchExhaustive_NOK() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static int m1(boolean b) {
+						return switch (b) {
+							case true -> 1;
+						};
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 3)
+				return switch (b) {
+				               ^
+			A switch expression should have a default case
+			----------
+			""");
+	}
+
+	// exhaustiveness with identity conversion is already cover testNarrowingInSwitchFrom()
+
+	public void testShortSwitchExhaustive_int_Number_Comparable() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static int m1(short s) {
+						return switch (s) {
+							case 1 -> 0;
+							case int v -> v*2;
+						};
+					}
+					static int m2(short s) {
+						return switch (s) {
+							case 1 -> 0;
+							case Number v -> v.intValue()*2;
+						};
+					}
+					static int m3(short s) {
+						return switch (s) {
+							case 1 -> 0;
+							case Comparable<?> v -> humbug(v);
+						};
+					}
+					static int humbug(Comparable<?> v) {
+						return 8;
+					}
+					public static void main(String... args) {
+						System.out.print(m1((short) 1));
+						System.out.print(m1((short) 4));
+						System.out.print(m2((short) 1));
+						System.out.print(m2((short) 4));
+						System.out.print(m3((short) 1));
+						System.out.print(m3((short) 4));
+					}
+				}
+				"""
+			},
+			"080808");
+	}
+
+	public void testIntSwitchExhaustive_NOK() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static float m1(Integer i) {
+						return switch(i) {
+							case 1 -> 1.0f;
+							case float f -> f;
+						};
+					}
+					static float m2(int i) {
+						return switch(i) {
+							case 1 -> 1;
+							case float f -> f;
+						};
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 3)
+				return switch(i) {
+				              ^
+			A switch expression should have a default case
+			----------
+			2. ERROR in X.java (at line 9)
+				return switch(i) {
+				              ^
+			A switch expression should have a default case
+			----------
+			""");
+	}
+
+	public void testIntSwitchExhaustive_OK() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static double m1(Integer i) {
+						return switch(i) {
+							case 1 -> 1.0f;
+							case double d -> d;
+						};
+					}
+					static double m2(int i) {
+						return switch(i) {
+							case 1 -> 1;
+							case double d -> d;
+						};
+					}
+					public static void main(String... args) {
+						System.out.print(m1(1));
+						System.out.print('|');
+						System.out.print(m1(3));
+						System.out.print('|');
+						System.out.print(m2(1));
+						System.out.print('|');
+						System.out.print(m2(3));
+					}
+				}
+				"""
+			},
+			"1.0|3.0|1.0|3.0");
+	}
+
+	public void testLongSwitchExhaustive_NOK() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static float m1(Long l) {
+						return switch(l) {
+							case 1L -> 1.0f;
+							case float f -> f;
+						};
+					}
+					static double m2(long l) {
+						return switch(l) {
+							case 1L -> 1.0d;
+							case double d -> d;
+						};
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 3)
+				return switch(l) {
+				              ^
+			A switch expression should have a default case
+			----------
+			2. ERROR in X.java (at line 9)
+				return switch(l) {
+				              ^
+			A switch expression should have a default case
+			----------
+			""");
+	}
+
 	// test from spec
 	public void _testSpec001() {
 		runConformTest(new String[] {

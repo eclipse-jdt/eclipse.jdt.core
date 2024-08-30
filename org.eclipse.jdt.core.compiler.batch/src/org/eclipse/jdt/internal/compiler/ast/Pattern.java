@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.NullTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VoidTypeBinding;
 
 public abstract class Pattern extends Expression {
@@ -76,12 +77,29 @@ public abstract class Pattern extends Expression {
 	 *
 	 * @return whether pattern covers the given type or not
 	 */
-	public boolean coversType(TypeBinding type) {
+	public boolean coversType(TypeBinding type, Scope scope) {
 		if (!isUnguarded())
 			return false;
 		if (type == null || this.resolvedType == null)
 			return false;
-		return (type.isSubtypeOf(this.resolvedType, false));
+		if (type.isPrimitiveOrBoxedPrimitiveType()) {
+			PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(this.resolvedType, type, scope);
+			switch (route) {
+				case IDENTITY_CONVERSION:
+				case BOXING_CONVERSION:
+				case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
+					return true;
+				case WIDENING_PRIMITIVE_CONVERSION:
+					return BaseTypeBinding.isExactWidening(this.resolvedType.id, type.id);
+				case UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION:
+					return BaseTypeBinding.isExactWidening(this.resolvedType.id, TypeIds.box2primitive(type.id));
+				default:
+					break;
+			}
+		}
+		if (type.isSubtypeOf(this.resolvedType, false))
+			return true;
+		return false;
 	}
 
 	// Given a non-null instance of same type, would the pattern always match ?
@@ -89,8 +107,8 @@ public abstract class Pattern extends Expression {
 		return false;
 	}
 
-	public boolean isUnconditional(TypeBinding t) {
-		return isUnguarded() && coversType(t);
+	public boolean isUnconditional(TypeBinding t, Scope scope) {
+		return isUnguarded() && coversType(t, scope);
 	}
 
 	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel);
@@ -179,12 +197,9 @@ public abstract class Pattern extends Expression {
 		}
 		return false;
 	}
-	public static PrimitiveConversionRoute findPrimitiveConversionRoute(TypeBinding destinationType, TypeBinding expressionType, BlockScope scope) {
-		if (!(JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
-				scope.compilerOptions().sourceLevel,
-				scope.compilerOptions().enablePreviewFeatures))) {
+	public static PrimitiveConversionRoute findPrimitiveConversionRoute(TypeBinding destinationType, TypeBinding expressionType, Scope scope) {
+		if (!JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(scope.compilerOptions()))
 			return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
-		}
 		if (destinationType == null || expressionType == null)
 			return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 		boolean destinationIsBaseType = destinationType.isBaseType();
