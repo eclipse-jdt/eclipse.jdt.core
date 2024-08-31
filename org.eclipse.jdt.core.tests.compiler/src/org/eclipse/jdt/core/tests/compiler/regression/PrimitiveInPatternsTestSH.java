@@ -1493,6 +1493,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		runConformTest(new String[] {
 				"X.java",
 				"""
+				import java.util.Optional;
 				public class X {
 					static <T extends Integer> int mInteger(T in) {
 						return switch (in) {
@@ -1500,20 +1501,63 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 							default -> -1;
 						};
 					}
-					static <T extends Short> int mShort(T in) {
-						return switch (in) {
+					static int mShort(Optional<? extends Short> in) {
+						return switch (in.get()) {
 							case int v -> v;
 							default -> -1;
 						};
 					}
 					public static void main(String... args) {
 						System.out.print(mInteger(Integer.valueOf(1)));
-						System.out.print(mShort(Short.valueOf((short) 2)));
+						System.out.print(mShort(Optional.of(Short.valueOf((short) 2))));
 					}
 				}
 				"""
 			},
 			"12");
+	}
+	public void testInstanceof_widenUnbox() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				import java.util.Optional;
+				public class X {
+					static <T extends Integer> int mInteger(T in) {
+						if (in instanceof int v) return v;
+						return -1;
+					}
+					static int mShort(Optional<? extends Short> in) {
+						if (in.get() instanceof int v) return v;
+						return -1;
+					}
+					public static void main(String... args) {
+						System.out.print(mInteger(Integer.valueOf(1)));
+						System.out.print(mShort(Optional.of(Short.valueOf((short) 2))));
+					}
+				}
+				"""
+			},
+			"12");
+	}
+	public void testInstanceof_genericExpression() { // regression test for a checkCast which we failed to generate earlier
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				import java.util.List;
+				import java.util.Collections;
+				public class X {
+					static int mInteger(List<Integer> in) {
+						if (in.get(0) instanceof int v) // pattern is total, still the cast to Integer must be generated
+							return v;
+						return -1;
+					}
+					public static void main(String... args) {
+						System.out.print(mInteger(Collections.singletonList(Integer.valueOf(1))));
+					}
+				}
+				"""
+			},
+			"1");
 	}
 	public void testPrimitivePatternInSwitch_more() {
 		runConformTest(new String[] {
@@ -1534,6 +1578,13 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 							case float v -> "v="+String.valueOf(v);
 						};
 					}
+					public static char switchByteToChar(byte b) {
+						return switch (b) {
+							case '1' -> 'A';
+							case char c -> c;
+							default -> '_';
+						};
+					}
 					public static void main(String... args) {
 						System.out.print(switchbool(true));
 						System.out.print("|");
@@ -1545,10 +1596,38 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 						System.out.print("|");
 						System.out.print(switchfloatMoreCases(1.6f));
 						System.out.print("|");
+						System.out.print(switchByteToChar((byte) 49));
+						System.out.print("|");
+						System.out.print(switchByteToChar((byte) 50));
+						System.out.print("|");
+						System.out.print(switchByteToChar((byte) -1));
 					}
 				}
 				"""},
-				"true|v=false|1.0|1.5|v=1.6|");
+				"true|v=false|1.0|1.5|v=1.6|A|2|_");
+	}
+
+	public void testPrimitivePatternInSwitch_byteToChar_notExhaustive() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static char switchByteToChar(byte b) {
+						return switch (b) {
+							case '1' -> 'A';
+							case char c -> c;
+						};
+					}
+				}
+				"""},
+				"""
+				----------
+				1. ERROR in X.java (at line 3)
+					return switch (b) {
+					               ^
+				A switch expression should have a default case
+				----------
+				""");
 	}
 
 	private void testNarrowingInSwitchFrom(String from, int idx, String expectedOut) {

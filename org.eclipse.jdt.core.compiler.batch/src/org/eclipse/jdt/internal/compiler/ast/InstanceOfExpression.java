@@ -221,39 +221,46 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 
 private void generateTypeCheck(BlockScope scope, CodeStream codeStream, BranchLabel internalFalseLabel, PrimitiveConversionRoute route) {
 	switch (route) {
-		case IDENTITY_CONVERSION:
+		case IDENTITY_CONVERSION -> {
 			storeExpressionValue(codeStream);
 			codeStream.iconst_1();
 			setPatternIsTotalType();
-			break;
-		case WIDENING_PRIMITIVE_CONVERSION:
-		case NARROWING_PRIMITVE_CONVERSION:
-		case WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION:
+		}
+		case WIDENING_PRIMITIVE_CONVERSION,
+			 NARROWING_PRIMITVE_CONVERSION,
+			 WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION -> {
 			generateExactConversions(scope, codeStream);
 			setPatternIsTotalType();
-			break;
-		case BOXING_CONVERSION:
-		case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
+		}
+		case BOXING_CONVERSION,
+			 BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION -> {
 			storeExpressionValue(codeStream);
 			codeStream.iconst_1();
 			setPatternIsTotalType();
-			break;
-//			TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION:
-//			TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION:
-		case NARROWING_AND_UNBOXING_CONVERSION:
-			TypeBinding boxType = scope.environment().computeBoxingType(this.type.resolvedType);
-			codeStream.instance_of(this.type, boxType);
-			break;
-		case UNBOXING_CONVERSION:
-		case UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION:
+		}
+		case WIDENING_REFERENCE_AND_UNBOXING_COVERSION,
+			 WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION -> {
 			codeStream.ifnull(internalFalseLabel);
 			codeStream.iconst_1();
 			setPatternIsTotalType();
-			break;
-		case NO_CONVERSION_ROUTE:
-		default:
+		}
+		case NARROWING_AND_UNBOXING_CONVERSION -> {
+			TypeBinding boxType = scope.environment().computeBoxingType(this.type.resolvedType);
+			codeStream.instance_of(this.type, boxType);
+		}
+		case UNBOXING_CONVERSION,
+			 UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION -> {
+			codeStream.ifnull(internalFalseLabel);
+			codeStream.iconst_1();
+			setPatternIsTotalType();
+		}
+		case NO_CONVERSION_ROUTE -> {
 			codeStream.instance_of(this.type, this.type.resolvedType);
 			break;
+		}
+		default -> {
+			throw new IllegalArgumentException("Unexpected conversion route "+route); //$NON-NLS-1$
+		}
 	}
 }
 
@@ -302,6 +309,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	TypeBinding expressionType = this.expression.resolveType(scope);
 	if (this.pattern != null) {
+		this.expression.computeConversion(scope, expressionType, expressionType); // avoid that a total pattern would skip a checkCast, needed due to generics
 		this.pattern.setExpressionContext(ExpressionContext.TESTING_CONTEXT);
 		this.pattern.setOuterExpressionType(this.expression.resolvedType);
 		this.pattern.resolveType(scope);

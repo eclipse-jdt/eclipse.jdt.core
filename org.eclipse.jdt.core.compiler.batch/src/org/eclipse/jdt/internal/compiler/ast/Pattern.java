@@ -93,6 +93,8 @@ public abstract class Pattern extends Expression {
 					return true;
 				case WIDENING_PRIMITIVE_CONVERSION:
 					return BaseTypeBinding.isExactWidening(this.resolvedType.id, type.id);
+				case WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION:
+					return false; // char->byte
 				/* §14.11.1.1 "CE contains a type pattern with a primitive type P,
 				 * 		 	and T is the wrapper class for the primitive type W,
 				 *			and the conversion from type W to type P is unconditionally exact (5.7.2). */
@@ -214,12 +216,12 @@ public abstract class Pattern extends Expression {
 			if (TypeBinding.equalsEquals(destinationType, expressionType)) {
 				return PrimitiveConversionRoute.IDENTITY_CONVERSION;
 			}
+			if (BaseTypeBinding.isWideningAndNarrowing(destinationType.id, expressionType.id))
+				return PrimitiveConversionRoute.WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION;
 			if (BaseTypeBinding.isWidening(destinationType.id, expressionType.id))
 				return PrimitiveConversionRoute.WIDENING_PRIMITIVE_CONVERSION;
 			if (BaseTypeBinding.isNarrowing(destinationType.id, expressionType.id))
 				return PrimitiveConversionRoute.NARROWING_PRIMITVE_CONVERSION;
-			if (BaseTypeBinding.isWideningAndNarrowing(destinationType.id, expressionType.id))
-				return PrimitiveConversionRoute.WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION;
 		} else {
 			if (expressionIsBaseType) {
 				if (expressionType instanceof NullTypeBinding
