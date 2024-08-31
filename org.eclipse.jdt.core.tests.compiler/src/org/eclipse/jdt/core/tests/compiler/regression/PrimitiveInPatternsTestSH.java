@@ -1130,6 +1130,435 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				"false|false|49|-1|1|-|49|-1|49|-1|49|-1|49.0|-1.0|49.0|-1.0|");
 	}
 
+	public void testPrimitivePatternInSwitch_unbox() {
+		StringBuilder methods = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		String methodTmpl =
+				"""
+					public static PRIM switchPRIM(BOX in) {
+						return switch (in) {
+							case MAX -> NEGVAL;
+							case PRIM v -> v;
+						};
+					}
+				""";
+		String callTmpl =
+				"""
+						BOX vBOX = VAL;
+						System.out.print(X.switchPRIM(vBOX));
+						System.out.print('|');
+						vBOX = MAX;
+						System.out.print(X.switchPRIM(vBOX));
+						System.out.print('|');
+				""";
+		// for all primitive types:
+		for (int i = 0; i < PRIMITIVES.length; i++) {
+			methods.append(fillIn(methodTmpl, i));
+			calls.append(fillIn(callTmpl, i));
+		}
+		StringBuilder classX = new StringBuilder("public class X {\n");
+		classX.append(methods.toString());
+		classX.append("public static void main(String[] args) {\n");
+		classX.append(calls);
+		classX.append("}}\n");
+		runConformTest(new String[] { "X.java", classX.toString() },
+				"false|false|49|-1|1|-|49|-1|49|-1|49|-1|49.0|-1.0|49.0|-1.0|");
+	}
+
+	public void testPrimitivePatternInSwitch_narrowConst_NOK() {
+		StringBuilder methods = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		String methodTmpl =
+				"""
+					public static PRIM switchPRIM(Object in) {
+						return switch (in) {
+							case MAX -> NEGVAL;
+							default -> MAX;
+						};
+					}
+				""";
+		String callTmpl =
+				"""
+						BOX vBOX = VAL;
+						System.out.print(X.switchPRIM(vBOX));
+						System.out.print('|');
+						vBOX = MAX;
+						System.out.print(X.switchPRIM(vBOX));
+						System.out.print('|');
+				""";
+		// for all primitive types:
+		for (int i = 0; i < PRIMITIVES.length; i++) {
+			methods.append(fillIn(methodTmpl, i));
+			calls.append(fillIn(callTmpl, i));
+		}
+		StringBuilder classX = new StringBuilder("public class X {\n");
+		classX.append(methods.toString());
+		classX.append("public static void main(String[] args) {\n");
+		classX.append(calls);
+		classX.append("}}\n");
+		runNegativeTest(new String[] { "X.java", classX.toString() },
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case true -> false;
+					     ^^^^
+				Case constant of type boolean is incompatible with switch selector type Object
+				----------
+				2. ERROR in X.java (at line 10)
+					case Byte.MAX_VALUE -> -1;
+					     ^^^^^^^^^^^^^^
+				Case constant of type byte is incompatible with switch selector type Object
+				----------
+				3. ERROR in X.java (at line 16)
+					case 'z' -> '-';
+					     ^^^
+				Case constant of type char is incompatible with switch selector type Object
+				----------
+				4. ERROR in X.java (at line 22)
+					case Short.MAX_VALUE -> -1;
+					     ^^^^^^^^^^^^^^^
+				Case constant of type short is incompatible with switch selector type Object
+				----------
+				5. ERROR in X.java (at line 28)
+					case Integer.MAX_VALUE -> -1;
+					     ^^^^^^^^^^^^^^^^^
+				Case constant of type int is incompatible with switch selector type Object
+				----------
+				6. ERROR in X.java (at line 34)
+					case Long.MAX_VALUE -> -1L;
+					     ^^^^^^^^^^^^^^
+				Case constant of type long is incompatible with switch selector type Object
+				----------
+				7. ERROR in X.java (at line 40)
+					case Float.MAX_VALUE -> -1.0f;
+					     ^^^^^^^^^^^^^^^
+				Case constant of type float is incompatible with switch selector type Object
+				----------
+				8. ERROR in X.java (at line 46)
+					case Double.MAX_VALUE -> -1.0d;
+					     ^^^^^^^^^^^^^^^^
+				Case constant of type double is incompatible with switch selector type Object
+				----------
+				""");
+	}
+
+	public void testPrimitivePatternInSwitch_narrowUnbox() {
+		StringBuilder methods = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		String methodTmpl =
+				"""
+					public static PRIM switchPRIM(Object in) {
+						return switch (in) {
+							case PRIM v -> v;
+							default -> NEGVAL;
+						};
+					}
+				""";
+		String callTmpl =
+				"""
+						BOX vBOX = VAL;
+						System.out.print(X.switchPRIM(vBOX));
+						System.out.print('|');
+						System.out.print(X.switchPRIM(new Object()));
+						System.out.print('|');
+				""";
+		// for all primitive types:
+		for (int i = 0; i < PRIMITIVES.length; i++) {
+			methods.append(fillIn(methodTmpl, i));
+			calls.append(fillIn(callTmpl, i));
+		}
+		StringBuilder classX = new StringBuilder("public class X {\n");
+		classX.append(methods.toString());
+		classX.append("public static void main(String[] args) {\n");
+		classX.append(calls);
+		classX.append("}}\n");
+		runConformTest(new String[] { "X.java", classX.toString() },
+				"true|false|49|-1|1|-|49|-1|49|-1|49|-1|49.0|-1.0|49.0|-1.0|");
+	}
+
+	private void testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK(String from, int idx, String expectedError) {
+		assert from.equals(BOXES[idx]) : "mismatching from vs idx";
+		StringBuilder methods = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		String classTmpl =
+				"""
+				public class X {
+				METHODS
+					public static void main(String... args) {
+						FROM vFROM= VAL;
+				CALLS
+					}
+				}
+				""".replaceAll("FROM", from).replace("VAL", GOODVALUES[idx]);
+		String methodTmpl =
+				"""
+					public static PRIM switchPRIM(FROM in) {
+						return switch (in) {
+							case PRIM v -> v;
+							default -> throw new RuntimeException();
+						};
+					}
+				""".replace("FROM", from);
+		String callTmpl =
+				"""
+						System.out.print(X.switchPRIM(vFROM));
+						System.out.print('|');
+				""".replaceAll("FROM", from); // leaves only PRIM for replacement in the loop
+		// for all smaller numerical primitive types:
+		for (int i = 1; i < idx; i++) {
+			if (!IS_NUMERICAL[i]) continue;
+			methods.append(fillIn(methodTmpl, i));
+			calls.append(fillIn(callTmpl, i));
+		}
+		String classX = classTmpl.replace("METHODS", methods.toString()).replaceAll("CALLS", calls.toString());
+		runNegativeTest(new String[] { "X.java", classX },
+				expectedError);
+	}
+	public void testPrimitivePatternInSwitchShort_unboxAndNarrow_NOK() {
+		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Short", 3,
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case byte v -> v;
+					     ^^^^^^
+				Type mismatch: cannot convert from Short to byte
+				----------
+				""");
+	}
+	public void testPrimitivePatternInSwitchInt_unboxAndNarrow_NOK() {
+		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Integer", 4,
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case byte v -> v;
+					     ^^^^^^
+				Type mismatch: cannot convert from Integer to byte
+				----------
+				2. ERROR in X.java (at line 10)
+					case short v -> v;
+					     ^^^^^^^
+				Type mismatch: cannot convert from Integer to short
+				----------
+				""");
+	}
+	public void testPrimitivePatternInSwitchLong_unboxAndNarrow_NOK() {
+		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Long", 5,
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case byte v -> v;
+					     ^^^^^^
+				Type mismatch: cannot convert from Long to byte
+				----------
+				2. ERROR in X.java (at line 10)
+					case short v -> v;
+					     ^^^^^^^
+				Type mismatch: cannot convert from Long to short
+				----------
+				3. ERROR in X.java (at line 16)
+					case int v -> v;
+					     ^^^^^
+				Type mismatch: cannot convert from Long to int
+				----------
+				""");
+	}
+	public void testPrimitivePatternInSwitchFloat_unboxAndNarrow_NOK() {
+		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Float", 6,
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case byte v -> v;
+					     ^^^^^^
+				Type mismatch: cannot convert from Float to byte
+				----------
+				2. ERROR in X.java (at line 10)
+					case short v -> v;
+					     ^^^^^^^
+				Type mismatch: cannot convert from Float to short
+				----------
+				3. ERROR in X.java (at line 16)
+					case int v -> v;
+					     ^^^^^
+				Type mismatch: cannot convert from Float to int
+				----------
+				4. ERROR in X.java (at line 22)
+					case long v -> v;
+					     ^^^^^^
+				Type mismatch: cannot convert from Float to long
+				----------
+				""");
+	}
+	public void testPrimitivePatternInSwitchDouble_unboxAndNarrow_NOK() {
+		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Double", 7,
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case byte v -> v;
+					     ^^^^^^
+				Type mismatch: cannot convert from Double to byte
+				----------
+				2. ERROR in X.java (at line 10)
+					case short v -> v;
+					     ^^^^^^^
+				Type mismatch: cannot convert from Double to short
+				----------
+				3. ERROR in X.java (at line 16)
+					case int v -> v;
+					     ^^^^^
+				Type mismatch: cannot convert from Double to int
+				----------
+				4. ERROR in X.java (at line 22)
+					case long v -> v;
+					     ^^^^^^
+				Type mismatch: cannot convert from Double to long
+				----------
+				5. ERROR in X.java (at line 28)
+					case float v -> v;
+					     ^^^^^^^
+				Type mismatch: cannot convert from Double to float
+				----------
+				""");
+	}
+	public void testPrimitivePatternInSwitch_Character_unboxAndNarrow_NOK() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static int m1(Character ch) {
+						return switch(ch) {
+							case byte b -> b;
+							case short s -> s;
+							case char c -> c;
+						};
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 4)
+				case byte b -> b;
+				     ^^^^^^
+			Type mismatch: cannot convert from Character to byte
+			----------
+			2. ERROR in X.java (at line 5)
+				case short s -> s;
+				     ^^^^^^^
+			Type mismatch: cannot convert from Character to short
+			----------
+			""");
+	}
+
+	public void testPrimitivePatternInSwitch_Character_unboxAndWiden() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static int mint(Character ch) {
+						return switch(ch) {
+							case int v -> v;
+						};
+					}
+					static long mlong(Character ch) {
+						return switch(ch) {
+							case long v -> v;
+						};
+					}
+					static float mfloat(Character ch) {
+						return switch(ch) {
+							case float v -> v;
+						};
+					}
+					static double mdouble(Character ch) {
+						return switch(ch) {
+							case double v -> v;
+						};
+					}
+					public static void main(String... args) {
+						System.out.print(mint('a'));
+						System.out.print('|');
+						System.out.print(mlong('b'));
+						System.out.print('|');
+						System.out.print(mfloat('c'));
+						System.out.print('|');
+						System.out.print(mdouble('d'));
+					}
+				}
+				"""
+			},
+			"97|98|99.0|100.0");
+	}
+
+	public void testPrimitivePatternInSwitch_widenUnbox() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				import java.util.Optional;
+				public class X {
+					static <T extends Integer> int mInteger(T in) {
+						return switch (in) {
+							case int v -> v;
+							default -> -1;
+						};
+					}
+					static int mShort(Optional<? extends Short> in) {
+						return switch (in.get()) {
+							case int v -> v;
+							default -> -1;
+						};
+					}
+					public static void main(String... args) {
+						System.out.print(mInteger(Integer.valueOf(1)));
+						System.out.print(mShort(Optional.of(Short.valueOf((short) 2))));
+					}
+				}
+				"""
+			},
+			"12");
+	}
+	public void testInstanceof_widenUnbox() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				import java.util.Optional;
+				public class X {
+					static <T extends Integer> int mInteger(T in) {
+						if (in instanceof int v) return v;
+						return -1;
+					}
+					static int mShort(Optional<? extends Short> in) {
+						if (in.get() instanceof int v) return v;
+						return -1;
+					}
+					public static void main(String... args) {
+						System.out.print(mInteger(Integer.valueOf(1)));
+						System.out.print(mShort(Optional.of(Short.valueOf((short) 2))));
+					}
+				}
+				"""
+			},
+			"12");
+	}
+	public void testInstanceof_genericExpression() { // regression test for a checkCast which we failed to generate earlier
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				import java.util.List;
+				import java.util.Collections;
+				public class X {
+					static int mInteger(List<Integer> in) {
+						if (in.get(0) instanceof int v) // pattern is total, still the cast to Integer must be generated
+							return v;
+						return -1;
+					}
+					public static void main(String... args) {
+						System.out.print(mInteger(Collections.singletonList(Integer.valueOf(1))));
+					}
+				}
+				"""
+			},
+			"1");
+	}
 	public void testPrimitivePatternInSwitch_more() {
 		runConformTest(new String[] {
 				"X.java",
@@ -1149,6 +1578,13 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 							case float v -> "v="+String.valueOf(v);
 						};
 					}
+					public static char switchByteToChar(byte b) {
+						return switch (b) {
+							case '1' -> 'A';
+							case char c -> c;
+							default -> '_';
+						};
+					}
 					public static void main(String... args) {
 						System.out.print(switchbool(true));
 						System.out.print("|");
@@ -1160,10 +1596,38 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 						System.out.print("|");
 						System.out.print(switchfloatMoreCases(1.6f));
 						System.out.print("|");
+						System.out.print(switchByteToChar((byte) 49));
+						System.out.print("|");
+						System.out.print(switchByteToChar((byte) 50));
+						System.out.print("|");
+						System.out.print(switchByteToChar((byte) -1));
 					}
 				}
 				"""},
-				"true|v=false|1.0|1.5|v=1.6|");
+				"true|v=false|1.0|1.5|v=1.6|A|2|_");
+	}
+
+	public void testPrimitivePatternInSwitch_byteToChar_notExhaustive() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static char switchByteToChar(byte b) {
+						return switch (b) {
+							case '1' -> 'A';
+							case char c -> c;
+						};
+					}
+				}
+				"""},
+				"""
+				----------
+				1. ERROR in X.java (at line 3)
+					return switch (b) {
+					               ^
+				A switch expression should have a default case
+				----------
+				""");
 	}
 
 	private void testNarrowingInSwitchFrom(String from, int idx, String expectedOut) {
@@ -1423,6 +1887,193 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	public void testBooleanSwitchExhaustive_OK() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static int m1(boolean b) {
+						return switch (b) {
+							case true -> 1;
+							case false -> 0;
+						};
+					}
+					public static void main(String... args) {
+						System.out.print(m1(true));
+						System.out.print(m1(false));
+					}
+				}
+				"""
+			},
+			"10");
+	}
+	public void testBooleanSwitchExhaustive_NOK() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static int m1(boolean b) {
+						return switch (b) {
+							case true -> 1;
+						};
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 3)
+				return switch (b) {
+				               ^
+			A switch expression should have a default case
+			----------
+			""");
+	}
+
+	// exhaustiveness with identity conversion is already cover testNarrowingInSwitchFrom()
+
+	public void testShortSwitchExhaustive_int_Number_Comparable() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static int m1(short s) {
+						return switch (s) {
+							case 1 -> 0;
+							case int v -> v*2;
+						};
+					}
+					static int m2(short s) {
+						return switch (s) {
+							case 1 -> 0;
+							case Number v -> v.intValue()*2;
+						};
+					}
+					static int m3(short s) {
+						return switch (s) {
+							case 1 -> 0;
+							case Comparable<?> v -> humbug(v);
+						};
+					}
+					static int humbug(Comparable<?> v) {
+						return 8;
+					}
+					public static void main(String... args) {
+						System.out.print(m1((short) 1));
+						System.out.print(m1((short) 4));
+						System.out.print(m2((short) 1));
+						System.out.print(m2((short) 4));
+						System.out.print(m3((short) 1));
+						System.out.print(m3((short) 4));
+					}
+				}
+				"""
+			},
+			"080808");
+	}
+
+	public void testIntSwitchExhaustive_NOK() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static float m1(Integer i) {
+						return switch(i) {
+							case 1 -> 1.0f;
+							case float f -> f;
+						};
+					}
+					static float m2(int i) {
+						return switch(i) {
+							case 1 -> 1;
+							case float f -> f;
+						};
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 3)
+				return switch(i) {
+				              ^
+			A switch expression should have a default case
+			----------
+			2. ERROR in X.java (at line 9)
+				return switch(i) {
+				              ^
+			A switch expression should have a default case
+			----------
+			""");
+	}
+
+	public void testIntSwitchExhaustive_OK() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static double m1(Integer i) {
+						return switch(i) {
+							case 1 -> 1.0f;
+							case double d -> d;
+						};
+					}
+					static double m2(int i) {
+						return switch(i) {
+							case 1 -> 1;
+							case double d -> d;
+						};
+					}
+					public static void main(String... args) {
+						System.out.print(m1(1));
+						System.out.print('|');
+						System.out.print(m1(3));
+						System.out.print('|');
+						System.out.print(m2(1));
+						System.out.print('|');
+						System.out.print(m2(3));
+					}
+				}
+				"""
+			},
+			"1.0|3.0|1.0|3.0");
+	}
+
+	public void testLongSwitchExhaustive_NOK() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static float m1(Long l) {
+						return switch(l) {
+							case 1L -> 1.0f;
+							case float f -> f;
+						};
+					}
+					static double m2(long l) {
+						return switch(l) {
+							case 1L -> 1.0d;
+							case double d -> d;
+						};
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 3)
+				return switch(l) {
+				              ^
+			A switch expression should have a default case
+			----------
+			2. ERROR in X.java (at line 9)
+				return switch(l) {
+				              ^
+			A switch expression should have a default case
+			----------
+			""");
+	}
+
 	// test from spec
 	public void _testSpec001() {
 		runConformTest(new String[] {
