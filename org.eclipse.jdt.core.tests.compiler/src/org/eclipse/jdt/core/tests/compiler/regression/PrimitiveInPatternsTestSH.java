@@ -1165,6 +1165,117 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				"false|false|49|-1|1|-|49|-1|49|-1|49|-1|49.0|-1.0|49.0|-1.0|");
 	}
 
+	public void testPrimitivePatternInSwitch_narrowConst_NOK() {
+		StringBuilder methods = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		String methodTmpl =
+				"""
+					public static PRIM switchPRIM(Object in) {
+						return switch (in) {
+							case MAX -> NEGVAL;
+							default -> MAX;
+						};
+					}
+				""";
+		String callTmpl =
+				"""
+						BOX vBOX = VAL;
+						System.out.print(X.switchPRIM(vBOX));
+						System.out.print('|');
+						vBOX = MAX;
+						System.out.print(X.switchPRIM(vBOX));
+						System.out.print('|');
+				""";
+		// for all primitive types:
+		for (int i = 0; i < PRIMITIVES.length; i++) {
+			methods.append(fillIn(methodTmpl, i));
+			calls.append(fillIn(callTmpl, i));
+		}
+		StringBuilder classX = new StringBuilder("public class X {\n");
+		classX.append(methods.toString());
+		classX.append("public static void main(String[] args) {\n");
+		classX.append(calls);
+		classX.append("}}\n");
+		runNegativeTest(new String[] { "X.java", classX.toString() },
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case true -> false;
+					     ^^^^
+				Case constant of type boolean is incompatible with switch selector type Object
+				----------
+				2. ERROR in X.java (at line 10)
+					case Byte.MAX_VALUE -> -1;
+					     ^^^^^^^^^^^^^^
+				Case constant of type byte is incompatible with switch selector type Object
+				----------
+				3. ERROR in X.java (at line 16)
+					case 'z' -> '-';
+					     ^^^
+				Case constant of type char is incompatible with switch selector type Object
+				----------
+				4. ERROR in X.java (at line 22)
+					case Short.MAX_VALUE -> -1;
+					     ^^^^^^^^^^^^^^^
+				Case constant of type short is incompatible with switch selector type Object
+				----------
+				5. ERROR in X.java (at line 28)
+					case Integer.MAX_VALUE -> -1;
+					     ^^^^^^^^^^^^^^^^^
+				Case constant of type int is incompatible with switch selector type Object
+				----------
+				6. ERROR in X.java (at line 34)
+					case Long.MAX_VALUE -> -1L;
+					     ^^^^^^^^^^^^^^
+				Case constant of type long is incompatible with switch selector type Object
+				----------
+				7. ERROR in X.java (at line 40)
+					case Float.MAX_VALUE -> -1.0f;
+					     ^^^^^^^^^^^^^^^
+				Case constant of type float is incompatible with switch selector type Object
+				----------
+				8. ERROR in X.java (at line 46)
+					case Double.MAX_VALUE -> -1.0d;
+					     ^^^^^^^^^^^^^^^^
+				Case constant of type double is incompatible with switch selector type Object
+				----------
+				""");
+	}
+
+	public void testPrimitivePatternInSwitch_narrowUnbox() {
+		StringBuilder methods = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		String methodTmpl =
+				"""
+					public static PRIM switchPRIM(Object in) {
+						return switch (in) {
+							case PRIM v -> v;
+							default -> NEGVAL;
+						};
+					}
+				""";
+		String callTmpl =
+				"""
+						BOX vBOX = VAL;
+						System.out.print(X.switchPRIM(vBOX));
+						System.out.print('|');
+						System.out.print(X.switchPRIM(new Object()));
+						System.out.print('|');
+				""";
+		// for all primitive types:
+		for (int i = 0; i < PRIMITIVES.length; i++) {
+			methods.append(fillIn(methodTmpl, i));
+			calls.append(fillIn(callTmpl, i));
+		}
+		StringBuilder classX = new StringBuilder("public class X {\n");
+		classX.append(methods.toString());
+		classX.append("public static void main(String[] args) {\n");
+		classX.append(calls);
+		classX.append("}}\n");
+		runConformTest(new String[] { "X.java", classX.toString() },
+				"true|false|49|-1|1|-|49|-1|49|-1|49|-1|49.0|-1.0|49.0|-1.0|");
+	}
+
 	private void testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK(String from, int idx, String expectedError) {
 		assert from.equals(BOXES[idx]) : "mismatching from vs idx";
 		StringBuilder methods = new StringBuilder();

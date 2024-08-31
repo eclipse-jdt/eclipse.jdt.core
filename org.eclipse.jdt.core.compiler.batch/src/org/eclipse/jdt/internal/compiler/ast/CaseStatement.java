@@ -302,7 +302,7 @@ public Constant resolveConstantExpression(BlockScope scope,
 			throw new AssertionError("Unexpected control flow"); //$NON-NLS-1$
 		} else if (expression instanceof NullLiteral) {
 			if (!caseType.isCompatibleWith(switchType, scope)) {
-				scope.problemReporter().typeMismatchError(TypeBinding.NULL, switchType, expression, null);
+				scope.problemReporter().caseConstantIncompatible(TypeBinding.NULL, switchType, expression);
 			}
 			switchStatement.switchBits |= SwitchStatement.NullCase;
 			return IntConstant.fromValue(-1);
@@ -311,7 +311,7 @@ public Constant resolveConstantExpression(BlockScope scope,
 		} else {
 			if (switchStatement.isNonTraditional) {
 				if (switchType.isBaseType() && !expression.isConstantValueOfTypeAssignableToType(caseType, switchType)) {
-					scope.problemReporter().typeMismatchError(caseType, switchType, expression, null);
+					scope.problemReporter().caseConstantIncompatible(caseType, switchType, expression);
 					return Constant.NotAConstant;
 				}
 			}
@@ -354,7 +354,7 @@ public Constant resolveConstantExpression(BlockScope scope,
 		// constantExpression.computeConversion(scope, caseType, switchExpressionType); - do not report boxing/unboxing conversion
 		return expression.constant;
 	}
-	scope.problemReporter().typeMismatchError(expression.resolvedType, switchType, expression, switchStatement.expression);
+	scope.problemReporter().caseConstantIncompatible(expression.resolvedType, switchType, expression);
 	return Constant.NotAConstant;
 }
 

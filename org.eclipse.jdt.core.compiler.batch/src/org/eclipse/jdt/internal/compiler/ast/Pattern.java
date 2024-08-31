@@ -58,7 +58,7 @@ public abstract class Pattern extends Expression {
 	}
 
 	protected TypeBinding outerExpressionType; // the expression type of the enclosing instanceof, switch or outer record pattern
-	
+
 	record TestContextRecord(TypeBinding left, TypeBinding right, PrimitiveConversionRoute route) {}
 
 	public Pattern getEnclosingPattern() {
@@ -247,6 +247,10 @@ public abstract class Pattern extends Expression {
 					return PrimitiveConversionRoute.WIDENING_REFERENCE_AND_UNBOXING_COVERSION;
 				if (BaseTypeBinding.isWidening(destinationType.id, exprPrimId))
 					return PrimitiveConversionRoute.WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION;
+			} else if (destinationIsBaseType) {
+				TypeBinding boxedDestinationType = scope.environment().computeBoxingType(destinationType);
+				if (boxedDestinationType.isCompatibleWith(expressionType))
+					return PrimitiveConversionRoute.NARROWING_AND_UNBOXING_CONVERSION;
 			}
 		}
 		return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;

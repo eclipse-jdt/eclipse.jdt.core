@@ -240,7 +240,10 @@ private void generateTypeCheck(BlockScope scope, CodeStream codeStream, BranchLa
 			break;
 //			TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION:
 //			TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION:
-//			TODO:	case NARROWING_AND_UNBOXING_CONVERSION:
+		case NARROWING_AND_UNBOXING_CONVERSION:
+			TypeBinding boxType = scope.environment().computeBoxingType(this.type.resolvedType);
+			codeStream.instance_of(this.type, boxType);
+			break;
 		case UNBOXING_CONVERSION:
 		case UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION:
 			codeStream.ifnull(internalFalseLabel);

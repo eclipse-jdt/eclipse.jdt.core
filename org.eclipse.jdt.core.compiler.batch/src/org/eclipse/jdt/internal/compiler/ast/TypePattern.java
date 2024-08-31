@@ -138,13 +138,8 @@ public class TypePattern extends Pattern {
 				codeStream.generateImplicitConversion(this.implicitConversion);
 				break;
 			case BOXING_CONVERSION:
+			case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION: // widening needs no conversion :)
 				codeStream.generateBoxingConversion(provided.id);
-				break;
-			case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
-				int providedId = provided.id;
-				codeStream.generateBoxingConversion(providedId);
-				TypeBinding unboxedType = scope.environment().computeBoxingType(TypeBinding.wellKnownBaseType(providedId));
-				this.computeConversion(scope, lhs, unboxedType);
 				break;
 			case WIDENING_REFERENCE_AND_UNBOXING_COVERSION:
 				codeStream.generateUnboxingConversion(expected.id);
@@ -155,7 +150,11 @@ public class TypePattern extends Pattern {
 				this.computeConversion(scope, TypeBinding.wellKnownBaseType(rhsUnboxed), expected);
 				codeStream.generateImplicitConversion(this.implicitConversion);
 				break;
-//				TODO:	case NARROWING_AND_UNBOXING_CONVERSION:
+			case NARROWING_AND_UNBOXING_CONVERSION:
+				TypeBinding boxType = scope.environment().computeBoxingType(expected);
+				codeStream.checkcast(boxType);
+				codeStream.generateUnboxingConversion(expected.id);
+				break;
 			case UNBOXING_CONVERSION:
 				codeStream.generateUnboxingConversion(expected.id);
 				break;
