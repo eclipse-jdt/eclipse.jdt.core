@@ -442,7 +442,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case null, default : System.out.println(\"Default\");\n" +
 			"	     ^^^^\n" +
-			"Type mismatch: cannot convert from null to int\n" +
+			"Case constant of type null is incompatible with switch selector type int\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 5)\n" +
 			"	default : System.out.println(\"Object\");\n" +
@@ -551,7 +551,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case 1: System.out.println(\"Integer\"); break;\n" +
 			"	     ^\n" +
-			"Type mismatch: cannot convert from int to Object\n" +
+			"Case constant of type int is incompatible with switch selector type Object\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
@@ -873,7 +873,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 8)\n" +
 				"	case null:\n" +
 				"	     ^^^^\n" +
-				"Type mismatch: cannot convert from null to int\n" +
+				"Case constant of type null is incompatible with switch selector type int\n" +
 				"----------\n");
 	}
 	public void testBug574538_01() {
@@ -1654,17 +1654,17 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"2. ERROR in X.java (at line 5)\n" +
 			"	case null  -> System.out.println(\"null\");\n" +
 			"	     ^^^^\n" +
-			"Type mismatch: cannot convert from null to int\n" +
+			"Case constant of type null is incompatible with switch selector type int\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 11)\n" +
 			"	case \"F\"  :\n" +
 			"	     ^^^\n" +
-			"Type mismatch: cannot convert from String to Object\n" +
+			"Case constant of type String is incompatible with switch selector type Object\n" +
 			"----------\n" +
 			"4. ERROR in X.java (at line 13)\n" +
 			"	case 2 :\n" +
 			"	     ^\n" +
-			"Type mismatch: cannot convert from int to Object\n" +
+			"Case constant of type int is incompatible with switch selector type Object\n" +
 			"----------\n");
 	}
 	public void testBug574559_001() {
@@ -3573,7 +3573,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"2. ERROR in X.java (at line 4)\n" +
 				"	case Integer j, \"\":\n" +
 				"	                ^^\n" +
-				"Type mismatch: cannot convert from String to Number\n" +
+				"Case constant of type String is incompatible with switch selector type Number\n" +
 				"----------\n");
 	}
 	public void testBug575047_08() {
@@ -4009,12 +4009,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"2. ERROR in X.java (at line 4)\n" +
 				"	case Integer i2, 4.5:\n" +
 				"	                 ^^^\n" +
-				"Type mismatch: cannot convert from double to Number\n" +
+				"Case constant of type double is incompatible with switch selector type Number\n" +
 				"----------\n" +
 				"3. ERROR in X.java (at line 5)\n" +
 				"	case 4.3: System.out.println();\n" +
 				"	     ^^^\n" +
-				"Type mismatch: cannot convert from double to Number\n" +
+				"Case constant of type double is incompatible with switch selector type Number\n" +
 				"----------\n");
 	}
 	public void testBug575686_1() {
@@ -6309,7 +6309,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 10)\n" +
 				"	case E.A1 -> {\n" +
 				"	     ^^^^\n" +
-				"Type mismatch: cannot convert from E to E.InnerE\n" +
+				"Case constant of type E is incompatible with switch selector type E.InnerE\n" +
 				"----------\n");
 	}
 	public void testIssue1250_4() {

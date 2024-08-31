@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
@@ -64,8 +65,8 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public boolean isUnconditional(TypeBinding t) {
-		return isUnguarded() && this.primaryPattern.isUnconditional(t);
+	public boolean isUnconditional(TypeBinding t, Scope scope) {
+		return isUnguarded() && this.primaryPattern.isUnconditional(t, scope);
 	}
 
 	@Override
@@ -80,8 +81,8 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public boolean coversType(TypeBinding type) {
-		return isUnguarded() && this.primaryPattern.coversType(type);
+	public boolean coversType(TypeBinding type, Scope scope) {
+		return isUnguarded() && this.primaryPattern.coversType(type, scope);
 	}
 
 	@Override

@@ -4019,7 +4019,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		for (CaseStatement.ResolvedCase c : constants) {
 			if (c.isPattern()) {
 				int typeOrDynIndex;
-				if ((switchStatement.switchBits & SwitchStatement.Primitive) != 0) {
+				if (c.e.resolvedType.isPrimitiveType()) {
 					// Dynamic for Class.getPrimitiveClass(Z) or such
 					typeOrDynIndex = this.constantPool.literalIndexForDynamic(c.primitivesBootstrapIdx,
 							c.t.signature(),

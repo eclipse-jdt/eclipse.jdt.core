@@ -198,17 +198,24 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	public void test003a() {
 		Map<String, String> options = getCompilerOptions(true);
-		runNegativeTest(
+		String[] testFiles =
 				new String[] {
 						"X3.java",
 						"@SuppressWarnings(\"preview\")\n" +
 						"public class X3 {\n" +
 						"  public void foo(Number num) {\n" +
 						"		if (num instanceof int) {\n" +
+						"			System.out.print(\"int\");\n" +
 						"		}\n " +
 						"	}\n" +
+						"	public static void main(String... args) {\n" +
+						"		new X3().foo(3);" +
+						"	}\n" +
 						"}\n",
-				},
+				};
+		if (this.complianceLevel < ClassFileConstants.JDK23) {
+			runNegativeTest(
+				testFiles,
 				"----------\n" +
 				"1. ERROR in X3.java (at line 4)\n" +
 				"	if (num instanceof int) {\n" +
@@ -219,6 +226,9 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				null,
 				true,
 				options);
+		} else {
+			runConformTest(testFiles, "int", options, new String[] {"--enable-preview"}, JavacTestOptions.DEFAULT);
+		}
 	}
 	public void test004() {
 		Map<String, String> options = getCompilerOptions(true);
