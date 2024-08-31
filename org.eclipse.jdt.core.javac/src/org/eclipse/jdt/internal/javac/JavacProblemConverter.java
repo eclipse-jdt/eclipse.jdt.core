@@ -122,6 +122,17 @@ public class JavacProblemConverter {
 			if (problemId == IProblem.JavadocMissingParamTag) {
 				String message = diagnostic.getMessage(Locale.ENGLISH);
 				TreePath path = getTreePath(diagnostic);
+				if (message.startsWith("no @param for <") && path.getLeaf() instanceof JCMethodDecl method) {
+					String typeParam = message.substring("no @param for <".length(), message.length() - 1);
+					var position = method.getTypeParameters().stream()
+						.filter(paramDecl -> typeParam.equals(paramDecl.getName().toString()))
+						.map(paramDecl -> new org.eclipse.jface.text.Position(paramDecl.getPreferredPosition(), paramDecl.getName().toString().length()))
+						.findFirst()
+						.orElse(null);
+					if (position != null) {
+						return position;
+					}
+				}
 				if (message.startsWith("no @param for ") && path.getLeaf() instanceof JCMethodDecl method) {
 					String param = message.substring("no @param for ".length());
 					var position = method.getParameters().stream()
@@ -777,6 +788,9 @@ public class JavacProblemConverter {
 				}
 				if (message.startsWith("@param ") && message.endsWith(" has already been specified")) {
 					yield IProblem.JavadocDuplicateParamName;
+				}
+				if (message.contains("no comment")) {
+					yield IProblem.JavadocMissing;
 				}
 				// most others are ignored
 				yield 0;
