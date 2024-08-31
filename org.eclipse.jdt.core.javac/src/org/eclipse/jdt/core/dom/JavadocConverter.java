@@ -251,7 +251,18 @@ class JavadocConverter {
 			convertElementCombiningNodes(deprecated.body.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
 		} else if (javac instanceof DCParam param) {
 			res.setTagName(TagElement.TAG_PARAM);
+			if (param.isTypeParameter()) {
+				TextElement opening = this.ast.newTextElement();
+				opening.setText("<");
+				res.fragments().add(opening);
+			}
 			res.fragments().addAll(convertElement(param.name).toList());
+			res.setTagName(TagElement.TAG_PARAM);
+			if (param.isTypeParameter()) {
+				TextElement closing = this.ast.newTextElement();
+				closing.setText(">");
+				res.fragments().add(closing);
+			}
 			convertElementCombiningNodes(param.description.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
 		} else if (javac instanceof DCReturn ret) {
 			res.setTagName(TagElement.TAG_RETURN);
