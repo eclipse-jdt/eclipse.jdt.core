@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class EitherOrMultiPattern extends Pattern {
@@ -109,11 +110,11 @@ public class EitherOrMultiPattern extends Pattern {
 	}
 
 	@Override
-	public boolean coversType(TypeBinding type) {
+	public boolean coversType(TypeBinding type, Scope scope) {
 		if (!isUnguarded())
 			return false;
 		for (Pattern p : this.patterns) {
-			if (p.coversType(type))
+			if (p.coversType(type, scope))
 				return true;
 		}
 		return false;

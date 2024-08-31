@@ -215,7 +215,8 @@ public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpression
 			continue; // already processed
 		}
 		e.setExpressionContext(ExpressionContext.TESTING_CONTEXT);
-		e.setExpectedType(switchExpressionType);
+		if (e instanceof Pattern p)
+			p.setOuterExpressionType(switchExpressionType);
 
 		TypeBinding	caseType = e.resolveType(scope);
 
@@ -301,7 +302,7 @@ public Constant resolveConstantExpression(BlockScope scope,
 			throw new AssertionError("Unexpected control flow"); //$NON-NLS-1$
 		} else if (expression instanceof NullLiteral) {
 			if (!caseType.isCompatibleWith(switchType, scope)) {
-				scope.problemReporter().typeMismatchError(TypeBinding.NULL, switchType, expression, null);
+				scope.problemReporter().caseConstantIncompatible(TypeBinding.NULL, switchType, expression);
 			}
 			switchStatement.switchBits |= SwitchStatement.NullCase;
 			return IntConstant.fromValue(-1);
@@ -310,7 +311,7 @@ public Constant resolveConstantExpression(BlockScope scope,
 		} else {
 			if (switchStatement.isNonTraditional) {
 				if (switchType.isBaseType() && !expression.isConstantValueOfTypeAssignableToType(caseType, switchType)) {
-					scope.problemReporter().typeMismatchError(caseType, switchType, expression, null);
+					scope.problemReporter().caseConstantIncompatible(caseType, switchType, expression);
 					return Constant.NotAConstant;
 				}
 			}
@@ -353,7 +354,7 @@ public Constant resolveConstantExpression(BlockScope scope,
 		// constantExpression.computeConversion(scope, caseType, switchExpressionType); - do not report boxing/unboxing conversion
 		return expression.constant;
 	}
-	scope.problemReporter().typeMismatchError(expression.resolvedType, switchType, expression, switchStatement.expression);
+	scope.problemReporter().caseConstantIncompatible(expression.resolvedType, switchType, expression);
 	return Constant.NotAConstant;
 }
 
@@ -381,28 +382,24 @@ private Constant resolveCasePattern(BlockScope scope, TypeBinding caseType, Type
 				}
 			}
 		} else if (type.isValidBinding()) {
-			PrimitiveConversionRoute route = PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 			// if not a valid binding, an error has already been reported for unresolved type
-			if (type.isPrimitiveType()) {
-				route = Pattern.findPrimitiveConversionRoute(type, expressionType, scope);
-				if (route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
+			if (Pattern.findPrimitiveConversionRoute(type, expressionType, scope) == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
+				if (type.isPrimitiveType() && !JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(scope.compilerOptions())) {
 					scope.problemReporter().unexpectedTypeinSwitchPattern(type, e);
+					return Constant.NotAConstant;
+				} else if (!e.checkCastTypesCompatibility(scope, type, expressionType, null, false)) {
+					scope.problemReporter().typeMismatchError(expressionType, type, e, null);
 					return Constant.NotAConstant;
 				}
 			}
-			if ((type.isBaseType() && route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE)
-					|| !e.checkCastTypesCompatibility(scope, type, expressionType, null, false)) {
-				scope.problemReporter().typeMismatchError(expressionType, type, e, null);
-				return Constant.NotAConstant;
-			}
 		}
-		if (e.coversType(expressionType)) {
+		if (e.coversType(expressionType, scope)) {
 			if ((switchStatement.switchBits & SwitchStatement.TotalPattern) != 0) {
 				scope.problemReporter().duplicateTotalPattern(e);
 				return IntConstant.fromValue(-1);
 			}
 			switchStatement.switchBits |= SwitchStatement.Exhaustive;
-			if (e.isUnconditional(expressionType)) {
+			if (e.isUnconditional(expressionType, scope)) {
 				switchStatement.switchBits |= SwitchStatement.TotalPattern;
 				if (switchStatement.defaultCase != null && !(e instanceof RecordPattern))
 					scope.problemReporter().illegalTotalPatternWithDefault(this);

@@ -297,4 +297,18 @@ public interface TypeIds {
 	public static int getCategory(int typeId) {
 		return typeId == TypeIds.T_double || typeId == TypeIds.T_long ? 2 : 1;
 	}
+
+	public static int box2primitive(int id) {
+		return switch (id) {
+			case T_JavaLangBoolean -> T_boolean;
+			case T_JavaLangByte -> T_byte;
+			case T_JavaLangCharacter -> T_char;
+			case T_JavaLangShort -> T_short;
+			case T_JavaLangInteger -> T_int;
+			case T_JavaLangLong -> T_long;
+			case T_JavaLangFloat -> T_float;
+			case T_JavaLangDouble -> T_double;
+			default -> -1;
+		};
+	}
 }
