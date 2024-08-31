@@ -85,12 +85,18 @@ public abstract class Pattern extends Expression {
 		if (type.isPrimitiveOrBoxedPrimitiveType()) {
 			PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(this.resolvedType, type, scope);
 			switch (route) {
+				// JLS §5.7.2:
 				case IDENTITY_CONVERSION:
 				case BOXING_CONVERSION:
 				case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
 					return true;
 				case WIDENING_PRIMITIVE_CONVERSION:
 					return BaseTypeBinding.isExactWidening(this.resolvedType.id, type.id);
+				/* §14.11.1.1 "CE contains a type pattern with a primitive type P,
+				 * 		 	and T is the wrapper class for the primitive type W,
+				 *			and the conversion from type W to type P is unconditionally exact (5.7.2). */
+				case UNBOXING_CONVERSION:
+					return true; // W -> P is identity
 				case UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION:
 					return BaseTypeBinding.isExactWidening(this.resolvedType.id, TypeIds.box2primitive(type.id));
 				default:
@@ -227,8 +233,6 @@ public abstract class Pattern extends Expression {
 
 			} else if (expressionType.isBoxedPrimitiveType() && destinationIsBaseType) {
 				TypeBinding unboxedExpressionType = scope.environment().computeBoxingType(expressionType);
-				 //TODO: a widening reference conversion followed by an unboxing conversion
-				 //TODO: a widening reference conversion followed by an unboxing conversion, then followed by a widening primitive conversion
 				 //TODO: a narrowing reference conversion that is checked followed by an unboxing conversion
 				 //an unboxing conversion (5.1.8)
 				if (TypeBinding.equalsEquals(destinationType, unboxedExpressionType))
@@ -236,6 +240,13 @@ public abstract class Pattern extends Expression {
 				 //an unboxing conversion followed by a widening primitive conversion
 				if (BaseTypeBinding.isWidening(destinationType.id, unboxedExpressionType.id))
 					return PrimitiveConversionRoute.UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION;
+			} else if (destinationIsBaseType && expressionType.erasure().isBoxedPrimitiveType()) { // <T extends Integer> / <? extends Short> ...
+				int boxId = expressionType.erasure().id;
+				int exprPrimId = TypeIds.box2primitive(boxId);
+				if (exprPrimId == destinationType.id)
+					return PrimitiveConversionRoute.WIDENING_REFERENCE_AND_UNBOXING_COVERSION;
+				if (BaseTypeBinding.isWidening(destinationType.id, exprPrimId))
+					return PrimitiveConversionRoute.WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION;
 			}
 		}
 		return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;

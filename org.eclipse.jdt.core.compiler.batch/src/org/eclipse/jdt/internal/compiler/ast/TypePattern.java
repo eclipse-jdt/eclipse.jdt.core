@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class TypePattern extends Pattern {
@@ -112,9 +113,7 @@ public class TypePattern extends Pattern {
 		} else {
 
 			if (!this.isTotalTypeNode) {
-				boolean checkCast = ((JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
-						currentScope.compilerOptions().sourceLevel,
-						currentScope.compilerOptions().enablePreviewFeatures))) ?
+				boolean checkCast = JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(currentScope.compilerOptions()) ?
 								!this.local.binding.type.isBaseType() : true;
 				if (checkCast)
 					codeStream.checkcast(this.local.binding.type);
@@ -147,8 +146,15 @@ public class TypePattern extends Pattern {
 				TypeBinding unboxedType = scope.environment().computeBoxingType(TypeBinding.wellKnownBaseType(rightId));
 				this.computeConversion(scope, lhs, unboxedType);
 				break;
-//				TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION:
-//				TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION:
+			case WIDENING_REFERENCE_AND_UNBOXING_COVERSION:
+				codeStream.generateUnboxingConversion(lhs.id);
+				break;
+			case WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION:
+				int rhsUnboxed = TypeIds.box2primitive(rhs.superclass().id);
+				codeStream.generateUnboxingConversion(rhsUnboxed);
+				this.computeConversion(scope, TypeBinding.wellKnownBaseType(rhsUnboxed), lhs);
+				codeStream.generateImplicitConversion(this.implicitConversion);
+				break;
 //				TODO:	case NARROWING_AND_UNBOXING_CONVERSION:
 			case UNBOXING_CONVERSION:
 				codeStream.generateUnboxingConversion(lhs.id);

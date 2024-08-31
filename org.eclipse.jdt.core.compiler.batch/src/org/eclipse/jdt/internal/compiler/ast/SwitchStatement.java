@@ -1013,7 +1013,7 @@ public class SwitchStatement extends Expression {
 	}
 	private void generateTypeSwitchPatternPrologue(CodeStream codeStream, int invokeDynamicNumber) {
 		TypeBinding exprType = this.expression.resolvedType;
-		char[] signature =typeSwitchSignature(exprType);
+		char[] signature = typeSwitchSignature(exprType);
 		int argsSize = TypeIds.getCategory(exprType.id) + 1; // Object | PRIM, restartIndex (PRIM = Z|S|I..)
 		codeStream.invokeDynamic(invokeDynamicNumber,
 				argsSize,
@@ -1026,10 +1026,14 @@ public class SwitchStatement extends Expression {
 		char[] arg1 = switch (exprType.id) {
 			case TypeIds.T_JavaLangLong, TypeIds.T_JavaLangFloat, TypeIds.T_JavaLangDouble, TypeIds.T_JavaLangBoolean ->
 				exprType.signature();
-			default ->
-				exprType.isPrimitiveType()
-					? exprType.signature()
-					: "Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
+			default -> {
+				if (exprType.id > TypeIds.T_LastWellKnownTypeId && exprType.erasure().isBoxedPrimitiveType())
+					yield exprType.erasure().signature(); // <T extends Integer> / <? extends Short> ...
+				else
+					yield exprType.isPrimitiveType()
+						? exprType.signature()
+						: "Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
+			}
 		};
 		return CharOperation.concat("(".toCharArray(), arg1, "I)I".toCharArray()); //$NON-NLS-1$ //$NON-NLS-2$
 	}

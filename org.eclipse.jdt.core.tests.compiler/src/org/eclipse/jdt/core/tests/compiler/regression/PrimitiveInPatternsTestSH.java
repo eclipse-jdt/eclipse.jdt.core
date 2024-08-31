@@ -1130,6 +1130,280 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				"false|false|49|-1|1|-|49|-1|49|-1|49|-1|49.0|-1.0|49.0|-1.0|");
 	}
 
+	public void testPrimitivePatternInSwitch_unbox() {
+		StringBuilder methods = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		String methodTmpl =
+				"""
+					public static PRIM switchPRIM(BOX in) {
+						return switch (in) {
+							case MAX -> NEGVAL;
+							case PRIM v -> v;
+						};
+					}
+				""";
+		String callTmpl =
+				"""
+						BOX vBOX = VAL;
+						System.out.print(X.switchPRIM(vBOX));
+						System.out.print('|');
+						vBOX = MAX;
+						System.out.print(X.switchPRIM(vBOX));
+						System.out.print('|');
+				""";
+		// for all primitive types:
+		for (int i = 0; i < PRIMITIVES.length; i++) {
+			methods.append(fillIn(methodTmpl, i));
+			calls.append(fillIn(callTmpl, i));
+		}
+		StringBuilder classX = new StringBuilder("public class X {\n");
+		classX.append(methods.toString());
+		classX.append("public static void main(String[] args) {\n");
+		classX.append(calls);
+		classX.append("}}\n");
+		runConformTest(new String[] { "X.java", classX.toString() },
+				"false|false|49|-1|1|-|49|-1|49|-1|49|-1|49.0|-1.0|49.0|-1.0|");
+	}
+
+	private void testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK(String from, int idx, String expectedError) {
+		assert from.equals(BOXES[idx]) : "mismatching from vs idx";
+		StringBuilder methods = new StringBuilder();
+		StringBuilder calls = new StringBuilder();
+		String classTmpl =
+				"""
+				public class X {
+				METHODS
+					public static void main(String... args) {
+						FROM vFROM= VAL;
+				CALLS
+					}
+				}
+				""".replaceAll("FROM", from).replace("VAL", GOODVALUES[idx]);
+		String methodTmpl =
+				"""
+					public static PRIM switchPRIM(FROM in) {
+						return switch (in) {
+							case PRIM v -> v;
+							default -> throw new RuntimeException();
+						};
+					}
+				""".replace("FROM", from);
+		String callTmpl =
+				"""
+						System.out.print(X.switchPRIM(vFROM));
+						System.out.print('|');
+				""".replaceAll("FROM", from); // leaves only PRIM for replacement in the loop
+		// for all smaller numerical primitive types:
+		for (int i = 1; i < idx; i++) {
+			if (!IS_NUMERICAL[i]) continue;
+			methods.append(fillIn(methodTmpl, i));
+			calls.append(fillIn(callTmpl, i));
+		}
+		String classX = classTmpl.replace("METHODS", methods.toString()).replaceAll("CALLS", calls.toString());
+		runNegativeTest(new String[] { "X.java", classX },
+				expectedError);
+	}
+	public void testPrimitivePatternInSwitchShort_unboxAndNarrow_NOK() {
+		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Short", 3,
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case byte v -> v;
+					     ^^^^^^
+				Type mismatch: cannot convert from Short to byte
+				----------
+				""");
+	}
+	public void testPrimitivePatternInSwitchInt_unboxAndNarrow_NOK() {
+		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Integer", 4,
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case byte v -> v;
+					     ^^^^^^
+				Type mismatch: cannot convert from Integer to byte
+				----------
+				2. ERROR in X.java (at line 10)
+					case short v -> v;
+					     ^^^^^^^
+				Type mismatch: cannot convert from Integer to short
+				----------
+				""");
+	}
+	public void testPrimitivePatternInSwitchLong_unboxAndNarrow_NOK() {
+		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Long", 5,
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case byte v -> v;
+					     ^^^^^^
+				Type mismatch: cannot convert from Long to byte
+				----------
+				2. ERROR in X.java (at line 10)
+					case short v -> v;
+					     ^^^^^^^
+				Type mismatch: cannot convert from Long to short
+				----------
+				3. ERROR in X.java (at line 16)
+					case int v -> v;
+					     ^^^^^
+				Type mismatch: cannot convert from Long to int
+				----------
+				""");
+	}
+	public void testPrimitivePatternInSwitchFloat_unboxAndNarrow_NOK() {
+		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Float", 6,
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case byte v -> v;
+					     ^^^^^^
+				Type mismatch: cannot convert from Float to byte
+				----------
+				2. ERROR in X.java (at line 10)
+					case short v -> v;
+					     ^^^^^^^
+				Type mismatch: cannot convert from Float to short
+				----------
+				3. ERROR in X.java (at line 16)
+					case int v -> v;
+					     ^^^^^
+				Type mismatch: cannot convert from Float to int
+				----------
+				4. ERROR in X.java (at line 22)
+					case long v -> v;
+					     ^^^^^^
+				Type mismatch: cannot convert from Float to long
+				----------
+				""");
+	}
+	public void testPrimitivePatternInSwitchDouble_unboxAndNarrow_NOK() {
+		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Double", 7,
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case byte v -> v;
+					     ^^^^^^
+				Type mismatch: cannot convert from Double to byte
+				----------
+				2. ERROR in X.java (at line 10)
+					case short v -> v;
+					     ^^^^^^^
+				Type mismatch: cannot convert from Double to short
+				----------
+				3. ERROR in X.java (at line 16)
+					case int v -> v;
+					     ^^^^^
+				Type mismatch: cannot convert from Double to int
+				----------
+				4. ERROR in X.java (at line 22)
+					case long v -> v;
+					     ^^^^^^
+				Type mismatch: cannot convert from Double to long
+				----------
+				5. ERROR in X.java (at line 28)
+					case float v -> v;
+					     ^^^^^^^
+				Type mismatch: cannot convert from Double to float
+				----------
+				""");
+	}
+	public void testPrimitivePatternInSwitch_Character_unboxAndNarrow_NOK() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static int m1(Character ch) {
+						return switch(ch) {
+							case byte b -> b;
+							case short s -> s;
+							case char c -> c;
+						};
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 4)
+				case byte b -> b;
+				     ^^^^^^
+			Type mismatch: cannot convert from Character to byte
+			----------
+			2. ERROR in X.java (at line 5)
+				case short s -> s;
+				     ^^^^^^^
+			Type mismatch: cannot convert from Character to short
+			----------
+			""");
+	}
+
+	public void testPrimitivePatternInSwitch_Character_unboxAndWiden() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static int mint(Character ch) {
+						return switch(ch) {
+							case int v -> v;
+						};
+					}
+					static long mlong(Character ch) {
+						return switch(ch) {
+							case long v -> v;
+						};
+					}
+					static float mfloat(Character ch) {
+						return switch(ch) {
+							case float v -> v;
+						};
+					}
+					static double mdouble(Character ch) {
+						return switch(ch) {
+							case double v -> v;
+						};
+					}
+					public static void main(String... args) {
+						System.out.print(mint('a'));
+						System.out.print('|');
+						System.out.print(mlong('b'));
+						System.out.print('|');
+						System.out.print(mfloat('c'));
+						System.out.print('|');
+						System.out.print(mdouble('d'));
+					}
+				}
+				"""
+			},
+			"97|98|99.0|100.0");
+	}
+
+	public void testPrimitivePatternInSwitch_widenUnbox() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static <T extends Integer> int mInteger(T in) {
+						return switch (in) {
+							case int v -> v;
+							default -> -1;
+						};
+					}
+					static <T extends Short> int mShort(T in) {
+						return switch (in) {
+							case int v -> v;
+							default -> -1;
+						};
+					}
+					public static void main(String... args) {
+						System.out.print(mInteger(Integer.valueOf(1)));
+						System.out.print(mShort(Short.valueOf((short) 2)));
+					}
+				}
+				"""
+			},
+			"12");
+	}
 	public void testPrimitivePatternInSwitch_more() {
 		runConformTest(new String[] {
 				"X.java",
