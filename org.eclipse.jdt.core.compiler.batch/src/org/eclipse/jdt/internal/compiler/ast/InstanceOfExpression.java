@@ -371,17 +371,10 @@ private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeB
 }
 
 private void checkRefForPrimitivesAndAddSecretVariable(BlockScope scope, TypeBinding checkedType, TypeBinding expressionType) {
-	if (!(JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
-			scope.compilerOptions().sourceLevel,
-			scope.compilerOptions().enablePreviewFeatures)))
+	if (!JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(scope.compilerOptions()))
 		return;
 	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope);
 	this.testContextRecord = new TestContextRecord(checkedType, expressionType, route);
-	if (route == PrimitiveConversionRoute.UNBOXING_CONVERSION
-			|| route == PrimitiveConversionRoute.UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION
-		) {
-		addSecretExpressionValue(scope, expressionType);
-	}
 }
 
 private void addSecretExpressionValue(BlockScope scope, TypeBinding expressionType) {
