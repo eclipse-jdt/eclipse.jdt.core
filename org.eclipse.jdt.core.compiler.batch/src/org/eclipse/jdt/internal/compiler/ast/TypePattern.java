@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class TypePattern extends Pattern {
@@ -112,9 +113,7 @@ public class TypePattern extends Pattern {
 		} else {
 
 			if (!this.isTotalTypeNode) {
-				boolean checkCast = ((JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
-						currentScope.compilerOptions().sourceLevel,
-						currentScope.compilerOptions().enablePreviewFeatures))) ?
+				boolean checkCast = JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(currentScope.compilerOptions()) ?
 								!this.local.binding.type.isBaseType() : true;
 				if (checkCast)
 					codeStream.checkcast(this.local.binding.type);
@@ -125,9 +124,9 @@ public class TypePattern extends Pattern {
 
 	@Override
 	public void generateTestingConversion(BlockScope scope, CodeStream codeStream) {
-		TypeBinding rhs = this.expectedType;
-		TypeBinding lhs = this.resolvedType;
-		PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(lhs, rhs, scope);
+		TypeBinding provided = this.outerExpressionType;
+		TypeBinding expected = this.resolvedType;
+		PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(expected, provided, scope);
 		switch (route) {
 			case IDENTITY_CONVERSION:
 				// Do nothing
@@ -135,26 +134,32 @@ public class TypePattern extends Pattern {
 			case WIDENING_PRIMITIVE_CONVERSION:
 			case NARROWING_PRIMITVE_CONVERSION:
 			case WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION:
-				this.computeConversion(scope, lhs, rhs);
+				this.computeConversion(scope, expected, provided);
 				codeStream.generateImplicitConversion(this.implicitConversion);
 				break;
 			case BOXING_CONVERSION:
-				codeStream.generateBoxingConversion(rhs.id);
+			case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION: // widening needs no conversion :)
+				codeStream.generateBoxingConversion(provided.id);
 				break;
-			case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
-				int rightId = rhs.id;
-				codeStream.generateBoxingConversion(rightId);
-				TypeBinding unboxedType = scope.environment().computeBoxingType(TypeBinding.wellKnownBaseType(rightId));
-				this.computeConversion(scope, lhs, unboxedType);
+			case WIDENING_REFERENCE_AND_UNBOXING_COVERSION:
+				codeStream.generateUnboxingConversion(expected.id);
 				break;
-//				TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION:
-//				TODO:	case WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION:
-//				TODO:	case NARROWING_AND_UNBOXING_CONVERSION:
+			case WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION:
+				int rhsUnboxed = TypeIds.box2primitive(provided.superclass().id);
+				codeStream.generateUnboxingConversion(rhsUnboxed);
+				this.computeConversion(scope, TypeBinding.wellKnownBaseType(rhsUnboxed), expected);
+				codeStream.generateImplicitConversion(this.implicitConversion);
+				break;
+			case NARROWING_AND_UNBOXING_CONVERSION:
+				TypeBinding boxType = scope.environment().computeBoxingType(expected);
+				codeStream.checkcast(boxType);
+				codeStream.generateUnboxingConversion(expected.id);
+				break;
 			case UNBOXING_CONVERSION:
-				codeStream.generateUnboxingConversion(lhs.id);
+				codeStream.generateUnboxingConversion(expected.id);
 				break;
 			case UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION:
-				this.computeConversion(scope, lhs, rhs);
+				this.computeConversion(scope, expected, provided);
 				codeStream.generateImplicitConversion(this.implicitConversion);
 				break;
 			case NO_CONVERSION_ROUTE:

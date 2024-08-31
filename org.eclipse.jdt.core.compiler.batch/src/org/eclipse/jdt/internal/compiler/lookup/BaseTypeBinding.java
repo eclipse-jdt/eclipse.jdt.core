@@ -160,6 +160,7 @@ public class BaseTypeBinding extends TypeBinding {
 				case TypeIds.Short2Long:
 				case TypeIds.Short2Float:
 				case TypeIds.Short2Double:
+				case TypeIds.Char2Int:
 				case TypeIds.Char2Long:
 				case TypeIds.Char2Float:
 				case TypeIds.Char2Double:

@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.NullTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VoidTypeBinding;
 
 public abstract class Pattern extends Expression {
@@ -56,7 +57,8 @@ public abstract class Pattern extends Expression {
 		NO_CONVERSION_ROUTE
 	}
 
-	protected TypeBinding expectedType;
+	protected TypeBinding outerExpressionType; // the expression type of the enclosing instanceof, switch or outer record pattern
+
 	record TestContextRecord(TypeBinding left, TypeBinding right, PrimitiveConversionRoute route) {}
 
 	public Pattern getEnclosingPattern() {
@@ -76,12 +78,37 @@ public abstract class Pattern extends Expression {
 	 *
 	 * @return whether pattern covers the given type or not
 	 */
-	public boolean coversType(TypeBinding type) {
+	public boolean coversType(TypeBinding type, Scope scope) {
 		if (!isUnguarded())
 			return false;
 		if (type == null || this.resolvedType == null)
 			return false;
-		return (type.isSubtypeOf(this.resolvedType, false));
+		if (type.isPrimitiveOrBoxedPrimitiveType()) {
+			PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(this.resolvedType, type, scope);
+			switch (route) {
+				// JLS §5.7.2:
+				case IDENTITY_CONVERSION:
+				case BOXING_CONVERSION:
+				case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
+					return true;
+				case WIDENING_PRIMITIVE_CONVERSION:
+					return BaseTypeBinding.isExactWidening(this.resolvedType.id, type.id);
+				case WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION:
+					return false; // char->byte
+				/* §14.11.1.1 "CE contains a type pattern with a primitive type P,
+				 * 		 	and T is the wrapper class for the primitive type W,
+				 *			and the conversion from type W to type P is unconditionally exact (5.7.2). */
+				case UNBOXING_CONVERSION:
+					return true; // W -> P is identity
+				case UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION:
+					return BaseTypeBinding.isExactWidening(this.resolvedType.id, TypeIds.box2primitive(type.id));
+				default:
+					break;
+			}
+		}
+		if (type.isSubtypeOf(this.resolvedType, false))
+			return true;
+		return false;
 	}
 
 	// Given a non-null instance of same type, would the pattern always match ?
@@ -89,8 +116,8 @@ public abstract class Pattern extends Expression {
 		return false;
 	}
 
-	public boolean isUnconditional(TypeBinding t) {
-		return isUnguarded() && coversType(t);
+	public boolean isUnconditional(TypeBinding t, Scope scope) {
+		return isUnguarded() && coversType(t, scope);
 	}
 
 	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel);
@@ -123,7 +150,7 @@ public abstract class Pattern extends Expression {
 			return false;
 		}
 		if (patternType.isBaseType()) {
-			PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(this.resolvedType, this.expectedType, scope);
+			PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(this.resolvedType, this.outerExpressionType, scope);
 			if (!TypeBinding.equalsEquals(other, patternType)
 					&& route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
 				scope.problemReporter().incompatiblePatternType(this, other, patternType);
@@ -149,9 +176,8 @@ public abstract class Pattern extends Expression {
 
 	public abstract void setIsEitherOrPattern(); // if set, is one of multiple (case label) patterns and so pattern variables can't be named.
 
-	@Override
-	public void setExpectedType(TypeBinding expectedType) {
-		this.expectedType = expectedType;
+	public void setOuterExpressionType(TypeBinding expressionType) {
+		this.outerExpressionType = expressionType;
 	}
 
 	public boolean isUnguarded() {
@@ -161,10 +187,10 @@ public abstract class Pattern extends Expression {
 	public void setIsGuarded() {
 		this.isUnguarded = false;
 	}
-	public static boolean isBoxing(TypeBinding left, TypeBinding right) {
+	public static boolean isBoxing(TypeBinding provided, TypeBinding expected) {
 
-		if (right.isBaseType() && !left.isBaseType()) {
-			int expected = switch(right.id) {
+		if (expected.isBaseType() && !provided.isBaseType()) {
+			int expectedId = switch(expected.id) {
 				case T_char     -> T_JavaLangCharacter;
 				case T_byte     -> T_JavaLangByte;
 				case T_short    -> T_JavaLangShort;
@@ -175,16 +201,13 @@ public abstract class Pattern extends Expression {
 				case T_int      -> T_JavaLangInteger;
 				default -> -1;
 			};
-			return left.id == expected;
+			return provided.id == expectedId;
 		}
 		return false;
 	}
-	public static PrimitiveConversionRoute findPrimitiveConversionRoute(TypeBinding destinationType, TypeBinding expressionType, BlockScope scope) {
-		if (!(JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
-				scope.compilerOptions().sourceLevel,
-				scope.compilerOptions().enablePreviewFeatures))) {
+	public static PrimitiveConversionRoute findPrimitiveConversionRoute(TypeBinding destinationType, TypeBinding expressionType, Scope scope) {
+		if (!JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(scope.compilerOptions()))
 			return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
-		}
 		if (destinationType == null || expressionType == null)
 			return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 		boolean destinationIsBaseType = destinationType.isBaseType();
@@ -193,12 +216,12 @@ public abstract class Pattern extends Expression {
 			if (TypeBinding.equalsEquals(destinationType, expressionType)) {
 				return PrimitiveConversionRoute.IDENTITY_CONVERSION;
 			}
+			if (BaseTypeBinding.isWideningAndNarrowing(destinationType.id, expressionType.id))
+				return PrimitiveConversionRoute.WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION;
 			if (BaseTypeBinding.isWidening(destinationType.id, expressionType.id))
 				return PrimitiveConversionRoute.WIDENING_PRIMITIVE_CONVERSION;
 			if (BaseTypeBinding.isNarrowing(destinationType.id, expressionType.id))
 				return PrimitiveConversionRoute.NARROWING_PRIMITVE_CONVERSION;
-			if (BaseTypeBinding.isWideningAndNarrowing(destinationType.id, expressionType.id))
-				return PrimitiveConversionRoute.WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION;
 		} else {
 			if (expressionIsBaseType) {
 				if (expressionType instanceof NullTypeBinding
@@ -212,8 +235,6 @@ public abstract class Pattern extends Expression {
 
 			} else if (expressionType.isBoxedPrimitiveType() && destinationIsBaseType) {
 				TypeBinding unboxedExpressionType = scope.environment().computeBoxingType(expressionType);
-				 //TODO: a widening reference conversion followed by an unboxing conversion
-				 //TODO: a widening reference conversion followed by an unboxing conversion, then followed by a widening primitive conversion
 				 //TODO: a narrowing reference conversion that is checked followed by an unboxing conversion
 				 //an unboxing conversion (5.1.8)
 				if (TypeBinding.equalsEquals(destinationType, unboxedExpressionType))
@@ -221,6 +242,17 @@ public abstract class Pattern extends Expression {
 				 //an unboxing conversion followed by a widening primitive conversion
 				if (BaseTypeBinding.isWidening(destinationType.id, unboxedExpressionType.id))
 					return PrimitiveConversionRoute.UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION;
+			} else if (destinationIsBaseType && expressionType.erasure().isBoxedPrimitiveType()) { // <T extends Integer> / <? extends Short> ...
+				int boxId = expressionType.erasure().id;
+				int exprPrimId = TypeIds.box2primitive(boxId);
+				if (exprPrimId == destinationType.id)
+					return PrimitiveConversionRoute.WIDENING_REFERENCE_AND_UNBOXING_COVERSION;
+				if (BaseTypeBinding.isWidening(destinationType.id, exprPrimId))
+					return PrimitiveConversionRoute.WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION;
+			} else if (destinationIsBaseType) {
+				TypeBinding boxedDestinationType = scope.environment().computeBoxingType(destinationType);
+				if (boxedDestinationType.isCompatibleWith(expressionType))
+					return PrimitiveConversionRoute.NARROWING_AND_UNBOXING_CONVERSION;
 			}
 		}
 		return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
