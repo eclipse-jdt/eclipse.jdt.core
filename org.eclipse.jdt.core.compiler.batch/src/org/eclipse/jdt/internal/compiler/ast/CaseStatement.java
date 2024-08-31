@@ -215,7 +215,8 @@ public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpression
 			continue; // already processed
 		}
 		e.setExpressionContext(ExpressionContext.TESTING_CONTEXT);
-		e.setExpectedType(switchExpressionType);
+		if (e instanceof Pattern p)
+			p.setOuterExpressionType(switchExpressionType);
 
 		TypeBinding	caseType = e.resolveType(scope);
 

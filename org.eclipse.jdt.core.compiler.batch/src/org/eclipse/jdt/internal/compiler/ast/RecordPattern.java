@@ -98,16 +98,6 @@ public class RecordPattern extends Pattern {
 	}
 
 	@Override
-	public void setExpectedType(TypeBinding expectedType) {
-		this.expectedType = expectedType;
-	}
-
-	@Override
-	public TypeBinding expectedType() {
-		return this.expectedType;
-	}
-
-	@Override
 	public TypeBinding resolveType(BlockScope scope) {
 
 		this.constant = Constant.NotAConstant;
@@ -127,9 +117,8 @@ public class RecordPattern extends Pattern {
 		}
 
 		if (this.resolvedType.isRawType()) {
-			TypeBinding expressionType = expectedType();
-			if (expressionType instanceof ReferenceBinding) {
-				ReferenceBinding binding = inferRecordParameterization(scope, (ReferenceBinding) expressionType);
+			if (this.outerExpressionType instanceof ReferenceBinding) {
+				ReferenceBinding binding = inferRecordParameterization(scope, (ReferenceBinding) this.outerExpressionType);
 				if (binding == null || !binding.isValidBinding()) {
 					scope.problemReporter().cannotInferRecordPatternTypes(this);
 				    return this.resolvedType = null;
@@ -143,7 +132,7 @@ public class RecordPattern extends Pattern {
 			Pattern p = this.patterns[i];
 			p.resolveTypeWithBindings(bindings, scope);
 			bindings = LocalVariableBinding.merge(bindings, p.bindingsWhenTrue());
-			p.setExpectedType(this.resolvedType.components()[i].type);
+			p.setOuterExpressionType(this.resolvedType.components()[i].type);
 		}
 
 		if (this.resolvedType == null || !this.resolvedType.isValidBinding()) {
@@ -161,9 +150,9 @@ public class RecordPattern extends Pattern {
 						tp.local.binding.type = componentBinding.type;
 				}
 			}
-			TypeBinding expressionType = componentBinding.type;
-			if (p1.isApplicable(expressionType, scope)) {
-				p1.isTotalTypeNode = p1.coversType(componentBinding.type, scope);
+			TypeBinding componentType = componentBinding.type;
+			if (p1.isApplicable(componentType, scope)) {
+				p1.isTotalTypeNode = p1.coversType(componentType, scope);
 				MethodBinding[] methods = this.resolvedType.getMethods(componentBinding.name);
 				if (methods != null && methods.length > 0) {
 					p1.accessorMethod = methods[0];

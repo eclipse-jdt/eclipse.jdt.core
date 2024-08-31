@@ -57,7 +57,8 @@ public abstract class Pattern extends Expression {
 		NO_CONVERSION_ROUTE
 	}
 
-	protected TypeBinding expectedType;
+	protected TypeBinding outerExpressionType; // the expression type of the enclosing instanceof, switch or outer record pattern
+	
 	record TestContextRecord(TypeBinding left, TypeBinding right, PrimitiveConversionRoute route) {}
 
 	public Pattern getEnclosingPattern() {
@@ -147,7 +148,7 @@ public abstract class Pattern extends Expression {
 			return false;
 		}
 		if (patternType.isBaseType()) {
-			PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(this.resolvedType, this.expectedType, scope);
+			PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(this.resolvedType, this.outerExpressionType, scope);
 			if (!TypeBinding.equalsEquals(other, patternType)
 					&& route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
 				scope.problemReporter().incompatiblePatternType(this, other, patternType);
@@ -173,9 +174,8 @@ public abstract class Pattern extends Expression {
 
 	public abstract void setIsEitherOrPattern(); // if set, is one of multiple (case label) patterns and so pattern variables can't be named.
 
-	@Override
-	public void setExpectedType(TypeBinding expectedType) {
-		this.expectedType = expectedType;
+	public void setOuterExpressionType(TypeBinding expressionType) {
+		this.outerExpressionType = expressionType;
 	}
 
 	public boolean isUnguarded() {
@@ -185,10 +185,10 @@ public abstract class Pattern extends Expression {
 	public void setIsGuarded() {
 		this.isUnguarded = false;
 	}
-	public static boolean isBoxing(TypeBinding left, TypeBinding right) {
+	public static boolean isBoxing(TypeBinding provided, TypeBinding expected) {
 
-		if (right.isBaseType() && !left.isBaseType()) {
-			int expected = switch(right.id) {
+		if (expected.isBaseType() && !provided.isBaseType()) {
+			int expectedId = switch(expected.id) {
 				case T_char     -> T_JavaLangCharacter;
 				case T_byte     -> T_JavaLangByte;
 				case T_short    -> T_JavaLangShort;
@@ -199,7 +199,7 @@ public abstract class Pattern extends Expression {
 				case T_int      -> T_JavaLangInteger;
 				default -> -1;
 			};
-			return left.id == expected;
+			return provided.id == expectedId;
 		}
 		return false;
 	}

@@ -300,7 +300,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	TypeBinding expressionType = this.expression.resolveType(scope);
 	if (this.pattern != null) {
 		this.pattern.setExpressionContext(ExpressionContext.TESTING_CONTEXT);
-		this.pattern.setExpectedType(this.expression.resolvedType);
+		this.pattern.setOuterExpressionType(this.expression.resolvedType);
 		this.pattern.resolveType(scope);
 
 		addSecretExpressionValue(scope, expressionType);
