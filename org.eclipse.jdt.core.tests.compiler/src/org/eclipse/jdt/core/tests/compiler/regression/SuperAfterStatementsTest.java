@@ -2018,6 +2018,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			}
 			"""};
 		runner.expectedOutputString = "f3f1";
+		runner.javacTestOptions = JavacTestOptions.JavacHasABug.JavacBug8336255;
 		runner.runConformTest();
 	}
 	public void testComplexNesting_NOK() {
