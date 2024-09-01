@@ -13,6 +13,7 @@
 
 package org.eclipse.jdt.internal.javac;
 
+import java.beans.MethodDescriptor;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -23,11 +24,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.lang.model.element.PackageElement;
+import javax.lang.model.type.TypeKind;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -62,6 +66,7 @@ import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCNewClass;
+import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCReturn;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.util.Context;
@@ -791,6 +796,13 @@ public class JavacProblemConverter {
 				}
 				if (message.contains("no comment")) {
 					yield IProblem.JavadocMissing;
+				}
+				if (message.contains("empty comment") && diagnostic instanceof JCDiagnostic jcDiag && jcDiag.getDiagnosticPosition() instanceof JCMethodDecl method) {
+					if (method.getReturnType() instanceof JCPrimitiveTypeTree primitiveType
+						&& primitiveType.getPrimitiveTypeKind() != TypeKind.VOID) {
+						yield IProblem.JavadocMissingReturnTag;
+					}
+					// TODO also return a IProblem.JavadocMissingParamTag for each arg
 				}
 				// most others are ignored
 				yield 0;
