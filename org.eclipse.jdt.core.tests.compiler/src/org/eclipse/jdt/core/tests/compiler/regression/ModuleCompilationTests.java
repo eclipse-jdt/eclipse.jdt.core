@@ -771,7 +771,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The type p.X is not accessible\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				"cannot be resolved",
+				"does not read it",
 				OUTPUT_DIR + File.separator + out,
 				JavacTestOptions.JavacHasABug.JavacBug8207032);
 	}
@@ -1274,7 +1274,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"option -bootclasspath not supported at compliance level 9 and above\n",
-				"not allowed"); // when specifying -bootclasspath javac answers: "option --boot-class-path not allowed with target 1.9" (two bugs)
+				"option --boot-class-path cannot be used together with --release"); // error message has changed between versions, name of option plus reason for illegality can be questioned
 	}
 	public void test025() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -5426,7 +5426,7 @@ public void testBug521362_emptyFile() {
 				"The import x.y.z cannot be resolved\n" +
 				"----------\n" +
 				"3 problems (3 errors)\n",
-				"package conflict");
+				"reads package x.y.z from both");
 	}
 	public void testBug522472d() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -5502,7 +5502,7 @@ public void testBug521362_emptyFile() {
 				"The package x.y.z is accessible from more than one module: mod.one, mod.one.a\n" +
 				"----------\n" +
 				"3 problems (3 errors)\n",
-				"conflict");
+				"reads package x.y.z from both");
 	}
 	public void testIssue2357_001() throws Exception {
 		File outputDirectory = new File(OUTPUT_DIR);
