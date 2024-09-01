@@ -123,6 +123,11 @@ public class ImplicitTypeDeclaration extends AbstractTypeDeclaration {
 	}
 
 	@Override
+	int memSize() {
+		return BASE_NODE_SIZE + 2 * 4 ;
+	}
+
+	@Override
 	final ChildListPropertyDescriptor internalBodyDeclarationsProperty() {
 		return BODY_DECLARATIONS_PROPERTY;
 	}
