@@ -4422,7 +4422,9 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	public void testIssue1999() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-		runNegativeTest(new String[] {
+		runNegativeTest(
+				true,
+				new String[] {
 				"X.java",
 				"""
 				interface I {
@@ -4454,13 +4456,15 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				"""
 				},
+				null,
+				options,
 				"----------\n" +
 				"1. ERROR in X.java (at line 18)\n" +
 				"	if (a instanceof A) {} // warn here\n" +
 				"	    ^^^^^^^^^^^^^^\n" +
 				"The expression of type A is already an instance of type A\n" +
 				"----------\n",
-				null, true, options);
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
 	public void testIssue2007() {
