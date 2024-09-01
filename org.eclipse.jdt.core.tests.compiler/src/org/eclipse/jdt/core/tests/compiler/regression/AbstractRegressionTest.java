@@ -1169,7 +1169,7 @@ protected static class JavacTestOptions {
 			JavacBug8204534 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8204534
 				new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK11, 0000) : null,
 			JavacBug8207032 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8207032
-				new JavacHasABug(MismatchType.EclipseErrorsJavacNone) : null,
+				new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK11, 0000) : null,
 			JavacBug8044196 = RUN_JAVAC ? // likely https://bugs.openjdk.java.net/browse/JDK-8044196, intermittently masked by https://bugs.openjdk.java.net/browse/JDK-8029161
 				new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK9, 0000, true) : null,
 			JavacBug6337964 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=112433
@@ -1184,7 +1184,10 @@ protected static class JavacTestOptions {
 					new JavacBug8226510(" --release 12 --enable-preview -Xlint:-preview") : null,
 		    JavacBug8299416 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8299416
 					new JavacBugExtraJavacOptionsPlusMismatch(" --release 20 --enable-preview -Xlint:-preview",
-							MismatchType.EclipseErrorsJavacNone| MismatchType.EclipseErrorsJavacWarnings) : null;
+							MismatchType.EclipseErrorsJavacNone| MismatchType.EclipseErrorsJavacWarnings) : null,
+		    JavacBug8336255 = RUN_JAVAC ? // https://bugs.openjdk.org/browse/JDK-8336255
+					new JavacBugExtraJavacOptionsPlusMismatch(" --release 23 --enable-preview -Xlint:-preview",
+							MismatchType.JavacErrorsEclipseNone) : null;
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
