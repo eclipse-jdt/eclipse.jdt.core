@@ -576,7 +576,7 @@ public class JavacBindingResolver extends BindingResolver {
 		if (type instanceof PrimitiveType primitive) { // a type can be requested even if there is no token for it in JCTree
 			return resolveWellKnownType(primitive.getPrimitiveTypeCode().toString());
 		}
-		if (type.isVar()) {
+		if (type.getAST().apiLevel() >= AST.JLS10 && type.isVar()) {
 			if (type.getParent() instanceof VariableDeclaration varDecl) {
 				IVariableBinding varBinding = resolveVariable(varDecl);
 				if (varBinding != null) {
@@ -1213,11 +1213,60 @@ public class JavacBindingResolver extends BindingResolver {
 
 	private IMethodBinding resolveConstructorImpl(ClassInstanceCreation expression) {
 		resolve();
-		return this.converter.domToJavac.get(expression) instanceof JCNewClass jcExpr
-				&& jcExpr.constructor != null
-				&& !jcExpr.constructor.type.isErroneous()?
-						this.bindings.getMethodBinding(jcExpr.constructor.type.asMethodType(), (MethodSymbol)jcExpr.constructor, null, false) :
-				null;
+		if (this.converter.domToJavac.get(expression) instanceof JCNewClass jcExpr) {
+			if (jcExpr.constructor != null && !jcExpr.constructor.type.isErroneous()) {
+				return this.bindings.getMethodBinding(jcExpr.constructor.type.asMethodType(), (MethodSymbol)jcExpr.constructor, null, false);
+			}
+		}
+		ITypeBinding type = resolveType(expression.getType());
+		if (type != null) {
+			List<ITypeBinding> givenTypes = ((List<Expression>)expression.arguments()).stream()
+					.map(this::resolveExpressionType)
+					.toList();
+			boolean hasTrailingNull;
+			boolean matchExactParamCount = false;
+			do {
+				hasTrailingNull = !givenTypes.isEmpty() && givenTypes.getLast() == null;
+				// try just checking by known args
+				// first filter by args count
+				var matchExactParamCountFinal = matchExactParamCount;
+				var finalGivenTypes = givenTypes;
+				var candidates = Arrays.stream(type.getDeclaredMethods())
+					.filter(IMethodBinding::isConstructor)
+					.filter(other -> matchExactParamCountFinal ? other.getParameterTypes().length == finalGivenTypes.size() : other.getParameterTypes().length >= finalGivenTypes.size())
+					.toList();
+				if (candidates.size() == 1) {
+					return candidates.get(0);
+				}
+				if (candidates.size() > 1 && expression.arguments().size() > 0) {
+					// then try filtering by arg types
+					var typeFilteredCandidates = candidates.stream()
+						.filter(other -> matchTypes(finalGivenTypes, other.getParameterTypes()))
+						.toList();
+					if (typeFilteredCandidates.size() == 1) {
+						return typeFilteredCandidates.get(0);
+					}
+				}
+				if (hasTrailingNull) {
+					givenTypes = givenTypes.subList(0, givenTypes.size() - 1);
+					matchExactParamCount = true;
+				}
+			} while (hasTrailingNull);
+		}
+		return null;
+	}
+
+	private boolean matchTypes(List<ITypeBinding> givenTypes, ITypeBinding[] expectedTypes) {
+		for (int i = 0; i < Math.min(givenTypes.size(), expectedTypes.length); i++) {
+			ITypeBinding givenType = givenTypes.get(i);
+			ITypeBinding expectedType = expectedTypes[i];
+			if (givenType != null) {
+				if (!givenType.isAssignmentCompatible(expectedType)) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	@Override
