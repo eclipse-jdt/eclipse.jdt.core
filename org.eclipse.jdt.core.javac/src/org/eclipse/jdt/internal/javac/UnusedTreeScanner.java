@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.lang.model.element.ElementKind;
+
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
 import com.sun.source.tree.ClassTree;
@@ -39,8 +41,9 @@ import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type.JCPrimitiveType;
+import com.sun.tools.javac.code.TypeTag;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
-import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCImport;
@@ -159,12 +162,16 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 		if (tree instanceof JCClassDecl classTree) {
 			return (classTree.getModifiers().flags & Flags.PRIVATE) != 0;
 		} else if (tree instanceof JCMethodDecl methodTree) {
-			return !isSynthesizedConstructor(methodTree) && (methodTree.getModifiers().flags & Flags.PRIVATE) != 0;
+			return !isConstructor(methodTree) && (methodTree.getModifiers().flags & Flags.PRIVATE) != 0;
 		} else if (tree instanceof JCVariableDecl variable) {
 			Symbol owner = variable.sym == null ? null : variable.sym.owner;
 			if (owner instanceof ClassSymbol) {
-				return (variable.getModifiers().flags & Flags.PRIVATE) != 0;
+				return !isSerialVersionConstant(variable) && (variable.getModifiers().flags & Flags.PRIVATE) != 0;
 			} else if (owner instanceof MethodSymbol) {
+				if (variable.sym.getKind() == ElementKind.EXCEPTION_PARAMETER) {
+					return false;
+				}
+
 				return true;
 			}
 		}
@@ -172,11 +179,9 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 		return false;
 	}
 
-	private boolean isSynthesizedConstructor(JCMethodDecl methodDecl) {
-		boolean isDefaultConstructor = methodDecl.getParameters().isEmpty() && methodDecl.sym != null
+	private boolean isConstructor(JCMethodDecl methodDecl) {
+		return methodDecl.sym != null
 				&& methodDecl.sym.isConstructor();
-		int endPos = methodDecl.getEndPosition(((JCCompilationUnit) unit).endPositions);
-		return isDefaultConstructor && endPos < 0;
 	}
 
 	private boolean isPrivateSymbol(Symbol symbol) {
@@ -205,6 +210,15 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 		}
 
 		return false;
+	}
+
+	private boolean isSerialVersionConstant(JCVariableDecl variable) {
+		long flags = variable.getModifiers().flags;
+		return (flags & Flags.FINAL) != 0
+				&& (flags & Flags.STATIC) != 0
+				&& variable.type instanceof JCPrimitiveType type
+				&& type.getTag() == TypeTag.LONG
+				&& "serialVersionUID".equals(variable.name.toString());
 	}
 
 	public List<CategorizedProblem> getUnusedImports(UnusedProblemFactory problemFactory) {
