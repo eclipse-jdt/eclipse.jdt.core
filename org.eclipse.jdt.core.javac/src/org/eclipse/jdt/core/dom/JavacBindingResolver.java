@@ -544,6 +544,18 @@ public class JavacBindingResolver extends BindingResolver {
 			if (res != null) {
 				return res;
 			}
+			if (jcta.getType().type instanceof ErrorType errorType) {
+				res = this.bindings.getTypeBinding(errorType.getOriginalType(), true);
+				if (res != null) {
+					return res;
+				}
+			}
+			if (jcta.getType().type != null) {
+				res = this.bindings.getTypeBinding(jcta.getType().type);
+				if (res != null) {
+					return res;
+				}
+			}
 		}
 		if (jcTree instanceof JCAnnotatedType annotated && annotated.type != null) {
 			return this.bindings.getTypeBinding(annotated.type);
