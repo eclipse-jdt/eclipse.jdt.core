@@ -13,7 +13,6 @@
 
 package org.eclipse.jdt.internal.javac;
 
-import java.beans.MethodDescriptor;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.type.TypeKind;
 import javax.tools.Diagnostic;
@@ -30,8 +30,6 @@ import javax.tools.JavaFileObject;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -44,9 +42,10 @@ import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Kinds.KindName;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Symbol.ClassSymbol;
+import com.sun.tools.javac.code.Symbol.MethodSymbol;
+import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.TypeTag;
 import com.sun.tools.javac.parser.Scanner;
@@ -293,6 +292,19 @@ public class JavacProblemConverter {
 				&& jcDiagnostic.getArgs().length > 0
 				&& jcDiagnostic.getArgs()[0] instanceof PackageElement) {
 				element = fieldAccess.getExpression();
+			}
+			if (problemId == IProblem.EnumAbstractMethodMustBeImplemented
+				&& element instanceof JCClassDecl classDecl
+				&& jcDiagnostic.getArgs().length >= 2
+				&& jcDiagnostic.getArgs()[1] instanceof MethodSymbol method) {
+				element = classDecl.getMembers().stream()
+					.filter(JCMethodDecl.class::isInstance)
+					.map(JCMethodDecl.class::cast)
+					.filter(m -> m.getModifiers().getFlags().contains(Modifier.ABSTRACT))
+					.filter(m -> method.name.equals(m.getName()))
+					.findFirst()
+					.map(Tree.class::cast)
+					.orElse(element);
 			}
 			if (element != null) {
 				switch (element) {
@@ -612,11 +624,17 @@ public class JavacProblemConverter {
 			case "compiler.err.report.access" -> convertNotVisibleAccess(diagnostic);
 			case "compiler.err.does.not.override.abstract" -> {
 				Object[] args = getDiagnosticArguments(diagnostic);
-				yield args.length > 2 && args[0] instanceof ClassSymbol classSymbol
-					&& !classSymbol.isEnum() && !classSymbol.isInterface()
-					&& args[0] == args[2] ? // means abstract method defined in Concrete class
-					IProblem.AbstractMethodsInConcreteClass :
-					IProblem.AbstractMethodMustBeImplemented;
+				if (args.length > 2
+					&& args[0] instanceof ClassSymbol classSymbol
+					&& args[0] == args[2]) { // means abstract method defined in Concrete class
+					if (classSymbol.isEnum()) {
+						yield IProblem.EnumAbstractMethodMustBeImplemented;
+					}
+					if (!classSymbol.isInterface() && !classSymbol.isAbstract()) {
+						yield IProblem.AbstractMethodsInConcreteClass;
+					}
+				}
+				yield IProblem.AbstractMethodMustBeImplemented;
 			}
 			case COMPILER_WARN_MISSING_SVUID -> IProblem.MissingSerialVersion;
 			case COMPILER_WARN_NON_SERIALIZABLE_INSTANCE_FIELD -> 99999999; // JDT doesn't have this diagnostic
