@@ -54,6 +54,7 @@ import com.sun.tools.javac.tree.DCTree.DCUses;
 import com.sun.tools.javac.tree.DCTree.DCValue;
 import com.sun.tools.javac.tree.DCTree.DCVersion;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
 import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.util.Convert;
 import com.sun.tools.javac.util.JCDiagnostic;
@@ -758,8 +759,20 @@ class JavadocConverter {
 			}
 		};
 		fixPositions.scan(type);
-		Type jdtType = this.javacConverter.convertToType(type);
+		String[] segments = range.getContents().trim().split("\s");
+
+		Type jdtType = null;
+		if( segments.length > 0 && segments[segments.length-1].endsWith("...")) {
+			res.setVarargs(true);
+			if( type instanceof JCArrayTypeTree att) {
+				jdtType = this.javacConverter.convertToType(att.getType());
+			}
+		} 
+		if( jdtType == null ) {
+			jdtType = this.javacConverter.convertToType(type);
+		}
 		res.setType(jdtType);
+		
 		// some lengths may be missing
 		jdtType.accept(new ASTVisitor() {
 			@Override
@@ -770,7 +783,6 @@ class JavadocConverter {
 				super.preVisit(node);
 			}
 		});
-		String[] segments = range.getContents().trim().split("\s");
 		if (jdtType.getStartPosition() + jdtType.getLength() < res.getStartPosition() + res.getLength()) {
 			if (segments.length > 1) {
 				String nameSegment = segments[segments.length - 1];
@@ -778,9 +790,6 @@ class JavadocConverter {
 				name.setSourceRange(this.javacConverter.rawText.lastIndexOf(nameSegment, range.endPosition()), nameSegment.length());
 				res.setName(name);
 			}
-		}
-		if( segments.length > 0 && segments[segments.length-1].endsWith("...")) {
-			res.setVarargs(true);
 		}
 		return res;
 	}

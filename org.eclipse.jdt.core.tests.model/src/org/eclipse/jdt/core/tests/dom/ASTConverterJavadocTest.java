@@ -710,6 +710,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * @deprecated using deprecated code
 	 */
 	private void verifyPositions(TagElement tagElement, char[] source) {
+		String srcString = new String(source);
 		boolean lenientTesting = true; // TODO check a property for javac converter?
 		String text = null;
 		// Verify tag name
@@ -2292,7 +2293,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0); // get javadoc comment
 			TagElement firstTag = (TagElement) docComment.tags().get(0); // get first tag
 			TagElement secondTag = (TagElement) docComment.tags().get(1); // get second tag
-			TagElement inlineTag = (TagElement) secondTag.fragments().get(1); // get inline tag
+			TagElement inlineTag = (TagElement) secondTag.fragments().get(secondTag.fragments().size() - 1); // get inline tag
 			// Get tag simple name reference in first tag
 			assertEquals("Invalid number of fragments for tag element: "+firstTag, 1, firstTag.fragments().size());
 			ASTNode node = (ASTNode) firstTag.fragments().get(0);
