@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.*;
@@ -198,7 +199,7 @@ public boolean exists() {
 				} catch (JavaModelException e) {
 					return false;
 				}
-				return rootInfo.rawPackageInfo.containsKey(((PackageFragment) this).names);
+				return rootInfo.rawPackageInfo.containsKey(List.of(((PackageFragment) this).names));
 			}
 			break;
 		case IJavaElement.CLASS_FILE:

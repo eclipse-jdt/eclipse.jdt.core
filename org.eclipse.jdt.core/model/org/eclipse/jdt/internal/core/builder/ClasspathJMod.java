@@ -33,7 +33,7 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 public class ClasspathJMod extends ClasspathJar {
 
 	public static char[] CLASSES = "classes".toCharArray(); //$NON-NLS-1$
-	public static char[] CLASSES_FOLDER = "classes/".toCharArray(); //$NON-NLS-1$
+	public static final String CLASSES_FOLDER = "classes/"; //$NON-NLS-1$
 	private static int MODULE_DESCRIPTOR_NAME_LENGTH = IModule.MODULE_INFO_CLASS.length();
 
 	ClasspathJMod(String zipFilename, long lastModified, AccessRuleSet accessRuleSet, IPath externalAnnotationPath) {
@@ -43,7 +43,7 @@ public class ClasspathJMod extends ClasspathJar {
 	IModule initializeModule() {
 		IModule mod = null;
 		try (ZipFile file = new ZipFile(this.zipFilename)) {
-			String fileName = new String(CLASSES_FOLDER) + IModule.MODULE_INFO_CLASS;
+			String fileName = CLASSES_FOLDER + IModule.MODULE_INFO_CLASS;
 			ClassFileReader classfile = ClassFileReader.read(file, fileName);
 			if (classfile != null) {
 				mod = classfile.getModuleDeclaration();
@@ -62,7 +62,7 @@ public class ClasspathJMod extends ClasspathJar {
 			return null;
 
 		try {
-			qualifiedBinaryFileName = new String(CharOperation.append(CLASSES_FOLDER, qualifiedBinaryFileName.toCharArray()));
+			qualifiedBinaryFileName = CLASSES_FOLDER + qualifiedBinaryFileName;
 			IBinaryType reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 			if (reader != null) {
 				char[] modName = this.module == null ? null : this.module.name();

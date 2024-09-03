@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -1686,6 +1688,18 @@ public void testPackageFragmentRootNonJavaResources9() throws Exception {
 			// the bug occurred only if META-INF/MANIFEST.MF was before META-INF in the ZIP file
 			// Altered the test for 534624. Usage of Zip file system for traversal no longer sees two different entries, but just the file.
 			zip.putNextEntry(new ZipEntry("META-INF/MANIFEST.MF"));
+
+			// a java class:
+			zip.putNextEntry(new ZipEntry("p1/p2/p3/java.class"));
+
+			// some more resources:
+			zip.putNextEntry(new ZipEntry("legalPackageName/MANIFEST2.MF"));
+			zip.putNextEntry(new ZipEntry("r1/r2/r3/resource.png"));
+			zip.putNextEntry(new ZipEntry("p/x.y/Test.txt"));
+			zip.putNextEntry(new ZipEntry("p1/-invalid-/p3/fake.class"));
+
+			/// just another resource:
+			zip.putNextEntry(new ZipEntry("invalid-/legalPackageName2/-MANIFEST.MF2"));
 		}
 		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("lib.jar")}, "");
 		waitForManualRefresh();
@@ -1693,14 +1707,48 @@ public void testPackageFragmentRootNonJavaResources9() throws Exception {
 		Object[] resources = root.getNonJavaResources();
 		assertResourceTreeEquals(
 			"unexpected non java resources",
-			"META-INF\n" +
-			"  MANIFEST.MF",
-			resources);
+			"""
+			META-INF
+			  MANIFEST.MF
+			invalid-
+			  legalPackageName2
+			    -MANIFEST.MF2"""
+			,resources);
+		IJavaElement[] children= root.getChildren();
+		Arrays.sort(children, Comparator.comparing(IJavaElement::getElementName));
+		String expected = """
+				<default> [in lib.jar]
+				legalPackageName [in lib.jar]
+				p [in lib.jar]
+				p1 [in lib.jar]
+				p1.p2 [in lib.jar]
+				p1.p2.p3 [in lib.jar]
+				r1 [in lib.jar]
+				r1.r2 [in lib.jar]
+				r1.r2.r3 [in lib.jar]""";
+		expected = expected.replace("lib.jar", root.getPath().toOSString());
+		assertElementsEqual("Unexpected package fragment roots", expected, children);
+
+		IPackageFragment pf= getPackageFragment("P", getExternalResourcePath("lib.jar"), "legalPackageName");
+		assertResourceTreeEquals(
+			"unexpected non java resources",
+			"""
+			MANIFEST2.MF"""
+			, pf.getNonJavaResources());
+		IPackageFragment pf2= getPackageFragment("P", getExternalResourcePath("lib.jar"), "p1");
+		assertResourceTreeEquals(
+			"unexpected non java resources",
+			"""
+			-invalid-
+			  p3
+			    fake.class"""
+			, pf2.getNonJavaResources());
 	} finally {
 		deleteExternalResource("lib.jar");
 		deleteProject("P");
 	}
 }
+
 /**
  * Test raw entry inference performance for package fragment root
  */
