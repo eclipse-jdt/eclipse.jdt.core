@@ -162,7 +162,13 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 		if (tree instanceof JCClassDecl classTree) {
 			return (classTree.getModifiers().flags & Flags.PRIVATE) != 0;
 		} else if (tree instanceof JCMethodDecl methodTree) {
-			return !isConstructor(methodTree) && (methodTree.getModifiers().flags & Flags.PRIVATE) != 0;
+			if (isConstructor(methodTree)) {
+				if (hasPackageVisibleConstructor(methodTree.sym.owner)) {
+					return (methodTree.getModifiers().flags & Flags.PRIVATE) != 0;
+				}
+				return false;
+			}
+			return (methodTree.getModifiers().flags & Flags.PRIVATE) != 0;
 		} else if (tree instanceof JCVariableDecl variable) {
 			Symbol owner = variable.sym == null ? null : variable.sym.owner;
 			if (owner instanceof ClassSymbol) {
@@ -182,6 +188,20 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 	private boolean isConstructor(JCMethodDecl methodDecl) {
 		return methodDecl.sym != null
 				&& methodDecl.sym.isConstructor();
+	}
+
+	private boolean hasPackageVisibleConstructor(Symbol symbol) {
+		if (symbol instanceof ClassSymbol clazz) {
+			for (var member : clazz.members().getSymbols()) {
+				if (member instanceof MethodSymbol method) {
+					if (method.isConstructor() && (method.flags() & Flags.PRIVATE) == 0) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 
 	private boolean isPrivateSymbol(Symbol symbol) {
