@@ -42,7 +42,7 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class InstanceOfExpression extends OperatorExpression {
+public class InstanceOfExpression extends OperatorExpression implements IGenerateTypeCheck {
 
 	public Expression expression;
 	public TypeReference type;
@@ -170,10 +170,13 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 	}
 
 	BranchLabel internalFalseLabel = falseLabel != null ? falseLabel : this.pattern != null ? new BranchLabel(codeStream) : null;
-	PrimitiveConversionRoute route = this.testContextRecord != null ?
-			this.testContextRecord.route() : PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
-
-	generateTypeCheck(currentScope, codeStream, internalFalseLabel, route);
+	PrimitiveConversionRoute route = PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
+	TypeBinding providedType = null;
+	if (this.testContextRecord != null) {
+		route = this.testContextRecord.route();
+		providedType = this.testContextRecord.right();
+	}
+	generateTypeCheck(providedType, this.type, currentScope, codeStream, internalFalseLabel, route);
 
 	if (this.pattern != null) {
 		codeStream.ifeq(internalFalseLabel);
@@ -219,69 +222,15 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 		internalFalseLabel.place();
 }
 
-private void generateTypeCheck(BlockScope scope, CodeStream codeStream, BranchLabel internalFalseLabel, PrimitiveConversionRoute route) {
-	switch (route) {
-		case IDENTITY_CONVERSION -> {
-			storeExpressionValue(codeStream);
-			codeStream.iconst_1();
-			setPatternIsTotalType();
-		}
-		case WIDENING_PRIMITIVE_CONVERSION,
-			 NARROWING_PRIMITVE_CONVERSION,
-			 WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION -> {
-			generateExactConversions(scope, codeStream);
-			setPatternIsTotalType();
-		}
-		case BOXING_CONVERSION,
-			 BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION -> {
-			storeExpressionValue(codeStream);
-			codeStream.iconst_1();
-			setPatternIsTotalType();
-		}
-		case WIDENING_REFERENCE_AND_UNBOXING_COVERSION,
-			 WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION -> {
-			codeStream.ifnull(internalFalseLabel);
-			codeStream.iconst_1();
-			setPatternIsTotalType();
-		}
-		case NARROWING_AND_UNBOXING_CONVERSION -> {
-			TypeBinding boxType = scope.environment().computeBoxingType(this.type.resolvedType);
-			codeStream.instance_of(this.type, boxType);
-		}
-		case UNBOXING_CONVERSION,
-			 UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION -> {
-			codeStream.ifnull(internalFalseLabel);
-			codeStream.iconst_1();
-			setPatternIsTotalType();
-		}
-		case NO_CONVERSION_ROUTE -> {
-			codeStream.instance_of(this.type, this.type.resolvedType);
-			break;
-		}
-		default -> {
-			throw new IllegalArgumentException("Unexpected conversion route "+route); //$NON-NLS-1$
-		}
-	}
-}
-
-private void setPatternIsTotalType() {
+@Override
+public void setPatternIsTotalType() {
 	if (this.pattern != null) {
 		this.pattern.isTotalTypeNode = true;
 	}
 }
 
-private void generateExactConversions(BlockScope scope, CodeStream codeStream) {
-	TypeBinding left = this.testContextRecord.left();
-	TypeBinding right = this.testContextRecord.right();
-	if (BaseTypeBinding.isExactWidening(left.id, right.id)) {
-		storeExpressionValue(codeStream);
-		codeStream.iconst_1();
-	} else {
-		codeStream.invokeExactConversionsSupport(BaseTypeBinding.getRightToLeft(left.id, right.id));
-	}
-}
-
-private void storeExpressionValue(CodeStream codeStream) {
+@Override
+public void consumeProvidedValue(TypeBinding provided, CodeStream codeStream) {
 	LocalVariableBinding local = this.expression.localVariableBinding();
 	local = local != null ? local : this.secretExpressionValue;
 	if (local != null)

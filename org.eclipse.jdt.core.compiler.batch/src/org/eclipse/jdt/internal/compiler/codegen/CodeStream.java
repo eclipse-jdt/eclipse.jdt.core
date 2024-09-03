@@ -1088,6 +1088,12 @@ public void dsub() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dsub;
 }
 
+public void dup(TypeBinding type) {
+	if (TypeIds.getCategory(type.id) == 2)
+		dup2();
+	else
+		dup();
+}
 public void dup() {
 	this.countLabels = 0;
 	this.stackDepth++;
@@ -4498,7 +4504,7 @@ public void instance_of(TypeReference typeReference, TypeBinding typeBinding) {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_instanceof;
 	writeUnsignedShort(this.constantPool.literalIndexForType(typeBinding));
-	this.operandStack.pop(OperandCategory.ONE);
+	this.operandStack.pop(TypeIds.getCategory(typeBinding.id));
 	this.operandStack.push(TypeBinding.INT);
 }
 
@@ -6875,6 +6881,13 @@ public void optimizeBranch(int oldPosition, BranchLabel lbl) {
 			}
 		}
 	}
+}
+
+public void pop(TypeBinding type) {
+	if (TypeIds.getCategory(type.id) == 2)
+		pop2();
+	else
+		pop();
 }
 
 public void pop() {
