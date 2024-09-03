@@ -116,8 +116,8 @@ public class RecordPattern extends Pattern {
 		this.type.bits |= ASTNode.IgnoreRawTypeCheck;
 		this.resolvedType = this.type.resolveType(scope);
 
-		if (!this.resolvedType.isRecord()) {
-			scope.problemReporter().unexpectedTypeinRecordPattern(this.resolvedType, this.type);
+		if (this.resolvedType == null || !this.resolvedType.isRecord()) {
+			scope.problemReporter().unexpectedTypeinRecordPattern(this.type);
 			return this.resolvedType;
 		}
 		if (this.resolvedType.components().length != this.patterns.length) {

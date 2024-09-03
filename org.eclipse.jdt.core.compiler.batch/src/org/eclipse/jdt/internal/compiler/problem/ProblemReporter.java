@@ -12550,11 +12550,11 @@ public void unexpectedTypeinSwitchPattern(TypeBinding type, ASTNode element) {
 			element.sourceStart,
 			element.sourceEnd);
 }
-public void unexpectedTypeinRecordPattern(TypeBinding type, ASTNode element) {
+public void unexpectedTypeinRecordPattern(ASTNode element) {
 	this.handle(
 			IProblem.UnexpectedTypeinRecordPattern,
-			new String[] {new String(type.readableName())},
-			new String[] {new String(type.shortReadableName())},
+			NoArgument,
+			NoArgument,
 			element.sourceStart,
 			element.sourceEnd);
 }
