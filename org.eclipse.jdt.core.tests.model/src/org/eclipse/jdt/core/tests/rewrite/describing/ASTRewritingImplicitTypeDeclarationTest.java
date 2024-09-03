@@ -98,14 +98,6 @@ public class ASTRewritingImplicitTypeDeclarationTest extends ASTRewritingTest{
      // Add Implicity Type class to compilation unit
         compilationUnit.types().add(implicitTypeDeclaration);
 
-//        String content = """
-//				/**
-//				 * Hello
-//				 */
-//				void main(){
-//				  System.out.println("Eclipse");
-//				}
-//        		""";
         StringBuilder buf = new StringBuilder();
         buf.append("/** \n");
         buf.append(" * Hello\n");
