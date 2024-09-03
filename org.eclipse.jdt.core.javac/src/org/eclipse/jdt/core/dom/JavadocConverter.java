@@ -248,18 +248,32 @@ class JavadocConverter {
 			convertElementCombiningNodes(deprecated.body.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
 		} else if (javac instanceof DCParam param) {
 			res.setTagName(TagElement.TAG_PARAM);
-			if (param.isTypeParameter()) {
-				TextElement opening = this.ast.newTextElement();
-				opening.setText("<");
-				res.fragments().add(opening);
-			}
-			res.fragments().addAll(convertElement(param.name).toList());
-			res.setTagName(TagElement.TAG_PARAM);
-			if (param.isTypeParameter()) {
-				TextElement closing = this.ast.newTextElement();
-				closing.setText(">");
-				res.fragments().add(closing);
-			}
+			int tagNameEnds = javac.getStartPosition() + res.getTagName().length();
+			if( param.isTypeParameter()) {
+				int stopSearchRelative = param.getEndPosition();
+				if( param.description != null && param.description.size() > 0 ) { 
+					stopSearchRelative = param.description.get(0).getEndPosition();
+				}
+				int stopSearchAbsolute = this.docComment.getSourcePosition(stopSearchRelative);
+				int start = this.docComment.getSourcePosition(param.getStartPosition());
+				int ltRaw = this.javacConverter.rawText.indexOf("<", start, stopSearchAbsolute);
+				int gtRaw = this.javacConverter.rawText.indexOf(">", start, stopSearchAbsolute);
+				if( ltRaw != -1 ) {
+					int ltStart = this.docComment.getSourcePosition(tagNameEnds+1);
+					// must include spaces
+					Region r = new Region(ltStart, 1 + (ltRaw - ltStart));
+					res.fragments().add(toTextElement(r));
+					res.fragments().addAll(convertElement(param.name).toList());
+				} else {
+					res.fragments().addAll(convertElement(param.name).toList());
+				}
+				if( gtRaw != -1 ) {
+					Region r = new Region(gtRaw, 1);
+					res.fragments().add(toTextElement(r));
+				}
+				} else {
+					res.fragments().addAll(convertElement(param.name).toList());
+				}
 			convertElementCombiningNodes(param.description.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
 		} else if (javac instanceof DCReturn ret) {
 			res.setTagName(TagElement.TAG_RETURN);
