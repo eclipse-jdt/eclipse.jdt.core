@@ -65,6 +65,7 @@ public class SelectionJavadocParser extends JavadocParser {
 	@Override
 	protected boolean commentParse() {
 		this.docComment = new SelectionJavadoc(this.javadocStart, this.javadocEnd);
+		this.docComment.isMarkdown = this.markdown;
 		return super.commentParse();
 	}
 

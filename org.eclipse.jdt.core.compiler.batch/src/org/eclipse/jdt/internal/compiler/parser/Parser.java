@@ -11499,22 +11499,14 @@ public int flushCommentsDefinedPriorTo(int position) {
 			break;
 		// move valid comment infos, overriding obsolete comment infos
 		case 2:
-			this.scanner.commentStarts[0] = this.scanner.commentStarts[index+1];
-			this.scanner.commentStops[0] = this.scanner.commentStops[index+1];
-			this.scanner.commentTagStarts[0] = this.scanner.commentTagStarts[index+1];
-			this.scanner.commentStarts[1] = this.scanner.commentStarts[index+2];
-			this.scanner.commentStops[1] = this.scanner.commentStops[index+2];
-			this.scanner.commentTagStarts[1] = this.scanner.commentTagStarts[index+2];
+			this.scanner.copyCommentInfo(0, index+1);
+			this.scanner.copyCommentInfo(1, index+2);
 			break;
 		case 1:
-			this.scanner.commentStarts[0] = this.scanner.commentStarts[index+1];
-			this.scanner.commentStops[0] = this.scanner.commentStops[index+1];
-			this.scanner.commentTagStarts[0] = this.scanner.commentTagStarts[index+1];
+			this.scanner.copyCommentInfo(0, index+1);
 			break;
 		default:
-			System.arraycopy(this.scanner.commentStarts, index + 1, this.scanner.commentStarts, 0, validCount);
-			System.arraycopy(this.scanner.commentStops, index + 1, this.scanner.commentStops, 0, validCount);
-			System.arraycopy(this.scanner.commentTagStarts, index + 1, this.scanner.commentTagStarts, 0, validCount);
+			this.scanner.copyAllCommentInfo(index+1, 0, validCount);
 	}
 	this.scanner.commentPtr = validCount - 1;
 	return position;

@@ -20,6 +20,7 @@ package org.eclipse.jdt.internal.formatter;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_BLOCK;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_MARKDOWN;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameTextBlock;
@@ -587,7 +588,7 @@ public class CommentsPreparator extends ASTVisitor {
 		this.commonAttributeAnnotations.clear();
 		this.ctm = null;
 
-		int commentIndex = this.tm.firstIndexIn(node, TokenNameCOMMENT_JAVADOC);
+		int commentIndex = this.tm.firstIndexIn(node, node.isMarkdown() ? TokenNameCOMMENT_MARKDOWN : TokenNameCOMMENT_JAVADOC);
 		Token commentToken = this.tm.get(commentIndex);
 
 		if (node.getParent() == null) {
@@ -1209,7 +1210,8 @@ public class CommentsPreparator extends ASTVisitor {
 		if (this.allowSubstituteWrapping == null || this.allowSubstituteWrapping.length < commentToken.countChars()) {
 			this.allowSubstituteWrapping = new boolean[commentToken.countChars()];
 		}
-		boolean isJavadoc = commentToken.tokenType == TokenNameCOMMENT_JAVADOC;
+		boolean isMarkdown = commentToken.tokenType == TokenNameCOMMENT_MARKDOWN;
+		boolean isJavadoc = commentToken.tokenType == TokenNameCOMMENT_JAVADOC || isMarkdown;
 		Arrays.fill(this.allowSubstituteWrapping, 0, commentToken.countChars(), !isJavadoc);
 
 		final boolean cleanBlankLines = isJavadoc ? this.options.comment_clear_blank_lines_in_javadoc_comment
@@ -1218,14 +1220,15 @@ public class CommentsPreparator extends ASTVisitor {
 		List<Token> structure = new ArrayList<>();
 
 		int firstTokenEnd = commentToken.originalStart + 1;
-		while (firstTokenEnd < commentToken.originalEnd - 1 && this.tm.charAt(firstTokenEnd + 1) == '*')
+		char markerChar = isMarkdown ? '/' : '*';
+		while (firstTokenEnd < commentToken.originalEnd - 1 && this.tm.charAt(firstTokenEnd + 1) == markerChar)
 			firstTokenEnd++;
 		Token first = new Token(commentToken.originalStart, firstTokenEnd, commentToken.tokenType);
 		first.spaceAfter();
 		structure.add(first);
 
 		int lastTokenStart = commentToken.originalEnd - 1;
-		while (lastTokenStart - 1 > firstTokenEnd && this.tm.charAt(lastTokenStart - 1) == '*')
+		while (lastTokenStart - 1 > firstTokenEnd && this.tm.charAt(lastTokenStart - 1) == markerChar)
 			lastTokenStart--;
 
 		int position = firstTokenEnd + 1;
@@ -1241,7 +1244,7 @@ public class CommentsPreparator extends ASTVisitor {
 						i++;
 					position = i + 1;
 				} else if (!ScannerHelper.isWhitespace(c)) {
-					while (this.tm.charAt(i) == '*' && lineBreaks > 0)
+					while (this.tm.charAt(i) == markerChar && lineBreaks > 0)
 						i++;
 					position = i;
 					break;

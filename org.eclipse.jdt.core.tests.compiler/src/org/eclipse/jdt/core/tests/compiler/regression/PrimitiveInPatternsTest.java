@@ -31,7 +31,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test267" };
+		TESTS_NAMES = new String[] { "test268" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -6782,6 +6782,25 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		         },
 		         "1");
 		 }
+	// switch test cases
+	public void test268() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public class X  {
+			    public static int foo(int i) {
+			        return switch (i) {
+			            case int k -> 100;
+			         };
+			    }
+			    public static void main(String argv[]) {
+			    	System.out.println(X.foo(0));
+			    }
+			}
+			"""
+		},
+		"100");
+	}
    public void testNonPrim001() {
 		runConformTest(new String[] {
 			"X.java",
@@ -6802,7 +6821,8 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
  			    """
 			},
 			"true");
-	}	// test from spec
+   }
+   // test from spec
 	public void _testSpec001() {
 		runConformTest(new String[] {
 			"X.java",

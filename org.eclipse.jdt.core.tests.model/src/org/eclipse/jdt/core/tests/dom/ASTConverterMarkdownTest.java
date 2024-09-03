@@ -3327,6 +3327,7 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 				Comment comment = (Comment) unitComments.get(0);
 				assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
 				Javadoc docComment = (Javadoc) comment;
+				assertTrue(this.prefix+"should be markdown", docComment.isMarkdown());
 				assertEquals(this.prefix+"Wrong number of tags", 1, docComment.tags().size());
 
 				TagElement tagElement = (TagElement) docComment.tags().get(0);

@@ -97,6 +97,7 @@ public class JavadocParser extends AbstractCommentParser {
 		this.javadocStart = this.sourceParser.scanner.commentStarts[commentPtr];
 		this.javadocEnd = this.sourceParser.scanner.commentStops[commentPtr]-1;
 		this.firstTagPosition = this.sourceParser.scanner.commentTagStarts[commentPtr];
+		this.markdown = this.sourceParser.scanner.commentIsMarkdown[commentPtr];
 		this.validValuePositions = -1;
 		this.invalidValuePositions = -1;
 		this.tagWaitingForDescription = NO_TAG_VALUE;
@@ -104,11 +105,13 @@ public class JavadocParser extends AbstractCommentParser {
 		// Init javadoc if necessary
 		if (this.checkDocComment) {
 			this.docComment = new Javadoc(this.javadocStart, this.javadocEnd);
+			this.docComment.isMarkdown = this.markdown;
 		} else if (this.setJavadocPositions) {
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=189459
 			// if annotation processors are there, javadoc object is required but
 			// they need not be resolved
 			this.docComment = new Javadoc(this.javadocStart, this.javadocEnd);
+			this.docComment.isMarkdown = this.markdown;
 			this.docComment.bits &= ~ASTNode.ResolveJavadoc;
 		} else {
 			this.docComment = null;
