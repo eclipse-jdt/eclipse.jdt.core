@@ -2498,6 +2498,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
 		}
 	}
+
+	@JavacTestIgnore(cause=JavacTestIgnore.JDT_VIOLATES_SPEC)
 	public void testBug93880_15c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",

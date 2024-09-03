@@ -3265,7 +3265,7 @@ class JavacConverter {
 			case LINE -> this.ast.newLineComment();
 			case BLOCK -> this.ast.newBlockComment();
 			case JAVADOC_BLOCK -> this.ast.newJavadoc();
-			case JAVADOC_LINE -> this.ast.newJavadoc();
+			case JAVADOC_LINE -> this.ast.newLineComment();
 		};
 		javac.isDeprecated(); javac.getText(); // initialize docComment
 		jdt.setSourceRange(pos, endPos - pos);
