@@ -220,87 +220,86 @@ public class JavacProblemConverter {
 				}
 			}
 			TreePath diagnosticPath = getTreePath(jcDiagnostic);
-			if (problemId == IProblem.ParameterMismatch) {
-				// Javac points to the arg, which JDT expects the method name
-				diagnosticPath = diagnosticPath.getParentPath();
-				while (diagnosticPath != null
-					&& diagnosticPath.getLeaf() instanceof JCExpression
-					&& !(diagnosticPath.getLeaf() instanceof JCMethodInvocation)) {
+			if (diagnosticPath != null) {
+				if (problemId == IProblem.ParameterMismatch) {
+					// Javac points to the arg, which JDT expects the method name
 					diagnosticPath = diagnosticPath.getParentPath();
-				}
-				if (diagnosticPath.getLeaf() instanceof JCMethodInvocation method) {
-					var selectExpr = method.getMethodSelect();
-					if (selectExpr instanceof JCIdent methodNameIdent) {
-						int start = methodNameIdent.getStartPosition();
-						int end = methodNameIdent.getEndPosition(this.units.get(jcDiagnostic.getSource()).endPositions);
-						return new org.eclipse.jface.text.Position(start, end - start);
+					while (diagnosticPath != null
+						&& diagnosticPath.getLeaf() instanceof JCExpression
+						&& !(diagnosticPath.getLeaf() instanceof JCMethodInvocation)) {
+						diagnosticPath = diagnosticPath.getParentPath();
 					}
-					if (selectExpr instanceof JCFieldAccess methodFieldAccess) {
-						int start = methodFieldAccess.getPreferredPosition() + 1; // after dot
-						int end = methodFieldAccess.getEndPosition(this.units.get(jcDiagnostic.getSource()).endPositions);
-						return new org.eclipse.jface.text.Position(start, end - start);
-					}
-				}
-			} else if (problemId == IProblem.NotVisibleConstructorInDefaultConstructor || problemId == IProblem.UndefinedConstructorInDefaultConstructor) {
-				while (diagnosticPath != null && !(diagnosticPath.getLeaf() instanceof JCClassDecl)) {
-					diagnosticPath = diagnosticPath.getParentPath();
-				}
-			} else if (problemId == IProblem.SealedSuperClassDoesNotPermit) {
-				// jdt expects the node in the extends clause with the name of the sealed class
-				if (diagnosticPath.getLeaf() instanceof JCTree.JCClassDecl classDecl) {
-					diagnosticPath = JavacTrees.instance(context).getPath(units.get(jcDiagnostic.getSource()), classDecl.getExtendsClause());
-				}
-			} else if (problemId == IProblem.SealedSuperInterfaceDoesNotPermit) {
-				// jdt expects the node in the implements clause with the name of the sealed class
-				if (diagnosticPath.getLeaf() instanceof JCTree.JCClassDecl classDecl) {
-					Symbol.ClassSymbol sym = getDiagnosticArgumentByType(jcDiagnostic, Symbol.ClassSymbol.class);
-					Optional<JCExpression> jcExpr = classDecl.getImplementsClause().stream() //
-							.filter(expression -> {
-								return expression instanceof JCIdent jcIdent && jcIdent.sym.equals(sym);
-							}) //
-							.findFirst();
-					if (jcExpr.isPresent()) {
-						diagnosticPath = JavacTrees.instance(context).getPath(units.get(jcDiagnostic.getSource()), jcExpr.get());
-					}
-				}
-			} else if (problemId == IProblem.TypeMismatch && diagnosticPath.getLeaf() instanceof JCFieldAccess fieldAccess) {
-				int start = fieldAccess.getStartPosition();
-				int end = fieldAccess.getEndPosition(this.units.get(jcDiagnostic.getSource()).endPositions);
-				return new org.eclipse.jface.text.Position(start, end - start);
-			} else if (problemId == IProblem.MethodMustOverrideOrImplement) {
-				Tree tree = diagnosticPath.getParentPath() == null ? null
-						: diagnosticPath.getParentPath().getParentPath() == null ? null
-								: diagnosticPath.getParentPath().getParentPath().getLeaf();
-				if (tree != null) {
-					var unit = this.units.get(jcDiagnostic.getSource());
-					if (unit != null && tree instanceof JCMethodDecl methodDecl) {
-						try {
-							int startPosition = methodDecl.pos;
-							var lastParenthesisIndex = unit.getSourceFile()
-									.getCharContent(false).toString()
-									.indexOf(')', startPosition);
-							return new org.eclipse.jface.text.Position(startPosition, lastParenthesisIndex - startPosition + 1);
-						} catch (IOException e) {
-							// fall through to default behaviour
+					if (diagnosticPath.getLeaf() instanceof JCMethodInvocation method) {
+						var selectExpr = method.getMethodSelect();
+						if (selectExpr instanceof JCIdent methodNameIdent) {
+							int start = methodNameIdent.getStartPosition();
+							int end = methodNameIdent.getEndPosition(this.units.get(jcDiagnostic.getSource()).endPositions);
+							return new org.eclipse.jface.text.Position(start, end - start);
+						}
+						if (selectExpr instanceof JCFieldAccess methodFieldAccess) {
+							int start = methodFieldAccess.getPreferredPosition() + 1; // after dot
+							int end = methodFieldAccess.getEndPosition(this.units.get(jcDiagnostic.getSource()).endPositions);
+							return new org.eclipse.jface.text.Position(start, end - start);
 						}
 					}
+				} else if (problemId == IProblem.NotVisibleConstructorInDefaultConstructor || problemId == IProblem.UndefinedConstructorInDefaultConstructor) {
+					while (diagnosticPath != null && !(diagnosticPath.getLeaf() instanceof JCClassDecl)) {
+						diagnosticPath = diagnosticPath.getParentPath();
+					}
+				} else if (problemId == IProblem.SealedSuperClassDoesNotPermit) {
+					// jdt expects the node in the extends clause with the name of the sealed class
+					if (diagnosticPath.getLeaf() instanceof JCTree.JCClassDecl classDecl) {
+						diagnosticPath = JavacTrees.instance(context).getPath(units.get(jcDiagnostic.getSource()), classDecl.getExtendsClause());
+					}
+				} else if (problemId == IProblem.SealedSuperInterfaceDoesNotPermit) {
+					// jdt expects the node in the implements clause with the name of the sealed class
+					if (diagnosticPath.getLeaf() instanceof JCTree.JCClassDecl classDecl) {
+						Symbol.ClassSymbol sym = getDiagnosticArgumentByType(jcDiagnostic, Symbol.ClassSymbol.class);
+						Optional<JCExpression> jcExpr = classDecl.getImplementsClause().stream() //
+								.filter(expression -> {
+									return expression instanceof JCIdent jcIdent && jcIdent.sym.equals(sym);
+								}) //
+								.findFirst();
+						if (jcExpr.isPresent()) {
+							diagnosticPath = JavacTrees.instance(context).getPath(units.get(jcDiagnostic.getSource()), jcExpr.get());
+						}
+					}
+				} else if (problemId == IProblem.TypeMismatch && diagnosticPath.getLeaf() instanceof JCFieldAccess fieldAccess) {
+					int start = fieldAccess.getStartPosition();
+					int end = fieldAccess.getEndPosition(this.units.get(jcDiagnostic.getSource()).endPositions);
+					return new org.eclipse.jface.text.Position(start, end - start);
+				} else if (problemId == IProblem.MethodMustOverrideOrImplement) {
+					Tree tree = diagnosticPath.getParentPath() == null ? null
+							: diagnosticPath.getParentPath().getParentPath() == null ? null
+									: diagnosticPath.getParentPath().getParentPath().getLeaf();
+					if (tree != null) {
+						var unit = this.units.get(jcDiagnostic.getSource());
+						if (unit != null && tree instanceof JCMethodDecl methodDecl) {
+							try {
+								int startPosition = methodDecl.pos;
+								var lastParenthesisIndex = unit.getSourceFile()
+										.getCharContent(false).toString()
+										.indexOf(')', startPosition);
+								return new org.eclipse.jface.text.Position(startPosition, lastParenthesisIndex - startPosition + 1);
+							} catch (IOException e) {
+								// fall through to default behaviour
+							}
+						}
+					}
+				} else if (problemId == IProblem.VoidMethodReturnsValue
+						&& diagnosticPath.getParentPath() != null
+						&& diagnosticPath.getParentPath().getLeaf() instanceof JCReturn returnStmt) {
+					return getPositionByNodeRangeOnly(jcDiagnostic, returnStmt);
+				} else if (problemId == IProblem.IncompatibleReturnType
+						&& diagnosticPath.getParentPath() != null
+						&& diagnosticPath.getParentPath().getLeaf() instanceof JCMethodDecl methodDecl) {
+					return getPositionByNodeRangeOnly(jcDiagnostic, methodDecl.getReturnType());
+				} else if (problemId == IProblem.ProviderMethodOrConstructorRequiredForServiceImpl) {
+					return getPositionByNodeRangeOnly(jcDiagnostic, (JCTree)diagnosticPath.getLeaf());
+				} else if (problemId == IProblem.SwitchExpressionsYieldMissingDefaultCase
+						&& diagnosticPath.getLeaf() instanceof JCTree.JCSwitchExpression switchExpr) {
+					return getPositionByNodeRangeOnly(jcDiagnostic, switchExpr.selector instanceof JCTree.JCParens parens? parens.expr : switchExpr.selector);
 				}
-			} else if (problemId == IProblem.VoidMethodReturnsValue
-					&& diagnosticPath != null
-					&& diagnosticPath.getParentPath() != null
-					&& diagnosticPath.getParentPath().getLeaf() instanceof JCReturn returnStmt) {
-				return getPositionByNodeRangeOnly(jcDiagnostic, returnStmt);
-			} else if (problemId == IProblem.IncompatibleReturnType
-					&& diagnosticPath != null
-					&& diagnosticPath.getParentPath() != null
-					&& diagnosticPath.getParentPath().getLeaf() instanceof JCMethodDecl methodDecl) {
-				return getPositionByNodeRangeOnly(jcDiagnostic, methodDecl.getReturnType());
-			} else if (problemId == IProblem.ProviderMethodOrConstructorRequiredForServiceImpl
-					&& diagnosticPath != null) {
-				return getPositionByNodeRangeOnly(jcDiagnostic, (JCTree)diagnosticPath.getLeaf());
-			} else if (problemId == IProblem.SwitchExpressionsYieldMissingDefaultCase
-					&& diagnosticPath != null && diagnosticPath.getLeaf() instanceof JCTree.JCSwitchExpression switchExpr) {
-				return getPositionByNodeRangeOnly(jcDiagnostic, switchExpr.selector instanceof JCTree.JCParens parens? parens.expr : switchExpr.selector);
 			}
 
  			Tree element = diagnosticPath != null ? diagnosticPath.getLeaf() :
@@ -740,7 +739,12 @@ public class JavacProblemConverter {
 			case "compiler.err.repeated.modifier" -> IProblem.DuplicateModifierForArgument; // TODO different according to target node
 			case "compiler.err.not.stmt" -> IProblem.InvalidExpressionAsStatement;
 			case "compiler.err.varargs.and.old.array.syntax" -> IProblem.VarargsConflict;
-			case "compiler.err.non-static.cant.be.ref" -> IProblem.NonStaticAccessToStaticMethod; // TODO different according to target node
+			case "compiler.err.non-static.cant.be.ref" -> switch (getDiagnosticArgumentByType(diagnostic, KindName.class)) {
+				case METHOD -> IProblem.StaticMethodRequested;
+				case VAR -> IProblem.NonStaticFieldFromStaticInvocation;
+				default -> IProblem.NonStaticFieldFromStaticInvocation;
+				// note IProblem.NonStaticAccessToStaticMethod is for the warning `objectInstance.staticMethod()`
+			};
 			case COMPILER_ERR_MISSING_RET_STMT -> IProblem.ShouldReturnValue;
 			case "compiler.err.cant.ref.before.ctor.called" -> IProblem.InstanceFieldDuringConstructorInvocation; // TODO different according to target node
 			case "compiler.err.not.def.public.cant.access" -> IProblem.NotVisibleType; // TODO different according to target node
