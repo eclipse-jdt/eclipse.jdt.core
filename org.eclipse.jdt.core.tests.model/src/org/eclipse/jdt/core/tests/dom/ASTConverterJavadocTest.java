@@ -2890,6 +2890,10 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * bug103304: [Javadoc] Wrong reference proposal for inner classes.
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=103304"
 	 */
+	// Syntax like @See I.VE#I.VE(params) is not allowed by javac, specifically
+	// the dot in the method name is not allowed and causes a DCErroneous
+	// See https://docs.oracle.com/javase/7/docs/technotes/tools/windows/javadoc.html#see
+	@JavacTestIgnore(cause=JavacTestIgnore.JDT_RECOVERS_FROM_BAD_INPUTS)
 	public void testBug103304() throws JavaModelException {
 		this.packageBinding = false; // do NOT verify that qualification only can be package name
 		this.workingCopies = new ICompilationUnit[1];
