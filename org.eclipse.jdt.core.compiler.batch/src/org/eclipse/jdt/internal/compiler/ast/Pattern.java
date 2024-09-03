@@ -144,8 +144,8 @@ public abstract class Pattern extends Expression {
 		TypeBinding patternType = this.resolvedType;
 		if (patternType == null) // ill resolved pattern
 			return false;
-		// 14.30.3 Properties of Patterns doesn't allow boxing nor unboxing, primitive widening/narrowing.
-		if (patternType.isBaseType() != other.isBaseType()) {
+		// 14.30.3 Properties of Patterns doesn't allow boxing nor unboxing, primitive widening/narrowing (< JLS23)
+		if (patternType.isBaseType() != other.isBaseType() && !JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(scope.compilerOptions())) {
 			scope.problemReporter().incompatiblePatternType(this, other, patternType);
 			return false;
 		}

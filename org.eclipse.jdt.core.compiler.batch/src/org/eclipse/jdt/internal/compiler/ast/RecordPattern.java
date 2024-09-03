@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class RecordPattern extends Pattern {
 
@@ -247,16 +248,21 @@ public class RecordPattern extends Pattern {
 			exceptionLabel.placeEnd();
 			labels.add(exceptionLabel);
 
+			TypeBinding componentType = p.accessorMethod.returnType;
 			if (TypeBinding.notEquals(p.accessorMethod.original().returnType.erasure(),
-					p.accessorMethod.returnType.erasure()))
-				codeStream.checkcast(p.accessorMethod.returnType); // lastComponent ? [C] : [R, C]
+					componentType.erasure()))
+				codeStream.checkcast(componentType); // lastComponent ? [C] : [R, C]
 			if (p instanceof RecordPattern || !p.isTotalTypeNode) {
 				if (!p.isUnnamed())
-					codeStream.dup(); // lastComponent ? named ? ([C, C] : [R, C, C]) : ([C] : [R, C])
-				codeStream.instance_of(p.resolvedType); // lastComponent ? named ? ([C, boolean] : [R, C, boolean]) : ([boolean] : [R, boolean])
+					codeStream.dup(componentType); // lastComponent ? named ? ([C, C] : [R, C, C]) : ([C] : [R, C])
+				if (p instanceof TypePattern) {
+					((TypePattern) p).generateTypeCheck(currentScope, codeStream, matchFailLabel);
+				} else {
+					codeStream.instance_of(p.resolvedType); // lastComponent ? named ? ([C, boolean] : [R, C, boolean]) : ([boolean] : [R, boolean])
+				}
 				BranchLabel innerTruthLabel = new BranchLabel(codeStream);
 				codeStream.ifne(innerTruthLabel); // lastComponent ? named ? ([C] : [R, C]) : ([] : [R])
-				int pops = p.isUnnamed() ? 0 : 1; // Not going to store into the component pattern binding, so need to pop, the duped value.
+				int pops = p.isUnnamed() ? 0 : TypeIds.getCategory(componentType.id); // Not going to store into the component pattern binding, so need to pop, the duped value.
 				Pattern current = p;
 				RecordPattern outer = this;
 				while (outer != null) {

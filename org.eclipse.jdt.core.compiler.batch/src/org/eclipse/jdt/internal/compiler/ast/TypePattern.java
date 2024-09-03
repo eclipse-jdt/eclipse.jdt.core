@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
-public class TypePattern extends Pattern {
+public class TypePattern extends Pattern implements IGenerateTypeCheck {
 
 	public LocalDeclaration local;
 
@@ -120,6 +120,16 @@ public class TypePattern extends Pattern {
 			}
 			this.local.generateCode(currentScope, codeStream);
 		}
+	}
+
+	public void generateTypeCheck(BlockScope scope, CodeStream codeStream, BranchLabel internalFalseLabel) {
+		generateTypeCheck(this.outerExpressionType, getType(), scope, codeStream, internalFalseLabel,
+				Pattern.findPrimitiveConversionRoute(this.resolvedType, this.accessorMethod.returnType, scope));
+	}
+
+	@Override
+	public void setPatternIsTotalType() {
+		this.isTotalTypeNode = true;
 	}
 
 	@Override

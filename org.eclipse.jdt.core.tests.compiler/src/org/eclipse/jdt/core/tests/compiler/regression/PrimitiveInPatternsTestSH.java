@@ -2074,6 +2074,94 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			""");
 	}
 
+	public void testPrimitiveRecordComponent_narrow() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				record RforRecord(long x) {}
+				public class X  {
+					public void foo() {
+						if (new RforRecord(0L) instanceof RforRecord(int y)) {
+							System.out.print("Yay");
+						}
+						if (new RforRecord(5000000000L) instanceof RforRecord(int y)) {
+							System.out.print("Nay");
+						} else {
+							System.out.print("!");
+						}
+					}
+					public static void main(String... args) {
+						new X().foo();
+					}
+				}
+				"""},
+				"Yay!");
+	}
+
+	public void testPrimitiveRecordComponent_unbox() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				record RforRecord(Long x) {}
+				public class X  {
+					public void foo() {
+						if (new RforRecord(0L) instanceof RforRecord(long y)) {
+							System.out.print("Yay");
+						}
+					}
+					public static void main(String... args) {
+						new X().foo();
+					}
+				}
+				"""},
+				"Yay");
+	}
+
+	public void testPrimitiveRecordComponent_unboxAndWiden() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				record RforRecord(Integer x) {}
+				public class X  {
+					public void foo() {
+						if (new RforRecord(0) instanceof RforRecord(long y)) {
+							System.out.print("Yay");
+						}
+					}
+					public static void main(String... args) {
+						new X().foo();
+					}
+				}
+				"""},
+				"Yay");
+	}
+
+	public void testPrimitiveRecordComponent_narrowingAndUnboxing_nested() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				record Rec1(Rec2 r) {}
+				record Rec2(Number x) {}
+				public class X  {
+					public void foo() {
+						if (new Rec1(new Rec2(Integer.valueOf(1))) instanceof Rec1(Rec2(int y))) {
+							System.out.print("Yay"+y);
+						}
+						if (new Rec1(new Rec2(Short.valueOf((short)1))) instanceof Rec1(Rec2(int y))) {
+							System.out.print("Nay");
+						} else {
+							System.out.print("!");
+						}
+					}
+					public static void main(String... args) {
+						new X().foo();
+					}
+				}
+				"""},
+				"Yay1!");
+
+	}
+
 	// test from spec
 	public void _testSpec001() {
 		runConformTest(new String[] {
