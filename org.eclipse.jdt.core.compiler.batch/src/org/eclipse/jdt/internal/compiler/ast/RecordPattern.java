@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class RecordPattern extends Pattern {
@@ -72,7 +73,7 @@ public class RecordPattern extends Pattern {
 	}
 
 	@Override
-	public boolean coversType(TypeBinding t) {
+	public boolean coversType(TypeBinding t, Scope scope) {
 
 		if (!isUnguarded())
 			return false;
@@ -89,21 +90,11 @@ public class RecordPattern extends Pattern {
 		for (int i = 0; i < components.length; i++) {
 			Pattern p = this.patterns[i];
 			RecordComponentBinding componentBinding = components[i];
-			if (!p.coversType(componentBinding.type)) {
+			if (!p.coversType(componentBinding.type, scope)) {
 				return false;
 			}
 		}
 		return true;
-	}
-
-	@Override
-	public void setExpectedType(TypeBinding expectedType) {
-		this.expectedType = expectedType;
-	}
-
-	@Override
-	public TypeBinding expectedType() {
-		return this.expectedType;
 	}
 
 	@Override
@@ -126,9 +117,8 @@ public class RecordPattern extends Pattern {
 		}
 
 		if (this.resolvedType.isRawType()) {
-			TypeBinding expressionType = expectedType();
-			if (expressionType instanceof ReferenceBinding) {
-				ReferenceBinding binding = inferRecordParameterization(scope, (ReferenceBinding) expressionType);
+			if (this.outerExpressionType instanceof ReferenceBinding) {
+				ReferenceBinding binding = inferRecordParameterization(scope, (ReferenceBinding) this.outerExpressionType);
 				if (binding == null || !binding.isValidBinding()) {
 					scope.problemReporter().cannotInferRecordPatternTypes(this);
 				    return this.resolvedType = null;
@@ -142,14 +132,14 @@ public class RecordPattern extends Pattern {
 			Pattern p = this.patterns[i];
 			p.resolveTypeWithBindings(bindings, scope);
 			bindings = LocalVariableBinding.merge(bindings, p.bindingsWhenTrue());
-			p.setExpectedType(this.resolvedType.components()[i].type);
+			p.setOuterExpressionType(this.resolvedType.components()[i].type);
 		}
 
 		if (this.resolvedType == null || !this.resolvedType.isValidBinding()) {
 			return this.resolvedType;
 		}
 
-		this.isTotalTypeNode = super.coversType(this.resolvedType);
+		this.isTotalTypeNode = super.coversType(this.resolvedType, scope);
 		RecordComponentBinding[] components = this.resolvedType.capture(scope, this.sourceStart, this.sourceEnd).components();
 		for (int i = 0; i < components.length; i++) {
 			Pattern p1 = this.patterns[i];
@@ -160,9 +150,9 @@ public class RecordPattern extends Pattern {
 						tp.local.binding.type = componentBinding.type;
 				}
 			}
-			TypeBinding expressionType = componentBinding.type;
-			if (p1.isApplicable(expressionType, scope)) {
-				p1.isTotalTypeNode = p1.coversType(componentBinding.type);
+			TypeBinding componentType = componentBinding.type;
+			if (p1.isApplicable(componentType, scope)) {
+				p1.isTotalTypeNode = p1.coversType(componentType, scope);
 				MethodBinding[] methods = this.resolvedType.getMethods(componentBinding.name);
 				if (methods != null && methods.length > 0) {
 					p1.accessorMethod = methods[0];
@@ -189,7 +179,7 @@ public class RecordPattern extends Pattern {
 	}
 
 	@Override
-	public boolean isUnconditional(TypeBinding t) {
+	public boolean isUnconditional(TypeBinding t, Scope scope) {
 		return false;
 	}
 

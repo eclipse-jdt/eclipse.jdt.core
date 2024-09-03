@@ -26,14 +26,17 @@ import junit.framework.Test;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class MarkdownCommentsTest extends JavadocTest {
 
-	String docCommentSupport = CompilerOptions.ENABLED;
-	String reportInvalidJavadoc = CompilerOptions.ERROR;
-	String reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
-	String reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
-	String reportMissingJavadocTags = CompilerOptions.ERROR;
-	String reportMissingJavadocComments = null;
-	String reportMissingJavadocCommentsVisibility = null;
-	String reportDeprecation = CompilerOptions.ERROR;
+	private static final JavacTestOptions JAVAC_TEST_OPTIONS = new JavacTestOptions("--enable-preview -source 23 -Xlint:-preview -Xdoclint");
+	private static final String[] VMARGS = new String[] {"--enable-preview"};
+
+	String docCommentSupport;
+	String reportInvalidJavadoc;
+	String reportMissingJavadocDescription;
+	String reportInvalidJavadocVisibility;
+	String reportMissingJavadocTags;
+	String reportMissingJavadocComments;
+	String reportMissingJavadocCommentsVisibility;
+	String reportDeprecation;
 	String processAnnotations = null;
 	String reportJavadocDeprecation = null;
 
@@ -105,7 +108,32 @@ public class MarkdownCommentsTest extends JavadocTest {
 		this.reportMissingJavadocComments = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.PUBLIC;
 		this.reportDeprecation = CompilerOptions.ERROR;
-		this.reportInvalidJavadoc = CompilerOptions.ERROR;
+		this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	}
+
+	@Override
+	protected void runConformTest(String[] testFiles, String expectedOutput) {
+		runConformTest(testFiles, expectedOutput, getCompilerOptions(), VMARGS, JAVAC_TEST_OPTIONS);
+	}
+	@Override
+	protected void runNegativeTest(String[] testFiles, String expectedErrors) {
+		Runner runner = new Runner();
+		runner.testFiles = testFiles;
+		runner.expectedCompilerLog = expectedErrors;
+		runner.customOptions = getCompilerOptions();
+		runner.vmArguments = VMARGS;
+		runner.javacTestOptions = JAVAC_TEST_OPTIONS;
+		runner.runNegativeTest();
+	}
+
+	void runWarningTest(String[] testFiles, String expectedWarnings) {
+		this.reportInvalidJavadoc = CompilerOptions.WARNING;
+		Runner runner = new Runner();
+		runner.testFiles = testFiles;
+		runner.expectedCompilerLog = expectedWarnings;
+		runner.vmArguments = VMARGS;
+		runner.javacTestOptions = JAVAC_TEST_OPTIONS;
+		runner.runWarningTest();
 	}
 
 	public void test001() {
@@ -125,53 +153,41 @@ public class MarkdownCommentsTest extends JavadocTest {
 				"	/// @param parameters array of String\n" +
 				"	           ^^^^^^^^^^\n" +
 				"Javadoc: Parameter parameters is not declared\n" +
-				"----------\n",
-				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+				"----------\n");
 	}
 	public void test002() {
-		this.runNegativeTest(new String[] { "X.java", """
+		this.runWarningTest(new String[] { "X.java", """
 				public class X {
 					///
 					/// @param params
 					///
-					public void sample(String[] params) {
+					public int sample(String[] params) {
 						return 42;
 					}
+					public static void main(String... args) {}
 				}
 				""", },
 
 				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
+				"1. WARNING in X.java (at line 3)\n" +
 				"	/// @param params\n" +
 				"	           ^^^^^^\n" +
 				"Javadoc: Description expected after this reference\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
-				"	return 42;\n" +
-				"	^^^^^^^^^^\n" +
-				"Void methods cannot return a value\n" +
-				"----------\n",
-				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+				"----------\n");
 	}
 	public void test003() {
-		this.runNegativeTest(new String[] { "X.java", """
+		this.runConformTest(new String[] { "X.java", """
 				public class X {
 					///
 					/// @param params array of String
 					///
-					public void sample(String[] params) {
+					public int sample(String[] params) {
 						return 42;
 					}
+					public static void main(String... args) {}
 				}
 				""", },
-
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	return 42;\n" +
-				"	^^^^^^^^^^\n" +
-				"Void methods cannot return a value\n" +
-				"----------\n",
-				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+				"");
 	}
 	public void test004() {
 		this.runNegativeTest(new String[] { "X.java", """
@@ -180,7 +196,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 					/// @see #method()
 					///
 					public void sample() {
-						return "";
+						return;
 					}
 				}
 				""", },
@@ -190,34 +206,22 @@ public class MarkdownCommentsTest extends JavadocTest {
 				"	/// @see #method()\n" +
 				"	          ^^^^^^\n" +
 				"Javadoc: The method method() is undefined for the type X\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
-				"	return \"\";\n" +
-				"	^^^^^^^^^^\n" +
-				"Void methods cannot return a value\n" +
-				"----------\n",
-				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+				"----------\n");
 	}
 	public void test005() {
-		this.runNegativeTest(new String[] { "X.java", """
+		this.runConformTest(new String[] { "X.java", """
 				public class X {
 					///
 					/// @see #method()
 					///
 					public void sample() {
-						return "";
+						return;
 					}
 					protected void method() {}
+					public static void main(String... args) {}
 				}
 				""", },
-
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	return \"\";\n" +
-				"	^^^^^^^^^^\n" +
-				"Void methods cannot return a value\n" +
-				"----------\n",
-				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+				"");
 	}
 	public void test006() {
 		this.runConformTest(new String[] { "X.java",
@@ -230,10 +234,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 					protected static void method() {}
 				}
 				""", },
-				"Hello",
-				getCompilerOptions(),
-				new String[]{"--enable-preview"}
-				);
+				"Hello");
 	}
 	public void test007() {
 		this.runNegativeTest(new String[] { "X.java",
@@ -251,8 +252,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 				"	/// @see #method()\n" +
 				"	          ^^^^^^\n" +
 				"Javadoc: The method method() is undefined for the type X\n" +
-				"----------\n",
-				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+				"----------\n");
 	}
 	public void test008() {
 		this.runNegativeTest(new String[] { "X.java",
@@ -270,8 +270,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 				"	/// @see #method()\n" +
 				"	          ^^^^^^\n" +
 				"Javadoc: The method method() is undefined for the type X\n" +
-				"----------\n",
-				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+				"----------\n");
 	}
 	public void test009() {
 		this.runNegativeTest(new String[] { "X.java",
@@ -289,8 +288,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 				"	//// @see #method()\n" +
 				"	           ^^^^^^\n" +
 				"Javadoc: The method method() is undefined for the type X\n" +
-				"----------\n",
-				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+				"----------\n");
 	}
 	public void test010() {
 		String bkup = this.reportMissingJavadocTags;
@@ -352,7 +350,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 		String bkup = this.reportMissingJavadocTags;
 		try {
 			this.reportJavadocDeprecation = CompilerOptions.ERROR;
-			this.runNegativeTest(new String[] { "X.java",
+			this.runWarningTest(new String[] { "X.java",
 					"""
 					public class X {
 						/// Some text here without the necessary tags for main method
@@ -365,12 +363,11 @@ public class MarkdownCommentsTest extends JavadocTest {
 					}
 					""", },
 					"----------\n" +
-					"1. ERROR in X.java (at line 3)\n" +
+					"1. WARNING in X.java (at line 3)\n" +
 					"	/// @param arguments\n" +
 					"	           ^^^^^^^^^\n" +
 					"Javadoc: Description expected after this reference\n" +
-					"----------\n",
-					JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+					"----------\n");
 		} finally {
 			this.reportMissingJavadocTags = bkup;
 		}
@@ -439,7 +436,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 	public void test015() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
-			this.reportMissingJavadocTags = CompilerOptions.ERROR;
+			this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 			this.runNegativeTest(new String[] { "X.java",
 					"""
 					public class X {
@@ -456,8 +453,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 					"	/// Reference to an invalid type [Strings]\n" +
 					"	                                  ^^^^^^^\n" +
 					"Javadoc: Strings cannot be resolved to a type\n" +
-					"----------\n",
-					JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+					"----------\n");
 		} finally {
 			this.reportMissingJavadocTags = bkup;
 		}
@@ -465,7 +461,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 	public void test016() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
-			this.reportMissingJavadocTags = CompilerOptions.ERROR;
+			this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 			this.runNegativeTest(new String[] { "X.java",
 					"""
 					public class X {
@@ -482,8 +478,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 					"	/// Reference to an invalid type [java.langs.Strings]\n" +
 					"	                                  ^^^^^^^^^^^^^^^^^^\n" +
 					"Javadoc: java.langs cannot be resolved to a type\n" +
-					"----------\n",
-					JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+					"----------\n");
 		} finally {
 			this.reportMissingJavadocTags = bkup;
 		}
@@ -491,7 +486,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 	public void test017() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
-			this.reportMissingJavadocTags = CompilerOptions.ERROR;
+			this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 			this.runNegativeTest(new String[] { "X.java",
 					"""
 					public class X {
@@ -513,8 +508,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 					"	/// Reference to an invalid type [Strings] [java.langs.Strings]\n" +
 					"	                                            ^^^^^^^^^^^^^^^^^^\n" +
 					"Javadoc: java.langs cannot be resolved to a type\n" +
-					"----------\n",
-					JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+					"----------\n");
 		} finally {
 			this.reportMissingJavadocTags = bkup;
 		}
@@ -522,7 +516,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 	public void test018() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
-			this.reportMissingJavadocTags = CompilerOptions.ERROR;
+			this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 			this.runNegativeTest(new String[] { "X.java",
 					"""
 					public class X {
@@ -539,8 +533,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 					"	/// Reference to an invalid type [Strings][java.langs.Strings]\n" +
 					"	                                           ^^^^^^^^^^^^^^^^^^\n" +
 					"Javadoc: java.langs cannot be resolved to a type\n" +
-					"----------\n",
-					JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+					"----------\n");
 		} finally {
 			this.reportMissingJavadocTags = bkup;
 		}
@@ -565,8 +558,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 					"	/// Reference to an invalid method in a valid type [charArray()][java.lang.String#toCharArrays()]\n" +
 					"	                                                                                  ^^^^^^^^^^^^\n" +
 					"Javadoc: The method toCharArrays() is undefined for the type String\n" +
-					"----------\n",
-					JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+					"----------\n");
 		} finally {
 			this.reportMissingJavadocTags = bkup;
 		}
@@ -591,8 +583,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 					"	/// Reference to an invalid method in a valid type [\\[\\]][java.lang.String#toCharArrays()]\n" +
 					"	                                                                           ^^^^^^^^^^^^\n" +
 					"Javadoc: The method toCharArrays() is undefined for the type String\n" +
-					"----------\n",
-					JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+					"----------\n");
 		} finally {
 			this.reportMissingJavadocTags = bkup;
 		}

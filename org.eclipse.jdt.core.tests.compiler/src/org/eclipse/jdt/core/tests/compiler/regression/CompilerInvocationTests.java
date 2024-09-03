@@ -615,6 +615,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ImportInternalNameProvided", DEPRECATED);
 		expectedProblemAttributes.put("ImportNotFound", new ProblemAttributes(CategorizedProblem.CAT_IMPORT));
 		expectedProblemAttributes.put("ImportNotVisible", DEPRECATED);
+		expectedProblemAttributes.put("IncompatibleCaseType", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 		expectedProblemAttributes.put("IncompatibleExceptionInInheritedMethodThrowsClause", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IncompatibleExceptionInThrowsClause", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod", new ProblemAttributes(CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT));
@@ -1218,6 +1219,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("WildcardConstructorInvocation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("WildcardFieldAssignment", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("WildcardMethodInvocation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("WrongCaseType", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 		expectedProblemAttributes.put("illFormedParameterizationOfFunctionalInterface", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("lambdaParameterTypeMismatched", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("lambdaSignatureMismatched", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1743,6 +1745,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ImportInternalNameProvided", SKIP);
 		expectedProblemAttributes.put("ImportNotFound", SKIP);
 		expectedProblemAttributes.put("ImportNotVisible", SKIP);
+		expectedProblemAttributes.put("IncompatibleCaseType", SKIP);
 		expectedProblemAttributes.put("IncompatibleExceptionInInheritedMethodThrowsClause", SKIP);
 		expectedProblemAttributes.put("IncompatibleExceptionInThrowsClause", SKIP);
 		expectedProblemAttributes.put("IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod", new ProblemAttributes(JavaCore.COMPILER_PB_INCOMPATIBLE_NON_INHERITED_INTERFACE_METHOD));
@@ -2333,6 +2336,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("WildcardConstructorInvocation", SKIP);
 		expectedProblemAttributes.put("WildcardFieldAssignment", SKIP);
 		expectedProblemAttributes.put("WildcardMethodInvocation", SKIP);
+		expectedProblemAttributes.put("WrongCaseType", SKIP);
 		expectedProblemAttributes.put("illFormedParameterizationOfFunctionalInterface", SKIP);
 		expectedProblemAttributes.put("lambdaParameterTypeMismatched", SKIP);
 		expectedProblemAttributes.put("lambdaSignatureMismatched", SKIP);

@@ -2683,4 +2683,17 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature
 	 */
 	int ConstructorCallNotAllowedHere = PreviewRelated + 2031;
+
+	/**
+	 * @since 3.39
+	 * @noreference preview feature
+	 */
+	int WrongCaseType =  PreviewRelated + 2100;
+
+	/**
+	 * @since 3.39
+	 * @noreference preview feature
+	 */
+	int IncompatibleCaseType =  PreviewRelated + 2101;
+
 }

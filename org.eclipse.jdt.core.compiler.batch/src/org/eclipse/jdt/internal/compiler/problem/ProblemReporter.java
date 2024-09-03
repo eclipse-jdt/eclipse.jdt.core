@@ -1660,6 +1660,22 @@ public void caseExpressionMustBeConstant(Expression expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void caseExpressionWrongType(Expression expression, TypeBinding switchBinding, TypeBinding selectorBinding) {
+	this.handle(
+		IProblem.WrongCaseType,
+		new String[] {String.valueOf(switchBinding.readableName()), String.valueOf(selectorBinding.readableName())},
+		new String[] {String.valueOf(switchBinding.shortReadableName()), String.valueOf(selectorBinding.shortReadableName())},
+		expression.sourceStart,
+		expression.sourceEnd);
+}
+public void caseConstantIncompatible(TypeBinding resolvedType, TypeBinding switchType, Expression expression) {
+	this.handle(
+			IProblem.IncompatibleCaseType,
+			new String[] {String.valueOf(resolvedType.readableName()), String.valueOf(switchType.readableName())},
+			new String[] {String.valueOf(resolvedType.shortReadableName()), String.valueOf(switchType.shortReadableName())},
+			expression.sourceStart,
+			expression.sourceEnd);
+}
 public void classExtendFinalClass(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
 	String name = new String(type.sourceName());
 	String superTypeFullName = new String(superTypeBinding.readableName());
