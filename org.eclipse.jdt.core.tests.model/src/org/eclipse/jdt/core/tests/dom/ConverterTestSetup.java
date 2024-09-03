@@ -933,7 +933,8 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		case IProblem.PackageDoesNotExistOrIsEmpty:
 			return (arguments[0] + " cannot be resolved to a type").equals(expected);
 		case IProblem.UndefinedType:
-			return (arguments[1] + " cannot be resolved to a type").equals(expected);
+		case IProblem.UndefinedName:
+			return (arguments[0] + " cannot be resolved to a type").equals(expected);
 		case IProblem.RawTypeReference:
 			String[] segments = ((String)arguments[0]).split("\\.");
 			String simple = segments[segments.length-1];

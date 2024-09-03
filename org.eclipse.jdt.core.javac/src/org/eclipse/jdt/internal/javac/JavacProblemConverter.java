@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -651,7 +652,18 @@ public class JavacProblemConverter {
 			case "compiler.err.cant.resolve.location" -> switch (getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class)) {
 					case CLASS -> IProblem.UndefinedType;
 					case METHOD -> IProblem.UndefinedMethod;
-					case VAR -> IProblem.UnresolvedVariable;
+					case VAR -> { /* is a default choice for Javac while ECJ default choice is Undefined. Verify... */
+						TreePath path = getTreePath(diagnostic);
+						yield (path != null && path.getParentPath() != null
+							&& path.getLeaf() instanceof JCIdent ident
+							&& path.getParentPath().getLeaf() instanceof JCFieldAccess fieldAccess
+							&& fieldAccess.getExpression() == ident) ?
+							// is left part of fieldAccess, can be either a type or a var
+							IProblem.UndefinedName :
+							// otherwise it's in middle or at the end of an expression, or standalone,
+							// so most likely a variable
+							IProblem.UnresolvedVariable;
+					}
 					default -> IProblem.UndefinedName;
 				};
 			case "compiler.err.cant.resolve.location.args" -> convertUndefinedMethod(diagnostic);
@@ -1188,11 +1200,13 @@ public class JavacProblemConverter {
 		if (jcDiagnostic.getArgs().length != 0
 				&& jcDiagnostic.getArgs()[0] instanceof JCDiagnostic argDiagnostic) {
 			return Stream.of(argDiagnostic.getArgs()) //
+					.filter(Predicate.not(KindName.class::isInstance)) // can confuse JDT-LS
 					.map(Object::toString) //
 					.toArray(String[]::new);
 		}
 
 		return Stream.of(jcDiagnostic.getArgs()) //
+				.filter(Predicate.not(KindName.class::isInstance)) // can confuse JDT-LS
 				.map(Object::toString) //
 				.toArray(String[]::new);
 	}
