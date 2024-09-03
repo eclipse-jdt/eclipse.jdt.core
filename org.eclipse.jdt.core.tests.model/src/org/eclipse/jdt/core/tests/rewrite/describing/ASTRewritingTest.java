@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ImplicitTypeDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.PrimitiveType;
@@ -170,6 +171,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		  suite.addTest(ImportRewrite_RecordTest.suite());
 		  suite.addTest(ASTRewritingSuperAfterStatementsTest.suite());
 		  suite.addTest(ASTRewritingEitherOrMultiPatternNodeTest.suite());
+		  suite.addTest(ASTRewritingImplicitTypeDeclarationTest.suite());
 
 		return suite;
 	}
@@ -461,6 +463,17 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		decl.parameters().add(param);
 		decl.setBody(isAbstract ? null : ast.newBlock());
 		return decl;
+	}
+
+	public static ImplicitTypeDeclaration findImplicitDeclaration(CompilationUnit astRoot, String simpleTypeName) {
+		List types= astRoot.types();
+		for (int i= 0; i < types.size(); i++) {
+			ImplicitTypeDeclaration elem= (ImplicitTypeDeclaration) types.get(i);
+			if (simpleTypeName.equals(elem.getName().getIdentifier())) {
+				return elem;
+			}
+		}
+		return null;
 	}
 
 }

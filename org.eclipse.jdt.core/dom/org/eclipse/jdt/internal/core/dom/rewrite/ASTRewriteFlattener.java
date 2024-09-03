@@ -1211,6 +1211,17 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(ImplicitTypeDeclaration node) {
+		ASTNode javadoc= getChildNode(node, TypeDeclaration.JAVADOC_PROPERTY);
+		if (javadoc != null) {
+			javadoc.accept(this);
+		}
+
+		visitList(node, TypeDeclaration.BODY_DECLARATIONS_PROPERTY, null);
+		return false;
+	}
+
+	@Override
 	public boolean visit(TypeDeclaration node) {
 		int apiLevel= node.getAST().apiLevel();
 
