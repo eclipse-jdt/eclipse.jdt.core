@@ -30,14 +30,17 @@ import javax.tools.JavaFileObject;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
+import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.util.TreePath;
+import com.sun.source.util.TreeScanner;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
@@ -47,6 +50,7 @@ import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.TypeTag;
 import com.sun.tools.javac.parser.Scanner;
 import com.sun.tools.javac.parser.ScannerFactory;
@@ -98,7 +102,13 @@ public class JavacProblemConverter {
 	 * @return a JavacProblem matching the given diagnostic, or <code>null</code> if problem is ignored
 	 */
 	public JavacProblem createJavacProblem(Diagnostic<? extends JavaFileObject> diagnostic) {
-		int problemId = toProblemId(diagnostic);
+		var nestedDiagnostic = getDiagnosticArgumentByType(diagnostic, JCDiagnostic.class);
+		boolean useNestedDiagnostic = nestedDiagnostic != null
+			&& diagnostic.getCode().equals("compiler.err.invalid.permits.clause")
+			&& (nestedDiagnostic.getSource() == diagnostic.getSource()
+				|| (nestedDiagnostic.getSource() == null && findSymbol(nestedDiagnostic) instanceof ClassSymbol classSymbol
+					&& classSymbol.sourcefile == diagnostic.getSource()));
+		int problemId = toProblemId(useNestedDiagnostic ? nestedDiagnostic : diagnostic);
 		if (problemId == 0) {
 			return null;
 		}
@@ -107,6 +117,9 @@ public class JavacProblemConverter {
 			return null;
 		}
 		org.eclipse.jface.text.Position diagnosticPosition = getDiagnosticPosition(diagnostic, context, problemId);
+		if (diagnosticPosition == null) {
+			return null;
+		}
 		String[] arguments = getDiagnosticStringArguments(diagnostic);
 		return new JavacProblem(
 				diagnostic.getSource().getName().toCharArray(),
@@ -119,6 +132,18 @@ public class JavacProblemConverter {
 				diagnosticPosition.getOffset() + diagnosticPosition.getLength() - 1,
 				(int) diagnostic.getLineNumber(),
 				(int) diagnostic.getColumnNumber());
+	}
+
+	private static ClassSymbol findSymbol(Diagnostic<?> diagnostic) {
+		var res = getDiagnosticArgumentByType(diagnostic, ClassSymbol.class);
+		if (res != null) {
+			return res;
+		}
+		var type = getDiagnosticArgumentByType(diagnostic, ClassType.class);
+		if (type != null && type.tsym instanceof ClassSymbol classSym) {
+			return classSym;
+		}
+		return null;
 	}
 
 	private org.eclipse.jface.text.Position getDiagnosticPosition(Diagnostic<? extends JavaFileObject> diagnostic, Context context, int problemId) {
@@ -326,7 +351,7 @@ public class JavacProblemConverter {
 							return result;
 						}
 						if (jcDiagnostic.getStartPosition() == jcDiagnostic.getEndPosition()) {
-							return getPositionUsingScanner(jcDiagnostic, context);
+							return getPositionUsingScanner(jcDiagnostic);
 						}
 				}
 			}
@@ -334,7 +359,7 @@ public class JavacProblemConverter {
 		return getDefaultPosition(diagnostic);
 	}
 
-	private org.eclipse.jface.text.Position getPositionByNodeRangeOnly(JCDiagnostic jcDiagnostic, JCTree jcTree) {
+	private org.eclipse.jface.text.Position getPositionByNodeRangeOnly(Diagnostic<?> jcDiagnostic, JCTree jcTree) {
 		int startPosition = jcTree.getStartPosition();
 		if (startPosition != Position.NOPOS) {
 			JCCompilationUnit trackedUnit = this.units.get(jcDiagnostic.getSource());
@@ -375,13 +400,39 @@ public class JavacProblemConverter {
 		}
 		return getDefaultPosition(jcDiagnostic);
 	}
-	private static org.eclipse.jface.text.Position getDefaultPosition(Diagnostic<? extends JavaFileObject> diagnostic) {
-		int start = (int) Math.min(diagnostic.getPosition(), diagnostic.getStartPosition());
-		int end = (int) Math.max(diagnostic.getEndPosition(), start);
-		return new org.eclipse.jface.text.Position(start, end - start);
+	private org.eclipse.jface.text.Position getDefaultPosition(Diagnostic<?> diagnostic) {
+		if (diagnostic.getPosition() > 0) {
+			int start = (int) Math.min(diagnostic.getPosition(), diagnostic.getStartPosition());
+			int end = (int) Math.max(diagnostic.getEndPosition(), start);
+			return new org.eclipse.jface.text.Position(start, end - start);
+		}
+		if (findSymbol(diagnostic) instanceof ClassSymbol classSymbol) {
+			JCCompilationUnit unit = this.units.get(classSymbol.sourcefile);
+			if (unit != null) {
+				var res = unit.accept(new TreeScanner<JCClassDecl, ClassSymbol>() {
+					@Override
+					public JCClassDecl reduce(JCClassDecl r1, JCClassDecl r2) {
+						return r1 != null ? r1 : r2;
+					}
+					@Override
+					public JCClassDecl visitClass(ClassTree node, ClassSymbol p) {
+						return node instanceof JCClassDecl decl && decl.sym == classSymbol ?
+							decl : null;
+					}
+				}, classSymbol);
+				if (res != null) {
+					// next should use the name position
+					int startPosition = res.getPreferredPosition();
+					if (startPosition != Position.NOPOS) {
+						return new org.eclipse.jface.text.Position(startPosition, res.getSimpleName().length());
+					}
+				}
+			}
+		}
+		return null;
 	}
 
-	private static org.eclipse.jface.text.Position getPositionUsingScanner(JCDiagnostic jcDiagnostic, Context context) {
+	private org.eclipse.jface.text.Position getPositionUsingScanner(JCDiagnostic jcDiagnostic) {
 		try {
 			int preferedOffset = jcDiagnostic.getDiagnosticPosition().getPreferredPosition();
 			DiagnosticSource source = jcDiagnostic.getDiagnosticSource();
@@ -414,7 +465,7 @@ public class JavacProblemConverter {
 		return getDefaultPosition(jcDiagnostic);
 	}
 
-	private static org.eclipse.jface.text.Position getMissingReturnMethodDiagnostic(JCDiagnostic jcDiagnostic, Context context) {
+	private org.eclipse.jface.text.Position getMissingReturnMethodDiagnostic(JCDiagnostic jcDiagnostic, Context context) {
 		// https://github.com/eclipse-jdtls/eclipse-jdt-core-incubator/issues/313
 		if (COMPILER_ERR_MISSING_RET_STMT.equals(jcDiagnostic.getCode())) {
 			JCTree tree = jcDiagnostic.getDiagnosticPosition().getTree();
@@ -492,7 +543,7 @@ public class JavacProblemConverter {
 				|| t.kind == TokenKind.RBRACE;
 	}
 
-	private static org.eclipse.jface.text.Position getDiagnosticPosition(JCDiagnostic jcDiagnostic, JCVariableDecl jcVariableDecl) {
+	private org.eclipse.jface.text.Position getDiagnosticPosition(JCDiagnostic jcDiagnostic, JCVariableDecl jcVariableDecl) {
 		int startPosition = (int) jcDiagnostic.getPosition();
 		if (startPosition != Position.NOPOS) {
 			try {
@@ -505,7 +556,7 @@ public class JavacProblemConverter {
 		return getDefaultPosition(jcDiagnostic);
 	}
 
-	private static org.eclipse.jface.text.Position getDiagnosticPosition(JCDiagnostic jcDiagnostic, JCClassDecl jcClassDecl) {
+	private org.eclipse.jface.text.Position getDiagnosticPosition(JCDiagnostic jcDiagnostic, JCClassDecl jcClassDecl) {
 		int startPosition = (int) jcDiagnostic.getPosition();
 		List<JCTree> realMembers = jcClassDecl.getMembers().stream() //
 			.filter(member -> !(member instanceof JCMethodDecl methodDecl && methodDecl.sym != null && (methodDecl.sym.flags() & Flags.GENERATEDCONSTR) != 0))
@@ -522,13 +573,10 @@ public class JavacProblemConverter {
 		return getDefaultPosition(jcDiagnostic);
 	}
 
-	private static org.eclipse.jface.text.Position getDiagnosticPosition(String name, int startPosition, JCDiagnostic jcDiagnostic)
+	private org.eclipse.jface.text.Position getDiagnosticPosition(String name, int startPosition, JCDiagnostic jcDiagnostic)
 			throws IOException {
 		if (name != null && !name.isEmpty()) {
-			DiagnosticSource source = jcDiagnostic.getDiagnosticSource();
-			JavaFileObject fileObject = source.getFile();
-			CharSequence charContent = fileObject.getCharContent(true);
-			String content = charContent.toString();
+			String content = loadDocumentText(jcDiagnostic);
 			if (content != null && content.length() > startPosition) {
 				String temp = content.substring(startPosition);
 				int ind = temp.indexOf(name);
@@ -540,6 +588,16 @@ public class JavacProblemConverter {
 			}
 		}
 		return getDefaultPosition(jcDiagnostic);
+	}
+	private static String loadDocumentText(Diagnostic<?> diagnostic) throws IOException {
+		if (diagnostic instanceof JCDiagnostic jcDiagnostic) {
+			DiagnosticSource source = jcDiagnostic.getDiagnosticSource();
+			JavaFileObject fileObject = source.getFile();
+			CharSequence charContent = fileObject.getCharContent(true);
+			String content = charContent.toString();
+			return content;
+		}
+		return null;
 	}
 
 	private int toSeverity(int jdtProblemId, Diagnostic<? extends JavaFileObject> diagnostic) {
@@ -575,7 +633,17 @@ public class JavacProblemConverter {
 			case "compiler.err.expected3" -> IProblem.ParsingErrorInsertToComplete;
 			case "compiler.err.unclosed.comment" -> IProblem.UnterminatedComment;
 			case "compiler.err.illegal.start.of.type" -> IProblem.Syntax;
-			case "compiler.err.illegal.start.of.expr" -> IProblem.Syntax;
+			case "compiler.err.illegal.start.of.expr" -> {
+				try {
+					String token = readIdentifier(loadDocumentText(diagnostic), diagnostic.getPosition());
+					if (ModifierKeyword.toKeyword(token) != null) {
+						yield IProblem.IllegalModifiers;
+					}
+				} catch (Exception ex) {
+					ILog.get().error(ex.getMessage(), ex);
+				}
+				yield IProblem.Syntax;
+			}
 			case "compiler.err.illegal.start.of.stmt" -> IProblem.Syntax;
 			case "compiler.err.variable.not.allowed" -> IProblem.Syntax;
 			case "compiler.err.illegal.dot" -> IProblem.Syntax;
@@ -705,6 +773,7 @@ public class JavacProblemConverter {
 			case "compiler.warn.strictfp" -> uselessStrictfp(diagnostic);
 			case "compiler.err.invalid.permits.clause" -> illegalModifier(diagnostic);
 			case "compiler.err.sealed.class.must.have.subclasses" -> IProblem.SealedSealedTypeMissingPermits;
+			case "compiler.misc.doesnt.extend.sealed" -> getDiagnosticArgumentByType(diagnostic, ClassType.class).isInterface() ? IProblem.SealedNotDirectSuperInterface : IProblem.SealedNotDirectSuperClass;
 			case "compiler.err.feature.not.supported.in.source.plural" -> {
 				if (compilerOptions.complianceLevel < ClassFileConstants.JDK1_8) {
 					yield IProblem.IllegalModifierForInterfaceMethod;
@@ -912,6 +981,18 @@ public class JavacProblemConverter {
 		};
 	}
 
+	private String readIdentifier(String documentText, long position) {
+		int endIndex = (int)position;
+		if (!Character.isJavaIdentifierStart(documentText.charAt(endIndex))) {
+			return null;
+		}
+		endIndex++;
+		do {
+			endIndex++;
+		} while (endIndex < documentText.length() && Character.isJavaIdentifierPart(documentText.charAt(endIndex)));
+		return documentText.substring((int)position, endIndex);
+	}
+
 	private int uselessStrictfp(Diagnostic<? extends JavaFileObject> diagnostic) {
 		TreePath path = getTreePath(diagnostic);
 		if (path != null && path.getLeaf() instanceof JCMethodDecl && path.getParentPath() != null && path.getParentPath().getLeaf() instanceof JCClassDecl) {
@@ -1070,7 +1151,7 @@ public class JavacProblemConverter {
 		return IProblem.UndefinedMethod;
 	}
 
-	private <T> T getDiagnosticArgumentByType(Diagnostic<?> diagnostic, Class<T> type) {
+	private static <T> T getDiagnosticArgumentByType(Diagnostic<?> diagnostic, Class<T> type) {
 		if (!(diagnostic instanceof JCDiagnostic jcDiagnostic)) {
 			return null;
 		}

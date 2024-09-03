@@ -39,7 +39,10 @@ import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -1043,6 +1046,11 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isLocal() {
+		if (this.resolver.findDeclaringNode(this) instanceof AbstractTypeDeclaration node) {
+			return !(node.getParent() instanceof CompilationUnit
+					|| node.getParent() instanceof AbstractTypeDeclaration
+					|| node.getParent() instanceof AnonymousClassDeclaration);
+		}
 		//TODO Still not confident in this one,
 		//but now it doesn't check recursively
 		return this.typeSymbol.owner.kind.matches(KindSelector.VAL_MTH);
