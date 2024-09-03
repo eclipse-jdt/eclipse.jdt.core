@@ -996,6 +996,7 @@ public class JavacProblemConverter {
 			case "compiler.err.not.exhaustive" -> IProblem.SwitchExpressionsYieldMissingDefaultCase;
 			case "compiler.err.switch.expression.empty" -> IProblem.SwitchExpressionsYieldMissingDefaultCase;
 			case "compiler.err.return.outside.switch.expression" -> IProblem.SwitchExpressionsReturnWithinSwitchExpression;
+			case "compiler.err.cant.apply.diamond.1" -> IProblem.NonGenericType;
 			default -> {
 				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;
