@@ -15,6 +15,9 @@
 
 package org.eclipse.jdt.internal.core.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jdt.internal.core.JavaElement;
 
 /** Utility to provide deduplication by best effort. **/
@@ -67,5 +70,28 @@ public final class DeduplicationUtil {
 			}
 			return a;
 		}
+	}
+
+	/** interns the elements and the list as whole **/
+	public static List<String> intern(List<String> a) {
+		if (a.size() == 0) {
+			return List.of();
+		}
+		synchronized (objectCache) {
+			Object existing = objectCache.get(a);
+			if (existing instanceof List l) {
+				@SuppressWarnings("unchecked")
+				List<String> existingList = l;
+				return existingList;
+			}
+		}
+
+		ArrayList<String> result= new ArrayList<>(a.size());
+		synchronized (stringSymbols) {
+			for (String s:a) {
+				result.add(s == null ? null :stringSymbols.add(s));
+			}
+		}
+		return internObject(List.copyOf(result));
 	}
 }
