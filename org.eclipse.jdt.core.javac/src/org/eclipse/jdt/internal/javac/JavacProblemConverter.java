@@ -999,8 +999,20 @@ public class JavacProblemConverter {
 			case "compiler.err.try.without.catch.finally.or.resource.decls" -> IProblem.Syntax;
 			case "compiler.warn.unchecked.meth.invocation.applied" -> IProblem.UnsafeTypeConversion;
 			case "compiler.err.encl.class.required" -> IProblem.MissingEnclosingInstanceForConstructorCall;
-			case "compiler.err.operator.cant.be.applied" -> IProblem.InvalidOperator;
+			case "compiler.err.operator.cant.be.applied", "compiler.err.operator.cant.be.applied.1" -> IProblem.InvalidOperator;
 			case "compiler.warn.try.resource.not.referenced" -> IProblem.LocalVariableIsNeverUsed; // not in ECJ
+			case "compiler.err.types.incompatible" -> IProblem.DuplicateInheritedDefaultMethods;
+			case "compiler.err.incompatible.thrown.types.in.mref" -> IProblem.UnhandledException;
+			case "compiler.err.already.defined.single.import" -> IProblem.ConflictingImport;
+			case "compiler.err.icls.cant.have.static.decl" -> IProblem.UnexpectedStaticModifierForMethod;
+			case "compiler.err.override.static" -> IProblem.CannotHideAnInstanceMethodWithAStaticMethod;
+			case "compiler.err.native.meth.cant.have.body" -> IProblem.BodyForNativeMethod;
+			case "compiler.err.varargs.invalid.trustme.anno" -> IProblem.SafeVarargsOnFixedArityMethod;
+			case "compiler.warn.unchecked.generic.array.creation" -> IProblem.UnsafeGenericArrayForVarargs;
+			case "compiler.warn.varargs.redundant.trustme.anno" -> IProblem.TypeRelated; // not in ECJ
+			case "compiler.warn.finally.cannot.complete" -> IProblem.FinallyMustCompleteNormally;
+			case "compiler.err.generic.throwable" -> IProblem.GenericTypeCannotExtendThrowable;
+			case "compiler.warn.potentially.ambiguous.overload" -> IProblem.TypeRelated; // not in ECJ
 			default -> {
 				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;
