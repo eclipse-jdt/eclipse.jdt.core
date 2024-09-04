@@ -565,9 +565,14 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	}
 
 	private boolean sinceValueUnreached(Binding binding, Scope scope) {
+		if (binding instanceof TypeBinding typeBinding) {
+			if (!typeBinding.isReadyForAnnotations()) {
+				return false;
+			}
+		}
 		AnnotationBinding[] annotations= binding.getAnnotations();
 		for (AnnotationBinding annotation : annotations) {
-			if (String.valueOf(annotation.getAnnotationType().readableName()).equals("java.lang.Deprecated")) { //$NON-NLS-1$
+			if (annotation != null && String.valueOf(annotation.getAnnotationType().readableName()).equals("java.lang.Deprecated")) { //$NON-NLS-1$
 				ElementValuePair[] pairs= annotation.getElementValuePairs();
 				for (ElementValuePair pair : pairs) {
 					if (String.valueOf(pair.getName()).equals("since")) { //$NON-NLS-1$
