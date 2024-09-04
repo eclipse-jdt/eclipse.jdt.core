@@ -19,7 +19,7 @@
     <relativePath>../tests-pom/</relativePath>
   </parent>
   <artifactId>org.eclipse.jdt.core.tests.model</artifactId>
-  <version>3.13.100-SNAPSHOT</version>
+  <version>3.13.200-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
 
   <properties>
