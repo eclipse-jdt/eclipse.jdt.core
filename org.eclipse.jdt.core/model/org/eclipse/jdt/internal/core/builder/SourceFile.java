@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
+import java.lang.ref.SoftReference;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.CoreException;
@@ -29,6 +31,7 @@ public IFile resource;
 ClasspathMultiDirectory sourceLocation;
 String initialTypeName;
 boolean updateClassFile;
+private volatile SoftReference<char[]> contentRef;
 
 public SourceFile(IFile resource, ClasspathMultiDirectory sourceLocation) {
 	this.resource = resource;
@@ -80,12 +83,27 @@ String extractTypeName() {
 
 @Override
 public char[] getContents() {
-
+	SoftReference<char[]> cr = this.contentRef;
+	if (cr != null) {
+		char[] cachedContents = cr.get();
+		if (cachedContents != null) {
+			return cachedContents;
+		}
+	}
+	char[] contents;
 	try {
-		return Util.getResourceContentsAsCharArray(this.resource);
+		contents = Util.getResourceContentsAsCharArray(this.resource);
 	} catch (CoreException e) {
 		throw new AbortCompilation(true, new MissingSourceFileException(this.resource.getFullPath().toString()));
 	}
+	// softly cache the result:
+	this.contentRef = new SoftReference<>(contents);
+	return contents;
+}
+
+@Override
+public void releaseContent() {
+	this.contentRef = null;
 }
 
 /**

@@ -37,6 +37,11 @@ public interface ICompilationUnit extends IDependent {
  * CharOperation.NO_CHAR being the candidate of choice.
  */
 char[] getContents();
+
+/** if {@link #getContents()} keeps a cached copy that cache can be released with this method **/
+default void releaseContent() {
+	// nothing
+}
 /**
  * Answer the name of the top level public type.
  * For example, {Hashtable}.

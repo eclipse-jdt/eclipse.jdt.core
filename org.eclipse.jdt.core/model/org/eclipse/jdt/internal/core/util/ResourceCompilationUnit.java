@@ -67,6 +67,11 @@ public class ResourceCompilationUnit implements ICompilationUnit {
 	}
 
 	@Override
+	public void releaseContent() {
+		this.contentRef = null;
+	}
+
+	@Override
 	public char[] getFileName() {
 		return this.fileName;
 	}

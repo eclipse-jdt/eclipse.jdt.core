@@ -11693,6 +11693,7 @@ public void getMethodBodies(CompilationUnitDeclaration unit) {
 	char[] contents = this.readManager != null
 		? this.readManager.getContents(compilationResult.compilationUnit)
 		: compilationResult.compilationUnit.getContents();
+	compilationResult.compilationUnit.releaseContent();
 	this.scanner.setSource(contents, compilationResult);
 
 	if (this.javadocParser != null && this.javadocParser.checkDocComment) {

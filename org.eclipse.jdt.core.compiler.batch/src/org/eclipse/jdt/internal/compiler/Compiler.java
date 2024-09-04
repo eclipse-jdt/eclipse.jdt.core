@@ -422,7 +422,15 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	}
 
 	public void compile(ICompilationUnit[] sourceUnits) {
-		compile(sourceUnits, false);
+		try {
+			compile(sourceUnits, false);
+		} finally {
+			for (ICompilationUnit cu:sourceUnits) {
+				if (cu != null) {
+					cu.releaseContent();
+				}
+			}
+		}
 	}
 	/**
 	 * General API
@@ -851,30 +859,31 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			for (int i = 0; i < maxUnits; i++) {
 				CompilationResult unitResult = null;
 				try {
+					ICompilationUnit sourceUnit = sourceUnits[i];
 					if (this.options.verbose) {
 						this.out.println(
 							Messages.bind(Messages.compilation_request,
 							new String[] {
 								String.valueOf(i + 1),
 								String.valueOf(maxUnits),
-								new String(sourceUnits[i].getFileName())
+								new String(sourceUnit.getFileName())
 							}));
 					}
 					// diet parsing for large collection of units
 					CompilationUnitDeclaration parsedUnit;
-					unitResult = new CompilationResult(sourceUnits[i], i, maxUnits, this.options.maxProblemsPerUnit);
+					unitResult = new CompilationResult(sourceUnit, i, maxUnits, this.options.maxProblemsPerUnit);
 					long parseStart = System.currentTimeMillis();
 					if (this.totalUnits < this.parseThreshold) {
-						parsedUnit = this.parser.parse(sourceUnits[i], unitResult);
+						parsedUnit = this.parser.parse(sourceUnit, unitResult);
 					} else {
-						parsedUnit = this.parser.dietParse(sourceUnits[i], unitResult);
+						parsedUnit = this.parser.dietParse(sourceUnit, unitResult);
 					}
 					long resolveStart = System.currentTimeMillis();
 					this.stats.parseTime += resolveStart - parseStart;
 					// initial type binding creation
 					this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 					this.stats.resolveTime += System.currentTimeMillis() - resolveStart;
-					addCompilationUnit(sourceUnits[i], parsedUnit);
+					addCompilationUnit(sourceUnit, parsedUnit);
 					ImportReference currentPackage = parsedUnit.currentPackage;
 					if (currentPackage != null) {
 						unitResult.recordPackageName(currentPackage.tokens);
