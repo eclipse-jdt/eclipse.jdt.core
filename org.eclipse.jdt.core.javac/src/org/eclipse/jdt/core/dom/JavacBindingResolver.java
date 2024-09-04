@@ -1152,6 +1152,14 @@ public class JavacBindingResolver extends BindingResolver {
 			}
 		}
 		var jcTree = this.converter.domToJavac.get(expr);
+		if (jcTree instanceof JCExpression expression
+			&& isTypeOfType(expression.type)
+			&& !expression.type.isErroneous()) {
+			var res = this.bindings.getTypeBinding(expression.type);
+			if (res != null) {
+				return res;
+			}
+		}
 		if (jcTree instanceof JCMethodInvocation javacMethodInvocation) {
 			if (javacMethodInvocation.meth.type instanceof MethodType methodType) {
 				return this.bindings.getTypeBinding(methodType.getReturnType());
@@ -1222,6 +1230,21 @@ public class JavacBindingResolver extends BindingResolver {
 	@Override
 	IMethodBinding resolveConstructor(ClassInstanceCreation expression) {
 		return (IMethodBinding)resolveCached(expression, (n) -> resolveConstructorImpl((ClassInstanceCreation)n));
+	}
+
+	/**
+	 * 
+	 * @param t the type to check
+	 * @return whether this is actually a type (returns
+	 * {@code false} for things like {@link PackageType},
+	 * {@link MethodType}...
+	 */
+	public static boolean isTypeOfType(com.sun.tools.javac.code.Type t) {
+		return t == null ? false :
+			switch (t.getKind()) {
+				case PACKAGE, MODULE, EXECUTABLE, OTHER -> false;
+				default -> true;
+			};
 	}
 
 	private IMethodBinding resolveConstructorImpl(ClassInstanceCreation expression) {

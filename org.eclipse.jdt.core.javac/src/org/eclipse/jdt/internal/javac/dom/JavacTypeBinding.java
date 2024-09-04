@@ -80,7 +80,6 @@ import com.sun.tools.javac.code.Type.IntersectionClassType;
 import com.sun.tools.javac.code.Type.JCNoType;
 import com.sun.tools.javac.code.Type.JCVoidType;
 import com.sun.tools.javac.code.Type.MethodType;
-import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.code.Type.WildcardType;
 import com.sun.tools.javac.code.TypeTag;
@@ -100,7 +99,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	private boolean recovered = false;
 
 	public JavacTypeBinding(final Type type, final TypeSymbol typeSymbol, boolean isDeclaration, JavacBindingResolver resolver) {
-		if (type instanceof PackageType) {
+		if (!JavacBindingResolver.isTypeOfType(type)) {
 			throw new IllegalArgumentException("Use JavacPackageBinding");
 		}
 		this.isGeneric = type.isParameterized() && isDeclaration;
