@@ -31,6 +31,7 @@ import javax.tools.JavaFileObject;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.JavacBindingResolver;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -73,6 +74,7 @@ import com.sun.tools.javac.tree.JCTree.JCNewClass;
 import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCReturn;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.DiagnosticSource;
 import com.sun.tools.javac.util.JCDiagnostic;
@@ -299,6 +301,10 @@ public class JavacProblemConverter {
 				} else if (problemId == IProblem.SwitchExpressionsYieldMissingDefaultCase
 						&& diagnosticPath.getLeaf() instanceof JCTree.JCSwitchExpression switchExpr) {
 					return getPositionByNodeRangeOnly(jcDiagnostic, switchExpr.selector instanceof JCTree.JCParens parens? parens.expr : switchExpr.selector);
+				} else if (problemId == IProblem.UndefinedConstructor
+						&& diagnosticPath.getParentPath() != null
+						&& diagnosticPath.getParentPath().getLeaf() instanceof JCNewClass newClass) {
+					return getPositionByNodeRangeOnly(jcDiagnostic, newClass);
 				}
 			}
 
@@ -674,7 +680,7 @@ public class JavacProblemConverter {
 				switch (getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class)) {
 					case CONSTRUCTOR -> {
 						TreePath treePath = getTreePath((JCDiagnostic)diagnostic);
-						while (!(treePath.getLeaf() instanceof JCMethodDecl) && treePath != null) {
+						while (treePath != null && !(treePath.getLeaf() instanceof JCMethodDecl) && treePath != null) {
 							treePath = treePath.getParentPath();
 						}
 						if (treePath == null || !(treePath.getLeaf() instanceof JCMethodDecl methodDecl)) {
@@ -1224,6 +1230,11 @@ public class JavacProblemConverter {
 				if (args != null && args.length > 1
 					&& args[1] instanceof Type.JCVoidType) {
 					return IProblem.MethodReturnsVoid;
+				}
+				TreePath path = getTreePath(diagnostic);
+				if (path != null && path.getParentPath() != null
+					&& path.getParentPath().getLeaf() instanceof JCNewClass) {
+					return IProblem.UndefinedConstructor;
 				}
 			} else if ("compiler.misc.unexpected.ret.val".equals(diagnosticArg.getCode())) {
 				return IProblem.VoidMethodReturnsValue;
