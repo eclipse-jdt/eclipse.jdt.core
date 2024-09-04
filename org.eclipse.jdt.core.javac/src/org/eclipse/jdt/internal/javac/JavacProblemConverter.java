@@ -997,6 +997,17 @@ public class JavacProblemConverter {
 			case "compiler.err.switch.expression.empty" -> IProblem.SwitchExpressionsYieldMissingDefaultCase;
 			case "compiler.err.return.outside.switch.expression" -> IProblem.SwitchExpressionsReturnWithinSwitchExpression;
 			case "compiler.err.cant.apply.diamond.1" -> IProblem.NonGenericType;
+			case "compiler.err.class.in.unnamed.module.cant.extend.sealed.in.diff.package" -> IProblem.SealedPermittedTypeOutsideOfPackage;
+			case "compiler.err.non.sealed.or.sealed.expected" -> IProblem.SealedMissingInterfaceModifier;
+			case "compiler.err.array.dimension.missing" -> IProblem.MustDefineEitherDimensionExpressionsOrInitializer;
+			case "compiler.warn.deprecated.annotation.has.no.effect" -> IProblem.TypeRelated; // not in ECJ
+			case "compiler.err.enum.constant.not.expected" -> IProblem.UndefinedMethod;
+			case "compiler.warn.poor.choice.for.module.name" -> IProblem.ModuleRelated;
+			case "compiler.err.try.without.catch.finally.or.resource.decls" -> IProblem.Syntax;
+			case "compiler.warn.unchecked.meth.invocation.applied" -> IProblem.UnsafeTypeConversion;
+			case "compiler.err.encl.class.required" -> IProblem.MissingEnclosingInstanceForConstructorCall;
+			case "compiler.err.operator.cant.be.applied" -> IProblem.InvalidOperator;
+			case "compiler.warn.try.resource.not.referenced" -> IProblem.LocalVariableIsNeverUsed; // not in ECJ
 			default -> {
 				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;
