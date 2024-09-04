@@ -119,6 +119,7 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	setupExternalJCL("jclMin");
 	setupExternalJCL("jclMin1.5");
+	setupExternalJCL("jclMin22");
 }
 
 void restoreAutobuild(IWorkspaceDescription preferences, boolean autoBuild) throws CoreException {
@@ -436,7 +437,7 @@ public void test232816e() throws CoreException {
 	}
 }
 
-public void _2551_test232816f() throws Exception {
+public void test232816f() throws Exception {
 
 	IJavaProject p = null;
 	try {
@@ -454,14 +455,14 @@ public void _2551_test232816f() throws Exception {
 						JavaCore.newLibraryEntry(getExternalJCLPath(CompilerOptions.getLatestVersion()), new Path("/P0/SBlah"), new Path("/P0"))})
 			},
 			null);
-		// TODO See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2580
-		// jclMin22.jar contains classes compiled against Java 21
+
 		IClasspathEntry newClasspath = JavaCore.newContainerEntry(new Path("container/default"));
 
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(p, newClasspath, true);
 		assertStatus(
 			"should have complained about jdk level mismatch",
-			"Incompatible .class files version in required binaries. Project 'P' is targeting a 1.4 runtime, but is compiled against \'" + getExternalJCLPath("1.5").makeRelative() + "' (from the container 'container/default') which requires a 1.5 runtime",
+			"Incompatible .class files version in required binaries. Project 'P' is targeting a " + CompilerOptions.getFirstSupportedJavaVersion()
+					+ " runtime, but is compiled against \'" + getExternalJCLPath("22").makeRelative() + "' (from the container 'container/default') which requires a 22 runtime",
 			status);
 	} finally {
 		deleteProject("P");
