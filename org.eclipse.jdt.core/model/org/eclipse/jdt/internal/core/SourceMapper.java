@@ -1628,7 +1628,7 @@ public class SourceMapper
 			byte[] bytes = Util.getZipEntryByteContent(entry, zip);
 			if (bytes != null) {
 				// Order of preference: charSet supplied, this.encoding or this.defaultEncoding in that order
-				return Util.bytesToChar(bytes, charSet == null ? (this.encoding == null ? this.defaultEncoding : this.encoding) : charSet);
+				return Util.getBytesAsCharArray(bytes, charSet == null ? (this.encoding == null ? this.defaultEncoding : this.encoding) : charSet);
 			}
 		} catch (IOException e) {
 			// ignore
