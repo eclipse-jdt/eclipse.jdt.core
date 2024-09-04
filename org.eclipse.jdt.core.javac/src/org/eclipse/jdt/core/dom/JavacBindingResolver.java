@@ -91,7 +91,6 @@ import com.sun.tools.javac.tree.JCTree.JCTypeCast;
 import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 
 /**
@@ -781,6 +780,21 @@ public class JavacBindingResolver extends BindingResolver {
 				.filter(binding -> binding.getName().equals(sym.getSimpleName().toString()))
 				.findAny()
 				.orElse(null);
+		}
+		if (type == null && sym instanceof MethodSymbol methodSymbol && methodSymbol.type instanceof MethodType
+			&& javacElement instanceof JCFieldAccess selectedMethod
+			&& selectedMethod.getExpression() != null
+			&& selectedMethod.getExpression().type instanceof ClassType classType) {
+			// method is resolved, but type is not, probably because of invalid param
+			// workaround: check compatible method in selector
+			var parentTypeBinding = this.bindings.getTypeBinding(classType);
+			var res = Arrays.stream(parentTypeBinding.getDeclaredMethods())
+				.filter(binding -> binding instanceof JavacMethodBinding javacMethodBinding && javacMethodBinding.methodSymbol == methodSymbol)
+				.findAny()
+				.orElse(null);
+			if (res != null) {
+				return res;
+			}
 		}
 		return null;
 	}

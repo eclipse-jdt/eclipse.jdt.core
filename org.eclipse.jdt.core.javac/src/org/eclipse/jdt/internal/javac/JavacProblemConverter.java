@@ -31,7 +31,6 @@ import javax.tools.JavaFileObject;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.JavacBindingResolver;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -74,7 +73,6 @@ import com.sun.tools.javac.tree.JCTree.JCNewClass;
 import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCReturn;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.DiagnosticSource;
 import com.sun.tools.javac.util.JCDiagnostic;
@@ -336,6 +334,10 @@ public class JavacProblemConverter {
 					.findFirst()
 					.map(Tree.class::cast)
 					.orElse(element);
+			}
+			if (problemId == IProblem.UndefinedMethod && element instanceof JCMethodInvocation method
+				&& method.getMethodSelect() instanceof JCIdent name) {
+				element = name;
 			}
 			if (element != null) {
 				switch (element) {
