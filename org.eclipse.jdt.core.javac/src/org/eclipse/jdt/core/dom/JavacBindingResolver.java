@@ -1092,7 +1092,11 @@ public class JavacBindingResolver extends BindingResolver {
 			return this.bindings.getTypeBinding(variableDecl.type);
 		}
 		if (tree instanceof JCFieldAccess fieldAccess && fieldAccess.sym != null) {
-			return this.bindings.getBinding(fieldAccess.sym, fieldAccess.type);
+			com.sun.tools.javac.code.Type typeToUse = fieldAccess.type;
+			if(fieldAccess.selected instanceof JCTypeApply) {
+				typeToUse = fieldAccess.sym.type;
+			}
+			return this.bindings.getBinding(fieldAccess.sym, typeToUse);
 		}
 		if (tree instanceof JCMethodInvocation methodInvocation && methodInvocation.meth.type != null) {
 			return this.bindings.getBinding(((JCFieldAccess)methodInvocation.meth).sym, methodInvocation.meth.type);
