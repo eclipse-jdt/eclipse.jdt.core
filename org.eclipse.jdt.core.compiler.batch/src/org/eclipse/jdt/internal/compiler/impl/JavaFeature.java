@@ -117,7 +117,7 @@ public enum JavaFeature {
 	MARKDOWN_COMMENTS(ClassFileConstants.JDK23,
 			Messages.bind(Messages.markdown_comments),
 			CharOperation.NO_CHAR_CHAR,
-			true),
+			false),
     ;
 
 	final long compliance;
