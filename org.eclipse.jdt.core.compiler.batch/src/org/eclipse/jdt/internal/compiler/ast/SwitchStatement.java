@@ -1272,7 +1272,8 @@ public class SwitchStatement extends Expression {
 						patternVariables = LocalVariableBinding.merge(patternVariables, statement.bindingsWhenComplete());
 					}
 				}
-				if ((expressionType.id == TypeIds.T_boolean || expressionType.id == TypeIds.T_JavaLangBoolean)
+				if (expressionType != null
+						&& (expressionType.id == TypeIds.T_boolean || expressionType.id == TypeIds.T_JavaLangBoolean)
 						&& defaultFound && isExhaustive()) {
 					upperScope.problemReporter().caseDefaultPlusTrueAndFalse(this);
 				}
