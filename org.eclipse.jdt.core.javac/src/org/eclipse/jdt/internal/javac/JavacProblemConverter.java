@@ -1012,6 +1012,28 @@ public class JavacProblemConverter {
 			case "compiler.warn.finally.cannot.complete" -> IProblem.FinallyMustCompleteNormally;
 			case "compiler.err.generic.throwable" -> IProblem.GenericTypeCannotExtendThrowable;
 			case "compiler.warn.potentially.ambiguous.overload" -> IProblem.TypeRelated; // not in ECJ
+			case "compiler.warn.inexact.non-varargs.call" -> IProblem.MethodVarargsArgumentNeedCast;
+			case "compiler.note.deprecated.filename" -> IProblem.OverridingDeprecatedMethod;
+			case "compiler.note.unchecked.plural.additional" -> IProblem.TypeRelated; // not in ECJ; this is a project-wide warning
+			case "compiler.err.error.reading.file" -> IProblem.CannotReadSource;
+			case "compiler.err.dot.class.expected" -> IProblem.TypeRelated; //not in ECJ
+			case "compiler.err.feature.not.supported.in.source" -> IProblem.FeatureNotSupported;
+			case "compiler.err.annotation.type.not.applicable.to.type" -> {
+				if (diagnostic instanceof JCDiagnostic jcDiagnostic && jcDiagnostic.getDiagnosticPosition() instanceof JCAnnotation jcAnnotation
+						&& jcAnnotation.type.tsym.getAnnotationTypeMetadata().getTarget() == null) {
+					yield IProblem.ExplicitAnnotationTargetRequired;
+				}
+				yield IProblem.DisallowedTargetForAnnotation;
+			}
+			case "compiler.err.pkg.annotations.sb.in.package-info.java" -> IProblem.InvalidFileNameForPackageAnnotations;
+			case "compiler.err.unexpected.type" -> IProblem.TypeMismatch;
+			case "compiler.err.intf.annotation.members.cant.have.params" -> IProblem.AnnotationMembersCannotHaveParameters;
+			case "compiler.err.static.declaration.not.allowed.in.inner.classes" -> {
+				if (diagnostic instanceof JCDiagnostic jcDiagnostic && jcDiagnostic.getDiagnosticPosition() instanceof JCClassDecl classDecl && classDecl.sym.isEnum()) {
+					yield IProblem.NonStaticContextForEnumMemberType;
+				}
+				yield IProblem.IllegalStaticModifierForMemberType;
+			}
 			default -> {
 				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;
