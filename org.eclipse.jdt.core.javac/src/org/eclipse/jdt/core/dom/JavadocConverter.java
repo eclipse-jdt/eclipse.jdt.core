@@ -337,11 +337,7 @@ class JavadocConverter {
 			res.setTagName(TagElement.TAG_INHERITDOC);
 		} else if (javac instanceof DCSnippet snippet) {
 			res.setTagName(TagElement.TAG_SNIPPET);
-			// TODO hardcoded value
-			res.setProperty(TagProperty.TAG_PROPERTY_SNIPPET_ERROR, false);
-			// TODO hardcoded value
 			res.setProperty(TagProperty.TAG_PROPERTY_SNIPPET_IS_VALID, true);
-			// TODO attributes
 			res.fragments().addAll(convertElement(snippet.body).toList());
 		} else if (javac instanceof DCUnknownInlineTag unknown) {
 			res.fragments().add(toDefaultTextElement(unknown));

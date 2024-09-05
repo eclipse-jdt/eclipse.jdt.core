@@ -123,6 +123,7 @@ import com.sun.tools.javac.tree.JCTree.JCWhileLoop;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
 import com.sun.tools.javac.tree.JCTree.JCYield;
 import com.sun.tools.javac.tree.JCTree.Tag;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JCDiagnostic;
 import com.sun.tools.javac.util.Log;
@@ -534,8 +535,17 @@ class JavacConverter {
 	private AbstractTypeDeclaration convertClassDecl(JCClassDecl javacClassDecl, ASTNode parent, AbstractTypeDeclaration res) {
 		commonSettings(res, javacClassDecl);
 		SimpleName simpName = (SimpleName)convertName(javacClassDecl.getSimpleName());
-		if( simpName != null )
+		if( simpName != null ) {
 			res.setName(simpName);
+			int searchNameFrom = javacClassDecl.getPreferredPosition();
+			if (javacClassDecl.getModifiers() != null) {
+				searchNameFrom = Math.max(searchNameFrom, TreeInfo.getEndPos(javacClassDecl.getModifiers(), this.javacCompilationUnit.endPositions));
+			}
+			int namePosition = this.rawText.indexOf(simpName.getIdentifier(), searchNameFrom);
+			if (namePosition >= 0) {
+				simpName.setSourceRange(namePosition, simpName.getIdentifier().length());
+			}
+		}
 		if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
 			res.modifiers().addAll(convert(javacClassDecl.mods, res));
 		} else {
@@ -3329,21 +3339,20 @@ class JavacConverter {
 			PriorityQueue<ASTNode> excluded = new PriorityQueue<>(Comparator.comparing(ASTNode::getStartPosition));
 			if( current == -1 ) {
 				return -1;
-			} if (excluded.isEmpty()) {
-				String subText = this.contents.substring(current, current + in.getLength());
-				int foundInSubText = subText.indexOf(text);
-				if (foundInSubText >= 0) {
-					return current + foundInSubText;
+			}
+			if (excluded.isEmpty()) {
+				int position = this.contents.indexOf(text, current, current + in.getLength());
+				if (position >= 0) {
+					return position;
 				}
 			} else {
 				ASTNode currentExclusion = null;
 				while ((currentExclusion = excluded.poll()) != null) {
 					if (currentExclusion.getStartPosition() >= current) {
 						int rangeEnd = currentExclusion.getStartPosition();
-						String subText = this.contents.substring(current, rangeEnd);
-						int foundInSubText = subText.indexOf(text);
-						if (foundInSubText >= 0) {
-							return current + foundInSubText;
+						int position = this.contents.indexOf(text, current, rangeEnd);
+						if (position >= 0) {
+							return position;
 						}
 						current = rangeEnd + currentExclusion.getLength();
 					}
