@@ -403,7 +403,6 @@ private Constant resolveCasePattern(BlockScope scope, TypeBinding caseType, Type
 				switchStatement.switchBits |= SwitchStatement.TotalPattern;
 				if (switchStatement.defaultCase != null && !(e instanceof RecordPattern))
 					scope.problemReporter().illegalTotalPatternWithDefault(this);
-				switchStatement.totalPattern = e;
 			}
 			e.isTotalTypeNode = true;
 			if (switchStatement.nullCase == null)

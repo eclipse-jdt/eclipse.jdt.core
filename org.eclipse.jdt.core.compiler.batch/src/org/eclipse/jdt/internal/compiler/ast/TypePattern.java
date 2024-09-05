@@ -24,12 +24,14 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
+import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
@@ -177,6 +179,37 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 				break;
 		}
 	}
+
+	@Override
+	public boolean isUnconditional(TypeBinding t, Scope scope) {
+		// §14.30.3: A type pattern that declares a pattern variable of a type S is unconditional for a type T
+		// 			 if there is a testing conversion that is unconditionally exact (5.7.2) from |T| to |S|.
+		// §5.7.2 lists:
+		// * an identity conversion
+		// * an exact widening primitive conversion
+		// * a widening reference conversion
+		// * a boxing conversion
+		// * a boxing conversion followed by a widening reference conversion
+		if (TypeBinding.equalsEquals(t, this.resolvedType))
+			return true;
+		PrimitiveConversionRoute route = findPrimitiveConversionRoute(this.resolvedType, t, scope);
+		return switch(route) {
+			case IDENTITY_CONVERSION,
+				BOXING_CONVERSION,
+				BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION
+				-> true;
+			case WIDENING_PRIMITIVE_CONVERSION -> BaseTypeBinding.isExactWidening(this.resolvedType.id, t.id);
+			case NO_CONVERSION_ROUTE -> { // a widening reference conversion?
+				if (!this.resolvedType.isPrimitiveOrBoxedPrimitiveType() || !t.isPrimitiveOrBoxedPrimitiveType()) {
+					yield t.isCompatibleWith(this.resolvedType);
+				} else {
+					yield false;
+				}
+			}
+			default -> false;
+		};
+	}
+
 	@Override
 	public boolean dominates(Pattern p) {
 		if (!isUnguarded())

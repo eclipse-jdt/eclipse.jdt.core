@@ -2220,6 +2220,27 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 
 	}
 
+	public void testCoversTypePlusDefault() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X  {
+					public static int foo(Integer myInt) {
+						return switch (myInt) {
+							case int i  -> i;
+							default -> 0;
+						};
+					}
+
+					public static void main(String argv[]) {
+						Integer i = 100;
+						System.out.println(X.foo(i) == i);
+					}
+				}
+				"""
+				},
+				"true");
+	}
 	// test from spec
 	public void _testSpec001() {
 		runConformTest(new String[] {

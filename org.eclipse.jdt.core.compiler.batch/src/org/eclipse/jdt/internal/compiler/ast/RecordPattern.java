@@ -180,11 +180,6 @@ public class RecordPattern extends Pattern {
 	}
 
 	@Override
-	public boolean isUnconditional(TypeBinding t, Scope scope) {
-		return false;
-	}
-
-	@Override
 	public boolean dominates(Pattern p) {
 		/* 14.30.3: A record pattern with type R and pattern list L dominates another record pattern
 		   with type S and pattern list M if (i) R and S name the same record class, and (ii)
