@@ -8303,4 +8303,56 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"42");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2870
+	// eclipse can't build when error in switch
+	public void testIssue2870() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+
+							enum EnumError {
+								TEST(0);
+
+								private int value;
+
+								private EnumError(int value) {
+									this.value = value;
+								}
+
+								public int getValue() {
+									return this.value;
+								}
+							}
+
+							public static void main(String[] args) {
+								int bouh = 0;
+								switch(bouh) {
+								case EnumError.TEST.getValue() :
+									break;
+								}
+							}
+
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 19)\r\n" +
+				"	switch(bouh) {\r\n" +
+				"	       ^^^^\n" +
+				"An enhanced switch statement should be exhaustive; a default label expected\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 20)\r\n" +
+				"	case EnumError.TEST.getValue() :\r\n" +
+				"	     ^^^^^^^^^^^^^^\n" +
+				"EnumError.TEST cannot be resolved to a type\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 20)\r\n" +
+				"	case EnumError.TEST.getValue() :\r\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Only record types are permitted in a record pattern\n" +
+				"----------\n");
+	}
 }
