@@ -1272,6 +1272,11 @@ public class SwitchStatement extends Expression {
 						patternVariables = LocalVariableBinding.merge(patternVariables, statement.bindingsWhenComplete());
 					}
 				}
+				if (expressionType != null
+						&& (expressionType.id == TypeIds.T_boolean || expressionType.id == TypeIds.T_JavaLangBoolean)
+						&& defaultFound && isExhaustive()) {
+					upperScope.problemReporter().caseDefaultPlusTrueAndFalse(this);
+				}
 				if (length != counter) { // resize constants array
 					System.arraycopy(this.otherConstants, 0, this.otherConstants = new ResolvedCase[counter], 0, counter);
 					System.arraycopy(this.constants, 0, this.constants = new int[counter], 0, counter);

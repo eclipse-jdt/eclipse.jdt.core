@@ -2696,4 +2696,9 @@ void setSourceStart(int sourceStart);
 	 */
 	int IncompatibleCaseType =  PreviewRelated + 2101;
 
+	/**
+	 * @since 3.39
+	 * @noreference preview feature
+	 */
+	int DefaultTrueAndFalseCases = PreviewRelated + 2102;
 }
