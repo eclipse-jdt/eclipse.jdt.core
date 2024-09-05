@@ -224,9 +224,7 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 
 @Override
 public void setPatternIsTotalType() {
-	if (this.pattern != null) {
-		this.pattern.isTotalTypeNode = true;
-	}
+	// Nothing to do
 }
 
 @Override
