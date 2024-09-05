@@ -28,7 +28,6 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 
 import junit.framework.Test;
 
-@SuppressWarnings("rawtypes")
 public class ASTConverterBugsTestSetup extends ConverterTestSetup {
 
 @Override

@@ -37,11 +37,9 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
-import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.util.TreePath;
-import com.sun.source.util.TreeScanner;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
@@ -342,7 +340,7 @@ public class JavacProblemConverter {
 			}
 			if (element != null) {
 				switch (element) {
-					case JCTree.JCTypeApply jcTypeApply: return getPositionByNodeRangeOnly(jcDiagnostic, (JCTree)jcTypeApply.clazz);
+					case JCTree.JCTypeApply jcTypeApply: return getPositionByNodeRangeOnly(jcDiagnostic, jcTypeApply.clazz);
 					case JCClassDecl jcClassDecl: return getDiagnosticPosition(jcDiagnostic, jcClassDecl);
 					case JCVariableDecl jcVariableDecl: return getDiagnosticPosition(jcDiagnostic, jcVariableDecl);
 					case JCMethodDecl jcMethodDecl: return getDiagnosticPosition(jcDiagnostic, jcMethodDecl, problemId);
@@ -672,7 +670,7 @@ public class JavacProblemConverter {
 			case "compiler.err.cant.apply.symbols", "compiler.err.cant.apply.symbol" ->
 				switch (getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class)) {
 					case CONSTRUCTOR -> {
-						TreePath treePath = getTreePath((JCDiagnostic)diagnostic);
+						TreePath treePath = getTreePath(diagnostic);
 						while (treePath != null && !(treePath.getLeaf() instanceof JCMethodDecl) && treePath != null) {
 							treePath = treePath.getParentPath();
 						}

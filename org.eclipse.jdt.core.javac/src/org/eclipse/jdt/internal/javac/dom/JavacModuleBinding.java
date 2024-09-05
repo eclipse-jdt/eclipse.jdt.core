@@ -11,10 +11,8 @@
 package org.eclipse.jdt.internal.javac.dom;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.lang.model.element.ModuleElement.DirectiveKind;
 
@@ -35,7 +33,6 @@ import com.sun.tools.javac.code.Directive.UsesDirective;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol.ModuleSymbol;
-import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ModuleType;
 import com.sun.tools.javac.tree.JCTree.JCDirective;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
@@ -227,7 +224,7 @@ public abstract class JavacModuleBinding implements IModuleBinding {
 			JavacTypeBinding tmp = this.resolver.bindings.getTypeBinding(arr[i].getService().type);
 			if(service.getKey().equals(tmp.getKey())) {
 				// we have our match
-				JavacTypeBinding[] ret = arr[i].getImplementations().stream().map(x -> this.resolver.bindings.getTypeBinding((ClassType)x.type)).toArray(JavacTypeBinding[]::new);
+				JavacTypeBinding[] ret = arr[i].getImplementations().stream().map(x -> this.resolver.bindings.getTypeBinding(x.type)).toArray(JavacTypeBinding[]::new);
 				return ret;
 			}
 		}

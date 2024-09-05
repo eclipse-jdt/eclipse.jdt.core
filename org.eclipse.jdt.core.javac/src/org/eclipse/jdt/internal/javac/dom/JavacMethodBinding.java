@@ -38,7 +38,6 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
-import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -245,7 +244,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	private IJavaElement getJavaElementForMethodDeclaration(IType currentType, MethodDeclaration methodDeclaration) {
 		ArrayList<String> typeParamsList = new ArrayList<>();
-		List typeParams = null;
+		List<TypeParameter> typeParams = null;
 		if (methodDeclaration.getAST().apiLevel() > AST.JLS2) {
 			typeParams = methodDeclaration.typeParameters();
 		}
@@ -253,11 +252,11 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			typeParams = new ArrayList<>();
 		}
 		for( int i = 0; i < typeParams.size(); i++ ) {
-			typeParamsList.add(((TypeParameter)typeParams.get(i)).getName().toString());
+			typeParamsList.add(typeParams.get(i).getName().toString());
 		}
 
 		List<SingleVariableDeclaration> p = methodDeclaration.parameters();
-		String[] params = ((List<SingleVariableDeclaration>)p).stream() //
+		String[] params = p.stream() //
 				.map(param -> {
 					String sig = Util.getSignature(param.getType());
 					if (param.getAST().apiLevel() > AST.JLS2 && param.isVarargs()) {
@@ -279,7 +278,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		IMethod[] candidates = Member.findMethods(result, methods);
 		if (candidates == null || candidates.length == 0)
 			return null;
-		return (JavaElement) candidates[0];
+		return candidates[0];
 	}
 
 	private String resolveTypeName(com.sun.tools.javac.code.Type type, boolean binary) {

@@ -68,7 +68,6 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
 import org.eclipse.jdt.internal.core.util.BindingKeyParser;
-import org.eclipse.jdt.internal.javac.JavacConfig;
 import org.eclipse.jdt.internal.javac.JavacProblemConverter;
 import org.eclipse.jdt.internal.javac.JavacUtils;
 import org.eclipse.jdt.internal.javac.UnusedProblemFactory;
@@ -414,7 +413,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			if (!unit.types().isEmpty()) {
 				List<AbstractTypeDeclaration> types = unit.types();
 				for( int i = 0; i < types.size(); i++ ) {
-					ITypeBinding tb = ((AbstractTypeDeclaration) types.get(i)).resolveBinding();
+					ITypeBinding tb = types.get(i).resolveBinding();
 					if (tb != null) {
 						bindingMap.put(tb.getKey(), tb);
 					}

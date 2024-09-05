@@ -179,7 +179,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return null;
 		}
 		if (this.isArray()) {
-			return (IType) this.getElementType().getJavaElement();
+			return this.getElementType().getJavaElement();
 		}
 		if (this.typeSymbol instanceof final ClassSymbol classSymbol) {
 			if (isAnonymous()) {

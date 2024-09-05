@@ -68,7 +68,9 @@ import com.sun.tools.javac.tree.JCTree.JCCatch;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCConditional;
+import com.sun.tools.javac.tree.JCTree.JCConstantCaseLabel;
 import com.sun.tools.javac.tree.JCTree.JCContinue;
+import com.sun.tools.javac.tree.JCTree.JCDefaultCaseLabel;
 import com.sun.tools.javac.tree.JCTree.JCDirective;
 import com.sun.tools.javac.tree.JCTree.JCDoWhileLoop;
 import com.sun.tools.javac.tree.JCTree.JCEnhancedForLoop;
@@ -97,8 +99,6 @@ import com.sun.tools.javac.tree.JCTree.JCPackageDecl;
 import com.sun.tools.javac.tree.JCTree.JCParens;
 import com.sun.tools.javac.tree.JCTree.JCPattern;
 import com.sun.tools.javac.tree.JCTree.JCPatternCaseLabel;
-import com.sun.tools.javac.tree.JCTree.JCConstantCaseLabel;
-import com.sun.tools.javac.tree.JCTree.JCDefaultCaseLabel;
 import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCProvides;
 import com.sun.tools.javac.tree.JCTree.JCRecordPattern;
@@ -340,7 +340,7 @@ class JavacConverter {
 		RequiresDirective res = this.ast.newRequiresDirective();
 		res.setName(toName(javac.getModuleName()));
 		int javacStart = javac.getStartPosition();
-		List modifiersToAdd = new ArrayList<>();
+		List<ASTNode> modifiersToAdd = new ArrayList<>();
 		if (javac.isTransitive()) {
 			ModuleModifier trans = this.ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
 			int transStart = this.rawText.substring(javacStart).indexOf(ModuleModifierKeyword.TRANSITIVE_KEYWORD.toString());
@@ -359,7 +359,7 @@ class JavacConverter {
 			}
 			modifiersToAdd.add(stat);
 		}
-		modifiersToAdd.sort((a, b) -> ((ASTNode)a).getStartPosition() - ((ASTNode)b).getStartPosition());
+		modifiersToAdd.sort((a, b) -> a.getStartPosition() - b.getStartPosition());
 		modifiersToAdd.stream().forEach(res.modifiers()::add);
 		commonSettings(res, javac);
 		return res;
@@ -694,7 +694,7 @@ class JavacConverter {
 		List<JCExpression> bounds = typeParameter.getBounds();
 		Iterator<JCExpression> i = bounds.iterator();
 		while(i.hasNext()) {
-			JCTree t = (JCTree)i.next();
+			JCTree t = i.next();
 			Type type = convertToType(t);
 			ret.typeBounds().add(type);
 			end = typeParameter.getEndPosition(this.javacCompilationUnit.endPositions);
@@ -1274,7 +1274,7 @@ class JavacConverter {
 			if (nameExpr instanceof JCFieldAccess access) {
 				// Handle super method calls first
 				boolean superCall1 = access.getExpression() instanceof JCFieldAccess && Objects.equals(Names.instance(this.context)._super, ((JCFieldAccess)access.getExpression()).getIdentifier());
-				boolean superCall2 = access instanceof JCFieldAccess && Objects.equals(Names.instance(this.context)._super.toString(), access.getExpression().toString());
+				boolean superCall2 = Objects.equals(Names.instance(this.context)._super.toString(), access.getExpression().toString());
 				if (superCall1 || superCall2) {
 					JCFieldAccess fa = superCall1 ? ((JCFieldAccess)access.getExpression()) : access;
 					SuperMethodInvocation res2 = this.ast.newSuperMethodInvocation();
@@ -1305,7 +1305,7 @@ class JavacConverter {
 				res.setName(name);
 			} else if (nameExpr instanceof JCFieldAccess access) {
 				boolean superCall1 = access.getExpression() instanceof JCFieldAccess && Objects.equals(Names.instance(this.context)._super, ((JCFieldAccess)access.getExpression()).getIdentifier());
-				boolean superCall2 = access instanceof JCFieldAccess && Objects.equals(Names.instance(this.context)._super.toString(), access.getExpression().toString());
+				boolean superCall2 = Objects.equals(Names.instance(this.context)._super.toString(), access.getExpression().toString());
 				if (superCall1 || superCall2) {
 					JCFieldAccess fa = superCall1 ? ((JCFieldAccess)access.getExpression()) : access;
 					SuperMethodInvocation res2 = this.ast.newSuperMethodInvocation();
@@ -2285,7 +2285,7 @@ class JavacConverter {
 				res.setBody(stmt);
 			var initializerIt = jcForLoop.getInitializer().iterator();
 			while(initializerIt.hasNext()) {
-				Expression expr = convertStatementToExpression((JCStatement)initializerIt.next(), res);
+				Expression expr = convertStatementToExpression(initializerIt.next(), res);
 				if( expr != null )
 					res.initializers().add(expr);
 			}
@@ -2295,9 +2295,9 @@ class JavacConverter {
 					res.setExpression(expr);
 			}
 
-			Iterator updateIt = jcForLoop.getUpdate().iterator();
+			Iterator<JCExpressionStatement> updateIt = jcForLoop.getUpdate().iterator();
 			while(updateIt.hasNext()) {
-				Expression expr = convertStatementToExpression((JCStatement)updateIt.next(), res);
+				Expression expr = convertStatementToExpression(updateIt.next(), res);
 				if( expr != null )
 					res.updaters().add(expr);
 			}
@@ -2579,8 +2579,7 @@ class JavacConverter {
 		Block res = this.ast.newBlock();
 		commonSettings(res, javac);
 		if (javac.getStatements() != null) {
-			for( Iterator i = javac.getStatements().iterator(); i.hasNext();) {
-				JCStatement next = (JCStatement)i.next();
+			for (JCStatement next : javac.getStatements()) {
 				Statement s = convertStatement(next, res);
 				if( s != null ) {
 					res.statements().add(s);
