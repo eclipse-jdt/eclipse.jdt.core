@@ -18,7 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -91,6 +90,7 @@ import com.sun.tools.javac.tree.JCTree.JCTypeCast;
 import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 
 /**
@@ -409,7 +409,7 @@ public class JavacBindingResolver extends BindingResolver {
 			return;
 		}
 		synchronized (this.javac) { // prevents from multiple `analyze` for the same task
-			boolean alreadyAnalyzed = this.converter.domToJavac.values().stream().map(JavacBindingResolver::symbol).anyMatch(Optional::isPresent);
+			boolean alreadyAnalyzed = this.converter.domToJavac.values().stream().map(TreeInfo::symbolFor).anyMatch(Objects::nonNull);
 			if (!alreadyAnalyzed) {
 				// symbols not already present: analyze
 				try {
@@ -431,7 +431,10 @@ public class JavacBindingResolver extends BindingResolver {
 						jdt instanceof AbstractTypeDeclaration ||
 						jdt instanceof AnonymousClassDeclaration ||
 						jdt instanceof TypeParameter) {
-						symbol(javac).ifPresent(symbol -> wipSymbolToDeclaration.put(symbol, jdt));
+						var symbol = TreeInfo.symbolFor(javac);
+						if (symbol != null) {
+							wipSymbolToDeclaration.put(symbol, jdt);
+						}
 					}
 				});
 				// prefill the binding so that they're already searchable by key
@@ -483,41 +486,6 @@ public class JavacBindingResolver extends BindingResolver {
 			return this.symbolToDeclaration.get(symbol);
 		}
 		return null;
-	}
-
-	public static Optional<Symbol> symbol(JCTree value) {
-		if (value instanceof JCClassDecl jcClassDecl) {
-			return Optional.ofNullable(jcClassDecl.sym);
-		}
-		if (value instanceof JCFieldAccess jcFieldAccess) {
-			return Optional.ofNullable(jcFieldAccess.sym);
-		}
-		if (value instanceof JCTree.JCVariableDecl jcVariableDecl) {
-			return Optional.ofNullable(jcVariableDecl.sym);
-		}
-		if (value instanceof JCTree.JCMethodDecl jcMethodDecl) {
-			return Optional.ofNullable(jcMethodDecl.sym);
-		}
-		if (value instanceof JCTree.JCTypeParameter jcTypeParam && jcTypeParam.type != null) {
-			return Optional.ofNullable(jcTypeParam.type.tsym);
-		}
-		if (value instanceof JCIdent ident) {
-			return Optional.ofNullable(ident.sym);
-		}
-		if (value instanceof JCFieldAccess fieldAccess) {
-			return Optional.ofNullable(fieldAccess.sym);
-		}
-		if (value instanceof JCMethodInvocation method) {
-			return symbol(method.getMethodSelect());
-		}
-		if (value instanceof JCNewClass jcNewClass) {
-			return Optional.ofNullable(jcNewClass.constructor);
-		}
-		if (value instanceof JCMemberReference jcMemberReference) {
-			return Optional.ofNullable(jcMemberReference.sym);
-		}
-		// TODO fields, methods, variables...
-		return Optional.empty();
 	}
 
 	@Override
@@ -1620,10 +1588,6 @@ public class JavacBindingResolver extends BindingResolver {
 		if (jcTree instanceof JCLiteral literal) {
 			return literal.getValue();
 		}
-		return symbol(jcTree)
-			.filter(VarSymbol.class::isInstance)
-			.map(VarSymbol.class::cast)
-			.map(VarSymbol::getConstValue)
-			.orElse(null);
+		return TreeInfo.symbolFor(jcTree) instanceof VarSymbol varSymbol ? varSymbol.getConstantValue() : null;
 	}
 }

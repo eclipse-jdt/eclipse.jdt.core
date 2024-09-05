@@ -73,6 +73,7 @@ import com.sun.tools.javac.tree.JCTree.JCNewClass;
 import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCReturn;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.DiagnosticSource;
 import com.sun.tools.javac.util.JCDiagnostic;
@@ -417,22 +418,12 @@ public class JavacProblemConverter {
 		if (findSymbol(diagnostic) instanceof ClassSymbol classSymbol) {
 			JCCompilationUnit unit = this.units.get(classSymbol.sourcefile);
 			if (unit != null) {
-				var res = unit.accept(new TreeScanner<JCClassDecl, ClassSymbol>() {
-					@Override
-					public JCClassDecl reduce(JCClassDecl r1, JCClassDecl r2) {
-						return r1 != null ? r1 : r2;
-					}
-					@Override
-					public JCClassDecl visitClass(ClassTree node, ClassSymbol p) {
-						return node instanceof JCClassDecl decl && decl.sym == classSymbol ?
-							decl : null;
-					}
-				}, classSymbol);
-				if (res != null) {
+				var declaration = TreeInfo.declarationFor(classSymbol, unit);
+				if (declaration instanceof JCClassDecl classDeclaration) {
 					// next should use the name position
-					int startPosition = res.getPreferredPosition();
+					int startPosition = classDeclaration.getPreferredPosition();
 					if (startPosition != Position.NOPOS) {
-						return new org.eclipse.jface.text.Position(startPosition, res.getSimpleName().length());
+						return new org.eclipse.jface.text.Position(startPosition, classDeclaration.getSimpleName().length());
 					}
 				}
 			}
