@@ -128,6 +128,7 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JCDiagnostic;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Names;
+import com.sun.tools.javac.util.Position;
 import com.sun.tools.javac.util.Position.LineMap;
 
 /**
@@ -526,7 +527,9 @@ class JavacConverter {
 				decl.setInterface(true);
 				yield decl;
 			}
-			case CLASS -> this.ast.newTypeDeclaration();
+			case CLASS -> javacClassDecl.getModifiers() != null && (javacClassDecl.getModifiers().flags & Flags.IMPLICIT_CLASS) != 0  ?
+					new ImplicitTypeDeclaration(this.ast) :
+					this.ast.newTypeDeclaration();
 			default -> throw new IllegalStateException();
 		};
 		return convertClassDecl(javacClassDecl, parent, res);
@@ -535,7 +538,7 @@ class JavacConverter {
 	private AbstractTypeDeclaration convertClassDecl(JCClassDecl javacClassDecl, ASTNode parent, AbstractTypeDeclaration res) {
 		commonSettings(res, javacClassDecl);
 		SimpleName simpName = (SimpleName)convertName(javacClassDecl.getSimpleName());
-		if( simpName != null ) {
+		if(!(res instanceof ImplicitTypeDeclaration) && simpName != null) {
 			res.setName(simpName);
 			int searchNameFrom = javacClassDecl.getPreferredPosition();
 			if (javacClassDecl.getModifiers() != null) {
@@ -688,6 +691,11 @@ class JavacConverter {
 					}
 				}
 			}
+		} else if (res instanceof ImplicitTypeDeclaration) {
+			javacClassDecl.getMembers().stream()
+				.map(member -> convertBodyDeclaration(member, res))
+				.filter(Objects::nonNull)
+				.forEach(res.bodyDeclarations()::add);
 		}
 		return res;
 	}
