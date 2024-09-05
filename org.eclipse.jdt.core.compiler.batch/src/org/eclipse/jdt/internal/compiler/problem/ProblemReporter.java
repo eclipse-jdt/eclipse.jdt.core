@@ -1676,6 +1676,14 @@ public void caseConstantIncompatible(TypeBinding resolvedType, TypeBinding switc
 			expression.sourceStart,
 			expression.sourceEnd);
 }
+public void caseDefaultPlusTrueAndFalse(ASTNode location) {
+	this.handle(
+			IProblem.DefaultTrueAndFalseCases,
+			NoArgument,
+			NoArgument,
+			location.sourceStart,
+			location.sourceEnd);
+}
 public void classExtendFinalClass(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
 	String name = new String(type.sourceName());
 	String superTypeFullName = new String(superTypeBinding.readableName());

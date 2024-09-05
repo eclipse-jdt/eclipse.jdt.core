@@ -1907,7 +1907,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			},
 			"10");
 	}
-	public void testBooleanSwitchExhaustive_NOK() {
+	public void testBooleanSwitchExhaustive_NOK_1() {
 		runNegativeTest(new String[] {
 				"X.java",
 				"""
@@ -1926,6 +1926,64 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				return switch (b) {
 				               ^
 			A switch expression should have a default case
+			----------
+			""");
+	}
+	public void testBooleanSwitchExhaustive_NOK_2() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static int m1(boolean b) {
+						return switch (b) {
+							case true -> 1;
+							case false -> 2;
+							default -> 3;
+						};
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 3)
+				return switch (b) {
+						case true -> 1;
+						case false -> 2;
+						default -> 3;
+					};
+				       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Switch cannot have both boolean values and a default label
+			----------
+			""");
+	}
+	public void testBooleanSwitchExhaustive_NOK_3() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					public void foo(Boolean b) {
+						final boolean TRUE = true;
+						final boolean FALSE = false;
+						switch (b) {
+							case TRUE -> { break;}
+							case FALSE -> { break;}
+							default -> { break;}
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 5)
+				switch (b) {
+						case TRUE -> { break;}
+						case FALSE -> { break;}
+						default -> { break;}
+					}
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Switch cannot have both boolean values and a default label
 			----------
 			""");
 	}
