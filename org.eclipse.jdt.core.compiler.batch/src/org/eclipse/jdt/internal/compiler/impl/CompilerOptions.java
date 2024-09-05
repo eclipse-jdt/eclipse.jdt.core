@@ -430,18 +430,8 @@ public class CompilerOptions {
 	public boolean generateGenericSignatureForLambdaExpressions;
 	/** Compliance level for the compiler, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_4} */
 	public long complianceLevel;
-	/** Original compliance level for the compiler, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_4},
-	 *  Usually same as the field complianceLevel, though the latter could deviate to create temporary sandbox
-	 *  modes during reconcile operations. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=323633
-	 */
-	public long originalComplianceLevel;
 	/** Java source level, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_4} */
 	public long sourceLevel;
-	/** Original Java source level, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_4}
-	 *  Usually same as the field sourceLevel, though the latter could deviate to create temporary sandbox
-	 *  modes during reconcile operations. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=323633
-	 * */
-	public long originalSourceLevel;
 	/** VM target level, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_4} */
 	public long targetJDK;
 	/** Source encoding format */
@@ -1575,8 +1565,8 @@ public class CompilerOptions {
 
 		// by default be compliant with first supported version
 		final long firstSupportedJdkLevel = getFirstSupportedJdkLevel();
-		this.complianceLevel = this.originalComplianceLevel = firstSupportedJdkLevel;
-		this.sourceLevel = this.originalSourceLevel = firstSupportedJdkLevel;
+		this.complianceLevel = firstSupportedJdkLevel;
+		this.sourceLevel = firstSupportedJdkLevel;
 		this.targetJDK = firstSupportedJdkLevel;
 
 		this.defaultEncoding = null; // will use the platform default encoding
@@ -1772,11 +1762,11 @@ public class CompilerOptions {
 		}
 		if ((optionValue = optionsMap.get(OPTION_Compliance)) != null) {
 			long level = versionToJdkLevel(optionValue);
-			if (level != 0) this.complianceLevel = this.originalComplianceLevel = level;
+			if (level != 0) this.complianceLevel = level;
 		}
 		if ((optionValue = optionsMap.get(OPTION_Source)) != null) {
 			long level = versionToJdkLevel(optionValue);
-			if (level != 0) this.sourceLevel = this.originalSourceLevel = level;
+			if (level != 0) this.sourceLevel = level;
 		}
 		if ((optionValue = optionsMap.get(OPTION_TargetPlatform)) != null) {
 			long level = versionToJdkLevel(optionValue);

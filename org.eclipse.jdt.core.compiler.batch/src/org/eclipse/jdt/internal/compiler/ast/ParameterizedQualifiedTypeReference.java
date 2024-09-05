@@ -27,7 +27,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -317,14 +316,8 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 
 			    TypeVariableBinding[] typeVariables = currentOriginal.typeVariables();
 				if (typeVariables == Binding.NO_TYPE_VARIABLES) { // check generic
-					if (scope.compilerOptions().originalSourceLevel >= ClassFileConstants.JDK1_5) { // below 1.5, already reported as syntax error
-						scope.problemReporter().nonGenericTypeCannotBeParameterized(i, this, currentType, argTypes);
-						return null;
-					}
-					this.resolvedType =  (qualifyingType != null && qualifyingType.isParameterizedType())
-						? scope.environment().createParameterizedType(currentOriginal, null, qualifyingType)
-						: currentType;
-					return this.resolvedType;
+					scope.problemReporter().nonGenericTypeCannotBeParameterized(i, this, currentType, argTypes);
+					return null;
 				} else if (argLength != typeVariables.length) {
 					if (!isDiamond) { // check arity
 						scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes, i);
