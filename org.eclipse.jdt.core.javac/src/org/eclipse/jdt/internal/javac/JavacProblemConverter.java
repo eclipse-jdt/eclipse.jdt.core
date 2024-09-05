@@ -1001,6 +1001,7 @@ public class JavacProblemConverter {
 			case "compiler.err.encl.class.required" -> IProblem.MissingEnclosingInstanceForConstructorCall;
 			case "compiler.err.operator.cant.be.applied", "compiler.err.operator.cant.be.applied.1" -> IProblem.InvalidOperator;
 			case "compiler.warn.try.resource.not.referenced" -> IProblem.LocalVariableIsNeverUsed; // not in ECJ
+			case "compiler.warn.try.explicit.close.call" -> IProblem.ExplicitlyClosedAutoCloseable;
 			case "compiler.err.types.incompatible" -> IProblem.DuplicateInheritedDefaultMethods;
 			case "compiler.err.incompatible.thrown.types.in.mref" -> IProblem.UnhandledException;
 			case "compiler.err.already.defined.single.import" -> IProblem.ConflictingImport;
