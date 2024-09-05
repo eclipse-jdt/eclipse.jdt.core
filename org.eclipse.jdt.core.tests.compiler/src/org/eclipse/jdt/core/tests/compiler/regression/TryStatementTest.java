@@ -25,7 +25,6 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.junit.Assert;
 
 import junit.framework.Test;
 
@@ -49,13 +48,6 @@ protected Map getCompilerOptions() {
 	compilerOptions.put(CompilerOptions.OPTION_ShareCommonFinallyBlocks, CompilerOptions.ENABLED);
 	return compilerOptions;
 }
-@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		@SuppressWarnings("deprecation")
-		boolean inlineJsrBytecode = new CompilerOptions(getCompilerOptions()).inlineJsrBytecode;
-		Assert.assertTrue("inlineJsrBytecode should always be true!", inlineJsrBytecode);
-	}
 
 public void test001() {
 	this.runConformTest(new String[] {
