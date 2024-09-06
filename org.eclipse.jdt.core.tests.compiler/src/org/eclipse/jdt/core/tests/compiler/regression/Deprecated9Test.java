@@ -969,38 +969,38 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 				compliance.equals(CompilerOptions.VERSION_11) ||
 				compliance.equals(CompilerOptions.VERSION_12)) {
 			runNegativeTest(
-					new String[] {
-							"p1/C1.java",
-							"package p1;\n" +
-									"\n" +
-									"import pdep.Dep1;\n" +
-									"\n" +
-									"public class C1 {\n" +
-									"	Dep1 f;\n" +
-									"}\n",
-									"pdep/Dep1.java",
-									"package pdep;\n" +
-											"\n" +
-											"import pmissing.CMissing;\n" +
-											"\n" +
-											"@Deprecated(since=\"13\")\n" +
-											"@CMissing\n" +
-											"public class Dep1 {\n" +
-											"\n" +
-											"}\n"
-					},
-					"----------\n" +
-							"----------\n" +
-							"1. ERROR in pdep\\Dep1.java (at line 3)\n" +
-							"	import pmissing.CMissing;\n" +
-							"	       ^^^^^^^^\n" +
-							"The import pmissing cannot be resolved\n" +
-							"----------\n" +
-							"2. ERROR in pdep\\Dep1.java (at line 6)\n" +
-							"	@CMissing\n" +
-							"	 ^^^^^^^^\n" +
-							"CMissing cannot be resolved to a type\n" +
-					"----------\n");
+				new String[] {
+					"p1/C1.java",
+					"package p1;\n" +
+					"\n" +
+					"import pdep.Dep1;\n" +
+					"\n" +
+					"public class C1 {\n" +
+					"	Dep1 f;\n" +
+					"}\n",
+					"pdep/Dep1.java",
+					"package pdep;\n" +
+					"\n" +
+					"import pmissing.CMissing;\n" +
+					"\n" +
+					"@Deprecated(since=\"13\")\n" +
+					"@CMissing\n" +
+					"public class Dep1 {\n" +
+					"\n" +
+					"}\n"
+				},
+				"----------\n" +
+				"----------\n" +
+				"1. ERROR in pdep\\Dep1.java (at line 3)\n" +
+				"	import pmissing.CMissing;\n" +
+				"	       ^^^^^^^^\n" +
+				"The import pmissing cannot be resolved\n" +
+				"----------\n" +
+				"2. ERROR in pdep\\Dep1.java (at line 6)\n" +
+				"	@CMissing\n" +
+				"	 ^^^^^^^^\n" +
+				"CMissing cannot be resolved to a type\n" +
+				"----------\n");
 		}
 	}
 	public void testBug542795() throws Exception {
