@@ -332,7 +332,7 @@ class JavadocConverter {
 			link.label.stream().flatMap(this::convertElement).forEach(res.fragments()::add);
 		} else if (javac instanceof DCValue dcv) {
 			res.setTagName(TagElement.TAG_VALUE);
-			res.fragments().addAll(convertElement(dcv.format).toList());
+			res.fragments().addAll(convertElement(dcv.ref).toList());
 		} else if (javac instanceof DCInheritDoc inheritDoc) {
 			res.setTagName(TagElement.TAG_INHERITDOC);
 		} else if (javac instanceof DCSnippet snippet) {
