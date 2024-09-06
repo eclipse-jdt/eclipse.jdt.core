@@ -6802,7 +6802,30 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
  			    """
 			},
 			"true");
+	}
+   public void testGuardedPattern_001() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X  {
+				    public static int foo(Integer myInt) {
+				        return switch (myInt) {
+				            case int i when i > 10 -> i;
+				            default -> 0;
+				        };
+				    }
+
+				    public static void main(String argv[]) {
+				    	Integer i = 100;
+				    	System.out.println(X.foo(i) == i);
+				    }
+				}
+				"""
+			},
+			"true");
 	}	// test from spec
+
+   // test from spec
 	public void _testSpec001() {
 		runConformTest(new String[] {
 			"X.java",

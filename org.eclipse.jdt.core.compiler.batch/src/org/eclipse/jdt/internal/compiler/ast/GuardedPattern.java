@@ -54,6 +54,7 @@ public class GuardedPattern extends Pattern {
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel) {
 		BranchLabel guardCheckLabel = new BranchLabel(codeStream);
+		this.primaryPattern.setOuterExpressionType(this.outerExpressionType);
 		this.primaryPattern.generateCode(currentScope, codeStream, guardCheckLabel, matchFailLabel);
 		guardCheckLabel.place();
 		this.condition.generateOptimizedBoolean(currentScope, codeStream, null, matchFailLabel, true);
@@ -100,6 +101,7 @@ public class GuardedPattern extends Pattern {
 		if (this.resolvedType != null || this.primaryPattern == null)
 			return this.resolvedType;
 		this.resolvedType = this.primaryPattern.resolveType(scope);
+
 		try {
 			scope.resolvingGuardExpression = true; // as guards cannot nest in the same scope, no save & restore called for
 			this.condition.resolveTypeExpectingWithBindings(this.primaryPattern.bindingsWhenTrue(), scope, TypeBinding.BOOLEAN);
