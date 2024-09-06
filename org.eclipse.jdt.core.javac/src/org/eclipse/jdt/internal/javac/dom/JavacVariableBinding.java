@@ -108,6 +108,11 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 		if (this.resolver.javaProject == null) {
 			return null;
 		}
+		if (this.variableSymbol.owner instanceof TypeSymbol parentType // field
+				&& parentType.type != null
+				&& this.resolver.bindings.getTypeBinding(parentType.type).getJavaElement() instanceof IType type) {
+			return type.getField(this.variableSymbol.name.toString());
+		}
 		IMethodBinding methodBinding = getDeclaringMethod();
 		if (methodBinding != null && methodBinding.getJavaElement() instanceof IMethod method) {
 			if (isParameter()) {
@@ -140,11 +145,6 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 					return toLocalVariable((VariableDeclarationFragment)expression.fragments().get(0), (JavaElement)method);
 				}
 			}
-		}
-		if (this.variableSymbol.owner instanceof TypeSymbol parentType // field
-			&& parentType.type != null
-			&& this.resolver.bindings.getTypeBinding(parentType.type).getJavaElement() instanceof IType type) {
-			return type.getField(this.variableSymbol.name.toString());
 		}
 		return null;
 	}
