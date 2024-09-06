@@ -338,7 +338,7 @@ class JavadocConverter {
 		} else if (javac instanceof DCSnippet snippet) {
 			res.setTagName(TagElement.TAG_SNIPPET);
 			res.setProperty(TagProperty.TAG_PROPERTY_SNIPPET_IS_VALID, true);
-			res.fragments().addAll(convertElement(snippet.body).toList());
+			res.fragments().addAll(splitLines(snippet.body, true).map(this::toTextElementNotStripping).toList());
 		} else if (javac instanceof DCUnknownInlineTag unknown) {
 			res.fragments().add(toDefaultTextElement(unknown));
 		} else {
@@ -404,6 +404,12 @@ class JavadocConverter {
 		res.setText(strippedLeading);
 		return res;
 	}
+	private TextElement toTextElementNotStripping(Region line) {
+		TextElement res = this.ast.newTextElement();
+		res.setSourceRange(line.startOffset, line.length);
+		res.setText(this.javacConverter.rawText.substring(line.startOffset, line.startOffset + line.length));
+		return res;
+	}
 	
 	private TextElement toTextElementPreserveWhitespace(Region line) {
 		TextElement res = this.ast.newTextElement();
@@ -414,21 +420,28 @@ class JavadocConverter {
 	}
 
 
-	private Stream<Region> splitLines(DCText text) {
-		return splitLines(text.getBody(), text.getStartPosition(), text.getEndPosition());
+	private Stream<Region> splitLines(DCText text, boolean keepWhitespaces) {
+		return splitLines(text.getBody(), text.getStartPosition(), text.getEndPosition(), keepWhitespaces);
 	}
 	
-	private Stream<Region> splitLines(String body, int startPos, int endPos) {
+	private Stream<Region> splitLines(String body, int startPos, int endPos, boolean keepWhitespaces) {
 		String[] bodySplit = body.split("\n");
 		ArrayList<Region> regions = new ArrayList<>();
 		int workingIndexWithinComment = startPos;
 		for( int i = 0; i < bodySplit.length; i++ ) {
 			int lineStart = this.docComment.getSourcePosition(workingIndexWithinComment);
 			int lineEnd = this.docComment.getSourcePosition(workingIndexWithinComment + bodySplit[i].length());
-			String tmp = this.javacConverter.rawText.substring(lineStart, lineEnd);
-			int leadingWhite = tmp.length() - tmp.stripLeading().length();
-			Region r = new Region(lineStart + leadingWhite, lineEnd - lineStart - leadingWhite);
-			regions.add(r);
+			if (!keepWhitespaces) {
+				String tmp = this.javacConverter.rawText.substring(lineStart, lineEnd);
+				int leadingWhite = tmp.length() - tmp.stripLeading().length();
+				Region r = new Region(lineStart + leadingWhite, lineEnd - lineStart - leadingWhite);
+				regions.add(r);
+			} else {
+				if (lineEnd < this.javacConverter.rawText.length() && this.javacConverter.rawText.charAt(lineEnd) == '\n') {
+					lineEnd++;
+				}
+				regions.add(new Region(lineStart, lineEnd - lineStart));
+			}
 			workingIndexWithinComment += bodySplit[i].length() + 1;
 		}
 		return regions.stream();
@@ -549,7 +562,7 @@ class JavadocConverter {
 	}
 	private Stream<? extends IDocElement> convertElement(DCTree javac) {
 		if (javac instanceof DCText text) {
-			return splitLines(text).map(this::toTextElement);
+			return splitLines(text, false).map(this::toTextElement);
 		} else if (javac instanceof DCIdentifier identifier) {
 			Name res = this.ast.newName(identifier.getName().toString());
 			commonSettings(res, javac);
@@ -697,7 +710,7 @@ class JavadocConverter {
 			String tagName = body.split("\\s+")[0];
 			res.setTagName(tagName);
 			int newStart = erroneous.getStartPosition() + tagName.length();
-			List<TextElement> l = splitLines(body.substring(tagName.length()), newStart, endInd).map(x -> toTextElement(x)).toList();
+			List<TextElement> l = splitLines(body.substring(tagName.length()), newStart, endInd, false).map(x -> toTextElement(x)).toList();
 			res.fragments.addAll(l);
 			TextElement lastFragment = l.size() == 0 ? null : l.get(l.size() - 1);
 			int newEnd = lastFragment == null ? tagName.length() : (lastFragment.getStartPosition() + lastFragment.getLength());
