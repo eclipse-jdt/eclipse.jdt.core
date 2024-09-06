@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.lang.model.element.ElementKind;
 import javax.tools.JavaFileObject;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -33,8 +34,6 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.Tree;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCImport;
@@ -169,22 +168,20 @@ public class UnusedProblemFactory {
 				int line = (int) unit.getLineMap().getLineNumber(pos);
 				int column = (int) unit.getLineMap().getColumnNumber(pos);
 				int problemId = IProblem.LocalVariableIsNeverUsed;
-				String[] arguments = null;
 				String name = variableDecl.name.toString();
+				String[] arguments = new String[] { name };
 				VarSymbol varSymbol = variableDecl.sym;
-				if (varSymbol.owner instanceof ClassSymbol) {
+				ElementKind varKind = varSymbol == null ? null : varSymbol.getKind();
+				if (varKind == ElementKind.FIELD) {
 					problemId = IProblem.UnusedPrivateField;
 					String typeName = varSymbol.owner.name.toString();
 					arguments = new String[] {
 						typeName, name
 					};
-				} else if (varSymbol.owner instanceof MethodSymbol methodSymbol) {
-					if (methodSymbol.type != null && methodSymbol.params().indexOf(varSymbol) >= 0) {
-						problemId = IProblem.ArgumentIsNeverUsed;
-					} else {
-						problemId = IProblem.LocalVariableIsNeverUsed;
-					}
-					arguments = new String[] { name };
+				} else if (varKind == ElementKind.PARAMETER) {
+					problemId = IProblem.ArgumentIsNeverUsed;
+				} else if (varKind == ElementKind.EXCEPTION_PARAMETER) {
+					problemId = IProblem.ExceptionParameterIsNeverUsed;
 				}
 
 				int severity = this.toSeverity(problemId);

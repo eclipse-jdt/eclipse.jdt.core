@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.lang.model.element.ElementKind;
-
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
 import com.sun.source.tree.ClassTree;
@@ -76,7 +74,7 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 
 	@Override
 	public R visitClass(ClassTree node, P p) {
-		if (node instanceof JCClassDecl classDecl && this.isPrivateDeclaration(classDecl)) {
+		if (node instanceof JCClassDecl classDecl && this.isPotentialUnusedDeclaration(classDecl)) {
 			this.privateDecls.add(classDecl);
 		}
 
@@ -119,7 +117,7 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 
 	@Override
 	public R visitMethod(MethodTree node, P p) {
-		boolean isPrivateMethod = this.isPrivateDeclaration(node);
+		boolean isPrivateMethod = this.isPotentialUnusedDeclaration(node);
 		if (isPrivateMethod) {
 			this.privateDecls.add(node);
 		}
@@ -129,7 +127,7 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 
 	@Override
 	public R visitVariable(VariableTree node, P p) {
-		boolean isPrivateVariable = this.isPrivateDeclaration(node);
+		boolean isPrivateVariable = this.isPotentialUnusedDeclaration(node);
 		if (isPrivateVariable) {
 			this.privateDecls.add(node);
 		}
@@ -158,15 +156,13 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 		return super.visitNewClass(node, p);
 	}
 
-	private boolean isPrivateDeclaration(Tree tree) {
+	private boolean isPotentialUnusedDeclaration(Tree tree) {
 		if (tree instanceof JCClassDecl classTree) {
 			return (classTree.getModifiers().flags & Flags.PRIVATE) != 0;
 		} else if (tree instanceof JCMethodDecl methodTree) {
 			if (isConstructor(methodTree)) {
-				if (hasPackageVisibleConstructor(methodTree.sym.owner)) {
-					return (methodTree.getModifiers().flags & Flags.PRIVATE) != 0;
-				}
-				return false;
+				return (methodTree.getModifiers().flags & Flags.PRIVATE) != 0
+						&& hasPackageVisibleConstructor(methodTree.sym.owner);
 			}
 			return (methodTree.getModifiers().flags & Flags.PRIVATE) != 0;
 		} else if (tree instanceof JCVariableDecl variable) {
@@ -174,10 +170,6 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 			if (owner instanceof ClassSymbol) {
 				return !isSerialVersionConstant(variable) && (variable.getModifiers().flags & Flags.PRIVATE) != 0;
 			} else if (owner instanceof MethodSymbol) {
-				if (variable.sym.getKind() == ElementKind.EXCEPTION_PARAMETER) {
-					return false;
-				}
-
 				return true;
 			}
 		}
