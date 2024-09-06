@@ -1019,7 +1019,7 @@ public class JavacProblemConverter {
 			case "compiler.err.error.reading.file" -> IProblem.CannotReadSource;
 			case "compiler.err.dot.class.expected" -> IProblem.TypeRelated; //not in ECJ
 			case "compiler.err.feature.not.supported.in.source" -> IProblem.FeatureNotSupported;
-			case "compiler.err.annotation.type.not.applicable.to.type" -> {
+			case "compiler.err.annotation.type.not.applicable.to.type", "compiler.err.annotation.type.not.applicable" -> {
 				if (diagnostic instanceof JCDiagnostic jcDiagnostic && jcDiagnostic.getDiagnosticPosition() instanceof JCAnnotation jcAnnotation
 						&& jcAnnotation.type.tsym.getAnnotationTypeMetadata().getTarget() == null) {
 					yield IProblem.ExplicitAnnotationTargetRequired;
@@ -1035,6 +1035,15 @@ public class JavacProblemConverter {
 				}
 				yield IProblem.IllegalStaticModifierForMemberType;
 			}
+			case "compiler.err.new.not.allowed.in.annotation" -> IProblem.AnnotationValueMustBeConstant;
+			case "compiler.err.foreach.not.applicable.to.type" -> IProblem.InvalidTypeForCollection;
+			case "compiler.err.this.as.identifier" -> IProblem.Syntax;
+			case "compiler.err.int.number.too.large" -> IProblem.NumericValueOutOfRange;
+			case "compiler.err.type.var.cant.be.deref" -> IProblem.IllegalAccessFromTypeVariable;
+			case "compiler.err.try.with.resources.expr.needs.var" -> IProblem.Syntax;
+			case "compiler.err.catch.without.try" -> IProblem.Syntax;
+			case "compiler.err.not.encl.class" -> IProblem.IllegalEnclosingInstanceSpecification;
+			case "compiler.err.type.found.req" -> IProblem.DisallowedTargetForAnnotation;
 			default -> {
 				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;
