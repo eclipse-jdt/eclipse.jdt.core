@@ -2537,9 +2537,6 @@ void setSourceStart(int sourceStart);
 	/** @since 3.28
 	 * @noreference preview feature error */
 	int EnhancedSwitchMissingDefault = PreviewRelated + 1908;
-	/** @since 3.28
-	 * @noreference preview feature error */
-	int DuplicateTotalPattern = PreviewRelated + 1909;
 
 	 /** @since 3.34
 	 * @noreference preview feature error */

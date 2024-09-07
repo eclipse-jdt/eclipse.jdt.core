@@ -179,7 +179,7 @@ public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpression
 	this.swich = switchStatement;
 	scope.enclosingCase = this; // record entering in a switch case block
 	if (this.constantExpressions == Expression.NO_EXPRESSIONS) {
-		flagDuplicateDefault(scope, switchStatement, this);
+		checkDuplicateDefault(scope, switchStatement, this);
 		return ResolvedCase.UnresolvedCase;
 	}
 
@@ -192,7 +192,7 @@ public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpression
 	for (Expression e : this.constantExpressions) {
 		count++;
 		if (e instanceof FakeDefaultLiteral) {
-			 flagDuplicateDefault(scope, switchStatement, this.constantExpressions.length > 1 ? e : this);
+			 checkDuplicateDefault(scope, switchStatement, this.constantExpressions.length > 1 ? e : this);
 			 if (count != 2 || nullCaseCount < 1) {
 				 scope.problemReporter().patternSwitchCaseDefaultOnlyAsSecond(e);
 			 }
@@ -267,16 +267,20 @@ public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpression
 	return hasResolveErrors ? ResolvedCase.UnresolvedCase : cases.toArray(new ResolvedCase[cases.size()]);
 }
 
-private void flagDuplicateDefault(BlockScope scope, SwitchStatement switchStatement, ASTNode node) {
-	// remember the default case into the associated switch statement
-	if (switchStatement.defaultCase != null)
+/**
+ * Precondition: this is a default case.
+ * Check if (a) another default or (b) a total type pattern has been recorded already
+ */
+private void checkDuplicateDefault(BlockScope scope, SwitchStatement switchStatement, ASTNode node) {
+	if (switchStatement.defaultCase != null) {
 		scope.problemReporter().duplicateDefaultCase(node);
-
-	// on error the last default will be the selected one ...
-	switchStatement.defaultCase = this;
-	if ((switchStatement.switchBits & SwitchStatement.TotalPattern) != 0) {
+	} else if ((switchStatement.switchBits & SwitchStatement.TotalPattern) != 0) {
 		scope.problemReporter().illegalTotalPatternWithDefault(this);
 	}
+
+	// remember the default case into the associated switch statement
+	// on error the last default will be the selected one ...
+	switchStatement.defaultCase = this;
 }
 
 @Override
@@ -394,17 +398,10 @@ private Constant resolveCasePattern(BlockScope scope, TypeBinding caseType, Type
 			}
 		}
 		if (e.coversType(expressionType, scope)) {
-			if ((switchStatement.switchBits & SwitchStatement.TotalPattern) != 0) {
-				scope.problemReporter().duplicateTotalPattern(e);
-				return IntConstant.fromValue(-1);
-			}
 			switchStatement.switchBits |= SwitchStatement.Exhaustive;
-			if (e.isUnconditional(expressionType, scope)) {
-				switchStatement.switchBits |= SwitchStatement.TotalPattern;
-				if (switchStatement.defaultCase != null && !(e instanceof RecordPattern))
-					scope.problemReporter().illegalTotalPatternWithDefault(this);
-			}
 			e.isTotalTypeNode = true;
+			if (e.isUnconditional(expressionType, scope)) // unguarded is implied from 'coversType()' above
+				switchStatement.switchBits |= SwitchStatement.TotalPattern;
 			if (switchStatement.nullCase == null)
 				constant = IntConstant.fromValue(-1);
 		}

@@ -1192,8 +1192,7 @@ public class SwitchStatement extends Expression {
 					ResolvedCase[] constantsList;
 					final Statement statement = this.statements[i];
 					if (statement instanceof CaseStatement caseStmt) {
-						caseNullDefaultFound = caseNullDefaultFound ? caseNullDefaultFound
-								: isCaseStmtNullDefault(caseStmt);
+						caseNullDefaultFound |= isCaseStmtNullDefault(caseStmt);
 						defaultFound |= caseStmt.constantExpressions == Expression.NO_EXPRESSIONS;
 						constantsList = caseStmt.resolveCase(this.scope, expressionType, this);
 						patternVariables = statement.bindingsWhenTrue();

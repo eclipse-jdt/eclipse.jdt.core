@@ -367,12 +367,6 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
 				"				ColoredPoint(Point(int x1, int y1), Color c1)) -> {\n" +
 				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"The switch statement cannot have more than one unconditional pattern\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 7)\n" +
-				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
-				"				ColoredPoint(Point(int x1, int y1), Color c1)) -> {\n" +
-				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
