@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
@@ -59,7 +61,16 @@ import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.util.Convert;
 import com.sun.tools.javac.util.JCDiagnostic;
 
+import jdk.javadoc.internal.doclets.formats.html.taglets.snippet.Attribute;
+import jdk.javadoc.internal.doclets.formats.html.taglets.snippet.MarkupParser;
+
 class JavadocConverter {
+
+	// Both copied from jdk.javadoc.internal.doclets.formats.html.taglets.snippet.Parser
+	private static final Pattern JAVA_COMMENT = Pattern.compile(
+			"^(?<payload>.*)//(?<markup>\\s*@\\s*\\w+.+?)$");
+	private static final Pattern PROPERTIES_COMMENT = Pattern.compile(
+			"^(?<payload>[ \t]*([#!].*)?)[#!](?<markup>\\s*@\\s*\\w+.+?)$");
 
 	private final AST ast;
 	private final JavacConverter javacConverter;
@@ -341,9 +352,13 @@ class JavadocConverter {
 		} else if (javac instanceof DCInheritDoc inheritDoc) {
 			res.setTagName(TagElement.TAG_INHERITDOC);
 		} else if (javac instanceof DCSnippet snippet) {
+			System.err.println(1);
 			res.setTagName(TagElement.TAG_SNIPPET);
 			res.setProperty(TagProperty.TAG_PROPERTY_SNIPPET_IS_VALID, true);
-			res.fragments().addAll(splitLines(snippet.body, true).map(this::toTextElementNotStripping).toList());
+			System.err.println(1);
+			res.fragments().addAll(splitLines(snippet.body, true)
+					.map(this::toSnippetFragment)
+					.toList());
 		} else if (javac instanceof DCUnknownInlineTag unknown) {
 			res.fragments().add(toDefaultTextElement(unknown));
 		} else {
@@ -409,21 +424,13 @@ class JavadocConverter {
 		res.setText(strippedLeading);
 		return res;
 	}
-	private TextElement toTextElementNotStripping(Region line) {
-		TextElement res = this.ast.newTextElement();
-		res.setSourceRange(line.startOffset, line.length);
-		res.setText(this.javacConverter.rawText.substring(line.startOffset, line.startOffset + line.length));
-		return res;
-	}
 	
 	private TextElement toTextElementPreserveWhitespace(Region line) {
-		TextElement res = this.ast.newTextElement();
-		String suggestedText = this.javacConverter.rawText.substring(line.startOffset, line.startOffset + line.length);
+		TextElement res = this.ast.newTextElement();	
 		res.setSourceRange(line.startOffset, line.length);
-		res.setText(suggestedText);
+		res.setText(line.getContents());
 		return res;
 	}
-
 
 	private Stream<Region> splitLines(DCText text, boolean keepWhitespaces) {
 		return splitLines(text.getBody(), text.getStartPosition(), text.getEndPosition(), keepWhitespaces);
@@ -442,9 +449,9 @@ class JavadocConverter {
 				Region r = new Region(lineStart + leadingWhite, lineEnd - lineStart - leadingWhite);
 				regions.add(r);
 			} else {
-				if (lineEnd < this.javacConverter.rawText.length() && this.javacConverter.rawText.charAt(lineEnd) == '\n') {
-					lineEnd++;
-				}
+//				if (lineEnd < this.javacConverter.rawText.length() && this.javacConverter.rawText.charAt(lineEnd) == '\n') {
+//					lineEnd++;
+//				}
 				regions.add(new Region(lineStart, lineEnd - lineStart));
 			}
 			workingIndexWithinComment += bodySplit[i].length() + 1;
@@ -481,6 +488,65 @@ class JavadocConverter {
 			return regions.stream();
 		}
 		return Stream.empty();
+	}
+
+	private IDocElement /* TextElement or TagElement for highlight/link... */ toSnippetFragment(Region region) {
+		TextElement defaultElement = toTextElementPreserveWhitespace(region);
+		if (!defaultElement.getText().endsWith("\n")) {
+			defaultElement.setText(defaultElement.getText() + '\n');
+		}
+		String line = region.getContents();
+		Matcher markedUpLine = JAVA_COMMENT.matcher(line);
+		if (!markedUpLine.matches()) {
+			return defaultElement;
+		}
+		int markupStart = markedUpLine.start("markup");
+		String markup = line.substring(markupStart);
+		MarkupParser markupParser = new MarkupParser(null);
+		try {
+			List<?> tags = markupParser.parse(markup);
+			if (tags.isEmpty()) {
+				return defaultElement;
+			}
+			TextElement initialTextElement = this.ast.newTextElement();
+			initialTextElement.setSourceRange(region.startOffset, markupStart - 2 /* 2 is length of `//` */);
+			initialTextElement.setText(line.substring(0, markupStart - 2) + '\n');
+			IDocElement currentElement = initialTextElement;
+			Class<? extends Object> tagClass = tags.getFirst().getClass();
+			Field nameField = tagClass.getDeclaredField("name"); //$NON-NLS-1$
+			nameField.setAccessible(true);
+			Field attributesFields = tagClass.getDeclaredField("attributes"); //$NON-NLS-1$
+			attributesFields.setAccessible(true);
+			for (Object tag : tags) {
+				String name = (String)nameField.get(tag);
+				List<Attribute> attributes = (List<Attribute>)attributesFields.get(tag);
+				TagElement newElement = this.ast.newTagElement();
+				newElement.setSourceRange(region.startOffset, region.length);
+				newElement.setTagName('@' + name);
+				newElement.setProperty(TagProperty.TAG_PROPERTY_SNIPPET_INLINE_TAG_COUNT, 1); // TODO what?
+				attributes.stream().map(this::toTagProperty).forEach(newElement.tagProperties()::add);
+				newElement.fragments().add(currentElement);
+				currentElement = newElement;
+			}
+			return currentElement;
+		} catch (Exception ex) {
+			ILog.get().error("While trying to build snippet line " + line + ": " + ex.getMessage(), ex);
+		}
+		return defaultElement;
+	}
+	private TagProperty toTagProperty(Attribute snippetMarkupAttribute) {
+		TagProperty res = this.ast.newTagProperty();
+		try {
+			Field name = Attribute.class.getDeclaredField("name"); //$NON-NLS-1$
+			name.setAccessible(true);
+			res.setName((String)name.get(snippetMarkupAttribute));
+			Field value = snippetMarkupAttribute.getClass().getDeclaredField("value"); //$NON-NLS-1$
+			value.setAccessible(true);
+			res.setStringValue((String)value.get(snippetMarkupAttribute));
+		} catch (Exception ex) {
+			ILog.get().error(ex.getMessage(), ex);
+		}
+		return res;
 	}
 
 	private Stream<IDocElement> convertElementGroup(DCTree[] javac) {
