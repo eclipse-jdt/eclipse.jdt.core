@@ -3377,6 +3377,8 @@ public class DefaultCodeFormatterOptions {
 		setJavaConventionsSettings();
 		this.tab_char = TAB;
 		this.tab_size = 4;
+		// overwrite, eclipse jdt settings require no space before assignment
+		this.insert_space_before_assignment_operator = false;
 	}
 
 	public void setJavaConventionsSettings() {
