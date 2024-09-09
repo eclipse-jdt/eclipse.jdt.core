@@ -285,7 +285,12 @@ class JavadocConverter {
 			convertElementCombiningNodes(thrown.description.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
 		} else if (javac instanceof DCUses uses) {
 			res.setTagName(TagElement.TAG_USES);
-			res.fragments().addAll(convertElement(uses.serviceType).toList());
+			// According to SemanticTokensHandlerTest.testSemanticTokens_Modules,
+			// we want directly a TextElement rather than a name here
+			//res.fragments().addAll(convertElement(uses.serviceType).toList());
+			TextElement serviceName = this.ast.newTextElement();
+			serviceName.setText(uses.serviceType.getSignature());
+			commonSettings(serviceName, uses.serviceType);
 			convertElementCombiningNodes(uses.description.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
 		} else if (javac instanceof DCUnknownBlockTag unknown) {
 			res.setTagName("@" + unknown.getTagName());
