@@ -31,7 +31,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test267" };
+//		TESTS_NAMES = new String[] { "testIssue2928" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -6782,6 +6782,90 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		         },
 		         "1");
 		 }
+	public void testIssue2928_001() {
+		runConformTest(new String[] {
+		    "X.java",
+		    """
+			public class X {
+			    public static boolean foo(Double d) {
+			    	boolean b;
+			        switch (d) {
+			            case 1d -> b = true;
+			            default -> b = false;
+			        }
+			        return b;
+			    }
+			    public static void main(String[] args) {
+					System.out.println(X.foo(1d));
+				}
+			}
+			"""
+		    },
+		"true");
+	}
+
+	public void testIssue2928_002() {
+		runConformTest(new String[] {
+		    "X.java",
+		    """
+			public class X {
+			    public static boolean foo(double d) {
+			    	boolean b;
+			        switch (d) {
+			            case 1d -> b = true;
+			            default -> b = false;
+			        }
+			        return b;
+			    }
+			    public static void main(String[] args) {
+					System.out.println(X.foo(1d));
+				}
+			}
+			"""
+		    },
+		"true");
+	}
+	public void testIssue2928_003() {
+		runConformTest(new String[] {
+		    "X.java",
+		    """
+			public class X {
+			    public static boolean foo(double d) {
+			    	boolean b;
+			        switch (d) {
+			            case 1d -> b = true;
+			            default -> b = false;
+			        }
+			        return b;
+			    }
+			    public static void main(String[] args) {
+					System.out.println(X.foo(2d));
+				}
+			}
+			"""
+		    },
+		"false");
+	}
+	public void testIssue2928_004() {
+		runConformTest(new String[] {
+		    "X.java",
+		    """
+			public class X {
+			    public static boolean foo(double d) {
+			    	boolean b;
+			        switch (d) {
+			            default -> b = false;
+			        }
+			        return b;
+			    }
+			    public static void main(String[] args) {
+					System.out.println(X.foo(1d));
+				}
+			}
+			"""
+		    },
+		"false");
+	}
    public void testNonPrim001() {
 		runConformTest(new String[] {
 			"X.java",

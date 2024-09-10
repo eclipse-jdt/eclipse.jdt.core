@@ -128,6 +128,7 @@ public class SwitchStatement extends Expression {
 	LocalVariableBinding restartIndexLocal = null;
 
 	/* package */ boolean isNonTraditional = false;
+	/* package */ boolean isPrimitiveSwitch = false;
 	/* package */ List<Pattern> caseLabelElements = new ArrayList<>(0);//TODO: can we remove this?
 	public List<TypeBinding> caseLabelElementTypes = new ArrayList<>(0);
 	int constantIndex = 0;
@@ -1114,7 +1115,6 @@ public class SwitchStatement extends Expression {
 		try {
 			boolean isEnumSwitch = false;
 			boolean isStringSwitch = false;
-			boolean isPrimitiveSwitch = false;
 			TypeBinding expressionType = this.expression.resolveType(upperScope);
 			CompilerOptions compilerOptions = upperScope.compilerOptions();
 			boolean isEnhanced = checkAndSetEnhanced(upperScope, expressionType);
@@ -1126,7 +1126,7 @@ public class SwitchStatement extends Expression {
 						break checkType;
 					} else if (expressionType.isBaseType()) {
 						if (JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(compilerOptions)) {
-							isPrimitiveSwitch = true;
+							this.isPrimitiveSwitch = true;
 						}
 						if (this.expression.isConstantValueOfTypeAssignableToType(expressionType, TypeBinding.INT))
 							break checkType;
@@ -1151,7 +1151,7 @@ public class SwitchStatement extends Expression {
 						break checkType;
 					}
 					if (!JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions) || (expressionType.isBaseType() && expressionType.id != T_null && expressionType.id != T_void)) {
-						if (!isPrimitiveSwitch) { // when isPrimitiveSwitch is set it is approved above
+						if (!this.isPrimitiveSwitch) { // when isPrimitiveSwitch is set it is approved above
 							upperScope.problemReporter().incorrectSwitchType(this.expression, expressionType);
 							expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
 						}
@@ -1489,6 +1489,9 @@ public class SwitchStatement extends Expression {
 		switch (eType.id) {
 			case TypeIds.T_JavaLangLong, TypeIds.T_JavaLangFloat, TypeIds.T_JavaLangDouble:
 				return true;
+			case TypeIds.T_long, TypeIds.T_double, TypeIds.T_float :
+				if (this.isPrimitiveSwitch)
+					return true;
 			// note: if no patterns are present we optimize Boolean to use unboxing rather than indy typeSwitch
 		}
 		return !(eType.isPrimitiveOrBoxedPrimitiveType() || eType.isEnum() || eType.id == TypeIds.T_JavaLangString); // classic selectors
