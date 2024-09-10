@@ -302,6 +302,7 @@ class JavadocConverter {
 			TextElement serviceName = this.ast.newTextElement();
 			serviceName.setText(uses.serviceType.getSignature());
 			commonSettings(serviceName, uses.serviceType);
+			res.fragments().add(serviceName);
 			convertElementCombiningNodes(uses.description.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
 		} else if (javac instanceof DCUnknownBlockTag unknown) {
 			res.setTagName("@" + unknown.getTagName());
@@ -352,10 +353,8 @@ class JavadocConverter {
 		} else if (javac instanceof DCInheritDoc inheritDoc) {
 			res.setTagName(TagElement.TAG_INHERITDOC);
 		} else if (javac instanceof DCSnippet snippet) {
-			System.err.println(1);
 			res.setTagName(TagElement.TAG_SNIPPET);
 			res.setProperty(TagProperty.TAG_PROPERTY_SNIPPET_IS_VALID, true);
-			System.err.println(1);
 			res.fragments().addAll(splitLines(snippet.body, true)
 					.map(this::toSnippetFragment)
 					.toList());
