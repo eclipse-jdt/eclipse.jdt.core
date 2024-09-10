@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.type.TypeKind;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IJavaProject;
@@ -1299,7 +1300,7 @@ public class JavacBindingResolver extends BindingResolver {
 			javacElement = javacMethodInvocation.getMethodSelect();
 		}
 		if (javacElement instanceof JCIdent ident && ident.sym instanceof MethodSymbol methodSymbol) {
-			return this.bindings.getMethodBinding(ident.type != null ? ident.type.asMethodType() : methodSymbol.type.asMethodType(), methodSymbol, null, false);
+			return this.bindings.getMethodBinding(ident.type.getKind() == TypeKind.EXECUTABLE ? ident.type.asMethodType() : methodSymbol.type.asMethodType(), methodSymbol, null, false);
 		}
 		if (javacElement instanceof JCFieldAccess fieldAccess && fieldAccess.sym instanceof MethodSymbol methodSymbol) {
 			return this.bindings.getMethodBinding(fieldAccess.type.asMethodType(), methodSymbol, null, false);
