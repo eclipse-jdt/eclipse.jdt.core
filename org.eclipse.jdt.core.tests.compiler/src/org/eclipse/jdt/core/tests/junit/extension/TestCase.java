@@ -229,8 +229,11 @@ public class TestCase extends PerformanceTestCase {
 	public static int[] TESTS_NUMBERS = null; // list of test numbers to perform
 	public static int[] TESTS_RANGE = null; // range of test numbers to perform
 
+	public String methodName;
+
 	public TestCase(String name) {
 		setName(name);
+		this.methodName = name;
 	}
 
 public static void assertEquals(String expected, String actual) {
