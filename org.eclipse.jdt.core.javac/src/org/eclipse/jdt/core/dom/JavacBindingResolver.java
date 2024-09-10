@@ -347,7 +347,7 @@ public class JavacBindingResolver extends BindingResolver {
 				}
 				// without the type there is not much we can do; fallthrough to null
 			} else if (owner instanceof TypeSymbol typeSymbol) {
-				return getTypeBinding(typeSymbol.type);
+				return getTypeBinding(isTypeOfType(type) ? type : typeSymbol.type);
 			} else if (owner instanceof final MethodSymbol other) {
 				return getMethodBinding(type instanceof com.sun.tools.javac.code.Type.MethodType methodType ? methodType : owner.type.asMethodType(), other, null, false);
 			} else if (owner instanceof final VarSymbol other) {
@@ -717,7 +717,17 @@ public class JavacBindingResolver extends BindingResolver {
 			javacElement instanceof JCFieldAccess fieldAccess ? fieldAccess.sym :
 				null;
 		if (type instanceof MethodType methodType && sym instanceof MethodSymbol methodSymbol) {
-			return this.bindings.getMethodBinding(methodType, methodSymbol, null, false);
+			com.sun.tools.javac.code.Type parentType = null;
+			if (methodSymbol.owner instanceof ClassSymbol ownerClass && isTypeOfType(ownerClass.type)) {
+				if (ownerClass.type.isParameterized()
+					&& method.getExpression() != null
+					&& resolveExpressionType(method.getExpression()) instanceof JavacTypeBinding exprType) {
+					parentType = exprType.type;
+				} else {
+					parentType = ownerClass.type;
+				}
+			}
+			return this.bindings.getMethodBinding(methodType, methodSymbol, parentType, false);
 		}
 		if (type instanceof ErrorType errorType && errorType.getOriginalType() instanceof MethodType methodType) {
 			if (sym.owner instanceof TypeSymbol typeSymbol) {
@@ -937,11 +947,32 @@ public class JavacBindingResolver extends BindingResolver {
 		if( isPackageName(name)) {
 			return this.bindings.getPackageBinding(name);
 		}
+		ASTNode parent = name.getParent();
+		if (name.getLocationInParent() == QualifiedName.NAME_PROPERTY && parent instanceof QualifiedName qname &&
+			qname.getParent() instanceof SimpleType simpleType && simpleType.getLocationInParent() == ParameterizedType.TYPE_PROPERTY) {
+			var typeBinding = resolveType((ParameterizedType)simpleType.getParent());
+			if (typeBinding != null) {
+				return typeBinding;
+			}
+		}
+		if (name.getLocationInParent() == QualifiedType.NAME_PROPERTY &&
+			parent.getLocationInParent() == QualifiedType.QUALIFIER_PROPERTY) {
+			var typeBinding = resolveType((QualifiedType)parent);
+			return typeBinding.getTypeDeclaration(); // exclude params
+		}
 		if (tree == null && (name.getFlags() & ASTNode.ORIGINAL) != 0) {
-			tree = this.converter.domToJavac.get(name.getParent());
+			tree = this.converter.domToJavac.get(parent);
 			if( tree instanceof JCFieldAccess jcfa) {
 				if( jcfa.selected instanceof JCIdent jcid && jcid.toString().equals(name.toString())) {
 					tree = jcfa.selected;
+				}
+				var grandParent = parent.getParent();
+				if (grandParent instanceof ParameterizedType parameterized) {
+					var parameterizedType = resolveType(parameterized);
+					if (parameterizedType != null) {
+						return parameterizedType;
+					}
+					
 				}
 			}
 		}
@@ -951,40 +982,40 @@ public class JavacBindingResolver extends BindingResolver {
 				return ret;
 			}
 		}
-		if (name.getParent() instanceof Type type
+		if (parent instanceof Type type
 			&& (name.getLocationInParent() == SimpleType.NAME_PROPERTY
 					|| name.getLocationInParent() == QualifiedType.NAME_PROPERTY
 					|| name.getLocationInParent() == NameQualifiedType.NAME_PROPERTY)) { // case of "var"
 			return resolveType(type);
 		}
-		if (name.getParent() instanceof ImportDeclaration importDecl && importDecl.getName() == name) {
+		if (parent instanceof ImportDeclaration importDecl && importDecl.getName() == name) {
 			return resolveImport(importDecl);
 		}
-		if (name.getParent() instanceof QualifiedName parentName && parentName.getName() == name) {
+		if (parent instanceof QualifiedName parentName && parentName.getName() == name) {
 			return resolveNameImpl(parentName);
 		}
-		if( name.getParent() instanceof MethodRef mref && mref.getName() == name) {
+		if( parent instanceof MethodRef mref && mref.getName() == name) {
 			return resolveReference(mref);
 		}
-		if( name.getParent() instanceof MemberRef mref && mref.getName() == name) {
+		if( parent instanceof MemberRef mref && mref.getName() == name) {
 			return resolveReference(mref);
 		}
-		if (name.getParent() instanceof MethodInvocation methodInvocation && methodInvocation.getName() == name) {
+		if (parent instanceof MethodInvocation methodInvocation && methodInvocation.getName() == name) {
 			return resolveMethod(methodInvocation);
 		}
-		if (name.getParent() instanceof MethodDeclaration methodDeclaration && methodDeclaration.getName() == name) {
+		if (parent instanceof MethodDeclaration methodDeclaration && methodDeclaration.getName() == name) {
 			return resolveMethod(methodDeclaration);
 		}
-		if (name.getParent() instanceof ExpressionMethodReference methodRef && methodRef.getName() == name) {
+		if (parent instanceof ExpressionMethodReference methodRef && methodRef.getName() == name) {
 			return resolveMethod(methodRef);
 		}
-		if (name.getParent() instanceof TypeMethodReference methodRef && methodRef.getName() == name) {
+		if (parent instanceof TypeMethodReference methodRef && methodRef.getName() == name) {
 			return resolveMethod(methodRef);
 		}
-		if (name.getParent() instanceof SuperMethodReference methodRef && methodRef.getName() == name) {
+		if (parent instanceof SuperMethodReference methodRef && methodRef.getName() == name) {
 			return resolveMethod(methodRef);
 		}
-		if (name.getParent() instanceof VariableDeclaration decl && decl.getName() == name) {
+		if (parent instanceof VariableDeclaration decl && decl.getName() == name) {
 			return resolveVariable(decl);
 		}
 		return null;
@@ -1234,7 +1265,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		if (this.converter.domToJavac.get(expression) instanceof JCNewClass jcExpr) {
 			if (jcExpr.constructor != null && !jcExpr.constructor.type.isErroneous()) {
-				return this.bindings.getMethodBinding(jcExpr.constructor.type.asMethodType(), (MethodSymbol)jcExpr.constructor, null, false);
+				return this.bindings.getMethodBinding(jcExpr.constructor.type.asMethodType(), (MethodSymbol)jcExpr.constructor, jcExpr.type, false);
 			}
 		}
 		ITypeBinding type = resolveType(expression.getType());

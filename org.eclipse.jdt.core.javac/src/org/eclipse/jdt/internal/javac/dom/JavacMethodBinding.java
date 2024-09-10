@@ -49,6 +49,7 @@ import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.code.Type.ForAll;
 import com.sun.tools.javac.code.Type.JCNoType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.TypeVar;
@@ -61,9 +62,11 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	public final MethodSymbol methodSymbol;
 	final MethodType methodType;
+	// allows to better identify parameterized method
 	final Type parentType;
 	final JavacBindingResolver resolver;
 	final boolean explicitSynthetic;
+	// allows to discriminate generic vs parameterized
 	private final boolean isDeclaration;
 
 	/**
@@ -80,7 +83,8 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	public JavacMethodBinding(MethodType methodType, MethodSymbol methodSymbol, Type parentType, JavacBindingResolver resolver, boolean explicitSynthetic, boolean isDeclaration) {
 		this.methodType = methodType;
 		this.methodSymbol = methodSymbol;
-		this.parentType = parentType;
+		this.parentType = parentType == null && methodSymbol.owner instanceof ClassSymbol classSymbol && JavacBindingResolver.isTypeOfType(classSymbol.type) ?
+				classSymbol.type : parentType;
 		this.isDeclaration = isParameterized(methodSymbol) && isDeclaration;
 		this.explicitSynthetic = explicitSynthetic;
 		this.resolver = resolver;
@@ -103,12 +107,13 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 				&& Objects.equals(this.methodSymbol, other.methodSymbol)
 				&& equals(this.methodType, other.methodType) // workaround non-uniqueness MethodType and missing equals/hashCode (ASTConverter15JLS8Test.test0214)
 				&& Objects.equals(this.explicitSynthetic, other.explicitSynthetic)
+				&& Objects.equals(this.parentType, other.parentType)
 				&& Objects.equals(this.isDeclaration, other.isDeclaration);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.resolver, this.methodSymbol, this.explicitSynthetic, this.isDeclaration) ^ hashCode(this.methodType);
+		return Objects.hash(this.resolver, this.methodSymbol, this.parentType, this.explicitSynthetic, this.isDeclaration) ^ hashCode(this.methodType);
 	}
 
 	private static boolean equals(MethodType second, MethodType first) {
@@ -489,12 +494,22 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public boolean isGenericMethod() {
-		return this.methodType.getTypeArguments().isEmpty() && !this.methodSymbol.getTypeParameters().isEmpty();
+		return (isConstructor() && getDeclaringClass().isGenericType())
+				|| (!this.methodSymbol.getTypeParameters().isEmpty() && isDeclaration)
+				|| (this.methodSymbol.type instanceof ForAll);
 	}
-
 	@Override
 	public boolean isParameterizedMethod() {
-		return this.getTypeArguments().length != 0;
+		return !isGenericMethod() &&
+			((isConstructor() && getDeclaringClass().isParameterizedType()) 
+			|| (!this.methodSymbol.getTypeParameters().isEmpty() && !isDeclaration));
+	}
+	@Override
+	public boolean isRawMethod() {
+		if (isConstructor()) {
+			return getDeclaringClass().isRawType() && this.methodSymbol.getTypeParameters().isEmpty();
+		}
+		return this.methodSymbol.getTypeParameters().isEmpty() && !this.methodSymbol.getTypeParameters().isEmpty();
 	}
 
 	@Override
@@ -555,11 +570,6 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		// i.e. drops the type arguments
 		// i.e. <code>this.<String>getValue(12);</code> will be converted back to <code><T> T getValue(int i) {</code>
 		return this.resolver.bindings.getMethodBinding(methodSymbol.type.asMethodType(), methodSymbol, null, true);
-	}
-
-	@Override
-	public boolean isRawMethod() {
-		return this.methodType.isRaw();
 	}
 
 	@Override

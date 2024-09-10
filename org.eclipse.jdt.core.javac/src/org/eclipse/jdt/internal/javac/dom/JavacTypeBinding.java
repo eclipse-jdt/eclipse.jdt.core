@@ -94,7 +94,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	final JavacBindingResolver resolver;
 	public final TypeSymbol typeSymbol;
 	private final Types types;
-	private final Type type;
+	public final Type type;
 	private final boolean isGeneric; // only relevent for parameterized types
 	private boolean recovered = false;
 
@@ -1032,7 +1032,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isGenericType() {
-		return this.type.isParameterized() && this.isGeneric;
+		return !isRawType() && this.type.isParameterized() && this.isGeneric;
 	}
 
 	@Override
