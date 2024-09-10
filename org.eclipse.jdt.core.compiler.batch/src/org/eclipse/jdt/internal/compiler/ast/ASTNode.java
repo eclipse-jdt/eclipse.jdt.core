@@ -570,21 +570,21 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				return false;
 			}
 		}
-		AnnotationBinding[] annotations= binding.getAnnotations();
+		AnnotationBinding[] annotations = binding.getAnnotations();
 		for (AnnotationBinding annotation : annotations) {
 			if (annotation != null && String.valueOf(annotation.getAnnotationType().readableName()).equals("java.lang.Deprecated")) { //$NON-NLS-1$
-				ElementValuePair[] pairs= annotation.getElementValuePairs();
+				ElementValuePair[] pairs = annotation.getElementValuePairs();
 				for (ElementValuePair pair : pairs) {
 					if (String.valueOf(pair.getName()).equals("since")) { //$NON-NLS-1$
 						if (pair.getValue() instanceof StringConstant strConstant) {
 							try {
-								String value= strConstant.stringValue();
-								int sinceValue= Integer.parseInt(value);
+								String value = strConstant.stringValue();
+								int sinceValue = Integer.parseInt(value);
 								// As long as the AST levels and ClassFileConstants.MAJOR_VERSION grow simultaneously,
 								// we can use the offset of +44 to compute the Major version from the given AST Level
-								long sinceLevel= ClassFileConstants.getComplianceLevelForJavaVersion(sinceValue + 44);
-								long sourceLevel= scope.compilerOptions().sourceLevel;
-								if (sourceLevel < sinceLevel) {
+								long sinceLevel = ClassFileConstants.getComplianceLevelForJavaVersion(sinceValue + 44);
+								long complianceLevel = scope.compilerOptions().complianceLevel;
+								if (complianceLevel < sinceLevel) {
 									return true;
 								}
 							} catch (NumberFormatException e) {
