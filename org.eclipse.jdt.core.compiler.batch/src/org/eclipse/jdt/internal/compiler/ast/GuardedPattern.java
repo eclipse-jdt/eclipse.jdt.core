@@ -66,11 +66,6 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public boolean isUnconditional(TypeBinding t, Scope scope) {
-		return isUnguarded() && this.primaryPattern.isUnconditional(t, scope);
-	}
-
-	@Override
 	public boolean isUnguarded() {
 		Constant cst = this.condition.optimizedBooleanConstant();
 		return cst != null && cst != Constant.NotAConstant && cst.booleanValue() == true;

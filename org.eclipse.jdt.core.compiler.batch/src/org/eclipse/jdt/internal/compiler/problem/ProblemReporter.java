@@ -12597,14 +12597,6 @@ public void enhancedSwitchMissingDefaultCase(ASTNode element) {
 			element.sourceStart,
 			element.sourceEnd);
 }
-public void duplicateTotalPattern(ASTNode element) {
-	this.handle(
-			IProblem.DuplicateTotalPattern,
-			NoArgument,
-			NoArgument,
-			element.sourceStart,
-			element.sourceEnd);
-}
 public void unexpectedTypeinSwitchPattern(TypeBinding type, ASTNode element) {
 	this.handle(
 			IProblem.UnexpectedTypeinSwitchPattern,

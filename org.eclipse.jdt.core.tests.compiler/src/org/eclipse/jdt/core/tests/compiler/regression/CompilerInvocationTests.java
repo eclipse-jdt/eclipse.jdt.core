@@ -1340,7 +1340,6 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("PatternDominated", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("IllegalTotalPatternWithDefault", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("EnhancedSwitchMissingDefault", new ProblemAttributes(true));
-	    expectedProblemAttributes.put("DuplicateTotalPattern", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("UnexpectedTypeinSwitchPattern", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("UnexpectedTypeinRecordPattern", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("RecordPatternMismatch", new ProblemAttributes(true));
@@ -2474,7 +2473,6 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("PatternDominated", SKIP);
 	    expectedProblemAttributes.put("IllegalTotalPatternWithDefault", SKIP);
 	    expectedProblemAttributes.put("EnhancedSwitchMissingDefault", SKIP);
-	    expectedProblemAttributes.put("DuplicateTotalPattern", SKIP);
 	    expectedProblemAttributes.put("UnexpectedTypeinSwitchPattern", SKIP);
 	    expectedProblemAttributes.put("UnexpectedTypeinRecordPattern", SKIP);
 	    expectedProblemAttributes.put("RecordPatternMismatch", SKIP);

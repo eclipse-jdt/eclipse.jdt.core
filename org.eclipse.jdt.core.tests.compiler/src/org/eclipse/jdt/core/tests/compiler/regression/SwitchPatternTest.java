@@ -2876,11 +2876,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
 			"	case Integer i1 -> 0;\n" +
-			"	^^^^^^^^^^^^^^^\n" +
-			"Switch case cannot have both unconditional pattern and default label\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	case Integer i1 -> 0;\n" +
 			"	     ^^^^^^^^^^\n" +
 			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n");
@@ -3537,11 +3532,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"----------\n" +
 				"1. ERROR in X.java (at line 6)\n" +
-				"	case String s -> -1;\n" +
-				"	     ^^^^^^^^\n" +
-				"The switch statement cannot have more than one unconditional pattern\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
 				"	case String s -> -1;\n" +
 				"	     ^^^^^^^^\n" +
 				"This case label is dominated by one of the preceding case labels\n" +
@@ -5751,11 +5741,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	case Integer i ->                     // Error - dominated case label\n" +
 				"	     ^^^^^^^^^\n" +
-				"The switch statement cannot have more than one unconditional pattern\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 7)\n" +
-				"	case Integer i ->                     // Error - dominated case label\n" +
-				"	     ^^^^^^^^^\n" +
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
@@ -5777,11 +5762,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"----------\n" +
 				"1. ERROR in X.java (at line 7)\n" +
-				"	case Integer i when true ->                     // Error - dominated case label\n" +
-				"	     ^^^^^^^^^\n" +
-				"The switch statement cannot have more than one unconditional pattern\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 7)\n" +
 				"	case Integer i when true ->                     // Error - dominated case label\n" +
 				"	     ^^^^^^^^^\n" +
 				"This case label is dominated by one of the preceding case labels\n" +

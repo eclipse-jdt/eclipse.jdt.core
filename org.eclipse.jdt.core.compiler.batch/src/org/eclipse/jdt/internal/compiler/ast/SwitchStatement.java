@@ -1187,16 +1187,18 @@ public class SwitchStatement extends Expression {
 				LocalVariableBinding[] patternVariables = NO_VARIABLES;
 				boolean caseNullDefaultFound = false;
 				boolean defaultFound = false;
+				Pattern aTotalPattern = null;
 				for (int i = 0; i < length; i++) {
 					ResolvedCase[] constantsList;
 					final Statement statement = this.statements[i];
 					if (statement instanceof CaseStatement caseStmt) {
-						caseNullDefaultFound = caseNullDefaultFound ? caseNullDefaultFound
-								: isCaseStmtNullDefault(caseStmt);
+						caseNullDefaultFound |= isCaseStmtNullDefault(caseStmt);
 						defaultFound |= caseStmt.constantExpressions == Expression.NO_EXPRESSIONS;
 						constantsList = caseStmt.resolveCase(this.scope, expressionType, this);
 						patternVariables = statement.bindingsWhenTrue();
 						for (ResolvedCase c : constantsList) {
+							if (c.e instanceof Pattern p && p.isTotalTypeNode && p.isUnguarded)
+								aTotalPattern = p;
 							Constant con = c.c;
 							if (con == Constant.NotAConstant)
 								continue;
@@ -1271,6 +1273,9 @@ public class SwitchStatement extends Expression {
 						statement.resolveWithBindings(patternVariables, this.scope);
 						patternVariables = LocalVariableBinding.merge(patternVariables, statement.bindingsWhenComplete());
 					}
+				}
+				if (!defaultFound && aTotalPattern != null) {
+					this.totalPattern = aTotalPattern;
 				}
 				if (expressionType != null
 						&& (expressionType.id == TypeIds.T_boolean || expressionType.id == TypeIds.T_JavaLangBoolean)

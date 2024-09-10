@@ -2220,6 +2220,94 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 
 	}
 
+	public void testCoversTypePlusDefault() {
+		// case int i "covers" type Integer but is not unconditional
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X  {
+					public static int foo(Integer myInt) {
+						return switch (myInt) {
+							case int i  -> i;
+							default -> 0;
+						};
+					}
+
+					public static void main(String argv[]) {
+						Integer i = 100;
+						System.out.println(X.foo(i) == i);
+					}
+				}
+				"""
+				},
+				"true");
+	}
+
+	public void testUnconditionPlusDefault() {
+		// case int i "covers" type int and is unconditional
+		// various combinations of dominance with/without default
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X  {
+					int foo1(int myInt) {
+						return switch (myInt) {
+							case int i  -> i;
+							default -> 0; // conflict with preceding total pattern (unguarded and unconditional)
+						};
+					}
+					int foo2(int myInt) {
+						return switch (myInt) { // swapped order of cases
+							default -> 0;
+							case int i  -> i; // conflict with preceding default
+						};
+					}
+					int foo3(int myInt) {
+						return switch (myInt) {
+							default -> 0;
+							case int i  -> i; // conflict with preceding default
+							case short s -> s; // additionally dominated by int i
+						};
+					}
+					int foo4(int myInt) {
+						return switch (myInt) {
+							case int i  -> i;
+							case short s -> s; // dominated by int i
+						};
+					}
+				}
+				"""
+				},
+				"""
+				----------
+				1. ERROR in X.java (at line 5)
+					default -> 0; // conflict with preceding total pattern (unguarded and unconditional)
+					^^^^^^^
+				Switch case cannot have both unconditional pattern and default label
+				----------
+				2. ERROR in X.java (at line 11)
+					case int i  -> i; // conflict with preceding default
+					     ^^^^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				3. ERROR in X.java (at line 17)
+					case int i  -> i; // conflict with preceding default
+					     ^^^^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				4. ERROR in X.java (at line 18)
+					case short s -> s; // additionally dominated by int i
+					     ^^^^^^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				5. ERROR in X.java (at line 24)
+					case short s -> s; // dominated by int i
+					     ^^^^^^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				""");
+	}
+
 	// test from spec
 	public void _testSpec001() {
 		runConformTest(new String[] {

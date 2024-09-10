@@ -117,7 +117,7 @@ public abstract class Pattern extends Expression {
 	}
 
 	public boolean isUnconditional(TypeBinding t, Scope scope) {
-		return isUnguarded() && coversType(t, scope);
+		return false;
 	}
 
 	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel);
