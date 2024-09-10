@@ -70,7 +70,6 @@ import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
 import org.eclipse.jdt.internal.core.util.BindingKeyParser;
 import org.eclipse.jdt.internal.javac.JavacProblemConverter;
 import org.eclipse.jdt.internal.javac.JavacUtils;
-import org.eclipse.jdt.internal.javac.TolerantJavaCompiler;
 import org.eclipse.jdt.internal.javac.UnusedProblemFactory;
 import org.eclipse.jdt.internal.javac.UnusedTreeScanner;
 
@@ -480,7 +479,6 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		}
 		var compiler = ToolProvider.getSystemJavaCompiler();
 		Context context = new Context();
-		TolerantJavaCompiler.configureCompilerInstance(context);
 		Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> result = new HashMap<>(sourceUnits.length, 1.f);
 		Map<JavaFileObject, CompilationUnit> filesToUnits = new HashMap<>();
 		final UnusedProblemFactory unusedProblemFactory = new UnusedProblemFactory(new DefaultProblemFactory(), compilerOptions);
