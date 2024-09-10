@@ -1392,6 +1392,19 @@ public class SwitchStatement extends Expression {
 				return true;
 			}
 		}
+		if (JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(upperScope.compilerOptions())) {
+			switch (expressionType.id) {
+				case TypeIds.T_float:
+				case TypeIds.T_double:
+				case TypeIds.T_long:
+				case TypeIds.T_boolean:
+				case TypeIds.T_JavaLangFloat:
+				case TypeIds.T_JavaLangDouble:
+				case TypeIds.T_JavaLangLong:
+				case TypeIds.T_JavaLangBoolean:
+					return true;
+			}
+		}
 		return false;
 	}
 	private boolean checkAndFlagDefaultSealed(BlockScope skope, CompilerOptions compilerOptions) {
