@@ -83,7 +83,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	public JavacMethodBinding(MethodType methodType, MethodSymbol methodSymbol, Type parentType, JavacBindingResolver resolver, boolean explicitSynthetic, boolean isDeclaration) {
 		this.methodType = methodType;
 		this.methodSymbol = methodSymbol;
-		this.parentType = parentType == null && methodSymbol.owner instanceof ClassSymbol classSymbol && JavacBindingResolver.isTypeOfType(classSymbol.type) ?
+		this.parentType = parentType == null && methodSymbol != null && methodSymbol.owner instanceof ClassSymbol classSymbol && JavacBindingResolver.isTypeOfType(classSymbol.type) ?
 				classSymbol.type : parentType;
 		this.isDeclaration = isParameterized(methodSymbol) && isDeclaration;
 		this.explicitSynthetic = explicitSynthetic;
