@@ -39,7 +39,9 @@ import javax.tools.ToolProvider;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.ILog;
+import org.eclipse.core.runtime.IProduct;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -83,6 +85,7 @@ import com.sun.source.util.TaskListener;
 import com.sun.tools.javac.api.JavacTool;
 import com.sun.tools.javac.api.MultiTaskListener;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
+import com.sun.tools.javac.comp.CompileStates.CompileState;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.main.Option;
 import com.sun.tools.javac.parser.JavadocTokenizer;
@@ -569,6 +572,13 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		boolean docEnabled = JavaCore.ENABLED.equals(compilerOptions.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT));
 		JavacUtils.configureJavacContext(context, compilerOptions, javaProject, JavacUtils.isTest(javaProject, sourceUnits));
 		Options.instance(context).put(Option.PROC, "only");
+		Optional.ofNullable(Platform.getProduct())
+				.map(IProduct::getApplication)
+				// if application is not a test runner (so we don't have regressions with JDT test suite because of too many problems
+				.or(() -> Optional.ofNullable(System.getProperty("eclipse.application")))
+				.filter(name -> !name.contains("test") && !name.contains("junit"))
+				 // continue as far as possible to get extra warnings about unused
+				.ifPresent(id -> Options.instance(context).put("should-stop.ifError", CompileState.GENERATE.toString()));
 		var fileManager = (JavacFileManager)context.get(JavaFileManager.class);
 		List<JavaFileObject> fileObjects = new ArrayList<>(); // we need an ordered list of them
 		for (var sourceUnit : sourceUnits) {
