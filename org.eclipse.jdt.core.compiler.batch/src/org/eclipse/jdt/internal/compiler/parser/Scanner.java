@@ -1474,7 +1474,7 @@ public int getNextToken() throws InvalidInputException {
 protected int findCommentType() {
 	int test = getNextChar('/', '*');
 	if (test == 0) { //line comment or markdown
-		if (JavaFeature.MARKDOWN_COMMENTS.isSupported(this.sourceLevel, this.previewEnabled)
+		if (JavaFeature.MARKDOWN_COMMENTS.isSupported(this.complianceLevel, this.previewEnabled)
 						&& getNextChar('/')) {
 			return 2;
 		}

@@ -102,12 +102,9 @@ protected void assertCompletionNodeResult(String source, String expected) {
 @Override
 protected Map getCompilerOptions() {
 	Map<String, String> options = super.getCompilerOptions();
-	if (this.sourceLevel != null)
+	if (this.sourceLevel != null) {
 		options.put(CompilerOptions.OPTION_Source, this.sourceLevel);
-
-	String level = options.get(CompilerOptions.OPTION_Source);
-	if (CompilerOptions.getLatestVersion().equals(level)) {
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_Compliance, this.sourceLevel);
 	}
 	return options;
 }
