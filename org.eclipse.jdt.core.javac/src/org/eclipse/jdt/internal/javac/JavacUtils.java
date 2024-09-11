@@ -19,6 +19,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -166,6 +167,11 @@ public class JavacUtils {
 			} catch (JavaModelException ex) {
 				ILog.get().error(ex.getMessage(), ex);
 			}
+		}
+
+		Map<String, String> processorOptions = ProcessorConfig.getProcessorOptions(javaProject);
+		for (Entry<String, String> processorOption : processorOptions.entrySet()) {
+			options.put("-A" + processorOption.getKey() + "=" + processorOption.getValue(), Boolean.toString(true));
 		}
 	}
 
