@@ -71,7 +71,7 @@ public class ProcessorConfig {
 		// default processor options.) We can't use IPreferencesService for this
 		// as we would normally do, because we don't know the names of the keys.
 		IScopeContext[] contexts;
-		if (jproj != null) {
+		if (jproj != null && jproj.getProject() != null) {
 			contexts = new IScopeContext[] { new ProjectScope(jproj.getProject()), InstanceScope.INSTANCE };
 		} else {
 			contexts = new IScopeContext[] { InstanceScope.INSTANCE };
