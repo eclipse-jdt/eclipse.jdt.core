@@ -31,7 +31,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testEnhancedPrimitiveSwitch_001" };
+//		TESTS_NAMES = new String[] { "testEnhancedPrimitiveSwitchNPE_001" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -6933,6 +6933,30 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"	switch (d) {\n" +
 			"	        ^\n" +
 			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
+
+   public void testEnhancedPrimitiveSwitchNPE_001() {
+		runNegativeTest(new String[] {
+			"X.java",
+				"""
+				class X {
+					// Y is not defined/visible
+					<T extends Y> void foo(T single) {
+						switch (single) {
+						case int i -> System.out.print(i);
+						default -> System.out.print('-');
+						}
+						System.out.println("hello");
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	<T extends Y> void foo(T single) {\n" +
+			"	           ^\n" +
+			"Y cannot be resolved to a type\n" +
 			"----------\n");
 	}
 
