@@ -41,10 +41,8 @@ import com.sun.tools.javac.tree.JCTree.JCModuleDecl;
 import com.sun.tools.javac.tree.JCTree.JCRequires;
 public abstract class JavacModuleBinding implements IModuleBinding {
 
-	private static final ITypeBinding[] NO_TYPE_ARGUMENTS = new ITypeBinding[0];
 	final JavacBindingResolver resolver;
 	public final ModuleSymbol moduleSymbol;
-	private final ModuleType moduleType;
 	private JCModuleDecl moduleDecl;
 
 	public JavacModuleBinding(final ModuleType moduleType, final JavacBindingResolver resolver) {
@@ -61,7 +59,6 @@ public abstract class JavacModuleBinding implements IModuleBinding {
 	}
 	
 	public JavacModuleBinding(final ModuleSymbol moduleSymbol, final ModuleType moduleType, JavacBindingResolver resolver) {
-		this.moduleType = moduleType;
 		this.moduleSymbol = moduleSymbol;
 		this.resolver = resolver;
 	}
@@ -111,9 +108,8 @@ public abstract class JavacModuleBinding implements IModuleBinding {
 
 	@Override
 	public boolean isEqualTo(IBinding binding) {
-		return binding instanceof JavacModuleBinding other && //
-				Objects.equals(this.moduleSymbol, other.moduleSymbol) && //
-				Objects.equals(this.resolver, other.resolver);
+		return binding instanceof IModuleBinding other && //
+				Objects.equals(this.getKey(), other.getKey());
 	}
 
 	@Override

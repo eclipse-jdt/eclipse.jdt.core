@@ -96,7 +96,7 @@ public abstract class JavacAnnotationBinding implements IAnnotationBinding {
 
 	@Override
 	public boolean isEqualTo(IBinding binding) {
-		return binding instanceof JavacAnnotationBinding other && Objects.equals(this.annotation, other.annotation);
+		return binding instanceof IAnnotationBinding other && Objects.equals(getKey(), other.getKey());
 	}
 
 	@Override

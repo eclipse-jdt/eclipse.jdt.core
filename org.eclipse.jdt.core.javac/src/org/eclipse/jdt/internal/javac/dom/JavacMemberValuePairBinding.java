@@ -27,7 +27,7 @@ public abstract class JavacMemberValuePairBinding implements IMemberValuePairBin
 	public final JavacMethodBinding method;
 	public final Attribute value;
 	private final JavacBindingResolver resolver;
-
+	
 	public JavacMemberValuePairBinding(MethodSymbol key, Attribute value, JavacBindingResolver resolver) {
 		this.method = resolver.bindings.getMethodBinding(key.type.asMethodType(), key, null, true);
 		this.value = value;
@@ -90,8 +90,7 @@ public abstract class JavacMemberValuePairBinding implements IMemberValuePairBin
 
 	@Override
 	public boolean isEqualTo(IBinding binding) {
-		return binding instanceof JavacMemberValuePairBinding other && this.method.isEqualTo(other.method)
-			&& Objects.equals(this.value, other.value);
+		return binding instanceof IMemberValuePairBinding other && Objects.equals(this.getKey(), other.getKey());
 	}
 
 	@Override

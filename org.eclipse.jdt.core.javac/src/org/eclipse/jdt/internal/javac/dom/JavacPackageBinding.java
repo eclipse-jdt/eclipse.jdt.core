@@ -154,7 +154,7 @@ public abstract class JavacPackageBinding implements IPackageBinding {
 
 	@Override
 	public boolean isEqualTo(IBinding binding) {
-		return equals(binding);
+		return binding instanceof IPackageBinding other && Objects.equals(getKey(), other.getKey());
 	}
 	
 	@Override

@@ -188,8 +188,7 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 	@Override
 	public boolean isEqualTo(IBinding binding) {
 		return binding instanceof JavacVariableBinding other && //
-			Objects.equals(this.variableSymbol, other.variableSymbol) && //
-			Objects.equals(this.resolver, other.resolver);
+			Objects.equals(this.getKey(), other.getKey());
 	}
 
 	@Override

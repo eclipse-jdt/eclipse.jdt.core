@@ -407,9 +407,8 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isEqualTo(final IBinding binding) {
-		return binding instanceof final JavacTypeBinding other &&
-			Objects.equals(this.resolver, other.resolver) &&
-			Objects.equals(this.typeSymbol, other.typeSymbol);
+		return binding instanceof final ITypeBinding other &&
+			Objects.equals(this.getKey(), other.getKey());
 	}
 
 	@Override

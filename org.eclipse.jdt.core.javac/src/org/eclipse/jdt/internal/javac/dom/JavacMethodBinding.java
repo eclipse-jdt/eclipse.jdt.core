@@ -373,9 +373,8 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public boolean isEqualTo(IBinding binding) {
-		return binding instanceof JavacMethodBinding other && //
-			Objects.equals(this.methodSymbol, other.methodSymbol) && //
-			Objects.equals(this.resolver, other.resolver);
+		return binding instanceof IMethodBinding other && //
+			Objects.equals(this.getKey(), other.getKey());
 	}
 
 	@Override
