@@ -1044,6 +1044,11 @@ public class JavacProblemConverter {
 			case "compiler.err.catch.without.try" -> IProblem.Syntax;
 			case "compiler.err.not.encl.class" -> IProblem.IllegalEnclosingInstanceSpecification;
 			case "compiler.err.type.found.req" -> IProblem.DisallowedTargetForAnnotation;
+			case "compiler.warn.try.resource.throws.interrupted.exc" -> IProblem.UnhandledExceptionOnAutoClose;
+			case "compiler.err.cyclic.inheritance" -> IProblem.HierarchyCircularity;
+			case "compiler.err.incorrect.receiver.type" -> IProblem.IllegalTypeForExplicitThis;
+			case "compiler.err.incorrect.constructor.receiver.type" -> IProblem.IllegalTypeForExplicitThis;
+			case "compiler.err.incorrect.constructor.receiver.name" -> IProblem.IllegalQualifierForExplicitThis;
 			default -> {
 				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				yield 0;
