@@ -553,7 +553,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 
 	protected void processCompiledUnits(int startingIndex, boolean lastRound) throws java.lang.Error {
 		CompilationUnitDeclaration unit = null;
-		ProcessTaskManager processingTask = null;
 		try {
 			if (this.useSingleThread) {
 				// process all units (some more could be injected in the loop by the lookup environment)
@@ -596,30 +595,37 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 							}));
 				}
 			} else {
-				processingTask = new ProcessTaskManager(this, startingIndex);
-				int acceptedCount = 0;
-				// process all units (some more could be injected in the loop by the lookup environment)
-				// the processTask can continue to process units until its fixed sized cache is full then it must wait
-				// for this this thread to accept the units as they appear (it only waits if no units are available)
-				while (true) {
+				try (ProcessTaskManager processingTask = new ProcessTaskManager(this, startingIndex)){
+					int acceptedCount = 0;
+					// process all units (some more could be injected in the loop by the lookup environment)
+					// the processTask can continue to process units until its fixed sized cache is full then it must wait
+					// for this this thread to accept the units as they appear (it only waits if no units are available)
+					this.requestor.startBatch();
 					try {
-						unit = processingTask.removeNextUnit(); // waits if no units are in the processed queue
-					} catch (Error | RuntimeException e) {
-						unit = processingTask.unitToProcess;
-						throw e;
+						Collection<CompilationUnitDeclaration> units;
+						do {
+							try {
+								units = processingTask.removeNextUnits();
+							} catch (Error | RuntimeException e) {
+								unit = processingTask.getUnitWithError();
+								throw e;
+							}
+							for (CompilationUnitDeclaration u : units) {
+								unit = u;
+								reportWorked(1, acceptedCount++);
+								this.stats.lineCount += unit.compilationResult.lineSeparatorPositions.length;
+								this.requestor.acceptResult(unit.compilationResult.tagAsAccepted());
+								if (this.options.verbose)
+									this.out.println(Messages.bind(Messages.compilation_done,
+											new String[] { String.valueOf(acceptedCount),
+													String.valueOf(this.totalUnits), new String(unit.getFileName()) }));
+							}
+							// processingTask had no more units available => use the time to flush:
+							this.requestor.flushBatch();
+						} while (!units.isEmpty());
+					} finally {
+						this.requestor.endBatch();
 					}
-					if (unit == null) break;
-					reportWorked(1, acceptedCount++);
-					this.stats.lineCount += unit.compilationResult.lineSeparatorPositions.length;
-					this.requestor.acceptResult(unit.compilationResult.tagAsAccepted());
-					if (this.options.verbose)
-						this.out.println(
-							Messages.bind(Messages.compilation_done,
-							new String[] {
-								String.valueOf(acceptedCount),
-								String.valueOf(this.totalUnits),
-								new String(unit.getFileName())
-							}));
 				}
 			}
 			if (!lastRound) {
@@ -640,10 +646,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			this.handleInternalException(e, unit, null);
 			throw e; // rethrow
 		} finally {
-			if (processingTask != null) {
-				processingTask.shutdown();
-				processingTask = null;
-			}
 			reset();
 			this.annotationProcessorStartIndex  = 0;
 			this.stats.endTime = System.currentTimeMillis();

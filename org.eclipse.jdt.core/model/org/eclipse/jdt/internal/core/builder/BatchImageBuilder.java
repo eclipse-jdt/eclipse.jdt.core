@@ -24,15 +24,41 @@ import org.eclipse.jdt.internal.core.CompilationGroup;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
+import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
+
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class BatchImageBuilder extends AbstractImageBuilder {
 
-	IncrementalImageBuilder incrementalBuilder; // if annotations or secondary types have to be processed after the compile loop
-	ArrayList secondaryTypes; // qualified names for all secondary types found during batch compile
-	Set<String> typeLocatorsWithUndefinedTypes; // type locators for all source files with errors that may be caused by 'not found' secondary types
-	final CompilationGroup compilationGroup;
+	private IncrementalImageBuilder incrementalBuilder; // if annotations or secondary types have to be processed after the compile loop
+	private ArrayList secondaryTypes; // qualified names for all secondary types found during batch compile
+	private Set<String> typeLocatorsWithUndefinedTypes; // type locators for all source files with errors that may be caused by 'not found' secondary types
+	private final CompilationGroup compilationGroup;
+
+	/*  leave 2 threads for compiler + reader.*/
+	private static final ExecutorService WRITER_SERVICE = createExecutor(Math.max(1, Runtime.getRuntime().availableProcessors() - 2));
+
+	private static ThreadPoolExecutor createExecutor(int threadCount) {
+		ThreadPoolExecutor executor = new ThreadPoolExecutor(threadCount, threadCount,
+				/* keepAliveTime */ 5, TimeUnit.MINUTES, new LinkedBlockingQueue<>(), r -> {
+					Thread t = new Thread(r, "Compiler Class File Writer"); //$NON-NLS-1$
+					t.setDaemon(true);
+					return t;
+				});
+		executor.allowCoreThreadTimeOut(true);
+		return executor;
+	}
+	private static final long MAX_CLASS_CONTENTS_BYTES_QUEUED = 100_000_000; // 100MB
+	private final Map<IFile, byte[]> classContents = new HashMap<>();
+	private long classContentsBytesQueued;
+	private boolean batchMode;
+
 
 protected BatchImageBuilder(JavaBuilder javaBuilder, boolean buildStarting, CompilationGroup compilationGroup) {
 	super(javaBuilder, buildStarting, null, compilationGroup);
@@ -347,5 +373,60 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 @Override
 public String toString() {
 	return "batch image builder for:\n\tnew state: " + this.newState; //$NON-NLS-1$
+}
+
+@Override
+public void startBatch() {
+	this.batchMode = true;
+}
+
+@Override
+protected void writeClassFileContents(ClassFile classFile, IFile file, String qualifiedFileName, boolean isTopLevelType,
+		SourceFile compilationUnit) throws CoreException {
+	byte[] content = classFile.getBytes();
+	if (this.batchMode) {
+		if (JavaBuilder.DEBUG) {
+			trace("Batching changed class file " + file.getName());//$NON-NLS-1$
+		}
+		// flush before limit to avoid OOME:
+		if (!this.classContents.isEmpty() && this.classContentsBytesQueued + content.length >= MAX_CLASS_CONTENTS_BYTES_QUEUED) {
+			flushBatch();
+		}
+		this.classContents.put(file, content);
+		this.classContentsBytesQueued += content.length;
+	} else {
+		if (JavaBuilder.DEBUG) {
+			trace("Writing changed class file " + file.getName());//$NON-NLS-1$
+		}
+		file.write(content, true, true, false, null);
+	}
+}
+
+@Override
+public void endBatch() {
+	try {
+		flushBatch();
+	} finally {
+		this.batchMode = false;
+	}
+}
+
+@Override
+public void flushBatch() {
+	try {
+		if (JavaBuilder.DEBUG) {
+			this.classContents.keySet().forEach(file -> trace("Writing changed class file " + file.getName()));//$NON-NLS-1$
+		}
+		ResourcesPlugin.getWorkspace().write(this.classContents, true, true, false, null, WRITER_SERVICE);
+	} catch (CoreException e) {
+		// Already existing class files should not happen:
+		// Duplicate classes get marked earlier with a "The type {} is already defined"
+		Util.log(e, "Failed to write some of the class files: " + this.classContents.keySet().stream() //$NON-NLS-1$
+				.map(f -> f.getFullPath().toString()).collect(Collectors.joining(", "))); //$NON-NLS-1$
+		createProblemFor(this.javaBuilder.currentProject, null, Messages.build_inconsistentClassFile, JavaCore.ERROR);
+	} finally {
+		this.classContents.clear();
+		this.classContentsBytesQueued = 0;
+	}
 }
 }
