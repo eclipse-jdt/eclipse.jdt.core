@@ -300,8 +300,9 @@ public class JavacProblemConverter {
 					return getPositionByNodeRangeOnly(jcDiagnostic, switchExpr.selector instanceof JCTree.JCParens parens? parens.expr : switchExpr.selector);
 				} else if (problemId == IProblem.UndefinedConstructor
 						&& diagnosticPath.getParentPath() != null
-						&& diagnosticPath.getParentPath().getLeaf() instanceof JCNewClass newClass) {
-					return getPositionByNodeRangeOnly(jcDiagnostic, newClass);
+						&& (diagnosticPath.getParentPath().getLeaf() instanceof JCNewClass
+							|| diagnosticPath.getParentPath().getLeaf() instanceof JCVariableDecl /* case of enum components */)) {
+					return getPositionByNodeRangeOnly(jcDiagnostic, (JCTree)diagnosticPath.getParentPath().getLeaf());
 				}
 			}
 
@@ -676,7 +677,7 @@ public class JavacProblemConverter {
 						}
 						if (treePath == null || !(treePath.getLeaf() instanceof JCMethodDecl methodDecl)) {
 							ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic + ". Expected the constructor invocation to be in a constructor.");
-							yield 0;
+							yield IProblem.UndefinedConstructor;
 						}
 						boolean isDefault = (methodDecl.sym.flags() & Flags.GENERATEDCONSTR) != 0;
 						if (diagnostic instanceof JCDiagnostic.MultilineDiagnostic && isDefault) {
