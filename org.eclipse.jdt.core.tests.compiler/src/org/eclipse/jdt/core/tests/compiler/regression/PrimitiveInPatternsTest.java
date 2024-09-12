@@ -31,7 +31,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testByteToFloat" };
+//		TESTS_NAMES = new String[] { "testIssue2936" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -7001,6 +7001,47 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+   public void testIssue2936_001() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				record R<Short>(Short s) {}
+				public class X {
+					public static <Short> short foo(R<Short> s) {
+						return switch (s) {
+							case R(Short s1) -> 1;
+							default -> 0;
+						};
+					}
+					public static void main(String[] args) {
+						Short s = 100;
+						R<Short> r = new R<>(s);
+						System.out.println(X.foo(r));
+					}
+				}
+				"""
+			},
+			"1");
+	}
+   public void testIssue2936_002() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X  {
+				    public static <T extends Object> float foo(T t) {
+				        if (t instanceof float i) { return i; }
+				        return 100.0f;
+				    }
+				    public static void main(String argv[]) {
+				        System.out.println(X.foo(1.0f));
+				        System.out.println(X.foo(2));
+				    }
+				}
+ 				"""
+			},
+			"1.0\n" +
+			"100.0");
+	}
    // test from spec
 	public void _testSpec001() {
 		runConformTest(new String[] {

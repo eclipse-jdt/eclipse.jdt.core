@@ -242,16 +242,17 @@ public abstract class Pattern extends Expression {
 				 //an unboxing conversion followed by a widening primitive conversion
 				if (BaseTypeBinding.isWidening(destinationType.id, unboxedExpressionType.id))
 					return PrimitiveConversionRoute.UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION;
-			} else if (destinationIsBaseType && expressionType.erasure().isBoxedPrimitiveType()) { // <T extends Integer> / <? extends Short> ...
-				int boxId = expressionType.erasure().id;
-				int exprPrimId = TypeIds.box2primitive(boxId);
-				if (exprPrimId == destinationType.id)
-					return PrimitiveConversionRoute.WIDENING_REFERENCE_AND_UNBOXING_COVERSION;
-				if (BaseTypeBinding.isWidening(destinationType.id, exprPrimId))
-					return PrimitiveConversionRoute.WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION;
 			} else if (destinationIsBaseType) {
+				if (expressionType.erasure().isBoxedPrimitiveType()) { // <T extends Integer> / <? extends Short> ...
+					int boxId = expressionType.erasure().id;
+					int exprPrimId = TypeIds.box2primitive(boxId);
+					if (exprPrimId == destinationType.id)
+						return PrimitiveConversionRoute.WIDENING_REFERENCE_AND_UNBOXING_COVERSION;
+					if (BaseTypeBinding.isWidening(destinationType.id, exprPrimId))
+						return PrimitiveConversionRoute.WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION;
+				}
 				TypeBinding boxedDestinationType = scope.environment().computeBoxingType(destinationType);
-				if (boxedDestinationType.isCompatibleWith(expressionType))
+				if (boxedDestinationType.isCompatibleWith(expressionType.erasure()))
 					return PrimitiveConversionRoute.NARROWING_AND_UNBOXING_CONVERSION;
 			}
 		}
