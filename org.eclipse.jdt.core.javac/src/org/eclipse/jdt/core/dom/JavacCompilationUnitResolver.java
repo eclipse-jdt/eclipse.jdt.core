@@ -83,6 +83,7 @@ import com.sun.tools.javac.api.JavacTool;
 import com.sun.tools.javac.api.MultiTaskListener;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
 import com.sun.tools.javac.file.JavacFileManager;
+import com.sun.tools.javac.main.Option;
 import com.sun.tools.javac.parser.JavadocTokenizer;
 import com.sun.tools.javac.parser.Scanner;
 import com.sun.tools.javac.parser.ScannerFactory;
@@ -563,6 +564,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		context.put(DiagnosticListener.class, diagnosticListener);
 		boolean docEnabled = JavaCore.ENABLED.equals(compilerOptions.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT));
 		JavacUtils.configureJavacContext(context, compilerOptions, javaProject, JavacUtils.isTest(javaProject, sourceUnits));
+		Options.instance(context).put(Option.PROC, "only");
 		var fileManager = (JavacFileManager)context.get(JavaFileManager.class);
 		List<JavaFileObject> fileObjects = new ArrayList<>(); // we need an ordered list of them
 		for (var sourceUnit : sourceUnits) {
