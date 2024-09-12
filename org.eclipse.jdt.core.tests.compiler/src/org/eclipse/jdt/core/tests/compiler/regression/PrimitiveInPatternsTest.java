@@ -31,7 +31,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testEnhancedPrimitiveSwitchNPE_001" };
+//		TESTS_NAMES = new String[] { "testByteToFloat" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -6936,6 +6936,47 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+   public void testByteToFloat_001() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static float byteToFloat(Byte a) {
+						return switch (a) {
+							case float y -> y;
+							default -> 2;
+						};
+					}
+					public static void main(String[] args) {
+						Byte b = 1;
+						System.out.println(X.byteToFloat(b));
+					}
+				}
+				"""
+			},
+			"1.0");
+	}
+
+   public void testByteToFloat_002() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static float byteToFloat(Byte a) {
+						return switch (a) {
+							case float y -> y;
+							default -> 2;
+						};
+					}
+					public static void main(String[] args) {
+						Byte b = 2;
+						System.out.println(X.byteToFloat(b));
+					}
+				}
+				"""
+			},
+			"2.0");
+	}
    public void testEnhancedPrimitiveSwitchNPE_001() {
 		runNegativeTest(new String[] {
 			"X.java",
