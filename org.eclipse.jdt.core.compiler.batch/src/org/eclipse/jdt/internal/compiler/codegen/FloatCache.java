@@ -14,6 +14,8 @@
 package org.eclipse.jdt.internal.compiler.codegen;
 
 public class FloatCache {
+	private static final int[] EMPTY_INTS = new int[0];
+	private static final float[] EMPTY_FLOATS = new float[0];
 	private float keyTable[];
 	private int valueTable[];
 	private int elementSize;
@@ -23,7 +25,9 @@ public class FloatCache {
  * grow when it gets full.
  */
 public FloatCache() {
-	this(13);
+	this.elementSize = 0;
+	this.keyTable = EMPTY_FLOATS;
+	this.valueTable = EMPTY_INTS;
 }
 /**
  * Constructs a new, empty hashtable with the specified initial
@@ -40,11 +44,9 @@ public FloatCache(int initialCapacity) {
  * Clears the hash table so that it has no more elements in it.
  */
 public void clear() {
-	for (int i = this.keyTable.length; --i >= 0;) {
-		this.keyTable[i] = 0.0f;
-		this.valueTable[i] = 0;
-	}
 	this.elementSize = 0;
+	this.keyTable = EMPTY_FLOATS;
+	this.valueTable = EMPTY_INTS;
 }
 /** Returns true if the collection contains an element for the key.
  *
@@ -80,35 +82,16 @@ public boolean containsKey(float key) {
  * @param value <CODE>int</CODE> the specified element
  * @return int value
  */
-public int put(float key, int value) {
-	if (this.elementSize == this.keyTable.length) {
-		// resize
-		System.arraycopy(this.keyTable, 0, (this.keyTable = new float[this.elementSize * 2]), 0, this.elementSize);
-		System.arraycopy(this.valueTable, 0, (this.valueTable = new int[this.elementSize * 2]), 0, this.elementSize);
-	}
-	this.keyTable[this.elementSize] = key;
-	this.valueTable[this.elementSize] = value;
-	this.elementSize++;
-	return value;
-}
-/**
- * Puts the specified element into the hashtable, using the specified
- * key.  The element may be retrieved by doing a get() with the same key.
- *
- * @param key <CODE>float</CODE> the specified key in the hashtable
- * @param value <CODE>int</CODE> the specified element
- * @return int value
- */
 public int putIfAbsent(float key, int value) {
 	if (key == 0.0f) {
+		// see Float#equals() +0.0 vs -0.0
+		int value1 = Float.floatToIntBits(key);
 		for (int i = 0, max = this.elementSize; i < max; i++) {
 			if (this.keyTable[i] == 0.0f) {
-				int value1 = Float.floatToIntBits(key);
 				int value2 = Float.floatToIntBits(this.keyTable[i]);
-				if (value1 == -2147483648 && value2 == -2147483648)
+				if (value1 == value2) {
 					return this.valueTable[i];
-				if (value1 == 0 && value2 == 0)
-					return this.valueTable[i];
+				}
 			}
 		}
 	} else {
@@ -120,8 +103,9 @@ public int putIfAbsent(float key, int value) {
 	}
 	if (this.elementSize == this.keyTable.length) {
 		// resize
-		System.arraycopy(this.keyTable, 0, (this.keyTable = new float[this.elementSize * 2]), 0, this.elementSize);
-		System.arraycopy(this.valueTable, 0, (this.valueTable = new int[this.elementSize * 2]), 0, this.elementSize);
+		int newSize = Math.max(13, this.elementSize * 2);
+		System.arraycopy(this.keyTable, 0, (this.keyTable = new float[newSize]), 0, this.elementSize);
+		System.arraycopy(this.valueTable, 0, (this.valueTable = new int[newSize]), 0, this.elementSize);
 	}
 	this.keyTable[this.elementSize] = key;
 	this.valueTable[this.elementSize] = value;

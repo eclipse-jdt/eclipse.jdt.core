@@ -36,18 +36,9 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * This type is used to store all the constant pool entries.
  */
 public class ConstantPool implements ClassFileConstants, TypeIds {
-	public static final int DOUBLE_INITIAL_SIZE = 5;
-	public static final int FLOAT_INITIAL_SIZE = 3;
-	public static final int INT_INITIAL_SIZE = 248;
-	public static final int LONG_INITIAL_SIZE = 5;
-	public static final int UTF8_INITIAL_SIZE = 778;
-	public static final int STRING_INITIAL_SIZE = 761;
-	public static final int METHODS_AND_FIELDS_INITIAL_SIZE = 450;
-	public static final int CLASS_INITIAL_SIZE = 86;
-	public static final int NAMEANDTYPE_INITIAL_SIZE = 272;
-	public static final int CONSTANTPOOL_INITIAL_SIZE = 2000;
-	public static final int CONSTANTPOOL_GROW_SIZE = 6000;
-	public static final int DYNAMIC_INITIAL_SIZE = 10;
+	private static final int METHODS_AND_FIELDS_INITIAL_SIZE = 450;
+	private static final int NAMEANDTYPE_INITIAL_SIZE = 272;
+	private static final int DYNAMIC_INITIAL_SIZE = 10;
 	protected DoubleCache doubleCache;
 	protected FloatCache floatCache;
 	protected IntegerCache intCache;
@@ -335,12 +326,12 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	 * ConstantPool constructor comment.
 	 */
 	public ConstantPool(ClassFile classFile) {
-		this.UTF8Cache = new CharArrayCache(UTF8_INITIAL_SIZE);
-		this.stringCache = new CharArrayCache(STRING_INITIAL_SIZE);
+		this.UTF8Cache = new CharArrayCache();
+		this.stringCache = new CharArrayCache();
 		this.methodsAndFieldsCache = new HashtableOfObject(METHODS_AND_FIELDS_INITIAL_SIZE);
-		this.classCache = new CharArrayCache(CLASS_INITIAL_SIZE);
-		this.moduleCache = new CharArrayCache(5);
-		this.packageCache = new CharArrayCache(5);
+		this.classCache = new CharArrayCache();
+		this.moduleCache = new CharArrayCache();
+		this.packageCache = new CharArrayCache();
 		this.nameAndTypeCacheForFieldsAndMethods = new HashtableOfObject(NAMEANDTYPE_INITIAL_SIZE);
 		this.dynamicCache = new HashtableOfInteger(DYNAMIC_INITIAL_SIZE);
 		this.offsets = new int[5];
@@ -508,7 +499,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 		// lazy initialization for base type caches
 		// If it is null, initialize it, otherwise use it
 		if (this.doubleCache == null) {
-			this.doubleCache = new DoubleCache(DOUBLE_INITIAL_SIZE);
+			this.doubleCache = new DoubleCache();
 		}
 		if ((index = this.doubleCache.putIfAbsent(key, this.currentIndex)) < 0) {
 			if ((index = -index)> 0xFFFF){
@@ -555,7 +546,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 		// lazy initialization for base type caches
 		// If it is null, initialize it, otherwise use it
 		if (this.floatCache == null) {
-			this.floatCache = new FloatCache(FLOAT_INITIAL_SIZE);
+			this.floatCache = new FloatCache();
 		}
 		if ((index = this.floatCache.putIfAbsent(key, this.currentIndex)) < 0) {
 			if ((index = -index) > 0xFFFF){
@@ -597,7 +588,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 		// lazy initialization for base type caches
 		// If it is null, initialize it, otherwise use it
 		if (this.intCache == null) {
-			this.intCache = new IntegerCache(INT_INITIAL_SIZE);
+			this.intCache = new IntegerCache();
 		}
 		if ((index = this.intCache.putIfAbsent(key, this.currentIndex)) < 0) {
 			this.currentIndex++;
@@ -640,7 +631,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 		// lazy initialization for base type caches
 		// If it is null, initialize it, otherwise use it
 		if (this.longCache == null) {
-			this.longCache = new LongCache(LONG_INITIAL_SIZE);
+			this.longCache = new LongCache();
 		}
 		if ((index = this.longCache.putIfAbsent(key, this.currentIndex)) < 0) {
 			if ((index = -index) > 0xFFFF){
