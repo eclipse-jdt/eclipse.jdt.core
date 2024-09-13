@@ -610,6 +610,12 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 		try {
 			var elements = task.parse().iterator();
+			var aptPath = fileManager.getLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH);
+			if ((flags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0
+				|| resolveBindings
+				|| (aptPath != null && aptPath.iterator().hasNext())) {
+				task.analyze();
+			}
 
 			Throwable cachedThrown = null;
 
@@ -714,13 +720,8 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			if (cachedThrown != null) {
 				throw new RuntimeException(cachedThrown);
 			}
-			if ((flags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0) {
-				if (resolveBindings) {
-					// use binding resolvers as it will run analyze()
-					result.values().forEach(cu -> cu.getAST().resolveWellKnownType(Object.class.getName()));
-				} else {
-					task.analyze();
-				}
+			if (resolveBindings) {
+				result.values().forEach(cu -> cu.getAST().resolveWellKnownType(Object.class.getName()));
 			}
 		} catch (IOException ex) {
 			ILog.get().error(ex.getMessage(), ex);
