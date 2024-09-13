@@ -20,6 +20,8 @@ import java.util.Arrays;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.core.tests.model.RecursivelyFilterableTestSuite;
+
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunConverterTests extends junit.framework.TestCase {
@@ -67,7 +69,7 @@ public static Class[] getAllTestClasses() {
 	};
 }
 public static Test suite() {
-	TestSuite ts = new TestSuite(RunConverterTests.class.getName());
+	TestSuite ts = new RecursivelyFilterableTestSuite(RunConverterTests.class.getName());
 
 	ConverterTestSetup.TEST_SUITES = new ArrayList(Arrays.asList(getAllTestClasses()));
 	// Reset forgotten subsets of tests

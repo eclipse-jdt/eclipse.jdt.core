@@ -288,7 +288,7 @@ private static Class[] getDeprecatedJDOMTestClasses() {
 }
 
 public static Test suite() {
-	TestSuite suite = new TestSuite(AllJavaModelTests.class.getName());
+	TestSuite suite = new RecursivelyFilterableTestSuite(AllJavaModelTests.class.getName());
 
 	// Hack to load all classes before computing their suite of test cases
 	// this allow to reset test cases subsets while running all Java Model tests...

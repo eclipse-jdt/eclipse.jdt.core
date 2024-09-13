@@ -87,7 +87,7 @@ public class RunCompletionModelTests extends junit.framework.TestCase {
 	}
 
 	public static Test suite() {
-		TestSuite ts = new TestSuite(RunCompletionModelTests.class.getName());
+		TestSuite ts = new RecursivelyFilterableTestSuite(RunCompletionModelTests.class.getName());
 
 		// Store test classes with same "Completion"project
 		AbstractJavaModelCompletionTests.COMPLETION_SUITES = new ArrayList(COMPLETION_SUITES);

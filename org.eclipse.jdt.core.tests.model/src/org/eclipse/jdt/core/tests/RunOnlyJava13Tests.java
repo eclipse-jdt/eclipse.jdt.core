@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.SwitchExpressionsYieldTest
 import org.eclipse.jdt.core.tests.dom.ASTConverter14Test;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs13Tests;
+import org.eclipse.jdt.core.tests.model.RecursivelyFilterableTestSuite;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -46,7 +47,7 @@ public class RunOnlyJava13Tests extends TestCase {
 		};
 	}
 	public static Test suite() {
-		TestSuite ts = new TestSuite(RunOnlyJava13Tests.class.getName());
+		TestSuite ts = new RecursivelyFilterableTestSuite(RunOnlyJava13Tests.class.getName());
 
 		Class[] testClasses = getAllTestClasses();
 		addTestsToSuite(ts, testClasses);

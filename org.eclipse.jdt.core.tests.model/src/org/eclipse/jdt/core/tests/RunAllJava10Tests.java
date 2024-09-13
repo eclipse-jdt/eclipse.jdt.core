@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.tests.dom.ASTConverter10Test;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.model.CompletionTests10;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs10Tests;
+import org.eclipse.jdt.core.tests.model.RecursivelyFilterableTestSuite;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -51,7 +52,7 @@ public class RunAllJava10Tests extends TestCase {
 	}
 
 	public static Test suite() {
-		TestSuite ts = new TestSuite(RunAllJava10Tests.class.getName());
+		TestSuite ts = new RecursivelyFilterableTestSuite(RunAllJava10Tests.class.getName());
 
 		Class[] testClasses = getAllTestClasses();
 		addTestsToSuite(ts, testClasses);

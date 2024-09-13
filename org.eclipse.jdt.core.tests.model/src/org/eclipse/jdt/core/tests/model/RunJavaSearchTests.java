@@ -53,7 +53,7 @@ public class RunJavaSearchTests extends junit.framework.TestCase {
 	}
 
 	public static Test suite() {
-		TestSuite ts = new TestSuite(RunJavaSearchTests.class.getName());
+		TestSuite ts = new RecursivelyFilterableTestSuite(RunJavaSearchTests.class.getName());
 
 		// Store test classes with same "JavaSearch"project
 		AbstractJavaSearchTests.JAVA_SEARCH_SUITES = new ArrayList(TEST_CLASSES);

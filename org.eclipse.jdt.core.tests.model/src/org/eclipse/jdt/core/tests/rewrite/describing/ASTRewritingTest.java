@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
+import org.eclipse.jdt.core.tests.model.RecursivelyFilterableTestSuite;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
@@ -81,7 +82,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	}
 
 	public static Test suite() {
-		TestSuite suite= new TestSuite(ASTRewritingTest.class.getName());
+		TestSuite suite= new RecursivelyFilterableTestSuite(ASTRewritingTest.class.getName());
 
 
 		  suite.addTest(ASTRewritingExpressionsTest.suite());
@@ -135,7 +136,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	 * @return test suite that runs all tests with all supported AST levels
 	 */
 	protected static TestSuite createSuite(Class testClass, int classSince) {
-		TestSuite suite = new TestSuite(testClass.getName());
+		TestSuite suite = new RecursivelyFilterableTestSuite(testClass.getName());
 		try {
 			Method[] methods = testClass.getMethods();
 			Constructor cons = testClass.getConstructor(new Class[]{String.class, int.class});

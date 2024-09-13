@@ -18,6 +18,7 @@ import java.lang.reflect.Method;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.eclipse.jdt.core.tests.model.RecursivelyFilterableTestSuite;
 
 /**
  * Runs all compiler tests (including parser tests and evaluation tests) in all compliance mode.
@@ -38,7 +39,7 @@ public static Class[] getAllTestClasses() {
 	};
 }
 public static Test suite() {
-	TestSuite ts = new TestSuite(RunCompilerTests.class.getName());
+	TestSuite ts = new RecursivelyFilterableTestSuite(RunCompilerTests.class.getName());
 
 	Class[] testClasses = getAllTestClasses();
 	for (int i = 0; i < testClasses.length; i++) {

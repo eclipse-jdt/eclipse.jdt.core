@@ -31,8 +31,10 @@ import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
 import org.eclipse.jdt.core.jdom.IDOMMethod;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.core.jdom.IDOMType;
+import org.eclipse.jdt.core.tests.javac.JavacTestIgnore;
 import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.experimental.categories.Category;
 
 @SuppressWarnings("rawtypes")
 public class ASTConverterTest extends ConverterTestSetup {
@@ -3226,6 +3228,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	/**
 	 * Checking initializers
 	 */
+	@Category(value=JavacTestIgnore.class) @JavacTestIgnore(cause=JavacTestIgnore.JDT_VIOLATES_SPEC)
 	public void test0147() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0147", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();

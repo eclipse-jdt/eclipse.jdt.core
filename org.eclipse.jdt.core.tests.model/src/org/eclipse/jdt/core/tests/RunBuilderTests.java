@@ -17,6 +17,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.builder.BuilderTests;
+import org.eclipse.jdt.core.tests.model.RecursivelyFilterableTestSuite;
 
 /**
  * Runs all Java builder tests.
@@ -26,7 +27,7 @@ public RunBuilderTests(String name) {
 	super(name);
 }
 public static Test suite() {
-	TestSuite suite = new TestSuite(RunBuilderTests.class.getName());
+	TestSuite suite = new RecursivelyFilterableTestSuite(RunBuilderTests.class.getName());
 	suite.addTest(BuilderTests.suite());
 	return suite;
 }

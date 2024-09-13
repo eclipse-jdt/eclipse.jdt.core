@@ -19,6 +19,7 @@ import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.builder.Bug549646Test;
 import org.eclipse.jdt.core.tests.compiler.regression.ModuleCompilationTests;
 import org.eclipse.jdt.core.tests.model.ModuleBuilderTests;
+import org.eclipse.jdt.core.tests.model.RecursivelyFilterableTestSuite;
 
 /**
  * Runs minimal suite for reproducing bug 563501.
@@ -32,7 +33,7 @@ public class RunBug563501Tests extends TestCase {
 		org.eclipse.jdt.core.tests.junit.extension.TestCase.TESTS_NAMES = new String[] {
 					"testCompilerRegression", "testReleaseOption10", "testConvertToModule"
 				};
-		TestSuite suite = new TestSuite(RunBug563501Tests.class.getName());
+		TestSuite suite = new RecursivelyFilterableTestSuite(RunBug563501Tests.class.getName());
 		suite.addTest(Bug549646Test.suite());
 		suite.addTest(ModuleCompilationTests.suite());
 		suite.addTest(ModuleBuilderTests.suite());

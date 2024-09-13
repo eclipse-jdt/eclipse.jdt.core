@@ -44,6 +44,7 @@ import org.eclipse.jdt.core.tests.formatter.FormatterJSR335Tests;
 import org.eclipse.jdt.core.tests.model.CompletionTests18;
 import org.eclipse.jdt.core.tests.model.JavaElement8Tests;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs8Tests;
+import org.eclipse.jdt.core.tests.model.RecursivelyFilterableTestSuite;
 import org.eclipse.jdt.core.tests.model.ResolveTests18;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest;
 
@@ -108,7 +109,7 @@ public class RunOnlyJava8Tests extends TestCase {
 		};
 	}
 	public static Test suite() {
-		TestSuite ts = new TestSuite(RunOnlyJava8Tests.class.getName());
+		TestSuite ts = new RecursivelyFilterableTestSuite(RunOnlyJava8Tests.class.getName());
 
 		Class[] testClasses = getAllTestClasses();
 		addTestsToSuite(ts, testClasses);

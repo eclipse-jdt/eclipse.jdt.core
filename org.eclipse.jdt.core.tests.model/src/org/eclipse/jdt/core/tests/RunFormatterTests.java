@@ -25,6 +25,7 @@ import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.formatter.*;
 import org.eclipse.jdt.core.tests.formatter.comment.CommentsTestSuite;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.core.tests.model.RecursivelyFilterableTestSuite;
 import org.eclipse.jdt.core.tests.util.CleanupAfterSuiteTests;
 
 /**
@@ -51,7 +52,7 @@ public class RunFormatterTests extends junit.framework.TestCase {
 	}
 
 	public static Test suite() {
-		TestSuite ts = new TestSuite(RunFormatterTests.class.getName());
+		TestSuite ts = new RecursivelyFilterableTestSuite(RunFormatterTests.class.getName());
 
 		// Store test classes with same "JavaSearch"project
 		FormatterCommentsTests.ALL_TEST_SUITES = new ArrayList(TEST_SUITES);

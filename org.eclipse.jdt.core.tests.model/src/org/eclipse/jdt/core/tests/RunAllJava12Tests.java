@@ -18,6 +18,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
+import org.eclipse.jdt.core.tests.model.RecursivelyFilterableTestSuite;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -40,7 +41,7 @@ public class RunAllJava12Tests extends TestCase {
 	}
 
 	public static Test suite() {
-		TestSuite ts = new TestSuite(RunAllJava12Tests.class.getName());
+		TestSuite ts = new RecursivelyFilterableTestSuite(RunAllJava12Tests.class.getName());
 
 		Class[] testClasses = getAllTestClasses();
 		addTestsToSuite(ts, testClasses);

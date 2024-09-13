@@ -76,7 +76,7 @@ public class RunVariousSealedTypeTests extends TestCase {
 	}
 
 	public static Test suite() {
-		TestSuite ts = new TestSuite(RunVariousSealedTypeTests.class.getName());
+		TestSuite ts = new RecursivelyFilterableTestSuite(RunVariousSwitchTests.class.getName());
 
 		Class[] testClasses = getAllTestClasses();
 		addTestsToSuite(ts, testClasses);

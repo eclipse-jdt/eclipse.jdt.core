@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
+import org.eclipse.jdt.core.tests.model.RecursivelyFilterableTestSuite;
 import org.eclipse.jdt.core.tests.rewrite.describing.StringAsserts;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jface.text.BadLocationException;
@@ -51,7 +52,7 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 	}
 
 	public static Test suite() {
-		TestSuite suite =  new TestSuite(ASTRewritingModifyingTest.class.getName());
+		TestSuite suite =  new RecursivelyFilterableTestSuite(ASTRewritingModifyingTest.class.getName());
 		suite.addTest(ASTRewritingModifyingOtherTest.suite());
 		suite.addTest(ASTRewritingModifyingInsertTest.suite());
 		suite.addTest(ASTRewritingModifyingReplaceTest.suite());

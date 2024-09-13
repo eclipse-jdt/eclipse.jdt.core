@@ -42,7 +42,7 @@ public static Class[] getJavaSearchTestClasses() {
 	};
 }
 public static Test suite() {
-	TestSuite ts = new TestSuite(RunJavaSearchGenericTests.class.getName());
+	TestSuite ts = new RecursivelyFilterableTestSuite(RunJavaSearchGenericTests.class.getName());
 
 	// Get all classes
 	AbstractJavaSearchTests.JAVA_SEARCH_SUITES = new ArrayList(Arrays.asList(getJavaSearchTestClasses()));

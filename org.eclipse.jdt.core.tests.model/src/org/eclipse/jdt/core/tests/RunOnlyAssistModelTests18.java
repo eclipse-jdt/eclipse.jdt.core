@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.tests.compiler.parser.SelectionParserTest18;
 import org.eclipse.jdt.core.tests.model.CompletionTests18;
 import org.eclipse.jdt.core.tests.model.JavaElement8Tests;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs8Tests;
+import org.eclipse.jdt.core.tests.model.RecursivelyFilterableTestSuite;
 import org.eclipse.jdt.core.tests.model.ResolveTests18;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -43,7 +44,7 @@ public class RunOnlyAssistModelTests18 extends TestCase {
 	}
 
 	public static Test suite() {
-		TestSuite ts = new TestSuite(RunOnlyAssistModelTests18.class.getName());
+		TestSuite ts = new RecursivelyFilterableTestSuite(RunOnlyAssistModelTests18.class.getName());
 
 		Class[] testClasses = getAllTestClasses();
 		addTestsToSuite(ts, testClasses);

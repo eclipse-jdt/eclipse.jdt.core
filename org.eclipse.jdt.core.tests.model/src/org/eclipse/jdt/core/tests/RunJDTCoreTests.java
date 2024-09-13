@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests;
 
+import org.eclipse.jdt.core.tests.model.RecursivelyFilterableTestSuite;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -25,7 +27,7 @@ public RunJDTCoreTests(String name) {
 	super(name);
 }
 public static Test suite() {
-	TestSuite suite = new TestSuite(RunJDTCoreTests.class.getName());
+	TestSuite suite = new RecursivelyFilterableTestSuite(RunJDTCoreTests.class.getName());
 	suite.addTest(RunBuilderTests.suite());
 	suite.addTest(RunCompilerTests.suite());
 	suite.addTest(RunDOMTests.suite());

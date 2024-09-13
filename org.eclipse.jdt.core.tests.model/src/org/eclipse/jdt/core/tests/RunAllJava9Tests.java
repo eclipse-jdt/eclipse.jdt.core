@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.tests.model.JavaSearchBugs9Tests;
 import org.eclipse.jdt.core.tests.model.ModuleBuilderTests;
 import org.eclipse.jdt.core.tests.model.ModuleOptionsTests;
 import org.eclipse.jdt.core.tests.model.ReconcilerTests9;
+import org.eclipse.jdt.core.tests.model.RecursivelyFilterableTestSuite;
 import org.eclipse.jdt.core.tests.model.ResolveTests9;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
@@ -63,7 +64,7 @@ public class RunAllJava9Tests extends TestCase {
 	}
 
 	public static Test suite() {
-		TestSuite ts = new TestSuite(RunAllJava9Tests.class.getName());
+		TestSuite ts = new RecursivelyFilterableTestSuite(RunAllJava9Tests.class.getName());
 
 		Class[] testClasses = getAllTestClasses();
 		addTestsToSuite(ts, testClasses);
