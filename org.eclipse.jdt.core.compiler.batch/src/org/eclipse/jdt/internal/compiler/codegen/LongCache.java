@@ -14,6 +14,8 @@
 package org.eclipse.jdt.internal.compiler.codegen;
 
 public class LongCache {
+	private static final int[] EMPTY_INTS = new int[0];
+	private static final long[] EMPTY_LONGS = new long[0];
 	public long keyTable[];
 	public int valueTable[];
 	int elementSize;
@@ -24,7 +26,10 @@ public class LongCache {
  * grow when it gets full.
  */
 public LongCache() {
-	this(13);
+	this.elementSize = 0;
+	this.threshold = 0;
+	this.keyTable = EMPTY_LONGS;
+	this.valueTable = EMPTY_INTS;
 }
 /**
  * Constructs a new, empty hashtable with the specified initial
@@ -32,9 +37,9 @@ public LongCache() {
  * @param initialCapacity int
  *  the initial number of buckets
  */
-public LongCache(int initialCapacity) {
+private LongCache(int initialCapacity) {
 	this.elementSize = 0;
-	this.threshold = (int) (initialCapacity * 0.66);
+	this.threshold = (initialCapacity * 2)/3;
 	this.keyTable = new long[initialCapacity];
 	this.valueTable = new int[initialCapacity];
 }
@@ -42,11 +47,10 @@ public LongCache(int initialCapacity) {
  * Clears the hash table so that it has no more elements in it.
  */
 public void clear() {
-	for (int i = this.keyTable.length; --i >= 0;) {
-		this.keyTable[i] = 0;
-		this.valueTable[i] = 0;
-	}
 	this.elementSize = 0;
+	this.threshold = 0;
+	this.keyTable = EMPTY_LONGS;
+	this.valueTable = EMPTY_INTS;
 }
 /** Returns true if the collection contains an element for the key.
  *
@@ -54,7 +58,11 @@ public void clear() {
  * @return boolean
  */
 public boolean containsKey(long key) {
-	int index = hash(key), length = this.keyTable.length;
+	int length = this.keyTable.length;
+	if (length == 0) {
+		return false;
+	}
+	int index = hash(key);
 	while ((this.keyTable[index] != 0) || ((this.keyTable[index] == 0) &&(this.valueTable[index] != 0))) {
 		if (this.keyTable[index] == key)
 			return true;
@@ -69,7 +77,7 @@ public boolean containsKey(long key) {
  * @param key long
  * @return int the hash code corresponding to the key value
  */
-public int hash(long key) {
+private int hash(long key) {
 	return ((int) key & 0x7FFFFFFF) % this.keyTable.length;
 }
 /**
@@ -80,8 +88,10 @@ public int hash(long key) {
  * @param value <CODE>int</CODE> the specified element
  * @return int value
  */
-public int put(long key, int value) {
-	int index = hash(key), length = this.keyTable.length;
+private int put(long key, int value) {
+	int length = this.keyTable.length;
+	int index = hash(key);
+
 	while ((this.keyTable[index] != 0) || ((this.keyTable[index] == 0) && (this.valueTable[index] != 0))) {
 		if (this.keyTable[index] == key)
 			return this.valueTable[index] = value;
@@ -91,11 +101,6 @@ public int put(long key, int value) {
 	}
 	this.keyTable[index] = key;
 	this.valueTable[index] = value;
-
-	// assumes the threshold is never equal to the size of the table
-	if (++this.elementSize > this.threshold) {
-		rehash();
-	}
 	return value;
 }
 /**
@@ -107,7 +112,12 @@ public int put(long key, int value) {
  * @return int value
  */
 public int putIfAbsent(long key, int value) {
-	int index = hash(key), length = this.keyTable.length;
+	// assumes the threshold is never equal to the size of the table
+	if (++this.elementSize > this.threshold) {
+		rehash();
+	}
+	int index = hash(key);
+	int length = this.keyTable.length;
 	while ((this.keyTable[index] != 0) || ((this.keyTable[index] == 0) && (this.valueTable[index] != 0))) {
 		if (this.keyTable[index] == key)
 			return this.valueTable[index];
@@ -118,10 +128,6 @@ public int putIfAbsent(long key, int value) {
 	this.keyTable[index] = key;
 	this.valueTable[index] = value;
 
-	// assumes the threshold is never equal to the size of the table
-	if (++this.elementSize > this.threshold) {
-		rehash();
-	}
 	return -value; // negative when added, assumes value is > 0
 }
 /**
@@ -130,7 +136,7 @@ public int putIfAbsent(long key, int value) {
  * size exceeds the threshold.
  */
 private void rehash() {
-	LongCache newHashtable = new LongCache(this.keyTable.length * 2);
+	LongCache newHashtable = new LongCache(Math.max(13, this.keyTable.length * 2));
 	for (int i = this.keyTable.length; --i >= 0;) {
 		long key = this.keyTable[i];
 		int value = this.valueTable[i];

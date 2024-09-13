@@ -16,6 +16,8 @@ package org.eclipse.jdt.internal.compiler.codegen;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 public class CharArrayCache {
+	private static final int[] EMPTY_INTS = new int[0];
+	private static final char[][] EMPTY_CHARS = new char[0][];
 	// to avoid using Enumerations, walk the individual tables skipping nulls
 	public char[] keyTable[];
 	public int valueTable[];
@@ -26,7 +28,10 @@ public class CharArrayCache {
  * Note that the hashtable will automatically grow when it gets full.
  */
 public CharArrayCache() {
-	this(9);
+	this.elementSize = 0;
+	this.threshold = 0;
+	this.keyTable = EMPTY_CHARS;
+	this.valueTable = EMPTY_INTS;
 }
 /**
  * Constructs a new, empty hashtable with the specified initial
@@ -34,7 +39,7 @@ public CharArrayCache() {
  * @param initialCapacity int
  *	the initial number of buckets; must be less than Integer.MAX_VALUE / 2
  */
-public CharArrayCache(int initialCapacity) {
+private CharArrayCache(int initialCapacity) {
 	this.elementSize = 0;
 	this.threshold = (initialCapacity * 2) / 3; // faster than float operation
 	this.keyTable = new char[initialCapacity][];
@@ -44,11 +49,10 @@ public CharArrayCache(int initialCapacity) {
  * Clears the hash table so that it has no more elements in it.
  */
 public void clear() {
-	for (int i = this.keyTable.length; --i >= 0;) {
-		this.keyTable[i] = null;
-		this.valueTable[i] = 0;
-	}
 	this.elementSize = 0;
+	this.threshold = 0;
+	this.keyTable = EMPTY_CHARS;
+	this.valueTable = EMPTY_INTS;
 }
 /** Returns true if the collection contains an element for the key.
  *
@@ -56,7 +60,11 @@ public void clear() {
  * @return boolean
  */
 public boolean containsKey(char[] key) {
-	int length = this.keyTable.length, index = CharOperation.hashCode(key) % length;
+	int length = this.keyTable.length;
+	if (length == 0) {
+		return false;
+	}
+	int index = CharOperation.hashCode(key) % length;
 	while (this.keyTable[index] != null) {
 		if (CharOperation.equals(this.keyTable[index], key))
 			return true;
@@ -73,7 +81,11 @@ public boolean containsKey(char[] key) {
  *	defined in the hash table.
  */
 public int get(char[] key) {
-	int length = this.keyTable.length, index = CharOperation.hashCode(key) % length;
+	int length = this.keyTable.length;
+	if (length == 0) {
+		return -1;
+	}
+	int index = CharOperation.hashCode(key) % length;
 	while (this.keyTable[index] != null) {
 		if (CharOperation.equals(this.keyTable[index], key))
 			return this.valueTable[index];
@@ -93,7 +105,12 @@ public int get(char[] key) {
  * @return int the old value of the key, or -value if it did not have one.
  */
 public int putIfAbsent(char[] key, int value) {
-	int length = this.keyTable.length, index = CharOperation.hashCode(key) % length;
+	// assumes the threshold is never equal to the size of the table
+	if (++this.elementSize > this.threshold) {
+		rehash();
+	}
+	int length = this.keyTable.length;
+	int index = CharOperation.hashCode(key) % length;
 	while (this.keyTable[index] != null) {
 		if (CharOperation.equals(this.keyTable[index], key))
 			return this.valueTable[index];
@@ -104,9 +121,6 @@ public int putIfAbsent(char[] key, int value) {
 	this.keyTable[index] = key;
 	this.valueTable[index] = value;
 
-	// assumes the threshold is never equal to the size of the table
-	if (++this.elementSize > this.threshold)
-		rehash();
 	return -value; // negative when added (value is assumed to be > 0)
 }
 
@@ -142,7 +156,7 @@ private int put(char[] key, int value) {
  * size exceeds the threshold.
  */
 private void rehash() {
-	CharArrayCache newHashtable = new CharArrayCache(this.keyTable.length * 2);
+	CharArrayCache newHashtable = new CharArrayCache(Math.max(5, this.keyTable.length * 2));
 	for (int i = this.keyTable.length; --i >= 0;)
 		if (this.keyTable[i] != null)
 			newHashtable.put(this.keyTable[i], this.valueTable[i]);
@@ -156,7 +170,11 @@ private void rehash() {
  * @param key <CODE>char[]</CODE> the specified key
  */
 public void remove(char[] key) {
-	int length = this.keyTable.length, index = CharOperation.hashCode(key) % length;
+	int length = this.keyTable.length;
+	if (length == 0) {
+		return;
+	}
+	int index = CharOperation.hashCode(key) % length;
 	while (this.keyTable[index] != null) {
 		if (CharOperation.equals(this.keyTable[index], key)) {
 			this.valueTable[index] = 0;

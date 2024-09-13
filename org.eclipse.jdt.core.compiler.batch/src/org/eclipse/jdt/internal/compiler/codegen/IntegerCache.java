@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.compiler.codegen;
 
 public class IntegerCache {
+	private static final int[] EMPTY_INTS = new int[0];
 	public int keyTable[];
 	public int valueTable[];
 	int elementSize;
@@ -24,7 +25,10 @@ public class IntegerCache {
  * grow when it gets full.
  */
 public IntegerCache() {
-	this(13);
+	this.elementSize = 0;
+	this.threshold = 0;
+	this.keyTable = EMPTY_INTS;
+	this.valueTable = EMPTY_INTS;
 }
 /**
  * Constructs a new, empty hashtable with the specified initial
@@ -32,9 +36,9 @@ public IntegerCache() {
  * @param initialCapacity int
  *  the initial number of buckets
  */
-public IntegerCache(int initialCapacity) {
+private IntegerCache(int initialCapacity) {
 	this.elementSize = 0;
-	this.threshold = (int) (initialCapacity * 0.66);
+	this.threshold = (initialCapacity * 2) / 3;
 	this.keyTable = new int[initialCapacity];
 	this.valueTable = new int[initialCapacity];
 }
@@ -54,7 +58,11 @@ public void clear() {
  * @return boolean
  */
 public boolean containsKey(int key) {
-	int index = hash(key), length = this.keyTable.length;
+	int length = this.keyTable.length;
+	if (length==0) {
+		return false;
+	}
+	int index = hash(key);
 	while ((this.keyTable[index] != 0) || ((this.keyTable[index] == 0) &&(this.valueTable[index] != 0))) {
 		if (this.keyTable[index] == key)
 			return true;
@@ -69,7 +77,7 @@ public boolean containsKey(int key) {
  * @param key int
  * @return int the hash code corresponding to the key value
  */
-public int hash(int key) {
+private int hash(int key) {
 	return (key & 0x7FFFFFFF) % this.keyTable.length;
 }
 /**
@@ -80,7 +88,7 @@ public int hash(int key) {
  * @param value <CODE>int</CODE> the specified element
  * @return int value
  */
-public int put(int key, int value) {
+private int put(int key, int value) {
 	int index = hash(key), length = this.keyTable.length;
 	while ((this.keyTable[index] != 0) || ((this.keyTable[index] == 0) && (this.valueTable[index] != 0))) {
 		if (this.keyTable[index] == key)
@@ -92,10 +100,6 @@ public int put(int key, int value) {
 	this.keyTable[index] = key;
 	this.valueTable[index] = value;
 
-	// assumes the threshold is never equal to the size of the table
-	if (++this.elementSize > this.threshold) {
-		rehash();
-	}
 	return value;
 }
 /**
@@ -107,6 +111,10 @@ public int put(int key, int value) {
  * @return int value
  */
 public int putIfAbsent(int key, int value) {
+	// assumes the threshold is never equal to the size of the table
+	if (++this.elementSize > this.threshold) {
+		rehash();
+	}
 	int index = hash(key), length = this.keyTable.length;
 	while ((this.keyTable[index] != 0) || ((this.keyTable[index] == 0) && (this.valueTable[index] != 0))) {
 		if (this.keyTable[index] == key)
@@ -118,10 +126,6 @@ public int putIfAbsent(int key, int value) {
 	this.keyTable[index] = key;
 	this.valueTable[index] = value;
 
-	// assumes the threshold is never equal to the size of the table
-	if (++this.elementSize > this.threshold) {
-		rehash();
-	}
 	return -value; // negative when added, assumes value is > 0
 }
 /**
@@ -130,7 +134,7 @@ public int putIfAbsent(int key, int value) {
  * size exceeds the threshold.
  */
 private void rehash() {
-	IntegerCache newHashtable = new IntegerCache(this.keyTable.length * 2);
+	IntegerCache newHashtable = new IntegerCache(Math.max(13, this.keyTable.length * 2));
 	for (int i = this.keyTable.length; --i >= 0;) {
 		int key = this.keyTable[i];
 		int value = this.valueTable[i];
