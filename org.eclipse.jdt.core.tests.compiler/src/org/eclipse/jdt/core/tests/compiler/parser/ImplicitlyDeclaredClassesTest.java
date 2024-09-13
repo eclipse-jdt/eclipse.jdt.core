@@ -315,4 +315,35 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 						}"""},
 					"true");
 	}
+	@Test
+	public void testImplicitImport() {
+		// the explicit class must be given first to trigger https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2952
+		// the test is made as negative because we can't execute the second class
+		// and we are not interested in executing the first, which cannot see the second
+		runNegativeTest(
+				new String[] {
+					"b/B.java",
+					"""
+					package b;
+					import java.util.Collection;
+					public class B {
+						public static void print(Collection<?> col) {
+							System.out.print(col.size());
+						}
+						Zork zork;
+					}
+					""",
+					"X.java",
+					"""
+					void main() {
+						b.B.print(Collections.emptySet());
+					}"""
+				},
+				"----------\n" +
+				"1. ERROR in b\\B.java (at line 7)\n" +
+				"	Zork zork;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
+				"----------\n");
+	}
 }

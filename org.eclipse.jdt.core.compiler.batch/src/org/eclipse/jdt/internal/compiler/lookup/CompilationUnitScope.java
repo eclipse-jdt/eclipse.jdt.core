@@ -764,9 +764,6 @@ private MethodBinding findStaticMethod(ReferenceBinding currentType, char[] sele
 	return null;
 }
 ImportBinding[] getDefaultImports() {
-	// initialize the default imports if necessary... share the default java.lang.* import
-	if (this.environment.root.defaultImports != null) return this.environment.root.defaultImports;
-
 	if (JavaFeature.IMPLICIT_CLASSES_AND_INSTANCE_MAIN_METHODS.isSupported(this.environment.globalOptions) &&
 			this.referenceContext.isSimpleCompilationUnit()) {
 		ModuleBinding module = this.environment.getModule(CharOperation.concatWith(TypeConstants.JAVA_BASE, '.'));
@@ -774,8 +771,12 @@ ImportBinding[] getDefaultImports() {
 			ImportBinding javaBase = new ImportBinding(TypeConstants.JAVA_BASE, true, module, null);
 			// No need for the java.lang.* as module java.base covers it
 			return new ImportBinding[] {javaBase};
+			// this module import is not cached, there shouldn't be many files needing it.
 		}
 	}
+	// initialize the default imports if necessary... share the default java.lang.* import
+	if (this.environment.root.defaultImports != null) return this.environment.root.defaultImports;
+
 	Binding importBinding = this.environment.getTopLevelPackage(TypeConstants.JAVA);
 	if (importBinding != null)
 		importBinding = ((PackageBinding) importBinding).getTypeOrPackage(TypeConstants.JAVA_LANG[1], module(), false);
