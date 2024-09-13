@@ -301,7 +301,7 @@ public class JavacProblemConverter {
 				} else if (problemId == IProblem.UndefinedConstructor
 						&& diagnosticPath.getParentPath() != null
 						&& (diagnosticPath.getParentPath().getLeaf() instanceof JCNewClass
-							|| diagnosticPath.getParentPath().getLeaf() instanceof JCVariableDecl /* case of enum components */)) {
+							|| (!(diagnosticPath.getLeaf() instanceof JCNewClass) && diagnosticPath.getParentPath().getLeaf() instanceof JCVariableDecl /* case of enum components */))) {
 					return getPositionByNodeRangeOnly(jcDiagnostic, (JCTree)diagnosticPath.getParentPath().getLeaf());
 				}
 			}
