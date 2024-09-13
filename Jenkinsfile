@@ -92,6 +92,7 @@ pipeline {
 			}
 			steps {
 				build(job: 'jdt-ls-javac', wait: false, propagate: false)
+				build(job: 'Build-JDT-with-Javac-p2-repo', wait: false, propagate: false)
 			}
 		}
 	}
