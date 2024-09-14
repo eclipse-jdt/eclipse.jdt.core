@@ -92,8 +92,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	private static boolean isParameterized(Symbol symbol) {
 		while (symbol != null) {
-			if (symbol.type != null && 
-				(symbol.type.isParameterized() || symbol.type instanceof ForAll)) {
+			if (symbol.type != null && symbol.type.isParameterized()) {
 				return true;
 			}
 			symbol = symbol.owner;
@@ -495,8 +494,8 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	@Override
 	public boolean isGenericMethod() {
 		return (isConstructor() && getDeclaringClass().isGenericType())
-				|| (!this.methodSymbol.getTypeParameters().isEmpty() && isDeclaration);
-		// TODO instead of the methodType, get a less typed Type and check if it is a ForAll
+				|| (!this.methodSymbol.getTypeParameters().isEmpty() && isDeclaration)
+				|| (this.methodSymbol.type instanceof ForAll);
 	}
 	@Override
 	public boolean isParameterizedMethod() {
