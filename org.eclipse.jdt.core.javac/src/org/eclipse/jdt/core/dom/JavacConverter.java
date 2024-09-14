@@ -487,7 +487,9 @@ class JavacConverter {
 				// fix name position according to qualifier position
 				int nameIndex = this.rawText.indexOf(fieldAccess.getIdentifier().toString(),
 						qualifier.getStartPosition() + qualifier.getLength());
-				n.setSourceRange(nameIndex, fieldAccess.getIdentifier().toString().length());
+				if (nameIndex >= 0) {
+					n.setSourceRange(nameIndex, fieldAccess.getIdentifier().toString().length());
+				}
 			}
 			return res;
 		}
@@ -622,8 +624,8 @@ class JavacConverter {
 								previous.setSourceRange(previous.getStartPosition(), istart - previous.getStartPosition()-1);
 							}
 						}
+						previous = decl;
 					}
-					previous = decl;
 				}
 			}
 		} else if (res instanceof EnumDeclaration enumDecl) {
@@ -835,7 +837,10 @@ class JavacConverter {
 			}
 			if( endPos != -1 ) {
 				String methodName = tmpString1.substring(0, endPos).trim();
-				if( !methodName.equals(parentName)) {
+				if (!methodName.isEmpty() &&
+					Character.isJavaIdentifierStart(methodName.charAt(0)) &&
+					methodName.substring(1).chars().allMatch(Character::isJavaIdentifierPart) &&
+					!methodName.equals(parentName)) {
 					return methodName;
 				}
 			}
@@ -1104,7 +1109,10 @@ class JavacConverter {
 			fragment.setInitializer(initializer);
 			// we may receive range for `int i = 0;` (with semicolon and newline). If we
 			// have an initializer, use it's endPos instead for the fragment
-			fragment.setSourceRange(fragment.getStartPosition(), initializer.getStartPosition() + initializer.getLength() - fragment.getStartPosition());
+			int length = initializer.getStartPosition() + initializer.getLength() - fragment.getStartPosition();
+			if (length >= 0) {
+				fragment.setSourceRange(fragment.getStartPosition(), length);
+			}
 		}
 		return fragment;
 	}
@@ -1345,7 +1353,10 @@ class JavacConverter {
 					res.setName(simpleName);
 					String asString = access.getIdentifier().toString();
 					commonSettings(simpleName, access);
-					simpleName.setSourceRange(this.rawText.indexOf(asString, access.getPreferredPosition()), asString.length());
+					int foundOffset = this.rawText.indexOf(asString, access.getPreferredPosition());
+					if (foundOffset > 0) {
+						simpleName.setSourceRange(foundOffset, asString.length());
+					}
 				}
 				res.setExpression(convertExpression(access.getExpression()));
 			}
@@ -2079,7 +2090,11 @@ class JavacConverter {
 				NumberLiteral res = this.ast.newNumberLiteral();
 				commonSettings(res, literal);
 				String fromSrc = this.rawText.substring(res.getStartPosition(), res.getStartPosition() + res.getLength());
-				res.setToken(fromSrc);
+				try {
+					res.setToken(fromSrc);
+				} catch (IllegalArgumentException ex) {
+					// probably some lombok oddity, let's ignore
+				}
 				return res;
 			} else {
 				PrefixExpression res = this.ast.newPrefixExpression();
@@ -2116,6 +2131,12 @@ class JavacConverter {
 			if( string.length() != len && len > 2) {
 				try {
 					string = this.rawText.substring(startPos, startPos + len);
+					if (!string.startsWith("\"")) {
+						string = '"' + string;
+					}
+					if (!string.endsWith("\"")) {
+						string = string + '"';
+					}
 					res.internalSetEscapedValue(string);
 				} catch(IndexOutOfBoundsException ignore) {
 					res.setLiteralValue(string);  // TODO: we want the token here
@@ -2986,9 +3007,24 @@ class JavacConverter {
 					result.setValue(toName(value));
 				}
 			}
-
 			return result;
-
+		} else if (javac.getArguments().size() == 1
+				&& javac.getArguments().get(0) instanceof JCAssign namedArg
+				&& (namedArg.getVariable().getPreferredPosition() == Position.NOPOS
+				    || namedArg.getVariable().getPreferredPosition() == namedArg.getExpression().getStartPosition())) {
+			// actually a @Annotation(value), but returned as a @Annotation(field = value)
+			SingleMemberAnnotation result= ast.newSingleMemberAnnotation();
+			commonSettings(result, javac);
+			result.setTypeName(toName(javac.annotationType));
+			JCTree value = namedArg.getExpression();
+			if (value != null) {
+				if( value instanceof JCExpression jce) {
+					result.setValue(convertExpression(jce));
+				} else {
+					result.setValue(toName(value));
+				}
+			}
+			return result;
 		} else {
 			NormalAnnotation res = this.ast.newNormalAnnotation();
 			commonSettings(res, javac);

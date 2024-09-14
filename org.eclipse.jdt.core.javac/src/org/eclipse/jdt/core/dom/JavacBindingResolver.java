@@ -960,6 +960,11 @@ public class JavacBindingResolver extends BindingResolver {
 			var typeBinding = resolveType((QualifiedType)parent);
 			return typeBinding.getTypeDeclaration(); // exclude params
 		}
+		if (name.getLocationInParent() == SimpleType.NAME_PROPERTY
+				|| name.getLocationInParent() == QualifiedType.NAME_PROPERTY
+				|| name.getLocationInParent() == NameQualifiedType.NAME_PROPERTY) { // case of "var"
+			return resolveType((Type)parent);
+		}
 		if (tree == null && (name.getFlags() & ASTNode.ORIGINAL) != 0) {
 			tree = this.converter.domToJavac.get(parent);
 			if( tree instanceof JCFieldAccess jcfa) {
@@ -981,12 +986,6 @@ public class JavacBindingResolver extends BindingResolver {
 			if (ret != null) {
 				return ret;
 			}
-		}
-		if (parent instanceof Type type
-			&& (name.getLocationInParent() == SimpleType.NAME_PROPERTY
-					|| name.getLocationInParent() == QualifiedType.NAME_PROPERTY
-					|| name.getLocationInParent() == NameQualifiedType.NAME_PROPERTY)) { // case of "var"
-			return resolveType(type);
 		}
 		if (parent instanceof ImportDeclaration importDecl && importDecl.getName() == name) {
 			return resolveImport(importDecl);
