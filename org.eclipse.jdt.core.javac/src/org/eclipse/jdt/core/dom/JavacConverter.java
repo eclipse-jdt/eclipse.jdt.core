@@ -617,10 +617,10 @@ class JavacConverter {
 					ASTNode decl = convertBodyDeclaration(members.get(i), res);
 					if( decl != null ) {
 						typeDeclaration.bodyDeclarations().add(decl);
-						if( previous != null ) {
+						if (previous != null) {
 							int istart = decl.getStartPosition();
 							int siblingEnds = previous.getStartPosition() + previous.getLength();
-							if( siblingEnds > istart ) {
+							if(previous.getStartPosition() >= 0 && siblingEnds > istart && istart > previous.getStartPosition()) {
 								previous.setSourceRange(previous.getStartPosition(), istart - previous.getStartPosition()-1);
 							}
 						}
@@ -850,6 +850,10 @@ class JavacConverter {
 	}
 
 	private MethodDeclaration convertMethodDecl(JCMethodDecl javac, ASTNode parent) {
+		if (TreeInfo.getEndPos(javac, this.javacCompilationUnit.endPositions) <= javac.getStartPosition()) {
+			// not really existing, analysis sugar; let's skip
+			return null;
+		}
 		MethodDeclaration res = this.ast.newMethodDeclaration();
 		commonSettings(res, javac);
 		if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
@@ -857,7 +861,6 @@ class JavacConverter {
 		} else {
 			res.internalSetModifiers(getJLS2ModifiersFlags(javac.mods));
 		}
-
 		String javacName = javac.getName().toString();
 		String methodDeclName = getMethodDeclName(javac, parent, parent instanceof RecordDeclaration);
 		boolean methodDeclNameMatchesInit = Objects.equals(methodDeclName, Names.instance(this.context).init.toString());
@@ -866,6 +869,10 @@ class JavacConverter {
 		boolean javacNameMatchesInitAndMethodNameMatchesTypeName = javacNameMatchesInit && methodDeclName.equals(getNodeName(parent));
 		boolean isConstructor = methodDeclNameMatchesInit || javacNameMatchesInitAndMethodNameMatchesTypeName;
 		res.setConstructor(isConstructor);
+		if (isConstructor && javac.getParameters().isEmpty()
+			&& javac.getBody().endpos == Position.NOPOS) { // probably generated
+			return null;
+		}
 		boolean isCompactConstructor = false;
 		if(isConstructor && parent instanceof RecordDeclaration) {
 			String postName = this.rawText.substring(javac.pos + methodDeclName.length()).trim();
@@ -1014,7 +1021,9 @@ class JavacConverter {
 	}
 
 	private VariableDeclaration convertVariableDeclarationForLambda(JCVariableDecl javac) {
-		if( javac.getType() == null && javac.getStartPosition() == javac.getPreferredPosition() /* check no "var" */) {
+		if(javac.getType() == null && javac.getStartPosition() == javac.getPreferredPosition() /* check no "var" */) {
+			return createVariableDeclarationFragment(javac);
+		} else if (javac.getType() != null && javac.getType().getPreferredPosition() == Position.NOPOS) { // "virtual" node added for analysis, not part of AST
 			return createVariableDeclarationFragment(javac);
 		} else {
 			return convertVariableDeclaration(javac);
@@ -2169,6 +2178,9 @@ class JavacConverter {
 	}
 
 	private Statement convertStatement(JCStatement javac, ASTNode parent) {
+		if (TreeInfo.getEndPos(javac, this.javacCompilationUnit.endPositions) <= javac.getPreferredPosition()) {
+			return null;
+		}
 		if (javac instanceof JCReturn returnStatement) {
 			ReturnStatement res = this.ast.newReturnStatement();
 			commonSettings(res, javac);
@@ -2718,12 +2730,14 @@ class JavacConverter {
 
 	private void removeSurroundingWhitespaceFromRange(ASTNode res) {
 		int start = res.getStartPosition();
-		String rawSource = this.rawText.substring(start, start + res.getLength());
-		int trimLeading = rawSource.length() - rawSource.stripLeading().length();
-		int trimTrailing = rawSource.length() - rawSource.stripTrailing().length();
-		if( (trimLeading != 0 || trimTrailing != 0) && res.getLength() > trimLeading + trimTrailing ) {
-			//String newContent = this.rawText.substring(start+trimLeading, start+trimLeading+res.getLength()-trimLeading-trimTrailing);
-			res.setSourceRange(start+trimLeading, res.getLength() - trimLeading - trimTrailing);
+		if (start >= 0 && start < this.rawText.length()) {
+			String rawSource = this.rawText.substring(start, start + res.getLength());
+			int trimLeading = rawSource.length() - rawSource.stripLeading().length();
+			int trimTrailing = rawSource.length() - rawSource.stripTrailing().length();
+			if( (trimLeading != 0 || trimTrailing != 0) && res.getLength() > trimLeading + trimTrailing ) {
+				//String newContent = this.rawText.substring(start+trimLeading, start+trimLeading+res.getLength()-trimLeading-trimTrailing);
+				res.setSourceRange(start+trimLeading, res.getLength() - trimLeading - trimTrailing);
+			}
 		}
 	}
 
@@ -3011,7 +3025,7 @@ class JavacConverter {
 		} else if (javac.getArguments().size() == 1
 				&& javac.getArguments().get(0) instanceof JCAssign namedArg
 				&& (namedArg.getVariable().getPreferredPosition() == Position.NOPOS
-				    || namedArg.getVariable().getPreferredPosition() == namedArg.getExpression().getStartPosition())) {
+				    || namedArg.getVariable().getPreferredPosition() == namedArg.getExpression().getPreferredPosition())) {
 			// actually a @Annotation(value), but returned as a @Annotation(field = value)
 			SingleMemberAnnotation result= ast.newSingleMemberAnnotation();
 			commonSettings(result, javac);
@@ -3421,8 +3435,10 @@ class JavacConverter {
 					typeName.internalSetIdentifier(enumName);
 					typeName.setSourceRange(enumConstant.getStartPosition(), Math.max(0, enumName.length()));
 					enumConstantDeclaration.setName(typeName);
-					enumConstantDeclaration.modifiers()
-							.addAll(convert(enumConstant.getModifiers(), enumConstantDeclaration));
+					if (enumConstant.getModifiers() != null && enumConstant.getPreferredPosition() != Position.NOPOS) {
+						enumConstantDeclaration.modifiers()
+								.addAll(convert(enumConstant.getModifiers(), enumConstantDeclaration));
+					}
 				}
 				if( enumConstant.init instanceof JCNewClass jcnc ) {
 					if( jcnc.def instanceof JCClassDecl jccd) {

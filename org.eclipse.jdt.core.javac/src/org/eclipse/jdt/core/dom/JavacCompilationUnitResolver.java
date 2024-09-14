@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
+import javax.tools.Diagnostic.Kind;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
@@ -485,8 +486,10 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		Map<JavaFileObject, CompilationUnit> filesToUnits = new HashMap<>();
 		final UnusedProblemFactory unusedProblemFactory = new UnusedProblemFactory(new DefaultProblemFactory(), compilerOptions);
 		var problemConverter = new JavacProblemConverter(compilerOptions, context);
+		boolean[] hasParseError = new boolean[] { false };
 		DiagnosticListener<JavaFileObject> diagnosticListener = diagnostic -> {
 			findTargetDOM(filesToUnits, diagnostic).ifPresent(dom -> {
+				hasParseError[0] |= diagnostic.getKind() == Kind.ERROR;
 				var newProblem = problemConverter.createJavacProblem(diagnostic);
 				if (newProblem != null) {
 					IProblem[] previous = dom.getProblems();
@@ -610,6 +613,11 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 		try {
 			var elements = task.parse().iterator();
+			var aptPath = fileManager.getLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH);
+			if ((flags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0
+				|| (aptPath != null && aptPath.iterator().hasNext())) {
+				task.analyze();
+			}
 
 			Throwable cachedThrown = null;
 
@@ -713,14 +721,6 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			}
 			if (cachedThrown != null) {
 				throw new RuntimeException(cachedThrown);
-			}
-			if ((flags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0) {
-				if (resolveBindings) {
-					// use binding resolvers as it will run analyze()
-					result.values().forEach(cu -> cu.getAST().resolveWellKnownType(Object.class.getName()));
-				} else {
-					task.analyze();
-				}
 			}
 		} catch (IOException ex) {
 			ILog.get().error(ex.getMessage(), ex);
