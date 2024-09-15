@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.lookup.NullTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.VoidTypeBinding;
 
 public abstract class Pattern extends Expression {
@@ -83,6 +84,8 @@ public abstract class Pattern extends Expression {
 			return false;
 		if (type == null || this.resolvedType == null)
 			return false;
+		if (type instanceof TypeVariableBinding && type.superclass().isBoxedPrimitiveType())
+			type = type.superclass(); // when a boxing type is in supers it must be superclass, because all boxing types are classes
 		if (type.isPrimitiveOrBoxedPrimitiveType()) {
 			PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(this.resolvedType, type, scope);
 			switch (route) {
@@ -235,7 +238,6 @@ public abstract class Pattern extends Expression {
 
 			} else if (expressionType.isBoxedPrimitiveType() && destinationIsBaseType) {
 				TypeBinding unboxedExpressionType = scope.environment().computeBoxingType(expressionType);
-				 //TODO: a narrowing reference conversion that is checked followed by an unboxing conversion
 				 //an unboxing conversion (5.1.8)
 				if (TypeBinding.equalsEquals(destinationType, unboxedExpressionType))
 					return PrimitiveConversionRoute.UNBOXING_CONVERSION;
@@ -243,8 +245,8 @@ public abstract class Pattern extends Expression {
 				if (BaseTypeBinding.isWidening(destinationType.id, unboxedExpressionType.id))
 					return PrimitiveConversionRoute.UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION;
 			} else if (destinationIsBaseType) {
-				if (expressionType.erasure().isBoxedPrimitiveType()) { // <T extends Integer> / <? extends Short> ...
-					int boxId = expressionType.erasure().id;
+				if (expressionType instanceof TypeVariableBinding && expressionType.superclass().isBoxedPrimitiveType()) { // <T extends Integer> / <? extends Short> ...
+					int boxId = expressionType.superclass().id;
 					int exprPrimId = TypeIds.box2primitive(boxId);
 					if (exprPrimId == destinationType.id)
 						return PrimitiveConversionRoute.WIDENING_REFERENCE_AND_UNBOXING_COVERSION;
@@ -252,6 +254,8 @@ public abstract class Pattern extends Expression {
 						return PrimitiveConversionRoute.WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION;
 				}
 				TypeBinding boxedDestinationType = scope.environment().computeBoxingType(destinationType);
+				// a narrowing reference conversion that is checked followed by an unboxing conversion
+				// TODO: check relevance of 'checked', as well as use of erasure() below
 				if (boxedDestinationType.isCompatibleWith(expressionType.erasure()))
 					return PrimitiveConversionRoute.NARROWING_AND_UNBOXING_CONVERSION;
 			}
