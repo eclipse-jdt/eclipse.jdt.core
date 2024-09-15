@@ -7042,6 +7042,46 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1.0\n" +
 			"100.0");
 	}
+   public void testIssue2937_1() {
+	   runConformTest(new String[] {
+				"X.java",
+				"""
+				record Record<T extends Short>(T t) {}
+				public class X {
+					public static <T extends Short> short foo(Record<T> s) {
+						return switch (s) {
+							case Record(short s1) -> s1;
+							default -> 0;
+						};
+					}
+					public static void main(String[] args) {
+						System.out.print(foo(new Record((short) 2)));
+					}
+				}
+				"""
+			},
+			"2");
+   }
+   public void testIssue2937_2() {
+	   runConformTest(new String[] {
+				"X.java",
+				"""
+				record Record<T extends Short>(T t) {}
+				public class X {
+					public static short foo(Record<?> s) {
+						return switch (s) {
+							case Record(short s1) -> s1;
+							default -> 0;
+						};
+					}
+					public static void main(String[] args) {
+						System.out.print(foo(new Record((short) 2)));
+					}
+				}
+				"""
+			},
+			"2");
+   }
    // test from spec
 	public void _testSpec001() {
 		runConformTest(new String[] {
