@@ -1649,20 +1649,53 @@ class JavacConverter {
 							arrayType.dimensions().addAll(extraDimensions);
 							arrayType.dimensions().add(lastDimension);
 						}
+						int totalRequiredDims = countDimensions(jcNewArray.getType()) + 1;
+						int totalCreated = arrayType.dimensions().size();
+						if( totalCreated < totalRequiredDims) {
+							int endPos = jcNewArray.getEndPosition(this.javacCompilationUnit.endPositions);
+							int startPos = jcNewArray.getStartPosition();
+							String raw = this.rawText.substring(startPos, endPos);
+							for( int i = 0; i < totalRequiredDims; i++ ) {
+								int absoluteEndChar = startPos + ordinalIndexOf(raw, "]", i+1);
+								int absoluteEnd = absoluteEndChar + 1;
+								int absoluteStart = startPos + ordinalIndexOf(raw, "[", i+1);
+								boolean found = false;
+								if( absoluteEnd != -1 && absoluteStart != -1 ) {
+									for( int j = 0; i < totalCreated && !found; j++ ) {
+										Dimension d = (Dimension)arrayType.dimensions().get(j);
+										if( d.getStartPosition() == absoluteStart && (d.getStartPosition() + d.getLength()) == absoluteEnd) {
+											found = true;
+										}
+									}
+									if( !found ) {
+										// Need to make a new one
+										Dimension d = this.ast.newDimension();
+										d.setSourceRange(absoluteStart, absoluteEnd - absoluteStart);
+										arrayType.dimensions().add(i, d);
+										totalCreated++;
+									}
+								}
+							}
+						}
 					} else {
+						// JLS < 8, just wrap underlying type
 						arrayType = this.ast.newArrayType(childArrayType);
 					}
 				} else if(jcNewArray.dims != null && jcNewArray.dims.size() > 0 ){
+					// Child is not array type
 					arrayType = this.ast.newArrayType(type);
 					int dims = jcNewArray.dims.size();
 					for( int i = 0; i < dims - 1; i++ ) {
 						if( this.ast.apiLevel >= AST.JLS8_INTERNAL) {
+							// TODO, this dimension needs source range
 							arrayType.dimensions().addFirst(this.ast.newDimension());
 						} else {
+							// JLS < 8, wrap underlying
 							arrayType = this.ast.newArrayType(arrayType);
 						}
 					}
 				} else {
+					// Child is not array type, and 0 dims for underlying
 					arrayType = this.ast.newArrayType(type);
 				}
 				commonSettings(arrayType, jcNewArray.getType());
@@ -2888,10 +2921,15 @@ class JavacConverter {
 					int startPos = jcArrayType.getStartPosition();
 					try {
 						String raw = this.rawText.substring(startPos, endPos);
-						int ordinal = ordinalIndexOf(raw, "]", dims);
-						if( ordinal != -1 ) {
-							int indOf = ordinal + 1;
-							commonSettings(res, jcArrayType, indOf, true);
+						int ordinalEnd = ordinalIndexOf(raw, "]", dims);
+						int ordinalStart = ordinalIndexOf(raw, "[", dims);
+						if( ordinalEnd != -1 ) {
+							commonSettings(res, jcArrayType, ordinalEnd + 1, true);
+							if( this.ast.apiLevel >= AST.JLS8_INTERNAL ) {
+								if( res.dimensions().size() > 0 ) {
+									((Dimension)res.dimensions().get(0)).setSourceRange(startPos + ordinalStart, ordinalEnd - ordinalStart + 1);
+								}
+							}
 							return res;
 						}
 					} catch( Throwable tErr) {
