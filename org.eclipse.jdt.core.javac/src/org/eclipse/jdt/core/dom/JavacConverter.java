@@ -1727,6 +1727,13 @@ class JavacConverter {
 			}
 			return res;
 		}
+		if (javac instanceof JCTree.JCArrayTypeTree arrayTypeTree) {
+			Type type = convertToType(javac);
+			TypeLiteral res = this.ast.newTypeLiteral();
+			res.setType(type);
+			commonSettings(res, arrayTypeTree);
+			return res;
+		}
 		return null;
 	}
 
