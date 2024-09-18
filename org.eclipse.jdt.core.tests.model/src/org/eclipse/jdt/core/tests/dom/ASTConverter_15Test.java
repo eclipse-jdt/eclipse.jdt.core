@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.tests.javac.JavacTestIgnore;
+import org.eclipse.jdt.core.tests.javac.JavacFailReason;
 import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
 
@@ -757,7 +757,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 				literal);
 	}
 
-	@Category(value=Ignore.class) @JavacTestIgnore(cause=JavacTestIgnore.VALID_ALTERNATIVE_IMPL)
+	@Category(value=Ignore.class) @JavacFailReason(cause=JavacFailReason.VALID_ALTERNATIVE_IMPL)
 	public void testTextBlock004() throws JavaModelException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
