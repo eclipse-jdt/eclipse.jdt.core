@@ -149,13 +149,20 @@ class JavacConverter {
 	private final List<JavadocConverter> javadocConverters = new ArrayList<>();
 	final List<org.eclipse.jdt.core.dom.Comment> notAttachedComments = new ArrayList<>();
 	private boolean buildJavadoc;
+	private int focalPoint;
 
-	public JavacConverter(AST ast, JCCompilationUnit javacCompilationUnit, Context context, String rawText, boolean buildJavadoc) {
+	private JavacConverter(AST ast, JCCompilationUnit javacCompilationUnit, Context context, String rawText, boolean buildJavadoc) {
 		this.ast = ast;
 		this.javacCompilationUnit = javacCompilationUnit;
 		this.context = context;
 		this.rawText = rawText;
 		this.buildJavadoc = buildJavadoc;
+		this.focalPoint = -1;
+	}
+	public JavacConverter(AST ast, JCCompilationUnit javacCompilationUnit, 
+			Context context, String rawText, boolean buildJavadoc, int focalPoint) {
+		this(ast, javacCompilationUnit, context, rawText, buildJavadoc);
+		this.focalPoint = focalPoint;
 	}
 
 	CompilationUnit convertCompilationUnit() {
@@ -779,7 +786,14 @@ class JavacConverter {
 			} else {
 				res.internalSetModifiers(getJLS2ModifiersFlags(block.flags));
 			}
-			res.setBody(convertBlock(block));
+			boolean fillBlock = shouldFillBlock(block, this.focalPoint);
+			if( fillBlock ) {
+				res.setBody(convertBlock(block));
+			} else {
+				Block b = this.ast.newBlock();
+				commonSettings(res, block);
+				res.setBody(b);
+			}
 			return res;
 		}
 		if (tree instanceof JCErroneous || tree instanceof JCSkip) {
@@ -974,24 +988,30 @@ class JavacConverter {
 		}
 
 		if (javac.getBody() != null) {
-			Block b = convertBlock(javac.getBody());
-			if (b != null) {
-				AbstractTypeDeclaration td = findSurroundingTypeDeclaration(parent);
-				boolean isInterface = td instanceof TypeDeclaration td1 && td1.isInterface();
-				long modFlags = javac.getModifiers() == null ? 0 : javac.getModifiers().flags;
-				boolean isAbstractOrNative = (modFlags & (Flags.ABSTRACT | Flags.NATIVE)) != 0;
-				boolean isJlsBelow8 = this.ast.apiLevel < AST.JLS8_INTERNAL;
-				boolean isJlsAbove8 = this.ast.apiLevel > AST.JLS8_INTERNAL;
-				long flagsToCheckForAboveJLS8 = Flags.STATIC | Flags.DEFAULT | (isJlsAbove8 ? Flags.PRIVATE : 0);
-				boolean notAllowed = (isAbstractOrNative || (isInterface && (isJlsBelow8 || (modFlags & flagsToCheckForAboveJLS8) == 0)));
-				if (notAllowed) {
-					res.setFlags(res.getFlags() | ASTNode.MALFORMED);
+			boolean fillBlock = shouldFillBlock(javac.getBody(), this.focalPoint);
+			if( fillBlock ) {
+				Block b = convertBlock(javac.getBody());
+				if (b != null) {
+					AbstractTypeDeclaration td = findSurroundingTypeDeclaration(parent);
+					boolean isInterface = td instanceof TypeDeclaration td1 && td1.isInterface();
+					long modFlags = javac.getModifiers() == null ? 0 : javac.getModifiers().flags;
+					boolean isAbstractOrNative = (modFlags & (Flags.ABSTRACT | Flags.NATIVE)) != 0;
+					boolean isJlsBelow8 = this.ast.apiLevel < AST.JLS8_INTERNAL;
+					boolean isJlsAbove8 = this.ast.apiLevel > AST.JLS8_INTERNAL;
+					long flagsToCheckForAboveJLS8 = Flags.STATIC | Flags.DEFAULT | (isJlsAbove8 ? Flags.PRIVATE : 0);
+					boolean notAllowed = (isAbstractOrNative || (isInterface && (isJlsBelow8 || (modFlags & flagsToCheckForAboveJLS8) == 0)));
+					if (notAllowed) {
+						res.setFlags(res.getFlags() | ASTNode.MALFORMED);
+					}
+					res.setBody(b);
+					if( (b.getFlags() & ASTNode.MALFORMED) > 0 ) {
+						malformed = true;
+					}
 				}
+			} else {
+				Block b = this.ast.newBlock();
+				commonSettings(res, javac);
 				res.setBody(b);
-			}
-
-			if( (b.getFlags() & ASTNode.MALFORMED) > 0 ) {
-				malformed = true;
 			}
 		}
 
@@ -1011,6 +1031,14 @@ class JavacConverter {
 		return res;
 	}
 
+	private boolean shouldFillBlock(JCTree tree, int focalPoint2) {
+		int start = tree.getStartPosition();
+		int endPos = tree.getEndPosition(this.javacCompilationUnit.endPositions);
+		if( focalPoint == -1 || (focalPoint >= start && focalPoint <= endPos)) {
+			return true;
+		}
+		return false;
+	}
 	private AbstractTypeDeclaration findSurroundingTypeDeclaration(ASTNode parent) {
 		if( parent == null )
 			return null;

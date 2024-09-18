@@ -2364,7 +2364,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40474
 	 */
-	@Category(Ignore.class)
 	@JavacFailReason(cause=JavacFailReason.JAVAC_FOCAL_POSITION)
 	@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
 	public void test0486() throws JavaModelException {
