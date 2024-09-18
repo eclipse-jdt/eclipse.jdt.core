@@ -2556,8 +2556,7 @@ public void test078() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47227
  */
 public void test079() {
-
-	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK22) ?
+	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK23) ?
 			"""
 			----------
 			1. ERROR in X.java (at line 1)
@@ -2568,7 +2567,7 @@ public void test079() {
 			2. ERROR in X.java (at line 1)
 				void ___eval() {
 				^
-			Implicitly declared class must have a candidate main method
+			Implicitly Declared class must have a candidate main method
 			----------
 			3. ERROR in X.java (at line 4)
 				return blah;
@@ -2581,7 +2580,7 @@ public void test079() {
 			1. ERROR in X.java (at line 1)
 				void ___eval() {
 				^
-			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 22 and above
+			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above
 			----------
 			2. ERROR in X.java (at line 1)
 				void ___eval() {
@@ -2617,7 +2616,7 @@ public void test079() {
 			"		}\n" +
 			"	};\n" +
 			"}\n" +
-			"public class Hello {\n" +
+			"public class X {\n" +
 			"	private static int x;\n" +
 			"	private String blah;\n" +
 			"	public static void main(String[] args) {\n" +

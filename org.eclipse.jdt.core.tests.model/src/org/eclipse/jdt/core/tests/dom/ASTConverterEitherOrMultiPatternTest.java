@@ -52,13 +52,9 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 		super.setUpSuite();
 		this.ast = AST.newAST(getASTLatest(), true);
 		this.currentProject = getJavaProject("Converter_22");
-		if (this.ast.apiLevel() == AST.JLS22) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_22);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_22);
-			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_22);
-			this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-			this.currentProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
-		}
+		this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_22);
+		this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_22);
+		this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_22);
 	}
 
 	public ASTConverterEitherOrMultiPatternTest(String name) {

@@ -2090,7 +2090,7 @@ public void test068() {
 			"6. ERROR in X.java (at line 9)\n" +
 			"	case \'a\' :   // case statement\n" +
 			"	     ^^^\n" +
-			"Type mismatch: cannot convert from char to Integer\n" +
+			"Case constant of type char is incompatible with switch selector type Integer\n" +
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=480989

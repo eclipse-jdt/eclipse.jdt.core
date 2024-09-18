@@ -119,7 +119,7 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	setupExternalJCL("jclMin");
 	setupExternalJCL("jclMin1.5");
-	setupExternalJCL("jclMin22");
+	setupExternalJCL("jclMin23");
 }
 
 void restoreAutobuild(IWorkspaceDescription preferences, boolean autoBuild) throws CoreException {
@@ -462,7 +462,7 @@ public void test232816f() throws Exception {
 		assertStatus(
 			"should have complained about jdk level mismatch",
 			"Incompatible .class files version in required binaries. Project 'P' is targeting a " + CompilerOptions.getFirstSupportedJavaVersion()
-					+ " runtime, but is compiled against \'" + getExternalJCLPath("22").makeRelative() + "' (from the container 'container/default') which requires a 22 runtime",
+					+ " runtime, but is compiled against \'" + getExternalJCLPath("23").makeRelative() + "' (from the container 'container/default') which requires a 23 runtime",
 			status);
 	} finally {
 		deleteProject("P");

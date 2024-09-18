@@ -1050,8 +1050,31 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 	NestedTypeBinding nestedType = (NestedTypeBinding) this.binding;
 
 	MethodScope methodScope = currentScope.methodScope();
-	if (!methodScope.isStatic && !methodScope.isConstructorCall){
-		nestedType.addSyntheticArgumentAndField(nestedType.enclosingType());
+	if (!methodScope.isStatic) {
+		boolean earlySeen = false;
+		Scope outerScope = currentScope.parent;
+		if (!methodScope.isConstructorCall) {
+			nestedType.addSyntheticArgumentAndField(nestedType.enclosingType());
+			outerScope = outerScope.enclosingClassScope();
+			earlySeen = methodScope.isInsideEarlyConstructionContext(nestedType.enclosingType(), false);
+		}
+		if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(currentScope.compilerOptions())) {
+			// JEP 482: this is the central location for organizing synthetic arguments and fields
+			// to serve far outer instances even in inner early construction context.
+			// Locations MethodBinding.computeSignature() and BlockScope.getEmulationPath() will faithfully
+			// use the information generated here, to decide about signature and call sequence.
+			while (outerScope != null) {
+				if (outerScope instanceof ClassScope cs) {
+					if (earlySeen && !cs.insideEarlyConstructionContext) {
+						// a direct outer beyond an early construction context disrupts
+						// the chain of fields, supply a local copy instead (arg & field):
+						nestedType.addSyntheticArgumentAndField(cs.referenceContext.binding);
+					}
+					earlySeen = cs.insideEarlyConstructionContext;
+				}
+				outerScope = outerScope.parent;
+			}
+		}
 	}
 	// add superclass enclosing instance arg for anonymous types (if necessary)
 	if (nestedType.isAnonymousType()) {

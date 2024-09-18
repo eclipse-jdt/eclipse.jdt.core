@@ -31,8 +31,4 @@ public interface ExtendedTagBits {
 
 	// @Owning / closing
 	int IsClosingMethod = ASTNode.Bit1; // method
-
-	// pre-construction context - anonymous type
-	int IsInPreconstructorContext = ASTNode.Bit6;
-
 }

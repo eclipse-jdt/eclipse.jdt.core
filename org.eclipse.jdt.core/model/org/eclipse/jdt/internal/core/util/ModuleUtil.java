@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 IBM Corporation.
+ * Copyright (c) 2017, 2024 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -51,7 +51,7 @@ public class ModuleUtil {
 
 		Set<String> modules = new HashSet<>();
 		public String[] getModules() {
-			this.modules.remove(String.valueOf(TypeConstants.JAVA_BASE));
+			this.modules.remove(String.valueOf(TypeConstants.JAVA_DOT_BASE));
 			String[] mods = new String[this.modules.size()];
 			return this.modules.toArray(mods);
 		}

@@ -57,8 +57,6 @@ $Terminals
 	CharacterLiteral
 	StringLiteral
 	TextBlock
-	StringTemplate
-	TextBlockTemplate
 
 	PLUS_PLUS
 	MINUS_MINUS
@@ -1308,33 +1306,6 @@ ComponentPattern -> UnnamedPattern
 -----------------------------------------------
 -- 20 preview feature : end of record patterns
 -----------------------------------------------
------------------------------------------------
--- 21 preview feature : String templates
------------------------------------------------
-
-PrimaryNoNewArray -> StringTemplateExpression
-
-TemplateArgument -> StringLiteral
-TemplateArgument -> TextBlock
-TemplateArgument -> StringTemplate
-TemplateArgument -> TextBlockTemplate
-
-StringTemplateExpression ::= Name '.' TemplateArgument
-/.$putCase consumeTemplateExpressionWithName(); $break ./
-/:$readableName TemplateExpression:/
-/:$compliance 21:/
-
-StringTemplateExpression ::= Primary '.' TemplateArgument
-/.$putCase consumeTemplateExpressionWithPrimary(); $break ./
-/:$readableName TemplateExpression:/
-/:$compliance 21:/
-
---TemplateProcessor ::= Expression
---/:$compliance 21:/
-
------------------------------------------------
--- 21 preview feature : end of String templates
------------------------------------------------
 
 UnnamedPattern ::= '_'
 /.$putCase consumeUnnamedPattern(); $break ./
@@ -2561,6 +2532,21 @@ StaticImportOnDemandDeclarationName ::= 'import' 'static' Name '.' RejectTypeAnn
 /.$putCase consumeStaticImportOnDemandDeclarationName(); $break ./
 /:$readableName StaticImportOnDemandDeclarationName:/
 /:$compliance 1.5:/
+
+-----------------------------------------------
+-- 23 preview feature (JEP 476: Module Import Declarations)
+-----------------------------------------------
+ImportDeclaration -> SingleModuleImportDeclaration
+
+SingleModuleImportDeclaration ::= SingleModuleImportDeclarationName ';'
+/.$putCase consumeImportDeclaration(); $break ./
+/:$readableName SingleModuleImportDeclaration:/
+/:$compliance 23:/
+
+SingleModuleImportDeclarationName ::= 'import' 'module' Name RejectTypeAnnotations
+/.$putCase consumeSingleModuleImportDeclarationName(); $break ./
+/:$readableName SingleModuleImportDeclarationName:/
+/:$compliance 23:/
 
 -----------------------------------------------
 -- 1.5 features : generics

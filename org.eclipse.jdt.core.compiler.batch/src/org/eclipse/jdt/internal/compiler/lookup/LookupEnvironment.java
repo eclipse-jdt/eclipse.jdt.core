@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -755,7 +755,7 @@ public ModuleBinding javaBaseModule() {
 		return this.JavaBaseModule = this.root.javaBaseModule();
 	ModuleBinding resolvedModel = null;
 	if (this.useModuleSystem)
-		resolvedModel = getModule(TypeConstants.JAVA_BASE);
+		resolvedModel = getModule(TypeConstants.JAVA_DOT_BASE);
 	return this.JavaBaseModule = (resolvedModel != null ? resolvedModel : this.UnNamedModule); // fall back to pre-Jigsaw view
 }
 
@@ -1533,7 +1533,7 @@ private boolean flaggedJavaBaseTypeErrors(ReferenceBinding result, char[][] comp
 						// A type from java.base is not visible
 						if (!this.globalOptions.enableJdtDebugCompileMode) {
 							this.problemReporter.conflictingPackageInModules(compoundName, this.root.unitBeingCompleted, this.missingClassFileLocation,
-									readableName, TypeConstants.JAVA_BASE, visibleModule.readableName());
+									readableName, TypeConstants.JAVA_DOT_BASE, visibleModule.readableName());
 							return true;
 						}
 					}

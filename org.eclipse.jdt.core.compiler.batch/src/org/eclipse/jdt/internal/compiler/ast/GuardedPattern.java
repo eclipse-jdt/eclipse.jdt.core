@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
@@ -53,6 +54,7 @@ public class GuardedPattern extends Pattern {
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel) {
 		BranchLabel guardCheckLabel = new BranchLabel(codeStream);
+		this.primaryPattern.setOuterExpressionType(this.outerExpressionType);
 		this.primaryPattern.generateCode(currentScope, codeStream, guardCheckLabel, matchFailLabel);
 		guardCheckLabel.place();
 		this.condition.generateOptimizedBoolean(currentScope, codeStream, null, matchFailLabel, true);
@@ -61,11 +63,6 @@ public class GuardedPattern extends Pattern {
 	@Override
 	public boolean matchFailurePossible() {
 		return !isUnguarded() || this.primaryPattern.matchFailurePossible();
-	}
-
-	@Override
-	public boolean isUnconditional(TypeBinding t) {
-		return isUnguarded() && this.primaryPattern.isUnconditional(t);
 	}
 
 	@Override
@@ -80,8 +77,8 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public boolean coversType(TypeBinding type) {
-		return isUnguarded() && this.primaryPattern.coversType(type);
+	public boolean coversType(TypeBinding type, Scope scope) {
+		return isUnguarded() && this.primaryPattern.coversType(type, scope);
 	}
 
 	@Override
@@ -99,6 +96,7 @@ public class GuardedPattern extends Pattern {
 		if (this.resolvedType != null || this.primaryPattern == null)
 			return this.resolvedType;
 		this.resolvedType = this.primaryPattern.resolveType(scope);
+
 		try {
 			scope.resolvingGuardExpression = true; // as guards cannot nest in the same scope, no save & restore called for
 			this.condition.resolveTypeExpectingWithBindings(this.primaryPattern.bindingsWhenTrue(), scope, TypeBinding.BOOLEAN);

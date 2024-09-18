@@ -1656,6 +1656,30 @@ public void caseExpressionMustBeConstant(Expression expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void caseExpressionWrongType(Expression expression, TypeBinding switchBinding, TypeBinding selectorBinding) {
+	this.handle(
+		IProblem.WrongCaseType,
+		new String[] {String.valueOf(switchBinding.readableName()), String.valueOf(selectorBinding.readableName())},
+		new String[] {String.valueOf(switchBinding.shortReadableName()), String.valueOf(selectorBinding.shortReadableName())},
+		expression.sourceStart,
+		expression.sourceEnd);
+}
+public void caseConstantIncompatible(TypeBinding resolvedType, TypeBinding switchType, Expression expression) {
+	this.handle(
+			IProblem.IncompatibleCaseType,
+			new String[] {String.valueOf(resolvedType.readableName()), String.valueOf(switchType.readableName())},
+			new String[] {String.valueOf(resolvedType.shortReadableName()), String.valueOf(switchType.shortReadableName())},
+			expression.sourceStart,
+			expression.sourceEnd);
+}
+public void caseDefaultPlusTrueAndFalse(ASTNode location) {
+	this.handle(
+			IProblem.DefaultTrueAndFalseCases,
+			NoArgument,
+			NoArgument,
+			location.sourceStart,
+			location.sourceEnd);
+}
 public void classExtendFinalClass(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
 	String name = new String(type.sourceName());
 	String superTypeFullName = new String(superTypeBinding.readableName());
@@ -3442,6 +3466,16 @@ public void illegalVoidExpression(ASTNode location) {
 		location.sourceEnd);
 }
 public void importProblem(ImportReference importRef, Binding expectedImport) {
+	if ((importRef.modifiers & ClassFileConstants.AccModule) != 0 && expectedImport == null) {
+		String[] arguments = new String[]{CharOperation.toString(importRef.tokens)};
+		this.handleUntagged(
+		        IProblem.ImportNotFound,
+		        arguments,
+		        arguments,
+		        importRef.sourceStart,
+		        importRef.sourceEnd);
+		return;
+	}
 	if (expectedImport instanceof FieldBinding) {
 		int id = IProblem.UndefinedField;
 		FieldBinding field = (FieldBinding) expectedImport;
@@ -4238,6 +4272,22 @@ public void invalidExplicitConstructorCall(ASTNode location) {
 		NoArgument,
 		location.sourceStart,
 		location.sourceEnd);
+}
+public void duplicateExplicitConstructorCall(ASTNode location) {
+	this.handle(
+			IProblem.DuplicateExplicitConstructorCall,
+			NoArgument,
+			NoArgument,
+			location.sourceStart,
+			location.sourceEnd);
+}
+public void misplacedConstructorCall(ASTNode location) {
+	this.handle(
+			IProblem.ConstructorCallNotAllowedHere,
+			NoArgument,
+			NoArgument,
+			location.sourceStart,
+			location.sourceEnd);
 }
 public void invalidExpressionAsStatement(Expression expression){
 	this.handle(
@@ -11763,6 +11813,15 @@ public void conflictingPackageInModules(char[][] wellKnownTypeName, CompilationU
 	}
 }
 
+public void moduleDoesNotReadOther(ImportReference importReference, ModuleBinding currentModule, ModuleBinding otherModule) {
+	String[] arguments = new String[] { String.valueOf(currentModule.moduleName), String.valueOf(otherModule.moduleName) };
+	this.handle(
+		IProblem.ModuleNotRead,
+		arguments,
+		arguments,
+		importReference.sourceStart,
+		importReference.sourceEnd);
+}
 public void switchExpressionIncompatibleResultExpressions(SwitchExpression expression) {
 	TypeBinding type = expression.resultExpressions.get(0).resolvedType;
 	this.handle(
@@ -12534,14 +12593,6 @@ public void enhancedSwitchMissingDefaultCase(ASTNode element) {
 			element.sourceStart,
 			element.sourceEnd);
 }
-public void duplicateTotalPattern(ASTNode element) {
-	this.handle(
-			IProblem.DuplicateTotalPattern,
-			NoArgument,
-			NoArgument,
-			element.sourceStart,
-			element.sourceEnd);
-}
 public void unexpectedTypeinSwitchPattern(TypeBinding type, ASTNode element) {
 	this.handle(
 			IProblem.UnexpectedTypeinSwitchPattern,
@@ -12598,19 +12649,64 @@ public void unnamedVariableMustHaveInitializer(LocalDeclaration variableDeclarat
 			variableDeclaration.sourceStart,
 			variableDeclaration.sourceEnd);
 }
-public void errorExpressionInPreConstructorContext(Expression expr) {
+public void errorExpressionInEarlyConstructionContext(Expression expr) {
 	String[] arguments = new String[] {expr.toString()};
 	this.handle(
-		IProblem.ExpressionInPreConstructorContext,
+		expr instanceof ThisReference thisRef && thisRef.inFieldReference
+			? IProblem.ThisInEarlyConstructionContext
+			: IProblem.ExpressionInEarlyConstructionContext,
 		arguments,
 		arguments,
 		expr.sourceStart,
 		expr.sourceEnd);
 }
-public void errorReturnInPrologue(Statement stmt) {
+public void messageSendInEarlyConstructionContext(MessageSend location) {
+	String[] arguments = new String[] { String.valueOf(location.selector) };
+	this.handle(
+		IProblem.MessageSendInEarlyConstructionContext,
+		arguments,
+		arguments,
+		location.sourceStart,
+		location.sourceEnd);
+}
+public void allocationInEarlyConstructionContext(Expression expr, TypeBinding allocatedType, TypeBinding uninitializedType) {
+	this.handle(
+		IProblem.AllocationInEarlyConstructionContext,
+		new String[] { String.valueOf(allocatedType.readableName()), String.valueOf(uninitializedType.readableName())},
+		new String[] { String.valueOf(allocatedType.shortReadableName()), String.valueOf(uninitializedType.shortReadableName())},
+		expr.sourceStart,
+		expr.sourceEnd);
+}
+public void fieldReadInEarlyConstructionContext(char[] token, int sourceStart, int sourceEnd) {
+	String[] arguments = new String[] {String.valueOf(token)};
+	this.handle(
+		IProblem.FieldReadInEarlyConstructionContext,
+		arguments,
+		arguments,
+		sourceStart,
+		sourceEnd);
+}
+public void superFieldAssignInEarlyConstructionContext(ASTNode location, FieldBinding field) {
+	this.handle(
+		IProblem.SuperFieldAssignInEarlyConstructionContext,
+		new String[] {String.valueOf(field.name), String.valueOf(field.declaringClass.readableName())},
+		new String[] {String.valueOf(field.name), String.valueOf(field.declaringClass.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
+public void assignFieldWithInitializerInEarlyConstructionContext(char[] token, int sourceStart, int sourceEnd) {
+	String[] arguments = new String[] {String.valueOf(token)};
+	this.handle(
+		IProblem.AssignFieldWithInitializerInEarlyConstructionContext,
+		arguments,
+		arguments,
+		sourceStart,
+		sourceEnd);
+}
+public void errorReturnInEarlyConstructionContext(Statement stmt) {
 	String[] arguments = new String[] {stmt.toString()};
 	this.handle(
-		IProblem.DisallowedStatementInPrologue,
+		IProblem.DisallowedStatementInEarlyConstructionContext,
 		arguments,
 		arguments,
 		stmt.sourceStart,

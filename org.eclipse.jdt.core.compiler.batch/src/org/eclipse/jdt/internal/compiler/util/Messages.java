@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -126,8 +126,10 @@ public final class Messages {
 	public static String record_patterns;
 	public static String unnamed_patterns_and_vars;
 	public static String implicit_classes_and_instance_main_methods;
-	public static String string_templates;
-	public static String statements_before_super;
+	public static String flexible_constructor_bodies;
+	public static String primitives_in_patterns;
+	public static String module_imports;
+	public static String markdown_comments;
 
 	static {
 		initializeMessages(BUNDLE_NAME, Messages.class);

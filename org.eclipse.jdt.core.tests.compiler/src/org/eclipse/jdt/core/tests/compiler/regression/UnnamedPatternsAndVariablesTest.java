@@ -7,6 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -22,7 +23,7 @@ import junit.framework.Test;
 public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(UnnamedPatternsAndVariablesTest.class, F_22);
+		return buildMinimalComplianceTestSuite(UnnamedPatternsAndVariablesTest.class, F_23);
 	}
 
 	static {

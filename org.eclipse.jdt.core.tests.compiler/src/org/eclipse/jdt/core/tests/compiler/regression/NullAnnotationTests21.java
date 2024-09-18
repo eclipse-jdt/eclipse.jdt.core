@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2023 GK Software SE, and others.
+ * Copyright (c) 2021, 2024 GK Software SE, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -999,16 +999,17 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
-	public void testGH1964_since_22() {
-		if (this.complianceLevel < ClassFileConstants.JDK22)
+	// disabling the tests since String Template is no longer there - not removing the test in case it comes back later.
+	public void _testGH1964_since_22() {
+		if (this.complianceLevel < ClassFileConstants.JDK23)
 			return;
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
 		runner.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
-		runner.customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_22);
-		runner.customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_22);
-		runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_22);
+		runner.customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_23);
+		runner.customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_23);
+		runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_23);
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.testFiles = new String[] {
 			"JDK21TestingMain.java",

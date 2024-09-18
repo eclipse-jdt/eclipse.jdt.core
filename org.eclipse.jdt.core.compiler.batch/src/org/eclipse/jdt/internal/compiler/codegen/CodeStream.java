@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -128,7 +128,6 @@ public class CodeStream {
 
 	public Map<BlockScope, List<ExceptionLabel>> patternAccessorMap = new HashMap<>();
 	public Stack<BlockScope> accessorExceptionTrapScopes = new Stack<>();
-	public boolean stmtInPreConContext = false;
 
 public CodeStream(ClassFile givenClassFile) {
 	this.targetLevel = givenClassFile.targetJDK;
@@ -1085,6 +1084,12 @@ public void dsub() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dsub;
 }
 
+public void dup(TypeBinding type) {
+	if (TypeIds.getCategory(type.id) == 2)
+		dup2();
+	else
+		dup();
+}
 public void dup() {
 	this.countLabels = 0;
 	this.stackDepth++;
@@ -2521,7 +2526,6 @@ public void invokeDynamicForStringConcat(StringBuilder recipe, List<TypeBinding>
 			1, // Ljava/lang/String;
 			ConstantPool.ConcatWithConstants,
 			signature.toString().toCharArray(),
-			TypeIds.T_JavaLangObject,
 			getPopularBinding(ConstantPool.JavaLangStringConstantPoolName));
 }
 /**
@@ -2948,7 +2952,7 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 			}
 			// Example: invokeDynamic(0, 0, 1, "m".toCharArray(), "()Lcom/foo/X$Foo;".toCharArray());
 			invokeDynamic(funcEx.bootstrapMethodNumber, index, 1, funcEx.descriptor.selector,
-					sig.toString().toCharArray(), funcEx.resolvedType.id, funcEx.resolvedType);
+					sig.toString().toCharArray(), funcEx.resolvedType);
 			areturn();
 			if (j < count - 1) {
 				nextOne.place();
@@ -3382,7 +3386,7 @@ public void generateSyntheticBodyForRecordEquals(SyntheticMethodBinding methodBi
 	String sig = new String(methodBinding.signature());
 	sig = sig.substring(0, 1)+ new String(methodBinding.declaringClass.signature()) + sig.substring(1);
 	invokeDynamic(index, methodBinding.parameters.length, 1, methodBinding.selector, sig.toCharArray(),
-			TypeIds.T_boolean, TypeBinding.BOOLEAN);
+			TypeBinding.BOOLEAN);
 	ireturn();
 }
 public void generateSyntheticBodyForRecordHashCode(SyntheticMethodBinding methodBinding, int index) {
@@ -3390,7 +3394,7 @@ public void generateSyntheticBodyForRecordHashCode(SyntheticMethodBinding method
 	String sig = new String(methodBinding.signature());
 	sig = sig.substring(0, 1)+ new String(methodBinding.declaringClass.signature()) + sig.substring(1);
 	invokeDynamic(index, methodBinding.parameters.length, 1, methodBinding.selector, sig.toCharArray(),
-			TypeIds.T_int, TypeBinding.INT);
+			TypeBinding.INT);
 	ireturn();
 }
 public void generateSyntheticBodyForRecordToString(SyntheticMethodBinding methodBinding, int index) {
@@ -3398,7 +3402,7 @@ public void generateSyntheticBodyForRecordToString(SyntheticMethodBinding method
 	String sig = new String(methodBinding.signature());
 	sig = sig.substring(0, 1)+ new String(methodBinding.declaringClass.signature()) + sig.substring(1);
 	invokeDynamic(index, methodBinding.parameters.length, 1, methodBinding.selector, sig.toCharArray(),
-			TypeIds.T_JavaLangObject, getPopularBinding(ConstantPool.JavaLangStringConstantPoolName));
+			getPopularBinding(ConstantPool.JavaLangStringConstantPoolName));
 	areturn();
 }
 
@@ -4496,7 +4500,7 @@ public void instance_of(TypeReference typeReference, TypeBinding typeBinding) {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_instanceof;
 	writeUnsignedShort(this.constantPool.literalIndexForType(typeBinding));
-	this.operandStack.pop(OperandCategory.ONE);
+	this.operandStack.pop(TypeIds.getCategory(typeBinding.id));
 	this.operandStack.push(TypeBinding.INT);
 }
 
@@ -4546,12 +4550,12 @@ private void invoke18(byte opcode, int receiverAndArgsSize, int returnTypeSize, 
 }
 
 public void invokeDynamic(int bootStrapIndex, int argsSize, int returnTypeSize, char[] selector, char[] signature,
-		int typeId, TypeBinding type) {
-	this.invokeDynamic(bootStrapIndex, argsSize, returnTypeSize, selector, signature, false, null, null, typeId, type);
+		TypeBinding type) {
+	this.invokeDynamic(bootStrapIndex, argsSize, returnTypeSize, selector, signature, false, null, null, type);
 }
 
 public void invokeDynamic(int bootStrapIndex, int argsSize, int returnTypeSize, char[] selector, char[] signature, boolean isConstructorReference, TypeReference lhsTypeReference, TypeReference [] typeArguments,
-		int typeId, TypeBinding type) {
+		TypeBinding type) {
 	if (this.classFileOffset + 4 >= this.bCodeStream.length) {
 		resizeByteArray();
 	}
@@ -4593,7 +4597,7 @@ public void invoke(byte opcode, MethodBinding methodBinding, TypeBinding declari
 		case Opcodes.OPC_invokespecial :
 			receiverAndArgsSize = 1; // receiver
 			if (methodBinding.isConstructor()) {
-				if (declaringClass.isNestedType() && !this.stmtInPreConContext) {
+				if (declaringClass.isNestedType()) {
 					ReferenceBinding nestedType = (ReferenceBinding) declaringClass;
 					// enclosing instances
 					receiverAndArgsSize += nestedType.getEnclosingInstancesSlotSize();
@@ -5378,6 +5382,145 @@ public void invokeStringValueOf(int typeID) {
 			signature,
 			typeID,
 			getPopularBinding(ConstantPool.JavaLangStringConstantPoolName));
+}
+
+//record PrimitiveConvertorRecord(int t2t, char[] methodName, char[] signature, int typeID, int receiverAndArgsSize, int returnTypeSize) {}
+public void invokeExactConversionsSupport(int typeFromTo) {
+	// invokestatic: java/lang/runtime/ExactConversionsSupport.is{Functions}(argumentType)
+	char[] signature;
+	int typeID = typeFromTo & TypeIds.COMPILE_TYPE_MASK;
+	int receiverAndArgsSize = TypeIds.getCategory(typeID);
+	int returnTypeSize = 1; // boolean always
+	char[] methodName;
+	switch (typeFromTo) { // TODO: put this in an array of records.
+		case TypeIds.Int2Float :
+			methodName = ConstantPool.isIntToFloatExact;
+			signature = ConstantPool.isIntToFloatExactSignature;
+			typeID = TypeIds.T_int;
+			break;
+		case TypeIds.Long2Float :
+			methodName = ConstantPool.isLongToFloatExact;
+			signature = ConstantPool.isLongToFloatExactSignature;
+			typeID = TypeIds.T_long;
+			break;
+		case TypeIds.Long2Double :
+			methodName = ConstantPool.isLongToDoubleExact;
+			signature = ConstantPool.isLongToDoubleExactSignature;
+			typeID = TypeIds.T_long;
+			break;
+		case TypeIds.Float2Double :
+			methodName = ConstantPool.isFloatToDoubleExact;
+			signature = ConstantPool.isFloatToDoubleExactSignature;
+			typeID = TypeIds.T_float;
+			break;
+		case TypeIds.Double2Byte :
+			methodName = ConstantPool.isDoubleToByteExact;
+			signature = ConstantPool.isDoubleToByteExactSignature;
+			typeID = TypeIds.T_byte;
+			break;
+		case TypeIds.Double2Short :
+			methodName = ConstantPool.isDoubleToShortExact;
+			signature = ConstantPool.isDoubleToShortExactSignature;
+			typeID = TypeIds.T_short;
+			break;
+		case TypeIds.Double2Char :
+			methodName = ConstantPool.isDoubleToCharExact;
+			signature = ConstantPool.isDoubleToCharExactSignature;
+			typeID = TypeIds.T_char;
+			break;
+		case TypeIds.Double2Int :
+			methodName = ConstantPool.isDoubleToIntExact;
+			signature = ConstantPool.isDoubleToIntExactSignature;
+			typeID = TypeIds.T_int;
+			break;
+		case TypeIds.Double2Long :
+			methodName = ConstantPool.isDoubleToLongExact;
+			signature = ConstantPool.isDoubleToLongExactSignature;
+			typeID = TypeIds.T_long;
+			break;
+		case TypeIds.Double2Float :
+			methodName = ConstantPool.isDoubleToFloatExact;
+			signature = ConstantPool.isDoubleToFloatExactSignature;
+			typeID = TypeIds.T_float;
+			break;
+		case TypeIds.Float2Byte :
+			methodName = ConstantPool.isFloatToByteExact;
+			signature = ConstantPool.isFloatToByteExactSignature;
+			typeID = TypeIds.T_byte;
+			break;
+		case TypeIds.Float2Short :
+			methodName = ConstantPool.isFloatToShortExact;
+			signature = ConstantPool.isFloatToShortExactSignature;
+			typeID = TypeIds.T_short;
+			break;
+		case TypeIds.Float2Char :
+			methodName = ConstantPool.isFloatToCharExact;
+			signature = ConstantPool.isFloatToCharExactSignature;
+			typeID = TypeIds.T_char;
+			break;
+		case TypeIds.Float2Int :
+			methodName = ConstantPool.isFloatToIntExact;
+			signature = ConstantPool.isFloatToIntExactSignature;
+			typeID = TypeIds.T_int;
+			break;
+		case TypeIds.Float2Long :
+			methodName = ConstantPool.isFloatToLongExact;
+			signature = ConstantPool.isFloatToLongExactSignature;
+			typeID = TypeIds.T_long;
+			break;
+		case TypeIds.Long2Byte :
+			methodName = ConstantPool.isLongToByteExact;
+			signature = ConstantPool.isLongToByteExactSignature;
+			typeID = TypeIds.T_byte;
+			break;
+		case TypeIds.Long2Short :
+			methodName = ConstantPool.isLongToShortExact;
+			signature = ConstantPool.isLongToShortExactSignature;
+			typeID = TypeIds.T_short;
+			break;
+		case TypeIds.Long2Char :
+			methodName = ConstantPool.isLongToCharExact;
+			signature = ConstantPool.isLongToCharExactSignature;
+			typeID = TypeIds.T_char;
+			break;
+		case TypeIds.Long2Int :
+			methodName = ConstantPool.isLongToIntExact;
+			signature = ConstantPool.isLongToIntExactSignature;
+			typeID = TypeIds.T_int;
+			break;
+		case TypeIds.Int2Byte :
+		case TypeIds.Char2Byte :
+		case TypeIds.Short2Byte :
+			methodName = ConstantPool.isIntToByteExact;
+			signature = ConstantPool.isIntToByteExactSignature;
+			typeID = TypeIds.T_byte;
+			break;
+		case TypeIds.Int2Short :
+		case TypeIds.Char2Short :
+			methodName = ConstantPool.isIntToShortExact;
+			signature = ConstantPool.isIntToShortExactSignature;
+			typeID = TypeIds.T_short;
+			break;
+		case TypeIds.Int2Char :
+		case TypeIds.Short2Char :
+		case TypeIds.Byte2Char:
+			methodName = ConstantPool.isIntToCharExact;
+			signature = ConstantPool.isIntToCharExactSignature;
+			typeID = TypeIds.T_char;
+			break;
+		default :
+			return; // should not occur
+	}
+	char[] declaringClass = ConstantPool.JAVA_LANG_RUNTIME_EXACTCONVERSIONSSUPPORT;
+	invoke(
+			Opcodes.OPC_invokestatic,
+			receiverAndArgsSize, // receiverAndArgsSize
+			returnTypeSize, // return type size
+			declaringClass,
+			methodName,
+			signature,
+			typeID,
+			TypeBinding.BOOLEAN);
 }
 
 public void invokeThrowableToString() {
@@ -6734,6 +6877,13 @@ public void optimizeBranch(int oldPosition, BranchLabel lbl) {
 			}
 		}
 	}
+}
+
+public void pop(TypeBinding type) {
+	if (TypeIds.getCategory(type.id) == 2)
+		pop2();
+	else
+		pop();
 }
 
 public void pop() {

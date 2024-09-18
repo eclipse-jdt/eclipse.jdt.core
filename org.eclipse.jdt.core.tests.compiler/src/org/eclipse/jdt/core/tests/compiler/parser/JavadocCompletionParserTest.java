@@ -101,44 +101,44 @@ protected Map getCompilerOptions() {
 	options.put(CompilerOptions.OPTION_Source, this.sourceLevel);
 	return options;
 }
-private char[][] getAdditionalTagsPerLevels() {
+public static char[][] getAdditionalTagsPerLevels(long complianceLevel) {
 	char[][] additionalTags = null;
-	if (this.complianceLevel == ClassFileConstants.JDK1_4) {
+	if (complianceLevel == ClassFileConstants.JDK1_4) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
 		};
-	} else if (this.complianceLevel > ClassFileConstants.JDK1_4
-			&& this.complianceLevel < ClassFileConstants.JDK9) {
+	} else if (complianceLevel > ClassFileConstants.JDK1_4
+			&& complianceLevel < ClassFileConstants.JDK9) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL
 		};
-	} else if (this.complianceLevel == ClassFileConstants.JDK9) {
+	} else if (complianceLevel == ClassFileConstants.JDK9) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL,
 			TAG_INDEX
 		};
-	} else if (this.complianceLevel >= ClassFileConstants.JDK10
-			&& this.complianceLevel < ClassFileConstants.JDK12) {
+	} else if (complianceLevel >= ClassFileConstants.JDK10
+			&& complianceLevel < ClassFileConstants.JDK12) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL,
 			TAG_INDEX, TAG_SUMMARY
 		};
-	} else if(this.complianceLevel >= ClassFileConstants.JDK12
-			&& this.complianceLevel < ClassFileConstants.JDK16) {
+	} else if(complianceLevel >= ClassFileConstants.JDK12
+			&& complianceLevel < ClassFileConstants.JDK16) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL, TAG_INDEX, TAG_SUMMARY, TAG_SYSTEM_PROPERTY
 		};
-	} else if(this.complianceLevel >= ClassFileConstants.JDK16
-			&& this.complianceLevel < ClassFileConstants.JDK18) {
+	} else if(complianceLevel >= ClassFileConstants.JDK16
+			&& complianceLevel < ClassFileConstants.JDK18) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL, TAG_INDEX, TAG_SUMMARY, TAG_SYSTEM_PROPERTY, TAG_RETURN
 		};
-	} else if(this.complianceLevel >= ClassFileConstants.JDK18) {
+	} else if(complianceLevel >= ClassFileConstants.JDK18) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL, TAG_INDEX, TAG_SUMMARY, TAG_SYSTEM_PROPERTY, TAG_RETURN, TAG_SNIPPET
@@ -236,7 +236,7 @@ protected void verifyAllTagsCompletion() {
 				TAG_LINK,
 				TAG_DOC_ROOT
 			};
-	char[][] additionalTags = getAdditionalTagsPerLevels();
+	char[][] additionalTags = getAdditionalTagsPerLevels(this.complianceLevel);
 	allTagsFinal = this.complianceLevel > ClassFileConstants.JDK1_8 ? allTagsJava9Plus  :  this.complianceLevel == ClassFileConstants.JDK1_8 ? allTagsJava8 : allTags  ;
 	if (additionalTags != null) {
 		int length = allTagsFinal.length;
@@ -322,7 +322,7 @@ public void test006() {
 		TAG_LINK,
 		TAG_DOC_ROOT,
 	};
-	char[][] additionalTags = getAdditionalTagsPerLevels();
+	char[][] additionalTags = getAdditionalTagsPerLevels(this.complianceLevel);
 	if (additionalTags != null) {
 		int length = allTags.length;
 		int add = additionalTags.length;
@@ -551,7 +551,7 @@ public void test025() {
 		TAG_LINK,
 		TAG_DOC_ROOT,
 	};
-	char[][] additionalTags = getAdditionalTagsPerLevels();
+	char[][] additionalTags = getAdditionalTagsPerLevels(this.complianceLevel);
 	if (additionalTags != null) {
 		int length = allTags.length;
 		int add = additionalTags.length;
@@ -614,7 +614,7 @@ public void test028() {
 		TAG_LINK,
 		TAG_DOC_ROOT,
 	};
-	char[][] additionalTags = getAdditionalTagsPerLevels();
+	char[][] additionalTags = getAdditionalTagsPerLevels(this.complianceLevel);
 	if (additionalTags != null) {
 		int length = allTags.length;
 		int add = additionalTags.length;

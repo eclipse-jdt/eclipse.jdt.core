@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -71,8 +71,11 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().cannotUseSuperInJavaLangObject(this);
 		return null;
 	}
-	if (this.inPreConstructorContext)
-		scope.problemReporter().errorExpressionInPreConstructorContext(this);
+	ReferenceBinding enclosingReceiverType = scope.enclosingReceiverType();
+	// interface-qualified this selects a default method in a super interface,
+	// but here we are only interested in supers of *enclosing instances*:
+	if (enclosingReceiverType != null && !enclosingReceiverType.isInterface() && scope.isInsideEarlyConstructionContext(enclosingReceiverType, false))
+		scope.problemReporter().errorExpressionInEarlyConstructionContext(this);
 	return this.resolvedType = (this.currentCompatibleType.isInterface()
 			? this.currentCompatibleType
 			: this.currentCompatibleType.superclass());

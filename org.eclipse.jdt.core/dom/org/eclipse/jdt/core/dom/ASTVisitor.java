@@ -2096,57 +2096,6 @@ public abstract class ASTVisitor {
 	public boolean visit(YieldStatement node) {
 		return true;
 	}
-	/**
-	 * Visits the given type-specific AST node.
-	 * <p>
-	 * The default implementation does nothing and returns true.
-	 * Subclasses may reimplement.
-	 * </p>
-	 *
-	 * @param node the node to visit
-	 * @return <code>true</code> if the children of this node should be
-	 * visited, and <code>false</code> if the children of this node should
-	 * be skipped
-	 * @since 3.37
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
-	public boolean visit(StringTemplateExpression node) {
-		return true;
-	}
-	/**
-	 * Visits the given type-specific AST node.
-	 * <p>
-	 * The default implementation does nothing and returns true.
-	 * Subclasses may reimplement.
-	 * </p>
-	 *
-	 * @param node the node to visit
-	 * @return <code>true</code> if the children of this node should be
-	 * visited, and <code>false</code> if the children of this node should
-	 * be skipped
-	 * @since 3.37
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
-	public boolean visit(StringFragment node) {
-		return true;
-	}
-	/**
-	 * Visits the given type-specific AST node.
-	 * <p>
-	 * The default implementation does nothing and returns true.
-	 * Subclasses may reimplement.
-	 * </p>
-	 *
-	 * @param node the node to visit
-	 * @return <code>true</code> if the children of this node should be
-	 * visited, and <code>false</code> if the children of this node should
-	 * be skipped
-	 * @since 3.37
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
-	public boolean visit(StringTemplateComponent node) {
-		return true;
-	}
 
 	/**
 	 * Visits the given type-specific AST node.
@@ -3598,27 +3547,6 @@ public abstract class ASTVisitor {
 		// default implementation: do nothing
 	}
 
-	/**
-	 * @since 3.37
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
-	public void endVisit(StringTemplateExpression node) {
-		// default implementation: do nothing
-	}
-	/**
-	 * @since 3.37
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
-	public void endVisit(StringFragment node) {
-		// default implementation: do nothing
-	}
-	/**
-	 * @since 3.37
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
-	public void endVisit(StringTemplateComponent node) {
-		// default implementation: do nothing
-	}
 	/**
 	 * End of visit the given type-specific AST node.
 	 * <p>

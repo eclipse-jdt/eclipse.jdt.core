@@ -135,7 +135,7 @@ public class TypeAnnotationCodeStream extends StackMapFrameCodeStream {
 	@Override
 	public void invokeDynamic(int bootStrapIndex, int argsSize, int returnTypeSize, char[] selector, char[] signature,
 			boolean isConstructorReference, TypeReference lhsTypeReference, TypeReference [] typeArguments,
-			int typeId, TypeBinding type) {
+			TypeBinding type) {
 		if (lhsTypeReference != null && (lhsTypeReference.bits & ASTNode.HasTypeAnnotations) != 0) {
 			if (isConstructorReference) {
 				addAnnotationContext(lhsTypeReference, this.position, 0, AnnotationTargetTypeConstants.CONSTRUCTOR_REFERENCE);
@@ -155,7 +155,7 @@ public class TypeAnnotationCodeStream extends StackMapFrameCodeStream {
 				}
 			}
 		}
-		super.invokeDynamic(bootStrapIndex, argsSize, returnTypeSize, selector, signature, isConstructorReference, lhsTypeReference, typeArguments, typeId, type);
+		super.invokeDynamic(bootStrapIndex, argsSize, returnTypeSize, selector, signature, isConstructorReference, lhsTypeReference, typeArguments, type);
 	}
 
 	@Override

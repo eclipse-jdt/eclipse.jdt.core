@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -73,6 +73,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -2148,12 +2149,18 @@ public abstract class Scope {
 									if (fieldBinding.isValidBinding()) {
 										if (!fieldBinding.isStatic()) {
 											if (insideConstructorCall) {
-												insideProblem =
-													new ProblemFieldBinding(
-														fieldBinding, // closest match
-														fieldBinding.declaringClass,
-														name,
-														ProblemReasons.NonStaticReferenceInConstructorInvocation);
+												if (invocationSite instanceof ASTNode node
+														&& (node.bits & ASTNode.IsStrictlyAssigned) != 0
+														&& JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(compilerOptions())) {
+													// enablement check for assignment deferred to Reference.checkFieldAccessInEarlyConstructionContext()
+												} else if (!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(compilerOptions())) {
+													insideProblem =
+														new ProblemFieldBinding(
+															fieldBinding, // closest match
+															fieldBinding.declaringClass,
+															name,
+															ProblemReasons.NonStaticReferenceInConstructorInvocation);
+												}
 											} else if (insideStaticContext) {
 												insideProblem =
 													new ProblemFieldBinding(
@@ -2980,11 +2987,6 @@ public abstract class Scope {
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_STRING_CONCAT_FACTORY);
 		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_INVOKE_STRING_CONCAT_FACTORY, this);
 	}
-	public final ReferenceBinding getJavaLangRuntimeTemplateRuntimeBootstraps() {
-		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_RUNTIME_TEMPLATERUNTIME);
-		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_RUNTIME_TEMPLATERUNTIME, this);
-	}
 	public final ReferenceBinding getJavaLangInvokeLambdaMetafactory() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_LAMBDAMETAFACTORY);
@@ -3065,17 +3067,6 @@ public abstract class Scope {
 		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_STRINGBUILDER, this);
 	}
 
-	public TypeBinding getJavaLangStringTemplate() {
-		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_STRINGTEMPLATE);
-		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_STRINGTEMPLATE, this);
-	}
-
-	public final ReferenceBinding getJavaLangStringTemplateProcessor() {
-		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_STRINGTEMPLATE_PROCESSOR);
-		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_STRINGTEMPLATE_PROCESSOR, this);
-	}
 	public final ReferenceBinding getJavaLangThrowable() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_THROWABLE);
@@ -3598,7 +3589,9 @@ public abstract class Scope {
 					if (someImport.onDemand) {
 						Binding resolvedImport = someImport.getResolvedImport();
 						ReferenceBinding temp = null;
-						if (resolvedImport instanceof PackageBinding) {
+						if (resolvedImport instanceof ModuleBinding) {
+							temp = findTypeInModule(name, (ModuleBinding) resolvedImport, currentPackage);
+						} else if (resolvedImport instanceof PackageBinding) {
 							temp = findType(name, (PackageBinding) resolvedImport, currentPackage);
 						} else if (someImport.isStatic()) {
 							// Imports are always resolved in the CU Scope (bug 520874)
@@ -3674,6 +3667,37 @@ public abstract class Scope {
 				typeOrPackageCache.put(name, foundType);
 		}
 		return foundType;
+	}
+
+	private ReferenceBinding findTypeInModule(char[] name, ModuleBinding moduleBinding, PackageBinding currentPackage) {
+		ReferenceBinding type = null;
+		for (PackageBinding packageBinding : moduleBinding.getExports()) {
+			if (packageBinding.enclosingModule.isPackageExportedTo(packageBinding, module())) {
+				ReferenceBinding temp = findType(name, packageBinding, currentPackage);
+				if (temp != null && temp.canBeSeenBy(currentPackage)) {// imported only if accessible
+					if (type != null) {
+						// Answer error binding -- import on demand conflict; name found in two exported packages.
+						return new ProblemReferenceBinding(new char[][]{name}, temp, ProblemReasons.Ambiguous);
+					}
+					type = temp;
+				}
+			}
+		}
+		for (ModuleBinding required : moduleBinding.getRequiresTransitive()) {
+			ReferenceBinding temp = findTypeInModule(name, required, currentPackage);
+			if (temp != null) {
+				if (temp.problemId() == ProblemReasons.Ambiguous)
+					return temp; // don't look further
+				if (temp.canBeSeenBy(currentPackage)) {
+					if (type != null) {
+						// Answer error binding -- import on demand conflict; name found in two modules.
+						return new ProblemReferenceBinding(new char[][]{name}, temp, ProblemReasons.Ambiguous);
+					}
+					type = temp;
+				}
+			}
+		}
+		return type;
 	}
 
 	private boolean isUnnecessarySamePackageImport(Binding resolvedImport, Scope unitScope) {
@@ -5672,4 +5696,86 @@ public abstract class Scope {
 		t.put(new String(ConstantPool.JavaLangObjectConstantPoolName), this :: getJavaLangObject);
 		return this.commonTypeBindings = t;
 	}
+
+	/** Called when a ctor with a late explicit constructor call starts processing statements. */
+	public void enterEarlyConstructionContext() {
+		classScope().insideEarlyConstructionContext = true;
+	}
+	/** Called at the end of processing a late explicit constructor call. */
+	public void leaveEarlyConstructionContext() {
+		classScope().insideEarlyConstructionContext = false;
+	}
+	/**
+	 * Is an instance of targetClass currently being constructed in this scope?
+	 * @param targetClass class which is queried for initialization-complete
+	 * 		if {@code null} is passed, this scope's enclosingReceiverType is used
+	 * @param considerEnclosings if {@code true} also enclosing types or targetClass must be initialized
+	 */
+	public boolean isInsideEarlyConstructionContext(TypeBinding targetClass, boolean considerEnclosings) {
+		return getMatchingUninitializedType(targetClass, considerEnclosings) != null;
+	}
+	private enum MatchPhase { WITHOUT_SUPERS, WITH_SUPERS }
+	private static MatchPhase[] SinglePass = new MatchPhase[] { MatchPhase.WITHOUT_SUPERS };
+	public TypeBinding getMatchingUninitializedType(TypeBinding targetClass, boolean considerEnclosings) {
+		MatchPhase[] phases = MatchPhase.values();
+		if (targetClass == null) {
+			targetClass = enclosingReceiverType();
+			phases = SinglePass;
+		} else if (!(targetClass instanceof ReferenceBinding)) {
+			return null;
+		}
+		// First iteration ignores superclasses, to prefer finding the target in outers, rather than supers.
+		// Note on performance: while deeply nested loops look painful, poor-man's measurements showed good results.
+		for (Enum phase : phases) {
+			// 1. Scope in->out
+			ClassScope currentEnclosing = classScope();
+			while (currentEnclosing != null) {
+				SourceTypeBinding enclosingType = currentEnclosing.referenceContext.binding;
+				// 2. targetClass to supers
+				TypeBinding currentTarget = targetClass;
+				while (currentTarget != null) {
+					// 3. enclosing type to supers (in phase 2 only)
+					TypeBinding tmpEnclosing = enclosingType;
+					while (tmpEnclosing != null) { // this loop is not effective during PHASE.WITHOUT_SUPERS
+						if (TypeBinding.equalsEquals(tmpEnclosing, currentTarget.actualType())) {
+							if (currentEnclosing.insideEarlyConstructionContext)
+								return enclosingType;
+							return null;
+						}
+						if (phase == MatchPhase.WITH_SUPERS)
+							tmpEnclosing = tmpEnclosing.superclass();
+						else
+							break;
+					}
+					if (!considerEnclosings
+							|| (currentTarget instanceof ReferenceBinding currentRefBind && !currentRefBind.hasEnclosingInstanceContext())) {
+						break;
+					}
+					currentTarget = currentTarget.enclosingType();
+				}
+				currentEnclosing = currentEnclosing.parent.classScope();
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * This method captures the status of early construction context at the declaration
+	 * of a lambda expression. This information will be needed during generateCode()
+	 * where this (temporary) context is lost.
+	 */
+	public List<ClassScope> collectClassesBeingInitialized() {
+		List<ClassScope> list = null;
+		Scope skope = this;
+		while (skope != null) {
+			if (skope instanceof ClassScope cs && cs.insideEarlyConstructionContext) {
+				if (list == null)
+					list = new ArrayList<>();
+				list.add(cs);
+			}
+			skope = skope.parent;
+		}
+		return list;
+	}
+
 }

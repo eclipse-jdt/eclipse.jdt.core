@@ -52,8 +52,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class Statement extends ASTNode {
 
-	public boolean inPreConstructorContext = false;
-
 	/**
 	 * Answers true if the if is identified as a known coding pattern which
 	 * should be tolerated by dead code analysis.
