@@ -988,7 +988,7 @@ class JavacConverter {
 		}
 
 		if (javac.getBody() != null) {
-			boolean fillBlock = shouldFillBlock(javac.getBody(), this.focalPoint);
+			boolean fillBlock = shouldFillBlock(javac, this.focalPoint);
 			if( fillBlock ) {
 				Block b = convertBlock(javac.getBody());
 				if (b != null) {
