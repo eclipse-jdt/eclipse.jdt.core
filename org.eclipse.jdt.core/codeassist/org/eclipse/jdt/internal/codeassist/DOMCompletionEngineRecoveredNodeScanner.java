@@ -96,7 +96,7 @@ final class DOMCompletionEngineRecoveredNodeScanner {
             if(binding == null) {
                 return super.visit(node);
             }
-            
+
             if (!binding.isRecovered()) {
                 this.foundBinding = binding;
                 return false;
