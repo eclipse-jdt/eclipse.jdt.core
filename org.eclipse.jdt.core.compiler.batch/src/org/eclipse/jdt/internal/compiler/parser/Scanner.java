@@ -1947,6 +1947,7 @@ protected int getNextToken0() throws InvalidInputException {
 										}
 									}
 									if (!lineBeginsWithMarkdown()) {
+										this.currentPosition--;
 										break;
 									}
 								}
@@ -1980,6 +1981,7 @@ protected int getNextToken0() throws InvalidInputException {
 											}
 										}
 										if (!lineBeginsWithMarkdown()) {
+											this.currentPosition--;
 											break;
 										}
 									}
@@ -2844,6 +2846,7 @@ public final void jumpOverMethodBody() {
 										}
 									}
 									if (!lineBeginsWithMarkdown()) {
+										this.currentPosition--;
 										break;
 									}
 								}
@@ -2877,6 +2880,7 @@ public final void jumpOverMethodBody() {
 											}
 										}
 										if (!lineBeginsWithMarkdown()) {
+											this.currentPosition--;
 											break;
 										}
 									}
