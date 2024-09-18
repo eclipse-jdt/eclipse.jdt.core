@@ -2153,6 +2153,10 @@ void setSourceStart(int sourceStart);
 	/** @since  3.24 */
 	int ConflictingPackageInModules = ModuleRelated + 1462;
 
+	// module imports
+	/** @since 3.40 @noreference This field is not intended to be referenced by clients.*/
+	int ModuleNotRead = ModuleRelated + 1463;
+
 	// doc variant of an above constant:
 	/** @since 3.22 */
 	int JavadocNotAccessibleType = Javadoc + NotAccessibleType;
@@ -2529,9 +2533,6 @@ void setSourceStart(int sourceStart);
 	/** @since 3.28
 	 * @noreference preview feature error */
 	int EnhancedSwitchMissingDefault = PreviewRelated + 1908;
-	/** @since 3.28
-	 * @noreference preview feature error */
-	int DuplicateTotalPattern = PreviewRelated + 1909;
 
 	 /** @since 3.34
 	 * @noreference preview feature error */
@@ -2617,15 +2618,80 @@ void setSourceStart(int sourceStart);
 	int UnnamedVariableMustHaveInitializer = PreviewRelated + 2001;
 
 	/**
-	 * @since 3.38
+	 * @since 3.40
 	 * @noreference preview feature
 	 */
-	int ExpressionInPreConstructorContext = PreviewRelated + 2022;
+	int ExpressionInEarlyConstructionContext = PreviewRelated + 2022;
 
 	/**
-	 * @since 3.38
+	 * @since 3.40
 	 * @noreference preview feature
 	 */
-	int DisallowedStatementInPrologue = PreviewRelated + 2023;
+	int DisallowedStatementInEarlyConstructionContext = PreviewRelated + 2023;
 
+	/**
+	 * @since 3.40
+	 * @noreference preview feature
+	 */
+	int FieldReadInEarlyConstructionContext = PreviewRelated + 2024;
+
+	/**
+	 * @since 3.40
+	 * @noreference preview feature
+	 */
+	int ThisInEarlyConstructionContext = PreviewRelated + 2025;
+
+	/**
+	 * @since 3.40
+	 * @noreference preview feature
+	 */
+	int AllocationInEarlyConstructionContext = PreviewRelated + 2026;
+
+	/**
+	 * @since 3.40
+	 * @noreference preview feature
+	 */
+	int MessageSendInEarlyConstructionContext = PreviewRelated + 2027;
+
+	/**
+	 * @since 3.40
+	 * @noreference preview feature
+	 */
+	int DuplicateExplicitConstructorCall = PreviewRelated + 2028;
+
+	/**
+	 * @since 3.40
+	 * @noreference preview feature
+	 */
+	int SuperFieldAssignInEarlyConstructionContext = PreviewRelated + 2029;
+
+	/**
+	 * @since 3.40
+	 * @noreference preview feature
+	 */
+	int AssignFieldWithInitializerInEarlyConstructionContext = PreviewRelated + 2030;
+
+	/**
+	 * @since 3.40
+	 * @noreference preview feature
+	 */
+	int ConstructorCallNotAllowedHere = PreviewRelated + 2031;
+
+	/**
+	 * @since 3.40
+	 * @noreference preview feature
+	 */
+	int WrongCaseType =  PreviewRelated + 2100;
+
+	/**
+	 * @since 3.40
+	 * @noreference preview feature
+	 */
+	int IncompatibleCaseType =  PreviewRelated + 2101;
+
+	/**
+	 * @since 3.40
+	 * @noreference preview feature
+	 */
+	int DefaultTrueAndFalseCases = PreviewRelated + 2102;
 }

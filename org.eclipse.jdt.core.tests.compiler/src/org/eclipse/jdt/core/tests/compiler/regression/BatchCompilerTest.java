@@ -12911,13 +12911,13 @@ public void testUnusedObjectAllocation() {
 }
 public void testBug573153() {
 	String output = MAIN.bind("configure.source", "10");
-	String template = "source level should be in '1.8','9'...'22' (or '8.0'..'22.0'): 10";
-	template = template.replace("22", CompilerOptions.getLatestVersion());
+	String template = "source level should be in '1.8','9'...'23' (or '8.0'..'23.0'): 10";
+	template = template.replace("23", CompilerOptions.getLatestVersion());
 	assertEquals("configure.source is not updated", template, output);
 
 	output = MAIN.bind("configure.targetJDK", "10");
-	template = "target level should be in '1.8','9'...'22' (or '8.0'..'22.0'): 10";
-	template = template.replace("22", CompilerOptions.getLatestVersion());
+	template = "target level should be in '1.8','9'...'23' (or '8.0'..'23.0'): 10";
+	template = template.replace("23", CompilerOptions.getLatestVersion());
 	assertEquals("configure.source is not updated", template, output);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=413873

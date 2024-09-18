@@ -65,6 +65,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -206,7 +207,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 
 	// handling innerclass instance allocation - enclosing instance arguments
-	if (allocatedType.isNestedType()) {
+	if (allocatedType.hasEnclosingInstanceContext()) {
 		codeStream.generateSyntheticEnclosingInstanceValues(
 			currentScope,
 			allocatedType,
@@ -216,7 +217,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	// generate the arguments for constructor
 	generateArguments(this.binding, this.arguments, currentScope, codeStream);
 	// handling innerclass instance allocation - outer local arguments
-	if (allocatedType.isNestedType()) {
+	if (allocatedType.hasEnclosingInstanceContext()) {
 		codeStream.generateSyntheticOuterArgumentValues(
 			currentScope,
 			allocatedType,
@@ -535,10 +536,19 @@ public TypeBinding resolveType(BlockScope scope) {
 			this.binding.getTypeAnnotations() != Binding.NO_ANNOTATIONS) {
 		this.resolvedType = scope.environment().createAnnotatedType(this.resolvedType, this.binding.getTypeAnnotations());
 	}
-	checkPreConstructorContext(scope);
+	checkEarlyConstructionContext(scope);
 	return this.resolvedType;
 }
 
+protected void checkEarlyConstructionContext(BlockScope scope) {
+	if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())
+			&& this.type != null && this.type.resolvedType instanceof ReferenceBinding currentType) {
+		TypeBinding uninitialized = scope.getMatchingUninitializedType(currentType, !currentType.isLocalType());
+		if (uninitialized != null)
+			scope.problemReporter().allocationInEarlyConstructionContext(this, this.resolvedType, uninitialized);
+	}
+	// if JEP 482 is not enabled, problems will be detected when looking for enclosing instance(s)
+}
 protected boolean isMissingTypeRelevant() {
 	if (this.binding != null && this.binding.isVarargs()) {
 		int argLen = this.arguments != null ? this.arguments.length : 0;
@@ -552,24 +562,6 @@ protected boolean isMissingTypeRelevant() {
 		}
 	}
 	return true;
-}
-
-protected void checkPreConstructorContext(BlockScope scope) {
-	if (this.inPreConstructorContext && this.type != null &&
-			this.type.resolvedType instanceof ReferenceBinding currentType
-			&& !(currentType.isStatic() || currentType.isInterface())) { // no enclosing instance
-		MethodScope ms = scope.methodScope();
-		MethodBinding method = ms != null ? ms.referenceMethodBinding() : null;
-		ReferenceBinding declaringClass = method != null ? method.declaringClass : null;
-		if (declaringClass != null) {
-			while ((currentType = currentType.enclosingType())!= null) {
-				if (TypeBinding.equalsEquals(declaringClass, currentType)) {
-					scope.problemReporter().errorExpressionInPreConstructorContext(this);
-					break;
-				}
-			}
-		}
-	}
 }
 
 /**

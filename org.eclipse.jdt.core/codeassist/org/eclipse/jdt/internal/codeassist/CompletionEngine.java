@@ -746,6 +746,7 @@ public final class CompletionEngine
 	private INameEnvironment noCacheNameEnvironment;
 	char[] source;
 	ModuleDeclaration moduleDeclaration;
+	ModuleBinding currentModule;
 	boolean skipDefaultPackage = false;
 	char[] completionToken;
 
@@ -1354,6 +1355,20 @@ public final class CompletionEngine
 		if (this.knownModules.containsKey(moduleName)) return;
 		if (this.assistNodeInJavadoc == 0 && this.moduleDeclaration != null && CharOperation.equals(moduleName, this.moduleDeclaration.moduleName)) return;
 		if (CharOperation.equals(moduleName, CharOperation.NO_CHAR)) return;
+		boolean isModuleRead;
+		if (this.currentModule == null || this.currentModule.isUnnamed()) {
+			isModuleRead = true;
+		} else if (CharOperation.equals(moduleName, this.currentModule.moduleName)) {
+			isModuleRead = true;
+		} else {
+			isModuleRead = false; // in a modular project reduce relevance for modules that are not (yet) read
+			for (ModuleBinding requiredModule : this.currentModule.getAllRequiredModules()) {
+				if (CharOperation.equals(moduleName, requiredModule.moduleName)) {
+					isModuleRead = true;
+					break;
+				}
+			}
+		}
 		this.knownModules.put(moduleName, this);
 		char[] completion = moduleName;
 		int relevance = computeBaseRelevance();
@@ -1361,7 +1376,9 @@ public final class CompletionEngine
 		relevance += computeRelevanceForInterestingProposal();
 		relevance += computeRelevanceForCaseMatching(this.qualifiedCompletionToken == null ? this.completionToken : this.qualifiedCompletionToken, moduleName);
 		relevance += computeRelevanceForQualification(true);
-		relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+		if (isModuleRead) {
+			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+		}
 		this.noProposal = false;
 		if(!this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
 			InternalCompletionProposal proposal = createProposal(CompletionProposal.MODULE_REF, this.actualCompletionPosition);
@@ -2267,8 +2284,23 @@ public final class CompletionEngine
 								long positions = importReference.sourcePositions[importReference.tokens.length - 1];
 								setSourceAndTokenRange((int) (positions >>> 32), (int) positions);
 
+								if ((importReference.modifiers & ClassFileConstants.AccModule) != 0 && this.compilerOptions.enablePreviewFeatures) {
+									this.currentModule = this.unitScope.module(); // enable module-graph analysis for readability
+									this.completionToken = CharOperation.concatWithAll(importReference.tokens, '.');
+									this.tokenStart = importReference.sourceStart;
+									this.startPosition = importReference.sourceStart;
+									findModules(this.completionToken, true);
+									return;
+								}
 								char[][] oldTokens = importReference.tokens;
 								int tokenCount = oldTokens.length;
+								if (tokenCount <= 1 && this.compilerOptions.enablePreviewFeatures) {
+									char[][] choices = this.compilerOptions.enablePreviewFeatures
+											? new char[][] { Keywords.STATIC, Keywords.MODULE }
+											: new char[][] { Keywords.STATIC };
+									char[] token = tokenCount == 1 ? oldTokens[0] : CharOperation.NO_CHAR;
+									findKeywords(token, choices, false, false);
+								}
 								if (tokenCount == 1) {
 									findImports((CompletionOnImportReference)importReference, true);
 								} else if(tokenCount > 1){
@@ -2964,7 +2996,7 @@ public final class CompletionEngine
 				(this.assistNodeInJavadoc & CompletionOnJavadoc.BASE_TYPES) != 0,
 				false,
 				new ObjectVector());
-		findModules(typeRef, false);
+		findModules(typeRef.token, false);
 	}
 	//TODO
 	private void completionOnJavadocModuleReference(ASTNode astNode,  Binding qualifiedBinding, Scope scope) {
@@ -11468,7 +11500,7 @@ public final class CompletionEngine
 			}
 		}
 	}
-	private void findModules(CompletionOnJavadocSingleTypeReference typeReference, boolean targetted) {
+	private void findModules(char[] token, boolean targetted) {
 		if (JavaCore.compareJavaVersions(this.sourceLevel, JavaCore.VERSION_15) >= 0 ) {
 			boolean isIgnoredModuleRef = false;
 			try {
@@ -11476,7 +11508,7 @@ public final class CompletionEngine
 					this.requestor.setIgnored(CompletionProposal.MODULE_REF, false);
 					isIgnoredModuleRef = true;
 				}
-				this.nameEnvironment.findModules(CharOperation.toLowerCase(typeReference.token), this, targetted ? this.javaProject : null);
+				this.nameEnvironment.findModules(CharOperation.toLowerCase(token), this, targetted ? this.javaProject : null);
 			} finally {
 				this.requestor.setIgnored(CompletionProposal.MODULE_REF, isIgnoredModuleRef);
 			}

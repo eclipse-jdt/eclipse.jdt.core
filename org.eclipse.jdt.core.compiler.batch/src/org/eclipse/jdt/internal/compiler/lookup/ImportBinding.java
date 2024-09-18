@@ -49,7 +49,9 @@ public char[] getSimpleName() {
 }
 @Override
 public char[] readableName() {
-	if (this.onDemand)
+	if (this.resolvedImport instanceof ModuleBinding)
+		return CharOperation.concat("module ".toCharArray(), CharOperation.concatWith(this.compoundName, '.')); //$NON-NLS-1$
+	else if (this.onDemand)
 		return CharOperation.concat(CharOperation.concatWith(this.compoundName, '.'), ".*".toCharArray()); //$NON-NLS-1$
 	else
 		return CharOperation.concatWith(this.compoundName, '.');

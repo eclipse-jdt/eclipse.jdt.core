@@ -2338,7 +2338,7 @@ public void test0042() {
 		"}\n"
 	};
 
-	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK22) ?
+	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK23) ?
 			"""
 			----------
 			1. ERROR in X.java (at line 1)
@@ -2362,7 +2362,7 @@ public void test0042() {
 			1. ERROR in X.java (at line 1)
 				void ___eval() {
 				^
-			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 22 and above
+			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above
 			----------
 			2. ERROR in X.java (at line 1)
 				void ___eval() {
@@ -2655,7 +2655,6 @@ public void test0049() {
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
-	String token = (this.complianceLevel >= ClassFileConstants.JDK21) ? "." : "<";
 	String expected15ProblemLog =
 		"----------\n" +
 		"1. ERROR in X.java (at line 6)\n" +
@@ -2666,7 +2665,7 @@ public void test0049() {
 		"2. ERROR in X.java (at line 6)\n" +
 		"	public @MyAnn(\"\",\"\") class Test {		\n" +
 		"	                ^\n" +
-		"Syntax error on token \",\", "+ token +" expected\n" +
+		"Syntax error on token \",\", < expected\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 6)\n" +
 		"	public @MyAnn(\"\",\"\") class Test {		\n" +

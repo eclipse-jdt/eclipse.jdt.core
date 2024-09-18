@@ -617,42 +617,9 @@ protected void consumeSingleMemberAnnotation(boolean isTypeAnnotation) {
 @Override
 protected void consumeSingleStaticImportDeclarationName() {
 	// SingleTypeImportDeclarationName ::= 'import' 'static' Name
-	ImportReference impt;
-	int length;
-	char[][] tokens = new char[length = this.identifierLengthStack[this.identifierLengthPtr--]][];
-	this.identifierPtr -= length;
-	long[] positions = new long[length];
-	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
-	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = newImportReference(tokens, positions, false, ClassFileConstants.AccStatic));
+	super.consumeSingleStaticImportDeclarationName();
 
-	this.modifiers = ClassFileConstants.AccDefault;
-	this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
-
-	if (this.currentToken == TokenNameSEMICOLON){
-		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
-	} else {
-		impt.declarationSourceEnd = impt.sourceEnd;
-	}
-	impt.declarationEnd = impt.declarationSourceEnd;
-	//this.endPosition is just before the ;
-	impt.declarationSourceStart = this.intStack[this.intPtr--];
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		impt.modifiers = ClassFileConstants.AccDefault; // convert the static import reference to a non-static importe reference
-		problemReporter().invalidUsageOfStaticImports(impt);
-	}
-
-	// recovery
-	if (this.currentElement != null){
-		this.lastCheckPoint = impt.declarationSourceEnd+1;
-		this.currentElement = this.currentElement.add(impt, 0);
-		this.lastIgnoredToken = -1;
-		this.restartRecovery = true; // used to avoid branching back into the regular automaton
-	}
-	if (this.reportReferenceInfo) {
+	if (this.reportReferenceInfo && this.astStack[this.astPtr] instanceof ImportReference impt) {
 		// Name for static import is TypeName '.' Identifier
 		// => accept unknown ref on identifier
 		int tokensLength = impt.tokens.length-1;
@@ -714,44 +681,8 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	/* push an ImportRef build from the last name
 	stored in the identifier stack. */
 
-	ImportReference impt;
-	int length;
-	char[][] tokens = new char[length = this.identifierLengthStack[this.identifierLengthPtr--]][];
-	this.identifierPtr -= length;
-	long[] positions = new long[length];
-	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
-	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = new ImportReference(tokens, positions, true, ClassFileConstants.AccStatic));
-
-	// star end position
-	impt.trailingStarPosition = this.intStack[this.intPtr--];
-	this.modifiers = ClassFileConstants.AccDefault;
-	this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
-
-	if (this.currentToken == TokenNameSEMICOLON){
-		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
-	} else {
-		impt.declarationSourceEnd = impt.sourceEnd;
-	}
-	impt.declarationEnd = impt.declarationSourceEnd;
-	//this.endPosition is just before the ;
-	impt.declarationSourceStart = this.intStack[this.intPtr--];
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		impt.modifiers = ClassFileConstants.AccDefault; // convert the static import reference to a non-static importe reference
-		problemReporter().invalidUsageOfStaticImports(impt);
-	}
-
-	// recovery
-	if (this.currentElement != null){
-		this.lastCheckPoint = impt.declarationSourceEnd+1;
-		this.currentElement = this.currentElement.add(impt, 0);
-		this.lastIgnoredToken = -1;
-		this.restartRecovery = true; // used to avoid branching back into the regular automaton
-	}
-	if (this.reportReferenceInfo) {
+	super.consumeStaticImportOnDemandDeclarationName();
+	if (this.reportReferenceInfo && this.astStack[this.astPtr] instanceof ImportReference impt) {
 		this.requestor.acceptTypeReference(impt.tokens, impt.sourceStart, impt.sourceEnd);
 	}
 }

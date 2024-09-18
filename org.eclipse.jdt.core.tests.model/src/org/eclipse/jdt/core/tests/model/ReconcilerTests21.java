@@ -18,6 +18,7 @@ package org.eclipse.jdt.core.tests.model;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IProblemRequestor;
@@ -243,4 +244,46 @@ public void testIssue1998() throws Exception {
 		deleteProject(p);
 	}
 }
+public void testGH2782() throws CoreException {
+	IJavaProject p = createJava21Project("p");
+	try {
+		createFolder("p/src/test");
+		createFile("p/src/test/StringVar2.java",
+				"""
+				package test;
+                public class StringVar2 {
+                  public void test () {
+                    "foo".
+                    if (true);
+                  }
+                }
+				""");
+		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		sortMarkers(markers);
+		assertMarkers("markers in p",
+				"""
+				Constructor call must be the first statement in a constructor
+				Syntax error on token "if", super expected""",
+				markers);
+
+		ICompilationUnit unit = getCompilationUnit("p/src/test/StringVar2.java");
+		this.problemRequestor.initialize(unit.getSource().toCharArray());
+		this.workingCopy = getCompilationUnit("p/src/test/StringVar2.java").getWorkingCopy(this.wcOwner, null);
+		assertProblems("Expecting no problems",
+				"""
+				----------
+				1. ERROR in /p/src/test/StringVar2.java (at line 5)
+					if (true);
+					^^
+				Syntax error on token "if", super expected
+				----------
+				""",
+				this.problemRequestor);
+		this.workingCopy.discardWorkingCopy();
+	} finally {
+		deleteProject(p);
+	}
+}
+
 }

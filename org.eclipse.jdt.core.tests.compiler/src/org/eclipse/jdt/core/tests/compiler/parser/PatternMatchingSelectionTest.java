@@ -201,7 +201,7 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 				"    new Object() {\n" +
 				"      private void methodA(Object object) {\n" +
 				"        if ((! (object instanceof Random varX)))\n" +
-				"            return ;\n" +
+				"            return;\n" +
 				"      }\n" +
 				"      private void methodB(Object object) {\n" +
 				"        if ((object instanceof <SelectOnType:String> var1))\n" +

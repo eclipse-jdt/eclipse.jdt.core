@@ -2793,11 +2793,10 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 
 				ImportReference importRef = (ImportReference) node;
 				boolean inModule = (importRef.bits & ASTNode.inModule) != 0;
-				boolean getOnDemand = (importRef.bits & ASTNode.OnDemand) != 0 || inModule;
-				Binding binding = getOnDemand
-					? this.unitScope.getImport(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length), true, importRef.isStatic())
-					: this.unitScope.getImport(importRef.tokens, false, importRef.isStatic());
-				if (inModule) {
+				boolean isOnDemand = (importRef.bits & ASTNode.OnDemand) != 0 || inModule;
+				boolean isModuleImport = (importRef.modifiers & ClassFileConstants.AccModule) != 0;
+				Binding binding = this.unitScope.getImport(importRef.tokens, isOnDemand, importRef.modifiers);
+				if (inModule || isModuleImport) {
 					nodeSet.addMatch(node, this.patternLocator.resolveLevel(binding)); // report all module-info together
 				} else {
 					this.patternLocator.matchLevelAndReportImportRef(importRef, binding, this);
@@ -3069,7 +3068,7 @@ private void reportMatching(PackageVisibilityStatement[] psvs, MatchingNodeSet n
 			ImportReference importRef = psv.pkgRef;
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(importRef);
 			if (level != null) {
-				Binding binding = this.unitScope.getImport(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length), true, false);
+				Binding binding = this.unitScope.getImport(importRef.tokens, true, 0);
 				this.patternLocator.matchReportImportRef(importRef, binding, moduleDesc, level.intValue(), this);
 			}
 			ModuleReference[] tgts = psv.targets;

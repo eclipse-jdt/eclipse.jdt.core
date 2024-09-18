@@ -125,7 +125,7 @@ public String[] getCommandLine() {
 
 	// debug mode
 	if (this.debugPort != -1) {
-		addXdebug(commandLine);
+		addDebugOptions(commandLine);
 		addXnoagent(commandLine);
 		// commandLine.add("-Djava.compiler=NONE");
 		commandLine.add(
@@ -189,15 +189,6 @@ public String[] getCommandLine() {
 	}
 
 	return result;
-}
-protected void addXdebug(List<String> commandLine) {
-	long vmVersion = Util.getMajorMinorVMVersion();
-	addXdebug(commandLine, vmVersion);
-}
-private void addXdebug(List<String> commandLine, long vmVersion) {
-	if (vmVersion != -1 && vmVersion < ClassFileConstants.JDK22) {
-		commandLine.add("-Xdebug");
-	}
 }
 
 private void addXnoagent(List<String> commandLine) {

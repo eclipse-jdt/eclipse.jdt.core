@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -236,7 +236,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IgnoreNoEffectAssignCheck = Bit30;
 
 	// for references on lhs of assignment
-	public static final int IsStrictlyAssigned = Bit14; // set only for true assignments, as opposed to compound ones
+	public static final int IsStrictlyAssigned = Bit14; // set only for true assignments, as opposed to compound ones. Used also for JEP 482 to allow assignment, but not read
 	public static final int IsCompoundAssigned = Bit17; // set only for compound assignments, as opposed to other ones
 
 	// for explicit constructor call
@@ -302,7 +302,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for import reference
 	public static final int OnDemand = Bit18;
 	public static final int Used = Bit2;
-	public static final int inModule = Bit19;
+	public static final int inModule = Bit19; // signals the package reference of an exports or opens declaration
 
 	// for parameterized qualified/single type ref
 	public static final int DidResolve = Bit19;

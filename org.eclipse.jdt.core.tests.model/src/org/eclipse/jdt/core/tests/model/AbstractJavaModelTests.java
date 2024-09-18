@@ -173,6 +173,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static boolean isJRE20 = false;
 	protected static boolean isJRE21 = false;
 	protected static boolean isJRE22 = false;
+	protected static boolean isJRE23 = false;
 	static {
 		String javaVersion = System.getProperty("java.version");
 		String vmName = System.getProperty("java.vm.name");
@@ -185,6 +186,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK23) {
+			isJRE23 = true;
+		}
 		if (jdkLevel >= ClassFileConstants.JDK22) {
 			isJRE22 = true;
 		}
@@ -309,6 +313,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Internal synonym for constant AST.JSL22
 	 */
 	protected static final int AST_INTERNAL_JLS22 = AST.JLS22;
+	/**
+	 * Internal synonym for constant AST.JSL22
+	 */
+	protected static final int AST_INTERNAL_JLS23 = AST.JLS23;
 	/**
 	 * Internal synonym for the latest AST level.
 	 */
@@ -3530,24 +3538,22 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				newJclSrcString = "JCL18_SRC"; // Use the same source
 			}
 		} else {
-			if (compliance.equals("22")) {
-				// Reuse the same 17 stuff as of now. No real need for a new one
+			if (compliance.equals("23")) {
+				newJclLibString = "JCL_23_LIB";
+				newJclSrcString = "JCL_23_SRC";
+			} else if (compliance.equals("22")) {
 				newJclLibString = "JCL_22_LIB";
 				newJclSrcString = "JCL_22_SRC";
-			} else			if (compliance.equals("21")) {
-				// Reuse the same 14 stuff as of now. No real need for a new one
+			} else if (compliance.equals("21")) {
 				newJclLibString = "JCL_21_LIB";
 				newJclSrcString = "JCL_21_SRC";
 			} else if (compliance.equals("19")) {
-				// Reuse the same 14 stuff as of now. No real need for a new one
 				newJclLibString = "JCL_19_LIB";
 				newJclSrcString = "JCL_19_SRC";
 			} else if (compliance.equals("17")) {
-				// Reuse the same 14 stuff as of now. No real need for a new one
 				newJclLibString = "JCL_17_LIB";
 				newJclSrcString = "JCL_17_SRC";
 			} else if (compliance.equals("16")) {
-				// Reuse the same 14 stuff as of now. No real need for a new one
 				newJclLibString = "JCL14_LIB";
 				newJclSrcString = "JCL14_SRC";
 			} else if (compliance.equals("15")) {
@@ -3606,7 +3612,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 						new Path(newJclSrcString),
 						entry.getSourceAttachmentRootPath(),
 						entry.getAccessRules(),
-						new IClasspathAttribute[0],
+						entry.getExtraAttributes(),
 						entry.isExported());
 				jclPathEntrySet = true;
 			}
@@ -3725,6 +3731,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				JavaCore.setClasspathVariables(
 					new String[] {"JCL_22_LIB", "JCL_22_SRC", "JCL_SRCROOT"},
 					new IPath[] {getExternalJCLPath("22"), getExternalJCLSourcePath("22"), getExternalJCLRootSourcePath()},
+					null);
+			}
+		} else if ("23".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL_23_LIB") == null) {
+				setupExternalJCL("jclMin23");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL_23_LIB", "JCL_23_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("23"), getExternalJCLSourcePath("23"), getExternalJCLRootSourcePath()},
 					null);
 			}
 		} else {

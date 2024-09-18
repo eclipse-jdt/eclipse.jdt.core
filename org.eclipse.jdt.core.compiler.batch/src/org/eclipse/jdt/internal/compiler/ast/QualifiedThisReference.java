@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class QualifiedThisReference extends ThisReference {
@@ -117,9 +118,9 @@ public class QualifiedThisReference extends ThisReference {
 		}
 
 		// Ensure one cannot write code like: B() { super(B.this); }
-		if (depth == 0) {
+		if (depth == 0 || JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
 			checkAccess(scope, null);
-		} // if depth>0, path emulation will diagnose bad scenarii
+		} // if depth>0, prior to JEP 482: path emulation will diagnose bad scenarii
 		else if (scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK16) {
 			MethodScope ms = scope.methodScope();
 			if (ms.isStatic)
@@ -129,12 +130,6 @@ public class QualifiedThisReference extends ThisReference {
 		if (methodScope != null) {
 			MethodBinding method = methodScope.referenceMethodBinding();
 			if (method != null) {
-				if (this.inPreConstructorContext
-						&& TypeBinding.equalsEquals(method.declaringClass, this.resolvedType)) {
-					// TODO: 8.8.7.1 - check the qualifier
-					// any qualified this expression whose qualifier names the class C are disallowed
-					scope.problemReporter().errorExpressionInPreConstructorContext(this);
-				}
 				TypeBinding receiver = method.receiver;
 				while (receiver != null) {
 					if (TypeBinding.equalsEquals(receiver, this.resolvedType))

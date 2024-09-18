@@ -71,11 +71,8 @@ public class DOMASTUtil {
 				return apiLevel >= AST.JLS18;
 			case ASTNode.RECORD_PATTERN:
 				return apiLevel >= AST.JLS21;
-			case ASTNode.STRING_FRAGMENT:
-			case ASTNode.STRING_TEMPLATE_COMPONENT:
-			case ASTNode.STRING_TEMPLATE_EXPRESSION:
 			case ASTNode.EitherOr_MultiPattern:
-				return apiLevel >= AST.JLS21 && previewEnabled;
+				return apiLevel >= AST.JLS22;
 		}
 		return false;
 	}
@@ -193,9 +190,6 @@ public class DOMASTUtil {
 	public static boolean isPatternSupported(int apiLevel, boolean previewEnabled) {
 		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.TYPE_PATTERN);
 	}
-	public static boolean isStringTemplateSupported(int apiLevel, boolean previewEnabled) {
-		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.STRING_TEMPLATE_EXPRESSION);
-	}
 	public static boolean isEitherOrMultiPatternSupported(int apiLevel, boolean previewEnabled) {
 		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.EitherOr_MultiPattern);
 	}
@@ -220,7 +214,7 @@ public class DOMASTUtil {
 	private static final String[] AST_COMPLIANCE_MAP = {"-1","-1",JavaCore.VERSION_1_2, JavaCore.VERSION_1_3, JavaCore.VERSION_1_7, //$NON-NLS-1$ //$NON-NLS-2$
 			JavaCore.VERSION_1_7, JavaCore.VERSION_1_7, JavaCore.VERSION_1_7, JavaCore.VERSION_1_8, JavaCore.VERSION_9, JavaCore.VERSION_10,
 			JavaCore.VERSION_11, JavaCore.VERSION_12, JavaCore.VERSION_13, JavaCore.VERSION_14, JavaCore.VERSION_15, JavaCore.VERSION_16, JavaCore.VERSION_17, JavaCore.VERSION_18,
-			JavaCore.VERSION_19, JavaCore.VERSION_20, JavaCore.VERSION_21, JavaCore.VERSION_22};
+			JavaCore.VERSION_19, JavaCore.VERSION_20, JavaCore.VERSION_21, JavaCore.VERSION_22, JavaCore.VERSION_23};
 
 	/**
 	 * Calculates the JavaCore Option value string corresponding to the input ast level.

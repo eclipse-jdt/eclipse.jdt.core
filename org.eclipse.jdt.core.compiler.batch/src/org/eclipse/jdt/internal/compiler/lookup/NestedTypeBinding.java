@@ -124,6 +124,8 @@ public SyntheticArgumentBinding addSyntheticArgumentAndField(LocalVariableBindin
 */
 public SyntheticArgumentBinding addSyntheticArgumentAndField(ReferenceBinding targetEnclosingType) {
 	if (!isPrototype()) throw new IllegalStateException();
+	if (this.scope.isInsideEarlyConstructionContext(targetEnclosingType, false))
+		return null;
 	SyntheticArgumentBinding synthLocal = addSyntheticArgument(targetEnclosingType);
 	if (synthLocal == null) return null;
 

@@ -149,6 +149,7 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 			case TerminalTokens.TokenNameCOMMA : nextToken = ITerminalSymbols.TokenNameCOMMA; break;
 			case TerminalTokens.TokenNameCOMMENT_BLOCK : nextToken = ITerminalSymbols.TokenNameCOMMENT_BLOCK; break;
 			case TerminalTokens.TokenNameCOMMENT_JAVADOC : nextToken = ITerminalSymbols.TokenNameCOMMENT_JAVADOC; break;
+			case TerminalTokens.TokenNameCOMMENT_MARKDOWN : nextToken = ITerminalSymbols.TokenNameCOMMENT_MARKDOWN; break;
 			case TerminalTokens.TokenNameCOMMENT_LINE : nextToken = ITerminalSymbols.TokenNameCOMMENT_LINE; break;
 			case TerminalTokens.TokenNameCharacterLiteral : nextToken = ITerminalSymbols.TokenNameCharacterLiteral; break;
 			case TerminalTokens.TokenNameDIVIDE : nextToken = ITerminalSymbols.TokenNameDIVIDE; break;
@@ -203,10 +204,8 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 			case TerminalTokens.TokenNameSEMICOLON : nextToken = ITerminalSymbols.TokenNameSEMICOLON; break;
 			case TerminalTokens.TokenNameSingleQuoteStringLiteral : nextToken = ITerminalSymbols.TokenNameSingleQuoteStringLiteral; break;
 			case TerminalTokens.TokenNameStringLiteral : nextToken = ITerminalSymbols.TokenNameStringLiteral; break;
-			case TerminalTokens.TokenNameStringTemplate : nextToken = ITerminalSymbols.TokenNameStringTemplate; break;
 			case TerminalTokens.TokenNameTWIDDLE : nextToken = ITerminalSymbols.TokenNameTWIDDLE; break;
 			case TerminalTokens.TokenNameTextBlock : nextToken = ITerminalSymbols.TokenNameTextBlock; break;
-			case TerminalTokens.TokenNameTextBlockTemplate : nextToken = ITerminalSymbols.TokenNameTextBlockTemplate; break;
 			case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT : nextToken = ITerminalSymbols.TokenNameUNSIGNED_RIGHT_SHIFT; break;
 			case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT_EQUAL : nextToken = ITerminalSymbols.TokenNameUNSIGNED_RIGHT_SHIFT_EQUAL; break;
 			case TerminalTokens.TokenNameWHITESPACE : nextToken = ITerminalSymbols.TokenNameWHITESPACE; break;

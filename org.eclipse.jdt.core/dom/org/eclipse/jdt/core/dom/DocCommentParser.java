@@ -80,6 +80,9 @@ class DocCommentParser extends AbstractCommentParser {
 			commentParse();
 		}
 		this.docComment.setSourceRange(start, length);
+		if (this.ast.apiLevel >= AST.JLS23_INTERNAL) {
+			this.docComment.setMarkdown(this.markdown);
+		}
 		if (this.ast.apiLevel == AST.JLS2_INTERNAL) {
 			setComment(start, length);  // backward compatibility
 		}
@@ -259,6 +262,7 @@ class DocCommentParser extends AbstractCommentParser {
 		}
 		tagElement.setSourceRange(start, this.tagSourceEnd-start+1);
 		this.scanner.resetTo(position, this.javadocEnd);
+		this.markdownHelper.resetLineStart();
 	}
 
 	@Override
@@ -719,7 +723,92 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	@Override
+	protected boolean parseMarkdownLinks(int previousPosition) throws InvalidInputException {
+		boolean valid = false;
+		// The markdown links can come in single [] or pair of [] with no space between them
+		// We are here after we have seen [
+		// Look for closing ] and then an option [
+		// immediately without any other characters, including whitespace
+		// If there are two [], then the first one becomes the link text
+		// and the second one is the reference
+		// in case of just one [], then that is the reference
+		int start = this.index;
+		char currentChar = readChar();
+		int tStart = previousPosition;
+		int tEnd = -1;
+		loop: while (this.index < this.scanner.eofPosition) {
+			switch(currentChar) {
+				case '\\':
+					char c = peekChar();
+					if (c == '[' || c == ']') {
+						readChar();
+					}
+					break;
+				case ']':
+					if (peekChar() == '[') {
+						tStart = start;
+						tEnd = this.index - 1;
+						currentChar = readChar();
+						start = this.index;
+					} else {
+						int eofBkup = this.scanner.eofPosition;
+						this.scanner.eofPosition = this.index - 1;
+						this.scanner.resetTo(start, this.javadocEnd);
+						this.inlineTagStarted = true;
+						this.inlineTagStart = previousPosition;
+						this.tagValue = TAG_LINK_VALUE;
+						int indexBkup = this.index;
+						valid = parseReference(true);
+						this.index = indexBkup;
+						// This creates a two level structure. The @link tag is added to
+						// another tag element, which gets added to the astStack
+						// Both tag elements must get the same source range.
+						TagElement previousTag = (TagElement) this.astStack[this.astPtr];
+						int parentStart = previousTag.getStartPosition();
+						previousTag.setSourceRange(parentStart, this.index - parentStart);
+						List fragments = previousTag.fragments();
+						int size = fragments.size();
+						if (size == 0) {
+							// no existing fragment => just add the element
+							TagElement inlineTag = this.ast.newTagElement();
+							fragments.add(inlineTag);
+							previousTag = inlineTag;
+						} else {
+							// If last fragment is a tag, then use it as previous tag
+							ASTNode lastFragment = (ASTNode) fragments.get(size-1);
+							if (lastFragment.getNodeType() == ASTNode.TAG_ELEMENT) {
+								lastFragment.setSourceRange(lastFragment.getStartPosition(), this.index - previousPosition);
+								previousTag = (TagElement) lastFragment;
+							}
+						}
+						if (tEnd != -1) {
+							TextElement text = this.ast.newTextElement();
+							text.setText(new String( this.source, tStart, tEnd-tStart));
+							text.setSourceRange(tStart, tEnd-tStart);
+							previousTag.fragments().add(0, text);
+						}
+						this.tagValue = NO_TAG_VALUE;
+						this.inlineTagStarted = false;
+						this.inlineTagStart = -1;
+						this.scanner.eofPosition = eofBkup;
+						break loop;
+					}
+					break;
+				case '\r':
+				case '\n':
+					return false;
+				default:
+					break;
+			}
+			currentChar = readChar();
+		}
+		this.markdownHelper.resetLineStart();
+		return valid;
+	}
+
+	@Override
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
+		this.markdownHelper.resetLineStart();
 
 		// Read tag name
 		int currentPosition = this.index;
@@ -1045,6 +1134,7 @@ class DocCommentParser extends AbstractCommentParser {
 
 	@Override
 	protected void pushText(int start, int end) {
+		start = this.markdownHelper.getTextStart(start);
 
 		// Create text element
 		TextElement text = this.ast.newTextElement();

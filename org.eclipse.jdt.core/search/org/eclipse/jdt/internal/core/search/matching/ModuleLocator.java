@@ -2,10 +2,13 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 
@@ -48,6 +51,17 @@ public class ModuleLocator extends PatternLocator {
 		}
 		nodeSet.mustResolve = true;
 		return nodeSet.addMatch(node, POSSIBLE_MATCH);
+	}
+	@Override
+	public int match(ASTNode node, MatchingNodeSet nodeSet) {
+		if (node instanceof ImportReference impt && (impt.modifiers & ClassFileConstants.AccModule) != 0) {
+			if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
+			char[] moduleName = CharOperation.concatWith(impt.tokens, '.');
+			if (!matchesName(this.pattern.name, moduleName)) return IMPOSSIBLE_MATCH;
+			nodeSet.mustResolve = true;
+			return nodeSet.addMatch(node, POSSIBLE_MATCH);
+		}
+		return IMPOSSIBLE_MATCH;
 	}
 	@Override
 	protected int matchContainer() {

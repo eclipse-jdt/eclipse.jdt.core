@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -536,7 +536,7 @@ public final class AST {
 	 * Internal property for latest supported JLS level
 	 * This provides the latest JLS level.
 	 */
-	private static final int JLS_INTERNAL_Latest = JLS22;
+	private static final int JLS_INTERNAL_Latest = JLS23;
 
 	/**
 	 * @since 3.26
@@ -2495,6 +2495,9 @@ public final class AST {
 		if (Modifier.isNonSealed(flags)) {
 			result.add(newModifier(Modifier.ModifierKeyword.NON_SEALED_KEYWORD));
 		}
+		if (Modifier.isModule(flags)) {
+			result.add(newModifier(Modifier.ModifierKeyword.MODULE_KEYWORD));
+		}
 		return result;
 	}
 
@@ -2993,36 +2996,6 @@ public final class AST {
 	 */
 	public StringLiteral newStringLiteral() {
 		return new StringLiteral(this);
-	}
-	/**
-	 * Creates and returns a new unparented string fragment node for
-	 * the empty string fragment.
-	 *
-	 * @return a new unparented string fragment node
-	 * @since 3.37
-	 */
-	public StringFragment newStringFragment() {
-		return new StringFragment(this);
-	}
-	/**
-	 * Creates and returns a new unparented string template expression node for
-	 * the empty string template expression.
-	 *
-	 * @return a new unparented string literal node
-	 * @since 3.37
-	 */
-	public StringTemplateExpression newStringTemplateExpression() {
-		return new StringTemplateExpression(this);
-	}
-	/**
-	 * Creates and returns a new unparented string template component node for
-	 * the empty string template component.
-	 *
-	 * @return a new unparented string literal node
-	 * @since 3.37
-	 */
-	public StringTemplateComponent newStringTemplateComponent() {
-		return new StringTemplateComponent(this);
 	}
 
 	/**
