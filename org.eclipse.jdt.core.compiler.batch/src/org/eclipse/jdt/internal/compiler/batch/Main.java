@@ -3939,6 +3939,9 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 					CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement,
 					CompilerOptions.DISABLED);
 				return;
+			} else if (token.equals("dubiousReferenceComparison")) { //$NON-NLS-1$
+				setSeverity(CompilerOptions.OPTION_ReportDubiousReferenceComparison, severity, isEnabling);
+				return;
 			}
 			break;
 		case 'e' :

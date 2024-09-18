@@ -719,6 +719,8 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.UnlikelyCollectionMethodArgumentType;
 		case IProblem.UnlikelyEqualsArgumentType:
 			return CompilerOptions.UnlikelyEqualsArgumentType;
+		case IProblem.DubiousReferenceComparison:
+			return CompilerOptions.DubiousReferenceComparison;
 
 		case IProblem.NonPublicTypeInAPI:
 		case IProblem.NotExportedTypeInAPI:
@@ -794,6 +796,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.NonNullTypeVariableFromLegacyInvocation :
 			case CompilerOptions.UnlikelyCollectionMethodArgumentType :
 			case CompilerOptions.UnlikelyEqualsArgumentType:
+			case CompilerOptions.DubiousReferenceComparison:
 			case CompilerOptions.APILeak:
 			case CompilerOptions.UnstableAutoModuleName:
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
@@ -11687,6 +11690,15 @@ public void unlikelyArgumentType(Expression argument, MethodBinding method, Type
 			},
 			argument.sourceStart,
 			argument.sourceEnd);
+}
+
+public void dubiousComparison(EqualExpression comparison, String operator, TypeBinding leftType, TypeBinding rightType) {
+	this.handle(
+			IProblem.DubiousReferenceComparison,
+			new String[] {operator, new String(leftType.shortReadableName()), new String(rightType.shortReadableName())},
+			new String[] {operator, new String(leftType.readableName()), new String(rightType.readableName())},
+			comparison.sourceStart,
+			comparison.sourceEnd);
 }
 
 public void nonPublicTypeInAPI(TypeBinding type, int sourceStart, int sourceEnd) {

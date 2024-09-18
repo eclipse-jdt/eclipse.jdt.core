@@ -99,6 +99,7 @@ protected Map getCompilerOptions() {
 	    defaultOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.ERROR);
 	    defaultOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.ERROR);
 		defaultOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+		defaultOptions.put(CompilerOptions.OPTION_ReportDubiousReferenceComparison, CompilerOptions.IGNORE);
 		defaultOptions.put(CompilerOptions.OPTION_IncludeNullInfoFromAsserts, CompilerOptions.ENABLED);
     }
     return defaultOptions;

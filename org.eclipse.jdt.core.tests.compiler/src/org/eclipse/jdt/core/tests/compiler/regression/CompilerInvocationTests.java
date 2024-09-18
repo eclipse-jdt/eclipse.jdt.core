@@ -110,7 +110,7 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 				String token = CompilerOptions.warningTokenFromIrritant(irritant);
 				if (token != null) {
 					matcher.put(token, token);
-					assertTrue(CompilerOptions.warningTokenToIrritants(token) != null);
+					assertNotNull("Token " + token + " should be in CompilerOptions", CompilerOptions.warningTokenToIrritants(token));
 				}
 			}
 		}
@@ -122,7 +122,7 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 		assertEquals(allTokens.length, matcher.size());
 		for (int i = 0; i < length; i++) {
 			Object object = matcher.get(allTokens[i]);
-			assertNotNull(object);
+			assertNotNull("token " + allTokens[i] + " should be found", object);
 		}
 	}
 
@@ -1120,6 +1120,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("UninternedIdentityComparison", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("UnlikelyCollectionMethodArgumentType", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("UnlikelyEqualsArgumentType", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("DubiousReferenceComparison",  new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("UnmatchedBracket", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("UnnamedPackageInNamedModule", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
 		expectedProblemAttributes.put("UnnecessaryArgumentCast", DEPRECATED);
@@ -2242,6 +2243,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("UninternedIdentityComparison", SKIP);
 		expectedProblemAttributes.put("UnlikelyCollectionMethodArgumentType", new ProblemAttributes(JavaCore.COMPILER_PB_UNLIKELY_COLLECTION_METHOD_ARGUMENT_TYPE));
 		expectedProblemAttributes.put("UnlikelyEqualsArgumentType", new ProblemAttributes(JavaCore.COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE));
+		expectedProblemAttributes.put("DubiousReferenceComparison", new ProblemAttributes(JavaCore.COMPILER_PB_DUBIOUS_REFERENCE_COMPARISON));
 		expectedProblemAttributes.put("UnmatchedBracket", SKIP);
 		expectedProblemAttributes.put("UnnamedPackageInNamedModule", SKIP);
 		expectedProblemAttributes.put("UnnecessaryArgumentCast", SKIP);

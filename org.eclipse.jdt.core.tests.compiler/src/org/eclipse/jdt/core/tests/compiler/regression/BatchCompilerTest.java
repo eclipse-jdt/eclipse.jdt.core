@@ -842,6 +842,9 @@ public void test012b(){
         "      dep-ann              missing @Deprecated annotation\n" +
         "      deprecation        + deprecation outside deprecated code\n" +
         "      discouraged        + use of types matching a discouraged access rule\n" +
+        "      dubiousReferenceComparison\n" +
+        "                         + dubious reference comparison of primitive wrappers\n" +
+        "                           or strings\n" +
         "      emptyBlock           undocumented empty block\n" +
         "      enumIdentifier       ''enum'' used as identifier\n" +
         "      enumSwitch           incomplete enum switch\n" +
@@ -1060,6 +1063,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.discouragedReference\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.dubiousReferenceComparison\" value=\"info\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.emptyStatement\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.enablePreviewFeatures\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.enumIdentifier\" value=\"error\"/>\n" +
@@ -11322,47 +11326,52 @@ public void test312_warn_options() {
 		"	                                      ^\n" +
 		"Null pointer access: The variable o can only be null at this location\n" +
 		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" +
+		"2. INFO in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" +
+		"	if (o.toString() == \"\"){ return null;}\n" +
+		"	    ^^^^^^^^^^^^^^^^^^\n" +
+		"Dubious operand types for '==': java.lang.String and java.lang.String are references\n" +
+		"----------\n" +
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" +
 		"	if (o.toString() == \"\"){ return null;}\n" +
 		"	    ^\n" +
 		"Potential null pointer access: The variable o may be null at this location\n" +
 		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" +
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" +
 		"	if (o.toString() == \"\"){ return null;}\n" +
 		"	                                ^^^^\n" +
 		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n" +
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" +
+		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" +
 		"	if (o2 == null) {}\n" +
 		"	    ^^\n" +
 		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" +
 		"----------\n" +
-		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" +
+		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" +
 		"	goo(null).toString();\n" +
 		"	^^^^^^^^^\n" +
 		"Potential null pointer access: The method goo(Object) may return null\n" +
 		"----------\n" +
-		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" +
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" +
 		"	goo(null).toString();\n" +
 		"	    ^^^^\n" +
 		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 13)\n" +
+		"8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 13)\n" +
 		"	return null;\n" +
 		"	       ^^^^\n" +
 		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n" +
-		"8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 19)\n" +
+		"9. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 19)\n" +
 		"	if (o2 == null){}\n" +
 		"	    ^^\n" +
 		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" +
 		"----------\n" +
-		"9. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 20)\n" +
+		"10. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 20)\n" +
 		"	if (o2 == null){\n" +
 		"	    ^^\n" +
 		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" +
 		"----------\n" +
-		"9 problems (9 warnings)\n",
+		"10 problems (0 errors, 9 warnings, 1 info)\n",
 		true);
 }
 
@@ -13162,5 +13171,57 @@ public void testGH2434(){
 		"",
         "",
         true);
+}
+
+public void testGitHub2176WarningEnabled(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			public class X {
+			    public boolean isX() {
+			        Long x1 = Long.valueOf(12345L);
+			        Long x2 = Long.valueOf(67890L);
+			        return x1 == x2;
+		        }
+			}
+			"""
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\"  -warn:+dubiousReferenceComparison",
+		"",
+		"""
+		----------
+		1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+			return x1 == x2;
+			       ^^^^^^^^
+		Dubious operand types for '==': java.lang.Long and java.lang.Long are references
+		----------
+		1 problem (1 warning)
+		""",
+		true);
+}
+
+/**
+ * Test case for enabling the dubious reference comparison warning.
+ */
+public void testGitHub2176WarningDisabled(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			public class X {
+			    public boolean isX() {
+			        Long x1 = Long.valueOf(12345L);
+			        Long x2 = Long.valueOf(67890L);
+			        return x1 == x2;
+		        }
+			}
+			"""
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\" -info:-dubiousReferenceComparison",
+		"",
+		"""
+		""",
+		true);
 }
 }
