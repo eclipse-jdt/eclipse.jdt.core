@@ -82,12 +82,14 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected int firstTagPosition;
 	protected int index, lineEnd;
 	protected int tokenPreviousPosition, lastIdentifierEndPosition, starPosition;
-	protected int textStart, memberStart;
+	protected int textStart;
+	protected int memberStart;
 	protected int tagSourceStart, tagSourceEnd;
 	protected int inlineTagStart;
 	protected int[] lineEnds;
 
 	// Flags
+	protected boolean markdown = false;
 	protected boolean lineStarted = false;
 	protected boolean inlineTagStarted = false;
 	protected boolean inlineReturn= false;
@@ -98,6 +100,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected boolean snippetInlineTagStarted = false;
 	private int nonRegionTagCount, inlineTagCount;
 	final static String SINGLE_LINE_COMMENT = "//"; //$NON-NLS-1$
+
+	protected IMarkdownCommentHelper markdownHelper;
 
 	// Line pointers
 	private int linePtr, lastLinePtr;
@@ -187,10 +191,14 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			}
 			int previousPosition = this.index;
 			char nextCharacter = 0;
+			this.markdown = this.source[this.javadocStart + 1] == '/';
+			this.markdownHelper = IMarkdownCommentHelper.create(this);
 			if (realStart == this.javadocStart) {
-				nextCharacter = readChar(); // second '*'
-				while (peekChar() == '*') {
-					nextCharacter = readChar(); // read all contiguous '*'
+				nextCharacter = readChar(); // second '*' or '/'
+				if (!this.markdown) {
+					while (peekChar() == '*') {
+						nextCharacter = readChar(); // read all contiguous '*'
+					}
 				}
 				this.javadocTextStart = this.index;
 			}
@@ -234,12 +242,15 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					consumeToken();
 				}
 
+				if (this.markdown && !Character.isWhitespace(nextCharacter) && nextCharacter != '/' && nextCharacter != '`') {
+					this.markdownHelper.recordText();
+				}
 				// Consume rules depending on the read character
 				switch (nextCharacter) {
 					case '@' :
 						// Start tag parsing only if we are on line beginning or at inline tag beginning
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: ignore all tags when inside @literal or @code tags
-						if (considerTagAsPlainText) {
+						if (considerTagAsPlainText || this.markdownHelper.isInCodeBlock()) {
 							// new tag found
 							if (!this.lineStarted) {
 								// we may want to report invalid syntax when no closing brace found,
@@ -278,7 +289,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								invalidInlineTagLineEnd = this.lineEnd;
 							} else if (this.textStart != -1 && this.textStart < invalidTagLineEnd) {
 								if(!lookForTagsInSnippets())
-								pushText(this.textStart, invalidTagLineEnd);
+									pushText(this.textStart, invalidTagLineEnd);
 							}
 							this.scanner.resetTo(this.index, this.javadocEnd);
 							this.currentTokenType = -1; // flush token cache at line begin
@@ -329,6 +340,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						lineHasStar = false;
 						// Fix bug 51650
 						this.textStart = -1;
+						this.markdownHelper.resetAtLineEnd();
 						break;
 					case '}' :
 						if (verifText && this.tagValue == TAG_RETURN_VALUE && this.returnStatement != null) {
@@ -398,25 +410,6 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: do not update tag start position when ignoring tags
 						if (!considerTagAsPlainText) this.inlineTagStart = previousPosition;
 						break;
-					case '*' :
-						// Store the star position as text start while formatting
-						lastStarPosition = previousPosition;
-						if (previousChar != '*') {
-							this.starPosition = previousPosition;
-							if (isDomParser || isFormatterParser) {
-								if (lineHasStar) {
-									this.lineStarted = true;
-									if (this.textStart == -1) {
-										this.textStart = previousPosition;
-										if (this.index <= this.javadocTextEnd) textEndPosition = this.index;
-									}
-								}
-								if (!this.lineStarted) {
-									lineHasStar = true;
-								}
-							}
-						}
-						break;
 					case '\u000c' :	/* FORM FEED               */
 					case ' ' :			/* SPACE                   */
 					case '\t' :			/* HORIZONTAL TABULATION   */
@@ -427,15 +420,58 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							}
 						} else if (this.lineStarted && isDomParser) {
 							textEndPosition = this.index;
+						} else if (!this.lineStarted && this.markdownHelper.recordSignificantLeadingSpace()) {
+							if (this.textStart == -1)
+								this.textStart = this.index; // first relevant whitespace is start of text
 						}
 						break;
+					case '*' :
+						// Store the star position as text start while formatting
+						if (!this.markdown) {
+							lastStarPosition = previousPosition;
+							if (previousChar != '*') {
+								this.starPosition = previousPosition;
+								if (isDomParser || isFormatterParser) {
+									if (lineHasStar) {
+										this.lineStarted = true;
+										if (this.textStart == -1) {
+											this.textStart = previousPosition;
+											if (this.index <= this.javadocTextEnd) textEndPosition = this.index;
+										}
+									}
+									if (!this.lineStarted) {
+										lineHasStar = true;
+									}
+								}
+							}
+							break;
+						}
+						//$FALL-THROUGH$
 					case '/':
-						if (previousChar == '*') {
+						if (this.markdown) {
+							this.markdownHelper.recordSlash(this.index);
+							break;
+						} else if (previousChar == '*') {
 							// End of javadoc
 							break;
 						}
 						// $FALL-THROUGH$ - fall through default case
 					default :
+						if (this.markdown) {
+							if (nextCharacter == '[') {
+								if (this.textStart != -1) {
+									if (this.textStart < textEndPosition) {
+										pushText(this.textStart, textEndPosition);
+									}
+								}
+								if (parseMarkdownLinks(previousPosition)) {
+									this.textStart = this.index;
+									break;
+								}
+							} else if (nextCharacter == '`' || nextCharacter == '~') {
+								this.markdownHelper.recordFenceChar(previousChar, nextCharacter, this.lineStarted);
+							}
+						}
 						if (isFormatterParser && nextCharacter == '<') {
 							// html tags are meaningful for formatter parser
 							int initialIndex = this.index;
@@ -478,7 +514,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				}
 				refreshInlineTagPosition(textEndPosition);
 				setInlineTagStarted(false);
-			} else if (this.lineStarted && this.textStart != -1 && this.textStart <= textEndPosition && (this.textStart < this.starPosition || this.starPosition == lastStarPosition)) {
+			} else if (this.lineStarted && this.textStart != -1 && this.textStart <= textEndPosition && (this.textStart < this.starPosition || this.starPosition == lastStarPosition || this.markdown)) {
 				pushText(this.textStart, textEndPosition);
 			}
 			updateDocComment();
@@ -613,12 +649,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				// Read possible additional type info
 				dim = 0;
 				isVarargs = false;
-				if (readToken() == TerminalTokens.TokenNameLBRACKET) {
+				if (readMarkdownEscapedToken(TerminalTokens.TokenNameLBRACKET)) {
 					// array declaration
-					while (readToken() == TerminalTokens.TokenNameLBRACKET) {
+					while (readMarkdownEscapedToken(TerminalTokens.TokenNameLBRACKET)) {
 						int dimStart = this.scanner.getCurrentTokenStartPosition();
 						consumeToken();
-						if (readToken() != TerminalTokens.TokenNameRBRACKET) {
+						if (!readMarkdownEscapedToken(TerminalTokens.TokenNameRBRACKET)) {
 							break nextArg;
 						}
 						consumeToken();
@@ -694,6 +730,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			}
 
 			// Something wrong happened => Invalid input
+			if (this.markdown) {
+				// skip over bogus token
+				this.currentTokenType = -1;
+			}
 			throw Scanner.invalidInput();
 		} finally {
 			// we have to make sure that this is reset to the previous value even if an exception occurs
@@ -1434,7 +1474,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			}
 
 			// Verify that we got a reference
-			if (reference == null) reference = typeRef;
+			reference = typeRef;
 			if (reference == null) {
 				this.index = this.tokenPreviousPosition;
 				this.scanner.currentPosition = this.tokenPreviousPosition;
@@ -2957,6 +2997,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	}
 
 	/*
+	 * Parse markdown links that are replacing @link and @linkplain
+	 */
+	protected abstract boolean parseMarkdownLinks(int previousPosition) throws InvalidInputException;
+	/*
 	 * Parse tag declaration
 	 */
 	protected abstract boolean parseTag(int previousPosition) throws InvalidInputException;
@@ -3204,6 +3248,75 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		return consider;
 	}
 
+	/** compute the amount of indentation common to all non-blank lines of this markdown comment. */
+	int peekMarkdownCommonIndent(int start) {
+		final int START = 0;
+		final int TEXT = 1;
+		final int NEWLINE = 2;
+		int slashesSeen = 3;
+		int min = Integer.MAX_VALUE;
+		int textLineStart = start;
+		int state = START;
+		int idxSave = this.index;
+		this.index = start;
+		char nlChar = '\0';
+		try {
+			while (true) {
+				if (this.index >= this.scanner.eofPosition)
+					return min;
+				char c = readChar();
+				switch (state) {
+					case START -> {
+						if (c != ' ') {
+							if (c == '\r' || c == '\n') {
+								// "blank" line, i.e., no text after "///"
+								state = NEWLINE;
+								nlChar = c;
+								slashesSeen = 0;
+							} else {
+								min = Math.min(min, this.index - 1 - textLineStart);
+								state = TEXT;
+							}
+						}
+					}
+					case TEXT -> {
+						if (c == '\r' || c == '\n') {
+							state = NEWLINE;
+							nlChar = c;
+							slashesSeen = 0;
+						}
+					}
+					case NEWLINE -> {
+						switch (c) {
+							case '\n' -> {
+								if (nlChar == '\r') {
+									// saw "\r\n" -> no change
+								} else {
+									return min; // blank line seen
+								}
+							}
+							case ' ', '\t' -> {
+								nlChar = '\0';
+							}
+							case '/' -> {
+								if (++slashesSeen == 3) {
+									textLineStart = this.index;
+									state = START;
+									slashesSeen = 0;
+								}
+							}
+							default -> {
+								return min; // not a markdown line
+							}
+						}
+					}
+				}
+			}
+		} finally {
+			this.index = idxSave;
+		}
+	}
+
 	/*
 	 * Read token only if previous was consumed
 	 */
@@ -3221,6 +3334,26 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			this.lineStarted = true; // after having read a token, line is obviously started...
 		}
 		return this.currentTokenType;
+	}
+
+	protected boolean readMarkdownEscapedToken(int expectedToken) throws InvalidInputException {
+		if (!this.markdown)
+			return readToken() == expectedToken;
+		if (this.currentTokenType < 0) {
+			this.tokenPreviousPosition = this.scanner.currentPosition;
+			if (peekChar() != '\\')
+				return false;
+			this.scanner.currentPosition++;
+			this.currentTokenType = this.scanner.getNextToken();
+			if (this.currentTokenType != expectedToken) {
+				this.scanner.currentPosition = this.tokenPreviousPosition;
+				this.currentTokenType = -1;
+				return false;
+			}
+			this.index = this.scanner.currentPosition;
+			this.lineStarted = true; // after having read a token, line is obviously started...
+		}
+		return this.currentTokenType == expectedToken;
 	}
 
 	protected int readTokenAndConsume() throws InvalidInputException {
@@ -3442,6 +3575,11 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		// Whitespace or inline tag closing brace
 		char ch = peekChar();
 		switch (ch) {
+			case ']':
+				// TODO: Check if we need to exclude escaped ]
+				if (this.markdown)
+					return true;
+				break;
 			case '}':
 				return this.inlineTagStarted;
 			default:

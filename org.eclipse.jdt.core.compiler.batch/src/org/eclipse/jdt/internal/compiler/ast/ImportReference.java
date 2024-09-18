@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -29,9 +29,11 @@ public class ImportReference extends ASTNode {
 	public int declarationSourceStart;
 	public int declarationSourceEnd;
 	public int modifiers; // 1.5 addition for static imports
+	public int modifiersSourceStart;
 	public Annotation[] annotations;
 	// star end position
 	public int trailingStarPosition;
+	public boolean implicit;
 
 	public ImportReference(
 			char[][] tokens,
@@ -55,6 +57,9 @@ public class ImportReference extends ASTNode {
 
 	public char[][] getImportName() {
 		return this.tokens;
+	}
+	public boolean isImplicit() {
+		return this.implicit;
 	}
 
 	public char[] getSimpleName() {
@@ -87,13 +92,16 @@ public class ImportReference extends ASTNode {
 	}
 
 	public StringBuilder print(int tab, StringBuilder output, boolean withOnDemand) {
-
+		boolean isModule = (this.modifiers & ClassFileConstants.AccModule) != 0;
+		if (isModule) {
+			output.append("module "); //$NON-NLS-1$
+		}
 		/* when withOnDemand is false, only the name is printed */
 		for (int i = 0; i < this.tokens.length; i++) {
 			if (i > 0) output.append('.');
 			output.append(this.tokens[i]);
 		}
-		if (withOnDemand && ((this.bits & ASTNode.OnDemand) != 0)) {
+		if (withOnDemand && !isModule && ((this.bits & ASTNode.OnDemand) != 0)) {
 			output.append(".*"); //$NON-NLS-1$
 		}
 		return output;

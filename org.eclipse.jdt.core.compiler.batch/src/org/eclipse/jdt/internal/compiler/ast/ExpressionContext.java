@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 IBM Corporation and others.
+ * Copyright (c) 2013, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -67,12 +67,13 @@ public enum ExpressionContext {
 	},
 
 	/** Instanceof context: potential poly-expressions are: None
-	   Context induced by: InstanceOfExpression.
+	   Context induced by: Type comparison or Pattern matching expressions
+	   ie InstanceOfExpression or Switch
 	*/
-	INSTANCEOF_CONTEXT {
+	TESTING_CONTEXT {
 		@Override
 		public String toString() {
-			return "instanceof context"; //$NON-NLS-1$
+			return "Testing context"; //$NON-NLS-1$
 		}
 		@Override
 		public boolean definesTargetType() {

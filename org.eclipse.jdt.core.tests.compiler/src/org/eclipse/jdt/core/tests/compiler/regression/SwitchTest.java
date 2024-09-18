@@ -285,7 +285,7 @@ public void test010() {
 			"2. ERROR in X.java (at line 5)\n" +
 			"	case 0 : \n" +
 			"	     ^\n" +
-			"Type mismatch: cannot convert from int to X\n" +
+			"Case constant of type int is incompatible with switch selector type X\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 6)\n" +
 			"	Zork z;\n" +
@@ -934,42 +934,42 @@ public void testCaseTypeMismatch() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	case 123: break;\n" +
 		"	     ^^^\n" +
-		"Type mismatch: cannot convert from int to String\n" +
+		"Case constant of type int is incompatible with switch selector type String\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 5)\n" +
 		"	case (byte) 1: break;\n" +
 		"	     ^^^^^^^^\n" +
-		"Type mismatch: cannot convert from byte to String\n" +
+		"Case constant of type byte is incompatible with switch selector type String\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 6)\n" +
 		"	case (char) 2: break;\n" +
 		"	     ^^^^^^^^\n" +
-		"Type mismatch: cannot convert from char to String\n" +
+		"Case constant of type char is incompatible with switch selector type String\n" +
 		"----------\n" +
 		"4. ERROR in X.java (at line 7)\n" +
 		"	case (short)3: break;\n" +
 		"	     ^^^^^^^^\n" +
-		"Type mismatch: cannot convert from short to String\n" +
+		"Case constant of type short is incompatible with switch selector type String\n" +
 		"----------\n" +
 		"5. ERROR in X.java (at line 8)\n" +
 		"	case (int) 4: break;\n" +
 		"	     ^^^^^^^\n" +
-		"Type mismatch: cannot convert from int to String\n" +
+		"Case constant of type int is incompatible with switch selector type String\n" +
 		"----------\n" +
 		"6. ERROR in X.java (at line 9)\n" +
 		"	case (long) 5: break;\n" +
 		"	     ^^^^^^^^\n" +
-		"Type mismatch: cannot convert from long to String\n" +
+		"Case constant of type long is incompatible with switch selector type String\n" +
 		"----------\n" +
 		"7. ERROR in X.java (at line 10)\n" +
 		"	case (float) 6: break;\n" +
 		"	     ^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from float to String\n" +
+		"Case constant of type float is incompatible with switch selector type String\n" +
 		"----------\n" +
 		"8. ERROR in X.java (at line 11)\n" +
 		"	case (double) 7: break;\n" +
 		"	     ^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from double to String\n" +
+		"Case constant of type double is incompatible with switch selector type String\n" +
 		"----------\n" +
 		"9. ERROR in X.java (at line 12)\n" +
 		"	case (boolean) 8: break;\n" +
@@ -979,9 +979,9 @@ public void testCaseTypeMismatch() {
 		"10. ERROR in X.java (at line 12)\n" +
 		"	case (boolean) 8: break;\n" +
 		"	     ^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from boolean to String\n" +
+		"Case constant of type boolean is incompatible with switch selector type String\n" +
 		"----------\n";
-		String oldMessage =
+	String oldMessage =
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
 			"	switch(args[0]) {\n" +
@@ -1024,7 +1024,7 @@ public void testCaseTypeMismatch2() {
 		"1. ERROR in X.java (at line 7)\n" +
 		"	case Days.Sunday: break;\n" +
 		"	     ^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from Days to String\n" +
+		"Case constant of type Days is incompatible with switch selector type String\n" +
 		"----------\n";
 		String oldMessage =
 			"----------\n" +
@@ -1059,17 +1059,17 @@ public void testCaseTypeMismatch3() {
 		"1. ERROR in X.java (at line 7)\n" +
 		"	case \"0\": break;\n" +
 		"	     ^^^\n" +
-		"Type mismatch: cannot convert from String to int\n" +
+		"Case constant of type String is incompatible with switch selector type int\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 10)\n" +
 		"	case \"Sunday\": break;\n" +
 		"	     ^^^^^^^^\n" +
-		"Type mismatch: cannot convert from String to Days\n" +
+		"Case constant of type String is incompatible with switch selector type Days\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 13)\n" +
 		"	case \"0\": break;\n" +
 		"	     ^^^\n" +
-		"Type mismatch: cannot convert from String to Integer\n" +
+		"Case constant of type String is incompatible with switch selector type Integer\n" +
 		"----------\n";
 
 		this.runNegativeTest(new String[] {

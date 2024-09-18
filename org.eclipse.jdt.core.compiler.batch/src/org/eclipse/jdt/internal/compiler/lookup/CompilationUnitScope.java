@@ -34,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.*;
 
@@ -230,7 +231,6 @@ void checkAndSetImports() {
 
 	// allocate the import array, add java.lang.* by default
 	ImportBinding[] defaultImports = getDefaultImports();
-	boolean importProcessor = defaultImports.length == 2;
 	final int numberOfStatements = this.referenceContext.imports.length;
 	int numberOfImports = numberOfStatements + defaultImports.length;
 	for (int i = 0; i < numberOfStatements; i++) {
@@ -238,12 +238,9 @@ void checkAndSetImports() {
 		if ((importReference.bits & ASTNode.OnDemand) != 0 && !importReference.isStatic()) {
 			if (CharOperation.equals(TypeConstants.JAVA_LANG, importReference.tokens)) {
 				numberOfImports--;
-				if (!importProcessor)
-					break;
-			}
-		}
-		if (importProcessor && (importReference.bits & ASTNode.OnDemand) == 0 && importReference.isStatic()){
-			if (CharOperation.equals(TypeConstants.JAVA_LANG_STRING_TEMPLATE_STR, importReference.tokens)) {
+			} else if ((importReference.modifiers & ClassFileConstants.AccModule) != 0 &&
+					this.referenceContext.isSimpleCompilationUnit() &&
+					CharOperation.equals(TypeConstants.JAVA_BASE, importReference.tokens)) {
 				numberOfImports--;
 			}
 		}
@@ -251,16 +248,19 @@ void checkAndSetImports() {
 	ImportBinding[] resolvedImports = new ImportBinding[numberOfImports];
 	resolvedImports[0] = defaultImports[0];
 	int index = 1;
-	if (importProcessor) {
-		resolvedImports[1] = defaultImports[1];
-		index = 2;
-	}
 
 	Predicate<ImportReference> isStaticImport = ImportReference::isStatic;
 	Predicate<ImportReference> isNotStaticImport = Predicate.not(isStaticImport);
-
+	Predicate<ImportReference> ignoreImplicit = (imp) -> {
+			if (!this.referenceContext.isSimpleCompilationUnit()) {
+				return false;
+			}
+			return (CharOperation.equals(TypeConstants.JAVA_LANG, imp.tokens) ||
+					((imp.modifiers & ClassFileConstants.AccModule) != 0
+						&& CharOperation.equals(TypeConstants.JAVA_BASE, imp.tokens)));
+	};
 	// GitHub 269: resolve non-static imports first, so that cyclic static imports can be resolved correctly
-	index = resolveImports(numberOfStatements, resolvedImports, index, isNotStaticImport);
+	index = resolveImports(numberOfStatements, resolvedImports, index, ignoreImplicit, isNotStaticImport);
 
 	// non-static imports are resolved now, "store" them before continuing with static imports
 	ImportBinding[] temp = new ImportBinding[index];
@@ -268,7 +268,7 @@ void checkAndSetImports() {
 	this.imports = temp;
 
 	// GitHub 269: non-static imports are resolved, now we can resolve static imports
-	index = resolveImports(numberOfStatements, resolvedImports, index, isStaticImport);
+	index = resolveImports(numberOfStatements, resolvedImports, index, ignoreImplicit, isStaticImport);
 
 	// shrink resolvedImports... only happens if an error was reported
 	if (resolvedImports.length > index) {
@@ -277,10 +277,13 @@ void checkAndSetImports() {
 	this.imports = resolvedImports;
 }
 
-private int resolveImports(int numberOfStatements, ImportBinding[] resolvedImports, int index, Predicate<ImportReference> filter) {
+private int resolveImports(int numberOfStatements, ImportBinding[] resolvedImports, int index, Predicate<ImportReference> filter1, Predicate<ImportReference> filter2) {
 	nextImport : for (int i = 0; i < numberOfStatements; i++) {
 		ImportReference importReference = this.referenceContext.imports[i];
-		if (!filter.test(importReference)) {
+		if (filter1.test(importReference)) {
+			continue;
+		}
+		if (!filter2.test(importReference)) {
 			continue;
 		}
 
@@ -296,7 +299,12 @@ private int resolveImports(int numberOfStatements, ImportBinding[] resolvedImpor
 			}
 		}
 
-		if ((importReference.bits & ASTNode.OnDemand) != 0) {
+		if ((importReference.modifiers & ClassFileConstants.AccModule) != 0) {
+			ModuleBinding module = this.environment.getModule(CharOperation.concatWith(compoundName, '.'));
+			if (module == null)
+				continue;
+			resolvedImports[index++] = new ImportBinding(compoundName, true, module, importReference);
+		} else if ((importReference.bits & ASTNode.OnDemand) != 0) {
 			if (CharOperation.equals(compoundName, this.currentPackageName)) {
 				continue;
 			}
@@ -451,8 +459,6 @@ void faultInImports() {
 			break;
 		}
 	}
-	ImportBinding[] defaultImports = getDefaultImports();
-	boolean importProcessor = defaultImports.length == 2;
 	// allocate the import array, add java.lang.* by default
 	int numberOfImports = numberOfStatements + 2;
 	for (int i = 0; i < numberOfStatements; i++) {
@@ -460,25 +466,12 @@ void faultInImports() {
 		if ((importReference.bits & ASTNode.OnDemand) != 0 && !importReference.isStatic()) {
 			if (CharOperation.equals(TypeConstants.JAVA_LANG, importReference.tokens)) {
 				numberOfImports--;
-				if (!importProcessor)
-					break;
-			}
-		}
-		if (importProcessor && (importReference.bits & ASTNode.OnDemand) == 0 && importReference.isStatic()){
-			if (CharOperation.equals(TypeConstants.JAVA_LANG_STRING_TEMPLATE_STR, importReference.tokens)) {
-				numberOfImports--;
 			}
 		}
 	}
 	this.tempImports = new ImportBinding[numberOfImports];
-	if (importProcessor) {
-		this.tempImports[0] = defaultImports[0];
-		this.tempImports[1] = defaultImports[1];
-		this.importPtr = 2;
-	} else {
-		this.tempImports[0] = defaultImports[0];
-		this.importPtr = 1;
-	}
+	this.tempImports[0] = getDefaultImports()[0];
+	this.importPtr = 1;
 
 	CompilerOptions compilerOptions = compilerOptions();
 	boolean inJdtDebugCompileMode = compilerOptions.enableJdtDebugCompileMode;
@@ -500,7 +493,22 @@ void faultInImports() {
 				}
 			}
 		}
-		if ((importReference.bits & ASTNode.OnDemand) != 0) {
+		if ((importReference.modifiers & ClassFileConstants.AccModule) != 0) {
+			problemReporter().validateJavaFeatureSupport(JavaFeature.MODULE_IMPORTS, importReference.sourceStart, importReference.sourceEnd);
+			if (!(JavaFeature.MODULE_IMPORTS.isSupported(compilerOptions().sourceLevel, compilerOptions().enablePreviewFeatures))) {
+				continue nextImport;
+			}
+			ModuleBinding importedModule = this.environment.getModule(CharOperation.concatWith(compoundName, '.'));
+			if (importedModule == null) {
+				problemReporter().importProblem(importReference, null);
+				continue nextImport;
+			}
+			if (!module().reads(importedModule)) {
+				problemReporter().moduleDoesNotReadOther(importReference, module(), importedModule);
+				continue nextImport;
+			}
+			recordImportBinding(new ImportBinding(compoundName, true, importedModule, importReference));
+		} else if ((importReference.bits & ASTNode.OnDemand) != 0) {
 			Binding importBinding = findImport(compoundName, compoundName.length);
 			if (!importBinding.isValidBinding()) {
 				problemReporter().importProblem(importReference, importBinding);
@@ -752,6 +760,16 @@ private MethodBinding findStaticMethod(ReferenceBinding currentType, char[] sele
 	return null;
 }
 ImportBinding[] getDefaultImports() {
+	if (JavaFeature.IMPLICIT_CLASSES_AND_INSTANCE_MAIN_METHODS.isSupported(this.environment.globalOptions) &&
+			this.referenceContext.isSimpleCompilationUnit()) {
+		ModuleBinding module = this.environment.getModule(CharOperation.concatWith(TypeConstants.JAVA_BASE, '.'));
+		if (module != null) {
+			ImportBinding javaBase = new ImportBinding(TypeConstants.JAVA_BASE, true, module, null);
+			// No need for the java.lang.* as module java.base covers it
+			return new ImportBinding[] {javaBase};
+			// this module import is not cached, there shouldn't be many files needing it.
+		}
+	}
 	// initialize the default imports if necessary... share the default java.lang.* import
 	if (this.environment.root.defaultImports != null) return this.environment.root.defaultImports;
 
@@ -768,45 +786,22 @@ ImportBinding[] getDefaultImports() {
 		BinaryTypeBinding missingObject = this.environment.createMissingType(null, TypeConstants.JAVA_LANG_OBJECT);
 		importBinding = missingObject.fPackage;
 	}
-	ImportBinding[] allImports = null;
-	if (this.environment.globalOptions.complianceLevel >= ClassFileConstants.JDK21) {
-		ImportBinding ibinding = new ImportBinding(TypeConstants.JAVA_LANG_STRING_TEMPLATE_STR, false, importBinding, null) {
-			@Override
-			public boolean isStatic() {
-				return true;
-			}
-			@Override
-			public int getResolvedBindingKind() {
-				return Binding.FIELD; // avoid resolving during faultInImports()
-			}
-			@Override
-			public Binding getResolvedImport() {
-				// resolve lazily:
-				Binding resolvedImport = super.getResolvedImport();
-				if (resolvedImport instanceof PackageBinding) { // package was past into the constructor, need to dig deeper now:
-					ReferenceBinding templateSTR = (ReferenceBinding) ((PackageBinding) resolvedImport).getTypeOrPackage(TypeConstants.JAVA_LANG_STRING_TEMPLATE_STR[2], module(), false);
-					if (templateSTR != null) {
-						FieldBinding fieldBinding = templateSTR.getField("STR".toCharArray(), true); //$NON-NLS-1$
-						if (fieldBinding != null)
-							return setResolvedImport(fieldBinding);
-					}
-				}
-				return resolvedImport;
-			}
-		};
-		allImports = new ImportBinding[] {
-				new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null), ibinding};
-	}
-	if (allImports == null){
-		allImports = new ImportBinding[] {new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null)};
-	}
-	return this.environment.root.defaultImports = allImports;
+	return this.environment.root.defaultImports = new ImportBinding[] {new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null)};
 }
 // NOT Public API
-public final Binding getImport(char[][] compoundName, boolean onDemand, boolean isStaticImport) {
-	if (onDemand)
-		return findImport(compoundName, compoundName.length);
-	return findSingleImport(compoundName, Binding.TYPE | Binding.FIELD | Binding.METHOD, isStaticImport);
+public final Binding getImport(char[][] compoundName, boolean onDemand, int modifiers) {
+	if (onDemand) {
+		if ((modifiers & ClassFileConstants.AccModule) != 0) {
+			ModuleBinding importedModule = this.environment.getModule(CharOperation.concatWith(compoundName, '.'));
+			if (importedModule != null && module().reads(importedModule))
+				return importedModule;
+			return null;
+		} else {
+			return findImport(compoundName, compoundName.length);
+		}
+	} else {
+		return findSingleImport(compoundName, Binding.TYPE | Binding.FIELD | Binding.METHOD, (modifiers & ClassFileConstants.AccStatic) != 0);
+	}
 }
 
 public int nextCaptureID() {

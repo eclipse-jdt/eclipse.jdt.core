@@ -38,11 +38,8 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			message = "'_' is a keyword from source level 9 onwards, cannot be used as identifier";
 			errorLevel = "ERROR";
-		} else if (options.sourceLevel == ClassFileConstants.JDK22) {
+		} else  {
 			message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
-			errorLevel = "ERROR";
-		} else {
-			message = "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable";
 			errorLevel = "ERROR";
 		}
 
@@ -74,11 +71,8 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			message = "'_' is a keyword from source level 9 onwards, cannot be used as identifier";
 			errorLevel = "ERROR";
-		} else if (options.sourceLevel == ClassFileConstants.JDK22) {
-			message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
-			errorLevel = "ERROR";
 		} else {
-			message =  "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable";
+			message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 			errorLevel = "ERROR";
 		}
 
@@ -109,11 +103,8 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			message = "'_' is a keyword from source level 9 onwards, cannot be used as identifier";
 			errorLevel = "ERROR";
-		} else if (options.sourceLevel == ClassFileConstants.JDK22) {
-			message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
-			errorLevel = "ERROR";
 		} else {
-			message =  "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable";
+			message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 			errorLevel = "ERROR";
 		}
 
@@ -146,11 +137,8 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			message = "'_' is a keyword from source level 9 onwards, cannot be used as identifier";
 			errorLevel = "ERROR";
-		} else if (options.sourceLevel == ClassFileConstants.JDK22) {
-			message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
-			errorLevel = "ERROR";
 		} else {
-			message =  "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable";
+			message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 			errorLevel = "ERROR";
 		}
 

@@ -1126,13 +1126,13 @@ public final char[] computeSignature(ClassFile classFile) {
 	}
 	boolean needSynthetics = isConstructor
 			&& this.declaringClass.isNestedType()
-			&& !this.declaringClass.isStatic()
-			&& !this.declaringClass.isInPreconstructorContext();
+			&& !this.declaringClass.isStatic();
 	if (needSynthetics) {
 		// take into account the synthetic argument type signatures as well
 		ReferenceBinding[] syntheticArgumentTypes = this.declaringClass.syntheticEnclosingInstanceTypes();
 		if (syntheticArgumentTypes != null) {
 			for (ReferenceBinding syntheticArgumentType : syntheticArgumentTypes) {
+
 				if ((syntheticArgumentType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
 					this.tagBits |= TagBits.ContainsNestedTypeReferences;
 					if (classFile != null)

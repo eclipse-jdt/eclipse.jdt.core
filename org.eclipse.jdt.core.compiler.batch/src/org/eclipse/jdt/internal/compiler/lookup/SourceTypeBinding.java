@@ -1227,7 +1227,7 @@ private void checkPermitsInType() {
 			continue;
 		if (this.isClass()) {
 			ReferenceBinding permSuperType = permittedType.superclass();
-			permSuperType = getActualType(permSuperType);
+			permSuperType = permSuperType.actualType();
 			if (!TypeBinding.equalsEquals(this, permSuperType)) {
 				this.scope.problemReporter().sealedNotDirectSuperClass(permittedType, permittedTypeRef, this);
 				continue;
@@ -1237,7 +1237,7 @@ private void checkPermitsInType() {
 			boolean foundSuperInterface = false;
 			if (permSuperInterfaces != null) {
 				for (ReferenceBinding psi : permSuperInterfaces) {
-					psi = getActualType(psi);
+					psi = psi.actualType();
 					if (TypeBinding.equalsEquals(this, psi)) {
 						foundSuperInterface = true;
 						break;
@@ -1298,9 +1298,6 @@ private void reportSealedSuperTypeDoesNotPermitProblem(TypeReference superTypeRe
 	}
 }
 
-private ReferenceBinding getActualType(ReferenceBinding ref) {
-	return ref.isParameterizedType() || ref.isRawType() ? ref.actualType(): ref;
-}
 public List<SourceTypeBinding> collectAllTypeBindings(TypeDeclaration typeDecl, CompilationUnitScope unitScope) {
 	class TypeBindingsCollector extends ASTVisitor {
 		List<SourceTypeBinding> types = new ArrayList<>();
@@ -1341,10 +1338,10 @@ private boolean checkPermitsAndAdd(ReferenceBinding superType) {
 			|| !superType.isSealed())
 		return true;
 	if (superType.isSealed()) {
-		superType = getActualType(superType);
+		superType = superType.actualType();
 		ReferenceBinding[] superPermittedTypes = superType.permittedTypes();
 		for (ReferenceBinding permittedType : superPermittedTypes) {
-			permittedType = getActualType(permittedType);
+			permittedType = permittedType.actualType();
 			if (permittedType.isValidBinding() && TypeBinding.equalsEquals(this, permittedType))
 				return true;
 		}

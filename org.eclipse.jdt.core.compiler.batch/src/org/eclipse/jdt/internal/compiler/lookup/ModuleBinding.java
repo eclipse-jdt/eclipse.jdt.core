@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2021 IBM Corporation and others.
+ * Copyright (c) 2016, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -72,6 +72,10 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		@Override
 		public ModuleBinding[] getAllRequiredModules() {
 			return Binding.NO_MODULES;
+		}
+		@Override
+		public boolean reads(ModuleBinding otherModule) {
+			return true;
 		}
 		@Override
 		public boolean canAccess(PackageBinding pkg) {
@@ -470,7 +474,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		}
 		ModuleBinding javaBase = this.environment.javaBaseModule();
 																			// add java.base?
-		if (!CharOperation.equals(this.moduleName, TypeConstants.JAVA_BASE)	// ... not if this *is* java.base
+		if (!CharOperation.equals(this.moduleName, TypeConstants.JAVA_DOT_BASE)	// ... not if this *is* java.base
 				&& javaBase != null 										// ... nor when java.base is absent
 				&& javaBase != this.environment.UnNamedModule)				// ..... or faked by the unnamed module
 		{
@@ -913,5 +917,14 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 				holder = new AnnotationHolder();
 		}
 		storeAnnotationHolder(binding, holder.setAnnotations(annotations));
+	}
+	public boolean reads(ModuleBinding otherModule) {
+		if (otherModule == this)
+			return true;
+		for (ModuleBinding required : getAllRequiredModules()) {
+			if (required == otherModule)
+				return true;
+		}
+		return false;
 	}
 }

@@ -368,6 +368,7 @@ public ISourceRange getJavadocRange() throws JavaModelException {
 			int terminal= scanner.getNextToken();
 			loop: while (true) {
 				switch(terminal) {
+					case ITerminalSymbols.TokenNameCOMMENT_MARKDOWN :
 					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
 						docOffset= scanner.getCurrentTokenStartPosition();
 						docEnd= scanner.getCurrentTokenEndPosition() + 1;

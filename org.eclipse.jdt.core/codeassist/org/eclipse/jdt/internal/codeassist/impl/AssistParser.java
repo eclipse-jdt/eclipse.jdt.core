@@ -1075,8 +1075,9 @@ protected void consumeRestoreDiet() {
 	}
 }
 @Override
-protected void consumeSingleStaticImportDeclarationName() {
-	// SingleTypeImportDeclarationName ::= 'import' 'static' Name
+protected void consumeSingleModifierImportDeclarationName(int modifier) {
+	// SingleStaticImportDeclarationName ::= 'import' 'static' Name RejectTypeAnnotations
+	// SingleModuleImportDeclarationName ::= 'import' 'module' Name RejectTypeAnnotations
 	/* push an ImportRef build from the last name
 	stored in the identifier stack. */
 
@@ -1084,13 +1085,16 @@ protected void consumeSingleStaticImportDeclarationName() {
 
 	/* no need to take action if not inside assist identifiers */
 	if ((index = indexOfAssistIdentifier()) < 0) {
-		super.consumeSingleStaticImportDeclarationName();
+		super.consumeSingleModifierImportDeclarationName(modifier);
 		return;
 	}
 	/* retrieve identifiers subset and whole positions, the assist node positions
 		should include the entire replaced source. */
 	int length = this.identifierLengthStack[this.identifierLengthPtr];
-	char[][] subset = identifierSubSet(index+1); // include the assistIdentifier
+	int subsetLength = modifier == ClassFileConstants.AccStatic
+							? index + 1 // include the assistIdentifier
+							: length; // segments of a module name have no semantic relevance, use the entire name
+	char[][] subset = identifierSubSet(subsetLength);
 	this.identifierLengthPtr--;
 	this.identifierPtr -= length;
 	long[] positions = new long[length];
@@ -1102,7 +1106,7 @@ protected void consumeSingleStaticImportDeclarationName() {
 		length);
 
 	/* build specific assist node on import statement */
-	ImportReference reference = createAssistImportReference(subset, positions, ClassFileConstants.AccStatic);
+	ImportReference reference = createAssistImportReference(subset, positions, modifier);
 	this.assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
 

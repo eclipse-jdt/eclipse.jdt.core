@@ -204,7 +204,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	case \"hello\" -> throw new java.io.IOException(\"hello\");\n" +
 			"	     ^^^^^^^\n" +
-			"Type mismatch: cannot convert from String to int\n" +
+			"Case constant of type String is incompatible with switch selector type int\n" +
 			"----------\n");
 	}
 	public void testBug544073_005() {
@@ -273,7 +273,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"2. ERROR in X.java (at line 13)\n" +
 			"	case \"hello\" -> throw new IOException(\"hello\");\n" +
 			"	     ^^^^^^^\n" +
-			"Type mismatch: cannot convert from String to int\n" +
+			"Case constant of type String is incompatible with switch selector type int\n" +
 			"----------\n");
 	}
 	/*
@@ -929,7 +929,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 9)\n" +
 				"	case \"2\": \n" +
 				"	     ^^^\n" +
-				"Type mismatch: cannot convert from String to int\n" +
+				"Case constant of type String is incompatible with switch selector type int\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -7677,7 +7677,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						+ "1. ERROR in X.java (at line 8)\n"
 						+ "	case 1.0 -> System.out.println(d);\n"
 						+ "	     ^^^\n"
-						+ "Type mismatch: cannot convert from double to void\n"
+						+ "Case constant of type double is incompatible with switch selector type void\n"
 						+ "----------\n");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
@@ -7801,7 +7801,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"2. ERROR in X.java (at line 8)\n" +
 						"	case null -> System.out.println(d);\n" +
 						"	     ^^^^\n" +
-						"Type mismatch: cannot convert from null to void\n" +
+						"Case constant of type null is incompatible with switch selector type void\n" +
 						"----------\n");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2387

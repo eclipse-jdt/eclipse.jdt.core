@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -198,7 +198,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			codeStream.generateInlinedValue(this.enumConstant.binding.id);
 		}
 		// handling innerclass instance allocation - enclosing instance arguments
-		if (allocatedType.isNestedType() && !this.inPreConstructorContext) {
+		if (allocatedType.hasEnclosingInstanceContext()) {
 			codeStream.generateSyntheticEnclosingInstanceValues(
 				currentScope,
 				allocatedType,
@@ -208,7 +208,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		// generate the arguments for constructor
 		generateArguments(this.binding, this.arguments, currentScope, codeStream);
 		// handling innerclass instance allocation - outer local arguments
-		if (allocatedType.isNestedType()) {
+		if (allocatedType.hasEnclosingInstanceContext()) {
 			codeStream.generateSyntheticOuterArgumentValues(
 				currentScope,
 				allocatedType,
@@ -320,7 +320,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				this.resolvedType = scope.environment().createAnnotatedType(this.resolvedType, this.binding.getTypeAnnotations());
 			}
 		}
-		checkPreConstructorContext(scope);
+		checkEarlyConstructionContext(scope);
 		return result;
 	}
 

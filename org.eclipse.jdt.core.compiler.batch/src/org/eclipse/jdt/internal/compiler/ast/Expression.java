@@ -685,6 +685,9 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
 /**
  * Base types need that the widening is explicitly done by the compiler using some bytecode like i2f.
  * Also check unsafe type operations.
+ * @param scope a scope
+ * @param runtimeType this is the type <strong>required</strong> at runtime
+ * @param compileTimeType this is what the compiler knows about the provided value
  */
 public void computeConversion(Scope scope, TypeBinding runtimeType, TypeBinding compileTimeType) {
 	if (runtimeType == null || compileTimeType == null)

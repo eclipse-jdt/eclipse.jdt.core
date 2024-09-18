@@ -2723,7 +2723,7 @@ public void test078() {
 // TODO: Enable after Bug 552769 is fixed
 public void test079() {
 
-	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK22) ?
+	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK23) ?
 			"""
 			----------
 			1. ERROR in X.java (at line 1)
@@ -2747,7 +2747,7 @@ public void test079() {
 			1. ERROR in X.java (at line 1)
 				void ___eval() {
 				^
-			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 22 and above
+			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above
 			----------
 			2. ERROR in X.java (at line 1)
 				void ___eval() {

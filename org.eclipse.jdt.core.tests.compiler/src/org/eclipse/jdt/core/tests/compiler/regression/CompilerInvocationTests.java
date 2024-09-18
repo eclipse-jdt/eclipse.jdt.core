@@ -442,6 +442,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("DeadCode", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("DefaultMethodNotBelow18", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("DefaultMethodOverridesObjectMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("DefaultTrueAndFalseCases", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 		expectedProblemAttributes.put("DereferencingNullableExpression", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("DiamondNotBelow17", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DirectInvocationOfAbstractMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -611,6 +612,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ImportInternalNameProvided", DEPRECATED);
 		expectedProblemAttributes.put("ImportNotFound", new ProblemAttributes(CategorizedProblem.CAT_IMPORT));
 		expectedProblemAttributes.put("ImportNotVisible", DEPRECATED);
+		expectedProblemAttributes.put("IncompatibleCaseType", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 		expectedProblemAttributes.put("IncompatibleExceptionInInheritedMethodThrowsClause", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IncompatibleExceptionInThrowsClause", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod", new ProblemAttributes(CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT));
@@ -844,6 +846,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("MissingTypeInMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("MissingValueForAnnotationMember", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("MissingValueFromLambda", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("ModuleNotRead", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
 		expectedProblemAttributes.put("MultiCatchNotBelow17", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("MultipleFunctionalInterfaces", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("StaticInterfaceMethodNotBelow18", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
@@ -1213,6 +1216,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("WildcardConstructorInvocation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("WildcardFieldAssignment", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("WildcardMethodInvocation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("WrongCaseType", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 		expectedProblemAttributes.put("illFormedParameterizationOfFunctionalInterface", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("lambdaParameterTypeMismatched", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("lambdaSignatureMismatched", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1332,7 +1336,6 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("PatternDominated", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("IllegalTotalPatternWithDefault", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("EnhancedSwitchMissingDefault", new ProblemAttributes(true));
-	    expectedProblemAttributes.put("DuplicateTotalPattern", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("UnexpectedTypeinSwitchPattern", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("UnexpectedTypeinRecordPattern", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("RecordPatternMismatch", new ProblemAttributes(true));
@@ -1348,8 +1351,16 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("JavadocInvalidModule", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 	    expectedProblemAttributes.put("UnderscoreCannotBeUsedHere", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("UnnamedVariableMustHaveInitializer", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("ExpressionInPreConstructorContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("DisallowedStatementInPrologue", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("ExpressionInEarlyConstructionContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("FieldReadInEarlyConstructionContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("ThisInEarlyConstructionContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("AllocationInEarlyConstructionContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("MessageSendInEarlyConstructionContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("DisallowedStatementInEarlyConstructionContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("DuplicateExplicitConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("SuperFieldAssignInEarlyConstructionContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("AssignFieldWithInitializerInEarlyConstructionContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("ConstructorCallNotAllowedHere", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("NamedPatternVariablesDisallowedHere", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 	    expectedProblemAttributes.put("OperandStackExceeds64KLimit", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 	    expectedProblemAttributes.put("OperandStackSizeInappropriate", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -1562,6 +1573,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("DeadCode", new ProblemAttributes(JavaCore.COMPILER_PB_DEAD_CODE));
 		expectedProblemAttributes.put("DefaultMethodNotBelow18", SKIP);
 		expectedProblemAttributes.put("DefaultMethodOverridesObjectMethod", SKIP);
+		expectedProblemAttributes.put("DefaultTrueAndFalseCases", SKIP);
 		expectedProblemAttributes.put("DereferencingNullableExpression", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE));
 		expectedProblemAttributes.put("DiamondNotBelow17", SKIP);
 		expectedProblemAttributes.put("DirectInvocationOfAbstractMethod", SKIP);
@@ -1730,6 +1742,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ImportInternalNameProvided", SKIP);
 		expectedProblemAttributes.put("ImportNotFound", SKIP);
 		expectedProblemAttributes.put("ImportNotVisible", SKIP);
+		expectedProblemAttributes.put("IncompatibleCaseType", SKIP);
 		expectedProblemAttributes.put("IncompatibleExceptionInInheritedMethodThrowsClause", SKIP);
 		expectedProblemAttributes.put("IncompatibleExceptionInThrowsClause", SKIP);
 		expectedProblemAttributes.put("IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod", new ProblemAttributes(JavaCore.COMPILER_PB_INCOMPATIBLE_NON_INHERITED_INTERFACE_METHOD));
@@ -1965,6 +1978,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("MissingTypeInMethod", SKIP);
 		expectedProblemAttributes.put("MissingValueForAnnotationMember", SKIP);
 		expectedProblemAttributes.put("MissingValueFromLambda", SKIP);
+		expectedProblemAttributes.put("ModuleNotRead", SKIP);
 		expectedProblemAttributes.put("MultiCatchNotBelow17", SKIP);
 		expectedProblemAttributes.put("MultipleFunctionalInterfaces", SKIP);
 		expectedProblemAttributes.put("StaticInterfaceMethodNotBelow18", SKIP);
@@ -2319,6 +2333,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("WildcardConstructorInvocation", SKIP);
 		expectedProblemAttributes.put("WildcardFieldAssignment", SKIP);
 		expectedProblemAttributes.put("WildcardMethodInvocation", SKIP);
+		expectedProblemAttributes.put("WrongCaseType", SKIP);
 		expectedProblemAttributes.put("illFormedParameterizationOfFunctionalInterface", SKIP);
 		expectedProblemAttributes.put("lambdaParameterTypeMismatched", SKIP);
 		expectedProblemAttributes.put("lambdaSignatureMismatched", SKIP);
@@ -2454,7 +2469,6 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("PatternDominated", SKIP);
 	    expectedProblemAttributes.put("IllegalTotalPatternWithDefault", SKIP);
 	    expectedProblemAttributes.put("EnhancedSwitchMissingDefault", SKIP);
-	    expectedProblemAttributes.put("DuplicateTotalPattern", SKIP);
 	    expectedProblemAttributes.put("UnexpectedTypeinSwitchPattern", SKIP);
 	    expectedProblemAttributes.put("UnexpectedTypeinRecordPattern", SKIP);
 	    expectedProblemAttributes.put("RecordPatternMismatch", SKIP);
@@ -2470,8 +2484,16 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("JavadocInvalidModule", SKIP);
 	    expectedProblemAttributes.put("UnderscoreCannotBeUsedHere", SKIP);
 	    expectedProblemAttributes.put("UnnamedVariableMustHaveInitializer", SKIP);
-	    expectedProblemAttributes.put("ExpressionInPreConstructorContext",  SKIP);
-	    expectedProblemAttributes.put("DisallowedStatementInPrologue",  SKIP);
+	    expectedProblemAttributes.put("ExpressionInEarlyConstructionContext",  SKIP);
+	    expectedProblemAttributes.put("FieldReadInEarlyConstructionContext",  SKIP);
+	    expectedProblemAttributes.put("ThisInEarlyConstructionContext",  SKIP);
+	    expectedProblemAttributes.put("AllocationInEarlyConstructionContext",  SKIP);
+	    expectedProblemAttributes.put("MessageSendInEarlyConstructionContext",  SKIP);
+	    expectedProblemAttributes.put("DisallowedStatementInEarlyConstructionContext",  SKIP);
+	    expectedProblemAttributes.put("DuplicateExplicitConstructorCall",  SKIP);
+	    expectedProblemAttributes.put("SuperFieldAssignInEarlyConstructionContext", SKIP);
+	    expectedProblemAttributes.put("AssignFieldWithInitializerInEarlyConstructionContext", SKIP);
+	    expectedProblemAttributes.put("ConstructorCallNotAllowedHere", SKIP);
 	    expectedProblemAttributes.put("NamedPatternVariablesDisallowedHere", SKIP);
 	    expectedProblemAttributes.put("OperandStackExceeds64KLimit", SKIP);
 	    expectedProblemAttributes.put("OperandStackSizeInappropriate", SKIP);

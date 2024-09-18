@@ -326,7 +326,7 @@ public boolean canBeSeenBy(PackageBinding invocationPackage) {
 public boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding invocationType) {
 	if (isPublic()) return true;
 
-	if (isStatic() && (receiverType.isRawType() || receiverType.isParameterizedType()))
+	if (isStatic())
 		receiverType = receiverType.actualType(); // outer generics are irrelevant
 
 	if (TypeBinding.equalsEquals(invocationType, this) && TypeBinding.equalsEquals(invocationType, receiverType)) return true;
@@ -1059,6 +1059,11 @@ public final ReferenceBinding enclosingTypeAt(int relativeDepth) {
 	return current;
 }
 
+@Override
+public ReferenceBinding actualType() {
+	return this;
+}
+
 public int enumConstantCount() {
 	int count = 0;
 	FieldBinding[] fields = fields();
@@ -1701,15 +1706,6 @@ public final boolean isOrEnclosedByPrivateType() {
  */
 public final boolean isProtected() {
 	return (this.modifiers & ClassFileConstants.AccProtected) != 0;
-}
-
-/**
- * Answer true if the receiver definition is in preconstructor context 
- * - true only in such cases for anonymous type - 
- * Java 22 - preview - JEP 447
- */
-public final boolean isInPreconstructorContext() {
-	return (this.extendedTagBits & ExtendedTagBits.IsInPreconstructorContext) != 0;
 }
 
 /**
@@ -2540,13 +2536,17 @@ public ModuleBinding module() {
 }
 
 public boolean hasEnclosingInstanceContext() {
-	if (isMemberType() && !isStatic())
-		return true;
-	if (isLocalType() && isStatic())
+	// This method intentionally disregards early construction contexts (JEP 482).
+	// Details of how each outer level is handled are coordinated in
+	// TypeDeclaration.manageEnclosingInstanceAccessIfNecessary().
+	if (isStatic())
 		return false;
+	if (isNestedType())
+		return true;
 	MethodBinding enclosingMethod = enclosingMethod();
 	if (enclosingMethod != null)
 		return !enclosingMethod.isStatic();
+	// FIXME: should we consider enclosing instances of superclass??
 	return false;
 }
 

@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.CompactConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.IntersectionCastTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocArgumentExpression;
 import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
@@ -1569,9 +1570,10 @@ class ASTConverter {
 			}
 			org.eclipse.jdt.internal.compiler.ast.ImportReference[] imports = unit.imports;
 			if (imports != null) {
-				int importLength = imports.length;
-				for (int i = 0; i < importLength; i++) {
-					compilationUnit.imports().add(convertImport(imports[i]));
+				for (ImportReference importReference : imports) {
+					if (importReference.isImplicit())
+						continue;
+					compilationUnit.imports().add(convertImport(importReference));
 				}
 			}
 
@@ -2134,61 +2136,7 @@ class ASTConverter {
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.SwitchExpression) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.SwitchExpression) expression);
 		}
-		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TemplateExpression templateExpr) {
-			return convert(templateExpr);
-		}
 		return null;
-	}
-	public StringTemplateExpression convert(org.eclipse.jdt.internal.compiler.ast.TemplateExpression expression) {
-		StringTemplateExpression templateExpr = new StringTemplateExpression(this.ast);
-		if (this.resolveBindings) {
-			recordNodes(templateExpr, expression);
-		}
-		templateExpr.setProcessor(convert(expression.processor));
-		templateExpr.setIsMultiline(expression.template.isMultiline);
-		populateFragments(expression.template, templateExpr);
-
-		int startPosition = expression.sourceStart;
-		int sourceEnd= expression.sourceEnd;
-		templateExpr.setSourceRange(startPosition, sourceEnd - startPosition + 1);
-		return templateExpr;
-	}
-	private StringFragment convertStringFragment(org.eclipse.jdt.internal.compiler.ast.StringLiteral expression) {
-		StringFragment literal = new StringFragment(this.ast);
-		if (this.resolveBindings) {
-			this.recordNodes(literal, expression);
-		}
-		literal.internalSetEscapedValue(new String(expression.source()));
-		literal.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
-		return literal;
-	}
-	private void populateFragments(org.eclipse.jdt.internal.compiler.ast.StringTemplate template, StringTemplateExpression templateExp) {
-		List<StringTemplateComponent> components = templateExp.components();
-		org.eclipse.jdt.internal.compiler.ast.StringLiteral[] fragments = template.fragments();
-		org.eclipse.jdt.internal.compiler.ast.Expression[] values = template.values();
-		int size = values.length;
-
-		org.eclipse.jdt.internal.compiler.ast.StringLiteral frag = fragments[0];
-		StringFragment fragment = convertStringFragment(fragments[0]);
-		templateExp.setFirstFragment(fragment);
-		int prevFragmentEnd = frag.sourceEnd + 1;
-		for(int i = 0; i < size; i++) {
-			org.eclipse.jdt.internal.compiler.ast.Expression exp = values[i];
-			Expression expression = convert(exp);
-			frag = fragments[i+1];
-			fragment = convertStringFragment(frag);
-			StringTemplateComponent component = new StringTemplateComponent(this.ast);
-			component.setEmbeddedExpression(expression);
-			component.setStringFragment(fragment);
-			components.add(component);
-			int sourceEnd = frag.sourceEnd;
-			component.setSourceRange(prevFragmentEnd, sourceEnd - prevFragmentEnd + 1);
-			prevFragmentEnd = frag.sourceEnd + 1;
-		}
-
-		int startPosition = template.sourceStart;
-		int sourceEnd= template.sourceEnd;
-		templateExp.setSourceRange(startPosition, sourceEnd - startPosition + 1);
 	}
 	public StringLiteral convert(org.eclipse.jdt.internal.compiler.ast.ExtendedStringLiteral expression) {
 		expression.computeConstant();
@@ -3735,16 +3683,27 @@ class ASTConverter {
 		importDeclaration.setOnDemand(onDemand);
 		int modifiers = importReference.modifiers;
 		if (modifiers != ClassFileConstants.AccDefault) {
-			switch(this.ast.apiLevel) {
-				case AST.JLS2_INTERNAL :
+			if (this.ast.apiLevel == AST.JLS2_INTERNAL) {
+				importDeclaration.setFlags(importDeclaration.getFlags() | ASTNode.MALFORMED);
+			} else if (this.ast.apiLevel < AST.JLS23_INTERNAL) {
+				if (modifiers == ClassFileConstants.AccStatic) {
+					importDeclaration.setStatic(true);
+				} else {
 					importDeclaration.setFlags(importDeclaration.getFlags() | ASTNode.MALFORMED);
-					break;
-				default :
-					if (modifiers == ClassFileConstants.AccStatic) {
-						importDeclaration.setStatic(true);
-					} else {
-						importDeclaration.setFlags(importDeclaration.getFlags() | ASTNode.MALFORMED);
-					}
+				}
+			} else {
+				ModifierKeyword keyword = switch (modifiers) {
+					case ClassFileConstants.AccStatic -> ModifierKeyword.STATIC_KEYWORD;
+					case ClassFileConstants.AccModule -> ModifierKeyword.MODULE_KEYWORD;
+					default -> null;
+				};
+				if (keyword != null) {
+					Modifier newModifier = this.ast.newModifier(keyword);
+					newModifier.setSourceRange(importReference.modifiersSourceStart, keyword.toString().length());
+					importDeclaration.modifiers().add(newModifier);
+				} else {
+					importDeclaration.setFlags(importDeclaration.getFlags() | ASTNode.MALFORMED);
+				}
 			}
 		}
 		if (this.resolveBindings) {

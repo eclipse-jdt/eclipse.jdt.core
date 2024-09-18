@@ -458,6 +458,10 @@ public boolean isModuleInfo() {
 	return CharOperation.equals(getMainTypeName(), TypeConstants.MODULE_INFO_NAME);
 }
 
+public boolean isSimpleCompilationUnit() {
+	return this.types != null && this.types.length == 1 && this.types[0].isImplicitType();
+}
+
 public boolean isSuppressed(CategorizedProblem problem) {
 	if (this.suppressWarningsCount == 0) return false;
 	int irritant = ProblemReporter.getIrritant(problem.getID());
