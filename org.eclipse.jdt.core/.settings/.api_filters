@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
     <resource path="META-INF/MANIFEST.MF">
-        <filter id="931135546">
+        <filter id="924844039">
             <message_arguments>
                 <message_argument value="3.39.50"/>
-                <message_argument value="3.38.0"/>
+                <message_argument value="3.39.0"/>
             </message_arguments>
         </filter>
     </resource>
@@ -340,14 +340,6 @@
             <message_arguments>
                 <message_argument value="ASTNode"/>
                 <message_argument value="TypeParameter"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/TypePattern.java" type="org.eclipse.jdt.core.dom.TypePattern">
-        <filter id="336658481">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.TypePattern"/>
-                <message_argument value="PATTERN_VARIABLE_PROPERTY2"/>
             </message_arguments>
         </filter>
     </resource>
