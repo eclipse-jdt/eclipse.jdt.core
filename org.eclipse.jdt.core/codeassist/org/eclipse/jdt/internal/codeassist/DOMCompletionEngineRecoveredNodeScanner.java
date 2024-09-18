@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Gayan Perera - initial API and implementation
  *******************************************************************************/
@@ -16,23 +16,12 @@ package org.eclipse.jdt.internal.codeassist;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.FieldAccess;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.QualifiedName;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.StringTemplateExpression;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchPattern;
@@ -92,18 +81,6 @@ final class DOMCompletionEngineRecoveredNodeScanner {
         @Override
         public boolean visit(ExpressionStatement node) {
             this.foundBinding = node.getExpression().resolveTypeBinding();
-            if (this.foundBinding != null) {
-                return false;
-            }
-            return super.visit(node);
-        }
-
-        @Override
-        public boolean visit(StringTemplateExpression node) {
-            // statement such as 'System.out.println("hello" + Thread.currentThread().)' are identified as a
-            // StringFragment part of StringTemplateExpression, the invocation which we are interested might be in the
-            // the processor of the expression
-            this.foundBinding = node.getProcessor().resolveTypeBinding();
             if (this.foundBinding != null) {
                 return false;
             }
