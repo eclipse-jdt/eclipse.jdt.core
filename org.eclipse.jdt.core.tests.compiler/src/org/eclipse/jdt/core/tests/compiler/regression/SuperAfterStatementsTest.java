@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 23");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 24");
 	private static final String[] VMARGS = new String[] {"--enable-preview"};
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
@@ -33,7 +33,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		return SuperAfterStatementsTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_23);
+		return buildMinimalComplianceTestSuite(testClass(), F_24);
 	}
 	public SuperAfterStatementsTest(String testName) {
 		super(testName);
@@ -41,9 +41,9 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_23);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_23);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_23);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_24);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_24);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_24);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, preview ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
 		return defaultOptions;

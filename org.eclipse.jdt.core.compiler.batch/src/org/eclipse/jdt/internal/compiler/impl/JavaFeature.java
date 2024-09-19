@@ -98,15 +98,15 @@ public enum JavaFeature {
 	 * Uses some feature-specific help from BlockScope.getEmulationPath()
 	 * </dl>
 	 */
-	FLEXIBLE_CONSTRUCTOR_BODIES(ClassFileConstants.JDK23,
+	FLEXIBLE_CONSTRUCTOR_BODIES(ClassFileConstants.JDK24,
 			Messages.bind(Messages.flexible_constructor_bodies),
 			new char[][] {},
 			true),
-	PRIMITIVES_IN_PATTERNS(ClassFileConstants.JDK23,
+	PRIMITIVES_IN_PATTERNS(ClassFileConstants.JDK24,
 			Messages.bind(Messages.primitives_in_patterns),
 			new char[][] {},
 			true),
-	MODULE_IMPORTS(ClassFileConstants.JDK23,
+	MODULE_IMPORTS(ClassFileConstants.JDK24,
 			Messages.bind(Messages.module_imports),
 			CharOperation.NO_CHAR_CHAR,
 			true),

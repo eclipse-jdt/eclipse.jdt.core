@@ -2721,7 +2721,7 @@ public void test078() {
 // TODO: Enable after Bug 552769 is fixed
 public void test079() {
 
-	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK23) ?
+	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK24) ?
 			"""
 			----------
 			1. ERROR in X.java (at line 1)

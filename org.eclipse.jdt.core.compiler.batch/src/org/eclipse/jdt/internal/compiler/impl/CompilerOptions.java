@@ -255,6 +255,7 @@ public class CompilerOptions {
 	public static final String VERSION_21 = "21"; //$NON-NLS-1$
 	public static final String VERSION_22 = "22"; //$NON-NLS-1$
 	public static final String VERSION_23 = "23"; //$NON-NLS-1$
+	public static final String VERSION_24 = "24"; //$NON-NLS-1$
 	/*
 	 * Note: Whenever a new version is added, make sure getLatestVersion()
 	 * is updated with it.
@@ -672,7 +673,7 @@ public class CompilerOptions {
 	 * Return the latest Java language version supported by the Eclipse compiler
 	 */
 	public static String getLatestVersion() {
-		return VERSION_23;
+		return VERSION_24;
 	}
 	/**
 	 * Return the most specific option key controlling this irritant. Note that in some case, some irritant is controlled by

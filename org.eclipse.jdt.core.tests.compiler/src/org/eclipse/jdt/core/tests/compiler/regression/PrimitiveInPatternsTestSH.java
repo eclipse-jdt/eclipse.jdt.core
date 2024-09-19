@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 23 -Xlint:-preview");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 24 -Xlint:-preview");
 	private static final String[] VMARGS = new String[] {"--enable-preview"};
 
 	private static final String[] PRIMITIVES = { "boolean", "byte", "char", "short", "int", "long", "float", "double" };
@@ -76,7 +76,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		return PrimitiveInPatternsTestSH.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_23);
+		return buildMinimalComplianceTestSuite(testClass(), F_24);
 	}
 	public PrimitiveInPatternsTestSH(String testName) {
 		super(testName);
@@ -84,9 +84,9 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_23);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_23);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_23);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_24);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_24);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_24);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, preview ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
 		return defaultOptions;

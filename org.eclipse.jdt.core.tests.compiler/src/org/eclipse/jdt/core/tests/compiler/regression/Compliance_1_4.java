@@ -2554,7 +2554,7 @@ public void test078() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47227
  */
 public void test079() {
-	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK23) ?
+	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK24) ?
 			"""
 			----------
 			1. ERROR in X.java (at line 1)
