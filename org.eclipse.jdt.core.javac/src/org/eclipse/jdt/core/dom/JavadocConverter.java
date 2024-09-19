@@ -42,6 +42,7 @@ import com.sun.tools.javac.tree.DCTree.DCInheritDoc;
 import com.sun.tools.javac.tree.DCTree.DCLink;
 import com.sun.tools.javac.tree.DCTree.DCLiteral;
 import com.sun.tools.javac.tree.DCTree.DCParam;
+import com.sun.tools.javac.tree.DCTree.DCRawText;
 import com.sun.tools.javac.tree.DCTree.DCReference;
 import com.sun.tools.javac.tree.DCTree.DCReturn;
 import com.sun.tools.javac.tree.DCTree.DCSee;
@@ -138,7 +139,9 @@ class JavadocConverter {
 //			if (res instanceof TextElement) {
 //				length++;
 //			}
-			res.setSourceRange(startPosition, length);
+			if (startPosition >= 0 && length >= 0) {
+				res.setSourceRange(startPosition, length);
+			}
 			if (this.contextTreePath != null) {
 				this.converted.put(res, DocTreePath.getPath(this.contextTreePath, this.docComment, javac));
 			}
@@ -177,7 +180,7 @@ class JavadocConverter {
 							if(docElement instanceof ASTNode astn) {
 								host.setSourceRange(astn.getStartPosition(), astn.getLength());
 							}
-						} else if (docElement instanceof ASTNode extraNode){
+						} else if (docElement instanceof ASTNode extraNode && extraNode.getStartPosition() >= 0 && extraNode.getLength() >= 0){
 							host.setSourceRange(host.getStartPosition(), extraNode.getStartPosition() + extraNode.getLength() - host.getStartPosition());
 						}
 						
@@ -225,7 +228,7 @@ class JavadocConverter {
         return diagnostics;
     }
 
-	private boolean isInline(TagElement tag) {
+	static boolean isInline(TagElement tag) {
 		return tag.getTagName() == null || switch (tag.getTagName()) {
 			case TagElement.TAG_CODE,
 				TagElement.TAG_DOCROOT,
@@ -595,9 +598,10 @@ class JavadocConverter {
 			boolean shouldCombine = false;
 			boolean lineBreakBefore = false;
 			DCTree oneTree = treeElements.get(i);
-			if( oneTree instanceof DCText || oneTree instanceof DCStartElement || oneTree instanceof DCEndElement || oneTree instanceof DCEntity) {
+			if( oneTree instanceof DCText || oneTree instanceof DCStartElement || oneTree instanceof DCEndElement || oneTree instanceof DCEntity || oneTree instanceof DCRawText) {
 				shouldCombine = true;
-				if( oneTree instanceof DCText dct && dct.text.startsWith("\n")) {
+				if((oneTree instanceof DCText dct && dct.text.startsWith("\n"))
+						|| (oneTree instanceof DCRawText raw && raw.getContent().endsWith("\n"))) {
 					lineBreakBefore = true;
 				}
 			} else {
@@ -633,6 +637,8 @@ class JavadocConverter {
 	private Stream<? extends IDocElement> convertElement(DCTree javac) {
 		if (javac instanceof DCText text) {
 			return splitLines(text, false).map(this::toTextElement);
+		} else if (javac instanceof DCRawText rawText) {
+			return splitLines(rawText.getContent(), rawText.getStartPosition(), rawText.getEndPosition(), false).map(this::toTextElement);
 		} else if (javac instanceof DCIdentifier identifier) {
 			Name res = this.ast.newName(identifier.getName().toString());
 			commonSettings(res, javac);

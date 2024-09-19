@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -1220,7 +1221,7 @@ class JavacConverter {
 
 	private void setJavadocForNode(JCTree javac, ASTNode node) {
 		Comment c = this.javacCompilationUnit.docComments.getComment(javac);
-		if( c != null && c.getStyle() == Comment.CommentStyle.JAVADOC_BLOCK) {
+		if(c != null && (c.getStyle() == Comment.CommentStyle.JAVADOC_BLOCK || c.getStyle() == CommentStyle.JAVADOC_LINE)) {
 			Javadoc javadoc = (Javadoc)convert(c, javac);
 			if (node instanceof BodyDeclaration bodyDeclaration) {
 				bodyDeclaration.setJavadoc(javadoc);
@@ -3371,14 +3372,17 @@ class JavacConverter {
 
 
 	public org.eclipse.jdt.core.dom.Comment convert(Comment javac, JCTree context) {
-		if (javac.getStyle() == CommentStyle.JAVADOC_BLOCK && context != null) {
+		if ((javac.getStyle() == CommentStyle.JAVADOC_BLOCK || javac.getStyle() == CommentStyle.JAVADOC_LINE) && context != null) {
 			var docCommentTree = this.javacCompilationUnit.docComments.getCommentTree(context);
 			if (docCommentTree instanceof DCDocComment dcDocComment) {
-			JavadocConverter javadocConverter = new JavadocConverter(this, dcDocComment, TreePath.getPath(this.javacCompilationUnit, context), this.buildJavadoc);
-			this.javadocConverters.add(javadocConverter);
-			Javadoc javadoc = javadocConverter.convertJavadoc();
-			this.javadocDiagnostics.addAll(javadocConverter.getDiagnostics());
-			return javadoc;
+				JavadocConverter javadocConverter = new JavadocConverter(this, dcDocComment, TreePath.getPath(this.javacCompilationUnit, context), this.buildJavadoc);
+				this.javadocConverters.add(javadocConverter);
+				Javadoc javadoc = javadocConverter.convertJavadoc();
+				if (this.ast.apiLevel() >= AST.JLS23) {
+					javadoc.setMarkdown(javac.getStyle() == CommentStyle.JAVADOC_LINE);
+				}
+				this.javadocDiagnostics.addAll(javadocConverter.getDiagnostics());
+				return javadoc;
 			}
 		}
 		org.eclipse.jdt.core.dom.Comment jdt = switch (javac.getStyle()) {
@@ -3393,11 +3397,14 @@ class JavacConverter {
 	}
 
 	public org.eclipse.jdt.core.dom.Comment convert(Comment javac, int pos, int endPos) {
-		if (javac.getStyle() == CommentStyle.JAVADOC_BLOCK) {
+		if (javac.getStyle() == CommentStyle.JAVADOC_BLOCK || javac.getStyle() == CommentStyle.JAVADOC_LINE) {
 			var parser = new com.sun.tools.javac.parser.DocCommentParser(ParserFactory.instance(this.context), Log.instance(this.context).currentSource(), javac);
 			JavadocConverter javadocConverter = new JavadocConverter(this, parser.parse(), pos, endPos, this.buildJavadoc);
 			this.javadocConverters.add(javadocConverter);
 			Javadoc javadoc = javadocConverter.convertJavadoc();
+			if (this.ast.apiLevel() >= AST.JLS23) {
+				javadoc.setMarkdown(javac.getStyle() == CommentStyle.JAVADOC_LINE);
+			}
 			this.javadocDiagnostics.addAll(javadocConverter.getDiagnostics());
 			return javadoc;
 		}
@@ -3463,6 +3470,28 @@ class JavacConverter {
 				modifier.setSourceRange(parentStart + relativeStart, modifier.getKeyword().toString().length());
 			}
 			return true;
+		}
+
+		@Override
+		public void endVisit(TagElement tagElement) {
+			if (tagElement.getStartPosition() < 0) {
+				OptionalInt start = ((List<ASTNode>)tagElement.fragments()).stream()
+					.filter(node -> node.getStartPosition() >= 0 && node.getLength() >= 0)
+					.mapToInt(ASTNode::getStartPosition)
+					.min();
+				OptionalInt end = ((List<ASTNode>)tagElement.fragments()).stream()
+					.filter(node -> node.getStartPosition() >= 0 && node.getLength() >= 0)
+					.mapToInt(node -> node.getStartPosition() + node.getLength())
+					.min();
+				if (start.isPresent() && end.isPresent()) {
+					if (JavadocConverter.isInline(tagElement)) {
+						// include some extra wrapping chars ( `{...}` or `[...]`)
+						tagElement.setSourceRange(start.getAsInt() - 1, end.getAsInt() + 1);
+					} else {
+						tagElement.setSourceRange(start.getAsInt(), end.getAsInt());
+					}
+				}
+			}
 		}
 
 		private int findPositionOfText(String text, ASTNode in, List<ASTNode> excluding) {
