@@ -1023,7 +1023,9 @@ public class SwitchStatement extends Expression {
 		char[] arg1 = switch (exprType.id) {
 			case TypeIds.T_JavaLangLong, TypeIds.T_JavaLangFloat, TypeIds.T_JavaLangDouble, TypeIds.T_JavaLangBoolean,
 				TypeIds.T_JavaLangByte, TypeIds.T_JavaLangShort, TypeIds.T_JavaLangInteger, TypeIds.T_JavaLangCharacter->
-				exprType.signature();
+				this.isPrimitiveSwitch
+				? exprType.signature()
+				: "Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 			default -> {
 				if (exprType.id > TypeIds.T_LastWellKnownTypeId && exprType.erasure().isBoxedPrimitiveType())
 					yield exprType.erasure().signature(); // <T extends Integer> / <? extends Short> ...
