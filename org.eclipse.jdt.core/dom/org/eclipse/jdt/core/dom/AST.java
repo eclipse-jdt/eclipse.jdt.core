@@ -483,7 +483,6 @@ public final class AST {
 	 * up to and including Java SE 23(aka JDK 23).
 	 * </p>
 	 *
-	 * @noreference This field is not intended to be referenced by clients. Java 23 support is WIP.
 	 * @since 3.38
 	 */
 	public static final int JLS23 = 23;
