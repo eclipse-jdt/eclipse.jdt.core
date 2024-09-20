@@ -2,12 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.apt.ui; singleton:=true
-Bundle-Version: 3.8.400.qualifier
+Bundle-Version: 3.8.500.qualifier
 Bundle-Activator: org.eclipse.jdt.apt.ui.internal.AptUIPlugin
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.jdt.apt.core;bundle-version="[3.6.0,4.0.0)",
- org.eclipse.jdt.ui;bundle-version="[3.14.0,4.0.0)",
- org.eclipse.jdt.core;bundle-version="[3.36.0,4.0.0)",
+ org.eclipse.jdt.ui;bundle-version="[3.33.0,4.0.0)",
+ org.eclipse.jdt.core;bundle-version="[3.40.0,4.0.0)",
  org.eclipse.ui;bundle-version="[3.5.0,4.0.0)",
  org.eclipse.core.runtime;bundle-version="[3.29.0,4.0.0)",
  org.eclipse.core.resources;bundle-version="[3.2.0,4.0.0)",
