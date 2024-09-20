@@ -1351,15 +1351,11 @@ public class JavacProblemConverter {
 				if (args[0] instanceof Symbol.MethodSymbol methodSymbol) {
 					if (methodSymbol.isConstructor()) {
 						TreePath treePath = getTreePath(jcDiagnostic);
-						while (!(treePath.getLeaf() instanceof JCMethodDecl) && treePath != null) {
+						while (treePath != null && !(treePath.getLeaf() instanceof JCMethodDecl)) {
 							treePath = treePath.getParentPath();
 						}
-						if (treePath == null || !(treePath.getLeaf() instanceof JCMethodDecl methodDecl)) {
-							ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic + ". Expected the constructor invocation to be in a constructor.");
-							return 0;
-						}
-						boolean isDefault = (methodDecl.sym.flags() & Flags.GENERATEDCONSTR) != 0;
-						return isDefault ? IProblem.NotVisibleConstructorInDefaultConstructor : IProblem.NotVisibleConstructor;
+						return treePath != null && treePath.getLeaf() instanceof JCMethodDecl methodDecl && (methodDecl.sym.flags() & Flags.GENERATEDCONSTR) != 0 ?
+							IProblem.NotVisibleConstructorInDefaultConstructor : IProblem.NotVisibleConstructor;
 					}
 
 					return IProblem.NotVisibleMethod;
