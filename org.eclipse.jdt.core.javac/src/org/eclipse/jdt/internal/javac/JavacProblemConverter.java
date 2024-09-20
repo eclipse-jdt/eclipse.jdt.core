@@ -55,6 +55,7 @@ import com.sun.tools.javac.parser.Scanner;
 import com.sun.tools.javac.parser.ScannerFactory;
 import com.sun.tools.javac.parser.Tokens.Token;
 import com.sun.tools.javac.parser.Tokens.TokenKind;
+import com.sun.tools.javac.tree.EndPosTable;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCAssign;
@@ -219,6 +220,8 @@ public class JavacProblemConverter {
 				}
 			}
 			TreePath diagnosticPath = getTreePath(jcDiagnostic);
+			JCCompilationUnit unit = units.get(diagnostic.getSource());
+			EndPosTable endPos = unit != null ? unit.endPositions : null;
 			if (diagnosticPath != null) {
 				if (problemId == IProblem.ParameterMismatch) {
 					// Javac points to the arg, which JDT expects the method name
@@ -232,12 +235,12 @@ public class JavacProblemConverter {
 						var selectExpr = method.getMethodSelect();
 						if (selectExpr instanceof JCIdent methodNameIdent) {
 							int start = methodNameIdent.getStartPosition();
-							int end = methodNameIdent.getEndPosition(this.units.get(jcDiagnostic.getSource()).endPositions);
+							int end = methodNameIdent.getEndPosition(endPos);
 							return new org.eclipse.jface.text.Position(start, end - start);
 						}
 						if (selectExpr instanceof JCFieldAccess methodFieldAccess) {
 							int start = methodFieldAccess.getPreferredPosition() + 1; // after dot
-							int end = methodFieldAccess.getEndPosition(this.units.get(jcDiagnostic.getSource()).endPositions);
+							int end = methodFieldAccess.getEndPosition(endPos);
 							return new org.eclipse.jface.text.Position(start, end - start);
 						}
 					}
@@ -265,14 +268,13 @@ public class JavacProblemConverter {
 					}
 				} else if (problemId == IProblem.TypeMismatch && diagnosticPath.getLeaf() instanceof JCFieldAccess fieldAccess) {
 					int start = fieldAccess.getStartPosition();
-					int end = fieldAccess.getEndPosition(this.units.get(jcDiagnostic.getSource()).endPositions);
+					int end = fieldAccess.getEndPosition(endPos);
 					return new org.eclipse.jface.text.Position(start, end - start);
 				} else if (problemId == IProblem.MethodMustOverrideOrImplement) {
 					Tree tree = diagnosticPath.getParentPath() == null ? null
 							: diagnosticPath.getParentPath().getParentPath() == null ? null
 									: diagnosticPath.getParentPath().getParentPath().getLeaf();
 					if (tree != null) {
-						var unit = this.units.get(jcDiagnostic.getSource());
 						if (unit != null && tree instanceof JCMethodDecl methodDecl) {
 							try {
 								int startPosition = methodDecl.pos;
@@ -306,7 +308,12 @@ public class JavacProblemConverter {
 				}
 			}
 
- 			Tree element = diagnosticPath != null ? diagnosticPath.getLeaf() :
+			TreePath current = diagnosticPath;
+			while (current != null && current.getLeaf() instanceof JCTree tree &&
+					endPos != null && TreeInfo.getEndPos(tree, endPos) == Position.NOPOS) {
+				current = current.getParentPath();
+			}
+ 			Tree element = current != null ? current.getLeaf() :
 				jcDiagnostic.getDiagnosticPosition() instanceof Tree tree ? tree :
 				null;
 			if (problemId == IProblem.NoMessageSendOnArrayType
@@ -676,7 +683,7 @@ public class JavacProblemConverter {
 							treePath = treePath.getParentPath();
 						}
 						if (treePath == null || !(treePath.getLeaf() instanceof JCMethodDecl methodDecl)) {
-							ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic + ". Expected the constructor invocation to be in a constructor.");
+							// potential case of enum values without explicit call to constructor
 							yield IProblem.UndefinedConstructor;
 						}
 						boolean isDefault = (methodDecl.sym.flags() & Flags.GENERATEDCONSTR) != 0;
@@ -695,7 +702,7 @@ public class JavacProblemConverter {
 						};
 					}
 					case METHOD -> IProblem.ParameterMismatch;
-					default -> 0;
+					default -> IProblem.ParameterMismatch;
 				};
 			case "compiler.err.premature.eof" -> IProblem.ParsingErrorUnexpectedEOF; // syntax error
 			case "compiler.err.report.access" -> convertNotVisibleAccess(diagnostic);
