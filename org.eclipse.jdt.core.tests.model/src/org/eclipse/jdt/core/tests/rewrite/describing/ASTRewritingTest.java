@@ -446,4 +446,15 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		return decl;
 	}
 
+	public static ImplicitTypeDeclaration findImplicitDeclaration(CompilationUnit astRoot, String simpleTypeName) {
+		List types= astRoot.types();
+		for (int i= 0; i < types.size(); i++) {
+			ImplicitTypeDeclaration elem= (ImplicitTypeDeclaration) types.get(i);
+			if (simpleTypeName.equals(elem.getName().getIdentifier())) {
+				return elem;
+			}
+		}
+		return null;
+	}
+
 }
