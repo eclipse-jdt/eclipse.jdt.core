@@ -868,10 +868,6 @@ public class SwitchStatement extends Expression {
 							if (this.preSwitchInitStateIndex != -1) {
 								codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preSwitchInitStateIndex);
 							}
-						} else if (statement instanceof CaseStatement) {
-							caseStatement = (CaseStatement) statement;
-							caseStatement.typeSwitchIndex = typeSwitchIndex;
-							typeSwitchIndex += caseStatement.constantExpressions.length;
 						}
 					}
 					statementGenerateCode(currentScope, codeStream, statement);
