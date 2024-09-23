@@ -3430,6 +3430,15 @@ public void illegalVisibilityModifierCombinationForField(ReferenceBinding type, 
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
 }
+public void IllegalModifierCombinationForType(SourceTypeBinding type) {
+	String[] arguments = new String[] {new String(type.sourceName())};
+	this.handle(
+		IProblem.IllegalModifierCombinationForType,
+		arguments,
+		arguments,
+		type.sourceStart(),
+		type.sourceEnd());
+}
 public void illegalVisibilityModifierCombinationForMemberType(SourceTypeBinding type) {
 	String[] arguments = new String[] {new String(type.sourceName())};
 	this.handle(

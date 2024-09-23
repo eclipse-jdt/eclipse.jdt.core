@@ -1364,6 +1364,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("NamedPatternVariablesDisallowedHere", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 	    expectedProblemAttributes.put("OperandStackExceeds64KLimit", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 	    expectedProblemAttributes.put("OperandStackSizeInappropriate", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+	    expectedProblemAttributes.put("IllegalModifierCombinationForType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 
 	    StringBuilder failures = new StringBuilder();
 		StringBuilder correctResult = new StringBuilder(70000);
@@ -2497,6 +2498,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("NamedPatternVariablesDisallowedHere", SKIP);
 	    expectedProblemAttributes.put("OperandStackExceeds64KLimit", SKIP);
 	    expectedProblemAttributes.put("OperandStackSizeInappropriate", SKIP);
+	    expectedProblemAttributes.put("IllegalModifierCombinationForType", SKIP);
 
 
 	    Map constantNamesIndex = new HashMap();
