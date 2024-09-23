@@ -831,6 +831,8 @@ void setSourceStart(int sourceStart);
 	int ShouldImplementHashcode = TypeRelated + 332;
 	/** @since 3.5 */
 	int AbstractMethodsInConcreteClass = TypeRelated + 333;
+	/** @since 3.40 */
+	int IllegalModifierCombinationForType = TypeRelated + 334;
 
 	/** @deprecated - problem is no longer generated, use {@link #UndefinedType} instead */
 	int SuperclassNotFound =  TypeRelated + 329 + ProblemReasons.NotFound; // TypeRelated + 330
