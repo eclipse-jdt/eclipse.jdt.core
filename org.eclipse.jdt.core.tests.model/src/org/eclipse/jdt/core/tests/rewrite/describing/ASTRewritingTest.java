@@ -83,6 +83,8 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	private final static int JLS22_INTERNAL = AST.JLS22;
 	private final static int JLS23_INTERNAL = AST.JLS23;
 
+	private final static int JLS23_INTERNAL = AST.JLS23;
+
 	private final static int[] JLS_LEVELS = { JLS8_INTERNAL, JLS9_INTERNAL,
 			JLS10_INTERNAL, JLS14_INTERNAL, JLS15_INTERNAL, JLS16_INTERNAL, JLS17_INTERNAL, JLS18_INTERNAL,
 			JLS19_INTERNAL, JLS20_INTERNAL, JLS21_INTERNAL , JLS22_INTERNAL, JLS23_INTERNAL};
