@@ -3057,13 +3057,15 @@ class JavacConverter {
 			res.setFlags(ASTNode.RECOVERED);
 			return res;
 		}
-		throw new UnsupportedOperationException("Not supported yet, type " + javac + " of class" + javac.getClass());
+		ILog.get().warn("Not supported yet, converting to type type " + javac + " of class" + javac.getClass());
+		return null;
 	}
 	public static int ordinalIndexOf(String str, String substr, int n) {
-	    int pos = str.indexOf(substr);
-	    while (--n > 0 && pos != -1)
-	        pos = str.indexOf(substr, pos + 1);
-	    return pos;
+		int pos = str.indexOf(substr);
+		while (--n > 0 && pos != -1) {
+			pos = str.indexOf(substr, pos + 1);
+		}
+		return pos;
 	}
 	private Code convert(TypeKind javac) {
 		return switch(javac) {
