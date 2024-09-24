@@ -347,7 +347,11 @@ class JavadocConverter {
 			}
 			collector.addAll(tmp);
 		} else if (javac instanceof DCLink link) {
-			res.setTagName(TagElement.TAG_LINK);
+			res.setTagName(switch (link.getKind()) {
+				case LINK -> TagElement.TAG_LINK;
+				case LINK_PLAIN -> TagElement.TAG_LINKPLAIN;
+				default -> TagElement.TAG_LINK;
+			});
 			res.fragments().addAll(convertElement(link.ref).toList());
 			link.label.stream().flatMap(this::convertElement).forEach(res.fragments()::add);
 		} else if (javac instanceof DCValue dcv) {
