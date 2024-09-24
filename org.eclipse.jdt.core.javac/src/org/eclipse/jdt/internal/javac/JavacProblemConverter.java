@@ -121,6 +121,19 @@ public class JavacProblemConverter {
 		if (diagnosticPosition == null) {
 			return null;
 		}
+		if (diagnosticPosition.length == 0) {
+			// workaround Eclipse Platform unable to render diagnostics with length=0 or at end of line
+			// https://github.com/eclipse-platform/eclipse.platform.ui/issues/2321
+			diagnosticPosition.length++;
+			try {
+				String documentText = loadDocumentText(diagnostic);
+				if (diagnosticPosition.getOffset() >= documentText.length() || documentText.charAt(diagnosticPosition.getOffset()) == '\n') {
+					diagnosticPosition.offset--;
+				}
+			} catch (IOException ex) {
+				ILog.get().error(ex.getMessage(), ex);
+			}
+		}
 		String[] arguments = getDiagnosticStringArguments(diagnostic);
 		return new JavacProblem(
 				diagnostic.getSource().getName().toCharArray(),
