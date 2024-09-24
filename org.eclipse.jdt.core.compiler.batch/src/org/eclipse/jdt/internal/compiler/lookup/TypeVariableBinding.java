@@ -1205,12 +1205,12 @@ public class TypeVariableBinding extends ReferenceBinding {
 	}
 
 	@Override
-	public ReferenceBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+	public TypeBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
 		return this;
 	}
 
 	@Override
-	public ReferenceBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+	public TypeBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
 		return this;
 	}
 

@@ -2050,7 +2050,8 @@ public char[] sourceName() {
  * @return Upwards type projection of 'this', or null if downwards projection is undefined
 */
 @Override
-public ReferenceBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+public TypeBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+	// Note: return type remains as TypeBinding, because subclass CaptureBinding may return an ArrayBinding :(
 	return this;
 }
 
@@ -2061,7 +2062,8 @@ public ReferenceBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTy
  * @return Downwards type projection of 'this', or null if downwards projection is undefined
 */
 @Override
-public ReferenceBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+public TypeBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+	// Note: return type remains as TypeBinding, because subclass CaptureBinding may return an ArrayBinding :(
 	return this;
 }
 
