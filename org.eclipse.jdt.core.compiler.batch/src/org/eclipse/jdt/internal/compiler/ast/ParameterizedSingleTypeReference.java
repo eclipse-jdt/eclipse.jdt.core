@@ -27,7 +27,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -280,19 +279,10 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 
 		TypeVariableBinding[] typeVariables = currentOriginal.typeVariables();
 		if (typeVariables == Binding.NO_TYPE_VARIABLES) { // non generic invoked with arguments
-			boolean isCompliant15 = scope.compilerOptions().originalSourceLevel >= ClassFileConstants.JDK1_5;
 			if ((currentOriginal.tagBits & TagBits.HasMissingType) == 0) {
-				if (isCompliant15) { // below 1.5, already reported as syntax error
-					this.resolvedType = currentType;
-					scope.problemReporter().nonGenericTypeCannotBeParameterized(0, this, currentType, argTypes);
-					return null;
-				}
-			}
-			// resilience do not rebuild a parameterized type unless compliance is allowing it
-			if (!isCompliant15) {
-				if (!this.resolvedType.isValidBinding())
-					return currentType;
-				return this.resolvedType = currentType;
+				this.resolvedType = currentType;
+				scope.problemReporter().nonGenericTypeCannotBeParameterized(0, this, currentType, argTypes);
+				return null;
 			}
 			// if missing generic type, and compliance >= 1.5, then will rebuild a parameterized binding
 		} else if (argLength != typeVariables.length) {

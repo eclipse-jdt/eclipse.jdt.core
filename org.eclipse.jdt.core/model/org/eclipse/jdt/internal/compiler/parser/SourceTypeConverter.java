@@ -141,7 +141,7 @@ public class SourceTypeConverter extends TypeConverter {
 		org.eclipse.jdt.core.ICompilationUnit cuHandle = topLevelTypeInfo.getHandle().getCompilationUnit();
 		this.cu = (ICompilationUnit) cuHandle;
 		final CompilationUnitElementInfo compilationUnitElementInfo = (CompilationUnitElementInfo) ((JavaElement) this.cu).getElementInfo();
-		if (this.has1_5Compliance &&
+		if (
 				(compilationUnitElementInfo.annotationNumber >= CompilationUnitElementInfo.ANNOTATION_THRESHOLD_FOR_DIET_PARSE ||
 				(compilationUnitElementInfo.hasFunctionalTypes && (this.flags & LOCAL_TYPE) != 0) ||
 				couldBeVarargs)) {
@@ -299,11 +299,9 @@ public class SourceTypeConverter extends TypeConverter {
 			field.type = createTypeReference(fieldInfo.getTypeName(), start, end);
 		}
 
-		// convert 1.5 specific constructs only if compliance is 1.5 or above
-		if (this.has1_5Compliance) {
-			/* convert annotations */
-			field.annotations = convertAnnotations(fieldHandle);
-		}
+		// convert 1.5 specific constructs
+		/* convert annotations */
+		field.annotations = convertAnnotations(fieldHandle);
 
 		/* conversion of field constant */
 		if ((this.flags & FIELD_INITIALIZATION) != 0) {
@@ -431,11 +429,9 @@ public class SourceTypeConverter extends TypeConverter {
 		method.declarationSourceStart = methodInfo.getDeclarationSourceStart();
 		method.declarationSourceEnd = methodInfo.getDeclarationSourceEnd();
 
-		// convert 1.5 specific constructs only if compliance is 1.5 or above
-		if (this.has1_5Compliance) {
-			/* convert annotations */
-			method.annotations = convertAnnotations(methodHandle);
-		}
+		// convert 1.5 specific constructs
+		/* convert annotations */
+		method.annotations = convertAnnotations(methodHandle);
 
 		/* convert arguments */
 		String[] argumentTypeSignatures = methodHandle.getParameterTypes();
@@ -457,11 +453,9 @@ public class SourceTypeConverter extends TypeConverter {
 						typeReference,
 						ClassFileConstants.AccDefault);
 				// do not care whether was final or not
-				// convert 1.5 specific constructs only if compliance is 1.5 or above
-				if (this.has1_5Compliance) {
-					/* convert annotations */
-					method.arguments[i].annotations = convertAnnotations(parameters[i]);
-				}
+				// convert 1.5 specific constructs
+				/* convert annotations */
+				method.arguments[i].annotations = convertAnnotations(parameters[i]);
 			}
 		}
 
@@ -546,11 +540,10 @@ public class SourceTypeConverter extends TypeConverter {
 		type.declarationSourceEnd = typeInfo.getDeclarationSourceEnd();
 		type.bodyEnd = type.declarationSourceEnd;
 
-		// convert 1.5 specific constructs only if compliance is 1.5 or above
-		if (this.has1_5Compliance) {
-			/* convert annotations */
-			type.annotations = convertAnnotations(typeHandle);
-		}
+		// convert 1.5 specific constructs
+		/* convert annotations */
+		type.annotations = convertAnnotations(typeHandle);
+
 		/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850, even in a 1.4 project, we
 		   must internalize type variables and observe any parameterization of super class
 		   and/or super interfaces in order to be able to detect overriding in the presence

@@ -467,7 +467,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		}
 
 		CompilerOptions globalOptions = this.environment.globalOptions;
-		long sourceLevel = globalOptions.originalSourceLevel;
+		long sourceLevel = globalOptions.sourceLevel;
 		/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850, even in a 1.4 project, we
 		   must internalize type variables and observe any parameterization of super class
 		   and/or super interfaces in order to be able to detect overriding in the presence
