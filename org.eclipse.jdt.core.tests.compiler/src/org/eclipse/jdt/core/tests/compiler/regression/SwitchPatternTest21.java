@@ -836,4 +836,126 @@ public class SwitchPatternTest21 extends AbstractBatchCompilerTest {
 						""", },
 				"success");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2070
+	// [Switch] Compiler is unable to parse a particular multicase construct
+	public void testIssue2070() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						    public boolean foo(Object o) {
+						    	return switch (o) {
+						    	case Integer _, Integer[] _ -> true;
+						    		default -> false;
+						    	};
+						    }
+						    public static void main(String argv[]) {
+						    	System.out.println(new X().foo(new Object()));
+						    }
+						}
+						"""
+				},
+			"false");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2956
+	// Unnamed patterns inside of multi case patterns fail to parse
+	public void testIssue2956() {
+		runConformTest(
+				new String[] {
+						"Main.java",
+						"""
+						public class Main {
+						    public sealed interface MyType {
+						        record A() implements MyType {
+						        }
+
+						        record B(int value) implements MyType {
+						        }
+
+						        record C() implements MyType {
+						        }
+						    }
+
+						    public static void main(String[] args) {
+						        MyType myType = new MyType.A();
+						        switch (myType) {
+						            case MyType.A(), MyType.B(_) -> { System.out.println("A or B");}
+						            case MyType.C() -> {}
+						        }
+						    }
+						}
+						"""
+				},
+			"A or B");
+	}
+
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2956
+	// Unnamed patterns inside of multi case patterns fail to parse
+	public void testIssue2956_2() {
+		runConformTest(
+				new String[] {
+						"Main.java",
+						"""
+						public class Main {
+						    public sealed interface MyType {
+						        record A() implements MyType {
+						        }
+
+						        record B(int value) implements MyType {
+						        }
+
+						        record C() implements MyType {
+						        }
+						    }
+
+						    public static void main(String[] args) {
+						        MyType myType = new MyType.A();
+						        switch (myType) {
+						            case MyType.A()  ->  { System.out.println("A");}
+						            case MyType.B(_) ->  { System.out.println("B");}
+						            case MyType.C()  ->  { System.out.println("C");}
+						        }
+						    }
+						}
+						"""
+				},
+			"A");
+	}
+
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2956
+	// Unnamed patterns inside of multi case patterns fail to parse
+	public void testIssue2956_3() {
+		runConformTest(
+				new String[] {
+						"Main.java",
+						"""
+						public class Main {
+						    public sealed interface MyType {
+						        record A() implements MyType {
+						        }
+
+						        record B(int value) implements MyType {
+						        }
+
+						        record C() implements MyType {
+						        }
+						    }
+
+						    public static void main(String[] args) {
+						        MyType myType = new MyType.A();
+						        switch (myType) {
+						            case MyType.B(_), MyType.A()  -> { System.out.println("A or B");}
+						            case MyType.C() -> {}
+						        }
+						    }
+						}
+						"""
+				},
+			"A or B");
+	}
 }

@@ -5176,6 +5176,7 @@ private static class VanguardParser extends Parser {
 
 	// Canonical LALR pushdown automaton identical to Parser.parse() minus side effects of any kind, returns the rule reduced.
 	protected boolean parse(Goal goal) {
+		int parenthesized = 0;
 		this.currentGoal = goal;
 		try {
 			int act = START_STATE;
@@ -5201,6 +5202,10 @@ private static class VanguardParser extends Parser {
 					this.unstackedAct = act;
 					try {
 					this.currentToken = this.scanner.getNextToken();
+					if (this.currentToken == TokenNameLPAREN)
+						parenthesized++;
+					else if (this.currentToken == TokenNameRPAREN)
+						parenthesized --;
 					} finally {
 						this.unstackedAct = ERROR_ACTION;
 					}
@@ -5210,6 +5215,10 @@ private static class VanguardParser extends Parser {
 				    	this.unstackedAct = act;
 						try {
 				    	this.currentToken = this.scanner.getNextToken();
+				    	if (this.currentToken == TokenNameLPAREN)
+				    		parenthesized++;
+						else if (this.currentToken == TokenNameRPAREN)
+							parenthesized --;
 						} finally {
 							this.unstackedAct = ERROR_ACTION;
 						}
@@ -5220,6 +5229,15 @@ private static class VanguardParser extends Parser {
 
 				// ProcessNonTerminals :
 				do { /* reduce */
+					// mimic the unfortunate side effect introduced by org.eclipse.jdt.internal.compiler.parser.Parser.consumeCaseLabelElement(CaseLabelKind)
+					if (parenthesized == 0 && this.currentToken == TerminalTokens.TokenNameCOMMA && this.scanner.caseStartPosition < this.scanner.startPosition) {
+						for (int patternRule : Goal.PatternRules) {
+							if (act == patternRule) {
+								this.scanner.multiCaseLabelComma = true;
+								break;
+							}
+						}
+					}
 					if (goal.hasBeenReached(act, this.currentToken))
 						return SUCCESS;
 					if (this.currentToken == TokenNameIdentifier) {
