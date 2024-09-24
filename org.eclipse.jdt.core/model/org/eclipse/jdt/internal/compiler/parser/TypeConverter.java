@@ -427,32 +427,22 @@ public abstract class TypeConverter {
 					identCount ++;
 					break;
 				case '<' :
-					/* We need to convert and preserve 1.5 specific constructs either if compliance is 1.5 or above,
-					   or the caller has explicitly requested generics to be included. The parameter includeGenericsAnyway
-					   should be used by the caller to signal that in the calling context generics information must be
-					   internalized even when the requesting project is 1.4. But in all cases, we must skip over them to
-					   see if there are any applicable type fragments after the type parameters: i.e we just aren't done
-					   having seen a '<' in 1.4 mode.
 
-					   Because of the way type signatures are encoded, TypeConverter.decodeType(String, int, int, int) is immune
-					   to this problem. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=325633
-					 */
-					if (includeGenericsAnyway) {
-						if (fragments == null) fragments = new ArrayList(2);
-					}
+					if (fragments == null) fragments = new ArrayList(2);
+
 					nameFragmentEnd = this.namePos-1;
-					if (includeGenericsAnyway) {
-						char[][] identifiers = CharOperation.splitOn('.', typeName, nameFragmentStart, this.namePos);
-						fragments.add(identifiers);
-					}
+
+					char[][] identifiers = CharOperation.splitOn('.', typeName, nameFragmentStart, this.namePos);
+					fragments.add(identifiers);
+
 					this.namePos++; // skip '<'
 					TypeReference[] arguments = decodeTypeArguments(typeName, length, start, end, includeGenericsAnyway); // positionned on '>' at end
-					if (includeGenericsAnyway) {
-						fragments.add(arguments);
-						identCount = 0;
-						nameFragmentStart = -1;
-						nameFragmentEnd = -1;
-					}
+
+					fragments.add(arguments);
+					identCount = 0;
+					nameFragmentStart = -1;
+					nameFragmentEnd = -1;
+
 					// next increment will skip '>'
 					break;
 			}
