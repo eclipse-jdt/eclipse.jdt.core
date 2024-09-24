@@ -111,11 +111,13 @@ public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowCon
 			&& this.binding != null
 			&& FakedTrackingVariable.isCloseableNotWhiteListed(this.binding.type))
 	{
+		long owningTagBits = this.binding.tagBits & TagBits.AnnotationOwningMASK;
 		if (this.binding.isStatic()) {
 			initializationScope.problemReporter().staticResourceField(this);
-		} else if ((this.binding.tagBits & TagBits.AnnotationOwning) == 0) {
+		} else if (owningTagBits == 0) {
 			initializationScope.problemReporter().shouldMarkFieldAsOwning(this);
-		} else if (!this.binding.declaringClass.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) {
+		} else if (owningTagBits == TagBits.AnnotationOwning
+				&& !this.binding.declaringClass.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) {
 			initializationScope.problemReporter().shouldImplementAutoCloseable(this);
 		}
 	}
