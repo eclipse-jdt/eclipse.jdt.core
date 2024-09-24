@@ -110,7 +110,7 @@ public class JavacProblemConverter {
 				|| (nestedDiagnostic.getSource() == null && findSymbol(nestedDiagnostic) instanceof ClassSymbol classSymbol
 					&& classSymbol.sourcefile == diagnostic.getSource()));
 		int problemId = toProblemId(useNestedDiagnostic ? nestedDiagnostic : diagnostic);
-		if (problemId == 0) {
+		if (problemId < 0) {
 			return null;
 		}
 		int severity = toSeverity(problemId, diagnostic);
@@ -822,7 +822,7 @@ public class JavacProblemConverter {
 			case "compiler.err.duplicate.class" -> IProblem.DuplicateTypes;
 			case "compiler.err.module.not.found", "compiler.warn.module.not.found" -> IProblem.UndefinedModule;
 			case "compiler.err.package.empty.or.not.found" -> IProblem.PackageDoesNotExistOrIsEmpty;
-			case "compiler.warn.service.provided.but.not.exported.or.used" -> 0; // ECJ doesn't have this diagnostic TODO: file upstream
+			case "compiler.warn.service.provided.but.not.exported.or.used" -> -1; // ECJ doesn't have this diagnostic TODO: file upstream
 			case "compiler.warn.missing-explicit-ctor" -> IProblem.ConstructorRelated;
 			case "compiler.warn.has.been.deprecated", "compiler.warn.has.been.deprecated.for.removal" -> {
 				var kind = getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class);
@@ -926,7 +926,7 @@ public class JavacProblemConverter {
 					// TODO also return a IProblem.JavadocMissingParamTag for each arg
 				}
 				// most others are ignored
-				yield 0;
+				yield -1;
 			}
 			case "compiler.err.doesnt.exist" -> {
 				JCCompilationUnit unit = units.get(diagnostic.getSource());
@@ -949,7 +949,7 @@ public class JavacProblemConverter {
 			case "compiler.err.malformed.fp.lit" -> IProblem.InvalidFloat;
 			case "compiler.warn.missing.deprecated.annotation" -> {
 				if (!(diagnostic instanceof JCDiagnostic jcDiagnostic)) {
-					yield 0;
+					yield -1;
 				}
 				DiagnosticPosition pos = jcDiagnostic.getDiagnosticPosition();
 				if (pos instanceof JCTree.JCVariableDecl) {
@@ -960,14 +960,14 @@ public class JavacProblemConverter {
 					yield IProblem.TypeMissingDeprecatedAnnotation;
 				}
 				ILog.get().error("Could not convert diagnostic " + diagnostic);
-				yield 0;
+				yield -1;
 			}
 			case "compiler.warn.override.equals.but.not.hashcode" -> IProblem.ShouldImplementHashcode;
 			case "compiler.warn.unchecked.call.mbr.of.raw.type" -> IProblem.UnsafeRawMethodInvocation;
 			case "compiler.err.cant.inherit.from.sealed" -> {
 				Symbol.ClassSymbol sym = getDiagnosticArgumentByType(diagnostic, Symbol.ClassSymbol.class);
 				if (sym == null) {
-					yield 0;
+					yield -1;
 				}
 				if (sym.isInterface()) {
 					yield IProblem.SealedSuperInterfaceDoesNotPermit;
@@ -980,7 +980,7 @@ public class JavacProblemConverter {
 			case "compiler.err.package.in.other.module" -> IProblem.ConflictingPackageFromOtherModules;
 			case "compiler.err.module.decl.sb.in.module-info.java" -> {
 				if (!(diagnostic instanceof JCDiagnostic jcDiagnostic)) {
-					yield 0;
+					yield -1;
 				}
 				DiagnosticPosition pos = jcDiagnostic.getDiagnosticPosition();
 				if (pos instanceof JCTree.JCModuleDecl) {
@@ -988,7 +988,7 @@ public class JavacProblemConverter {
 				} else if (pos instanceof JCTree.JCModuleImport) {
 				}
 				ILog.get().error("Could not convert diagnostic " + diagnostic);
-				yield 0;
+				yield -1;
 			}
 			case "compiler.err.file.sb.on.source.or.patch.path.for.module" -> IProblem.ParsingErrorOnKeywordNoSuggestion;
 			case "compiler.err.package.not.visible" -> IProblem.NotVisibleType;
@@ -1070,8 +1070,11 @@ public class JavacProblemConverter {
 			case "compiler.err.incorrect.constructor.receiver.type" -> IProblem.IllegalTypeForExplicitThis;
 			case "compiler.err.incorrect.constructor.receiver.name" -> IProblem.IllegalQualifierForExplicitThis;
 			default -> {
-				ILog.get().error("Could not convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
-				yield 0;
+				ILog.get().error("Could not accurately convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
+				if (diagnostic.getKind() == javax.tools.Diagnostic.Kind.ERROR && diagnostic.getCode().startsWith("compiler.err")) {
+					yield IProblem.Unclassified;
+				}
+				yield -1;
 			}
 		};
 	}
