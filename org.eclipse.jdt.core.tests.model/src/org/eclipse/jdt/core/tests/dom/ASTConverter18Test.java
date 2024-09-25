@@ -5511,8 +5511,8 @@ public void testSVDStartPositionIssue() throws JavaModelException {
 	assertEquals("Not a Single Variable Declaration", ASTNode.SINGLE_VARIABLE_DECLARATION, svd.getNodeType());
 	assertEquals("Not a Simple Type", ASTNode.SIMPLE_TYPE, svd.getType().getNodeType());
 	assertEquals("Not a Simple Name", ASTNode.SIMPLE_NAME, svd.getName().getNodeType());
-	assertEquals("Single Variable Declaration length is not correct", svd.getLength(), 18);
-	assertEquals("Single Variable Declaration startPosition is not correct", svd.getStartPosition(), 116);
+	assertEquals("Single Variable Declaration length is not correct", svd.getLength(), contents.substring(contents.indexOf("RuntimeException e")).indexOf(')'));
+	assertEquals("Single Variable Declaration startPosition is not correct", svd.getStartPosition(), contents.indexOf("RuntimeException"));
 }
 
 }

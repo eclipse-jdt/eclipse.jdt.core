@@ -198,6 +198,7 @@ public class CommentRecorderParser extends Parser {
 	@Override
 	protected void consumeExitTryBlock() {
 		flushCommentsDefinedPriorTo(this.scanner.currentPosition);
+		super.consumeExitTryBlock();
 	}
 
 	protected int getCommentPtr() {
