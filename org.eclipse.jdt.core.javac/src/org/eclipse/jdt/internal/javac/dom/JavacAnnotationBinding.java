@@ -101,6 +101,7 @@ public abstract class JavacAnnotationBinding implements IAnnotationBinding {
 
 	@Override
 	public IMemberValuePairBinding[] getAllMemberValuePairs() {
+		// TODO see testBug405908 - expected to return all POSSIBLE pairs declared on the annotation definition, not user?? 
 		return this.annotation.getElementValues().entrySet().stream()
 			.map(entry -> this.resolver.bindings.getMemberValuePairBinding(entry.getKey(), entry.getValue()))
 			.filter(Objects::nonNull)

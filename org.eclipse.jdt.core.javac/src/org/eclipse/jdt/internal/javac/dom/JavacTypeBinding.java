@@ -368,6 +368,11 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					}
 				}
 			}
+			/*
+			 * TODO - this name 'n' might be something like  test0502.A$1
+			 * but the test suite expects test0502.A$182, 
+			 * where 182 is the location in the source of the symbol. 
+			 */
 			builder.append(n.toString().replace('.', '/'));
 
 

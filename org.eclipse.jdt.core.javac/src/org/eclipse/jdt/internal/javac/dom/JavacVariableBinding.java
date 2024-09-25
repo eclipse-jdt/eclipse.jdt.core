@@ -176,7 +176,10 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 			return builder.toString();
 		} else if (this.variableSymbol.owner instanceof MethodSymbol methodSymbol) {
 			JavacMethodBinding.getKey(builder, methodSymbol, methodSymbol.type instanceof Type.MethodType methodType ? methodType : null, null, this.resolver);
-			builder.append('#');
+			// TODO, need to replace the '0' with an integer representing location in the method. Unclear how to do so.
+			// It needs to trace upwards through the blocks, with a # for each parent block
+			// and a number representing something like what statement in the block it is??
+			builder.append("#"); //0#";
 			builder.append(this.variableSymbol.name);
 			// FIXME: is it possible for the javac AST to contain multiple definitions of the same variable?
 			// If so, we will need to distinguish them (@see org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding)

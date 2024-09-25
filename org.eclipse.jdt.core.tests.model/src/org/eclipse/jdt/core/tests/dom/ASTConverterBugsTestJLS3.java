@@ -22,8 +22,11 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.tests.javac.JavacFailReason;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.junit.Ignore;
+import org.junit.experimental.categories.Category;
 
 /**
  * Test suite to verify that DOM/AST bugs are fixed.
@@ -52,6 +55,7 @@ public static Test suite() {
  * bug 130778: Invalid annotation elements cause no annotation to be in the AST
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778"
  */
+@JavacFailReason(cause=JavacFailReason.BINDING_KEY)
 public void testBug130778a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
@@ -96,6 +100,10 @@ public void testBug130778a() throws JavaModelException {
 			"No problem",
 			result);
 }
+
+@Category(Ignore.class)
+@JavacFailReason(cause=JavacFailReason.JAVAC_DEFICIENCY)
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
 public void testBug130778b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
@@ -144,6 +152,11 @@ public void testBug130778b() throws JavaModelException {
 			"Syntax error on token \"Invalid Character\", delete this token\n",
 			result);
 }
+
+@Category(Ignore.class)
+@JavacFailReason(cause=JavacFailReason.JAVAC_DEFICIENCY)
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
+@JavacFailReason(cause=JavacFailReason.JAVAC_TREE_NOT_IDENTICAL_SRC_RANGE)
 public void testBug130778c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
@@ -192,6 +205,10 @@ public void testBug130778c() throws JavaModelException {
 			"Syntax error on token \"Invalid Character\", delete this token\n",
 			result);
 }
+@Category(Ignore.class)
+@JavacFailReason(cause=JavacFailReason.JAVAC_DEFICIENCY)
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
+@JavacFailReason(cause=JavacFailReason.JAVAC_TREE_NOT_IDENTICAL_SRC_RANGE)
 public void testBug130778d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
@@ -240,6 +257,10 @@ public void testBug130778d() throws JavaModelException {
 			"Syntax error on token \"Invalid Character\", delete this token\n",
 			result);
 }
+
+@Category(Ignore.class)
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
+@JavacFailReason(cause=JavacFailReason.JAVAC_TREE_NOT_IDENTICAL_SRC_RANGE)
 public void testBug130778e() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
@@ -288,6 +309,8 @@ public void testBug130778e() throws JavaModelException {
 			"Syntax error on token \"Invalid Character\", delete this token\n",
 			result);
 }
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
+@JavacFailReason(cause=JavacFailReason.JAVAC_TREE_NOT_IDENTICAL_SRC_RANGE)
 public void testBug130778f() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
@@ -336,6 +359,9 @@ public void testBug130778f() throws JavaModelException {
 			"Syntax error on token \"Invalid Character\", delete this token\n",
 			result);
 }
+
+@Category(Ignore.class)
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
 public void testBug130778g() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
@@ -425,6 +451,9 @@ public void testBug130778h() throws JavaModelException {
 			"No problem",
 			result);
 }
+@Category(Ignore.class)
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
+@JavacFailReason(cause=JavacFailReason.JAVAC_TREE_NOT_IDENTICAL_SRC_RANGE)
 public void testBug130778i() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
@@ -469,6 +498,10 @@ public void testBug130778i() throws JavaModelException {
 			"Syntax error on token \"=\", MemberValue expected after this token\n",
 			result);
 }
+
+@Category(Ignore.class)
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
+@JavacFailReason(cause=JavacFailReason.JAVAC_TREE_NOT_IDENTICAL_SRC_RANGE)
 public void testBug130778j() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
@@ -513,6 +546,9 @@ public void testBug130778j() throws JavaModelException {
 			"Syntax error on token \"=\", MemberValue expected after this token\n",
 			result);
 }
+@Category(Ignore.class)
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
+@JavacFailReason(cause=JavacFailReason.JAVAC_TREE_NOT_IDENTICAL_SRC_RANGE)
 public void testBug130778k() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
@@ -561,6 +597,9 @@ public void testBug130778k() throws JavaModelException {
 			"Syntax error on token \"=\", ) expected\n",
 			result);
 }
+@Category(Ignore.class)
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
+@JavacFailReason(cause=JavacFailReason.JAVAC_TREE_NOT_IDENTICAL_SRC_RANGE)
 public void testBug130778l() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
@@ -611,6 +650,9 @@ public void testBug130778l() throws JavaModelException {
 			"Syntax error on token \"=\", MemberValue expected after this token\n",
 			result);
 }
+
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
+@JavacFailReason(cause=JavacFailReason.BINDING_KEY)
 public void testBug130778m() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
@@ -660,6 +702,10 @@ public void testBug130778m() throws JavaModelException {
 			"Syntax error on token \"=\", MemberValue expected after this token\n",
 			result);
 }
+
+@Category(Ignore.class)
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
+@JavacFailReason(cause=JavacFailReason.JAVAC_TREE_NOT_IDENTICAL_SRC_RANGE)
 public void testBug130778n() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 
@@ -696,6 +742,8 @@ public void testBug130778n() throws JavaModelException {
 			"Syntax error on token \",\", . expected\n",
 			result);
 }
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
+@JavacFailReason(cause=JavacFailReason.JAVAC_TREE_NOT_IDENTICAL_STMTS_RECOVERED)
 public void testBug130778o() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 
@@ -772,6 +820,9 @@ public void testBug130778p() throws JavaModelException {
 			"No problem",
 			result);
 }
+
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
+@JavacFailReason(cause=JavacFailReason.JAVAC_TREE_NOT_IDENTICAL_STMTS_RECOVERED)
 public void testBug130778q() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
@@ -815,6 +866,10 @@ public void testBug130778q() throws JavaModelException {
 			"Syntax error, insert \")\" to complete Modifiers\n",
 			result);
 }
+
+@Category(Ignore.class)
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
+@JavacFailReason(cause=JavacFailReason.JAVAC_TREE_NOT_IDENTICAL_STMTS_RECOVERED)
 public void testBug130778r() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
@@ -858,6 +913,10 @@ public void testBug130778r() throws JavaModelException {
 			"Syntax error on token \"=\", MemberValue expected after this token\n",
 			result);
 }
+
+@Category(Ignore.class)
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
+@JavacFailReason(cause=JavacFailReason.JAVAC_TREE_NOT_IDENTICAL_STMTS_RECOVERED)
 public void testBug130778s() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
@@ -934,6 +993,10 @@ public void testBug130778t() throws JavaModelException {
 			"No problem",
 			result);
 }
+
+@Category(Ignore.class)
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
+@JavacFailReason(cause=JavacFailReason.JAVAC_TREE_NOT_IDENTICAL_STMTS_RECOVERED)
 public void testBug130778u() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 
@@ -968,6 +1031,10 @@ public void testBug130778u() throws JavaModelException {
 			"Syntax error, insert \")\" to complete Modifiers\n",
 			result);
 }
+
+@Category(Ignore.class)
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
+@JavacFailReason(cause=JavacFailReason.JAVAC_TREE_NOT_IDENTICAL_STMTS_RECOVERED)
 public void testBug130778v() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
@@ -1013,6 +1080,9 @@ public void testBug130778v() throws JavaModelException {
 			"Syntax error, insert \")\" to complete Modifiers\n",
 			result);
 }
+@Category(Ignore.class)
+@JavacFailReason(cause=JavacFailReason.JAVAC_PROBLEM_MAPPING)
+@JavacFailReason(cause=JavacFailReason.JAVAC_TREE_NOT_IDENTICAL_SRC_RANGE)
 public void testBug130778x() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 
@@ -1099,6 +1169,7 @@ public void testbug388137() throws Exception {
 	}
 }
 
+// See getAllMemberValuePairs in JavacAnnotationBinding
 public void testBug405908() throws CoreException, IOException {
 	try {
 		createJavaProject("P", new String[] { "" }, new String[0], "", CompilerOptions.getFirstSupportedJavaVersion());

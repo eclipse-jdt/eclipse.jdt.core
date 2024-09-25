@@ -22,8 +22,11 @@ public @interface JavacFailReason {
 	public static String JAVAC_TREE_NOT_IDENTICAL_STMTS_RECOVERED= "JAVAC_TREE_NOT_IDENTICAL_STMTS_RECOVERED";
 	public static String JAVAC_NOT_SETTING_MALFORMED= "JAVAC_NOT_SETTING_MALFORMED";
 	public static String JAVAC_PROBLEM_MAPPING= "JAVAC_PROBLEM_MAPPING";
+	public static String JAVAC_COMMENT_MAPPING= "JAVAC_COMMENT_MAPPING";
+	public static String JAVAC_TREE_NOT_IDENTICAL_SRC_RANGE= "JAVAC_TREE_NOT_IDENTICAL_SRC_RANGE";
 
 	// Too much information when using a focal position. Tests don't like it
 	public static String JAVAC_FOCAL_POSITION= "JAVAC_FOCAL_POSITION";
+	public static String BINDING_KEY= "BINDING_KEY";
 	public String cause();
 }

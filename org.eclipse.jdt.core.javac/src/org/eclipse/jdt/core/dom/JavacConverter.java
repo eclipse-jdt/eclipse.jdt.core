@@ -416,8 +416,8 @@ class JavacConverter {
 				if( endPos < 0 ) {
 					endPos = start + javac.toString().length();
 				}
-				// workaround: some JCIdent include trailing semicolon, eg in try-resources
-				if (res instanceof Name || res instanceof FieldAccess || res instanceof SuperFieldAccess) {
+				// workaround: some types appear to not keep the trailing semicolon in source range
+				if (res instanceof Name || res instanceof FieldAccess || res instanceof SuperFieldAccess ) {
 					while (endPos > start && this.rawText.charAt(endPos - 1) == ';') {
 						endPos--;
 					}
@@ -3414,6 +3414,7 @@ class JavacConverter {
 	}
 
 	public org.eclipse.jdt.core.dom.Comment convert(Comment javac, int pos, int endPos) {
+		// testBug113108b expects /// comments to be Line comments, not Javadoc comments
 		if (javac.getStyle() == CommentStyle.JAVADOC_BLOCK || javac.getStyle() == CommentStyle.JAVADOC_LINE) {
 			var parser = new com.sun.tools.javac.parser.DocCommentParser(ParserFactory.instance(this.context), Log.instance(this.context).currentSource(), javac);
 			JavadocConverter javadocConverter = new JavadocConverter(this, parser.parse(), pos, endPos, this.buildJavadoc);

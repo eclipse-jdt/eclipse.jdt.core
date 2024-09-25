@@ -3063,6 +3063,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Invalid last trailing comment for "+methodDeclaration, 7, index);
 		}
 	}
+	// Outdated test, doesn't know about /// javadoc? No idea.
 	public void testBug113108b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b113108/Test.java",
