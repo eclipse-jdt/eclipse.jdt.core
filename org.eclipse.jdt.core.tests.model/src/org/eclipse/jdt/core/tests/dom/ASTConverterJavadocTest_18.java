@@ -29,8 +29,11 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.tests.javac.JavacFailReason;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
+import org.junit.Ignore;
+import org.junit.experimental.categories.Category;
 
 /**
  * Class to test DOM/AST nodes built for Javadoc comments.
@@ -863,6 +866,8 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 		assertEquals("Snippet should be valid", true, (validPorperty instanceof Boolean) ? ((Boolean)validPorperty).booleanValue() : false);
 	}
 
+	@Category(Ignore.class)
+	@JavacFailReason(cause=JavacFailReason.VALID_ALTERNATIVE_IMPL)
 	public void testSnippetStartJavadoc4() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
@@ -875,7 +880,7 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 			"	  *		\n" +
 			"	  			\n" +
 			"	  *\n" +
-			"	  *	: a\n" +
+			"	  *	: \n" +
 			"     *  System.out.println(); \n" +
 			"     * }\n" +
 			"     */\n" +
@@ -896,6 +901,8 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 		assertEquals("Snippet should not be valid", false, (validPorperty instanceof Boolean) ? ((Boolean)validPorperty).booleanValue() : false);
 	}
 
+	@Category(Ignore.class)
+	@JavacFailReason(cause=JavacFailReason.TESTS_SPECIFIC_RESULT_FOR_UNDEFINED_BEHAVIOR)
 	public void testSnippetMultiLineTagsJavadoc1() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
@@ -934,6 +941,8 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 		assertEquals("JavaDocRegion should have 1 text fragmwent", 1, region.fragments().size());
 	}
 
+	@Category(Ignore.class)
+	@JavacFailReason(cause=JavacFailReason.TESTS_SPECIFIC_RESULT_FOR_UNDEFINED_BEHAVIOR)
 	public void testSnippetMultiLineTagsJavadoc2() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
@@ -972,6 +981,8 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 		assertEquals("JavaDocRegion should have 1 text fragmwent", 1, region.fragments().size());
 	}
 
+	@Category(Ignore.class)
+	@JavacFailReason(cause=JavacFailReason.TESTS_SPECIFIC_RESULT_FOR_UNDEFINED_BEHAVIOR)
 	public void testSnippetMultiLineTagsJavadoc3() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
@@ -1016,6 +1027,8 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 		assertEquals("original JavaDocRegion should be present here", true, regions.contains(region));
 	}
 
+	@Category(Ignore.class)
+	@JavacFailReason(cause=JavacFailReason.TESTS_SPECIFIC_RESULT_FOR_UNDEFINED_BEHAVIOR)
 	public void testSnippetMultiLineTagsJavadoc4() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
