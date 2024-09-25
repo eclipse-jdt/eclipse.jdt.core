@@ -3491,13 +3491,14 @@ class JavacConverter {
 				OptionalInt end = ((List<ASTNode>)tagElement.fragments()).stream()
 					.filter(node -> node.getStartPosition() >= 0 && node.getLength() >= 0)
 					.mapToInt(node -> node.getStartPosition() + node.getLength())
-					.min();
+					.max();
 				if (start.isPresent() && end.isPresent()) {
 					if (JavadocConverter.isInline(tagElement)) {
 						// include some extra wrapping chars ( `{...}` or `[...]`)
-						tagElement.setSourceRange(start.getAsInt() - 1, end.getAsInt() + 1);
+						// current heuristic is very approximative as it will fail with whitespace
+						tagElement.setSourceRange(start.getAsInt() - 1, end.getAsInt() - start.getAsInt() + 2);
 					} else {
-						tagElement.setSourceRange(start.getAsInt(), end.getAsInt());
+						tagElement.setSourceRange(start.getAsInt(), end.getAsInt() - start.getAsInt());
 					}
 				}
 			}

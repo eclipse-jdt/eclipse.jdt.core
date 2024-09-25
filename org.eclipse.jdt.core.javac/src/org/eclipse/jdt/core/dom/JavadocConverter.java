@@ -598,20 +598,18 @@ class JavadocConverter {
 			boolean shouldCombine = false;
 			boolean lineBreakBefore = false;
 			DCTree oneTree = treeElements.get(i);
-			if( oneTree instanceof DCText || oneTree instanceof DCStartElement || oneTree instanceof DCEndElement || oneTree instanceof DCEntity || oneTree instanceof DCRawText) {
+			if(oneTree instanceof DCText || oneTree instanceof DCStartElement || oneTree instanceof DCEndElement || oneTree instanceof DCEntity) {
 				shouldCombine = true;
 				if((oneTree instanceof DCText dct && dct.text.startsWith("\n"))
 						|| (oneTree instanceof DCRawText raw && raw.getContent().endsWith("\n"))) {
 					lineBreakBefore = true;
 				}
-			} else {
-				if( oneTree instanceof DCErroneous derror) {
-					Stream<IDocElement> de = convertDCErroneousElement(derror);
-					if( de == null ) {
-						shouldCombine = true;
-						if( derror.body.startsWith("{@")) {
-							lineBreakBefore = true;
-						}
+			} else if( oneTree instanceof DCErroneous derror) {
+				Stream<IDocElement> de = convertDCErroneousElement(derror);
+				if( de == null ) {
+					shouldCombine = true;
+					if( derror.body.startsWith("{@")) {
+						lineBreakBefore = true;
 					}
 				}
 			}
@@ -638,7 +636,10 @@ class JavadocConverter {
 		if (javac instanceof DCText text) {
 			return splitLines(text, false).map(this::toTextElement);
 		} else if (javac instanceof DCRawText rawText) {
-			return splitLines(rawText.getContent(), rawText.getStartPosition(), rawText.getEndPosition(), false).map(this::toTextElement);
+			TextElement element = this.ast.newTextElement();
+			commonSettings(element, javac);
+			element.setText(rawText.getContent());
+			return Stream.of(element);
 		} else if (javac instanceof DCIdentifier identifier) {
 			Name res = this.ast.newName(identifier.getName().toString());
 			commonSettings(res, javac);
