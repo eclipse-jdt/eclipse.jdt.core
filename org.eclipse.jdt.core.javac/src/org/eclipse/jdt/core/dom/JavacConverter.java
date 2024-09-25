@@ -1145,12 +1145,14 @@ class JavacConverter {
 		}
 		if (javac.getInitializer() != null) {
 			Expression initializer = convertExpression(javac.getInitializer());
-			fragment.setInitializer(initializer);
-			// we may receive range for `int i = 0;` (with semicolon and newline). If we
-			// have an initializer, use it's endPos instead for the fragment
-			int length = initializer.getStartPosition() + initializer.getLength() - fragment.getStartPosition();
-			if (length >= 0) {
-				fragment.setSourceRange(fragment.getStartPosition(), length);
+			if( initializer != null ) {
+				fragment.setInitializer(initializer);
+				// we may receive range for `int i = 0;` (with semicolon and newline). If we
+				// have an initializer, use it's endPos instead for the fragment
+				int length = initializer.getStartPosition() + initializer.getLength() - fragment.getStartPosition();
+				if (length >= 0) {
+					fragment.setSourceRange(fragment.getStartPosition(), length);
+				}
 			}
 		}
 		return fragment;
@@ -1989,7 +1991,7 @@ class JavacConverter {
 		ArrayInitializer initializer = this.ast.newArrayInitializer();
 		commonSettings(initializer, jcNewArray);
 		if (!jcNewArray.getInitializers().isEmpty()) {
-			jcNewArray.getInitializers().stream().map(this::convertExpression).forEach(initializer.expressions()::add);
+			jcNewArray.getInitializers().stream().map(this::convertExpression).filter(Objects::nonNull).forEach(initializer.expressions()::add);
 			this.rawText.charAt(0);
 			int start = ((Expression)initializer.expressions().getFirst()).getStartPosition() - 1;
 			while (start >= 0 && this.rawText.charAt(start) != '{') {
