@@ -1419,10 +1419,13 @@ class JavacConverter {
 		if (javac instanceof JCNewClass newClass) {
 			ClassInstanceCreation res = this.ast.newClassInstanceCreation();
 			commonSettings(res, javac);
+			if( ERROR.equals(newClass.getIdentifier().toString())) {
+				return null;
+			}
 			if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
 				res.setType(convertToType(newClass.getIdentifier()));
 			} else {
-				Name n = toName(newClass.clazz);
+				Name n = toName(newClass.getIdentifier());
 				if( n != null )
 					res.setName(n);
 			}
@@ -1947,18 +1950,21 @@ class JavacConverter {
 					}
 				}
 			}
+		}
+		if( shouldRecoverWithSimpleName(javac)) {
 			var res = this.ast.newSimpleName(FAKE_IDENTIFIER);
 			res.setFlags(ASTNode.RECOVERED);
 			commonSettings(res, javac);
 			return res;
 		}
-		ILog.get().error("Unsupported " + javac + " of type" + (javac == null ? "null" : javac.getClass()));
-		var res = this.ast.newSimpleName(FAKE_IDENTIFIER);
-		res.setFlags(ASTNode.RECOVERED);
-		commonSettings(res, javac);
-		return res;
+		return null;
 	}
 
+	private boolean shouldRecoverWithSimpleName(JCExpression javac) {
+		if( javac instanceof JCNewClass)
+			return false;
+		return true;
+	}
 	private Pattern convert(JCPattern jcPattern) {
 		if (this.ast.apiLevel >= AST.JLS21_INTERNAL) {
 			if (jcPattern instanceof JCBindingPattern jcBindingPattern) {
