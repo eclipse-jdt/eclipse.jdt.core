@@ -327,11 +327,16 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 				throw new BindingKeyException(new IllegalArgumentException("Method has no owning class"));
 			}
 		}
-		builder.append('.');
-		if (!methodSymbol.isConstructor()) {
+
+		boolean appendMethodName = !methodSymbol.isConstructor() && methodSymbol.getSimpleName().toString().length() != 0;
+		boolean methodSymbolNonNullType = methodSymbol.type != null;
+		if( appendMethodName || methodSymbolNonNullType) {
+			builder.append(".");
+		}
+		if (appendMethodName) {
 			builder.append(methodSymbol.getSimpleName());
 		}
-		if (methodSymbol.type != null) { // initializer
+		if (methodSymbolNonNullType) { // initializer
 			if (methodType != null && !methodType.getTypeArguments().isEmpty()) {
 				builder.append('<');
 				for (var typeParam : methodType.getTypeArguments()) {
