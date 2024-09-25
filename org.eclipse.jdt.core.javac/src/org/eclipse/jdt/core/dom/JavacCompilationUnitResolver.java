@@ -595,9 +595,16 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			} else {
 				unitFile = new File(new String(sourceUnit.getFileName()));
 			}
-			Path sourceUnitPath;
+			Path sourceUnitPath = null;
 			if (!unitFile.getName().endsWith(".java") || sourceUnit.getFileName() == null || sourceUnit.getFileName().length == 0) {
-				sourceUnitPath = Path.of(new File("whatever.java").toURI());
+				String uri1 = unitFile.toURI().toString().replaceAll("%7C", "/");
+				if( uri1.endsWith(".class")) {
+					String[] split= uri1.split("/");
+					String lastSegment = split[split.length-1].replace(".class", ".java");
+					sourceUnitPath = Path.of(lastSegment);
+				}
+				if( sourceUnitPath == null ) 
+					sourceUnitPath = Path.of(new File("whatever.java").toURI());
 			} else {
 				sourceUnitPath = Path.of(unitFile.toURI());
 			}
