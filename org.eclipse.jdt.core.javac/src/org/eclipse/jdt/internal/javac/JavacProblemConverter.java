@@ -143,7 +143,7 @@ public class JavacProblemConverter {
 				arguments,
 				severity,
 				diagnosticPosition.getOffset(),
-				diagnosticPosition.getOffset() + diagnosticPosition.getLength() - 1,
+				diagnosticPosition.getOffset() + Math.max(diagnosticPosition.getLength() - 1, 0),
 				(int) diagnostic.getLineNumber(),
 				(int) diagnostic.getColumnNumber());
 	}
