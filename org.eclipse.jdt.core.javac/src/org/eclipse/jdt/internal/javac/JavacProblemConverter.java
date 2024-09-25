@@ -110,7 +110,7 @@ public class JavacProblemConverter {
 				|| (nestedDiagnostic.getSource() == null && findSymbol(nestedDiagnostic) instanceof ClassSymbol classSymbol
 					&& classSymbol.sourcefile == diagnostic.getSource()));
 		int problemId = toProblemId(useNestedDiagnostic ? nestedDiagnostic : diagnostic);
-		if (problemId < 0) {
+		if (problemId == -1) { // cannot use < 0 as IProblem.Javadoc < 0
 			return null;
 		}
 		int severity = toSeverity(problemId, diagnostic);
