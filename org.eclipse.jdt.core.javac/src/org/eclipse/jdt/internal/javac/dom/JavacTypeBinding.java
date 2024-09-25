@@ -59,6 +59,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.core.SourceType;
 
+import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Kinds.Kind;
@@ -127,9 +128,17 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
-		return this.typeSymbol.getAnnotationMirrors().stream()
-				.map(am -> this.resolver.bindings.getAnnotationBinding(am, this))
-				.toArray(IAnnotationBinding[]::new);
+		List<Attribute.Compound> annots = this.typeSymbol.getAnnotationMirrors();
+		if( this.resolver.isRecoveringBindings()) {
+			return annots.stream()
+					.map(am -> this.resolver.bindings.getAnnotationBinding(am, this))
+					.toArray(IAnnotationBinding[]::new);
+		} else {
+			return annots.stream().filter(x -> !(x.type instanceof ErrorType))
+					.map(am -> this.resolver.bindings.getAnnotationBinding(am, this))
+					.toArray(IAnnotationBinding[]::new);
+		}
+		
 	}
 
 	@Override

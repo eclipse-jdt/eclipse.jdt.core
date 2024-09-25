@@ -1123,7 +1123,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		if (this.converter.domToJavac.get(enumConstant) instanceof JCVariableDecl decl) {
 			// the decl.type can be null when there are syntax errors
-			if ((decl.type != null && !decl.type.isErroneous()) || this.isRecoveringBindings) {
+			if ((decl.type != null && !decl.type.isErroneous()) || this.isRecoveringBindings()) {
 				return this.bindings.getVariableBinding(decl.sym);
 			}
 		}
@@ -1135,7 +1135,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		if (this.converter.domToJavac.get(variable) instanceof JCVariableDecl decl) {
 			// the decl.type can be null when there are syntax errors
-			if ((decl.type != null && !decl.type.isErroneous()) || this.isRecoveringBindings) {
+			if ((decl.type != null && !decl.type.isErroneous()) || this.isRecoveringBindings()) {
 				return this.bindings.getVariableBinding(decl.sym);
 			}
 		}
@@ -1157,7 +1157,7 @@ public class JavacBindingResolver extends BindingResolver {
 		if (expr instanceof SimpleName name) {
 			IBinding binding = resolveName(name);
 			// binding can be null when the code has syntax errors
-			if (binding == null || (binding.isRecovered() && !this.isRecoveringBindings)) {
+			if (binding == null || (binding.isRecovered() && !this.isRecoveringBindings())) {
 				return null;
 			}
 			switch (binding) {
@@ -1626,5 +1626,9 @@ public class JavacBindingResolver extends BindingResolver {
 			return literal.getValue();
 		}
 		return TreeInfo.symbolFor(jcTree) instanceof VarSymbol varSymbol ? varSymbol.getConstantValue() : null;
+	}
+
+	public boolean isRecoveringBindings() {
+		return isRecoveringBindings;
 	}
 }
