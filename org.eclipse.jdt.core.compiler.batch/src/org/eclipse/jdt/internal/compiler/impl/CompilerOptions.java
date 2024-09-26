@@ -433,6 +433,14 @@ public class CompilerOptions {
 	public long complianceLevel;
 	/** Java source level, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_4} */
 	public long sourceLevel;
+	/**
+	 * Initially requested source version, not necessarily consistent with {@link #sourceLevel} as
+	 * sourceLevel forcibly contain a version that is compatible with ECJ.
+	 * <p>Consumers are free to use {@code sourceLevel} or this
+	 * {@code requestedSourceVersion} value to decide of their behavior.</p>
+	 * <p>May be {@code null}.</p>
+	 */
+	public String requestedSourceVersion;
 	/** VM target level, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_4} */
 	public long targetJDK;
 	/** Source encoding format */
@@ -1769,7 +1777,7 @@ public class CompilerOptions {
 			long level = versionToJdkLevel(optionValue);
 			if (level != 0) this.complianceLevel = level;
 		}
-		if ((optionValue = optionsMap.get(OPTION_Source)) != null) {
+		if ((this.requestedSourceVersion = optionValue = optionsMap.get(OPTION_Source)) != null) {
 			long level = versionToJdkLevel(optionValue);
 			if (level != 0) this.sourceLevel = level;
 		}
