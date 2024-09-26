@@ -1,0 +1,17 @@
+# Fast running checks for pull-requests
+
+name: Pull-Request Checks
+concurrency: 
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  check-versions:
+    uses: eclipse-platform/eclipse.platform.releng.aggregator/.github/workflows/checkVersions.yml@master
+    with:
+      botName: Eclipse JDT Bot
+      botMail: jdt-bot@eclipse.org
