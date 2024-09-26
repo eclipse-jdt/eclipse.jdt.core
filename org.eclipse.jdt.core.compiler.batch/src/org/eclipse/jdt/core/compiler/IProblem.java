@@ -2231,6 +2231,8 @@ void setSourceStart(int sourceStart);
 	int PreviewAPIUsed = Compliance + 1108;
 	/** @since 3.39*/
 	int JavaVersionNotSupported = Compliance + 1109;
+	/** @since 3.40*/
+	int JavaVersionTooRecent = Compliance + 1110;
 
 	/** @since 3.13 */
 	int UnlikelyCollectionMethodArgumentType = 1200;
