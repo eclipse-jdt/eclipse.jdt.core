@@ -45,11 +45,15 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.builder.SourceFile;
 
+import com.sun.source.util.TaskEvent;
+import com.sun.source.util.TaskListener;
 import com.sun.tools.javac.api.MultiTaskListener;
-import com.sun.tools.javac.comp.*;
+import com.sun.tools.javac.comp.AttrContext;
 import com.sun.tools.javac.comp.CompileStates.CompileState;
+import com.sun.tools.javac.comp.Env;
 import com.sun.tools.javac.main.JavaCompiler;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
+import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Pair;
 
@@ -112,6 +116,14 @@ public class JavacCompiler extends Compiler {
 		JavacTaskListener javacListener = new JavacTaskListener(this.compilerConfig, outputSourceMapping, this.problemFactory);
 		MultiTaskListener mtl = MultiTaskListener.instance(javacContext);
 		mtl.add(javacListener);
+		mtl.add(new TaskListener() {
+			@Override
+			public void finished(TaskEvent e) {
+				if (e.getSourceFile() instanceof JavacFileObject && e.getCompilationUnit() instanceof JCCompilationUnit u) {
+					problemConverter.registerUnit(e.getSourceFile(), u);
+				}
+			}
+		});
 
 		for (Entry<IContainer, List<ICompilationUnit>> outputSourceSet : outputSourceMapping.entrySet()) {
 			// Configure Javac to generate the class files in a mapped temporary location
