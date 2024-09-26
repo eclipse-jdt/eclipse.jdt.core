@@ -34,12 +34,8 @@ import java.net.URLClassLoader;
  * changes in this class work as expected, without the need to update the hard-coded default value every single time
  * during an ongoing refactoring.
  * <p>
- * In order to make the copying job easier, keep this class compatible with Java 5 language level. You may however use
- * things like {@code @Override} for interfaces, {@code assert} (if in a single line), {@code @SuppressWarnings},
- * because {@link TestVerifier#getVerifyTestsCode()} can filter them out dynamically. You should however avoid things
- * like diamonds, multi-catch, catch-with-resources and more recent Java features.
+ * In order to make the copying job easier, keep this class compatible with the lowest supported Java language level (1.8).
  */
-@SuppressWarnings({ "unchecked", "rawtypes" })
 public class VerifyTests {
 	int portNumber;
 	Socket socket;
@@ -55,7 +51,7 @@ private static URL[] classPathToURLs(String[] classPath) throws MalformedURLExce
 public void loadAndRun(String className, String[] classPath) throws Throwable {
 	try (URLClassLoader urlClassLoader = new URLClassLoader(classPathToURLs(classPath))) {
 		//System.out.println("Loading " + className + "...");
-		Class testClass = urlClassLoader.loadClass(className);
+		Class<?> testClass = urlClassLoader.loadClass(className);
 		//System.out.println("Loaded " + className);
 		try {
 			Method main = testClass.getMethod("main", new Class[] {String[].class});

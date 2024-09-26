@@ -284,7 +284,7 @@ public class CaptureBinding extends TypeVariableBinding {
 		}
 	}
 	@Override
-	public ReferenceBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+	public TypeBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
 		if (enterRecursiveProjectionFunction()) {
 			try {
 				for (TypeBinding mentionedTypeVariable : mentionedTypeVariables) {
@@ -292,7 +292,7 @@ public class CaptureBinding extends TypeVariableBinding {
 						TypeBinding upperBoundForProjection = this.upperBoundForProjection();
 						if (upperBoundForProjection == null)
 							upperBoundForProjection = scope.getJavaLangObject();
-						return ((ReferenceBinding)upperBoundForProjection).upwardsProjection(scope, mentionedTypeVariables);
+						return upperBoundForProjection.upwardsProjection(scope, mentionedTypeVariables);
 					}
 				}
 				return this;
@@ -535,13 +535,13 @@ public class CaptureBinding extends TypeVariableBinding {
 	}
 
 	@Override
-	public ReferenceBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
-		ReferenceBinding result = null;
+	public TypeBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+		TypeBinding result = null;
 		if (enterRecursiveProjectionFunction()) {
 			for (TypeBinding mentionedTypeVariable : mentionedTypeVariables) {
 				if (TypeBinding.equalsEquals(this, mentionedTypeVariable)) {
 					if (this.lowerBound != null) {
-						result = (ReferenceBinding) this.lowerBound.downwardsProjection(scope, mentionedTypeVariables);
+						result = this.lowerBound.downwardsProjection(scope, mentionedTypeVariables);
 					}
 					break;
 				}

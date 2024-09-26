@@ -629,7 +629,7 @@ public void testSharedField() {
 				PrintWriter fOther;
 				@Owning PrintWriter fProper;
 				boolean useField = false;
-				A(PrintWriter writer1, PrintWriter writer2, @Owning PrintWriter writer3) {
+				A(@Owning PrintWriter writer1, PrintWriter writer2, @Owning PrintWriter writer3) {
 					fWriter = writer1;
 					fOther = writer2;
 					fProper = writer3;
@@ -639,20 +639,20 @@ public void testSharedField() {
 		},
 		"""
 		----------
-		1. WARNING in A.java (at line 5)
-			@NotOwning PrintWriter fWriter;
-			                       ^^^^^^^
-		It is recommended to mark resource fields as '@Owning' to ensure proper closing
-		----------
-		2. WARNING in A.java (at line 6)
+		1. WARNING in A.java (at line 6)
 			PrintWriter fOther;
 			            ^^^^^^
 		It is recommended to mark resource fields as '@Owning' to ensure proper closing
 		----------
-		3. WARNING in A.java (at line 7)
+		2. WARNING in A.java (at line 7)
 			@Owning PrintWriter fProper;
 			                    ^^^^^^^
 		Class with resource fields tagged as '@Owning' should implement AutoCloseable
+		----------
+		3. ERROR in A.java (at line 9)
+			A(@Owning PrintWriter writer1, PrintWriter writer2, @Owning PrintWriter writer3) {
+			                      ^^^^^^^
+		Resource leak: 'writer1' is never closed
 		----------
 		""",
 		options
@@ -1701,6 +1701,68 @@ public void testGH2161_initializers() {
 		It is not recommended to hold a resource in a static field
 		----------
 		""",
+		options);
+}
+public void testGH2635() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
+	runLeakTestWithAnnotations(
+		new String[] {
+			"owning_test/OwningTest.java",
+			"""
+			package owning_test;
+
+			import java.io.FileInputStream;
+			import java.io.FileNotFoundException;
+			import java.io.IOException;
+			import java.io.InputStream;
+
+			import org.eclipse.jdt.annotation.Owning;
+
+			public class OwningTest implements AutoCloseable {
+
+				@Owning
+				private InputStream fileInputStream;
+
+				@SuppressWarnings("unused")
+				private NotOwningTest cacheUser;
+
+				public void initialise() throws FileNotFoundException {
+				  fileInputStream = new FileInputStream("test.txt");
+				  cacheUser = new NotOwningTest(fileInputStream);
+				}
+
+				@Override
+				public void close() throws IOException {
+					fileInputStream.close();
+				}
+
+			}
+			""",
+			"owning_test/NotOwningTest.java",
+			"""
+			package owning_test;
+
+			import java.io.InputStream;
+
+			import org.eclipse.jdt.annotation.NotOwning;
+
+			public class NotOwningTest {
+
+				// If get a warning here - "It is recommended to mark resource fields as '@Owning' to ensure proper closing"
+				@NotOwning
+				private InputStream cacheInputStream;
+
+				NotOwningTest(InputStream aCacheInputStream) {
+					cacheInputStream = aCacheInputStream;
+				}
+
+			}
+			"""
+		},
+		"",
 		options);
 }
 }

@@ -50,11 +50,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import junit.framework.Test;
 
@@ -1364,6 +1368,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("NamedPatternVariablesDisallowedHere", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 	    expectedProblemAttributes.put("OperandStackExceeds64KLimit", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 	    expectedProblemAttributes.put("OperandStackSizeInappropriate", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+	    expectedProblemAttributes.put("IllegalModifierCombinationForType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 
 	    StringBuilder failures = new StringBuilder();
 		StringBuilder correctResult = new StringBuilder(70000);
@@ -2497,6 +2502,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("NamedPatternVariablesDisallowedHere", SKIP);
 	    expectedProblemAttributes.put("OperandStackExceeds64KLimit", SKIP);
 	    expectedProblemAttributes.put("OperandStackSizeInappropriate", SKIP);
+	    expectedProblemAttributes.put("IllegalModifierCombinationForType", SKIP);
 
 
 	    Map constantNamesIndex = new HashMap();
@@ -2549,5 +2555,31 @@ public void test012_compiler_problems_tuning() {
 		} catch (IllegalAccessException e) {
 			fail("could not access members");
 		}
+	}
+	public void testuniqueIDs() throws IllegalArgumentException, IllegalAccessException {
+		Field[] fields = IProblem.class.getFields();
+		Map<Integer,List<String>> id2names = new HashMap<>();
+		for (int i = 0, length = fields.length; i < length; i++) {
+			Field field = fields[i];
+			if (field.getType() == Integer.TYPE && !isDeprecated(field)) {
+				int problemId = field.getInt(null);
+				List<String> names = id2names.computeIfAbsent(problemId, k -> new ArrayList<>());
+				names.add(field.getName());
+			}
+		}
+		String duplicates = id2names.entrySet().stream()
+			.filter(e -> e.getValue().size() > 1)
+			.map(e -> e.getKey().toString()+": "+e.getValue().toString())
+			.collect(Collectors.joining(", "));
+		if (!duplicates.isEmpty())
+			fail("The following problem IDs are used more than once: "+duplicates);
+	}
+
+	private boolean isDeprecated(Field field) {
+		for (Annotation annotation : field.getAnnotations()) {
+			if (annotation.annotationType() == Deprecated.class)
+				return true;
+		}
+		return false;
 	}
 }

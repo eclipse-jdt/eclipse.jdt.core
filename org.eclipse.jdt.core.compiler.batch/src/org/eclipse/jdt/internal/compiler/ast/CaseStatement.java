@@ -391,6 +391,8 @@ private Constant resolveCasePattern(BlockScope scope, TypeBinding caseType, Type
 					scope.problemReporter().typeMismatchError(expressionType, type, e, null);
 					return Constant.NotAConstant;
 				}
+			} else {
+				this.swich.isPrimitiveSwitch = true;
 			}
 		}
 		if (e.coversType(expressionType, scope)) {

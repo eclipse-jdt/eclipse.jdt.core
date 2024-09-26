@@ -43,10 +43,12 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.util.CtSym;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
+import org.eclipse.jdt.internal.compiler.util.JrtFileSystem;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry {
 	public final File file;
+	protected final JrtFileSystem jrtFileSystem;
 	protected ZipFile annotationZipFile;
 	protected final boolean closeZipFileAtEnd;
 	protected static final Map<String, Map<String,IModule>> ModulesCache = new ConcurrentHashMap<>();
@@ -57,6 +59,11 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 			AccessRuleSet accessRuleSet, String destinationPath) {
 		super(accessRuleSet, destinationPath);
 		this.file = file;
+		try {
+			this.jrtFileSystem= JRTUtil.getJrtSystem(file, null);
+		} catch (IOException e) {
+			throw new IllegalStateException("Failed to init packages for " + file, e); //$NON-NLS-1$
+		}
 		this.closeZipFileAtEnd = closeZipFileAtEnd;
 		this.moduleNamesCache = new HashSet<>();
 	}
@@ -67,12 +74,12 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 	}
 	@Override
 	public char[][] getModulesDeclaringPackage(String qualifiedPackageName, String moduleName) {
-		List<String> modules = JRTUtil.getModulesDeclaringPackage(this.file, qualifiedPackageName, moduleName);
+		List<String> modules = JRTUtil.getModulesDeclaringPackage(this.jrtFileSystem, qualifiedPackageName, moduleName);
 		return CharOperation.toCharArrays(modules);
 	}
 	@Override
 	public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
-		return JRTUtil.hasCompilationUnit(this.file, qualifiedPackageName, moduleName);
+		return JRTUtil.hasCompilationUnit(this.jrtFileSystem, qualifiedPackageName, moduleName);
 	}
 	@Override
 	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName) {
@@ -84,7 +91,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 			return null; // most common case
 
 		try {
-			IBinaryType reader = ClassFileReader.readFromModule(this.file, moduleName, qualifiedBinaryFileName, this.moduleNamesCache::contains);
+			IBinaryType reader = JRTUtil.getClassfile(this.jrtFileSystem, qualifiedBinaryFileName, moduleName, this.moduleNamesCache::contains);
 
 			if (reader != null) {
 				reader = maybeDecorateForExternalAnnotations(qualifiedBinaryFileName, reader);
@@ -135,7 +142,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 		final ArrayList answers = new ArrayList();
 
 		try {
-			JRTUtil.walkModuleImage(this.file, new JRTUtil.JrtFileVisitor<java.nio.file.Path>() {
+			JRTUtil.walkModuleImage(this.jrtFileSystem, new JRTUtil.JrtFileVisitor<java.nio.file.Path>() {
 
 				@Override
 				public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path modPath, BasicFileAttributes attrs) throws IOException {
@@ -209,7 +216,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 		Map<String, IModule> cache = ModulesCache.computeIfAbsent(this.file.getPath(), key -> {
 			HashMap<String,IModule> newCache = new HashMap<>();
 			try {
-				org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(this.file,
+				org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(this.jrtFileSystem,
 						new org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor<Path>() {
 
 					@Override
@@ -227,7 +234,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 					@Override
 					public FileVisitResult visitModule(Path p, String name) throws IOException {
 						try {
-							ClasspathJrt.this.acceptModule(JRTUtil.getClassfile(ClasspathJrt.this.file, IModule.MODULE_INFO_CLASS, name), newCache);
+							ClasspathJrt.this.acceptModule(ClasspathJrt.this.jrtFileSystem.getClassfile(IModule.MODULE_INFO_CLASS, name), newCache);
 						} catch (ClassFormatException e) {
 							throw new IOException(e);
 						}

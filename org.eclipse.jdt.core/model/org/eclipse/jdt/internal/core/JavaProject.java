@@ -878,10 +878,10 @@ public class JavaProject
 
 	/** Helper for computing the transitive closure of a set of modules. */
 	private static class ModuleLookup {
-		File jrtFile;
-		Map<String, JrtPackageFragmentRoot> modNames2Roots = new HashMap<>();
-		Map<String, IModule> modules = new HashMap<>();
-		Set<IModule> resultModuleSet = new HashSet<>();
+		private final File jrtFile;
+		private final Map<String, JrtPackageFragmentRoot> modNames2Roots = new HashMap<>();
+		private final Map<String, IModule> modules = new HashMap<>();
+		private final Set<IModule> resultModuleSet = new HashSet<>();
 
 		public ModuleLookup(File jrtFile) {
 			this.jrtFile = jrtFile;

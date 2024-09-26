@@ -159,9 +159,7 @@ public void acceptResult(CompilationResult result) {
 		ArrayList duplicateTypeNames = null;
 		ArrayList definedTypeNames = new ArrayList(length);
 		ArrayList<CompilationParticipantResult> postProcessingResults = new ArrayList<>();
-		for (int i = 0; i < length; i++) {
-			ClassFile classFile = classFiles[i];
-
+		for (ClassFile classFile : classFiles) {
 			char[][] compoundName = classFile.getCompoundName();
 			char[] typeName = compoundName[compoundName.length - 1];
 			boolean isNestedType = classFile.isNestedType;
@@ -1004,10 +1002,6 @@ protected char[] writeClassFile(ClassFile classFile, SourceFile compilationUnit,
 	return filePath.lastSegment().toCharArray();
 }
 
-protected void writeClassFileContents(ClassFile classFile, IFile file, String qualifiedFileName, boolean isTopLevelType, SourceFile compilationUnit) throws CoreException {
-	if (JavaBuilder.DEBUG) {
-		trace("Writing changed class file " + file.getName());//$NON-NLS-1$
-	}
-	file.write(classFile.getBytes(), true, true, false, null);
-}
+abstract protected void writeClassFileContents(ClassFile classFile, IFile file, String qualifiedFileName, boolean isTopLevelType, SourceFile compilationUnit) throws CoreException;
+
 }

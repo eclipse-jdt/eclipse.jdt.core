@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -39,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
 import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
+import org.eclipse.jdt.internal.compiler.util.JrtFileSystem;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -47,31 +49,29 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry {
 
-//private HashMap<String, SimpleSet> packagesInModule = null;
-protected static Map<String, Map<String, SimpleSet>> PackageCache = new ConcurrentHashMap<>();
-protected static Map<String, Map<String, IModule>> ModulesCache = new ConcurrentHashMap<>();
-String zipFilename; // keep for equals
-File jrtFile;
+protected final static Map<String, Map<String, SimpleSet>> PackageCache = new ConcurrentHashMap<>();
+protected final static Map<String, Map<String, IModule>> ModulesCache = new ConcurrentHashMap<>();
+protected final String zipFilename; // keep for equals
+protected final JrtFileSystem jrtFileSystem;
 static final Set<String> NO_LIMIT_MODULES = Collections.emptySet();
 
-/*
- * Only for use from ClasspathJrtWithReleaseOption
- */
-protected ClasspathJrt() {
+protected ClasspathJrt(String zipFilename) {
+	this.zipFilename = Objects.requireNonNull(zipFilename);
+	JrtFileSystem system = null;
+	try {
+		system = JRTUtil.getJrtSystem(new File(zipFilename), null);
+	} catch (IOException e) {
+		Util.log(e, "Failed to init packages for " + zipFilename); //$NON-NLS-1$
+	}
+	this.jrtFileSystem = system;
 }
+
 public ClasspathJrt(String zipFilename, AccessRuleSet accessRuleSet, IPath externalAnnotationPath) {
-	setZipFile(zipFilename);
+	this(zipFilename);
 	this.accessRuleSet = accessRuleSet;
 	if (externalAnnotationPath != null)
 		this.externalAnnotationPath = externalAnnotationPath.toString();
 	loadModules(this);
-}
-
-void setZipFile(String zipFilename) {
-	this.zipFilename = zipFilename;
-	if(zipFilename != null) {
-		this.jrtFile = new File(zipFilename);
-	}
 }
 
 /**
@@ -86,7 +86,7 @@ static Map<String, SimpleSet> findPackagesInModules(final ClasspathJrt jrt) {
 	Map<String, SimpleSet> cache = PackageCache.computeIfAbsent(jrt.zipFilename, zipFileName -> {
 		final Map<String, SimpleSet> packagesInModule = new HashMap<>();
 		try {
-			JRTUtil.walkModuleImage(jrt.jrtFile, new JrtPackageVisitor(packagesInModule), JRTUtil.NOTIFY_PACKAGES | JRTUtil.NOTIFY_MODULES);
+			JRTUtil.walkModuleImage(jrt.jrtFileSystem, new JrtPackageVisitor(packagesInModule), JRTUtil.NOTIFY_PACKAGES | JRTUtil.NOTIFY_MODULES);
 		} catch (IOException e) {
 			Util.log(e, "Failed to init packages for " + zipFileName); //$NON-NLS-1$
 		}
@@ -129,11 +129,10 @@ public static void loadModules(final ClasspathJrt jrt) {
 	ModulesCache.computeIfAbsent(jrtKey, key -> {
 		Map<String, IModule> newCache = new HashMap<>();
 		try {
-			final File imageFile = jrt.jrtFile;
-			JRTUtil.walkModuleImage(imageFile, new JrtFileVisitor<Path>() {
+			JRTUtil.walkModuleImage(jrt.jrtFileSystem, new JrtFileVisitor<Path>() {
 				@Override
 				public FileVisitResult visitModule(Path path, String name) throws IOException {
-					jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, IModule.MODULE_INFO_CLASS, name), name,	newCache);
+					jrt.acceptModule(JRTUtil.getClassfileContent(jrt.jrtFileSystem, IModule.MODULE_INFO_CLASS, name), name,	newCache);
 					return FileVisitResult.SKIP_SUBTREE;
 				}
 			}, JRTUtil.NOTIFY_MODULES);
@@ -188,16 +187,23 @@ public boolean equals(Object o) {
 @Override
 public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName,
 										boolean asBinaryOnly, Predicate<String> moduleNameFilter) {
-	if (!isPackage(qualifiedPackageName, moduleName)) return null; // most common case
+	if (!isPackage(qualifiedPackageName, moduleName)) {
+		return null; // most common case
+	}
 
 	try {
 		String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
-		IBinaryType reader = ClassFileReader.readFromModule(this.jrtFile, moduleName, qualifiedBinaryFileName, moduleNameFilter);
-		if (reader != null)
-			return createAnswer(fileNameWithoutExtension, reader, reader.getModule());
+		if (this.jrtFileSystem == null) {
+			return null;
+		}
+		IBinaryType reader = JRTUtil.getClassfile(this.jrtFileSystem, qualifiedBinaryFileName, moduleName, moduleNameFilter);
+		if (reader == null) {
+			return null;
+		}
+		return createAnswer(fileNameWithoutExtension, reader, reader.getModule());
 	} catch (ClassFormatException | IOException e) { // treat as if class file is missing
+		return null;
 	}
-	return null;
 }
 @Override
 public IPath getProjectRelativePath() {
@@ -210,16 +216,16 @@ public int hashCode() {
 }
 @Override
 public char[][] getModulesDeclaringPackage(String qualifiedPackageName, String moduleName) {
-	List<String> moduleNames = JRTUtil.getModulesDeclaringPackage(this.jrtFile, qualifiedPackageName, moduleName);
+	List<String> moduleNames = JRTUtil.getModulesDeclaringPackage(this.jrtFileSystem, qualifiedPackageName, moduleName);
 	return CharOperation.toCharArrays(moduleNames);
 }
 @Override
 public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
-	return JRTUtil.hasCompilationUnit(this.jrtFile, qualifiedPackageName, moduleName);
+	return JRTUtil.hasCompilationUnit(this.jrtFileSystem, qualifiedPackageName, moduleName);
 }
 @Override
 public boolean isPackage(String qualifiedPackageName, String moduleName) {
-	return JRTUtil.getModulesDeclaringPackage(this.jrtFile, qualifiedPackageName, moduleName) != null;
+	return JRTUtil.getModulesDeclaringPackage(this.jrtFileSystem, qualifiedPackageName, moduleName) != null;
 }
 
 @Override

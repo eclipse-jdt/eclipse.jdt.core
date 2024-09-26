@@ -261,7 +261,7 @@ public class ClasspathJep247 extends ClasspathJrt {
 		}
 		if (moduleName == null) {
 			// Delegate to the boss, even if it means inaccurate error reporting at times
-			List<String> mods = JRTUtil.getModulesDeclaringPackage(this.file, qualifiedPackageName, moduleName);
+			List<String> mods = JRTUtil.getModulesDeclaringPackage(this.jrtFileSystem, qualifiedPackageName, moduleName);
 			return CharOperation.toCharArrays(mods);
 		}
 		return singletonModuleNameIf(this.packageCache.contains(qualifiedPackageName));

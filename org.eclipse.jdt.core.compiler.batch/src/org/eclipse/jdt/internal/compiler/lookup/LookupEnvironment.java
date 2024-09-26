@@ -1679,7 +1679,7 @@ public boolean usesNullTypeAnnotations() {
 
 private void initializeUsesNullTypeAnnotation() {
 	this.globalOptions.useNullTypeAnnotations = Boolean.FALSE;
-	if (!this.globalOptions.isAnnotationBasedNullAnalysisEnabled || this.globalOptions.originalSourceLevel < ClassFileConstants.JDK1_8)
+	if (!this.globalOptions.isAnnotationBasedNullAnalysisEnabled)
 		return;
 	ReferenceBinding nullable;
 	ReferenceBinding nonNull;
@@ -1733,7 +1733,7 @@ public boolean usesOwningAnnotations() {
 
 private void initializeUsesOwningAnnotations() {
 	this.globalOptions.useOwningAnnotations = Boolean.FALSE;
-	if (!this.globalOptions.analyseResourceLeaks || this.globalOptions.originalSourceLevel < ClassFileConstants.JDK1_7)
+	if (!this.globalOptions.analyseResourceLeaks)
 		return;
 	ReferenceBinding owning;
 	ReferenceBinding notOwning;

@@ -2,12 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.core.formatterapp;singleton:=true
-Bundle-Version: 1.2.250.qualifier
+Bundle-Version: 1.2.300.qualifier
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: org.eclipse.jdt.core.formatterapp
-Require-Bundle: org.eclipse.jdt.core;bundle-version="[3.36.0,4.0.0)",
+Require-Bundle: org.eclipse.jdt.core;bundle-version="[3.40.0,4.0.0)",
  org.eclipse.core.runtime,
  org.eclipse.core.resources;bundle-version="[3.13.700,4.0.0)"
 Bundle-ActivationPolicy: lazy

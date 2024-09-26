@@ -612,6 +612,13 @@ public class ClassScope extends Scope {
 		boolean isSealedSupported = JavaFeature.SEALED_CLASSES.isSupported(options);
 		boolean flagSealedNonModifiers = isSealedSupported &&
 				(modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
+
+		switch (modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed | ClassFileConstants.AccFinal)) {
+			case ExtraCompilerModifiers.AccSealed, ExtraCompilerModifiers.AccNonSealed, ClassFileConstants.AccFinal, ClassFileConstants.AccDefault : break;
+			default :
+				problemReporter().IllegalModifierCombinationForType(sourceType);
+				break;
+		}
 		if (sourceType.isRecord()) {
 			/* JLS 14 Records Sec 8.10 - A record declaration is implicitly final. */
 			modifiers |= ClassFileConstants.AccFinal;
@@ -1192,7 +1199,7 @@ public class ClassScope extends Scope {
 		if (superclass != null) { // is null if a cycle was detected cycle or a problem
 			if (!superclass.isClass() && (superclass.tagBits & TagBits.HasMissingType) == 0) {
 				problemReporter().superclassMustBeAClass(sourceType, superclassRef, superclass);
-			} else if (superclass.isFinal()) {
+			} else if (superclass.isFinal() && !superclass.isSealed()) { // sealed AND final complained about elsewhere, no value in additional complaint here.
 				if (superclass.isRecord()) {
 					problemReporter().classExtendFinalRecord(sourceType, superclassRef, superclass);
 				} else {

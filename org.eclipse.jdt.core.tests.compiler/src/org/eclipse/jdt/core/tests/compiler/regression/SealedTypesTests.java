@@ -1067,9 +1067,14 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"1. ERROR in p1\\X.java (at line 2)\n" +
 			"	public sealed non-sealed interface X {\n" +
 			"	                                   ^\n" +
-			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface\n" +
+			"The type X may have only one modifier out of sealed, non-sealed, and final\n" +
 			"----------\n" +
 			"2. ERROR in p1\\X.java (at line 2)\n" +
+			"	public sealed non-sealed interface X {\n" +
+			"	                                   ^\n" +
+			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface\n" +
+			"----------\n" +
+			"3. ERROR in p1\\X.java (at line 2)\n" +
 			"	public sealed non-sealed interface X {\n" +
 			"	                                   ^\n" +
 			"An interface X is declared both sealed and non-sealed\n" +
@@ -1190,6 +1195,11 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"----------\n" +
 			"1. ERROR in p1\\X.java (at line 4)\n" +
+			"	non-sealed sealed class Y{}\n" +
+			"	                        ^\n" +
+			"The type Y may have only one modifier out of sealed, non-sealed, and final\n" +
+			"----------\n" +
+			"2. ERROR in p1\\X.java (at line 4)\n" +
 			"	non-sealed sealed class Y{}\n" +
 			"	                        ^\n" +
 			"Illegal modifier for the local class Y; only abstract or final is permitted\n" +
@@ -6321,5 +6331,75 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 						"""
 				},
 				"42");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2707
+	// [Sealed types] ECJ allows a class to be declared as both sealed and non-sealed
+	public void testIssue2707() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public sealed class X permits Y {
+						}
+
+						sealed non-sealed class Y extends X permits K {}
+
+						final class K extends Y {}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	sealed non-sealed class Y extends X permits K {}\n" +
+				"	                        ^\n" +
+				"The type Y may have only one modifier out of sealed, non-sealed, and final\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2707
+	// [Sealed types] ECJ allows a class to be declared as both sealed and non-sealed
+	public void testIssue2707_2() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public sealed class X permits Y {
+						}
+
+						final non-sealed class Y extends X  {}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	final non-sealed class Y extends X  {}\n" +
+				"	                       ^\n" +
+				"The type Y may have only one modifier out of sealed, non-sealed, and final\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2707
+	// [Sealed types] ECJ allows a class to be declared as both sealed and non-sealed
+	public void testIssue2707_3() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public final sealed class X permits Y {
+						}
+
+						final non-sealed class Y extends X  {}
+						"""
+				},
+				"----------\n" +
+			    "1. ERROR in X.java (at line 1)\n" +
+			    "	public final sealed class X permits Y {\n" +
+			    "	                          ^\n" +
+			    "The type X may have only one modifier out of sealed, non-sealed, and final\n" +
+			    "----------\n" +
+			    "2. ERROR in X.java (at line 4)\n" +
+			    "	final non-sealed class Y extends X  {}\n" +
+			    "	                       ^\n" +
+			    "The type Y may have only one modifier out of sealed, non-sealed, and final\n" +
+			    "----------\n");
 	}
 }

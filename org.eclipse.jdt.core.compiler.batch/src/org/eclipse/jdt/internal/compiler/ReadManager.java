@@ -20,8 +20,11 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 
 /** Reads a list of ICompilationUnit before actually needed (ahead) **/
@@ -31,20 +34,29 @@ public class ReadManager {
 	 * Not more threads then cache size and leave 2 threads for compiler + writer. Executor should process in fifo order
 	 * (first in first out).
 	 */
-	private static int THREAD_COUNT = Math.max(0, Math.min(CACHE_SIZE, Runtime.getRuntime().availableProcessors() - 2));
-	private static final ExecutorService executor = THREAD_COUNT <= 0 ? null
-			: Executors.newFixedThreadPool(THREAD_COUNT, r -> {
-				Thread t = new Thread(r, "Compiler Source File Reader"); //$NON-NLS-1$
-				t.setDaemon(true);
-				return t;
-			});
+	private static final ExecutorService READER_SERVICE = createExecutor(Math.max(0, Math.min(CACHE_SIZE, Runtime.getRuntime().availableProcessors() - 2)));
+
+	private static ExecutorService createExecutor(int threadCount) {
+		if (threadCount <= 0)
+			return null;
+		else {
+			ThreadPoolExecutor executor = new ThreadPoolExecutor(threadCount, threadCount, /* keepAliveTime */ 5, TimeUnit.MINUTES,
+					new LinkedBlockingQueue<>(), r -> {
+						Thread t = new Thread(r, "Compiler Source File Reader"); //$NON-NLS-1$
+						t.setDaemon(true);
+						return t;
+					});
+			executor.allowCoreThreadTimeOut(true);
+			return executor;
+		}
+	}
 
 	private final Queue<ICompilationUnit> unitsToRead;
 	private final Map<ICompilationUnit, Future<char[]>> cache = new ConcurrentHashMap<>();
 
 	public ReadManager(ICompilationUnit[] files, int length) {
 		this.unitsToRead = new ArrayDeque<>(length);
-		if (executor == null) {
+		if (READER_SERVICE == null) {
 			return;
 		}
 		for (int l = 0; l < length; l++) {
@@ -58,7 +70,7 @@ public class ReadManager {
 
 	/** meant to called in the order of the initial supplied files **/
 	public char[] getContents(ICompilationUnit unit) throws Error {
-		if (executor == null) {
+		if (READER_SERVICE == null) {
 			return getWithoutExecutor(unit);
 		}
 		Future<char[]> future;
@@ -126,7 +138,7 @@ public class ReadManager {
 			if (nextUnit == null) {
 				return false;
 			}
-			Future<char[]> future = executor.submit(() -> readAhead(nextUnit));
+			Future<char[]> future = READER_SERVICE.submit(() -> readAhead(nextUnit));
 			this.cache.put(nextUnit, future);
 			return true;
 		}

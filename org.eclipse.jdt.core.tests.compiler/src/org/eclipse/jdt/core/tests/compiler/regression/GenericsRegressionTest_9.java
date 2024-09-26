@@ -1007,6 +1007,26 @@ public void testGH1560_2() {
 		+ "----------\n",
 		null, true, options);
 }
+public void testGH2817() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"Test.java",
+			"""
+			class A<T> {}
+			class B<T> {}
+
+			public interface Test {
+			    <T> void use(T t, B<? super T> b);
+			    <T> B<A<? super T>> create();
+
+			    default void test() {
+			        use(new A<Object[]>(), create());
+			    }
+			}
+			"""
+		};
+	runner.runConformTest();
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
