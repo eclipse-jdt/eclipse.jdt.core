@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -497,7 +501,7 @@ public final class AST {
 	 * up to and including Java SE 24(aka JDK 24).
 	 * </p>
 	 *
-	 * @since 3.40
+	 * @since 3.40 BETA_JAVA24
 	 */
 	public static final int JLS24 = 24;
 	/**
