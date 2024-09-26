@@ -5483,7 +5483,7 @@ public void testLambdaParameterSourcePosition() throws JavaModelException {
 	assertEquals(1, variableElement.getSourceRange().getLength());
 }
 
-public void testSVDStartPositionIssue() throws JavaModelException {
+public void testSVDStartPositionIssue_1() throws JavaModelException {
 	String contents = """
 				public class X {
 					public static void example() {
@@ -5513,6 +5513,35 @@ public void testSVDStartPositionIssue() throws JavaModelException {
 	assertEquals("Not a Simple Name", ASTNode.SIMPLE_NAME, svd.getName().getNodeType());
 	assertEquals("Single Variable Declaration length is not correct", svd.getLength(), contents.substring(contents.indexOf("RuntimeException e")).indexOf(')'));
 	assertEquals("Single Variable Declaration startPosition is not correct", svd.getStartPosition(), contents.indexOf("RuntimeException"));
+}
+
+public void testSVDStartPositionIssue_2() throws JavaModelException {
+	String contents = """
+			public class X {
+				public static void example() {
+					try {
+						System.out.println("try");
+					}
+					/** */
+					catch(/** abc*/ RuntimeException e) {
+						System.out.println("catch");
+					}
+				}
+			}
+		""";
+	this.workingCopy = getWorkingCopy("/Converter22/src/xyz/X.java", true/*resolve*/);
+	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
+	MethodDeclaration methodDeclaration = (MethodDeclaration) typedeclaration.bodyDeclarations().get(0);
+	Block block = methodDeclaration.getBody();
+	List<ASTNode> statements = block.statements();
+	TryStatement tryStatement = (TryStatement) statements.get(0);
+	List<ASTNode> catchClauseList = tryStatement.catchClauses();
+	CatchClause catchClause = (CatchClause) catchClauseList.get(0);
+	SingleVariableDeclaration svd = catchClause.getException();
+
+	assertEquals("Single Variable Declaration length is not correct", svd.getLength(), contents.substring(contents.indexOf("/** abc*/ RuntimeException e")).indexOf(')'));
+	assertEquals("Single Variable Declaration startPosition is not correct", svd.getStartPosition(), contents.indexOf("/** abc*/ RuntimeException"));
 }
 
 }
