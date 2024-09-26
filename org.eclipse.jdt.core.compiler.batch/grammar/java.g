@@ -1823,7 +1823,6 @@ PrimaryNoNewArray -> ArrayAccess
 --                   Start of rules for JSR 335
 -----------------------------------------------------------------------
 
-PrimaryNoNewArray -> LambdaExpression
 PrimaryNoNewArray -> ReferenceExpression
 /:$readableName Expression:/
 
@@ -2156,6 +2155,9 @@ CastExpression ::=  BeginIntersectionCast PushLPAREN CastNameAndBounds PushRPARE
 CastExpression ::= PushLPAREN Name Dims AdditionalBoundsListOpt PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithNameArray(); $break ./
 /:$readableName CastExpression:/
+CastExpression ::= PushLPAREN Name PushRPAREN InsideCastExpressionLL1 LambdaExpression
+/.$putCase consumeCastExpressionLL1(); $break ./
+/:$readableName CastExpression:/
 
 AdditionalBoundsListOpt ::= $empty
 /.$putCase consumeZeroAdditionalBounds(); $break ./
@@ -2261,6 +2263,9 @@ ConditionalExpression -> ConditionalOrExpression
 ConditionalExpression ::= ConditionalOrExpression '?' Expression ':' ConditionalExpression
 /.$putCase consumeConditionalExpression(OperatorIds.QUESTIONCOLON) ; $break ./
 /:$readableName Expression:/
+ConditionalExpression ::= ConditionalOrExpression '?' Expression ':' LambdaExpression
+/.$putCase consumeConditionalExpression(OperatorIds.QUESTIONCOLON) ; $break ./
+/:$readableName Expression:/
 
 AssignmentExpression -> ConditionalExpression
 AssignmentExpression -> Assignment
@@ -2312,6 +2317,10 @@ Expression ::= AssignmentExpression
 /.$putCase consumeExpression(); $break ./
 /:$readableName Expression:/
 /:$recovery_template Identifier:/
+
+Expression ::= LambdaExpression
+/.$putCase consumeExpression(); $break ./
+/:$readableName Expression:/
 
 -- The following rules are for optional nonterminals.
 --
@@ -2916,6 +2925,9 @@ AssignmentExpression_NotName -> Assignment
 
 Expression_NotName -> AssignmentExpression_NotName
 /:$readableName Expression:/
+Expression_NotName -> LambdaExpression
+/:$readableName Expression:/
+
 -----------------------------------------------
 -- 1.5 features : end of generics
 -----------------------------------------------
