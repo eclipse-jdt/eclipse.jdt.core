@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
@@ -50,12 +51,14 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
@@ -305,6 +308,30 @@ public class DOMCompletionEngine implements Runnable {
 		if (context instanceof ModuleDeclaration mod) {
 			findModules(this.prefix.toCharArray(), this.modelUnit.getJavaProject(), this.assistOptions, Set.of(mod.getName().toString()));
 		}
+		if (context instanceof SimpleName) {
+			if (context.getParent() instanceof SimpleType simpleType
+					&& simpleType.getParent() instanceof FieldDeclaration fieldDeclaration
+					&& fieldDeclaration.getParent() instanceof AbstractTypeDeclaration typeDecl) {
+				// eg.
+				// public class Foo {
+				//     ba|
+				// }
+				ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
+				findOverridableMethods(typeDeclBinding, this.modelUnit.getJavaProject(), context);
+				suggestDefaultCompletions = false;
+			}
+		}
+		if (context instanceof AbstractTypeDeclaration typeDecl) {
+			// eg.
+			// public class Foo {
+			//     |
+			// }
+			ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
+			findOverridableMethods(typeDeclBinding, this.modelUnit.getJavaProject(), null);
+			suggestDefaultCompletions = false;
+			suggestPackageCompletions = false;
+			computeSuitableBindingFromContext = false;
+		}
 
 		ASTNode current = this.toComplete;
 
@@ -364,6 +391,72 @@ public class DOMCompletionEngine implements Runnable {
 			ILog.get().error(ex.getMessage(), ex);
 		}
 		this.requestor.endReporting();
+	}
+
+	private void findOverridableMethods(ITypeBinding typeBinding, IJavaProject javaProject, ASTNode toReplace) {
+		String originalPackageKey = typeBinding.getPackage().getKey();
+		Set<String> alreadySuggestedMethodKeys = new HashSet<>();
+		if (typeBinding.getSuperclass() != null) {
+			findOverridableMethods0(typeBinding.getSuperclass(), alreadySuggestedMethodKeys, javaProject, originalPackageKey, toReplace);
+		}
+		for (ITypeBinding superInterface : typeBinding.getInterfaces()) {
+			findOverridableMethods0(superInterface, alreadySuggestedMethodKeys, javaProject, originalPackageKey, toReplace);
+		}
+	}
+
+	private void findOverridableMethods0(ITypeBinding typeBinding, Set<String> alreadySuggestedKeys, IJavaProject javaProject, String originalPackageKey, ASTNode toReplace) {
+		next : for (IMethodBinding method : typeBinding.getDeclaredMethods()) {
+			if (alreadySuggestedKeys.contains(method.getKey())) {
+				continue next;
+			}
+			if (method.isSynthetic() || method.isConstructor()
+					|| (this.assistOptions.checkDeprecation && method.isDeprecated())
+					|| (method.getModifiers() & Modifier.STATIC) != 0
+					|| (method.getModifiers() & Modifier.PRIVATE) != 0
+					|| ((method.getModifiers() & (Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED)) == 0) && !typeBinding.getPackage().getKey().equals(originalPackageKey)) {
+				continue next;
+			}
+			alreadySuggestedKeys.add(method.getKey());
+			if ((method.getModifiers() & Modifier.FINAL) != 0) {
+				continue next;
+			}
+			if (isFailedMatch(this.prefix.toCharArray(), method.getName().toCharArray())) {
+				continue next;
+			}
+			InternalCompletionProposal proposal = createProposal(CompletionProposal.METHOD_DECLARATION);
+			proposal.setReplaceRange(this.offset, this.offset);
+			if (toReplace != null) {
+				proposal.setReplaceRange(toReplace.getStartPosition(), toReplace.getStartPosition() + toReplace.getLength());
+			}
+			proposal.setName(method.getName().toCharArray());
+			proposal.setFlags(method.getModifiers());
+			proposal.setTypeName(method.getReturnType().getName().toCharArray());
+			proposal.setDeclarationPackageName(typeBinding.getPackage().getName().toCharArray());
+			proposal.setDeclarationTypeName(typeBinding.getQualifiedName().toCharArray());
+			proposal.setDeclarationSignature(DOMCompletionEngineBuilder.getSignature(method.getDeclaringClass()).toCharArray());
+			proposal.setKey(method.getKey().toCharArray());
+			proposal.setSignature(DOMCompletionEngineBuilder.getSignature(method).toCharArray());
+			proposal.setParameterNames(Stream.of(method.getParameterNames()).map(name -> name.toCharArray()).toArray(char[][]::new));
+
+			int relevance = RelevanceConstants.R_DEFAULT
+					+ RelevanceConstants.R_RESOLVED
+					+ RelevanceConstants.R_INTERESTING
+					+ RelevanceConstants.R_METHOD_OVERIDE
+					+ ((method.getModifiers() & Modifier.ABSTRACT) != 0 ? RelevanceConstants.R_ABSTRACT_METHOD : 0)
+					+ RelevanceConstants.R_NON_RESTRICTED;
+			proposal.setRelevance(relevance);
+
+			StringBuilder completion = new StringBuilder();
+			DOMCompletionEngineBuilder.createMethod(method, completion);
+			proposal.setCompletion(completion.toString().toCharArray());
+			this.requestor.accept(proposal);
+		}
+		if (typeBinding.getSuperclass() != null) {
+			findOverridableMethods0(typeBinding.getSuperclass(), alreadySuggestedKeys, javaProject, originalPackageKey, toReplace);
+		}
+		for (ITypeBinding superInterface : typeBinding.getInterfaces()) {
+			findOverridableMethods0(superInterface, alreadySuggestedKeys, javaProject, originalPackageKey, toReplace);
+		}
 	}
 
 	private Stream<IType> findTypes(String namePrefix, String packageName) {
@@ -688,4 +781,43 @@ public class DOMCompletionEngine implements Runnable {
 		proposal.setRequiredProposals(new CompletionProposal[0]);
 		return proposal;
 	}
+
+	/**
+	 * Returns an internal completion proposal of the given kind.
+	 *
+	 * Inspired by {@link CompletionEngine#createProposal}
+	 *
+	 * @param kind the kind of completion proposal (see the constants in {@link CompletionProposal})
+	 * @return an internal completion proposal of the given kind
+	 */
+	protected InternalCompletionProposal createProposal(int kind) {
+		InternalCompletionProposal proposal = (InternalCompletionProposal) CompletionProposal.create(kind, this.offset);
+		proposal.nameLookup = this.nameEnvironment.nameLookup;
+		proposal.completionEngine = this.nestedEngine;
+		return proposal;
+	}
+
+	/**
+	 * Returns true if the orphaned content DOESN'T match the given name (the completion suggestion),
+	 * according to the matching rules the user has configured.
+	 *
+	 * Inspired by {@link CompletionEngine#isFailedMatch}.
+	 * However, this version also checks that the length of the orphaned content is not longer than then suggestion.
+	 *
+	 * @param orphanedContent the orphaned content to be completed
+	 * @param name the completion suggestion
+	 * @return true if the orphaned content DOESN'T match the given name
+	 */
+	protected boolean isFailedMatch(char[] orphanedContent, char[] name) {
+		if (name.length < orphanedContent.length) {
+			return true;
+		}
+		return !(
+				(this.assistOptions.substringMatch && CharOperation.substringMatch(orphanedContent, name))
+				|| (this.assistOptions.camelCaseMatch && CharOperation.camelCaseMatch(orphanedContent, name))
+				|| (CharOperation.prefixEquals(orphanedContent, name, false))
+				|| (this.assistOptions.subwordMatch && CharOperation.subWordMatch(orphanedContent, name))
+		);
+	}
+
 }
