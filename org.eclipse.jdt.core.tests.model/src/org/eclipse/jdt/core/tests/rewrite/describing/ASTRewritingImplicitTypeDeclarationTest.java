@@ -15,28 +15,13 @@
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
 import java.util.List;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.ImplicitTypeDeclaration;
-import org.eclipse.jdt.core.dom.Javadoc;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.PrimitiveType;
-import org.eclipse.jdt.core.dom.QualifiedName;
-import org.eclipse.jdt.core.dom.StringLiteral;
-import org.eclipse.jdt.core.dom.TagElement;
-import org.eclipse.jdt.core.dom.TextElement;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
-
-import junit.framework.Test;
 
 public class ASTRewritingImplicitTypeDeclarationTest extends ASTRewritingTest{
 
@@ -230,6 +215,74 @@ public class ASTRewritingImplicitTypeDeclarationTest extends ASTRewritingTest{
         buf.append("}\n");
 
         assertEqualString(preview, buf.toString());
+	}
+	public void test004() throws Exception {
+		AST ast = AST.newAST(AST.JLS23, true);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuilder buf = new StringBuilder();
+		buf= new StringBuilder();
+		buf.append("/** \n");
+        buf.append(" * Hello\n");
+        buf.append(" */\n");
+        buf.append("void main(){\n");
+        buf.append("  System.out.println(\"main\");\n");
+        buf.append("}\n");
+        buf.append("void abc(){\n");
+        buf.append("  System.out.println(\"abc\");\n");
+        buf.append("}\n");
+
+        ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		ImplicitTypeDeclaration implicitTypeDeclaration= findImplicitDeclaration(astRoot, "");
+		List<ASTNode> bodyDeclaration = implicitTypeDeclaration.bodyDeclarations();
+		System.out.println("sasi");
+		{
+
+			rewrite.remove(bodyDeclaration.get(1), null);//remove one method
+
+			MethodInvocation methodInvocation = ast.newMethodInvocation();
+			methodInvocation.setName(ast.newSimpleName("println"));
+
+			StringLiteral literal = ast.newStringLiteral();
+			literal.setLiteralValue("xyz");
+
+			QualifiedName qualifiedName = ast.newQualifiedName(ast.newName("System"), ast.newSimpleName("out"));
+
+	        methodInvocation.setExpression(qualifiedName);
+			methodInvocation.arguments().add(literal);
+
+			ExpressionStatement expressionStatement = ast.newExpressionStatement(methodInvocation);
+
+			Block block = ast.newBlock();
+			block.statements().add(expressionStatement);
+
+			MethodDeclaration methodDeclaration = ast.newMethodDeclaration();
+			methodDeclaration.setBody(block);
+			methodDeclaration.setName(ast.newSimpleName("xyz"));
+			methodDeclaration.setReturnType2(ast.newPrimitiveType(PrimitiveType.VOID));
+
+			ListRewrite listRewrite= rewrite.getListRewrite(implicitTypeDeclaration, ImplicitTypeDeclaration.BODY_DECLARATIONS_PROPERTY);
+			listRewrite.insertAt(methodDeclaration, 1, null);
+
+			String preview = evaluateRewrite(cu, rewrite);
+			buf= new StringBuilder();
+
+			buf.append("/** \n");
+	        buf.append(" * Hello\n");
+	        buf.append(" */\n");
+	        buf.append("void main(){\n");
+	        buf.append("  System.out.println(\"main\");\n");
+	        buf.append("}\n");
+	        buf.append("void xyz() {\n");
+	        buf.append("    System.out.println(\"xyz\");\n");
+	        buf.append("}\n");
+
+	        assertEqualString(preview, buf.toString());
+
+		}
 	}
 
 }
