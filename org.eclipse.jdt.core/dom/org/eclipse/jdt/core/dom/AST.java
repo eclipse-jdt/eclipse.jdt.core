@@ -3194,10 +3194,6 @@ public final class AST {
 	 * The name of the class is an unspecified, but legal, name;
 	 * no modifiers; no doc comment; no superclass or superinterfaces;
 	 * and an empty class body.
-	 * <p>
-	 * To create an interface, use this method and then call
-	 * <code>ImplicitTypeDeclaration</code>.
-	 * </p>
 	 *
 	 * @return a new unparented type declaration node
 	 * @since 3.40

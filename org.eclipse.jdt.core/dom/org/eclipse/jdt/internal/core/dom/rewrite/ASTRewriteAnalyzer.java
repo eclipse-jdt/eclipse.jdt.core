@@ -1855,10 +1855,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 		//javaDoc
-		int pos= rewriteJavadoc(node, ImplicitTypeDeclaration.JAVADOC_PROPERTY);
+		rewriteJavadoc(node, ImplicitTypeDeclaration.JAVADOC_PROPERTY);
 
 		int startIndent= getIndent(node.getStartPosition()) + 1;
-		int startPos= getPosAfterLeftBrace(pos);
+		int startPos= node.getStartPosition();
 		rewriteParagraphList(node, ImplicitTypeDeclaration.BODY_DECLARATIONS_PROPERTY, startPos, startIndent, -1, 2);
 		return false;
 	}
