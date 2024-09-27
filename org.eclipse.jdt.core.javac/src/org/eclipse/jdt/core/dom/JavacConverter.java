@@ -3511,6 +3511,11 @@ class JavacConverter {
 					}
 				}
 			}
+			if (TagElement.TAG_DEPRECATED.equals(tagElement.getTagName())
+				&& tagElement.getParent() instanceof Javadoc javadoc
+				&& javadoc.getParent() != null) {
+				javadoc.getParent().setFlags(javadoc.getParent().getFlags() | ClassFileConstants.AccDeprecated);
+			}
 		}
 
 		private int findPositionOfText(String text, ASTNode in, List<ASTNode> excluding) {
