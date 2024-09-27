@@ -186,6 +186,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			if (!this.markdown) {
 				realStart = this.linePtr==1 ? this.javadocStart : this.scanner.getLineEnd(this.linePtr-1)+1;
 				if (realStart < this.javadocStart) realStart = this.javadocStart;
+			} else {
+				this.linePtr = getLineNumber(realStart);
 			}
 			this.scanner.resetTo(realStart, this.javadocEnd);
 			this.index = realStart;
