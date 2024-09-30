@@ -244,6 +244,9 @@ class MethodBinding implements IMethodBinding {
 			final boolean isConstructor = this.isConstructor();
 			for (int i = 0; i < length; i++) {
 				org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalAnnotation = internalAnnotations[i];
+				if(internalAnnotation == null) {
+					continue;
+				}
 				final ReferenceBinding annotationType = internalAnnotation.getAnnotationType();
 				long metaTagBits = annotationType.getAnnotationTagBits();
 
@@ -612,7 +615,7 @@ class MethodBinding implements IMethodBinding {
 				return null;
 			}
 			if (!(this.resolver instanceof DefaultBindingResolver)) return null;
-	
+
 			DefaultBindingResolver defaultBindingResolver = (DefaultBindingResolver) this.resolver;
 			if (!defaultBindingResolver.fromJavaProject) return null;
 			ASTNode domNode = (ASTNode)defaultBindingResolver.bindingsToAstNodes.get(this);
