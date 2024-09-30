@@ -468,7 +468,10 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, IJa
 	matchReportReference(reference, element, elementBinding, accuracy, locator);
 }
 public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, int length, MatchLocator locator) {
-    return locator.newDeclarationMatch(element, elementBinding, accuracy, reference.sourceStart, length);
+    return locator.newDeclarationMatch(element, elementBinding, accuracy, reference.sourceStart, length, true);
+}
+public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, int length, MatchLocator locator, boolean overrideFromElement) {
+    return locator.newDeclarationMatch(element, elementBinding, accuracy, reference.sourceStart, length, overrideFromElement);
 }
 protected int referenceType() {
 	return 0; // defaults to unknown (a generic JavaSearchMatch will be created)

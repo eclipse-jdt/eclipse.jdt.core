@@ -15,5 +15,12 @@
             id="org.eclipse.jdt.core.dom.DOMCompletionEngineProvider">
       </resolver>
    </extension>
+   <extension
+         point="org.eclipse.jdt.core.javaSearchDelegate">
+      <searchDelegate
+            class="org.eclipse.jdt.internal.core.search.DOMJavaSearchDelegate"
+            id="org.eclipse.jdt.internal.core.search.DOMJavaSearchDelegate">
+      </searchDelegate>
+   </extension>
 
 </fragment>

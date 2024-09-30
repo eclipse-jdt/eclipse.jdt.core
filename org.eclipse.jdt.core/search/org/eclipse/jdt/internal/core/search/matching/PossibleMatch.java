@@ -56,11 +56,16 @@ public PossibleMatch(MatchLocator locator, IResource resource, Openable openable
 	this.resource = resource;
 	this.openable = openable;
 	this.document = document;
-	this.nodeSet = new MatchingNodeSet(mustResolve);
+	this.nodeSet = createMatchingNodeSet(mustResolve);
 	char[] qualifiedName = getQualifiedName();
 	if (qualifiedName != null)
 		this.compoundName = CharOperation.splitOn('.', qualifiedName);
 }
+
+protected MatchingNodeSet createMatchingNodeSet(boolean mustResolve) {
+	return new MatchingNodeSet(mustResolve);
+}
+
 public void cleanUp() {
 	this.source = null;
 	if (this.parsedUnit != null) {

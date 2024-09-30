@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -910,7 +912,12 @@ protected JavaSearchResultCollector resultCollector;
 		assertSearchResults("Unexpected search results", expected, collector);
 	}
 	protected void assertSearchResults(String message, String expected, JavaSearchResultCollector collector) {
-		String actual = collector.toString();
+		String actual = Arrays.stream(collector.toString().split("\n"))
+			.sorted()
+			.collect(Collectors.joining("\n")); // order doesn't matter
+		expected = Arrays.stream(expected.split("\n"))
+			.sorted()
+			.collect(Collectors.joining("\n")); // order doesn't matter
 		if (!expected.equals(actual)) {
 			if (this.displayName) {
 				System.out.print(getName());

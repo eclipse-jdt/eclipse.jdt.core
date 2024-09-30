@@ -52,7 +52,6 @@ public boolean mustResolve;
 SimpleSet possibleMatchingNodesSet = new SimpleSet(7);
 private final HashtableOfLong possibleMatchingNodesKeys = new HashtableOfLong(7);
 
-
 public MatchingNodeSet(boolean mustResolvePattern) {
 	super();
 	this.mustResolve = mustResolvePattern;
@@ -88,6 +87,7 @@ public int addMatch(ASTNode node, int matchLevel) {
 	}
 	return matchLevel;
 }
+
 public void addPossibleMatch(ASTNode node) {
 	// remove existing node at same position from set
 	// (case of recovery that created the same node several time
@@ -103,7 +103,6 @@ public void addPossibleMatch(ASTNode node) {
 }
 public void addTrustedMatch(ASTNode node, boolean isExact) {
 	addTrustedMatch(node, isExact ? EXACT_MATCH : POTENTIAL_MATCH);
-
 }
 void addTrustedMatch(ASTNode node, Integer level) {
 	// remove existing node at same position from set
@@ -118,6 +117,7 @@ void addTrustedMatch(ASTNode node, Integer level) {
 	this.matchingNodes.put(node, level);
 	this.matchingNodesKeys.put(key, node);
 }
+
 protected boolean hasPossibleNodes(int start, int end) {
 	Object[] nodes = this.possibleMatchingNodesSet.values;
 	for (Object n : nodes) {
@@ -131,6 +131,7 @@ protected boolean hasPossibleNodes(int start, int end) {
 	}
 	return false;
 }
+
 /**
  * Returns the matching nodes that are in the given range in the source order.
  */
