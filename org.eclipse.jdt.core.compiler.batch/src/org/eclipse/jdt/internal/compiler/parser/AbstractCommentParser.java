@@ -180,9 +180,15 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			int lastStarPosition = -1;
 
 			// Init scanner position
+			this.markdown = this.source[this.javadocStart + 1] == '/';
 			this.linePtr = getLineNumber(this.firstTagPosition);
-			int realStart = this.linePtr==1 ? this.javadocStart : this.scanner.getLineEnd(this.linePtr-1)+1;
-			if (realStart < this.javadocStart) realStart = this.javadocStart;
+			int realStart = this.javadocStart;
+			if (!this.markdown) {
+				realStart = this.linePtr==1 ? this.javadocStart : this.scanner.getLineEnd(this.linePtr-1)+1;
+				if (realStart < this.javadocStart) realStart = this.javadocStart;
+			} else {
+				this.linePtr = getLineNumber(realStart);
+			}
 			this.scanner.resetTo(realStart, this.javadocEnd);
 			this.index = realStart;
 			if (realStart == this.javadocStart) {
@@ -191,7 +197,6 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			}
 			int previousPosition = this.index;
 			char nextCharacter = 0;
-			this.markdown = this.source[this.javadocStart + 1] == '/';
 			this.markdownHelper = IMarkdownCommentHelper.create(this);
 			if (realStart == this.javadocStart) {
 				nextCharacter = readChar(); // second '*' or '/'
