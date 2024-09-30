@@ -70,7 +70,9 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
+import org.eclipse.jdt.internal.codeassist.impl.Keywords;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaElementRequestor;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -333,6 +335,26 @@ public class DOMCompletionEngine implements Runnable {
 			suggestPackageCompletions = false;
 			computeSuitableBindingFromContext = false;
 		}
+		if (context instanceof QualifiedName qualifiedName) {
+			IBinding qualifiedNameBinding = qualifiedName.getQualifier().resolveBinding();
+			if (qualifiedNameBinding instanceof ITypeBinding qualifierTypeBinding && !qualifierTypeBinding.isRecovered()) {
+				processMembers(qualifierTypeBinding, scope, false);
+				publishFromScope(scope, true);
+				int startPos = this.offset;
+				int endPos = this.offset;
+				if ((qualifiedName.getName().getFlags() & ASTNode.MALFORMED) != 0) {
+					startPos = qualifiedName.getName().getStartPosition();
+					endPos = startPos + qualifiedName.getName().getLength();
+				}
+				this.requestor.accept(createKeywordProposal(Keywords.THIS, startPos, endPos));
+				this.requestor.accept(createKeywordProposal(Keywords.SUPER, startPos, endPos));
+				this.requestor.accept(createClassKeywordProposal(qualifierTypeBinding, startPos, endPos));
+
+				suggestDefaultCompletions = false;
+				suggestPackageCompletions = false;
+				computeSuitableBindingFromContext = false;
+			}
+		}
 
 		ASTNode current = this.toComplete;
 
@@ -353,33 +375,8 @@ public class DOMCompletionEngine implements Runnable {
 				current = current.getParent();
 			}
 			// filter out non-statics, if necessary
-			boolean isStatic = false;
-			ASTNode cursor = this.toComplete;
-			while (cursor != null && !(cursor instanceof MethodDeclaration)) {
-				cursor = cursor.getParent();
-			}
-			if (cursor instanceof MethodDeclaration methodDecl) {
-				isStatic = (methodDecl.resolveBinding().getModifiers() & Flags.AccStatic) != 0;
-			}
-			final boolean finalizedIsStatic = isStatic;
-			scope.stream() //
-					.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray())) //
-					.filter(binding -> {
-						if (!finalizedIsStatic) {
-							return true;
-						}
-						if (binding instanceof IMethodBinding) {
-							return (binding.getModifiers() & Flags.AccStatic) != 0;
-						}
-						if (binding instanceof IVariableBinding variableBinding) {
-							return !variableBinding.isField() || (binding.getModifiers() & Flags.AccStatic) != 0;
-						}
-						if (binding instanceof ITypeBinding typeBinding) {
-							return typeBinding.isTopLevel() || (binding.getModifiers() & Flags.AccStatic) != 0;
-						}
-						return true;
-					}) //
-					.map(binding -> toProposal(binding)).forEach(this.requestor::accept);
+
+			publishFromScope(scope, isNodeInStaticContext(this.toComplete));
 			if (!completeAfter.isBlank()) {
 				final int typeMatchRule = this.toComplete.getParent() instanceof Annotation
 						? IJavaSearchConstants.ANNOTATION_TYPE
@@ -401,9 +398,7 @@ public class DOMCompletionEngine implements Runnable {
 			var suitableBinding = this.recoveredNodeScanner.findClosestSuitableBinding(context, scope);
 			if (suitableBinding != null) {
 				processMembers(suitableBinding, scope, true);
-				scope.stream().filter(
-						binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
-						.map(binding -> toProposal(binding)).forEach(this.requestor::accept);
+				publishFromScope(scope, isNodeInStaticContext(this.toComplete));
 			}
 		}
 		try {
@@ -417,6 +412,27 @@ public class DOMCompletionEngine implements Runnable {
 			ILog.get().error(ex.getMessage(), ex);
 		}
 		this.requestor.endReporting();
+	}
+
+	private void publishFromScope(Bindings scope, boolean contextIsStatic) {
+		scope.stream() //
+			.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray())) //
+			.filter(binding -> {
+				if (!contextIsStatic) {
+					return true;
+				}
+				if (binding instanceof IMethodBinding) {
+					return (binding.getModifiers() & Flags.AccStatic) != 0;
+				}
+				if (binding instanceof IVariableBinding variableBinding) {
+					return !variableBinding.isField() || (binding.getModifiers() & Flags.AccStatic) != 0;
+				}
+				if (binding instanceof ITypeBinding typeBinding) {
+					return typeBinding.isTopLevel() || (binding.getModifiers() & Flags.AccStatic) != 0;
+				}
+				return true;
+			}) //
+			.map(binding -> toProposal(binding)).forEach(this.requestor::accept);
 	}
 
 	private void findOverridableMethods(ITypeBinding typeBinding, IJavaProject javaProject, ASTNode toReplace) {
@@ -852,6 +868,61 @@ public class DOMCompletionEngine implements Runnable {
 				|| (CharOperation.prefixEquals(orphanedContent, name, false))
 				|| (this.assistOptions.subwordMatch && CharOperation.subWordMatch(orphanedContent, name))
 		);
+	}
+
+	private CompletionProposal createKeywordProposal(char[] keyword, int startPos, int endPos) {
+		int relevance = RelevanceConstants.R_DEFAULT
+				+ RelevanceConstants.R_RESOLVED
+				+ RelevanceConstants.R_INTERESTING
+				+ RelevanceConstants.R_NON_RESTRICTED;
+		if (!isFailedMatch(this.prefix.toCharArray(), keyword)) {
+			relevance += RelevanceConstants.R_SUBSTRING;
+		}
+		CompletionProposal keywordProposal = createProposal(CompletionProposal.KEYWORD);
+		keywordProposal.setCompletion(keyword);
+		keywordProposal.setReplaceRange(startPos, endPos);
+		keywordProposal.setRelevance(relevance);
+		return keywordProposal;
+	}
+
+	private CompletionProposal createClassKeywordProposal(ITypeBinding typeBinding, int startPos, int endPos) {
+		int relevance = RelevanceConstants.R_DEFAULT
+				+ RelevanceConstants.R_RESOLVED
+				+ RelevanceConstants.R_INTERESTING
+				+ RelevanceConstants.R_NON_RESTRICTED
+				+ RelevanceConstants.R_EXPECTED_TYPE;
+		if (!isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
+			relevance += RelevanceConstants.R_SUBSTRING;
+		}
+		InternalCompletionProposal keywordProposal = createProposal(CompletionProposal.FIELD_REF);
+		keywordProposal.setCompletion(Keywords.CLASS);
+		keywordProposal.setReplaceRange(startPos, endPos);
+		keywordProposal.setRelevance(relevance);
+		keywordProposal.setPackageName(CharOperation.concatWith(TypeConstants.JAVA_LANG, '.'));
+		keywordProposal.setTypeName("Class".toCharArray()); //$NON-NLS-1$
+		keywordProposal.setName(Keywords.CLASS);
+
+		// create the signature
+		StringBuilder builder = new StringBuilder();
+		builder.append("Ljava.lang.Class<"); //$NON-NLS-1$
+		String typeBindingKey = typeBinding.getKey().replace('/', '.');
+		builder.append(typeBindingKey);
+		builder.append(">;"); //$NON-NLS-1$
+		keywordProposal.setSignature(builder.toString().toCharArray());
+
+		return keywordProposal;
+	}
+
+	private static boolean isNodeInStaticContext(ASTNode node) {
+		boolean isStatic = false;
+		ASTNode cursor = node;
+		while (cursor != null && !(cursor instanceof MethodDeclaration)) {
+			cursor = cursor.getParent();
+		}
+		if (cursor instanceof MethodDeclaration methodDecl) {
+			isStatic = (methodDecl.resolveBinding().getModifiers() & Flags.AccStatic) != 0;
+		}
+		return isStatic;
 	}
 
 }
