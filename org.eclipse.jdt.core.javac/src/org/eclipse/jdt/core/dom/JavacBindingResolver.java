@@ -1630,7 +1630,112 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 		return TreeInfo.symbolFor(jcTree) instanceof VarSymbol varSymbol ? varSymbol.getConstantValue() : null;
 	}
+	@Override
+	boolean resolveBoxing(Expression expression) {
+		// TODO need to handle many different things here, very rudimentary
+		if( expression.getParent() instanceof MethodInvocation mi) {
+			IMethodBinding mb = resolveMethod(mi);
+			int foundArg = -1;
+			if( mb != null ) {
+				for( int i = 0; i < mi.arguments().size() && foundArg == -1; i++ ) {
+					if( mi.arguments().get(i) == expression) {
+						foundArg = i;
+					}
+				}
+				if( foundArg != -1 ) {
+					ITypeBinding[] tbs = mb.getParameterTypes();
+					if( tbs.length > foundArg) {
+						ITypeBinding foundType = tbs[foundArg];
+						if( expression instanceof NumberLiteral nl) {
+							if( isBoxedVersion(nl, foundType)) {
+								return true;
+							}
+						} else {
+							if( expression instanceof MethodInvocation inner) {
+								JavacMethodBinding mbInner = (JavacMethodBinding)resolveMethod(inner);
+								ITypeBinding retTypeInner = mbInner == null ? null : mbInner.getReturnType();
+								if( isBoxedVersion(retTypeInner, foundType)) {
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
 
+	private boolean isBoxedVersion(NumberLiteral unboxed, ITypeBinding boxed) {
+		if( boxed instanceof JavacTypeBinding boxedBind ) {
+			String boxedString = boxedBind.typeSymbol == null ? null : boxedBind.typeSymbol.toString();
+			if("java.lang.Integer".equals(boxedString) 
+					|| "java.lang.Float".equals(boxedString)
+					|| "java.lang.Double".equals(boxedString)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isBoxedVersion(ITypeBinding unboxed, ITypeBinding boxed) {
+		if( boxed instanceof JavacTypeBinding boxedBind && unboxed instanceof JavacTypeBinding unboxedBind) {
+			String boxedString = boxedBind.typeSymbol == null ? null : boxedBind.typeSymbol.toString();
+			String unboxedString = unboxedBind.typeSymbol == null ? null : unboxedBind.typeSymbol.toString();
+			// TODO very rudimentary, fix it, add more
+			if( "java.lang.Integer".equals(boxedString) && "int".equals(unboxedString)) {
+				return true;
+			}
+			if( "java.lang.Double".equals(boxedString) && "double".equals(unboxedString)) {
+				return true;
+			}
+			if( "java.lang.Float".equals(boxedString) && "float".equals(unboxedString)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	boolean resolveUnboxing(Expression expression) {
+		Type t = null;
+		if( expression instanceof ClassInstanceCreation cic ) {
+			t = cic.getType();
+		}
+		if( t != null && expression.getParent() instanceof MethodInvocation mi) {
+			int foundArg = -1;
+			if( mi != null ) {
+				for( int i = 0; i < mi.arguments().size() && foundArg == -1; i++ ) {
+					if( mi.arguments().get(i) == expression) {
+						foundArg = i;
+					}
+				}
+				if( foundArg != -1 ) {
+					IMethodBinding mb = resolveMethod(mi);
+					ITypeBinding[] tbs = mb.getParameterTypes();
+					if( tbs.length > foundArg) {
+						ITypeBinding unboxed = tbs[foundArg];
+						ITypeBinding boxed = resolveType(t);
+						if( isBoxedVersion(unboxed, boxed)) {
+							return true;
+						}
+					} else if( tbs.length > 0 && mb.isVarargs()) {
+						ITypeBinding lastArg = tbs[tbs.length - 1];
+						if( lastArg.isArray()) {
+							ITypeBinding el = lastArg.getElementType();
+							if( el.isPrimitive()) {
+								if( isBoxedVersion(el, resolveType(t))) {
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+
+		}
+		return false;
+	}
 	public boolean isRecoveringBindings() {
 		return isRecoveringBindings;
 	}
