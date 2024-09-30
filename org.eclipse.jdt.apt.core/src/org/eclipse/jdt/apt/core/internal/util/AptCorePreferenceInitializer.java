@@ -15,7 +15,6 @@
 package org.eclipse.jdt.apt.core.internal.util;
 
 import java.util.Map;
-
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;

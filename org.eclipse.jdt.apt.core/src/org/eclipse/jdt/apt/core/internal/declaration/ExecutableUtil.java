@@ -13,11 +13,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.declaration;
 
+import com.sun.mirror.declaration.ParameterDeclaration;
+import com.sun.mirror.declaration.TypeDeclaration;
+import com.sun.mirror.declaration.TypeParameterDeclaration;
+import com.sun.mirror.type.ReferenceType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorObject.MirrorKind;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
@@ -26,11 +29,6 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeParameter;
-
-import com.sun.mirror.declaration.ParameterDeclaration;
-import com.sun.mirror.declaration.TypeDeclaration;
-import com.sun.mirror.declaration.TypeParameterDeclaration;
-import com.sun.mirror.type.ReferenceType;
 
 class ExecutableUtil {
 

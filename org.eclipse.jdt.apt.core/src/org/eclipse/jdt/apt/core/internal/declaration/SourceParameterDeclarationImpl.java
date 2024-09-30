@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.declaration;
 
+import com.sun.mirror.declaration.ParameterDeclaration;
+import com.sun.mirror.type.TypeMirror;
+import com.sun.mirror.util.DeclarationVisitor;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
@@ -21,10 +24,6 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
-
-import com.sun.mirror.declaration.ParameterDeclaration;
-import com.sun.mirror.type.TypeMirror;
-import com.sun.mirror.util.DeclarationVisitor;
 
 /**
  * Represents a formal parameter that came from source

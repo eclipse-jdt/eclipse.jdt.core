@@ -14,13 +14,6 @@
 
 package org.eclipse.jdt.apt.core.internal.type;
 
-import java.util.Collection;
-import java.util.Collections;
-
-import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorType;
-import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.ClassDeclaration;
 import com.sun.mirror.declaration.InterfaceDeclaration;
@@ -32,6 +25,11 @@ import com.sun.mirror.type.DeclaredType;
 import com.sun.mirror.type.InterfaceType;
 import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.TypeVisitor;
+import java.util.Collection;
+import java.util.Collections;
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorType;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 
 /**
  * This is the error type marker

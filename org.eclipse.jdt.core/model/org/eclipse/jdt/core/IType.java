@@ -15,7 +15,6 @@
 package org.eclipse.jdt.core;
 
 import java.io.InputStream;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**

@@ -15,9 +15,9 @@
 
 package org.eclipse.jdt.apt.tests;
 
+import com.sun.mirror.apt.AnnotationProcessorFactory;
 import java.util.ArrayList;
 import java.util.List;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.resources.IProject;
@@ -32,8 +32,6 @@ import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldWildcardAnnota
 import org.eclipse.jdt.apt.tests.annotations.messager.MessagerAnnotationProcessor;
 import org.eclipse.jdt.apt.tests.annotations.messager.MessagerCodeExample;
 import org.eclipse.jdt.core.IJavaProject;
-
-import com.sun.mirror.apt.AnnotationProcessorFactory;
 
 public class APITests extends APTTestBase {
 

@@ -15,8 +15,8 @@ package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IConstantPool;
-import org.eclipse.jdt.core.util.IPermittedSubclassesAttributeEntry;
 import org.eclipse.jdt.core.util.IPermittedSubclassesAttribute;
+import org.eclipse.jdt.core.util.IPermittedSubclassesAttributeEntry;
 
 /**
  * Default implementation of IPermittedSubclassesAttribute.

@@ -14,10 +14,16 @@
 
 package org.eclipse.jdt.apt.core.internal.declaration;
 
+import com.sun.mirror.declaration.ClassDeclaration;
+import com.sun.mirror.declaration.ConstructorDeclaration;
+import com.sun.mirror.declaration.Declaration;
+import com.sun.mirror.declaration.MethodDeclaration;
+import com.sun.mirror.type.ClassType;
+import com.sun.mirror.util.DeclarationVisitor;
+import com.sun.mirror.util.TypeVisitor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
@@ -26,14 +32,6 @@ import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
-
-import com.sun.mirror.declaration.ClassDeclaration;
-import com.sun.mirror.declaration.ConstructorDeclaration;
-import com.sun.mirror.declaration.Declaration;
-import com.sun.mirror.declaration.MethodDeclaration;
-import com.sun.mirror.type.ClassType;
-import com.sun.mirror.util.DeclarationVisitor;
-import com.sun.mirror.util.TypeVisitor;
 
 public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDeclaration, ClassType
 {

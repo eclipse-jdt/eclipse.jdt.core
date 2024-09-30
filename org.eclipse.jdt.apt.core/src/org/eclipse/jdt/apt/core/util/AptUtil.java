@@ -14,13 +14,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.util;
 
+import com.sun.mirror.apt.AnnotationProcessorFactory;
 import java.util.Collection;
 import java.util.List;
-
 import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
 import org.eclipse.jdt.core.IJavaProject;
-
-import com.sun.mirror.apt.AnnotationProcessorFactory;
 
 public final class AptUtil {
 

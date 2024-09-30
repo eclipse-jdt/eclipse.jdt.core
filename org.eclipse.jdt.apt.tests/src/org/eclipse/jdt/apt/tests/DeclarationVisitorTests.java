@@ -15,34 +15,16 @@
 
 package org.eclipse.jdt.apt.tests;
 
+import com.sun.mirror.declaration.*;
+import com.sun.mirror.util.DeclarationVisitor;
 import java.util.ArrayList;
 import java.util.Collection;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.tests.annotations.generic.AbstractGenericProcessor;
 import org.eclipse.jdt.apt.tests.annotations.generic.GenericFactory;
-
-import com.sun.mirror.declaration.AnnotationTypeDeclaration;
-import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
-import com.sun.mirror.declaration.ClassDeclaration;
-import com.sun.mirror.declaration.ConstructorDeclaration;
-import com.sun.mirror.declaration.Declaration;
-import com.sun.mirror.declaration.EnumConstantDeclaration;
-import com.sun.mirror.declaration.EnumDeclaration;
-import com.sun.mirror.declaration.ExecutableDeclaration;
-import com.sun.mirror.declaration.FieldDeclaration;
-import com.sun.mirror.declaration.InterfaceDeclaration;
-import com.sun.mirror.declaration.MemberDeclaration;
-import com.sun.mirror.declaration.MethodDeclaration;
-import com.sun.mirror.declaration.PackageDeclaration;
-import com.sun.mirror.declaration.ParameterDeclaration;
-import com.sun.mirror.declaration.TypeDeclaration;
-import com.sun.mirror.declaration.TypeParameterDeclaration;
-import com.sun.mirror.util.DeclarationVisitor;
 
 /**
  * Tests for the JDT-APT implementation of Declaration Visitors

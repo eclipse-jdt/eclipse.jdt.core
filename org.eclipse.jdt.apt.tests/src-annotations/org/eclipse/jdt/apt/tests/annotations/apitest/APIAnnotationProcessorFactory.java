@@ -13,14 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests.annotations.apitest;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-
-import org.eclipse.jdt.apt.tests.annotations.BaseFactory;
-import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
-
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Messager;
@@ -36,6 +28,12 @@ import com.sun.mirror.declaration.TypeParameterDeclaration;
 import com.sun.mirror.type.DeclaredType;
 import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.Types;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import org.eclipse.jdt.apt.tests.annotations.BaseFactory;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 
 
 public class APIAnnotationProcessorFactory extends BaseFactory {

@@ -15,7 +15,6 @@
 package org.eclipse.jdt.apt.core.internal.generatedfile;
 
 import java.util.ArrayList;
-
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;

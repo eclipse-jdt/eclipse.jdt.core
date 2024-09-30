@@ -18,7 +18,6 @@ package org.eclipse.jdt.compiler.apt.tests.processors.checkargs;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;

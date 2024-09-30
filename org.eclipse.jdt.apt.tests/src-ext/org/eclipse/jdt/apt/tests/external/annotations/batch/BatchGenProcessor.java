@@ -16,7 +16,6 @@ package org.eclipse.jdt.apt.tests.external.annotations.batch;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Set;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;

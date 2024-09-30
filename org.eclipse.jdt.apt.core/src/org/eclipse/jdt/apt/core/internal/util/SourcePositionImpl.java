@@ -16,7 +16,6 @@ package org.eclipse.jdt.apt.core.internal.util;
 
 import com.sun.mirror.util.SourcePosition;
 import java.io.File;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
