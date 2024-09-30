@@ -11604,7 +11604,7 @@ public void getMethodBodies(CompilationUnitDeclaration unit) {
 	CompilationResult compilationResult = unit.compilationResult;
 	char[] contents = this.readManager != null
 		? this.readManager.getContents(compilationResult.compilationUnit)
-		: compilationResult.compilationUnit.getContents();
+		: compilationResult.getContents();
 	this.scanner.setSource(contents, compilationResult);
 
 	if (this.javadocParser != null && this.javadocParser.checkDocComment) {
@@ -12841,6 +12841,7 @@ public CompilationUnitDeclaration parse(
 			problemReporter().cannotReadSource(this.compilationUnit, abortException, this.options.verbose);
 			contents = CharOperation.NO_CHAR; // pretend empty from thereon
 		}
+		compilationResult.cacheContents(contents);
 		this.scanner.setSource(contents);
 		this.compilationUnit.sourceEnd = this.scanner.source.length - 1;
 		if (end != -1) this.scanner.resetTo(start, end);

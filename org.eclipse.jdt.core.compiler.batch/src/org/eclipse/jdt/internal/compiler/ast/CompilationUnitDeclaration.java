@@ -176,6 +176,7 @@ public void cleanUp() {
 
 	if (this.scope != null)
 		this.scope.cleanUpInferenceContexts();
+	this.compilationResult.releaseContent();
 }
 
 private void cleanUp(TypeDeclaration type) {
