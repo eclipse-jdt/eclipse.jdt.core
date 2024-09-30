@@ -16,15 +16,13 @@ package org.eclipse.jdt.core.tests.model;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.NamingConventions;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class NamingConventionTests extends AbstractJavaModelTests {

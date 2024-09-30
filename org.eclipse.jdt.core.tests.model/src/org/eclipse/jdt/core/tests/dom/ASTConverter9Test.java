@@ -15,7 +15,7 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.util.List;
 import java.util.function.Consumer;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -28,8 +28,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.SourceModule;
 import org.eclipse.text.edits.ReplaceEdit;
-
-import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes"})
 public class ASTConverter9Test extends ConverterTestSetup {

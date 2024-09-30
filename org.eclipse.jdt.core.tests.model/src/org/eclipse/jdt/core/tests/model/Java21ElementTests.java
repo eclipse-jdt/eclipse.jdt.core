@@ -13,13 +13,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import junit.framework.Test;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
-
-import junit.framework.Test;
 
 public class Java21ElementTests extends AbstractJavaModelTests {
 

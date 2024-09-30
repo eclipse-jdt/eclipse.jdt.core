@@ -14,6 +14,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 
+import junit.framework.Test;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -24,8 +25,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.AST;
-
-import junit.framework.Test;
 
 public class ReconcilerTests16 extends ModifyingResourceTests {
 

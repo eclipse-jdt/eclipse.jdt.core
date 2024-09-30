@@ -17,7 +17,7 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -31,8 +31,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.ClasspathAttribute;
 import org.eclipse.jdt.internal.core.builder.ClasspathJrt;
-
-import junit.framework.Test;
 
 public class ModuleOptionsTests extends ModifyingResourceTests {
 

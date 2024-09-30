@@ -13,10 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.core.jdom.*;
-
 import junit.framework.Test;
+import org.eclipse.jdt.core.jdom.DOMFactory;
+import org.eclipse.jdt.core.jdom.IDOMFactory;
+import org.eclipse.jdt.core.jdom.IDOMMethod;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 /**
  * @deprecated JDOM is obsolete

@@ -14,13 +14,11 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.function.Predicate;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
-
-import junit.framework.Test;
 
 public class SubstringCompletionTests extends AbstractJavaModelCompletionTests {
 

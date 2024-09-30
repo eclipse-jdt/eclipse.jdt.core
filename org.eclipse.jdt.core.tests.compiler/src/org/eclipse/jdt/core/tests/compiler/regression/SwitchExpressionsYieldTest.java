@@ -13,13 +13,11 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 
 public class SwitchExpressionsYieldTest extends AbstractRegressionTest {

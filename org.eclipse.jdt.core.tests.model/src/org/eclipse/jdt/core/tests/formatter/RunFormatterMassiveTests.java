@@ -18,10 +18,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 
 /**

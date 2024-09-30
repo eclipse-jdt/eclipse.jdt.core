@@ -14,6 +14,7 @@
 
 package org.eclipse.jdt.core.tests.model;
 
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -31,8 +32,6 @@ import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.internal.core.LambdaExpression;
 import org.eclipse.jdt.internal.core.LambdaMethod;
-
-import junit.framework.Test;
 
 public class ResolveTests18 extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;

@@ -13,18 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -34,7 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-
+import junit.framework.AssertionFailedError;
+import junit.framework.ComparisonFailure;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
@@ -51,11 +43,6 @@ import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.text.edits.TextEdit;
-
-import junit.framework.AssertionFailedError;
-import junit.framework.ComparisonFailure;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * Comment formatter test suite for massive tests at a given location.

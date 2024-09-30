@@ -15,7 +15,7 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.util.List;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -34,8 +34,6 @@ import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
-
-import junit.framework.Test;
 
 public class CompilationUnitResolverDiscoveryTest extends ConverterTestSetup {
 

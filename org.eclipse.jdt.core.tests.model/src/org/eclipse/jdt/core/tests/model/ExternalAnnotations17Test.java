@@ -14,7 +14,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -41,8 +41,6 @@ import org.eclipse.jdt.core.util.ExternalAnnotationUtil;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil.MergeStrategy;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.osgi.framework.Bundle;
-
-import junit.framework.Test;
 
 public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 

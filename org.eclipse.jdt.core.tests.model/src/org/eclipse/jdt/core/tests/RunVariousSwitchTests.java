@@ -16,7 +16,9 @@ package org.eclipse.jdt.core.tests;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.compiler.parser.ComplianceDiagnoseTest;
 import org.eclipse.jdt.core.tests.compiler.regression.InstanceofPrimaryPatternTest;
 import org.eclipse.jdt.core.tests.compiler.regression.PatternMatching16Test;
@@ -31,10 +33,6 @@ import org.eclipse.jdt.core.tests.model.JavaSearchBugs14SwitchExpressionTests;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingSwitchExpressionsTest;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingSwitchPatternTest;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunVariousSwitchTests extends TestCase {

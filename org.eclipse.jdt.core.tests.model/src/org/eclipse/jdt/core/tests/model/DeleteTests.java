@@ -14,18 +14,20 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-
-import org.eclipse.core.resources.*;
+import junit.framework.Test;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 /*
  * Tests for ISourceManipulation.delete(...)

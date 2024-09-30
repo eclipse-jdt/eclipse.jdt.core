@@ -15,12 +15,14 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-
-import org.eclipse.jdt.core.*;
+import junit.framework.Test;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.hierarchy.RegionBasedTypeHierarchy;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
-
-import junit.framework.Test;
 
 public class TypeHierarchySerializationTests extends AbstractJavaModelTests {
 	private static final String PROJECTNAME = "TypeHierarchySerialization";

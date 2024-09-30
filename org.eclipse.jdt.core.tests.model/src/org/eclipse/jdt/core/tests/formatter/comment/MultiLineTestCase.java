@@ -15,11 +15,9 @@
 package org.eclipse.jdt.core.tests.formatter.comment;
 
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
-
-import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class MultiLineTestCase extends CommentTestCase {
