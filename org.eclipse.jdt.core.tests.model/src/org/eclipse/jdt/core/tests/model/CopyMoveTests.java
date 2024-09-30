@@ -13,14 +13,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import junit.framework.AssertionFailedError;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
-
-import junit.framework.AssertionFailedError;
 
 abstract public class CopyMoveTests extends ModifyingResourceTests {
 public CopyMoveTests(String name) {

@@ -14,9 +14,7 @@
 package org.eclipse.jdt.core.tests.builder;
 
 import java.util.Hashtable;
-
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;

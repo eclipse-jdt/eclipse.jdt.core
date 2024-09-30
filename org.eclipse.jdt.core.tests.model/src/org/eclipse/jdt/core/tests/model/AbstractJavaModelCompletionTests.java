@@ -17,16 +17,20 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.List;
-
+import junit.framework.ComparisonFailure;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IClasspathAttribute;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
-
-import junit.framework.ComparisonFailure;
 
 @SuppressWarnings("rawtypes")
 public abstract class AbstractJavaModelCompletionTests extends AbstractJavaModelTests implements RelevanceConstants {

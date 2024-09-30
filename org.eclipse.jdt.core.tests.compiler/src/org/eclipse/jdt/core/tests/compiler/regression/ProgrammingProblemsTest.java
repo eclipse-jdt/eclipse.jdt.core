@@ -20,15 +20,13 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 /* Collects potential programming problems tests that are not segregated in a
  * dedicated test class (aka NullReferenceTest). */

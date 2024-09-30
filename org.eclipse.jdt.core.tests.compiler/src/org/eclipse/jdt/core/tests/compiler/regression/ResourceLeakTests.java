@@ -18,9 +18,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;

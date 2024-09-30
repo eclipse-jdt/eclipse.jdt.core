@@ -13,10 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import junit.framework.Test;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 /**
  * Test class for completion in text of a Javadoc comment.

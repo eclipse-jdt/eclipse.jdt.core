@@ -14,7 +14,8 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
-
+import junit.framework.ComparisonFailure;
+import junit.framework.Test;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -24,9 +25,6 @@ import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.ComparisonFailure;
-import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class CompletionTests_1_5 extends AbstractJavaModelCompletionTests {

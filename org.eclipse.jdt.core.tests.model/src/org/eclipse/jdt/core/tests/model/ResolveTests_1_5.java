@@ -15,27 +15,13 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.BindingKey;
-import org.eclipse.jdt.core.IAnnotatable;
-import org.eclipse.jdt.core.IAnnotation;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeParameter;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 public class ResolveTests_1_5 extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;

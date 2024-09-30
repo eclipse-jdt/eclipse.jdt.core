@@ -19,9 +19,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.zip.CRC32;
-
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -34,7 +32,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.index.*;
+import org.eclipse.jdt.core.index.JavaIndexer;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.ClasspathEntry;

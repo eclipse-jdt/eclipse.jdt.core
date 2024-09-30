@@ -14,13 +14,11 @@ package org.eclipse.jdt.core.tests;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
-import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunAllJava12Tests extends TestCase {

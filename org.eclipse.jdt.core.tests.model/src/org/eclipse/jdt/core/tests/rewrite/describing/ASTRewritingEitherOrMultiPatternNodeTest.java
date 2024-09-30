@@ -12,48 +12,13 @@
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
 import java.util.List;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.BreakStatement;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.EitherOrMultiPattern;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.FieldAccess;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.GuardedPattern;
-import org.eclipse.jdt.core.dom.IfStatement;
-import org.eclipse.jdt.core.dom.InstanceofExpression;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.PackageDeclaration;
-import org.eclipse.jdt.core.dom.Pattern;
-import org.eclipse.jdt.core.dom.PatternInstanceofExpression;
-import org.eclipse.jdt.core.dom.PrimitiveType;
-import org.eclipse.jdt.core.dom.QualifiedName;
-import org.eclipse.jdt.core.dom.RecordDeclaration;
-import org.eclipse.jdt.core.dom.RecordPattern;
-import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.StringLiteral;
-import org.eclipse.jdt.core.dom.SwitchCase;
-import org.eclipse.jdt.core.dom.SwitchStatement;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.TypePattern;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
-
-import junit.framework.Test;
 
 public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 

@@ -15,9 +15,7 @@ package org.eclipse.jdt.core.tests.performance;
 
 import java.io.File;
 import java.io.PrintStream;
-
 import junit.framework.Test;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;

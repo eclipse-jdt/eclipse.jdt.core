@@ -19,7 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -45,8 +45,6 @@ import org.eclipse.jdt.internal.core.JavaModelCache;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.osgi.framework.Bundle;
-
-import junit.framework.Test;
 
 @SuppressWarnings({"unchecked"})
 public class ReconcilerTests extends ModifyingResourceTests {

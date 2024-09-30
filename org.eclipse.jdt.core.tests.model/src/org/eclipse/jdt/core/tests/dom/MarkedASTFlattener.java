@@ -15,29 +15,8 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
-import org.eclipse.jdt.core.dom.ArrayType;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.MarkerAnnotation;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.NormalAnnotation;
-import org.eclipse.jdt.core.dom.PackageDeclaration;
-import org.eclipse.jdt.core.dom.ParameterizedType;
-import org.eclipse.jdt.core.dom.QualifiedName;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
-import org.eclipse.jdt.core.dom.TypeParameter;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.WildcardType;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.dom.NaiveASTFlattener;
 

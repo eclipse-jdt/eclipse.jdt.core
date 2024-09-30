@@ -14,22 +14,10 @@
 package org.eclipse.jdt.core.tests.rewrite.modifying;
 
 import java.util.List;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.ClassInstanceCreation;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.IfStatement;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.PrefixExpression;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.*;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {

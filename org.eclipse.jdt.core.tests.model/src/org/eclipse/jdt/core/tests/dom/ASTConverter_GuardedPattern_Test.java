@@ -13,22 +13,11 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.util.List;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.GuardedPattern;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SwitchCase;
-import org.eclipse.jdt.core.dom.SwitchStatement;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-
-import junit.framework.Test;
+import org.eclipse.jdt.core.dom.*;
 
 public class ASTConverter_GuardedPattern_Test extends ConverterTestSetup {
 

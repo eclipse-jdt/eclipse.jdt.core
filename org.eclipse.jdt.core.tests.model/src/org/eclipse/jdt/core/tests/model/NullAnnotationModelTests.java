@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -43,24 +43,10 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.IAnnotationBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.MarkerAnnotation;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.osgi.framework.Bundle;
-
-import junit.framework.Test;
 
 @SuppressWarnings("rawtypes")
 public class NullAnnotationModelTests extends ReconcilerTests {

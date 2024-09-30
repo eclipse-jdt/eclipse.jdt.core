@@ -16,18 +16,16 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SwitchTest extends AbstractRegressionTest {

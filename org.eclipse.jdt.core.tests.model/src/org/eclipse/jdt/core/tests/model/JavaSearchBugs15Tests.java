@@ -14,7 +14,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
@@ -35,8 +35,6 @@ import org.eclipse.jdt.internal.core.ResolvedSourceType;
 import org.eclipse.jdt.internal.core.SourceField;
 import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.SourceType;
-
-import junit.framework.Test;
 // JavaSearchBugs14Tests deleted and all test cases moved to JavaSearchBugs15Tests
 // since both record and instanceof variable are in 2nd preview in Java15
 public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {

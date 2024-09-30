@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import junit.framework.ComparisonFailure;
+import junit.framework.Test;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-
-import junit.framework.*;
 
 public class SnippetCompletionTests extends AbstractJavaModelTests implements RelevanceConstants {
 

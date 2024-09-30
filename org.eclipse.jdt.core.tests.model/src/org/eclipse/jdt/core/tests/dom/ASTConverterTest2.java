@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
@@ -31,8 +31,6 @@ import org.eclipse.jdt.core.tests.model.Canceler;
 import org.eclipse.jdt.core.tests.model.ReconcilerTests;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ASTConverterTest2 extends ConverterTestSetup {

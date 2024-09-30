@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -29,8 +29,6 @@ import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.compiler.regression.NullAnnotationTests9;
-
-import junit.framework.Test;
 
 public class NullAnnotationModelTests9 extends ReconcilerTests {
 

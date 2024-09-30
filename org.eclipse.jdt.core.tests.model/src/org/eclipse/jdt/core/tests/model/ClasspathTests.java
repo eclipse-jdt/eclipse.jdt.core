@@ -27,21 +27,9 @@ import java.nio.file.InvalidPathException;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.core.filesystem.URIUtil;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceDescription;
-import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IPath;
@@ -53,22 +41,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jdt.core.ClasspathContainerInitializer;
-import org.eclipse.jdt.core.IAccessRule;
-import org.eclipse.jdt.core.IClasspathAttribute;
-import org.eclipse.jdt.core.IClasspathContainer;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaElementDelta;
-import org.eclipse.jdt.core.IJavaModelMarker;
-import org.eclipse.jdt.core.IJavaModelStatus;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaConventions;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.model.ClasspathInitializerTests.DefaultVariableInitializer;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -78,8 +51,6 @@ import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
 import org.eclipse.jdt.internal.core.builder.State;
 import org.eclipse.team.core.RepositoryProvider;
-
-import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ClasspathTests extends ModifyingResourceTests {

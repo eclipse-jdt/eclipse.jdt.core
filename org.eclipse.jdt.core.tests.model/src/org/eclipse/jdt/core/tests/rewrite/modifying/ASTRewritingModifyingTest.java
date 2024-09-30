@@ -15,7 +15,9 @@ package org.eclipse.jdt.core.tests.rewrite.modifying;
 
 import java.util.Hashtable;
 import java.util.Map;
-
+import junit.framework.ComparisonFailure;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -34,10 +36,6 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
-
-import junit.framework.ComparisonFailure;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {

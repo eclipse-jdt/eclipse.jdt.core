@@ -14,7 +14,6 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.util.List;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
 

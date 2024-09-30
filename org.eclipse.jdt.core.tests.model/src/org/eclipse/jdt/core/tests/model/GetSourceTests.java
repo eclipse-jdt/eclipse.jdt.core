@@ -13,20 +13,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.IAnnotation;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IImportDeclaration;
-import org.eclipse.jdt.core.ILocalVariable;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageDeclaration;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeParameter;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
 import junit.framework.Test;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class GetSourceTests extends ModifyingResourceTests {
 

@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -33,23 +33,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IInitializer;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModel;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IModuleDescription;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IProblemRequestor;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -66,8 +50,6 @@ import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.test.performance.Performance;
-
-import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class FullSourceWorkspaceModelTests extends FullSourceWorkspaceTests implements IJavaSearchConstants {

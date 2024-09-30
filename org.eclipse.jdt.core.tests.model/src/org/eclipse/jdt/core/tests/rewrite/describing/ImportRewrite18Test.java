@@ -14,31 +14,13 @@
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
 import java.io.IOException;
-
 import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.Annotation;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.MarkerAnnotation;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.NormalAnnotation;
-import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite.TypeLocation;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;

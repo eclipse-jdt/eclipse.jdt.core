@@ -15,14 +15,12 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.HashMap;
 import java.util.Hashtable;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-
-import junit.framework.Test;
 
 /**
  * Test class for completion in Javadoc comment of a type declaration.

@@ -16,9 +16,7 @@
 package org.eclipse.jdt.core.tests.formatter;
 
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
