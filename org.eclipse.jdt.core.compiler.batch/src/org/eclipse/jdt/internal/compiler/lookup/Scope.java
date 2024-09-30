@@ -768,6 +768,9 @@ public abstract class Scope {
 	public boolean isLambdaScope() {
 		return false;
 	}
+	public boolean isReferenceScope() {
+		return false;
+	}
 
 	public boolean isLambdaSubscope() {
 		for (Scope scope = this; scope != null; scope = scope.parent) {
@@ -5303,6 +5306,10 @@ public abstract class Scope {
 						LambdaExpression expression = (LambdaExpression) context;
 						while (expression != expression.original)
 							expression = expression.original;
+						return expression;
+					}
+					if (context instanceof ReferenceExpression) {
+						ReferenceExpression expression = (ReferenceExpression) context;
 						return expression;
 					}
 					return context;

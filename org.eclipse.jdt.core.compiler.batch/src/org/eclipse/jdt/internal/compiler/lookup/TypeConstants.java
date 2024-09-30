@@ -116,6 +116,7 @@ public interface TypeConstants {
     char[] ANONYMOUS_METHOD = "lambda$".toCharArray(); //$NON-NLS-1$
     char[] DESERIALIZE_LAMBDA = "$deserializeLambda$".toCharArray(); //$NON-NLS-1$
     char[] LAMBDA_TYPE = "<lambda>".toCharArray(); //$NON-NLS-1$
+    char[] METHOD_REFERENCE_TYPE = "<method_ref>".toCharArray(); //$NON-NLS-1$
     char[] UPPER_MODULE = "MODULE".toCharArray(); //$NON-NLS-1$
     char[] UPPER_RECORD_COMPONENT = "RECORD_COMPONENT".toCharArray(); //$NON-NLS-1$
     char[] YIELD = "yield".toCharArray(); //$NON-NLS-1$

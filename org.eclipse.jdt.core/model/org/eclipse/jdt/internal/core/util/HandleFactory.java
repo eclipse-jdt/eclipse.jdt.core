@@ -246,6 +246,17 @@ public class HandleFactory {
 					}
 					return parentElement;
 				}
+				if (scope.isReferenceScope()) {
+					parentElement = createElement(scope.parent, elementPosition, unit, existingElements, knownScopes);
+					ReferenceExpression expression = (ReferenceExpression) scope.originalReferenceContext();
+					if (expression.resolvedType != null && expression.resolvedType.isValidBinding() && expression.isMethodReference() &&
+							!(expression.descriptor instanceof ProblemMethodBinding)) { // chain in reference element only if resolved properly.
+						newElement = MethodReferenceFactory.createMethodReferenceExpression((JavaElement) parentElement, expression).getMethod();
+						knownScopes.put(scope, newElement);
+						return newElement;
+					}
+					return parentElement;
+				}
 				IType parentType = (IType) createElement(scope.parent, elementPosition, unit, existingElements, knownScopes);
 				MethodScope methodScope = (MethodScope) scope;
 				if (methodScope.isInsideInitializer()) {

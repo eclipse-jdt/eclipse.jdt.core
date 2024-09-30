@@ -547,6 +547,11 @@ public boolean isLambdaScope() {
 	return this.referenceContext instanceof LambdaExpression;
 }
 
+@Override
+public boolean isReferenceScope() {
+	return this.referenceContext instanceof ReferenceExpression;
+}
+
 public boolean isInsideInitializerOrConstructor() {
 	return (this.referenceContext instanceof TypeDeclaration)
 		|| (this.referenceContext instanceof ConstructorDeclaration);
