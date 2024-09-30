@@ -13,17 +13,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.declaration;
 
+import com.sun.mirror.declaration.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
-
-import com.sun.mirror.declaration.Modifier;
 
 public abstract class DeclarationImpl extends EclipseDeclarationImpl {
 

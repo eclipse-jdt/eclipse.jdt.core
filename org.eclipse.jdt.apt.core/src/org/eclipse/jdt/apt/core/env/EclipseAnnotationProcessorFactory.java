@@ -13,11 +13,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.env;
 
-import java.util.Set;
-
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
+import java.util.Set;
 
 /**
  * Extend the APT annotation processor factory API to provide extra features.

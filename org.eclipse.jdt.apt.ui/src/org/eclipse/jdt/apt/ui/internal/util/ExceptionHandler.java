@@ -16,7 +16,6 @@ package org.eclipse.jdt.apt.ui.internal.util;
 
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;

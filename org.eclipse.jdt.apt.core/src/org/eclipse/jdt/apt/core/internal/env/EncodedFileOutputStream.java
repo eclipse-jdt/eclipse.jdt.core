@@ -15,7 +15,6 @@
 package org.eclipse.jdt.apt.core.internal.env;
 
 import java.io.IOException;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;

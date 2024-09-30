@@ -10,14 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests.annotations.readAnnotationType;
 
-import java.util.Collection;
-import java.util.Set;
-
-import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
-
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.Declaration;
+import java.util.Collection;
+import java.util.Set;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 
 public class ReadAnnotationTypeProcessor extends BaseProcessor {
 

@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.core.search.indexing;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.Flags;

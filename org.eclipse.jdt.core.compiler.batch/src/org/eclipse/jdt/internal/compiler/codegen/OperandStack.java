@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.compiler.codegen;
 
 import java.util.Stack;
 import java.util.function.Supplier;
-
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;

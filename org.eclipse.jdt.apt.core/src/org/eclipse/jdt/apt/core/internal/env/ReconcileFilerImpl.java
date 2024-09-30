@@ -13,13 +13,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.env;
 
+import com.sun.mirror.apt.Filer;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
-
-import com.sun.mirror.apt.Filer;
 
 /**
  * An implementation of com.sun.mirror.apt.Filer for use during reconcile phase.

@@ -15,10 +15,8 @@
 package org.eclipse.jdt.apt.pluggable.tests;
 
 import java.util.Map;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;

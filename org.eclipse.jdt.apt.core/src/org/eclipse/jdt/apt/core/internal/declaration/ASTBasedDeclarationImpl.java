@@ -13,25 +13,23 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.declaration;
 
+import com.sun.mirror.declaration.AnnotationMirror;
+import com.sun.mirror.declaration.Modifier;
+import com.sun.mirror.util.SourcePosition;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.IExtendedModifier;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
+import org.eclipse.jdt.core.dom.IExtendedModifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
-
-import com.sun.mirror.declaration.AnnotationMirror;
-import com.sun.mirror.declaration.Modifier;
-import com.sun.mirror.util.SourcePosition;
 
 /**
  * Most mirror implementation are based on bindings but in some cases because of

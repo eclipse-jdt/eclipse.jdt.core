@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.Pattern.PrimitiveConversionRoute;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;

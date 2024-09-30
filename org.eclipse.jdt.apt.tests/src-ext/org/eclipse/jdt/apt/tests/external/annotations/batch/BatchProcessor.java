@@ -13,15 +13,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests.external.annotations.batch;
 
-import java.util.Collection;
-import java.util.HashSet;
-
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Messager;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.Declaration;
 import com.sun.mirror.declaration.TypeDeclaration;
+import java.util.Collection;
+import java.util.HashSet;
 
 public class BatchProcessor implements AnnotationProcessor {
 

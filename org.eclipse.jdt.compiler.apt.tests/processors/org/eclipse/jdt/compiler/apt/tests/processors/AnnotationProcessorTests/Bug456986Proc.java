@@ -16,7 +16,6 @@ package org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Set;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.RoundEnvironment;

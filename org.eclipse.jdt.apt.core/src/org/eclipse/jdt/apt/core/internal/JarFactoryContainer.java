@@ -24,7 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 
 /**

@@ -13,11 +13,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.env;
 
+import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-
-import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 
 /**
  * Extended the APT {@link AnnotationProcessorEnvironment} to expose

@@ -23,7 +23,6 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.Map;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
@@ -30,13 +29,11 @@ import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
-
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractBatchCompilerTest;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 @SuppressWarnings("restriction")
 public class AnnotationProcessingCompilerToolTest extends AbstractBatchCompilerTest {

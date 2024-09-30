@@ -16,7 +16,6 @@ package org.eclipse.jdt.apt.ui.internal.preferences;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.ui.internal.preferences.AptConfigurationBlock.ProcessorOption;
 import org.eclipse.jdt.apt.ui.internal.util.IAptHelpContextIds;

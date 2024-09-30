@@ -14,7 +14,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
-import java.util.ArrayList;
 /**
  * A compilation result consists of all information returned by the compiler for
  * a single compiled compilation source unit.  This includes:
@@ -35,16 +34,7 @@ import java.util.ArrayList;
  * specific fields and methods which were referenced, but does contain their
  * declaring types and any other types used to locate such fields or methods.
  */
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import java.util.*;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;

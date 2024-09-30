@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.apt.pluggable.core.filer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.core.compiler.CharOperation;

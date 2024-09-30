@@ -17,7 +17,6 @@ package org.eclipse.jdt.apt.ui.internal.preferences;
 
 import java.io.IOException;
 import java.util.Map.Entry;
-
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.ui.internal.util.ExceptionHandler;

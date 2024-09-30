@@ -15,17 +15,15 @@
 
 package org.eclipse.jdt.apt.tests.annotations.helloworld;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Collection;
-
-import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
-import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
-
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Filer;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.Declaration;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Collection;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 
 /**
  * A processor that looks for HelloWorldAnnotation, and in response
