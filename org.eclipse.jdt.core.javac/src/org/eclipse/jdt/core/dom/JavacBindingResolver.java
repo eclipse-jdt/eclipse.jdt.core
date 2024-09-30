@@ -1710,24 +1710,36 @@ public class JavacBindingResolver extends BindingResolver {
 		return false;
 	}
 
+	private Map<String, String> boxingMap = null;
 	private boolean isBoxedVersion(ITypeBinding unboxed, ITypeBinding boxed) {
+		if( boxingMap == null ) {
+			Map<String, String> m = new HashMap<String,String>();
+			m.put("java.lang.Boolean", "boolean");
+			m.put("java.lang.Byte", "byte");
+			m.put("java.lang.Character", "char");
+			m.put("java.lang.Float", "float");
+			m.put("java.lang.Integer", "int");
+			m.put("java.lang.Long", "long");
+			m.put("java.lang.Short", "short");
+			m.put("java.lang.Double", "double");
+			boxingMap = m;
+		}
 		if( boxed instanceof JavacTypeBinding boxedBind && unboxed instanceof JavacTypeBinding unboxedBind) {
 			String boxedString = boxedBind.typeSymbol == null ? null : boxedBind.typeSymbol.toString();
 			String unboxedString = unboxedBind.typeSymbol == null ? null : unboxedBind.typeSymbol.toString();
 			// TODO very rudimentary, fix it, add more
-			if( "java.lang.Integer".equals(boxedString) && "int".equals(unboxedString)) {
-				return true;
+			if( boxingMap.get(boxedString) != null ) {
+				if( unboxedString.equals(boxingMap.get(boxedString))) {
+					return true;
+				}
 			}
-			if( "java.lang.Double".equals(boxedString) && "double".equals(unboxedString)) {
-				return true;
-			}
-			if( "java.lang.Float".equals(boxedString) && "float".equals(unboxedString)) {
+			// Alternate case, they might be converting some types
+			if( boxingMap.keySet().contains(boxedString) && boxingMap.values().contains(unboxedString)) {
 				return true;
 			}
 		}
 		return false;
 	}
-
 	@Override
 	boolean resolveUnboxing(Expression expression) {
 		Type t = null;
