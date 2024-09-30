@@ -51,6 +51,7 @@ import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.ModuleSymbol;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
+import com.sun.tools.javac.code.Symbol.RootPackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
@@ -202,10 +203,35 @@ public class JavacBindingResolver extends BindingResolver {
 		//
 		private Map<String, JavacPackageBinding> packageBindings = new HashMap<>();
 		public JavacPackageBinding getPackageBinding(PackageSymbol packageSymbol) {
+			if( packageSymbol.owner instanceof PackageSymbol parentPack) {
+				if( !(parentPack instanceof RootPackageSymbol) )
+					getPackageBinding(parentPack);
+			}
 			JavacPackageBinding newInstance = new JavacPackageBinding(packageSymbol, JavacBindingResolver.this) { };
 			return preferentiallyInsertPackageBinding(newInstance);
 		}
 		public JavacPackageBinding getPackageBinding(Name name) {
+			String n = packageNameToString(name);
+			if( n == null )
+				return null;
+			JavacPackageBinding newInstance = new JavacPackageBinding(n, JavacBindingResolver.this) {};
+			return preferentiallyInsertPackageBinding(newInstance);
+		}
+		
+		public JavacPackageBinding findExistingPackageBinding(Name name) {
+			String n = name == null ? null : name.toString();
+			if( n == null )
+				return null;
+			JavacPackageBinding newInstance = new JavacPackageBinding(n, JavacBindingResolver.this) {};
+			String k = newInstance == null ? null : newInstance.getKey();
+			if( k != null ) {
+				JavacPackageBinding current = packageBindings.get(k);
+				return current;
+			}
+			return null;
+		}
+
+		private String packageNameToString(Name name) {
 			String n = null;
 			if( name instanceof QualifiedName ) 
 				n = name.toString();
@@ -218,11 +244,9 @@ public class JavacBindingResolver extends BindingResolver {
 					}
 				}
 			}
-			if( n == null )
-				return null;
-			JavacPackageBinding newInstance = new JavacPackageBinding(n, JavacBindingResolver.this) {};
-			return preferentiallyInsertPackageBinding(newInstance);
+			return n;
 		}
+		
 		private JavacPackageBinding preferentiallyInsertPackageBinding(JavacPackageBinding newest) {
 			// A package binding may be created while traversing something as simple as a name. 
 			// The binding using name-only logic should be instantiated, but 
@@ -947,6 +971,13 @@ public class JavacBindingResolver extends BindingResolver {
 		if( isPackageName(name)) {
 			return this.bindings.getPackageBinding(name);
 		}
+		if( tree instanceof JCIdent jcid && jcid.sym instanceof ClassSymbol && jcid.type instanceof ErrorType) {
+			IBinding b = this.bindings.findExistingPackageBinding(name);
+			if( b != null )
+				return b;
+		}
+
+		
 		ASTNode parent = name.getParent();
 		if (name.getLocationInParent() == QualifiedName.NAME_PROPERTY && parent instanceof QualifiedName qname &&
 			qname.getParent() instanceof SimpleType simpleType && simpleType.getLocationInParent() == ParameterizedType.TYPE_PROPERTY) {
@@ -982,6 +1013,7 @@ public class JavacBindingResolver extends BindingResolver {
 			}
 		}
 		if( tree != null ) {
+			// Looks duplicate to top of method, but is not. Must remain. 
 			IBinding ret = resolveNameToJavac(name, tree);
 			if (ret != null) {
 				return ret;
