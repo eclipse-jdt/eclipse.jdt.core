@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %bundleName
 Bundle-Localization: bundle
 Bundle-SymbolicName: org.eclipse.jdt.annotation
-Bundle-Version: 2.3.0.qualifier
+Bundle-Version: 2.3.100.qualifier
 Export-Package: org.eclipse.jdt.annotation
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: %providerName
