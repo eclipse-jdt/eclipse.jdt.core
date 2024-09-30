@@ -1696,7 +1696,7 @@ class JavacConverter {
 								int absoluteStart = startPos + ordinalIndexOf(raw, "[", i+1);
 								boolean found = false;
 								if( absoluteEnd != -1 && absoluteStart != -1 ) {
-									for( int j = 0; i < totalCreated && !found; j++ ) {
+									for( int j = 0; j < totalCreated && !found; j++ ) {
 										Dimension d = (Dimension)arrayType.dimensions().get(j);
 										if( d.getStartPosition() == absoluteStart && (d.getStartPosition() + d.getLength()) == absoluteEnd) {
 											found = true;
