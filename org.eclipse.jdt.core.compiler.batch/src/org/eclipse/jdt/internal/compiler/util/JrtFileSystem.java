@@ -325,7 +325,7 @@ public class JrtFileSystem {
 	}
 
 	/**
-	 * @return JDK release string (something like <code>1.8.0_05<code>) read from the "release" file from JDK home
+	 * @return JDK release string (something like <code>1.8.0_05</code>) read from the "release" file from JDK home
 	 *         directory
 	 */
 	public String getJdkRelease() {
