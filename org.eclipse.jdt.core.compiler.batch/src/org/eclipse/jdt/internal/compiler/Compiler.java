@@ -891,6 +891,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					if (this.totalUnits < this.parseThreshold) {
 						parsedUnit = this.parser.parse(sourceUnits[i], unitResult);
 					} else {
+						unitResult.cacheSource();
 						parsedUnit = this.parser.dietParse(sourceUnits[i], unitResult);
 					}
 					long resolveStart = System.currentTimeMillis();
