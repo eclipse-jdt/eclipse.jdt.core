@@ -17,13 +17,61 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.*;
+
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.PerformanceStats;
+import org.eclipse.jdt.core.BufferChangedEvent;
+import org.eclipse.jdt.core.CompletionRequestor;
+import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.IBuffer;
+import org.eclipse.jdt.core.IBufferFactory;
+import org.eclipse.jdt.core.ICodeAssist;
+import org.eclipse.jdt.core.ICodeCompletionRequestor;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.ICompletionRequestor;
+import org.eclipse.jdt.core.IImportContainer;
+import org.eclipse.jdt.core.IImportDeclaration;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IModuleDescription;
+import org.eclipse.jdt.core.IOpenable;
+import org.eclipse.jdt.core.IPackageDeclaration;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IProblemRequestor;
+import org.eclipse.jdt.core.ISourceManipulation;
+import org.eclipse.jdt.core.ISourceRange;
+import org.eclipse.jdt.core.ISourceReference;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeRoot;
+import org.eclipse.jdt.core.IWorkingCopy;
+import org.eclipse.jdt.core.JavaConventions;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.internal.codeassist.DOMCodeSelector;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -47,10 +95,12 @@ import org.eclipse.text.edits.UndoEdit;
  * @see ICompilationUnit
  */
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit, SuffixConstants {
+	public static boolean DOM_BASED_OPERATIONS = Boolean.getBoolean(CompilationUnit.class.getSimpleName() + ".DOM_BASED_OPERATIONS"); //$NON-NLS-1$
 	private static final IImportDeclaration[] NO_IMPORTS = new IImportDeclaration[0];
 
 	protected final String name;
 	public final WorkingCopyOwner owner;
+	private org.eclipse.jdt.core.dom.CompilationUnit ast;
 
 /**
  * Constructs a handle to a compilation unit with the given name in the
@@ -379,8 +429,38 @@ public IJavaElement[] codeSelect(int offset, int length) throws JavaModelExcepti
  */
 @Override
 public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner workingCopyOwner) throws JavaModelException {
-	return super.codeSelect(this, offset, length, workingCopyOwner);
+	if (DOM_BASED_OPERATIONS) {
+		return new DOMCodeSelector(this, workingCopyOwner).codeSelect(offset, length);
+	} else {
+		return super.codeSelect(this, offset, length, workingCopyOwner);
+	}
 }
+
+public org.eclipse.jdt.core.dom.CompilationUnit getOrBuildAST(WorkingCopyOwner workingCopyOwner) throws JavaModelException {
+	if (this.ast != null) {
+		return this.ast;
+	}
+	Map<String, String> options = getOptions(true);
+	ASTParser parser = ASTParser.newParser(new AST(options).apiLevel()); // go through AST constructor to convert options to apiLevel
+	parser.setWorkingCopyOwner(workingCopyOwner);
+	parser.setSource(this);
+	// greedily enable everything assuming the AST will be used extensively for edition
+	parser.setResolveBindings(true);
+	parser.setStatementsRecovery(true);
+	parser.setBindingsRecovery(true);
+	parser.setCompilerOptions(options);
+	if (parser.createAST(null) instanceof org.eclipse.jdt.core.dom.CompilationUnit newAST) {
+		this.ast = newAST;
+	}
+	return this.ast;
+}
+
+@Override
+public void bufferChanged(BufferChangedEvent event) {
+	this.ast = null;
+	super.bufferChanged(event);
+}
+
 /**
  * @see IWorkingCopy#commit(boolean, IProgressMonitor)
  * @deprecated
@@ -1448,6 +1528,17 @@ public Map<String, String> getCustomOptions() {
 	if (this.owner != null) {
 		try {
 			Map<String, String> customOptions = this.getCompilationUnitElementInfo().getCustomOptions();
+			IJavaProject parentProject = getJavaProject();
+			Map<String, String> parentOptions = parentProject == null ? JavaCore.getOptions() : parentProject.getOptions(true);
+			if (JavaCore.ENABLED.equals(parentOptions.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)) &&
+				AST.newAST(parentOptions).apiLevel() < AST.getJLSLatest()) {
+				// Disable preview features for older Java releases as it causes the compiler to fail later
+				if (customOptions != null) {
+					customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
+				} else {
+					customOptions = Map.of(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
+				}
+			}
 			return customOptions == null ? Collections.emptyMap() : customOptions;
 		} catch (JavaModelException e) {
 			// do nothing
