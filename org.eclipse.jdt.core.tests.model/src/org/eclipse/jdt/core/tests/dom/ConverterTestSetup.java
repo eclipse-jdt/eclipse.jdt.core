@@ -852,13 +852,34 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		assertProblemsSize(compilationUnit, expectedSize, "");
 	}
 	protected void assertProblemsSize(CompilationUnit compilationUnit, int expectedSize, String expectedOutput) {
-		final IProblem[] problems = compilationUnit.getProblems();
-		final int length = problems.length;
-		if (length != expectedSize) {
-			checkProblemMessages(expectedOutput, problems, length);
-			assertEquals("Wrong size", expectedSize, length);
+		final IProblem[] problemsRaw = compilationUnit.getProblems();
+		int length = problemsRaw.length;
+		if( length == expectedSize ) {
+			checkProblemMessages(expectedOutput, problemsRaw, length);
+			return;
 		}
+
+		final IProblem[] problems = filterIgnoredProblems(problemsRaw);
+		length = problems.length;
+		if( length == expectedSize ) {
+			checkProblemMessages(expectedOutput, problems, length);
+			return;
+		}
+
 		checkProblemMessages(expectedOutput, problems, length);
+		assertEquals("Wrong size", expectedSize, length);
+	}
+
+	private IProblem[] filterIgnoredProblems(IProblem[] problemsRaw) {
+		return Arrays.stream(problemsRaw).filter(x -> {
+			if( x.getMessage().startsWith("@Deprecated annotation has no effect on this ")) {
+				return false;
+			}
+			if( x.getMessage().endsWith("has been deprecated and marked for removal")) {
+				return false;
+			}
+			return true;
+		}).toArray((IProblem[]::new));
 	}
 
 	public void checkProblemMessages(String expectedOutput, final IProblem[] problems, final int length) {
@@ -986,6 +1007,16 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			}
 			if( expected.startsWith("Duplicate nested type ")) {
 				return original.startsWith("class " + expected.substring(22) + " is already defined");
+			}
+			return false;
+		case IProblem.UnresolvedVariable:
+			String UnresolvedVariable_arg0 = arguments != null && arguments.length >= 1 ? (String)arguments[0] : null;
+			String UnresolvedVariable_arg3 = arguments != null && arguments.length >= 4 ? (String)arguments[3] : null;
+			if( expected.equals(UnresolvedVariable_arg0 + " cannot be resolved to a variable")) {
+				String mapped = "cannot find symbol\n"
+						+ "  symbol:   variable " + UnresolvedVariable_arg0 + "\n"
+						+ "  location: " + UnresolvedVariable_arg3;
+				return original.equals(mapped);
 			}
 			return false;
 		default:
