@@ -1072,47 +1072,51 @@ class JavacConverter {
 		} else {
 			res.internalSetModifiers(getJLS2ModifiersFlags(javac.mods));
 		}
-		var dims = convertDimensionsAfterPosition(javac.getType(), javac.getPreferredPosition()); // +1 to exclude part of the type declared before name
-		if(!dims.isEmpty() && (javac.mods.flags & VARARGS) == 0) {
-			// The array dimensions are part of the variable name
+		
+		JCTree type = javac.getType();
+		if (type instanceof JCAnnotatedType annotatedType) {
+			annotatedType.getAnnotations().stream()
+				.map(this::convert)
+				.forEach(res.varargsAnnotations()::add);
+			type = annotatedType.getUnderlyingType();
+		}
+		
+		if ( (javac.mods.flags & VARARGS) != 0) {
+			// We have varity
+			if(type instanceof JCArrayTypeTree arr) {
+				type = unwrapDimensions(arr, 1);
+			}
+			if( this.ast.apiLevel > AST.JLS2_INTERNAL) {
+				res.setVarargs(true);
+			}
+		}
+		
+		List<Dimension> dims = convertDimensionsAfterPosition(javac.getType(), javac.getPreferredPosition()); // +1 to exclude part of the type declared before name
+		if(!dims.isEmpty() ) {
+			// Some of the array dimensions are part of the variable name
 			if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
 				res.setExtraDimensions(dims.size()); // the type is 1-dim array
 			} else {
 				res.extraDimensions().addAll(dims);
 			}
-			res.setType(convertToType(unwrapDimensions(javac.getType(), dims.size())));
-		} else if ( (javac.mods.flags & VARARGS) != 0) {
-			JCTree type = javac.getType();
-			if (type instanceof JCAnnotatedType annotatedType) {
-				annotatedType.getAnnotations().stream()
-					.map(this::convert)
-					.forEach(res.varargsAnnotations()::add);
-				type = annotatedType.getUnderlyingType();
-			}
-			// We have varity
-			if(type instanceof JCArrayTypeTree arr) {
-				res.setType(convertToType(arr.elemtype));
-			}
-			if( this.ast.apiLevel > AST.JLS2_INTERNAL) {
-				res.setVarargs(true);
-			}
-		} else {
-			// the array dimensions are part of the type
-			if (javac.getType() != null) {
-				if( !(javac.getType() instanceof JCErroneous)) {
-					Type type = convertToType(javac.getType());
-					if (type != null) {
-						res.setType(type);
-					}
+			type = unwrapDimensions(type, dims.size());
+		} 
+		
+		// the array dimensions are part of the type
+		if (type != null) {
+			if( !(type instanceof JCErroneous)) {
+				Type converted = convertToType(type);
+				if (converted != null) {
+					res.setType(converted);
 				}
-			} else if (javac.getStartPosition() != javac.getPreferredPosition()
-					&& this.rawText.substring(javac.getStartPosition(), javac.getPreferredPosition()).matches("var(\\s)+")) {
-				SimpleName varName = this.ast.newSimpleName("var");
-				varName.setSourceRange(javac.getStartPosition(), varName.getIdentifier().length());
-				Type varType = this.ast.newSimpleType(varName);
-				varType.setSourceRange(varName.getStartPosition(), varName.getLength());
-				res.setType(varType);
 			}
+		} else if (javac.getStartPosition() != javac.getPreferredPosition()
+					&& this.rawText.substring(javac.getStartPosition(), javac.getPreferredPosition()).matches("var(\\s)+")) {
+			SimpleName varName = this.ast.newSimpleName("var");
+			varName.setSourceRange(javac.getStartPosition(), varName.getIdentifier().length());
+			Type varType = this.ast.newSimpleType(varName);
+			varType.setSourceRange(varName.getStartPosition(), varName.getLength());
+			res.setType(varType);
 		}
 		if (javac.getInitializer() != null) {
 			res.setInitializer(convertExpression(javac.getInitializer()));
