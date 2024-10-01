@@ -8,13 +8,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - Initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-import junit.framework.Test;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -28,14 +32,16 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
 
-public class JavaSearchBugs23Tests extends AbstractJavaSearchTests {
+import junit.framework.Test;
 
-	public JavaSearchBugs23Tests(String name) {
+public class JavaSearchModuleImportTest extends AbstractJavaSearchTests {
+
+	public JavaSearchModuleImportTest(String name) {
 		super(name);
 	}
 
 	public static Test suite() {
-		return buildModelTestSuite(JavaSearchBugs23Tests.class, BYTECODE_DECLARATION_ORDER);
+		return buildModelTestSuite(JavaSearchModuleImportTest.class, BYTECODE_DECLARATION_ORDER);
 	}
 
 	class TestCollector extends JavaSearchResultCollector {
@@ -63,7 +69,7 @@ public class JavaSearchBugs23Tests extends AbstractJavaSearchTests {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		JAVA_PROJECT = setUpJavaProject("JavaSearchBugs23", "23");
+		JAVA_PROJECT = setUpJavaProject("JavaSearchBugs23", "24");
 		JAVA_PROJECT.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 	}
 	@Override

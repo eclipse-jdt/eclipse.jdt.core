@@ -8,13 +8,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - Initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
 import java.util.List;
-import junit.framework.Test;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
@@ -24,31 +28,33 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 
-public class ASTConverter_23Test extends ConverterTestSetup {
+import junit.framework.Test;
+
+public class ModuleImportASTConverterTest extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(getAST23(), false);
-		this.currentProject = getJavaProject("Converter_23");
-		this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_23);
-		this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_23);
-		this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_23);
+		this.ast = AST.newAST(getAST24(), false);
+		this.currentProject = getJavaProject("Converter_24");
+		this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_24);
+		this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_24);
+		this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_24);
 		this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		this.currentProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 	}
 
-	public ASTConverter_23Test(String name) {
+	public ModuleImportASTConverterTest(String name) {
 		super(name);
 	}
 
 	public static Test suite() {
-		return buildModelTestSuite(ASTConverter_23Test.class);
+		return buildModelTestSuite(ModuleImportASTConverterTest.class);
 	}
 
-	static int getAST23() {
-		return AST.JLS23;
+	static int getAST24() {
+		return AST.JLS24;
 	}
 	protected void tearDown() throws Exception {
 		super.tearDown();
@@ -70,7 +76,7 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 					}
 				}
 				""";
-		this.workingCopy = getWorkingCopy("/Converter_23/src/p/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_24/src/p/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);

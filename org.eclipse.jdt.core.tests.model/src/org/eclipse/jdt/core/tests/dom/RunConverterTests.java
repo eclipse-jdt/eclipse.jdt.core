@@ -8,6 +8,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
@@ -56,7 +61,7 @@ public static Class[] getAllTestClasses() {
 		ASTConverter_15Test.class,
 		ASTConverter_16Test.class,
 		ASTConverter_17Test.class,
-		ASTConverter_23Test.class,
+		ModuleImportASTConverterTest.class,
 		ASTConverter_GuardedPattern_Test.class,
 		ASTConverter_RecordPattern_Test.class,
 		ASTConverterSuperAfterStatements.class,

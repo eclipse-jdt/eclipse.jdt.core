@@ -74,7 +74,7 @@ public enum JavaFeature {
 			Messages.bind(Messages.unnamed_patterns_and_vars),
 			new char[][] {},
 			false),
-	IMPLICIT_CLASSES_AND_INSTANCE_MAIN_METHODS(ClassFileConstants.JDK23,
+	IMPLICIT_CLASSES_AND_INSTANCE_MAIN_METHODS(ClassFileConstants.JDK24,
 			Messages.bind(Messages.implicit_classes_and_instance_main_methods),
 			new char[][] {},
 			true),
