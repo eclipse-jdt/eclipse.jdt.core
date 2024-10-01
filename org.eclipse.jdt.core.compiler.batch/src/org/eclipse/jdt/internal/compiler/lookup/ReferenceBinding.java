@@ -2105,11 +2105,6 @@ public ReferenceBinding superclass() {
 }
 
 @Override
-public ReferenceBinding[] permittedTypes() {
-	return Binding.NO_PERMITTEDTYPES;
-}
-
-@Override
 public ReferenceBinding[] superInterfaces() {
 	return Binding.NO_SUPERINTERFACES;
 }

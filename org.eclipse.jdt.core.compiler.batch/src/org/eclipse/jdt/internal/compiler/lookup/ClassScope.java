@@ -1687,7 +1687,7 @@ public class ClassScope extends Scope {
 			}
 			typeReference.bits |= ASTNode.IgnoreRawTypeCheck;
 			ReferenceBinding permittedType = (ReferenceBinding) typeReference.resolveType(this);
-			return permittedType;
+			return permittedType != null ? permittedType.actualType() : permittedType; // while permitted classes/interfaces cannot be parameterized with type arguments, they are not raw either
 		} catch (AbortCompilation e) {
 			SourceTypeBinding sourceType = this.referenceContext.binding;
 			if (sourceType.permittedTypes == null)  sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
