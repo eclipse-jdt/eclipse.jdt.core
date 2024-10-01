@@ -20,8 +20,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class MarkdownCommentsTest extends JavadocTest {
 
-	private static final JavacTestOptions JAVAC_TEST_OPTIONS = new JavacTestOptions("--enable-preview -source 23 -Xlint:-preview -Xdoclint");
-	private static final String[] VMARGS = new String[] {"--enable-preview"};
+	private static final JavacTestOptions JAVAC_TEST_OPTIONS = new JavacTestOptions(" -source 23 -Xdoclint");
+	private static final String[] VMARGS = new String[] {};
 
 	String docCommentSupport;
 	String reportInvalidJavadoc;
@@ -51,7 +51,6 @@ public class MarkdownCommentsTest extends JavadocTest {
 	@Override
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_DocCommentSupport, this.docCommentSupport);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, this.reportInvalidJavadoc);
 		options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.ERROR);

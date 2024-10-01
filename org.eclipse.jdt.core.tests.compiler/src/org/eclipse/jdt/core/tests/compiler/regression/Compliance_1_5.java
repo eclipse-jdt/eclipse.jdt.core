@@ -2749,7 +2749,7 @@ public void test079() {
 			1. ERROR in X.java (at line 1)
 				void ___eval() {
 				^
-			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above
+			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 24 and above
 			----------
 			2. ERROR in X.java (at line 1)
 				void ___eval() {
