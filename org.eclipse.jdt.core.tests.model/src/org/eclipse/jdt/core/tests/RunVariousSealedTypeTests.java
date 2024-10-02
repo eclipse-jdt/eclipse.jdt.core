@@ -76,7 +76,7 @@ public class RunVariousSealedTypeTests extends TestCase {
 	}
 
 	public static Test suite() {
-		TestSuite ts = new TestSuite(RunVariousSwitchTests.class.getName());
+		TestSuite ts = new TestSuite(RunVariousSealedTypeTests.class.getName());
 
 		Class[] testClasses = getAllTestClasses();
 		addTestsToSuite(ts, testClasses);

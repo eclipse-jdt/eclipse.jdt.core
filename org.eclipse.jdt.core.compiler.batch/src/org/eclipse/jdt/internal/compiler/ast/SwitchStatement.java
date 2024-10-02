@@ -1410,10 +1410,7 @@ public class SwitchStatement extends Expression {
 		ReferenceBinding ref = (ReferenceBinding) this.expression.resolvedType;
 		if (!(ref.isClass() || ref.isInterface() || ref.isTypeVariable() || ref.isIntersectionType()))
 			return false;
-		if (ref instanceof TypeVariableBinding) {
-			TypeVariableBinding tvb = (TypeVariableBinding) ref;
-			ref = tvb.firstBound instanceof ReferenceBinding ? (ReferenceBinding) tvb.firstBound : ref;
-		}
+
 		if (ref.isRecord()) {
 			boolean isRecordPattern = false;
 			for (Pattern pattern : this.caseLabelElements) {
