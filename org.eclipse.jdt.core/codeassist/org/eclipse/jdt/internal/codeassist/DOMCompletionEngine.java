@@ -61,6 +61,7 @@ import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -354,6 +355,15 @@ public class DOMCompletionEngine implements Runnable {
 				suggestPackageCompletions = false;
 				computeSuitableBindingFromContext = false;
 			}
+		}
+		if (context instanceof SuperFieldAccess superFieldAccess) {
+			ITypeBinding superTypeBinding = superFieldAccess.resolveTypeBinding();
+			processMembers(superTypeBinding, scope, false);
+			boolean isStatic = isNodeInStaticContext(superFieldAccess);
+			publishFromScope(scope, isStatic);
+			suggestDefaultCompletions = false;
+			suggestPackageCompletions = false;
+			computeSuitableBindingFromContext = false;
 		}
 
 		ASTNode current = this.toComplete;

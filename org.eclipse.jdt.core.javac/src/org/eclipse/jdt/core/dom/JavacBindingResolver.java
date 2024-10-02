@@ -1196,6 +1196,9 @@ public class JavacBindingResolver extends BindingResolver {
 			if (jcFieldAccess.type instanceof PackageType) {
 				return null;
 			}
+			if (expr instanceof SuperFieldAccess) {
+				return this.bindings.getTypeBinding(jcFieldAccess.selected.type);
+			}
 			return this.bindings.getTypeBinding(jcFieldAccess.type.isErroneous() ? jcFieldAccess.sym.type : jcFieldAccess.type);
 		}
 		if (jcTree instanceof JCVariableDecl jcVariableDecl) {
