@@ -932,7 +932,7 @@ private boolean haltOnSyntaxError = false;
 private boolean tolerateDefaultClassMethods = false;
 private boolean processingLambdaParameterList = false;
 private boolean expectTypeAnnotation = false;
-private boolean reparsingLambdaExpression = false;
+private boolean reparsingFunctionalExpression = false;
 
 private Map<TypeDeclaration, Integer[]> recordNestedMethodLevels;
 private Map<Integer, Boolean> recordPatternSwitches;
@@ -9406,7 +9406,7 @@ private void consumeTextBlock() {
 private TextBlock createTextBlock(char[] allchars, int start, int end) {
 	TextBlock textBlock;
 	if (this.recordStringLiterals &&
-			!this.reparsingLambdaExpression &&
+			!this.reparsingFunctionalExpression &&
 			this.checkExternalizeStrings &&
 			this.lastPosistion < this.scanner.currentPosition &&
 			!this.statementRecoveryActivated) {
@@ -9873,7 +9873,7 @@ protected void consumeToken(int type) {
 		case TokenNameStringLiteral :
 			StringLiteral stringLiteral;
 			if (this.recordStringLiterals &&
-					!this.reparsingLambdaExpression &&
+					!this.reparsingFunctionalExpression &&
 					this.checkExternalizeStrings &&
 					this.lastPosistion < this.scanner.currentPosition &&
 					!this.statementRecoveryActivated) {
@@ -13133,7 +13133,7 @@ private ASTNode[] parseBodyDeclarations(char[] source, int offset, int length, C
 
 public Expression parseLambdaExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit, boolean recordLineSeparators) {
 	this.haltOnSyntaxError = true; // unexposed/unshared object, no threading concerns.
-	this.reparsingLambdaExpression = true;
+	this.reparsingFunctionalExpression = true;
 	return parseExpression(source, offset, length, unit, recordLineSeparators);
 }
 
@@ -13159,6 +13159,10 @@ public char[][] parsePackageDeclaration(char[] source, CompilationResult result)
 
 	return this.compilationUnit.currentPackage == null ? null : this.compilationUnit.currentPackage.getImportName();
 
+}
+public Expression parseReferenceExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit, boolean recordLineSeparators) {
+	this.reparsingFunctionalExpression = true;
+	return parseExpression(source, offset, length, unit, recordLineSeparators);
 }
 public Expression parseExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit, boolean recordLineSeparators) {
 
