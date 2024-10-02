@@ -331,10 +331,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				// End of if statement
 				endifLabel.place();
 			}
-			if (this.valueIfFalse.resolvedType == TypeBinding.NULL) {
-				if (!this.resolvedType.isBaseType()) {
-					codeStream.operandStack.pop(TypeBinding.NULL);
-					codeStream.operandStack.push(this.resolvedType);
+			if (valueRequired) {
+				if (this.valueIfFalse.resolvedType == TypeBinding.NULL) {
+					if (!this.resolvedType.isBaseType()) {
+						codeStream.operandStack.pop(TypeBinding.NULL);
+						codeStream.operandStack.push(this.resolvedType);
+					}
 				}
 			}
 		}
