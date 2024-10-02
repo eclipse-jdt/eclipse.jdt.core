@@ -1070,6 +1070,7 @@ public class JavacProblemConverter {
 			case "compiler.err.incorrect.constructor.receiver.type" -> IProblem.IllegalTypeForExplicitThis;
 			case "compiler.err.incorrect.constructor.receiver.name" -> IProblem.IllegalQualifierForExplicitThis;
 			case "compiler.err.too.many.modules" -> IProblem.ModuleRelated;
+			case "compiler.err.call.must.only.appear.in.ctor" -> IProblem.InvalidExplicitConstructorCall;
 			default -> {
 				ILog.get().error("Could not accurately convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				if (diagnostic.getKind() == javax.tools.Diagnostic.Kind.ERROR && diagnostic.getCode().startsWith("compiler.err")) {
