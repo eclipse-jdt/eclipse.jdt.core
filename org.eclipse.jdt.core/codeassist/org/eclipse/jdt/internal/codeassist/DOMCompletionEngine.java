@@ -216,8 +216,9 @@ public class DOMCompletionEngine implements Runnable {
 			}
 		}
 		this.prefix = completeAfter;
+		Bindings scope = new Bindings();
 		var completionContext = new DOMCompletionContext(this.offset, completeAfter.toCharArray(),
-				computeEnclosingElement(), List.of());
+				computeEnclosingElement(), scope::stream);
 		this.requestor.acceptContext(completionContext);
 
 		// some flags to controls different applicable completion search strategies
@@ -225,11 +226,9 @@ public class DOMCompletionEngine implements Runnable {
 		boolean suggestPackageCompletions = true;
 		boolean suggestDefaultCompletions = true;
 
-		Bindings scope = new Bindings();
 		if (context instanceof FieldAccess fieldAccess) {
 			computeSuitableBindingFromContext = false;
-
-			processMembers(fieldAccess.getExpression().resolveTypeBinding(), scope, true);
+			processMembers(fieldAccess.getExpression().resolveTypeBinding(), scope, true, isNodeInStaticContext(fieldAccess));
 			if (scope.stream().findAny().isPresent()) {
 				scope.stream()
 					.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
@@ -289,7 +288,7 @@ public class DOMCompletionEngine implements Runnable {
 				}
 				// complete name
 				ITypeBinding type = expression.resolveTypeBinding();
-				processMembers(type, scope, true);
+				processMembers(type, scope, true, isNodeInStaticContext(invocation));
 				scope.stream()
 				.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
 				.filter(IMethodBinding.class::isInstance)
@@ -339,8 +338,8 @@ public class DOMCompletionEngine implements Runnable {
 		if (context instanceof QualifiedName qualifiedName) {
 			IBinding qualifiedNameBinding = qualifiedName.getQualifier().resolveBinding();
 			if (qualifiedNameBinding instanceof ITypeBinding qualifierTypeBinding && !qualifierTypeBinding.isRecovered()) {
-				processMembers(qualifierTypeBinding, scope, false);
-				publishFromScope(scope, true);
+				processMembers(qualifierTypeBinding, scope, false, isNodeInStaticContext(qualifiedName));
+				publishFromScope(scope);
 				int startPos = this.offset;
 				int endPos = this.offset;
 				if ((qualifiedName.getName().getFlags() & ASTNode.MALFORMED) != 0) {
@@ -358,9 +357,8 @@ public class DOMCompletionEngine implements Runnable {
 		}
 		if (context instanceof SuperFieldAccess superFieldAccess) {
 			ITypeBinding superTypeBinding = superFieldAccess.resolveTypeBinding();
-			processMembers(superTypeBinding, scope, false);
-			boolean isStatic = isNodeInStaticContext(superFieldAccess);
-			publishFromScope(scope, isStatic);
+			processMembers(superTypeBinding, scope, false, isNodeInStaticContext(superFieldAccess));
+			publishFromScope(scope);
 			suggestDefaultCompletions = false;
 			suggestPackageCompletions = false;
 			computeSuitableBindingFromContext = false;
@@ -380,13 +378,11 @@ public class DOMCompletionEngine implements Runnable {
 					break;
 				}
 				if (current instanceof AbstractTypeDeclaration typeDecl) {
-					processMembers(typeDecl.resolveBinding(), scope, true);
+					processMembers(typeDecl.resolveBinding(), scope, true, isNodeInStaticContext(this.toComplete));
 				}
 				current = current.getParent();
 			}
-			// filter out non-statics, if necessary
-
-			publishFromScope(scope, isNodeInStaticContext(this.toComplete));
+			publishFromScope(scope);
 			if (!completeAfter.isBlank()) {
 				final int typeMatchRule = this.toComplete.getParent() instanceof Annotation
 						? IJavaSearchConstants.ANNOTATION_TYPE
@@ -407,8 +403,8 @@ public class DOMCompletionEngine implements Runnable {
 			// for documentation check code comments in DOMCompletionEngineRecoveredNodeScanner
 			var suitableBinding = this.recoveredNodeScanner.findClosestSuitableBinding(context, scope);
 			if (suitableBinding != null) {
-				processMembers(suitableBinding, scope, true);
-				publishFromScope(scope, isNodeInStaticContext(this.toComplete));
+				processMembers(suitableBinding, scope, true, isNodeInStaticContext(this.toComplete));
+				publishFromScope(scope);
 			}
 		}
 		try {
@@ -424,24 +420,9 @@ public class DOMCompletionEngine implements Runnable {
 		this.requestor.endReporting();
 	}
 
-	private void publishFromScope(Bindings scope, boolean contextIsStatic) {
+	private void publishFromScope(Bindings scope) {
 		scope.stream() //
 			.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray())) //
-			.filter(binding -> {
-				if (!contextIsStatic) {
-					return true;
-				}
-				if (binding instanceof IMethodBinding) {
-					return (binding.getModifiers() & Flags.AccStatic) != 0;
-				}
-				if (binding instanceof IVariableBinding variableBinding) {
-					return !variableBinding.isField() || (binding.getModifiers() & Flags.AccStatic) != 0;
-				}
-				if (binding instanceof ITypeBinding typeBinding) {
-					return typeBinding.isTopLevel() || (binding.getModifiers() & Flags.AccStatic) != 0;
-				}
-				return true;
-			}) //
 			.map(binding -> toProposal(binding)).forEach(this.requestor::accept);
 	}
 
@@ -542,20 +523,22 @@ public class DOMCompletionEngine implements Runnable {
 		return types.stream();
 	}
 
-	private void processMembers(ITypeBinding typeBinding, Bindings scope, boolean includePrivate) {
+	private void processMembers(ITypeBinding typeBinding, Bindings scope, boolean includePrivate, boolean isStaticContext) {
 		if (typeBinding == null) {
 			return;
 		}
 		Arrays.stream(typeBinding.getDeclaredFields()) //
-			.filter(field -> includePrivate || (field.getModifiers() & Flags.AccPrivate) == 0) //
+			.filter(field -> (includePrivate || (field.getModifiers() & Flags.AccPrivate) == 0)
+					&& (!isStaticContext || (field.getModifiers() & Flags.AccStatic) != 0)) //
 			.forEach(scope::add);
 		Arrays.stream(typeBinding.getDeclaredMethods()) //
-			.filter(method -> includePrivate || (method.getModifiers() & Flags.AccPrivate) == 0) //
+			.filter(method -> includePrivate || (method.getModifiers() & Flags.AccPrivate) == 0
+					&& (!isStaticContext || (method.getModifiers() & Flags.AccStatic) != 0)) //
 			.forEach(scope::add);
 		if (typeBinding.getInterfaces() != null) {
-			Arrays.stream(typeBinding.getInterfaces()).forEach(member -> processMembers(member, scope, false));
+			Arrays.stream(typeBinding.getInterfaces()).forEach(member -> processMembers(member, scope, false, isStaticContext));
 		}
-		processMembers(typeBinding.getSuperclass(), scope, false);
+		processMembers(typeBinding.getSuperclass(), scope, false, isStaticContext);
 	}
 	private CompletionProposal toProposal(IBinding binding) {
 		return toProposal(binding, binding.getName());
@@ -599,12 +582,8 @@ public class DOMCompletionEngine implements Runnable {
 			} else {
 				res.setParameterNames(paramNames.stream().map(String::toCharArray).toArray(i -> new char[i][]));
 			}
-			res.setSignature(Signature.createMethodSignature(
-					Arrays.stream(methodBinding.getParameterTypes()).map(ITypeBinding::getName).map(String::toCharArray)
-							.map(type -> Signature.createTypeSignature(type, true).toCharArray())
-							.toArray(char[][]::new),
-					Signature.createTypeSignature(qualifiedTypeName(methodBinding.getReturnType()), true)
-							.toCharArray()));
+			res.setParameterTypeNames(Stream.of(methodBinding.getParameterNames()).map(String::toCharArray).toArray(char[][]::new));
+			res.setSignature(methodBinding.getKey().replace('/', '.').toCharArray());
 			res.setReceiverSignature(Signature
 					.createTypeSignature(methodBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
 					.toCharArray());
