@@ -125,7 +125,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		char [] source = new char [this.sourceEnd+1];
 		System.arraycopy(this.text, 0, source, this.sourceStart, this.sourceEnd - this.sourceStart + 1);
 		parser.scanner = this.scanner;
-		ReferenceExpression copy =  (ReferenceExpression) parser.parseExpression(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1,
+		ReferenceExpression copy =  (ReferenceExpression) parser.parseReferenceExpression(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1,
 										this.enclosingScope.referenceCompilationUnit(), false /* record line separators */);
 		copy.original = this;
 		copy.sourceStart = this.sourceStart;

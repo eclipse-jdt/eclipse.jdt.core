@@ -270,6 +270,39 @@ public void test007() {
 		true,
 		customOptions);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3025
+// NON-NLS tag ignored for specific method references targeting a string literal
+public void testIssue3025() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.util.List;
+			import java.util.function.Predicate;
+
+			public class X {
+				public static void main(String[] args) {
+					List<String> list = List.<String>of();
+					list.removeIf("."::equals); //$NON-NLS-1$
+					list.removeIf(e -> "..".equals(e)); //$NON-NLS-1$
+					list.removeIf((Predicate<String>) "..."::equals); //$NON-NLS-1$
+					System.out.println("....");
+				}
+			}
+			""",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 10)\n" +
+		"	System.out.println(\"....\");\n" +
+		"	                   ^^^^^^\n" +
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
 public static Class testClass() {
 	return ExternalizeStringLiteralsTest_1_5.class;
 }
