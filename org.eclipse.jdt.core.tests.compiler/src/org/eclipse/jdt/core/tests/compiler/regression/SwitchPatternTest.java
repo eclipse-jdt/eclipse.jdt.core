@@ -8747,4 +8747,74 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"4200");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2719
+	// [Switch expression + Sealed Types] Suspect diagnostic about switch expression being inexhaustive
+	public void testIssue2719() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public interface X {
+
+						  static <T extends Object & AbstractSealedInterface> Integer get(T object) {
+						      return switch (object) {
+						          case ClassC ignored -> 4200;
+						      };
+						  }
+
+						  public abstract sealed interface AbstractSealedInterface permits InterfaceB {
+						  }
+
+						  public sealed interface InterfaceB extends AbstractSealedInterface permits ClassC {
+						  }
+
+						  final class ClassC implements InterfaceB {}
+
+						  public static void main(String[] args) {
+						      System.out.println(get(new ClassC()));
+						  }
+						}
+						"""
+				},
+				"4200");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2719
+	// [Switch expression + Sealed Types] Suspect diagnostic about switch expression being inexhaustive
+	public void testIssue2719_2() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public interface X {
+
+						    static <T extends Object & I1 & I2> Integer get(T object) {
+						      return switch (object) {
+						        case AB ignored -> 42;
+						        case BA ignored -> 420;
+						      };
+						    }
+
+						    public abstract sealed interface I1 permits A, AB, BA {
+						    }
+
+						    public abstract sealed interface I2 permits B, AB, BA {
+						    }
+
+
+						    final class A implements I1 {}
+						    final class B implements I2 {}
+						    final class AB implements I1, I2 {}
+						    final class BA implements I1, I2 {}
+
+						    public static void main(String[] args) {
+						        System.out.println(get(new AB()));
+						        System.out.println(get(new BA()));
+						    }
+						}
+						"""
+				},
+				"42\n420");
+	}
 }

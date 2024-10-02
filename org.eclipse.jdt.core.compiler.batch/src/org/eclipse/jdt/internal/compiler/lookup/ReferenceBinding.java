@@ -2552,7 +2552,7 @@ public List<ReferenceBinding> getAllEnumerableReferenceTypes() {
 		return Collections.emptyList();
 
 	Set<ReferenceBinding> permSet = new HashSet<>(Arrays.asList(permittedTypes()));
-	if (isClass() && (!isAbstract()))
+	if (isClass() && canBeInstantiated())
 		permSet.add(this);
 	Set<ReferenceBinding> oldSet = new HashSet<>(permSet);
 	do {
