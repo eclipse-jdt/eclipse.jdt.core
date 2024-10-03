@@ -1,7 +1,21 @@
+/*******************************************************************************
+ * Copyright (c) 2024 IBM Corporation and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
+
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -15,15 +29,13 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
 
-import junit.framework.Test;
-
-public class JavaSearchImplicitTypeDeclaration extends JavaSearchTests {
-	public JavaSearchImplicitTypeDeclaration(String name) {
+public class JavaSearchImplicitTypeDeclarationTests extends JavaSearchTests {
+	public JavaSearchImplicitTypeDeclarationTests(String name) {
 		super(name);
 		this.endChar = "";
 	}
 	public static Test suite() {
-		return buildModelTestSuite(JavaSearchImplicitTypeDeclaration.class, BYTECODE_DECLARATION_ORDER);
+		return buildModelTestSuite(JavaSearchImplicitTypeDeclarationTests.class, BYTECODE_DECLARATION_ORDER);
 	}
 	class TestCollector extends JavaSearchResultCollector {
 		public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
