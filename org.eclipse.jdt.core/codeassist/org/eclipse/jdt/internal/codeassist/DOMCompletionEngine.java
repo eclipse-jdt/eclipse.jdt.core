@@ -699,8 +699,6 @@ public class DOMCompletionEngine implements Runnable {
 					this.toComplete.getAST().resolveWellKnownType(Object.class.getName())) +
 				CompletionEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE) + //no access restriction for class field
 				CompletionEngine.R_NON_INHERITED);
-		// set defaults for now to avoid error downstream
-		res.setRequiredProposals(new CompletionProposal[0]);
 		return res;
 	}
 
@@ -764,7 +762,6 @@ public class DOMCompletionEngine implements Runnable {
 		res.setSignature(signature);
 		res.completionEngine = this.nestedEngine;
 		res.nameLookup = this.nameEnvironment.nameLookup;
-		res.setRequiredProposals(new CompletionProposal[0]);
 		return res;
 	}
 
@@ -888,8 +885,6 @@ public class DOMCompletionEngine implements Runnable {
 		proposal.completionEngine = this.nestedEngine;
 		proposal.nameLookup = this.nameEnvironment.nameLookup;
 
-		// set defaults for now to avoid error downstream
-		proposal.setRequiredProposals(new CompletionProposal[0]);
 		return proposal;
 	}
 
@@ -959,6 +954,7 @@ public class DOMCompletionEngine implements Runnable {
 		}
 		CompletionProposal keywordProposal = createProposal(CompletionProposal.KEYWORD);
 		keywordProposal.setCompletion(keyword);
+		keywordProposal.setName(keyword);
 		keywordProposal.setReplaceRange(startPos, endPos);
 		keywordProposal.setRelevance(relevance);
 		return keywordProposal;
