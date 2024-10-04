@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
@@ -32,6 +33,7 @@ import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
@@ -50,12 +52,15 @@ import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.LambdaExpression;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
+import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NodeFinder;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -66,6 +71,7 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchPattern;
@@ -323,6 +329,15 @@ public class DOMCompletionEngine implements Runnable {
 				findOverridableMethods(typeDeclBinding, this.modelUnit.getJavaProject(), context);
 				suggestDefaultCompletions = false;
 			}
+			if (context.getParent() instanceof MarkerAnnotation) {
+				completeMarkerAnnotation(completeAfter);
+				return;
+			}
+			if (context.getParent() instanceof MemberValuePair) {
+				// TODO: most of the time a constant value is expected,
+				// however if an enum is expected, we can build out the completion for that
+				return;
+			}
 		}
 		if (context instanceof AbstractTypeDeclaration typeDecl) {
 			// eg.
@@ -363,6 +378,14 @@ public class DOMCompletionEngine implements Runnable {
 			suggestPackageCompletions = false;
 			computeSuitableBindingFromContext = false;
 		}
+		if (context instanceof MarkerAnnotation) {
+			completeMarkerAnnotation(completeAfter);
+			return;
+		}
+		if (context instanceof NormalAnnotation normalAnnotation) {
+			completeNormalAnnotationParams(normalAnnotation, scope);
+			return;
+		}
 
 		ASTNode current = this.toComplete;
 
@@ -371,10 +394,8 @@ public class DOMCompletionEngine implements Runnable {
 				scope.addAll(visibleBindings(current));
 				// break if following conditions match, otherwise we get all visible symbols which is unwanted in this
 				// completion context.
-				if (current instanceof Annotation a) {
-					Arrays.stream(a.resolveTypeBinding().getDeclaredMethods()).forEach(scope::add);
-					computeSuitableBindingFromContext = false;
-					suggestPackageCompletions = false;
+				if (current instanceof NormalAnnotation normalAnnotation) {
+					completeNormalAnnotationParams(normalAnnotation, scope);
 					break;
 				}
 				if (current instanceof AbstractTypeDeclaration typeDecl) {
@@ -418,6 +439,26 @@ public class DOMCompletionEngine implements Runnable {
 			ILog.get().error(ex.getMessage(), ex);
 		}
 		this.requestor.endReporting();
+	}
+
+	private void completeMarkerAnnotation(String completeAfter) {
+		findTypes(completeAfter, IJavaSearchConstants.ANNOTATION_TYPE, null)
+			.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
+					type.getElementName().toCharArray()))
+			.map(this::toProposal).forEach(this.requestor::accept);
+	}
+
+	private void completeNormalAnnotationParams(NormalAnnotation normalAnnotation, Bindings scope) {
+		Set<String> definedKeys = ((List<MemberValuePair>)normalAnnotation.values()).stream() //
+				.map(mvp -> mvp.getName().toString()) //
+				.collect(Collectors.toSet());
+		Arrays.stream(normalAnnotation.resolveTypeBinding().getDeclaredMethods()) //
+			.filter(declaredMethod -> {
+				return (declaredMethod.getModifiers() & Flags.AccStatic) == 0
+						&& !definedKeys.contains(declaredMethod.getName().toString());
+			}) //
+			.forEach(scope::add);
+		publishFromScope(scope);
 	}
 
 	private void publishFromScope(Bindings scope) {
@@ -615,6 +656,16 @@ public class DOMCompletionEngine implements Runnable {
 					Signature.createTypeSignature(typeBinding.getQualifiedName().toCharArray(), true).toCharArray());
 		} else if (kind == CompletionProposal.ANNOTATION_ATTRIBUTE_REF) {
 			var methodBinding = (IMethodBinding) binding;
+			StringBuilder annotationCompletion = new StringBuilder(completion);
+			boolean surroundWithSpaces = JavaCore.INSERT.equals(this.unit.getJavaElement().getJavaProject().getOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATOR, true));
+			if (surroundWithSpaces) {
+				annotationCompletion.append(' ');
+			}
+			annotationCompletion.append('=');
+			if (surroundWithSpaces) {
+				annotationCompletion.append(' ');
+			}
+			res.setCompletion(annotationCompletion.toString().toCharArray());
 			res.setSignature(Signature.createTypeSignature(qualifiedTypeName(methodBinding.getReturnType()), true)
 					.toCharArray());
 			res.setReceiverSignature(Signature
@@ -670,7 +721,13 @@ public class DOMCompletionEngine implements Runnable {
 		res.setName(simpleName);
 		res.setCompletion(type.getElementName().toCharArray());
 		res.setSignature(signature);
-		res.setReplaceRange(!(this.toComplete instanceof FieldAccess) ? this.toComplete.getStartPosition() : this.offset, this.offset);
+		if (this.toComplete instanceof FieldAccess) {
+			res.setReplaceRange(this.offset, this.offset);
+		} else if (this.toComplete instanceof MarkerAnnotation) {
+			res.setReplaceRange(this.toComplete.getStartPosition() + 1, this.toComplete.getStartPosition() + this.toComplete.getLength());
+		} else {
+			res.setReplaceRange(this.toComplete.getStartPosition(), this.offset);
+		}
 		try {
 			res.setFlags(type.getFlags());
 		} catch (JavaModelException ex) {
@@ -678,9 +735,24 @@ public class DOMCompletionEngine implements Runnable {
 		}
 		if (this.toComplete instanceof SimpleName) {
 			res.setTokenRange(this.toComplete.getStartPosition(), this.toComplete.getStartPosition() + this.toComplete.getLength());
+		} else if (this.toComplete instanceof MarkerAnnotation) {
+			res.setTokenRange(this.offset, this.offset);
 		}
 		res.completionEngine = this.nestedEngine;
 		res.nameLookup = this.nameEnvironment.nameLookup;
+		int relevance = RelevanceConstants.R_DEFAULT
+				+ RelevanceConstants.R_RESOLVED
+				+ RelevanceConstants.R_INTERESTING
+				+ RelevanceConstants.R_NON_RESTRICTED;
+		relevance += computeRelevanceForCaseMatching(this.prefix.toCharArray(), simpleName, this.assistOptions);
+		try {
+			if (type.isAnnotation()) {
+				relevance += RelevanceConstants.R_ANNOTATION;
+			}
+		} catch (JavaModelException e) {
+			// do nothing
+		}
+		res.setRelevance(relevance);
 		// set defaults for now to avoid error downstream
 		res.setRequiredProposals(new CompletionProposal[] { toImportProposal(simpleName, signature) });
 		return res;
@@ -857,6 +929,24 @@ public class DOMCompletionEngine implements Runnable {
 				|| (CharOperation.prefixEquals(orphanedContent, name, false))
 				|| (this.assistOptions.subwordMatch && CharOperation.subWordMatch(orphanedContent, name))
 		);
+	}
+
+	static int computeRelevanceForCaseMatching(char[] token, char[] proposalName, AssistOptions options) {
+		if (CharOperation.equals(token, proposalName, true)) {
+			return RelevanceConstants.R_EXACT_NAME + RelevanceConstants.R_CASE;
+		} else if (CharOperation.equals(token, proposalName, false)) {
+			return RelevanceConstants.R_EXACT_NAME;
+		} else if (CharOperation.prefixEquals(token, proposalName, false)) {
+			if (CharOperation.prefixEquals(token, proposalName, true))
+				return RelevanceConstants.R_CASE;
+		} else if (options.camelCaseMatch && CharOperation.camelCaseMatch(token, proposalName)) {
+			return RelevanceConstants.R_CAMEL_CASE;
+		} else if (options.substringMatch && CharOperation.substringMatch(token, proposalName)) {
+			return RelevanceConstants.R_SUBSTRING;
+		} else if (options.subwordMatch && CharOperation.subWordMatch(token, proposalName)) {
+			return RelevanceConstants.R_SUBWORD;
+		}
+		return 0;
 	}
 
 	private CompletionProposal createKeywordProposal(char[] keyword, int startPos, int endPos) {

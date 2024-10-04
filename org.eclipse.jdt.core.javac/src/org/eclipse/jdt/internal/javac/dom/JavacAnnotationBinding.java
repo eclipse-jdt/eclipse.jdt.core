@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -90,7 +91,12 @@ public abstract class JavacAnnotationBinding implements IAnnotationBinding {
 			builder.append(this.recipient.getKey());
 		}
 		builder.append('@');
-		builder.append(this.getAnnotationType().getKey());
+		ITypeBinding annotationType = this.getAnnotationType();
+		if (annotationType != null) {
+			builder.append(this.getAnnotationType().getKey());
+		} else {
+			ILog.get().error("missing annotation type");
+		}
 		return builder.toString();
 	}
 

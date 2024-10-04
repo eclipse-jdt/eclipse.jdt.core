@@ -27,6 +27,8 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -211,9 +213,11 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 				ITypeBinding currentBinding = types.poll();
 				// prefer DOM object (for type parameters)
 				if (currentBinding.getJavaElement() instanceof IType currentType) {
-					MethodDeclaration methodDeclaration = (MethodDeclaration)this.resolver.findDeclaringNode(this);
-					if (methodDeclaration != null) {
+					ASTNode declaringNode = this.resolver.findDeclaringNode(this);
+					if (declaringNode instanceof MethodDeclaration methodDeclaration) {
 						return getJavaElementForMethodDeclaration(currentType, methodDeclaration);
+					} else if (declaringNode instanceof AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
+						return getJavaElementForAnnotationTypeMemberDeclaration(currentType, annotationTypeMemberDeclaration);
 					}
 
 					var parametersResolved = this.methodSymbol.params().stream()
@@ -271,6 +275,24 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 					return sig;
 				}).toArray(String[]::new);
 		IMethod result = currentType.getMethod(getName(), params);
+		if (currentType.isBinary() || result.exists()) {
+			return result;
+		}
+		IMethod[] methods = null;
+		try {
+			methods = currentType.getMethods();
+		} catch (JavaModelException e) {
+			// declaring type doesn't exist
+			return null;
+		}
+		IMethod[] candidates = Member.findMethods(result, methods);
+		if (candidates == null || candidates.length == 0)
+			return null;
+		return candidates[0];
+	}
+	
+	private IJavaElement getJavaElementForAnnotationTypeMemberDeclaration(IType currentType, AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
+		IMethod result = currentType.getMethod(getName(), new String[0]);
 		if (currentType.isBinary() || result.exists()) {
 			return result;
 		}
