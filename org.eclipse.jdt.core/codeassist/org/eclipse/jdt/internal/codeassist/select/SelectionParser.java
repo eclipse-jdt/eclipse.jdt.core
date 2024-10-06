@@ -1459,14 +1459,16 @@ protected void consumeToken(int token) {
 				pushOnElementStack(K_BETWEEN_CASE_AND_COLONORARROW, this.expressionPtr);
 				break;
 			case TokenNameCOMMA :
-				switch (topKnownElementKind(SELECTION_OR_ASSIST_PARSER)) {
-					// for multi constant case stmt
-					// case MONDAY, FRIDAY
-					// if there's a comma, ignore the previous expression (constant)
-					// Which doesn't matter for the next constant
-					case K_BETWEEN_CASE_AND_COLONORARROW:
-						this.expressionPtr--;
-						this.expressionLengthStack[this.expressionLengthPtr]--;
+				if (this.scanner.multiCaseLabelComma) {
+					switch (topKnownElementKind(SELECTION_OR_ASSIST_PARSER)) {
+						// for multi constant case stmt
+						// case MONDAY, FRIDAY
+						// if there's a comma, ignore the previous expression (constant)
+						// Which doesn't matter for the next constant
+						case K_BETWEEN_CASE_AND_COLONORARROW:
+							this.expressionPtr--;
+							this.expressionLengthStack[this.expressionLengthPtr]--;
+					}
 				}
 				break;
 			case TokenNameARROW:
