@@ -3334,9 +3334,9 @@ public void testGH567() {
 				"    record Point (int x, int y) {}\n" +
 				"    void foo(Object o) {\n" +
 				"        if (o instanceof String s) { int x; }\n" +
-				"        if (o instanceof Point (int xVal, int yVal)) {}\n" +  // Should not report as unused locals - structurally required
+				"        if (o instanceof Point (int xVal, int yVal)) {}\n" +  // Should not report as unused locals in 21 - structurally required
 				"        switch (o) {\n" +
-				"					case String c : \n" + // Should not report as unused local - structurally required
+				"					case String c : \n" + // Should not report as unused local in 21 - structurally required
 				"						break;\n" +
 				"					default :\n" +
 				"							break;\n" +
@@ -3345,6 +3345,8 @@ public void testGH567() {
 				"    }\n" +
 				"}"
 			},
+			this.complianceLevel == ClassFileConstants.JDK21 ?
+
 			"----------\n"
 			+ "1. WARNING in X.java (at line 4)\n"
 			+ "	if (o instanceof String s) { int x; }\n"
@@ -3355,7 +3357,144 @@ public void testGH567() {
 			+ "	if (o instanceof String s) { int x; }\n"
 			+ "	                                 ^\n"
 			+ "The value of the local variable x is not used\n"
-			+ "----------\n",
+			+ "----------\n" :
+						"----------\n" +
+						"1. WARNING in X.java (at line 4)\n" +
+						"	if (o instanceof String s) { int x; }\n" +
+						"	                        ^\n" +
+						"The value of the local variable s is not used\n" +
+						"----------\n" +
+						"2. WARNING in X.java (at line 4)\n" +
+						"	if (o instanceof String s) { int x; }\n" +
+						"	                                 ^\n" +
+						"The value of the local variable x is not used\n" +
+						"----------\n" +
+						"3. WARNING in X.java (at line 5)\n" +
+						"	if (o instanceof Point (int xVal, int yVal)) {}\n" +
+						"	                            ^^^^\n" +
+						"The value of the local variable xVal is not used\n" +
+						"----------\n" +
+						"4. WARNING in X.java (at line 5)\n" +
+						"	if (o instanceof Point (int xVal, int yVal)) {}\n" +
+						"	                                      ^^^^\n" +
+						"The value of the local variable yVal is not used\n" +
+						"----------\n" +
+						"5. WARNING in X.java (at line 7)\n" +
+						"	case String c : \n" +
+						"	            ^\n" +
+						"The value of the local variable c is not used\n" +
+						"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3051
+// [Enhancement] Add warnings for unused patterns
+public void testIssue3051() {
+	if (this.complianceLevel < ClassFileConstants.JDK22)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"Unused.java",
+				"""
+				public class Unused {
+
+				    public static void main(String[] args) {
+				        record R(int i, long l) {}
+				        Object o = null;
+				        if (o instanceof String s) {
+
+				        }
+				        R r = new R(1, 1);
+				        switch (r) {
+				        	case R(_, long lvar) -> {}
+				        	case R scpatvar -> {}
+				        }
+				    }
+				}
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in Unused.java (at line 6)\n" +
+			"	if (o instanceof String s) {\n" +
+			"	                        ^\n" +
+			"The value of the local variable s is not used\n" +
+			"----------\n" +
+			"2. WARNING in Unused.java (at line 11)\n" +
+			"	case R(_, long lvar) -> {}\n" +
+			"	               ^^^^\n" +
+			"The value of the local variable lvar is not used\n" +
+			"----------\n" +
+			"3. WARNING in Unused.java (at line 12)\n" +
+			"	case R scpatvar -> {}\n" +
+			"	       ^^^^^^^^\n" +
+			"The value of the local variable scpatvar is not used\n" +
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3051
+// [Enhancement] Add warnings for unused patterns
+public void testIssue3051_2() {
+	if (this.complianceLevel < ClassFileConstants.JDK21)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"Unused.java",
+				"""
+				public class Unused {
+
+				    public static void main(String[] args) {
+				        record R(int i, long l, float f) {}
+				        Object o = null;
+				        if (o instanceof String s) {
+
+				        }
+				        R r = new R(1, 1, 1.0f);
+				        switch (r) {
+				        	case R(int ivar, long lvar, float fvar) -> {
+				        										System.out.println(ivar++);
+				        										lvar++;
+				        								}
+				        	case R scpatvar -> {}
+				        }
+				    }
+				}
+				"""
+			},
+			this.complianceLevel == ClassFileConstants.JDK21 ?
+					"----------\n" +
+					"1. WARNING in Unused.java (at line 6)\n" +
+					"	if (o instanceof String s) {\n" +
+					"	                        ^\n" +
+					"The value of the local variable s is not used\n" +
+					"----------\n" :
+							"----------\n" +
+							"1. WARNING in Unused.java (at line 6)\n" +
+							"	if (o instanceof String s) {\n" +
+							"	                        ^\n" +
+							"The value of the local variable s is not used\n" +
+							"----------\n" +
+							"2. WARNING in Unused.java (at line 11)\n" +
+							"	case R(int ivar, long lvar, float fvar) -> {\n" +
+							"	                      ^^^^\n" +
+							"The value of the local variable lvar is not used\n" +
+							"----------\n" +
+							"3. WARNING in Unused.java (at line 11)\n" +
+							"	case R(int ivar, long lvar, float fvar) -> {\n" +
+							"	                                  ^^^^\n" +
+							"The value of the local variable fvar is not used\n" +
+							"----------\n" +
+							"4. WARNING in Unused.java (at line 15)\n" +
+							"	case R scpatvar -> {}\n" +
+							"	       ^^^^^^^^\n" +
+							"The value of the local variable scpatvar is not used\n" +
+							"----------\n",
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);

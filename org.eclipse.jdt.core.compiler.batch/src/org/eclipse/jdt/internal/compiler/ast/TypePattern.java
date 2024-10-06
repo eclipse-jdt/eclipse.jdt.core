@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -233,8 +234,11 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 		this.local.resolve(scope, true);
 		if (this.local.binding != null) {
 			this.local.binding.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope; // start out this way, will be BlockScope.include'd when definitely assigned
-			if (enclosingPattern != null)
-				this.local.binding.useFlag = LocalVariableBinding.USED; // syntactically required even if untouched
+			CompilerOptions compilerOptions = scope.compilerOptions();
+			if (!JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(compilerOptions.sourceLevel, compilerOptions.enablePreviewFeatures)) {
+				if (enclosingPattern != null)
+					this.local.binding.useFlag = LocalVariableBinding.USED; // syntactically required even if untouched
+			}
 			if (this.local.type != null)
 				this.resolvedType = this.local.binding.type;
 		}
