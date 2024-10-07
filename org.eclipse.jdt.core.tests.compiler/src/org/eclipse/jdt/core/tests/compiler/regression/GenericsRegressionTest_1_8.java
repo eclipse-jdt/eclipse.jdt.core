@@ -38,7 +38,12 @@ public static Class testClass() {
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 }
-
+@Override
+protected Map getCompilerOptions() {
+	Map defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_ReportUnusedLambdaParameter, CompilerOptions.IGNORE);
+	return defaultOptions;
+}
 public void testBug423070() {
 	this.runConformTest(
 		new String[] {

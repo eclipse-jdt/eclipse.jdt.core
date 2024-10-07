@@ -310,6 +310,11 @@ public class LocalVariableBinding extends VariableBinding {
 	public boolean isCatchParameter() {
 		return false;
 	}
+
+	public boolean isResourceVariable() {
+		return (this.tagBits & TagBits.IsResource) != 0;
+	}
+
 	@Override
 	public boolean isPatternVariable() {
 		return (this.tagBits & TagBits.IsPatternBinding) != 0;

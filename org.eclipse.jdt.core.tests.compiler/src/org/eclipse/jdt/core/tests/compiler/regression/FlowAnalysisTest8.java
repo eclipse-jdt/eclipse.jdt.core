@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class FlowAnalysisTest8 extends AbstractNullAnnotationTest {
@@ -38,6 +39,13 @@ public static Test suite() {
 
 public static Class testClass() {
 	return FlowAnalysisTest8.class;
+}
+
+@Override
+protected Map getCompilerOptions() {
+	Map defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_ReportUnusedLambdaParameter, CompilerOptions.IGNORE);
+	return defaultOptions;
 }
 
 // Lambda with elided args inherits null contract from the super method
