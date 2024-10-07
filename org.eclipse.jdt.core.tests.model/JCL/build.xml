@@ -34,7 +34,7 @@
 		<antcall target="converterJclMin">
 			<param name="compliance" value="1.8"/>
 			<param name="suffix" value="1.8"/>
-		</antcall-->
+		</antcall>
 		<antcall target="converterJclMin">
 			<param name="compliance" value="9"/>
 			<param name="suffix" value="9"/>
@@ -82,7 +82,7 @@
 		<antcall target="converterJclMin">
 			<param name="compliance" value="22"/>
 			<param name="suffix" value="22"/>
-		</antcall>
+		</antcall-->
 		<antcall target="converterJclMin">
 			<param name="compliance" value="23"/>
 			<param name="suffix" value="23"/>
@@ -93,16 +93,16 @@
 		</antcall>
 	</target>
 	<target name="converterJclMin">
-		<mkdir dir="${jclbase}/jclMin${suffix}/bin" />
-		<javac srcdir="${jclbase}/jclMin${suffix}/src" destdir="${jclbase}/jclMin${suffix}/bin"
+		<mkdir dir="${jclbase}/converterJclMin${suffix}/bin" />
+		<javac srcdir="${jclbase}/converterJclMin${suffix}/src" destdir="${jclbase}/converterJclMin${suffix}/bin"
 					debuglevel="lines,source"
 					source="${compliance}"
 					target="${compliance}">
 			<compilerarg line="-Xlint:none"/>
 		</javac>
-		<jar destfile="${basedir}/jclMin${suffix}.jar" basedir="${jclbase}/jclMin${suffix}/bin"/>
+		<jar destfile="${basedir}/jclMin${suffix}.jar" basedir="${jclbase}/converterJclMin${suffix}/bin"/>
 		<zip destfile="${basedir}/jclMin${suffix}src.zip">
-			<fileset dir="${jclbase}/jclMin${suffix}/src" />
+			<fileset dir="${jclbase}/converterJclMin${suffix}/src" />
 		</zip>
 	</target>
 </project>
