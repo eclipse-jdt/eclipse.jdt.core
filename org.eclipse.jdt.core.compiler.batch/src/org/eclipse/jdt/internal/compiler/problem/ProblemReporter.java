@@ -201,6 +201,9 @@ public static int getIrritant(int problemID) {
 		case IProblem.LocalVariableIsNeverUsed :
 			return CompilerOptions.UnusedLocalVariable;
 
+		case IProblem.LambdaParameterIsNeverUsed :
+			return CompilerOptions.UnusedLambdaParameter;
+
 		case IProblem.ArgumentIsNeverUsed :
 			return CompilerOptions.UnusedArgument;
 
@@ -705,6 +708,7 @@ public static int getProblemCategory(int severity, int problemID) {
 				return CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT;
 
 			case CompilerOptions.UnusedLocalVariable :
+			case CompilerOptions.UnusedLambdaParameter :
 			case CompilerOptions.UnusedArgument :
 			case CompilerOptions.UnusedExceptionParameter :
 			case CompilerOptions.UnusedImport :
@@ -9488,6 +9492,18 @@ public void unusedLocalVariable(LocalDeclaration localDecl) {
 	String[] arguments = new String[] {new String(localDecl.name)};
 	this.handle(
 		IProblem.LocalVariableIsNeverUsed,
+		arguments,
+		arguments,
+		severity,
+		localDecl.sourceStart,
+		localDecl.sourceEnd);
+}
+public void unusedLambdaParameter(LocalDeclaration localDecl) {
+	int severity = computeSeverity(IProblem.LambdaParameterIsNeverUsed);
+	if (severity == ProblemSeverities.Ignore) return;
+	String[] arguments = new String[] {new String(localDecl.name)};
+	this.handle(
+		IProblem.LambdaParameterIsNeverUsed,
 		arguments,
 		arguments,
 		severity,

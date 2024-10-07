@@ -54,6 +54,13 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 		return NullTypeAnnotationTest.class;
 	}
 
+	@Override
+	protected Map getCompilerOptions() {
+		Map defaultOptions = super.getCompilerOptions();
+		defaultOptions.put(CompilerOptions.OPTION_ReportUnusedLambdaParameter, CompilerOptions.IGNORE);
+		return defaultOptions;
+	}
+
 	// a list with nullable elements is used
 	public void test_nonnull_list_elements_01() {
 		runNegativeTestWithLibs(

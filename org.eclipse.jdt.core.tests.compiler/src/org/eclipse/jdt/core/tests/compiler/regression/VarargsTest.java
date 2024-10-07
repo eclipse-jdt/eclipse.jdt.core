@@ -48,6 +48,14 @@ public class VarargsTest extends AbstractComparableTest {
 	public static Class testClass() {
 		return VarargsTest.class;
 	}
+
+	@Override
+	protected Map getCompilerOptions() {
+		Map defaultOptions = super.getCompilerOptions();
+		defaultOptions.put(CompilerOptions.OPTION_ReportUnusedLambdaParameter, CompilerOptions.IGNORE);
+		return defaultOptions;
+	}
+
 	@Override
 	protected String intersection(String... types) {
 		if (this.complianceLevel >= ClassFileConstants.JDK1_8)

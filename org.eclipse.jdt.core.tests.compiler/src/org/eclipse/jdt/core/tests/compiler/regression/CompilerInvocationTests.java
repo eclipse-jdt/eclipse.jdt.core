@@ -1367,6 +1367,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("OperandStackExceeds64KLimit", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 	    expectedProblemAttributes.put("OperandStackSizeInappropriate", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 	    expectedProblemAttributes.put("IllegalModifierCombinationForType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+	    expectedProblemAttributes.put("LambdaParameterIsNeverUsed", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 
 	    StringBuilder failures = new StringBuilder();
 		StringBuilder correctResult = new StringBuilder(70000);
@@ -2501,6 +2502,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("OperandStackExceeds64KLimit", SKIP);
 	    expectedProblemAttributes.put("OperandStackSizeInappropriate", SKIP);
 	    expectedProblemAttributes.put("IllegalModifierCombinationForType", SKIP);
+	    expectedProblemAttributes.put("LambdaParameterIsNeverUsed", SKIP);
 
 
 	    Map constantNamesIndex = new HashMap();

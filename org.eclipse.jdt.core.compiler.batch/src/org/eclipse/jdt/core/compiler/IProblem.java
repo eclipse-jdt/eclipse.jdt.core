@@ -790,6 +790,11 @@ void setSourceStart(int sourceStart);
 	/** @since 3.1 */
 	int DiscouragedReference = TypeRelated + 280;
 
+	/**
+	 * @since 3.40
+	 */
+	int LambdaParameterIsNeverUsed = Internal + 281;
+
 	int InterfaceCannotHaveInitializers = TypeRelated + 300;
 	int DuplicateModifierForType = TypeRelated + 301;
 	int IllegalModifierForClass = TypeRelated + 302;

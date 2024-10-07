@@ -50,6 +50,7 @@ import org.eclipse.jdt.internal.compiler.flow.InsideSubRoutineFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class TryStatement extends SubRoutineStatement {
@@ -181,7 +182,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				}
 			}
 			if (localVariableBinding != null) {
-				localVariableBinding.useFlag = LocalVariableBinding.USED; // Is implicitly used anyways.
+				CompilerOptions compilerOptions = currentScope.compilerOptions();
+				long sourceLevel = compilerOptions.sourceLevel;
+				boolean enablePreviewFeatures = compilerOptions.enablePreviewFeatures;
+				if (!JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(sourceLevel, enablePreviewFeatures)) {
+					localVariableBinding.useFlag = LocalVariableBinding.USED; // Is implicitly used anyways.
+				}
 			}
 			MethodBinding closeMethod = findCloseMethod(resource, resolvedType);
 			if (closeMethod != null && closeMethod.isValidBinding() && closeMethod.returnType.id == TypeIds.T_void) {

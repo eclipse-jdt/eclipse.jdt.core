@@ -3499,4 +3499,568 @@ public void testIssue3051_2() {
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3054
+// Add warnings for structurally required but otherwise unused local variables
+public void testIssue3054() {
+	if (this.complianceLevel < ClassFileConstants.JDK21)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	if (this.complianceLevel > ClassFileConstants.JDK21)
+		customOptions.put(CompilerOptions.OPTION_ReportUnusedExceptionParameter, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"Unused.java",
+				"""
+				import java.util.PriorityQueue;
+				import java.util.Queue;
+				import java.util.stream.Collectors;
+				import java.util.stream.Stream;
+
+				public class Unused {
+					class Order {}
+					static class Resource implements AutoCloseable {
+						@Override
+						public void close() throws Exception {}
+					}
+
+					static int count(Iterable<Order> orders) {
+					    int total = 0;
+					    for (Order order : orders) // unused variable order
+					        total++;
+					    return total;
+					}
+
+					static void foo() {
+						for (int i = 0, se = sideEffect(); i < 10; i++) {  } // unused variable se
+					}
+
+					private static int sideEffect() {
+						Queue<Integer> q = new PriorityQueue<>();
+
+						while (q.size() >= 3) {
+							var x = q.remove();
+							var y = q.remove(); // unused variable x
+							var z = q.remove(); // unused variable y
+							if (x == 10) {
+							}
+						}
+						try {
+
+						} catch (Exception e) { // unused variable e
+
+						} catch (Throwable t) { // unused variable t
+
+						}
+
+						try (var r = new Resource()) {    // unused variable r
+
+						} catch (Exception e) {           // unused variable e
+
+						}
+
+						Stream<String> stream = Stream.of("Hello", "World");
+						stream.collect(Collectors.toMap(String::toUpperCase, xyz -> "NODATA")); // unused variable xyz //$NON-NLS-1$
+
+						return 0;
+					}
+				}
+				"""
+			},
+			this.complianceLevel == ClassFileConstants.JDK21 ?
+					"----------\n" +
+					"1. WARNING in Unused.java (at line 15)\n" +
+					"	for (Order order : orders) // unused variable order\n" +
+					"	           ^^^^^\n" +
+					"The value of the local variable order is not used\n" +
+					"----------\n" +
+					"2. WARNING in Unused.java (at line 21)\n" +
+					"	for (int i = 0, se = sideEffect(); i < 10; i++) {  } // unused variable se\n" +
+					"	                ^^\n" +
+					"The value of the local variable se is not used\n" +
+					"----------\n" +
+					"3. WARNING in Unused.java (at line 29)\n" +
+					"	var y = q.remove(); // unused variable x\n" +
+					"	    ^\n" +
+					"The value of the local variable y is not used\n" +
+					"----------\n" +
+					"4. WARNING in Unused.java (at line 30)\n" +
+					"	var z = q.remove(); // unused variable y\n" +
+					"	    ^\n" +
+					"The value of the local variable z is not used\n" +
+					"----------\n" :
+							"----------\n" +
+							"1. WARNING in Unused.java (at line 15)\n" +
+							"	for (Order order : orders) // unused variable order\n" +
+							"	           ^^^^^\n" +
+							"The value of the local variable order is not used\n" +
+							"----------\n" +
+							"2. WARNING in Unused.java (at line 21)\n" +
+							"	for (int i = 0, se = sideEffect(); i < 10; i++) {  } // unused variable se\n" +
+							"	                ^^\n" +
+							"The value of the local variable se is not used\n" +
+							"----------\n" +
+							"3. WARNING in Unused.java (at line 29)\n" +
+							"	var y = q.remove(); // unused variable x\n" +
+							"	    ^\n" +
+							"The value of the local variable y is not used\n" +
+							"----------\n" +
+							"4. WARNING in Unused.java (at line 30)\n" +
+							"	var z = q.remove(); // unused variable y\n" +
+							"	    ^\n" +
+							"The value of the local variable z is not used\n" +
+							"----------\n" +
+							"5. WARNING in Unused.java (at line 36)\n" +
+							"	} catch (Exception e) { // unused variable e\n" +
+							"	                   ^\n" +
+							"The value of the exception parameter e is not used\n" +
+							"----------\n" +
+							"6. WARNING in Unused.java (at line 38)\n" +
+							"	} catch (Throwable t) { // unused variable t\n" +
+							"	                   ^\n" +
+							"The value of the exception parameter t is not used\n" +
+							"----------\n" +
+							"7. WARNING in Unused.java (at line 42)\n" +
+							"	try (var r = new Resource()) {    // unused variable r\n" +
+							"	         ^\n" +
+							"The value of the local variable r is not used\n" +
+							"----------\n" +
+							"8. WARNING in Unused.java (at line 44)\n" +
+							"	} catch (Exception e) {           // unused variable e\n" +
+							"	                   ^\n" +
+							"The value of the exception parameter e is not used\n" +
+							"----------\n" +
+							"9. WARNING in Unused.java (at line 49)\n" +
+							"	stream.collect(Collectors.toMap(String::toUpperCase, xyz -> \"NODATA\")); // unused variable xyz //$NON-NLS-1$\n" +
+							"	                                                     ^^^\n" +
+							"The value of the lambda parameter xyz is not used\n" +
+							"----------\n"
+,
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3054
+// Add warnings for structurally required but otherwise unused local variables
+public void testIssue3054_2() {
+	if (this.complianceLevel < ClassFileConstants.JDK21)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLambdaParameter, CompilerOptions.ERROR);
+	this.runNegativeTest(
+			new String[] {
+				"Unused.java",
+				"""
+				import java.util.PriorityQueue;
+				import java.util.Queue;
+				import java.util.stream.Collectors;
+				import java.util.stream.Stream;
+
+				public class Unused {
+					class Order {}
+					static class Resource implements AutoCloseable {
+						@Override
+						public void close() throws Exception {}
+					}
+
+					static int count(Iterable<Order> orders) {
+					    int total = 0;
+					    for (Order order : orders) // unused variable order
+					        total++;
+					    return total;
+					}
+
+					static void foo() {
+						for (int i = 0, se = sideEffect(); i < 10; i++) {  } // unused variable se
+					}
+
+					private static int sideEffect() {
+						Queue<Integer> q = new PriorityQueue<>();
+
+						while (q.size() >= 3) {
+							var x = q.remove();
+							var y = q.remove(); // unused variable x
+							var z = q.remove(); // unused variable y
+							if (x == 10) {
+							}
+						}
+						try {
+
+						} catch (Exception e) { // unused variable e
+
+						} catch (Throwable t) { // unused variable t
+
+						}
+
+						try (var r = new Resource()) {    // unused variable r
+
+						} catch (Exception e) {           // unused variable e
+
+						}
+
+						Stream<String> stream = Stream.of("Hello", "World");
+						stream.collect(Collectors.toMap(String::toUpperCase, xyz -> "NODATA")); // unused variable xyz //$NON-NLS-1$
+
+						return 0;
+					}
+				}
+				"""
+			},
+			this.complianceLevel == ClassFileConstants.JDK21 ?
+					"----------\n" +
+					"1. WARNING in Unused.java (at line 15)\n" +
+					"	for (Order order : orders) // unused variable order\n" +
+					"	           ^^^^^\n" +
+					"The value of the local variable order is not used\n" +
+					"----------\n" +
+					"2. WARNING in Unused.java (at line 21)\n" +
+					"	for (int i = 0, se = sideEffect(); i < 10; i++) {  } // unused variable se\n" +
+					"	                ^^\n" +
+					"The value of the local variable se is not used\n" +
+					"----------\n" +
+					"3. WARNING in Unused.java (at line 29)\n" +
+					"	var y = q.remove(); // unused variable x\n" +
+					"	    ^\n" +
+					"The value of the local variable y is not used\n" +
+					"----------\n" +
+					"4. WARNING in Unused.java (at line 30)\n" +
+					"	var z = q.remove(); // unused variable y\n" +
+					"	    ^\n" +
+					"The value of the local variable z is not used\n" +
+					"----------\n" :
+							"----------\n" +
+							"1. WARNING in Unused.java (at line 15)\n" +
+							"	for (Order order : orders) // unused variable order\n" +
+							"	           ^^^^^\n" +
+							"The value of the local variable order is not used\n" +
+							"----------\n" +
+							"2. WARNING in Unused.java (at line 21)\n" +
+							"	for (int i = 0, se = sideEffect(); i < 10; i++) {  } // unused variable se\n" +
+							"	                ^^\n" +
+							"The value of the local variable se is not used\n" +
+							"----------\n" +
+							"3. WARNING in Unused.java (at line 29)\n" +
+							"	var y = q.remove(); // unused variable x\n" +
+							"	    ^\n" +
+							"The value of the local variable y is not used\n" +
+							"----------\n" +
+							"4. WARNING in Unused.java (at line 30)\n" +
+							"	var z = q.remove(); // unused variable y\n" +
+							"	    ^\n" +
+							"The value of the local variable z is not used\n" +
+							"----------\n" +
+							"5. WARNING in Unused.java (at line 42)\n" +
+							"	try (var r = new Resource()) {    // unused variable r\n" +
+							"	         ^\n" +
+							"The value of the local variable r is not used\n" +
+							"----------\n" +
+							"6. ERROR in Unused.java (at line 49)\n" +
+							"	stream.collect(Collectors.toMap(String::toUpperCase, xyz -> \"NODATA\")); // unused variable xyz //$NON-NLS-1$\n" +
+							"	                                                     ^^^\n" +
+							"The value of the lambda parameter xyz is not used\n" +
+							"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3054
+// Add warnings for structurally required but otherwise unused local variables
+public void testIssue3054_3() {
+	if (this.complianceLevel < ClassFileConstants.JDK21)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"Unused.java",
+				"""
+				import java.util.PriorityQueue;
+				import java.util.Queue;
+				import java.util.stream.Collectors;
+				import java.util.stream.Stream;
+
+				public class Unused {
+					class Order {}
+					static class Resource implements AutoCloseable {
+						@Override
+						public void close() throws Exception {}
+					}
+
+					static int count(Iterable<Order> orders) {
+					    int total = 0;
+					    for (Order order : orders) // unused variable order
+					        total++;
+					    return total;
+					}
+
+					static void foo() {
+						for (int i = 0, se = sideEffect(); i < 10; i++) {  } // unused variable se
+					}
+
+					private static int sideEffect() {
+						Queue<Integer> q = new PriorityQueue<>();
+
+						while (q.size() >= 3) {
+							var x = q.remove();
+							var y = q.remove(); // unused variable x
+							var z = q.remove(); // unused variable y
+							if (x == 10) {
+							}
+						}
+						try {
+
+						} catch (Exception e) { // unused variable e
+
+						} catch (Throwable t) { // unused variable t
+
+						}
+
+						try (var r = new Resource()) {    // unused variable r
+
+						} catch (Exception e) {           // unused variable e
+
+						}
+
+						Stream<String> stream = Stream.of("Hello", "World");
+						stream.collect(Collectors.toMap(String::toUpperCase, xyz -> "NODATA")); // unused variable xyz //$NON-NLS-1$
+
+						return 0;
+					}
+				}
+				"""
+			},
+			this.complianceLevel == ClassFileConstants.JDK21 ?
+					"----------\n" +
+					"1. WARNING in Unused.java (at line 15)\n" +
+					"	for (Order order : orders) // unused variable order\n" +
+					"	           ^^^^^\n" +
+					"The value of the local variable order is not used\n" +
+					"----------\n" +
+					"2. WARNING in Unused.java (at line 21)\n" +
+					"	for (int i = 0, se = sideEffect(); i < 10; i++) {  } // unused variable se\n" +
+					"	                ^^\n" +
+					"The value of the local variable se is not used\n" +
+					"----------\n" +
+					"3. WARNING in Unused.java (at line 29)\n" +
+					"	var y = q.remove(); // unused variable x\n" +
+					"	    ^\n" +
+					"The value of the local variable y is not used\n" +
+					"----------\n" +
+					"4. WARNING in Unused.java (at line 30)\n" +
+					"	var z = q.remove(); // unused variable y\n" +
+					"	    ^\n" +
+					"The value of the local variable z is not used\n" +
+					"----------\n" :
+							"----------\n" +
+							"1. WARNING in Unused.java (at line 15)\n" +
+							"	for (Order order : orders) // unused variable order\n" +
+							"	           ^^^^^\n" +
+							"The value of the local variable order is not used\n" +
+							"----------\n" +
+							"2. WARNING in Unused.java (at line 21)\n" +
+							"	for (int i = 0, se = sideEffect(); i < 10; i++) {  } // unused variable se\n" +
+							"	                ^^\n" +
+							"The value of the local variable se is not used\n" +
+							"----------\n" +
+							"3. WARNING in Unused.java (at line 29)\n" +
+							"	var y = q.remove(); // unused variable x\n" +
+							"	    ^\n" +
+							"The value of the local variable y is not used\n" +
+							"----------\n" +
+							"4. WARNING in Unused.java (at line 30)\n" +
+							"	var z = q.remove(); // unused variable y\n" +
+							"	    ^\n" +
+							"The value of the local variable z is not used\n" +
+							"----------\n" +
+							"5. WARNING in Unused.java (at line 42)\n" +
+							"	try (var r = new Resource()) {    // unused variable r\n" +
+							"	         ^\n" +
+							"The value of the local variable r is not used\n" +
+							"----------\n" +
+							"6. WARNING in Unused.java (at line 49)\n" +
+							"	stream.collect(Collectors.toMap(String::toUpperCase, xyz -> \"NODATA\")); // unused variable xyz //$NON-NLS-1$\n" +
+							"	                                                     ^^^\n" +
+							"The value of the lambda parameter xyz is not used\n" +
+							"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3054
+// Add warnings for structurally required but otherwise unused local variables
+// Check that suppress warning works
+public void testIssue3054_4() {
+	if (this.complianceLevel < ClassFileConstants.JDK22)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"Unused.java",
+				"""
+				import java.util.PriorityQueue;
+				import java.util.Queue;
+				import java.util.stream.Collectors;
+				import java.util.stream.Stream;
+				import java.util.Map;
+				public class Unused {
+					class Order {}
+					static class Resource implements AutoCloseable {
+						@Override
+						public void close() throws Exception {}
+					}
+
+					static int count(Iterable<Order> orders) {
+					    int total = 0;
+					    for (Order order : orders) // unused variable order
+					        total++;
+					    return total;
+					}
+
+					static void foo() {
+						for (int i = 0, se = sideEffect(); i < 10; i++) {  } // unused variable se
+					}
+
+					private static int sideEffect() {
+						Queue<Integer> q = new PriorityQueue<>();
+
+						while (q.size() >= 3) {
+							var x = q.remove();
+							var y = q.remove(); // unused variable x
+							var z = q.remove(); // unused variable y
+							if (x == 10) {
+							}
+						}
+						try {
+
+						} catch (Exception e) { // unused variable e
+
+						} catch (Throwable t) { // unused variable t
+
+						}
+
+						try (var r = new Resource()) {    // unused variable r
+
+						} catch (Exception e) {           // unused variable e
+
+						}
+
+						Stream<String> stream = Stream.of("Hello", "World");
+						@SuppressWarnings("unused")
+						Map<String, String> m = stream.collect(Collectors.toMap(String::toUpperCase, xyz -> "NODATA")); // unused variable xyz //$NON-NLS-1$
+
+						return 0;
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in Unused.java (at line 15)\n" +
+			"	for (Order order : orders) // unused variable order\n" +
+			"	           ^^^^^\n" +
+			"The value of the local variable order is not used\n" +
+			"----------\n" +
+			"2. WARNING in Unused.java (at line 21)\n" +
+			"	for (int i = 0, se = sideEffect(); i < 10; i++) {  } // unused variable se\n" +
+			"	                ^^\n" +
+			"The value of the local variable se is not used\n" +
+			"----------\n" +
+			"3. WARNING in Unused.java (at line 29)\n" +
+			"	var y = q.remove(); // unused variable x\n" +
+			"	    ^\n" +
+			"The value of the local variable y is not used\n" +
+			"----------\n" +
+			"4. WARNING in Unused.java (at line 30)\n" +
+			"	var z = q.remove(); // unused variable y\n" +
+			"	    ^\n" +
+			"The value of the local variable z is not used\n" +
+			"----------\n" +
+			"5. WARNING in Unused.java (at line 42)\n" +
+			"	try (var r = new Resource()) {    // unused variable r\n" +
+			"	         ^\n" +
+			"The value of the local variable r is not used\n" +
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3054
+// Add warnings for structurally required but otherwise unused local variables
+public void testIssue3054_5() {
+	if (this.complianceLevel < ClassFileConstants.JDK22)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedExceptionParameter, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"Unused.java",
+				"""
+				import java.util.PriorityQueue;
+				import java.util.Queue;
+				import java.util.stream.Collectors;
+				import java.util.stream.Stream;
+				import java.util.Map;
+				public class Unused {
+					class Order {}
+					static class Resource implements AutoCloseable {
+						@Override
+						public void close() throws Exception {}
+					}
+
+					static int count(Iterable<Order> orders) {
+					    int total = 0;
+					    for (Order _ : orders) // unused variable order
+					        total++;
+					    return total;
+					}
+
+					static void foo() {
+						for (int i = 0, _ = sideEffect(); i < 10; i++) {  } // unused variable se
+					}
+
+					private static int sideEffect() {
+						Queue<Integer> q = new PriorityQueue<>();
+
+						while (q.size() >= 3) {
+							var x = q.remove();
+							var _ = q.remove(); // unused variable x
+							var _ = q.remove(); // unused variable y
+							if (x == 10) {
+							}
+						}
+						try {
+
+						} catch (Exception _) { // unused variable e
+
+						} catch (Throwable _) { // unused variable t
+
+						}
+
+						try (var _ = new Resource()) {    // unused variable r
+
+						} catch (Exception _) {           // unused variable e
+
+						}
+
+						Stream<String> stream = Stream.of("Hello", "World");
+
+						Map<String, String> m = stream.collect(Collectors.toMap(String::toUpperCase, _ -> "NODATA")); // unused variable xyz //$NON-NLS-1$
+
+						return 0;
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in Unused.java (at line 50)\n" +
+			"	Map<String, String> m = stream.collect(Collectors.toMap(String::toUpperCase, _ -> \"NODATA\")); // unused variable xyz //$NON-NLS-1$\n" +
+			"	                    ^\n" +
+			"The value of the local variable m is not used\n" +
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
 }
