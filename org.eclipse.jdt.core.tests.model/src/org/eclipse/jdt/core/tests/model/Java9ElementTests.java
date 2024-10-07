@@ -13,6 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import static org.eclipse.jdt.core.IJavaElement.CLASS_FILE;
+import static org.eclipse.jdt.core.IJavaElement.COMPILATION_UNIT;
+import static org.eclipse.jdt.core.IJavaElement.PACKAGE_FRAGMENT;
+import static org.eclipse.jdt.core.IJavaElement.PACKAGE_FRAGMENT_ROOT;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,25 +25,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IAnnotation;
-import org.eclipse.jdt.core.IClasspathAttribute;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IModuleDescription;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeRoot;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -51,10 +43,6 @@ import org.eclipse.jdt.core.util.IModulePackagesAttribute;
 import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.core.BinaryModule;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
-
-import junit.framework.Test;
-
-import static org.eclipse.jdt.core.IJavaElement.*;
 
 public class Java9ElementTests extends AbstractJavaModelTests {
 

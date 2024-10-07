@@ -14,7 +14,6 @@
 package org.eclipse.jdt.core.tests.performance.util;
 
 import java.text.NumberFormat;
-
 import org.eclipse.test.internal.performance.InternalDimensions;
 import org.eclipse.test.internal.performance.data.DataPoint;
 import org.eclipse.test.internal.performance.data.Dim;

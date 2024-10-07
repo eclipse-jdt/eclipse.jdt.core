@@ -15,12 +15,11 @@ https://www.eclipse.org/legal/epl-2.0/
 
 package org.eclipse.jdt.core.tests.model;
 
+import junit.framework.Test;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
-
-import junit.framework.Test;
 
 public class ResolveTests21 extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;
@@ -113,6 +112,38 @@ public void testIssue2572() throws JavaModelException {
 	assertElementsEqual(
 		"Unexpected elements",
 		"toString() [in Object [in Object.class [in java.lang [in " + getExternalPath() + "jclMin21.jar]]]]",
+		elements
+	);
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3050
+// [code select] Unexpected runtime error while computing a text hover: java.lang.NegativeArraySizeException
+public void testIssue3050() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve/src/Hover.java",
+			"""
+			interface Function<T, R> {
+			    R apply(T t);
+			}
+
+			public class Hover {
+
+				void d() {
+					Function<Object, Object> f = d -> 2;
+					switch (f) {
+						case Function<?, ?> s -> {}
+					}
+				}
+			}
+			"""
+			);
+	String str = this.wc.getSource();
+	String selection = "Function";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"Function [in [Working copy] Hover.java [in <default> [in src [in Resolve]]]]",
 		elements
 	);
 }

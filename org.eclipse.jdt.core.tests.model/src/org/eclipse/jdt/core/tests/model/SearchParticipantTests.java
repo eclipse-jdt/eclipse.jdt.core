@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import junit.framework.Test;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -33,8 +34,6 @@ import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResult
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.search.indexing.SourceIndexer;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
-
-import junit.framework.Test;
 
 /**
  * Tests the search participant supprt.

@@ -15,9 +15,7 @@
 package org.eclipse.jdt.core.tests.formatter.comment;
 
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.formatter.CodeFormatter;

@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -40,8 +40,6 @@ import org.eclipse.jdt.internal.core.index.MetaIndex;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
-
-import junit.framework.Test;
 
 public class IndexManagerTests extends ModifyingResourceTests {
 	private static final boolean SKIP_TESTS = Boolean.parseBoolean(System.getProperty("org.eclipse.jdt.disableMetaIndex", "false"));

@@ -13,13 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests.annotations.valueconversion;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
-import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
-
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Messager;
 import com.sun.mirror.declaration.AnnotationMirror;
@@ -27,6 +20,11 @@ import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
 import com.sun.mirror.declaration.AnnotationValue;
 import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.type.AnnotationType;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 
 public class ValueConversionProcessor extends BaseProcessor {
 

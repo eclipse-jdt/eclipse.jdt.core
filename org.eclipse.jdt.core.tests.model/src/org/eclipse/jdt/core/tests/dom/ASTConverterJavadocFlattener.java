@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.util.Iterator;
 import java.util.List;
-
 import org.eclipse.jdt.core.dom.*;
 
 @SuppressWarnings("rawtypes")

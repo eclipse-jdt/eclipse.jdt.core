@@ -12,11 +12,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import junit.framework.Test;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-
-import junit.framework.Test;
 
 //java 15 scenarios run with java 16 compliance
 public class CompletionTests16_1 extends AbstractJavaModelCompletionTests {

@@ -27,10 +27,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-
 import junit.framework.AssertionFailedError;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public abstract class AbstractModuleCompilationTest extends AbstractBatchCompilerTest {
 

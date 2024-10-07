@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.internal.tools.disassembler;
 
 import java.io.File;
 import java.io.IOException;
-
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;

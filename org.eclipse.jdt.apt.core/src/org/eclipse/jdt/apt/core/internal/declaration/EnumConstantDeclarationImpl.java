@@ -17,7 +17,6 @@ package org.eclipse.jdt.apt.core.internal.declaration;
 import com.sun.mirror.declaration.EnumConstantDeclaration;
 import com.sun.mirror.declaration.EnumDeclaration;
 import com.sun.mirror.util.DeclarationVisitor;
-
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 

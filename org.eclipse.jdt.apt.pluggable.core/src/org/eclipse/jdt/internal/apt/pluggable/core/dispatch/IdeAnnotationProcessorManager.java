@@ -19,9 +19,7 @@ package org.eclipse.jdt.internal.apt.pluggable.core.dispatch;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.annotation.processing.Processor;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;

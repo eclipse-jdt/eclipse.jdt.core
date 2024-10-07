@@ -15,6 +15,7 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import com.sun.mirror.apt.AnnotationProcessorFactory;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,7 +25,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -44,8 +44,6 @@ import org.eclipse.jdt.core.compiler.BuildContext;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.ReconcileContext;
-
-import com.sun.mirror.apt.AnnotationProcessorFactory;
 
 /**
  * A singleton object, created by callback through the

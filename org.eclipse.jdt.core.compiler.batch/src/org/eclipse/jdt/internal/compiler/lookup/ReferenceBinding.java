@@ -58,7 +58,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
@@ -2106,11 +2105,6 @@ public ReferenceBinding superclass() {
 }
 
 @Override
-public ReferenceBinding[] permittedTypes() {
-	return Binding.NO_PERMITTEDTYPES;
-}
-
-@Override
 public ReferenceBinding[] superInterfaces() {
 	return Binding.NO_SUPERINTERFACES;
 }
@@ -2558,7 +2552,7 @@ public List<ReferenceBinding> getAllEnumerableReferenceTypes() {
 		return Collections.emptyList();
 
 	Set<ReferenceBinding> permSet = new HashSet<>(Arrays.asList(permittedTypes()));
-	if (isClass() && (!isAbstract()))
+	if (isClass() && canBeInstantiated())
 		permSet.add(this);
 	Set<ReferenceBinding> oldSet = new HashSet<>(permSet);
 	do {

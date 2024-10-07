@@ -18,7 +18,6 @@ package org.eclipse.jdt.apt.core.internal;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 
 public class PluginFactoryContainer extends FactoryContainer

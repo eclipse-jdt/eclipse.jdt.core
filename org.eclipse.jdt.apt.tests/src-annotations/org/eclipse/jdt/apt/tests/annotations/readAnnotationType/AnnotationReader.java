@@ -10,13 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests.annotations.readAnnotationType;
 
+import com.sun.mirror.apt.AnnotationProcessorEnvironment;
+import com.sun.mirror.declaration.Declaration;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
-
-
-import com.sun.mirror.apt.AnnotationProcessorEnvironment;
-import com.sun.mirror.declaration.Declaration;
 
 public class AnnotationReader {
     public void createClassFilesForAnnotatedDeclarations(

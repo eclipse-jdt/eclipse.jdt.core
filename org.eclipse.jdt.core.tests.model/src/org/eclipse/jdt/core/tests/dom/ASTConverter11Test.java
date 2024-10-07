@@ -14,10 +14,9 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import junit.framework.Test;
-
-import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.*;
 
 public class ASTConverter11Test extends ConverterTestSetup {
 

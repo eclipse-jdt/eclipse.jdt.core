@@ -94,7 +94,7 @@ public enum JavaFeature {
 	 * <dt>Individual exceptions from old rules
 	 * <dd><ul><li>MethodScope.findField()<li>Scope.getBinding(char[], int, InvocationSite, boolean)</ul>
 	 * <dt>Main code gen change in TypeDeclaration.manageEnclosingInstanceAccessIfNecessary()
-	 * <dd>Only if feature is actually supported, we will generate special synthetid args & fields<br>
+	 * <dd>Only if feature is actually supported, we will generate special synthetic args and fields<br>
 	 * Uses some feature-specific help from BlockScope.getEmulationPath()
 	 * </dl>
 	 */

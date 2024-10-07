@@ -13,13 +13,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests;
 
-import org.eclipse.jdt.core.tests.builder.Bug549646Test;
-import org.eclipse.jdt.core.tests.compiler.regression.ModuleCompilationTests;
-import org.eclipse.jdt.core.tests.model.ModuleBuilderTests;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.eclipse.jdt.core.tests.builder.Bug549646Test;
+import org.eclipse.jdt.core.tests.compiler.regression.ModuleCompilationTests;
+import org.eclipse.jdt.core.tests.model.ModuleBuilderTests;
 
 /**
  * Runs minimal suite for reproducing bug 563501.

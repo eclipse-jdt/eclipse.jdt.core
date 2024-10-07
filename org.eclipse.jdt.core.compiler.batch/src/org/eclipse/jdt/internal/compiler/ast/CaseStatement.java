@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.Pattern.PrimitiveConversionRoute;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -75,11 +74,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	int nullPatternCount = 0;
 	for (int i = 0, length = this.constantExpressions.length; i < length; i++) {
 		Expression e = this.constantExpressions[i];
-		for (LocalVariableBinding local : e.bindingsWhenTrue()) {
-			local.useFlag = LocalVariableBinding.USED; // these are structurally required even if not touched
+		CompilerOptions compilerOptions = currentScope.compilerOptions();
+		long sourceLevel = compilerOptions.sourceLevel;
+		boolean enablePreviewFeatures = compilerOptions.enablePreviewFeatures;
+		if (!JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(sourceLevel, enablePreviewFeatures)) {
+			for (LocalVariableBinding local : e.bindingsWhenTrue()) {
+				local.useFlag = LocalVariableBinding.USED; // these are structurally required even if not touched
+			}
 		}
 		nullPatternCount +=  e instanceof NullLiteral ? 1 : 0;
-		if (i > 0 && (e instanceof Pattern) && !JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(currentScope.compilerOptions().sourceLevel, currentScope.compilerOptions().enablePreviewFeatures)) {
+		if (i > 0 && (e instanceof Pattern) && !JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(sourceLevel, enablePreviewFeatures)) {
 			if (!(i == nullPatternCount && e instanceof TypePattern))
 				currentScope.problemReporter().IllegalFallThroughToPattern(e);
 		}

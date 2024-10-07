@@ -15,15 +15,13 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 public class SwitchPatternTest extends AbstractRegressionTest9 {
 
@@ -8334,5 +8332,489 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	     ^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Only record types are permitted in a record pattern\n" +
 				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3009
+	// A sealed interface with generic causes IllegalStateException and nothing can be done then
+	public void testIssue3009() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public sealed interface X<T> permits X.Y {
+
+							default Object foo() {
+								return switch (this) {
+											case X<T> x -> "OK!";
+									   };
+							}
+
+							sealed class Y<T> implements X<T> permits Y.Z {
+								static final class Z<T> extends Y<T> {}
+							}
+
+						    public static void main(String [] args) {
+						        System.out.println(new Y<String>().foo());
+						    }
+						}
+						"""
+				},
+				"OK!");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3009
+	// A sealed interface with generic causes IllegalStateException and nothing can be done then
+	public void testIssue3009_2() {
+		runConformTest(
+				new String[] {
+						"Editable.java",
+						"""
+						import java.util.Objects;
+						import java.util.Optional;
+						import java.util.function.Consumer;
+						import java.util.function.Supplier;
+
+						public sealed interface Editable<T> permits Editable.NotEdited, Editable.Edited {
+
+						  public static void main(String [] args) {
+						        System.out.println("OK!");
+					      }
+
+						  static <T> Editable<T> notEdited() {
+						    return (Editable<T>) NotEdited.NOT_EDITED;
+						  }
+
+						  static <T> Editable<T> emptyValue() {
+						    return (Editable<T>) Edited.EditedWithoutValue.NO_VALUE;
+						  }
+
+						  static <T> Editable<T> of(T value) {
+						    return new Edited.EditedWithValue<>(value);
+						  }
+
+						  static <T> Editable<T> ofNullable(T value) {
+						    if (value == null) {
+						      return emptyValue();
+						    }
+
+						    return new Edited.EditedWithValue<>(value);
+						  }
+
+						  default boolean isEdited() {
+						    return this instanceof Editable.Edited<T>;
+						  }
+
+						  default boolean isNotEdited() {
+						    return this instanceof Editable.NotEdited<T>;
+						  }
+
+						  default Optional<T> editedValue() {
+						    return switch (this) {
+						      case Edited<T> edited -> Optional.of(edited).flatMap(Edited::value);
+						      case NotEdited<T> ignored -> Optional.empty();
+						    };
+						  }
+
+						  boolean hasNotChanged(T otherValue);
+
+						  Optional<T> or(Supplier<Optional<T>> supplier);
+
+						  void ifEdited(Consumer<Optional<T>> action);
+
+						  final class NotEdited<T> implements Editable<T> {
+
+						    private static final Editable<?> NOT_EDITED = new NotEdited<>();
+
+						    private NotEdited() {
+						    }
+
+						    @Override
+						    public boolean hasNotChanged(T otherValue) {
+						      return true;
+						    }
+
+						    @Override
+						    public Optional<T> or(Supplier<Optional<T>> supplier) {
+						      Objects.requireNonNull(supplier);
+
+						      return supplier.get();
+						    }
+
+						    @Override
+						    public void ifEdited(Consumer<Optional<T>> action) {
+						      // Nothing to do
+						    }
+						  }
+
+						  abstract sealed class Edited<T> implements Editable<T> permits Edited.EditedWithoutValue, Edited.EditedWithValue {
+
+						    protected abstract Optional<T> value();
+
+						    @Override
+						    public void ifEdited(Consumer<Optional<T>> action) {
+						      Objects.requireNonNull(action);
+
+						      action.accept(value());
+						    }
+
+						    @Override
+						    public Optional<T> or(Supplier<Optional<T>> supplier) {
+						      return value();
+						    }
+
+						    static final class EditedWithoutValue<T> extends Edited<T> {
+
+						      private static final Edited<?> NO_VALUE = new EditedWithoutValue<>();
+
+						      private EditedWithoutValue() {
+						      }
+
+						      @Override
+						      protected Optional<T> value() {
+						        return Optional.empty();
+						      }
+
+						      @Override
+						      public boolean hasNotChanged(T otherValue) {
+						        return otherValue == null;
+						      }
+						    }
+
+						    static final class EditedWithValue<T> extends Edited<T> {
+
+						      private final T value;
+
+						      private EditedWithValue(T value) {
+						        this.value = Objects.requireNonNull(value);
+						      }
+
+						      @Override
+						      protected Optional<T> value() {
+						        return Optional.of(value);
+						      }
+
+						      @Override
+						      public boolean hasNotChanged(T otherValue) {
+						        return Objects.equals(value, otherValue);
+						      }
+						    }
+						  }
+						}
+						"""
+				},
+				"OK!");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3009
+	// A sealed interface with generic causes IllegalStateException and nothing can be done then
+	public void testIssue3009_3() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						sealed interface J<T, U> permits D, E, F, G, H {}
+						final class D implements J<String, Integer> {}
+						final class E<T, U> implements J<U, T> {}
+						final class F<T, U> implements J<String, U> {}
+						final class G<T, U> implements J<T, U> {}
+						final class H<T, U> implements J<Integer, U> {}
+
+						public class X {
+						 static int testExhaustive2(J<Integer, X> ji) {
+						   return switch (ji) { // Exhaustive!
+						   case E<X, Integer> e -> 42;
+						   case G<Integer, X> e -> 420;
+						   case H<?, X> e -> 4200;
+						   };
+						 }
+						 public static void main(String[] args) {
+						   J<Integer, X> ji = new E<>();
+						   System.out.println(X.testExhaustive2(ji));
+						   ji = new G<>();
+						   System.out.println(X.testExhaustive2(ji));
+						   ji = new H<>();
+						   System.out.println(X.testExhaustive2(ji));
+						 }
+						}
+						"""
+				},
+				"42\n420\n4200");
+	}
+
+	public void testIssue3009_4() { // FIXME: this should not compile!!!
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						sealed interface J<T, U> permits D, E, F, G, H {}
+						final class D implements J<String, Integer> {}
+						final class E<T, U> implements J<U, T> {}
+						final class F<T, U> implements J<String, U> {}
+						final class G<T, U> implements J<T, U> {}
+						final class H<T, U> implements J<Integer, U> {}
+
+						public class X {
+						 static int testExhaustive2(J<Integer, X> ji) {
+						   return switch (ji) { // Exhaustive!
+						   case E<X, Integer> e -> 42;
+						   case G<Integer, X> e -> 420;
+						   case H<Integer, X> e -> 4200;
+						   };
+						 }
+						 public static void main(String[] args) {
+						   J<Integer, X> ji = new E<>();
+						   System.out.println(X.testExhaustive2(ji));
+						   ji = new G<>();
+						   System.out.println(X.testExhaustive2(ji));
+						   ji = new H<>();
+						   System.out.println(X.testExhaustive2(ji));
+						 }
+						}
+						"""
+				},
+				"42\n420\n4200");
+	}
+
+	public void testIssue3009_5() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+
+							class O<T> {
+								class M<U> {
+									class I<K> {
+										abstract sealed class J<V1, V2> permits S {}
+									}
+								}
+							}
+
+							final class S<T1, T2, T3, T4, T5> extends O<T1>.M<T2>.I<T3>.J<T4, T5> {
+								S(O<T1>.M<T2>.I<T3> ei) {
+									ei.super();
+								}
+							}
+
+							static int testExhaustive(O<Short>.M<Integer>.I<Long>.J<Integer, X> ji) {
+							   return switch (ji) { // Exhaustive!
+							   case S<Short, Integer, Long, Integer, X> e -> 42;
+							   };
+							}
+
+							public static void main(String[] args) {
+							   System.out.println(X.testExhaustive(new X().new S<Short, Integer, Long, Integer, X>(new X().new O<Short>().new M<Integer>().new I<Long>())));
+							}
+						}
+						"""
+				},
+				"42");
+	}
+
+	public void testIssue3009_6() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						abstract sealed class J<T1, T2> permits X.S {}
+
+						public class X<T> {
+
+							final class S<U> extends J<T, U> {}
+
+						 int testExhaustive(J<Integer, String> ji) {
+						   return switch (ji) { // Exhaustive!
+						   	case X<Integer>.S<String> e -> 420;
+						   };
+						 }
+						 public static void main(String[] args) {
+						   X<Integer>.S<String> xs = null;
+						   System.out.println(new X<Integer>().testExhaustive(new X<Integer>().new S<String>()));
+						 }
+						}
+						"""
+				},
+				"420");
+	}
+
+	public void testIssue3009_7() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+
+							class O<T> {
+								class M<U> {
+									class I<K> {
+										abstract sealed class J<V1, V2> permits W.NG.I.S {
+										}
+									}
+								}
+							}
+
+							class W<T1> {
+								class NG {
+									class I<T2> {
+										final class S<T3, T4, T5> extends O<T1>.M<T2>.I<T3>.J<T4, T5> {
+											S(O<T1>.M<T2>.I<T3> ei) {
+												ei.super();
+											}
+										}
+									}
+								}
+							}
+
+							static int testExhaustive(O<Short>.M<Integer>.I<Long>.J<Integer, X> ji) {
+								return switch (ji) { // Exhaustive!
+								case W<Short>.NG.I<Integer>.S<Long, Integer, X> e -> 42;
+								};
+							}
+
+							public static void main(String[] args) {
+								System.out.println(X.testExhaustive(new X().new W<Short>().new NG().new I<Integer>().new S<Long, Integer, X>(
+										new X().new O<Short>().new M<Integer>().new I<Long>())));
+								O<Short>.M<Integer>.I<Long>.J<Integer, X> ji = (W<Short>.NG.I<Integer>.S<Long, Integer, X>) null;
+							}
+						}
+						"""
+				},
+				"42");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3031
+	// [Switch][Sealed types] Incorrect exhaustiveness check leads to MatchException at runtime
+	public void testIssue3031() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						abstract sealed class J<T1, T2> permits X.S, A {}
+
+						final class A extends J<Integer, String> {}
+
+						public class X<T> {
+
+							final class S<U> extends J<T, U> {}
+
+						 int testExhaustive(J<Integer, String> ji) {
+						   return switch (ji) { // Exhaustive!
+						     case A a -> 42;
+						   //case X<Integer>.S<String> e -> 42;
+						   };
+						 }
+						 public static void main(String[] args) {
+						   X<Integer>.S<String> xs = null;
+						   System.out.println(new X<Integer>().testExhaustive(new X<Integer>().new S<String>()));
+						 }
+						}
+						"""
+				},
+				"----------\n"
+				+ "1. ERROR in X.java (at line 10)\n"
+				+ "	return switch (ji) { // Exhaustive!\n"
+				+ "	               ^^\n"
+				+ "A switch expression should have a default case\n"
+				+ "----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3031
+	// [Switch][Sealed types] Incorrect exhaustiveness check leads to MatchException at runtime
+	public void testIssue3031_2() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						abstract sealed class J<T1, T2> permits X.S, A {}
+
+						final class A extends J<Integer, String> {}
+
+						public class X<T> {
+
+							final class S<U> extends J<T, U> {}
+
+						 int testExhaustive(J<Integer, String> ji) {
+						   return switch (ji) { // Exhaustive!
+						     case A a -> 42;
+						     case X<Integer>.S<String> e -> 4200;
+						   };
+						 }
+						 public static void main(String[] args) {
+						   X<Integer>.S<String> xs = null;
+						   System.out.println(new X<Integer>().testExhaustive(new X<Integer>().new S<String>()));
+						 }
+						}
+						"""
+				},
+				"4200");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2719
+	// [Switch expression + Sealed Types] Suspect diagnostic about switch expression being inexhaustive
+	public void testIssue2719() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public interface X {
+
+						  static <T extends Object & AbstractSealedInterface> Integer get(T object) {
+						      return switch (object) {
+						          case ClassC ignored -> 4200;
+						      };
+						  }
+
+						  public abstract sealed interface AbstractSealedInterface permits InterfaceB {
+						  }
+
+						  public sealed interface InterfaceB extends AbstractSealedInterface permits ClassC {
+						  }
+
+						  final class ClassC implements InterfaceB {}
+
+						  public static void main(String[] args) {
+						      System.out.println(get(new ClassC()));
+						  }
+						}
+						"""
+				},
+				"4200");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2719
+	// [Switch expression + Sealed Types] Suspect diagnostic about switch expression being inexhaustive
+	public void testIssue2719_2() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public interface X {
+
+						    static <T extends Object & I1 & I2> Integer get(T object) {
+						      return switch (object) {
+						        case AB ignored -> 42;
+						        case BA ignored -> 420;
+						      };
+						    }
+
+						    public abstract sealed interface I1 permits A, AB, BA {
+						    }
+
+						    public abstract sealed interface I2 permits B, AB, BA {
+						    }
+
+
+						    final class A implements I1 {}
+						    final class B implements I2 {}
+						    final class AB implements I1, I2 {}
+						    final class BA implements I1, I2 {}
+
+						    public static void main(String[] args) {
+						        System.out.println(get(new AB()));
+						        System.out.println(get(new BA()));
+						    }
+						}
+						"""
+				},
+				"42\n420");
 	}
 }

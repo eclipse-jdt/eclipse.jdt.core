@@ -32,9 +32,8 @@
 package com.sun.mirror.declaration;
 
 
-import java.util.Collection;
-
 import com.sun.mirror.type.ReferenceType;
+import java.util.Collection;
 
 
 /**

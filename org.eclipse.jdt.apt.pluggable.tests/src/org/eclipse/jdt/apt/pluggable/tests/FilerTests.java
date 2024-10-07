@@ -15,7 +15,8 @@
 package org.eclipse.jdt.apt.pluggable.tests;
 
 import java.io.File;
-
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -27,9 +28,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.internal.compiler.ClassFile;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * Basic tests for the Filer interface in the IDE.

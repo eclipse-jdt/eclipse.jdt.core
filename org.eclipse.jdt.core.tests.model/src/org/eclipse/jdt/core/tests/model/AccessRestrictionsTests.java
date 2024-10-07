@@ -14,6 +14,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -30,8 +31,6 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 public class AccessRestrictionsTests extends ModifyingResourceTests {
 	static class ProblemRequestor extends AbstractJavaModelTests.ProblemRequestor {

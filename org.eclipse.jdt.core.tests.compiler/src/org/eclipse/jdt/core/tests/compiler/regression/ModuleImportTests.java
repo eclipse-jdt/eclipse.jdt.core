@@ -17,7 +17,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import junit.framework.Test;
 
 public class ModuleImportTests extends AbstractModuleCompilationTest {

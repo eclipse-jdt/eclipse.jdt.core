@@ -17,16 +17,14 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.compiler.CharDeduplicationTest;
 import org.eclipse.jdt.core.tests.compiler.DeduplicationUtilTest;
 import org.eclipse.jdt.core.tests.compiler.IrritantSetTest;
 import org.eclipse.jdt.core.tests.compiler.map.CharArrayMapperTest;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.CleanupAfterSuiteTests;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * Run all java model tests.

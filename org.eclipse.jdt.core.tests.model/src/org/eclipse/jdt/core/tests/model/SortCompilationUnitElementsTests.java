@@ -15,7 +15,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -32,8 +32,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
-
-import junit.framework.Test;
 
 /**
  *

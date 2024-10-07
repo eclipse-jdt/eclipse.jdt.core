@@ -28,12 +28,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.eclipse.jdt.core.tests.util.Util;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class JavadocTestForModule extends AbstractBatchCompilerTest {
 

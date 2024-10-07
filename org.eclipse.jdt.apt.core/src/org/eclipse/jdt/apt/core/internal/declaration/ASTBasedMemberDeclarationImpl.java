@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.declaration;
 
+import com.sun.mirror.declaration.MemberDeclaration;
+import com.sun.mirror.declaration.TypeDeclaration;
+import com.sun.mirror.util.DeclarationVisitor;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
@@ -20,9 +23,6 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.ITypeBinding;
-import com.sun.mirror.declaration.MemberDeclaration;
-import com.sun.mirror.declaration.TypeDeclaration;
-import com.sun.mirror.util.DeclarationVisitor;
 
 public abstract class ASTBasedMemberDeclarationImpl
 	extends ASTBasedDeclarationImpl implements MemberDeclaration{

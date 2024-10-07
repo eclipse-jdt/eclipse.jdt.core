@@ -19,7 +19,6 @@ package org.eclipse.jdt.core.tests.builder;
 
 import java.io.File;
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;

@@ -15,7 +15,6 @@ package org.eclipse.jdt.internal.core.dom;
 
 import java.util.Iterator;
 import java.util.List;
-
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;

@@ -14,7 +14,6 @@
 package org.eclipse.jdt.internal.core.util;
 
 import java.util.Arrays;
-
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;

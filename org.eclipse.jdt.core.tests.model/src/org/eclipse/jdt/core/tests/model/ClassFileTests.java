@@ -14,7 +14,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -26,8 +26,6 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
-
-import junit.framework.Test;
 
 public class ClassFileTests extends ModifyingResourceTests {
 

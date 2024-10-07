@@ -32,10 +32,9 @@
 package com.sun.mirror.apt;
 
 
+import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import java.util.Collection;
 import java.util.Set;
-
-import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 
 /**

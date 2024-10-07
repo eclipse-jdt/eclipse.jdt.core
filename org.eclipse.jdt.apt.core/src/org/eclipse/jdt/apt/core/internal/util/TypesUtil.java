@@ -14,19 +14,6 @@
 
 package org.eclipse.jdt.apt.core.internal.util;
 
-import java.util.Collection;
-
-import org.eclipse.jdt.apt.core.internal.NonEclipseImplementationException;
-import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorObject;
-import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorType;
-import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.TypeParameterDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
-import org.eclipse.jdt.apt.core.internal.type.ArrayTypeImpl;
-import org.eclipse.jdt.core.BindingKey;
-import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-
 import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.declaration.TypeParameterDeclaration;
 import com.sun.mirror.type.ArrayType;
@@ -38,6 +25,17 @@ import com.sun.mirror.type.TypeVariable;
 import com.sun.mirror.type.VoidType;
 import com.sun.mirror.type.WildcardType;
 import com.sun.mirror.util.Types;
+import java.util.Collection;
+import org.eclipse.jdt.apt.core.internal.NonEclipseImplementationException;
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorObject;
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorType;
+import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.TypeParameterDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
+import org.eclipse.jdt.apt.core.internal.type.ArrayTypeImpl;
+import org.eclipse.jdt.core.BindingKey;
+import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class TypesUtil implements Types
 {

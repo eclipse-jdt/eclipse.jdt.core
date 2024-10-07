@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -23,8 +24,6 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.util.Util;
-
-import junit.framework.Test;
 
 public class CopyMoveResourcesTests extends CopyMoveTests {
 public CopyMoveResourcesTests(String name) {

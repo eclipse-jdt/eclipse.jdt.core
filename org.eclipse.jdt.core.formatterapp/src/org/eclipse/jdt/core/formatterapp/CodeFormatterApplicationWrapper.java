@@ -16,7 +16,6 @@ package org.eclipse.jdt.core.formatterapp;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
-
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
