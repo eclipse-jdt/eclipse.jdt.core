@@ -12,7 +12,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -24,8 +24,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.core.LocalVariable;
-
-import junit.framework.Test;
 
 public class ResolveTests10 extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;

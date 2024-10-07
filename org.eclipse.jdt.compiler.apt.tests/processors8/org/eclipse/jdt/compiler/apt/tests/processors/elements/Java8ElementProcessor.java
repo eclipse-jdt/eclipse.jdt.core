@@ -27,23 +27,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.AnnotatedConstruct;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.PackageElement;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.TypeParameterElement;
-import javax.lang.model.element.VariableElement;
+import javax.lang.model.element.*;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
@@ -52,18 +42,7 @@ import javax.lang.model.type.NullType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
-
-import org.eclipse.jdt.compiler.apt.tests.annotations.Foo;
-import org.eclipse.jdt.compiler.apt.tests.annotations.FooContainer;
-import org.eclipse.jdt.compiler.apt.tests.annotations.FooNonContainer;
-import org.eclipse.jdt.compiler.apt.tests.annotations.Goo;
-import org.eclipse.jdt.compiler.apt.tests.annotations.GooNonContainer;
-import org.eclipse.jdt.compiler.apt.tests.annotations.IFoo;
-import org.eclipse.jdt.compiler.apt.tests.annotations.IFooContainer;
-import org.eclipse.jdt.compiler.apt.tests.annotations.TFoo;
-import org.eclipse.jdt.compiler.apt.tests.annotations.TFooContainer;
-import org.eclipse.jdt.compiler.apt.tests.annotations.Type;
-import org.eclipse.jdt.compiler.apt.tests.annotations.Type$1;
+import org.eclipse.jdt.compiler.apt.tests.annotations.*;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 /**

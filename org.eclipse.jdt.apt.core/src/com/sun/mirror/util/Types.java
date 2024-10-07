@@ -32,10 +32,17 @@
 package com.sun.mirror.util;
 
 
+import com.sun.mirror.declaration.TypeDeclaration;
+import com.sun.mirror.declaration.TypeParameterDeclaration;
+import com.sun.mirror.type.ArrayType;
+import com.sun.mirror.type.DeclaredType;
+import com.sun.mirror.type.PrimitiveType;
+import com.sun.mirror.type.ReferenceType;
+import com.sun.mirror.type.TypeMirror;
+import com.sun.mirror.type.TypeVariable;
+import com.sun.mirror.type.VoidType;
+import com.sun.mirror.type.WildcardType;
 import java.util.Collection;
-
-import com.sun.mirror.declaration.*;
-import com.sun.mirror.type.*;
 
 
 /**

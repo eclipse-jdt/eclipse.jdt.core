@@ -15,16 +15,14 @@
 
 package org.eclipse.jdt.apt.tests.annotations.helloworld;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-
-import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
-import org.eclipse.jdt.apt.tests.annotations.BaseFactory;
-
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
+import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
+import org.eclipse.jdt.apt.tests.annotations.BaseFactory;
 
 public class HelloWorldAnnotationProcessorFactory extends BaseFactory {
 

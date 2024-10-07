@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;

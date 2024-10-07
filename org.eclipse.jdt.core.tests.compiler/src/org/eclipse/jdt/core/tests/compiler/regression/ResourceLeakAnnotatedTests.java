@@ -15,13 +15,11 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.List;
 import java.util.Map;
-
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 public class ResourceLeakAnnotatedTests extends ResourceLeakTests {
 

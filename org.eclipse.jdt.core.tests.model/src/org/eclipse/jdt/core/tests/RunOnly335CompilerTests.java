@@ -15,21 +15,10 @@ package org.eclipse.jdt.core.tests;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
-import org.eclipse.jdt.core.tests.compiler.regression.GenericTypeTest;
-import org.eclipse.jdt.core.tests.compiler.regression.GenericsRegressionTest;
-import org.eclipse.jdt.core.tests.compiler.regression.GenericsRegressionTest_1_7;
-import org.eclipse.jdt.core.tests.compiler.regression.GenericsRegressionTest_1_8;
-import org.eclipse.jdt.core.tests.compiler.regression.LambdaExpressionsTest;
-import org.eclipse.jdt.core.tests.compiler.regression.LambdaRegressionTest;
-import org.eclipse.jdt.core.tests.compiler.regression.LambdaShapeTests;
-import org.eclipse.jdt.core.tests.compiler.regression.NegativeLambdaExpressionsTest;
-import org.eclipse.jdt.core.tests.compiler.regression.NullTypeAnnotationTest;
-import org.eclipse.jdt.core.tests.compiler.regression.OverloadResolutionTest8;
+import org.eclipse.jdt.core.tests.compiler.regression.*;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 

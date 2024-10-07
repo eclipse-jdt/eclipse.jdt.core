@@ -14,10 +14,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.SourceMapper;
-
 import junit.framework.Test;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.internal.core.SourceMapper;
 
 public class SignatureTests extends AbstractJavaModelTests {
 public SignatureTests(String name) {

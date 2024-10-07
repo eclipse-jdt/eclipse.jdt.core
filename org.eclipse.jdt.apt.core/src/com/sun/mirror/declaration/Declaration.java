@@ -32,11 +32,14 @@
 package com.sun.mirror.declaration;
 
 
+import com.sun.mirror.type.MirroredTypeException;
+import com.sun.mirror.type.MirroredTypesException;
+import com.sun.mirror.type.TypeMirror;
+import com.sun.mirror.util.DeclarationVisitor;
+import com.sun.mirror.util.Declarations;
+import com.sun.mirror.util.SourcePosition;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
-
-import com.sun.mirror.type.*;
-import com.sun.mirror.util.*;
 
 
 /**

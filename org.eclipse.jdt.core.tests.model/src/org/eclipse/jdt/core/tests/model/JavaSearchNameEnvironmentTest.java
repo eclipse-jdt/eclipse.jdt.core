@@ -4,7 +4,7 @@ import static java.util.stream.Collectors.toCollection;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -12,8 +12,6 @@ import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
 import org.eclipse.jdt.internal.core.search.matching.ClasspathSourceDirectory;
 import org.eclipse.jdt.internal.core.search.matching.JavaSearchNameEnvironment;
-
-import junit.framework.Test;
 
 public class JavaSearchNameEnvironmentTest extends ModifyingResourceTests {
 

@@ -14,7 +14,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -39,8 +39,6 @@ import org.eclipse.jdt.internal.core.LambdaMethod;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.AndPattern;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
-
-import junit.framework.Test;
 
 /**
  * Non-regression tests for bugs fixed in Java Search engine.

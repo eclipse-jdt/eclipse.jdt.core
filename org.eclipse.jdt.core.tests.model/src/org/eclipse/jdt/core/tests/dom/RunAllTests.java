@@ -15,12 +15,10 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import org.eclipse.jdt.core.tests.junit.extension.TestCase;
-import org.eclipse.jdt.core.tests.util.CleanupAfterSuiteTests;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.core.tests.util.CleanupAfterSuiteTests;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunAllTests extends junit.framework.TestCase {

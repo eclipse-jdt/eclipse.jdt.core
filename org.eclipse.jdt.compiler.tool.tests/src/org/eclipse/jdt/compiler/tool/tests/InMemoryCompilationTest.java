@@ -33,7 +33,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
-
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.FileObject;
@@ -45,11 +44,9 @@ import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardLocation;
-
+import junit.framework.TestCase;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 import org.junit.Test;
-
-import junit.framework.TestCase;
 
 public class InMemoryCompilationTest extends TestCase {
 	@Test

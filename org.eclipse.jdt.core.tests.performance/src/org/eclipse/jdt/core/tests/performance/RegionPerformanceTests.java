@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.performance;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaElement;
@@ -23,9 +25,6 @@ import org.eclipse.jdt.core.tests.builder.TestingEnvironment;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.Region;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 public class RegionPerformanceTests extends TestCase {
 

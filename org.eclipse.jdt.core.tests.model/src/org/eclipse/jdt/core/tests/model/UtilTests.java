@@ -15,7 +15,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.List;
 import java.util.zip.ZipException;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform.OS;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
@@ -29,8 +29,6 @@ import org.eclipse.jdt.core.dom.UnionType;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.util.Util;
-
-import junit.framework.Test;
 
 public class UtilTests extends AbstractJavaModelTests {
 

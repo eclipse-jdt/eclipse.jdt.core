@@ -24,9 +24,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -54,6 +52,13 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	public static Class testClass() {
 		return NullTypeAnnotationTest.class;
+	}
+
+	@Override
+	protected Map getCompilerOptions() {
+		Map defaultOptions = super.getCompilerOptions();
+		defaultOptions.put(CompilerOptions.OPTION_ReportUnusedLambdaParameter, CompilerOptions.IGNORE);
+		return defaultOptions;
 	}
 
 	// a list with nullable elements is used

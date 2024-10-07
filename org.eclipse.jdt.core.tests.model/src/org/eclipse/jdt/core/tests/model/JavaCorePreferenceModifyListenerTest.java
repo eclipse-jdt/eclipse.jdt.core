@@ -15,7 +15,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
@@ -24,8 +24,6 @@ import org.eclipse.core.runtime.preferences.IExportedPreferences;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.osgi.service.prefs.BackingStoreException;
-
-import junit.framework.Test;
 
 public class JavaCorePreferenceModifyListenerTest extends TestCase {
 	private static final String NODE_NAME = "bug419219";

@@ -15,9 +15,6 @@
 
 package org.eclipse.jdt.apt.tests.annotations;
 
-import java.util.Collection;
-import java.util.Map;
-
 import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
@@ -25,6 +22,8 @@ import com.sun.mirror.declaration.AnnotationValue;
 import com.sun.mirror.declaration.EnumConstantDeclaration;
 import com.sun.mirror.type.AnnotationType;
 import com.sun.mirror.type.TypeMirror;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Utilities for use by APT test processors

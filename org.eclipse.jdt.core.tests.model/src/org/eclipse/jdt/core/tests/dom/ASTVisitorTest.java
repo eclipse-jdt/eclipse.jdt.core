@@ -15,9 +15,7 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.lang.reflect.Method;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.dom.*;
 
 @SuppressWarnings("rawtypes")

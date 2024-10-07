@@ -14,7 +14,7 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.util.List;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
@@ -23,8 +23,6 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
-
-import junit.framework.Test;
 
 public class ASTConverter_23Test extends ConverterTestSetup {
 

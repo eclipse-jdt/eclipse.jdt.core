@@ -37,21 +37,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -943,7 +932,7 @@ private boolean haltOnSyntaxError = false;
 private boolean tolerateDefaultClassMethods = false;
 private boolean processingLambdaParameterList = false;
 private boolean expectTypeAnnotation = false;
-private boolean reparsingLambdaExpression = false;
+private boolean reparsingFunctionalExpression = false;
 
 private Map<TypeDeclaration, Integer[]> recordNestedMethodLevels;
 private Map<Integer, Boolean> recordPatternSwitches;
@@ -9417,7 +9406,7 @@ private void consumeTextBlock() {
 private TextBlock createTextBlock(char[] allchars, int start, int end) {
 	TextBlock textBlock;
 	if (this.recordStringLiterals &&
-			!this.reparsingLambdaExpression &&
+			!this.reparsingFunctionalExpression &&
 			this.checkExternalizeStrings &&
 			this.lastPosistion < this.scanner.currentPosition &&
 			!this.statementRecoveryActivated) {
@@ -9884,7 +9873,7 @@ protected void consumeToken(int type) {
 		case TokenNameStringLiteral :
 			StringLiteral stringLiteral;
 			if (this.recordStringLiterals &&
-					!this.reparsingLambdaExpression &&
+					!this.reparsingFunctionalExpression &&
 					this.checkExternalizeStrings &&
 					this.lastPosistion < this.scanner.currentPosition &&
 					!this.statementRecoveryActivated) {
@@ -11615,7 +11604,7 @@ public void getMethodBodies(CompilationUnitDeclaration unit) {
 	CompilationResult compilationResult = unit.compilationResult;
 	char[] contents = this.readManager != null
 		? this.readManager.getContents(compilationResult.compilationUnit)
-		: compilationResult.compilationUnit.getContents();
+		: compilationResult.getContents();
 	this.scanner.setSource(contents, compilationResult);
 
 	if (this.javadocParser != null && this.javadocParser.checkDocComment) {
@@ -12852,6 +12841,7 @@ public CompilationUnitDeclaration parse(
 			problemReporter().cannotReadSource(this.compilationUnit, abortException, this.options.verbose);
 			contents = CharOperation.NO_CHAR; // pretend empty from thereon
 		}
+		compilationResult.cacheContents(contents);
 		this.scanner.setSource(contents);
 		this.compilationUnit.sourceEnd = this.scanner.source.length - 1;
 		if (end != -1) this.scanner.resetTo(start, end);
@@ -13144,7 +13134,7 @@ private ASTNode[] parseBodyDeclarations(char[] source, int offset, int length, C
 
 public Expression parseLambdaExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit, boolean recordLineSeparators) {
 	this.haltOnSyntaxError = true; // unexposed/unshared object, no threading concerns.
-	this.reparsingLambdaExpression = true;
+	this.reparsingFunctionalExpression = true;
 	return parseExpression(source, offset, length, unit, recordLineSeparators);
 }
 
@@ -13170,6 +13160,10 @@ public char[][] parsePackageDeclaration(char[] source, CompilationResult result)
 
 	return this.compilationUnit.currentPackage == null ? null : this.compilationUnit.currentPackage.getImportName();
 
+}
+public Expression parseReferenceExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit, boolean recordLineSeparators) {
+	this.reparsingFunctionalExpression = true;
+	return parseExpression(source, offset, length, unit, recordLineSeparators);
 }
 public Expression parseExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit, boolean recordLineSeparators) {
 

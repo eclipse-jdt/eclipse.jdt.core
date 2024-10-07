@@ -14,20 +14,9 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.Map;
-
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IParent;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-
 import junit.framework.Test;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.*;
 
 /**
  * Test case for the modern (Java 17 - 21) generated external javadoc being

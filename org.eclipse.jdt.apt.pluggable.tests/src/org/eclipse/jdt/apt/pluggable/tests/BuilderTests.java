@@ -18,23 +18,21 @@
 package org.eclipse.jdt.apt.pluggable.tests;
 
 import java.util.List;
-
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug341298Processor;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug468893Processor;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug510118Processor;
-import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Issue565Processor;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.BugsProc;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.InheritedAnnoProc;
+import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Issue565Processor;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.TestFinalRoundProc;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.internal.core.builder.AbstractImageBuilder;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * Tests covering the IDE's ability to process the correct set of files.

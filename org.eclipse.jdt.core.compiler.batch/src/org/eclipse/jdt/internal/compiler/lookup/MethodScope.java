@@ -23,7 +23,6 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.Map;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -32,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -338,6 +338,15 @@ public void computeLocalVariablePositions(int initOffset, CodeStream codeStream)
 	while (ilocal < maxLocals) {
 		LocalVariableBinding local = this.locals[ilocal];
 		if (local == null || ((local.tagBits & TagBits.IsArgument) == 0)) break; // done with arguments
+
+		if (local.useFlag == LocalVariableBinding.UNUSED && isLambdaScope() && !local.declaration.isUnnamed(local.declaringScope)) {
+			CompilerOptions compilerOptions = compilerOptions();
+			long sourceLevel = compilerOptions.sourceLevel;
+			boolean enablePreviewFeatures = compilerOptions.enablePreviewFeatures;
+			if (JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(sourceLevel, enablePreviewFeatures)) {
+				problemReporter().unusedLambdaParameter(local.declaration);
+			}
+		}
 
 		// record user-defined argument for attribute generation
 		codeStream.record(local);

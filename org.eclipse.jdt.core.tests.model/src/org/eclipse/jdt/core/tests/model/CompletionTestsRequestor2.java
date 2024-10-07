@@ -16,7 +16,6 @@ package org.eclipse.jdt.core.tests.model;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.function.Predicate;
-
 import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;

@@ -14,6 +14,7 @@
 package org.eclipse.jdt.apt.core.internal.env;
 
 
+import com.sun.mirror.apt.Filer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
@@ -25,8 +26,6 @@ import org.eclipse.jdt.core.compiler.ReconcileContext;
 import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
-
-import com.sun.mirror.apt.Filer;
 
 public class ReconcileEnv extends AbstractCompilationEnv{
 

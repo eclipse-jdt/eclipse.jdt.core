@@ -15,12 +15,14 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
 import java.util.HashMap;
-
-import org.eclipse.jdt.core.*;
+import junit.framework.Test;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes"})
 public class ResolveTests2 extends ModifyingResourceTests {

@@ -18,7 +18,6 @@
 package org.eclipse.jdt.internal.compiler.env;
 
 import java.net.URI;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;

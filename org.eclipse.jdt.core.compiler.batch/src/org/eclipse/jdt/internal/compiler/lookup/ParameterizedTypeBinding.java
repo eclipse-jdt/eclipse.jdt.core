@@ -49,9 +49,10 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
@@ -1108,26 +1109,71 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 
 	@Override
 	public ReferenceBinding[] permittedTypes() {
-		ReferenceBinding[] permTypes = this.type.permittedTypes();
-		List<ReferenceBinding> applicablePermTypes = new ArrayList<>();
-		for (ReferenceBinding pt : permTypes) {
-			ReferenceBinding permittedTypeAvatar = pt;
-			if (pt.isRawType()) {
-				ReferenceBinding ptRef = pt.actualType();
-				ReferenceBinding enclosingType1 = ptRef.enclosingType();
-				if (enclosingType1 != null) {
-					// don't use TypeSystem.getParameterizedType below as this is just for temporary check.
-					ParameterizedTypeBinding ptb = new ParameterizedTypeBinding(ptRef, this.arguments, ptRef.enclosingType(), this.environment);
-					ptb.superclass();
-					ptb.superInterfaces();
-					permittedTypeAvatar = ptb;
+		List<ReferenceBinding> permittedTypes = new ArrayList<>();
+NextPermittedType:
+		for (ReferenceBinding pt : this.type.permittedTypes()) {
+			// Step 1: Gather all type variables that would need to be solved.
+			Map<TypeVariableBinding, TypeBinding> map = new HashMap<>();
+			TypeBinding current = pt;
+			do {
+				if (current.kind() == Binding.GENERIC_TYPE) {
+					for (TypeVariableBinding tvb : current.typeVariables()) {
+						map.put(tvb,  null);
+					}
 				}
-			}
-			if (permittedTypeAvatar.isCompatibleWith(this))
-				applicablePermTypes.add(pt);
+				current = current.enclosingType();
+			} while (current != null);
+
+			// Step 2: Collect substitutes
+			current = this;
+			TypeBinding sooper = pt.findSuperTypeOriginatingFrom(this);
+			do {
+				if (sooper.isParameterizedType()) {
+					if (current.isParameterizedType()) {
+						for (int i = 0, length = sooper.typeArguments().length; i < length; i++) {
+							TypeBinding t = sooper.typeArguments()[i];
+							if (t instanceof TypeVariableBinding tvb) {
+								map.put(tvb, current.typeArguments()[i]);
+							} else if (TypeBinding.notEquals(t, this.typeArguments()[i])) {
+								continue NextPermittedType;
+							}
+						}
+					}
+				}
+				current = current.enclosingType();
+				sooper = sooper.enclosingType();
+			} while (current != null);
+
+			Substitution substitution = new Substitution() {
+				@Override
+				public LookupEnvironment environment() {
+					return ParameterizedTypeBinding.this.environment;
+				}
+				@Override
+				public boolean isRawSubstitution() {
+					return false;
+				}
+				@Override
+				public TypeBinding substitute(TypeVariableBinding typeVariable) {
+					TypeBinding retVal = map.get(typeVariable.unannotated());
+					if (retVal == null) {
+						retVal = ParameterizedTypeBinding.this.environment.createWildcard((ReferenceBinding) typeVariable.declaringElement, typeVariable.rank, null, null, Wildcard.UNBOUND);
+						map.put(typeVariable, retVal);
+					}
+					return retVal;
+				}
+			};
+
+			// Step 3: compute subtype with parameterizations if any.
+			pt = (ReferenceBinding) Scope.substitute(substitution, pt);
+
+			if (pt.isCompatibleWith(this))
+				permittedTypes.add(pt);
 		}
-		return applicablePermTypes.toArray(new ReferenceBinding[0]);
+
+		return permittedTypes.toArray(new ReferenceBinding[0]);
 	}
+
 	@Override
 	public TypeBinding unannotated() {
 		return this.hasTypeAnnotations() ? this.environment.getUnannotatedType(this) : this;

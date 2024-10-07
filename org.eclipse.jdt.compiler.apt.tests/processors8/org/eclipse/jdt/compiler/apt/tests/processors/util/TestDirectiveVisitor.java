@@ -1,6 +1,11 @@
 package org.eclipse.jdt.compiler.apt.tests.processors.util;
 
-import javax.lang.model.element.ModuleElement.*;
+import javax.lang.model.element.ModuleElement.DirectiveVisitor;
+import javax.lang.model.element.ModuleElement.ExportsDirective;
+import javax.lang.model.element.ModuleElement.OpensDirective;
+import javax.lang.model.element.ModuleElement.ProvidesDirective;
+import javax.lang.model.element.ModuleElement.RequiresDirective;
+import javax.lang.model.element.ModuleElement.UsesDirective;
 
 public class TestDirectiveVisitor<R, P> implements DirectiveVisitor<Object, Object> {
 

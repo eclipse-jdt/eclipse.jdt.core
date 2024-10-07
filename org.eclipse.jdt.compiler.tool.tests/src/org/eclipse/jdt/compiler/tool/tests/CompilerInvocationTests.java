@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.LogRecord;
-
 import javax.lang.model.SourceVersion;
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileObject;
@@ -39,13 +38,11 @@ import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
-
+import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 public class CompilerInvocationTests extends AbstractCompilerToolTest {
 	static {

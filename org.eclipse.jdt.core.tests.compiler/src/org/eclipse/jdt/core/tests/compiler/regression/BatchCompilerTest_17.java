@@ -23,10 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.eclipse.jdt.core.tests.compiler.regression.BatchCompilerTest.SubstringMatcher;
-
 import junit.framework.Test;
+import org.eclipse.jdt.core.tests.compiler.regression.BatchCompilerTest.SubstringMatcher;
 
 public class BatchCompilerTest_17 extends AbstractBatchCompilerTest {
 

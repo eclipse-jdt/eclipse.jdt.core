@@ -16,7 +16,6 @@
 package org.eclipse.jdt.apt.core.internal.generatedfile;
 
 import java.util.Objects;
-
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;

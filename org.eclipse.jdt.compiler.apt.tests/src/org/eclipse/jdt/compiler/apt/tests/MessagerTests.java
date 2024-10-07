@@ -20,16 +20,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
-
-import org.eclipse.jdt.compiler.apt.tests.BatchTestUtils.DiagnosticReport;
-
 import junit.framework.TestCase;
+import org.eclipse.jdt.compiler.apt.tests.BatchTestUtils.DiagnosticReport;
 
 /**
  * Tests for the implementation of javax.annotation.processing.Messager

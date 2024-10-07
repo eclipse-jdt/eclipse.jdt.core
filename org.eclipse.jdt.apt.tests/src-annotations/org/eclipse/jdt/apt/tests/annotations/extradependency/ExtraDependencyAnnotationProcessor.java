@@ -15,9 +15,8 @@
 
 package org.eclipse.jdt.apt.tests.annotations.extradependency;
 
-import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
-
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 
 public class ExtraDependencyAnnotationProcessor extends BaseProcessor {
 

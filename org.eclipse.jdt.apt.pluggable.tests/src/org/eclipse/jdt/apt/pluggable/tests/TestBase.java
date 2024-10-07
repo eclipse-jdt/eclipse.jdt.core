@@ -18,9 +18,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
-
 import javax.lang.model.SourceVersion;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -35,8 +34,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.builder.BuilderTests;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
-
-import junit.framework.Test;
 
 public class TestBase extends BuilderTests
 {

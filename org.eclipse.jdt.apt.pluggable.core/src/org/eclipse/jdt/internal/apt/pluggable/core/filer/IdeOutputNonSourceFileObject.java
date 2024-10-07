@@ -21,9 +21,7 @@ import java.io.Writer;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Set;
-
 import javax.tools.JavaFileManager.Location;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.internal.apt.pluggable.core.dispatch.IdeProcessingEnvImpl;
 

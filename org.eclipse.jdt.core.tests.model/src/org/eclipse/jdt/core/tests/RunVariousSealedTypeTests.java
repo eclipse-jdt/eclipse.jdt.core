@@ -16,45 +16,20 @@ package org.eclipse.jdt.core.tests;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.builder.IncrementalTests;
-import org.eclipse.jdt.core.tests.compiler.regression.BatchCompilerTest_15;
-import org.eclipse.jdt.core.tests.compiler.regression.ClassFileReaderTest_17;
-import org.eclipse.jdt.core.tests.compiler.regression.NegativeTypeAnnotationTest;
-import org.eclipse.jdt.core.tests.compiler.regression.NullAnnotationTests21;
-import org.eclipse.jdt.core.tests.compiler.regression.PatternMatching16Test;
-import org.eclipse.jdt.core.tests.compiler.regression.RecordPatternProjectTest;
-import org.eclipse.jdt.core.tests.compiler.regression.RecordPatternTest;
-import org.eclipse.jdt.core.tests.compiler.regression.RecordsRestrictedClassTest;
-import org.eclipse.jdt.core.tests.compiler.regression.ScannerTest;
-import org.eclipse.jdt.core.tests.compiler.regression.SealedTypesSpecReviewTest;
-import org.eclipse.jdt.core.tests.compiler.regression.SealedTypesTests;
-import org.eclipse.jdt.core.tests.compiler.regression.SwitchPatternTest;
-import org.eclipse.jdt.core.tests.compiler.regression.SwitchPatternTest21;
-import org.eclipse.jdt.core.tests.compiler.regression.UnnamedPatternsAndVariablesTest;
+import org.eclipse.jdt.core.tests.compiler.regression.*;
 import org.eclipse.jdt.core.tests.dom.ASTConverter_15Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverter_17Test;
 import org.eclipse.jdt.core.tests.dom.ASTTest;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.formatter.FormatterBugsTests;
 import org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests;
-import org.eclipse.jdt.core.tests.model.CompletionTests16_1;
-import org.eclipse.jdt.core.tests.model.CompletionTests17;
-import org.eclipse.jdt.core.tests.model.Java21ElementTests;
-import org.eclipse.jdt.core.tests.model.JavaSearchBugs15Tests;
-import org.eclipse.jdt.core.tests.model.JavaSearchBugs17Tests;
-import org.eclipse.jdt.core.tests.model.JavaSearchBugs19Tests;
-import org.eclipse.jdt.core.tests.model.ReconcilerTests;
-import org.eclipse.jdt.core.tests.model.ReconcilerTests21;
-import org.eclipse.jdt.core.tests.model.ResolveTests21;
-import org.eclipse.jdt.core.tests.model.SealedTypeModelTests;
-import org.eclipse.jdt.core.tests.model.TypeHierarchyTests;
+import org.eclipse.jdt.core.tests.model.*;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTypeDeclTest;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunVariousSealedTypeTests extends TestCase {
@@ -101,7 +76,7 @@ public class RunVariousSealedTypeTests extends TestCase {
 	}
 
 	public static Test suite() {
-		TestSuite ts = new TestSuite(RunVariousSwitchTests.class.getName());
+		TestSuite ts = new TestSuite(RunVariousSealedTypeTests.class.getName());
 
 		Class[] testClasses = getAllTestClasses();
 		addTestsToSuite(ts, testClasses);

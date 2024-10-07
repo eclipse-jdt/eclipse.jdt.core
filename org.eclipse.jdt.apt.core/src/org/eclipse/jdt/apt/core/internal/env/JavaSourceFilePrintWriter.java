@@ -17,7 +17,6 @@ package org.eclipse.jdt.apt.core.internal.env;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collections;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
