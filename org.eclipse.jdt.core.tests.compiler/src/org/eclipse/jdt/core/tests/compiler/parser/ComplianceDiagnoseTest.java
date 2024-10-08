@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - realigned with bug 399695
@@ -2337,7 +2341,7 @@ public void test0042() {
 		"}\n"
 	};
 
-	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK23) ?
+	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK24) ?
 			"""
 			----------
 			1. ERROR in X.java (at line 1)
@@ -2361,7 +2365,7 @@ public void test0042() {
 			1. ERROR in X.java (at line 1)
 				void ___eval() {
 				^
-			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above
+			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 24 and above
 			----------
 			2. ERROR in X.java (at line 1)
 				void ___eval() {

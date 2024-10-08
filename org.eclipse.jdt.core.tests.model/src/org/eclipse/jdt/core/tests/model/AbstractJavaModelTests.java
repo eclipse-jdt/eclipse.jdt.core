@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -93,6 +97,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static boolean isJRE21 = false;
 	protected static boolean isJRE22 = false;
 	protected static boolean isJRE23 = false;
+	protected static boolean isJRE24 = false;
 	static {
 		String javaVersion = System.getProperty("java.version");
 		String vmName = System.getProperty("java.vm.name");
@@ -105,6 +110,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK24) {
+			isJRE24 = true;
+		}
 		if (jdkLevel >= ClassFileConstants.JDK23) {
 			isJRE23 = true;
 		}
@@ -3457,7 +3465,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				newJclSrcString = "JCL18_SRC"; // Use the same source
 			}
 		} else {
-			if (compliance.equals("23")) {
+			if (compliance.equals("24")) {
+				newJclLibString = "JCL_24_LIB";
+				newJclSrcString = "JCL_24_SRC";
+			} else if (compliance.equals("23")) {
 				newJclLibString = "JCL_23_LIB";
 				newJclSrcString = "JCL_23_SRC";
 			} else if (compliance.equals("22")) {
@@ -3658,6 +3669,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				JavaCore.setClasspathVariables(
 					new String[] {"JCL_23_LIB", "JCL_23_SRC", "JCL_SRCROOT"},
 					new IPath[] {getExternalJCLPath("23"), getExternalJCLSourcePath("23"), getExternalJCLRootSourcePath()},
+					null);
+			}
+		} else if ("24".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL_24_LIB") == null) {
+				setupExternalJCL("jclMin24");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL_24_LIB", "JCL_24_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("24"), getExternalJCLSourcePath("24"), getExternalJCLRootSourcePath()},
 					null);
 			}
 		} else {

@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -486,6 +490,21 @@ public final class AST {
 	 */
 	public static final int JLS23 = 23;
 	/**
+	 * Constant for indicating the AST API that handles JLS24.
+	 * <p>
+	 * This API is capable of handling all constructs in the
+	 * Java language as described in the Java Language
+	 * Specification, Java SE 24 Edition (JLS24).
+	 * JLS24 is a superset of all earlier versions of the
+	 * Java language, and the JLS24 API can be used to manipulate
+	 * programs written in all versions of the Java language
+	 * up to and including Java SE 24(aka JDK 24).
+	 * </p>
+	 *
+	 * @since 3.40 BETA_JAVA24
+	 */
+	public static final int JLS24 = 24;
+	/**
 	 * Internal synonym for {@link #JLS15}. Use to alleviate
 	 * deprecation warnings once JLS15 is deprecated
 	 */
@@ -531,10 +550,15 @@ public final class AST {
 	 */
 	static final int JLS23_INTERNAL = JLS23;
 	/**
+	 * Internal synonym for {@link #JLS24}. Use to alleviate
+	 * deprecation warnings once JLS24 is deprecated
+	 */
+	static final int JLS24_INTERNAL = JLS24;
+	/**
 	 * Internal property for latest supported JLS level
 	 * This provides the latest JLS level.
 	 */
-	private static final int JLS_INTERNAL_Latest = JLS23;
+	private static final int JLS_INTERNAL_Latest = JLS24;
 
 	/**
 	 * @since 3.26
@@ -1282,6 +1306,7 @@ public final class AST {
         t.put(JavaCore.VERSION_21, ClassFileConstants.JDK21);
         t.put(JavaCore.VERSION_22, ClassFileConstants.JDK22);
         t.put(JavaCore.VERSION_23, ClassFileConstants.JDK23);
+        t.put(JavaCore.VERSION_24, ClassFileConstants.JDK24);
         return Collections.unmodifiableMap(t);
 	}
 	private static Map<String, Integer> getApiLevelMapTable() {
@@ -1309,6 +1334,7 @@ public final class AST {
         t.put(JavaCore.VERSION_21, JLS21_INTERNAL);
         t.put(JavaCore.VERSION_22, JLS22_INTERNAL);
         t.put(JavaCore.VERSION_23, JLS23_INTERNAL);
+        t.put(JavaCore.VERSION_24, JLS24_INTERNAL);
         return Collections.unmodifiableMap(t);
 	}
 	/**

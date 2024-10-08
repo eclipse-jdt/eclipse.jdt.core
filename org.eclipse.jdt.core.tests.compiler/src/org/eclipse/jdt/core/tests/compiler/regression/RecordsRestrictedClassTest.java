@@ -8103,7 +8103,7 @@ public void testBug566846_1() {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	public record X;\n" +
 			"	^\n" +
-			"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above\n" +
+			"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 24 and above\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	public record X;\n" +
@@ -8132,7 +8132,7 @@ public void testBug566846_2() {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	public class X {\n" +
 			"	^\n" +
-			"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above\n" +
+			"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 24 and above\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	public class X {\n" +
@@ -8644,7 +8644,7 @@ public void testBug571765_001() {
 			"1. ERROR in module-info.java (at line 1)\n" +
 			"	public record R() {}\n" +
 			"	^\n" +
-			"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above\n" +
+			"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 24 and above\n" +
 			"----------\n" +
 			"2. ERROR in module-info.java (at line 1)\n" +
 			"	public record R() {}\n" +

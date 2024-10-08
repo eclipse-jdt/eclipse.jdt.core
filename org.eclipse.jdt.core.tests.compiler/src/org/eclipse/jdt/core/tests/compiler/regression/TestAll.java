@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -257,6 +261,9 @@ public static Test suite() {
 	 since_23.add(PrimitiveInPatternsTest.class);
 	 since_23.add(PrimitiveInPatternsTestSH.class);
 	 since_23.add(MarkdownCommentsTest.class);
+
+	 ArrayList since_24 = new ArrayList();
+	 // Add new tests for Java 24 here and/or move preview tests being moved from 23 to 24
 
 	 // Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
@@ -550,6 +557,31 @@ public static Test suite() {
 		TestCase.resetForgottenFilters(tests_23);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
 				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_23), tests_23));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_24) != 0) {
+		ArrayList tests_24 = (ArrayList)standardTests.clone();
+		tests_24.addAll(since_1_4);
+		tests_24.addAll(since_1_5);
+		tests_24.addAll(since_1_6);
+		tests_24.addAll(since_1_7);
+		tests_24.addAll(since_1_8);
+		tests_24.addAll(since_9);
+		tests_24.addAll(since_10);
+		tests_24.addAll(since_11);
+		tests_24.addAll(since_12);
+		tests_24.addAll(since_13);
+		tests_24.addAll(since_14);
+		tests_24.addAll(since_15);
+		tests_24.addAll(since_16);
+		tests_24.addAll(since_17);
+		tests_24.addAll(since_18);
+		tests_24.addAll(since_21);
+		tests_24.addAll(since_22);
+		tests_24.addAll(since_23);
+		tests_24.addAll(since_24);
+		TestCase.resetForgottenFilters(tests_24);
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
+				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_24), tests_24));
 	}
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;

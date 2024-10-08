@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -140,9 +144,10 @@ public interface ClassFileConstants {
 	int MAJOR_VERSION_21 = 65;
 	int MAJOR_VERSION_22 = 66;
 	int MAJOR_VERSION_23 = 67;
+	int MAJOR_VERSION_24 = 68;
 
 	int MAJOR_VERSION_0 = 44;
-	int MAJOR_LATEST_VERSION = MAJOR_VERSION_23;
+	int MAJOR_LATEST_VERSION = MAJOR_VERSION_24;
 
 	int MINOR_VERSION_0 = 0;
 	int MINOR_VERSION_1 = 1;
@@ -176,6 +181,7 @@ public interface ClassFileConstants {
 	long JDK21 = ((long)ClassFileConstants.MAJOR_VERSION_21 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK22 = ((long)ClassFileConstants.MAJOR_VERSION_22 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK23 = ((long)ClassFileConstants.MAJOR_VERSION_23 << 16) + ClassFileConstants.MINOR_VERSION_0;
+	long JDK24 = ((long)ClassFileConstants.MAJOR_VERSION_24 << 16) + ClassFileConstants.MINOR_VERSION_0;
 
 	public static long getLatestJDKLevel() {
 		return ((long)ClassFileConstants.MAJOR_LATEST_VERSION << 16) + ClassFileConstants.MINOR_VERSION_0;
