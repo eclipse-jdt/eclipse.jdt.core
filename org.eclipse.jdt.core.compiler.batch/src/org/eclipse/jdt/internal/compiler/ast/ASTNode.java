@@ -58,6 +58,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -572,17 +573,14 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		}
 		AnnotationBinding[] annotations = binding.getAnnotations();
 		for (AnnotationBinding annotation : annotations) {
-			if (annotation != null && String.valueOf(annotation.getAnnotationType().readableName()).equals("java.lang.Deprecated")) { //$NON-NLS-1$
+			if (annotation != null &&  annotation.getAnnotationType().id == TypeIds.T_JavaLangDeprecated) {
 				ElementValuePair[] pairs = annotation.getElementValuePairs();
 				for (ElementValuePair pair : pairs) {
-					if (String.valueOf(pair.getName()).equals("since")) { //$NON-NLS-1$
+					if (CharOperation.equals(pair.getName(), TypeConstants.SINCE)) {
 						if (pair.getValue() instanceof StringConstant strConstant) {
 							try {
 								String value = strConstant.stringValue();
-								int sinceValue = Integer.parseInt(value);
-								// As long as the AST levels and ClassFileConstants.MAJOR_VERSION grow simultaneously,
-								// we can use the offset of +44 to compute the Major version from the given AST Level
-								long sinceLevel = ClassFileConstants.getComplianceLevelForJavaVersion(sinceValue + 44);
+								long sinceLevel = CompilerOptions.versionToJdkLevel(value);
 								long complianceLevel = scope.compilerOptions().complianceLevel;
 								if (complianceLevel < sinceLevel) {
 									return true;

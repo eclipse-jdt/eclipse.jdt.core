@@ -20,6 +20,7 @@ import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -914,12 +915,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 		runner.runWarningTest();
 	}
 	public void testBug534304_1() throws Exception {
-		Map<String, String> options= getCompilerOptions();
-		String compliance= options.get(CompilerOptions.OPTION_Compliance);
-		if (compliance.equals(CompilerOptions.VERSION_9) ||
-				compliance.equals(CompilerOptions.VERSION_10) ||
-				compliance.equals(CompilerOptions.VERSION_11) ||
-				compliance.equals(CompilerOptions.VERSION_12)) {
+		if (this.complianceLevel < ClassFileConstants.JDK13) {
 			return;
 		}
 		runNegativeTest(
@@ -962,12 +958,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 	public void testBug534304_2() throws Exception {
-		Map<String, String> options= getCompilerOptions();
-		String compliance= options.get(CompilerOptions.OPTION_Compliance);
-		if (compliance.equals(CompilerOptions.VERSION_9) ||
-				compliance.equals(CompilerOptions.VERSION_10) ||
-				compliance.equals(CompilerOptions.VERSION_11) ||
-				compliance.equals(CompilerOptions.VERSION_12)) {
+		if (this.complianceLevel < ClassFileConstants.JDK13) {
 			runNegativeTest(
 				new String[] {
 					"p1/C1.java",
