@@ -176,6 +176,31 @@ public class JavacUtils {
 		for (Entry<String, String> processorOption : processorOptions.entrySet()) {
 			options.put("-A" + processorOption.getKey() + "=" + processorOption.getValue(), Boolean.toString(true));
 		}
+
+		addDebugInfos(compilerOptions, options);
+	}
+
+	private static void addDebugInfos(Map<String, String> compilerOptions, Options options) {
+		boolean generateVars = CompilerOptions.GENERATE.equals(compilerOptions.get(CompilerOptions.OPTION_LocalVariableAttribute));
+		boolean generateLines = CompilerOptions.GENERATE.equals(compilerOptions.get(CompilerOptions.OPTION_LineNumberAttribute));
+		boolean generateSource = CompilerOptions.GENERATE.equals(compilerOptions.get(CompilerOptions.OPTION_SourceFileAttribute));
+		if (generateVars && generateLines && generateSource) {
+			options.put(Option.G, Boolean.toString(true));
+		} else if (!generateVars && !generateLines && !generateSource) {
+			options.put(Option.G_CUSTOM, Boolean.toString(true));
+			options.put(Option.G_NONE, Boolean.toString(true));
+		} else {
+			options.put(Option.G_CUSTOM, Boolean.toString(true));
+			if (generateVars) {
+				options.put("-g:vars", Boolean.toString(true));
+			}
+			if (generateLines) {
+				options.put("-g:lines", Boolean.toString(true));
+			}
+			if (generateSource) {
+				options.put("-g:source", Boolean.toString(true));
+			}
+		}
 	}
 
 	private static void configurePaths(JavaProject javaProject, Context context, JavacConfig compilerConfig,
