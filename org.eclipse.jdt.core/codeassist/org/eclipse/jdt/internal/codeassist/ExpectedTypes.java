@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.dom.AssertStatement;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IMemberValuePairBinding;
@@ -227,6 +228,8 @@ public class ExpectedTypes {
 			this.expectedTypes.add(this.node.getAST().resolveWellKnownType(PrimitiveType.SHORT.toString()));
 			this.expectedTypes.add(this.node.getAST().resolveWellKnownType(PrimitiveType.INT.toString()));
 			this.expectedTypes.add(this.node.getAST().resolveWellKnownType(PrimitiveType.LONG.toString()));
+		} else if (parent instanceof DoStatement) {
+			this.expectedTypes.add(this.node.getAST().resolveWellKnownType(PrimitiveType.BOOLEAN.toString()));
 		} // TODO port next code to IBinding
 		/*else if(parent instanceof ParameterizedSingleTypeReference ref) {
 			ITypeBinding expected = null;
@@ -391,9 +394,10 @@ public class ExpectedTypes {
 			if (assertStatement.getExpression() == this.node) {
 				this.expectedTypes.add(this.node.getAST().resolveWellKnownType(PrimitiveType.BOOLEAN.toString()));
 			}
-		} else if (parent instanceof ForStatement) {   // astNodeParent set to ForStatement only for the condition
-			this.expectedTypes.add(this.node.getAST().resolveWellKnownType(PrimitiveType.BOOLEAN.toString()));
-
+		} else if (parent instanceof ForStatement forStatement) {
+			if (forStatement.getExpression().equals(this.node)) {
+				this.expectedTypes.add(this.node.getAST().resolveWellKnownType(PrimitiveType.BOOLEAN.toString()));
+			}
 		} else if (parent instanceof Javadoc) { // Expected types for javadoc
 			findMethod(parent)
 				.map(MethodDeclaration::resolveBinding)

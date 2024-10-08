@@ -507,9 +507,9 @@ public class DOMCompletionEngine implements Runnable {
 			proposal.setTypeName(method.getReturnType().getName().toCharArray());
 			proposal.setDeclarationPackageName(typeBinding.getPackage().getName().toCharArray());
 			proposal.setDeclarationTypeName(typeBinding.getQualifiedName().toCharArray());
-			proposal.setDeclarationSignature(DOMCompletionEngineBuilder.getSignature(method.getDeclaringClass()).toCharArray());
+			proposal.setDeclarationSignature(DOMCompletionEngineBuilder.getSignature(method.getDeclaringClass()));
 			proposal.setKey(method.getKey().toCharArray());
-			proposal.setSignature(DOMCompletionEngineBuilder.getSignature(method).toCharArray());
+			proposal.setSignature(DOMCompletionEngineBuilder.getSignature(method));
 			proposal.setParameterNames(Stream.of(method.getParameterNames()).map(name -> name.toCharArray()).toArray(char[][]::new));
 
 			int relevance = RelevanceConstants.R_DEFAULT
@@ -624,10 +624,7 @@ public class DOMCompletionEngine implements Runnable {
 				res.setParameterNames(paramNames.stream().map(String::toCharArray).toArray(i -> new char[i][]));
 			}
 			res.setParameterTypeNames(Stream.of(methodBinding.getParameterNames()).map(String::toCharArray).toArray(char[][]::new));
-			res.setSignature(methodBinding.getKey().replace('/', '.').toCharArray());
-			res.setReceiverSignature(Signature
-					.createTypeSignature(methodBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
-					.toCharArray());
+			res.setSignature(DOMCompletionEngineBuilder.getSignature(methodBinding));
 			res.setDeclarationSignature(Signature
 					.createTypeSignature(methodBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
 					.toCharArray());
@@ -697,8 +694,10 @@ public class DOMCompletionEngine implements Runnable {
 					binding instanceof IMethodBinding methodBinding ? methodBinding.getReturnType() :
 					binding instanceof IVariableBinding variableBinding ? variableBinding.getType() :
 					this.toComplete.getAST().resolveWellKnownType(Object.class.getName())) +
-				CompletionEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE) + //no access restriction for class field
-				CompletionEngine.R_NON_INHERITED);
+				RelevanceConstants.R_UNQUALIFIED + // TODO: add logic
+				CompletionEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE) //no access restriction for class field
+				//RelevanceConstants.R_NON_INHERITED // TODO: when is this active?
+				);
 		return res;
 	}
 
@@ -786,7 +785,7 @@ public class DOMCompletionEngine implements Runnable {
 			int relevance = 0;
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=271296
 			// If there is at least one expected type, then void proposal types attract a degraded relevance.
-			if (PrimitiveType.VOID.toString().equals(proposalType.getName())) {
+			if (!this.expectedTypes.getExpectedTypes().isEmpty() && PrimitiveType.VOID.toString().equals(proposalType.getName())) {
 				return RelevanceConstants.R_VOID;
 			}
 			for (ITypeBinding expectedType : this.expectedTypes.getExpectedTypes()) {

@@ -177,12 +177,14 @@ class DOMCompletionEngineBuilder {
 		}
 	}
 
-	static String getSignature(IMethodBinding methodBinding) {
-		return methodBinding.getKey().replace('/', '.');
+	static char[] getSignature(IMethodBinding methodBinding) {
+		String fullKey = methodBinding.getKey().replace('/', '.');
+		String justReturn = fullKey.substring(fullKey.indexOf('('));
+		return justReturn.toCharArray();
 	}
 
-	static String getSignature(ITypeBinding methodBinding) {
-		return methodBinding.getKey().replace('/', '.');
+	static char[] getSignature(ITypeBinding typeBinding) {
+		return typeBinding.getKey().replace('/', '.').toCharArray();
 	}
 
 }
