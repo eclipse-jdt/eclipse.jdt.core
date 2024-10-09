@@ -44,6 +44,7 @@ import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -234,6 +235,7 @@ public class DOMCompletionEngine implements Runnable {
 
 		if (context instanceof FieldAccess fieldAccess) {
 			computeSuitableBindingFromContext = false;
+			statementLikeKeywords();
 			processMembers(fieldAccess.getExpression().resolveTypeBinding(), scope, true, isNodeInStaticContext(fieldAccess));
 			if (scope.stream().findAny().isPresent()) {
 				scope.stream()
@@ -403,6 +405,7 @@ public class DOMCompletionEngine implements Runnable {
 				}
 				current = current.getParent();
 			}
+			statementLikeKeywords();
 			publishFromScope(scope);
 			if (!completeAfter.isBlank()) {
 				final int typeMatchRule = this.toComplete.getParent() instanceof Annotation
@@ -439,6 +442,49 @@ public class DOMCompletionEngine implements Runnable {
 			ILog.get().error(ex.getMessage(), ex);
 		}
 		this.requestor.endReporting();
+	}
+
+	private void statementLikeKeywords() {
+		List<char[]> keywords = new ArrayList<>();
+		keywords.add(Keywords.ASSERT);
+		keywords.add(Keywords.RETURN);
+		if (findParent(this.toComplete,
+				new int[] { ASTNode.WHILE_STATEMENT, ASTNode.DO_STATEMENT, ASTNode.FOR_STATEMENT }) != null) {
+			keywords.add(Keywords.BREAK);
+			keywords.add(Keywords.CONTINUE);
+		}
+		ExpressionStatement exprStatement = (ExpressionStatement) findParent(this.toComplete, new int[] {ASTNode.EXPRESSION_STATEMENT});
+		if (exprStatement != null) {
+
+			ASTNode statementParent = exprStatement.getParent();
+			if (statementParent instanceof Block block) {
+				int exprIndex = block.statements().indexOf(exprStatement);
+				if (exprIndex > 0) {
+					ASTNode prevStatement = (ASTNode)block.statements().get(exprIndex - 1);
+					if (prevStatement.getNodeType() == ASTNode.IF_STATEMENT) {
+						keywords.add(Keywords.ELSE);
+					}
+				}
+			}
+		}
+		for (char[] keyword : keywords) {
+			if (!isFailedMatch(this.toComplete.toString().toCharArray(), keyword)) {
+				this.requestor.accept(createKeywordProposal(keyword, this.toComplete.getStartPosition(), this.offset));
+			}
+		}
+	}
+
+	private static ASTNode findParent(ASTNode nodeToSearch, int[] kindsToFind) {
+		ASTNode cursor = nodeToSearch;
+		while (cursor != null) {
+			for (int kindToFind : kindsToFind) {
+				if (cursor.getNodeType() == kindToFind) {
+					return cursor;
+				}
+			}
+			cursor = cursor.getParent();
+		}
+		return null;
 	}
 
 	private void completeMarkerAnnotation(String completeAfter) {
@@ -947,10 +993,8 @@ public class DOMCompletionEngine implements Runnable {
 		int relevance = RelevanceConstants.R_DEFAULT
 				+ RelevanceConstants.R_RESOLVED
 				+ RelevanceConstants.R_INTERESTING
-				+ RelevanceConstants.R_NON_RESTRICTED;
-		if (!isFailedMatch(this.prefix.toCharArray(), keyword)) {
-			relevance += RelevanceConstants.R_SUBSTRING;
-		}
+				+ RelevanceConstants.R_NON_RESTRICTED
+				+ CompletionEngine.computeRelevanceForCaseMatching(this.prefix.toCharArray(), keyword, this.assistOptions);
 		CompletionProposal keywordProposal = createProposal(CompletionProposal.KEYWORD);
 		keywordProposal.setCompletion(keyword);
 		keywordProposal.setName(keyword);
