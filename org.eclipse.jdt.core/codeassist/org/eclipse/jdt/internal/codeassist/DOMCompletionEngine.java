@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.Flags;
@@ -108,6 +109,7 @@ public class DOMCompletionEngine implements Runnable {
 	private ASTNode toComplete;
 	private final DOMCompletionEngineVariableDeclHandler variableDeclHandler;
 	private final DOMCompletionEngineRecoveredNodeScanner recoveredNodeScanner;
+	private final IProgressMonitor monitor;
 
 	static class Bindings {
 		private HashSet<IMethodBinding> methods = new HashSet<>();
@@ -167,6 +169,7 @@ public class DOMCompletionEngine implements Runnable {
 		this.nestedEngine = new CompletionEngine(this.nameEnvironment, this.requestor, this.modelUnit.getOptions(true), this.modelUnit.getJavaProject(), workingCopyOwner, monitor);
 		this.variableDeclHandler = new DOMCompletionEngineVariableDeclHandler();
 		this.recoveredNodeScanner = new DOMCompletionEngineRecoveredNodeScanner(modelUnit, offset);
+		this.monitor = monitor;
 	}
 
 	private Collection<? extends IBinding> visibleBindings(ASTNode node) {
@@ -232,6 +235,8 @@ public class DOMCompletionEngine implements Runnable {
 		boolean computeSuitableBindingFromContext = true;
 		boolean suggestPackageCompletions = true;
 		boolean suggestDefaultCompletions = true;
+
+		checkCancelled();
 
 		if (context instanceof FieldAccess fieldAccess) {
 			computeSuitableBindingFromContext = false;
@@ -417,7 +422,7 @@ public class DOMCompletionEngine implements Runnable {
 						.map(this::toProposal).forEach(this.requestor::accept);
 			}
 		}
-
+		checkCancelled();
 		// this handle where we complete inside a expressions like
 		// Type type = new Type(); where complete after "Typ", since completion should support all type completions
 		// we should not return from this block at the end.
@@ -441,7 +446,14 @@ public class DOMCompletionEngine implements Runnable {
 		} catch (JavaModelException ex) {
 			ILog.get().error(ex.getMessage(), ex);
 		}
+		checkCancelled();
 		this.requestor.endReporting();
+	}
+
+	private void checkCancelled() {
+		if (this.monitor != null && this.monitor.isCanceled()) {
+			throw new OperationCanceledException();
+		}
 	}
 
 	private void statementLikeKeywords() {
