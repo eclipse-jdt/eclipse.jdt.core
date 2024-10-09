@@ -18,7 +18,9 @@ For more information and important links, refer to the [JDT wiki page](https://g
 
 [Contributions are always welcome!](https://github.com/eclipse-jdt/.github/blob/main/CONTRIBUTING.md)
 
-Please bear in mind that this project is almost entirely developed by volunteers. If you do not provide the implementation yourself (or pay someone to do it for you), the bug might never get fixed. If it is a serious bug, other people than you might care enough to provide a fix.
+Please bear in mind that this project is almost entirely developed by volunteers.
+If you do not provide the implementation yourself (or pay someone to do it for you), the bug might never get fixed.
+If it is a serious bug, other people than you might care enough to provide a fix.
 
 ## License
 
@@ -28,4 +30,4 @@ Please bear in mind that this project is almost entirely developed by volunteers
 
 - https://github.com/eclipse-jdt/eclipse.jdt.core/wiki
 - https://github.com/eclipse-jdt/.github/blob/main/CONTRIBUTING.md
-- http://www.eclipse.org/projects/project.php?id=eclipse.jdt
+- https://projects.eclipse.org/projects/eclipse.jdt
