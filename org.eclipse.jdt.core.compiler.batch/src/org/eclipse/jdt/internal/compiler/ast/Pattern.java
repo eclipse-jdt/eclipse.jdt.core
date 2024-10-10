@@ -148,6 +148,7 @@ public abstract class Pattern extends Expression {
 			scope.problemReporter().incompatiblePatternType(this, other, patternType);
 			return false;
 		}
+		boolean applicable = true;
 		if (patternType.isBaseType()) {
 			PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(this.resolvedType, this.outerExpressionType, scope);
 			if (!TypeBinding.equalsEquals(other, patternType)
@@ -155,11 +156,19 @@ public abstract class Pattern extends Expression {
 				scope.problemReporter().incompatiblePatternType(this, other, patternType);
 				return false;
 			}
-		} else if (!checkCastTypesCompatibility(scope, other, patternType, null, true)) {
-			scope.problemReporter().incompatiblePatternType(this, other, patternType);
-			return false;
+		} else {
+			if (!checkCastTypesCompatibility(scope, patternType, other, null, true)) {
+				if (this.enclosingPattern != null) {
+					scope.problemReporter().incompatiblePatternType(this, other, patternType);
+					return false;
+				}
+				applicable = false;
+			}
+			if ((this.bits & ASTNode.UnsafeCast) != 0) {
+				scope.problemReporter().unsafeCastInInstanceof(this, this.outerExpressionType, patternType);
+			}
 		}
-		return true;
+		return applicable;
 	}
 
 	public abstract boolean dominates(Pattern p);
