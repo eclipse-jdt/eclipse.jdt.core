@@ -1568,8 +1568,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
 				"	if (objectBox instanceof Box<String>(String s)) {\n" +
-				"	    ^^^^^^^^^\n" +
-				"Type Box<Object> cannot be safely cast to Box<String>\n" +
+				"	                         ^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Type mismatch: cannot convert from Box<Object> to Box<String>\n" +
 				"----------\n");
 	}
 	public void test48() {
@@ -2008,8 +2008,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n" +
 				"1. ERROR in X.java (at line 10)\n" +
 				"	if (p instanceof R<>(String a)) {\n" +
-				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Incompatible conditional operand types R<capture#1-of ? extends I> and R\n" +
+				"	                 ^^^^^^^^^^^^^\n" +
+				"Type mismatch: cannot convert from R<capture#1-of ? extends I> to R\n" +
 				"----------\n");
 	}
 	public void testIssue900_1() {
@@ -4685,5 +4685,55 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"	                                      ^^\n" +
 				"Syntax error on tokens, delete these tokens\n" +
 				"----------\n");
+	}
+
+	public void testIssue3066() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public record X<T>(int x) {
+					public static void main(String[] args) {
+						Object o = new Object();
+						switch (o) {
+						case X<String>(int x):
+						default:
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 5)
+				case X<String>(int x):
+				     ^^^^^^^^^^^^^^^^
+			Type X<String> cannot be safely cast to Object
+			----------
+			""");
+	}
+
+	public void testIssue3066_notApplicable() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public record X(int x) {
+					public static void main(String[] args) {
+						java.io.Serializable o = "";
+						switch (o) {
+						case X(int x):
+						default:
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 5)
+				case X(int x):
+				     ^^^^^^^^
+			Type mismatch: cannot convert from Serializable to X
+			----------
+			""");
 	}
 }
