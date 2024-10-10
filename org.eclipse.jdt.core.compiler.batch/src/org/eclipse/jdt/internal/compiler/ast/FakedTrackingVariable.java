@@ -830,18 +830,21 @@ public class FakedTrackingVariable extends LocalDeclaration {
 					if (location instanceof Assignment) {
 						Expression lhs = ((Assignment) location).lhs;
 						FieldBinding field = null;
-						// only consider access to field of the current instance:
+						boolean isFieldOfThis = false;
 						if (lhs instanceof SingleNameReference) {
 							field = ((SingleNameReference) lhs).fieldBinding();
+							isFieldOfThis = true;
+						} else if (lhs instanceof QualifiedNameReference) {
+							field = ((QualifiedNameReference) lhs).lastFieldBinding();
 						} else if (lhs instanceof FieldReference) {
 							FieldReference fieldReference = (FieldReference) lhs;
-							if (fieldReference.receiver.isThis())
-								field = fieldReference.binding;
+							field = fieldReference.binding;
+							isFieldOfThis = fieldReference.receiver.isThis();
 						}
 						if (field != null&& (field.tagBits & TagBits.AnnotationNotOwning) == 0) { // assignment to @NotOwned has no meaning
 							if ((field.tagBits & TagBits.AnnotationOwning) != 0) {
 								rhsTrackVar.markNullStatus(flowInfo, flowContext, FlowInfo.NON_NULL);
-							} else {
+							} else if (isFieldOfThis) { // in absence of annotations we consider only assignment to our own fields
 								rhsTrackVar.markAsShared();
 							}
 						}
