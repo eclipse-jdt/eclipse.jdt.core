@@ -3012,23 +3012,39 @@ public final class CompletionEngine
 		this.completionToken = access.token;
 
 		if (qualifiedBinding.problemId() == ProblemReasons.NotFound) {
-			// complete method members with missing return type
-			// class X {
-			//   Missing f() {return null;}
-			//   void foo() {
-			//     f().|
-			//   }
-			// }
 			if (this.assistNodeInJavadoc == 0 &&
 					(this.requestor.isAllowingRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF) ||
 							this.requestor.isAllowingRequiredProposals(CompletionProposal.METHOD_REF, CompletionProposal.TYPE_REF))) {
-				ProblemMethodBinding problemMethodBinding = (ProblemMethodBinding) qualifiedBinding;
-				findFieldsAndMethodsFromMissingReturnType(
-						problemMethodBinding.selector,
-						problemMethodBinding.parameters,
-						scope,
-						access,
-						insideTypeAnnotation);
+				if (qualifiedBinding instanceof ProblemMethodBinding) {
+					// complete method members with missing return type
+					// class X {
+					//   Missing f() {return null;}
+					//   void foo() {
+					//     f().|
+					//   }
+					// }
+					ProblemMethodBinding problemMethodBinding = (ProblemMethodBinding) qualifiedBinding;
+					findFieldsAndMethodsFromMissingReturnType(problemMethodBinding.selector,
+							problemMethodBinding.parameters, scope, access, insideTypeAnnotation);
+				} else if (access.receiver instanceof AllocationExpression expr) {
+					// complete on missing type
+					// class X {
+					//   void foo() {
+					//     new ArrayList().|
+					//   }
+					// }
+					TypeReference type = expr.type;
+					char[] token = null;
+					if (type instanceof SingleTypeReference ref) {
+						token = ref.token;
+					}
+					if (type instanceof QualifiedTypeReference ref) {
+						token = ref.tokens[0];
+					}
+					if (token != null) {
+						findFieldsAndMethodsFromMissingType(type, scope, access, scope);
+					}
+				}
 			}
 		} else {
 			if (!access.isInsideAnnotation) {
