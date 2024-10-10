@@ -63,7 +63,7 @@ public class ImportRewrite_RecordTest extends AbstractJavaModelTests {
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		IJavaProject proj= createJavaProject(PROJECT, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "15");
+		IJavaProject proj= createJavaProject(PROJECT, new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "15");
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
 		proj.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_16);
