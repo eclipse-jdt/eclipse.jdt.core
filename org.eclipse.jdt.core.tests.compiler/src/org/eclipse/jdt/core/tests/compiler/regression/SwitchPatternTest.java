@@ -8541,8 +8541,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"42\n420\n4200");
 	}
 
-	public void testIssue3009_4() { // FIXME: this should not compile!!!
-		runConformTest(
+	public void testIssue3009_4() {
+		runNegativeTest(
 				new String[] {
 						"X.java",
 						"""
@@ -8572,7 +8572,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 						}
 						"""
 				},
-				"42\n420\n4200");
+				"----------\n" +
+				"1. ERROR in X.java (at line 13)\r\n" +
+				"	case H<Integer, X> e -> 4200;\r\n" +
+				"	     ^^^^^^^^^^^^^^^\n" +
+				"Type J<Integer,X> cannot be safely cast to H<Integer,X>\n" +
+				"----------\n");
 	}
 
 	public void testIssue3009_5() {
@@ -8816,5 +8821,47 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 						"""
 				},
 				"42\n420");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1735
+	// [Sealed types][Switch] Pattern switch - ECJ accepts code rejected by javac
+	public void testIssue1735() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						class X {
+								void foo(I<X> ix) {
+									switch(ix) {
+									case A<Y> ay -> System.out.println();
+									case B<X> bx -> System.out.println();
+									}
+								}
+						}
+						class Y extends X {}
+						class Z extends X {}
+
+						sealed interface I<T> permits A, B {
+						}
+
+						final class B<T> implements I<X> {
+						}
+
+
+						final class A<T> implements I<X> {
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case A<Y> ay -> System.out.println();\n" +
+				"	     ^^^^^^^\n" +
+				"Type I<X> cannot be safely cast to A<Y>\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 5)\n" +
+				"	case B<X> bx -> System.out.println();\n" +
+				"	     ^^^^^^^\n" +
+				"Type I<X> cannot be safely cast to B<X>\n" +
+				"----------\n");
 	}
 }
