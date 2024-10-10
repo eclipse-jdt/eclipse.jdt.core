@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public abstract class AbstractNullAnnotationTest extends AbstractComparableTest {
@@ -80,9 +81,6 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 		setUpAnnotationLib();
 	}
 
-	/**
-	 * @deprecated indirectly uses deprecated class PackageAdmin
-	 */
 	protected void setUpAnnotationLib() throws IOException {
 		if (this.LIBS == null) {
 			String[] defaultLibs = getDefaultClassPaths();
@@ -90,8 +88,19 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 			this.LIBS = new String[len+1];
 			System.arraycopy(defaultLibs, 0, this.LIBS, 0, len);
 			String version = this.complianceLevel >= ClassFileConstants.JDK1_8 ? "[2.0.0,3.0.0)" : "[1.1.0,2.0.0)";
-			Bundle[] bundles = org.eclipse.jdt.core.tests.compiler.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", version);
-			File bundleFile = FileLocator.getBundleFileLocation(bundles[0]).get();
+
+			Bundle[] bundles = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundles();
+
+			Bundle bundle= null;
+			for (int i = 0; i < bundles.length; i++) {
+				if (bundles[i].getSymbolicName().equals("org.eclipse.jdt.annotation") && bundles[i].getVersion().toString().equals(version)) {
+					bundle=bundles[i];
+					break;
+				}
+			}
+
+//			Bundle[] bundless = org.eclipse.jdt.core.tests.compiler.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", );
+			File bundleFile = FileLocator.getBundleFileLocation(bundle).get();
 			if (bundleFile.isDirectory())
 				this.LIBS[len] = bundleFile.getPath()+"/bin";
 			else
