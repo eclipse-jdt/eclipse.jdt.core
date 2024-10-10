@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.tools.JavaFileManager;
+import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 
 import org.eclipse.core.resources.IProject;
@@ -205,7 +206,7 @@ public class JavacUtils {
 
 	private static void configurePaths(JavaProject javaProject, Context context, JavacConfig compilerConfig,
 	        File output, boolean isTest) {
-		JavacFileManager fileManager = (JavacFileManager)context.get(JavaFileManager.class);
+		var fileManager = (StandardJavaFileManager)context.get(JavaFileManager.class);
 		try {
 			if (compilerConfig != null && !isEmpty(compilerConfig.annotationProcessorPaths())) {
 				fileManager.setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH,

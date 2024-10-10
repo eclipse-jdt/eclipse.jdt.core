@@ -25,12 +25,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
-import javax.tools.Diagnostic.Kind;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
@@ -71,6 +72,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
 import org.eclipse.jdt.internal.core.util.BindingKeyParser;
+import org.eclipse.jdt.internal.javac.CachingJarsJavaFileManager;
 import org.eclipse.jdt.internal.javac.JavacProblemConverter;
 import org.eclipse.jdt.internal.javac.JavacUtils;
 import org.eclipse.jdt.internal.javac.UnusedProblemFactory;
@@ -104,12 +106,55 @@ import com.sun.tools.javac.util.Options;
  * @implNote Cannot move to another package because parent class is package visible only
  */
 public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
-	public JavacCompilationUnitResolver() {
-		// 0-arg constructor
+
+	private final class ForwardDiagnosticsAsDOMProblems implements DiagnosticListener<JavaFileObject> {
+		public final Map<JavaFileObject, CompilationUnit> filesToUnits;
+		private final JavacProblemConverter problemConverter;
+
+		private ForwardDiagnosticsAsDOMProblems(Map<JavaFileObject, CompilationUnit> filesToUnits,
+				JavacProblemConverter problemConverter) {
+			this.filesToUnits = filesToUnits;
+			this.problemConverter = problemConverter;
+		}
+
+		@Override
+		public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+			findTargetDOM(filesToUnits, diagnostic).ifPresent(dom -> {
+				var newProblem = problemConverter.createJavacProblem(diagnostic);
+				if (newProblem != null) {
+					IProblem[] previous = dom.getProblems();
+					IProblem[] newProblems = Arrays.copyOf(previous, previous.length + 1);
+					newProblems[newProblems.length - 1] = newProblem;
+					dom.setProblems(newProblems);
+				}
+			});
+		}
+
+		private static Optional<CompilationUnit> findTargetDOM(Map<JavaFileObject, CompilationUnit> filesToUnits, Object obj) {
+			if (obj == null) {
+				return Optional.empty();
+			}
+			if (obj instanceof JavaFileObject o) {
+				return Optional.ofNullable(filesToUnits.get(o));
+			}
+			if (obj instanceof DiagnosticSource source) {
+				return findTargetDOM(filesToUnits, source.getFile());
+			}
+			if (obj instanceof Diagnostic diag) {
+				return findTargetDOM(filesToUnits, diag.getSource());
+			}
+			return Optional.empty();
+		}
 	}
+
 	private interface GenericRequestor {
 		public void acceptBinding(String bindingKey, IBinding binding);
 	}
+	
+	public JavacCompilationUnitResolver() {
+		// 0-arg constructor
+	}
+
 	private List<org.eclipse.jdt.internal.compiler.env.ICompilationUnit> createSourceUnitList(String[] sourceFilePaths, String[] encodings) {
 		// make list of source unit
 		int length = sourceFilePaths.length;
@@ -489,23 +534,12 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		}
 		var compiler = ToolProvider.getSystemJavaCompiler();
 		Context context = new Context();
+		CachingJarsJavaFileManager.preRegister(context);
 		Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> result = new HashMap<>(sourceUnits.length, 1.f);
 		Map<JavaFileObject, CompilationUnit> filesToUnits = new HashMap<>();
 		final UnusedProblemFactory unusedProblemFactory = new UnusedProblemFactory(new DefaultProblemFactory(), compilerOptions);
 		var problemConverter = new JavacProblemConverter(compilerOptions, context);
-		boolean[] hasParseError = new boolean[] { false };
-		DiagnosticListener<JavaFileObject> diagnosticListener = diagnostic -> {
-			findTargetDOM(filesToUnits, diagnostic).ifPresent(dom -> {
-				hasParseError[0] |= diagnostic.getKind() == Kind.ERROR;
-				var newProblem = problemConverter.createJavacProblem(diagnostic);
-				if (newProblem != null) {
-					IProblem[] previous = dom.getProblems();
-					IProblem[] newProblems = Arrays.copyOf(previous, previous.length + 1);
-					newProblems[newProblems.length - 1] = newProblem;
-					dom.setProblems(newProblems);
-				}
-			});
-		};
+		DiagnosticListener<JavaFileObject> diagnosticListener = new ForwardDiagnosticsAsDOMProblems(filesToUnits, problemConverter);
 		MultiTaskListener.instance(context).add(new TaskListener() {
 			@Override
 			public void finished(TaskEvent e) {
@@ -653,7 +687,8 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					try {
 						rawText = fileObjects.get(i).getCharContent(true).toString();
 					} catch( IOException ioe) {
-						// ignore
+						ILog.get().error(ioe.getMessage(), ioe);
+						return null;
 					}
 					CompilationUnit res = result.get(sourceUnits[i]);
 					AST ast = res.ast;
@@ -740,6 +775,9 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					ILog.get().error(thrown.getMessage(), thrown);
 				}
 			}
+			if (!resolveBindings) {
+				destroy(context);
+			}
 			if (cachedThrown != null) {
 				throw new RuntimeException(cachedThrown);
 			}
@@ -748,6 +786,24 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		}
 
 		return result;
+	}
+
+	/// cleans up context after analysis (nothing left to process)
+	/// but remain it usable by bindings by keeping filemanager available.
+	public static void cleanup(Context context) {
+		MultiTaskListener.instance(context).clear();
+		if (context.get(DiagnosticListener.class) instanceof ForwardDiagnosticsAsDOMProblems listener) {
+			listener.filesToUnits.clear(); // no need to keep handle on generated ASTs in the context
+		}
+	}
+	/// destroys the context, it's not usable at all after
+	public void destroy(Context context) {
+		cleanup(context);
+		try {
+			context.get(JavaFileManager.class).close();
+		} catch (IOException e) {
+			ILog.get().error(e.getMessage(), e);
+		}
 	}
 
 	private void addProblemsToDOM(CompilationUnit dom, Collection<CategorizedProblem> problems) {
@@ -762,22 +818,6 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			start++;
 		}
 		dom.setProblems(newProblems);
-	}
-
-	private Optional<CompilationUnit> findTargetDOM(Map<JavaFileObject, CompilationUnit> filesToUnits, Object obj) {
-		if (obj == null) {
-			return Optional.empty();
-		}
-		if (obj instanceof JavaFileObject o) {
-			return Optional.ofNullable(filesToUnits.get(o));
-		}
-		if (obj instanceof DiagnosticSource source) {
-			return findTargetDOM(filesToUnits, source.getFile());
-		}
-		if (obj instanceof Diagnostic diag) {
-			return findTargetDOM(filesToUnits, diag.getSource());
-		}
-		return Optional.empty();
 	}
 
 	private AST createAST(Map<String, String> options, int level, Context context, int flags) {

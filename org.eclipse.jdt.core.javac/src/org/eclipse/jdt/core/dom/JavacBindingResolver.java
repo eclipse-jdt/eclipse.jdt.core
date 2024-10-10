@@ -101,7 +101,7 @@ import com.sun.tools.javac.util.Context;
  */
 public class JavacBindingResolver extends BindingResolver {
 
-	private final JavacTask javac; // TODO evaluate memory cost of storing the instance
+	private JavacTask javac; // TODO evaluate memory cost of storing the instance
 	// it will probably be better to run the `Enter` and then only extract interesting
 	// date from it.
 	public final Context context;
@@ -443,7 +443,10 @@ public class JavacBindingResolver extends BindingResolver {
 					ILog.get().error(e.getMessage(), e);
 				}
 			}
+			// some cleanups to encourage garbage collection
+			JavacCompilationUnitResolver.cleanup(context);
 		}
+		this.javac = null;
 		synchronized (this) {
 			if (this.symbolToDeclaration == null) {
 				Map<Symbol, ASTNode> wipSymbolToDeclaration = new HashMap<>();
