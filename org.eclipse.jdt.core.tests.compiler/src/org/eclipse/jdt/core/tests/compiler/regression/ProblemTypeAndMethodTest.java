@@ -10328,4 +10328,106 @@ public void testMissingClass_samMissingReturnType() {
 			""";
 	runner.runNegativeTest();
 }
+public void testGH3047() throws Exception {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"resources/examples/mockito/MockingFromFinder.java",
+			"""
+			package examples.mockito;
+			public class MockingFromFinder{}
+			""",
+			"resources/examples/mockito/MockingWhileAdding.java",
+			"""
+			package examples.mockito;
+			public class MockingWhileAdding {
+				public static void calculateWithAdder(int x, int y) {
+					IOperation adder = new Adder()::execute;
+				}
+				public interface IOperation {
+					int execute(int x, int y);
+				}
+				public static class Adder implements IOperation {
+					public int execute(int x, int y) {
+						return x+y;
+					}
+				}
+			}
+			"""
+		};
+	runner.classLibraries = new String[0];
+	if (this.complianceLevel <= ClassFileConstants.JDK13) {
+		runner.expectedCompilerLog =
+			"""
+			----------
+			1. ERROR in resources\\examples\\mockito\\MockingFromFinder.java (at line 1)
+				package examples.mockito;
+				^
+			The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files
+			----------
+			2. ERROR in resources\\examples\\mockito\\MockingFromFinder.java (at line 2)
+				public class MockingFromFinder{}
+				             ^^^^^^^^^^^^^^^^^
+			Implicit super constructor Object() is undefined for default constructor. Must define an explicit constructor
+			----------
+			----------
+			1. ERROR in resources\\examples\\mockito\\MockingWhileAdding.java (at line 1)
+				package examples.mockito;
+				^
+			The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files
+			----------
+			2. ERROR in resources\\examples\\mockito\\MockingWhileAdding.java (at line 2)
+				public class MockingWhileAdding {
+				             ^^^^^^^^^^^^^^^^^^
+			Implicit super constructor Object() is undefined for default constructor. Must define an explicit constructor
+			----------
+			3. ERROR in resources\\examples\\mockito\\MockingWhileAdding.java (at line 9)
+				public static class Adder implements IOperation {
+				                    ^^^^^
+			Implicit super constructor Object() is undefined for default constructor. Must define an explicit constructor
+			----------
+			""";
+	} else {
+		runner.expectedCompilerLog =
+			"""
+			----------
+			1. ERROR in resources\\examples\\mockito\\MockingFromFinder.java (at line 1)
+				package examples.mockito;
+				^
+			The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files
+			----------
+			2. ERROR in resources\\examples\\mockito\\MockingFromFinder.java (at line 1)
+				package examples.mockito;
+				^
+			The type java.lang.Error cannot be resolved. It is indirectly referenced from required .class files
+			----------
+			3. ERROR in resources\\examples\\mockito\\MockingFromFinder.java (at line 1)
+				package examples.mockito;
+				^
+			The type java.lang.String cannot be resolved. It is indirectly referenced from required .class files
+			----------
+			4. ERROR in resources\\examples\\mockito\\MockingFromFinder.java (at line 2)
+				public class MockingFromFinder{}
+				             ^^^^^^^^^^^^^^^^^
+			Implicit super constructor Object() is undefined for default constructor. Must define an explicit constructor
+			----------
+			----------
+			1. ERROR in resources\\examples\\mockito\\MockingWhileAdding.java (at line 1)
+				package examples.mockito;
+				^
+			The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files
+			----------
+			2. ERROR in resources\\examples\\mockito\\MockingWhileAdding.java (at line 2)
+				public class MockingWhileAdding {
+				             ^^^^^^^^^^^^^^^^^^
+			Implicit super constructor Object() is undefined for default constructor. Must define an explicit constructor
+			----------
+			3. ERROR in resources\\examples\\mockito\\MockingWhileAdding.java (at line 9)
+				public static class Adder implements IOperation {
+				                    ^^^^^
+			Implicit super constructor Object() is undefined for default constructor. Must define an explicit constructor
+			----------
+			""";
+	}
+	runner.runNegativeTest();
+}
 }

@@ -14,9 +14,12 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IClassFile;
@@ -1373,16 +1376,73 @@ public void testGH3047() throws Exception {
 	parser.setBindingsRecovery(true);
 	parser.setEnvironment(null, new String[] {getWorkspacePath() + "P/src/resources"}, null, false);
 	parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	try {
+		parser.createASTs(paths, null, new String[] {}, null, null);
+		fail("Expected exception was not thrown");
+	} catch (IllegalStateException ise) {
+		assertEquals("Missing system library", ise.getMessage());
+	}
+}
+public void testGH3047_2() throws Exception {
+	Hashtable<String, String> options = JavaCore.getDefaultOptions();
+	options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_9);
+	options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_9);
+	options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_9);
+
+	IJavaProject javaProject = createJavaProject("P", new String[] {""}, new String[] {"CONVERTER_JCL18_LIB"}, "1.8");
+	createFolder("P/src");
+
+	String srcFolderInWS = "/P/src";
+	createFolder(srcFolderInWS + "/resources/examples/mockito");
+	String srcFilePathInWS = srcFolderInWS + "/resources/examples/mockito/MockingFromFinder.java";
+	createFile(srcFilePathInWS,
+						"""
+						package examples.mockito;
+						public class MockingFromFinder{}"""
+			);
+	srcFilePathInWS = srcFolderInWS + "/resources/examples/mockito/MockingWhileAdding.java";
+	createFile(srcFilePathInWS,
+						"""
+						package examples.mockito;
+						public class MockingWhileAdding {
+							public static void calculateWithAdder(int x, int y) {
+								IOperation adder = new Adder()::execute;
+							}
+							public interface IOperation {
+								int execute(int x, int y);
+							}
+							public static class Adder implements IOperation {
+								public int execute(int x, int y) {
+									return x+y;
+								}
+							}
+						}"""
+			);
+	String[] paths = new String[2];
+	paths[0] = getWorkspacePath() + "P/src/resources/examples/mockito/MockingFromFinder.java";
+	paths[1] = getWorkspacePath() + "P/src/resources/examples/mockito/MockingWhileAdding.java";
+	@SuppressWarnings("deprecation")
+	ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS9);
+	parser.setProject(javaProject);
+	parser.setCompilerOptions(options);
+	parser.setResolveBindings(true);
+	parser.setStatementsRecovery(true);
+	parser.setBindingsRecovery(true);
+	parser.setEnvironment(null, new String[] {getWorkspacePath() + "P/src/resources"}, null, false);
+	parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	Set<String> expectedProblems = new HashSet<>(Arrays.asList(
+			"Pb(324) The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files",
+			"Pb(140) Implicit super constructor Object() is undefined for default constructor. Must define an explicit constructor"
+			));
+	Set<String> actualProblems = new HashSet<>();
 	class MyFileASTRequestor extends FileASTRequestor {
 		@Override
 		public void acceptAST(String sourceFilePath, CompilationUnit cu) {
-			IProblem[] problems = cu.getProblems();
-			assertTrue("Number of problems should be at least 1", (problems.length >= 1));
-			IProblem problem = problems[0];
-			assertEquals("Unexpected problem in " + sourceFilePath,
-					"Pb(324) The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", problem.toString());
+			for (IProblem prob :  cu.getProblems())
+				actualProblems.add(prob.toString());
 		}
 	}
 	parser.createASTs(paths, null, new String[] {}, new MyFileASTRequestor() {}, null);
+	assertEquals(expectedProblems, actualProblems);
 }
 }
