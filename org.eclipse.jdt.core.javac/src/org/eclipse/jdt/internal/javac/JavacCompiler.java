@@ -134,6 +134,7 @@ public class JavacCompiler extends Compiler {
 		for (Entry<IContainer, List<ICompilationUnit>> outputSourceSet : outputSourceMapping.entrySet()) {
 			// Configure Javac to generate the class files in a mapped temporary location
 			var outputDir = JavacClassFile.getMappedTempOutput(outputSourceSet.getKey()).toFile();
+			javacListener.setOutputDir(outputSourceSet.getKey());
 			JavacUtils.configureJavacContext(javacContext, this.compilerConfig, javaProject, outputDir, true);
 			JavaCompiler javac = new JavaCompiler(javacContext) {
 				boolean isInGeneration = false;
@@ -197,6 +198,7 @@ public class JavacCompiler extends Compiler {
 				// TODO fail
 				ILog.get().error("compilation failed", e);
 			}
+
 			for (int i = 0; i < sourceUnits.length; i++) {
 				ICompilationUnit in = sourceUnits[i];
 				CompilationResult result = new CompilationResult(in, i, sourceUnits.length, Integer.MAX_VALUE);
