@@ -1913,6 +1913,25 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(ImplicitTypeDeclaration node) {
+		//javaDoc
+		if (node.getJavadoc() != null) {
+			node.getJavadoc().accept(this);
+		}
+
+		//bodyDeclaration
+		this.indent++;
+		for (Object element : node.bodyDeclarations()) {
+			BodyDeclaration d = (BodyDeclaration) element;
+			d.accept(this);
+		}
+		this.indent--;
+		printIndent();
+
+		return false;
+	}
+
+	@Override
 	public boolean visit(TypeDeclaration node) {
 		if (node.getJavadoc() != null) {
 			node.getJavadoc().accept(this);
