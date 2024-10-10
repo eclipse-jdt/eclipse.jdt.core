@@ -5726,7 +5726,8 @@ int disambiguatedToken(int token, Scanner scanner) {
 		// TODO: Inefficient method due to redoing of the same source, investigate alternate
 		// Can we do a dup of parsing/check the transition of the state?
 		return disambiguateArrowWithCaseExpr(scanner, token);
-	} else	if (token == TokenNameLPAREN  && maybeAtLambdaOrCast()) {
+	} else	if (token == TokenNameLPAREN // && maybeAtLambdaOrCast()
+			) {
 		if (parser.parse(Goal.LambdaParameterListGoal) == VanguardParser.SUCCESS) {
 			scanner.nextToken = TokenNameLPAREN;
 			return TokenNameBeginLambda;
