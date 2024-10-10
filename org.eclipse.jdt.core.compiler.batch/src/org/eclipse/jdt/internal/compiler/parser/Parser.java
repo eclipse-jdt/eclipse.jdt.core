@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.Runtime.Version;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -12832,6 +12833,21 @@ public CompilationUnitDeclaration parse(
 					this.problemReporter,
 					compilationResult,
 					0);
+
+		var problemReporterContext = this.problemReporter.referenceContext;
+		this.problemReporter.referenceContext = this.referenceContext;
+		if (this.problemReporter != null && this.options != null && this.options.requestedSourceVersion != null && !this.options.requestedSourceVersion.isBlank()) {
+			try {
+				var requestedVersion = Version.parse(this.options.requestedSourceVersion);
+				var latestVersion = Version.parse(CompilerOptions.getLatestVersion());
+				if (requestedVersion.compareTo(latestVersion) > 0) {
+					this.problemReporter.tooRecentJavaVersion(requestedVersion.toString(), latestVersion.toString());
+				}
+			} catch (Exception ex) {
+				this.problemReporter.abortDueToInternalError(ex.getMessage());
+			}
+		}
+		this.problemReporter.referenceContext = problemReporterContext;
 
 		/* scanners initialization */
 		char[] contents;
