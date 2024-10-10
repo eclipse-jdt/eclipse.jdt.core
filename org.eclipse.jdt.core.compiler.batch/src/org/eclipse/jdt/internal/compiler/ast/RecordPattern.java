@@ -117,14 +117,18 @@ public class RecordPattern extends Pattern {
 			return this.resolvedType = null;
 		}
 
-		if (this.resolvedType.isRawType()) {
-			if (this.outerExpressionType instanceof ReferenceBinding) {
+		if (this.outerExpressionType instanceof ReferenceBinding) {
+			if (this.resolvedType.isRawType()) {
 				ReferenceBinding binding = inferRecordParameterization(scope, (ReferenceBinding) this.outerExpressionType);
 				if (binding == null || !binding.isValidBinding()) {
 					scope.problemReporter().cannotInferRecordPatternTypes(this);
 				    return this.resolvedType = null;
 				}
 				this.resolvedType = binding.capture(scope, this.sourceStart, this.sourceEnd);
+			} else {
+				if (!this.isApplicable(this.outerExpressionType, scope)) {
+					scope.problemReporter().typeMismatchError(this.outerExpressionType, this.resolvedType, this, null);
+				}
 			}
 		}
 

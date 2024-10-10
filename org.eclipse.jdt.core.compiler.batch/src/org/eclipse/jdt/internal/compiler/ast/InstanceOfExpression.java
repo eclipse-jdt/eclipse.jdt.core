@@ -277,6 +277,9 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (expressionType == null || checkedType == null)
 		return null;
 
+	if (this.pattern instanceof RecordPattern) // subsequent tests are not relevant for RecordPatterns
+		return this.resolvedType = TypeBinding.BOOLEAN;
+
 	if (!checkedType.isReifiable()) {
 		CompilerOptions options = scope.compilerOptions();
 		// Report same as before for older compliances
