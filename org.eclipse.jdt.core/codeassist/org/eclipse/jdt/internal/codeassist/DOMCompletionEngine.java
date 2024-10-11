@@ -88,6 +88,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.ModuleSourcePathManager;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
  * A completion engine using a DOM as input (as opposed to {@link CompletionEngine} which
@@ -211,7 +212,9 @@ public class DOMCompletionEngine implements Runnable {
 
 	@Override
 	public void run() {
-
+		if (this.monitor != null) {
+			this.monitor.beginTask(Messages.engine_completing, IProgressMonitor.UNKNOWN);
+		}
 		this.requestor.beginReporting();
 		this.toComplete = NodeFinder.perform(this.unit, this.offset, 0);
 		this.expectedTypes = new ExpectedTypes(this.assistOptions, this.toComplete);
