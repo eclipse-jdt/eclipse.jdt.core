@@ -624,10 +624,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		do {
 			if (parentSymbol instanceof final MethodSymbol method) {
 				if (method.type instanceof Type.MethodType methodType) {
-					return this.resolver.bindings.getMethodBinding(methodType, method, null, isGeneric);
+					return this.resolver.bindings.getMethodBinding(methodType, method, null, true);
 				}
 				if( method.type instanceof Type.ForAll faType && faType.qtype instanceof MethodType mtt) {
-					IMethodBinding found = this.resolver.bindings.getMethodBinding(mtt, method, null, isGeneric);
+					IMethodBinding found = this.resolver.bindings.getMethodBinding(mtt, method, null, true);
 					return found;
 				}
 				return null;
