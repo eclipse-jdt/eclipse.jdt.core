@@ -25,7 +25,6 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class StackMapAttributeTest extends AbstractRegressionTest {
@@ -8315,7 +8314,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"}\n",
 				},
 				"",
-				getLibsWithNullAnnotations(CompilerOptions.getFirstSupportedJdkLevel()),
+				getLibsWithNullAnnotations(),
 				true/*flush*/,
 				null/*vmArgs*/,
 				options,
@@ -8437,7 +8436,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"}\n",
 				},
 				"",
-				getLibsWithNullAnnotations(CompilerOptions.getFirstSupportedJdkLevel()),
+				getLibsWithNullAnnotations(),
 				true/*flush*/,
 				null/*vmArgs*/,
 				options,
@@ -8554,7 +8553,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"}\n",
 				},
 				"",
-				getLibsWithNullAnnotations(CompilerOptions.getFirstSupportedJdkLevel()),
+				getLibsWithNullAnnotations(),
 				true/*flush*/,
 				null/*vmArgs*/,
 				options,

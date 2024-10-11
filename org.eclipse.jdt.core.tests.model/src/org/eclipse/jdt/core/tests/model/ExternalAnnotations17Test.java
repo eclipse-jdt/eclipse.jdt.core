@@ -37,10 +37,10 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractNullAnnotationTest;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil.MergeStrategy;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.osgi.framework.Bundle;
 
 public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 
@@ -62,19 +62,16 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		return buildModelTestSuite(ExternalAnnotations17Test.class, BYTECODE_DECLARATION_ORDER);
 	}
 
+	@Override
+	public void setUpSuite() throws Exception {
+		super.setUpSuite();
+		this.ANNOTATION_LIB = AbstractNullAnnotationTest.getAnnotationV1LibPath();
+	}
 	/**
 	 * @deprecated
 	 */
 	static int getJLS8() {
 		return AST.JLS8;
-	}
-
-	/**
-	 * @deprecated indirectly uses deprecated class PackageAdmin
-	 */
-	@Override
-	protected Bundle[] getAnnotationBundles() {
-		return org.eclipse.jdt.core.tests.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", "[1.1.0,2.0.0)");
 	}
 
 	@Override
