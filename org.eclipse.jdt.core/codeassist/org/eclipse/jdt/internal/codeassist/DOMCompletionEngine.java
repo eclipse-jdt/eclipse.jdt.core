@@ -216,241 +216,249 @@ public class DOMCompletionEngine implements Runnable {
 			this.monitor.beginTask(Messages.engine_completing, IProgressMonitor.UNKNOWN);
 		}
 		this.requestor.beginReporting();
-		this.toComplete = NodeFinder.perform(this.unit, this.offset, 0);
-		this.expectedTypes = new ExpectedTypes(this.assistOptions, this.toComplete);
-		ASTNode context = this.toComplete;
-		String completeAfter = ""; //$NON-NLS-1$
-		if (this.toComplete instanceof SimpleName simpleName) {
-			int charCount = this.offset - simpleName.getStartPosition();
-			completeAfter = simpleName.getIdentifier().substring(0, charCount);
-			if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation
-					|| simpleName.getParent() instanceof VariableDeclaration || simpleName.getParent() instanceof QualifiedName) {
-				context = this.toComplete.getParent();
+
+		try {
+
+			this.toComplete = NodeFinder.perform(this.unit, this.offset, 0);
+			this.expectedTypes = new ExpectedTypes(this.assistOptions, this.toComplete);
+			ASTNode context = this.toComplete;
+			String completeAfter = ""; //$NON-NLS-1$
+			if (this.toComplete instanceof SimpleName simpleName) {
+				int charCount = this.offset - simpleName.getStartPosition();
+				completeAfter = simpleName.getIdentifier().substring(0, charCount);
+				if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation
+						|| simpleName.getParent() instanceof VariableDeclaration || simpleName.getParent() instanceof QualifiedName) {
+					context = this.toComplete.getParent();
+				}
 			}
-		}
-		this.prefix = completeAfter;
-		Bindings scope = new Bindings();
-		var completionContext = new DOMCompletionContext(this.offset, completeAfter.toCharArray(),
-				computeEnclosingElement(), scope::stream);
-		this.requestor.acceptContext(completionContext);
+			this.prefix = completeAfter;
+			Bindings scope = new Bindings();
+			var completionContext = new DOMCompletionContext(this.offset, completeAfter.toCharArray(),
+					computeEnclosingElement(), scope::stream);
+			this.requestor.acceptContext(completionContext);
 
-		// some flags to controls different applicable completion search strategies
-		boolean computeSuitableBindingFromContext = true;
-		boolean suggestPackageCompletions = true;
-		boolean suggestDefaultCompletions = true;
+			// some flags to controls different applicable completion search strategies
+			boolean computeSuitableBindingFromContext = true;
+			boolean suggestPackageCompletions = true;
+			boolean suggestDefaultCompletions = true;
 
-		checkCancelled();
+			checkCancelled();
 
-		if (context instanceof FieldAccess fieldAccess) {
-			computeSuitableBindingFromContext = false;
-			statementLikeKeywords();
-			processMembers(fieldAccess.getExpression().resolveTypeBinding(), scope, true, isNodeInStaticContext(fieldAccess));
-			if (scope.stream().findAny().isPresent()) {
-				scope.stream()
-					.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
-					.map(binding -> toProposal(binding))
-					.forEach(this.requestor::accept);
-				this.requestor.endReporting();
-				return;
-			}
-			String packageName = ""; //$NON-NLS-1$
-			if (fieldAccess.getExpression() instanceof FieldAccess parentFieldAccess
-				&& parentFieldAccess.getName().resolveBinding() instanceof IPackageBinding packageBinding) {
-				packageName = packageBinding.getName();
-			} else if (fieldAccess.getExpression() instanceof SimpleName name
-					&& name.resolveBinding() instanceof IPackageBinding packageBinding) {
-				packageName = packageBinding.getName();
-			}
-			findTypes(completeAfter, packageName)
-				.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(), type.getElementName().toCharArray()))
-				.map(this::toProposal)
-				.forEach(this.requestor::accept);
-			List<String> packageNames = new ArrayList<>();
-			try {
-				this.nameEnvironment.findPackages(this.modelUnit.getSource().substring(fieldAccess.getStartPosition(), this.offset).toCharArray(), new ISearchRequestor() {
-
-					@Override
-					public void acceptType(char[] packageName, char[] typeName, char[][] enclosingTypeNames, int modifiers,
-							AccessRestriction accessRestriction) { }
-
-					@Override
-					public void acceptPackage(char[] packageName) {
-						packageNames.add(new String(packageName));
-					}
-
-					@Override
-					public void acceptModule(char[] moduleName) { }
-
-					@Override
-					public void acceptConstructor(int modifiers, char[] simpleTypeName, int parameterCount, char[] signature,
-							char[][] parameterTypes, char[][] parameterNames, int typeModifiers, char[] packageName, int extraFlags,
-							String path, AccessRestriction access) { }
-				});
-			} catch (JavaModelException ex) {
-				ILog.get().error(ex.getMessage(), ex);
-			}
-			packageNames.removeIf(name -> !this.pattern.matchesName(this.prefix.toCharArray(), name.toCharArray()));
-			if (!packageNames.isEmpty()) {
-				packageNames.stream().distinct().map(pack -> toPackageProposal(pack, fieldAccess)).forEach(this.requestor::accept);
-				return;
-			}
-		}
-		if (context instanceof MethodInvocation invocation) {
-			computeSuitableBindingFromContext = false;
-			if (this.offset <= invocation.getName().getStartPosition() + invocation.getName().getLength()) {
-				Expression expression = invocation.getExpression();
-				if (expression == null) {
+			if (context instanceof FieldAccess fieldAccess) {
+				computeSuitableBindingFromContext = false;
+				statementLikeKeywords();
+				processMembers(fieldAccess.getExpression().resolveTypeBinding(), scope, true, isNodeInStaticContext(fieldAccess));
+				if (scope.stream().findAny().isPresent()) {
+					scope.stream()
+						.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
+						.map(binding -> toProposal(binding))
+						.forEach(this.requestor::accept);
+					this.requestor.endReporting();
 					return;
 				}
-				// complete name
-				ITypeBinding type = expression.resolveTypeBinding();
-				processMembers(type, scope, true, isNodeInStaticContext(invocation));
-				scope.stream()
-				.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
-				.filter(IMethodBinding.class::isInstance)
-				.map(binding -> toProposal(binding))
-				.forEach(this.requestor::accept);
-			}
-			// else complete parameters, get back to default
-		}
-		if (context instanceof VariableDeclaration declaration) {
-			var binding = declaration.resolveBinding();
-			if (binding != null) {
-				this.variableDeclHandler.findVariableNames(binding, completeAfter, scope).stream()
-						.map(name -> toProposal(binding, name)).forEach(this.requestor::accept);
-			}
-			// seems we are completing a variable name, no need for further completion search.
-			suggestDefaultCompletions = false;
-			suggestPackageCompletions = false;
-			computeSuitableBindingFromContext = false;
-		}
-		if (context instanceof ModuleDeclaration mod) {
-			findModules(this.prefix.toCharArray(), this.modelUnit.getJavaProject(), this.assistOptions, Set.of(mod.getName().toString()));
-		}
-		if (context instanceof SimpleName) {
-			if (context.getParent() instanceof SimpleType simpleType
-					&& simpleType.getParent() instanceof FieldDeclaration fieldDeclaration
-					&& fieldDeclaration.getParent() instanceof AbstractTypeDeclaration typeDecl) {
-				// eg.
-				// public class Foo {
-				//     ba|
-				// }
-				ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
-				findOverridableMethods(typeDeclBinding, this.modelUnit.getJavaProject(), context);
-				suggestDefaultCompletions = false;
-			}
-			if (context.getParent() instanceof MarkerAnnotation) {
-				completeMarkerAnnotation(completeAfter);
-				return;
-			}
-			if (context.getParent() instanceof MemberValuePair) {
-				// TODO: most of the time a constant value is expected,
-				// however if an enum is expected, we can build out the completion for that
-				return;
-			}
-		}
-		if (context instanceof AbstractTypeDeclaration typeDecl) {
-			// eg.
-			// public class Foo {
-			//     |
-			// }
-			ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
-			findOverridableMethods(typeDeclBinding, this.modelUnit.getJavaProject(), null);
-			suggestDefaultCompletions = false;
-			suggestPackageCompletions = false;
-			computeSuitableBindingFromContext = false;
-		}
-		if (context instanceof QualifiedName qualifiedName) {
-			IBinding qualifiedNameBinding = qualifiedName.getQualifier().resolveBinding();
-			if (qualifiedNameBinding instanceof ITypeBinding qualifierTypeBinding && !qualifierTypeBinding.isRecovered()) {
-				processMembers(qualifierTypeBinding, scope, false, isNodeInStaticContext(qualifiedName));
-				publishFromScope(scope);
-				int startPos = this.offset;
-				int endPos = this.offset;
-				if ((qualifiedName.getName().getFlags() & ASTNode.MALFORMED) != 0) {
-					startPos = qualifiedName.getName().getStartPosition();
-					endPos = startPos + qualifiedName.getName().getLength();
+				String packageName = ""; //$NON-NLS-1$
+				if (fieldAccess.getExpression() instanceof FieldAccess parentFieldAccess
+					&& parentFieldAccess.getName().resolveBinding() instanceof IPackageBinding packageBinding) {
+					packageName = packageBinding.getName();
+				} else if (fieldAccess.getExpression() instanceof SimpleName name
+						&& name.resolveBinding() instanceof IPackageBinding packageBinding) {
+					packageName = packageBinding.getName();
 				}
-				this.requestor.accept(createKeywordProposal(Keywords.THIS, startPos, endPos));
-				this.requestor.accept(createKeywordProposal(Keywords.SUPER, startPos, endPos));
-				this.requestor.accept(createClassKeywordProposal(qualifierTypeBinding, startPos, endPos));
+				findTypes(completeAfter, packageName)
+					.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(), type.getElementName().toCharArray()))
+					.map(this::toProposal)
+					.forEach(this.requestor::accept);
+				List<String> packageNames = new ArrayList<>();
+				try {
+					this.nameEnvironment.findPackages(this.modelUnit.getSource().substring(fieldAccess.getStartPosition(), this.offset).toCharArray(), new ISearchRequestor() {
 
+						@Override
+						public void acceptType(char[] packageName, char[] typeName, char[][] enclosingTypeNames, int modifiers,
+								AccessRestriction accessRestriction) { }
+
+						@Override
+						public void acceptPackage(char[] packageName) {
+							packageNames.add(new String(packageName));
+						}
+
+						@Override
+						public void acceptModule(char[] moduleName) { }
+
+						@Override
+						public void acceptConstructor(int modifiers, char[] simpleTypeName, int parameterCount, char[] signature,
+								char[][] parameterTypes, char[][] parameterNames, int typeModifiers, char[] packageName, int extraFlags,
+								String path, AccessRestriction access) { }
+					});
+				} catch (JavaModelException ex) {
+					ILog.get().error(ex.getMessage(), ex);
+				}
+				packageNames.removeIf(name -> !this.pattern.matchesName(this.prefix.toCharArray(), name.toCharArray()));
+				if (!packageNames.isEmpty()) {
+					packageNames.stream().distinct().map(pack -> toPackageProposal(pack, fieldAccess)).forEach(this.requestor::accept);
+					return;
+				}
+			}
+			if (context instanceof MethodInvocation invocation) {
+				computeSuitableBindingFromContext = false;
+				if (this.offset <= invocation.getName().getStartPosition() + invocation.getName().getLength()) {
+					Expression expression = invocation.getExpression();
+					if (expression == null) {
+						return;
+					}
+					// complete name
+					ITypeBinding type = expression.resolveTypeBinding();
+					processMembers(type, scope, true, isNodeInStaticContext(invocation));
+					scope.stream()
+					.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
+					.filter(IMethodBinding.class::isInstance)
+					.map(binding -> toProposal(binding))
+					.forEach(this.requestor::accept);
+				}
+				// else complete parameters, get back to default
+			}
+			if (context instanceof VariableDeclaration declaration) {
+				var binding = declaration.resolveBinding();
+				if (binding != null) {
+					this.variableDeclHandler.findVariableNames(binding, completeAfter, scope).stream()
+							.map(name -> toProposal(binding, name)).forEach(this.requestor::accept);
+				}
+				// seems we are completing a variable name, no need for further completion search.
 				suggestDefaultCompletions = false;
 				suggestPackageCompletions = false;
 				computeSuitableBindingFromContext = false;
 			}
-		}
-		if (context instanceof SuperFieldAccess superFieldAccess) {
-			ITypeBinding superTypeBinding = superFieldAccess.resolveTypeBinding();
-			processMembers(superTypeBinding, scope, false, isNodeInStaticContext(superFieldAccess));
-			publishFromScope(scope);
-			suggestDefaultCompletions = false;
-			suggestPackageCompletions = false;
-			computeSuitableBindingFromContext = false;
-		}
-		if (context instanceof MarkerAnnotation) {
-			completeMarkerAnnotation(completeAfter);
-			return;
-		}
-		if (context instanceof NormalAnnotation normalAnnotation) {
-			completeNormalAnnotationParams(normalAnnotation, scope);
-			return;
-		}
-
-		ASTNode current = this.toComplete;
-
-		if(suggestDefaultCompletions) {
-			while (current != null) {
-				scope.addAll(visibleBindings(current));
-				// break if following conditions match, otherwise we get all visible symbols which is unwanted in this
-				// completion context.
-				if (current instanceof NormalAnnotation normalAnnotation) {
-					completeNormalAnnotationParams(normalAnnotation, scope);
-					break;
-				}
-				if (current instanceof AbstractTypeDeclaration typeDecl) {
-					processMembers(typeDecl.resolveBinding(), scope, true, isNodeInStaticContext(this.toComplete));
-				}
-				current = current.getParent();
+			if (context instanceof ModuleDeclaration mod) {
+				findModules(this.prefix.toCharArray(), this.modelUnit.getJavaProject(), this.assistOptions, Set.of(mod.getName().toString()));
 			}
-			statementLikeKeywords();
-			publishFromScope(scope);
-			if (!completeAfter.isBlank()) {
-				final int typeMatchRule = this.toComplete.getParent() instanceof Annotation
-						? IJavaSearchConstants.ANNOTATION_TYPE
-						: IJavaSearchConstants.TYPE;
-				findTypes(completeAfter, typeMatchRule, null)
-						.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
-								type.getElementName().toCharArray()))
-						.map(this::toProposal).forEach(this.requestor::accept);
+			if (context instanceof SimpleName) {
+				if (context.getParent() instanceof SimpleType simpleType
+						&& simpleType.getParent() instanceof FieldDeclaration fieldDeclaration
+						&& fieldDeclaration.getParent() instanceof AbstractTypeDeclaration typeDecl) {
+					// eg.
+					// public class Foo {
+					//     ba|
+					// }
+					ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
+					findOverridableMethods(typeDeclBinding, this.modelUnit.getJavaProject(), context);
+					suggestDefaultCompletions = false;
+				}
+				if (context.getParent() instanceof MarkerAnnotation) {
+					completeMarkerAnnotation(completeAfter);
+					return;
+				}
+				if (context.getParent() instanceof MemberValuePair) {
+					// TODO: most of the time a constant value is expected,
+					// however if an enum is expected, we can build out the completion for that
+					return;
+				}
 			}
-		}
-		checkCancelled();
-		// this handle where we complete inside a expressions like
-		// Type type = new Type(); where complete after "Typ", since completion should support all type completions
-		// we should not return from this block at the end.
-		computeSuitableBindingFromContext = computeSuitableBindingFromContext
-				&& !(this.toComplete instanceof Name && (this.toComplete.getParent() instanceof Type));
-		if (computeSuitableBindingFromContext) {
-			// for documentation check code comments in DOMCompletionEngineRecoveredNodeScanner
-			var suitableBinding = this.recoveredNodeScanner.findClosestSuitableBinding(context, scope);
-			if (suitableBinding != null) {
-				processMembers(suitableBinding, scope, true, isNodeInStaticContext(this.toComplete));
+			if (context instanceof AbstractTypeDeclaration typeDecl) {
+				// eg.
+				// public class Foo {
+				//     |
+				// }
+				ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
+				findOverridableMethods(typeDeclBinding, this.modelUnit.getJavaProject(), null);
+				suggestDefaultCompletions = false;
+				suggestPackageCompletions = false;
+				computeSuitableBindingFromContext = false;
+			}
+			if (context instanceof QualifiedName qualifiedName) {
+				IBinding qualifiedNameBinding = qualifiedName.getQualifier().resolveBinding();
+				if (qualifiedNameBinding instanceof ITypeBinding qualifierTypeBinding && !qualifierTypeBinding.isRecovered()) {
+					processMembers(qualifierTypeBinding, scope, false, isNodeInStaticContext(qualifiedName));
+					publishFromScope(scope);
+					int startPos = this.offset;
+					int endPos = this.offset;
+					if ((qualifiedName.getName().getFlags() & ASTNode.MALFORMED) != 0) {
+						startPos = qualifiedName.getName().getStartPosition();
+						endPos = startPos + qualifiedName.getName().getLength();
+					}
+					this.requestor.accept(createKeywordProposal(Keywords.THIS, startPos, endPos));
+					this.requestor.accept(createKeywordProposal(Keywords.SUPER, startPos, endPos));
+					this.requestor.accept(createClassKeywordProposal(qualifierTypeBinding, startPos, endPos));
+
+					suggestDefaultCompletions = false;
+					suggestPackageCompletions = false;
+					computeSuitableBindingFromContext = false;
+				}
+			}
+			if (context instanceof SuperFieldAccess superFieldAccess) {
+				ITypeBinding superTypeBinding = superFieldAccess.resolveTypeBinding();
+				processMembers(superTypeBinding, scope, false, isNodeInStaticContext(superFieldAccess));
 				publishFromScope(scope);
+				suggestDefaultCompletions = false;
+				suggestPackageCompletions = false;
+				computeSuitableBindingFromContext = false;
+			}
+			if (context instanceof MarkerAnnotation) {
+				completeMarkerAnnotation(completeAfter);
+				return;
+			}
+			if (context instanceof NormalAnnotation normalAnnotation) {
+				completeNormalAnnotationParams(normalAnnotation, scope);
+				return;
+			}
+
+			ASTNode current = this.toComplete;
+
+			if(suggestDefaultCompletions) {
+				while (current != null) {
+					scope.addAll(visibleBindings(current));
+					// break if following conditions match, otherwise we get all visible symbols which is unwanted in this
+					// completion context.
+					if (current instanceof NormalAnnotation normalAnnotation) {
+						completeNormalAnnotationParams(normalAnnotation, scope);
+						break;
+					}
+					if (current instanceof AbstractTypeDeclaration typeDecl) {
+						processMembers(typeDecl.resolveBinding(), scope, true, isNodeInStaticContext(this.toComplete));
+					}
+					current = current.getParent();
+				}
+				statementLikeKeywords();
+				publishFromScope(scope);
+				if (!completeAfter.isBlank()) {
+					final int typeMatchRule = this.toComplete.getParent() instanceof Annotation
+							? IJavaSearchConstants.ANNOTATION_TYPE
+							: IJavaSearchConstants.TYPE;
+					findTypes(completeAfter, typeMatchRule, null)
+							.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
+									type.getElementName().toCharArray()))
+							.map(this::toProposal).forEach(this.requestor::accept);
+				}
+			}
+			checkCancelled();
+			// this handle where we complete inside a expressions like
+			// Type type = new Type(); where complete after "Typ", since completion should support all type completions
+			// we should not return from this block at the end.
+			computeSuitableBindingFromContext = computeSuitableBindingFromContext
+					&& !(this.toComplete instanceof Name && (this.toComplete.getParent() instanceof Type));
+			if (computeSuitableBindingFromContext) {
+				// for documentation check code comments in DOMCompletionEngineRecoveredNodeScanner
+				var suitableBinding = this.recoveredNodeScanner.findClosestSuitableBinding(context, scope);
+				if (suitableBinding != null) {
+					processMembers(suitableBinding, scope, true, isNodeInStaticContext(this.toComplete));
+					publishFromScope(scope);
+				}
+			}
+			try {
+				if (suggestPackageCompletions) {
+					Arrays.stream(this.modelUnit.getJavaProject().getPackageFragments())
+							.map(IPackageFragment::getElementName).distinct()
+							.filter(name -> this.pattern.matchesName(this.prefix.toCharArray(), name.toCharArray()))
+							.map(pack -> toPackageProposal(pack, this.toComplete)).forEach(this.requestor::accept);
+				}
+			} catch (JavaModelException ex) {
+				ILog.get().error(ex.getMessage(), ex);
+			}
+			checkCancelled();
+		} finally {
+			this.requestor.endReporting();
+			if (this.monitor != null) {
+				this.monitor.done();
 			}
 		}
-		try {
-			if (suggestPackageCompletions) {
-				Arrays.stream(this.modelUnit.getJavaProject().getPackageFragments())
-						.map(IPackageFragment::getElementName).distinct()
-						.filter(name -> this.pattern.matchesName(this.prefix.toCharArray(), name.toCharArray()))
-						.map(pack -> toPackageProposal(pack, this.toComplete)).forEach(this.requestor::accept);
-			}
-		} catch (JavaModelException ex) {
-			ILog.get().error(ex.getMessage(), ex);
-		}
-		checkCancelled();
-		this.requestor.endReporting();
 	}
 
 	private void checkCancelled() {
