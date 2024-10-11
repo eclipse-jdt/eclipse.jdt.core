@@ -521,16 +521,32 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public boolean isGenericMethod() {
-		return (isConstructor() && getDeclaringClass().isGenericType())
-				|| (!this.methodSymbol.getTypeParameters().isEmpty() && isDeclaration);
-		// TODO instead of the methodType, get a less typed Type and check if it is a ForAll
+		if( methodHasGenerics() ) {
+			return true;
+		}
+		// instead of the methodType, get a less typed Type and check if it is a ForAll
+		if( this.methodSymbol.type instanceof ForAll) {
+			return !methodMatchesParameterized();
+		}
+		return false;
 	}
+	
+	private boolean methodHasGenerics() {
+		boolean b1 = (isConstructor() && getDeclaringClass().isGenericType())
+				|| (!this.methodSymbol.getTypeParameters().isEmpty() && isDeclaration);
+		return b1;
+	}
+	
 	@Override
 	public boolean isParameterizedMethod() {
-		return !isGenericMethod() &&
-			((isConstructor() && getDeclaringClass().isParameterizedType()) 
-			|| (!this.methodSymbol.getTypeParameters().isEmpty() && !isDeclaration));
+		return !methodHasGenerics() && methodMatchesParameterized();
 	}
+	
+	private boolean methodMatchesParameterized() {
+		return ((isConstructor() && getDeclaringClass().isParameterizedType()) 
+				|| (!this.methodSymbol.getTypeParameters().isEmpty() && !isDeclaration));
+	}
+	
 	@Override
 	public boolean isRawMethod() {
 		if (isConstructor()) {
