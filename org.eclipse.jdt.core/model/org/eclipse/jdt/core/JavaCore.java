@@ -3323,7 +3323,7 @@ public final class JavaCore extends Plugin {
 	 *
 	 * @return all Java source versions fully supported by Eclipse compiler
 	 * @see #isJavaSourceVersionSupportedByCompiler(String)
-	 * @since 3.40
+	 * @since 3.39
 	 */
 	public static SortedSet<String> getAllJavaSourceVersionsSupportedByCompiler() {
 		return SUPPORTED_VERSIONS;

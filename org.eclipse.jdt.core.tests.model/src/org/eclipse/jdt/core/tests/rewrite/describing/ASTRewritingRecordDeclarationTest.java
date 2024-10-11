@@ -1419,7 +1419,6 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
-		AST ast= astRoot.getAST();
 
 		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
 		List <RecordDeclaration> methods= astRoot.types();
