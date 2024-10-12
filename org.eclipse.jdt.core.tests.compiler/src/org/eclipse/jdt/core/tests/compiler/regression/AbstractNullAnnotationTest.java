@@ -95,8 +95,8 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 	}
 
 	protected String getAnnotationLibPath() throws IOException {
-		Bundle[] bundles = org.eclipse.jdt.core.tests.compiler.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", "[2.0.0,3.0.0)");
-		File bundleFile = FileLocator.getBundleFileLocation(bundles[0]).get();
+		Bundle bundle = Platform.getBundle("org.eclipse.jdt.annotation");
+		File bundleFile = FileLocator.getBundleFileLocation(bundle).get();
 		if (bundleFile.isDirectory())
 			return bundleFile.getPath()+"/bin";
 		else
