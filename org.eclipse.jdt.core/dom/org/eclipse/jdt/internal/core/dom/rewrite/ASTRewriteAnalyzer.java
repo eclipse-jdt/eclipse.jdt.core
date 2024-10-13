@@ -393,7 +393,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	final TextEdit doTextRemove(int offset, int len, TextEditGroup editGroup) {
-		if (len <= 0) {
+		if (len == 0) {
 			return null;
 		}
 		TextEdit edit= new DeleteEdit(offset, len);
