@@ -19,6 +19,7 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameI
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameTextBlock;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameUNDERSCORE;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -174,6 +175,9 @@ public class TokenManager implements Iterable<Token> {
 			if (TerminalTokens.isRestrictedKeyword(tokenType) && t.tokenType == TokenNameIdentifier) {
 				if (tokenType == TerminalTokens.getRestrictedKeyword(toString(t)))
 					break;
+			}
+			if (t.tokenType == TokenNameUNDERSCORE && tokenType == TokenNameIdentifier) {
+				break;
 			}
 			index += forward ? 1 : -1;
 		}
