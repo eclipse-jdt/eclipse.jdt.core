@@ -61,6 +61,8 @@ public class RunVariousPatternsTests extends TestCase {
 				NullAnnotationTests21.class,
 				ComplianceDiagnoseTest.class,
 				InstanceofExpressionTest.class,
+				PrimitiveInPatternsTest.class,
+				PrimitiveInPatternsTestSH.class,
 		};
 	}
 

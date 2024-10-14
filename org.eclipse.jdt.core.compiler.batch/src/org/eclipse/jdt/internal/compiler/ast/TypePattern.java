@@ -202,7 +202,11 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 			return false;
 		if (p.resolvedType == null || this.resolvedType == null)
 			return false;
-		return p.resolvedType.erasure().isSubtypeOf(this.resolvedType.erasure(), false);
+
+		if (p.resolvedType.isSubtypeOf(this.resolvedType, false))
+			return true;
+
+		return p.resolvedType.erasure().findSuperTypeOriginatingFrom(this.resolvedType.erasure()) != null;
 	}
 
 	@Override
