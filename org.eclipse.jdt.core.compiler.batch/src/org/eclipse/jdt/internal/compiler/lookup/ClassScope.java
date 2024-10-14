@@ -664,8 +664,19 @@ public class ClassScope extends Scope {
 				if (compilerOptions().complianceLevel < ClassFileConstants.JDK9)
 					modifiers |= ClassFileConstants.AccFinal;
 			    // set AccEnum flag for anonymous body of enum constants
-			    if (this.referenceContext.allocation.type == null)
+			    if (this.referenceContext.allocation.type == null) {
 			    	modifiers |= ClassFileConstants.AccEnum;
+			    	// 8.1.1.4 local enum classes are implicitly static - we can't trust isLocalType() which answers true for all anonymous types.
+			    	Scope scope = this;
+					while ((scope = scope.parent) != null) {
+						if (scope instanceof MethodScope methodScope) {
+							if (methodScope.referenceContext instanceof TypeDeclaration)
+								continue;
+							modifiers |= ClassFileConstants.AccStatic;
+							break;
+						}
+					}
+			    }
 			} else if (this.parent.referenceContext() instanceof TypeDeclaration) {
 				TypeDeclaration typeDecl = (TypeDeclaration) this.parent.referenceContext();
 				if (TypeDeclaration.kind(typeDecl.modifiers) == TypeDeclaration.INTERFACE_DECL) {
