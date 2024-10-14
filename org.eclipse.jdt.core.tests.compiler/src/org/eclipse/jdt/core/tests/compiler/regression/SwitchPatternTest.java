@@ -8864,4 +8864,48 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Type I<X> cannot be safely cast to B<X>\n" +
 				"----------\n");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3035
+	// [switch][sealed types] ECJ fails to signal a completely dominated case arm
+	public void testIssue3035() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						abstract sealed class J<T1, T2> permits X.S, A {
+						}
+
+						final class A extends J<Integer, String> {
+						}
+
+						public class X {
+
+							sealed class S<T, U> extends J<T, U> permits SS {
+							}
+
+							final class SS<T, U> extends S<U, T> {}
+
+							int testExhaustive(J<Integer, String> ji) {
+								return switch (ji) { // Exhaustive!
+								case A a -> 42;
+								case S<Integer, String> e -> 4200;
+								case SS<String, Integer> e -> 420;
+								};
+							}
+
+							public static void main(String[] args) {
+								S<Integer, String> xs = null;
+								System.out.println(new X().testExhaustive(new X().new S<Integer, String>()));
+								J<Integer, String> ji = new X().new SS<String, Integer>();
+							}
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 18)\n" +
+				"	case SS<String, Integer> e -> 420;\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^^^\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
+				"----------\n");
+	}
 }
