@@ -4707,7 +4707,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			1. ERROR in X.java (at line 5)
 				case X<String>(int x):
 				     ^^^^^^^^^^^^^^^^
-			Type X<String> cannot be safely cast to Object
+			Type Object cannot be safely cast to X<String>
 			----------
 			""");
 	}
