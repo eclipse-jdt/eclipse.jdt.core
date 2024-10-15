@@ -130,7 +130,7 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	protected boolean isApplicable(TypeBinding other, BlockScope scope) {
-		return this.primaryPattern.isApplicable(other, scope);
+	protected boolean isApplicable(TypeBinding expressionType, BlockScope scope, ASTNode location) {
+		return this.primaryPattern.isApplicable(expressionType, scope, location);
 	}
 }

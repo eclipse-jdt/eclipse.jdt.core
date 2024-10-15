@@ -117,18 +117,14 @@ public class RecordPattern extends Pattern {
 			return this.resolvedType = null;
 		}
 
-		if (this.outerExpressionType instanceof ReferenceBinding) {
-			if (this.resolvedType.isRawType()) {
+		if (this.resolvedType.isRawType()) {
+			if (this.outerExpressionType instanceof ReferenceBinding) {
 				ReferenceBinding binding = inferRecordParameterization(scope, (ReferenceBinding) this.outerExpressionType);
 				if (binding == null || !binding.isValidBinding()) {
 					scope.problemReporter().cannotInferRecordPatternTypes(this);
 				    return this.resolvedType = null;
 				}
 				this.resolvedType = binding.capture(scope, this.sourceStart, this.sourceEnd);
-			} else {
-				if (!this.isApplicable(this.outerExpressionType, scope)) {
-					scope.problemReporter().typeMismatchError(this.outerExpressionType, this.resolvedType, this, null);
-				}
 			}
 		}
 
@@ -156,7 +152,7 @@ public class RecordPattern extends Pattern {
 				}
 			}
 			TypeBinding componentType = componentBinding.type;
-			if (p1.isApplicable(componentType, scope)) {
+			if (p1.isApplicable(componentType, scope, p1)) {
 				p1.isTotalTypeNode = p1.coversType(componentType, scope);
 				MethodBinding[] methods = this.resolvedType.getMethods(componentBinding.name);
 				if (methods != null && methods.length > 0) {

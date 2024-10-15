@@ -277,8 +277,12 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (expressionType == null || checkedType == null)
 		return null;
 
-	if (this.pattern instanceof RecordPattern) // subsequent tests are not relevant for RecordPatterns
+	if (this.pattern != null) {
+		if (this.pattern.isApplicable(expressionType, scope, this)) {
+			checkForPrimitives(scope, checkedType, expressionType);
+		}
 		return this.resolvedType = TypeBinding.BOOLEAN;
+	}
 
 	if (!checkedType.isReifiable()) {
 		CompilerOptions options = scope.compilerOptions();
@@ -297,17 +301,18 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 	} else if (checkedType.isValidBinding()) {
 		// if not a valid binding, an error has already been reported for unresolved type
-		if ((expressionType != TypeBinding.NULL && expressionType.isBaseType()) // disallow autoboxing
-				|| checkedType.isBaseType()
-				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null, true)) {
-			checkForPrimitives(scope, checkedType, expressionType);
-		}
+		checkForPrimitives(scope, checkedType, expressionType);
 	}
 
 	return this.resolvedType = TypeBinding.BOOLEAN;
 }
 
 private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeBinding expressionType) {
+	boolean needToCheck = (expressionType != TypeBinding.NULL && expressionType.isBaseType()) // disallow autoboxing
+				|| checkedType.isBaseType()
+				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null, true);
+	if (!needToCheck)
+		return;
 	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope);
 	this.testContextRecord = new TestContextRecord(checkedType, expressionType, route);
 
