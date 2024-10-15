@@ -19,58 +19,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jdt.core.CompletionProposal;
-import org.eclipse.jdt.core.CompletionRequestor;
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.IAccessRule;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IModuleDescription;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
-import org.eclipse.jdt.core.dom.Annotation;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.FieldAccess;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.IPackageBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.LambdaExpression;
-import org.eclipse.jdt.core.dom.MarkerAnnotation;
-import org.eclipse.jdt.core.dom.MemberValuePair;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.ModuleDeclaration;
-import org.eclipse.jdt.core.dom.NodeFinder;
-import org.eclipse.jdt.core.dom.NormalAnnotation;
-import org.eclipse.jdt.core.dom.PrimitiveType;
-import org.eclipse.jdt.core.dom.QualifiedName;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.SuperFieldAccess;
-import org.eclipse.jdt.core.dom.VariableDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -199,6 +153,25 @@ public class DOMCompletionEngine implements Runnable {
 		return visibleBindings;
 	}
 
+	private Collection<? extends ITypeBinding> visibleTypeBindings(ASTNode node) {
+		List<ITypeBinding> visibleBindings = new ArrayList<>();
+		if (node instanceof AbstractTypeDeclaration typeDeclaration) {
+			visibleBindings.add(typeDeclaration.resolveBinding());
+			for (ASTNode bodyDeclaration : (List<ASTNode>)typeDeclaration.bodyDeclarations()) {
+				visibleBindings.addAll(visibleTypeBindings(bodyDeclaration));
+			}
+		}
+		if (node instanceof Block block) {
+			var bindings = ((List<Statement>) block.statements()).stream()
+					.filter(statement -> statement.getStartPosition() < this.offset)
+				.filter(TypeDeclaration.class::isInstance)
+				.map(TypeDeclaration.class::cast)
+					.map(TypeDeclaration::resolveBinding).toList();
+			visibleBindings.addAll(bindings);
+		}
+		return visibleBindings;
+	}
+
 	private IJavaElement computeEnclosingElement() {
 		try {
 			if (this.modelUnit == null)
@@ -231,6 +204,12 @@ public class DOMCompletionEngine implements Runnable {
 						|| simpleName.getParent() instanceof VariableDeclaration || simpleName.getParent() instanceof QualifiedName) {
 					context = this.toComplete.getParent();
 				}
+			} else if (this.toComplete instanceof SimpleType simpleType) {
+				if (FAKE_IDENTIFIER.equals(simpleType.getName().toString())) {
+					context = this.toComplete.getParent();
+				}
+			} else if (this.toComplete instanceof Block block && this.offset == block.getStartPosition()) {
+				context = this.toComplete.getParent();
 			}
 			this.prefix = completeAfter;
 			this.qualifiedPrefix = this.prefix;
@@ -322,6 +301,9 @@ public class DOMCompletionEngine implements Runnable {
 					// however if an enum is expected, we can build out the completion for that
 					suggestDefaultCompletions = false;
 				}
+				if (context.getParent() instanceof MethodDeclaration) {
+					suggestDefaultCompletions = false;
+				}
 			}
 			if (context instanceof AbstractTypeDeclaration typeDecl) {
 				// eg.
@@ -370,6 +352,24 @@ public class DOMCompletionEngine implements Runnable {
 				completeNormalAnnotationParams(normalAnnotation, scope);
 				suggestDefaultCompletions = false;
 			}
+			if (context instanceof MethodDeclaration methodDeclaration) {
+				if (this.offset < methodDeclaration.getName().getStartPosition()) {
+					completeMethodModifiers(methodDeclaration);
+					// return type: suggest types from current CU
+					if (methodDeclaration.getReturnType2() == null) {
+						ASTNode current = this.toComplete;
+						while (current != null) {
+							scope.addAll(visibleTypeBindings(current));
+							current = current.getParent();
+						}
+						publishFromScope(scope);
+					}
+					suggestDefaultCompletions = false;
+				} else if (methodDeclaration.getBody() != null && this.offset <= methodDeclaration.getBody().getStartPosition()) {
+					completeThrowsClause(methodDeclaration, scope);
+					suggestDefaultCompletions = false;
+				}
+			}
 
 			if (suggestDefaultCompletions) {
 				ASTNode current = this.toComplete;
@@ -410,6 +410,40 @@ public class DOMCompletionEngine implements Runnable {
 		}
 	}
 
+	private void completeMethodModifiers(MethodDeclaration methodDeclaration) {
+		List<char[]> keywords = new ArrayList<>();
+
+		if ((methodDeclaration.getModifiers() & Flags.AccAbstract) == 0) {
+			keywords.add(Keywords.ABSTRACT);
+		}
+		if ((methodDeclaration.getModifiers() & (Flags.AccPublic | Flags.AccPrivate | Flags.AccProtected)) == 0) {
+			keywords.add(Keywords.PUBLIC);
+			keywords.add(Keywords.PRIVATE);
+			keywords.add(Keywords.PROTECTED);
+		}
+		if ((methodDeclaration.getModifiers() & Flags.AccDefaultMethod) == 0) {
+			keywords.add(Keywords.DEFAULT);
+		}
+		if ((methodDeclaration.getModifiers() & Flags.AccFinal) == 0) {
+			keywords.add(Keywords.FINAL);
+		}
+		if ((methodDeclaration.getModifiers() & Flags.AccNative) == 0) {
+			keywords.add(Keywords.NATIVE);
+		}
+		if ((methodDeclaration.getModifiers() & Flags.AccStrictfp) == 0) {
+			keywords.add(Keywords.STRICTFP);
+		}
+		if ((methodDeclaration.getModifiers() & Flags.AccSynchronized) == 0) {
+			keywords.add(Keywords.SYNCHRONIZED);
+		}
+
+		for (char[] keyword : keywords) {
+			if (!isFailedMatch(this.prefix.toCharArray(), keyword)) {
+				this.requestor.accept(createKeywordProposal(keyword, this.offset, this.offset));
+			}
+		}
+	}
+
 	private void checkCancelled() {
 		if (this.monitor != null && this.monitor.isCanceled()) {
 			throw new OperationCanceledException();
@@ -444,6 +478,21 @@ public class DOMCompletionEngine implements Runnable {
 				this.requestor.accept(createKeywordProposal(keyword, this.toComplete.getStartPosition(), this.offset));
 			}
 		}
+	}
+
+	private void completeThrowsClause(MethodDeclaration methodDeclaration, Bindings scope) {
+		if (methodDeclaration.thrownExceptionTypes().size() == 0) {
+			if (!isFailedMatch(this.prefix.toCharArray(), Keywords.THROWS)) {
+				this.requestor.accept(createKeywordProposal(Keywords.THROWS, this.offset, this.offset));
+			}
+		}
+		// TODO: JDT doesn't filter out non-throwable types, should we?
+		ASTNode current = this.toComplete;
+		while (current != null) {
+			scope.addAll(visibleTypeBindings(current));
+			current = current.getParent();
+		}
+		publishFromScope(scope);
 	}
 
 	private void suggestPackages() {
@@ -770,7 +819,7 @@ public class DOMCompletionEngine implements Runnable {
 		res.setName(simpleName);
 		res.setCompletion(type.getElementName().toCharArray());
 		res.setSignature(signature);
-		if (this.toComplete instanceof FieldAccess) {
+		if (this.toComplete instanceof FieldAccess || this.prefix.isEmpty()) {
 			res.setReplaceRange(this.offset, this.offset);
 		} else if (this.toComplete instanceof MarkerAnnotation) {
 			res.setReplaceRange(this.toComplete.getStartPosition() + 1, this.toComplete.getStartPosition() + this.toComplete.getLength());
