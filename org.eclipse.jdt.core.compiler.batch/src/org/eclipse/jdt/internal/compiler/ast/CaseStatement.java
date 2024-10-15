@@ -384,7 +384,7 @@ private Constant resolveCasePattern(BlockScope scope, TypeBinding caseType, Type
 			if (expressionType != TypeBinding.NULL && !(e instanceof RecordPattern)) {
 				boolean isLegal = e.checkCastTypesCompatibility(scope, type, expressionType, e, false);
 				if (!isLegal || (e.bits & ASTNode.UnsafeCast) != 0) {
-					scope.problemReporter().unsafeCastInInstanceof(e, type, expressionType);
+					scope.problemReporter().unsafeCastInTestingContext(e, type, expressionType);
 				}
 			}
 		} else if (type.isValidBinding()) {

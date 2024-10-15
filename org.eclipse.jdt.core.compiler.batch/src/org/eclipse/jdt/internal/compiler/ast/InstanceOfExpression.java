@@ -289,7 +289,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			if (expressionType != TypeBinding.NULL) {
 				boolean isLegal = checkCastTypesCompatibility(scope, checkedType, expressionType, this.expression, true);
 				if (!isLegal || (this.bits & ASTNode.UnsafeCast) != 0) {
-					scope.problemReporter().unsafeCastInInstanceof(this.expression, checkedType, expressionType);
+					scope.problemReporter().unsafeCastInTestingContext(this.expression, checkedType, expressionType);
 				} else  {
 					checkRefForPrimitivesAndAddSecretVariable(scope, checkedType, expressionType);
 				}

@@ -8538,19 +8538,19 @@ public void typeCastError(CastExpression expression, TypeBinding leftType, TypeB
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void unsafeCastInInstanceof(Expression expression, TypeBinding leftType, TypeBinding rightType) {
-	String leftName = new String(leftType.readableName());
-	String rightName = new String(rightType.readableName());
-	String leftShortName = new String(leftType.shortReadableName());
-	String rightShortName = new String(rightType.shortReadableName());
-	if (leftShortName.equals(rightShortName)){
-		leftShortName = leftName;
-		rightShortName = rightName;
+public void unsafeCastInTestingContext(Expression expression, TypeBinding castType, TypeBinding expressionType) {
+	String castName = new String(castType.readableName());
+	String exprName = new String(expressionType.readableName());
+	String castShortName = new String(castType.shortReadableName());
+	String exprShortName = new String(expressionType.shortReadableName());
+	if (castShortName.equals(exprShortName)){
+		castShortName = castName;
+		exprShortName = exprName;
 	}
 	this.handle(
 		IProblem.UnsafeCast,
-		new String[] { rightName, leftName },
-		new String[] { rightShortName, leftShortName },
+		new String[] { exprName, castName },
+		new String[] { exprShortName, castShortName },
 		expression.sourceStart,
 		expression.sourceEnd);
 }

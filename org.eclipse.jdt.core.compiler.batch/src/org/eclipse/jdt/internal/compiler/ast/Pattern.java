@@ -165,7 +165,7 @@ public abstract class Pattern extends Expression {
 				applicable = false;
 			}
 			if ((this.bits & ASTNode.UnsafeCast) != 0) {
-				scope.problemReporter().unsafeCastInInstanceof(this, this.outerExpressionType, patternType);
+				scope.problemReporter().unsafeCastInTestingContext(this, patternType, this.outerExpressionType);
 			}
 		}
 		return applicable;
