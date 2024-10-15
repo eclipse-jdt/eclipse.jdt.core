@@ -52,6 +52,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -2563,7 +2564,7 @@ public List<ReferenceBinding> getAllEnumerableReferenceTypes() {
 		oldSet = permSet;
 		permSet = tmp;
 	} while (oldSet.size() != permSet.size());
-	return Arrays.asList(permSet.toArray(new ReferenceBinding[0]));
+	return new ArrayList<>(permSet);
 }
 
 // 5.1.6.1 Allowed Narrowing Reference Conversion

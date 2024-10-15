@@ -8908,4 +8908,168 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2720
+	// [Sealed Types + Enhanced Switch] Incorrect diagnostic about switch not being exhaustive
+	public void testIssue2720() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						sealed interface I {
+
+							enum E implements I {
+								A, B, C;
+							}
+						}
+
+						public class X {
+
+							static void d(I i) {
+								switch (i) { // error: An enhanced switch statement should be exhaustive; a default label expected
+									case I.E.A -> { System.out.println("I.E.A"); }
+									case I.E.B -> { System.out.println("I.E.B"); }
+									case I.E.C -> { System.out.println("I.E.C"); }
+								}
+							}
+
+							public static void main(String [] args) {
+								d(I.E.A);
+								d(I.E.B);
+								d(I.E.C);
+							}
+						}
+						"""
+				},
+				"I.E.A\n" +
+				"I.E.B\n" +
+				"I.E.C");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2720
+	// [Sealed Types + Enhanced Switch] Incorrect diagnostic about switch not being exhaustive
+	public void testIssue2720_2() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						sealed interface I {
+
+							enum E implements I {
+								A, B, C;
+							}
+
+							enum K implements I {
+							    D, E, F;
+							}
+						}
+
+						class Test {
+
+							void d(I i) {
+								switch (i) {
+									case I.E.A -> {}
+									case I.E.B -> {}
+									case I.E.C -> {}
+						            case I.K k -> {}
+								}
+								switch (i) {
+									case I.E.A -> {}
+									case I.E.B -> {}
+									case I.E.C -> {}
+						            default -> {}
+								}
+								switch (i) {
+									case I.E.A -> {}
+									case I.E.B -> {}
+									case I.E.C -> {}
+									case I.K.D -> {}
+									case I.K.E -> {}
+									case I.K.F -> {}
+						            default -> {}
+								}
+								switch (i) {
+									case I.E.A -> {}
+									case I.E.B -> {}
+									case I.E.C -> {}
+									case I.K.D -> {}
+									case I.K.E -> {}
+						            default -> {}
+								}
+								switch (i) {
+									case I.E.A -> {}
+									case I.E.B -> {}
+									case I.E.C -> {}
+									case I.K.D -> {}
+									case I.K.E -> {}
+								}
+								switch (i) {
+									case I.E.A -> {}
+									case I.E.B -> {}
+									case I.E.C -> {}
+									case I.K.D -> {}
+									case I.K.E -> {}
+									case I.K.F -> {}
+								}
+							}
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 44)\n" +
+				"	switch (i) {\n" +
+				"	        ^\n" +
+				"An enhanced switch statement should be exhaustive; a default label expected\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2720
+	// [Sealed Types + Enhanced Switch] Incorrect diagnostic about switch not being exhaustive
+	public void testIssue2720_3() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						sealed interface I {
+
+							enum E implements I {
+								A, B, C;
+							}
+
+							enum K implements I {
+							    D, E, F;
+							}
+						}
+
+						public class X {
+
+							static void d(I i) {
+								switch (i) {
+									case I.E.A -> { System.out.println("I.E.A"); }
+									case I.E.B -> { System.out.println("I.E.B"); }
+									case I.E.C -> { System.out.println("I.E.C"); }
+									case I.K.D -> { System.out.println("I.K.D"); }
+									case I.K.E -> { System.out.println("I.K.E"); }
+									case I.K.F -> { System.out.println("I.K.F"); }
+								}
+							}
+
+							public static void main(String [] args) {
+								d(I.E.A);
+								d(I.E.B);
+								d(I.E.C);
+								d(I.K.D);
+								d(I.K.E);
+								d(I.K.F);
+							}
+						}
+						"""
+				},
+				"I.E.A\n" +
+				"I.E.B\n" +
+				"I.E.C\n" +
+				"I.K.D\n" +
+				"I.K.E\n" +
+				"I.K.F");
+	}
 }

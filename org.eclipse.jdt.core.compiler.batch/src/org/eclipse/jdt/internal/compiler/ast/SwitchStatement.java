@@ -25,7 +25,10 @@ import static org.eclipse.jdt.internal.compiler.ClassFile.CONSTANT_BOOTSTRAP__PR
 import java.lang.invoke.ConstantBootstraps;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -43,7 +46,15 @@ import org.eclipse.jdt.internal.compiler.flow.SwitchFlowContext;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 @SuppressWarnings("rawtypes")
@@ -1307,23 +1318,18 @@ public class SwitchStatement extends Expression {
 							((this.containsPatterns || this.containsNull) ||
 							(constantCount >= this.caseCount &&
 							constantCount != ((ReferenceBinding)expressionType).enumConstantCount()))) {
-						FieldBinding[] enumFields = ((ReferenceBinding) expressionType.erasure()).fields();
-						for (int i = 0, max = enumFields.length; i < max; i++) {
-							FieldBinding enumConstant = enumFields[i];
-							if ((enumConstant.modifiers & ClassFileConstants.AccEnum) == 0) continue;
-							findConstant : {
-								for (int j = 0; j < constantCount; j++) {
-									if ((enumConstant.id + 1) == this.otherConstants[j].c.intValue()) // zero should not be returned see bug 141810
-										break findConstant;
-								}
-								this.switchBits &= ~SwitchStatement.Exhaustive;
-								// enum constant did not get referenced from switch
-								boolean suppress = (this.defaultCase != null && (this.defaultCase.bits & DocumentedCasesOmitted) != 0);
-								if (!suppress) {
-									if (isEnhanced)
-										upperScope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
-									else
+						Set<FieldBinding> unenumeratedConstants = unenumeratedConstants((ReferenceBinding) expressionType, constantCount);
+						if (unenumeratedConstants.size() != 0) {
+							this.switchBits &= ~SwitchStatement.Exhaustive;
+							// enum constant did not get referenced from switch
+							boolean suppress = (this.defaultCase != null && (this.defaultCase.bits & DocumentedCasesOmitted) != 0);
+							if (!suppress) {
+								if (isEnhanced)
+									upperScope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
+								else {
+									for (FieldBinding enumConstant : unenumeratedConstants) {
 										reportMissingEnumConstantCase(upperScope, enumConstant);
+									}
 								}
 							}
 						}
@@ -1340,6 +1346,32 @@ public class SwitchStatement extends Expression {
 		} finally {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 		}
+	}
+
+	// Return the set of enumerations belonging to the selector enum type that are not listed in case statements.
+	private Set<FieldBinding> unenumeratedConstants(ReferenceBinding enumType, int constantCount) {
+		FieldBinding[] enumFields = ((ReferenceBinding) enumType.erasure()).fields();
+		Set<FieldBinding> unenumerated = new HashSet<>(Arrays.asList(enumFields));
+		for (int i = 0, max = enumFields.length; i < max; i++) {
+			FieldBinding enumConstant = enumFields[i];
+			if ((enumConstant.modifiers & ClassFileConstants.AccEnum) == 0) {
+				unenumerated.remove(enumConstant);
+				continue;
+			}
+			for (int j = 0; j < constantCount; j++) {
+				if (TypeBinding.equalsEquals(this.otherConstants[j].e.resolvedType, enumType)) {
+					if (this.otherConstants[j].e instanceof NameReference reference) {
+						FieldBinding field = reference.fieldBinding();
+						int intValue = field.original().id + 1;
+						if ((enumConstant.id + 1) == intValue) { // zero should not be returned see bug 141810
+							unenumerated.remove(enumConstant);
+							break;
+						}
+					}
+				}
+			}
+		}
+		return unenumerated;
 	}
 	private boolean isCaseStmtNullDefault(CaseStatement caseStmt) {
 		return caseStmt != null
@@ -1398,20 +1430,11 @@ public class SwitchStatement extends Expression {
 		return false;
 	}
 	private boolean checkAndFlagDefaultSealed(BlockScope skope, CompilerOptions compilerOptions) {
-		if (this.defaultCase != null) { // mark covered as a side effect (since covers is intro in 406)
+		if (this.defaultCase != null) {
 			this.switchBits |= SwitchStatement.Exhaustive;
 			return false;
 		}
-		boolean checkSealed = this.containsPatterns
-				&& JavaFeature.SEALED_CLASSES.isSupported(compilerOptions)
-				&& JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions)
-				&& this.expression.resolvedType instanceof ReferenceBinding;
-		if (!checkSealed) return false;
-		ReferenceBinding ref = (ReferenceBinding) this.expression.resolvedType;
-		if (!(ref.isClass() || ref.isInterface() || ref.isTypeVariable() || ref.isIntersectionType()))
-			return false;
-
-		if (ref.isRecord()) {
+		if (this.expression.resolvedType instanceof ReferenceBinding ref && ref.isRecord()) {
 			boolean isRecordPattern = false;
 			for (Pattern pattern : this.caseLabelElements) {
 				if (pattern instanceof RecordPattern) {
@@ -1422,7 +1445,16 @@ public class SwitchStatement extends Expression {
 			if (isRecordPattern)
 				return checkAndFlagDefaultRecord(skope, compilerOptions, ref);
 		}
-		if (!ref.isSealed()) return false;
+		boolean checkSealed = JavaFeature.SEALED_CLASSES.isSupported(compilerOptions)
+				&& JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions)
+				&& this.expression.resolvedType instanceof ReferenceBinding
+				&& this.expression.resolvedType.isSealed();
+
+		if (!checkSealed) return false;
+		ReferenceBinding ref = (ReferenceBinding) this.expression.resolvedType;
+		if (!(ref.isClass() || ref.isInterface() || ref.isTypeVariable() || ref.isIntersectionType()))
+			return false;
+
 		if (!isExhaustiveWithCaseTypes(ref.getAllEnumerableReferenceTypes(), this.caseLabelElementTypes)) {
 			if (this instanceof SwitchExpression) // non-exhaustive switch expressions will be flagged later.
 				return false;
@@ -1458,25 +1490,33 @@ public class SwitchStatement extends Expression {
 		return false;
 	}
 	private boolean isExhaustiveWithCaseTypes(List<ReferenceBinding> allAllowedTypes,  List<TypeBinding> listedTypes) {
-		int pendingTypes = allAllowedTypes.size();
-		for (ReferenceBinding pt : allAllowedTypes) {
-			/* Per JLS 14.11.1.1: A type T that names an abstract sealed class or sealed interface is covered
-			   if every permitted direct subclass or subinterface of it is covered. These subtypes are already
-			   added to allAllowedTypes and subject to cover test.
-			*/
-			if (pt.isAbstract() && pt.isSealed()) {
-				--pendingTypes;
+		Iterator<ReferenceBinding> iterator = allAllowedTypes.iterator();
+		while (iterator.hasNext()) {
+			ReferenceBinding next = iterator.next();
+			if (next.isAbstract() && next.isSealed()) {
+				/* Per JLS 14.11.1.1: A type T that names an abstract sealed class or sealed interface is covered
+				   if every permitted direct subclass or subinterface of it is covered. These subtypes are already
+				   added to allAllowedTypes and subject to cover test.
+				*/
+				iterator.remove();
 				continue;
 			}
 			for (TypeBinding type : listedTypes) {
 				// permits specifies classes, not parameterizations
-				if (pt.erasure().isCompatibleWith(type.erasure())) {
-					--pendingTypes;
+				if (next.erasure().isCompatibleWith(type.erasure())) {
+					iterator.remove();
 					break;
 				}
 			}
+			if (next.isEnum()) {
+				int constantCount = this.otherConstants == null ? 0 : this.otherConstants.length;
+				Set<FieldBinding> unenumeratedConstants = unenumeratedConstants(next, constantCount);
+				if (unenumeratedConstants.size() == 0) {
+					iterator.remove();
+				}
+			}
 		}
-		return pendingTypes == 0;
+		return allAllowedTypes.size() == 0;
 	}
 	private boolean needPatternDispatchCopy() {
 		if (this.containsPatterns || (this.switchBits & QualifiedEnum) != 0)
