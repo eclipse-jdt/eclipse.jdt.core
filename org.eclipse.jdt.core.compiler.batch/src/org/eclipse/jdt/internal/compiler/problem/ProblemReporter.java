@@ -826,6 +826,16 @@ public void abortDueToNotSupportedJavaVersion(String notSupportedVersion, String
 			0,
 			0);
 }
+public void tooRecentJavaVersion(String notSupportedVersion, String firstSupportedVersion) {
+	String[] args = new String[] {notSupportedVersion, firstSupportedVersion};
+	this.handle(
+			IProblem.JavaVersionTooRecent,
+			args,
+			args,
+			ProblemSeverities.Warning,
+			0,
+			0);
+}
 public void abstractMethodCannotBeOverridden(SourceTypeBinding type, MethodBinding concreteMethod) {
 
 	this.handle(

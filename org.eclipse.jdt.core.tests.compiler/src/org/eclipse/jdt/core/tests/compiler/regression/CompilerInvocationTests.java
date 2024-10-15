@@ -65,6 +65,7 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
@@ -1247,6 +1248,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("FeatureNotSupported", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("PreviewAPIUsed", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("JavaVersionNotSupported", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
+	    expectedProblemAttributes.put("JavaVersionTooRecent", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("SwitchExpressionsYieldIncompatibleResultExpressionTypes", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 	    expectedProblemAttributes.put("SwitchExpressionsYieldEmptySwitchBlock", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 	    expectedProblemAttributes.put("SwitchExpressionsYieldNoResultExpression", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -2381,6 +2383,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("FeatureNotSupported", SKIP);
 	    expectedProblemAttributes.put("PreviewAPIUsed", SKIP);
 	    expectedProblemAttributes.put("JavaVersionNotSupported", SKIP);
+	    expectedProblemAttributes.put("JavaVersionTooRecent", SKIP);
 	    expectedProblemAttributes.put("SwitchExpressionsYieldIncompatibleResultExpressionTypes", SKIP);
 	    expectedProblemAttributes.put("SwitchExpressionsYieldEmptySwitchBlock", SKIP);
 	    expectedProblemAttributes.put("SwitchExpressionsYieldNoResultExpression", SKIP);
@@ -2581,5 +2584,25 @@ public void test012_compiler_problems_tuning() {
 				return true;
 		}
 		return false;
+	}
+
+	public void testTooNewJavaVersionRequested() {
+		Map<String, String> options = new HashMap<>(JavaCore.getDefaultOptions());
+		String latestJavaVersionSupportedByECJ = CompilerOptions.versionFromJdkLevel(ClassFileConstants.getLatestJDKLevel());
+		String message = """
+			----------
+			1. WARNING in A.java (at line 1)
+				class A{}
+				^
+			Compiling for Java version 'XXX0' is not supported yet. Using 'XXX' instead
+			----------
+			""".replaceAll("XXX", latestJavaVersionSupportedByECJ);
+		options.put(CompilerOptions.OPTION_Source, latestJavaVersionSupportedByECJ + "0");
+		runNegativeTest(new String[] {"A.java", "class A{}"},
+				message,
+				null,
+				false,
+				null,
+				options);
 	}
 }
