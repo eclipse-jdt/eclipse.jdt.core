@@ -3194,6 +3194,19 @@ public final class AST {
 	 * The name of the class is an unspecified, but legal, name;
 	 * no modifiers; no doc comment; no superclass or superinterfaces;
 	 * and an empty class body.
+	 *
+	 * @return a new unparented type declaration node
+	 * @since 3.40
+	 */
+	public ImplicitTypeDeclaration newImplicitTypeDeclaration() {
+		return new ImplicitTypeDeclaration(this);
+	}
+
+	/**
+	 * Creates an unparented class declaration node owned by this AST.
+	 * The name of the class is an unspecified, but legal, name;
+	 * no modifiers; no doc comment; no superclass or superinterfaces;
+	 * and an empty class body.
 	 * <p>
 	 * To create an interface, use this method and then call
 	 * <code>TypeDeclaration.setInterface(true)</code>.
