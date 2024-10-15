@@ -381,6 +381,9 @@ private Constant resolveCasePattern(BlockScope scope, TypeBinding caseType, Type
 		// The following code is copied from InstanceOfExpression#resolve()
 		// But there are enough differences to warrant a copy
 		if (!type.isReifiable()) {
+			if (!e.isApplicable(switchExpressionType, scope, e)) {
+				return Constant.NotAConstant;
+			}
 			if (expressionType != TypeBinding.NULL && !(e instanceof RecordPattern)) {
 				boolean isLegal = e.checkCastTypesCompatibility(scope, type, expressionType, e, false);
 				if (!isLegal || (e.bits & ASTNode.UnsafeCast) != 0) {

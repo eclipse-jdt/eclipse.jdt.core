@@ -2650,11 +2650,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	case List<String> s: \n" +
 				"	     ^^^^^^^^^^^^^^\n" +
 				"Type Object cannot be safely cast to List<String>\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 9)\n" +
-				"	case List<String> s: \n" +
-				"	     ^^^^^^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testBug573921_8() {
@@ -7335,11 +7330,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "	case WrapperRec(ExhaustiveSwitch.Data data) when data.name.isEmpty() -> { }\n"
 				+ "	                ^^^^^^^^^^^^^^^^\n"
 				+ "ExhaustiveSwitch cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 12)\n"
-				+ "	case WrapperRec(ExhaustiveSwitch.Data data) when data.name.isEmpty() -> { }\n"
-				+ "	                ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Record component with type Data is not compatible with type ExhaustiveSwitch.Data\n"
 				+ "----------\n");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1955

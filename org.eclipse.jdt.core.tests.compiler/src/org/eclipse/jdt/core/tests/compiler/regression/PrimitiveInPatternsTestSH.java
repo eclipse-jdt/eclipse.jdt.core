@@ -2302,6 +2302,28 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				""");
 	}
 
+	public void testIncompatiblePrimitiveInInstanceof() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X  {
+					void foo() {
+						if (this instanceof int i)
+							return;
+					}
+				}
+				"""
+				},
+				"""
+				----------
+				1. ERROR in X.java (at line 3)
+					if (this instanceof int i)
+					    ^^^^^^^^^^^^^^^^^^^^^
+				Incompatible conditional operand types X and int
+				----------
+				""");
+	}
+
 	// test from spec
 	public void _testSpec001() {
 		runConformTest(new String[] {

@@ -2401,7 +2401,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
 				"	if (obj instanceof T t) {\n" +
-				"	    ^^^\n" +
+				"	    ^^^^^^^^^^^^^^^^^^\n" +
 				"Type Object cannot be safely cast to T\n" +
 				"----------\n",
 				"X.java:4: error: Object cannot be safely cast to T\n" +
@@ -2460,7 +2460,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
 				"	if (obj instanceof X<String> p) {\n" +
-				"	    ^^^\n" +
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Type X<capture#1-of ?> cannot be safely cast to X<String>\n" +
 				"----------\n",
 				"",
