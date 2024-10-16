@@ -1166,7 +1166,7 @@ protected void checkAndSetModifiers(int flag){
 		problemReporter().StrictfpNotRequired(this.scanner.startPosition, this.scanner.currentPosition - 1);
 	}
 
-	if ((this.modifiers & flag) != 0){ // duplicate modifier
+	if ((this.modifiers & flag) != 0) { // duplicate modifier
 		this.modifiers |= ExtraCompilerModifiers.AccAlternateModifierProblem;
 	}
 	this.modifiers |= flag;
@@ -1175,10 +1175,6 @@ protected void checkAndSetModifiers(int flag){
 
 	if (this.currentElement != null) {
 		this.currentElement.addModifier(flag, this.modifiersSourceStart);
-	}
-	if (flag == ExtraCompilerModifiers.AccSealed || flag == ExtraCompilerModifiers.AccNonSealed) {
-		problemReporter().validateJavaFeatureSupport(JavaFeature.SEALED_CLASSES, this.scanner.startPosition,
-				this.scanner.currentPosition - 1);
 	}
 }
 public void checkComment() {

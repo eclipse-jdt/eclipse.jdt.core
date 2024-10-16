@@ -599,8 +599,7 @@ public class ClassScope extends Scope {
 		CompilerOptions options = compilerOptions();
 		boolean is16Plus = compilerOptions().sourceLevel >= ClassFileConstants.JDK16;
 		boolean isSealedSupported = JavaFeature.SEALED_CLASSES.isSupported(options);
-		boolean flagSealedNonModifiers = isSealedSupported &&
-				(modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
+		boolean hierarchySealed = (modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 
 		switch (modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed | ClassFileConstants.AccFinal)) {
 			case ExtraCompilerModifiers.AccSealed, ExtraCompilerModifiers.AccNonSealed, ClassFileConstants.AccFinal, ClassFileConstants.AccDefault : break;
@@ -643,7 +642,7 @@ public class ClassScope extends Scope {
 				}
 				final int UNEXPECTED_MODIFIERS =~(ClassFileConstants.AccEnum | ClassFileConstants.AccStrictfp);
 				if ((modifiers & ExtraCompilerModifiers.AccJustFlag & UNEXPECTED_MODIFIERS) != 0
-						|| flagSealedNonModifiers) {
+						|| hierarchySealed) {
 					problemReporter().illegalModifierForLocalEnumDeclaration(sourceType);
 					return;
 				}
@@ -754,7 +753,7 @@ public class ClassScope extends Scope {
 						| ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation
 						| ((is16Plus && this.parent instanceof ClassScope) ? ClassFileConstants.AccStatic : 0));
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0
-						|| flagSealedNonModifiers)
+						|| hierarchySealed)
 					problemReporter().localStaticsIllegalVisibilityModifierForInterfaceLocalType(sourceType);
 //				if ((modifiers & ClassFileConstants.AccStatic) != 0) {
 //					problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
@@ -776,24 +775,23 @@ public class ClassScope extends Scope {
 				modifiers |= ClassFileConstants.AccSynthetic;
 			}
 			modifiers |= ClassFileConstants.AccAbstract;
-			} else if ((realModifiers & ClassFileConstants.AccEnum) != 0) {
+		} else if ((realModifiers & ClassFileConstants.AccEnum) != 0) {
 			// detect abnormal cases for enums
 			if (isMemberType) { // includes member types defined inside local types
-				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
-				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers) {
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate
+						| ClassFileConstants.AccProtected | ClassFileConstants.AccStatic
+						| ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || hierarchySealed) {
 					problemReporter().illegalModifierForMemberEnum(sourceType);
 					modifiers &= ~ClassFileConstants.AccAbstract; // avoid leaking abstract modifier
 					realModifiers &= ~ClassFileConstants.AccAbstract;
 //					modifiers &= ~(realModifiers & UNEXPECTED_MODIFIERS);
 //					realModifiers = modifiers & ExtraCompilerModifiers.AccJustFlag;
 				}
-			} else if (sourceType.isLocalType()) {
-//				if (flagSealedNonModifiers)
-//					problemReporter().illegalModifierForLocalEnum(sourceType);
-				// each enum constant is an anonymous local type and its modifiers were already checked as an enum constant field
-			} else {
-				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
-				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers)
+			} else if (!sourceType.isLocalType()) { // local types already handled earlier.
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccStrictfp
+						| ClassFileConstants.AccEnum);
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || hierarchySealed)
 					problemReporter().illegalModifierForEnum(sourceType);
 			}
 			if (!sourceType.isAnonymousType()) {
@@ -808,14 +806,16 @@ public class ClassScope extends Scope {
 					TypeDeclaration typeDeclaration = this.referenceContext;
 					FieldDeclaration[] fields = typeDeclaration.fields;
 					int fieldsLength = fields == null ? 0 : fields.length;
-					if (fieldsLength == 0) break checkAbstractEnum; // has no constants so must implement the method itself
+					if (fieldsLength == 0)
+						break checkAbstractEnum; // has no constants so must implement the method itself
 					AbstractMethodDeclaration[] methods = typeDeclaration.methods;
 					int methodsLength = methods == null ? 0 : methods.length;
 					// TODO (kent) cannot tell that the superinterfaces are empty or that their methods are implemented
 					boolean definesAbstractMethod = typeDeclaration.superInterfaces != null;
 					for (int i = 0; i < methodsLength && !definesAbstractMethod; i++)
 						definesAbstractMethod = methods[i].isAbstract();
-					if (!definesAbstractMethod) break checkAbstractEnum; // all methods have bodies
+					if (!definesAbstractMethod)
+						break checkAbstractEnum; // all methods have bodies
 					boolean needAbstractBit = false;
 					for (int i = 0; i < fieldsLength; i++) {
 						FieldDeclaration fieldDecl = fields[i];
@@ -827,8 +827,10 @@ public class ClassScope extends Scope {
 							}
 						}
 					}
-					// tag this enum as abstract since an abstract method must be implemented AND all enum constants define an anonymous body
-					// as a result, each of its anonymous constants will see it as abstract and must implement each inherited abstract method
+					// tag this enum as abstract since an abstract method must be implemented AND all enum constants
+					// define an anonymous body
+					// as a result, each of its anonymous constants will see it as abstract and must implement each
+					// inherited abstract method
 					if (needAbstractBit) {
 						modifiers |= ClassFileConstants.AccAbstract;
 					}
@@ -893,7 +895,7 @@ public class ClassScope extends Scope {
 			} else if (sourceType.isLocalType()) {
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp
 						| ((is16Plus && this.parent instanceof ClassScope) ? ClassFileConstants.AccStatic : 0));
-				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers)
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || hierarchySealed)
 					problemReporter().illegalModifierForLocalClass(sourceType);
 			} else {
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
