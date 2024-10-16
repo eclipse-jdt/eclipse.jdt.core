@@ -544,31 +544,16 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 				types.toArray(this.superInterfaces);
 				this.tagBits |= TagBits.HasUnresolvedSuperinterfaces;
 			}
-
-			this.permittedTypes = Binding.NO_PERMITTEDTYPES;
-			if (!wrapper.atEnd()) {
-				// attempt to find each permitted type if it exists in the cache (otherwise - resolve it when requested)
-				java.util.ArrayList types = new java.util.ArrayList(2);
-				short rank = 0;
-				do {
-					types.add(this.environment.getTypeFromTypeSignature(wrapper, typeVars, this, missingTypeNames, toplevelWalker.toSupertype(rank++, wrapper.peekFullType())));
-				} while (!wrapper.atEnd());
-				this.permittedTypes = new ReferenceBinding[types.size()];
-				types.toArray(this.permittedTypes);
-				this.extendedTagBits |= ExtendedTagBits.HasUnresolvedPermittedSubtypes;
-			}
-
 		}
-		// fall back, in case we haven't got them from signature
-		char[][] permittedSubtypeNames = binaryType.getPermittedSubtypeNames();
-		if (this.permittedTypes == Binding.NO_PERMITTEDTYPES && permittedSubtypeNames != null) {
+		char[][] permittedSubtypesNames = binaryType.getPermittedSubtypesNames();
+		if (permittedSubtypesNames != null) {
 			this.modifiers |= ExtraCompilerModifiers.AccSealed;
-			int size = permittedSubtypeNames.length;
+			int size = permittedSubtypesNames.length;
 			if (size > 0) {
 				this.permittedTypes = new ReferenceBinding[size];
 				for (short i = 0; i < size; i++)
-					// attempt to find each superinterface if it exists in the cache (otherwise - resolve it when requested)
-					this.permittedTypes[i] = this.environment.getTypeFromConstantPoolName(permittedSubtypeNames[i], 0, -1, false, missingTypeNames, toplevelWalker.toSupertype(i, null));
+					// attempt to find each permitted type if it exists in the cache (otherwise - resolve it when requested)
+					this.permittedTypes[i] = this.environment.getTypeFromConstantPoolName(permittedSubtypesNames[i], 0, -1, false, missingTypeNames);
 			}
 		}
 		boolean canUseNullTypeAnnotations = this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled && this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8;

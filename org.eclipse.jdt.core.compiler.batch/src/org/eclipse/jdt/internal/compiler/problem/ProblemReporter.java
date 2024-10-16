@@ -9796,7 +9796,7 @@ public boolean validateRestrictedKeywords(char[] name, ASTNode node) {
 		close();
 	}
 }
-//Returns true if the problem is handled and reported (only errors considered and not warnings)
+// Returns true if the problem is handled and reported (only errors considered and not warnings)
 public boolean validateJavaFeatureSupport(JavaFeature feature, int sourceStart, int sourceEnd) {
 	boolean versionInRange = feature.getCompliance() <= this.options.sourceLevel;
 	String version = CompilerOptions.versionFromJdkLevel(feature.getCompliance());

@@ -52,7 +52,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 				"final class Z extends X{}\n";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
-		char[][] permittedSubtypesNames = classFileReader.getPermittedSubtypeNames();
+		char[][] permittedSubtypesNames = classFileReader.getPermittedSubtypesNames();
 
 		assertEquals(2, permittedSubtypesNames.length);
 
@@ -71,7 +71,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 				"}";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
-		char[][] permittedSubtypesNames = classFileReader.getPermittedSubtypeNames();
+		char[][] permittedSubtypesNames = classFileReader.getPermittedSubtypesNames();
 
 		assertEquals(1, permittedSubtypesNames.length);
 
@@ -94,7 +94,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 				"}";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X.E", "X$E", source);
-		char[][] permittedSubtypesNames = classFileReader.getPermittedSubtypeNames();
+		char[][] permittedSubtypesNames = classFileReader.getPermittedSubtypesNames();
 
 		assertEquals(1, permittedSubtypesNames.length);
 

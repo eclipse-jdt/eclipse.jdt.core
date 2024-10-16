@@ -100,7 +100,7 @@ char[][] getInterfaceNames();
  * A name is a simple name or a qualified, dot separated name.
  * For example, Hashtable or java.util.Hashtable.
  */
-default char[][] getPermittedSubtypeNames() {
+default char[][] getPermittedSubtypesNames() {
 	return null;
 }
 

@@ -602,7 +602,7 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
 @Override
 public String[] getPermittedSubtypeNames() throws JavaModelException {
 	IBinaryType info = getElementInfo();
-	char[][] names= info.getPermittedSubtypeNames();
+	char[][] names= info.getPermittedSubtypesNames();
 	int length;
 	if (names == null || (length = names.length) == 0) {
 		return CharOperation.NO_STRINGS;
@@ -775,7 +775,7 @@ public boolean isRecord() throws JavaModelException {
 @Override
 public boolean isSealed() throws JavaModelException {
 	IBinaryType info = getElementInfo();
-	char[][] names = info.getPermittedSubtypeNames();
+	char[][] names = info.getPermittedSubtypesNames();
 	return (names != null && names.length > 0);
 }
 
