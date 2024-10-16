@@ -1423,9 +1423,6 @@ class JavacConverter {
 		if (javac instanceof JCNewClass newClass) {
 			ClassInstanceCreation res = this.ast.newClassInstanceCreation();
 			commonSettings(res, javac);
-			if( ERROR.equals(newClass.getIdentifier().toString())) {
-				return null;
-			}
 			if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
 				res.setType(convertToType(newClass.getIdentifier()));
 			} else {

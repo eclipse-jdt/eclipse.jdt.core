@@ -219,7 +219,12 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			}
 			IType candidate = null;
 			if(typeRoot instanceof ICompilationUnit tmp) {
-				tmp = tmp.findWorkingCopy(this.resolver.getWorkingCopyOwner());
+				{
+					ICompilationUnit wc = tmp.findWorkingCopy(this.resolver.getWorkingCopyOwner());
+					if (wc != null) {
+						tmp = wc;
+					}
+				}
 				String[] cleaned = cleanedUpName(this.type).split("\\$");
 				if( cleaned.length > 0 ) {
 					cleaned[0] = cleaned[0].substring(cleaned[0].lastIndexOf('.') + 1);
@@ -753,7 +758,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			if (types != null && types.length > 0) {
 				builder.append("<");
 				for (var typeArgument : types) {
-					builder.append(typeArgument.getName());
+					if (typeArgument != null) {
+						builder.append(typeArgument.getName());
+					}
 				}
 				builder.append(">");
 			}

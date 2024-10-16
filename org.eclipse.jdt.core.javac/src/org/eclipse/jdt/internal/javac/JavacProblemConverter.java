@@ -1335,7 +1335,7 @@ public class JavacProblemConverter {
 				if (path != null) {
 					path = path.getParentPath();
 				}
-				if (path.getLeaf() instanceof JCEnhancedForLoop) {
+				if (path != null && path.getLeaf() instanceof JCEnhancedForLoop) {
 					return IProblem.IncompatibleTypesInForeach;
 				}
 				while (path != null && path.getLeaf() instanceof JCExpression) {

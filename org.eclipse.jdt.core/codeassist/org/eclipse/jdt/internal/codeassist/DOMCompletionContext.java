@@ -13,11 +13,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -28,13 +30,16 @@ class DOMCompletionContext extends CompletionContext {
 	private final char[] token;
 	private final IJavaElement enclosingElement;
 	private final Supplier<Stream<IBinding>> bindingsAcquirer;
+	private final ExpectedTypes expectedTypes;
+
 
 	DOMCompletionContext(int offset, char[] token, IJavaElement enclosingElement,
-			Supplier<Stream<IBinding>> bindingHaver) {
+			Supplier<Stream<IBinding>> bindingHaver, ExpectedTypes expectedTypes) {
 		this.offset = offset;
 		this.enclosingElement = enclosingElement;
 		this.token = token;
 		this.bindingsAcquirer = bindingHaver;
+		this.expectedTypes = expectedTypes;
 	}
 
 	@Override
@@ -76,9 +81,78 @@ class DOMCompletionContext extends CompletionContext {
 	}
 
 	@Override
+	public char[][] getExpectedTypesKeys() {
+		return this.expectedTypes.getExpectedTypes().stream() //
+				.map(ITypeBinding::getKey) //
+				.map(String::toCharArray) //
+				.toArray(char[][]::new);
+	}
+
+	@Override
 	public boolean isExtended() {
 		return true;
 	}
+
+	/// adapted from org.eclipse.jdt.internal.codeassist.InternalExtendedCompletionContext
+	public boolean canUseDiamond(String[] parameterTypes, char[][] typeVariables) {
+		// If no LHS or return type expected, then we can safely use diamond
+		char[][] expectedTypekeys = this.getExpectedTypesKeys();
+		if (expectedTypekeys == null || expectedTypekeys.length == 0)
+			return true;
+		// Next, find out whether any of the constructor parameters are the same as one of the
+		// class type variables. If yes, diamond cannot be used.
+		if (typeVariables != null) {
+			for (String parameterType : parameterTypes) {
+				for (char[] typeVariable : typeVariables) {
+					if (CharOperation.equals(parameterType.toCharArray(), typeVariable))
+						return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/// adapted from org.eclipse.jdt.internal.codeassist.InternalExtendedCompletionContext
+	public boolean canUseDiamond(String[] parameterTypes, char[] fullyQualifiedTypeName) {
+		ITypeBinding guessedType = null;
+		// If no LHS or return type expected, then we can safely use diamond
+		char[][] expectedTypekeys= this.getExpectedTypesKeys();
+		if (expectedTypekeys == null || expectedTypekeys.length == 0)
+			return true;
+
+		// Next, find out whether any of the constructor parameters are the same as one of the
+		// class type variables. If yes, diamond cannot be used.
+		Optional<IBinding> potentialMatch = this.bindingsAcquirer.get() //
+				.filter(binding -> {
+					for (char[] expectedTypekey : expectedTypekeys) {
+						if (CharOperation.equals(expectedTypekey, binding.getKey().toCharArray())) {
+							return true;
+						}
+					}
+					return false;
+				}) //
+				.findFirst();
+		if (potentialMatch.isPresent() && potentialMatch.get() instanceof ITypeBinding match) {
+			guessedType = match;
+		}
+		if (guessedType != null && !guessedType.isRecovered()) {
+			// the erasure must be used because guessedType can be a RawTypeBinding
+			guessedType = guessedType.getErasure();
+			ITypeBinding[] typeVars = guessedType.getTypeParameters();
+			for (String parameterType : parameterTypes) {
+				for (ITypeBinding typeVar : typeVars) {
+					if (CharOperation.equals(parameterType.toCharArray(), typeVar.getName().toCharArray())) {
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+
 
 	private static boolean castCompatable(ITypeBinding typeBinding, String sig2) {
 		String sig1 = typeBinding.getKey().replace('/', '.');
