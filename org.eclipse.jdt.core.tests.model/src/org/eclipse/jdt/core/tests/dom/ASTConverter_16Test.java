@@ -824,4 +824,68 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 
 
 	}
+
+	public void testRecord013() throws JavaModelException {
+		if (!isJRE16) {
+			System.err.println("Test " + getName() + " requires a JRE 16");
+			return;
+		}
+		String code = """
+					record Test(String name) {
+					    public static Builder builder() {return null;}
+					    public static final class Builder {}
+					}
+				""";
+		this.workingCopy = getWorkingCopy("/Converter_16/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			code,
+			this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = ((AbstractTypeDeclaration)compilationUnit.types().get(0));
+		assertEquals("Not a Record Declaration", ASTNode.RECORD_DECLARATION, node.getNodeType());
+		RecordDeclaration record = (RecordDeclaration)node;
+
+		List<SingleVariableDeclaration> RecordComponents = record.recordComponents();
+		assertEquals("Not a Single Variable Declaration Declaration", ASTNode.SINGLE_VARIABLE_DECLARATION, RecordComponents.get(0).getNodeType());
+
+		List<ASTNode> bodyDeclaration = record.bodyDeclarations();
+		MethodDeclaration md = (MethodDeclaration) bodyDeclaration.get(0);
+		TypeDeclaration td = (TypeDeclaration) bodyDeclaration.get(1);
+		assertEquals("Not a MethodDeclaration", ASTNode.METHOD_DECLARATION, md.getNodeType());
+		assertEquals("Not a TypeDeclaration", ASTNode.TYPE_DECLARATION, td.getNodeType());
+	}
+
+	public void testClass002() throws CoreException {
+		if (!isJRE16) {
+			System.err.println("Test "+getName()+" requires a JRE 16");
+			return;
+		}
+		String code = """
+					class Test {
+					    public static Builder builder() {return null;}
+					    public static final class Builder {}
+					}
+				""";
+		this.workingCopy = getWorkingCopy("/Converter_16/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+				code,
+				this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		List<AbstractTypeDeclaration> types = compilationUnit.types();
+		assertEquals("No. of Types is not 1", types.size(), 1);
+		AbstractTypeDeclaration type = types.get(0);
+		assertTrue("type not a type", type instanceof TypeDeclaration);
+		TypeDeclaration typeDecl = (TypeDeclaration)type;
+		assertTrue("type not a class", !typeDecl.isInterface());
+
+		List<ASTNode> bodyDeclaration = typeDecl.bodyDeclarations();
+		MethodDeclaration md = (MethodDeclaration) bodyDeclaration.get(0);
+		TypeDeclaration td = (TypeDeclaration) bodyDeclaration.get(1);
+		assertEquals("Not a MethodDeclaration", ASTNode.METHOD_DECLARATION, md.getNodeType());
+		assertEquals("Not a TypeDeclaration", ASTNode.TYPE_DECLARATION, td.getNodeType());
+	}
 }

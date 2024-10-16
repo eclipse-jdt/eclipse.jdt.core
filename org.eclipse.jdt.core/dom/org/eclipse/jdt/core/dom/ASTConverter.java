@@ -315,6 +315,7 @@ class ASTConverter {
 
 			  } else {
 				  methodsIndex++;
+				  continue;
 			  }
 
 			}
