@@ -3240,7 +3240,7 @@ public MethodBinding [] setMethods(MethodBinding[] methods) {
 	return this.methods = methods;
 }
 
-//Propagate writes to all annotated variants so the clones evolve along.
+// Propagate writes to all annotated variants so the clones evolve along.
 public ReferenceBinding [] setPermittedTypes(ReferenceBinding [] permittedTypes) {
 
 	if (!isPrototype())

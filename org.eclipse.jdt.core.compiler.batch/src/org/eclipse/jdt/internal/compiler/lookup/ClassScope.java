@@ -95,7 +95,7 @@ public class ClassScope extends Scope {
 			}
 		}
 		anonymousType.typeBits |= inheritedBits;
-		anonymousType.setPermittedTypes(Binding.NO_PERMITTEDTYPES); // JLS 15 JEP 360 Preview - Sec 15.9.5
+		anonymousType.setPermittedTypes(Binding.NO_PERMITTED_TYPES);
 		if (supertype.isInterface()) {
 			anonymousType.setSuperClass(getJavaLangObject());
 			anonymousType.setSuperInterfaces(new ReferenceBinding[] { supertype });
@@ -115,7 +115,8 @@ public class ClassScope extends Scope {
 		} else {
 			anonymousType.setSuperClass(supertype);
 			anonymousType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
-			checkForEnumSealedPreview(supertype, anonymousType);
+			if (supertype.isEnum() && supertype instanceof SourceTypeBinding superEnum)
+				implicitlySealEnumHierarchy(superEnum, anonymousType);
 			TypeReference typeReference = this.referenceContext.allocation.type;
 			if (typeReference != null) { // no check for enum constant body
 				this.referenceContext.superclass = typeReference;
@@ -151,25 +152,19 @@ public class ClassScope extends Scope {
 		anonymousType.verifyMethods(environment().methodVerifier());
 	}
 
-	private void checkForEnumSealedPreview(ReferenceBinding supertype, LocalTypeBinding anonymousType) {
-		if (!JavaFeature.SEALED_CLASSES.isSupported(compilerOptions())
-				|| !supertype.isEnum()
-				|| !(supertype instanceof SourceTypeBinding))
-			return;
-
-		SourceTypeBinding sourceSuperType = (SourceTypeBinding) supertype;
-		ReferenceBinding[] permTypes = sourceSuperType.permittedTypes();
-		int sz = permTypes == null ? 0 : permTypes.length;
-		if (sz == 0) {
-			permTypes = new ReferenceBinding[] {anonymousType};
-		} else {
-			System.arraycopy(permTypes, 0,
-					permTypes = new ReferenceBinding[sz + 1], 0,
-					sz);
-			permTypes[sz] = anonymousType;
+	private void implicitlySealEnumHierarchy(SourceTypeBinding superEnum, LocalTypeBinding anonymousType) {
+		if (JavaFeature.SEALED_CLASSES.isSupported(compilerOptions())) {
+			ReferenceBinding[] permittedTypes = superEnum.permittedTypes();
+			int sz = permittedTypes == null ? 0 : permittedTypes.length;
+			if (sz == 0) {
+				permittedTypes = new ReferenceBinding[] { anonymousType };
+			} else {
+				System.arraycopy(permittedTypes, 0, permittedTypes = new ReferenceBinding[sz + 1], 0, sz);
+				permittedTypes[sz] = anonymousType;
+			}
+			anonymousType.modifiers |= ClassFileConstants.AccFinal;
+			superEnum.setPermittedTypes(permittedTypes);
 		}
-		anonymousType.modifiers |= ClassFileConstants.AccFinal; // JLS 15 / sealed preview/Sec 8.9.1
-		sourceSuperType.setPermittedTypes(permTypes);
 	}
 
 	void buildComponents() {
@@ -1183,7 +1178,7 @@ public class ClassScope extends Scope {
 		if (sourceType.id == TypeIds.T_JavaLangObject) { // handle the case of redefining java.lang.Object up front
 			sourceType.setSuperClass(null);
 			sourceType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
-			sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
+			sourceType.setPermittedTypes(Binding.NO_PERMITTED_TYPES);
 			if (!sourceType.isClass())
 				problemReporter().objectMustBeClass(sourceType);
 			if (this.referenceContext.superclass != null || (this.referenceContext.superInterfaces != null && this.referenceContext.superInterfaces.length > 0))
@@ -1310,7 +1305,7 @@ public class ClassScope extends Scope {
 	}
 	void connectPermittedTypes() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
-		sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
+		sourceType.setPermittedTypes(Binding.NO_PERMITTED_TYPES);
 		if (sourceType.id == TypeIds.T_JavaLangObject || sourceType.isEnum()) // already handled
 			return;
 
@@ -1323,30 +1318,24 @@ public class ClassScope extends Scope {
 				nextPermittedType : for (int i = 0; i < length; i++) {
 					TypeReference permittedTypeRef = this.referenceContext.permittedTypes[i];
 					ReferenceBinding permittedType = findPermittedtype(permittedTypeRef);
-					if (permittedType == null) { // detected cycle
+					if (permittedType == null) {
 						continue nextPermittedType;
 					}
-					if (!isPermittedTypeInAllowedFormat(sourceType, permittedTypeRef, permittedType))
-						continue nextPermittedType;
 
-					// check for simple interface collisions
-					// Check for a duplicate interface once the name is resolved, otherwise we may be confused (i.e. a.b.I and c.d.I)
 					for (int j = 0; j < i; j++) {
 						if (TypeBinding.equalsEquals(permittedTypeBindings[j], permittedType)) {
-							problemReporter().sealedDuplicateTypeInPermits(sourceType, permittedTypeRef, permittedType);
+							problemReporter().duplicatePermittedType(sourceType, permittedTypeRef, permittedType);
 							continue nextPermittedType;
 						}
 					}
-					// only want to reach here when no errors are reported
 					permittedTypeBindings[count++] = permittedType;
 				}
-				// hold onto all correctly resolved superinterfaces
 				if (count > 0) {
 					if (count != length)
 						System.arraycopy(permittedTypeBindings, 0, permittedTypeBindings = new ReferenceBinding[count], 0, count);
 					sourceType.setPermittedTypes(permittedTypeBindings);
 				} else {
-					sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
+					sourceType.setPermittedTypes(Binding.NO_PERMITTED_TYPES);
 				}
 			} finally {
 				sourceType.tagBits &= ~TagBits.SealingTypeHierarchy;
@@ -1357,29 +1346,6 @@ public class ClassScope extends Scope {
 			for (ReferenceBinding memberType : memberTypes)
 				((SourceTypeBinding) memberType).scope.connectPermittedTypes();
 		}
-	}
-
-	private boolean isPermittedTypeInAllowedFormat(SourceTypeBinding sourceType, TypeReference permittedTypeRef,
-			ReferenceBinding permittedType) {
-		if (!(permittedType.isMemberType() && permittedTypeRef instanceof SingleTypeReference))
-			return true;
-		ReferenceBinding enclosingType = permittedType.enclosingType();
-		while (enclosingType != null) {
-			if (TypeBinding.equalsEquals(sourceType, enclosingType)) {
-				CompilationUnitScope cu = this.compilationUnitScope();
-				if (cu.imports != null || cu.imports.length > 0) {
-					for (ImportBinding ib : cu.imports) {
-						Binding resolvedImport = cu.resolveSingleImport(ib, Binding.TYPE);
-						if (resolvedImport instanceof TypeBinding &&
-						  TypeBinding.equalsEquals(permittedType, (TypeBinding) resolvedImport))
-							return true;
-					}
-				}
-				return false;
-			}
-			enclosingType = enclosingType.enclosingType();
-		}
-		return true;
 	}
 
 	private boolean connectRecordSuperclass() {
@@ -1675,7 +1641,7 @@ public class ClassScope extends Scope {
 		} catch (AbortCompilation e) {
 			SourceTypeBinding sourceType = this.referenceContext.binding;
 			if (sourceType.superInterfaces == null)  sourceType.setSuperInterfaces(Binding.NO_SUPERINTERFACES); // be more resilient for hierarchies (144976)
-			if (sourceType.permittedTypes == null)  sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
+			if (sourceType.permittedTypes == null)  sourceType.setPermittedTypes(Binding.NO_PERMITTED_TYPES);
 			e.updateContext(typeReference, referenceCompilationUnit().compilationResult);
 			throw e;
 		} finally {
@@ -1703,7 +1669,7 @@ public class ClassScope extends Scope {
 			return permittedType != null ? permittedType.actualType() : permittedType; // while permitted classes/interfaces cannot be parameterized with type arguments, they are not raw either
 		} catch (AbortCompilation e) {
 			SourceTypeBinding sourceType = this.referenceContext.binding;
-			if (sourceType.permittedTypes == null)  sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
+			if (sourceType.permittedTypes == null)  sourceType.setPermittedTypes(Binding.NO_PERMITTED_TYPES);
 			e.updateContext(typeReference, referenceCompilationUnit().compilationResult);
 			throw e;
 		} finally {
