@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -494,7 +492,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		if (workingCopies == null) {
 			workingCopies = new ICompilationUnit[0];
 		}
-		var pathToUnit = new HashMap<String, org.eclipse.jdt.internal.compiler.env.ICompilationUnit>();
+		Map<String, org.eclipse.jdt.internal.compiler.env.ICompilationUnit> pathToUnit = new HashMap<>();
 		Arrays.stream(workingCopies) //
 				.filter(inMemoryCu -> {
 					return project == null || (inMemoryCu.getElementName() != null && !inMemoryCu.getElementName().contains("module-info")) || inMemoryCu.getJavaProject() == project;
@@ -503,10 +501,38 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				.forEach(inMemoryCu -> {
 					pathToUnit.put(new String(inMemoryCu.getFileName()), inMemoryCu);
 				});
-
-		// note that this intentionally overwrites an existing working copy entry for the same file
-		pathToUnit.put(new String(sourceUnit.getFileName()), sourceUnit);
-
+		
+		// `sourceUnit`'s path might contain only the last segment of the path.
+		// this presents a problem, since if there is a working copy of the class,
+		// we want to use `sourceUnit` instead of the working copy,
+		// and this is accomplished by replacing the working copy's entry in the path-to-CompilationUnit map
+		String pathOfClassUnderAnalysis = new String(sourceUnit.getFileName());
+		if (!pathToUnit.keySet().contains(pathOfClassUnderAnalysis)) {
+			// try to find the project-relative path for the class under analysis by looking through the work copy paths
+			List<String> potentialPaths = pathToUnit.keySet().stream() //
+					.filter(path -> path.endsWith(pathOfClassUnderAnalysis)) //
+					.toList();
+			if (potentialPaths.isEmpty()) {
+				// there is no conflicting class in the working copies,
+				// so it's okay to use the 'broken' path
+				pathToUnit.put(pathOfClassUnderAnalysis, sourceUnit);
+			} else if (potentialPaths.size() == 1) {
+				// we know exactly which one is the duplicate,
+				// so replace it
+				pathToUnit.put(potentialPaths.get(0), sourceUnit);
+			} else {
+				// we don't know which one is the duplicate,
+				// so remove all potential duplicates
+				for (String potentialPath : potentialPaths) {
+					pathToUnit.remove(potentialPath);
+				}
+				pathToUnit.put(pathOfClassUnderAnalysis, sourceUnit);
+			}
+		} else {
+			// intentionally overwrite the existing working copy entry for the same file
+			pathToUnit.put(pathOfClassUnderAnalysis, sourceUnit);
+		}
+		
 		// TODO currently only parse
 		CompilationUnit res = parse(pathToUnit.values().toArray(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[]::new),
 				apiLevel, compilerOptions, resolveBindings, flags, project, workingCopyOwner, focalPoint, monitor).get(sourceUnit);
