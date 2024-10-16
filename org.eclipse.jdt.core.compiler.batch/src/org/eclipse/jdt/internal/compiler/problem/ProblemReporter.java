@@ -12336,7 +12336,7 @@ public void sealedMissingSealedModifier(SourceTypeBinding type, ASTNode node) {
 			node.sourceEnd);
 }
 
-public void sealedDuplicateTypeInPermits(SourceTypeBinding type, TypeReference reference, ReferenceBinding superType) {
+public void duplicatePermittedType(SourceTypeBinding type, TypeReference reference, ReferenceBinding superType) {
 	this.handle(
 		IProblem.SealedDuplicateTypeInPermits,
 		new String[] {

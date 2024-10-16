@@ -1759,7 +1759,7 @@ public ReferenceBinding superclass() {
 }
 
 public ReferenceBinding[] permittedTypes() {
-	return Binding.NO_PERMITTEDTYPES;
+	return Binding.NO_PERMITTED_TYPES;
 }
 
 public ReferenceBinding[] superInterfaces() {

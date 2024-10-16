@@ -438,7 +438,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		// and still want to use binaries passed that point (e.g. type hierarchy resolver, see bug 63748).
 		this.typeVariables = Binding.NO_TYPE_VARIABLES;
 		this.superInterfaces = Binding.NO_SUPERINTERFACES;
-		this.permittedTypes = Binding.NO_PERMITTEDTYPES;
+		this.permittedTypes = Binding.NO_PERMITTED_TYPES;
 
 		// must retrieve member types in case superclass/interfaces need them
 		this.memberTypes = Binding.NO_MEMBER_TYPES;
@@ -2632,7 +2632,7 @@ public String toString() {
 	}
 
 	if (this.permittedTypes != null) {
-		if (this.permittedTypes != Binding.NO_PERMITTEDTYPES) {
+		if (this.permittedTypes != Binding.NO_PERMITTED_TYPES) {
 			buffer.append("\n\tpermits : "); //$NON-NLS-1$
 			for (int i = 0, length = this.permittedTypes.length; i < length; i++) {
 				if (i  > 0)

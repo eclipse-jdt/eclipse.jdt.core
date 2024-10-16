@@ -34,7 +34,7 @@ public MissingTypeBinding(PackageBinding packageBinding, char[][] compoundName, 
 	this.modifiers = ClassFileConstants.AccPublic;
 	this.superclass = null; // will be fixed up using #setMissingSuperclass(...)
 	this.superInterfaces = Binding.NO_SUPERINTERFACES;
-	this.permittedTypes = Binding.NO_PERMITTEDTYPES;
+	this.permittedTypes = Binding.NO_PERMITTED_TYPES;
 	this.typeVariables = Binding.NO_TYPE_VARIABLES;
 	this.memberTypes = Binding.NO_MEMBER_TYPES;
 	this.fields = Binding.NO_FIELDS;
