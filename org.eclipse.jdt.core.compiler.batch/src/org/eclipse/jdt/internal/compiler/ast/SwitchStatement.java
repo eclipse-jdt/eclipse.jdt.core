@@ -886,7 +886,6 @@ public class SwitchStatement extends Expression {
 				if (this.preSwitchInitStateIndex != -1) {
 					codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preSwitchInitStateIndex);
 				}
-				defaultLabel.place();
 				/* a default case is not needed for an exhaustive switch expression
 				 * we need to handle the default case to throw an error in order to make the stack map consistent.
 				 * All cases will return a value on the stack except the missing default case.
@@ -895,9 +894,10 @@ public class SwitchStatement extends Expression {
 				CompilerOptions compilerOptions = this.scope != null ? this.scope.compilerOptions() : null;
 				if (compilerOptions.complianceLevel >= ClassFileConstants.JDK19) {
 					// since 19 we have MatchException for this
-					if (codeStream.lastAbruptCompletion != codeStream.position) {
+					if (this.statements.length > 0 && this.statements[this.statements.length - 1].canCompleteNormally()) {
 						codeStream.goto_(this.breakLabel); // hop, skip and jump over match exception throw.
 					}
+					defaultLabel.place();
 					codeStream.newJavaLangMatchException();
 					codeStream.dup();
 					codeStream.aconst_null();
@@ -906,6 +906,7 @@ public class SwitchStatement extends Expression {
 					codeStream.athrow();
 				} else {
 					// old style using IncompatibleClassChangeError:
+					defaultLabel.place();
 					codeStream.newJavaLangIncompatibleClassChangeError();
 					codeStream.dup();
 					codeStream.invokeJavaLangIncompatibleClassChangeErrorDefaultConstructor();
