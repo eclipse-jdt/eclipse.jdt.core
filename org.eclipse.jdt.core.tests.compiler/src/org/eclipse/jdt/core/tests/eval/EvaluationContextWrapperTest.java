@@ -182,6 +182,7 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 
 	private void refreshProject() throws Exception {
 		this.project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+		waitForAutoBuild(); // wait for builds to complete.
 	}
 
 	private void removeTempClass(String className) {
