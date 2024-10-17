@@ -455,6 +455,19 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_UNUSED_LOCAL = PLUGIN_ID + ".compiler.problem.unusedLocal"; //$NON-NLS-1$
 	/**
+	 * Compiler option ID: Reporting Unused Lambda Parameter.
+	 * <p>When enabled, the compiler will issue an error or a warning for unused lambda
+	 *    parameter (that is, lambda parameter never read from).</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedLambdaParameter"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
+	 * </dl>
+	 * @category CompilerOptionID
+	 * @since 3.40
+	 */
+	public static final String COMPILER_PB_UNUSED_LAMBDA_PARAMETER = PLUGIN_ID + ".compiler.problem.unusedLambdaParameter"; //$NON-NLS-1$
+	/**
 	 * Compiler option ID: Reporting Unused Parameter.
 	 * <p>When enabled, the compiler will issue an error or a warning for unused method
 	 *    parameters (that is, parameters never read from).</p>
