@@ -23,7 +23,6 @@ import java.util.HashSet;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.FilerException;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileManager.Location;
@@ -141,10 +140,6 @@ public class BatchFilerImpl implements Filer {
 		if (slash != -1) {
 			name = moduleAndPkgString.substring(slash + 1, name.length());
 			mod = moduleAndPkgString.substring(0, slash);
-		}
-		TypeElement typeElement = this._env._elementUtils.getTypeElement(name);
-		if (typeElement != null) {
-			throw new FilerException("Source file already exists : " + moduleAndPkgString); //$NON-NLS-1$
 		}
 		Location location = mod == null ? StandardLocation.SOURCE_OUTPUT : this._fileManager.getLocationForModule(StandardLocation.SOURCE_OUTPUT, mod);
 		JavaFileObject jfo = this._fileManager.getJavaFileForOutput(location, name.toString(), JavaFileObject.Kind.SOURCE, null);
