@@ -12397,15 +12397,6 @@ public void sealedSealedTypeMissingPermits(SourceTypeBinding type, ASTNode node)
 			node.sourceEnd);
 }
 
-public void sealedInterfaceIsSealedAndNonSealed(SourceTypeBinding type, ASTNode node) {
-	String name = new String(type.sourceName());
-	this.handle(IProblem.SealedInterfaceIsSealedAndNonSealed,
-			new String[] { name },
-			new String[] { name },
-			node.sourceStart,
-			node.sourceEnd);
-}
-
 public void sealedDisAllowedNonSealedModifierInInterface(SourceTypeBinding type, TypeDeclaration typeDecl) {
 	String name = new String(type.sourceName());
 	this.handle(

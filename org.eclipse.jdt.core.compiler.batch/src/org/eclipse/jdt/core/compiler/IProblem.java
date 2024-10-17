@@ -2538,7 +2538,9 @@ void setSourceStart(int sourceStart);
 	int SealedPermittedTypeOutsideOfPackage = TypeRelated + 1859;
 	/** @since 3.28 */
 	int SealedSealedTypeMissingPermits = TypeRelated + 1860;
-	/** @since 3.28 */
+	/** @since 3.28
+	 * @deprecated problem no longer generated
+	 */
 	int SealedInterfaceIsSealedAndNonSealed = TypeRelated + 1861;
 	/** @since 3.28 */
 	int SealedDisAllowedNonSealedModifierInInterface = TypeRelated + 1862;

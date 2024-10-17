@@ -1119,17 +1119,9 @@ private Map.Entry<TypeReference, ReferenceBinding> getFirstSealedSuperTypeOrInte
 	}
 	return null;
 }
-// TODO: Optimize the multiple loops - defer until the feature becomes standard.
+
 private void checkPermitsInType() {
-//	if (/* this.isRecordDeclaration || */this.isEnum())
-//		return; // handled separately
 	TypeDeclaration typeDecl = this.scope.referenceContext;
-	if (this.isInterface()) {
-		if (isSealed() && isNonSealed()) {
-			this.scope.problemReporter().sealedInterfaceIsSealedAndNonSealed(this, typeDecl);
-			return;
-		}
-	}
 	boolean hasPermittedTypes = this.permittedTypes != null && this.permittedTypes.length > 0;
 	if (hasPermittedTypes) {
 		if (!this.isSealed())
@@ -1170,11 +1162,13 @@ private void checkPermitsInType() {
 			return;
 		}
 	} else if (this.isNonSealed()) {
-		if (!foundSealedSuperTypeOrInterface) {
-			if (this.isClass() && !this.isRecord()) // record to give only illegal modifier error.
-				this.scope.problemReporter().sealedDisAllowedNonSealedModifierInClass(this, typeDecl);
-			else if (this.isInterface())
-				this.scope.problemReporter().sealedDisAllowedNonSealedModifierInInterface(this, typeDecl);
+		if (!this.isSealed()) { // lest we bark again.
+			if (!foundSealedSuperTypeOrInterface) {
+				if (this.isClass() && !this.isRecord()) // record to give only illegal modifier error.
+					this.scope.problemReporter().sealedDisAllowedNonSealedModifierInClass(this, typeDecl);
+				else if (this.isInterface())
+					this.scope.problemReporter().sealedDisAllowedNonSealedModifierInInterface(this, typeDecl);
+			}
 		}
 	}
 	if (foundSealedSuperTypeOrInterface) {
