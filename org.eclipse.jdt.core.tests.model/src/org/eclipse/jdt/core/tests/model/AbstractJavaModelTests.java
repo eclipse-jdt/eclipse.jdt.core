@@ -653,7 +653,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	}
 	protected void addExternalLibrary(IJavaProject javaProject, String jarPath, String[] pathAndContents, String[] nonJavaResources, String compliance) throws Exception {
-		String[] claspath = getJCL15PlusLibraryIfNeeded(compliance);
+		String[] claspath = getJCLLibrary(compliance);
 		org.eclipse.jdt.core.tests.util.Util.createJar(pathAndContents, nonJavaResources, jarPath, claspath, compliance);
 		addLibraryEntry(javaProject, new Path(jarPath), true/*exported*/);
 	}
@@ -742,7 +742,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IProject project = javaProject.getProject();
 		String projectLocation = project.getLocation().toOSString();
 		String jarPath = projectLocation + File.separator + jarName;
-		String[] claspath = getJCL15PlusLibraryIfNeeded(compliance);
+		String[] claspath = getJCLLibrary(compliance);
 		org.eclipse.jdt.core.tests.util.Util.createJar(pathAndContents, nonJavaResources, jarPath, claspath, compliance, options);
 		if (pathAndContents != null && pathAndContents.length != 0) {
 			String sourceZipPath = projectLocation + File.separator + sourceZipName;
@@ -2532,13 +2532,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 	}
 
-	protected String[] getJCL15PlusLibraryIfNeeded(String compliance) throws JavaModelException, IOException {
-		if (compliance.charAt(compliance.length()-1) >= '8' && (AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_1_8) != 0) {
-			// ensure that the JCL 18 lib is setup (i.e. that the jclMin18.jar is copied)
-			setUpJCLClasspathVariables("1.8");
-			return new String[] {getExternalJCLPathString("1.8")};
-		}
-		return null;
+	protected String[] getJCLLibrary(String compliance) throws JavaModelException, IOException {
+		// ensure that the requested JCL lib is setup (i.e. that the jclMinXY.jar is copied)
+		setUpJCLClasspathVariables(compliance);
+		return new String[] {getExternalJCLPathString(compliance)};
 	}
 	/**
 	 * Returns the specified compilation unit in the given project, root, and
