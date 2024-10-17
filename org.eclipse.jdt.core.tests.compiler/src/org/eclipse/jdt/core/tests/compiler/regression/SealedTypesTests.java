@@ -1071,11 +1071,6 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"	public sealed non-sealed interface X {\n" +
 			"	                                   ^\n" +
 			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface\n" +
-			"----------\n" +
-			"3. ERROR in p1\\X.java (at line 2)\n" +
-			"	public sealed non-sealed interface X {\n" +
-			"	                                   ^\n" +
-			"An interface X is declared both sealed and non-sealed\n" +
 			"----------\n");
 	}
 	public void testBug563806_033() {
@@ -6399,5 +6394,24 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			    "	                       ^\n" +
 			    "The type Y may have only one modifier out of sealed, non-sealed, and final\n" +
 			    "----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3100
+	// [Sealed types] Duplicate diagnostics for illegal modifier combination
+	public void testIssue3100() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public sealed non-sealed interface X {}
+						final class Y implements X  {}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	public sealed non-sealed interface X {}\n" +
+				"	                                   ^\n" +
+				"The type X may have only one modifier out of sealed, non-sealed, and final\n" +
+				"----------\n");
 	}
 }
