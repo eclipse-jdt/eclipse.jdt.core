@@ -32,13 +32,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -115,8 +111,6 @@ public class ClassScope extends Scope {
 		} else {
 			anonymousType.setSuperClass(supertype);
 			anonymousType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
-			if (supertype.isEnum() && supertype instanceof SourceTypeBinding superEnum)
-				implicitlySealEnumHierarchy(superEnum, anonymousType);
 			TypeReference typeReference = this.referenceContext.allocation.type;
 			if (typeReference != null) { // no check for enum constant body
 				this.referenceContext.superclass = typeReference;
@@ -150,21 +144,6 @@ public class ClassScope extends Scope {
 		buildFieldsAndMethods();
 		anonymousType.faultInTypesForFieldsAndMethods();
 		anonymousType.verifyMethods(environment().methodVerifier());
-	}
-
-	private void implicitlySealEnumHierarchy(SourceTypeBinding superEnum, LocalTypeBinding anonymousType) {
-		if (JavaFeature.SEALED_CLASSES.isSupported(compilerOptions())) {
-			ReferenceBinding[] permittedTypes = superEnum.permittedTypes();
-			int sz = permittedTypes == null ? 0 : permittedTypes.length;
-			if (sz == 0) {
-				permittedTypes = new ReferenceBinding[] { anonymousType };
-			} else {
-				System.arraycopy(permittedTypes, 0, permittedTypes = new ReferenceBinding[sz + 1], 0, sz);
-				permittedTypes[sz] = anonymousType;
-			}
-			anonymousType.modifiers |= ClassFileConstants.AccFinal;
-			superEnum.setPermittedTypes(permittedTypes);
-		}
 	}
 
 	void buildComponents() {
@@ -368,7 +347,6 @@ public class ClassScope extends Scope {
 
 		LocalTypeBinding localType = buildLocalType(enclosingType, enclosingType.fPackage);
 		connectTypeHierarchy();
-		connectImplicitPermittedTypes();
 		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 			checkParameterizedTypeBounds();
 			checkParameterizedSuperTypeCollisions();
@@ -1267,49 +1245,12 @@ public class ClassScope extends Scope {
 		}
 		return !foundCycle;
 	}
-	private void connectImplicitPermittedTypes(SourceTypeBinding sourceType) {
-		List<SourceTypeBinding> types = new ArrayList<>();
-		for (TypeDeclaration typeDecl : this.referenceCompilationUnit().types) {
-			types.addAll(sourceType.collectAllTypeBindings(typeDecl, this.compilationUnitScope()));
-		}
-		Set<ReferenceBinding> permSubTypes = new LinkedHashSet<>();
-		for (ReferenceBinding type : types) {
-			if (!TypeBinding.equalsEquals(type, sourceType) && type.findSuperTypeOriginatingFrom(sourceType) != null) {
-				permSubTypes.add(type);
-			}
-		}
-		if (sourceType.isSealed() && sourceType.isLocalType()) {
-			// bug xxxx flag Error and return;
-		}
-		if (permSubTypes.size() == 0) {
-			if (!sourceType.isLocalType() && !sourceType.isRecord() && !sourceType.isEnum()) // error flagged already
-				problemReporter().sealedSealedTypeMissingPermits(sourceType, this.referenceContext);
-			return;
-		}
-		sourceType.setPermittedTypes(permSubTypes.toArray(new ReferenceBinding[0]));
-	}
-	void connectImplicitPermittedTypes() {
-		TypeDeclaration typeDecl = this.referenceContext;
-		SourceTypeBinding sourceType = typeDecl.binding;
-		if (sourceType.id == TypeIds.T_JavaLangObject) // already handled
-			return;
-		if (sourceType.isSealed() && (typeDecl.permittedTypes == null ||
-				typeDecl.permittedTypes.length == 0 || typeDecl.permittedTypes[0].isImplicit())) {
-			connectImplicitPermittedTypes(sourceType);
-		}
-		ReferenceBinding[] memberTypes = sourceType.memberTypes;
-		if (memberTypes != null && memberTypes != Binding.NO_MEMBER_TYPES) {
-			for (ReferenceBinding memberType : memberTypes)
-				((SourceTypeBinding) memberType).scope.connectImplicitPermittedTypes();
-		}
-	}
+
 	void connectPermittedTypes() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
-		sourceType.setPermittedTypes(Binding.NO_PERMITTED_TYPES);
-		if (sourceType.id == TypeIds.T_JavaLangObject || sourceType.isEnum()) // already handled
-			return;
 
-		if (this.referenceContext.permittedTypes != null) {
+		if (this.referenceContext.permittedTypes != null && (this.referenceContext.permittedTypes.length == 0 || !this.referenceContext.permittedTypes[0].isImplicit())) {
+			sourceType.setPermittedTypes(Binding.NO_PERMITTED_TYPES);
 			try {
 				sourceType.tagBits |= TagBits.SealingTypeHierarchy;
 				int length = this.referenceContext.permittedTypes.length;
@@ -1339,6 +1280,15 @@ public class ClassScope extends Scope {
 				}
 			} finally {
 				sourceType.tagBits &= ~TagBits.SealingTypeHierarchy;
+			}
+		} else {
+			ReferenceBinding[] permittedTypes = sourceType.permittedTypes();
+			if (permittedTypes == null || permittedTypes.length == 0) {
+				sourceType.setPermittedTypes(Binding.NO_PERMITTED_TYPES);
+				if (sourceType.isSealed()) {
+					if (!sourceType.isLocalType() && !sourceType.isRecord() && !sourceType.isEnum()) // error flagged alread
+						problemReporter().sealedSealedTypeMissingPermits(sourceType, this.referenceContext);
+				}
 			}
 		}
 		ReferenceBinding[] memberTypes = sourceType.memberTypes;

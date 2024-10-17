@@ -1579,8 +1579,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"");
 			String expectedOutput =
 					"PermittedSubclasses:\n" +
-					"   #22 p1/A$Z,\n" +
-					"   #24 p1/A$SubY\n" +
+					"   #22 p1/A$SubY,\n" +
+					"   #24 p1/A$Z\n" +
 					"}";
 			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
 			expectedOutput =
@@ -1607,9 +1607,9 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"");
 			String expectedOutput =
 					"PermittedSubclasses:\n" +
-					"   #24 p1/A$Y$SubInnerY,\n" +
-					"   #26 p1/A$Z,\n" +
-					"   #28 p1/A$SubY\n";
+					"   #24 p1/A$SubY,\n" +
+					"   #26 p1/A$Y$SubInnerY,\n" +
+					"   #28 p1/A$Z\n";
 			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug564498_4() throws IOException, ClassFormatException {
