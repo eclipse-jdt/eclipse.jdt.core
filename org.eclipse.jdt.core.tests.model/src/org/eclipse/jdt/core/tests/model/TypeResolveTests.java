@@ -20,7 +20,15 @@ import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.NodeFinder;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaProject;
@@ -1723,37 +1731,33 @@ public void testBug576778() throws Exception {
 }
 
 public void testBug576778_ASTBindings() throws Exception {
-    try {
-        createJava11Project("P", new String[] {"src"});
-        String source = "package p;\n\n"
-                + "public class X {\n"
-                + "  public static void main(String[] args) {\n"
-                + "   var runnable = new Runnable() {\n"
-                + "     public void run() {}\n"
-                + "   };\n"
-                + "   runnable.run();\n"
-                + "  }\n"
-                + "}\n";
-        createFolder("/P/src/p");
-        createFile("/P/src/p/X.java", source);
-        waitForAutoBuild();
-        ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
-        String select = "runnable";
-        ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
-        parser.setSource(unit);
-        parser.setProject(unit.getJavaProject());
-        parser.setResolveBindings(true);
-        ASTNode root = parser.createAST(null);
-
-        Name node = (Name) new NodeFinder(root, source.indexOf(select), select.length()).getCoveredNode();
-
-        ILocalVariable variable = (ILocalVariable) node.resolveBinding().getJavaElement();
-        String signature = variable.getTypeSignature();
-
-        assertEquals("incorrect type", "Qvar;", signature); // Adjust if necessary
-    } finally {
-        deleteProject("P");
-    }
+	try {
+		createJava11Project("P", new String[] {"src"});
+		String source =    "package p;\n\n"
+				+"public class X {\n"
+				+ "  public static void main(String[] args) {\n"
+				+ "   var runnable = new Runnable() {\n"
+				+ "     public void run() {}\n"
+				+ "   };\n"
+				+ "   runnable.run();\n"
+				+ "  }\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "runnable";
+		ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+		parser.setSource(unit);
+		parser.setProject(unit.getJavaProject());
+		parser.setResolveBindings(true);
+		Name node = (Name)new NodeFinder(parser.createAST(null), source.indexOf(select), select.length()).getCoveredNode();
+		ILocalVariable variable = (ILocalVariable) node.resolveBinding().getJavaElement();
+		String signature= variable.getTypeSignature();
+		assertEquals("incorrect type", "Qvar;", signature);
+	} finally {
+		deleteProject("P");
+	}
 }
 
 }
