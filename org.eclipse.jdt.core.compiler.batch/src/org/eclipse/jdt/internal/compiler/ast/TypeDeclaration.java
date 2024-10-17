@@ -109,7 +109,7 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	public int nRecordComponents;
 	public static Set<String> disallowedComponentNames;
 
-	// 15 Sealed Type preview support
+	// 17 Sealed Type support
 	public TypeReference[] permittedTypes;
 
 	// TEST ONLY: disable one fix here to challenge another related fix (in TypeSystem):

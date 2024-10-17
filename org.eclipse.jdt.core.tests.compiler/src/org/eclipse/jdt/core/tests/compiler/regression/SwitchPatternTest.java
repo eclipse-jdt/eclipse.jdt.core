@@ -9072,4 +9072,160 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"I.K.E\n" +
 				"I.K.F");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3096
+	// [Switch][Sealed types] Bad static analysis with the old switch syntax + an exhautive pattern matching on a sealed type throws a MatchException
+	public void testIssue3096() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public sealed interface X permits X.R {
+							record R(String s) implements X {
+							}
+
+							public static void add(X x) {
+								switch (x) {
+								case R r:
+									if (r.s == null) {
+										throw new NullPointerException();
+									}
+								}
+							}
+
+							public static void main(String[] args) {
+								add(new R("bar"));
+							}
+						}
+						"""
+				},
+				"");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3096
+	// [Switch][Sealed types] Bad static analysis with the old switch syntax + an exhautive pattern matching on a sealed type throws a MatchException
+	public void testIssue3096_2() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public sealed interface X permits X.R {
+							record R(String s) implements X {
+							}
+
+							public static void add(X x) {
+								switch (x) {
+								case R r:
+									if (r.s == null) {
+										throw new NullPointerException();
+									}
+									break;
+								}
+							}
+
+							public static void main(String[] args) {
+								add(new R("bar"));
+							}
+						}
+						"""
+				},
+				"");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3096
+	// [Switch][Sealed types] Bad static analysis with the old switch syntax + an exhautive pattern matching on a sealed type throws a MatchException
+	public void testIssue3096_3() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public sealed interface X permits X.R {
+							record R(String s) implements X {
+							}
+
+							public static void add(X x) {
+								switch (x) {
+								case R r:
+									if (r.s == null) {
+										throw new NullPointerException();
+									}
+									System.out.println("R");
+								}
+							}
+
+							public static void main(String[] args) {
+								add(new R("bar"));
+							}
+						}
+						"""
+				},
+				"R");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3096
+	// [Switch][Sealed types] Bad static analysis with the old switch syntax + an exhautive pattern matching on a sealed type throws a MatchException
+	public void testIssue3096_4() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public sealed interface X permits X.R {
+							record R(String s) implements X {
+							}
+
+							public static void add(X x) {
+								switch (x) {
+								case R r:
+									if (r.s == null) {
+										throw new NullPointerException();
+									}
+									System.out.println("R");
+									break;
+								}
+							}
+
+							public static void main(String[] args) {
+								add(new R("bar"));
+							}
+						}
+						"""
+				},
+				"R");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3096
+	// [Switch][Sealed types] Bad static analysis with the old switch syntax + an exhautive pattern matching on a sealed type throws a MatchException
+	public void testIssue3096_full() {
+		runConformTest(
+				new String[] {
+						"EclipseBugFallThroughSwitch.java",
+						"""
+						public class EclipseBugFallThroughSwitch {
+						  sealed interface I permits A, B {}
+						  record A(String s) implements I {}
+						  record B(String s) implements I {}
+
+						  public void add(I i) {
+						    switch (i) {
+						    case A a:
+						      break;
+						    case B b:
+						      if (b.s == null) {
+						        throw new NullPointerException();
+						      }
+						      //break;  // this fix the issue
+						    }
+						  }
+
+						  public static void main(String[] args) {
+						    var container = new EclipseBugFallThroughSwitch();
+						    container.add(new B("bar"));
+
+						    // Exception in thread "main" java.lang.MatchException
+						    // at EclipseBugFallThroughSwitch.add(EclipseBugFallThroughSwitch.java:9)
+						    // at EclipseBugFallThroughSwitch.main(EclipseBugFallThroughSwitch.java:25)
+						  }
+						}
+						"""
+				},
+				"");
+	}
+
 }
