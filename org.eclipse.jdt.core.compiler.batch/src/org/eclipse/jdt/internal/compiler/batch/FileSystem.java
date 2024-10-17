@@ -292,7 +292,13 @@ public static Classpath getClasspath(String classpathName, String encoding, Acce
 	return getClasspath(classpathName, encoding, false, accessRuleSet, null, options, release);
 }
 public static Classpath getJrtClasspath(String jdkHome, String encoding, AccessRuleSet accessRuleSet, Map<String, String> options) {
-	return new ClasspathJrt(new File(convertPathSeparators(jdkHome)), true, accessRuleSet, null);
+	ClasspathJrt classpathJrt = new ClasspathJrt(new File(convertPathSeparators(jdkHome)), true, accessRuleSet, null);
+	try {
+		classpathJrt.initialize();
+	} catch (IOException e) {
+		// Broken entry, but let clients have it anyway.
+	}
+	return classpathJrt;
 }
 public static Classpath getOlderSystemRelease(String jdkHome, String release, AccessRuleSet accessRuleSet) {
 	return isJRE12Plus ?
