@@ -1929,5 +1929,45 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			assertEquals("Syntax error, insert \"AssignmentOperator Expression\" to complete Expression",cu.getProblems()[6].getMessage());
 	}
 
-
+	public void testBugGithub2402() throws JavaModelException {
+	        String contents =
+	                "package test;\n"
+	                + "\n"
+	                + "public class TestClass {\n"
+	                + "    @com.Missing\n"
+	                + "    public TestClass() {\n"
+	                + "        new test.TestClass();\n"
+	                + "    }\n"
+	                + "}\n"
+	                + "\n"
+	                + "class com {\n"
+	                + "}\n";
+	
+	        ASTParser parser = ASTParser.newParser(AST.JLS20);
+	        parser.setResolveBindings(true);
+	        parser.setStatementsRecovery(true);
+	        parser.setBindingsRecovery(true);
+	        parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	        parser.setEnvironment(new String[0], new String[0], null, false);
+	        parser.setSource(contents.toCharArray());
+	        parser.setUnitName("test.TestClass");
+	        
+	        Map<String, String> options = JavaCore.getDefaultOptions();
+	        options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_17);
+	        options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_17);
+	        options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_17);
+	        parser.setCompilerOptions(options);
+	        ASTNode node = parser.createAST(null);
+	        assertTrue("Should be a compilation unit", node instanceof CompilationUnit);
+	        
+	        CompilationUnit cu = (CompilationUnit) node;
+	        TypeDeclaration type = (TypeDeclaration) cu.types().get(0);
+	        MethodDeclaration method = (MethodDeclaration) type.bodyDeclarations().get(0);
+	        ExpressionStatement stmt = (ExpressionStatement) method.getBody().statements().get(0);
+	        ClassInstanceCreation expr = (ClassInstanceCreation) stmt.getExpression();
+	        IMethodBinding ctorBinding = expr.resolveConstructorBinding();
+	        assertNotNull(ctorBinding);
+	        IAnnotationBinding[] annotations = ctorBinding.getAnnotations();
+	        assertNotNull(annotations);
+	}
 }
