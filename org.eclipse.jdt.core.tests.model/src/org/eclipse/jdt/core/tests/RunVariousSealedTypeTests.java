@@ -53,7 +53,7 @@ public class RunVariousSealedTypeTests extends TestCase {
 				SealedTypesTests.class,
 				SealedTypesSpecReviewTest.class,
 				SwitchPatternTest.class,
-				SwitchPatternTest21.class,
+				SwitchPatternTest22.class,
 				UnnamedPatternsAndVariablesTest.class,
 				ASTRewritingTypeDeclTest.class,
 				ASTConverter_15Test.class,

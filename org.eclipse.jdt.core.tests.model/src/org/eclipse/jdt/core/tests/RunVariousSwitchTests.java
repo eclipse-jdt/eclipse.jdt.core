@@ -25,7 +25,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.PatternMatching16Test;
 import org.eclipse.jdt.core.tests.compiler.regression.RecordPatternTest;
 import org.eclipse.jdt.core.tests.compiler.regression.SwitchExpressionsYieldTest;
 import org.eclipse.jdt.core.tests.compiler.regression.SwitchPatternTest;
-import org.eclipse.jdt.core.tests.compiler.regression.SwitchPatternTest21;
+import org.eclipse.jdt.core.tests.compiler.regression.SwitchPatternTest22;
 import org.eclipse.jdt.core.tests.compiler.regression.SwitchTest;
 import org.eclipse.jdt.core.tests.compiler.regression.UnnamedPatternsAndVariablesTest;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
@@ -44,7 +44,7 @@ public class RunVariousSwitchTests extends TestCase {
 		return new Class[] {
 
 				SwitchPatternTest.class,
-				SwitchPatternTest21.class,
+				SwitchPatternTest22.class,
 				SwitchTest.class,
 				SwitchExpressionsYieldTest.class,
 
