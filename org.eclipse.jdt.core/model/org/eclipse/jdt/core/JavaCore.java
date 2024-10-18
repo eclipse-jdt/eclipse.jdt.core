@@ -457,7 +457,7 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Compiler option ID: Reporting Unused Lambda Parameter.
 	 * <p>When enabled, the compiler will issue an error or a warning for unused lambda
-	 *    parameter (that is, lambda parameter never read from).</p>
+	 *    parameters (that is, lambda parameters never read from).</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedLambdaParameter"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
