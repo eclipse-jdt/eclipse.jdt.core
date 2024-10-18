@@ -557,8 +557,13 @@ public boolean isLambdaScope() {
 }
 
 public boolean isInsideInitializerOrConstructor() {
-	return (this.referenceContext instanceof TypeDeclaration)
-		|| (this.referenceContext instanceof ConstructorDeclaration);
+	// Peel away any intervening lambda(s) so they don't obscure initialization context
+	Scope scope = this;
+	while (scope.isLambdaScope())
+		scope = scope.parent;
+
+	return scope instanceof MethodScope mscope ?
+			mscope.referenceContext instanceof TypeDeclaration || mscope.referenceContext instanceof ConstructorDeclaration : false;
 }
 
 /**
