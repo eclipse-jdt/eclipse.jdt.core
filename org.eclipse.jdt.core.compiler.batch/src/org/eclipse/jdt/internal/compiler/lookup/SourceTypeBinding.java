@@ -67,7 +67,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
@@ -1275,40 +1274,6 @@ private void reportSealedSuperTypeDoesNotPermitProblem(TypeReference superTypeRe
 			}
 		}
 	}
-}
-
-public List<SourceTypeBinding> collectAllTypeBindings(TypeDeclaration typeDecl, CompilationUnitScope unitScope) {
-	class TypeBindingsCollector extends ASTVisitor {
-		List<SourceTypeBinding> types = new ArrayList<>();
-		@Override
-		public boolean visit(
-				TypeDeclaration localTypeDeclaration,
-				BlockScope scope1) {
-				checkAndAddBinding(localTypeDeclaration.binding);
-				return true;
-			}
-			@Override
-			public boolean visit(
-				TypeDeclaration memberTypeDeclaration,
-				ClassScope scope1) {
-				checkAndAddBinding(memberTypeDeclaration.binding);
-				return true;
-			}
-			@Override
-			public boolean visit(
-				TypeDeclaration typeDeclaration,
-				CompilationUnitScope scope1) {
-				checkAndAddBinding(typeDeclaration.binding);
-				return true; // do nothing by default, keep traversing
-			}
-			private void checkAndAddBinding(SourceTypeBinding stb) {
-				if (stb != null)
-					this.types.add(stb);
-			}
-	}
-	TypeBindingsCollector typeCollector = new TypeBindingsCollector();
-	typeDecl.traverse(typeCollector, unitScope);
-	return typeCollector.types;
 }
 
 private boolean checkPermitsAndAdd(ReferenceBinding superType) {
@@ -3263,7 +3228,29 @@ public ReferenceBinding setSuperClass(ReferenceBinding superClass) {
 			annotatedType.superclass = superClass;
 		}
 	}
+	if (superClass != null && superClass.actualType() instanceof SourceTypeBinding sourceSuperType && sourceSuperType.isSealed()
+			&& (sourceSuperType.scope.referenceContext.permittedTypes == null || (sourceSuperType.scope.referenceContext.permittedTypes.length > 0 && sourceSuperType.scope.referenceContext.permittedTypes[0].isImplicit()))) {
+		sourceSuperType.setImplicitPermittedType(this);
+		if (this.isAnonymousType() && superClass.isEnum())
+			this.modifiers |= ClassFileConstants.AccFinal;
+	}
 	return this.superclass = superClass;
+}
+
+private void setImplicitPermittedType(SourceTypeBinding permittedType) {
+	ReferenceBinding[] typesPermitted = this.permittedTypes();
+	int sz = typesPermitted == null ? 0 : typesPermitted.length;
+	if (this.scope.referenceCompilationUnit() == permittedType.scope.referenceCompilationUnit()) {
+		if (sz == 0) {
+			typesPermitted = new ReferenceBinding[] { permittedType };
+		} else {
+			System.arraycopy(typesPermitted, 0, typesPermitted = new ReferenceBinding[sz + 1], 0, sz);
+			typesPermitted[sz] = permittedType;
+		}
+		this.setPermittedTypes(typesPermitted);
+	} else if (sz == 0) {
+		this.setPermittedTypes(Binding.NO_PERMITTED_TYPES);
+	}
 }
 
 // Propagate writes to all annotated variants so the clones evolve along.
@@ -3277,6 +3264,13 @@ public ReferenceBinding [] setSuperInterfaces(ReferenceBinding [] superInterface
 		for (int i = 0, length = annotatedTypes == null ? 0 : annotatedTypes.length; i < length; i++) {
 			SourceTypeBinding annotatedType = (SourceTypeBinding) annotatedTypes[i];
 			annotatedType.superInterfaces = superInterfaces;
+		}
+	}
+	for (int i = 0, length = superInterfaces == null ? 0 : superInterfaces.length; i < length; i++) {
+		ReferenceBinding superInterface = superInterfaces[i];
+		if (superInterface.actualType() instanceof SourceTypeBinding sourceSuperType && sourceSuperType.isSealed()
+				&& (sourceSuperType.scope.referenceContext.permittedTypes == null || (sourceSuperType.scope.referenceContext.permittedTypes.length > 0 && sourceSuperType.scope.referenceContext.permittedTypes[0].isImplicit()))) {
+			sourceSuperType.setImplicitPermittedType(this);
 		}
 	}
 	return this.superInterfaces = superInterfaces;
