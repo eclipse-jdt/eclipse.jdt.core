@@ -767,6 +767,7 @@ public class JavacProblemConverter {
 			case "compiler.err.cant.ref.before.ctor.called" -> IProblem.InstanceFieldDuringConstructorInvocation; // TODO different according to target node
 			case "compiler.err.not.def.public.cant.access" -> IProblem.NotVisibleType; // TODO different according to target node
 			case "compiler.err.already.defined" -> IProblem.DuplicateMethod; // TODO different according to target node
+			case "compiler.warn.underscore.as.identifier" -> IProblem.IllegalUseOfUnderscoreAsAnIdentifier;
 			case "compiler.err.var.might.not.have.been.initialized" -> {
 				VarSymbol symbol = getDiagnosticArgumentByType(diagnostic, VarSymbol.class);
 				yield symbol.owner instanceof ClassSymbol ?
@@ -1072,6 +1073,7 @@ public class JavacProblemConverter {
 			case "compiler.err.too.many.modules" -> IProblem.ModuleRelated;
 			case "compiler.err.call.must.only.appear.in.ctor" -> IProblem.InvalidExplicitConstructorCall;
 			case "compiler.err.void.not.allowed.here" -> IProblem.ParameterMismatch;
+			case "compiler.err.abstract.cant.be.accessed.directly" -> IProblem.DirectInvocationOfAbstractMethod;
 			default -> {
 				ILog.get().error("Could not accurately convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				if (diagnostic.getKind() == javax.tools.Diagnostic.Kind.ERROR && diagnostic.getCode().startsWith("compiler.err")) {
