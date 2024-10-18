@@ -58,7 +58,7 @@
 
   <modules>
     <module>org.eclipse.jdt.annotation</module>
-    <module>org.eclipse.jdt.annotation_v1</module>
+    <!--module>org.eclipse.jdt.annotation_v1</module-->
     <module>org.eclipse.jdt.core.compiler.batch</module>
     <module>org.eclipse.jdt.core</module>
     <module>org.eclipse.jdt.core.formatterapp</module>
