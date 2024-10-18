@@ -55,7 +55,7 @@ public class RunVariousPatternsTests extends TestCase {
 				ASTRewritingInstanceOfPatternExpressionTest.class,
 				ASTRewritingSwitchPatternTest.class,
 				ResolveTests12To15.class,
-				SwitchPatternTest21.class,
+				SwitchPatternTest22.class,
 				JavaSearchBugs19Tests.class,
 				CompletionTestsForRecordPattern.class,
 				NullAnnotationTests21.class,

@@ -249,7 +249,7 @@ public static Test suite() {
 //	 since_22.add(SuperAfterStatementsTest.class);
 	 since_22.add(UnnamedPatternsAndVariablesTest.class);
 	 since_22.add(UseOfUnderscoreJava22Test.class);
-	 since_22.add(SwitchPatternTest21.class);
+	 since_22.add(SwitchPatternTest22.class);
 
 	 ArrayList since_23 = new ArrayList();
 	 since_23.add(SuperAfterStatementsTest.class);
