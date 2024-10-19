@@ -103,7 +103,7 @@ public class ClassScope extends Scope {
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
 					anonymousType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
 				} if (supertype.isSealed()) {
-					problemReporter().sealedAnonymousClassCannotExtendSealedType(typeReference, supertype);
+					problemReporter().anonymousClassCannotExtendSealedType(typeReference, supertype);
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
 					anonymousType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
 				}
@@ -133,7 +133,7 @@ public class ClassScope extends Scope {
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
 					anonymousType.setSuperClass(getJavaLangObject());
 				} else if (supertype.isSealed()) {
-					problemReporter().sealedAnonymousClassCannotExtendSealedType(typeReference, supertype);
+					problemReporter().anonymousClassCannotExtendSealedType(typeReference, supertype);
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
 					anonymousType.setSuperClass(getJavaLangObject());
 				}
@@ -577,7 +577,7 @@ public class ClassScope extends Scope {
 		switch (modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed | ClassFileConstants.AccFinal)) {
 			case ExtraCompilerModifiers.AccSealed, ExtraCompilerModifiers.AccNonSealed, ClassFileConstants.AccFinal, ClassFileConstants.AccDefault : break;
 			default :
-				problemReporter().IllegalModifierCombinationForType(sourceType);
+				problemReporter().illegalModifierCombinationForType(sourceType);
 				break;
 		}
 		if (sourceType.isRecord()) {
@@ -1190,6 +1190,14 @@ public class ClassScope extends Scope {
 				} else {
 					return connectRecordSuperclass();
 				}
+			} else if (superclass.isSealed() && sourceType.isLocalType()) {
+				sourceType.setSuperClass(superclass);
+				problemReporter().localTypeMayNotBePermittedType(sourceType, superclassRef, superclass);
+				return false;
+			} else if (superclass.isSealed() && !(sourceType.isFinal() || sourceType.isSealed() || sourceType.isNonSealed())) {
+				sourceType.setSuperClass(superclass);
+				problemReporter().permittedTypeNeedsModifier(sourceType, this.referenceContext, superclass);
+				return false;
 			} else if ((superclass.tagBits & TagBits.HierarchyHasProblems) != 0
 					|| !superclassRef.resolvedType.isValidBinding()) {
 				sourceType.setSuperClass(superclass);
@@ -1246,22 +1254,63 @@ public class ClassScope extends Scope {
 		return !foundCycle;
 	}
 
+    /* Check that the permitted subtype and the sealed type are located in close proximity: either in the same module (if the superclass is in a named module)
+     * or in the same package (if the superclass is in the unnamed module)
+     * Return true, if all is well. Report error and return false otherwise,
+     */
+	private boolean checkSealingProximity(ReferenceBinding subType, TypeReference subTypeReference, ReferenceBinding sealedType) {
+		final PackageBinding sealedTypePackage = sealedType.getPackage();
+		final ModuleBinding sealedTypeModule = sealedType.module();
+		if (subType.getPackage() != sealedTypePackage) {
+			if (sealedTypeModule.isUnnamed())
+				problemReporter().permittedTypeOutsideOfPackage(subType, sealedType, subTypeReference, sealedTypePackage);
+			else if (subType.module() != sealedTypeModule)
+				problemReporter().permittedTypeOutsideOfModule(subType, sealedType, subTypeReference, sealedTypeModule);
+		}
+		return true;
+	}
+
 	void connectPermittedTypes() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 
-		if (this.referenceContext.permittedTypes != null && (this.referenceContext.permittedTypes.length == 0 || !this.referenceContext.permittedTypes[0].isImplicit())) {
+		if (this.referenceContext.permittedTypes != null && (this.referenceContext.permittedTypes.length == 0 || !this.referenceContext.permittedTypes[0].isSynthetic())) {
 			sourceType.setPermittedTypes(Binding.NO_PERMITTED_TYPES);
 			try {
 				sourceType.tagBits |= TagBits.SealingTypeHierarchy;
+				if (!sourceType.isSealed())
+					problemReporter().missingSealedModifier(sourceType, this.referenceContext);
 				int length = this.referenceContext.permittedTypes.length;
 				ReferenceBinding[] permittedTypeBindings = new ReferenceBinding[length];
 				int count = 0;
 				nextPermittedType : for (int i = 0; i < length; i++) {
 					TypeReference permittedTypeRef = this.referenceContext.permittedTypes[i];
 					ReferenceBinding permittedType = findPermittedtype(permittedTypeRef);
-					if (permittedType == null) {
+					if (permittedType == null || !permittedType.isValidBinding()) {
 						continue nextPermittedType;
 					}
+
+					if (sourceType.isClass()) {
+						ReferenceBinding superClass = permittedType.superclass();
+						superClass = superClass == null ? null : superClass.actualType();
+						if (!TypeBinding.equalsEquals(sourceType, superClass))
+							problemReporter().sealedClassNotDirectSuperClassOf(permittedType, permittedTypeRef, sourceType);
+					} else if (sourceType.isInterface()) {
+						ReferenceBinding[] superInterfaces = permittedType.superInterfaces();
+						boolean hierarchyOK = false;
+						if (superInterfaces != null) {
+							for (ReferenceBinding superInterface : superInterfaces) {
+								superInterface = superInterface == null ? null : superInterface.actualType();
+								if (TypeBinding.equalsEquals(sourceType, superInterface)) {
+									hierarchyOK = true;
+									break;
+								}
+							}
+							if (!hierarchyOK)
+								problemReporter().sealedInterfaceNotDirectSuperInterfaceOf(permittedType, permittedTypeRef, sourceType);
+						}
+					}
+
+					checkSealingProximity(permittedType, permittedTypeRef, sourceType);
 
 					for (int j = 0; j < i; j++) {
 						if (TypeBinding.equalsEquals(permittedTypeBindings[j], permittedType)) {
@@ -1287,7 +1336,7 @@ public class ClassScope extends Scope {
 				sourceType.setPermittedTypes(Binding.NO_PERMITTED_TYPES);
 				if (sourceType.isSealed()) {
 					if (!sourceType.isLocalType() && !sourceType.isRecord() && !sourceType.isEnum()) // error flagged alread
-						problemReporter().sealedSealedTypeMissingPermits(sourceType, this.referenceContext);
+						problemReporter().sealedTypeMissingPermits(sourceType, this.referenceContext);
 				}
 			}
 		}
@@ -1320,70 +1369,89 @@ public class ClassScope extends Scope {
 	*/
 	private boolean connectSuperInterfaces() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
-		sourceType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
-		if (this.referenceContext.superInterfaces == null) {
-			if (sourceType.isAnnotationType() && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) { // do not connect if source < 1.5 as annotation already got flagged as syntax error) {
-				ReferenceBinding annotationType = getJavaLangAnnotationAnnotation();
-				boolean foundCycle = detectHierarchyCycle(sourceType, annotationType, null);
-				sourceType.setSuperInterfaces(new ReferenceBinding[] { annotationType });
-				return !foundCycle;
-			}
-			return true;
-		}
-		if (sourceType.id == TypeIds.T_JavaLangObject) // already handled the case of redefining java.lang.Object
-			return true;
-
+		boolean hasSealedSupertype = sourceType.superclass == null ? false : sourceType.superclass.isSealed();
 		boolean noProblems = true;
-		int length = this.referenceContext.superInterfaces.length;
-		ReferenceBinding[] interfaceBindings = new ReferenceBinding[length];
-		int count = 0;
-		nextInterface : for (int i = 0; i < length; i++) {
-		    TypeReference superInterfaceRef = this.referenceContext.superInterfaces[i];
-			ReferenceBinding superInterface = findSupertype(superInterfaceRef);
-			if (superInterface == null) { // detected cycle
-				sourceType.tagBits |= TagBits.HierarchyHasProblems;
-				noProblems = false;
-				continue nextInterface;
+		try {
+			sourceType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
+			if (this.referenceContext.superInterfaces == null) {
+				if (sourceType.isAnnotationType() && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) { // do not connect if source < 1.5 as annotation already got flagged as syntax error) {
+					ReferenceBinding annotationType = getJavaLangAnnotationAnnotation();
+					boolean foundCycle = detectHierarchyCycle(sourceType, annotationType, null);
+					sourceType.setSuperInterfaces(new ReferenceBinding[] { annotationType });
+					return !foundCycle;
+				}
+				return true;
 			}
+			if (sourceType.id == TypeIds.T_JavaLangObject) // already handled the case of redefining java.lang.Object
+				return true;
 
-			// check for simple interface collisions
-			// Check for a duplicate interface once the name is resolved, otherwise we may be confused (i.e. a.b.I and c.d.I)
-			for (int j = 0; j < i; j++) {
-				if (TypeBinding.equalsEquals(interfaceBindings[j], superInterface)) {
-					problemReporter().duplicateSuperinterface(sourceType, superInterfaceRef, superInterface);
+			int length = this.referenceContext.superInterfaces.length;
+			ReferenceBinding[] interfaceBindings = new ReferenceBinding[length];
+			int count = 0;
+			nextInterface : for (int i = 0; i < length; i++) {
+			    TypeReference superInterfaceRef = this.referenceContext.superInterfaces[i];
+				ReferenceBinding superInterface = findSupertype(superInterfaceRef);
+				if (superInterface == null) { // detected cycle
 					sourceType.tagBits |= TagBits.HierarchyHasProblems;
 					noProblems = false;
 					continue nextInterface;
 				}
+
+				if (superInterface.isSealed())
+					hasSealedSupertype = true;
+
+				// check for simple interface collisions
+				// Check for a duplicate interface once the name is resolved, otherwise we may be confused (i.e. a.b.I and c.d.I)
+				for (int j = 0; j < i; j++) {
+					if (TypeBinding.equalsEquals(interfaceBindings[j], superInterface)) {
+						problemReporter().duplicateSuperinterface(sourceType, superInterfaceRef, superInterface);
+						sourceType.tagBits |= TagBits.HierarchyHasProblems;
+						noProblems = false;
+						continue nextInterface;
+					}
+				}
+				if (!superInterface.isInterface() && (superInterface.tagBits & TagBits.HasMissingType) == 0) {
+					problemReporter().superinterfaceMustBeAnInterface(sourceType, superInterfaceRef, superInterface);
+					sourceType.tagBits |= TagBits.HierarchyHasProblems;
+					noProblems = false;
+					continue nextInterface;
+				} else if (superInterface.isAnnotationType()){
+					problemReporter().annotationTypeUsedAsSuperinterface(sourceType, superInterfaceRef, superInterface);
+				}
+				if ((superInterface.tagBits & TagBits.HasDirectWildcard) != 0) {
+					problemReporter().superTypeCannotUseWildcard(sourceType, superInterfaceRef, superInterface);
+					sourceType.tagBits |= TagBits.HierarchyHasProblems;
+					noProblems = false;
+					continue nextInterface;
+				}
+				if ((superInterface.tagBits & TagBits.HierarchyHasProblems) != 0
+						|| !superInterfaceRef.resolvedType.isValidBinding()) {
+					sourceType.tagBits |= TagBits.HierarchyHasProblems; // propagate if missing supertype
+					noProblems &= superInterfaceRef.resolvedType.isValidBinding();
+				}
+				if (superInterface.isSealed() && sourceType.isLocalType()) {
+					problemReporter().localTypeMayNotBePermittedType(sourceType, superInterfaceRef, superInterface);
+					noProblems = false;
+				} else if (superInterface.isSealed() && !(sourceType.isFinal() || sourceType.isSealed() || sourceType.isNonSealed())) {
+					problemReporter().permittedTypeNeedsModifier(sourceType, this.referenceContext, superInterface);
+					noProblems = false;
+				}
+
+				// only want to reach here when no errors are reported
+				sourceType.typeBits |= (superInterface.typeBits & TypeIds.InheritableBits);
+				interfaceBindings[count++] = superInterface;
 			}
-			if (!superInterface.isInterface() && (superInterface.tagBits & TagBits.HasMissingType) == 0) {
-				problemReporter().superinterfaceMustBeAnInterface(sourceType, superInterfaceRef, superInterface);
-				sourceType.tagBits |= TagBits.HierarchyHasProblems;
-				noProblems = false;
-				continue nextInterface;
-			} else if (superInterface.isAnnotationType()){
-				problemReporter().annotationTypeUsedAsSuperinterface(sourceType, superInterfaceRef, superInterface);
+			// hold onto all correctly resolved superinterfaces
+			if (count > 0) {
+				if (count != length)
+					System.arraycopy(interfaceBindings, 0, interfaceBindings = new ReferenceBinding[count], 0, count);
+				sourceType.setSuperInterfaces(interfaceBindings);
 			}
-			if ((superInterface.tagBits & TagBits.HasDirectWildcard) != 0) {
-				problemReporter().superTypeCannotUseWildcard(sourceType, superInterfaceRef, superInterface);
-				sourceType.tagBits |= TagBits.HierarchyHasProblems;
-				noProblems = false;
-				continue nextInterface;
+		} finally {
+			if (sourceType.isNonSealed() && !hasSealedSupertype) {
+				if (!sourceType.isRecord() && !sourceType.isLocalType() && !sourceType.isEnum() && !sourceType.isSealed()) // avoid double jeopardy
+					problemReporter().disallowedNonSealedModifier(sourceType, this.referenceContext);
 			}
-			if ((superInterface.tagBits & TagBits.HierarchyHasProblems) != 0
-					|| !superInterfaceRef.resolvedType.isValidBinding()) {
-				sourceType.tagBits |= TagBits.HierarchyHasProblems; // propagate if missing supertype
-				noProblems &= superInterfaceRef.resolvedType.isValidBinding();
-			}
-			// only want to reach here when no errors are reported
-			sourceType.typeBits |= (superInterface.typeBits & TypeIds.InheritableBits);
-			interfaceBindings[count++] = superInterface;
-		}
-		// hold onto all correctly resolved superinterfaces
-		if (count > 0) {
-			if (count != length)
-				System.arraycopy(interfaceBindings, 0, interfaceBindings = new ReferenceBinding[count], 0, count);
-			sourceType.setSuperInterfaces(interfaceBindings);
 		}
 		return noProblems;
 	}

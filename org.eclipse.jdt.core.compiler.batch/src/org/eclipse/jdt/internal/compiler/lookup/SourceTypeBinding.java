@@ -55,7 +55,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1098,199 +1097,47 @@ private void checkAnnotationsInType() {
 
 void faultInTypesForFieldsAndMethods() {
 	if (!isPrototype()) throw new IllegalStateException();
-	checkPermitsInType();
+	if (!this.isLocalType())
+		complainIfUnpermittedSubtyping();  // this has nothing to do with fields and methods but time is ripe for this check.
 	checkAnnotationsInType();
 	internalFaultInTypeForFieldsAndMethods();
 }
 
-private Map.Entry<TypeReference, ReferenceBinding> getFirstSealedSuperTypeOrInterface(TypeDeclaration typeDecl) {
-	boolean isAnySuperTypeSealed = typeDecl.superclass != null && this.superclass != null ? this.superclass.isSealed() : false;
-	if (isAnySuperTypeSealed)
-		return new AbstractMap.SimpleEntry<>(typeDecl.superclass, this.superclass);
+private boolean isAnUnpermittedSubtypeOf(ReferenceBinding superType) {
 
-	ReferenceBinding[] superInterfaces1 = this.superInterfaces();
-	int l = superInterfaces1 != null ? superInterfaces1.length : 0;
-	for (int i = 0; i < l; ++i) {
-		ReferenceBinding superInterface = superInterfaces1[i];
-		if (superInterface.isSealed()) {
-			return new AbstractMap.SimpleEntry<>(typeDecl.superInterfaces[i], superInterface);
-		}
+	if (superType == null || !superType.isSealed())
+		return false;
+
+	for (ReferenceBinding permittedType : superType.actualType().permittedTypes()) {
+		if (TypeBinding.equalsEquals(this, permittedType))
+			return false;
 	}
-	return null;
+
+	return true;
 }
 
-private void checkPermitsInType() {
+private void complainIfUnpermittedSubtyping() {
+
+	// Diagnose unauthorized subtyping: This cannot be correctly hoisted into ClassScope.{ connectSuperclass() | connectSuperInterfaces() | connectPermittedTypes() }
+	// but can be taken up now
+
 	TypeDeclaration typeDecl = this.scope.referenceContext;
-	boolean hasPermittedTypes = this.permittedTypes != null && this.permittedTypes.length > 0;
-	if (hasPermittedTypes) {
-		if (!this.isSealed())
-			this.scope.problemReporter().sealedMissingSealedModifier(this, typeDecl);
-		ModuleBinding sourceModuleBinding = this.module();
-		boolean isUnnamedModule = sourceModuleBinding.isUnnamed();
-		if (isUnnamedModule) {
-			PackageBinding sourceTypePackage = this.getPackage();
-			for (int i =0, l = this.permittedTypes.length; i < l; i++) {
-				ReferenceBinding permType = this.permittedTypes[i];
-				if (!permType.isValidBinding()) continue;
-				if (sourceTypePackage != permType.getPackage()) {
-					TypeReference permittedTypeRef = typeDecl.permittedTypes[i];
-					this.scope.problemReporter().sealedPermittedTypeOutsideOfPackage(permType, this, permittedTypeRef, sourceTypePackage);
-				}
-			}
-		} else {
-			for (int i = 0, l = this.permittedTypes.length; i < l; i++) {
-				ReferenceBinding permType = this.permittedTypes[i];
-				if (!permType.isValidBinding()) continue;
-				ModuleBinding permTypeModule = permType.module();
-				if (permTypeModule != null && sourceModuleBinding != permTypeModule) {
-					TypeReference permittedTypeRef = typeDecl.permittedTypes[i];
-					this.scope.problemReporter().sealedPermittedTypeOutsideOfModule(permType, this, permittedTypeRef, sourceModuleBinding);
-				}
-			}
+	if (this.isAnUnpermittedSubtypeOf(this.superclass)) {
+		this.scope.problemReporter().sealedSupertypeDoesNotPermit(this, typeDecl.superclass, this.superclass);
+	}
+
+	for (int i = 0, l = this.superInterfaces.length; i < l; ++i) {
+		ReferenceBinding superInterface = this.superInterfaces[i];
+		if (this.isAnUnpermittedSubtypeOf(superInterface)) {
+			TypeReference superInterfaceRef = typeDecl.superInterfaces[i];
+			this.scope.problemReporter().sealedSupertypeDoesNotPermit(this, superInterfaceRef, superInterface);
 		}
 	}
 
-//	ReferenceBinding superType = this.superclass();
-	Map.Entry<TypeReference, ReferenceBinding> sealedEntry = getFirstSealedSuperTypeOrInterface(typeDecl);
-	boolean foundSealedSuperTypeOrInterface = sealedEntry != null;
-	if (this.isLocalType()) {
-		if (this.isSealed() || this.isNonSealed())
-			return; // already handled elsewhere
-		if (foundSealedSuperTypeOrInterface) {
-			this.scope.problemReporter().sealedLocalDirectSuperTypeSealed(this, sealedEntry.getKey(), sealedEntry.getValue());
-			return;
-		}
-	} else if (this.isNonSealed()) {
-		if (!this.isSealed()) { // lest we bark again.
-			if (!foundSealedSuperTypeOrInterface) {
-				if (this.isClass() && !this.isRecord()) // record to give only illegal modifier error.
-					this.scope.problemReporter().sealedDisAllowedNonSealedModifierInClass(this, typeDecl);
-				else if (this.isInterface())
-					this.scope.problemReporter().sealedDisAllowedNonSealedModifierInInterface(this, typeDecl);
-			}
-		}
-	}
-	if (foundSealedSuperTypeOrInterface) {
-		if (!(this.isFinal() || this.isSealed() || this.isNonSealed())) {
-			if (this.isClass())
-				this.scope.problemReporter().sealedMissingClassModifier(this, typeDecl, sealedEntry.getValue());
-			else if (this.isInterface())
-				this.scope.problemReporter().sealedMissingInterfaceModifier(this, typeDecl, sealedEntry.getValue());
-		}
-		if (!typeDecl.isRecord() && typeDecl.superclass != null && !checkPermitsAndAdd(this.superclass)) {
-			reportSealedSuperTypeDoesNotPermitProblem(typeDecl.superclass, this.superclass);
-		}
-		for (int i = 0, l = this.superInterfaces.length; i < l; ++i) {
-			ReferenceBinding superInterface = this.superInterfaces[i];
-			if (superInterface != null && !checkPermitsAndAdd(superInterface)) {
-				TypeReference superInterfaceRef = typeDecl.superInterfaces[i];
-				reportSealedSuperTypeDoesNotPermitProblem(superInterfaceRef, superInterface);
-			}
-		}
-	}
 	for (ReferenceBinding memberType : this.memberTypes)
-		((SourceTypeBinding) memberType).checkPermitsInType();
+		((SourceTypeBinding) memberType).complainIfUnpermittedSubtyping();
 
-	if (this.scope.referenceContext.permittedTypes == null) {
-		// Ignore implicitly permitted case
-		return;
-	}
-	// In case of errors, be safe.
-	int l = this.permittedTypes.length <= this.scope.referenceContext.permittedTypes.length ?
-			this.permittedTypes.length : this.scope.referenceContext.permittedTypes.length;
-	for (int i = 0; i < l; i++) {
-	    TypeReference permittedTypeRef = this.scope.referenceContext.permittedTypes[i];
-		ReferenceBinding permittedType = this.permittedTypes[i];
-		if (permittedType == null || !permittedType.isValidBinding())
-			continue;
-		if (this.isClass()) {
-			ReferenceBinding permSuperType = permittedType.superclass();
-			permSuperType = permSuperType.actualType();
-			if (!TypeBinding.equalsEquals(this, permSuperType)) {
-				this.scope.problemReporter().sealedNotDirectSuperClass(permittedType, permittedTypeRef, this);
-				continue;
-			}
-		} else if (this.isInterface()) {
-			ReferenceBinding[] permSuperInterfaces = permittedType.superInterfaces();
-			boolean foundSuperInterface = false;
-			if (permSuperInterfaces != null) {
-				for (ReferenceBinding psi : permSuperInterfaces) {
-					psi = psi.actualType();
-					if (TypeBinding.equalsEquals(this, psi)) {
-						foundSuperInterface = true;
-						break;
-					}
-				}
-				if (!foundSuperInterface) {
-					this.scope.problemReporter().sealedNotDirectSuperInterface(permittedType, permittedTypeRef, this);
-					continue;
-				}
-			}
-		}
-	}
 	return;
-}
-
-private void reportSealedSuperTypeDoesNotPermitProblem(TypeReference superTypeRef, TypeBinding superType) {
-	ModuleBinding sourceModuleBinding = this.module();
-	boolean isUnnamedModule = sourceModuleBinding.isUnnamed();
-	boolean isClass =  false;
-	if (superType.isClass()) {
-		isClass =  true;
-	}
-	boolean sealedSuperTypeDoesNotPermit = false;
-	ReferenceBinding superReferenceBinding = null;
-	if (superType instanceof ReferenceBinding) {
-		superReferenceBinding = (ReferenceBinding) superType;
-		if (isUnnamedModule) {
-			PackageBinding superTypePackage = superReferenceBinding.getPackage();
-			PackageBinding pkg = this.getPackage();
-			sealedSuperTypeDoesNotPermit = pkg!= null && pkg.equals(superTypePackage);
-		} else {
-			ModuleBinding superTypeModule = superReferenceBinding.module();
-			ModuleBinding mod = this.module();
-			sealedSuperTypeDoesNotPermit  = mod!= null && mod.equals(superTypeModule);
-		}
-	}
-	if (sealedSuperTypeDoesNotPermit) {
-		if (isClass) {
-			this.scope.problemReporter().sealedSuperClassDoesNotPermit(this, superTypeRef, superType);
-		} else {
-			this.scope.problemReporter().sealedSuperInterfaceDoesNotPermit(this, superTypeRef, superType);
-		}
-	} else {
-		if (superReferenceBinding instanceof SourceTypeBinding && isUnnamedModule) {
-			PackageBinding superTypePackage = superReferenceBinding.getPackage();
-			if (isClass) {
-				this.scope.problemReporter().sealedSuperClassInDifferentPackage(this, superTypeRef, superType, superTypePackage);
-			} else {
-				this.scope.problemReporter().sealedSuperInterfaceInDifferentPackage(this, superTypeRef, superType, superTypePackage);
-			}
-		} else {
-			if (isClass) {
-				this.scope.problemReporter().sealedSuperClassDisallowed(this, superTypeRef, superType);
-			} else {
-				this.scope.problemReporter().sealedSuperInterfaceDisallowed(this, superTypeRef, superType);
-			}
-		}
-	}
-}
-
-private boolean checkPermitsAndAdd(ReferenceBinding superType) {
-	if (superType == null
-			|| superType.equals(this.scope.getJavaLangObject())
-			|| !superType.isSealed())
-		return true;
-	if (superType.isSealed()) {
-		superType = superType.actualType();
-		ReferenceBinding[] superPermittedTypes = superType.permittedTypes();
-		for (ReferenceBinding permittedType : superPermittedTypes) {
-			permittedType = permittedType.actualType();
-			if (permittedType.isValidBinding() && TypeBinding.equalsEquals(this, permittedType))
-				return true;
-		}
-	}
-	return false;
 }
 
 @Override
@@ -3229,7 +3076,7 @@ public ReferenceBinding setSuperClass(ReferenceBinding superClass) {
 		}
 	}
 	if (superClass != null && superClass.actualType() instanceof SourceTypeBinding sourceSuperType && sourceSuperType.isSealed()
-			&& (sourceSuperType.scope.referenceContext.permittedTypes == null || (sourceSuperType.scope.referenceContext.permittedTypes.length > 0 && sourceSuperType.scope.referenceContext.permittedTypes[0].isImplicit()))) {
+			&& (sourceSuperType.scope.referenceContext.permittedTypes == null || (sourceSuperType.scope.referenceContext.permittedTypes.length > 0 && sourceSuperType.scope.referenceContext.permittedTypes[0].isSynthetic()))) {
 		sourceSuperType.setImplicitPermittedType(this);
 		if (this.isAnonymousType() && superClass.isEnum())
 			this.modifiers |= ClassFileConstants.AccFinal;
@@ -3269,7 +3116,7 @@ public ReferenceBinding [] setSuperInterfaces(ReferenceBinding [] superInterface
 	for (int i = 0, length = superInterfaces == null ? 0 : superInterfaces.length; i < length; i++) {
 		ReferenceBinding superInterface = superInterfaces[i];
 		if (superInterface.actualType() instanceof SourceTypeBinding sourceSuperType && sourceSuperType.isSealed()
-				&& (sourceSuperType.scope.referenceContext.permittedTypes == null || (sourceSuperType.scope.referenceContext.permittedTypes.length > 0 && sourceSuperType.scope.referenceContext.permittedTypes[0].isImplicit()))) {
+				&& (sourceSuperType.scope.referenceContext.permittedTypes == null || (sourceSuperType.scope.referenceContext.permittedTypes.length > 0 && sourceSuperType.scope.referenceContext.permittedTypes[0].isSynthetic()))) {
 			sourceSuperType.setImplicitPermittedType(this);
 		}
 	}
