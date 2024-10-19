@@ -156,7 +156,9 @@ public class BatchCompilerTest_17 extends AbstractBatchCompilerTest {
 	// Check behavior of expression switch in JDK18-
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3096#issuecomment-2417954288
 	public void testGHI1774_Expression() throws Exception {
-
+		String javaVersion = System.getProperty("java.version");
+		if (javaVersion != null && JavaCore.compareJavaVersions(javaVersion, "18") < 0)
+			return;
 		String path = LIB_DIR;
 		String libPath = null;
 		if (path.endsWith(File.separator)) {

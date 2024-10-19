@@ -1665,6 +1665,10 @@ public class IncrementalTests extends BuilderTests {
 	}
 
 	public void testExhaustiveness() throws JavaModelException {
+		String javaVersion = System.getProperty("java.version");
+		if (javaVersion != null && JavaCore.compareJavaVersions(javaVersion, "18") < 0)
+			return;
+
 		IPath projectPath = env.addProject("Project", "18");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
