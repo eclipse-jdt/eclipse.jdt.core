@@ -7312,7 +7312,7 @@ public void notCompatibleTypesError(ASTNode location, TypeBinding leftType, Type
 		leftShortName = leftName;
 		rightShortName = rightName;
 	}
-	int problemId = IProblem.IncompatibleTypesInEqualityOperator; // name is misleading, also used for instanceof patterns
+	int problemId = IProblem.IncompatibleTypesInEqualityOperator;
 	if (location instanceof Pattern p && p.getEnclosingPattern() instanceof RecordPattern) {
 		problemId = IProblem.PatternTypeMismatch;
 	} else if (location instanceof InstanceOfExpression) {
