@@ -2182,4 +2182,103 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				""";
 		runner.runNegativeTest();
 	}
+
+	public void testGH3094() {
+		Runner runner = new Runner(false);
+		runner.testFiles = new String[] {
+				"X.java",
+				"""
+				public class X {
+					class Nested extends X1 {
+						X1 xy;
+						class DeeplyNested extends NestedInX1 {
+							DeeplyNested(float f) {
+								Nested.super.x1.super(); // Error here
+							}
+						}
+					}
+					public static void main(String... args) {
+						Nested nest = new X().new Nested();
+						nest.x1 = new X1();
+						nest.new DeeplyNested(1.1f);
+					}
+				}
+				class X1 {
+					X1 x1;
+					class NestedInX1 {}
+				}
+				"""
+			};
+		runner.runConformTest();
+	}
+
+	public void testGH3094_2() {
+		Runner runner = new Runner(false);
+		runner.testFiles = new String[] {
+				"X.java",
+				"""
+				public class X {
+					class Nested extends X1 {
+						X1 xy;
+						class DeeplyNested extends NestedInX1 {
+							DeeplyNested(float f) {
+								Nested.this.x1.super();
+							}
+						}
+					}
+					public static void main(String... args) {
+						Nested nest = new X().new Nested();
+						nest.x1 = new X1();
+						nest.new DeeplyNested(1.1f);
+					}
+				}
+				class X1 {
+					X1 x1;
+					class NestedInX1 {}
+				}
+				"""
+			};
+		runner.runConformTest();
+	}
+
+	public void testGH3094_3() {
+		Runner runner = new Runner(false);
+		runner.testFiles = new String[] {
+				"X.java",
+				"""
+				public class X {
+					class Nested extends X1 {
+						X1 xy;
+						Nested() {
+							class DeeplyNested extends NestedInX1 {
+								DeeplyNested(float f) {
+									Nested.this.x1.super();
+								}
+							}
+							super();
+						}
+					}
+				}
+				class X1 {
+					X1 x1;
+					class NestedInX1 {}
+				}
+				"""
+			};
+		runner.expectedCompilerLog =
+			"""
+			----------
+			1. WARNING in X.java (at line 5)
+				class DeeplyNested extends NestedInX1 {
+				      ^^^^^^^^^^^^
+			The type DeeplyNested is never used locally
+			----------
+			2. ERROR in X.java (at line 7)
+				Nested.this.x1.super();
+				^^^^^^^^^^^^^^
+			Cannot read field x1 in an early construction context
+			----------
+			""";
+		runner.runNegativeTest();
+	}
 }
