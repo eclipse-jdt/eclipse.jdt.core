@@ -439,7 +439,7 @@ public class JavacBindingResolver extends BindingResolver {
 				// symbols not already present: analyze
 				try {
 					this.javac.analyze();
-				} catch (IOException e) {
+				} catch (IOException | IllegalStateException e) {
 					ILog.get().error(e.getMessage(), e);
 				}
 			}

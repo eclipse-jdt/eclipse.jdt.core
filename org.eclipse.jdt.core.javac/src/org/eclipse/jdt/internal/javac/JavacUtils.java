@@ -342,8 +342,15 @@ public class JavacUtils {
 								// do nothing
 							}
 							if (moduleDescription == null) {
+								IPath path = referencedJavaProject.getOutputLocation();
+								addPath(referencedJavaProject, path, res);
 								for (IClasspathEntry transitiveEntry : referencedJavaProject.resolveClasspath(referencedJavaProject.getExpandedClasspath()) ) {
-									if (transitiveEntry.isExported() || transitiveEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+									if (transitiveEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+										IPath outputLocation = transitiveEntry.getOutputLocation();
+										if (outputLocation != null && select.test(transitiveEntry)) {
+											addPath(referencedJavaProject, outputLocation, res);
+										}
+									} else if (transitiveEntry.isExported()) {
 										toProcess.add(transitiveEntry);
 									}
 								}
@@ -352,21 +359,25 @@ public class JavacUtils {
 					}
 				} else if (select.test(current)) {
 					IPath path = current.getPath();
-					File asFile = path.toFile();
-					if (asFile.exists()) {
-						res.add(asFile);
-					} else {
-						IResource asResource = project.getProject().getParent().findMember(path);
-						if (asResource != null && asResource.exists()) {
-							res.add(asResource.getLocation().toFile());
-						}
-					}
+					addPath(project, path, res);
 				}
 			}
 			return res;
 		} catch (JavaModelException ex) {
 			ILog.get().error(ex.getMessage(), ex);
 			return List.of();
+		}
+	}
+
+		private static void addPath(JavaProject project, IPath path, LinkedHashSet<File> res) {
+		File asFile = path.toFile();
+		if (asFile.exists()) {
+			res.add(asFile);
+		} else {
+			IResource asResource = project.getProject().getParent().findMember(path);
+			if (asResource != null && asResource.exists()) {
+				res.add(asResource.getLocation().toFile());
+			}
 		}
 	}
 
