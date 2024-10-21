@@ -5756,6 +5756,8 @@ public abstract class Scope {
 							|| (currentTarget instanceof ReferenceBinding currentRefBind && !currentRefBind.hasEnclosingInstanceContext())) {
 						break;
 					}
+					if (currentTarget.isStatic() || currentTarget.isLocalType())
+						break;
 					currentTarget = currentTarget.enclosingType();
 				}
 				currentEnclosing = currentEnclosing.parent.classScope();
