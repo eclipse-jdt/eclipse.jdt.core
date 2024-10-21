@@ -626,7 +626,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"1. ERROR in p2\\Y.java (at line 2)\n" +
 			"	public final class Y extends p1.X{}\n" +
 			"	                             ^^^^\n" +
-			"Sealed type X and sub type Y in an unnamed module should be declared in the same package p1\n" +
+			"The type Y extending a sealed class X should be a permitted subtype of X\n" +
 			"----------\n");
 	}
 	public void testBug563806_011() {
@@ -660,7 +660,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"1. ERROR in p2\\Y.java (at line 2)\n" +
 			"	public final class Y implements p1.X{}\n" +
 			"	                                ^^^^\n" +
-			"Sealed type X and sub type Y in an unnamed module should be declared in the same package p1\n" +
+			"The type Y that implements a sealed interface X should be a permitted subtype of X\n" +
 			"----------\n");
 	}
 	public void testBug563806_013() {
@@ -705,7 +705,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"2. ERROR in p2\\Y.java (at line 2)\n" +
 			"	public interface Y extends p1.X{}\n" +
 			"	                           ^^^^\n" +
-			"Sealed type X and sub type Y in an unnamed module should be declared in the same package p1\n" +
+			"The type Y that extends a sealed interface X should be a permitted subtype of X\n" +
 			"----------\n");
 	}
 	public void testBug563806_015() {
@@ -1219,7 +1219,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"2. ERROR in p1\\X.java (at line 5)\n" +
 			"	class Y extends A{}\n" +
 			"	                ^\n" +
-			"A local class Y cannot have a sealed direct superclass or a sealed direct superinterface A\n" +
+			"The local type Y may not have a sealed supertype A\n" +
 			"----------\n");
 	}
 	public void testBug564191_001() throws IOException, ClassFormatException {
@@ -5547,12 +5547,12 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	class Y implements I {}\n" +
 			"	                   ^\n" +
-			"A local class Y cannot have a sealed direct superclass or a sealed direct superinterface I\n" +
+			"The local type Y may not have a sealed supertype I\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 10)\n" +
 			"	class Z implements I{}\n" +
 			"	                   ^\n" +
-			"A local class Z cannot have a sealed direct superclass or a sealed direct superinterface I\n" +
+			"The local type Z may not have a sealed supertype I\n" +
 			"----------\n");
 	}
 	public void testBug568854_008() {
@@ -5576,12 +5576,12 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 6)\n" +
 			"	class Y implements I {}\n" +
 			"	                   ^\n" +
-			"A local class Y cannot have a sealed direct superclass or a sealed direct superinterface I\n" +
+			"The local type Y may not have a sealed supertype I\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 10)\n" +
 			"	class Z implements I{}\n" +
 			"	                   ^\n" +
-			"A local class Z cannot have a sealed direct superclass or a sealed direct superinterface I\n" +
+			"The local type Z may not have a sealed supertype I\n" +
 			"----------\n");
 	}
 	public void testBug571332_001() {
@@ -5623,7 +5623,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 6)\n" +
 				"	class L extends Y {}\n" +
 				"	                ^\n" +
-				"A local class L cannot have a sealed direct superclass or a sealed direct superinterface Y\n" +
+				"The local type L may not have a sealed supertype Y\n" +
 				"----------\n");
 	}
 	public void testBug570218_001() {
@@ -5669,7 +5669,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 3)\n" +
 			"	class Circle implements Shape{}\n" +
 			"	                        ^^^^^\n" +
-			"A local class Circle cannot have a sealed direct superclass or a sealed direct superinterface X.Shape\n" +
+			"The local type Circle may not have a sealed supertype X.Shape\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 5)\n" +
 			"	sealed interface Shape {}\n" +

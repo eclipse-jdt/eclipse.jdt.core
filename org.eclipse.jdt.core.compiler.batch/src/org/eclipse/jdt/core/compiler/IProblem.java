@@ -2550,11 +2550,15 @@ void setSourceStart(int sourceStart);
 	int SealedLocalDirectSuperTypeSealed = TypeRelated + 1864;
 	/** @since 3.28 */
 	int SealedAnonymousClassCannotExtendSealedType = TypeRelated + 1865;
-	/** @since 3.28 */
+	/** @since 3.28
+	 * @deprecated problem no longer generated
+	 */
 	int SealedSuperTypeInDifferentPackage = TypeRelated + 1866;
-	/** @since 3.28 */
+	/** @since 3.28
+	 * @deprecated problem no longer generated
+	 */
 	int SealedSuperTypeDisallowed = TypeRelated + 1867;
-	/* Java15 errors - end */
+	/* Java17 Sealed types errors - end */
 
 	/**
 	 * @since 3.28

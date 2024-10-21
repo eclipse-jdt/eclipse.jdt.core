@@ -5842,7 +5842,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 				superInterface.getAllAnnotationContexts(AnnotationTargetTypeConstants.CLASS_EXTENDS, i, allTypeAnnotationContexts);
 			}
 		}
-		// TODO: permittedTypes codegen
 		TypeParameter[] typeParameters = typeDeclaration.typeParameters;
 		if (typeParameters != null) {
 			for (int i = 0, max = typeParameters.length; i < max; i++) {

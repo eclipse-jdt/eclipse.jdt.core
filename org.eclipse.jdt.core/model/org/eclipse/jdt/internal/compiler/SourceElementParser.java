@@ -1017,7 +1017,7 @@ private static class DummyTypeReference extends TypeReference {
 		return new String(this.token);
 	}
 	@Override
-	public boolean isImplicit() {
+	public boolean isSynthetic() {
 		return true;
 	}
 }
