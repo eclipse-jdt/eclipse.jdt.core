@@ -3062,28 +3062,6 @@ public ReferenceBinding [] setPermittedTypes(ReferenceBinding [] permittedTypes)
 	return this.permittedTypes = permittedTypes;
 }
 
-// Propagate writes to all annotated variants so the clones evolve along.
-public ReferenceBinding setSuperClass(ReferenceBinding superClass) {
-
-	if (!isPrototype())
-		return this.prototype.setSuperClass(superClass);
-
-	if ((this.tagBits & TagBits.HasAnnotatedVariants) != 0) {
-		TypeBinding [] annotatedTypes = this.scope.environment().getAnnotatedTypes(this);
-		for (int i = 0, length = annotatedTypes == null ? 0 : annotatedTypes.length; i < length; i++) {
-			SourceTypeBinding annotatedType = (SourceTypeBinding) annotatedTypes[i];
-			annotatedType.superclass = superClass;
-		}
-	}
-	if (superClass != null && superClass.actualType() instanceof SourceTypeBinding sourceSuperType && sourceSuperType.isSealed()
-			&& (sourceSuperType.scope.referenceContext.permittedTypes == null || (sourceSuperType.scope.referenceContext.permittedTypes.length > 0 && sourceSuperType.scope.referenceContext.permittedTypes[0].isSynthetic()))) {
-		sourceSuperType.setImplicitPermittedType(this);
-		if (this.isAnonymousType() && superClass.isEnum())
-			this.modifiers |= ClassFileConstants.AccFinal;
-	}
-	return this.superclass = superClass;
-}
-
 private void setImplicitPermittedType(SourceTypeBinding permittedType) {
 	ReferenceBinding[] typesPermitted = this.permittedTypes();
 	int sz = typesPermitted == null ? 0 : typesPermitted.length;
@@ -3101,6 +3079,27 @@ private void setImplicitPermittedType(SourceTypeBinding permittedType) {
 }
 
 // Propagate writes to all annotated variants so the clones evolve along.
+public ReferenceBinding setSuperClass(ReferenceBinding superClass) {
+
+	if (!isPrototype())
+		return this.prototype.setSuperClass(superClass);
+
+	if ((this.tagBits & TagBits.HasAnnotatedVariants) != 0) {
+		TypeBinding [] annotatedTypes = this.scope.environment().getAnnotatedTypes(this);
+		for (int i = 0, length = annotatedTypes == null ? 0 : annotatedTypes.length; i < length; i++) {
+			SourceTypeBinding annotatedType = (SourceTypeBinding) annotatedTypes[i];
+			annotatedType.superclass = superClass;
+		}
+	}
+	if (superClass != null && superClass.actualType() instanceof SourceTypeBinding sourceSuperType && sourceSuperType.isSealed() && sourceSuperType.scope.referenceContext.permittedTypes == null) {
+		sourceSuperType.setImplicitPermittedType(this);
+		if (this.isAnonymousType() && superClass.isEnum())
+			this.modifiers |= ClassFileConstants.AccFinal;
+	}
+	return this.superclass = superClass;
+}
+
+// Propagate writes to all annotated variants so the clones evolve along.
 public ReferenceBinding [] setSuperInterfaces(ReferenceBinding [] superInterfaces) {
 
 	if (!isPrototype())
@@ -3115,8 +3114,7 @@ public ReferenceBinding [] setSuperInterfaces(ReferenceBinding [] superInterface
 	}
 	for (int i = 0, length = superInterfaces == null ? 0 : superInterfaces.length; i < length; i++) {
 		ReferenceBinding superInterface = superInterfaces[i];
-		if (superInterface.actualType() instanceof SourceTypeBinding sourceSuperType && sourceSuperType.isSealed()
-				&& (sourceSuperType.scope.referenceContext.permittedTypes == null || (sourceSuperType.scope.referenceContext.permittedTypes.length > 0 && sourceSuperType.scope.referenceContext.permittedTypes[0].isSynthetic()))) {
+		if (superInterface.actualType() instanceof SourceTypeBinding sourceSuperType && sourceSuperType.isSealed() && sourceSuperType.scope.referenceContext.permittedTypes == null) {
 			sourceSuperType.setImplicitPermittedType(this);
 		}
 	}

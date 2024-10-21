@@ -1273,7 +1273,7 @@ public class ClassScope extends Scope {
 	void connectPermittedTypes() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 
-		if (this.referenceContext.permittedTypes != null && (this.referenceContext.permittedTypes.length == 0 || !this.referenceContext.permittedTypes[0].isSynthetic())) {
+		if (this.referenceContext.permittedTypes != null) {
 			sourceType.setPermittedTypes(Binding.NO_PERMITTED_TYPES);
 			try {
 				sourceType.tagBits |= TagBits.SealingTypeHierarchy;

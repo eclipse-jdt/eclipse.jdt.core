@@ -556,9 +556,6 @@ protected TypeBinding internalResolveType(Scope scope, int location) {
 public boolean isTypeReference() {
 	return true;
 }
-public boolean isSynthetic() {
-	return false;
-}
 public boolean isWildcard() {
 	return false;
 }
