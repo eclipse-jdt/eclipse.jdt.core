@@ -14,10 +14,7 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 
 /**
  * Implementation of IJavaModel. A Java Model is specific to a
@@ -31,14 +28,7 @@ public class JavaModelInfo extends OpenableElementInfo {
  * Compute the non-java resources contained in this java project.
  */
 private Object[] computeNonJavaResources() {
-	IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-	try {
-		workspaceRoot.refreshLocal(IResource.DEPTH_INFINITE, null);
-	} catch (CoreException e) {
-		e.printStackTrace();
-		return null;
-	}
-	IProject[] projects = workspaceRoot.getProjects();
+	IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 	int length = projects.length;
 	Object[] resources = null;
 	int index = 0;
