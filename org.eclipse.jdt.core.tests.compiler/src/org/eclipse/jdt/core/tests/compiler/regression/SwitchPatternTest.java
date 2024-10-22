@@ -9228,4 +9228,26 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"");
 	}
 
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3135
+	// [Switch] default->null caused a building problem.
+	public void testIssue3135() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						        public static void main(String[] args) {
+						            int i = 3;
+						            int[] arr = { 42, 2, 3 };
+						            System.out.println((switch (i) {
+						                case 3 -> arr;
+						                default -> null; // Replacing null with a non-null value can avoid this issue.
+						            })[0]);
+						        }
+						}
+						"""
+				},
+				"42");
+	}
+
 }
