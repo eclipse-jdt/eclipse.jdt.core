@@ -2281,4 +2281,53 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			""";
 		runner.runNegativeTest();
 	}
+
+	public void testGH3132() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+				"X.java",
+				"""
+				public class X {
+					class Nested {
+						Nested(Object o) {}
+					}
+					class AnotherNested extends Nested {
+						AnotherNested() {
+							super(new Object() { // Cannot instantiate class new Object(){} in an early construction context of class X.AnotherNested
+							});
+						}
+					}
+					public static void main(String... args) {
+						new X().new AnotherNested();
+					}
+				}
+				"""
+			};
+		runner.runConformTest();
+	}
+
+	public void testGH3132_2() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+				"X.java",
+				"""
+				class O {} // demonstrates the the bug was not specific to j.l.Object
+				public class X {
+					class Nested extends O {
+						Nested(Object o) {}
+					}
+					class AnotherNested extends Nested {
+						AnotherNested() {
+							super(new O() {
+							});
+						}
+					}
+					public static void main(String... args) {
+						new X().new AnotherNested();
+					}
+				}
+				"""
+			};
+		runner.runConformTest();
+	}
 }
