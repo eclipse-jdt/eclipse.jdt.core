@@ -367,7 +367,7 @@ public class SwitchStatement extends Expression {
 			}
 			if (node.type instanceof ReferenceBinding ref && ref.isSealed()) {
 				List<ReferenceBinding> allAllowedTypes = ref.getAllEnumerableReferenceTypes();
-				this.covers &= isExhaustiveWithCaseTypes(allAllowedTypes, availableTypes);
+				this.covers &= caseElementsCoverSelectorType(allAllowedTypes, availableTypes);
 				return this.covers;
 			}
 			this.covers = false;
@@ -1456,7 +1456,7 @@ public class SwitchStatement extends Expression {
 		if (!(ref.isClass() || ref.isInterface() || ref.isTypeVariable() || ref.isIntersectionType()))
 			return false;
 
-		if (!isExhaustiveWithCaseTypes(ref.getAllEnumerableReferenceTypes(), this.caseLabelElementTypes)) {
+		if (!caseElementsCoverSelectorType(ref.getAllEnumerableReferenceTypes(), this.caseLabelElementTypes)) {
 			if (this instanceof SwitchExpression) // non-exhaustive switch expressions will be flagged later.
 				return false;
 			skope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
@@ -1470,7 +1470,7 @@ public class SwitchStatement extends Expression {
 		List<ReferenceBinding> allallowedTypes = new ArrayList<>();
 		allallowedTypes.add(ref);
 		if (comps == null || comps.length == 0) {
-			if (!isExhaustiveWithCaseTypes(allallowedTypes, this.caseLabelElementTypes)) {
+			if (!caseElementsCoverSelectorType(allallowedTypes, this.caseLabelElementTypes)) {
 				skope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
 				return true;
 			}
@@ -1490,7 +1490,7 @@ public class SwitchStatement extends Expression {
 		this.switchBits |= SwitchStatement.Exhaustive;
 		return false;
 	}
-	private boolean isExhaustiveWithCaseTypes(List<ReferenceBinding> allAllowedTypes,  List<TypeBinding> listedTypes) {
+	private boolean caseElementsCoverSelectorType(List<ReferenceBinding> allAllowedTypes,  List<TypeBinding> listedTypes) {
 		Iterator<ReferenceBinding> iterator = allAllowedTypes.iterator();
 		while (iterator.hasNext()) {
 			ReferenceBinding next = iterator.next();
@@ -1502,18 +1502,19 @@ public class SwitchStatement extends Expression {
 				iterator.remove();
 				continue;
 			}
-			for (TypeBinding type : listedTypes) {
-				// permits specifies classes, not parameterizations
-				if (next.erasure().isCompatibleWith(type.erasure())) {
-					iterator.remove();
-					break;
-				}
-			}
 			if (next.isEnum()) {
 				int constantCount = this.otherConstants == null ? 0 : this.otherConstants.length;
 				Set<FieldBinding> unenumeratedConstants = unenumeratedConstants(next, constantCount);
 				if (unenumeratedConstants.size() == 0) {
 					iterator.remove();
+					continue;
+				}
+			}
+			for (TypeBinding type : listedTypes) {
+				// permits specifies classes, not parameterizations
+				if (next.erasure().isCompatibleWith(type.erasure())) {
+					iterator.remove();
+					break;
 				}
 			}
 		}

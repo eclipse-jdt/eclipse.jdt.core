@@ -567,12 +567,6 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 						break;
 					}
 				}
-				for (TypeBinding permsub : this.permittedTypes) {
-					if (permsub.hasNullTypeAnnotations()) {
-						this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
-						break;
-					}
-				}
 			}
 		}
 
@@ -2558,9 +2552,8 @@ public ReferenceBinding[] permittedTypes() {
 		return this.permittedTypes = this.prototype.permittedTypes();
 	}
 	for (int i = this.permittedTypes.length; --i >= 0;)
-		this.permittedTypes[i] = (ReferenceBinding) resolveType(this.permittedTypes[i], this.environment, false);
+		this.permittedTypes[i] = (ReferenceBinding) resolveType(this.permittedTypes[i], this.environment, false); // re-resolution seems harmless
 
-	// Note: unlike for superinterfaces() hierarchy check not required here since these are subtypes
 	return this.permittedTypes;
 }
 @Override
@@ -2635,13 +2628,13 @@ public String toString() {
 		if (this.permittedTypes != Binding.NO_PERMITTED_TYPES) {
 			buffer.append("\n\tpermits : "); //$NON-NLS-1$
 			for (int i = 0, length = this.permittedTypes.length; i < length; i++) {
-				if (i  > 0)
+				if (i > 0)
 					buffer.append(", "); //$NON-NLS-1$
 				buffer.append((this.permittedTypes[i] != null) ? this.permittedTypes[i].debugName() : "NULL TYPE"); //$NON-NLS-1$
 			}
 		}
 	} else {
-		buffer.append("NULL PERMITTEDSUBTYPES"); //$NON-NLS-1$
+		buffer.append("NULL PERMITTED SUBTYPES"); //$NON-NLS-1$
 	}
 
 	if (this.enclosingType != null) {

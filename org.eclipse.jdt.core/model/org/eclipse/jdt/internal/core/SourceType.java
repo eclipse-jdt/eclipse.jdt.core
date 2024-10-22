@@ -705,7 +705,6 @@ public boolean isRecord() throws JavaModelException {
 }
 /**
  * @see IType#isSealed()
- * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
  */
 @Override
 public boolean isSealed() throws JavaModelException {
