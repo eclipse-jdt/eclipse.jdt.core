@@ -263,6 +263,20 @@ public class OperandStack {
 		}
 	}
 
+	@Override
+	public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        for (int i = 0, length = size(); i < length; i++) {
+        	if (i != 0)
+        		sb.append(", "); //$NON-NLS-1$
+        	TypeBinding type = this.stack.get(i);
+        	sb.append(type.shortReadableName());
+        }
+        sb.append("]\n"); //$NON-NLS-1$
+        return sb.toString();
+	}
+
 	public static class NullStack extends OperandStack {
 
 		public NullStack() {
