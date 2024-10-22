@@ -528,9 +528,7 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 							offset += 2;
 							this.permittedSubtypesNames = new char[this.permittedSubtypesCount][];
 							for (int j = 0; j < this.permittedSubtypesCount; j++) {
-								utf8Offset =
-									this.constantPoolOffsets[u2At(this.constantPoolOffsets[u2At(offset)] + 1)];
-								this.permittedSubtypesNames[j] = CharDeduplication.intern(utf8At(utf8Offset + 3, u2At(utf8Offset + 1)));
+								this.permittedSubtypesNames[j] = CharDeduplication.intern(getConstantClassNameAt(u2At(offset)));
 		 						offset += 2;
 							}
 						}
@@ -1113,7 +1111,7 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 					return true;
 		}
 
-		// permitted sub-types
+		// permitted subtypes
 		char[][] newPermittedSubtypesNames = newClassFile.getPermittedSubtypesNames();
 		if (this.permittedSubtypesNames != newPermittedSubtypesNames) {
 			int newPermittedSubtypesLength = newPermittedSubtypesNames == null ? 0 : newPermittedSubtypesNames.length;
