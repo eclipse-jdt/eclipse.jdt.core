@@ -240,7 +240,11 @@ public class DOMCompletionEngine implements Runnable {
 
 			if (context instanceof FieldAccess fieldAccess) {
 				statementLikeKeywords();
-				processMembers(fieldAccess, fieldAccess.getExpression().resolveTypeBinding(), specificCompletionBindings, false);
+
+				ITypeBinding fieldAccessType = fieldAccess.getExpression().resolveTypeBinding();
+				if (fieldAccessType != null) {
+					processMembers(fieldAccess, fieldAccess.getExpression().resolveTypeBinding(), specificCompletionBindings, false);
+				}
 				if (specificCompletionBindings.stream().findAny().isPresent()) {
 					specificCompletionBindings.stream()
 						.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
@@ -269,12 +273,15 @@ public class DOMCompletionEngine implements Runnable {
 					}
 					// complete name
 					ITypeBinding type = expression.resolveTypeBinding();
-					processMembers(expression, type, specificCompletionBindings, false);
-					specificCompletionBindings.stream()
-					.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
-					.filter(IMethodBinding.class::isInstance)
-					.map(binding -> toProposal(binding))
-					.forEach(this.requestor::accept);
+					if (type != null) {
+						processMembers(expression, type, specificCompletionBindings, false);
+						specificCompletionBindings.stream()
+							.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
+							.filter(IMethodBinding.class::isInstance)
+							.map(binding -> toProposal(binding))
+							.forEach(this.requestor::accept);
+					}
+					suggestDefaultCompletions = false;
 				}
 				// else complete parameters, get back to default
 			}
@@ -892,20 +899,23 @@ public class DOMCompletionEngine implements Runnable {
 			res.setSignature(
 					Signature.createTypeSignature(variableBinding.getType().getQualifiedName().toCharArray(), true)
 							.toCharArray());
-			res.setReceiverSignature(
-					variableBinding.isField()
-							? Signature
-									.createTypeSignature(
-											variableBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
-									.toCharArray()
-							: new char[] {});
-			res.setDeclarationSignature(
-					variableBinding.isField()
-							? Signature
-									.createTypeSignature(
-											variableBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
-									.toCharArray()
-							: new char[] {});
+			if (variableBinding.isField()) {
+				ITypeBinding declaringClass = variableBinding.getDeclaringClass();
+				if (declaringClass != null) {
+					char[] declSignature = Signature
+							.createTypeSignature(
+									variableBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
+							.toCharArray();
+					res.setReceiverSignature(declSignature);
+					res.setDeclarationSignature(declSignature);
+				} else {
+					res.setReceiverSignature(new char[0]);
+					res.setDeclarationSignature(new char[0]);
+				}
+			} else {
+				res.setReceiverSignature(new char[0]);
+				res.setDeclarationSignature(new char[0]);
+			}
 		} else if (kind == CompletionProposal.TYPE_REF) {
 			var typeBinding = (ITypeBinding) binding;
 			res.setSignature(
@@ -1067,7 +1077,7 @@ public class DOMCompletionEngine implements Runnable {
 
 					if(Objects.equals(expectedType.getQualifiedName(), proposalType.getQualifiedName())) {
 						return RelevanceConstants.R_EXACT_EXPECTED_TYPE;
-					} else if (proposalType.getPackage().isUnnamed()) {
+					} else if (proposalType.getPackage() != null && proposalType.getPackage().isUnnamed()) {
 						return RelevanceConstants.R_PACKAGE_EXPECTED_TYPE;
 					}
 					relevance = RelevanceConstants.R_EXPECTED_TYPE;

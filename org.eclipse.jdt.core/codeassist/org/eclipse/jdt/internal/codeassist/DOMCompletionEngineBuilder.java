@@ -102,7 +102,7 @@ class DOMCompletionEngineBuilder {
 	static void createType(ITypeBinding type, StringBuilder completion) {
 		if (type.isWildcardType() || type.isIntersectionType()) {
 			completion.append('?');
-			if (type.isUpperbound()) {
+			if (type.isUpperbound() && type.getBound() != null) {
 				completion.append(' ');
 				completion.append(EXTENDS);
 				completion.append(' ');
@@ -115,7 +115,7 @@ class DOMCompletionEngineBuilder {
 						createType(bound, completion);
 					}
 				}
-			} else {
+			} else if (type.getBound() != null) {
 				completion.append(' ');
 				completion.append(SUPER);
 				completion.append(' ');
