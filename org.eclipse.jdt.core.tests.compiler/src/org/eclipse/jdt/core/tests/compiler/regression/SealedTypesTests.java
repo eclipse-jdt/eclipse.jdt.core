@@ -6434,4 +6434,87 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"A functional interface may not be declared sealed\n" +
 				"----------\n");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3039
+	// [Sealed types] Broken program crashes the compiler
+	public void testIssue3039() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public sealed class X permits X.C {
+						    private final static class C extends X implements I {}
+						}
+
+						sealed interface I permits X.C {}
+						record R(X.C xc, R.C rc) {
+						    private class C {}
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	sealed interface I permits X.C {}\n" +
+				"	                           ^^^\n" +
+				"The type X.C is not visible\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 6)\n" +
+				"	record R(X.C xc, R.C rc) {\n" +
+				"	         ^^^\n" +
+				"The type X.C is not visible\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3039
+	// [Sealed types] Broken program crashes the compiler
+	public void testIssue3039_2() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public interface X {
+
+						  static <T extends Object & I2> Integer get(T object) {
+						    return switch (object) {
+						      case A ignored -> 42;
+						      default -> 42;
+						    };
+						  }
+
+						  public abstract sealed interface I2 permits , AB {
+						  }
+
+
+						  final class AB implements I2 {}
+
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	public interface X {\n" +
+				"	                   ^\n" +
+				"Syntax error, insert \"}\" to complete InterfaceBody\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 3)\n" +
+				"	static <T extends Object & I2> Integer get(T object) {\n" +
+				"	                           ^^\n" +
+				"I2 cannot be resolved to a type\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 5)\n" +
+				"	case A ignored -> 42;\n" +
+				"	     ^^^^^^^^^\n" +
+				"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 8)\n" +
+				"	}\n" +
+				"	^\n" +
+				"Syntax error on token \"}\", delete this token\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 10)\n" +
+				"	public abstract sealed interface I2 permits , AB {\n" +
+				"	                                 ^^\n" +
+				"Syntax error on token \"I2\", permits expected after this token\n" +
+				"----------\n");
+	}
 }
