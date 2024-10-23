@@ -5205,82 +5205,7 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 private boolean isIdentifier(int token) {
 	return token == TerminalTokens.TokenNameIdentifier;
 }
-private boolean isRestrictedIdentifier(int token) {
-	switch(token) {
-		case TerminalTokens.TokenNameRestrictedIdentifierYield:
-		case TerminalTokens.TokenNameRestrictedIdentifierrecord:
-		case TerminalTokens.TokenNameRestrictedIdentifiersealed:
-		case TerminalTokens.TokenNameRestrictedIdentifierpermits:
-		case TerminalTokens.TokenNameRestrictedIdentifierWhen:
-			return true;
-		default: return false;
-	}
-}
-private boolean isKeyword(int token) {
-	switch(token) {
-		case TerminalTokens.TokenNameabstract:
-		case TerminalTokens.TokenNameassert:
-		case TerminalTokens.TokenNamebyte:
-		case TerminalTokens.TokenNamebreak:
-		case TerminalTokens.TokenNameboolean:
-		case TerminalTokens.TokenNamecase:
-		case TerminalTokens.TokenNamechar:
-		case TerminalTokens.TokenNamecatch:
-		case TerminalTokens.TokenNameclass:
-		case TerminalTokens.TokenNamecontinue:
-		case TerminalTokens.TokenNamedo:
-		case TerminalTokens.TokenNamedouble:
-		case TerminalTokens.TokenNamedefault:
-		case TerminalTokens.TokenNameelse:
-		case TerminalTokens.TokenNameextends:
-		case TerminalTokens.TokenNamefor:
-		case TerminalTokens.TokenNamefinal:
-		case TerminalTokens.TokenNamefloat:
-		case TerminalTokens.TokenNamefalse:
-		case TerminalTokens.TokenNamefinally:
-		case TerminalTokens.TokenNameif:
-		case TerminalTokens.TokenNameint:
-		case TerminalTokens.TokenNameimport:
-		case TerminalTokens.TokenNameinterface:
-		case TerminalTokens.TokenNameimplements:
-		case TerminalTokens.TokenNameinstanceof:
-		case TerminalTokens.TokenNamelong:
-		case TerminalTokens.TokenNamenew:
-		case TerminalTokens.TokenNamenon_sealed:
-		case TerminalTokens.TokenNamenull:
-		case TerminalTokens.TokenNamenative:
-		case TerminalTokens.TokenNamepublic:
-		case TerminalTokens.TokenNamepackage:
-		case TerminalTokens.TokenNameprivate:
-		case TerminalTokens.TokenNameprotected:
-		case TerminalTokens.TokenNamereturn:
-		case TerminalTokens.TokenNameshort:
-		case TerminalTokens.TokenNamesuper:
-		case TerminalTokens.TokenNamestatic:
-		case TerminalTokens.TokenNameswitch:
-		case TerminalTokens.TokenNamestrictfp:
-		case TerminalTokens.TokenNamesynchronized:
-		case TerminalTokens.TokenNametry:
-		case TerminalTokens.TokenNamethis:
-		case TerminalTokens.TokenNametrue:
-		case TerminalTokens.TokenNamethrow:
-		case TerminalTokens.TokenNamethrows:
-		case TerminalTokens.TokenNametransient:
-		case TerminalTokens.TokenNamevoid:
-		case TerminalTokens.TokenNamevolatile:
-		case TerminalTokens.TokenNamewhile:
-			return true;
-		case TerminalTokens.TokenNameRestrictedIdentifierYield:
-		case TerminalTokens.TokenNameRestrictedIdentifierrecord:
-		case TerminalTokens.TokenNameRestrictedIdentifiersealed:
-		case TerminalTokens.TokenNameRestrictedIdentifierpermits:
-		case TerminalTokens.TokenNameRestrictedIdentifierWhen:
-			// making explicit - not a (restricted) keyword but restricted identifier.
-			//$FALL-THROUGH$
-		default:
-			return false;
-	}
-}
+
 private boolean isLiteral(int token) {
 	return Scanner.isLiteral(token);
 }
@@ -7628,7 +7553,7 @@ public void parseError(
 	String[] possibleTokens) {
 
 	if (possibleTokens.length == 0) { //no suggestion available
-		if (isKeyword(currentToken)) {
+		if (Scanner.isKeyword(currentToken)) {
 			String[] arguments = new String[] {new String(currentTokenSource)};
 			this.handle(
 				IProblem.ParsingErrorOnKeywordNoSuggestion,
@@ -7661,7 +7586,7 @@ public void parseError(
 		list.append('"');
 	}
 
-	if (isKeyword(currentToken)) {
+	if (Scanner.isKeyword(currentToken)) {
 		String[] arguments = new String[] {new String(currentTokenSource), list.toString()};
 		this.handle(
 			IProblem.ParsingErrorOnKeyword,
@@ -8498,14 +8423,14 @@ private void syntaxError(
 		return;
 	}
 	String eTokenName;
-	if (isKeyword(currentKind) ||
+	if (Scanner.isKeyword(currentKind) ||
 		isLiteral(currentKind) ||
 		isIdentifier(currentKind)) {
 			eTokenName = new String(currentTokenSource);
 	} else {
 		eTokenName = errorTokenName;
 	}
-	if (isRestrictedIdentifier(currentKind))
+	if (TerminalTokens.isRestrictedKeyword(currentKind))
 		eTokenName = replaceIfSynthetic(eTokenName);
 
 	String[] arguments;
