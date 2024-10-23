@@ -342,9 +342,16 @@ public class DOMCompletionEngine implements Runnable {
 						startPos = qualifiedName.getName().getStartPosition();
 						endPos = startPos + qualifiedName.getName().getLength();
 					}
-					this.requestor.accept(createKeywordProposal(Keywords.THIS, startPos, endPos));
-					this.requestor.accept(createKeywordProposal(Keywords.SUPER, startPos, endPos));
-					this.requestor.accept(createClassKeywordProposal(qualifierTypeBinding, startPos, endPos));
+
+					if (!isFailedMatch(this.toComplete.toString().toCharArray(), Keywords.THIS)) {
+						this.requestor.accept(createKeywordProposal(Keywords.THIS, startPos, endPos));
+					}
+					if (!isFailedMatch(this.toComplete.toString().toCharArray(), Keywords.SUPER)) {
+						this.requestor.accept(createKeywordProposal(Keywords.SUPER, startPos, endPos));
+					}
+					if (!isFailedMatch(this.toComplete.toString().toCharArray(), Keywords.CLASS)) {
+						this.requestor.accept(createClassKeywordProposal(qualifierTypeBinding, startPos, endPos));
+					}
 
 					suggestDefaultCompletions = false;
 				} else if (qualifiedNameBinding instanceof IPackageBinding qualifierPackageBinding) {
@@ -514,6 +521,7 @@ public class DOMCompletionEngine implements Runnable {
 		List<char[]> keywords = new ArrayList<>();
 		keywords.add(Keywords.ASSERT);
 		keywords.add(Keywords.RETURN);
+		keywords.add(Keywords.SUPER);
 		if (findParent(this.toComplete,
 				new int[] { ASTNode.WHILE_STATEMENT, ASTNode.DO_STATEMENT, ASTNode.FOR_STATEMENT }) != null) {
 			keywords.add(Keywords.BREAK);
