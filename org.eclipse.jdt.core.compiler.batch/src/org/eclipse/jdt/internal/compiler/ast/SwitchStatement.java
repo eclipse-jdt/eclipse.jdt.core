@@ -87,6 +87,7 @@ public class SwitchStatement extends Expression {
 	public int switchBits;
 
 	public boolean containsPatterns;
+	public boolean containsRecordPatterns;
 	public boolean containsNull;
 	boolean nullProcessed = false;
 	BranchLabel switchPatternRestartTarget;
@@ -366,8 +367,7 @@ public class SwitchStatement extends Expression {
 				}
 			}
 			if (node.type instanceof ReferenceBinding ref && ref.isSealed()) {
-				List<ReferenceBinding> allAllowedTypes = ref.getAllEnumerableReferenceTypes();
-				this.covers &= caseElementsCoverSelectorType(allAllowedTypes, availableTypes);
+				this.covers &= caseElementsCoverSealedType(ref, availableTypes);
 				return this.covers;
 			}
 			this.covers = false;
@@ -824,13 +824,6 @@ public class SwitchStatement extends Expression {
 				int max = localKeysCopy[constantCount - 1];
 				int min = localKeysCopy[0];
 				if ((long) (constantCount * 2.5) > ((long) max - (long) min)) {
-
-					// work-around 1.3 VM bug, if max>0x7FFF0000, must use lookup bytecode
-					// see http://dev.eclipse.org/bugs/show_bug.cgi?id=21557
-					if (max > 0x7FFF0000 && currentScope.compilerOptions().complianceLevel < ClassFileConstants.JDK1_4) {
-						codeStream.lookupswitch(defaultLabel, this.constants, sortedIndexes, caseLabels);
-
-					} else {
 						codeStream.tableswitch(
 							defaultLabel,
 							min,
@@ -839,7 +832,6 @@ public class SwitchStatement extends Expression {
 							sortedIndexes,
 							this.constMapping,
 							caseLabels);
-					}
 				} else {
 					codeStream.lookupswitch(defaultLabel, this.constants, sortedIndexes, caseLabels);
 				}
@@ -1110,11 +1102,9 @@ public class SwitchStatement extends Expression {
 	@Override
 	public void resolve(BlockScope upperScope) {
 		try {
-			boolean isEnumSwitch = false;
 			boolean isStringSwitch = false;
 			TypeBinding expressionType = this.expression.resolveType(upperScope);
 			CompilerOptions compilerOptions = upperScope.compilerOptions();
-			boolean isEnhanced = checkAndSetEnhanced(upperScope, expressionType);
 			if (expressionType != null) {
 				this.expression.computeConversion(upperScope, expressionType, expressionType);
 				checkType: {
@@ -1130,15 +1120,11 @@ public class SwitchStatement extends Expression {
 						if (expressionType.isCompatibleWith(TypeBinding.INT))
 							break checkType;
 					} else if (expressionType.isEnum()) {
-						isEnumSwitch = true;
-						if (compilerOptions.complianceLevel < ClassFileConstants.JDK1_5) {
-							upperScope.problemReporter().incorrectSwitchType(this.expression, expressionType); // https://bugs.eclipse.org/bugs/show_bug.cgi?id=360317
-						}
 						break checkType;
 					} else if (!this.containsPatterns && !this.containsNull && upperScope.isBoxingCompatibleWith(expressionType, TypeBinding.INT)) {
 						this.expression.computeConversion(upperScope, TypeBinding.INT, expressionType);
 						break checkType;
-					} else if (compilerOptions.complianceLevel >= ClassFileConstants.JDK1_7 && expressionType.id == TypeIds.T_JavaLangString) {
+					} else if (expressionType.id == TypeIds.T_JavaLangString) {
 						if (this.containsPatterns || this.containsNull) {
 							isStringSwitch = !JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions);
 							this.isNonTraditional = true;
@@ -1295,61 +1281,76 @@ public class SwitchStatement extends Expression {
 			}
 			reportMixingCaseTypes();
 
-			// check default case for non-enum switch:
-			boolean flagged = checkAndFlagDefaultSealed(upperScope, compilerOptions);
-			if (!flagged && this.defaultCase == null) {
-				if (ignoreMissingDefaultCase(compilerOptions, isEnumSwitch) && isEnumSwitch) {
-						upperScope.methodScope().hasMissingSwitchDefault = true;
-				} else {
-					if (!isEnumSwitch && !isExhaustive()) {
-						if (isEnhanced)
-							upperScope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
-						else
-							upperScope.problemReporter().missingDefaultCase(this, isEnumSwitch, expressionType);
-					}
-				}
-			}
-			// Exhaustiveness check for enum switch
-			if (isEnumSwitch && compilerOptions.complianceLevel >= ClassFileConstants.JDK1_5) {
-				if (this.defaultCase == null || compilerOptions.reportMissingEnumCaseDespiteDefault) {
-					int constantCount = this.otherConstants == null ? 0 : this.otherConstants.length;
-					if (isEnhanced)
-						this.switchBits |= SwitchStatement.Exhaustive; // negated below if found otherwise
-					if (!((this.switchBits & TotalPattern) != 0) &&
-							((this.containsPatterns || this.containsNull) ||
-							(constantCount >= this.caseCount &&
-							constantCount != ((ReferenceBinding)expressionType).enumConstantCount()))) {
-						Set<FieldBinding> unenumeratedConstants = unenumeratedConstants((ReferenceBinding) expressionType, constantCount);
-						if (unenumeratedConstants.size() != 0) {
-							this.switchBits &= ~SwitchStatement.Exhaustive;
-							// enum constant did not get referenced from switch
-							boolean suppress = (this.defaultCase != null && (this.defaultCase.bits & DocumentedCasesOmitted) != 0);
-							if (!suppress) {
-								if (isEnhanced)
-									upperScope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
-								else {
-									for (FieldBinding enumConstant : unenumeratedConstants) {
-										reportMissingEnumConstantCase(upperScope, enumConstant);
-									}
-								}
-							}
-						}
-					}
-				}
-				if (this.defaultCase == null) {
-					if (ignoreMissingDefaultCase(compilerOptions, isEnumSwitch)) {
-						upperScope.methodScope().hasMissingSwitchDefault = true;
-					} else {
-						upperScope.problemReporter().missingDefaultCase(this, isEnumSwitch, expressionType);
-					}
-				}
-			}
+			complainIfNotExhaustiveSwitch(upperScope, expressionType, compilerOptions);
+
 		} finally {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 		}
 	}
+	private void complainIfNotExhaustiveSwitch(BlockScope upperScope, TypeBinding selectorType, CompilerOptions compilerOptions) {
 
-	// Return the set of enumerations belonging to the selector enum type that are not listed in case statements.
+		boolean isEnhanced = isEnhancedSwitch(upperScope, selectorType);
+		if (selectorType != null && selectorType.isEnum()) {
+			if (isEnhanced)
+				this.switchBits |= SwitchStatement.Exhaustive; // negated below if found otherwise
+			if (this.defaultCase != null && !compilerOptions.reportMissingEnumCaseDespiteDefault)
+				return;
+
+			int constantCount = this.otherConstants == null ? 0 : this.otherConstants.length;
+			if (!((this.switchBits & TotalPattern) != 0) &&
+					((this.containsPatterns || this.containsNull) ||
+					(constantCount >= this.caseCount &&
+					constantCount != ((ReferenceBinding)selectorType).enumConstantCount()))) {
+				Set<FieldBinding> unenumeratedConstants = unenumeratedConstants((ReferenceBinding) selectorType, constantCount);
+				if (unenumeratedConstants.size() != 0) {
+					this.switchBits &= ~SwitchStatement.Exhaustive;
+					if (!(this.defaultCase != null && (this.defaultCase.bits & DocumentedCasesOmitted) != 0)) {
+						if (isEnhanced)
+							upperScope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
+						else {
+							for (FieldBinding enumConstant : unenumeratedConstants) {
+								reportMissingEnumConstantCase(upperScope, enumConstant);
+							}
+						}
+					}
+				}
+			}
+
+			if (this.defaultCase == null) {
+				if (ignoreMissingDefaultCase(compilerOptions)) {
+					upperScope.methodScope().hasMissingSwitchDefault = true;
+				} else {
+					upperScope.problemReporter().missingDefaultCase(this, true, selectorType);
+				}
+			}
+			return;
+		}
+
+		if (isExhaustive() || this.defaultCase != null || selectorType == null) {
+			if (isEnhanced)
+				this.switchBits |= SwitchStatement.Exhaustive;
+			return;
+		}
+
+		if (JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions) && selectorType.isSealed() && caseElementsCoverSealedType((ReferenceBinding) selectorType, this.caseLabelElementTypes)) {
+			this.switchBits |= SwitchStatement.Exhaustive;
+			return;
+		}
+
+		if (selectorType.isRecordWithComponents() && this.containsRecordPatterns && caseElementsCoverRecordType(upperScope, compilerOptions, (ReferenceBinding) selectorType)) {
+			this.switchBits |= SwitchStatement.Exhaustive;
+			return;
+		}
+
+		if (!isExhaustive()) {
+			if (isEnhanced)
+				upperScope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
+			else
+				upperScope.problemReporter().missingDefaultCase(this, false, selectorType);
+		}
+	}
+
+	// Return the set of enumerations belonging to the selector enum type that are NOT listed in case statements.
 	private Set<FieldBinding> unenumeratedConstants(ReferenceBinding enumType, int constantCount) {
 		FieldBinding[] enumFields = ((ReferenceBinding) enumType.erasure()).fields();
 		Set<FieldBinding> unenumerated = new HashSet<>(Arrays.asList(enumFields));
@@ -1389,9 +1390,9 @@ public class SwitchStatement extends Expression {
 		return (this.switchBits & SwitchStatement.Exhaustive) != 0;
 	}
 
-	private boolean checkAndSetEnhanced(BlockScope upperScope, TypeBinding expressionType) {
+	private boolean isEnhancedSwitch(BlockScope upperScope, TypeBinding expressionType) {
 		if (JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(upperScope.compilerOptions())
-				&& expressionType != null && !(this instanceof SwitchExpression )) {
+				&& expressionType != null && !(this instanceof SwitchExpression)) {
 
 			boolean acceptableType = !expressionType.isEnum();
 			switch (expressionType.id) {
@@ -1415,7 +1416,7 @@ public class SwitchStatement extends Expression {
 				return true;
 			}
 		}
-		if (expressionType != null && JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(upperScope.compilerOptions())) {
+		if (expressionType != null && !(this instanceof SwitchExpression) && JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(upperScope.compilerOptions())) {
 			switch (expressionType.id) {
 				case TypeIds.T_float:
 				case TypeIds.T_double:
@@ -1430,67 +1431,19 @@ public class SwitchStatement extends Expression {
 		}
 		return false;
 	}
-	private boolean checkAndFlagDefaultSealed(BlockScope skope, CompilerOptions compilerOptions) {
-		if (this.defaultCase != null) {
-			this.switchBits |= SwitchStatement.Exhaustive;
-			return false;
-		}
-		if (this.expression.resolvedType instanceof ReferenceBinding ref && ref.isRecord()) {
-			boolean isRecordPattern = false;
-			for (Pattern pattern : this.caseLabelElements) {
-				if (pattern instanceof RecordPattern) {
-					isRecordPattern = true;
-					break;
-				}
-			}
-			if (isRecordPattern)
-				return checkAndFlagDefaultRecord(skope, compilerOptions, ref);
-		}
-		boolean checkSealed = JavaFeature.SEALED_CLASSES.isSupported(compilerOptions)
-				&& JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions)
-				&& this.expression.resolvedType instanceof ReferenceBinding
-				&& this.expression.resolvedType.isSealed();
 
-		if (!checkSealed) return false;
-		ReferenceBinding ref = (ReferenceBinding) this.expression.resolvedType;
-		if (!(ref.isClass() || ref.isInterface() || ref.isTypeVariable() || ref.isIntersectionType()))
-			return false;
-
-		if (!caseElementsCoverSelectorType(ref.getAllEnumerableReferenceTypes(), this.caseLabelElementTypes)) {
-			if (this instanceof SwitchExpression) // non-exhaustive switch expressions will be flagged later.
-				return false;
-			skope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
-			return true;
-		}
-		this.switchBits |= SwitchStatement.Exhaustive;
-		return false;
-	}
-	private boolean checkAndFlagDefaultRecord(BlockScope skope, CompilerOptions compilerOptions, ReferenceBinding ref) {
-		RecordComponentBinding[] comps = ref.components();
-		List<ReferenceBinding> allallowedTypes = new ArrayList<>();
-		allallowedTypes.add(ref);
-		if (comps == null || comps.length == 0) {
-			if (!caseElementsCoverSelectorType(allallowedTypes, this.caseLabelElementTypes)) {
-				skope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
-				return true;
-			}
-			return false;
-		}
-		// non-zero components
-		RNode head = new RNode(ref);
+	private boolean caseElementsCoverRecordType(BlockScope skope, CompilerOptions compilerOptions, ReferenceBinding recordType) {
+		RNode head = new RNode(recordType);
 		for (Pattern pattern : this.caseLabelElements) {
 			head.addPattern(pattern);
 		}
 		CoverageCheckerVisitor ccv = new CoverageCheckerVisitor();
 		head.traverse(ccv);
-		if (!ccv.covers) {
-			skope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
-			return true; // not exhaustive, error flagged
-		}
-		this.switchBits |= SwitchStatement.Exhaustive;
-		return false;
+		return ccv.covers;
 	}
-	private boolean caseElementsCoverSelectorType(List<ReferenceBinding> allAllowedTypes,  List<TypeBinding> listedTypes) {
+
+	private boolean caseElementsCoverSealedType(ReferenceBinding sealedType,  List<TypeBinding> listedTypes) {
+		List<ReferenceBinding> allAllowedTypes = sealedType.getAllEnumerableReferenceTypes();
 		Iterator<ReferenceBinding> iterator = allAllowedTypes.iterator();
 		while (iterator.hasNext()) {
 			ReferenceBinding next = iterator.next();
@@ -1554,7 +1507,7 @@ public class SwitchStatement extends Expression {
 	protected void reportMissingEnumConstantCase(BlockScope upperScope, FieldBinding enumConstant) {
 		upperScope.problemReporter().missingEnumConstantCase(this, enumConstant);
 	}
-	protected boolean ignoreMissingDefaultCase(CompilerOptions compilerOptions, boolean isEnumSwitch) {
+	protected boolean ignoreMissingDefaultCase(CompilerOptions compilerOptions) {
 		return compilerOptions.getSeverity(CompilerOptions.MissingDefaultCase) == ProblemSeverities.Ignore;
 	}
 	@Override

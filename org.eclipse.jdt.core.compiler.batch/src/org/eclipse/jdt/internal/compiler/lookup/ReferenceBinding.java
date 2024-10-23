@@ -65,7 +65,6 @@ import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
@@ -2368,10 +2367,8 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 		return this.singleAbstractMethod[index];
 	} else {
 		this.singleAbstractMethod = new MethodBinding[2];
-		// Sec 9.8 of sealed preview - A functional interface is an interface that is not declared sealed...
-		if (JavaFeature.SEALED_CLASSES.isSupported(scope.compilerOptions())
-				&& this.isSealed())
-			return this.singleAbstractMethod[index] = samProblemBinding;
+		if (this.isSealed())
+			return this.singleAbstractMethod[index] = samProblemBinding; // JLS 9.8
 	}
 
 	if (this.compoundName != null)

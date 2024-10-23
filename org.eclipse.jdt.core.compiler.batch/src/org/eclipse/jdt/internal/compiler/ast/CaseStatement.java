@@ -371,6 +371,8 @@ private Constant resolveCasePattern(BlockScope scope, TypeBinding caseType, Type
 	if (type != null) {
 		constant = IntConstant.fromValue(switchStatement.constantIndex);
 		switchStatement.caseLabelElements.add(e);
+		if (e instanceof RecordPattern)
+			switchStatement.containsRecordPatterns = true;
 
 		if (isUnguarded)
 			switchStatement.caseLabelElementTypes.add(type);
