@@ -1362,7 +1362,9 @@ public void resolve() {
 			this.scope.problemReporter().missingDeprecatedAnnotationForType(this);
 		}
 		if ((annotationTagBits & TagBits.AnnotationFunctionalInterface) != 0) {
-			if(!this.binding.isFunctionalInterface(this.scope)) {
+			if (this.binding.isSealed()) {
+				this.scope.problemReporter().functionalInterfaceMayNotBeSealed(this);
+			} else if (!this.binding.isFunctionalInterface(this.scope)) {
 				this.scope.problemReporter().notAFunctionalInterface(this);
 			}
 		}

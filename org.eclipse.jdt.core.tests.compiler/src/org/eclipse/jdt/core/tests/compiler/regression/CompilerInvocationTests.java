@@ -1370,6 +1370,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("OperandStackSizeInappropriate", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 	    expectedProblemAttributes.put("IllegalModifierCombinationForType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 	    expectedProblemAttributes.put("LambdaParameterIsNeverUsed", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
+	    expectedProblemAttributes.put("FunctionalInterfaceMayNotbeSealed", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 
 	    StringBuilder failures = new StringBuilder();
 		StringBuilder correctResult = new StringBuilder(70000);
@@ -2506,6 +2507,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("OperandStackSizeInappropriate", SKIP);
 	    expectedProblemAttributes.put("IllegalModifierCombinationForType", SKIP);
 	    expectedProblemAttributes.put("LambdaParameterIsNeverUsed", SKIP);
+	    expectedProblemAttributes.put("FunctionalInterfaceMayNotbeSealed", SKIP);
 
 
 	    Map constantNamesIndex = new HashMap();
