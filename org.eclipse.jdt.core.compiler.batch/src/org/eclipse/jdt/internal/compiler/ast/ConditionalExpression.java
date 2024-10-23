@@ -36,7 +36,6 @@ import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.VANILLA_CONTEXT;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -75,7 +74,6 @@ public class ConditionalExpression extends OperatorExpression implements IPolyEx
 	private boolean isPolyExpression = false;
 	private TypeBinding originalValueIfTrueType;
 	private TypeBinding originalValueIfFalseType;
-	private boolean use18specifics;
 
 	public ConditionalExpression(Expression condition, Expression valueIfTrue, Expression valueIfFalse) {
 		this.condition = condition;
@@ -473,17 +471,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	public TypeBinding resolveType(BlockScope scope) {
 		// JLS3 15.25
 		LookupEnvironment env = scope.environment();
-		final long sourceLevel = scope.compilerOptions().sourceLevel;
-		boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
-		this.use18specifics = sourceLevel >= ClassFileConstants.JDK1_8;
-
-		if (this.use18specifics) {
-			if (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) {
-				this.valueIfTrue.setExpressionContext(this.expressionContext);
-				this.valueIfTrue.setExpectedType(this.expectedType);
-				this.valueIfFalse.setExpressionContext(this.expressionContext);
-				this.valueIfFalse.setExpectedType(this.expectedType);
-			}
+		if (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) {
+			this.valueIfTrue.setExpressionContext(this.expressionContext);
+			this.valueIfTrue.setExpectedType(this.expectedType);
+			this.valueIfFalse.setExpressionContext(this.expressionContext);
+			this.valueIfFalse.setExpectedType(this.expectedType);
 		}
 
 		if (this.constant != Constant.NotAConstant) {
@@ -556,7 +548,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 
 		TypeBinding valueIfTrueType = this.originalValueIfTrueType;
 		TypeBinding valueIfFalseType = this.originalValueIfFalseType;
-		if (use15specifics && TypeBinding.notEquals(valueIfTrueType, valueIfFalseType)) {
+		if (TypeBinding.notEquals(valueIfTrueType, valueIfFalseType)) {
 			if (valueIfTrueType.isBaseType()) {
 				if (valueIfFalseType.isBaseType()) {
 					// bool ? baseType : baseType
@@ -667,48 +659,27 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		}
 		// Type references (null null is already tested)
 		if (valueIfTrueType.isBaseType() && valueIfTrueType != TypeBinding.NULL) {
-			if (use15specifics) {
-				valueIfTrueType = env.computeBoxingType(valueIfTrueType);
-			} else {
-				scope.problemReporter().conditionalArgumentsIncompatibleTypes(this, valueIfTrueType, valueIfFalseType);
-				return null;
-			}
+			valueIfTrueType = env.computeBoxingType(valueIfTrueType);
 		}
 		if (valueIfFalseType.isBaseType() && valueIfFalseType != TypeBinding.NULL) {
-			if (use15specifics) {
-				valueIfFalseType = env.computeBoxingType(valueIfFalseType);
-			} else {
-				scope.problemReporter().conditionalArgumentsIncompatibleTypes(this, valueIfTrueType, valueIfFalseType);
-				return null;
-			}
+			valueIfFalseType = env.computeBoxingType(valueIfFalseType);
 		}
-		if (use15specifics) {
-			// >= 1.5 : LUB(operand types) must exist
-			TypeBinding commonType = null;
-			if (valueIfTrueType == TypeBinding.NULL) {
-				commonType = valueIfFalseType.withoutToplevelNullAnnotation(); // null on other branch invalidates any @NonNull
-			} else if (valueIfFalseType == TypeBinding.NULL) {
-				commonType = valueIfTrueType.withoutToplevelNullAnnotation(); // null on other branch invalidates any @NonNull
-			} else {
-				commonType = scope.lowerUpperBound(new TypeBinding[] { valueIfTrueType, valueIfFalseType });
-			}
-			if (commonType != null) {
-				this.valueIfTrue.computeConversion(scope, commonType, this.originalValueIfTrueType);
-				this.valueIfFalse.computeConversion(scope, commonType, this.originalValueIfFalseType);
-				return this.resolvedType = commonType.capture(scope, this.sourceStart, this.sourceEnd);
-			}
+
+		// >= 1.5 : LUB(operand types) must exist
+		TypeBinding commonType = null;
+		if (valueIfTrueType == TypeBinding.NULL) {
+			commonType = valueIfFalseType.withoutToplevelNullAnnotation(); // null on other branch invalidates any @NonNull
+		} else if (valueIfFalseType == TypeBinding.NULL) {
+			commonType = valueIfTrueType.withoutToplevelNullAnnotation(); // null on other branch invalidates any @NonNull
 		} else {
-			// < 1.5 : one operand must be convertible to the other
-			if (valueIfFalseType.isCompatibleWith(valueIfTrueType)) {
-				this.valueIfTrue.computeConversion(scope, valueIfTrueType, this.originalValueIfTrueType);
-				this.valueIfFalse.computeConversion(scope, valueIfTrueType, this.originalValueIfFalseType);
-				return this.resolvedType = valueIfTrueType;
-			} else if (valueIfTrueType.isCompatibleWith(valueIfFalseType)) {
-				this.valueIfTrue.computeConversion(scope, valueIfFalseType, this.originalValueIfTrueType);
-				this.valueIfFalse.computeConversion(scope, valueIfFalseType, this.originalValueIfFalseType);
-				return this.resolvedType = valueIfFalseType;
-			}
+			commonType = scope.lowerUpperBound(new TypeBinding[] { valueIfTrueType, valueIfFalseType });
 		}
+		if (commonType != null) {
+			this.valueIfTrue.computeConversion(scope, commonType, this.originalValueIfTrueType);
+			this.valueIfFalse.computeConversion(scope, commonType, this.originalValueIfFalseType);
+			return this.resolvedType = commonType.capture(scope, this.sourceStart, this.sourceEnd);
+		}
+
 		scope.problemReporter().conditionalArgumentsIncompatibleTypes(
 			this,
 			valueIfTrueType,
@@ -815,9 +786,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 
 	@Override
 	public boolean isPolyExpression() throws UnsupportedOperationException {
-
-		if (!this.use18specifics)
-			return false;
 
 		if (this.isPolyExpression)
 			return true;
