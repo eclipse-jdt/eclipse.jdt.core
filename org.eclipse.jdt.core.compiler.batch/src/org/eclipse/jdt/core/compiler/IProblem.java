@@ -2558,6 +2558,10 @@ void setSourceStart(int sourceStart);
 	 * @deprecated problem no longer generated
 	 */
 	int SealedSuperTypeDisallowed = TypeRelated + 1867;
+	/**
+	 * @since 3.40
+	 */
+	int FunctionalInterfaceMayNotbeSealed = TypeRelated + 1868;
 	/* Java17 Sealed types errors - end */
 
 	/**

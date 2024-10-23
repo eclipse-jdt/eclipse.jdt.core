@@ -12308,6 +12308,7 @@ public void sealedClassNotDirectSuperClassOf(ReferenceBinding type, TypeReferenc
 		reference.sourceStart,
 		reference.sourceEnd);
 }
+
 public void permittedTypeOutsideOfModule(ReferenceBinding permType, ReferenceBinding sealedType, ASTNode node, ModuleBinding moduleBinding) {
 	String permTypeName = new String(permType.sourceName);
 	String name = new String(sealedType.sourceName());
@@ -12319,6 +12320,7 @@ public void permittedTypeOutsideOfModule(ReferenceBinding permType, ReferenceBin
 			node.sourceStart,
 			node.sourceEnd);
 }
+
 public void permittedTypeOutsideOfPackage(ReferenceBinding permType, ReferenceBinding sealedType, ASTNode node, PackageBinding packageBinding) {
 	String permTypeName = new String(permType.sourceName);
 	String name = new String(sealedType.sourceName());
@@ -12363,6 +12365,7 @@ public void localTypeMayNotBePermittedType(SourceTypeBinding type, TypeReference
 		superclass.sourceStart,
 		superclass.sourceEnd);
 }
+
 public void anonymousClassCannotExtendSealedType(TypeReference reference, TypeBinding type) {
 	this.handle(
 			IProblem.SealedAnonymousClassCannotExtendSealedType,
@@ -12371,6 +12374,17 @@ public void anonymousClassCannotExtendSealedType(TypeReference reference, TypeBi
 			reference.sourceStart,
 			reference.sourceEnd);
 }
+
+public void functionalInterfaceMayNotBeSealed(TypeDeclaration type) {
+	TypeBinding binding = type.binding;
+	this.handle(
+		IProblem.FunctionalInterfaceMayNotbeSealed,
+		new String[] {new String(binding.readableName()), },
+		new String[] {new String(binding.shortReadableName()),},
+		type.sourceStart,
+		type.sourceEnd);
+}
+
 public void StrictfpNotRequired(int sourceStart, int sourceEnd) {
 	this.handle(
 			IProblem.StrictfpNotRequired,

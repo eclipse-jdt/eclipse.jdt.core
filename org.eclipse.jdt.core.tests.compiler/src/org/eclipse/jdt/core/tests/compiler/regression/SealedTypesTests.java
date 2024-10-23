@@ -6414,4 +6414,24 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"The type X may have only one modifier out of sealed, non-sealed, and final\n" +
 				"----------\n");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3144
+	// [Sealed types] Diagnostic can be more direct when a @FunctionalInterface is declared sealed
+	public void testIssue3144() {
+		runNegativeTest(
+				new String[] {
+						"I.java",
+						"""
+						@FunctionalInterface
+						public sealed interface I { void doit(); }
+						final class Y implements I  { public void doit() {} }
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in I.java (at line 2)\n" +
+				"	public sealed interface I { void doit(); }\n" +
+				"	                        ^\n" +
+				"A functional interface may not be declared sealed\n" +
+				"----------\n");
+	}
 }
