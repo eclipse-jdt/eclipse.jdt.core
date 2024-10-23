@@ -384,12 +384,6 @@ private Constant resolveCasePattern(BlockScope scope, TypeBinding caseType, Type
 			if (!e.isApplicable(switchExpressionType, scope, e)) {
 				return Constant.NotAConstant;
 			}
-			if (expressionType != TypeBinding.NULL && !(e instanceof RecordPattern)) {
-				boolean isLegal = e.checkCastTypesCompatibility(scope, type, expressionType, e, false);
-				if (!isLegal || (e.bits & ASTNode.UnsafeCast) != 0) {
-					scope.problemReporter().unsafeCastInTestingContext(e, type, expressionType);
-				}
-			}
 		} else if (type.isValidBinding()) {
 			// if not a valid binding, an error has already been reported for unresolved type
 			if (Pattern.findPrimitiveConversionRoute(type, expressionType, scope) == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
