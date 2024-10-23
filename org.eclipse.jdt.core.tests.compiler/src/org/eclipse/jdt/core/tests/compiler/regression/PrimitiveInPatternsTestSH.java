@@ -1919,7 +1919,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			1. ERROR in X.java (at line 3)
 				return switch (b) {
 				               ^
-			An enhanced switch statement should be exhaustive; a default label expected
+			A switch expression should have a default case
 			----------
 			""");
 	}
@@ -2116,12 +2116,12 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			1. ERROR in X.java (at line 3)
 				return switch(l) {
 				              ^
-			An enhanced switch statement should be exhaustive; a default label expected
+			A switch expression should have a default case
 			----------
 			2. ERROR in X.java (at line 9)
 				return switch(l) {
 				              ^
-			An enhanced switch statement should be exhaustive; a default label expected
+			A switch expression should have a default case
 			----------
 			""");
 	}

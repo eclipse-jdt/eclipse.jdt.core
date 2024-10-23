@@ -56,7 +56,7 @@ public enum JavaFeature {
 
 	SEALED_CLASSES(ClassFileConstants.JDK17,
 			Messages.bind(Messages.sealed_types),
-			new char[][] {TypeConstants.SEALED, TypeConstants.PERMITS},
+			new char[][] {TypeConstants.SEALED, TypeConstants.NON_SEALED, TypeConstants.PERMITS},
 			false),
 	PATTERN_MATCHING_IN_SWITCH(ClassFileConstants.JDK21,
 			Messages.bind(Messages.pattern_matching_switch),

@@ -703,6 +703,10 @@ public boolean isRecord() {
 	return false;
 }
 
+public boolean isRecordWithComponents() { // do records without components make sense ??!
+	return isRecord() && components() instanceof RecordComponentBinding [] components && components.length > 0;
+}
+
 /* Answer true if the receiver type can be assigned to the argument type (right)
  */
 public boolean isCompatibleWith(TypeBinding right) {

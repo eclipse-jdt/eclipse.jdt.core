@@ -9936,7 +9936,6 @@ protected void consumeToken(int type) {
 			pushOnIntStack(this.scanner.startPosition);
 			break;
 		case TokenNameRestrictedIdentifierpermits:
-			problemReporter().validateJavaFeatureSupport(JavaFeature.SEALED_CLASSES, this.scanner.startPosition,this.scanner.currentPosition - 1);
 			pushOnIntStack(this.scanner.startPosition);
 			break;
 		case TokenNamecase :

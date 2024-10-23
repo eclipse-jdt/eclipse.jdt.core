@@ -29,7 +29,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] { "testBug575053_002"};
-//		TESTS_NAMES = new String[] { "testBug575571_1"};
 	}
 
 	private static String previewLevel = "21";

@@ -2669,7 +2669,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	return switch (box) {     // Not Exhaustive!\n" +
 			"	               ^^^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	public void testRecPatExhaust003() {
@@ -2753,7 +2753,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 16)\n" +
 			"	return switch (box) {     // Not Exhaustive!\n" +
 			"	               ^^^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	public void testRecPatExhaust005() {
@@ -2816,7 +2816,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 11)\n" +
 			"	return switch (box) {     // Not Exhaustive!\n" +
 			"	               ^^^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	public void testRecPatExhaust007() {
@@ -2849,7 +2849,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	return switch (p) {     // Not Exhaustive!\n" +
 			"	               ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	public void testRecPatExhaust008() {
@@ -2883,7 +2883,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	return switch (p) {     // Not Exhaustive!\n" +
 			"	               ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	public void testRecPatExhaust009() {
@@ -2961,7 +2961,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	return switch (r) {\n" +
 			"	               ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	// implicit permitted - class
@@ -2994,7 +2994,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	return switch (r) {\n" +
 			"	               ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	// implicit permitted - class - the class C missing
@@ -3028,7 +3028,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	return switch (r) {\n" +
 			"	               ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	public void testRecPatExhaust014() {
@@ -3061,7 +3061,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 11)\n" +
 			"	return switch (r) {\n" +
 			"	               ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	public void testRecPatExhaust015() {
@@ -3177,7 +3177,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	return switch (r) {\n" +
 			"	               ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	public void testRecordPatternTypeInference_012() {
