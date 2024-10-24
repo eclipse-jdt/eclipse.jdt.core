@@ -645,7 +645,7 @@ public class JavacProblemConverter {
 	public int toProblemId(Diagnostic<? extends JavaFileObject> diagnostic) {
 		String javacDiagnosticCode = diagnostic.getCode();
 		return switch (javacDiagnosticCode) {
-			case "compiler.warn.dangling.doc.comment" -> 0; // ignore
+			case "compiler.warn.dangling.doc.comment" -> -1; // ignore
 			case "compiler.err.expected" -> IProblem.ParsingErrorInsertTokenAfter;
 			case "compiler.err.expected2" -> IProblem.ParsingErrorInsertTokenBefore;
 			case "compiler.err.expected3" -> IProblem.ParsingErrorInsertToComplete;
