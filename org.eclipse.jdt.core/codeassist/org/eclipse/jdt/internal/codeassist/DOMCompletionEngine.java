@@ -216,6 +216,8 @@ public class DOMCompletionEngine implements Runnable {
 			} else if (this.toComplete instanceof SimpleType simpleType) {
 				if (FAKE_IDENTIFIER.equals(simpleType.getName().toString())) {
 					context = this.toComplete.getParent();
+				} else if (simpleType.getName() instanceof QualifiedName qualifiedName) {
+					context = qualifiedName;
 				}
 			} else if (this.toComplete instanceof Block block && this.offset == block.getStartPosition()) {
 				context = this.toComplete.getParent();
@@ -225,6 +227,8 @@ public class DOMCompletionEngine implements Runnable {
 			if (this.toComplete instanceof QualifiedName qualifiedName) {
 				this.qualifiedPrefix = qualifiedName.getQualifier().toString();
 			} else if (this.toComplete != null && this.toComplete.getParent() instanceof QualifiedName qualifiedName) {
+				this.qualifiedPrefix = qualifiedName.getQualifier().toString();
+			} else if (this.toComplete instanceof SimpleType simpleType && simpleType.getName() instanceof QualifiedName qualifiedName) {
 				this.qualifiedPrefix = qualifiedName.getQualifier().toString();
 			}
 			Bindings defaultCompletionBindings = new Bindings();
@@ -387,6 +391,12 @@ public class DOMCompletionEngine implements Runnable {
 							processMembers(qualifiedName, potentialBinding.get(), specificCompletionBindings, false);
 							publishFromScope(specificCompletionBindings);
 							suggestDefaultCompletions = false;
+						} else {
+							// maybe it is actually a package?
+							suggestPackages();
+							// suggests types in the package
+							suggestTypesInPackage(qualifierPackageBinding.getName());
+							suggestDefaultCompletions = false;
 						}
 					}
 				} else if (qualifiedNameBinding instanceof IVariableBinding variableBinding) {
@@ -441,9 +451,13 @@ public class DOMCompletionEngine implements Runnable {
 					final int typeMatchRule = this.toComplete.getParent() instanceof Annotation
 							? IJavaSearchConstants.ANNOTATION_TYPE
 							: IJavaSearchConstants.TYPE;
+					ExtendsOrImplementsInfo extendsOrImplementsInfo = isInExtendsOrImplements(this.toComplete);
 					findTypes(completeAfter, typeMatchRule, null)
 							.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
 									type.getElementName().toCharArray()))
+							.filter(type -> {
+								return filterBasedOnExtendsOrImplementsInfo(type, extendsOrImplementsInfo);
+							})
 							.map(this::toProposal).forEach(this.requestor::accept);
 				}
 				checkCancelled();
@@ -578,7 +592,7 @@ public class DOMCompletionEngine implements Runnable {
 					.filter(name -> !name.isBlank())
 					// the qualifier must match exactly. only the last segment is (potentially) fuzzy matched.
 					// However, do not match the already completed package name!
-					.filter(name -> CharOperation.prefixEquals(this.qualifiedPrefix.toCharArray(), name.toCharArray()) && name.length() > this.qualifiedPrefix.length())
+					.filter(name -> CharOperation.prefixEquals((this.qualifiedPrefix + ".").toCharArray(), name.toCharArray()) && name.length() > this.qualifiedPrefix.length()) //$NON-NLS-1$
 					.filter(name -> this.pattern.matchesName(this.prefix.toCharArray(), name.toCharArray()))
 					.map(pack -> toPackageProposal(pack, this.toComplete)).forEach(this.requestor::accept);
 		} catch (JavaModelException ex) {
@@ -589,23 +603,110 @@ public class DOMCompletionEngine implements Runnable {
 	private void suggestTypesInPackage(String packageName) {
 		if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 			List<IType> foundTypes = findTypes(this.prefix, packageName).toList();
+			ExtendsOrImplementsInfo extendsOrImplementsInfo = isInExtendsOrImplements(this.toComplete);
 			for (IType foundType : foundTypes) {
 				if (this.pattern.matchesName(this.prefix.toCharArray(), foundType.getElementName().toCharArray())) {
-					this.requestor.accept(this.toProposal(foundType));
+					if (filterBasedOnExtendsOrImplementsInfo(foundType, extendsOrImplementsInfo)) {
+						this.requestor.accept(this.toProposal(foundType));
+					}
 				}
 			}
 		}
 	}
 
-	private static boolean canAccessPrivate(ASTNode currentNode, ITypeBinding typeToCheck) {
-		ASTNode cursor = currentNode;
-		while (cursor != null) {
-			if (cursor instanceof AbstractTypeDeclaration typeDecl) {
-				if (typeDecl.resolveBinding().getKey().equals(typeToCheck.getErasure().getKey())) {
-					return true;
+	private boolean filterBasedOnExtendsOrImplementsInfo(IType toFilter, ExtendsOrImplementsInfo info) {
+		if (info == null) {
+			return true;
+		}
+		try {
+			if (!(info.typeDecl instanceof TypeDeclaration typeDeclaration)
+					|| (toFilter.getFlags() & Flags.AccFinal) != 0
+					|| typeDeclaration.resolveBinding().getKey().equals(toFilter.getKey())) {
+				return false;
+			}
+			if (typeDeclaration.isInterface()
+					// in an interface extends clause, we should rule out non-interfaces
+					&& toFilter.isInterface()
+					// prevent double extending
+					&& !extendsOrImplementsGivenType(typeDeclaration, toFilter)) {
+				return true;
+			} else if (!typeDeclaration.isInterface()
+					// in an extends clause, only accept non-interfaces
+					// in an implements clause, only accept interfaces
+					&& (info.isImplements == toFilter.isInterface())
+					// prevent double extending
+					&& !extendsOrImplementsGivenType(typeDeclaration, toFilter)) {
+				return true;
+			}
+			return false;
+		} catch (JavaModelException e) {
+			// we can't really tell if it's appropriate
+			return true;
+		}
+	}
+
+	/**
+	 * Returns info if the given node is in an extends or implements clause, or null if not in either clause
+	 *
+	 * @see ExtendsOrImplementsInfo
+	 * @param completion the node to check
+	 * @return info if the given node is in an extends or implements clause, or null if not in either clause
+	 */
+	private static ExtendsOrImplementsInfo isInExtendsOrImplements(ASTNode completion) {
+		ASTNode cursor = completion;
+		while (cursor != null
+				&& cursor.getNodeType() != ASTNode.TYPE_DECLARATION
+				&& cursor.getNodeType() != ASTNode.ENUM_DECLARATION
+				&& cursor.getNodeType() != ASTNode.RECORD_DECLARATION
+				&& cursor.getNodeType() != ASTNode.ANNOTATION_TYPE_DECLARATION) {
+			StructuralPropertyDescriptor locationInParent = cursor.getLocationInParent();
+			if (locationInParent == null) {
+				return null;
+			}
+			if (locationInParent.isChildListProperty()) {
+				String locationId = locationInParent.getId();
+				if (TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY.getId().equals(locationId)
+							|| EnumDeclaration.SUPER_INTERFACE_TYPES_PROPERTY.getId().equals(locationId)
+							|| RecordDeclaration.SUPER_INTERFACE_TYPES_PROPERTY.getId().equals(locationId)) {
+					return new ExtendsOrImplementsInfo((AbstractTypeDeclaration)cursor.getParent(), true);
+				}
+			} else if (locationInParent.isChildProperty()) {
+				String locationId = locationInParent.getId();
+				if (TypeDeclaration.SUPERCLASS_TYPE_PROPERTY.getId().equals(locationId)) {
+					return new ExtendsOrImplementsInfo((AbstractTypeDeclaration)cursor.getParent(), false);
 				}
 			}
 			cursor = cursor.getParent();
+		}
+		return null;
+	}
+
+	/**
+	 * @param typeDecl the type declaration that holds the completion node
+	 * @param isImplements true if the node to complete is in an implements clause, or false if the node
+	 */
+	private static record ExtendsOrImplementsInfo(AbstractTypeDeclaration typeDecl, boolean isImplements) {
+	}
+
+	/**
+	 * Returns true if the given declaration already extends or implements the given reference
+	 *
+	 * @param typeDecl the declaration to check the extends and implements of
+	 * @param typeRef the reference to check for in the extends and implements
+	 * @return true if the given declaration already extends or implements the given reference
+	 */
+	private static boolean extendsOrImplementsGivenType(TypeDeclaration typeDecl, IType typeRef) {
+		String refKey = typeRef.getKey();
+		if (typeDecl.getSuperclassType() != null
+				&& typeDecl.getSuperclassType().resolveBinding() != null
+				&& refKey.equals(typeDecl.getSuperclassType().resolveBinding().getKey())) {
+			return true;
+		}
+		for (var superInterface : typeDecl.superInterfaceTypes()) {
+			ITypeBinding superInterfaceBinding = ((Type)superInterface).resolveBinding();
+			if (superInterfaceBinding != null && refKey.equals(superInterfaceBinding.getKey())) {
+				return true;
+			}
 		}
 		return false;
 	}

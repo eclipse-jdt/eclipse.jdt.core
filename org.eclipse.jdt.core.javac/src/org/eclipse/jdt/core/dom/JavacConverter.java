@@ -2904,7 +2904,9 @@ class JavacConverter {
 				// the name second segment is invalid
 				simpleName.delete();
 				return qualifierType;
-			} else { // lombok case
+			} else {
+				// lombok case
+				// or empty (eg `test.`)
 				simpleName.setSourceRange(qualifierType.getStartPosition(), 0);
 			}
 			if(qualifierType instanceof SimpleType simpleType && (ast.apiLevel() < AST.JLS8 || simpleType.annotations().isEmpty())) {
@@ -2913,7 +2915,7 @@ class JavacConverter {
 				parentName.setParent(null, null);
 				QualifiedName name = this.ast.newQualifiedName(simpleType.getName(), simpleName);
 				commonSettings(name, javac);
-				int length = name.getName().getStartPosition() + name.getName().getLength() - name.getStartPosition();
+				int length = simpleType.getName().getLength() + 1 + simpleName.getLength();
 				if (name.getStartPosition() >= 0) {
 					name.setSourceRange(name.getStartPosition(), Math.max(0, length));
 				}

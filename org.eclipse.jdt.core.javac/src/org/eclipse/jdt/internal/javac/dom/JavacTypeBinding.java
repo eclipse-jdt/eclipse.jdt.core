@@ -351,6 +351,12 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				}
 			}
 
+			/*
+			 * TODO - this name 'n' might be something like  test0502.A$1
+			 * but the test suite expects test0502.A$182,
+			 * where 182 is the location in the source of the symbol.
+			 */
+			builder.append(n.toString().replace('.', '/'));
 			// This is a hack and will likely need to be enhanced
 			if (typeToBuild.tsym instanceof ClassSymbol classSymbol && !(classSymbol.type instanceof ErrorType) && classSymbol.owner instanceof PackageSymbol) {
 				JavaFileObject sourcefile = classSymbol.sourcefile;
@@ -363,17 +369,14 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 						// probably: uri is not a valid path
 					}
 					if (fileName != null && !fileName.startsWith(classSymbol.getSimpleName().toString())) {
-						builder.append(fileName.substring(0, fileName.indexOf(".java")));
-						builder.append("~");
+						// There are multiple top-level types in this file,
+						// inject 'FileName~' before the type name to show that this type came from `FileName.java`
+						// (eg. Lorg/eclipse/jdt/FileName~MyTopLevelType;)
+						int simpleNameIndex  = builder.lastIndexOf(classSymbol.getSimpleName().toString());
+						builder.insert(simpleNameIndex, fileName.substring(0, fileName.indexOf(".java")) + "~");
 					}
 				}
 			}
-			/*
-			 * TODO - this name 'n' might be something like  test0502.A$1
-			 * but the test suite expects test0502.A$182, 
-			 * where 182 is the location in the source of the symbol. 
-			 */
-			builder.append(n.toString().replace('.', '/'));
 
 
 			boolean b1 = typeToBuild.isParameterized();
