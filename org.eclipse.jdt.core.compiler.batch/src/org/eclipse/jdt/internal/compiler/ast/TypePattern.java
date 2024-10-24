@@ -145,7 +145,7 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 			case WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION:
 				int rhsUnboxed = TypeIds.box2primitive(provided.superclass().id);
 				codeStream.generateUnboxingConversion(rhsUnboxed);
-				this.computeConversion(scope, TypeBinding.wellKnownBaseType(rhsUnboxed), expected);
+				this.computeConversion(scope, expected, TypeBinding.wellKnownBaseType(rhsUnboxed));
 				codeStream.generateImplicitConversion(this.implicitConversion);
 				break;
 			case NARROWING_AND_UNBOXING_CONVERSION:
