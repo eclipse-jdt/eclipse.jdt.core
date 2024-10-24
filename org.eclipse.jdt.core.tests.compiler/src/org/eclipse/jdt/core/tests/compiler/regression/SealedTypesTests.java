@@ -6734,4 +6734,80 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"Void methods cannot return a value\n" +
 				"----------\n");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3007
+	// [Sealed types] Extra and spurious error messages with faulty type sealing
+	public void testIssue3007() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public sealed class X extends Y<String> permits Y {
+							int yield () {
+								return this.yield();
+							}
+						}
+
+						sealed class Y<T> extends X permits X, Z {
+
+						}
+
+						final class Z extends Y<String> {}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	public sealed class X extends Y<String> permits Y {\n" +
+				"	                    ^\n" +
+				"The hierarchy of the type X is inconsistent\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 7)\n" +
+				"	sealed class Y<T> extends X permits X, Z {\n" +
+				"	                          ^\n" +
+				"Cycle detected: a cycle exists in the type hierarchy between Y<T> and X\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 11)\n" +
+				"	final class Z extends Y<String> {}\n" +
+				"	            ^\n" +
+				"The hierarchy of the type Z is inconsistent\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3007
+	// [Sealed types] Extra and spurious error messages with faulty type sealing
+	public void testIssue3007_2() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X extends Y<String> {
+							int yield () {
+								return this.yield();
+							}
+						}
+
+						class Y<T> extends X {
+
+						}
+
+						final class Z extends Y<String> {}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	public class X extends Y<String> {\n" +
+				"	             ^\n" +
+				"The hierarchy of the type X is inconsistent\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 7)\n" +
+				"	class Y<T> extends X {\n" +
+				"	                   ^\n" +
+				"Cycle detected: a cycle exists in the type hierarchy between Y<T> and X\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 11)\n" +
+				"	final class Z extends Y<String> {}\n" +
+				"	            ^\n" +
+				"The hierarchy of the type Z is inconsistent\n" +
+				"----------\n");
+	}
 }
