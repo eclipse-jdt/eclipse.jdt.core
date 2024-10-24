@@ -1198,4 +1198,50 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 				""";
 		runner.runNegativeTest();
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2522
+	// Pattern matching on sealed classes cannot infer NonNull (JDK 21)
+	public void testIssue2522_2() {
+		Runner runner = getDefaultRunner();
+		runner.testFiles = new String[] {
+			"PatternMatching.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+
+			public sealed interface PatternMatching {
+
+			    record Stuff() implements PatternMatching {}
+
+			    @NonNull
+			    static Stuff match(PatternMatching pm, int v) {
+			    	if (v == 0) {
+						return switch (pm) {
+						case Stuff s -> s;
+						case null -> throw new NullPointerException();
+						}; // no error here - good
+			    	} else if (v == 2) {
+						return switch (pm) {
+						case Stuff s -> s;
+						}; // no error here -- good
+			    	} else if (v == 3) {
+						return switch (pm) {
+						case Stuff s -> null;  // get error here - good
+						};
+			    	}
+			    	return new Stuff();
+			    }
+			}
+			"""
+		};
+		runner.expectedCompilerLog =
+				"""
+				----------
+				1. ERROR in PatternMatching.java (at line 20)
+					case Stuff s -> null;  // get error here - good
+					                ^^^^
+				Null type mismatch: required 'PatternMatching.@NonNull Stuff' but the provided value is null
+				----------
+				""";
+		runner.runNegativeTest();
+	}
 }
