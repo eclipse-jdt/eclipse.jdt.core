@@ -565,7 +565,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalModifierForArgument", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalModifierForClass", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalModifierForConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
-		expectedProblemAttributes.put("StrictfpNotRequired", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("IllegalModifierInRequires", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
 		expectedProblemAttributes.put("IllegalModifierForEnum", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalModifierForEnumConstant", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalModifierForEnumConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -1050,6 +1050,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("StaticMethodRequested", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("StaticMethodShouldBeAccessedStatically", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("StaticResourceField", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("StrictfpNotRequired", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("StringConstantIsExceedingUtf8Limit", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("SuperAccessCannotBypassDirectSuper", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("SuperCallCannotBypassOverride", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -1699,7 +1700,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IllegalModifierForArgument", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForClass", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForConstructor", SKIP);
-		expectedProblemAttributes.put("StrictfpNotRequired", SKIP);
+		expectedProblemAttributes.put("IllegalModifierInRequires", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForEnum", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForEnumConstant", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForEnumConstructor", SKIP);
@@ -2187,6 +2188,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("StaticMethodRequested", SKIP);
 		expectedProblemAttributes.put("StaticMethodShouldBeAccessedStatically", SKIP);
 		expectedProblemAttributes.put("StaticResourceField",  new ProblemAttributes(JavaCore.COMPILER_PB_RECOMMENDED_RESOURCE_MANAGEMENT));
+		expectedProblemAttributes.put("StrictfpNotRequired", SKIP);
 		expectedProblemAttributes.put("StringConstantIsExceedingUtf8Limit", SKIP);
 		expectedProblemAttributes.put("SuperAccessCannotBypassDirectSuper", SKIP);
 		expectedProblemAttributes.put("SuperCallCannotBypassOverride", SKIP);
