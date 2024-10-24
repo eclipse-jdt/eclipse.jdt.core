@@ -1558,7 +1558,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "public class X {\n"
 				+ "  static void printGenericBoxString1(Box<Object> objectBox) {\n"
 				+ "    if (objectBox instanceof Box<String>(String s)) {\n"
-				+ "      System.out.println(s); // this one should report an unsafe cast error\n"
+				+ "      System.out.println(s);\n"
 				+ "    }\n"
 				+ "  }\n"
 				+ "  public static void main(String[] args) {}\n"
