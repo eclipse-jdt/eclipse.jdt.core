@@ -85,6 +85,8 @@ class JavadocConverter {
 
 	final private Set<JCDiagnostic> diagnostics = new HashSet<>();
 
+	private static final Pattern BEGIN_CHOPPER = Pattern.compile("(?:\\s+\\*)(.*)");
+
 	private static Field UNICODE_READER_CLASS_OFFSET_FIELD = null;
 	static {
 		try {
@@ -892,8 +894,20 @@ class JavadocConverter {
 			}
 		};
 		fixPositions.scan(type);
-		String[] segments = range.getContents().trim().split("\s");
 
+		String[] segments = Stream.of(range.getContents().split("\n"))
+				.map(t -> {
+					Matcher m = BEGIN_CHOPPER.matcher(t);
+					if (m.find()) {
+						return m.group(1);
+					}
+					return t;
+				})
+				.map(String::trim)
+				.flatMap(t -> Stream.of(t.split("\s")))
+				.filter(t -> !t.isEmpty())
+				.toArray(String[]::new);
+		
 		Type jdtType = null;
 		if( segments.length > 0 && segments[segments.length-1].endsWith("...")) {
 			res.setVarargs(true);
@@ -905,7 +919,7 @@ class JavadocConverter {
 			jdtType = this.javacConverter.convertToType(type);
 		}
 		res.setType(jdtType);
-		
+
 		// some lengths may be missing
 		jdtType.accept(new ASTVisitor() {
 			@Override
