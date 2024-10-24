@@ -55,8 +55,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 	flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
 	this.expression.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
-	if (flowInfo.reachMode() == FlowInfo.REACHABLE && currentScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled)
-		checkAgainstNullAnnotation(currentScope, flowContext, flowInfo, this.expression);
 
 	targetContext.recordAbruptExit();
 	targetContext.expireNullCheckedFieldInfo();
