@@ -41,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.lookup.PlainPackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
@@ -155,8 +156,13 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 				if (!requiredModules.add(ref.resolvedBinding)) {
 					cuScope.problemReporter().duplicateModuleReference(IProblem.DuplicateRequires, ref.module);
 				}
-				if (ref.isTransitive())
-					requiredTransitiveModules.add(ref.resolvedBinding);
+				if (ref.modifiers != 0) {
+					if (!CharOperation.equals(TypeConstants.JAVA_BASE, this.tokens) &&
+							CharOperation.equals(TypeConstants.JAVA_BASE, ref.module.tokens)) {
+						cuScope.problemReporter().illegalModifierInRequires(ref.module);
+					} else if (ref.isTransitive())
+						requiredTransitiveModules.add(ref.resolvedBinding);
+				}
 				Collection<ModuleBinding> deps = ref.resolvedBinding.dependencyGraphCollector().get();
 				if (deps.contains(this.binding)) {
 					cuScope.problemReporter().cyclicModuleDependency(this.binding, ref.module);
