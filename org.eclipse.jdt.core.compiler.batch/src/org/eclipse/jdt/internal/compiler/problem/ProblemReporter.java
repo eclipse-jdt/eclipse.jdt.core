@@ -12222,16 +12222,12 @@ public void duplicatePermittedType(SourceTypeBinding type, TypeReference referen
 }
 
 public void sealedClassNotDirectSuperClassOf(ReferenceBinding type, TypeReference reference, SourceTypeBinding superType) {
-	this.handle(
-		IProblem.SealedNotDirectSuperClass,
-		new String[] {
-			new String(type.sourceName()),
-			new String(superType.readableName())},
-		new String[] {
-				new String(type.sourceName()),
-				new String(superType.readableName())},
-		reference.sourceStart,
-		reference.sourceEnd);
+	if ((type.tagBits & TagBits.HierarchyHasProblems) == 0 && (superType.tagBits & TagBits.HierarchyHasProblems) == 0) {
+		this.handle(IProblem.SealedNotDirectSuperClass,
+				new String[] { new String(type.sourceName()), new String(superType.readableName()) },
+				new String[] { new String(type.sourceName()), new String(superType.readableName()) },
+				reference.sourceStart, reference.sourceEnd);
+	}
 }
 
 public void permittedTypeOutsideOfModule(ReferenceBinding permType, ReferenceBinding sealedType, ASTNode node, ModuleBinding moduleBinding) {
@@ -12266,16 +12262,12 @@ public void sealedTypeMissingPermits(SourceTypeBinding type, ASTNode node) {
 }
 
 public void sealedInterfaceNotDirectSuperInterfaceOf(ReferenceBinding type, TypeReference reference, SourceTypeBinding superType) {
-	this.handle(
-		IProblem.SealedNotDirectSuperInterface,
-		new String[] {
-			new String(type.sourceName()),
-			new String(superType.readableName())},
-		new String[] {
-				new String(type.sourceName()),
-				new String(superType.readableName())},
-		reference.sourceStart,
-		reference.sourceEnd);
+	if ((type.tagBits & TagBits.HierarchyHasProblems) == 0 && (superType.tagBits & TagBits.HierarchyHasProblems) == 0) {
+		this.handle(IProblem.SealedNotDirectSuperInterface,
+				new String[] { new String(type.sourceName()), new String(superType.readableName()) },
+				new String[] { new String(type.sourceName()), new String(superType.readableName()) },
+				reference.sourceStart, reference.sourceEnd);
+	}
 }
 
 public void localTypeMayNotBePermittedType(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
