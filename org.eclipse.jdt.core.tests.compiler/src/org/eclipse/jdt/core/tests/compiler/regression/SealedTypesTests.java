@@ -6517,4 +6517,221 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"Syntax error on token \"I2\", permits expected after this token\n" +
 				"----------\n");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3121
+	// [Sealed types] Regression in instanceof check for sealed generic classes
+	public void testIssue3121() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						interface SuperInt {}
+
+						abstract sealed class Maybe<N extends Number> {
+							final class Maybe1 extends Maybe<Long> {}
+							final class Maybe2 extends Maybe<Long> implements SuperInt {}
+						}
+
+
+						abstract sealed class SurelyNot<N extends Number> {
+							final class SurelyNot1 extends SurelyNot<Long> {}
+							final class SurelyNot2 extends SurelyNot<Long> {}
+						}
+
+						abstract sealed class SurelyYes<N extends Number> {
+							final class SurelyYes1 extends SurelyYes<Long> implements SuperInt {}
+							final class SurelyYes2 extends SurelyYes<Long> implements SuperInt {}
+						}
+
+						class Test {
+
+							void testMaybe(Maybe<?> maybe, SurelyNot<?> surelyNot, SurelyYes<?> surelyYes) {
+								if (maybe == null || surelyNot == null || surelyYes == null) return;
+								if (maybe instanceof SuperInt sup) {}
+								if (surelyNot instanceof SuperInt sup) {}
+								if (surelyYes instanceof SuperInt sup) {}
+							}
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 24)\n" +
+				"	if (surelyNot instanceof SuperInt sup) {}\n" +
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Incompatible conditional operand types SurelyNot<capture#5-of ?> and SuperInt\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3121
+	// [Sealed types] Regression in instanceof check for sealed generic classes
+	public void testIssue3121_2() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						interface SuperInt {}
+
+						class Outer<T> {
+							abstract sealed class Maybe<N extends Number> {
+								final class Maybe1 extends Maybe<Long> {}
+							}
+						}
+
+						class Test {
+
+							void testMaybe(Outer<String>.Maybe<?> maybe) {
+								if (maybe instanceof SuperInt sup) {}
+								return null;
+							}
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 12)\n" +
+				"	if (maybe instanceof SuperInt sup) {}\n" +
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Incompatible conditional operand types Outer<String>.Maybe<capture#1-of ?> and SuperInt\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 13)\n" +
+				"	return null;\n" +
+				"	^^^^^^^^^^^^\n" +
+				"Void methods cannot return a value\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3121
+	// [Sealed types] Regression in instanceof check for sealed generic classes
+	public void testIssue3121_2_1() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						interface SuperInt {}
+
+						class Outer<T> {
+							abstract sealed class Maybe<N extends Number> {
+								final class Maybe1 extends Maybe<Long> implements SuperInt {}
+							}
+						}
+
+						class Test {
+
+							void testMaybe(Outer<String>.Maybe<?> maybe) {
+								if (maybe instanceof SuperInt sup) {}
+								return null;
+							}
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 13)\n" +
+				"	return null;\n" +
+				"	^^^^^^^^^^^^\n" +
+				"Void methods cannot return a value\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3121
+	// [Sealed types] Regression in instanceof check for sealed generic classes
+	public void testIssue3121_3() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						interface SuperInt {}
+
+						class Outer<T> {
+							abstract sealed class Maybe<N extends Number> {
+								final class Maybe1 extends Outer<Test>.Maybe<Long> {}
+							}
+						}
+
+						class Test {
+
+							void testMaybe(Outer<Test>.Maybe<?> maybe) {
+								if (maybe == null) return;
+								if (maybe instanceof SuperInt sup) {}
+							}
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 13)\n" +
+				"	if (maybe instanceof SuperInt sup) {}\n" +
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Incompatible conditional operand types Outer<Test>.Maybe<capture#2-of ?> and SuperInt\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3121
+	// [Sealed types] Regression in instanceof check for sealed generic classes
+	public void testIssue3121_4() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						interface SuperInt {}
+
+						class Outer<T> {
+							abstract sealed class Maybe<N extends Number> {
+								final class Maybe1 extends Outer<Test>.Maybe<Long> implements SuperInt {}
+							}
+						}
+
+						class Test {
+
+							void testMaybe(Outer<Test>.Maybe<?> maybe) {
+								if (maybe == null) return;
+								if (maybe instanceof SuperInt sup) {}
+								return null;
+							}
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 14)\n" +
+				"	return null;\n" +
+				"	^^^^^^^^^^^^\n" +
+				"Void methods cannot return a value\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3121
+	// [Sealed types] Regression in instanceof check for sealed generic classes
+	// NOTE: javac does not report error#1 but that looks like a defect
+	public void testIssue3121_5() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						interface SuperInt {}
+
+						class Outer<T> {
+							abstract sealed class Maybe<N extends Number> {
+								final class Maybe1 extends Outer<Test>.Maybe<Long> implements SuperInt {}
+							}
+						}
+
+						class Test {
+
+							void testMaybe(Outer<String>.Maybe<?> maybe) {
+								if (maybe == null) return;
+								if (maybe instanceof SuperInt sup) {}
+								return null;
+							}
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 13)\n" +
+				"	if (maybe instanceof SuperInt sup) {}\n" +
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Incompatible conditional operand types Outer<String>.Maybe<capture#2-of ?> and SuperInt\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 14)\n" +
+				"	return null;\n" +
+				"	^^^^^^^^^^^^\n" +
+				"Void methods cannot return a value\n" +
+				"----------\n");
+	}
 }
