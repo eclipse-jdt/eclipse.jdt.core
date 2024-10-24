@@ -7303,7 +7303,7 @@ public void noSuchEnclosingInstance(TypeBinding targetType, ASTNode location, bo
 		location.sourceStart,
 		location instanceof LambdaExpression ? ((LambdaExpression)location).diagnosticsSourceEnd() : location.sourceEnd);
 }
-public void notCompatibleTypesError(EqualExpression expression, TypeBinding leftType, TypeBinding rightType) {
+public void notCompatibleTypesError(ASTNode location, TypeBinding leftType, TypeBinding rightType) {
 	String leftName = new String(leftType.readableName());
 	String rightName = new String(rightType.readableName());
 	String leftShortName = new String(leftType.shortReadableName());
@@ -7312,28 +7312,18 @@ public void notCompatibleTypesError(EqualExpression expression, TypeBinding left
 		leftShortName = leftName;
 		rightShortName = rightName;
 	}
-	this.handle(
-		IProblem.IncompatibleTypesInEqualityOperator,
-		new String[] {leftName, rightName },
-		new String[] {leftShortName, rightShortName },
-		expression.sourceStart,
-		expression.sourceEnd);
-}
-public void notCompatibleTypesError(Expression expression, TypeBinding leftType, TypeBinding rightType) {
-	String leftName = new String(leftType.readableName());
-	String rightName = new String(rightType.readableName());
-	String leftShortName = new String(leftType.shortReadableName());
-	String rightShortName = new String(rightType.shortReadableName());
-	if (leftShortName.equals(rightShortName)){
-		leftShortName = leftName;
-		rightShortName = rightName;
+	int problemId = IProblem.IncompatibleTypesInEqualityOperator;
+	if (location instanceof Pattern p && p.getEnclosingPattern() instanceof RecordPattern) {
+		problemId = IProblem.PatternTypeMismatch;
+	} else if (location instanceof InstanceOfExpression) {
+		problemId = IProblem.IncompatibleTypesInConditionalOperator;
 	}
 	this.handle(
-		IProblem.IncompatibleTypesInConditionalOperator,
+		problemId,
 		new String[] {leftName, rightName },
 		new String[] {leftShortName, rightShortName },
-		expression.sourceStart,
-		expression.sourceEnd);
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void notCompatibleTypesErrorInForeach(Expression expression, TypeBinding leftType, TypeBinding rightType) {
 	String leftName = new String(leftType.readableName());
@@ -8538,21 +8528,21 @@ public void typeCastError(CastExpression expression, TypeBinding leftType, TypeB
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void unsafeCastInInstanceof(Expression expression, TypeBinding leftType, TypeBinding rightType) {
-	String leftName = new String(leftType.readableName());
-	String rightName = new String(rightType.readableName());
-	String leftShortName = new String(leftType.shortReadableName());
-	String rightShortName = new String(rightType.shortReadableName());
-	if (leftShortName.equals(rightShortName)){
-		leftShortName = leftName;
-		rightShortName = rightName;
+public void unsafeCastInTestingContext(ASTNode location, TypeBinding castType, TypeBinding expressionType) {
+	String castName = new String(castType.readableName());
+	String exprName = new String(expressionType.readableName());
+	String castShortName = new String(castType.shortReadableName());
+	String exprShortName = new String(expressionType.shortReadableName());
+	if (castShortName.equals(exprShortName)){
+		castShortName = castName;
+		exprShortName = exprName;
 	}
 	this.handle(
 		IProblem.UnsafeCast,
-		new String[] { rightName, leftName },
-		new String[] { rightShortName, leftShortName },
-		expression.sourceStart,
-		expression.sourceEnd);
+		new String[] { exprName, castName },
+		new String[] { exprShortName, castShortName },
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void typeCollidesWithEnclosingType(TypeDeclaration typeDecl) {
 	String[] arguments = new String[] {new String(typeDecl.name)};
@@ -12401,14 +12391,6 @@ public void recordPatternSignatureMismatch(TypeBinding type, ASTNode element) {
 			IProblem.RecordPatternMismatch,
 			new String[] {new String(type.readableName())},
 			new String[] {new String(type.shortReadableName())},
-			element.sourceStart,
-			element.sourceEnd);
-}
-public void incompatiblePatternType(ASTNode element, TypeBinding type, TypeBinding expected) {
-	this.handle(
-			IProblem.PatternTypeMismatch,
-			new String[] {new String(type.readableName()), new String(expected.readableName())},
-			new String[] {new String(type.shortReadableName()), new String(expected.readableName())},
 			element.sourceStart,
 			element.sourceEnd);
 }

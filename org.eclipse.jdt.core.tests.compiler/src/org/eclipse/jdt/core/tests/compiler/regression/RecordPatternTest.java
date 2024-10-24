@@ -299,12 +299,12 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 3)\n" +
 				"	if (r instanceof Rectangle(ColoredPoint(Point(String o1, String o2), Color c),\n" +
 				"	                                              ^^^^^^^^^\n" +
-				"Record component with type int is not compatible with type java.lang.String\n" +
+				"Record component with type int is not compatible with type String\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 3)\n" +
 				"	if (r instanceof Rectangle(ColoredPoint(Point(String o1, String o2), Color c),\n" +
 				"	                                                         ^^^^^^^^^\n" +
-				"Record component with type int is not compatible with type java.lang.String\n" +
+				"Record component with type int is not compatible with type String\n" +
 				"----------\n");
 	}
 	// Test that pattern types that don't match record component's types are reported
@@ -1558,7 +1558,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "public class X {\n"
 				+ "  static void printGenericBoxString1(Box<Object> objectBox) {\n"
 				+ "    if (objectBox instanceof Box<String>(String s)) {\n"
-				+ "      System.out.println(s); // this one should report an unsafe cast error\n"
+				+ "      System.out.println(s);\n"
 				+ "    }\n"
 				+ "  }\n"
 				+ "  public static void main(String[] args) {}\n"
@@ -1568,8 +1568,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
 				"	if (objectBox instanceof Box<String>(String s)) {\n" +
-				"	    ^^^^^^^^^\n" +
-				"Type Box<Object> cannot be safely cast to Box<String>\n" +
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Incompatible conditional operand types Box<Object> and Box<String>\n" +
 				"----------\n");
 	}
 	public void test48() {
@@ -1958,7 +1958,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	if (p instanceof R(String a)) {\n" +
 				"	                   ^^^^^^^^\n" +
-				"Record component with type capture#2-of ? extends I is not compatible with type java.lang.String\n" +
+				"Record component with type capture#2-of ? extends I is not compatible with type String\n" +
 				"----------\n");
 	}
 	public void testRecordPatternTypeInference_010() {
@@ -2505,7 +2505,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"2. ERROR in X.java (at line 6)\n" +
 			"	case Record<String>(Object o, StringBuilder s) -> {break;}\n" +
 			"	                              ^^^^^^^^^^^^^^^\n" +
-			"Record component with type String is not compatible with type java.lang.StringBuilder\n" +
+			"Record component with type String is not compatible with type StringBuilder\n" +
 			"----------\n");
 	}
 	public void testIssue1224_5() {
@@ -4401,7 +4401,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"2. ERROR in X.java (at line 10)\n" +
 				"	if (o instanceof R2(Short d)) {\n" +
 				"	                    ^^^^^^^\n" +
-				"Record component with type short is not compatible with type java.lang.Short\n" +
+				"Record component with type short is not compatible with type Short\n" +
 				"----------\n" +
 				"3. ERROR in X.java (at line 13)\n" +
 				"	if (o instanceof R2(int d)) {\n" +
@@ -4685,5 +4685,55 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"	                                      ^^\n" +
 				"Syntax error on tokens, delete these tokens\n" +
 				"----------\n");
+	}
+
+	public void testIssue3066() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public record X<T>(int x) {
+					public static void main(String[] args) {
+						Object o = new Object();
+						switch (o) {
+						case X<String>(int x):
+						default:
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 5)
+				case X<String>(int x):
+				     ^^^^^^^^^^^^^^^^
+			Type Object cannot be safely cast to X<String>
+			----------
+			""");
+	}
+
+	public void testIssue3066_notApplicable() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public record X(int x) {
+					public static void main(String[] args) {
+						java.io.Serializable o = "";
+						switch (o) {
+						case X(int x):
+						default:
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 5)
+				case X(int x):
+				     ^^^^^^^^
+			Type mismatch: cannot convert from Serializable to X
+			----------
+			""");
 	}
 }
