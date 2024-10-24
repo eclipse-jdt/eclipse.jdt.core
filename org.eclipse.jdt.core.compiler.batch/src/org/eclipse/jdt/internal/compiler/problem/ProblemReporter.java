@@ -11547,6 +11547,13 @@ public void exportingForeignPackage(PackageVisibilityStatement ref, ModuleBindin
 			ref.pkgRef.sourceStart,
 			ref.pkgRef.sourceEnd);
 }
+public void illegalModifierInRequires(ModuleReference ref) {
+	this.handle(IProblem.IllegalModifierInRequires,
+			NoArgument,
+			new String[] { CharOperation.charToString(ref.moduleName) },
+			ref.sourceStart,
+			ref.sourceEnd);
+}
 public void duplicateModuleReference(int problem, ModuleReference ref) {
 	this.handle(problem,
 		NoArgument, new String[] { CharOperation.charToString(ref.moduleName) },
