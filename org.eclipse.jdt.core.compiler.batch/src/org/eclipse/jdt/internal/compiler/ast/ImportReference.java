@@ -35,7 +35,6 @@ public class ImportReference extends ASTNode {
 	public Annotation[] annotations;
 	// star end position
 	public int trailingStarPosition;
-	public boolean implicit;
 
 	public ImportReference(
 			char[][] tokens,
@@ -59,9 +58,6 @@ public class ImportReference extends ASTNode {
 
 	public char[][] getImportName() {
 		return this.tokens;
-	}
-	public boolean isImplicit() {
-		return this.implicit;
 	}
 
 	public char[] getSimpleName() {

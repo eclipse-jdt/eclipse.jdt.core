@@ -341,4 +341,27 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 				"Zork cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	public void testGH3137a() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public static void main(String[] args) {
+					println("Hello1");
+					println("Hello2");
+				}"""
+		},
+		"Hello1\n" +
+		"Hello2");
+	}
+	public void testGH3137b() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public static void main(String[] args) {
+					String str = readln("Enter:");
+					println(str);
+				}"""
+		},
+		"Enter:");
+	}
 }

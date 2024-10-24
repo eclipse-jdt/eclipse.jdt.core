@@ -1542,8 +1542,6 @@ class ASTConverter {
 			org.eclipse.jdt.internal.compiler.ast.ImportReference[] imports = unit.imports;
 			if (imports != null) {
 				for (ImportReference importReference : imports) {
-					if (importReference.isImplicit())
-						continue;
 					compilationUnit.imports().add(convertImport(importReference));
 				}
 			}
