@@ -507,7 +507,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 							"1. ERROR in /SealedTypes/src/p/X.java (at line 2)\n" +
 							"	public non-sealed class X {}\n" +
 							"	                        ^\n" +
-							"A class X declared as non-sealed should have either a sealed direct superclass or a sealed direct superinterface\n" +
+							"The non-sealed class X must have a sealed direct supertype\n" +
 							"----------\n",
 							this.problemRequestor);
 		}
