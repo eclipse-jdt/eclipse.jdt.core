@@ -1154,6 +1154,18 @@ public abstract class Scope {
 		return null; // may answer null if no type around
 	}
 
+	public ClassScope enclosingInstanceScope() {
+		Scope scope = this;
+		while (true) {
+			scope = scope.parent;
+			if (scope == null || scope instanceof MethodScope ms && ms.isStatic) {
+				return null;
+			} else if (scope instanceof ClassScope cs) {
+				return cs;
+			}
+		}
+	}
+
 	public final ClassScope enclosingTopMostClassScope() {
 		Scope scope = this;
 		while (scope != null) {

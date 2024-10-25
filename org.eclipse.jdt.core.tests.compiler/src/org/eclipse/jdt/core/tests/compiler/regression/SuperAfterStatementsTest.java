@@ -2330,4 +2330,25 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			};
 		runner.runConformTest();
 	}
+
+	public void testGH3153() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+			  public static void main(String[] argv) {
+			    class Inner {
+			      Inner() {
+			        class Local {}
+			        new Local() {}; // Error: No enclosing instance of the type X is accessible in scope
+			        super();
+			      }
+			    }
+			    new Inner();
+			  }
+			}
+			""" },
+			"");
+	}
+
 }

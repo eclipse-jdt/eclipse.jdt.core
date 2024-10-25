@@ -1069,7 +1069,7 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 		Scope outerScope = currentScope.parent;
 		if (!methodScope.isConstructorCall) {
 			nestedType.addSyntheticArgumentAndField(nestedType.enclosingType());
-			outerScope = outerScope.enclosingClassScope();
+			outerScope = outerScope.enclosingInstanceScope();
 			earlySeen = methodScope.isInsideEarlyConstructionContext(nestedType.enclosingType(), false);
 		}
 		if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(currentScope.compilerOptions())) {
@@ -1087,6 +1087,8 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 					earlySeen = cs.insideEarlyConstructionContext;
 				}
 				outerScope = outerScope.parent;
+				if (outerScope instanceof MethodScope ms && ms.isStatic)
+					break;
 			}
 		}
 	}
@@ -1123,6 +1125,7 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 		}
 	}
 }
+
 
 /**
  * Access emulation for a local member type
