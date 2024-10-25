@@ -97,6 +97,10 @@ public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValu
  */
 @Override
 public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanceValue) {
+	if (recoverAsArgument(fieldDeclaration)) {
+		resetPendingModifiers();
+		return this;
+	}
 	resetPendingModifiers();
 
 	/* local variables inside method can only be final and non void */
@@ -132,6 +136,27 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 	}
 	// still inside method, treat as local variable
 	return this; // ignore
+}
+
+private boolean recoverAsArgument(FieldDeclaration fieldDeclaration) {
+	if (!this.foundOpeningBrace
+			&& this.methodDeclaration.declarationSourceEnd == 0
+			&& this.methodDeclaration.arguments == null) { // misparsed parameter?
+		long position = ((long) fieldDeclaration.sourceStart << 32)+fieldDeclaration.sourceEnd;
+		Argument arg = new Argument(fieldDeclaration.name, position, fieldDeclaration.type, fieldDeclaration.modifiers);
+		this.methodDeclaration.arguments = new Argument[] { arg };
+		int annotCount = this.pendingAnnotationCount;
+		if (this.pendingAnnotations != null) {
+			arg.annotations = new Annotation[annotCount];
+			for (int i = 0; i < this.pendingAnnotationCount; i++) {
+				arg.annotations[i] = this.pendingAnnotations[i].annotation;
+				if (i == 0)
+					arg.declarationSourceStart = arg.annotations[i].sourceStart;
+			}
+		}
+		return true;
+	}
+	return false;
 }
 /*
  * Record a local declaration - regular method should have been created a block body
