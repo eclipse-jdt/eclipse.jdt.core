@@ -1314,7 +1314,7 @@ public class ClassScope extends Scope {
 
 					for (int j = 0; j < i; j++) {
 						if (TypeBinding.equalsEquals(permittedTypeBindings[j], permittedType)) {
-							problemReporter().duplicatePermittedType(sourceType, permittedTypeRef, permittedType);
+							problemReporter().duplicatePermittedType(permittedTypeRef, permittedType);
 							continue nextPermittedType;
 						}
 					}
@@ -1336,7 +1336,7 @@ public class ClassScope extends Scope {
 				sourceType.setPermittedTypes(Binding.NO_PERMITTED_TYPES);
 				if (sourceType.isSealed()) {
 					if (!sourceType.isLocalType() && !sourceType.isRecord() && !sourceType.isEnum()) // error flagged alread
-						problemReporter().sealedTypeMissingPermits(sourceType, this.referenceContext);
+						problemReporter().missingPermitsClause(sourceType, this.referenceContext);
 				}
 			}
 		}
