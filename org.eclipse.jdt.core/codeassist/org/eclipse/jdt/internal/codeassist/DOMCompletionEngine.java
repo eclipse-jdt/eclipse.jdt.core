@@ -97,7 +97,7 @@ public class DOMCompletionEngine implements Runnable {
 		this.modelUnit = modelUnit;
 		this.requestor = requestor;
 		SearchableEnvironment env = null;
-		if (this.modelUnit.getJavaProject() instanceof JavaProject p) {
+		if (this.modelUnit.getJavaProject() instanceof JavaProject p && requestor != null) {
 			try {
 				env = p.newSearchableNameEnvironment(workingCopyOwner, requestor.isTestCodeExcluded());
 			} catch (JavaModelException e) {
@@ -1003,26 +1003,24 @@ public class DOMCompletionEngine implements Runnable {
 			res.setDeclarationSignature(Signature
 					.createTypeSignature(methodBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
 					.toCharArray());
-		} else if (kind == CompletionProposal.LOCAL_VARIABLE_REF || kind == CompletionProposal.FIELD_REF) {
+		} else if (kind == CompletionProposal.LOCAL_VARIABLE_REF) {
 			var variableBinding = (IVariableBinding) binding;
 			res.setSignature(
 					Signature.createTypeSignature(variableBinding.getType().getQualifiedName().toCharArray(), true)
 							.toCharArray());
-			if (variableBinding.isField()) {
-				ITypeBinding declaringClass = variableBinding.getDeclaringClass();
-				if (declaringClass != null) {
-					char[] declSignature = Signature
-							.createTypeSignature(
-									variableBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
-							.toCharArray();
-					res.setReceiverSignature(declSignature);
-					res.setDeclarationSignature(declSignature);
-				} else {
-					res.setReceiverSignature(new char[0]);
-					res.setDeclarationSignature(new char[0]);
-				}
+		} else if (kind == CompletionProposal.FIELD_REF) {
+			var variableBinding = (IVariableBinding) binding;
+			ITypeBinding declaringClass = variableBinding.getDeclaringClass();
+			res.setSignature(
+					Signature.createTypeSignature(variableBinding.getType().getQualifiedName().toCharArray(), true)
+							.toCharArray());
+			if (declaringClass != null) {
+				char[] declSignature = Signature
+						.createTypeSignature(
+								variableBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
+						.toCharArray();
+				res.setDeclarationSignature(declSignature);
 			} else {
-				res.setReceiverSignature(new char[0]);
 				res.setDeclarationSignature(new char[0]);
 			}
 		} else if (kind == CompletionProposal.TYPE_REF) {
@@ -1088,14 +1086,46 @@ public class DOMCompletionEngine implements Runnable {
 	}
 
 	private CompletionProposal toProposal(IType type) {
-		// TODO add import if necessary
 		InternalCompletionProposal res = new InternalCompletionProposal(CompletionProposal.TYPE_REF, this.offset);
 		char[] simpleName = type.getElementName().toCharArray();
 		char[] signature = Signature.createTypeSignature(type.getFullyQualifiedName(), true).toCharArray();
 
-		res.setName(simpleName);
-		res.setCompletion(type.getElementName().toCharArray());
 		res.setSignature(signature);
+
+		// set owner package
+		IJavaElement cursor = type;
+		while (cursor != null && !(cursor instanceof IPackageFragment)) {
+			cursor = cursor.getParent();
+		}
+		IPackageFragment packageFrag = (IPackageFragment) cursor;
+		if (packageFrag != null) {
+			res.setDeclarationSignature(packageFrag.getElementName().toCharArray());
+		}
+
+		// set completion, considering nested types
+		cursor = type;
+		StringBuilder completion = new StringBuilder();
+		while (cursor instanceof IType) {
+			if (!completion.isEmpty()) {
+				completion.insert(0, '.');
+			}
+			completion.insert(0, cursor.getElementName());
+			cursor = cursor.getParent();
+		}
+		AbstractTypeDeclaration parentType = (AbstractTypeDeclaration)findParent(this.toComplete,
+				new int[] {ASTNode.TYPE_DECLARATION,
+						ASTNode.ANNOTATION_TYPE_DECLARATION,
+						ASTNode.RECORD_DECLARATION,
+						ASTNode.ENUM_DECLARATION});
+		IPackageBinding currentPackageBinding = parentType == null ? null : parentType.resolveBinding().getPackage();
+		if (packageFrag != null && (currentPackageBinding == null
+				|| (!packageFrag.getElementName().equals(currentPackageBinding.getName())
+				 && !packageFrag.getElementName().equals("java.lang")))) { //$NON-NLS-1$
+			completion.insert(0, '.');
+			completion.insert(0, packageFrag.getElementName());
+		}
+		res.setCompletion(completion.toString().toCharArray());
+
 		if (this.toComplete instanceof FieldAccess || this.prefix.isEmpty()) {
 			res.setReplaceRange(this.offset, this.offset);
 		} else if (this.toComplete instanceof MarkerAnnotation) {
@@ -1125,6 +1155,9 @@ public class DOMCompletionEngine implements Runnable {
 		try {
 			if (type.isAnnotation()) {
 				relevance += RelevanceConstants.R_ANNOTATION;
+			}
+			if (type.isInterface()) {
+				relevance += RelevanceConstants.R_INTERFACE;
 			}
 		} catch (JavaModelException e) {
 			// do nothing
