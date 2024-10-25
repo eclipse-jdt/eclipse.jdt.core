@@ -419,12 +419,12 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	public sealed class X permits Y, Z{\n" +
 			"	                              ^\n" +
-			"Permitted class Y does not declare X as direct super class\n" +
+			"Permitted type Y does not declare X as a direct supertype\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	public sealed class X permits Y, Z{\n" +
 			"	                                 ^\n" +
-			"Permitted class Z does not declare X as direct super class\n" +
+			"Permitted type Z does not declare X as a direct supertype\n" +
 			"----------\n");
 	}
 	public void testBug563806_002() {
@@ -444,7 +444,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"1. ERROR in p1\\X.java (at line 2)\n" +
 			"	public sealed class X permits Y{\n" +
 			"	                              ^\n" +
-			"Permitted class Y does not declare p1.X as direct super class\n" +
+			"Permitted type Y does not declare p1.X as a direct supertype\n" +
 			"----------\n" +
 			"2. ERROR in p1\\X.java (at line 5)\n" +
 			"	class Z extends X{}\n" +
@@ -859,7 +859,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"2. ERROR in p1\\X.java (at line 2)\n" +
 			"	public sealed class X permits Y, p2.Y {\n" +
 			"	                                 ^^^^\n" +
-			"Permitted class Y does not declare p1.X as direct super class\n" +
+			"Permitted type Y does not declare p1.X as a direct supertype\n" +
 			"----------\n";
 		runner.runNegativeTest();
 	}
@@ -1362,7 +1362,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"1. ERROR in p1\\X.java (at line 3)\n" +
 				"	sealed class Y extends X permits Z {}\n" +
 				"	                                 ^\n" +
-				"Permitted class Z does not declare p1.X.Y as direct super class\n" +
+				"Permitted type Z does not declare p1.X.Y as a direct supertype\n" +
 				"----------\n");
 	}
 	// Test that implicit permitted member type with explicit permits clause
