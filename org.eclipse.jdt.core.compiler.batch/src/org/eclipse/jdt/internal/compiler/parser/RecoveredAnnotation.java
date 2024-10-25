@@ -191,6 +191,10 @@ public class RecoveredAnnotation extends RecoveredElement {
 		this.kind = kind;
 	}
 
+	public int sourceStart() {
+		return this.sourceStart;
+	}
+
 	@Override
 	public int sourceEnd() {
 		if (this.annotation == null) {
