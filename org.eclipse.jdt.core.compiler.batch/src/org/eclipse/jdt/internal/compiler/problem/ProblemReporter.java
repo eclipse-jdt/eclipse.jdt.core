@@ -4874,7 +4874,7 @@ public void invalidType(ASTNode location, TypeBinding type) {
 			}
 		}
 
-		if (type.isParameterizedType()) {
+		if (!(type instanceof MissingTypeBinding)) {
 			List<TypeBinding> missingTypes = type.collectMissingTypes(null);
 			if (missingTypes != null) {
 				ReferenceContext savedContext = this.referenceContext;
