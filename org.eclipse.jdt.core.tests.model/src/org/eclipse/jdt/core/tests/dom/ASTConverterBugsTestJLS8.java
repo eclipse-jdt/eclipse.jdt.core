@@ -21,14 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFlattener;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 
@@ -1158,6 +1151,50 @@ public void testGH2275() throws CoreException {
 		MethodInvocation invocation2 = (MethodInvocation) ((VariableDeclarationFragment) local2.fragments().get(0)).getInitializer();
 		assertEquals("foo", invocation2.getName().getIdentifier());
 		assertFalse(invocation2.isResolvedTypeInferredFromExpectedType());
+	} finally {
+		deleteProject("P");
+	}
+}
+
+public void testGH3064() throws CoreException {
+	try {
+		createJavaProject("P", new String[] { "" }, new String[] { "CONVERTER_JCL_LIB" }, "", "1.8", true);
+		createFolder("P/src/test");
+		createFile("/P/src/test/Action.java", """
+				package test;
+				public class Action<Request extends BroadcastRequest<Request>, ShardRequest> {
+				    private final Request request;
+
+				    protected ShardRequest newShardRequest(Request request) {return null;} // can also be omitted
+
+				    protected void performOperation(final int shardIndex) {
+				        ShardRequest shardRequest = newShardRequest(request);
+				        shardRequest.setParentTask(foobar);
+				    }
+				}
+				""");
+		ICompilationUnit cuAction = getCompilationUnit("P/src/test/Action.java");
+		ASTParser parser = createASTParser();
+		parser.setResolveBindings(true);
+		parser.setBindingsRecovery(true);
+		parser.setSource(cuAction);
+		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+		TypeDeclaration type = (TypeDeclaration) cu.types().get(0);
+		Object decl2 = type.bodyDeclarations().get(2);
+		assertEquals(MethodDeclaration.class, decl2.getClass());
+		Object stat0 = ((MethodDeclaration) decl2).getBody().statements().get(0);
+		Object stat1 = ((MethodDeclaration) decl2).getBody().statements().get(1);
+		assertEquals(ExpressionStatement.class, stat1.getClass());
+		Expression expr = ((ExpressionStatement) stat1).getExpression();
+		assertEquals(MethodInvocation.class, expr.getClass());
+		Expression receiver = ((MethodInvocation) expr).getExpression();
+		IBinding binding1 = ((SimpleName) receiver).resolveBinding();
+		assertNotNull(binding1);
+		assertEquals(VariableDeclarationStatement.class, stat0.getClass());
+		VariableDeclarationFragment frag = (VariableDeclarationFragment) ((VariableDeclarationStatement) stat0)
+				.fragments().get(0);
+		IBinding binding0 = frag.getName().resolveBinding();
+		assertEquals(binding0, binding1);
 	} finally {
 		deleteProject("P");
 	}
