@@ -187,8 +187,7 @@ public class SwitchStatement extends Expression {
 				}
 			}
 			if (child == null) {
-				child = childType.isRecord() ?
-					new RecordPatternNode(childType) : new PatternNode(childType);
+				child = new PatternNode(childType);
 				if (this.type.isSubtypeOf(childType, false))
 					this.children.add(0, child);
 				else
@@ -213,15 +212,7 @@ public class SwitchStatement extends Expression {
 		}
 		@Override
 		public void traverse(CoverageCheckerVisitor visitor) {
-			if (visitor.visit(this)) {
-				if (this.children != null) {
-					for (PatternNode child : this.children) {
-						if (!visitor.visit(child)) {
-							break;
-						}
-					}
-				}
-			}
+			visitor.visit(this);
 		}
 	}
 	class PatternNode extends Node {
@@ -242,41 +233,18 @@ public class SwitchStatement extends Expression {
 		}
 		@Override
 		public String toString() {
-	        return "[Pattern node] {\n    type:" + this.type + "    next:" + this.next + "\n}\n"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	        return "[" + (this.type.isRecord() ? "Record" : ":") + "Pattern node] {\n    type:" + this.type + "    next:" + this.next + "\n}\n"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 		}
 		@Override
 		public void traverse(CoverageCheckerVisitor visitor) {
-			if (visitor.visit(this) && this.next != null) {
+			if (this.next != null) {
 				visitor.visit(this.next);
 			}
 		}
 	}
-	class RecordPatternNode extends PatternNode {
-		RecordPatternNode(TypeBinding type) {
-			super(type);
-		}
-		@Override
-		public String toString() {
-	        return "[RecordPattern node] {\n    type:" + this.type + "    next:" + this.next + "\n}\n"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
-		@Override
-		public void traverse(CoverageCheckerVisitor visitor) {
-			if (visitor.visit(this) && this.next != null) {
-				visitor.visit(this.next);
-			}
-		}
-	}
-
 
 	class CoverageCheckerVisitor {
 		public boolean covers = true;
-
-		public boolean visit(PatternNode node) {
-			return true;
-		}
-		public boolean visit(RecordPatternNode node) {
-			return true;
-		}
 
 		public boolean visit(TNode node) {
 			if (node.hasError)
