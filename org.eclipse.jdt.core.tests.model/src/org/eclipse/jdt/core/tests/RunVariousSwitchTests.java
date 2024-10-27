@@ -21,6 +21,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.compiler.parser.ComplianceDiagnoseTest;
 import org.eclipse.jdt.core.tests.compiler.regression.InstanceofPrimaryPatternTest;
+import org.eclipse.jdt.core.tests.compiler.regression.JEP441SnippetsTest;
 import org.eclipse.jdt.core.tests.compiler.regression.PatternMatching16Test;
 import org.eclipse.jdt.core.tests.compiler.regression.RecordPatternTest;
 import org.eclipse.jdt.core.tests.compiler.regression.SwitchExpressionsYieldTest;
@@ -52,6 +53,7 @@ public class RunVariousSwitchTests extends TestCase {
 				InstanceofPrimaryPatternTest.class,
 				PatternMatching16Test.class,
 				UnnamedPatternsAndVariablesTest.class,
+				JEP441SnippetsTest.class,
 
 				JavaSearchBugs14SwitchExpressionTests.class,
 				ASTRewritingSwitchExpressionsTest.class,

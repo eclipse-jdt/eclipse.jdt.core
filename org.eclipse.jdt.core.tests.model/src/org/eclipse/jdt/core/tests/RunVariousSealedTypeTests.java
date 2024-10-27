@@ -51,7 +51,7 @@ public class RunVariousSealedTypeTests extends TestCase {
 				RecordsRestrictedClassTest.class,
 				ScannerTest.class,
 				SealedTypesTests.class,
-				SealedTypesSpecReviewTest.class,
+				JEP441SnippetsTest.class,
 				SwitchPatternTest.class,
 				SwitchPatternTest22.class,
 				UnnamedPatternsAndVariablesTest.class,
