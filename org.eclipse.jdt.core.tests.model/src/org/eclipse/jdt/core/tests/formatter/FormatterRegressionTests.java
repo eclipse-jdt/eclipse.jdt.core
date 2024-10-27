@@ -16464,4 +16464,29 @@ public void testIssue3070_2() {
 		}
 		""");
 }
+//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2977
+//[23] Formatter Support for Implicit classes - investigate
+public void testIssue2977() {
+	setComplianceLevel(CompilerOptions.VERSION_23);
+	this.formatterOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	String source =
+		"""
+		import java.util.List;
+		String greeting() { return "Hello, World!"; }
+		void  main( )  {println(greeting());}
+		""";
+	formatSource(source,
+		"""
+		import java.util.List;
+
+		String greeting() {
+			return "Hello, World!";
+		}
+
+		void main() {
+			println(greeting());
+		}
+		""",
+		CodeFormatter.K_COMPILATION_UNIT);
+}
 }
