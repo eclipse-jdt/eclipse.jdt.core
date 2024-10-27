@@ -131,14 +131,12 @@ public class SwitchStatement extends Expression {
 	public List<TypeBinding> caseLabelElementTypes = new ArrayList<>(0);
 	int constantIndex = 0;
 
-	class Node {
+	abstract class Node {
 		TypeBinding type;
 		boolean hasError = false;
-		public void traverse(NodeVisitor visitor) {
-			visitor.visit(this);
-			visitor.endVisit(this);
-		}
+		public abstract void traverse(CoverageCheckerVisitor visitor);
 	}
+
 	class RNode extends Node {
 		TNode firstComponent;
 
@@ -153,33 +151,18 @@ public class SwitchStatement extends Expression {
 			}
 		}
 		void addPattern(Pattern p) {
-			if (p instanceof RecordPattern)
-				addPattern((RecordPattern)p);
-		}
-		void addPattern(RecordPattern rp) {
-			if (!TypeBinding.equalsEquals(this.type, rp.type.resolvedType))
-				return;
-			if (this.firstComponent == null)
-				return;
-			this.firstComponent.addPattern(rp, 0);
+			if (p instanceof RecordPattern rp && TypeBinding.equalsEquals(this.type, rp.type.resolvedType) && this.firstComponent != null)
+				this.firstComponent.addPattern(rp, 0);
 		}
 		@Override
 		public String toString() {
-	        StringBuilder sb = new StringBuilder();
-	        sb.append("[RNode] {\n"); //$NON-NLS-1$
-	        sb.append("    type:"); //$NON-NLS-1$
-	        sb.append(this.type != null ? this.type.toString() : "null"); //$NON-NLS-1$
-	        sb.append("    firstComponent:"); //$NON-NLS-1$
-	        sb.append(this.firstComponent != null ? this.firstComponent.toString() : "null"); //$NON-NLS-1$
-	        sb.append("\n}\n"); //$NON-NLS-1$
-	        return sb.toString();
+			return "[RNode] {\n    type:" + this.type + "     firstComponent:" + this.firstComponent + "\n}\n"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		@Override
-		public void traverse(NodeVisitor visitor) {
+		public void traverse(CoverageCheckerVisitor visitor) {
 			if (this.firstComponent != null) {
 				visitor.visit(this.firstComponent);
 			}
-			visitor.endVisit(this);
 		}
 	}
 	class TNode extends Node {
@@ -217,23 +200,19 @@ public class SwitchStatement extends Expression {
 		}
 		@Override
 		public String toString() {
-	        StringBuilder sb = new StringBuilder();
-	        sb.append("[TNode] {\n"); //$NON-NLS-1$
-	        sb.append("    type:"); //$NON-NLS-1$
-	        sb.append(this.type != null ? this.type.toString() : "null"); //$NON-NLS-1$
-	        sb.append("    children:"); //$NON-NLS-1$
+	        StringBuilder sb = new StringBuilder("[TNode] {\n    type:" + this.type + "    children:"); //$NON-NLS-1$ //$NON-NLS-2$
 	        if (this.children == null) {
 	        	sb.append("null"); //$NON-NLS-1$
 	        } else {
 	        	for (Node child : this.children) {
-	        		sb.append(child.toString());
+	        		sb.append(child);
 	        	}
 	        }
 	        sb.append("\n}\n"); //$NON-NLS-1$
 	        return sb.toString();
 		}
 		@Override
-		public void traverse(NodeVisitor visitor) {
+		public void traverse(CoverageCheckerVisitor visitor) {
 			if (visitor.visit(this)) {
 				if (this.children != null) {
 					for (PatternNode child : this.children) {
@@ -243,7 +222,6 @@ public class SwitchStatement extends Expression {
 					}
 				}
 			}
-			visitor.endVisit(this);
 		}
 	}
 	class PatternNode extends Node {
@@ -255,8 +233,6 @@ public class SwitchStatement extends Expression {
 
 		public void addPattern(RecordPattern rp, int i) {
 			TypeBinding ref = SwitchStatement.this.expression.resolvedType;
-			if (!(ref instanceof ReferenceBinding))
-				return;
 			RecordComponentBinding[] comps = ref.components();
 			if (comps == null || comps.length <= i) // safety-net for incorrect code.
 				return;
@@ -266,91 +242,42 @@ public class SwitchStatement extends Expression {
 		}
 		@Override
 		public String toString() {
-	        StringBuilder sb = new StringBuilder();
-	        sb.append("[Pattern node] {\n"); //$NON-NLS-1$
-	        sb.append("    type:"); //$NON-NLS-1$
-	        sb.append(this.type != null ? this.type.toString() : "null"); //$NON-NLS-1$
-	        sb.append("    next:"); //$NON-NLS-1$
-	        sb.append(this.next != null ? this.next.toString() : "null"); //$NON-NLS-1$
-	        sb.append("\n}\n"); //$NON-NLS-1$
-	        return sb.toString();
+	        return "[Pattern node] {\n    type:" + this.type + "    next:" + this.next + "\n}\n"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		@Override
-		public void traverse(NodeVisitor visitor) {
-			if (visitor.visit(this)) {
-				if (this.next != null) {
-					visitor.visit(this.next);
-				}
+		public void traverse(CoverageCheckerVisitor visitor) {
+			if (visitor.visit(this) && this.next != null) {
+				visitor.visit(this.next);
 			}
-			visitor.endVisit(this);
 		}
 	}
 	class RecordPatternNode extends PatternNode {
-		RNode rNode;
 		RecordPatternNode(TypeBinding type) {
 			super(type);
 		}
 		@Override
 		public String toString() {
-	        StringBuilder sb = new StringBuilder();
-	        sb.append("[RecordPattern node] {\n"); //$NON-NLS-1$
-	        sb.append("    type:"); //$NON-NLS-1$
-	        sb.append(this.type != null ? this.type.toString() : "null"); //$NON-NLS-1$
-	        sb.append("    next:"); //$NON-NLS-1$
-	        sb.append(this.next != null ? this.next.toString() : "null"); //$NON-NLS-1$
-	        sb.append("    rNode:"); //$NON-NLS-1$
-	        sb.append(this.rNode != null ? this.rNode.toString() : "null"); //$NON-NLS-1$
-	        sb.append("\n}\n"); //$NON-NLS-1$
-	        return sb.toString();
+	        return "[RecordPattern node] {\n    type:" + this.type + "    next:" + this.next + "\n}\n"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		@Override
-		public void traverse(NodeVisitor visitor) {
-			if (visitor.visit(this)) {
-				if (visitor.visit(this.rNode)) {
-					if (this.next != null) {
-						visitor.visit(this.next);
-					}
-				}
+		public void traverse(CoverageCheckerVisitor visitor) {
+			if (visitor.visit(this) && this.next != null) {
+				visitor.visit(this.next);
 			}
-			visitor.endVisit(this);
 		}
 	}
 
-	abstract class NodeVisitor {
-		public void endVisit(Node node) {
-			// do nothing by default
-		}
-		public void endVisit(PatternNode node) {
-			// do nothing by default
-		}
-		public void endVisit(RecordPatternNode node) {
-			// do nothing by default
-		}
-		public void endVisit(RNode node) {
-			// do nothing by default
-		}
-		public void endVisit(TNode node) {
-			// do nothing by default
-		}
-		public boolean visit(Node node) {
-			return true;
-		}
+
+	class CoverageCheckerVisitor {
+		public boolean covers = true;
+
 		public boolean visit(PatternNode node) {
 			return true;
 		}
 		public boolean visit(RecordPatternNode node) {
 			return true;
 		}
-		public boolean visit(RNode node) {
-			return true;
-		}
-		public boolean visit(TNode node) {
-			return true;
-		}
-	}
-	class CoverageCheckerVisitor extends NodeVisitor {
-		public boolean covers = true;
-		@Override
+
 		public boolean visit(TNode node) {
 			if (node.hasError)
 				return false;

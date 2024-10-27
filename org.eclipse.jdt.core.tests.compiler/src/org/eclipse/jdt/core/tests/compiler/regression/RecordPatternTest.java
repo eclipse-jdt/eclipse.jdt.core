@@ -4736,4 +4736,70 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+
+	public void testJEP440Example() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				class A {
+				}
+
+				class B extends A {
+				}
+
+				sealed interface I permits C, D {
+				}
+
+				final class C implements I {
+				}
+
+				final class D implements I {
+				}
+
+				record Pair<T>(T x, T y) {
+				}
+
+				public class X {
+					static Pair<A> p1;
+					static Pair<I> p2;
+
+					public static void main(String[] args) {
+						// As of Java 21
+						switch (p1) {                 // Error!
+						    case Pair<A>(A a, B b) -> System.out.println();
+						    case Pair<A>(B b, A a) -> System.out.println();
+						}
+
+						switch (p2) {
+						    case Pair<I>(I i, C c) -> System.out.println();
+						    case Pair<I>(I i, D d) -> System.out.println();
+						}
+
+						switch (p2) {
+						    case Pair<I>(C c, I i) -> System.out.println();
+						    case Pair<I>(D d, C c) -> System.out.println();
+						    case Pair<I>(D d1, D d2) -> System.out.println();
+						}
+
+						switch (p2) {                        // Error!
+					    	case Pair<I>(C fst, D snd) -> System.out.println();
+					    	case Pair<I>(D fst, C snd) -> System.out.println();
+					    	case Pair<I>(I fst, C snd) -> System.out.println();
+						}
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 25)\n" +
+			"	switch (p1) {                 // Error!\n" +
+			"	        ^^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 41)\n" +
+			"	switch (p2) {                        // Error!\n" +
+			"	        ^^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
 }
