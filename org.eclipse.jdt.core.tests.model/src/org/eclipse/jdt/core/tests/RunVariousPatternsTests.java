@@ -63,6 +63,7 @@ public class RunVariousPatternsTests extends TestCase {
 				InstanceofExpressionTest.class,
 				PrimitiveInPatternsTest.class,
 				PrimitiveInPatternsTestSH.class,
+				JEP441SnippetsTest.class,
 		};
 	}
 
