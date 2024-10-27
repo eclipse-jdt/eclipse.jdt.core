@@ -4788,4 +4788,137 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"Contents");
 	}
+	public void testJEP440Example() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				class A {
+				}
+
+				class B extends A {
+				}
+
+				sealed interface I permits C, D {
+				}
+
+				final class C implements I {
+				}
+
+				final class D implements I {
+				}
+
+				record Pair<T>(T x, T y) {
+				}
+
+				public class X {
+					static Pair<A> p1;
+					static Pair<I> p2;
+
+					public static void main(String[] args) {
+						// As of Java 21
+						switch (p1) {                 // Error!
+						    case Pair<A>(A a, B b) -> System.out.println();
+						    case Pair<A>(B b, A a) -> System.out.println();
+						}
+
+						switch (p2) {
+						    case Pair<I>(I i, C c) -> System.out.println();
+						    case Pair<I>(I i, D d) -> System.out.println();
+						}
+
+						switch (p2) {
+						    case Pair<I>(C c, I i) -> System.out.println();
+						    case Pair<I>(D d, C c) -> System.out.println();
+						    case Pair<I>(D d1, D d2) -> System.out.println();
+						}
+
+						switch (p2) {                        // Error!
+					    	case Pair<I>(C fst, D snd) -> System.out.println();
+					    	case Pair<I>(D fst, C snd) -> System.out.println();
+					    	case Pair<I>(I fst, C snd) -> System.out.println();
+						}
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 25)\n" +
+			"	switch (p1) {                 // Error!\n" +
+			"	        ^^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 41)\n" +
+			"	switch (p2) {                        // Error!\n" +
+			"	        ^^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
+
+	public void testRecordCoverage() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				sealed interface I permits A, B, C {
+				}
+
+				final class A implements I {
+				}
+
+				final class B implements I {
+				}
+
+				record C(int j) implements I {
+				} // Implicitly final
+
+				record Box(I i) {
+				}
+
+				public class X {
+					int testExhaustiveRecordPatterns(Box b) {
+						return switch (b) { // Exhaustive!
+						case Box(A aa) -> 0;
+						case Box(B bb) -> 1;
+						case Box(C cc) -> 2;
+						};
+					}
+
+					record IPair(I i, I j) {
+					}
+
+					int testExhaustiveRecordPatterns(IPair p) {
+						return switch (p) { // Exhaustive!
+							case IPair(A a1, A a2) -> 0;
+							case IPair(A a1, B b2) -> 1;
+							case IPair(A a1, C c3) -> 2;
+
+							case IPair(B b1, A b2) -> 3;
+							case IPair(B b1, B b2) -> 4;
+							case IPair(B b1, C b2) -> 5;
+
+
+							case IPair(C c1, A c2) -> 6;
+							case IPair(C c1, B c2) -> 7;
+							case IPair(C c1, C c2) -> 8;
+						};
+					}
+					public static void main(String [] args) {
+						X x = new X();
+						System.out.print(x.testExhaustiveRecordPatterns(new Box(new A())));
+						System.out.print(x.testExhaustiveRecordPatterns(new Box(new B())));
+						System.out.print(x.testExhaustiveRecordPatterns(new Box(new C(42))));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new A(), new A())));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new A(), new B())));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new A(), new C(42))));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new B(), new A())));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new B(), new B())));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new B(), new C(42))));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new C(42), new A())));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new C(42), new B())));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new C(42), new C(42))));
+					}
+				}
+				"""
+			},
+			"012012345678");
+	}
 }
