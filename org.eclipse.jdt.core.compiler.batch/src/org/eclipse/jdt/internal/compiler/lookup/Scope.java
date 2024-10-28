@@ -1154,6 +1154,18 @@ public abstract class Scope {
 		return null; // may answer null if no type around
 	}
 
+	public ClassScope enclosingInstanceScope() {
+		Scope scope = this;
+		while (true) {
+			scope = scope.parent;
+			if (scope == null || scope instanceof MethodScope ms && ms.isStatic) {
+				return null;
+			} else if (scope instanceof ClassScope cs) {
+				return cs;
+			}
+		}
+	}
+
 	public final ClassScope enclosingTopMostClassScope() {
 		Scope scope = this;
 		while (scope != null) {
@@ -5756,6 +5768,8 @@ public abstract class Scope {
 							|| (currentTarget instanceof ReferenceBinding currentRefBind && !currentRefBind.hasEnclosingInstanceContext())) {
 						break;
 					}
+					if (currentTarget.isStatic() || currentTarget.isLocalType())
+						break;
 					currentTarget = currentTarget.enclosingType();
 				}
 				currentEnclosing = currentEnclosing.parent.classScope();

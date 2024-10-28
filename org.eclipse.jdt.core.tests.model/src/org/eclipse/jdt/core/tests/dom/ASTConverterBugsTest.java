@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,8 +14,12 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IClassFile;
@@ -24,8 +28,10 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
 
 @SuppressWarnings("rawtypes")
@@ -1323,5 +1329,120 @@ public void testBug381503() throws CoreException, IOException {
 	} finally {
 		deleteProject("P");
 	}
+}
+public void testGH3047() throws Exception {
+	Hashtable<String, String> options = JavaCore.getDefaultOptions();
+	options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_9);
+	options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_9);
+	options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_9);
+
+	createJava9Project("P");
+	createFolder("P/src");
+
+	String srcFolderInWS = "/P/src";
+	createFolder(srcFolderInWS + "/resources/examples/mockito");
+	String srcFilePathInWS = srcFolderInWS + "/resources/examples/mockito/MockingFromFinder.java";
+	createFile(srcFilePathInWS,
+						"""
+						package examples.mockito;
+						public class MockingFromFinder{}"""
+			);
+	srcFilePathInWS = srcFolderInWS + "/resources/examples/mockito/MockingWhileAdding.java";
+	createFile(srcFilePathInWS,
+						"""
+						package examples.mockito;
+						public class MockingWhileAdding {
+							public static void calculateWithAdder(int x, int y) {
+								IOperation adder = new Adder()::execute;
+							}
+							public interface IOperation {
+								int execute(int x, int y);
+							}
+							public static class Adder implements IOperation {
+								public int execute(int x, int y) {
+									return x+y;
+								}
+							}
+						}"""
+			);
+	String[] paths = new String[2];
+	paths[0] = getWorkspacePath() + "P/src/resources/examples/mockito/MockingFromFinder.java";
+	paths[1] = getWorkspacePath() + "P/src/resources/examples/mockito/MockingWhileAdding.java";
+	@SuppressWarnings("deprecation")
+	ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS9);
+	parser.setCompilerOptions(options);
+	parser.setResolveBindings(true);
+	parser.setStatementsRecovery(true);
+	parser.setBindingsRecovery(true);
+	parser.setEnvironment(null, new String[] {getWorkspacePath() + "P/src/resources"}, null, false);
+	parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	try {
+		parser.createASTs(paths, null, new String[] {}, null, null);
+		fail("Expected exception was not thrown");
+	} catch (IllegalStateException ise) {
+		assertEquals("Missing system library", ise.getMessage());
+	}
+}
+public void testGH3047_2() throws Exception {
+	Hashtable<String, String> options = JavaCore.getDefaultOptions();
+	options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_9);
+	options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_9);
+	options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_9);
+
+	IJavaProject javaProject = createJavaProject("P", new String[] {""}, new String[] {"CONVERTER_JCL18_LIB"}, "1.8");
+	createFolder("P/src");
+
+	String srcFolderInWS = "/P/src";
+	createFolder(srcFolderInWS + "/resources/examples/mockito");
+	String srcFilePathInWS = srcFolderInWS + "/resources/examples/mockito/MockingFromFinder.java";
+	createFile(srcFilePathInWS,
+						"""
+						package examples.mockito;
+						public class MockingFromFinder{}"""
+			);
+	srcFilePathInWS = srcFolderInWS + "/resources/examples/mockito/MockingWhileAdding.java";
+	createFile(srcFilePathInWS,
+						"""
+						package examples.mockito;
+						public class MockingWhileAdding {
+							public static void calculateWithAdder(int x, int y) {
+								IOperation adder = new Adder()::execute;
+							}
+							public interface IOperation {
+								int execute(int x, int y);
+							}
+							public static class Adder implements IOperation {
+								public int execute(int x, int y) {
+									return x+y;
+								}
+							}
+						}"""
+			);
+	String[] paths = new String[2];
+	paths[0] = getWorkspacePath() + "P/src/resources/examples/mockito/MockingFromFinder.java";
+	paths[1] = getWorkspacePath() + "P/src/resources/examples/mockito/MockingWhileAdding.java";
+	@SuppressWarnings("deprecation")
+	ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS9);
+	parser.setProject(javaProject);
+	parser.setCompilerOptions(options);
+	parser.setResolveBindings(true);
+	parser.setStatementsRecovery(true);
+	parser.setBindingsRecovery(true);
+	parser.setEnvironment(null, new String[] {getWorkspacePath() + "P/src/resources"}, null, false);
+	parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	Set<String> expectedProblems = new HashSet<>(Arrays.asList(
+			"Pb(324) The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files",
+			"Pb(140) Implicit super constructor Object() is undefined for default constructor. Must define an explicit constructor"
+			));
+	Set<String> actualProblems = new HashSet<>();
+	class MyFileASTRequestor extends FileASTRequestor {
+		@Override
+		public void acceptAST(String sourceFilePath, CompilationUnit cu) {
+			for (IProblem prob :  cu.getProblems())
+				actualProblems.add(prob.toString());
+		}
+	}
+	parser.createASTs(paths, null, new String[] {}, new MyFileASTRequestor() {}, null);
+	assertEquals(expectedProblems, actualProblems);
 }
 }

@@ -16396,4 +16396,97 @@ public void testGH1473c() throws JavaModelException {
 	String input = getCompilationUnit("Formatter", "", "testGH1473", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "testGH1473", "C_out.java").getSource());
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3070
+// [Formatter] leading space added to conditional statements following an unnamed variable
+public void testIssue3070() {
+	setComplianceLevel(CompilerOptions.VERSION_23);
+	String source =
+		"""
+		class Example {
+			private void foo() {
+				var a = false;
+
+				try {
+				} catch (Exception _) { // <- the unnamed variable triggers the issue
+				}
+
+				if (a) { // <- no leading space before the variable name
+				}
+			}
+		}
+		""";
+	formatSource(source,
+		"""
+		class Example {
+			private void foo() {
+				var a = false;
+
+				try {
+				} catch (Exception _) { // <- the unnamed variable triggers the issue
+				}
+
+				if (a) { // <- no leading space before the variable name
+				}
+			}
+		}
+		""");
+}
+public void testIssue3070_2() {
+	setComplianceLevel(CompilerOptions.VERSION_23);
+	String source =
+		"""
+		class Example {
+			private void foo() {
+				var a = false;
+
+				try {
+				} catch (Exception e) { // <- the unnamed variable triggers the issue
+				}
+
+				if (a) { // <- no leading space before the variable name
+				}
+			}
+		}
+		""";
+	formatSource(source,
+		"""
+		class Example {
+			private void foo() {
+				var a = false;
+
+				try {
+				} catch (Exception e) { // <- the unnamed variable triggers the issue
+				}
+
+				if (a) { // <- no leading space before the variable name
+				}
+			}
+		}
+		""");
+}
+//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2977
+//[23] Formatter Support for Implicit classes - investigate
+public void testIssue2977() {
+	setComplianceLevel(CompilerOptions.VERSION_23);
+	this.formatterOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	String source =
+		"""
+		import java.util.List;
+		String greeting() { return "Hello, World!"; }
+		void  main( )  {println(greeting());}
+		""";
+	formatSource(source,
+		"""
+		import java.util.List;
+
+		String greeting() {
+			return "Hello, World!";
+		}
+
+		void main() {
+			println(greeting());
+		}
+		""",
+		CodeFormatter.K_COMPILATION_UNIT);
+}
 }

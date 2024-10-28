@@ -5945,7 +5945,7 @@ public void test151() throws Exception {
 		+ "    [inner class info: #1 p/X$1E, outer class info: #0\n"
 		+ "     inner name: #54 E, accessflags: 17416 abstract static],\n"
 		+ "    [inner class info: #14 p/X$1E$1, outer class info: #0\n"
-		+ "     inner name: #0, accessflags: 16384 default]\n"
+		+ "     inner name: #0, accessflags: 16392 static]\n"
 		+ "  Enclosing Method: #48  #50 p/X.main([Ljava/lang/String;)V\n"
 		+ "\n"
 		+ "Nest Host: #48 p/X\n"

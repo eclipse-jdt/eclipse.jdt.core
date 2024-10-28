@@ -189,14 +189,14 @@ public class Factory {
 					try {
 						appendModifier(result, modifiers, checkBit, Modifier.valueOf("NON_SEALED")); //$NON-NLS-1$
 					} catch(IllegalArgumentException iae) {
-						// Don't have JDK 15, just ignore and proceed.
+						// Don't have JDK 17, just ignore and proceed.
 					}
 					break;
 				case ExtraCompilerModifiers.AccSealed :
 					try {
 						appendModifier(result, modifiers, checkBit, Modifier.valueOf("SEALED")); //$NON-NLS-1$
 					} catch(IllegalArgumentException iae) {
-						// Don't have JDK 15, just ignore and proceed.
+						// Don't have JDK 17, just ignore and proceed.
 					}
 					break;
 			}

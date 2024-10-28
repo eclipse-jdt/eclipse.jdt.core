@@ -44,6 +44,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractNullAnnotationTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.osgi.framework.Bundle;
@@ -76,9 +77,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 		File bundleFile = FileLocator.getBundleFileLocation(bundles[0]).get();
 		this.ANNOTATION_LIB = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
 
-		bundles = org.eclipse.jdt.core.tests.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", "[1.1.0,2.0.0)");
-		bundleFile = FileLocator.getBundleFileLocation(bundles[0]).get();
-		this.ANNOTATION_LIB_V1 = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
+		this.ANNOTATION_LIB_V1 = AbstractNullAnnotationTest.getAnnotationV1LibPath();
 	}
 
 	protected String testJarPath(String jarName) throws IOException {

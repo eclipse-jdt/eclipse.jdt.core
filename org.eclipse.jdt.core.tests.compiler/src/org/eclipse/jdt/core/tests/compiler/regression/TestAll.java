@@ -232,7 +232,6 @@ public static Test suite() {
 	 // add 17 specific test here (check duplicates)
 	 ArrayList since_17 = new ArrayList();
 	 since_17.add(SealedTypesTests.class);
-	 since_17.add(SealedTypesSpecReviewTest.class);
 	 since_17.add(InstanceofPrimaryPatternTest.class);
 	 since_17.add(BatchCompilerTest_17.class);
 
@@ -247,13 +246,15 @@ public static Test suite() {
 	 since_21.add(RecordPatternProjectTest.class);
 	 since_21.add(NullAnnotationTests21.class);
 	 since_21.add(BatchCompilerTest_21.class);
+	 since_21.add(JEP441SnippetsTest.class);
+	 
 
 	 // add 21 specific test here (check duplicates)
 	 ArrayList since_22 = new ArrayList();
 //	 since_22.add(SuperAfterStatementsTest.class);
 	 since_22.add(UnnamedPatternsAndVariablesTest.class);
 	 since_22.add(UseOfUnderscoreJava22Test.class);
-	 since_22.add(SwitchPatternTest21.class);
+	 since_22.add(SwitchPatternTest22.class);
 
 	 ArrayList since_23 = new ArrayList();
 	 since_23.add(SuperAfterStatementsTest.class);

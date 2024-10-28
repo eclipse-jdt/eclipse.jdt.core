@@ -546,7 +546,13 @@ public TypeBinding resolveType(BlockScope scope) {
 protected void checkEarlyConstructionContext(BlockScope scope) {
 	if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())
 			&& this.type != null && this.type.resolvedType instanceof ReferenceBinding currentType) {
-		TypeBinding uninitialized = scope.getMatchingUninitializedType(currentType, !currentType.isLocalType());
+		// only enclosing types of non-static member types are relevant
+		if (currentType.isStatic() || currentType.isLocalType())
+			return;
+		currentType = currentType.enclosingType();
+		if (currentType == null)
+			return;
+		TypeBinding uninitialized = scope.getMatchingUninitializedType(currentType, true);
 		if (uninitialized != null)
 			scope.problemReporter().allocationInEarlyConstructionContext(this, this.resolvedType, uninitialized);
 	}

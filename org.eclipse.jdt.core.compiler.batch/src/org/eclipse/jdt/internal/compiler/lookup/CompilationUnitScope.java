@@ -426,8 +426,6 @@ void sealTypeHierarchy() {
 	for (SourceTypeBinding sourceType : this.topLevelTypes) {
 		sourceType.scope.connectPermittedTypes();
 	}
-	for (SourceTypeBinding topLevelType : this.topLevelTypes)
-		topLevelType.scope.connectImplicitPermittedTypes();
 }
 void integrateAnnotationsInHierarchy() {
 	// Only now that all hierarchy information is built we're ready for ...
@@ -791,6 +789,7 @@ ImportBinding[] getDefaultImports() {
 			this.environment.missingClassFileLocation, false, null/*resolving j.l.O is not specific to any referencing type*/);
 		BinaryTypeBinding missingObject = this.environment.createMissingType(null, TypeConstants.JAVA_LANG_OBJECT);
 		importBinding = missingObject.fPackage;
+		return new ImportBinding[] {new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null)};
 	}
 	return this.environment.root.defaultImports = new ImportBinding[] {new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null)};
 }

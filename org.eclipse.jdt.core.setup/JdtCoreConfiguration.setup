@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<setup:Configuration
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:setup="http://www.eclipse.org/oomph/setup/1.0"
+    label="JDT Core">
+  <annotation
+      source="http://www.eclipse.org/oomph/setup/BrandingInfo">
+    <detail
+        key="imageURI">
+      <value>https://www.eclipse.org/downloads/images/committers.png</value>
+    </detail>
+    <detail
+        key="badgeLabel">
+      <value>JDT Core</value>
+    </detail>
+  </annotation>
+  <installation
+      name="jdt.core.installation"
+      label="JDT Core Installation">
+    <setupTask
+        xsi:type="setup:VariableTask"
+        name="installation.id.default"
+        value="jdt-core"/>
+    <productVersion
+        href="index:/org.eclipse.setup#//@productCatalogs[name='org.eclipse.applications']/@products[name='eclipse.platform.sdk']/@versions[name='latest']"/>
+    <description>The JDT Core installation provides the latest tools needed to work with the project's source code.</description>
+  </installation>
+  <workspace
+      name="jdt.core.workspace"
+      label="JDT Core Workspace">
+    <setupTask
+        xsi:type="setup:VariableTask"
+        name="workspace.id.default"
+        value="jdt-core-ws"/>
+    <setupTask
+        xsi:type="setup:CompoundTask"
+        name="User Preferences">
+      <annotation
+          source="http://www.eclipse.org/oomph/setup/UserPreferences">
+        <detail
+            key="/instance/org.eclipse.oomph.setup.ui/showToolBarContributions">
+          <value>record</value>
+        </detail>
+      </annotation>
+      <setupTask
+          xsi:type="setup:CompoundTask"
+          name="org.eclipse.oomph.setup.ui">
+        <setupTask
+            xsi:type="setup:PreferenceTask"
+            key="/instance/org.eclipse.oomph.setup.ui/showToolBarContributions"
+            value="true"/>
+      </setupTask>
+      <setupTask
+          xsi:type="setup:CompoundTask"
+          name="org.eclipse.ui.ide">
+        <setupTask
+            xsi:type="setup:PreferenceTask"
+            key="/instance/org.eclipse.ui.ide/WORKSPACE_NAME"
+            value="JDT Core"/>
+      </setupTask>
+    </setupTask>
+    <setupTask
+        xsi:type="setup:VariableTask"
+        name="eclipse.git.authentication.style"
+        defaultValue="anonymous"/>
+    <stream
+        href="index:/org.eclipse.setup#//@projectCatalogs[name='org.eclipse']/@projects[name='jdt']/@projects[name='core']/@streams[name='master']"/>
+    <stream
+        href="index:/org.eclipse.setup#//@projectCatalogs[name='org.eclipse']/@projects[name='jdt']/@projects[name='core']/@projects[name='tests']/@streams[name='master']"/>
+    <stream
+        href="index:/org.eclipse.setup#//@projectCatalogs[name='org.eclipse']/@projects[name='jdt']/@projects[name='core']/@projects[name='testbinaries']/@streams[name='master']"/>
+    <description>The JDT Core workspace provides all the source code of the project.</description>
+  </workspace>
+  <description>
+    &lt;p>
+    The &lt;code>JDT Core&lt;/code> configuration provisions a dedicated development environment for the complete set of projects that comprise the JDT Core,
+    i.e. the projects that are contained in the &lt;a href=&quot;https://github.com/eclipse-jdt/jdt.core&quot;>jdt.core&lt;/a> repository.
+    &lt;/p>
+    &lt;p>
+    The installation is based on the latest successful integration build of the &lt;code>Eclipse Platform SDK&lt;/code>,
+    the PDE target platform, like the installation, is also based on the latest integration build,
+    and the API baseline is based on the most recent release.
+    &lt;p>
+    &lt;/p>
+    Please &lt;a href=&quot;https://wiki.eclipse.org/Eclipse_Platform_SDK_Provisioning&quot;>read the tutorial instructions&lt;/a> for more details.
+    &lt;/p>
+  </description>
+</setup:Configuration>

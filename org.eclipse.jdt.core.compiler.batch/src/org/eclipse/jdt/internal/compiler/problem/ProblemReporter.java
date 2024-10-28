@@ -826,6 +826,16 @@ public void abortDueToNotSupportedJavaVersion(String notSupportedVersion, String
 			0,
 			0);
 }
+public void tooRecentJavaVersion(String notSupportedVersion, String firstSupportedVersion) {
+	String[] args = new String[] {notSupportedVersion, firstSupportedVersion};
+	this.handle(
+			IProblem.JavaVersionTooRecent,
+			args,
+			args,
+			ProblemSeverities.Warning,
+			0,
+			0);
+}
 public void abstractMethodCannotBeOverridden(SourceTypeBinding type, MethodBinding concreteMethod) {
 
 	this.handle(
@@ -3333,7 +3343,7 @@ public void illegalVisibilityModifierCombinationForField(ReferenceBinding type, 
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
 }
-public void IllegalModifierCombinationForType(SourceTypeBinding type) {
+public void illegalModifierCombinationForType(SourceTypeBinding type) {
 	String[] arguments = new String[] {new String(type.sourceName())};
 	this.handle(
 		IProblem.IllegalModifierCombinationForType,
@@ -4864,7 +4874,7 @@ public void invalidType(ASTNode location, TypeBinding type) {
 			}
 		}
 
-		if (type.isParameterizedType()) {
+		if (!(type instanceof MissingTypeBinding)) {
 			List<TypeBinding> missingTypes = type.collectMissingTypes(null);
 			if (missingTypes != null) {
 				ReferenceContext savedContext = this.referenceContext;
@@ -5195,82 +5205,7 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 private boolean isIdentifier(int token) {
 	return token == TerminalTokens.TokenNameIdentifier;
 }
-private boolean isRestrictedIdentifier(int token) {
-	switch(token) {
-		case TerminalTokens.TokenNameRestrictedIdentifierYield:
-		case TerminalTokens.TokenNameRestrictedIdentifierrecord:
-		case TerminalTokens.TokenNameRestrictedIdentifiersealed:
-		case TerminalTokens.TokenNameRestrictedIdentifierpermits:
-		case TerminalTokens.TokenNameRestrictedIdentifierWhen:
-			return true;
-		default: return false;
-	}
-}
-private boolean isKeyword(int token) {
-	switch(token) {
-		case TerminalTokens.TokenNameabstract:
-		case TerminalTokens.TokenNameassert:
-		case TerminalTokens.TokenNamebyte:
-		case TerminalTokens.TokenNamebreak:
-		case TerminalTokens.TokenNameboolean:
-		case TerminalTokens.TokenNamecase:
-		case TerminalTokens.TokenNamechar:
-		case TerminalTokens.TokenNamecatch:
-		case TerminalTokens.TokenNameclass:
-		case TerminalTokens.TokenNamecontinue:
-		case TerminalTokens.TokenNamedo:
-		case TerminalTokens.TokenNamedouble:
-		case TerminalTokens.TokenNamedefault:
-		case TerminalTokens.TokenNameelse:
-		case TerminalTokens.TokenNameextends:
-		case TerminalTokens.TokenNamefor:
-		case TerminalTokens.TokenNamefinal:
-		case TerminalTokens.TokenNamefloat:
-		case TerminalTokens.TokenNamefalse:
-		case TerminalTokens.TokenNamefinally:
-		case TerminalTokens.TokenNameif:
-		case TerminalTokens.TokenNameint:
-		case TerminalTokens.TokenNameimport:
-		case TerminalTokens.TokenNameinterface:
-		case TerminalTokens.TokenNameimplements:
-		case TerminalTokens.TokenNameinstanceof:
-		case TerminalTokens.TokenNamelong:
-		case TerminalTokens.TokenNamenew:
-		case TerminalTokens.TokenNamenon_sealed:
-		case TerminalTokens.TokenNamenull:
-		case TerminalTokens.TokenNamenative:
-		case TerminalTokens.TokenNamepublic:
-		case TerminalTokens.TokenNamepackage:
-		case TerminalTokens.TokenNameprivate:
-		case TerminalTokens.TokenNameprotected:
-		case TerminalTokens.TokenNamereturn:
-		case TerminalTokens.TokenNameshort:
-		case TerminalTokens.TokenNamesuper:
-		case TerminalTokens.TokenNamestatic:
-		case TerminalTokens.TokenNameswitch:
-		case TerminalTokens.TokenNamestrictfp:
-		case TerminalTokens.TokenNamesynchronized:
-		case TerminalTokens.TokenNametry:
-		case TerminalTokens.TokenNamethis:
-		case TerminalTokens.TokenNametrue:
-		case TerminalTokens.TokenNamethrow:
-		case TerminalTokens.TokenNamethrows:
-		case TerminalTokens.TokenNametransient:
-		case TerminalTokens.TokenNamevoid:
-		case TerminalTokens.TokenNamevolatile:
-		case TerminalTokens.TokenNamewhile:
-			return true;
-		case TerminalTokens.TokenNameRestrictedIdentifierYield:
-		case TerminalTokens.TokenNameRestrictedIdentifierrecord:
-		case TerminalTokens.TokenNameRestrictedIdentifiersealed:
-		case TerminalTokens.TokenNameRestrictedIdentifierpermits:
-		case TerminalTokens.TokenNameRestrictedIdentifierWhen:
-			// making explicit - not a (restricted) keyword but restricted identifier.
-			//$FALL-THROUGH$
-		default:
-			return false;
-	}
-}
+
 private boolean isLiteral(int token) {
 	return Scanner.isLiteral(token);
 }
@@ -7368,7 +7303,7 @@ public void noSuchEnclosingInstance(TypeBinding targetType, ASTNode location, bo
 		location.sourceStart,
 		location instanceof LambdaExpression ? ((LambdaExpression)location).diagnosticsSourceEnd() : location.sourceEnd);
 }
-public void notCompatibleTypesError(EqualExpression expression, TypeBinding leftType, TypeBinding rightType) {
+public void notCompatibleTypesError(ASTNode location, TypeBinding leftType, TypeBinding rightType) {
 	String leftName = new String(leftType.readableName());
 	String rightName = new String(rightType.readableName());
 	String leftShortName = new String(leftType.shortReadableName());
@@ -7377,28 +7312,18 @@ public void notCompatibleTypesError(EqualExpression expression, TypeBinding left
 		leftShortName = leftName;
 		rightShortName = rightName;
 	}
-	this.handle(
-		IProblem.IncompatibleTypesInEqualityOperator,
-		new String[] {leftName, rightName },
-		new String[] {leftShortName, rightShortName },
-		expression.sourceStart,
-		expression.sourceEnd);
-}
-public void notCompatibleTypesError(Expression expression, TypeBinding leftType, TypeBinding rightType) {
-	String leftName = new String(leftType.readableName());
-	String rightName = new String(rightType.readableName());
-	String leftShortName = new String(leftType.shortReadableName());
-	String rightShortName = new String(rightType.shortReadableName());
-	if (leftShortName.equals(rightShortName)){
-		leftShortName = leftName;
-		rightShortName = rightName;
+	int problemId = IProblem.IncompatibleTypesInEqualityOperator;
+	if (location instanceof Pattern p && p.getEnclosingPattern() instanceof RecordPattern) {
+		problemId = IProblem.PatternTypeMismatch;
+	} else if (location instanceof InstanceOfExpression) {
+		problemId = IProblem.IncompatibleTypesInConditionalOperator;
 	}
 	this.handle(
-		IProblem.IncompatibleTypesInConditionalOperator,
+		problemId,
 		new String[] {leftName, rightName },
 		new String[] {leftShortName, rightShortName },
-		expression.sourceStart,
-		expression.sourceEnd);
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void notCompatibleTypesErrorInForeach(Expression expression, TypeBinding leftType, TypeBinding rightType) {
 	String leftName = new String(leftType.readableName());
@@ -7618,7 +7543,7 @@ public void parseError(
 	String[] possibleTokens) {
 
 	if (possibleTokens.length == 0) { //no suggestion available
-		if (isKeyword(currentToken)) {
+		if (Scanner.isKeyword(currentToken)) {
 			String[] arguments = new String[] {new String(currentTokenSource)};
 			this.handle(
 				IProblem.ParsingErrorOnKeywordNoSuggestion,
@@ -7651,7 +7576,7 @@ public void parseError(
 		list.append('"');
 	}
 
-	if (isKeyword(currentToken)) {
+	if (Scanner.isKeyword(currentToken)) {
 		String[] arguments = new String[] {new String(currentTokenSource), list.toString()};
 		this.handle(
 			IProblem.ParsingErrorOnKeyword,
@@ -8488,14 +8413,14 @@ private void syntaxError(
 		return;
 	}
 	String eTokenName;
-	if (isKeyword(currentKind) ||
+	if (Scanner.isKeyword(currentKind) ||
 		isLiteral(currentKind) ||
 		isIdentifier(currentKind)) {
 			eTokenName = new String(currentTokenSource);
 	} else {
 		eTokenName = errorTokenName;
 	}
-	if (isRestrictedIdentifier(currentKind))
+	if (TerminalTokens.isRestrictedKeyword(currentKind))
 		eTokenName = replaceIfSynthetic(eTokenName);
 
 	String[] arguments;
@@ -8603,21 +8528,21 @@ public void typeCastError(CastExpression expression, TypeBinding leftType, TypeB
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void unsafeCastInInstanceof(Expression expression, TypeBinding leftType, TypeBinding rightType) {
-	String leftName = new String(leftType.readableName());
-	String rightName = new String(rightType.readableName());
-	String leftShortName = new String(leftType.shortReadableName());
-	String rightShortName = new String(rightType.shortReadableName());
-	if (leftShortName.equals(rightShortName)){
-		leftShortName = leftName;
-		rightShortName = rightName;
+public void unsafeCastInTestingContext(ASTNode location, TypeBinding castType, TypeBinding expressionType) {
+	String castName = new String(castType.readableName());
+	String exprName = new String(expressionType.readableName());
+	String castShortName = new String(castType.shortReadableName());
+	String exprShortName = new String(expressionType.shortReadableName());
+	if (castShortName.equals(exprShortName)){
+		castShortName = castName;
+		exprShortName = exprName;
 	}
 	this.handle(
 		IProblem.UnsafeCast,
-		new String[] { rightName, leftName },
-		new String[] { rightShortName, leftShortName },
-		expression.sourceStart,
-		expression.sourceEnd);
+		new String[] { exprName, castName },
+		new String[] { exprShortName, castShortName },
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void typeCollidesWithEnclosingType(TypeDeclaration typeDecl) {
 	String[] arguments = new String[] {new String(typeDecl.name)};
@@ -9786,7 +9711,7 @@ public boolean validateRestrictedKeywords(char[] name, ASTNode node) {
 		close();
 	}
 }
-//Returns true if the problem is handled and reported (only errors considered and not warnings)
+// Returns true if the problem is handled and reported (only errors considered and not warnings)
 public boolean validateJavaFeatureSupport(JavaFeature feature, int sourceStart, int sourceEnd) {
 	boolean versionInRange = feature.getCompliance() <= this.options.sourceLevel;
 	String version = CompilerOptions.versionFromJdkLevel(feature.getCompliance());
@@ -12220,140 +12145,80 @@ public void illegalModifierForLocalEnumDeclaration(SourceTypeBinding type) {
 		type.sourceStart(),
 		type.sourceEnd());
 }
-private void sealedMissingModifier(int problem, SourceTypeBinding type, TypeDeclaration typeDecl, TypeBinding superTypeBinding) {
+
+public void permittedTypeNeedsModifier(SourceTypeBinding type, TypeDeclaration typeDecl, TypeBinding superTypeBinding) {
 	String name = new String(type.sourceName());
 	String superTypeFullName = new String(superTypeBinding.readableName());
 	String superTypeShortName = new String(superTypeBinding.shortReadableName());
 	if (superTypeShortName.equals(name)) superTypeShortName = superTypeFullName;
 	this.handle(
-		problem,
+		type.isClass() ? IProblem.SealedMissingClassModifier : IProblem.SealedMissingInterfaceModifier,
 		new String[] {superTypeFullName, name},
 		new String[] {superTypeShortName, name},
 		typeDecl.sourceStart,
 		typeDecl.sourceEnd);
 }
 
-public void sealedMissingClassModifier(SourceTypeBinding type, TypeDeclaration typeDecl, TypeBinding superTypeBinding) {
-	sealedMissingModifier(IProblem.SealedMissingClassModifier, type, typeDecl, superTypeBinding);
-}
-public void sealedMissingInterfaceModifier(SourceTypeBinding type, TypeDeclaration typeDecl, TypeBinding superTypeBinding) {
-	sealedMissingModifier(IProblem.SealedMissingInterfaceModifier, type, typeDecl, superTypeBinding);
-}
-public void sealedDisAllowedNonSealedModifierInClass(SourceTypeBinding type, TypeDeclaration typeDecl) {
+public void disallowedNonSealedModifier(SourceTypeBinding type, TypeDeclaration typeDecl) {
 	String name = new String(type.sourceName());
 	this.handle(
-			IProblem.SealedDisAllowedNonSealedModifierInClass,
+			type.isClass() ? IProblem.SealedDisAllowedNonSealedModifierInClass : IProblem.SealedDisAllowedNonSealedModifierInInterface,
 			new String[] { name },
 			new String[] { name },
 			typeDecl.sourceStart,
 			typeDecl.sourceEnd);
 }
 
-private void sealedSuperTypeDoesNotPermit(int problem, SourceTypeBinding type, TypeReference superType, TypeBinding superTypeBinding) {
+public void sealedSupertypeDoesNotPermit(SourceTypeBinding type, TypeReference superType, TypeBinding superTypeBinding) {
 	String name = new String(type.sourceName());
 	String superTypeFullName = new String(superTypeBinding.readableName());
 	String superTypeShortName = new String(superTypeBinding.shortReadableName());
 	if (superTypeShortName.equals(name)) superTypeShortName = superTypeFullName;
-	this.handle(
-		problem,
-		new String[] {name, superTypeFullName},
-		new String[] {name, superTypeShortName},
-		superType.sourceStart,
-		superType.sourceEnd);
+	if (superTypeBinding.isClass()) {
+		this.handle(
+			IProblem.SealedSuperClassDoesNotPermit,
+			new String[] {name, superTypeFullName},
+			new String[] {name, superTypeShortName},
+			superType.sourceStart,
+			superType.sourceEnd);
+	} else {
+		String keyword = type.isClass() ? new String(TypeConstants.IMPLEMENTS) : new String(TypeConstants.KEYWORD_EXTENDS);
+		this.handle(
+				IProblem.SealedSuperInterfaceDoesNotPermit,
+			new String[] {name, superTypeFullName, keyword},
+			new String[] {name, superTypeShortName, keyword},
+			superType.sourceStart,
+			superType.sourceEnd);
+	}
 }
 
-public void sealedSuperTypeInDifferentPackage(int problem, SourceTypeBinding type, TypeReference curType, TypeBinding superTypeBinding, PackageBinding superPackageBinding) {
-	String typeName = new String(type.sourceName);
-	String name = new String(superTypeBinding.sourceName());
-	String packageName = superPackageBinding.compoundName == CharOperation.NO_CHAR_CHAR ? "default" : //$NON-NLS-1$
-		CharOperation.toString(superPackageBinding.compoundName);
-	String[] arguments = new String[] {typeName, packageName, name};
-	this.handle(problem,
-			arguments,
-			arguments,
-			curType.sourceStart,
-			curType.sourceEnd);
-}
-
-public void sealedSuperTypeDisallowed(int problem, SourceTypeBinding type, TypeReference curType, TypeBinding superTypeBinding) {
-	String typeName = new String(type.sourceName);
-	String name = new String(superTypeBinding.sourceName());
-	String[] arguments = new String[] {typeName, name};
-	this.handle(problem,
-			arguments,
-			arguments,
-			curType.sourceStart,
-			curType.sourceEnd);
-}
-
-public void sealedSuperClassDoesNotPermit(SourceTypeBinding type, TypeReference superType, TypeBinding superTypeBinding) {
-	sealedSuperTypeDoesNotPermit(IProblem.SealedSuperClassDoesNotPermit, type, superType, superTypeBinding);
-}
-
-public void sealedSuperClassInDifferentPackage(SourceTypeBinding type, TypeReference curType, TypeBinding superTypeBinding, PackageBinding superPackageBinding) {
-	sealedSuperTypeInDifferentPackage(IProblem.SealedSuperTypeInDifferentPackage, type, curType, superTypeBinding, superPackageBinding);
-}
-
-public void sealedSuperClassDisallowed(SourceTypeBinding type, TypeReference curType, TypeBinding superTypeBinding) {
-	sealedSuperTypeDisallowed(IProblem.SealedSuperTypeDisallowed, type, curType, superTypeBinding);
-}
-
-public void sealedSuperInterfaceDoesNotPermit(SourceTypeBinding type, TypeReference superType, TypeBinding superTypeBinding) {
-	String name = new String(type.sourceName());
-	String superTypeFullName = new String(superTypeBinding.readableName());
-	String superTypeShortName = new String(superTypeBinding.shortReadableName());
-	String keyword = type.isClass() ? new String(TypeConstants.IMPLEMENTS) : new String(TypeConstants.KEYWORD_EXTENDS);
-	if (superTypeShortName.equals(name)) superTypeShortName = superTypeFullName;
-	this.handle(
-			IProblem.SealedSuperInterfaceDoesNotPermit,
-		new String[] {name, superTypeFullName, keyword},
-		new String[] {name, superTypeShortName, keyword},
-		superType.sourceStart,
-		superType.sourceEnd);
-}
-
-public void sealedSuperInterfaceInDifferentPackage(SourceTypeBinding type, TypeReference curType, TypeBinding superTypeBinding, PackageBinding superPackageBinding) {
-	sealedSuperTypeInDifferentPackage(IProblem.SealedSuperTypeInDifferentPackage, type, curType, superTypeBinding, superPackageBinding);
-}
-
-public void sealedSuperInterfaceDisallowed(SourceTypeBinding type, TypeReference curType, TypeBinding superTypeBinding) {
-	sealedSuperTypeDisallowed(IProblem.SealedSuperTypeDisallowed, type, curType, superTypeBinding);
-}
-
-public void sealedMissingSealedModifier(SourceTypeBinding type, ASTNode node) {
+public void missingSealedModifier(SourceTypeBinding type, ASTNode node) {
 	String name = new String(type.sourceName());
 	this.handle(IProblem.SealedMissingSealedModifier, new String[] { name }, new String[] { name }, node.sourceStart,
 			node.sourceEnd);
 }
 
-public void sealedDuplicateTypeInPermits(SourceTypeBinding type, TypeReference reference, ReferenceBinding superType) {
+public void duplicatePermittedType(TypeReference reference, ReferenceBinding superType) {
 	this.handle(
 		IProblem.SealedDuplicateTypeInPermits,
-		new String[] {
-			new String(superType.readableName()),
-			new String(type.sourceName())},
-		new String[] {
-			new String(superType.shortReadableName()),
-			new String(type.sourceName())},
+		new String[] { new String(superType.readableName()) },
+		new String[] { new String(superType.shortReadableName()) },
 		reference.sourceStart,
 		reference.sourceEnd);
 }
 
-public void sealedNotDirectSuperClass(ReferenceBinding type, TypeReference reference, SourceTypeBinding superType) {
-	this.handle(
-		IProblem.SealedNotDirectSuperClass,
-		new String[] {
-			new String(type.sourceName()),
-			new String(superType.readableName())},
-		new String[] {
-				new String(type.sourceName()),
-				new String(superType.readableName())},
-		reference.sourceStart,
-		reference.sourceEnd);
+public void sealedClassNotDirectSuperClassOf(ReferenceBinding type, TypeReference reference, SourceTypeBinding superType) {
+	if ((type.tagBits & TagBits.HierarchyHasProblems) == 0 && (superType.tagBits & TagBits.HierarchyHasProblems) == 0) {
+		this.handle(IProblem.SealedNotDirectSuperClass,
+				new String[] { new String(type.sourceName()), new String(superType.readableName()) },
+				new String[] { new String(type.sourceName()), new String(superType.readableName()) },
+				reference.sourceStart, reference.sourceEnd);
+	}
 }
-public void sealedPermittedTypeOutsideOfModule(ReferenceBinding permType, SourceTypeBinding type, ASTNode node, ModuleBinding moduleBinding) {
+
+public void permittedTypeOutsideOfModule(ReferenceBinding permType, ReferenceBinding sealedType, ASTNode node, ModuleBinding moduleBinding) {
 	String permTypeName = new String(permType.sourceName);
-	String name = new String(type.sourceName());
+	String name = new String(sealedType.sourceName());
 	String moduleName = new String(moduleBinding.name());
 	String[] arguments = new String[] {permTypeName, moduleName, name};
 	this.handle(IProblem.SealedPermittedTypeOutsideOfModule,
@@ -12362,15 +12227,10 @@ public void sealedPermittedTypeOutsideOfModule(ReferenceBinding permType, Source
 			node.sourceStart,
 			node.sourceEnd);
 }
-public void sealedPermittedTypeOutsideOfModule(SourceTypeBinding type, ASTNode node) {
-	String name = new String(type.sourceName());
-	this.handle(IProblem.SealedPermittedTypeOutsideOfModule, new String[] { name }, new String[] { name },
-			node.sourceStart, node.sourceEnd);
-}
 
-public void sealedPermittedTypeOutsideOfPackage(ReferenceBinding permType, SourceTypeBinding type, ASTNode node, PackageBinding packageBinding) {
+public void permittedTypeOutsideOfPackage(ReferenceBinding permType, ReferenceBinding sealedType, ASTNode node, PackageBinding packageBinding) {
 	String permTypeName = new String(permType.sourceName);
-	String name = new String(type.sourceName());
+	String name = new String(sealedType.sourceName());
 	String packageName = packageBinding.compoundName == CharOperation.NO_CHAR_CHAR ? "default" : //$NON-NLS-1$
 		CharOperation.toString(packageBinding.compoundName);
 	String[] arguments = new String[] {permTypeName, packageName, name};
@@ -12381,45 +12241,22 @@ public void sealedPermittedTypeOutsideOfPackage(ReferenceBinding permType, Sourc
 			node.sourceEnd);
 }
 
-public void sealedSealedTypeMissingPermits(SourceTypeBinding type, ASTNode node) {
+public void missingPermitsClause(SourceTypeBinding type, ASTNode node) {
 	String name = new String(type.sourceName());
 	this.handle(IProblem.SealedSealedTypeMissingPermits, new String[] { name }, new String[] { name }, node.sourceStart,
 			node.sourceEnd);
 }
 
-public void sealedInterfaceIsSealedAndNonSealed(SourceTypeBinding type, ASTNode node) {
-	String name = new String(type.sourceName());
-	this.handle(IProblem.SealedInterfaceIsSealedAndNonSealed,
-			new String[] { name },
-			new String[] { name },
-			node.sourceStart,
-			node.sourceEnd);
+public void sealedInterfaceNotDirectSuperInterfaceOf(ReferenceBinding type, TypeReference reference, SourceTypeBinding superType) {
+	if ((type.tagBits & TagBits.HierarchyHasProblems) == 0 && (superType.tagBits & TagBits.HierarchyHasProblems) == 0) {
+		this.handle(IProblem.SealedNotDirectSuperInterface,
+				new String[] { new String(type.sourceName()), new String(superType.readableName()) },
+				new String[] { new String(type.sourceName()), new String(superType.readableName()) },
+				reference.sourceStart, reference.sourceEnd);
+	}
 }
 
-public void sealedDisAllowedNonSealedModifierInInterface(SourceTypeBinding type, TypeDeclaration typeDecl) {
-	String name = new String(type.sourceName());
-	this.handle(
-			IProblem.SealedDisAllowedNonSealedModifierInInterface,
-			new String[] { name },
-			new String[] { name },
-			typeDecl.sourceStart,
-			typeDecl.sourceEnd);
-}
-
-public void sealedNotDirectSuperInterface(ReferenceBinding type, TypeReference reference, SourceTypeBinding superType) {
-	this.handle(
-		IProblem.SealedNotDirectSuperInterface,
-		new String[] {
-			new String(type.sourceName()),
-			new String(superType.readableName())},
-		new String[] {
-				new String(type.sourceName()),
-				new String(superType.readableName())},
-		reference.sourceStart,
-		reference.sourceEnd);
-}
-
-public void sealedLocalDirectSuperTypeSealed(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
+public void localTypeMayNotBePermittedType(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
 	String name = new String(type.sourceName());
 	String superTypeFullName = new String(superTypeBinding.readableName());
 	String superTypeShortName = new String(superTypeBinding.shortReadableName());
@@ -12431,7 +12268,8 @@ public void sealedLocalDirectSuperTypeSealed(SourceTypeBinding type, TypeReferen
 		superclass.sourceStart,
 		superclass.sourceEnd);
 }
-public void sealedAnonymousClassCannotExtendSealedType(TypeReference reference, TypeBinding type) {
+
+public void anonymousClassCannotExtendSealedType(TypeReference reference, TypeBinding type) {
 	this.handle(
 			IProblem.SealedAnonymousClassCannotExtendSealedType,
 			new String[] {new String(type.readableName())},
@@ -12439,6 +12277,17 @@ public void sealedAnonymousClassCannotExtendSealedType(TypeReference reference, 
 			reference.sourceStart,
 			reference.sourceEnd);
 }
+
+public void functionalInterfaceMayNotBeSealed(TypeDeclaration type) {
+	TypeBinding binding = type.binding;
+	this.handle(
+		IProblem.FunctionalInterfaceMayNotbeSealed,
+		new String[] {new String(binding.readableName()), },
+		new String[] {new String(binding.shortReadableName()),},
+		type.sourceStart,
+		type.sourceEnd);
+}
+
 public void StrictfpNotRequired(int sourceStart, int sourceEnd) {
 	this.handle(
 			IProblem.StrictfpNotRequired,
@@ -12538,14 +12387,6 @@ public void recordPatternSignatureMismatch(TypeBinding type, ASTNode element) {
 			IProblem.RecordPatternMismatch,
 			new String[] {new String(type.readableName())},
 			new String[] {new String(type.shortReadableName())},
-			element.sourceStart,
-			element.sourceEnd);
-}
-public void incompatiblePatternType(ASTNode element, TypeBinding type, TypeBinding expected) {
-	this.handle(
-			IProblem.PatternTypeMismatch,
-			new String[] {new String(type.readableName()), new String(expected.readableName())},
-			new String[] {new String(type.shortReadableName()), new String(expected.readableName())},
 			element.sourceStart,
 			element.sourceEnd);
 }
