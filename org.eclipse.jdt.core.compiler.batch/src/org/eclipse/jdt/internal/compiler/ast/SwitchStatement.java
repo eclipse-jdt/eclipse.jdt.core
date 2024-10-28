@@ -1443,7 +1443,7 @@ public class SwitchStatement extends Expression {
 	}
 
 	private boolean caseElementsCoverSealedType(ReferenceBinding sealedType,  List<TypeBinding> listedTypes) {
-		List<ReferenceBinding> allAllowedTypes = sealedType.transitivelyPermittedTypes();
+		List<ReferenceBinding> allAllowedTypes = sealedType.getAllEnumerableAvatars();
 		Iterator<ReferenceBinding> iterator = allAllowedTypes.iterator();
 		while (iterator.hasNext()) {
 			ReferenceBinding next = iterator.next();
