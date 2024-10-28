@@ -282,7 +282,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			var compiler = ToolProvider.getSystemJavaCompiler();
 			var context = new Context();
 			JavacTask task = (JavacTask) compiler.getTask(null, null, null, List.of(), List.of(), List.of());
-			bindingResolver = new JavacBindingResolver(null, task, context, new JavacConverter(null, null, context, null, true, -1), null);
+			bindingResolver = new JavacBindingResolver(null, task, context, new JavacConverter(null, null, context, null, true, -1), null, null);
 		}
 
 		for (CompilationUnit cu : units) {
@@ -495,13 +495,17 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		Map<String, org.eclipse.jdt.internal.compiler.env.ICompilationUnit> pathToUnit = new HashMap<>();
 		Arrays.stream(workingCopies) //
 				.filter(inMemoryCu -> {
-					return project == null || (inMemoryCu.getElementName() != null && !inMemoryCu.getElementName().contains("module-info")) || inMemoryCu.getJavaProject() == project;
+					try {
+						return inMemoryCu.hasUnsavedChanges() && (project == null || (inMemoryCu.getElementName() != null && !inMemoryCu.getElementName().contains("module-info")) || inMemoryCu.getJavaProject() == project);
+					} catch (JavaModelException e) {
+						return project == null || (inMemoryCu.getElementName() != null && !inMemoryCu.getElementName().contains("module-info")) || inMemoryCu.getJavaProject() == project;
+					}
 				})
 				.map(org.eclipse.jdt.internal.compiler.env.ICompilationUnit.class::cast) //
 				.forEach(inMemoryCu -> {
 					pathToUnit.put(new String(inMemoryCu.getFileName()), inMemoryCu);
 				});
-		
+
 		// `sourceUnit`'s path might contain only the last segment of the path.
 		// this presents a problem, since if there is a working copy of the class,
 		// we want to use `sourceUnit` instead of the working copy,
@@ -692,6 +696,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			javac.lineDebugInfo = true;
 		}
 
+		List<JCCompilationUnit> javacCompilationUnits = new ArrayList<>();
 		try {
 			var elements = task.parse().iterator();
 			var aptPath = fileManager.getLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH);
@@ -705,6 +710,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			for (int i = 0 ; i < sourceUnits.length; i++) {
 				if (elements.hasNext() && elements.next() instanceof JCCompilationUnit u) {
 					javacCompilationUnit = u;
+					javacCompilationUnits.add(u);
 				} else {
 					return Map.of();
 				}
@@ -786,7 +792,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 						});
 					}
 					if (resolveBindings) {
-						JavacBindingResolver resolver = new JavacBindingResolver(javaProject, task, context, converter, workingCopyOwner);
+						JavacBindingResolver resolver = new JavacBindingResolver(javaProject, task, context, converter, workingCopyOwner, javacCompilationUnits);
 						resolver.isRecoveringBindings = (flags & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0;
 						ast.setBindingResolver(resolver);
 					}
@@ -820,6 +826,11 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		MultiTaskListener.instance(context).clear();
 		if (context.get(DiagnosticListener.class) instanceof ForwardDiagnosticsAsDOMProblems listener) {
 			listener.filesToUnits.clear(); // no need to keep handle on generated ASTs in the context
+		}
+		// based on com.sun.tools.javac.api.JavacTaskImpl.cleanup()
+		var javac = com.sun.tools.javac.main.JavaCompiler.instance(context);
+		if (javac != null) {
+			javac.close();
 		}
 	}
 	/// destroys the context, it's not usable at all after

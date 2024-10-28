@@ -39,10 +39,12 @@ import org.eclipse.jdt.internal.javac.dom.JavacTypeBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacTypeVariableBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacVariableBinding;
 
+import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.util.DocTreePath;
 import com.sun.source.util.JavacTask;
 import com.sun.source.util.TreePath;
+import com.sun.tools.javac.api.JavacTaskImpl;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Attribute.Compound;
@@ -74,6 +76,7 @@ import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
+import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
@@ -419,13 +422,15 @@ public class JavacBindingResolver extends BindingResolver {
 	public final Bindings bindings = new Bindings();
 	private WorkingCopyOwner owner;
 	private HashMap<ASTNode, IBinding> resolvedBindingsCache = new HashMap<>();
+	private List<JCCompilationUnit> javacCompilationUnits;
 
-	public JavacBindingResolver(IJavaProject javaProject, JavacTask javacTask, Context context, JavacConverter converter, WorkingCopyOwner owner) {
+	public JavacBindingResolver(IJavaProject javaProject, JavacTask javacTask, Context context, JavacConverter converter, WorkingCopyOwner owner, List<JCCompilationUnit> javacCompilationUnits) {
 		this.javac = javacTask;
 		this.context = context;
 		this.javaProject = javaProject;
 		this.converter = converter;
 		this.owner = owner;
+		this.javacCompilationUnits = javacCompilationUnits;
 	}
 
 	private void resolve() {
@@ -438,8 +443,32 @@ public class JavacBindingResolver extends BindingResolver {
 			if (!alreadyAnalyzed) {
 				// symbols not already present: analyze
 				try {
-					this.javac.analyze();
-				} catch (IOException | IllegalStateException e) {
+					Iterable<? extends Element> elements;
+					// long start = System.currentTimeMillis();
+					if (this.javac instanceof JavacTaskImpl javacTaskImpl) {
+						if (javacCompilationUnits != null && !javacCompilationUnits.isEmpty()) {
+							Iterable<? extends CompilationUnitTree> trees = javacCompilationUnits;
+							elements = javacTaskImpl.enter(trees);
+						} else {
+							elements = javacTaskImpl.enter();
+						}
+						elements = javacTaskImpl.analyze(elements);
+//						long count = StreamSupport.stream(elements.spliterator(), false).count();
+//						String name = elements.iterator().hasNext()
+//								? elements.iterator().next().getSimpleName().toString()
+//								: "";
+//						ILog.get().info("enter/analyze elements=" + count + ", took: "
+//								+ (System.currentTimeMillis() - start) + ", first=" + name);
+					} else {
+						elements = this.javac.analyze();
+//						long count = StreamSupport.stream(elements.spliterator(), false).count();
+//						String name = elements.iterator().hasNext()
+//								? elements.iterator().next().getSimpleName().toString()
+//								: "";
+//						ILog.get().info("analyze elements=" + count + ", took: " + (System.currentTimeMillis() - start)
+//								+ ", first=" + name);
+					}
+				} catch (IOException | IllegalStateException | Error e) {
 					ILog.get().error(e.getMessage(), e);
 				}
 			}
