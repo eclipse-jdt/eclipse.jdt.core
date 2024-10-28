@@ -221,6 +221,14 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 						new IPath[] {getConverterJCLPath("14"), getConverterJCLSourcePath("14"), getConverterJCLRootSourcePath()},
 						null);
 			}
+		} else if ("15".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("CONVERTER_JCL15_LIB") == null) {
+				setupExternalJCL("converterJclMin15");
+				JavaCore.setClasspathVariables(
+						new String[] {"CONVERTER_JCL15_LIB", "CONVERTER_JCL15_SRC", "CONVERTER_JCL15_SRCROOT"},
+						new IPath[] {getConverterJCLPath("15"), getConverterJCLSourcePath("15"), getConverterJCLRootSourcePath()},
+						null);
+			}
 		} else if ("17".equals(compliance)) {
 			if (JavaCore.getClasspathVariable("CONVERTER_JCL_17_LIB") == null) {
 				setupExternalJCL("converterJclMin17");

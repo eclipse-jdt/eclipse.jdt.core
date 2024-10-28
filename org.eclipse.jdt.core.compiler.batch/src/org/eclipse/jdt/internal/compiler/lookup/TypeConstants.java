@@ -130,6 +130,7 @@ public interface TypeConstants {
 	// JEP 360 Sealed
 	char[] PERMITS = "permits".toCharArray(); //$NON-NLS-1$
 	char[] SEALED = "sealed".toCharArray(); //$NON-NLS-1$
+	char[] NON_SEALED = "non-sealed".toCharArray(); //$NON-NLS-1$
 	String KEYWORD_EXTENDS = "extends"; //$NON-NLS-1$
 	String IMPLEMENTS = "implements"; //$NON-NLS-1$
 

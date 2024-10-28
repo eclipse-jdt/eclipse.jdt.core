@@ -2231,6 +2231,8 @@ void setSourceStart(int sourceStart);
 	int PreviewAPIUsed = Compliance + 1108;
 	/** @since 3.39*/
 	int JavaVersionNotSupported = Compliance + 1109;
+	/** @since 3.40*/
+	int JavaVersionTooRecent = Compliance + 1110;
 
 	/** @since 3.13 */
 	int UnlikelyCollectionMethodArgumentType = 1200;
@@ -2536,7 +2538,9 @@ void setSourceStart(int sourceStart);
 	int SealedPermittedTypeOutsideOfPackage = TypeRelated + 1859;
 	/** @since 3.28 */
 	int SealedSealedTypeMissingPermits = TypeRelated + 1860;
-	/** @since 3.28 */
+	/** @since 3.28
+	 * @deprecated problem no longer generated
+	 */
 	int SealedInterfaceIsSealedAndNonSealed = TypeRelated + 1861;
 	/** @since 3.28 */
 	int SealedDisAllowedNonSealedModifierInInterface = TypeRelated + 1862;
@@ -2546,11 +2550,19 @@ void setSourceStart(int sourceStart);
 	int SealedLocalDirectSuperTypeSealed = TypeRelated + 1864;
 	/** @since 3.28 */
 	int SealedAnonymousClassCannotExtendSealedType = TypeRelated + 1865;
-	/** @since 3.28 */
+	/** @since 3.28
+	 * @deprecated problem no longer generated
+	 */
 	int SealedSuperTypeInDifferentPackage = TypeRelated + 1866;
-	/** @since 3.28 */
+	/** @since 3.28
+	 * @deprecated problem no longer generated
+	 */
 	int SealedSuperTypeDisallowed = TypeRelated + 1867;
-	/* Java15 errors - end */
+	/**
+	 * @since 3.40
+	 */
+	int FunctionalInterfaceMayNotbeSealed = TypeRelated + 1868;
+	/* Java17 Sealed types errors - end */
 
 	/**
 	 * @since 3.28

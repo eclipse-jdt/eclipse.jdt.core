@@ -76,8 +76,8 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		return this.expressionContext;
 	}
 	@Override
-	protected boolean ignoreMissingDefaultCase(CompilerOptions compilerOptions, boolean isEnumSwitch) {
-		return isEnumSwitch; // mandatory error if not enum in switch expressions
+	protected boolean ignoreMissingDefaultCase(CompilerOptions compilerOptions) {
+		return true;
 	}
 	@Override
 	protected void reportMissingEnumConstantCase(BlockScope upperScope, FieldBinding enumConstant) {

@@ -1110,33 +1110,18 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	@Override
 	public ReferenceBinding[] permittedTypes() {
 		List<ReferenceBinding> permittedTypes = new ArrayList<>();
-NextPermittedType:
 		for (ReferenceBinding pt : this.type.permittedTypes()) {
-			// Step 1: Gather all type variables that would need to be solved.
-			Map<TypeVariableBinding, TypeBinding> map = new HashMap<>();
-			TypeBinding current = pt;
-			do {
-				if (current.kind() == Binding.GENERIC_TYPE) {
-					for (TypeVariableBinding tvb : current.typeVariables()) {
-						map.put(tvb,  null);
-					}
-				}
-				current = current.enclosingType();
-			} while (current != null);
-
-			// Step 2: Collect substitutes
-			current = this;
 			TypeBinding sooper = pt.findSuperTypeOriginatingFrom(this);
+			if (sooper == null || !sooper.isValidBinding() || sooper.isProvablyDistinct(this))
+				continue;
+			TypeBinding current = this;
+			Map<TypeVariableBinding, TypeBinding> map = new HashMap<>();
 			do {
-				if (sooper.isParameterizedType()) {
-					if (current.isParameterizedType()) {
-						for (int i = 0, length = sooper.typeArguments().length; i < length; i++) {
-							TypeBinding t = sooper.typeArguments()[i];
-							if (t instanceof TypeVariableBinding tvb) {
-								map.put(tvb, current.typeArguments()[i]);
-							} else if (TypeBinding.notEquals(t, this.typeArguments()[i])) {
-								continue NextPermittedType;
-							}
+				if (sooper.isParameterizedType() && current.isParameterizedType()) {
+					for (int i = 0, length = sooper.typeArguments().length; i < length; i++) {
+						TypeBinding t = sooper.typeArguments()[i];
+						if (t instanceof TypeVariableBinding tvb) {
+							map.put(tvb, current.typeArguments()[i]);
 						}
 					}
 				}
@@ -1163,12 +1148,7 @@ NextPermittedType:
 					return retVal;
 				}
 			};
-
-			// Step 3: compute subtype with parameterizations if any.
-			pt = (ReferenceBinding) Scope.substitute(substitution, pt);
-
-			if (pt.isCompatibleWith(this))
-				permittedTypes.add(pt);
+			permittedTypes.add((ReferenceBinding) Scope.substitute(substitution, pt));
 		}
 
 		return permittedTypes.toArray(new ReferenceBinding[0]);

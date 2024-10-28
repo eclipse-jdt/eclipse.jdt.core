@@ -1402,5 +1402,132 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	}
 
+	public void testRecord_029_a() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+
+		String code = """
+					package test1;
+					record Test(String name) {
+					    public static Builder builder() {}
+					    public static final class Builder {}
+					}
+				""";
+
+		ICompilationUnit cu= pack1.createCompilationUnit("Test.java", code, false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		List <RecordDeclaration> methods= astRoot.types();
+		MethodDeclaration methodDecl= findMethodDeclaration(methods.get(0), "builder");
+		{
+			rewrite.remove(methodDecl, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		String reWriteCode = """
+					package test1;
+					record Test(String name) {
+					    public static final class Builder {}
+					}
+				""";
+
+		assertEqualString(preview, reWriteCode);
+	}
+
+	public void testRecord_029_b() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+
+		String code = """
+					package test1;
+					public class Test {
+					    public static Builder builder() {}
+					    public static final class Builder {}
+					}
+				""";
+
+		ICompilationUnit cu= pack1.createCompilationUnit("Test.java", code, false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		List <TypeDeclaration> methods= astRoot.types();
+		MethodDeclaration methodDecl= findMethodDeclaration(methods.get(0), "builder");
+		{
+			rewrite.remove(methodDecl, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		String reWriteCode = """
+					package test1;
+					public class Test {
+					    public static final class Builder {}
+					}
+				""";
+
+		assertEqualString(preview, reWriteCode);
+	}
+
+	public void testRecord_029_c() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+
+		String code = """
+					package test1;
+					record Test(String name) {
+					    public static Builder builder() {}
+					    public static final class Builder {}
+					    public static Builder builderNew() {}
+					    public static final class builderNew {
+					    	builderNew(){
+					    		System.out.println("Test");
+					    	}
+					    }
+					}
+				""";
+
+		ICompilationUnit cu= pack1.createCompilationUnit("Test.java", code, false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		List <RecordDeclaration> methods= astRoot.types();
+		MethodDeclaration methodDecl= findMethodDeclaration(methods.get(0), "builder");
+		MethodDeclaration methodDeclNew= findMethodDeclaration(methods.get(0), "builderNew");
+		{
+			rewrite.remove(methodDecl, null);
+			rewrite.remove(methodDeclNew, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		String reWriteCode = """
+					package test1;
+					record Test(String name) {
+					    public static final class Builder {}
+					    public static final class builderNew {
+					    	builderNew(){
+					    		System.out.println("Test");
+					    	}
+					    }
+					}
+				""";
+
+		assertEqualString(preview, reWriteCode);
+	}
+
 }
 

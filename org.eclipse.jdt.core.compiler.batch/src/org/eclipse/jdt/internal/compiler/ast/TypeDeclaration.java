@@ -109,7 +109,7 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	public int nRecordComponents;
 	public static Set<String> disallowedComponentNames;
 
-	// 15 Sealed Type preview support
+	// 17 Sealed Type support
 	public TypeReference[] permittedTypes;
 
 	// TEST ONLY: disable one fix here to challenge another related fix (in TypeSystem):
@@ -1069,7 +1069,7 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 		Scope outerScope = currentScope.parent;
 		if (!methodScope.isConstructorCall) {
 			nestedType.addSyntheticArgumentAndField(nestedType.enclosingType());
-			outerScope = outerScope.enclosingClassScope();
+			outerScope = outerScope.enclosingInstanceScope();
 			earlySeen = methodScope.isInsideEarlyConstructionContext(nestedType.enclosingType(), false);
 		}
 		if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(currentScope.compilerOptions())) {
@@ -1087,6 +1087,8 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 					earlySeen = cs.insideEarlyConstructionContext;
 				}
 				outerScope = outerScope.parent;
+				if (outerScope instanceof MethodScope ms && ms.isStatic)
+					break;
 			}
 		}
 	}
@@ -1123,6 +1125,7 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 		}
 	}
 }
+
 
 /**
  * Access emulation for a local member type
@@ -1362,7 +1365,9 @@ public void resolve() {
 			this.scope.problemReporter().missingDeprecatedAnnotationForType(this);
 		}
 		if ((annotationTagBits & TagBits.AnnotationFunctionalInterface) != 0) {
-			if(!this.binding.isFunctionalInterface(this.scope)) {
+			if (this.binding.isSealed()) {
+				this.scope.problemReporter().functionalInterfaceMayNotBeSealed(this);
+			} else if (!this.binding.isFunctionalInterface(this.scope)) {
 				this.scope.problemReporter().notAFunctionalInterface(this);
 			}
 		}

@@ -7455,7 +7455,7 @@ public void testBug576735a() throws Exception {
 				projectLocation + File.separator + "libMissing.jar");
 
 		// create another jar depending on libMissing.jar:
-		String[] classpath = getJCL15PlusLibraryIfNeeded("1.8");
+		String[] classpath = getJCLLibrary("1.8");
 		classpath = Arrays.copyOf(classpath, classpath.length+1);
 		classpath[classpath.length-1] = projectLocation + File.separator + "libMissing.jar";
 		Util.createJar(

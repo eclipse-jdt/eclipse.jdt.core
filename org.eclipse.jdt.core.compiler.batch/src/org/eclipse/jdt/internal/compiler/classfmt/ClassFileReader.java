@@ -60,7 +60,7 @@ public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 	private InnerClassInfo[] innerInfos;
 	private final char[][] interfaceNames;
 	private final int interfacesCount;
-	private final char[][] permittedSubtypesNames;
+	private char[][] permittedSubtypesNames;
 	private int permittedSubtypesCount;
 	private MethodInfo[] methods;
 	private final int methodsCount;
@@ -393,7 +393,6 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 		char[] enclosingTypeNam = null;
 		char[] sourceFileNam = null;
 		char[] signatur = null;
-		char[][] permittedSubtypesNam = null;
 
 		for (int i = 0; i < attributesCount; i++) {
 			int utf8Offset = this.constantPoolOffsets[u2At(readOffset)];
@@ -527,11 +526,9 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 						if (this.permittedSubtypesCount != 0) {
 							accessFlag |= ExtraCompilerModifiers.AccSealed;
 							offset += 2;
-							permittedSubtypesNam = new char[this.permittedSubtypesCount][];
+							this.permittedSubtypesNames = new char[this.permittedSubtypesCount][];
 							for (int j = 0; j < this.permittedSubtypesCount; j++) {
-								utf8Offset =
-									this.constantPoolOffsets[u2At(this.constantPoolOffsets[u2At(offset)] + 1)];
-		 						permittedSubtypesNam[j] = CharDeduplication.intern(utf8At(utf8Offset + 3, u2At(utf8Offset + 1)));
+								this.permittedSubtypesNames[j] = CharDeduplication.intern(getConstantClassNameAt(u2At(offset)));
 		 						offset += 2;
 							}
 						}
@@ -548,7 +545,6 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 		this.enclosingTypeName = enclosingTypeNam;
 		this.sourceFileName = sourceFileNam;
 		this.signature = signatur;
-		this.permittedSubtypesNames= permittedSubtypesNam;
 		if (fullyInitialize) {
 			initialize();
 		}
@@ -802,7 +798,7 @@ public char[][] getInterfaceNames() {
 }
 
 @Override
-public char[][] getPermittedSubtypeNames() {
+public char[][] getPermittedSubtypesNames() {
 	return this.permittedSubtypesNames;
 }
 
@@ -1115,14 +1111,14 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 					return true;
 		}
 
-		// permitted sub-types
-		char[][] newPermittedSubtypeNames = newClassFile.getPermittedSubtypeNames();
-		if (this.permittedSubtypesNames != newPermittedSubtypeNames) {
-			int newPermittedSubtypesLength = newPermittedSubtypeNames == null ? 0 : newPermittedSubtypeNames.length;
+		// permitted subtypes
+		char[][] newPermittedSubtypesNames = newClassFile.getPermittedSubtypesNames();
+		if (this.permittedSubtypesNames != newPermittedSubtypesNames) {
+			int newPermittedSubtypesLength = newPermittedSubtypesNames == null ? 0 : newPermittedSubtypesNames.length;
 			if (newPermittedSubtypesLength != this.permittedSubtypesCount)
 				return true;
 			for (int i = 0, max = this.permittedSubtypesCount; i < max; i++)
-				if (!CharOperation.equals(this.permittedSubtypesNames[i], newPermittedSubtypeNames[i]))
+				if (!CharOperation.equals(this.permittedSubtypesNames[i], newPermittedSubtypesNames[i]))
 					return true;
 		}
 

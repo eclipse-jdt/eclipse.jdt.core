@@ -646,4 +646,28 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			+ "A pattern variable with the same name is already defined in the statement\n"
 			+ "----------\n");
 	}
+
+	public void testGH3074() {
+		runNegativeTest(
+			new String[] {
+				"Example.java",
+				"""
+				class Example<T> {
+					private void foo(String x) {
+						if (x instanceof Example<String> es) {
+
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in Example.java (at line 3)
+				if (x instanceof Example<String> es) {
+				    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Incompatible conditional operand types String and Example<String>
+			----------
+			""");
+	}
 }

@@ -24,8 +24,12 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ImplicitTypeDeclaration;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.Javadoc;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 
 import junit.framework.Test;
@@ -108,5 +112,31 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 			assertEquals("Incorrect content", "static", contents.substring(mod.getStartPosition(), mod.getStartPosition()+6));
 			assertEquals("Incorrect name", "java.lang.System.out", imp.getName().toString());
 		}
+	}
+
+	public void test002() throws CoreException {
+		String contents = """
+					/** */
+					void main() {
+					    System.out.println("Eclipse");
+					}
+				""";
+		this.workingCopy = getWorkingCopy("/Converter_23/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		ImplicitTypeDeclaration implicitTypeDeclaration = (ImplicitTypeDeclaration) compilationUnit.types().get(0);
+		assertEquals("Not an ImplicitTypeDeclaration Type", implicitTypeDeclaration.getNodeType(), ASTNode.UNNAMED_CLASS);
+		assertEquals("Not an ImplicitTypeDeclaration Name Type", implicitTypeDeclaration.getName().getNodeType(), ASTNode.SIMPLE_NAME);
+		assertEquals("Identifier is not empty String", implicitTypeDeclaration.getName().getIdentifier(), "");
+		MethodDeclaration bodyDeclaration = (MethodDeclaration) implicitTypeDeclaration.bodyDeclarations().get(0);
+		assertEquals("Not a Method Declaration", bodyDeclaration.getNodeType(), ASTNode.METHOD_DECLARATION);
+		assertEquals("Method Declaration start is not one", bodyDeclaration.getStartPosition(), 1);
+		Javadoc javaDoc = bodyDeclaration.getJavadoc();
+		assertEquals("Not a JavaDoc", javaDoc.getNodeType(), ASTNode.JAVADOC);
+		assertEquals("JavaDoc startPosition is not One", javaDoc.getStartPosition(), 1);
+		Block block =  bodyDeclaration.getBody();
+		assertEquals("Not a Block", block.getNodeType(), ASTNode.BLOCK);
+		assertEquals("Block startPosition is not correct", block.getStartPosition(), 21);
 	}
 }

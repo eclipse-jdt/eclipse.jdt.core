@@ -493,7 +493,7 @@ public interface IJavaSearchConstants {
 	int METHOD_REFERENCE_EXPRESSION = 0x10000000;
 
 	/**
-	 * Return only type references used as a permit type (Java 15)
+	 * Return only type references used as a permit type (Java 17)
 	 * <p>
 	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.

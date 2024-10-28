@@ -55,8 +55,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 	flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
 	this.expression.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
-	if (flowInfo.reachMode() == FlowInfo.REACHABLE && currentScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled)
-		checkAgainstNullAnnotation(currentScope, flowContext, flowInfo, this.expression);
 
 	targetContext.recordAbruptExit();
 	targetContext.expireNullCheckedFieldInfo();
@@ -152,6 +150,13 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		assignment.generateCode(currentScope, codeStream);
 	} else {
 		this.expression.generateCode(currentScope, codeStream, this.switchExpression != null);
+		if (this.expression.resolvedType == TypeBinding.NULL) {
+			if (!this.switchExpression.resolvedType.isBaseType()) {
+				// no opcode called for to align the types, but we need to adjust the notion of type of TOS.
+				codeStream.operandStack.pop(TypeBinding.NULL);
+				codeStream.operandStack.push(this.switchExpression.resolvedType);
+			}
+		}
 	}
 	int pc = codeStream.position;
 	// generation of code responsible for invoking the finally

@@ -315,6 +315,7 @@ class ASTConverter {
 
 			  } else {
 				  methodsIndex++;
+				  continue;
 			  }
 
 			}
@@ -5896,9 +5897,6 @@ class ASTConverter {
 						break;
 					case TerminalTokens.TokenNamenon_sealed:
 						modifier = createModifier(Modifier.ModifierKeyword.NON_SEALED_KEYWORD);
-						break;
-					case TerminalTokens.TokenNameRestrictedIdentifierWhen:
-						modifier = createModifier(Modifier.ModifierKeyword.WHEN_KEYWORD);
 						break;
 					case TerminalTokens.TokenNameAT :
 						// we have an annotation

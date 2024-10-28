@@ -1850,6 +1850,20 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(ImplicitTypeDeclaration node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		//javaDoc
+		rewriteJavadoc(node, ImplicitTypeDeclaration.JAVADOC_PROPERTY);
+
+		int startIndent= getIndent(node.getStartPosition()) + 1;
+		int startPos= node.getStartPosition();
+		rewriteParagraphList(node, ImplicitTypeDeclaration.BODY_DECLARATIONS_PROPERTY, startPos, startIndent, -1, 2);
+		return false;
+	}
+
+	@Override
 	public boolean visit(TypeDeclaration node) {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);

@@ -142,8 +142,8 @@ public class ExternalAnnotationDecorator implements IBinaryType {
 	}
 
 	@Override
-	public char[][] getPermittedSubtypeNames() {
-		return this.inputType.getPermittedSubtypeNames();
+	public char[][] getPermittedSubtypesNames() {
+		return this.inputType.getPermittedSubtypesNames();
 	}
 
 	@Override

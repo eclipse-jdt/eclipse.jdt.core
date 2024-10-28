@@ -385,8 +385,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			attributesNumber += generateBootstrapMethods(this.bootstrapMethods);
 		}
 		if (this.targetJDK >= ClassFileConstants.JDK17) {
-			// add record attributes
-			attributesNumber += generatePermittedTypeAttributes();
+			attributesNumber += generatePermittedSubclassesAttribute();
 		}
 		// Inner class attribute
 		int numberOfInnerClasses = this.innerClassesBindings == null ? 0 : this.innerClassesBindings.size();
@@ -2852,10 +2851,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		nAttrs += generateNestHostAttribute();
 		return nAttrs;
 	}
-	private int generatePermittedTypeAttributes() {
-		SourceTypeBinding type = this.referenceBinding;
+	private int generatePermittedSubclassesAttribute() {
 		int localContentsOffset = this.contentsOffset;
-		ReferenceBinding[] permittedTypes = type.permittedTypes();
+		ReferenceBinding[] permittedTypes = this.referenceBinding.permittedTypes();
 		int l = permittedTypes != null ? permittedTypes.length : 0;
 		if (l == 0)
 			return 0;
@@ -2864,6 +2862,14 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (exSize + localContentsOffset >= this.contents.length) {
 			resizeContents(exSize);
 		}
+		/*
+		 * PermittedSubclasses_attribute {
+		       u2 attribute_name_index;
+		       u4 attribute_length;
+			   u2 number_of_classes;
+			   u2 classes[number_of_classes];
+			}
+		 */
 		int attributeNameIndex =
 			this.constantPool.literalIndex(AttributeNamesConstants.PermittedSubclasses);
 		this.contents[localContentsOffset++] = (byte) (attributeNameIndex >> 8);
@@ -5836,7 +5842,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 				superInterface.getAllAnnotationContexts(AnnotationTargetTypeConstants.CLASS_EXTENDS, i, allTypeAnnotationContexts);
 			}
 		}
-		// TODO: permittedTypes codegen
 		TypeParameter[] typeParameters = typeDeclaration.typeParameters;
 		if (typeParameters != null) {
 			for (int i = 0, max = typeParameters.length; i < max; i++) {
@@ -6038,7 +6043,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (aType.isAnonymousType()) {
 			ReferenceBinding superClass = aType.superclass;
 			if (superClass == null || !(superClass.isEnum() && superClass.isSealed()))
-			accessFlags &= ~ClassFileConstants.AccFinal;
+				accessFlags &= ~ClassFileConstants.AccFinal;
 		}
 		int finalAbstract = ClassFileConstants.AccFinal | ClassFileConstants.AccAbstract;
 		if ((accessFlags & finalAbstract) == finalAbstract) {

@@ -145,7 +145,7 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 			case WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION:
 				int rhsUnboxed = TypeIds.box2primitive(provided.superclass().id);
 				codeStream.generateUnboxingConversion(rhsUnboxed);
-				this.computeConversion(scope, TypeBinding.wellKnownBaseType(rhsUnboxed), expected);
+				this.computeConversion(scope, expected, TypeBinding.wellKnownBaseType(rhsUnboxed));
 				codeStream.generateImplicitConversion(this.implicitConversion);
 				break;
 			case NARROWING_AND_UNBOXING_CONVERSION:
@@ -202,7 +202,11 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 			return false;
 		if (p.resolvedType == null || this.resolvedType == null)
 			return false;
-		return p.resolvedType.erasure().isSubtypeOf(this.resolvedType.erasure(), false);
+
+		if (p.resolvedType.isSubtypeOf(this.resolvedType, false))
+			return true;
+
+		return p.resolvedType.erasure().findSuperTypeOriginatingFrom(this.resolvedType.erasure()) != null;
 	}
 
 	@Override

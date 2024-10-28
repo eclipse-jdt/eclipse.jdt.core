@@ -201,8 +201,8 @@ public class CompletionElementNotifier extends SourceElementNotifier {
 	}
 
 	@Override
-	protected void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolean notifyTypePresence, TypeDeclaration declaringType, ImportReference currentPackage) {
+	protected void notifySourceElementRequestor(CompilationUnitDeclaration parsedUnit, TypeDeclaration typeDeclaration, boolean notifyTypePresence, TypeDeclaration declaringType, ImportReference currentPackage) {
 		if (typeDeclaration instanceof CompletionOnAnnotationOfType) return;
-		super.notifySourceElementRequestor(typeDeclaration, notifyTypePresence, declaringType, currentPackage);
+		super.notifySourceElementRequestor(parsedUnit, typeDeclaration, notifyTypePresence, declaringType, currentPackage);
 	}
 }

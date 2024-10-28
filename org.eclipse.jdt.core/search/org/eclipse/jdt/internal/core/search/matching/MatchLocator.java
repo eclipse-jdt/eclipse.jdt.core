@@ -3199,20 +3199,9 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 			}
 		}
 		TypeReference[] permittedTypes = type.permittedTypes;
-		if (permittedTypes != null) {
-			for (int i = 0, l = permittedTypes.length; i < l; i++) {
-				reportMatchingSuperOrPermit(permittedTypes[i], enclosingElement, type.binding, nodeSet, matchedClassContainer);
-				TypeReference typeReference  = type.permittedTypes[i];
-				Annotation[][] annotations = typeReference != null ? typeReference.annotations : null;
-				if (annotations != null) {
-					for (Annotation[] annotation : annotations) {
-						if (annotation == null) continue;
-						reportMatching(annotation, enclosingElement, null, type.binding, nodeSet, matchedClassContainer, enclosesElement);
-					}
-				}
-			}
+		for (int i = 0, length = permittedTypes == null ? 0 : permittedTypes.length; i < length; i++) {
+			reportMatchingSuperOrPermit(permittedTypes[i], enclosingElement, type.binding, nodeSet, matchedClassContainer);
 		}
-
 	}
 
 	// filter out element not in hierarchy scope

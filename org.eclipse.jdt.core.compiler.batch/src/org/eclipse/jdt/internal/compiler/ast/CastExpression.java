@@ -430,24 +430,21 @@ public static boolean checkUnsafeCast(Expression expression, Scope scope, TypeBi
 							ParameterizedTypeBinding paramCastType = (ParameterizedTypeBinding) castType;
 							TypeBinding[] castArguments = paramCastType.arguments;
 							int length = castArguments == null ? 0 : castArguments.length;
-							if ((paramCastType.tagBits & (TagBits.HasDirectWildcard|TagBits.HasTypeVariable)) != 0) {
-								// verify alternate cast type, substituting different type arguments
-								for (int i = 0; i < length; i++) {
-									if (castArguments[i].isUnboundWildcard())
-										continue;
-									TypeBinding[] alternateArguments;
-									// need to clone for each iteration to avoid env paramtype cache interference
-									System.arraycopy(paramCastType.arguments, 0, alternateArguments = new TypeBinding[length], 0, length);
-									alternateArguments[i] = TypeBinding.equalsEquals(paramCastType.arguments[i], scope.getJavaLangObject()) ? scope.getJavaLangBoolean() : scope.getJavaLangObject();
-									LookupEnvironment environment = scope.environment();
-									ParameterizedTypeBinding alternateCastType = environment.createParameterizedType((ReferenceBinding)castType.erasure(), alternateArguments, castType.enclosingType());
-									if (TypeBinding.equalsEquals(alternateCastType.findSuperTypeOriginatingFrom(expressionType), match)) {
-										expression.bits |= ASTNode.UnsafeCast;
-										break;
-									}
+							// verify alternate cast type, substituting different type arguments
+							for (int i = 0; i < length; i++) {
+								if (castArguments[i].isUnboundWildcard())
+									continue;
+								TypeBinding[] alternateArguments;
+								// need to clone for each iteration to avoid env paramtype cache interference
+								System.arraycopy(paramCastType.arguments, 0, alternateArguments = new TypeBinding[length], 0, length);
+								alternateArguments[i] = TypeBinding.equalsEquals(paramCastType.arguments[i], scope.getJavaLangObject()) ? scope.getJavaLangBoolean() : scope.getJavaLangObject();
+								LookupEnvironment environment = scope.environment();
+								ParameterizedTypeBinding alternateCastType = environment.createParameterizedType((ReferenceBinding)castType.erasure(), alternateArguments, castType.enclosingType());
+								if (TypeBinding.equalsEquals(alternateCastType.findSuperTypeOriginatingFrom(expressionType), match)) {
+									expression.bits |= ASTNode.UnsafeCast;
+									break;
 								}
 							}
-
 							// Type arguments added by subtypes of S and removed by supertypes of T don't need to be checked since the type arguments aren't specified by either S or T
 							return true;
 						} else {
