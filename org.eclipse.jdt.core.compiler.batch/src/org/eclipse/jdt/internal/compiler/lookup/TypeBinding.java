@@ -38,7 +38,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -1814,9 +1813,4 @@ public boolean isNonDenotable() {
 public boolean isSealed() {
 	return false;
 }
-
-public List<ReferenceBinding> getAllEnumerableReferenceTypes() {
-	return Collections.emptyList();
-}
-
 }
