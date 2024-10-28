@@ -2545,7 +2545,7 @@ public boolean hasEnclosingInstanceContext() {
 }
 
 @Override
-public List<ReferenceBinding> getAllEnumerableReferenceTypes() {
+public List<ReferenceBinding> transitivelyPermittedTypes() {
 	if (!isSealed())
 		return Collections.emptyList();
 

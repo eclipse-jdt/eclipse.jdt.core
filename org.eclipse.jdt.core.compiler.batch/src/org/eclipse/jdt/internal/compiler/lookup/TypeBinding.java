@@ -1815,7 +1815,7 @@ public boolean isSealed() {
 	return false;
 }
 
-public List<ReferenceBinding> getAllEnumerableReferenceTypes() {
+public List<ReferenceBinding> transitivelyPermittedTypes() {
 	return Collections.emptyList();
 }
 
