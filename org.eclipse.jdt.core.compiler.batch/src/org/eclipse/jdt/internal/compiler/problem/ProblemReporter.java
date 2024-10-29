@@ -11680,14 +11680,6 @@ public void switchExpressionIncompatibleResultExpressions(SwitchExpression expre
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void switchExpressionEmptySwitchBlock(SwitchExpression expression) {
-	this.handle(
-		IProblem.SwitchExpressionsYieldEmptySwitchBlock,
-		NoArgument,
-		NoArgument,
-		expression.sourceStart,
-		expression.sourceEnd);
-}
 public void switchExpressionNoResultExpressions(SwitchExpression expression) {
 	this.handle(
 		IProblem.SwitchExpressionsYieldNoResultExpression,

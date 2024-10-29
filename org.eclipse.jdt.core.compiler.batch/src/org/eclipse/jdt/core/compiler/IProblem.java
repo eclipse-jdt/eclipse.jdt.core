@@ -2317,7 +2317,9 @@ void setSourceStart(int sourceStart);
 	/* Java14 errors - begin */
 	/** @since 3.21  */
 	int SwitchExpressionsYieldIncompatibleResultExpressionTypes = TypeRelated + 1700;
-	/** @since 3.21  */
+	/** @since 3.21
+	 * @deprecated no longer issued - will be removed
+	 */
 	int SwitchExpressionsYieldEmptySwitchBlock = Syntax + 1701;
 	/** @since 3.21  */
 	int SwitchExpressionsYieldNoResultExpression = Internal + 1702;

@@ -168,7 +168,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"	int tw = switch (i) {\n" +
 			"		};\n" +
 			"	         ^^^^^^^^^^^^^^^^\n" +
-			"A switch expression should have a non-empty switch block\n" +
+			"A switch expression should have at least one result expression\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 6)\n" +
 			"	int tw = switch (i) {\n" +

@@ -2696,14 +2696,6 @@ protected void consumeCompilationUnit() {
 	super.consumeCompilationUnit();
 }
 @Override
-protected void consumeSwitchExpression() {
-	super.consumeSwitchExpression();
-	if (this.assistNode != null) {
-		SwitchExpression expr = (SwitchExpression) this.expressionStack[this.expressionPtr];
-		expr.resolveAll = true;
-	}
-}
-@Override
 protected void consumeConditionalExpression(int op) {
 	popElement(K_CONDITIONAL_OPERATOR);
 	super.consumeConditionalExpression(op);
