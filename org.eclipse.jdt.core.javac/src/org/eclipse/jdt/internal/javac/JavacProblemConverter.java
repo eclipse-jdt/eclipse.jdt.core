@@ -646,6 +646,7 @@ public class JavacProblemConverter {
 		String javacDiagnosticCode = diagnostic.getCode();
 		return switch (javacDiagnosticCode) {
 			case "compiler.warn.dangling.doc.comment" -> -1; // ignore
+			case "compiler.note.removal.filename", "compiler.note.deprecated.plural.additional" -> -1; //ignore due to lack of position
 			case "compiler.err.expected" -> IProblem.ParsingErrorInsertTokenAfter;
 			case "compiler.err.expected2" -> IProblem.ParsingErrorInsertTokenBefore;
 			case "compiler.err.expected3" -> IProblem.ParsingErrorInsertToComplete;
