@@ -17,7 +17,6 @@ package org.eclipse.jdt.compiler.apt.tests.processors.elements;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,15 +29,12 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.ModuleElement;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements.DocCommentKind;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 /**
- * A processor that explores the java 3 specific elements and validates the lambda and
+ * A processor that explores the Java 23 specific elements and validates the lambda and
  * type annotated elements. To enable this processor, add
  * -Aorg.eclipse.jdt.compiler.apt.tests.processors.elements.Java23ElementProcessor to the command line.
  */
@@ -171,97 +167,14 @@ public class Java23ElementProcessor extends BaseProcessor {
 		}
 		return buf.toString();
 	}
-	protected String getElementsAsString(List<? extends Element> list) {
-		StringBuilder builder = new StringBuilder("[");
-		for (Element element : list) {
-			if (element instanceof PackageElement) {
-				builder.append(((PackageElement) element).getQualifiedName());
-			} else if (element instanceof ModuleElement) {
-				builder.append(((ModuleElement) element).getQualifiedName());
-			} else if (element instanceof TypeElement) {
-				builder.append(((TypeElement) element).getQualifiedName());
-			}  else {
-				builder.append(element.getSimpleName());
-			}
-			builder.append(", ");
-		}
-		builder.append("]");
-		return builder.toString();
-	}
-	public void assertModifiers(Set<Modifier> modifiers, String[] expected) {
-		assertEquals("Incorrect no of modifiers", modifiers.size(), expected.length);
-		Set<String> actual = new HashSet<>(expected.length);
-		for (Modifier modifier : modifiers) {
-			actual.add(modifier.toString());
-		}
-		for(int i = 0, length = expected.length; i < length; i++) {
-			boolean result = actual.remove(expected[i]);
-			if (!result) reportError("Modifier not present :" + expected[i]);
-		}
-		if (!actual.isEmpty()) {
-			reportError("Unexpected modifiers present:" + actual.toString());
-		}
-	}
-	public void assertTrue(String msg, boolean value) {
-		if (!value) reportError(msg);
-	}
-	public void assertFalse(String msg, boolean value) {
-		if (value) reportError(msg);
-	}
 	public void assertSame(String msg, Object obj1, Object obj2) {
 		if (obj1 != obj2) {
 			reportError(msg + ", should be " + obj1.toString() + " but " + obj2.toString());
 		}
 	}
-	public void assertNotSame(String msg, Object obj1, Object obj2) {
-		if (obj1 == obj2) {
-			reportError(msg + ", " + obj1.toString() + " should not be same as " + obj2.toString());
-		}
-	}
 	public void assertNotNull(String msg, Object obj) {
 		if (obj == null) {
 			reportError(msg);
-		}
-	}
-	public void assertNull(String msg, Object obj) {
-		if (obj != null) {
-			reportError(msg);
-		}
-	}
-    public void assertEquals(String message, Object expected, Object actual) {
-        if (equalsRegardingNull(expected, actual)) {
-            return;
-        } else {
-        	reportError(message + ", expected " + expected.toString() + " but was " + actual.toString());
-        }
-    }
-
-    public void assertEquals(String message, Object expected, Object alternateExpected, Object actual) {
-        if (equalsRegardingNull(expected, actual) || equalsRegardingNull(alternateExpected, actual)) {
-            return;
-        } else {
-        	reportError(message + ", expected " + expected.toString() + " but was " + actual.toString());
-        }
-    }
-
-    static boolean equalsRegardingNull(Object expected, Object actual) {
-        if (expected == null) {
-            return actual == null;
-        }
-        return expected.equals(actual);
-    }
-
-	public void assertEquals(String msg, int expected, int actual) {
-		if (expected != actual) {
-			StringBuilder buf = new StringBuilder();
-			buf.append(msg);
-			buf.append(", expected " + expected + " but was " + actual);
-			reportError(buf.toString());
-		}
-	}
-	public void assertEquals(Object expected, Object actual) {
-		if (expected != actual) {
-
 		}
 	}
 	private static class AssertionFailedError extends Error {
