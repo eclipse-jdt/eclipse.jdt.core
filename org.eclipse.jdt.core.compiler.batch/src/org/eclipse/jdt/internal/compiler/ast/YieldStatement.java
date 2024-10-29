@@ -107,7 +107,7 @@ protected void setSubroutineSwitchExpression(SubRoutineStatement sub) {
 
 protected void addSecretYieldResultValue(BlockScope scope) {
 	SwitchExpression se = this.swich;
-	if (se == null || !se.containsTry)
+	if (se == null || !se.jvmStackVolatile)
 		return;
 	LocalVariableBinding local = new LocalVariableBinding(
 			YieldStatement.SECRET_YIELD_RESULT_VALUE_NAME,
@@ -135,7 +135,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		return;
 	}
 	boolean generateExpressionResultCodeExpanded = false;
-	if (this.swich != null && this.swich.containsTry && this.swich.resolvedType != null ) {
+	if (this.swich != null && this.swich.jvmStackVolatile && this.swich.resolvedType != null ) {
 		generateExpressionResultCodeExpanded = true;
 		addSecretYieldResultValue(currentScope);
 		assert this.secretYieldResultValue != null;

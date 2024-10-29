@@ -9487,7 +9487,6 @@ protected void collectResultExpressionsYield(SwitchExpression s) {
 
 	class ResultExpressionsCollector extends ASTVisitor {
 		Stack<SwitchExpression> targetSwitchExpressions;
-		Stack<TryStatement> tryStatements;
 		public ResultExpressionsCollector(SwitchExpression se) {
 			if (this.targetSwitchExpressions == null)
 				this.targetSwitchExpressions = new Stack<>();
@@ -9513,29 +9512,12 @@ protected void collectResultExpressionsYield(SwitchExpression s) {
 			return true;
 		}
 		@Override
-		public boolean visit(SwitchStatement stmt, BlockScope blockScope) {
-			return true;
-		}
-		@Override
 		public boolean visit(TypeDeclaration stmt, BlockScope blockScope) {
 			return false;
 		}
 		@Override
 		public boolean visit(LambdaExpression stmt, BlockScope blockScope) {
 			return false;
-		}
-		@Override
-		public boolean visit(TryStatement stmt, BlockScope blockScope) {
-			if (this.tryStatements == null)
-				this.tryStatements = new Stack<>();
-			this.tryStatements.push(stmt);
-			SwitchExpression targetSwitchExpression = this.targetSwitchExpressions.peek();
-			targetSwitchExpression.containsTry = true;
-			return true;
-		}
-		@Override
-		public void endVisit(TryStatement stmt, BlockScope blockScope) {
-			this.tryStatements.pop();
 		}
 	}
 	s.resultExpressions = new ArrayList<>(0); // indicates processed

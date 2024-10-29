@@ -48,7 +48,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	public List<Expression> resultExpressions;
 	public boolean resolveAll;
 	/* package */ List<Integer> resultExpressionNullStatus;
-	public boolean containsTry = false;
+	public boolean jvmStackVolatile = false;
 	private static Map<TypeBinding, TypeBinding[]> type_map;
 	static final char[] SECRET_YIELD_VALUE_NAME = " yieldValue".toCharArray(); //$NON-NLS-1$
 	int yieldResolvedPosition = -1;
@@ -302,11 +302,11 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	}
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-		if (this.containsTry) {
+		if (this.jvmStackVolatile) {
 			spillOperandStack(codeStream);
 		}
 		super.generateCode(currentScope, codeStream);
-		if (this.containsTry) {
+		if (this.jvmStackVolatile) {
 			removeStoredTypes(codeStream);
 		}
 		if (!valueRequired) {
