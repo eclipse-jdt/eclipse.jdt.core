@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class YieldStatement extends BranchStatement {
 
 	public Expression expression;
-	public SwitchExpression switchExpression;
+	public SwitchExpression swich; // innermost enclosing switch **expression**
 
 	public boolean isImplicit;
 	static final char[] SECRET_YIELD_RESULT_VALUE_NAME = " secretYieldValue".toCharArray(); //$NON-NLS-1$
@@ -102,11 +102,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 @Override
 protected void setSubroutineSwitchExpression(SubRoutineStatement sub) {
-	sub.setSwitchExpression(this.switchExpression);
+	sub.setSwitchExpression(this.swich);
 }
 
 protected void addSecretYieldResultValue(BlockScope scope) {
-	SwitchExpression se = this.switchExpression;
+	SwitchExpression se = this.swich;
 	if (se == null || !se.containsTry)
 		return;
 	LocalVariableBinding local = new LocalVariableBinding(
@@ -135,7 +135,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		return;
 	}
 	boolean generateExpressionResultCodeExpanded = false;
-	if (this.switchExpression != null && this.switchExpression.containsTry && this.switchExpression.resolvedType != null ) {
+	if (this.swich != null && this.swich.containsTry && this.swich.resolvedType != null ) {
 		generateExpressionResultCodeExpanded = true;
 		addSecretYieldResultValue(currentScope);
 		assert this.secretYieldResultValue != null;
@@ -149,12 +149,12 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		Assignment assignment = new Assignment(lhs, this.expression, 0);
 		assignment.generateCode(currentScope, codeStream);
 	} else {
-		this.expression.generateCode(currentScope, codeStream, this.switchExpression != null);
+		this.expression.generateCode(currentScope, codeStream, this.swich != null);
 		if (this.expression.resolvedType == TypeBinding.NULL) {
-			if (!this.switchExpression.resolvedType.isBaseType()) {
+			if (!this.swich.resolvedType.isBaseType()) {
 				// no opcode called for to align the types, but we need to adjust the notion of type of TOS.
 				codeStream.operandStack.pop(TypeBinding.NULL);
-				codeStream.operandStack.push(this.switchExpression.resolvedType);
+				codeStream.operandStack.push(this.swich.resolvedType);
 			}
 		}
 	}
@@ -184,7 +184,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		}
 	}
 	if (generateExpressionResultCodeExpanded) {
-		this.switchExpression.refillOperandStack(codeStream);
+		this.swich.refillOperandStack(codeStream);
 		codeStream.load(this.secretYieldResultValue);
 		codeStream.removeVariable(this.secretYieldResultValue);
 	}
@@ -200,8 +200,12 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 @Override
 public void resolve(BlockScope scope) {
 
-	if (this.switchExpression != null || this.isImplicit) {
-		if (this.switchExpression == null && this.isImplicit && !this.expression.statementExpression()) {
+	if (this.swich == null) {
+		this.swich = scope.enclosingSwitchExpression();
+	}
+
+	if (this.swich != null || this.isImplicit) {
+		if (this.swich == null && this.isImplicit && !this.expression.statementExpression()) {
 			if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
 				/* JLS 13 14.11.2
 				Switch labeled rules in switch statements differ from those in switch expressions (15.28).
@@ -216,8 +220,8 @@ public void resolve(BlockScope scope) {
 		}
 	}
 	TypeBinding type = this.expression.resolveType(scope);
-	if (this.switchExpression != null && type != null)
-		this.switchExpression.originalTypeMap.put(this.expression, type);
+	if (this.swich != null && type != null)
+		this.swich.originalTypeMap.put(this.expression, type);
 }
 
 @Override

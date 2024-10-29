@@ -9509,10 +9509,6 @@ protected void collectResultExpressionsYield(SwitchExpression s) {
 			SwitchExpression targetSwitchExpression = this.targetSwitchExpressions.peek();
 			if (yieldStatement.expression != null) {
 				targetSwitchExpression.resultExpressions.add(yieldStatement.expression);
-				yieldStatement.switchExpression = this.targetSwitchExpressions.peek();
-			} else {
-				// flag an error while resolving
-				yieldStatement.switchExpression = targetSwitchExpression;
 			}
 			return true;
 		}
