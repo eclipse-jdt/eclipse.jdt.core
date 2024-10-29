@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
@@ -306,6 +310,8 @@ static class JavacCompiler {
 			return JavaCore.VERSION_22;
 		} else if(rawVersion.startsWith("23")) {
 			return JavaCore.VERSION_23;
+		} else if(rawVersion.startsWith("24")) {
+			return JavaCore.VERSION_24;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -315,39 +321,6 @@ static class JavacCompiler {
 	// of the same version; two latest digits are used for variants into levels
 	// denoted by the two first digits
 	static int minorFromRawVersion (String version, String rawVersion) {
-		if (version == JavaCore.VERSION_1_5) {
-			if ("1.5.0_15-ea".equals(rawVersion)) {
-				return 1500;
-			}
-			if ("1.5.0_16-ea".equals(rawVersion)) { // b01
-				return 1600;
-			}
-		}
-		if (version == JavaCore.VERSION_1_6) {
-			if ("1.6.0_10-ea".equals(rawVersion)) {
-				return 1000;
-			}
-			if ("1.6.0_10-beta".equals(rawVersion)) { // b24
-				return 1010;
-			}
-			if ("1.6.0_45".equals(rawVersion)) {
-				return 1045;
-			}
-		}
-		if (version == JavaCore.VERSION_1_7) {
-			if ("1.7.0-ea".equals(rawVersion)) {
-				return 0000;
-			}
-			if ("1.7.0_10".equals(rawVersion)) {
-				return 1000;
-			}
-			if ("1.7.0_25".equals(rawVersion)) {
-				return 2500;
-			}
-			if ("1.7.0_80".equals(rawVersion)) {
-				return 8000;
-			}
-		}
 		if (version == JavaCore.VERSION_1_8) {
 			if ("1.8.0-ea".equals(rawVersion) || ("1.8.0".equals(rawVersion))) {
 				return 0000;
@@ -564,6 +537,12 @@ static class JavacCompiler {
 		if (version == JavaCore.VERSION_23) {
 			switch(rawVersion) {
 				case "23-ea", "23":
+					return 0000;
+			}
+		}
+		if (version == JavaCore.VERSION_24) {
+			switch(rawVersion) {
+				case "24-ea", "24":
 					return 0000;
 			}
 		}

@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * SPDX-License-Identifier: EPL-2.0
  *
  * This is an implementation of an early-draft specification developed under the Java
@@ -2433,5 +2437,25 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"""
 			},
 			"g");
+	}
+
+	public void testGH3188() {
+		runConformTest(new String[] {
+			"EarlyLocalCtorRef.java",
+			"""
+			import java.util.function.Supplier;
+			class EarlyLocalCtorRef {
+			    EarlyLocalCtorRef() {
+			        class InnerLocal { }
+			        this(InnerLocal::new);
+			    }
+			    EarlyLocalCtorRef(Supplier<Object> s) {
+			    }
+			    public static void main(String... args0) {
+			    	new EarlyLocalCtorRef();
+			    }
+			}
+			"""},
+			"");
 	}
 }
