@@ -1018,6 +1018,7 @@ public class JavacProblemConverter {
 			case "compiler.warn.poor.choice.for.module.name" -> IProblem.ModuleRelated;
 			case "compiler.err.try.without.catch.finally.or.resource.decls" -> IProblem.Syntax;
 			case "compiler.warn.unchecked.meth.invocation.applied" -> IProblem.UnsafeTypeConversion;
+			case "compiler.warn.override.unchecked.ret" -> IProblem.UnsafeReturnTypeOverride;
 			case "compiler.err.encl.class.required" -> IProblem.MissingEnclosingInstanceForConstructorCall;
 			case "compiler.err.operator.cant.be.applied", "compiler.err.operator.cant.be.applied.1" -> IProblem.InvalidOperator;
 			case "compiler.warn.try.resource.not.referenced" -> IProblem.LocalVariableIsNeverUsed; // not in ECJ
