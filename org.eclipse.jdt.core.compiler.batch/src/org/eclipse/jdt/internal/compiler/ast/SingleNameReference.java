@@ -921,18 +921,22 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	if ((this.bits & Binding.FIELD) != 0) {
 		FieldBinding fieldBinding = (FieldBinding) this.binding;
 		FieldBinding codegenField = fieldBinding.original();
-		if (((this.bits & ASTNode.DepthMASK) != 0)
-			&& ((codegenField.isPrivate() // private access
-					&& !currentScope.enclosingSourceType().isNestmateOf(codegenField.declaringClass) )
-				|| (codegenField.isProtected() // implicit protected access
-						&& codegenField.declaringClass.getPackage() != currentScope.enclosingSourceType().getPackage()))) {
-			if (this.syntheticAccessors == null)
-				this.syntheticAccessors = new MethodBinding[2];
-			this.syntheticAccessors[isReadAccess ? SingleNameReference.READ : SingleNameReference.WRITE] =
-			    ((SourceTypeBinding)currentScope.enclosingSourceType().
-					enclosingTypeAt((this.bits & ASTNode.DepthMASK) >> ASTNode.DepthSHIFT)).addSyntheticMethod(codegenField, isReadAccess, false /*not super access*/);
-			currentScope.problemReporter().needToEmulateFieldAccess(codegenField, this, isReadAccess);
-			return;
+		if ((this.bits & ASTNode.DepthMASK) != 0) {
+			if ((codegenField.isPrivate() // private access
+					&& !currentScope.enclosingSourceType().isNestmateOf(codegenField.declaringClass))
+					|| (codegenField.isProtected() // implicit protected access
+							&& codegenField.declaringClass.getPackage() != currentScope.enclosingSourceType().getPackage())) {
+				if (this.syntheticAccessors == null)
+					this.syntheticAccessors = new MethodBinding[2];
+				this.syntheticAccessors[isReadAccess ? SingleNameReference.READ : SingleNameReference.WRITE] =
+					((SourceTypeBinding) currentScope.enclosingSourceType().
+							enclosingTypeAt((this.bits & ASTNode.DepthMASK) >> ASTNode.DepthSHIFT)).addSyntheticMethod(codegenField, isReadAccess, false /* not super access */);
+				currentScope.problemReporter().needToEmulateFieldAccess(codegenField, this, isReadAccess);
+				return;
+			}
+			if (!codegenField.isStatic() && currentScope.enclosingSourceType() instanceof NestedTypeBinding nestedType) {
+				nestedType.requestEnclosingInstancePathTo(codegenField.declaringClass);
+			}
 		}
 	}
 }
