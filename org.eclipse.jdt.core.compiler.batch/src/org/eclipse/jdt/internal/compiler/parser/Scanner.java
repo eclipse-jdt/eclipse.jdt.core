@@ -5615,9 +5615,6 @@ int disambiguatedRestrictedIdentifierWhen(int restrictedIdentifierToken) {
 					TokenNameIdentifier : TokenNameRestrictedIdentifierWhen;
 }
 int disambiguatedRestrictedIdentifierYield(int restrictedIdentifierToken) {
-	// and here's the kludge
-	if (restrictedIdentifierToken != TokenNameRestrictedIdentifierYield)
-		return restrictedIdentifierToken;
 	if (this.sourceLevel < ClassFileConstants.JDK14)
 		return TokenNameIdentifier;
 
