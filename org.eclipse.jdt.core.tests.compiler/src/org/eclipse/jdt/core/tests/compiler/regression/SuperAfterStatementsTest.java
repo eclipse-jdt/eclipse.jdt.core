@@ -2056,7 +2056,12 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					                 ^^
 				Cannot read field f2 in an early construction context
 				----------
-				2. WARNING in C1.java (at line 18)
+				2. ERROR in C1.java (at line 15)
+					new C4();
+					^^^^^^^^
+				No enclosing instance of the type C1 is accessible in scope
+				----------
+				3. WARNING in C1.java (at line 18)
 					super();
 					^^^^^^^^
 				You are using a preview language feature that may or may not be supported in a future release
@@ -2355,4 +2360,78 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"");
 	}
 
+	public void testCtorRef_neg () {
+		runNegativeTest(new String[] {
+			"Outer.java",
+			"""
+			import java.util.function.Supplier;
+			@SuppressWarnings("unused")
+			class Outer {
+				void m() { }
+				class Inner {
+					Inner() {
+						class Foo {
+							void g() {
+								m();
+							}
+						}
+						super();
+						class Bar {
+							static void r() {
+								Supplier<Foo> sfoo = Foo::new;
+							}
+						};
+					}
+				}
+			}
+			"""
+			},
+			"""
+			----------
+			1. ERROR in Outer.java (at line 9)
+				m();
+				^^^
+			No enclosing instance of the type Outer is accessible in scope
+			----------
+			2. WARNING in Outer.java (at line 12)
+				super();
+				^^^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			""");
+	}
+
+	public void testCtorRef_pos () {
+		runConformTest(new String[] {
+			"Outer.java",
+			"""
+			import java.util.function.Supplier;
+			class Outer {
+				void m() { }
+				class Inner {
+					Inner() {
+						class Foo {
+							void g() {
+								System.out.print("g");
+			//					m();
+							}
+						}
+						super();
+						class Bar {
+							static void r() {
+								Supplier<Foo> sfoo = Foo::new;
+								sfoo.get().g();
+							}
+						};
+						Bar.r();
+					}
+				}
+				public static void main(String... args) {
+					new Outer().new Inner();
+				}
+			}
+			"""
+			},
+			"g");
+	}
 }

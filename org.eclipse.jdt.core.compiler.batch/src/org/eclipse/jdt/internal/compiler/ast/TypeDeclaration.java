@@ -1072,9 +1072,14 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 			outerScope = outerScope.enclosingInstanceScope();
 			earlySeen = methodScope.isInsideEarlyConstructionContext(nestedType.enclosingType(), false);
 		}
-		if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(currentScope.compilerOptions())) {
+		if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(currentScope.compilerOptions())
+				&& nestedType.enclosingInstances != null) // only if access to enclosing instance has already been requested
+		{
 			// JEP 482: this is the central location for organizing synthetic arguments and fields
 			// to serve far outer instances even in inner early construction context.
+			// Only SingleNameReference.manageSyntheticAccessIfNecessary() may add more synth outers later on
+			// (using NestedTypeBinding.requestEnclosingInstancePathTo()).
+			//
 			// Locations MethodBinding.computeSignature() and BlockScope.getEmulationPath() will faithfully
 			// use the information generated here, to decide about signature and call sequence.
 			while (outerScope != null) {
@@ -1138,8 +1143,8 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
  */
 public void manageEnclosingInstanceAccessIfNecessary(ClassScope currentScope, FlowInfo flowInfo) {
 	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) == 0) {
-	NestedTypeBinding nestedType = (NestedTypeBinding) this.binding;
-	nestedType.addSyntheticArgumentAndField(this.binding.enclosingType());
+		NestedTypeBinding nestedType = (NestedTypeBinding) this.binding;
+		nestedType.addSyntheticArgumentAndField(this.binding.enclosingType());
 	}
 }
 
