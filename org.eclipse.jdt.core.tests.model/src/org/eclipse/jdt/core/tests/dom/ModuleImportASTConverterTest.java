@@ -18,7 +18,7 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.util.List;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
@@ -31,8 +31,6 @@ import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
-
-import junit.framework.Test;
 
 public class ModuleImportASTConverterTest extends ConverterTestSetup {
 
@@ -121,7 +119,7 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 					    System.out.println("Eclipse");
 					}
 				""";
-		this.workingCopy = getWorkingCopy("/Converter_23/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_24/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
