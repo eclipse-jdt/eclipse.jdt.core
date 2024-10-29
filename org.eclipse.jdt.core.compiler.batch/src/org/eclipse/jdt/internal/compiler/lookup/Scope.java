@@ -3814,15 +3814,38 @@ public abstract class Scope {
 	}
 
 	/**
-	 * Returns the immediately enclosing switchCase statement (carried by closest blockScope),
+	 * Returns the immediately enclosing case statement (carried by closest blockScope),
 	 */
-	public CaseStatement innermostSwitchCase() {
+	public CaseStatement enclosingSwitchLabel() {
 		Scope scope = this;
 		do {
-			if (scope instanceof BlockScope)
-				return ((BlockScope) scope).enclosingCase;
+			if (scope instanceof BlockScope bs)
+				return bs.enclosingCase;
 			scope = scope.parent;
 		} while (scope != null);
+		return null;
+	}
+
+	/**
+	 * Returns the immediately enclosing switch expression (carried by closest blockScope),
+	 */
+	public SwitchExpression enclosingSwitchExpression() {
+		Scope current = this;
+		do {
+			switch(current.kind) {
+				case METHOD_SCOPE :
+				case CLASS_SCOPE :
+				case COMPILATION_UNIT_SCOPE :
+				case MODULE_SCOPE :
+					return null;
+				case BLOCK_SCOPE: {
+					BlockScope bs = (BlockScope) current;
+					if (bs.enclosingCase != null && bs.enclosingCase.swich instanceof SwitchExpression se)
+						return se;
+					break;
+				}
+			}
+		} while ((current = current.parent) != null);
 		return null;
 	}
 

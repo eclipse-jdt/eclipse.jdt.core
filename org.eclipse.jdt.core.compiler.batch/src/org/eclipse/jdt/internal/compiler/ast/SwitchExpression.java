@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class SwitchExpression extends SwitchStatement implements IPolyExpression {
 
 	/* package */ TypeBinding expectedType;
-	private ExpressionContext expressionContext = VANILLA_CONTEXT;
+	ExpressionContext expressionContext = VANILLA_CONTEXT;
 	private boolean isPolyExpression = false;
 	private TypeBinding[] originalValueResultExpressionTypes;
 	private TypeBinding[] finalValueResultExpressionTypes;
@@ -45,10 +45,10 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 
 
 	private int nullStatus = FlowInfo.UNKNOWN;
-	public List<Expression> resultExpressions;
+	public List<Expression> resultExpressions = new ArrayList<>(0);
 	public boolean resolveAll;
 	/* package */ List<Integer> resultExpressionNullStatus;
-	public boolean containsTry = false;
+	public boolean jvmStackVolatile = false;
 	private static Map<TypeBinding, TypeBinding[]> type_map;
 	static final char[] SECRET_YIELD_VALUE_NAME = " yieldValue".toCharArray(); //$NON-NLS-1$
 	int yieldResolvedPosition = -1;
@@ -302,11 +302,11 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	}
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-		if (this.containsTry) {
+		if (this.jvmStackVolatile) {
 			spillOperandStack(codeStream);
 		}
 		super.generateCode(currentScope, codeStream);
-		if (this.containsTry) {
+		if (this.jvmStackVolatile) {
 			removeStoredTypes(codeStream);
 		}
 		if (!valueRequired) {
@@ -373,17 +373,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			int resultExpressionsCount;
 			if (this.constant != Constant.NotAConstant) {
 				this.constant = Constant.NotAConstant;
-
-				// A switch expression is a poly expression if it appears in an assignment context or an invocation context (5.2, 5.3).
-				// Otherwise, it is a standalone expression.
-				if (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) {
-					for (Expression e : this.resultExpressions) {
-						//Where a poly switch expression appears in a context of a particular kind with target type T,
-						//its result expressions similarly appear in a context of the same kind with target type T.
-						e.setExpressionContext(this.expressionContext);
-						e.setExpectedType(this.expectedType);
-					}
-				}
 
 				if (this.originalTypeMap == null)
 					this.originalTypeMap = new HashMap<>();
