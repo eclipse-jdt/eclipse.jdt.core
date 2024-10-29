@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.ASSIGNMENT_CONTEXT;
+import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION_CONTEXT;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
@@ -202,6 +205,13 @@ public void resolve(BlockScope scope) {
 
 	if (this.swich == null) {
 		this.swich = scope.enclosingSwitchExpression();
+		if (this.swich != null) {
+			this.swich.resultExpressions.add(this.expression);
+			if (this.swich.expressionContext == ASSIGNMENT_CONTEXT || this.swich.expressionContext == INVOCATION_CONTEXT) { // poly switch expression
+				this.expression.setExpressionContext(this.swich.expressionContext); // result expressions feature in same context ...
+				this.expression.setExpectedType(this.swich.expectedType);           // ... with the same target type
+			}
+		}
 	}
 
 	if (this.swich != null || this.isImplicit) {
