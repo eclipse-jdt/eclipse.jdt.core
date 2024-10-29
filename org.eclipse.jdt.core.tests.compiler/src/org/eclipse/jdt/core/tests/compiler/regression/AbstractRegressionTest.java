@@ -1164,7 +1164,9 @@ protected static class JavacTestOptions {
 							MismatchType.EclipseErrorsJavacNone| MismatchType.EclipseErrorsJavacWarnings) : null,
 		    JavacBug8336255 = RUN_JAVAC ? // https://bugs.openjdk.org/browse/JDK-8336255
 					new JavacBugExtraJavacOptionsPlusMismatch(" --release 23 --enable-preview -Xlint:-preview",
-							MismatchType.JavacErrorsEclipseNone) : null;
+							MismatchType.JavacErrorsEclipseNone) : null,
+			JavacBug8337980 = RUN_JAVAC ? // https://bugs.openjdk.org/browse/JDK-8337980
+					new JavacHasABug(MismatchType.EclipseErrorsJavacNone /* add pivot JDK24 */) : null;
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
