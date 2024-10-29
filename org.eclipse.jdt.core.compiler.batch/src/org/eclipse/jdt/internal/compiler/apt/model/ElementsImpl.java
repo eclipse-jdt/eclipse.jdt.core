@@ -58,7 +58,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class ElementsImpl implements Elements {
 
 	// Used for parsing Javadoc comments: matches initial delimiter, followed by whitespace
-	private static final Pattern INITIAL_DELIMITER = Pattern.compile("^\\s*/\\*+"); //$NON-NLS-1$
+	protected static final Pattern INITIAL_DELIMITER = Pattern.compile("^\\s*/\\*+"); //$NON-NLS-1$
 
 	protected final BaseProcessingEnvImpl _env;
 
@@ -328,7 +328,7 @@ public class ElementsImpl implements Elements {
 	 * @param e an Element of any sort, possibly with a javadoc comment.
 	 * @return a String, or null if the comment is not available
 	 */
-	private char[] getUnparsedDocComment(Element e)
+	protected char[] getUnparsedDocComment(Element e)
 	{
 		Javadoc javadoc = null;
 		ReferenceContext referenceContext = null;

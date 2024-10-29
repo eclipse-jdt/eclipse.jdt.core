@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Matcher;
 import javax.lang.model.AnnotatedConstruct;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
@@ -289,5 +290,12 @@ public class ElementsImpl9 extends ElementsImpl {
     public boolean isCompactConstructor(ExecutableElement e) {
 		MethodBinding methodBinding = (MethodBinding) ((ExecutableElementImpl) e)._binding;
         return methodBinding.isCompactConstructor();
+    }
+	@Override
+    public DocCommentKind getDocCommentKind(Element e) {
+		char[] unparsed = getUnparsedDocComment(e);
+		String[] lines = new String(unparsed).split("\n"); //$NON-NLS-1$
+		Matcher delimiterMatcher = INITIAL_DELIMITER.matcher(lines[0]);
+		return (delimiterMatcher.find()) ? DocCommentKind.TRADITIONAL : DocCommentKind.END_OF_LINE;
     }
 }

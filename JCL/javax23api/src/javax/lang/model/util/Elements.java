@@ -9,6 +9,7 @@ import java.util.Objects;
 
 import javax.lang.model.AnnotatedConstruct;
 import javax.lang.model.element.*;
+import javax.lang.model.util.Elements.DocCommentKind;
 
 
 public interface Elements {
@@ -74,6 +75,14 @@ public interface Elements {
 
     String getDocComment(Element e);
 
+    default DocCommentKind getDocCommentKind(Element e) {
+        return null;
+    }
+
+    enum DocCommentKind {
+        END_OF_LINE,
+        TRADITIONAL
+    }
     boolean isDeprecated(Element e);
 
     default Origin getOrigin(Element e) {
