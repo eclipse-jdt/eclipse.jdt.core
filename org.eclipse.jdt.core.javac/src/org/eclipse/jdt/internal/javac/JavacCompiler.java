@@ -72,26 +72,7 @@ public class JavacCompiler extends Compiler {
 
 	@Override
 	public void compile(ICompilationUnit[] sourceUnits) {
-		Context javacContext = new Context();
 		Map<ICompilationUnit, List<IProblem>> javacProblems = new HashMap<>();
-		JavacProblemConverter problemConverter = new JavacProblemConverter(this.compilerConfig.compilerOptions(), javacContext);
-		javacContext.put(DiagnosticListener.class, diagnostic -> {
-			if (diagnostic.getSource() instanceof JavaFileObject fileObject) {
-				JavacProblem javacProblem = problemConverter.createJavacProblem(diagnostic);
-				if (javacProblem != null) {
-					ICompilationUnit originalUnit = this.fileObjectToCUMap.get(fileObject);
-					if (originalUnit == null) {
-						return;
-					}
-					List<IProblem> previous = javacProblems.get(originalUnit);
-					if (previous == null) {
-						previous = new ArrayList<>();
-						javacProblems.put(originalUnit, previous);
-					}
-					previous.add(javacProblem);
-				}
-			}
-		});
 
 		IJavaProject javaProject = Stream.of(sourceUnits).filter(SourceFile.class::isInstance).map(
 		        SourceFile.class::cast).map(source -> source.resource).map(IResource::getProject).filter(
@@ -120,18 +101,39 @@ public class JavacCompiler extends Compiler {
 
 		// Register listener to intercept intermediate results from Javac task.
 		JavacTaskListener javacListener = new JavacTaskListener(this.compilerConfig, outputSourceMapping, this.problemFactory, this.fileObjectToCUMap);
-		MultiTaskListener mtl = MultiTaskListener.instance(javacContext);
-		mtl.add(javacListener);
-		mtl.add(new TaskListener() {
-			@Override
-			public void finished(TaskEvent e) {
-				if (e.getSourceFile() != null && fileObjectToCUMap.get(e.getSourceFile()) instanceof JCCompilationUnit u) {
-					problemConverter.registerUnit(e.getSourceFile(), u);
-				}
-			}
-		});
 
 		for (Entry<IContainer, List<ICompilationUnit>> outputSourceSet : outputSourceMapping.entrySet()) {
+
+			Context javacContext = new Context();
+			JavacProblemConverter problemConverter = new JavacProblemConverter(this.compilerConfig.compilerOptions(), javacContext);
+			javacContext.put(DiagnosticListener.class, diagnostic -> {
+				if (diagnostic.getSource() instanceof JavaFileObject fileObject) {
+					JavacProblem javacProblem = problemConverter.createJavacProblem(diagnostic);
+					if (javacProblem != null) {
+						ICompilationUnit originalUnit = this.fileObjectToCUMap.get(fileObject);
+						if (originalUnit == null) {
+							return;
+						}
+						List<IProblem> previous = javacProblems.get(originalUnit);
+						if (previous == null) {
+							previous = new ArrayList<>();
+							javacProblems.put(originalUnit, previous);
+						}
+						previous.add(javacProblem);
+					}
+				}
+			});
+			MultiTaskListener mtl = MultiTaskListener.instance(javacContext);
+			mtl.add(javacListener);
+			mtl.add(new TaskListener() {
+				@Override
+				public void finished(TaskEvent e) {
+					if (e.getSourceFile() != null && fileObjectToCUMap.get(e.getSourceFile()) instanceof JCCompilationUnit u) {
+						problemConverter.registerUnit(e.getSourceFile(), u);
+					}
+				}
+			});
+
 			// Configure Javac to generate the class files in a mapped temporary location
 			var outputDir = JavacClassFile.getMappedTempOutput(outputSourceSet.getKey()).toFile();
 			javacListener.setOutputDir(outputSourceSet.getKey());
@@ -175,7 +177,6 @@ public class JavacCompiler extends Compiler {
 					return this.isInGeneration ? 0 : super.errorCount();
 				}
 			};
-			javacContext.put(JavaCompiler.compilerKey, javac);
 			javac.shouldStopPolicyIfError = CompileState.GENERATE;
 			JavacFileManager fileManager = (JavacFileManager)javacContext.get(JavaFileManager.class);
 			try {
