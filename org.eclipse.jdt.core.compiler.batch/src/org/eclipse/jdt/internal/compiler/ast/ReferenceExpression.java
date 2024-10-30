@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
@@ -497,8 +501,10 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			TypeBinding type = this.receiverType.leafComponentType();
 			if (type.isNestedType() &&
 				type instanceof ReferenceBinding && !((ReferenceBinding)type).isStatic()) {
-				currentScope.tagAsAccessingEnclosingInstanceStateOf((ReferenceBinding)type, false);
-				this.shouldCaptureInstance = true;
+				if (!type.isLocalType()) {
+					currentScope.tagAsAccessingEnclosingInstanceStateOf((ReferenceBinding)type, false);
+					this.shouldCaptureInstance = true;
+				}
 				ReferenceBinding allocatedTypeErasure = (ReferenceBinding) type.erasure();
 				if (allocatedTypeErasure.isLocalType()) {
 					((LocalTypeBinding) allocatedTypeErasure).addInnerEmulationDependent(currentScope, false);
