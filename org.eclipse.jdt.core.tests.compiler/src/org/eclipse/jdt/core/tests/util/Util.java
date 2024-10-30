@@ -1374,6 +1374,7 @@ public static boolean waitUntilResourceDeleted(IResource resource) {
     while (count < maxRetry) {
         try {
             count++;
+            System.gc(); // workaround
             Thread.sleep(delay);
             time += delay;
             if (time > DELETE_MAX_TIME) DELETE_MAX_TIME = time;
