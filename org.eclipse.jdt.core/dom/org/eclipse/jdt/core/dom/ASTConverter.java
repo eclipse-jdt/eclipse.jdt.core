@@ -1459,10 +1459,10 @@ class ASTConverter {
 			}
 		}
 		if (this.ast.apiLevel >= AST.JLS14_INTERNAL) {
-			switchCase.setSwitchLabeledRule(statement.isExpr);
+			switchCase.setSwitchLabeledRule(statement.isSwitchRule);
 		}
 		switchCase.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
-		if (statement.isExpr) {
+		if (statement.isSwitchRule) {
 			retrieveArrowPosition(switchCase);
 		} else {
 			retrieveColonPosition(switchCase);

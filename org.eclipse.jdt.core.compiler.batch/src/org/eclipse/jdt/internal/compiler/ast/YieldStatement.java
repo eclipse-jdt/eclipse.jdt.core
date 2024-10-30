@@ -207,27 +207,20 @@ public void resolve(BlockScope scope) {
 		this.switchExpression = scope.enclosingSwitchExpression();
 		if (this.switchExpression != null) {
 			this.switchExpression.resultExpressions.add(this.expression);
-			if (this.switchExpression.expressionContext == ASSIGNMENT_CONTEXT || this.switchExpression.expressionContext == INVOCATION_CONTEXT) { // poly switch expression
+			if (this.switchExpression.expressionContext == ASSIGNMENT_CONTEXT || this.switchExpression.expressionContext == INVOCATION_CONTEXT) { // When switch expression is poly ...
 				this.expression.setExpressionContext(this.switchExpression.expressionContext); // result expressions feature in same context ...
 				this.expression.setExpectedType(this.switchExpression.expectedType);           // ... with the same target type
 			}
 		}
 	}
 
-	if (this.switchExpression != null || this.isImplicit) {
-		if (this.switchExpression == null && this.isImplicit && !this.expression.statementExpression()) {
-			if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
-				/* JLS 13 14.11.2
-				Switch labeled rules in switch statements differ from those in switch expressions (15.28).
-				In switch statements they must be switch labeled statement expressions, ... */
-				scope.problemReporter().invalidExpressionAsStatement(this.expression);
-				return;
-			}
+	if (this.isImplicit) {
+		if (this.switchExpression == null && !this.expression.statementExpression()) {
+			scope.problemReporter().invalidExpressionAsStatement(this.expression);
+			return;
 		}
-	} else {
-		if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
-			scope.problemReporter().switchExpressionsYieldOutsideSwitchExpression(this);
-		}
+	} else if (this.switchExpression == null) {
+		scope.problemReporter().yieldOutsideSwitchExpression(this);
 	}
 	TypeBinding type = this.expression.resolveType(scope);
 	if (this.switchExpression != null && type != null)
@@ -236,12 +229,10 @@ public void resolve(BlockScope scope) {
 
 @Override
 public StringBuilder printStatement(int tab, StringBuilder output) {
-	if (!this.isImplicit)
-		printIndent(tab, output).append("yield"); //$NON-NLS-1$
 	if (this.isImplicit) {
 		this.expression.print(tab, output);
 	} else {
-		output.append(' ');
+		printIndent(tab, output).append("yield "); //$NON-NLS-1$
 		this.expression.printExpression(tab, output);
 	}
 	return output.append(';');

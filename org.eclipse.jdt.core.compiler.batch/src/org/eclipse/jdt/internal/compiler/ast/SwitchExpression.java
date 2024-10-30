@@ -126,52 +126,10 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	}
 
 	@Override
-	protected void completeNormallyCheck(BlockScope blockScope) {
-		int sz = this.statements != null ? this.statements.length : 0;
-		if (sz == 0) return;
-		/* JLS 12 15.28.1 Given a switch expression, if the switch block consists of switch labeled rules
-		 * then it is a compile-time error if any switch labeled block can complete normally.
-		 */
-		if ((this.switchBits & LabeledRules) != 0) {
-			for (Statement stmt : this.statements) {
-				if (!(stmt instanceof Block))
-					continue;
-				if (stmt.canCompleteNormally())
-					blockScope.problemReporter().switchExpressionLastStatementCompletesNormally(stmt);
-			}
-			return;
-		}
-		/* JLS 12 15.28.1
-		 * If, on the other hand, the switch block consists of switch labeled statement groups, then it is a
-		 * compile-time error if either the last statement in the switch block can complete normally, or the
-		 * switch block includes one or more switch labels at the end.
-		 */
-		Statement lastNonCaseStmt = null;
-		Statement firstTrailingCaseStmt = null;
-		for (int i = sz - 1; i >= 0; i--) {
-			Statement stmt = this.statements[sz - 1];
-			if (stmt instanceof CaseStatement)
-				firstTrailingCaseStmt = stmt;
-			else {
-				lastNonCaseStmt = stmt;
-				break;
-			}
-		}
-		if (lastNonCaseStmt != null) {
-			if (lastNonCaseStmt.canCompleteNormally())
-				blockScope.problemReporter().switchExpressionLastStatementCompletesNormally(lastNonCaseStmt);
-			else if (lastNonCaseStmt instanceof ContinueStatement || lastNonCaseStmt instanceof ReturnStatement) {
-				blockScope.problemReporter().switchExpressionIllegalLastStatement(lastNonCaseStmt);
-			}
-		}
-		if (firstTrailingCaseStmt != null) {
-			blockScope.problemReporter().switchExpressionTrailingSwitchLabels(firstTrailingCaseStmt);
-		}
-	}
-	@Override
 	protected boolean needToCheckFlowInAbsenceOfDefaultBranch() { // JLS 12 16.1.8
 		return (this.switchBits & LabeledRules) == 0;
 	}
+
 	@Override
 	public Expression[] getPolyExpressions() {
 		List<Expression> polys = new ArrayList<>();
@@ -379,7 +337,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 
 				resultExpressionsCount = this.resultExpressions.size();
 				if (resultExpressionsCount == 0) {
-					upperScope.problemReporter().switchExpressionNoResultExpressions(this);
+					upperScope.problemReporter().unyieldingSwitchExpression(this);
 					return this.resolvedType = null;
 				}
 
@@ -397,7 +355,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 					}
 					return this.resolvedType = computeConversions(this.scope, this.expectedType) ? this.expectedType : null;
 				}
-				// fall through
 			} else {
 				// re-resolving of poly expression:
 				resultExpressionsCount = this.resultExpressions.size();
@@ -418,7 +375,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				if (yieldErrors)
 					return this.resolvedType = null;
 				this.resolvedType = computeConversions(this.scope, this.expectedType) ? this.expectedType : null;
-				// fall through
 			}
 
 			boolean uniformYield = true;
@@ -541,7 +497,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				}
 				return this.resolvedType = commonType.capture(this.scope, this.sourceStart, this.sourceEnd);
 			}
-			this.scope.problemReporter().switchExpressionIncompatibleResultExpressions(this);
+			this.scope.problemReporter().incompatibleSwitchExpressionResults(this);
 			return null;
 		} finally {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
@@ -569,6 +525,18 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		flowInfo = super.analyseCode(currentScope, flowContext, flowInfo);
+		// 15.28.1
+		if ((this.switchBits & LabeledRules) != 0) {
+			for (Statement stmt : this.statements) {
+				if (stmt instanceof Block && stmt.canCompleteNormally())
+					currentScope.problemReporter().switchExpressionBlockCompletesNormally(stmt);
+			}
+		} else {
+			Statement ultimateStmt = this.statements[this.statements.length - 1]; // length guaranteed > 0
+			if (ultimateStmt.canCompleteNormally())
+				currentScope.problemReporter().switchExpressionBlockCompletesNormally(ultimateStmt);
+		}
+
 		this.resultExpressionNullStatus = new ArrayList<>(0);
 		final CompilerOptions compilerOptions = currentScope.compilerOptions();
 		if (compilerOptions.enableSyntacticNullAnalysisForFields) {
