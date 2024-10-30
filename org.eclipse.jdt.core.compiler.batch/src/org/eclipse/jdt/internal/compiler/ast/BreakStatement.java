@@ -46,7 +46,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		return flowInfo; // pretend it did not break since no actual target
 	} else if (targetContext == FlowContext.NonLocalGotoThroughSwitchContext) { // JLS 13 14.15
-		currentScope.problemReporter().switchExpressionsBreakOutOfSwitchExpression(this);
+		currentScope.problemReporter().breakOutOfSwitchExpression(this);
 		return flowInfo; // pretend it did not break since no actual target
 	}
 

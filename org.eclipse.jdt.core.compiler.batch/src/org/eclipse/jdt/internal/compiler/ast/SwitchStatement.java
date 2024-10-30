@@ -105,6 +105,7 @@ public class SwitchStatement extends Expression {
 	public final static int TotalPattern = ASTNode.Bit3;
 	public final static int Exhaustive = ASTNode.Bit4;
 	public final static int QualifiedEnum = ASTNode.Bit5;
+	public final static int LabeledBlockStatementGroup = ASTNode.Bit6;
 
 	// for switch on strings
 	private static final char[] SecretStringVariableName = " switchDispatchString".toCharArray(); //$NON-NLS-1$
@@ -402,9 +403,6 @@ public class SwitchStatement extends Expression {
 		}
 		return FALLTHROUGH;
 	}
-	protected void completeNormallyCheck(BlockScope blockScope) {
-		// do nothing
-	}
 	protected boolean needToCheckFlowInAbsenceOfDefaultBranch() {
 		return !this.isExhaustive();
 	}
@@ -493,7 +491,6 @@ public class SwitchStatement extends Expression {
 						}
 					}
 				}
-				completeNormallyCheck(currentScope);
 			}
 
 			final TypeBinding resolvedTypeBinding = this.expression.resolvedType;
@@ -1266,7 +1263,6 @@ public class SwitchStatement extends Expression {
 			if (this.dispatchPatternCopy == null) {
 				addSecretPatternSwitchVariables(upperScope);
 			}
-			reportMixingCaseTypes();
 
 			complainIfNotExhaustiveSwitch(upperScope, expressionType, compilerOptions);
 
@@ -1501,26 +1497,7 @@ public class SwitchStatement extends Expression {
 	public boolean isTrulyExpression() {
 		return false;
 	}
-	private void reportMixingCaseTypes() {
-		if (this.caseCount == 0) {
-			if (this.defaultCase != null && this.defaultCase.isExpr)
-				this.switchBits |= LabeledRules;
-			return;
-		}
-		if (this.cases[0] == null)
-			return;
-		boolean isExpr = this.cases[0].isExpr;
-		if (isExpr) this.switchBits |= LabeledRules;
-		for (int i = 1, l = this.caseCount; i < l; ++i) {
-			if (this.cases[i].isExpr != isExpr) {
-				this.scope.problemReporter().switchExpressionMixedCase(this.cases[i]);
-				return;
-			}
-		}
-		if (this.defaultCase != null && this.defaultCase.isExpr != isExpr) {
-			this.scope.problemReporter().switchExpressionMixedCase(this.defaultCase);
-		}
-	}
+
 	private void reportDuplicateCase(final Statement duplicate,
 			final Statement original,
 			int length) {

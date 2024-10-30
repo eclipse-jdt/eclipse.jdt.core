@@ -43,7 +43,7 @@ public class CaseStatement extends Statement {
 	public BranchLabel targetLabel;
 	public Expression[] constantExpressions; // case with multiple expressions - if you want a under-the-hood view, use peeledLabelExpressions()
 	public BranchLabel[] targetLabels; // for multiple expressions
-	public boolean isExpr = false;
+	public boolean isSwitchRule = false;
 
 	public SwitchStatement swich; // owning switch
 	public int typeSwitchIndex;   // for the first pattern among this.constantExpressions
@@ -177,6 +177,16 @@ public static class ResolvedCase {
  */
 public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
 	this.swich = switchStatement;
+
+	if (this.isSwitchRule)
+		this.swich.switchBits |= SwitchStatement.LabeledRules;
+	else
+		this.swich.switchBits |= SwitchStatement.LabeledBlockStatementGroup;
+
+	if ((this.swich.switchBits & (SwitchStatement.LabeledRules | SwitchStatement.LabeledBlockStatementGroup)) == (SwitchStatement.LabeledRules | SwitchStatement.LabeledBlockStatementGroup)) {
+		scope.problemReporter().arrowColonMixup(this);
+	}
+
 	scope.enclosingCase = this; // record entering in a switch case block
 	if (this.constantExpressions == Expression.NO_EXPRESSIONS) {
 		checkDuplicateDefault(scope, switchStatement, this);
@@ -461,16 +471,15 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 public StringBuilder printStatement(int tab, StringBuilder output) {
 	printIndent(tab, output);
 	if (this.constantExpressions == Expression.NO_EXPRESSIONS) {
-		output.append("default "); //$NON-NLS-1$
-		output.append(this.isExpr ? "->" : ":"); //$NON-NLS-1$ //$NON-NLS-2$
+		output.append("default"); //$NON-NLS-1$
 	} else {
 		output.append("case "); //$NON-NLS-1$
 		for (int i = 0, l = this.constantExpressions.length; i < l; ++i) {
 			this.constantExpressions[i].printExpression(0, output);
 			if (i < l -1) output.append(',');
 		}
-		output.append(this.isExpr ? " ->" : " :"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
+	output.append(this.isSwitchRule ? " ->" : " :"); //$NON-NLS-1$ //$NON-NLS-2$
 	return output;
 }
 

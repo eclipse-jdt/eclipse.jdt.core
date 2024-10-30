@@ -9470,7 +9470,7 @@ protected void consumeCaseLabelExpr() {
 	if (!this.parsingJava14Plus) {
 		problemReporter().arrowInCaseStatementsNotSupported(caseStatement);
 	}
-	caseStatement.isExpr = true;
+	caseStatement.isSwitchRule = true;
 }
 protected void consumeDefaultLabelExpr() {
 //	SwitchLabelDefaultExpr ::= 'default' '->'
@@ -9479,7 +9479,7 @@ protected void consumeDefaultLabelExpr() {
 	if (!this.parsingJava14Plus) {
 		problemReporter().arrowInCaseStatementsNotSupported(defaultStatement);
 	}
-	defaultStatement.isExpr = true;
+	defaultStatement.isSwitchRule = true;
 }
 protected void consumeSwitchExpression() {
 // SwitchExpression ::= 'switch' '(' Expression ')' OpenBlock SwitchExpressionBlock

@@ -2145,11 +2145,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"	continue;\n" +
 			"	^^^^^^^^^\n" +
 			"Continue out of switch expressions not permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 11)\n" +
-			"	continue;\n" +
-			"	^^^^^^^^^\n" +
-			"'continue' or 'return' cannot be the last statement in a Switch expression case body\n" +
 			"----------\n");
 	}
 	public void testBug544073_077() {
@@ -2182,11 +2177,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"	return 2;\n" +
 			"	^^^^^^^^^\n" +
 			"Return within switch expressions not permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 11)\n" +
-			"	return 2;\n" +
-			"	^^^^^^^^^\n" +
-			"'continue' or 'return' cannot be the last statement in a Switch expression case body\n" +
 			"----------\n");
 	}
 	public void testBug544073_078() {
@@ -3338,6 +3328,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	default -> 3;\n" +
 				"	^^^^^^^\n" +
 				"Arrow in case statement supported from Java 14 onwards only\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	default -> 3;\n" +
+				"	           ^\n" +
+				"Invalid expression as statement\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -8058,6 +8053,38 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"""
 				},
 				"class [LX;\n42");
+	}
+
+	// test mixing of -> and : in the same switch
+	public void testMixingCaseStyles() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						 int i = switch(args.length) {
+							 case 2: yield 2;
+							 default -> 1;
+							 case 1 : yield 2;
+						 };
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	default -> 1;\n" +
+				"	^^^^^^^\n" +
+				"Mixing of '->' and ':' case statement styles is not allowed within a switch\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 6)\n" +
+				"	case 1 : yield 2;\n" +
+				"	^^^^^^\n" +
+				"Mixing of '->' and ':' case statement styles is not allowed within a switch\n" +
+				"----------\n");
 	}
 
 }
