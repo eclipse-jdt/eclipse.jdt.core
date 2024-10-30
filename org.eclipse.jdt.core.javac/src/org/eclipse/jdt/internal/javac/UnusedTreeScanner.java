@@ -19,10 +19,12 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
+import com.sun.source.doctree.SeeTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.IdentifierTree;
@@ -41,7 +43,11 @@ import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type.JCPrimitiveType;
 import com.sun.tools.javac.code.TypeTag;
+import com.sun.tools.javac.parser.Tokens.Comment;
+import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
+import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCImport;
@@ -55,6 +61,30 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 	final Set<Symbol> usedElements = new HashSet<>();
 	final Map<String, JCImport> unusedImports = new LinkedHashMap<>();
 	private CompilationUnitTree unit = null;
+	
+	private final UnusedDocTreeScanner unusedDocTreeScanner = new UnusedDocTreeScanner();
+	
+	@Override
+	public R scan(Tree tree, P p) {
+		if (tree == null) {
+			return super.scan(tree, p);
+		}
+		JCCompilationUnit jcUnit = null;
+		if (unit instanceof JCCompilationUnit currentUnit) {
+			jcUnit = currentUnit;
+		} else if (tree instanceof JCCompilationUnit currentUnit) {
+			jcUnit = currentUnit;
+		}
+		
+		if (jcUnit != null && tree instanceof JCTree jcTree) {
+			Comment c = jcUnit.docComments.getComment(jcTree);
+			if (c != null && (c.getStyle() == CommentStyle.JAVADOC_BLOCK || c.getStyle() == CommentStyle.JAVADOC_LINE)) {
+				var docCommentTree = jcUnit.docComments.getCommentTree(jcTree);
+				this.unusedDocTreeScanner.scan(docCommentTree, p);
+			}
+		}
+		return super.scan(tree, p);
+	}
 
 	@Override
 	public R visitCompilationUnit(CompilationUnitTree node, P p) {
@@ -250,5 +280,81 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 		}
 
 		return problemFactory.addUnusedPrivateMembers(unit, unusedPrivateMembers);
+	}
+	
+	private class UnusedDocTreeScanner extends com.sun.source.util.DocTreeScanner<R, P> {
+		@Override
+		public R visitLink(com.sun.source.doctree.LinkTree node, P p) {
+			if (node.getReference() instanceof com.sun.tools.javac.tree.DCTree.DCReference ref) {
+				useImport(ref);
+			}
+			return super.visitLink(node, p);
+		}
+
+		@Override
+		public R visitSee(SeeTree node, P p) {
+			if (node.getReference() instanceof List<?> refs) {
+				for (Object ref : refs) {
+					if (ref instanceof com.sun.tools.javac.tree.DCTree.DCReference) {
+						useImport((com.sun.tools.javac.tree.DCTree.DCReference)ref);
+					}
+				}
+			}
+			return super.visitSee(node, p);
+		}
+
+		private void useImport(com.sun.tools.javac.tree.DCTree.DCReference ref) {
+			if (ref.qualifierExpression instanceof JCIdent qualifier) {
+				String fieldName = null;
+				// for static imports
+				if (ref.memberName instanceof JCIdent field) {
+					fieldName = field.toString();
+				}
+
+				if (qualifier.sym == null || qualifier.sym.owner.toString().isBlank()) {
+					String suffix = "." + qualifier.getName().toString();
+					Optional<String> potentialImport = UnusedTreeScanner.this.unusedImports.keySet().stream().filter(a -> a.endsWith(suffix)).findFirst();
+					if (potentialImport.isPresent()) {
+						UnusedTreeScanner.this.unusedImports.remove(potentialImport.get());
+					}
+					// static imports
+					if (fieldName != null) {
+						String suffixWithField = suffix + "." + fieldName;
+						String suffixWithWildcard = suffix + ".*";
+						Optional<String> potentialStaticImport = UnusedTreeScanner.this.unusedImports.keySet().stream().filter(a -> a.endsWith(suffixWithField)).findFirst();
+						if (potentialStaticImport.isPresent()) {
+							UnusedTreeScanner.this.unusedImports.remove(potentialStaticImport.get());
+						}
+						Optional<String> potentialStaticWildcardImport = UnusedTreeScanner.this.unusedImports.keySet().stream().filter(a -> a.endsWith(suffixWithWildcard)).findFirst();
+						if (potentialStaticWildcardImport.isPresent()) {
+							UnusedTreeScanner.this.unusedImports.remove(potentialStaticWildcardImport.get());
+						}
+					}
+				} else {
+					String name = qualifier.toString();
+					String ownerName = qualifier.sym.owner.toString();
+					if (!ownerName.isBlank()) {
+						String starImport = ownerName + ".*";
+						String usualImport = ownerName + "." + name;
+						if (UnusedTreeScanner.this.unusedImports.containsKey(starImport)) {
+							UnusedTreeScanner.this.unusedImports.remove(starImport);
+						} else if (UnusedTreeScanner.this.unusedImports.containsKey(usualImport)) {
+							UnusedTreeScanner.this.unusedImports.remove(usualImport);
+						}
+						// static imports
+						if (fieldName != null) {
+							String suffixWithField = usualImport + "." + fieldName;
+							String suffixWithWildcard = usualImport + ".*";
+							if (UnusedTreeScanner.this.unusedImports.containsKey(suffixWithField)) {
+								UnusedTreeScanner.this.unusedImports.remove(suffixWithField);
+							}
+							if (UnusedTreeScanner.this.unusedImports.containsKey(suffixWithWildcard)) {
+								UnusedTreeScanner.this.unusedImports.remove(suffixWithWildcard);
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 }
