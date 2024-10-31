@@ -31,7 +31,15 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class SwitchExpression extends SwitchStatement implements IPolyExpression {
 
@@ -40,8 +48,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	private boolean isPolyExpression = false;
 	private TypeBinding[] originalValueResultExpressionTypes;
 	private TypeBinding[] finalValueResultExpressionTypes;
-	/* package */ Map<Expression, TypeBinding> originalTypeMap = new HashMap<>();
-
 
 	private int nullStatus = FlowInfo.UNKNOWN;
 	public List<Expression> resultExpressions = new ArrayList<>(0);
@@ -330,9 +336,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			if (this.constant != Constant.NotAConstant) {
 				this.constant = Constant.NotAConstant;
 
-				if (this.originalTypeMap == null)
-					this.originalTypeMap = new HashMap<>();
-
 				super.resolve(upperScope);
 
 				resultExpressionsCount = this.resultExpressions.size();
@@ -341,31 +344,26 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 					return this.resolvedType = null;
 				}
 
-				if (this.originalValueResultExpressionTypes == null) {
-					this.originalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];
-					this.finalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];
-					for (int i = 0; i < resultExpressionsCount; ++i) {
-						this.finalValueResultExpressionTypes[i] = this.originalValueResultExpressionTypes[i] =
-								this.resultExpressions.get(i).resolvedType;
-					}
+				this.originalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];
+				this.finalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];
+				for (int i = 0; i < resultExpressionsCount; ++i) {
+					this.finalValueResultExpressionTypes[i] = this.originalValueResultExpressionTypes[i] = this.resultExpressions.get(i).resolvedType;
 				}
+
 				if (isPolyExpression()) { //The type of a poly switch expression is the same as its target type.
 					if (this.expectedType == null || !this.expectedType.isProperType(true)) {
 						return new PolyTypeBinding(this);
 					}
 					return this.resolvedType = computeConversions(this.scope, this.expectedType) ? this.expectedType : null;
 				}
-			} else {
-				// re-resolving of poly expression:
+			} else { // re-resolving of poly expression:
 				resultExpressionsCount = this.resultExpressions.size();
 				if (resultExpressionsCount == 0)
 					return this.resolvedType = null; // error flagging would have been done during the earlier phase.
 				boolean yieldErrors = false;
 				for (int i = 0; i < resultExpressionsCount; i++) {
 					Expression resultExpr = this.resultExpressions.get(i);
-					TypeBinding origType = this.originalTypeMap.get(resultExpr);
-					// NB: if origType == null we assume that initial resolving failed hard, rendering re-resolving impossible
-					if (origType != null &&  origType.kind() == Binding.POLY_TYPE) {
+					if (resultExpr.isPolyExpression()) {
 						this.finalValueResultExpressionTypes[i] = this.originalValueResultExpressionTypes[i] =
 							resultExpr.resolveTypeExpecting(upperScope, this.expectedType);
 					}
@@ -374,7 +372,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				}
 				if (yieldErrors)
 					return this.resolvedType = null;
-				this.resolvedType = computeConversions(this.scope, this.expectedType) ? this.expectedType : null;
+				return this.resolvedType = computeConversions(this.scope, this.expectedType) ? this.expectedType : null;
 			}
 
 			boolean uniformYield = true;
@@ -641,6 +639,17 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		}
 		return true;
 	}
+
+	@Override
+	public StringBuilder printExpression(int tab, StringBuilder output, boolean makeShort) {
+		if (!makeShort) {
+			return super.printExpression(tab, output);
+		} else {
+			printIndent(tab, output).append("switch ("); //$NON-NLS-1$
+			return this.expression.printExpression(0, output).append(") { ... }"); //$NON-NLS-1$
+		}
+	}
+
 	@Override
 	public TypeBinding expectedType() {
 		return this.expectedType;

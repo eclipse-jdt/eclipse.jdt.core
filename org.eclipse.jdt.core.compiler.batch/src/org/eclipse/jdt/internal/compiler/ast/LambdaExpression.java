@@ -734,6 +734,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		return printExpression(tab, output, false);
 	}
 
+	@Override
 	public StringBuilder printExpression(int tab, StringBuilder output, boolean makeShort) {
 		int parenthesesCount = (this.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		String suffix = ""; //$NON-NLS-1$
