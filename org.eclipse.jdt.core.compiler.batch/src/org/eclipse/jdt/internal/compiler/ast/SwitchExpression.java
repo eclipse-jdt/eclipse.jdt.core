@@ -325,6 +325,9 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 
 	@Override
 	public TypeBinding resolveType(BlockScope upperScope) {
+		if (++this.resolves > 2)
+			throw new IllegalStateException("Seen one two many resolves!"); //$NON-NLS-1$
+
 		try {
 			int resultExpressionsCount;
 			if (this.constant != Constant.NotAConstant) {

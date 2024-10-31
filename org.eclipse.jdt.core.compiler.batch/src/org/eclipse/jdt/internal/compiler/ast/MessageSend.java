@@ -771,6 +771,9 @@ public StringBuilder printExpression(int indent, StringBuilder output){
 
 @Override
 public TypeBinding resolveType(BlockScope scope) {
+	if (++this.resolves > 2)
+		throw new IllegalStateException("Seen one two many resolves!"); //$NON-NLS-1$
+
 	// Answer the signature return type, answers PolyTypeBinding if a poly expression and there is no target type
 	// Base type promotion
 	if (this.constant != Constant.NotAConstant) {

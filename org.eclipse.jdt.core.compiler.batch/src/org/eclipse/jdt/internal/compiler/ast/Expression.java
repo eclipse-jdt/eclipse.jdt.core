@@ -53,6 +53,7 @@ public abstract class Expression extends Statement {
 
 	public Constant constant;
 	public int statementEnd = -1;
+	int resolves;
 
 	//Some expression may not be used - from a java semantic point
 	//of view only - as statements. Other may. In order to avoid the creation

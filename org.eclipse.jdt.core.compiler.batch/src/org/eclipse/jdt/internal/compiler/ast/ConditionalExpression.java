@@ -469,6 +469,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
+		if (++this.resolves > 2)
+			throw new IllegalStateException("Seen one two many resolves!"); //$NON-NLS-1$
+
 		// JLS3 15.25
 		LookupEnvironment env = scope.environment();
 		if (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) {
