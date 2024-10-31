@@ -4098,7 +4098,7 @@ protected void runNegativeTest(
 		javacTestOptions /* javac test options */);
 }
 	protected boolean shouldRunJavac() {
-		return RUN_JAVAC || this.runJavacCustom;
+		return RUN_JAVAC || (RUN_JAVAC_OPT_IN && this.runJavacOptIn);
 	}
 	@Override
 	protected void setUp() throws Exception {
@@ -4124,10 +4124,6 @@ protected void runNegativeTest(
 				String jdkRootDirectory = System.getProperty("jdk.root");
 				if (jdkRootDirectory == null) {
 					jdkRootDirPath = (new Path(Util.getJREDirectory())); // requires java >= 9
-				} else if (jdkRootDirectory.equalsIgnoreCase("none")) {
-					System.out.println("Disabling run.javac mode due to jdk.root=none");
-					this.runJavacCustom = false;
-					return;
 				} else {
 					jdkRootDirPath = new Path(jdkRootDirectory);
 				}
