@@ -244,6 +244,8 @@ public class DOMCompletionEngine implements Runnable {
 				}
 			} else if (this.toComplete instanceof Block block && this.offset == block.getStartPosition()) {
 				context = this.toComplete.getParent();
+			} else if (this.toComplete instanceof FieldAccess fieldAccess) {
+				completeAfter = fieldAccess.getName().toString();
 			}
 			this.prefix = completeAfter;
 			this.qualifiedPrefix = this.prefix;
@@ -273,10 +275,7 @@ public class DOMCompletionEngine implements Runnable {
 					processMembers(fieldAccess, fieldAccess.getExpression().resolveTypeBinding(), specificCompletionBindings, false);
 				}
 				if (specificCompletionBindings.stream().findAny().isPresent()) {
-					specificCompletionBindings.stream()
-						.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
-						.map(binding -> toProposal(binding))
-						.forEach(this.requestor::accept);
+					publishFromScope(specificCompletionBindings);
 					this.requestor.endReporting();
 					return;
 				}
@@ -350,13 +349,38 @@ public class DOMCompletionEngine implements Runnable {
 				}
 			}
 			if (context instanceof AbstractTypeDeclaration typeDecl) {
-				// eg.
-				// public class Foo {
-				//     |
-				// }
-				ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
-				findOverridableMethods(typeDeclBinding, this.modelUnit.getJavaProject(), null);
-				suggestDefaultCompletions = false;
+				try {
+					IBuffer buffer = this.modelUnit.getBuffer();
+					int nameEndOffset = typeDecl.getName().getStartPosition() + typeDecl.getName().getLength();
+					int bodyStart = nameEndOffset;
+					while (bodyStart < buffer.getLength() && buffer.getChar(bodyStart) != '{') {
+						bodyStart++;
+					}
+					if (nameEndOffset < this.offset && this.offset <= bodyStart) {
+						String extendsOrImplementsContent = buffer.getText(nameEndOffset, this.offset - nameEndOffset);
+						if (extendsOrImplementsContent.indexOf("implements") < 0 && extendsOrImplementsContent.indexOf("extends") < 0) { //$NON-NLS-1$ //$NON-NLS-2$
+							// public class Foo | {
+							//
+							// }
+							this.requestor.accept(createKeywordProposal(Keywords.EXTENDS, this.offset, this.offset));
+							this.requestor.accept(createKeywordProposal(Keywords.IMPLEMENTS, this.offset, this.offset));
+						} else if (extendsOrImplementsContent.indexOf("implements") < 0 && (Character.isWhitespace(buffer.getChar(this.offset - 1)) || buffer.getChar(this.offset - 1) == ',')) { //$NON-NLS-1$
+							// public class Foo extends Bar, Baz, | {
+							//
+							// }
+							this.requestor.accept(createKeywordProposal(Keywords.IMPLEMENTS, this.offset, this.offset));
+						}
+					} else if (bodyStart < this.offset) {
+						// public class Foo {
+						//     |
+						// }
+						ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
+						findOverridableMethods(typeDeclBinding, this.modelUnit.getJavaProject(), null);
+					}
+					suggestDefaultCompletions = false;
+				} catch (JavaModelException e) {
+					ILog.get().error("unable to use buffer contents to tell if completion was in the extends/implements list", e); //$NON-NLS-1$
+				}
 			}
 			if (context instanceof QualifiedName qualifiedName) {
 				IBinding qualifiedNameBinding = qualifiedName.getQualifier().resolveBinding();
