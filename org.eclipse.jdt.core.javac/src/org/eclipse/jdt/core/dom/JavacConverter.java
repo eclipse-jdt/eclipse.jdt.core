@@ -418,7 +418,7 @@ class JavacConverter {
 				}
 				// workaround: some types appear to not keep the trailing semicolon in source range
 				if (res instanceof Name || res instanceof FieldAccess || res instanceof SuperFieldAccess ) {
-					while (endPos > start && this.rawText.charAt(endPos - 1) == ';') {
+					while (endPos > start && this.rawText.length()>= endPos && this.rawText.charAt(endPos - 1) == ';') {
 						endPos--;
 					}
 				}
@@ -2965,6 +2965,9 @@ class JavacConverter {
 					commonSettings(res, jcArrayType);
 				} else {
 					int endPos = jcArrayType.getEndPosition(this.javacCompilationUnit.endPositions);
+					if (endPos == -1) {
+						endPos = jcArrayType.pos;
+					}
 					int startPos = jcArrayType.getStartPosition();
 					try {
 						String raw = this.rawText.substring(startPos, endPos);
