@@ -53,6 +53,7 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int FIRST_SUPPORTED_JAVA_VERSION = F_1_8;
 
 	public static final boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
+	protected boolean runJavacCustom = false;
 	public static final boolean PERFORMANCE_ASSERTS = !CompilerOptions.DISABLED.equals(System.getProperty("jdt.performance.asserts"));
 	private static final int UNINITIALIZED = -1;
 	private static final int NONE = 0;

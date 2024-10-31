@@ -128,7 +128,7 @@ public abstract class AbstractModuleCompilationTest extends AbstractBatchCompile
 	protected Set<String> runConformModuleTest(String[] testFiles, String commandLine, String expectedFailureOutOutputString, String expectedFailureErrOutputString, boolean shouldFlushOutputDirectory, String output,
 			JavacTestOptions options, String javacCommandLine) {
 				runConformTest(testFiles, commandLine, expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory);
-				if (RUN_JAVAC) {
+				if (shouldRunJavac()) {
 					File outputDir = new File(output);
 					final Set<String> outFiles = new HashSet<>();
 					walkOutFiles(output, outFiles, true);
@@ -212,7 +212,7 @@ public abstract class AbstractModuleCompilationTest extends AbstractBatchCompile
 	void runNegativeModuleTest(String[] testFiles, String commandLine, String expectedFailureOutOutputString, String expectedFailureErrOutputString, boolean shouldFlushOutputDirectory, String javacErrorMatch,
 			String output, JavacTestOptions options) {
 				runNegativeTest(testFiles, commandLine, expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory);
-				if (RUN_JAVAC) {
+				if (shouldRunJavac()) {
 					String[] testFileNames = new String[testFiles.length/2];
 					for (int i = 0; i < testFileNames.length; i++) {
 						testFileNames[i] = testFiles[i*2];

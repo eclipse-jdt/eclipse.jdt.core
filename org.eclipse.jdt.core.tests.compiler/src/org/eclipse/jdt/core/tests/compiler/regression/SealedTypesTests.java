@@ -44,6 +44,19 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		super(testName);
 	}
 
+	// ========= OPT-IN to run.javac mode: ===========
+	@Override
+	protected void setUp() throws Exception {
+		this.runJavacCustom = true;
+		super.setUp();
+	}
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		this.runJavacCustom = false; // do it last, so super can still clean up
+	}
+	// =================================================
+
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
