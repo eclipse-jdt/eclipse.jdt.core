@@ -26,7 +26,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.ArrayList;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.jdt.core.tests.compiler.parser.ImplicitlyDeclaredClassesTest;
 import org.eclipse.jdt.core.tests.compiler.util.HashtableOfObjectTest;
 import org.eclipse.jdt.core.tests.compiler.util.JrtUtilTest;
 import org.eclipse.jdt.core.tests.dom.StandAloneASTParserTest;

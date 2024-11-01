@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
@@ -31,7 +32,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 //		TESTS_NAMES = new String[] { "testBug575053_002"};
 	}
 
-	private static String previewLevel = "21";
+	private static String previewLevel = "23";
 
 	public static Class<?> testClass() {
 		return SwitchPatternTest.class;
@@ -3836,10 +3837,10 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"");
 	}
 	public void testBug575571_1() {
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.WARNING);
-		runWarningTest(
-		new String[] {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.WARNING);
+		runner.testFiles = new String[] {
 		"X.java",
 		"public class X {\n" +
 		"       public void foo(Color o) {\n" +
@@ -3851,14 +3852,16 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		"       public static void main(String[] args) {}\n" +
 		"}\n" +
 		"enum Color {   Blue;  }\n",
-		},
+		};
+		runner.expectedCompilerLog =
 		"----------\n" +
 		"1. WARNING in X.java (at line 3)\n" +
 		"	switch (o) {\n" +
 		"	        ^\n" +
 		"The switch over the enum type Color should have a default case\n" +
-		"----------\n",
-		options);
+		"----------\n";
+		runner.javacTestOptions = Excuse.EclipseHasSomeMoreWarnings;
+		runner.runWarningTest();
 	}
 	public void testBug575571_2() {
 		runNegativeTest(
@@ -4809,8 +4812,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	public void testBug578553_7() {
 		runNegativeTest(
-				false /*skipJavac */,
-				JavacTestOptions.JavacHasABug.JavacBug8299416,
 				new String[] {
 					"X.java",
 					"public class X {\n"
@@ -8238,6 +8239,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	        ^\n" +
 				"The enum constant THREE should have a corresponding case label in this enum switch on NUM. To suppress this problem, add a comment //$CASES-OMITTED$ on the line above the 'default:'\n" +
 				"----------\n";
+		runner.javacTestOptions = Excuse.EclipseWarningConfiguredAsError;
 		runner.runNegativeTest();
 	}
 
