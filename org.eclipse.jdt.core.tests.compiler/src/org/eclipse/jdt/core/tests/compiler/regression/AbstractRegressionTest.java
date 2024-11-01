@@ -1160,21 +1160,21 @@ protected static class JavacTestOptions {
 			JavacBug8144832 = // https://bugs.openjdk.java.net/browse/JDK-8144832
 					new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK9, 0000),
 			JavacBug8179483_switchExpression = // https://bugs.openjdk.java.net/browse/JDK-8179483
-					new JavacBug8179483(" --release 13 --enable-preview -Xlint:-preview"),
+					new JavacBug8179483(" --release 23 --enable-preview -Xlint:-preview"),
 			JavacBug8221413_switchExpression = // https://bugs.openjdk.java.net/browse/JDK-8221413
 					new JavacBug8221413(" --release 12 --enable-preview -Xlint:-preview"),
 			JavacBug8226510_switchExpression = // https://bugs.openjdk.java.net/browse/JDK-8226510
 					new JavacBug8226510(" --release 12 --enable-preview -Xlint:-preview"),
-		    JavacBug8299416 = // https://bugs.openjdk.java.net/browse/JDK-8299416
-					new JavacBugExtraJavacOptionsPlusMismatch(" --release 20 --enable-preview -Xlint:-preview",
-							MismatchType.EclipseErrorsJavacNone| MismatchType.EclipseErrorsJavacWarnings),
+//		    JavacBug8299416 = // https://bugs.openjdk.java.net/browse/JDK-8299416 was active only in some builds of JDK 20
 		    JavacBug8336255 = // https://bugs.openjdk.org/browse/JDK-8336255
 					new JavacBugExtraJavacOptionsPlusMismatch(" --release 23 --enable-preview -Xlint:-preview",
 							MismatchType.JavacErrorsEclipseNone),
 			JavacBug8337980 = // https://bugs.openjdk.org/browse/JDK-8337980
 					new JavacHasABug(MismatchType.EclipseErrorsJavacNone /* add pivot JDK24 */),
 			JavacBug8343306 = // https://bugs.openjdk.org/browse/JDK-8343306
-					new JavacHasABug(MismatchType.EclipseErrorsJavacNone /* add pivot JDK24 */);
+					new JavacHasABug(MismatchType.EclipseErrorsJavacNone /* add pivot JDK24 */),
+			JavacBug8341408 = // https://bugs.openjdk.org/browse/JDK-8341408
+					new JavacBug8341408();
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
@@ -1225,7 +1225,7 @@ protected static class JavacTestOptions {
 	public static class JavacBug8179483 extends JavacHasABug {
 		String extraJavacOptions;
 		public JavacBug8179483(String extraJavacOptions) {
-			super(MismatchType.EclipseErrorsJavacWarnings);
+			super(MismatchType.EclipseErrorsJavacNone);
 			this.extraJavacOptions = extraJavacOptions;
 		}
 		@Override
@@ -1264,6 +1264,12 @@ protected static class JavacTestOptions {
 		@Override
 		String getCompilerOptions() {
 			return super.getCompilerOptions() + this.extraJavacOptions;
+		}
+	}
+	public static class JavacBug8341408 extends JavacBugExtraJavacOptionsPlusMismatch {
+		public JavacBug8341408() {
+			super("--enable-preview -source 23 -Xlint:-preview", MismatchType.StandardOutputMismatch);
+// FIXME	this.pivotCompliance = ClassFileConstants.JDK24;
 		}
 	}
 }

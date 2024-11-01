@@ -14,6 +14,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 import junit.framework.Test;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -81,6 +82,20 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	public PrimitiveInPatternsTestSH(String testName) {
 		super(testName);
 	}
+
+	// ========= OPT-IN to run.javac mode: ===========
+	@Override
+	protected void setUp() throws Exception {
+		this.runJavacOptIn = true;
+		super.setUp();
+	}
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		this.runJavacOptIn = false; // do it last, so super can still clean up
+	}
+	// =================================================
+
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
@@ -1579,7 +1594,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 					}
 				}
 				""");
-		runConformTest(new String[] {"X.java", clazz.toString()}, expectedOuts);
+		runConformTest(new String[] {"X.java", clazz.toString()}, expectedOuts, getCompilerOptions(true), VMARGS, JavacHasABug.JavacBug8341408);
 	}
 	public void testInstanceof_widenUnbox_Byte() {
 		testInstanceof_widenUnbox("Byte", 1, "49+49|49+49|49+49|49.0+49.0|49.0+49.0|");

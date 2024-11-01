@@ -15,6 +15,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -576,7 +577,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	 * A simple multi constant case statement, compiler reports missing enum constants
 	 */
 	public void testBug544073_018() {
-		String[] testFiles = new String[] {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
 						"	public static void main(String[] args) {\n" +
@@ -594,16 +596,15 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"enum Day { SATURDAY, SUNDAY, MONDAY, TUESDAY;}",
 		};
 
-		String expectedProblemLog =
+		runner.expectedCompilerLog =
 						"----------\n" +
 						"1. WARNING in X.java (at line 5)\n" +
 						"	switch (day) {\n" +
 						"	        ^^^\n" +
 						"The enum constant TUESDAY needs a corresponding case label in this enum switch on Day\n" +
 						"----------\n";
-		this.runWarningTest(
-				testFiles,
-				expectedProblemLog);
+		runner.javacTestOptions = Excuse.EclipseHasSomeMoreWarnings;
+		runner.runWarningTest();
 	}
 	/*
 	 * A simple multi constant case statement with duplicate enums
@@ -694,7 +695,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	/*
 	 */
 	public void testBug544073_021() {
-		String[] testFiles = new String[] {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
 						"public static void bar(Day day) {\n" +
@@ -713,16 +715,15 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"enum Day { SATURDAY, SUNDAY, MONDAY, TUESDAY;}",
 		};
 
-		String expectedProblemLog =
+		runner.expectedCompilerLog =
 				"----------\n" +
 				"1. WARNING in X.java (at line 3)\n" +
 				"	switch (day) {\n" +
 				"	        ^^^\n" +
 				"The enum constant MONDAY needs a corresponding case label in this enum switch on Day\n" +
 				"----------\n";
-		this.runWarningTest(
-				testFiles,
-				expectedProblemLog);
+		runner.javacTestOptions = Excuse.EclipseHasSomeMoreWarnings;
+		runner.runWarningTest();
 	}
 	public void testBug544073_022() {
 		String[] testFiles = new String[] {
