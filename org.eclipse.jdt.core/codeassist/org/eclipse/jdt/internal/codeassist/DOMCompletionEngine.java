@@ -228,10 +228,20 @@ public class DOMCompletionEngine implements Runnable {
 				if (!FAKE_IDENTIFIER.equals(simpleName.getIdentifier())) {
 					completeAfter = simpleName.getIdentifier().substring(0, simpleName.getIdentifier().length() <= charCount ? simpleName.getIdentifier().length() : charCount);
 				}
+				try {
+					IBuffer cuBuffer = this.modelUnit.getBuffer();
+					if (cuBuffer.getChar(this.offset - 1) == '.') {
+						completeAfter = ""; //$NON-NLS-1$
+					}
+				} catch (JavaModelException e) {
+					ILog.get().error("error while trying to read buffer for completion purposes", e); //$NON-NLS-1$
+				}
 				if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation
 						|| simpleName.getParent() instanceof VariableDeclaration || simpleName.getParent() instanceof QualifiedName
 						|| simpleName.getParent() instanceof SuperFieldAccess) {
-					context = this.toComplete.getParent();
+					if (!this.toComplete.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId())) {
+						context = this.toComplete.getParent();
+					}
 				}
 				if (simpleName.getParent() instanceof SimpleType simpleType && (simpleType.getParent() instanceof ClassInstanceCreation)) {
 					context = simpleName.getParent().getParent();
@@ -246,6 +256,8 @@ public class DOMCompletionEngine implements Runnable {
 				context = this.toComplete.getParent();
 			} else if (this.toComplete instanceof FieldAccess fieldAccess) {
 				completeAfter = fieldAccess.getName().toString();
+			} else if (this.toComplete instanceof MethodInvocation methodInvocation) {
+				completeAfter = methodInvocation.getName().toString();
 			}
 			this.prefix = completeAfter;
 			this.qualifiedPrefix = this.prefix;
@@ -309,7 +321,6 @@ public class DOMCompletionEngine implements Runnable {
 					}
 					suggestDefaultCompletions = false;
 				}
-				// else complete parameters, get back to default
 			}
 			if (context instanceof VariableDeclaration declaration) {
 				var binding = declaration.resolveBinding();
@@ -346,6 +357,30 @@ public class DOMCompletionEngine implements Runnable {
 				}
 				if (context.getParent() instanceof MethodDeclaration) {
 					suggestDefaultCompletions = false;
+				}
+				if (context.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId()) && context.getParent() instanceof QualifiedName) {
+					// eg.
+					// void myMethod() {
+					//   String myVariable = "hello, mom";
+					//   myVariable.|
+					//   Object myObj = null;
+					// }
+					// It thinks that our variable is a package or some other type. We know that it's a variable.
+					// Search the scope for the right binding
+					IBinding incorrectBinding = ((SimpleName) context).resolveBinding();
+					Bindings localBindings = new Bindings();
+					scrapeAccessibleBindings(localBindings);
+					Optional<IVariableBinding> realBinding = localBindings.stream() //
+							.filter(IVariableBinding.class::isInstance)
+							.map(IVariableBinding.class::cast)
+							.filter(varBind -> varBind.getName().equals(incorrectBinding.getName()))
+							.findFirst();
+					if (realBinding.isPresent()) {
+						processMembers(context, realBinding.get().getType(), specificCompletionBindings, false);
+						this.prefix = ""; //$NON-NLS-1$
+						publishFromScope(specificCompletionBindings);
+						suggestDefaultCompletions = false;
+					}
 				}
 			}
 			if (context instanceof AbstractTypeDeclaration typeDecl) {
@@ -991,7 +1026,7 @@ public class DOMCompletionEngine implements Runnable {
 		} else {
 			includeProtected = findInSupers(referencedFromBinding, typeBinding);
 		}
-		processMembers(typeBinding, scope, includePrivate, includeProtected, referencedFromBinding.getPackage().getKey(), isStaticContext, false,
+		processMembers(typeBinding, scope, includePrivate, includeProtected, referencedFromBinding.getPackage().getKey(), isStaticContext, typeBinding.isInterface(),
 				new HashSet<>(), new HashSet<>());
 	}
 
@@ -1176,7 +1211,7 @@ public class DOMCompletionEngine implements Runnable {
 			res.setReceiverSignature(new char[] {});
 			res.setDeclarationSignature(new char[] {});
 		}
-		res.setReplaceRange(this.toComplete instanceof SimpleName ? this.toComplete.getStartPosition() : this.offset,
+		res.setReplaceRange(this.toComplete instanceof SimpleName && !this.toComplete.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId()) && !this.prefix.isEmpty() ? this.toComplete.getStartPosition() : this.offset,
 				DOMCompletionEngine.this.offset);
 		var element = binding.getJavaElement();
 		if (element != null) {

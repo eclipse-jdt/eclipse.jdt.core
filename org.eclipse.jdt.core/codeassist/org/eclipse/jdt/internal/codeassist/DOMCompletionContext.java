@@ -60,24 +60,29 @@ class DOMCompletionContext extends CompletionContext {
 	@Override
 	public IJavaElement[] getVisibleElements(String typeSignature) {
 		return this.bindingsAcquirer.get() //
-			.filter(binding -> {
-				if (typeSignature == null) {
-					return binding instanceof IVariableBinding || binding instanceof IMethodBinding;
-				}
-				if (binding instanceof IVariableBinding variableBinding) {
-					return castCompatable(variableBinding.getType(),
-							typeSignature);
-				} else if (binding instanceof IMethodBinding methodBinding) {
-					return castCompatable(methodBinding.getReturnType(),
-							typeSignature);
-				}
-				// notably, ITypeBinding is not used to complete values,
-				// even, for instance, in the case that a `java.lang.Class<?>` is desired.
-				return false;
-			}) //
+			.filter(binding -> matchesSignature(binding, typeSignature)) //
 			.map(binding -> binding.getJavaElement()) //
 			.filter(obj -> obj != null) // eg. ArrayList.getFirst() when working with a Java 8 project
 			.toArray(IJavaElement[]::new);
+	}
+
+	/// Checks if the binding matches the given type signature
+	/// TODO: this should probably live in a helper method/utils class,
+	/// along with `castCompatable`
+	public static boolean matchesSignature(IBinding binding, String typeSignature) {
+		if (typeSignature == null) {
+			return binding instanceof IVariableBinding || binding instanceof IMethodBinding;
+		}
+		if (binding instanceof IVariableBinding variableBinding) {
+			return castCompatable(variableBinding.getType(),
+					typeSignature);
+		} else if (binding instanceof IMethodBinding methodBinding) {
+			return castCompatable(methodBinding.getReturnType(),
+					typeSignature);
+		}
+		// notably, ITypeBinding is not used to complete values,
+		// even, for instance, in the case that a `java.lang.Class<?>` is desired.
+		return false;
 	}
 
 	@Override
