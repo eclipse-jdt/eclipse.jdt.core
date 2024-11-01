@@ -194,7 +194,7 @@ void analyseOneArgument18(BlockScope currentScope, FlowContext flowContext, Flow
 		return;
 	} else 	if (argument instanceof SwitchExpression && argument.isPolyExpression()) {
 		SwitchExpression se = (SwitchExpression) argument;
-		for (int i = 0; i < se.resultExpressions.size(); i++) {
+		for (int i = 0; i < se.resultExpressions().size(); i++) {
 			se.internalAnalyseOneArgument18(currentScope, flowContext, expectedType,
 					se.resultExpressions.get(i), flowInfo,
 					se.resultExpressionNullStatus.get(i), expectedNonNullness, originalExpected);
@@ -261,7 +261,7 @@ protected void checkAgainstNullTypeAnnotation(BlockScope scope, TypeBinding requ
 		return;
 	} else 	if (expression instanceof SwitchExpression && expression.isPolyExpression()) {
 		SwitchExpression se = (SwitchExpression) expression;
-		for (int i = 0; i < se.resultExpressions.size(); i++) {
+		for (int i = 0; i < se.resultExpressions().size(); i++) {
 			internalCheckAgainstNullTypeAnnotation(scope, requiredType,
 					se.resultExpressions.get(i),
 					se.resultExpressionNullStatus.get(i), flowContext, flowInfo);

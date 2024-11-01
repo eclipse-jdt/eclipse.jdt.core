@@ -148,9 +148,9 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				};
 			}  else if (this.left instanceof SwitchExpression) {
 				SwitchExpression se = (SwitchExpression) this.left;
-				ConstraintFormula[] cfs = new ConstraintFormula[se.resultExpressions.size()];
+				ConstraintFormula[] cfs = new ConstraintFormula[se.resultExpressions().size()];
 				int i = 0;
-				for (Expression re : se.resultExpressions) {
+				for (Expression re : se.resultExpressions()) {
 					cfs[i++] = new ConstraintExpressionFormula(re, this.right, this.relation, this.isSoft);
 				}
 				return cfs;
@@ -542,7 +542,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 		} else if (this.left instanceof SwitchExpression && this.left.isPolyExpression()) {
 			SwitchExpression expr = (SwitchExpression) this.left;
 			Set<InferenceVariable> variables = new LinkedHashSet<>();
-			for (Expression re : expr.resultExpressions) {
+			for (Expression re : expr.resultExpressions()) {
 				variables.addAll(new ConstraintExpressionFormula(re, this.right, COMPATIBLE).inputVariables(context));
 			}
 			return variables;

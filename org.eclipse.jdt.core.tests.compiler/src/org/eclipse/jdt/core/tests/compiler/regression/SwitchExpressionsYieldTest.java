@@ -1700,6 +1700,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	case 0 -> x;\n" +
 				"	          ^\n" +
 				"x cannot be resolved to a variable\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 7)\n" +
+				"	return v;\n" +
+				"	       ^\n" +
+				"Type mismatch: cannot convert from Object to int\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -2027,8 +2032,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	public void testBug544073_071() {
-		if (this.complianceLevel < ClassFileConstants.JDK12)
-			return;
 		String message =
 				"----------\n" +
 				"1. WARNING in X.java (at line 5)\n" +
@@ -2053,8 +2056,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"-Xlint:preview");
 	}
 	public void testBug544073_072() {
-		if (this.complianceLevel < ClassFileConstants.JDK12)
-			return;
 		String message =
 				"----------\n" +
 				"1. WARNING in X.java (at line 5)\n" +
@@ -2707,8 +2708,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				expectedProblemLog);
 	}
 	public void testBug547891_15() {
-		if (this.complianceLevel < ClassFileConstants.JDK12)
-			return;
 		String message =
 				"----------\n" +
 				"1. ERROR in X.java (at line 6)\n" +
@@ -2753,8 +2752,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			message);
 	}
 	public void testBug547891_16() {
-		if (this.complianceLevel < ClassFileConstants.JDK12)
-			return;
 		String message =
 				"----------\n" +
 				"1. ERROR in X.java (at line 9)\n" +
@@ -2896,8 +2893,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"-1");
 	}
 	public void testBug547891_21() {
-		if (this.complianceLevel < ClassFileConstants.JDK12)
-			return;
 		String message =
 				"----------\n" +
 				"1. ERROR in X.java (at line 7)\n" +

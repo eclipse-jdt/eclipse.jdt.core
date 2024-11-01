@@ -11669,11 +11669,10 @@ public void moduleDoesNotReadOther(ImportReference importReference, ModuleBindin
 		importReference.sourceEnd);
 }
 public void incompatibleSwitchExpressionResults(SwitchExpression expression) {
-	TypeBinding type = expression.resultExpressions.get(0).resolvedType;
 	this.handle(
 		IProblem.SwitchExpressionsYieldIncompatibleResultExpressionTypes,
-		new String[] {new String(type.readableName())},
-		new String[] {new String(type.shortReadableName())},
+		NoArgument,
+		NoArgument,
 		expression.sourceStart,
 		expression.sourceEnd);
 }

@@ -241,7 +241,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				return getMoreUnsafeFromBranches((ConditionalExpression)expression, flowInfo,
 										branch -> getCloseTrackingVariable(branch, flowInfo, flowContext, useAnnotations));
 			} else if (expression instanceof SwitchExpression) {
-				for (Expression re : ((SwitchExpression) expression).resultExpressions) {
+				for (Expression re : ((SwitchExpression) expression).resultExpressions()) {
 					FakedTrackingVariable fakedTrackingVariable = getCloseTrackingVariable(re, flowInfo, flowContext, useAnnotations);
 					if (fakedTrackingVariable != null) {
 						return fakedTrackingVariable;
@@ -344,7 +344,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	}
 
 	private static boolean containsAllocation(SwitchExpression location) {
-		for (Expression re : location.resultExpressions) {
+		for (Expression re : location.resultExpressions()) {
 			if (containsAllocation(re))
 				return true;
 		}
@@ -391,7 +391,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 
 	private static void preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local, FlowInfo flowInfo,
 			SwitchExpression se, FakedTrackingVariable closeTracker, boolean useAnnotations) {
-		for (Expression re : se.resultExpressions) {
+		for (Expression re : se.resultExpressions()) {
 			preConnectTrackerAcrossAssignment(location, local, flowInfo, closeTracker, re, useAnnotations);
 		}
 	}
@@ -887,7 +887,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 																local, location, branch, previousTracker));
 		} else if (expression instanceof SwitchExpression) {
 			FakedTrackingVariable mostRisky = null;
-			for (Expression result : ((SwitchExpression) expression).resultExpressions) {
+			for (Expression result : ((SwitchExpression) expression).resultExpressions()) {
 				FakedTrackingVariable current = analyseCloseableExpression(scope, flowInfo, flowContext, useAnnotations,
 						local, location, result, previousTracker);
 				if (mostRisky == null)
