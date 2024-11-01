@@ -1711,6 +1711,9 @@ public RecordComponentBinding getComponent(char[] componentName, boolean needRes
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 @Override
 public MethodBinding[] getMethods(char[] selector) {
+	return getMethods(selector, true);
+}
+public MethodBinding[] getMethods(char[] selector, boolean shouldTryAgain) {
 	if (!isPrototype())
 		return this.prototype.getMethods(selector);
 
@@ -1740,8 +1743,11 @@ public MethodBinding[] getMethods(char[] selector) {
 		for (int i = start; i <= end; i++) {
 			MethodBinding method = this.methods[i];
 			if (resolveTypesFor(method) == null || method.returnType == null) {
-				methods();
-				return getMethods(selector); // try again since the problem methods have been removed
+				if( shouldTryAgain ) {
+					methods();
+					return getMethods(selector, false); // try again since the problem methods have been removed
+				}
+				return new MethodBinding[0];
 			}
 		}
 		int length = end - start + 1;
@@ -1757,8 +1763,11 @@ public MethodBinding[] getMethods(char[] selector) {
 				? method.areParameterErasuresEqual(result[j])
 				: method.areParametersEqual(result[j]);
 			if (paramsMatch) {
-				methods();
-				return getMethods(selector); // try again since the duplicate methods have been removed
+				if( shouldTryAgain ) {
+					methods();
+					return getMethods(selector); // try again since the duplicate methods have been removed
+				}
+				return new MethodBinding[0];
 			}
 		}
 	}
@@ -2069,6 +2078,9 @@ private int getImplicitMethod(MethodBinding[] resolvedMethods, char[] name) {
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 @Override
 public MethodBinding[] methods() {
+	if( this.scope == null ) {
+		return new MethodBinding[0];
+	}
 
 	components(); // In a record declaration, the components should be complete prior to fields and probably for methods
 
@@ -2543,6 +2555,10 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 }
 
 public MethodBinding resolveTypesFor(MethodBinding method) {
+	if( scope == null ) {
+		return null;
+	}
+
 	ProblemReporter problemReporter = this.scope.problemReporter();
 	try {
 		IErrorHandlingPolicy suspendedPolicy = problemReporter.suspendTempErrorHandlingPolicy();
