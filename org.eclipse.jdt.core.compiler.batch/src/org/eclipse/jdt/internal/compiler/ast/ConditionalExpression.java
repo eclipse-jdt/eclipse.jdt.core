@@ -527,22 +527,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			if (this.originalValueIfFalseType == null || !this.originalValueIfFalseType.isValidBinding())
 				return this.resolvedType = null;
 		}
-		// Propagate the constant value from the valueIfTrue and valueIFFalse expression if it is possible
-		Constant condConstant, trueConstant, falseConstant;
-		if ((condConstant = this.condition.constant) != Constant.NotAConstant
-			&& (trueConstant = this.valueIfTrue.constant) != Constant.NotAConstant
-			&& (falseConstant = this.valueIfFalse.constant) != Constant.NotAConstant) {
-			// all terms are constant expression so we can propagate the constant
-			// from valueIFTrue or valueIfFalse to the receiver constant
-			this.constant = condConstant.booleanValue() ? trueConstant : falseConstant;
-		}
 		if (isPolyExpression()) {
 			if (this.expectedType == null || !this.expectedType.isProperType(true)) {
-				// We will be back here in case of a PolyTypeBinding. So, to enable
-				// further processing, set it back to default.
-				this.constant = Constant.NotAConstant;
 				return new PolyTypeBinding(this);
 			}
+			constantFold();
 			return this.resolvedType = computeConversions(scope, this.expectedType) ? this.expectedType : null;
 		}
 
@@ -584,6 +573,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 					}
 			}
 		}
+		constantFold();
+		Constant condConstant;
 		if (TypeBinding.equalsEquals(valueIfTrueType, valueIfFalseType)) { // harmed the implicit conversion
 			this.valueIfTrue.computeConversion(scope, valueIfTrueType, this.originalValueIfTrueType);
 			this.valueIfFalse.computeConversion(scope, valueIfFalseType, this.originalValueIfFalseType);
@@ -685,6 +676,18 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			valueIfTrueType,
 			valueIfFalseType);
 		return null;
+	}
+
+	private void constantFold() {
+		// Propagate the constant value from the valueIfTrue and valueIFFalse expression if it is possible
+		Constant condConstant, trueConstant, falseConstant;
+		if ((condConstant = this.condition.constant) != Constant.NotAConstant
+			&& (trueConstant = this.valueIfTrue.constant) != Constant.NotAConstant
+			&& (falseConstant = this.valueIfFalse.constant) != Constant.NotAConstant) {
+			// all terms are constant expression so we can propagate the constant
+			// from valueIFTrue or valueIfFalse to the receiver constant
+			this.constant = condConstant.booleanValue() ? trueConstant : falseConstant;
+		}
 	}
 
 	protected boolean computeConversions(BlockScope scope, TypeBinding targetType) {
