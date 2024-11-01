@@ -6021,7 +6021,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	boolean b = foo( switch(i+1) {\n" +
 				"	            ^^^\n" +
-				"The method foo(short) in the type X is not applicable for the arguments (double)\n" +
+				"The method foo(short) in the type X is not applicable for the arguments (switch ((i + 1)) { ... })\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 9)\n" +
 				"	default -> Double.valueOf(2.0d);\n" +
@@ -6057,7 +6057,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	boolean b = foo( switch(i+1) {\n" +
 				"	            ^^^\n" +
-				"The method foo(short) in the type X is not applicable for the arguments (double)\n" +
+				"The method foo(short) in the type X is not applicable for the arguments (switch ((i + 1)) { ... })\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 9)\n" +
 				"	default -> 2.0d;\n" +
@@ -6094,7 +6094,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	boolean b = foo( switch(i+1) {\n" +
 				"	            ^^^\n" +
-				"The method foo(short) in the type X is not applicable for the arguments (double)\n" +
+				"The method foo(short) in the type X is not applicable for the arguments (switch ((i + 1)) { ... })\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 9)\n" +
 				"	default : yield 2.0d;\n" +
@@ -6341,12 +6341,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 3)\n" +
 			"	foo(switch (i) {\n" +
 			"	^^^\n" +
-			"The method foo(T) in the type X is not applicable for the arguments (switch (i) {\n" +
-			"case 0 ->\n" +
-			"    m.call();\n" +
-			"default ->\n" +
-			"    null;\n" +
-			"})\n" +
+			"The method foo(T) in the type X is not applicable for the arguments (switch (i) { ... })\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 4)\n" +
 			"	case 0 -> m.call();\n" +
@@ -8087,4 +8082,120 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3205
+	// [Switch Expressions] ECJ accepts ambiguous method invocation involving switch expressions with poly type result expression
+	public void testIssue3205() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				interface I {
+					void foo();
+				}
+
+				interface J {
+					void foo();
+				}
+
+				public class X implements I, J {
+
+					public void foo() {
+					}
+
+					static void doit() {}
+
+					public static void foo(Object o, J j) {
+						System.out.println("Object");
+					}
+
+					public static void foo(String s, I i) {
+						System.out.println(s);
+					}
+
+					public static void main(String[] args) {
+
+						// Compiles with both ECJ and javac
+						foo("OK", () -> {});
+
+						// Compiles with both ECJ and javac
+						foo("OK", args == null ? () -> {} : () -> {});
+
+						// Compiles with both ECJ and javac
+						foo("OK", X::doit);
+
+						// Rejected by both ECJ and javac.
+						//foo("OK", new X());
+
+						// Rejected by javac, accepted by ECJ.
+						foo("OK", switch (0) {
+									 	case 0 -> () -> {};
+									 	default -> () -> {};
+						});
+					}
+				}
+				"""
+				},
+				"OK\nOK\nOK\nOK");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3205
+	// [Switch Expressions] ECJ accepts ambiguous method invocation involving switch expressions with poly type result expression
+	public void testIssue3205_2() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				interface I {
+					void foo();
+				}
+
+				interface J {
+					void foo();
+				}
+
+				public class X implements I, J {
+
+					public void foo() {
+					}
+
+					static void doit() {}
+
+					public static void foo(Object o, J j) {
+						System.out.println("Object");
+					}
+
+					public static void foo(String s, I i) {
+						System.out.println(s);
+					}
+
+					public static void main(String[] args) {
+
+						// Compiles with both ECJ and javac
+						foo("OK", () -> {});
+
+						// Compiles with both ECJ and javac
+						foo("OK", args == null ? () -> {} : () -> {});
+
+						// Compiles with both ECJ and javac
+						foo("OK", X::doit);
+
+						// Rejected by both ECJ and javac.
+						foo("OK", new X());
+
+						// Rejected by javac, accepted by ECJ.
+						foo("OK", switch (0) {
+									 	case 0 -> () -> {};
+									 	default -> () -> {};
+						});
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 36)\n" +
+				"	foo(\"OK\", new X());\n" +
+				"	^^^\n" +
+				"The method foo(Object, J) is ambiguous for the type X\n" +
+				"----------\n");
+	}
 }

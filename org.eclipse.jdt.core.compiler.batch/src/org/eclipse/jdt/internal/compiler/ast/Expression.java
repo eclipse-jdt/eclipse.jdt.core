@@ -1100,6 +1100,10 @@ public StringBuilder print(int indent, StringBuilder output) {
 
 public abstract StringBuilder printExpression(int indent, StringBuilder output);
 
+public StringBuilder printExpression(int tab, StringBuilder output, boolean makeShort) {
+	return printExpression(tab, output);
+}
+
 @Override
 public StringBuilder printStatement(int indent, StringBuilder output) {
 	return print(indent, output).append(";"); //$NON-NLS-1$

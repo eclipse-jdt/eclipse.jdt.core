@@ -222,9 +222,7 @@ public void resolve(BlockScope scope) {
 	} else if (this.switchExpression == null) {
 		scope.problemReporter().yieldOutsideSwitchExpression(this);
 	}
-	TypeBinding type = this.expression.resolveType(scope);
-	if (this.switchExpression != null && type != null)
-		this.switchExpression.originalTypeMap.put(this.expression, type);
+	this.expression.resolveType(scope);
 }
 
 @Override
