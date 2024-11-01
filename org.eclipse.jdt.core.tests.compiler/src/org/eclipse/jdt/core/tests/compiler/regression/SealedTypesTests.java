@@ -19,6 +19,8 @@ import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
@@ -42,6 +44,19 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		super(testName);
 	}
 
+	// ========= OPT-IN to run.javac mode: ===========
+	@Override
+	protected void setUp() throws Exception {
+		this.runJavacOptIn = true;
+		super.setUp();
+	}
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		this.runJavacOptIn = false; // do it last, so super can still clean up
+	}
+	// =================================================
+
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
@@ -51,6 +66,13 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		defaultOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
 		return defaultOptions;
+	}
+
+	class Runner extends AbstractRegressionTest.Runner {
+		Runner() {
+			this.vmArguments = new String[0];
+			this.javacTestOptions = JavacTestOptions.DEFAULT;
+		}
 	}
 
 	@Override
@@ -63,44 +85,30 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		Runner runner = new Runner();
 		runner.testFiles = testFiles;
 		runner.expectedOutputString = expectedOutput;
-		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.customOptions = customOptions;
-		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("17");
 		runner.runConformTest();
 	}
 	@Override
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("17"));
+		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.DEFAULT);
 	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
 		runWarningTest(testFiles, expectedCompilerLog, (Map<String, String>) null);
 	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog, Map<String, String> customOptions) {
-		runWarningTest(testFiles, expectedCompilerLog, customOptions, null);
+		Runner runner = new Runner();
+		runner.testFiles = testFiles;
+		runner.expectedCompilerLog = expectedCompilerLog;
+		runner.customOptions = customOptions;
+		runner.runWarningTest();
 	}
 
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog, String expectedOutput) {
-
 		Runner runner = new Runner();
 		runner.testFiles = testFiles;
 		runner.expectedCompilerLog = expectedCompilerLog;
 		runner.expectedOutputString = expectedOutput;
 		runner.customOptions = getCompilerOptions();
-		runner.vmArguments = new String[] {"--enable-preview"};
-		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("16");
-		runner.runWarningTest();
-	}
-
-	protected void runWarningTest(String[] testFiles, String expectedCompilerLog,
-			Map<String, String> customOptions, String javacAdditionalTestOptions) {
-
-		Runner runner = new Runner();
-		runner.testFiles = testFiles;
-		runner.expectedCompilerLog = expectedCompilerLog;
-		runner.customOptions = customOptions;
-		runner.vmArguments = new String[] {"--enable-preview"};
-		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview("16") :
-			JavacTestOptions.forReleaseWithPreview("16", javacAdditionalTestOptions);
 		runner.runWarningTest();
 	}
 
@@ -6039,7 +6047,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1808
 	// [sealed-classes] Incorrect unused import warning
 	public void testIssue1808_4() {
-		runWarningTest(
+		Runner runner = new Runner();
+		runner.testFiles =
 				new String[] {
 						"foo/X.java",
 						"""
@@ -6052,16 +6061,18 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 					        }
 						}
 						"""
-				},
-
+				};
+		runner.expectedCompilerLog =
 				"----------\n"
 				+ "1. WARNING in foo\\X.java (at line 2)\n"
 				+ "	import foo.X.B;\n"
 				+ "	       ^^^^^^^\n"
 				+ "The import foo.X.B is never used\n"
-				+ "----------\n",
-
-				"Compiled and ran fine!");
+				+ "----------\n";
+		runner.expectedOutputString =
+				"Compiled and ran fine!";
+		runner.javacTestOptions = Excuse.EclipseHasSomeMoreWarnings;
+		runner.runWarningTest();
 	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2595
@@ -6853,5 +6864,36 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"	    ^^^^^^^^^^^^^^\n" +
 				"Cannot cast from X.C3 to X.C1\n" +
 				"----------\n");
+	}
+
+	public void testJDK8343306() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+				"X1.java",
+				"""
+				public class X1 {
+				    sealed interface I permits C1 {}
+				    non-sealed class C1 implements I {}
+				    class C2 extends C1 {}
+				    class C3 {}
+				    I m2(int s, C3 c3) {
+				        return switch (s) {
+				            case 0 -> (I) c3;
+				            default -> null;
+				        };
+				    }
+				}
+				"""};
+		runner.expectedCompilerLog =
+				"""
+				----------
+				1. ERROR in X1.java (at line 8)
+					case 0 -> (I) c3;
+					          ^^^^^^
+				Cannot cast from X1.C3 to X1.I
+				----------
+				""";
+		runner.javacTestOptions = JavacHasABug.JavacBug8343306;
+		runner.runNegativeTest();
 	}
 }

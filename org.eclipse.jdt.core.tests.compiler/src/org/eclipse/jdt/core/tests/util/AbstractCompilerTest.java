@@ -52,7 +52,12 @@ public class AbstractCompilerTest extends TestCase {
 	/** Should be adopted if {@link CompilerOptions#getFirstSupportedJdkLevel()} changes */
 	public static final int FIRST_SUPPORTED_JAVA_VERSION = F_1_8;
 
+	// specifying "-Drun.javac=enabled" unconditionally enables comparison with javac for all tests:
 	public static final boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
+	// specifying "-Drun.javac=optin" (case insensitive) enables comparison with javac for tests that set runJavacOptIn to true
+	public static final boolean RUN_JAVAC_OPT_IN = "optin".equalsIgnoreCase(System.getProperty("run.javac"));
+	protected boolean runJavacOptIn = false;
+
 	public static final boolean PERFORMANCE_ASSERTS = !CompilerOptions.DISABLED.equals(System.getProperty("jdt.performance.asserts"));
 	private static final int UNINITIALIZED = -1;
 	private static final int NONE = 0;
