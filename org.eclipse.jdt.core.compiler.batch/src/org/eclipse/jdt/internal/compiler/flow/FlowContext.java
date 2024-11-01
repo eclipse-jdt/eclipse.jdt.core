@@ -168,7 +168,7 @@ public FieldBinding[] nullCheckedFields() {
 	count = 0;
 	for (int i=0; i<len; i++) {
 		if (this.nullCheckedFieldReferences[i] != null)
-			result[count++] = this.nullCheckedFieldReferences[i].fieldBinding();
+			result[count++] = this.nullCheckedFieldReferences[i].lastFieldBinding();
 	}
 	return result;
 }
