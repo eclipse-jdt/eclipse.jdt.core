@@ -19414,4 +19414,46 @@ public void testGH2325_b() {
 	runner.classLibraries = this.LIBS;
 	runner.runConformTest();
 }
+public void testGH3192() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_SyntacticNullAnalysisForFields, CompilerOptions.ENABLED);
+	runner.customOptions.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
+	runner.testFiles = new String[] {
+			"test/Test.java",
+			"""
+			package test;
+
+			public class Test {
+
+			  public void test(final MyClass myClass) {
+			    if (myClass.me == MyEnum.A) { }
+			  }
+			}
+			""",
+			"test/MyClass",
+			"""
+			package test;
+
+			public final class MyClass {
+
+			  public final MyEnum me;
+
+			  public MyClass(final MyEnum me) {
+			    this.me = me;
+			  }
+			}
+			""",
+			"test/MyEnum",
+			"""
+			package test;
+
+			public enum MyEnum {
+			  A,
+			  ;
+			}
+			"""
+		};
+	runner.runConformTest();
+}
 }
