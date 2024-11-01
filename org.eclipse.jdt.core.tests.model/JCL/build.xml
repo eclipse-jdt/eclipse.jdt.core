@@ -101,4 +101,14 @@
 			<fileset dir="${jclbase}/converterJclMin${suffix}/src" />
 		</zip>
 	</target>
+	<target name="javax23api">
+		<mkdir dir="${jclbase}/javax23api/bin" />
+		<javac srcdir="${jclbase}/javax23api/src" destdir="${jclbase}/javax23api/bin"
+					debuglevel="lines,source"
+					source="17"
+					target="17">
+			<compilerarg line="-Xlint:none"/>
+		</javac>
+		<jar destfile="${basedir}/javax23api.jar" basedir="${jclbase}/javax23api/bin"/>
+	</target>
 </project>

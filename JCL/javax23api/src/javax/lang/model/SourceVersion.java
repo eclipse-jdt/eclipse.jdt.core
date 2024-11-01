@@ -26,7 +26,10 @@ public enum SourceVersion {
     RELEASE_17,
     RELEASE_18,
     RELEASE_19,
-    RELEASE_20;
+    RELEASE_20,
+	RELEASE_21,
+	RELEASE_22,
+	RELEASE_23;
 
     public static SourceVersion latest() {
         return RELEASE_20;
