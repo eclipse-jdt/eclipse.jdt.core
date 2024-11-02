@@ -133,6 +133,11 @@ public class Java23ElementProcessor extends BaseProcessor {
 		assertNotNull("method element should not be null", method);
 		kind = _elementUtils.getDocCommentKind(method);
 		assertSame("Incorrect doc kind", DocCommentKind.END_OF_LINE, kind);
+		String docComment = _elementUtils.getDocComment(method);
+		assertEquals("Incorrect doc comment", 
+				"\n/A markdown type comment on a method - line 1\n"
+				+ "//// A markdown type comment on a method - line 2\n"
+				+ "    A markdown type comment on a method - line 3\n", docComment);
 	}
 	public void testJavadocKind2() throws IOException {
 		String typeName = "my.mod.Main2";
@@ -140,6 +145,11 @@ public class Java23ElementProcessor extends BaseProcessor {
 		assertNotNull("type element should not be null", typeElement);
 		DocCommentKind kind = _elementUtils.getDocCommentKind(typeElement);
 		assertSame("Incorrect doc kind", DocCommentKind.END_OF_LINE, kind);
+		String docComment = _elementUtils.getDocComment(typeElement);
+		assertEquals("Incorrect doc comment",
+				"\n/A markdown type comment on a class - line 1\n"
+				+ "//// A markdown type comment on a class - line 2\n"
+				+ "    A markdown type comment on a class - line 3\n", docComment);
 		List<? extends Element> enclosedElements = typeElement.getEnclosedElements();
 		ExecutableElement method = null;
 		for (Element element : enclosedElements) {
@@ -150,6 +160,50 @@ public class Java23ElementProcessor extends BaseProcessor {
 		assertNotNull("method element should not be null", method);
 		kind = _elementUtils.getDocCommentKind(method);
 		assertSame("Incorrect doc kind", DocCommentKind.TRADITIONAL, kind);
+	}
+	public void testMarkdownContent3() throws IOException {
+		String typeName = "my.mod.Main1";
+		TypeElement typeElement = _elementUtils.getTypeElement(typeName);
+		assertNotNull("type element should not be null", typeElement);
+		List<? extends Element> enclosedElements = typeElement.getEnclosedElements();
+		ExecutableElement foo1 = null;
+		ExecutableElement foo2 = null;
+		ExecutableElement foo3 = null;
+		ExecutableElement foo4 = null;
+		for (Element element : enclosedElements) {
+			switch(element.getSimpleName().toString()) {
+				case "foo1": 
+					foo1 = (ExecutableElement) element;
+				case "foo2": 
+					foo2 = (ExecutableElement) element;
+				case "foo3": 
+					foo3 = (ExecutableElement) element;
+				case "foo4": 
+					foo4 = (ExecutableElement) element;
+				default: break;
+			}
+		}
+		String docComment = _elementUtils.getDocComment(foo1);
+		assertEquals("Incorrect doc comment", 
+				"Doc comment with 3 lines\n"
+				+ "\n"
+				+ "with an empty line in the middle", docComment);
+		docComment = _elementUtils.getDocComment(foo2);
+		assertEquals("Incorrect doc comment", 
+				"This is the actual doc commment.", docComment);
+		docComment = _elementUtils.getDocComment(foo3);
+		assertEquals("Incorrect doc comment", 
+				  "| Code  | Color |\n"
+				+ "|-------|-------|\n"
+				+ "| R     | Red   |\n"
+				+ "| G     | Green |\n"
+				+ "| B     | Blue  |", docComment);
+		docComment = _elementUtils.getDocComment(foo4);
+		assertEquals("Incorrect doc comment", 
+				  "{@inheritDoc}\n"
+				+ "Get the inherited function.\n"
+				+ "\n"
+				+ "@param p parameter", docComment);
 	}
 
 	@Override
@@ -167,6 +221,28 @@ public class Java23ElementProcessor extends BaseProcessor {
 		}
 		return buf.toString();
 	}
+    public void assertEquals(String message, Object expected, Object actual) {
+        if (equalsRegardingNull(expected, actual)) {
+            return;
+        } else {
+        	reportError(message + ", expected " + expected.toString() + " but was " + actual.toString());
+        }
+    }
+
+    public void assertEquals(String message, Object expected, Object alternateExpected, Object actual) {
+        if (equalsRegardingNull(expected, actual) || equalsRegardingNull(alternateExpected, actual)) {
+            return;
+        } else {
+        	reportError(message + ", expected " + expected.toString() + " but was " + actual.toString());
+        }
+    }
+
+    static boolean equalsRegardingNull(Object expected, Object actual) {
+        if (expected == null) {
+            return actual == null;
+        }
+        return expected.equals(actual);
+    }
 	public void assertSame(String msg, Object obj1, Object obj2) {
 		if (obj1 != obj2) {
 			reportError(msg + ", should be " + obj1.toString() + " but " + obj2.toString());

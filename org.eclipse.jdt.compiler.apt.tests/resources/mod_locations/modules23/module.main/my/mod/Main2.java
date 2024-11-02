@@ -1,7 +1,9 @@
 package my.mod;
 
 ///
-/// A markdown type comment on a class
+////A markdown type comment on a class - line 1
+/////// A markdown type comment on a class - line 2
+///    A markdown type comment on a class - line 3
 ///
 public class Main2 {
 	/**
