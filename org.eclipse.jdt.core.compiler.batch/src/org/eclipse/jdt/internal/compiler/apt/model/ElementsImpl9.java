@@ -295,7 +295,10 @@ public class ElementsImpl9 extends ElementsImpl {
     }
 	@Override
 	public String getDocComment(Element e) {
-		if (getDocCommentKind(e) == DocCommentKind.TRADITIONAL) {
+		DocCommentKind kind = getDocCommentKind(e);
+		if (kind == null)
+			return null;
+		if (kind == DocCommentKind.TRADITIONAL) {
 			return super.getDocComment(e);
 		}
 		// 1. Get the unparsed document content and convert it to individual lines
@@ -337,6 +340,8 @@ public class ElementsImpl9 extends ElementsImpl {
 	@Override
     public DocCommentKind getDocCommentKind(Element e) {
 		char[] unparsed = getUnparsedDocComment(e);
+		if (unparsed == null)
+			return null;
 		String[] lines = new String(unparsed).split("\n"); //$NON-NLS-1$
 		Matcher delimiterMatcher = INITIAL_DELIMITER.matcher(lines[0]);
 		return (delimiterMatcher.find()) ? DocCommentKind.TRADITIONAL : DocCommentKind.END_OF_LINE;
