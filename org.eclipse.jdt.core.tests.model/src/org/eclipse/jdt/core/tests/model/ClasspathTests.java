@@ -89,7 +89,7 @@ public static Test suite() {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	setupExternalJCL("jclMin");
-	setupExternalJCL("jclMin1.5");
+	setupExternalJCL("jclMin1.8");
 	setupExternalJCL("jclMin23");
 }
 
@@ -1965,7 +1965,7 @@ public void testClasspathValidation27_Bug159325_lib() throws CoreException {
 		JavaCore.setOptions(options);
 		proj.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, new String("ignore".toCharArray()));
 
-		IClasspathEntry library = JavaCore.newLibraryEntry(new Path(getExternalJCLPathString(JavaCore.VERSION_1_5)), null, null, ClasspathEntry.NO_ACCESS_RULES, ClasspathEntry.NO_EXTRA_ATTRIBUTES, false);
+		IClasspathEntry library = JavaCore.newLibraryEntry(new Path(getExternalJCLPathString(JavaCore.VERSION_1_8)), null, null, ClasspathEntry.NO_ACCESS_RULES, ClasspathEntry.NO_EXTRA_ATTRIBUTES, false);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj, library, false);
 		assertStatus("OK", status);
 	} finally {

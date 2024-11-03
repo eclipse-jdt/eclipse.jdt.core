@@ -2658,7 +2658,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Returns the java.io path to the source of the external java class library (e.g. jclMinsrc.zip)
 	 */
 	protected String getExternalJCLSourcePathString(String compliance) {
-		return getExternalPath() + "jclMin" + compliance + "src.zip";
+		return getExternalJCLSourcePathString(compliance, false);
+	}
+	protected String getExternalJCLSourcePathString(String compliance, boolean useFullJcl) {
+		return getExternalPath() + (useFullJcl ? "jclFull" : "jclMin") + compliance + "src.zip";
 	}
 	/*
 	 * Returns the OS path to the external directory that contains external jar files.
@@ -3451,7 +3454,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				newJclSrcString = "JCL10_SRC";
 			} else {
 				newJclLibString = "JCL18_FULL";
-				newJclSrcString = "JCL18_SRC"; // Use the same source
+				newJclSrcString = "JCL18_FULL_SRC";
 			}
 		} else {
 			if (compliance.equals("23")) {
@@ -3547,11 +3550,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		if ("1.8".equals(compliance)) {
 			if (useFullJCL) {
 				if (JavaCore.getClasspathVariable("JCL18_FULL") == null) {
-					setupExternalJCL("jclMin1.8"); // Create the whole mininmal 1.8 set, though we will need only the source zip
 					setupExternalJCL("jclFull1.8");
 					JavaCore.setClasspathVariables(
-						new String[] {"JCL18_FULL", "JCL18_SRC", "JCL_SRCROOT"},
-						new IPath[] {new Path(getExternalJCLPathString("1.8", true)), getExternalJCLSourcePath("1.8"), getExternalJCLRootSourcePath()},
+						new String[] {"JCL18_FULL", "JCL18_FULL_SRC", "JCL_SRCROOT"},
+						new IPath[] {new Path(getExternalJCLPathString("1.8", true)),
+								new Path(getExternalJCLSourcePathString("1.8", true)),
+								getExternalJCLRootSourcePath()},
 						null);
 				}
 			} else if (JavaCore.getClasspathVariable("JCL18_LIB") == null) {
