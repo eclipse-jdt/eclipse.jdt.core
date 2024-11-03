@@ -156,7 +156,7 @@ public class NullAnnotationMatching {
 			} else if (expression instanceof SwitchExpression && expression.isPolyExpression()) {
 				// drill into all the branches:
 				SwitchExpression se = ((SwitchExpression) expression);
-				Expression[] resExprs = se.resultExpressions.toArray(new Expression[0]);
+				Expression[] resExprs = se.resultExpressions().toArray(new Expression[0]);
 				Expression re = resExprs[0];
 				int status0 = NullAnnotationMatching.checkAssignment(currentScope, flowContext, var, flowInfo, re.nullStatus(flowInfo, flowContext), re, re.resolvedType);
 				boolean identicalStatus = true;

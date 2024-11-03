@@ -13,9 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.ASSIGNMENT_CONTEXT;
-import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION_CONTEXT;
-
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
@@ -205,24 +202,24 @@ public void resolve(BlockScope scope) {
 
 	if (this.switchExpression == null) {
 		this.switchExpression = scope.enclosingSwitchExpression();
-		if (this.switchExpression != null) {
-			this.switchExpression.resultExpressions.add(this.expression);
-			if (this.switchExpression.expressionContext == ASSIGNMENT_CONTEXT || this.switchExpression.expressionContext == INVOCATION_CONTEXT) { // When switch expression is poly ...
-				this.expression.setExpressionContext(this.switchExpression.expressionContext); // result expressions feature in same context ...
-				this.expression.setExpectedType(this.switchExpression.expectedType);           // ... with the same target type
-			}
+		if (this.switchExpression != null && this.switchExpression.isPolyExpression()) {
+			this.expression.setExpressionContext(this.switchExpression.expressionContext); // result expressions feature in same context ...
+			this.expression.setExpectedType(this.switchExpression.expectedType);           // ... with the same target type
 		}
+	}
+
+	this.expression.resolveType(scope);
+	if (this.switchExpression != null) {
+		this.switchExpression.results.add(this.expression);
 	}
 
 	if (this.isImplicit) {
 		if (this.switchExpression == null && !this.expression.statementExpression()) {
 			scope.problemReporter().invalidExpressionAsStatement(this.expression);
-			return;
 		}
 	} else if (this.switchExpression == null) {
 		scope.problemReporter().yieldOutsideSwitchExpression(this);
 	}
-	this.expression.resolveType(scope);
 }
 
 @Override

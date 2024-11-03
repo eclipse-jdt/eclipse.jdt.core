@@ -1240,7 +1240,7 @@ public boolean forcedToBeRaw(ReferenceContext referenceContext) {
 		}
 	} else if (this instanceof SwitchExpression) {
 		SwitchExpression se = (SwitchExpression) this;
-		for (Expression e : se.resultExpressions) {
+		for (Expression e : se.resultExpressions()) {
 			if (e.forcedToBeRaw(referenceContext))
 				return true;
 		}
