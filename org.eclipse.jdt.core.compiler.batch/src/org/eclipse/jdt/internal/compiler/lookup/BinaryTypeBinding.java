@@ -843,6 +843,9 @@ private void createFields(IBinaryField[] iFields, IBinaryType binaryType, long s
 						? this.environment.getTypeFromSignature(binaryField.getTypeName(), 0, -1, false, this, missingTypeNames, walker)
 						: this.environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature), Binding.NO_TYPE_VARIABLES, this, missingTypeNames, walker);
 					VariableBinding field = initialization.createBinding(this, binaryField, type);
+					if (walker != ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER && this.environment.globalOptions.isAnnotationBasedResourceAnalysisEnabled) {
+						field.tagBits |= walker.getDeclarationAnnotationsAtCursor();
+					}
 					if (declAnnotations != null) {
 						for (IBinaryAnnotation annotation : declAnnotations) {
 							char[] typeName = annotation.getTypeName();
@@ -1112,6 +1115,19 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 				paramAnnotations,
 				isAnnotationType() ? convertMemberValue(method.getDefaultValue(), this.environment, missingTypeNames, true) : null,
 						this.environment);
+		if (walker != ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER) {
+			// unconditionally assign tagBits, can be overridden in scan*ForOnwingAnnotations()
+			result.tagBits |= walker.toMethodReturn().getDeclarationAnnotationsAtCursor();
+			int visibleParameters = method.getParameterCount();
+			for (short i=0; i<visibleParameters; i++) {
+				long tagBit = walker.toMethodParameter(i).getDeclarationAnnotationsAtCursor();
+				if ((tagBit & TagBits.AnnotationOwningMASK) != 0) {
+					if (result.parameterFlowBits == null)
+						result.parameterFlowBits = new byte[visibleParameters];
+					result.parameterFlowBits[i] |= MethodBinding.flowBitFromAnnotationTagBit(tagBit);
+				}
+			}
+		}
 	}
 
 	if (argumentNames != null) result.parameterNames = argumentNames;
@@ -2311,7 +2327,11 @@ private boolean scanMethodForOwningAnnotations(IBinaryMethod method, MethodBindi
 
 	boolean sawOwningParam = false;
 	// return:
-	methodBinding.tagBits |= scanForOwningAnnotation(method.getAnnotations());
+	long tagBitsFromRealAnnotations = scanForOwningAnnotation(method.getAnnotations());
+	if ((tagBitsFromRealAnnotations & TagBits.AnnotationOwningMASK) != 0) {
+		methodBinding.tagBits &= ~TagBits.AnnotationOwningMASK; // override bits from eea
+	}
+	methodBinding.tagBits |= tagBitsFromRealAnnotations;
 
 	// check for "@Owning MyType this":
 	IBinaryTypeAnnotation[] methodTypeAnnotations = method.getTypeAnnotations();
@@ -2346,12 +2366,14 @@ private boolean scanMethodForOwningAnnotations(IBinaryMethod method, MethodBindi
 							case TypeIds.BitOwningAnnotation:
 								if (methodBinding.parameterFlowBits == null)
 									methodBinding.parameterFlowBits = new byte[numVisibleParams];
+								methodBinding.parameterFlowBits[j] &= ~(MethodBinding.PARAM_OWNING|MethodBinding.PARAM_NOTOWNING); // override bits from eea
 								methodBinding.parameterFlowBits[j] |= MethodBinding.PARAM_OWNING;
 								sawOwningParam = true;
 								break annotations;
 							case TypeIds.BitNotOwningAnnotation:
 								if (methodBinding.parameterFlowBits == null)
 									methodBinding.parameterFlowBits = new byte[numVisibleParams];
+								methodBinding.parameterFlowBits[j] &= ~(MethodBinding.PARAM_OWNING|MethodBinding.PARAM_NOTOWNING); // override bits from eea
 								methodBinding.parameterFlowBits[j] |= MethodBinding.PARAM_NOTOWNING;
 								break annotations;
 						}
