@@ -66,11 +66,13 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		private boolean allWellFormed = true; // true as long as result expression completely fail to resolve (resolvedType == null)
 
 		private TypeBinding resultType() {
+
 			if (!this.allWellFormed)
 				return null;
-			if (SwitchExpression.this.isPolyExpression()) {
-				return computeConversions(SwitchExpression.this.scope, SwitchExpression.this.expectedType) ? SwitchExpression.this.expectedType() : null;
-			}
+
+			if (SwitchExpression.this.isPolyExpression())
+				return resolveAsType(SwitchExpression.this.expectedType);
+
 			if (this.allUniform) {
 				TypeBinding uniformType = null;
 				for (Expression rExpression : this.rExpressions)
@@ -79,28 +81,30 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			}
 
 			if (this.allBoolean)
-				return TypeBinding.BOOLEAN;
+				return resolveAsType(TypeBinding.BOOLEAN);
 
 			if (this.allNumeric) {
 				for (TypeBinding type : TypeBinding.NUMERIC_TYPES) {
-					switch (type.id) {
-						case T_double, T_float, T_long, T_int -> {
-							if (this.rTypes.contains(type))
-								return type;
-						}
+					TypeBinding result = switch (type.id) {
+						case T_double, T_float, T_long, T_int -> this.rTypes.contains(type) ? type : null;
 						case T_short, T_byte, T_char -> {
 							if (this.rTypes.contains(type)) {
 								if (type.id != T_char && this.rTypes.contains(TypeBinding.CHAR))
-									return TypeBinding.INT;
+									yield TypeBinding.INT;
 								for (Expression rExpression : this.rExpressions) {
 									if (rExpression.resolvedType.id == T_int && rExpression.constant != Constant.NotAConstant && !rExpression.isConstantValueOfTypeAssignableToType(rExpression.resolvedType, type))
-										return TypeBinding.INT;
+										yield TypeBinding.INT;
 								}
-								return type;
+								yield type;
 							}
+							yield null;
 						}
-					}
+						default -> throw new IllegalStateException("Unexpected control flow!"); //$NON-NLS-1$;
+					};
+					if (result != null)
+						return resolveAsType(result);
 				}
+				throw new IllegalStateException("Unexpected control flow!"); //$NON-NLS-1$
 			}
 			// Non-uniform, non-boolean, non-numeric: Force to reference versions, compute lub and apply capture and we are done!
 			LookupEnvironment env = SwitchExpression.this.scope.environment();
@@ -110,13 +114,10 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				resultReferenceTypes[i++] = rExpression.resolvedType.isBaseType() ? env.computeBoxingType(rExpression.resolvedType) : rExpression.resolvedType;
 
 			TypeBinding lub = SwitchExpression.this.scope.lowerUpperBound(resultReferenceTypes);
-			if (lub != null) {
-				for (Expression rExpression : this.rExpressions)
-					rExpression.computeConversion(SwitchExpression.this.scope, lub, rExpression.resolvedType);
-				return lub.capture(SwitchExpression.this.scope, SwitchExpression.this.sourceStart, SwitchExpression.this.sourceEnd);
-			}
-			// Is this unreachable ? can lub be null with only reference types ??!
-			SwitchExpression.this.scope.problemReporter().incompatibleSwitchExpressionResults(SwitchExpression.this);
+			if (lub != null)
+				return resolveAsType(lub);
+
+			SwitchExpression.this.scope.problemReporter().incompatibleSwitchExpressionResults(SwitchExpression.this); // Is this unreachable ? can lub be null with only reference types ??!
 			return null;
 		}
 
@@ -357,8 +358,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	}
 	private void removeStoredTypes(CodeStream codeStream) {
 		List<LocalVariableBinding> tos = this.typesOnStack;
-		int sz = tos != null ? tos.size() : 0;
-		int index = sz - 1;
+		int index = tos != null ? tos.size() -1 : - 1;
 		while (index >= 0) {
 			LocalVariableBinding lvb = tos.get(index--);
 			codeStream.removeVariable(lvb);
@@ -371,16 +371,13 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		super.generateCode(currentScope, codeStream);
 		if (this.jvmStackVolatile)
 			removeStoredTypes(codeStream);
-		if (!valueRequired) {
-			// switch expression is saved to a variable that is not used. We need to pop the generated value from the stack
+		if (!valueRequired) { // switch expression result discarded (saved to a variable that is not used.)
 			switch(postConversionType(currentScope).id) {
 				case TypeIds.T_long, TypeIds.T_double -> codeStream.pop2();
 				default -> codeStream.pop();
 			}
-		} else {
-			if (!this.isPolyExpression()) // not in invocation or assignment contexts
-				codeStream.generateImplicitConversion(this.implicitConversion);
-		}
+		} else if (!this.isPolyExpression())
+			codeStream.generateImplicitConversion(this.implicitConversion);
 	}
 
 	@Override
@@ -393,62 +390,49 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		try {
 			if (this.constant != Constant.NotAConstant) {
 				this.constant = Constant.NotAConstant;
-
 				super.resolve(upperScope); // drills down into switch block, which will cause yield expressions to be discovered and added to `this.results`
-
 				if (this.results.rExpressions.size() == 0) {
 					upperScope.problemReporter().unyieldingSwitchExpression(this);
 					return this.resolvedType = null;
 				}
-
 				if (isPolyExpression() && (this.expectedType == null || !this.expectedType.isProperType(true)))
 					return new PolyTypeBinding(this);
-
 			} else { // re-resolve poly-expression against the eventual target type.
 				for (Expression rExpression : this.results.rExpressions)
 					if (rExpression.isPolyExpression())
 						rExpression.resolveTypeExpecting(upperScope, this.expectedType);
 			}
-
-			this.resolvedType = this.results.resultType();
-			if (!this.isPolyExpression() && this.resolvedType != null) {
-				for (Expression rExpression : this.results.rExpressions)
-					rExpression.computeConversion(upperScope, this.resolvedType, rExpression.resolvedType);
-			}
-			return this.resolvedType;
+			return this.resolvedType = this.results.resultType();
 		} finally {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 		}
 	}
 
-	private boolean computeConversions(BlockScope blockScope, TypeBinding targetType) {
-		boolean ok = true;
+	// We have resolved the switch expression to be if type `switchType'. Allow result expressions to adapt.
+	// Return the type after applying capture conversion.
+	private TypeBinding resolveAsType(TypeBinding switchType) {
 		for (Expression rExpression : this.results.rExpressions) {
-			if (rExpression.resolvedType != null && rExpression.resolvedType.isValidBinding()) {
-				if (rExpression.isConstantValueOfTypeAssignableToType(rExpression.resolvedType, targetType)
-						|| rExpression.resolvedType.isCompatibleWith(targetType)) {
-
-					rExpression.computeConversion(this.scope, targetType, rExpression.resolvedType);
-					if (rExpression.resolvedType.needsUncheckedConversion(targetType)) {
-						this.scope.problemReporter().unsafeTypeConversion(rExpression, rExpression.resolvedType, targetType);
-					}
-					if (rExpression instanceof CastExpression && (rExpression.bits
-							& (ASTNode.UnnecessaryCast | ASTNode.DisableUnnecessaryCastCheck)) == 0) {
-						CastExpression.checkNeedForAssignedCast(this.scope, targetType, (CastExpression) rExpression);
-					}
-				} else if (isBoxingCompatible(rExpression.resolvedType, targetType, rExpression, this.scope)) {
-					rExpression.computeConversion(this.scope, targetType, rExpression.resolvedType);
-					if (rExpression instanceof CastExpression && (rExpression.bits
-							& (ASTNode.UnnecessaryCast | ASTNode.DisableUnnecessaryCastCheck)) == 0) {
-						CastExpression.checkNeedForAssignedCast(this.scope, targetType, (CastExpression) rExpression);
-					}
-				} else {
-					this.scope.problemReporter().typeMismatchError(rExpression.resolvedType, targetType, rExpression, null);
-					ok = false;
+			if (rExpression.isConstantValueOfTypeAssignableToType(rExpression.resolvedType, switchType)
+					|| rExpression.resolvedType.isCompatibleWith(switchType)) {
+				rExpression.computeConversion(this.scope, switchType, rExpression.resolvedType);
+				if (rExpression.resolvedType.needsUncheckedConversion(switchType))
+					this.scope.problemReporter().unsafeTypeConversion(rExpression, rExpression.resolvedType, switchType);
+				if (rExpression instanceof CastExpression && (rExpression.bits
+						& (ASTNode.UnnecessaryCast | ASTNode.DisableUnnecessaryCastCheck)) == 0) {
+					CastExpression.checkNeedForAssignedCast(this.scope, switchType, (CastExpression) rExpression);
 				}
+			} else if (isBoxingCompatible(rExpression.resolvedType, switchType, rExpression, this.scope)) {
+				rExpression.computeConversion(this.scope, switchType, rExpression.resolvedType);
+				if (rExpression instanceof CastExpression && (rExpression.bits
+						& (ASTNode.UnnecessaryCast | ASTNode.DisableUnnecessaryCastCheck)) == 0) {
+					CastExpression.checkNeedForAssignedCast(this.scope, switchType, (CastExpression) rExpression);
+				}
+			} else {
+				this.scope.problemReporter().typeMismatchError(rExpression.resolvedType, switchType, rExpression, null);
+				return null;
 			}
 		}
-		return ok;
+		return switchType.capture(SwitchExpression.this.scope, SwitchExpression.this.sourceStart, SwitchExpression.this.sourceEnd);
 	}
 
 
