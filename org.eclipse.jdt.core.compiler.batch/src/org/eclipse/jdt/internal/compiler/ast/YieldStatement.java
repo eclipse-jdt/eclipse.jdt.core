@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.flow.InsideSubRoutineFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.InsideStatementWithFinallyBlockFlowContext;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -64,44 +64,43 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 	this.targetLabel = targetContext.breakLabel();
 	FlowContext traversedContext = flowContext;
-	int subCount = 0;
-	this.subroutines = new SubRoutineStatement[5];
+	int stmtCount = 0;
+	this.statementsWithFinallyBlock = new StatementWithFinallyBlock[5];
 
 	do {
-		SubRoutineStatement sub;
-		if ((sub = traversedContext.subroutine()) != null) {
-			if (subCount == this.subroutines.length) {
-				System.arraycopy(this.subroutines, 0, (this.subroutines = new SubRoutineStatement[subCount*2]), 0, subCount); // grow
+		StatementWithFinallyBlock stmt;
+		if ((stmt = traversedContext.statementWithFinallyBlock()) != null) {
+			if (stmtCount == this.statementsWithFinallyBlock.length) {
+				System.arraycopy(this.statementsWithFinallyBlock, 0, (this.statementsWithFinallyBlock = new StatementWithFinallyBlock[stmtCount*2]), 0, stmtCount); // grow
 			}
-			this.subroutines[subCount++] = sub;
-			if (sub.isSubRoutineEscaping()) {
+			this.statementsWithFinallyBlock[stmtCount++] = stmt;
+			if (stmt.isFinallyBlockEscaping()) {
 				break;
 			}
 		}
 		traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
 		traversedContext.recordBreakTo(targetContext);
 
-		if (traversedContext instanceof InsideSubRoutineFlowContext) {
+		if (traversedContext instanceof InsideStatementWithFinallyBlockFlowContext) {
 			ASTNode node = traversedContext.associatedNode;
 			if (node instanceof TryStatement) {
-				flowInfo.addInitializationsFrom(((TryStatement) node).subRoutineInits); // collect inits
+				flowInfo.addInitializationsFrom(((TryStatement) node).finallyBlockInits); // collect inits
 			}
 		} else if (traversedContext == targetContext) {
-			// only record break info once accumulated through subroutines, and only against target context
+			// only record break info once accumulated and only against target context
 			targetContext.recordBreakFrom(flowInfo);
 			break;
 		}
 	} while ((traversedContext = traversedContext.getLocalParent()) != null);
 
-	// resize subroutines
-	if (subCount != this.subroutines.length) {
-		System.arraycopy(this.subroutines, 0, (this.subroutines = new SubRoutineStatement[subCount]), 0, subCount);
+	if (stmtCount != this.statementsWithFinallyBlock.length) {
+		System.arraycopy(this.statementsWithFinallyBlock, 0, (this.statementsWithFinallyBlock = new StatementWithFinallyBlock[stmtCount]), 0, stmtCount);
 	}
 	return FlowInfo.DEAD_END;
 }
 
 @Override
-protected void setSubroutineSwitchExpression(SubRoutineStatement sub) {
+protected void setSubroutineSwitchExpression(StatementWithFinallyBlock sub) {
 	sub.setSwitchExpression(this.switchExpression);
 }
 
@@ -126,7 +125,7 @@ protected void addSecretYieldResultValue(BlockScope scope) {
 
 @Override
 protected void restartExceptionLabels(CodeStream codeStream) {
-	SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, -1, codeStream);
+	StatementWithFinallyBlock.reenterAllExceptionHandlers(this.statementsWithFinallyBlock, -1, codeStream);
 }
 
 @Override
@@ -161,19 +160,19 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	int pc = codeStream.position;
 	// generation of code responsible for invoking the finally
 	// blocks in sequence
-	if (this.subroutines != null){
-		for (int i = 0, max = this.subroutines.length; i < max; i++){
-			SubRoutineStatement sub = this.subroutines[i];
-			SwitchExpression se = sub.getSwitchExpression();
-			setSubroutineSwitchExpression(sub);
-			boolean didEscape = sub.generateSubRoutineInvocation(currentScope, codeStream, this.targetLabel, this.initStateIndex, null);
-			sub.setSwitchExpression(se);
+	if (this.statementsWithFinallyBlock != null){
+		for (int i = 0, max = this.statementsWithFinallyBlock.length; i < max; i++){
+			StatementWithFinallyBlock stmt = this.statementsWithFinallyBlock[i];
+			SwitchExpression se = stmt.getSwitchExpression();
+			setSubroutineSwitchExpression(stmt);
+			boolean didEscape = stmt.generateFinallyBlock(currentScope, codeStream, this.targetLabel, this.initStateIndex, null);
+			stmt.setSwitchExpression(se);
 			if (didEscape) {
 					if (generateExpressionResultCodeExpanded) {
 						codeStream.removeVariable(this.secretYieldResultValue);
 					}
 					codeStream.recordPositionsFrom(pc, this.sourceStart);
-					SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, i, codeStream);
+					StatementWithFinallyBlock.reenterAllExceptionHandlers(this.statementsWithFinallyBlock, i, codeStream);
 					if (this.initStateIndex != -1) {
 						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.initStateIndex);
 						codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
@@ -190,7 +189,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 	codeStream.goto_(this.targetLabel);
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
-	SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, -1, codeStream);
+	StatementWithFinallyBlock.reenterAllExceptionHandlers(this.statementsWithFinallyBlock, -1, codeStream);
 	if (this.initStateIndex != -1) {
 		codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.initStateIndex);
 		codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
