@@ -711,6 +711,9 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				if (elements.hasNext() && elements.next() instanceof JCCompilationUnit u) {
 					javacCompilationUnit = u;
 					javacCompilationUnits.add(u);
+					if (sourceUnits.length == 1 && focalPoint >= 0) {
+						JavacUtils.trimUnvisibleContent(u, focalPoint, context);
+					}
 				} else {
 					return Map.of();
 				}

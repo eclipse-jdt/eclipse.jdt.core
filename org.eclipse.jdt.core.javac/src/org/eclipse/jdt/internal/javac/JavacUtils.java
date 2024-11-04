@@ -47,7 +47,13 @@ import org.eclipse.jdt.internal.core.JavaProject;
 
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.main.Option;
+import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
+import com.sun.tools.javac.tree.TreeInfo;
+import com.sun.tools.javac.tree.TreeMaker;
+import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.Names;
 import com.sun.tools.javac.util.Options;
 
 public class JavacUtils {
@@ -408,5 +414,26 @@ public class JavacUtils {
 			ILog.get().error(ex.getMessage(), ex);
 			return true;
 		}
+	}
+
+	/// Removes non-relevant content (eg other method blocks) for given focal position
+	public static void trimUnvisibleContent(JCCompilationUnit u, int focalPoint, Context context) {
+		TreeMaker treeMaker = TreeMaker.instance(context);
+		u.accept(new TreeScanner() {
+			@Override
+			public void visitMethodDef(JCMethodDecl decl) {
+				if (decl.getBody() != null &&
+					!decl.getBody().getStatements().isEmpty() &&
+					!(decl.getStartPosition() <= focalPoint &&
+					decl.getStartPosition() + TreeInfo.getEndPos(decl, u.endPositions) >= focalPoint)) {
+					var throwNewRuntimeExceptionOutOfFocalPositionScope =
+						treeMaker.Throw(
+								treeMaker.NewClass(null, null,
+										treeMaker.Ident(Names.instance(context).fromString(RuntimeException.class.getSimpleName())),
+										com.sun.tools.javac.util.List.of(treeMaker.Literal("Out of focalPosition scope")), null)); //$NON-NLS-1$
+					decl.body.stats = com.sun.tools.javac.util.List.of(throwNewRuntimeExceptionOutOfFocalPositionScope);
+				}
+			}
+		});
 	}
 }
