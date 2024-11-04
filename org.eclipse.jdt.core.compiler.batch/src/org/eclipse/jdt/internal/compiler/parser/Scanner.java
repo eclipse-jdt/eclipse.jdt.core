@@ -557,13 +557,24 @@ protected final boolean scanForTextBlockBeginning() {
 	}
 	return false;
 }
-protected final boolean lineBeginsWithMarkdown() {
+protected final boolean lineBeginsWithMarkdown() throws InvalidInputException {
 	try {
 		int temp = this.currentPosition;
 		int count = 0;
 		// The scanner is already at \r, look for matching \n
-		if (this.currentCharacter == '\r' && this.source[temp] == '\n') {
-			temp++;
+		if (this.currentCharacter == '\r') {
+			char c = this.source[temp];
+			if (c == '\\') {
+				if (this.source[temp+1] == 'u') {
+					getNextUnicodeChar();
+					if (this.currentCharacter == '\n') {
+						pushUnicodeLineSeparator();
+					}
+					temp = this.currentPosition;
+				}
+			} else if (c == '\n') {
+				temp++;
+			}
 		}
 		while(true) {
 			char c = this.source[temp++];
@@ -1891,7 +1902,7 @@ protected int getNextToken0() throws InvalidInputException {
 									previous = this.currentPosition;
 									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 										&& (this.source[this.currentPosition] == 'u')) {
-										//-------------unicode traitement ------------
+										//-------------unicode treatement ------------
 										getNextUnicodeChar();
 										isUnicode = true;
 									} else {
