@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2023 BEA Systems, Inc. and others
+ * Copyright (c) 2006, 2024 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -388,7 +388,8 @@ public class ElementsImpl implements Elements {
 		if (javadoc != null && referenceContext != null) {
 			char[] contents = referenceContext.compilationResult().getCompilationUnit().getContents();
 			if (contents != null) {
-				return CharOperation.subarray(contents, javadoc.sourceStart, javadoc.sourceEnd - 1);
+				// In case of markdown, the end of line is part of the source range
+				return CharOperation.subarray(contents, javadoc.sourceStart, javadoc.isMarkdown ? javadoc.sourceEnd : javadoc.sourceEnd - 1);
 			}
 		}
 		return null;

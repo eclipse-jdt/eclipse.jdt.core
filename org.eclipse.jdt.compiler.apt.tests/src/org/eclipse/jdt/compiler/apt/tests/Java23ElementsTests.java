@@ -46,6 +46,14 @@ public class Java23ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTestWithBinary(compiler, MODULE_PROC, "23", "testJavadocKind2", null, "modules23", false);
 	}
+	public void testMarkdownContent3() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithBinary(compiler, MODULE_PROC, "23", "testMarkdownContent3", null, "modules23", false);
+	}
+	public void testMarkdownContent3Javac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestWithBinary(compiler, MODULE_PROC, "23", "testMarkdownContent3", null, "modules23", false);
+	}
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void internalTestWithBinary(JavaCompiler compiler, String processor, String compliance, String testMethod, String testClass, String resourceArea,
 				boolean processBinariesAgain) throws IOException {

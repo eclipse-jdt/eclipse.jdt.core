@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2023 BEA Systems, Inc. and others
+ * Copyright (c) 2006, 2024 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -37,9 +37,11 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.tool.EclipseFileManager;
 import org.eclipse.jdt.internal.compiler.tool.PathFileObject;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfModule;
+import org.eclipse.jdt.internal.compiler.util.TextBlockUtil;
 
 /**
  * Utilities for working with java9 language elements.
@@ -292,8 +294,54 @@ public class ElementsImpl9 extends ElementsImpl {
         return methodBinding.isCompactConstructor();
     }
 	@Override
+	public String getDocComment(Element e) {
+		DocCommentKind kind = getDocCommentKind(e);
+		if (kind == null)
+			return null;
+		if (kind == DocCommentKind.TRADITIONAL) {
+			return super.getDocComment(e);
+		}
+		// 1. Get the unparsed document content and convert it to individual lines
+		// 2. Remove the /// from each line
+		// 3. Common whitespace after /// in each line is removed
+		// 4. The lines are put together with \n as delimiter and returned
+		char[] unparsed = getUnparsedDocComment(e);
+		char[][] lines = TextBlockUtil.convertTextBlockToLines(unparsed);
+		char[][] contentLines = new char[lines.length][];
+		for (int i = 0; i < lines.length; i++) {
+			char[] cs = lines[i];
+			int slashes = 0;
+			int startIdx = 0;
+			line: for (char c : cs) {
+				startIdx++;
+				switch(c) {
+					case '/':
+						slashes++;
+						if (slashes > 2)
+							break line;
+						break;
+					default:
+						if (!ScannerHelper.isWhitespace(c) || slashes == 3) {
+							break line;
+						}
+						break;
+				}
+			}
+			char[] cs2 = new char[cs.length - startIdx];
+			contentLines[i] = cs2;
+			System.arraycopy(cs, startIdx, cs2, 0, cs2.length);
+		}
+		int textBlockIndent = TextBlockUtil.getWhitespacePrefix(contentLines);
+		char[] formatTextBlock = TextBlockUtil.formatTextBlock(contentLines, textBlockIndent);
+		StringBuilder sb = new StringBuilder();
+		sb.append(formatTextBlock);
+		return sb.toString();
+	}
+	@Override
     public DocCommentKind getDocCommentKind(Element e) {
 		char[] unparsed = getUnparsedDocComment(e);
+		if (unparsed == null)
+			return null;
 		String[] lines = new String(unparsed).split("\n"); //$NON-NLS-1$
 		Matcher delimiterMatcher = INITIAL_DELIMITER.matcher(lines[0]);
 		return (delimiterMatcher.find()) ? DocCommentKind.TRADITIONAL : DocCommentKind.END_OF_LINE;
