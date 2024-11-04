@@ -25,6 +25,7 @@ import java.util.Set;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
 import com.sun.source.doctree.SeeTree;
+import com.sun.source.doctree.ThrowsTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.IdentifierTree;
@@ -301,6 +302,14 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 				}
 			}
 			return super.visitSee(node, p);
+		}
+		
+		@Override
+		public R visitThrows(ThrowsTree node, P p) {
+			if (node.getExceptionName() instanceof com.sun.tools.javac.tree.DCTree.DCReference ref) {
+						useImport(ref);
+			}
+			return super.visitThrows(node, p);
 		}
 
 		private void useImport(com.sun.tools.javac.tree.DCTree.DCReference ref) {
