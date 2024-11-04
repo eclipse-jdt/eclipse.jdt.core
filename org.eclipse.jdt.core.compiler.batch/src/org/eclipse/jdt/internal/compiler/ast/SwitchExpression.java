@@ -43,10 +43,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 
 	/* package */ TypeBinding expectedType;
 	ExpressionContext expressionContext = VANILLA_CONTEXT;
-
 	private int nullStatus = FlowInfo.UNKNOWN;
-	public List<Expression> resultExpressions = new ArrayList<>(0);
-	/* package */ List<Integer> resultExpressionNullStatus;
 	public boolean jvmStackVolatile = false;
 	static final char[] SECRET_YIELD_VALUE_NAME = " yieldValue".toCharArray(); //$NON-NLS-1$
 	int yieldResolvedPosition = -1;
@@ -126,10 +123,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		 */
 		public boolean add(/*@NonNull*/ Expression rxpression) {
 
-			if (!this.rExpressions.contains(rxpression)) {
-				this.rExpressions.add(rxpression);
-				SwitchExpression.this.resultExpressions.add(rxpression); // dual book keeping now for external references
-			}
+			this.rExpressions.add(rxpression);
 
 			TypeBinding rxpressionType = rxpression.resolvedType;
 			if (rxpressionType == null) { // tolerate poly-expression resolving to null in the absence of target type.
@@ -210,28 +204,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		else if ((this.nullStatus & FlowInfo.POTENTIALLY_NULL) != 0)
 			skope.problemReporter().expressionPotentialNullReference(this);
 		return true; // all checking done
-	}
-
-	private void computeNullStatus(FlowInfo flowInfo, FlowContext flowContext) {
-		 boolean precomputed = this.resultExpressionNullStatus.size() > 0;
-		 if (!precomputed)
-		         this.resultExpressionNullStatus.add(this.resultExpressions.get(0).nullStatus(flowInfo, flowContext));	int status =  this.resultExpressions.get(0).nullStatus(flowInfo, flowContext);
-		int combinedStatus = status;
-		boolean identicalStatus = true;
-		for (int i = 1, l = this.resultExpressions().size(); i < l; ++i) {
-		    if (!precomputed)
-	             this.resultExpressionNullStatus.add(this.resultExpressions.get(i).nullStatus(flowInfo, flowContext));
-		    int tmp = this.resultExpressions.get(i).nullStatus(flowInfo, flowContext);
-			identicalStatus &= status == tmp;
-			combinedStatus |= tmp;
-		}
-		if (identicalStatus) {
-			this.nullStatus = status;
-			return;
-		}
-		status = Expression.computeNullStatus(0, combinedStatus);
-		if (status > 0)
-			this.nullStatus = status;
 	}
 
 	@Override
@@ -439,8 +411,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		flowInfo = super.analyseCode(currentScope, flowContext, flowInfo);
-		// 15.28.1
-		if ((this.switchBits & LabeledRules) != 0) {
+		if ((this.switchBits & LabeledRules) != 0) { // 15.28.1
 			for (Statement stmt : this.statements) {
 				if (stmt instanceof Block && stmt.canCompleteNormally())
 					currentScope.problemReporter().switchExpressionBlockCompletesNormally(stmt);
@@ -451,16 +422,24 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				currentScope.problemReporter().switchExpressionBlockCompletesNormally(ultimateStmt);
 		}
 
-		this.resultExpressionNullStatus = new ArrayList<>(0);
-		final CompilerOptions compilerOptions = currentScope.compilerOptions();
-		if (compilerOptions.enableSyntacticNullAnalysisForFields) {
-			for (Expression re : this.results.rExpressions) {
-				this.resultExpressionNullStatus.add(re.nullStatus(flowInfo, flowContext));
-				// wipe information that was meant only for this result expression:
-				flowContext.expireNullCheckedFieldInfo();
-			}
+		if (currentScope.compilerOptions().enableSyntacticNullAnalysisForFields)
+			flowContext.expireNullCheckedFieldInfo(); // wipe information that was meant only for this result expression:
+
+		int status =  this.results.rExpressions.iterator().next().nullStatus(flowInfo, flowContext);
+		int combinedStatus = status;
+		boolean identicalStatus = true;
+		for (Expression rExpression : this.results.rExpressions) {
+		    status = rExpression.nullStatus(flowInfo, flowContext);
+			identicalStatus &= combinedStatus == status;
+			combinedStatus |= status;
 		}
-		computeNullStatus(flowInfo, flowContext);
+		if (identicalStatus) {
+			this.nullStatus = status;
+			return flowInfo;
+		}
+		status = Expression.computeNullStatus(0, combinedStatus);
+		if (status > 0)
+			this.nullStatus = status;
 		return flowInfo;
 	}
 
