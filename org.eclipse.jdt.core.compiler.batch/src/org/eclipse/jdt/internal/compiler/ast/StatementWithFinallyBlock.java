@@ -19,17 +19,17 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 
 /**
- * Extra behavior for statements which are generating subroutines
+ * Extra behavior for statements which have a finally block - e.g., try blocks have finally; synchronized statements have hidden finally blocks that call monitorexit etc.
  */
-public abstract class SubRoutineStatement extends Statement {
+public abstract class StatementWithFinallyBlock extends Statement {
 
-	public static void reenterAllExceptionHandlers(SubRoutineStatement[] subroutines, int max, CodeStream codeStream) {
-		if (subroutines == null) return;
-		if (max < 0) max = subroutines.length;
+	public static void reenterAllExceptionHandlers(StatementWithFinallyBlock[] statements, int max, CodeStream codeStream) {
+		if (statements == null) return;
+		if (max < 0) max = statements.length;
 		for (int i = 0; i < max; i++) {
-			SubRoutineStatement sub = subroutines[i];
-			sub.enterAnyExceptionHandler(codeStream);
-			sub.enterDeclaredExceptionHandlers(codeStream);
+			StatementWithFinallyBlock stmt = statements[i];
+			stmt.enterAnyExceptionHandler(codeStream);
+			stmt.enterDeclaredExceptionHandlers(codeStream);
 		}
 	}
 
@@ -61,12 +61,12 @@ public abstract class SubRoutineStatement extends Statement {
 
 
 	/**
-	 * Generate an invocation of a subroutine (e.g. jsr finally) in current context.
-	 * @return boolean, <code>true</code> if the generated code will abrupt completion
+	 * Generate the finally block in current context.
+	 * @return boolean, <code>true</code> if the generated code will complete abruptly.
 	 */
-	public abstract boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream codeStream, Object targetLocation, int stateIndex, LocalVariableBinding secretLocal);
+	public abstract boolean generateFinallyBlock(BlockScope currentScope, CodeStream codeStream, Object targetLocation, int stateIndex, LocalVariableBinding secretLocal);
 
-	public abstract boolean isSubRoutineEscaping();
+	public abstract boolean isFinallyBlockEscaping();
 
 	public void placeAllAnyExceptionHandler() {
 		this.anyExceptionLabel.place();

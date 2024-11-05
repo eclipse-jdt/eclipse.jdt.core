@@ -1250,7 +1250,7 @@ public boolean forcedToBeRaw(ReferenceContext referenceContext) {
 
 /**
  * Returns an object which can be used to identify identical JSR sequence targets
- * (see TryStatement subroutine codegen)
+ * (see TryStatement finally block codegen)
  * or <code>null</code> if not reusable
  */
 public Object reusableJSRTarget() {

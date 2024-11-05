@@ -303,8 +303,8 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_CODEGEN_TARGET_PLATFORM = PLUGIN_ID + ".compiler.codegen.targetPlatform"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Inline JSR Bytecode Instruction.
-	 * <p>When enabled, the compiler will no longer generate JSR instructions, but rather inline corresponding
-	 *    subroutine code sequences (mostly corresponding to try finally blocks). The generated code will thus
+	 * <p>When enabled, the compiler will no longer generate JSR instructions, but will rather inline the corresponding
+	 *    finally blocks). The generated code will thus
 	 *    get bigger, but will load faster on virtual machines since the verification process is then much simpler.</p>
 	 * <p>This mode is anticipating support for the Java Specification Request 202.</p>
 	 * <p>Note that from 1.5 on, the JSR inlining is mandatory (also see related setting {@link #COMPILER_CODEGEN_TARGET_PLATFORM}).</p>
