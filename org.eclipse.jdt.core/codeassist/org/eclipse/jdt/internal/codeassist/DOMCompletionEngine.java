@@ -258,6 +258,14 @@ public class DOMCompletionEngine implements Runnable {
 				completeAfter = fieldAccess.getName().toString();
 			} else if (this.toComplete instanceof MethodInvocation methodInvocation) {
 				completeAfter = methodInvocation.getName().toString();
+				try {
+					IBuffer cuBuffer = this.modelUnit.getBuffer();
+					if (cuBuffer.getChar(this.offset - 1) == '.') {
+						completeAfter = ""; //$NON-NLS-1$
+					}
+				} catch (JavaModelException e) {
+					ILog.get().error("error while trying to read buffer for completion purposes", e); //$NON-NLS-1$
+				}
 			}
 			this.prefix = completeAfter;
 			this.qualifiedPrefix = this.prefix;
@@ -320,6 +328,17 @@ public class DOMCompletionEngine implements Runnable {
 							.forEach(this.requestor::accept);
 					}
 					suggestDefaultCompletions = false;
+				} else if (invocation.getName().getStartPosition() + invocation.getName().getLength() + 3 /* the three chars: `().` */ <= this.offset && this.prefix.isEmpty()) {
+					// handle `myMethod().|`
+					IMethodBinding methodBinding = invocation.resolveMethodBinding();
+					if (methodBinding != null) {
+						ITypeBinding returnType = methodBinding.getReturnType();
+						processMembers(invocation, returnType, specificCompletionBindings, false);
+						specificCompletionBindings.stream()
+							.map(binding -> toProposal(binding))
+							.forEach(this.requestor::accept);
+					}
+					suggestDefaultCompletions = false;
 				}
 			}
 			if (context instanceof VariableDeclaration declaration) {
@@ -356,6 +375,9 @@ public class DOMCompletionEngine implements Runnable {
 					suggestDefaultCompletions = false;
 				}
 				if (context.getParent() instanceof MethodDeclaration) {
+					suggestDefaultCompletions = false;
+				}
+				if (context.getParent() instanceof AnnotationTypeMemberDeclaration) {
 					suggestDefaultCompletions = false;
 				}
 				if (context.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId()) && context.getParent() instanceof QualifiedName) {
