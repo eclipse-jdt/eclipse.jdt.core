@@ -200,7 +200,7 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 			Symbol owner = variable.sym == null ? null : variable.sym.owner;
 			if (owner instanceof ClassSymbol) {
 				return !isSerialVersionConstant(variable) && (variable.getModifiers().flags & Flags.PRIVATE) != 0;
-			} else if (owner instanceof MethodSymbol) {
+			} else if (owner instanceof MethodSymbol method && !method.enclClass().isInterface() && !method.isAbstract() && method.getAnnotation(Override.class) == null) {
 				return true;
 			}
 		}
