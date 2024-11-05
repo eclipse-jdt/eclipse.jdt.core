@@ -13,20 +13,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.ImplicitTypeDeclaration;
-import org.eclipse.jdt.core.dom.ImportDeclaration;
-import org.eclipse.jdt.core.dom.Javadoc;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.*;
 
 public class ASTConverter_23Test extends ConverterTestSetup {
 
@@ -132,5 +126,65 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 		Block block =  bodyDeclaration.getBody();
 		assertEquals("Not a Block", block.getNodeType(), ASTNode.BLOCK);
 		assertEquals("Block startPosition is not correct", block.getStartPosition(), 21);
+	}
+
+	public void test003_a() throws CoreException {
+		ASTParser astParser = ASTParser.newParser(getAST23());
+	    Map<String, String> options = new HashMap<>();
+	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
+	    options.put(JavaCore.COMPILER_SOURCE, "23");
+
+	    astParser.setCompilerOptions(options);
+	    astParser.setEnvironment(new String[] {}, new String[] {}, new String[] {}, true);
+	    astParser.setUnitName("Example.java");
+	    astParser.setResolveBindings(true);
+	    astParser.setBindingsRecovery(true);
+
+	    String source ="""
+		    		sealed class A permits B, C {}
+		    		final class B extends A {}
+		    		non-sealed class C extends A {}
+	    		""";
+
+	    astParser.setSource(source.toCharArray());
+
+	    CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(null);
+	    TypeDeclaration a = (TypeDeclaration) compilationUnit.types().get(0);
+
+	    assertEquals("Modifier is not present in AST", Modifier.isSealed(a.getModifiers()), true);
+
+	    assertEquals("permitted types are not present in AST", a.permittedTypes().size(), 2);
+
+	    ITypeBinding aBinding = a.resolveBinding();
+	    assertEquals("'sealed' modifier is not set in binding", Modifier.isSealed(aBinding.getModifiers()), true);
+	}
+
+	public void test003_b() throws CoreException {
+		ASTParser astParser = ASTParser.newParser(getAST23());
+	    Map<String, String> options = new HashMap<>();
+	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
+	    options.put(JavaCore.COMPILER_SOURCE, "23");
+
+	    astParser.setCompilerOptions(options);
+	    astParser.setEnvironment(new String[] {}, new String[] {}, new String[] {}, true);
+	    astParser.setUnitName("Example.java");
+	    astParser.setResolveBindings(true);
+	    astParser.setBindingsRecovery(true);
+
+	    String source ="""
+		    		sealed class A permits B, C {}
+		    		final class B extends A {}
+		    		non-sealed class C extends A {}
+	    		""";
+
+	    astParser.setSource(source.toCharArray());
+
+	    CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(null);
+	    TypeDeclaration a = (TypeDeclaration) compilationUnit.types().get(2);
+
+	    assertEquals("Modifier is not present in AST", Modifier.isNonSealed(a.getModifiers()), true);
+
+	    ITypeBinding aBinding = a.resolveBinding();
+	    assertEquals("'non-sealed' modifier is not set in binding", Modifier.isNonSealed(aBinding.getModifiers()), true);
 	}
 }
