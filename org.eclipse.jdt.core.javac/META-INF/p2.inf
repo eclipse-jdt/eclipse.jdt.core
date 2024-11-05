@@ -26,6 +26,10 @@ jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED\n\
 jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED\n\
 --add-opens\n\
 jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED\n\
+--add-opens\n\
+jdk.compiler/com.sun.tools.javac.platform=ALL-UNNAMED\n\
+--add-opens\n\
+jdk.compiler/com.sun.tools.javac.resources=ALL-UNNAMED\n\
 -DICompilationUnitResolver=org.eclipse.jdt.core.dom.JavacCompilationUnitResolver\n\
 -DAbstractImageBuilder.compilerFactory=org.eclipse.jdt.internal.javac.JavacCompilerFactory\n\
 -DCompilationUnit.DOM_BASED_OPERATIONS=true\n\
@@ -59,6 +63,10 @@ jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED\n\
 jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED\n\
 --add-opens\n\
 jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED\n\
+--add-opens\n\
+jdk.compiler/com.sun.tools.javac.platform=ALL-UNNAMED\n\
+--add-opens\n\
+jdk.compiler/com.sun.tools.javac.resources=ALL-UNNAMED\n\
 -DICompilationUnitResolver=org.eclipse.jdt.core.dom.JavacCompilationUnitResolver\n\
 -DAbstractImageBuilder.compilerFactory=org.eclipse.jdt.internal.javac.JavacCompilerFactory\n\
 -DCompilationUnit.DOM_BASED_OPERATIONS=true\n\

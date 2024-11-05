@@ -110,6 +110,7 @@ public class JavacUtils {
 			&& compliance != null && !compliance.isEmpty()) {
 			complianceVersion = Version.parse(compliance);
 			options.put(Option.RELEASE, compliance);
+			CachingJDKPlatformArguments.preRegister(context);
 			nineOrLater = complianceVersion.compareTo(Version.parse("9")) >= 0;
 		} else {
 			String source = compilerOptions.get(CompilerOptions.OPTION_Source);

@@ -45,6 +45,10 @@
 						<arg>--add-exports</arg>
 						<arg>jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
 						<arg>--add-exports</arg>
+						<arg>jdk.compiler/com.sun.tools.javac.platform=ALL-UNNAMED</arg>
+						<arg>--add-exports</arg>
+						<arg>jdk.compiler/com.sun.tools.javac.resources=ALL-UNNAMED</arg>
+						<arg>--add-exports</arg>
 						<arg>jdk.javadoc/jdk.javadoc.internal.doclets.formats.html.taglets.snippet=ALL-UNNAMED</arg>
 						<arg>--add-exports</arg>
 						<arg>jdk.javadoc/jdk.javadoc.internal.doclets.formats.html.taglets=ALL-UNNAMED</arg>
