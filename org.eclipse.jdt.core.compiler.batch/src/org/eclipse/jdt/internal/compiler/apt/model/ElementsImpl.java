@@ -402,7 +402,7 @@ public class ElementsImpl implements Elements {
 	 * Javac's behavior with regard to tab expansion and trimming of whitespace and
 	 * asterisks is bizarre and undocumented.  We do our best here to emulate it.
 	 */
-	private static String formatJavadoc(char[] unparsed)
+	protected static String formatJavadoc(char[] unparsed)
 	{
 		if (unparsed == null || unparsed.length < 5) { // delimiters take 5 chars
 			return null;

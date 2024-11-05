@@ -293,19 +293,27 @@ public class ElementsImpl9 extends ElementsImpl {
 		MethodBinding methodBinding = (MethodBinding) ((ExecutableElementImpl) e)._binding;
         return methodBinding.isCompactConstructor();
     }
+	// Must pass a non-null, non-empty char[]
+	private boolean isTraditionalJavadoc(char[] unparsed) {
+		String[] allLines = new String(unparsed).split("\n"); //$NON-NLS-1$
+		Matcher delimiterMatcher = INITIAL_DELIMITER.matcher(allLines[0]);
+		return delimiterMatcher.find();
+	}
 	@Override
 	public String getDocComment(Element e) {
-		DocCommentKind kind = getDocCommentKind(e);
-		if (kind == null)
+		char[] unparsed = getUnparsedDocComment(e);
+		if (unparsed == null)
 			return null;
-		if (kind == DocCommentKind.TRADITIONAL) {
-			return super.getDocComment(e);
+		if (isTraditionalJavadoc(unparsed)) {
+			// There will be some duplication of sanity checks between
+			// isTraditionalJavadoc() and formatJavadoc()
+			// but will have to live with that.
+			return super.formatJavadoc(unparsed);
 		}
 		// 1. Get the unparsed document content and convert it to individual lines
 		// 2. Remove the /// from each line
 		// 3. Common whitespace after /// in each line is removed
 		// 4. The lines are put together with \n as delimiter and returned
-		char[] unparsed = getUnparsedDocComment(e);
 		char[][] lines = TextBlockUtil.convertTextBlockToLines(unparsed);
 		char[][] contentLines = new char[lines.length][];
 		for (int i = 0; i < lines.length; i++) {
@@ -333,17 +341,13 @@ public class ElementsImpl9 extends ElementsImpl {
 		}
 		int textBlockIndent = TextBlockUtil.getWhitespacePrefix(contentLines);
 		char[] formatTextBlock = TextBlockUtil.formatTextBlock(contentLines, textBlockIndent);
-		StringBuilder sb = new StringBuilder();
-		sb.append(formatTextBlock);
-		return sb.toString();
+		return new String(formatTextBlock);
 	}
 	@Override
     public DocCommentKind getDocCommentKind(Element e) {
 		char[] unparsed = getUnparsedDocComment(e);
 		if (unparsed == null)
 			return null;
-		String[] lines = new String(unparsed).split("\n"); //$NON-NLS-1$
-		Matcher delimiterMatcher = INITIAL_DELIMITER.matcher(lines[0]);
-		return (delimiterMatcher.find()) ? DocCommentKind.TRADITIONAL : DocCommentKind.END_OF_LINE;
+		return isTraditionalJavadoc(unparsed) ? DocCommentKind.TRADITIONAL : DocCommentKind.END_OF_LINE;
     }
 }
