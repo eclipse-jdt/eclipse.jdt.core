@@ -94,8 +94,8 @@ public char[] getFileName(){
 		String clazzFileName = this.classFile.getElementName();
 		String parentPath = this.classFile.getParent().getPath().toString();
 		IPackageFragment enclosingPackage = (IPackageFragment)getAncestor(IJavaElement.PACKAGE_FRAGMENT);
-		String pack = enclosingPackage == null ? "" : enclosingPackage.getElementName();
-		String packReplaced = pack.length() > 0 ? pack.replaceAll("\\.", "/") + "/" : "";
+		String pack = enclosingPackage == null ? "" : enclosingPackage.getElementName(); //$NON-NLS-1$
+		String packReplaced = pack.length() > 0 ? pack.replaceAll("\\.", "/") + "/" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		String goal = parentPath + IDependent.JAR_FILE_ENTRY_SEPARATOR + packReplaced + clazzFileName;
 		ret = goal.toCharArray();
 	} else {
