@@ -483,6 +483,10 @@ public void enterDeclaredExceptionHandlers(CodeStream codeStream) {
 	for (int i = 0, length = this.declaredExceptionLabels == null ? 0 : this.declaredExceptionLabels.length; i < length; i++) {
 		this.declaredExceptionLabels[i].placeStart();
 	}
+}
+
+@Override
+public void enterResourceExceptionHandlers(CodeStream codeStream) {
 	int resourceCount = this.resources.length;
 	if (resourceCount > 0 && this.resourceExceptionLabels != null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375248
 		// Reinstall handlers
@@ -976,10 +980,10 @@ private boolean reusedFinallyBlock(CodeStream codeStream, Object targetLocation,
 	return false;
 }
 /**
- * @see StatementWithFinallyBlock#generateFinallyBlock(BlockScope, CodeStream, Object, int, LocalVariableBinding)
+ * @see StatementWithFinallyBlock#generateFinallyBlock(BlockScope, CodeStream, Object, int)
  */
 @Override
-public boolean generateFinallyBlock(BlockScope currentScope, CodeStream codeStream, Object targetLocation, int stateIndex, LocalVariableBinding secretLocal) {
+public boolean generateFinallyBlock(BlockScope currentScope, CodeStream codeStream, Object targetLocation, int stateIndex) {
 
 	int resourceCount = this.resources.length;
 	if (resourceCount > 0 && this.resourceExceptionLabels != null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375248
@@ -998,15 +1002,8 @@ public boolean generateFinallyBlock(BlockScope currentScope, CodeStream codeStre
 	int finallyMode = finallyMode();
 	switch (finallyMode) {
 		case FINALLY_DOES_NOT_COMPLETE:
-			if (this.switchExpression != null) {
-				exitAnyExceptionHandler();
-				exitDeclaredExceptionHandlers(codeStream);
-				this.finallyBlock.generateCode(currentScope, codeStream);
-				return true;
-			}
 			codeStream.goto_(this.finallyBlockStartLabel);
 			return true;
-
 		case NO_FINALLY:
 			exitDeclaredExceptionHandlers(codeStream);
 			return false;

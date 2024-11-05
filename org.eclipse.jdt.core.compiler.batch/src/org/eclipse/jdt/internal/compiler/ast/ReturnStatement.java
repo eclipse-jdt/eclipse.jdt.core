@@ -249,7 +249,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		Object reusableJSRTarget = this.expression == null ? (Object)TypeBinding.VOID : this.expression.reusableJSRTarget();
 		for (int i = 0, max = this.statementsWithFinallyBlock.length; i < max; i++) {
 			StatementWithFinallyBlock stmt = this.statementsWithFinallyBlock[i];
-			boolean didEscape = stmt.generateFinallyBlock(currentScope, codeStream, reusableJSRTarget, this.initStateIndex, this.saveValueVariable);
+			boolean didEscape = stmt.generateFinallyBlock(currentScope, codeStream, reusableJSRTarget, this.initStateIndex);
 			if (didEscape) {
 					codeStream.recordPositionsFrom(pc, this.sourceStart);
 					StatementWithFinallyBlock.reenterAllExceptionHandlers(this.statementsWithFinallyBlock, i, codeStream);

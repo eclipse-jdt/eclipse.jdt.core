@@ -97,7 +97,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit27 = 0x4000000;		// parenthesis count (expression)
 	public final static int Bit28 = 0x8000000;		// parenthesis count (expression)
 	public final static int Bit29 = 0x10000000;		// parenthesis count (expression)
-	public final static int Bit30 = 0x20000000;		// elseif (if statement) | try block exit (try statement) | fall-through (case statement) | ignore no effect assign (expression ref) | needScope (for statement) | IsAnyFinallyBlockEscaping (return statement) | blockExit (synchronized statement)
+	public final static int Bit30 = 0x20000000;		// elseif (if statement) | try block exit (try statement) | fall-through (case statement) | ignore no effect assign (expression ref) | needScope (for statement) | IsAnyFinallyBlockEscaping (return|yield statement) | blockExit (synchronized statement)
 	public final static int Bit31 = 0x40000000;		// local declaration reachable (local decl) | ignore raw type check (type ref) | discard entire assignment (assignment) | isSynchronized (return statement) | thenExit (if statement)
 	public final static int Bit32 = 0x80000000;		// reachable (statement)
 
@@ -279,7 +279,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for parameterized qualified/single type ref
 	public static final int DidResolve = Bit19;
 
-	// for return statement
+	// for return & yield statements
 	public static final int IsAnyFinallyBlockEscaping = Bit30;
 	public static final int IsSynchronized = Bit31;
 

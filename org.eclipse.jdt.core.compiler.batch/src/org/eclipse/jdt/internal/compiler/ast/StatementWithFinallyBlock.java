@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ExceptionLabel;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 
 /**
  * Extra behavior for statements which have a finally block - e.g., try blocks have finally; synchronized statements have hidden finally blocks that call monitorexit etc.
@@ -30,11 +29,11 @@ public abstract class StatementWithFinallyBlock extends Statement {
 			StatementWithFinallyBlock stmt = statements[i];
 			stmt.enterAnyExceptionHandler(codeStream);
 			stmt.enterDeclaredExceptionHandlers(codeStream);
+			stmt.enterResourceExceptionHandlers(codeStream);
 		}
 	}
 
 	ExceptionLabel anyExceptionLabel;
-	protected SwitchExpression switchExpression = null;
 
 	public ExceptionLabel enterAnyExceptionHandler(CodeStream codeStream) {
 
@@ -49,6 +48,10 @@ public abstract class StatementWithFinallyBlock extends Statement {
 		// do nothing by default
 	}
 
+	public void enterResourceExceptionHandlers(CodeStream codeStream) {
+		// do nothing by default
+	}
+	
 	public void exitAnyExceptionHandler() {
 		if (this.anyExceptionLabel != null) {
 			this.anyExceptionLabel.placeEnd();
@@ -59,24 +62,15 @@ public abstract class StatementWithFinallyBlock extends Statement {
 		// do nothing by default
 	}
 
-
 	/**
 	 * Generate the finally block in current context.
 	 * @return boolean, <code>true</code> if the generated code will complete abruptly.
 	 */
-	public abstract boolean generateFinallyBlock(BlockScope currentScope, CodeStream codeStream, Object targetLocation, int stateIndex, LocalVariableBinding secretLocal);
+	public abstract boolean generateFinallyBlock(BlockScope currentScope, CodeStream codeStream, Object targetLocation, int stateIndex);
 
 	public abstract boolean isFinallyBlockEscaping();
 
 	public void placeAllAnyExceptionHandler() {
 		this.anyExceptionLabel.place();
-	}
-
-	public SwitchExpression getSwitchExpression() {
-		return this.switchExpression;
-	}
-
-	public void setSwitchExpression(SwitchExpression switchExpression) {
-		this.switchExpression = switchExpression;
 	}
 }

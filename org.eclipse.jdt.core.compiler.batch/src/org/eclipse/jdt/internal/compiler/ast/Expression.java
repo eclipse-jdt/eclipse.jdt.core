@@ -244,6 +244,10 @@ protected void updateFlowOnBooleanResult(FlowInfo flowInfo, boolean result) {
 	// nop
 }
 
+public boolean hasSideEffects() {
+	return (this.constant == Constant.NotAConstant || (this.implicitConversion & TypeIds.BOXING) != 0) && !(this instanceof NullLiteral);
+}
+
 /**
  * Returns false if cast is not legal.
  */

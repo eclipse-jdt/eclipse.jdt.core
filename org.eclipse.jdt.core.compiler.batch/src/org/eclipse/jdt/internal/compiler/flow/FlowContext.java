@@ -620,13 +620,13 @@ public FlowContext getTargetContextForDefaultBreak() {
 /*
  * lookup a yield target ...
  */
-public FlowContext getTargetContextForYield(boolean requireExpression) {
+public FlowContext getTargetContextForYield(boolean implicitYield) {
 	FlowContext current = this, lastNonReturningContext = null;
 	while (current != null) {
 		if (current.isNonReturningContext()) {
 			lastNonReturningContext = current;
 		}
-		if (current.isBreakable() && current.labelName() == null && (!requireExpression || ((SwitchFlowContext) current).isExpression)) {
+		if (current.isBreakable() && (implicitYield || current.isExplicitYieldable())) {
 			if (lastNonReturningContext == null) return current;
 			return lastNonReturningContext;
 		}
@@ -688,6 +688,10 @@ public UnconditionalFlowInfo initsOnReturn() {
 }
 
 public boolean isBreakable() {
+	return false;
+}
+
+public boolean isExplicitYieldable() {
 	return false;
 }
 

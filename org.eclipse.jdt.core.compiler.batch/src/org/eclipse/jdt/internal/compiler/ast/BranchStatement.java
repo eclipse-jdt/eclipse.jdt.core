@@ -33,12 +33,6 @@ public BranchStatement(char[] label, int sourceStart,int sourceEnd) {
 	this.sourceEnd = sourceEnd;
 }
 
-protected void setSubroutineSwitchExpression(StatementWithFinallyBlock stmt) {
-	// Do nothing
-}
-protected void restartExceptionLabels(CodeStream codeStream) {
-	// do nothing
-}
 /**
  * Branch code generation
  *
@@ -56,10 +50,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (this.statementsWithFinallyBlock != null){
 		for (int i = 0, max = this.statementsWithFinallyBlock.length; i < max; i++){
 			StatementWithFinallyBlock stmt = this.statementsWithFinallyBlock[i];
-			SwitchExpression se = stmt.getSwitchExpression();
-			setSubroutineSwitchExpression(stmt);
-			boolean didEscape = stmt.generateFinallyBlock(currentScope, codeStream, this.targetLabel, this.initStateIndex, null);
-			stmt.setSwitchExpression(se);
+			boolean didEscape = stmt.generateFinallyBlock(currentScope, codeStream, this.targetLabel, this.initStateIndex);
 			if (didEscape) {
 					codeStream.recordPositionsFrom(pc, this.sourceStart);
 					StatementWithFinallyBlock.reenterAllExceptionHandlers(this.statementsWithFinallyBlock, i, codeStream);
@@ -67,7 +58,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.initStateIndex);
 						codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
 					}
-					restartExceptionLabels(codeStream);
 					return;
 			}
 		}

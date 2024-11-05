@@ -345,10 +345,12 @@ public void testBug542559_008() throws CoreException {
 public void testBug542559_0012() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"import java.util.function.Supplier;\n" +
 			"interface I0 { void i(); }\n" +
 			"interface I1 extends I0 {}\n" +
 			"interface I2 extends I0 {}\n" +
+			"public interface Supplier<T> {\n" +
+			"    T get();\n" +
+			"}\n" +
 			"public class X {\n" +
 			"	I1 n1() { return null; }\n" +
 			"	<I extends I2> I n2() { return null; }\n" +
