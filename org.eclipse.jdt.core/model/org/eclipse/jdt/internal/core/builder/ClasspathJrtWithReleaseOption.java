@@ -115,25 +115,6 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 		}
 	}
 
-	Set<String> getModuleNames() {
-		// In JDK 11 and before, classes are not listed under their respective modules
-		// Hence, we simply go to the default module system for package-module mapping
-		if (this.fs == null || !this.ctSym.isJRE12Plus()) {
-			return ClasspathJrt.getModuleNames(this);
-		}
-		if (this.modPathString == null) {
-			return Set.of();
-		}
-		if (modulesCache.isEmpty()) {
-			return null;
-		}
-		Map<String, IModule> modules = modulesCache.get(getKey());
-		if (modules != null) {
-			return modules.keySet();
-		}
-		return null;
-	}
-
 	public void loadModules() {
 		if (this.fs == null || !this.ctSym.isJRE12Plus()) {
 			ClasspathJrt.loadModules(this);
@@ -228,7 +209,7 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 
 	@Override
 	public Collection<String> getModuleNames(Collection<String> limitModules) {
-		Set<String> cache = getModuleNames();
+		Set<String> cache = ClasspathJrt.getModuleNames(this);
 		if (cache != null)
 			return selectModules(cache, limitModules);
 		return Collections.emptyList();

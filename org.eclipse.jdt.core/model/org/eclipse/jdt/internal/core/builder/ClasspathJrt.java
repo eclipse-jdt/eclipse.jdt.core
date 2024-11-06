@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -83,32 +82,6 @@ static Set<String> getModuleNames(final ClasspathJrt jrt) {
 		return modules.keySet();
 	}
 	return null;
-}
-
-static final class JrtPackageVisitor implements JRTUtil.JrtFileVisitor<Path> {
-	private final Map<String, Set<String>> packagesInModule;
-	Set<String> packageSet;
-
-	JrtPackageVisitor(Map<String, Set<String>> packagesInModule) {
-		this.packagesInModule = packagesInModule;
-	}
-
-	@Override
-	public FileVisitResult visitPackage(Path dir, Path mod, BasicFileAttributes attrs) throws IOException {
-		ClasspathJar.addToPackageSet(this.packageSet, dir.toString(), true);
-		return FileVisitResult.CONTINUE;
-	}
-
-	@Override
-	public FileVisitResult visitModule(Path path, String name) throws IOException {
-		this.packageSet = new HashSet<>();
-		this.packageSet.add(""); //$NON-NLS-1$
-		if (name.endsWith("/")) { //$NON-NLS-1$
-			name = name.substring(0, name.length() - 1);
-		}
-		this.packagesInModule.put(name, this.packageSet);
-		return FileVisitResult.CONTINUE;
-	}
 }
 
 public static void loadModules(final ClasspathJrt jrt) {
