@@ -415,7 +415,6 @@ public class SwitchStatement extends Expression {
 			}
 			SwitchFlowContext switchContext =
 				new SwitchFlowContext(flowContext, this, (this.breakLabel = new BranchLabel()), true, true);
-			switchContext.isExpression = this instanceof SwitchExpression;
 
 			CompilerOptions compilerOptions = currentScope.compilerOptions();
 

@@ -46,7 +46,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	private int nullStatus = FlowInfo.UNKNOWN;
 	public boolean jvmStackVolatile = false;
 	static final char[] SECRET_YIELD_VALUE_NAME = " yieldValue".toCharArray(); //$NON-NLS-1$
-	int yieldResolvedPosition = -1;
 	List<LocalVariableBinding> typesOnStack;
 
 	public Result results = new Result();
@@ -138,9 +137,9 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				return this.allWellFormed;
 
 			rxpressionType = rxpressionType.unboxedType();
-			this.allUniform = this.allUniform & TypeBinding.equalsEquals(this.rExpressions.iterator().next().resolvedType, rxpression.resolvedType);
-			this.allBoolean = this.allBoolean & rxpressionType.id == T_boolean;
-			this.allNumeric = this.allNumeric & rxpressionType.isNumericType();
+			this.allUniform &= TypeBinding.equalsEquals(this.rExpressions.iterator().next().resolvedType, rxpression.resolvedType);
+			this.allBoolean &= rxpressionType.id == T_boolean;
+			this.allNumeric &= rxpressionType.isNumericType();
 
 			if (this.allNumeric) {
 				boolean definiteType = true;
@@ -288,11 +287,15 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		lvb.declaration = new LocalDeclaration(name, 0, 0);
 		return lvb;
 	}
-	private void spillOperandStack(CodeStream codeStream) {
+
+	private void spillOperandStackIfNeeded(CodeStream codeStream) {
+		int operandStackSize = codeStream.operandStack.size();
+		if (!this.jvmStackVolatile || (codeStream.stackDepth == 0 && operandStackSize == 0)) // nothing to spill and nothing to compain
+			return;
 		int nextResolvedPosition = this.scope.offset;
 		this.typesOnStack = new ArrayList<>();
 		int index = 0;
-		while (codeStream.operandStack.size() > 0) {
+		while (operandStackSize > 0) {
 			TypeBinding type = codeStream.operandStack.peek();
 			LocalVariableBinding lvb = addTypeStackVariable(codeStream, type, TypeIds.T_undefined, index++, nextResolvedPosition);
 			nextResolvedPosition += switch (lvb.type.id) {
@@ -302,32 +305,30 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			this.typesOnStack.add(lvb);
 			codeStream.store(lvb, false);
 			codeStream.addVariable(lvb);
+			operandStackSize = codeStream.operandStack.size();
 		}
-		if (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0) {
+		if (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)
 			codeStream.classFile.referenceBinding.scope.problemReporter().operandStackSizeInappropriate(codeStream.classFile.referenceBinding.scope.referenceContext);
-		}
-		// now keep a position reserved for yield result value
-		this.yieldResolvedPosition = nextResolvedPosition;
-		nextResolvedPosition += ((TypeBinding.equalsEquals(this.resolvedType, TypeBinding.LONG)) ||
-				(TypeBinding.equalsEquals(this.resolvedType, TypeBinding.DOUBLE))) ?
-				2 : 1;
 
 		int delta = nextResolvedPosition - this.scope.offset;
 		this.scope.adjustLocalVariablePositions(delta, false);
 	}
-	public void refillOperandStack(CodeStream codeStream) {
+
+	public void refillOperandStackIfNeeded(CodeStream codeStream, YieldStatement yield) {
+		if (!this.jvmStackVolatile || this.typesOnStack == null || this.typesOnStack.isEmpty() || (yield.bits & ASTNode.IsAnyFinallyBlockEscaping) != 0) // nothing spilled or no point restoring.
+			 return;
+
+		if (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)
+			codeStream.classFile.referenceBinding.scope.problemReporter().operandStackSizeInappropriate(codeStream.classFile.referenceBinding.scope.referenceContext);
+
 		List<LocalVariableBinding> tos = this.typesOnStack;
-		int sz = tos != null ? tos.size() : 0;
-		codeStream.operandStack.clear();
-		codeStream.stackDepth = 0;
-		int index = sz - 1;
+		int index = tos != null ? tos.size() - 1 : -1;
 		while (index >= 0) {
 			LocalVariableBinding lvb = tos.get(index--);
 			codeStream.load(lvb);
-//		    lvb.recordInitializationEndPC(codeStream.position);
-//			codeStream.removeVariable(lvb);
 		}
 	}
+
 	private void removeStoredTypes(CodeStream codeStream) {
 		List<LocalVariableBinding> tos = this.typesOnStack;
 		int index = tos != null ? tos.size() -1 : - 1;
@@ -336,10 +337,10 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			codeStream.removeVariable(lvb);
 		}
 	}
+
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-		if (this.jvmStackVolatile)
-			spillOperandStack(codeStream);
+		spillOperandStackIfNeeded(codeStream);
 		super.generateCode(currentScope, codeStream);
 		if (this.jvmStackVolatile)
 			removeStoredTypes(codeStream);
@@ -384,27 +385,24 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	// Return the type after applying capture conversion.
 	private TypeBinding resolveAsType(TypeBinding switchType) {
 		for (Expression rExpression : this.results.rExpressions) {
-			if (rExpression.isConstantValueOfTypeAssignableToType(rExpression.resolvedType, switchType)
-					|| rExpression.resolvedType.isCompatibleWith(switchType)) {
-				rExpression.computeConversion(this.scope, switchType, rExpression.resolvedType);
-				if (rExpression.resolvedType.needsUncheckedConversion(switchType))
-					this.scope.problemReporter().unsafeTypeConversion(rExpression, rExpression.resolvedType, switchType);
-				if (rExpression instanceof CastExpression && (rExpression.bits
-						& (ASTNode.UnnecessaryCast | ASTNode.DisableUnnecessaryCastCheck)) == 0) {
-					CastExpression.checkNeedForAssignedCast(this.scope, switchType, (CastExpression) rExpression);
+			if (rExpression.resolvedType != null && rExpression.resolvedType.isValidBinding()) {
+				if (rExpression.isConstantValueOfTypeAssignableToType(rExpression.resolvedType, switchType) || rExpression.resolvedType.isCompatibleWith(switchType)) {
+					rExpression.computeConversion(this.scope, switchType, rExpression.resolvedType);
+					if (rExpression.resolvedType.needsUncheckedConversion(switchType))
+						this.scope.problemReporter().unsafeTypeConversion(rExpression, rExpression.resolvedType, switchType);
+					if (rExpression instanceof CastExpression && (rExpression.bits & (ASTNode.UnnecessaryCast | ASTNode.DisableUnnecessaryCastCheck)) == 0)
+						CastExpression.checkNeedForAssignedCast(this.scope, switchType, (CastExpression) rExpression);
+				} else if (isBoxingCompatible(rExpression.resolvedType, switchType, rExpression, this.scope)) {
+					rExpression.computeConversion(this.scope, switchType, rExpression.resolvedType);
+					if (rExpression instanceof CastExpression && (rExpression.bits & (ASTNode.UnnecessaryCast | ASTNode.DisableUnnecessaryCastCheck)) == 0)
+						CastExpression.checkNeedForAssignedCast(this.scope, switchType, (CastExpression) rExpression);
+				} else {
+					this.scope.problemReporter().typeMismatchError(rExpression.resolvedType, switchType, rExpression, null);
+					return null;
 				}
-			} else if (isBoxingCompatible(rExpression.resolvedType, switchType, rExpression, this.scope)) {
-				rExpression.computeConversion(this.scope, switchType, rExpression.resolvedType);
-				if (rExpression instanceof CastExpression && (rExpression.bits
-						& (ASTNode.UnnecessaryCast | ASTNode.DisableUnnecessaryCastCheck)) == 0) {
-					CastExpression.checkNeedForAssignedCast(this.scope, switchType, (CastExpression) rExpression);
-				}
-			} else {
-				this.scope.problemReporter().typeMismatchError(rExpression.resolvedType, switchType, rExpression, null);
-				return null;
 			}
 		}
-		return switchType.capture(SwitchExpression.this.scope, SwitchExpression.this.sourceStart, SwitchExpression.this.sourceEnd);
+		return switchType.capture(this.scope, this.sourceStart, this.sourceEnd);
 	}
 
 

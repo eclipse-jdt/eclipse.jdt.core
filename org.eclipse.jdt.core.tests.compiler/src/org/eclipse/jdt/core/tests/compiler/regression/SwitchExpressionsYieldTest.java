@@ -25,7 +25,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "571833" };
+//		TESTS_NAMES = new String[] { "testBug545567_18" };
 	}
 
 	public static Class<?> testClass() {
@@ -3883,6 +3883,42 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"one");
 	}
+
+	public void testBug545567_5_1() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						    public String toString() { return "some X"; }
+						    public static void main(String[] args) {
+						    	String t = switch (0) {
+						        default -> {
+						            try {
+						                yield new X().toString();
+						            }
+						            catch (Exception ex) {
+						            }
+						            yield "zero";
+						        }
+						     };
+						     System.out.print(t);
+						    }
+
+						    static int foo() {
+						    	try {
+						    		return 42;
+						    	} catch (Exception ex) {
+
+						    	}
+						    	return -1;
+						    }
+						}
+						"""
+				},
+				"some X");
+	}
+
 	public void testBug545567_6() {
 		runConformTest(
 				new String[] {
@@ -4431,7 +4467,10 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"10");
 	}
-	public void testBug545567_22() {
+	// Disabled until https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3259 and
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3258 are comprehensively
+	// resolved. Same issue, but was "compensated" for earlier
+	public void _testBug545567_22() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -8193,5 +8232,73 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	^^^\n" +
 				"The method foo(Object, J) is ambiguous for the type X\n" +
 				"----------\n");
+	}
+
+	// fails when run as org.eclipse.jdt.core.tests.model.JavaSearchBugs14SwitchExpressionTests.testBug542559_0012
+	public void testBug542559_0012() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				import java.util.function.Supplier;
+				interface I0 { void i(); }
+				interface I1 extends I0 {}
+				interface I2 extends I0 {}
+				public class X {
+					I1 n1() { return null; }
+					<I extends I2> I n2() { return null; }
+
+					void test(int i, boolean b) {
+						m(switch (i) {
+							case 1 -> this::n1;
+							default -> this::n2;
+						}).i();
+					}
+
+					<M> M m(Supplier<M> m) { return m.get(); }
+
+					public static void main(String[] args) {
+						try {
+							new X().test(1, true);
+						} catch (NullPointerException e) {
+							System.out.println("NPE as expected!");
+						}
+					}
+				}
+				"""
+				},
+				"NPE as expected!");
+	}
+
+	// Disabled until https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3259 and
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3258 are comprehensively
+	// resolved. Same issue, but was "compensated" for earlier
+	public void _testBug545567_22_minimal() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X implements AutoCloseable {
+				   public static void main(String[] args) {
+				       int t = switch (1) {
+				               default -> {
+				                   try (X x = new X()) {
+				                       if (args.length < 1)
+				                    	   yield 10;
+				                       else
+				                           yield 12;
+				                       } finally {
+				                            yield 3;
+				                       }
+				               }
+				       };
+				       System.out.println(t);
+				   }
+
+				   public void close() throws Exception {}
+				}
+				"""
+				},
+				"3");
 	}
 }

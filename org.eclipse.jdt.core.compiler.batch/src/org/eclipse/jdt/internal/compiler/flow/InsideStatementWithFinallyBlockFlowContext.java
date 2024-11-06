@@ -33,7 +33,7 @@ public InsideStatementWithFinallyBlockFlowContext(
 
 @Override
 public String individualToString() {
-	StringBuilder buffer = new StringBuilder("Inside StatementWithPostScript flow context"); //$NON-NLS-1$
+	StringBuilder buffer = new StringBuilder("Inside StatementWithFinallyBlock flow context"); //$NON-NLS-1$
 	buffer.append("[initsOnReturn -").append(this.initsOnReturn.toString()).append(']'); //$NON-NLS-1$
 	return buffer.toString();
 }
