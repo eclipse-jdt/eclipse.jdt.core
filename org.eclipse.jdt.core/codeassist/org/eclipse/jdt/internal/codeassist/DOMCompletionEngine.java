@@ -413,14 +413,24 @@ public class DOMCompletionEngine implements Runnable {
 					while (bodyStart < buffer.getLength() && buffer.getChar(bodyStart) != '{') {
 						bodyStart++;
 					}
+					int prefixCursor = this.offset;
+					while (prefixCursor > 0 && !Character.isWhitespace(buffer.getChar(prefixCursor - 1))) {
+						prefixCursor--;
+					}
+					this.prefix = buffer.getText(prefixCursor, this.offset - prefixCursor);
 					if (nameEndOffset < this.offset && this.offset <= bodyStart) {
 						String extendsOrImplementsContent = buffer.getText(nameEndOffset, this.offset - nameEndOffset);
 						if (extendsOrImplementsContent.indexOf("implements") < 0 && extendsOrImplementsContent.indexOf("extends") < 0) { //$NON-NLS-1$ //$NON-NLS-2$
 							// public class Foo | {
 							//
 							// }
-							this.requestor.accept(createKeywordProposal(Keywords.EXTENDS, this.offset, this.offset));
-							this.requestor.accept(createKeywordProposal(Keywords.IMPLEMENTS, this.offset, this.offset));
+							boolean isInterface = typeDecl instanceof TypeDeclaration realTypeDecl && realTypeDecl.isInterface();
+							if (CharOperation.prefixEquals(this.prefix.toCharArray(), Keywords.EXTENDS)) {
+								this.requestor.accept(createKeywordProposal(Keywords.EXTENDS, this.offset, this.offset));
+							}
+							if (!isInterface && CharOperation.prefixEquals(this.prefix.toCharArray(), Keywords.IMPLEMENTS)) {
+								this.requestor.accept(createKeywordProposal(Keywords.IMPLEMENTS, this.offset, this.offset));
+							}
 						} else if (extendsOrImplementsContent.indexOf("implements") < 0 && (Character.isWhitespace(buffer.getChar(this.offset - 1)) || buffer.getChar(this.offset - 1) == ',')) { //$NON-NLS-1$
 							// public class Foo extends Bar, Baz, | {
 							//
