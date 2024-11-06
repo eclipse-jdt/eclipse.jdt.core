@@ -84,6 +84,15 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return FlowInfo.DEAD_END;
 }
 
+private void adjustOperandStackTopIfNeeded(CodeStream codeStream) { // See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3135
+	if (this.expression.resolvedType == TypeBinding.NULL) {
+		if (!this.switchExpression.resolvedType.isBaseType()) {     // no opcode called for to align the types, but we need to adjust the notion of type of TOS.
+			codeStream.operandStack.pop(TypeBinding.NULL);
+			codeStream.operandStack.push(this.switchExpression.resolvedType);
+		}
+	}
+}
+
 @Override
 public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
@@ -95,39 +104,34 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
 	int pc = codeStream.position;
 	boolean expressionGenerationDeferred = true; // If possible defer generating the expression to until after inlining of enclosing try's finally {}
-	if (this.expression.hasSideEffects()) { // can't defer
+	if (this.expression.hasSideEffects() || this.statementsWithFinallyBlock.length == 0) { // can't defer or no need to defer
 		expressionGenerationDeferred = false;
-		this.expression.generateCode(currentScope, codeStream, this.switchExpression != null && // discard value if statement switch
-				(this.bits & ASTNode.IsAnyFinallyBlockEscaping) == 0); // no value needed if finally completes abruptly
+		boolean valueRequired = this.switchExpression != null && (this.bits & ASTNode.IsAnyFinallyBlockEscaping) == 0; // no value needed if finally completes abruptly or for a statement switch
+		this.expression.generateCode(currentScope, codeStream, valueRequired);
+		if (valueRequired)
+			adjustOperandStackTopIfNeeded(codeStream);
 	} else {
 		codeStream.nop(); // prevent exception ranges from being empty on account of deferral : try { yield 42; } catch (Exception ex) {}  ...
 	}
 
 	// inline finally blocks in sequence
-	if (this.statementsWithFinallyBlock != null) {
-		for (int i = 0, max = this.statementsWithFinallyBlock.length; i < max; i++) {
-			StatementWithFinallyBlock stmt = this.statementsWithFinallyBlock[i];
-			boolean didEscape = stmt.generateFinallyBlock(currentScope, codeStream,  this.expression.reusableJSRTarget(), this.initStateIndex);
-			if (didEscape) {
-				codeStream.recordPositionsFrom(pc, this.sourceStart);
-				StatementWithFinallyBlock.reenterAllExceptionHandlers(this.statementsWithFinallyBlock, i, codeStream);
-				if (this.initStateIndex != -1) {
-					codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.initStateIndex);
-					codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
-				}
-				return;
+	for (int i = 0, max = this.statementsWithFinallyBlock.length; i < max; i++) {
+		StatementWithFinallyBlock stmt = this.statementsWithFinallyBlock[i];
+		boolean didEscape = stmt.generateFinallyBlock(currentScope, codeStream,  this.expression.reusableJSRTarget(), this.initStateIndex);
+		if (didEscape) {
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
+			StatementWithFinallyBlock.reenterAllExceptionHandlers(this.statementsWithFinallyBlock, i, codeStream);
+			if (this.initStateIndex != -1) {
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.initStateIndex);
+				codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
 			}
+			return;
 		}
 	}
 
 	if (expressionGenerationDeferred) {
 		this.expression.generateCode(currentScope, codeStream, this.switchExpression != null);
-		if (this.expression.resolvedType == TypeBinding.NULL) { // not required in the earlier path because null evaluation is side effect free.
-			if (!this.switchExpression.resolvedType.isBaseType()) { // no opcode called for to align the types, but we need to adjust the notion of type of TOS.
-				codeStream.operandStack.pop(TypeBinding.NULL);
-				codeStream.operandStack.push(this.switchExpression.resolvedType);
-			}
-		}
+		adjustOperandStackTopIfNeeded(codeStream);
 	}
 
 	codeStream.goto_(this.targetLabel);

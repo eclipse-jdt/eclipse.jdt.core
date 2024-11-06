@@ -402,7 +402,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				}
 			}
 		}
-		return switchType.capture(SwitchExpression.this.scope, SwitchExpression.this.sourceStart, SwitchExpression.this.sourceEnd);
+		return switchType.capture(this.scope, this.sourceStart, this.sourceEnd);
 	}
 
 
