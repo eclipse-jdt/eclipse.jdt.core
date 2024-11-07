@@ -80,7 +80,7 @@ public class ClasspathJMod extends ClasspathJar {
 		return null;
 	}
 	@Override
-	protected Set<String> readPackages() {
+	protected Set<String> readPackageNames() {
 		final Set<String> packageSet = new HashSet<>();
 		packageSet.add(""); //$NON-NLS-1$
 		for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {

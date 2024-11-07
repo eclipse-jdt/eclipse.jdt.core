@@ -79,11 +79,7 @@ protected static void addToPackageSet(Set<String> packageSet, String fileName, b
 	}
 }
 
-/**
- * Calculate and cache the package list available in the zipFile.
- * @return A SimpleSet with the all the package names in the zipFile.
- */
-protected Set<String> getPackages() {
+private Set<String> getCachedPackageNames() {
 	PackageCacheEntry entry = packageCache.compute(this.zipFilename, (zipFileName, cacheEntry) -> {
 		if(cacheEntry != null && cacheEntry.zipFile.get() == this.zipFile) {
 			return cacheEntry;
@@ -93,12 +89,13 @@ protected Set<String> getPackages() {
 			// cacheEntry.zipFile.get() != this.zipFile => update zipFile
 			return new PackageCacheEntry(new WeakReference<>(this.zipFile), cacheEntry.lastModified , cacheEntry.fileSize, cacheEntry.packageSet);
 		}
-		return new PackageCacheEntry(new WeakReference<>(this.zipFile), timestamp, this.fileSize, Set.copyOf(readPackages()));
+		return new PackageCacheEntry(new WeakReference<>(this.zipFile), timestamp, this.fileSize, Set.copyOf(readPackageNames()));
 	});
 
 	return entry.packageSet;
 }
-protected Set<String> readPackages() {
+/** overloaded */
+protected Set<String> readPackageNames() {
 	final Set<String> packageSet = new HashSet<>();
 	packageSet.add(""); //$NON-NLS-1$
 	for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
@@ -272,12 +269,12 @@ public boolean isPackage(String qualifiedPackageName, String moduleName) {
 			return false;
 	}
 	if (this.knownPackageNames == null)
-		scanContent();
+		readKnownPackageNames();
 	return this.knownPackageNames.contains(qualifiedPackageName);
 }
 @Override
 public boolean hasCompilationUnit(String pkgName, String moduleName) {
-	if (scanContent()) {
+	if (readKnownPackageNames()) {
 		if (!this.knownPackageNames.contains(pkgName)) {
 			// Don't waste time walking through the zip if we know that it doesn't
 			// contain a directory that matches pkgName
@@ -299,8 +296,8 @@ public boolean hasCompilationUnit(String pkgName, String moduleName) {
 	return false;
 }
 
-/** Scan the contained packages and try to locate the module descriptor. */
-private boolean scanContent() {
+/** Scan the contained packages. */
+private boolean readKnownPackageNames() {
 	try {
 		if (this.zipFile == null) {
 			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
@@ -308,7 +305,7 @@ private boolean scanContent() {
 			}
 			this.zipFile = new ZipFile(this.zipFilename);
 		}
-		this.knownPackageNames = getPackages();
+		this.knownPackageNames = getCachedPackageNames();
 		return true;
 	} catch(Exception e) {
 		this.knownPackageNames = Set.of(); // assume for this build the zipFile is empty
@@ -352,7 +349,7 @@ public String debugPathString() {
 @Override
 public IModule getModule() {
 	if (this.knownPackageNames == null)
-		scanContent();
+		readKnownPackageNames();
 	return this.module;
 }
 
@@ -362,7 +359,7 @@ public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageN
 	return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false, null);
 }
 public Manifest getManifest() {
-	if (!scanContent()) // ensure zipFile is initialized
+	if (!readKnownPackageNames()) // ensure zipFile is initialized
 		return null;
 	ZipEntry entry = this.zipFile.getEntry(TypeConstants.META_INF_MANIFEST_MF);
 	if (entry == null) {
@@ -377,7 +374,7 @@ public Manifest getManifest() {
 }
 @Override
 public char[][] listPackages() {
-	if (!scanContent()) // ensure zipFile is initialized
+	if (!readKnownPackageNames()) // ensure zipFile is initialized
 		return null;
 	// -1 because it always contains empty string:
 	char[][] result = new char[this.knownPackageNames.size() - 1][];
@@ -394,7 +391,7 @@ public char[][] listPackages() {
 
 @Override
 protected IBinaryType decorateWithExternalAnnotations(IBinaryType reader, String fileNameWithoutExtension) {
-	if (scanContent()) { // ensure zipFile is initialized
+	if (readKnownPackageNames()) { // ensure zipFile is initialized
 		String qualifiedBinaryFileName = fileNameWithoutExtension + ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX;
 		ZipEntry entry = this.zipFile.getEntry(qualifiedBinaryFileName);
 		if (entry != null) {
