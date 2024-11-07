@@ -187,6 +187,42 @@ public void testBug542559_004() throws CoreException {
 		search("switch_expr_field", FIELD, REFERENCES);
 		assertSearchResults(
 				"src/X.java int X.twice(int) [switch_expr_field] EXACT_MATCH\n" +
+				"src/X.java int X.twice(int) [switch_expr_field] POTENTIAL_MATCH" // altered recovery from syntax error results in potential match
+		);
+	} finally {
+		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+	}
+}
+
+/*
+ * java search reference for an integer in default block of switch expression
+ */
+public void testBug542559_004_1() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+			"public class X {\n" +
+			"	int switch_expr_field = 10;\n" +
+			"	int twice(int i) {\n" +
+			"		int tw = switch (i) {\n" +
+			"			case 0 -> switch_expr_field * 0;\n" +
+			"			case 1 -> 2;\n" +
+			"			default ->{ \n" +
+			"			yield switch_expr_field*9; \n" +
+			"		}};\n" +
+			"		return tw;\n" +
+			"	}\n" +
+			"	public static void main(String... args) {\n" +
+			"		System.out.print(new X().twice(3));\n" +
+			"	}\n" +
+			"}\n"
+			);
+	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+	try {
+		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
+		search("switch_expr_field", FIELD, REFERENCES);
+		assertSearchResults(
+				"src/X.java int X.twice(int) [switch_expr_field] EXACT_MATCH\n" +
 				"src/X.java int X.twice(int) [switch_expr_field] EXACT_MATCH"
 		);
 	} finally {

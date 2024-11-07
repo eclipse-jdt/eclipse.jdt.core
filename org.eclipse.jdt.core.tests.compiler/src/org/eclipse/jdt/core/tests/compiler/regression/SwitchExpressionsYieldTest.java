@@ -5789,7 +5789,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 5)\n" +
 				"	case AAABBB -> 1;\n" +
 				"	                ^\n" +
-				"Syntax error on token \";\", case expected after this token\n" +
+				"Syntax error on token \";\", [ expected\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 6)\n" +
 				"	(I)()->();\n" +
@@ -5802,6 +5802,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"Syntax error, insert \")\" to complete Expression\n" +
 				"----------\n" +
 				"4. ERROR in X.java (at line 6)\n" +
+				"	(I)()->();\n" +
+				"	        ^\n" +
+				"Syntax error, insert \"]\" to complete ArrayAccess\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 6)\n" +
 				"	(I)()->();\n" +
 				"	        ^\n" +
 				"Syntax error, insert \":\" to complete SwitchLabel\n" +
@@ -8108,11 +8113,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 5)\n" +
 				"	default -> 1;\n" +
 				"	^^^^^^^\n" +
-				"Mixing of '->' and ':' case statement styles is not allowed within a switch\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
-				"	case 1 : yield 2;\n" +
-				"	^^^^^^\n" +
 				"Mixing of '->' and ':' case statement styles is not allowed within a switch\n" +
 				"----------\n");
 	}

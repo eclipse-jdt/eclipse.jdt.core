@@ -371,7 +371,7 @@ public class ASTConverter14Test extends ConverterTestSetup {
 					"3. ERROR in /Foo/src/X.java (at line 14)\n" +
 					"	for (String s : switch(i) { case 1 -> ; default -> list; }) {\n" +
 					"	                                   ^^\n" +
-					"Syntax error on token \"->\", Expression expected after this token\n" +
+					"Syntax error on token \"->\", : expected\n" +
 					"----------\n" +
 					"4. ERROR in /Foo/src/X.java (at line 18)\n" +
 					"	case 0 -> missing;\n" +
