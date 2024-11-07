@@ -59,6 +59,7 @@ public class DOMCompletionEngine implements Runnable {
 	private String prefix;
 	private String qualifiedPrefix;
 	private ASTNode toComplete;
+	private IBuffer cuBuffer;
 	private final DOMCompletionEngineVariableDeclHandler variableDeclHandler;
 	private final DOMCompletionEngineRecoveredNodeScanner recoveredNodeScanner;
 	private final IProgressMonitor monitor;
@@ -122,6 +123,11 @@ public class DOMCompletionEngine implements Runnable {
 		this.variableDeclHandler = new DOMCompletionEngineVariableDeclHandler();
 		this.recoveredNodeScanner = new DOMCompletionEngineRecoveredNodeScanner(modelUnit, offset);
 		this.monitor = monitor;
+		try {
+			this.cuBuffer = this.modelUnit.getBuffer();
+		} catch (JavaModelException e) {
+			ILog.get().error("unable to access buffer for completion", e); //$NON-NLS-1$
+		}
 	}
 
 	private Collection<? extends IBinding> visibleBindings(ASTNode node) {
@@ -203,20 +209,16 @@ public class DOMCompletionEngine implements Runnable {
 		try {
 			// Use the raw text to walk back the offset to the first non-whitespace spot
 			int adjustedOffset = this.offset;
-			try {
-
-				IBuffer cuBuffer = this.modelUnit.getBuffer();
-				if (adjustedOffset >= cuBuffer.getLength()) {
-					adjustedOffset = cuBuffer.getLength() - 1;
+			if (this.cuBuffer != null) {
+				if (adjustedOffset >= this.cuBuffer.getLength()) {
+					adjustedOffset = this.cuBuffer.getLength() - 1;
 				}
-				if (adjustedOffset + 1 >= cuBuffer.getLength()
-						|| Character.isWhitespace(cuBuffer.getChar(adjustedOffset + 1))) {
-					while (adjustedOffset > 0 && Character.isWhitespace(cuBuffer.getChar(adjustedOffset)) ) {
+				if (adjustedOffset + 1 >= this.cuBuffer.getLength()
+						|| Character.isWhitespace(this.cuBuffer.getChar(adjustedOffset + 1))) {
+					while (adjustedOffset > 0 && Character.isWhitespace(this.cuBuffer.getChar(adjustedOffset)) ) {
 						adjustedOffset--;
 					}
 				}
-			} catch (JavaModelException e) {
-				ILog.get().error("Cannot adjust the completion offset to the first preceeding non-whitespace character"); //$NON-NLS-1$
 			}
 
 			this.toComplete = NodeFinder.perform(this.unit, adjustedOffset, 0);
@@ -228,17 +230,14 @@ public class DOMCompletionEngine implements Runnable {
 				if (!FAKE_IDENTIFIER.equals(simpleName.getIdentifier())) {
 					completeAfter = simpleName.getIdentifier().substring(0, simpleName.getIdentifier().length() <= charCount ? simpleName.getIdentifier().length() : charCount);
 				}
-				try {
-					IBuffer cuBuffer = this.modelUnit.getBuffer();
-					if (cuBuffer.getChar(this.offset - 1) == '.') {
+				if (this.cuBuffer != null) {
+					if (this.cuBuffer.getChar(this.offset - 1) == '.') {
 						completeAfter = ""; //$NON-NLS-1$
 					}
-				} catch (JavaModelException e) {
-					ILog.get().error("error while trying to read buffer for completion purposes", e); //$NON-NLS-1$
 				}
 				if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation
 						|| simpleName.getParent() instanceof VariableDeclaration || simpleName.getParent() instanceof QualifiedName
-						|| simpleName.getParent() instanceof SuperFieldAccess) {
+						|| simpleName.getParent() instanceof SuperFieldAccess || simpleName.getParent() instanceof SingleMemberAnnotation) {
 					if (!this.toComplete.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId())) {
 						context = this.toComplete.getParent();
 					}
@@ -258,13 +257,19 @@ public class DOMCompletionEngine implements Runnable {
 				completeAfter = fieldAccess.getName().toString();
 			} else if (this.toComplete instanceof MethodInvocation methodInvocation) {
 				completeAfter = methodInvocation.getName().toString();
-				try {
-					IBuffer cuBuffer = this.modelUnit.getBuffer();
-					if (cuBuffer.getChar(this.offset - 1) == '.') {
+				if (this.cuBuffer != null) {
+					if (this.cuBuffer.getChar(this.offset - 1) == '.') {
 						completeAfter = ""; //$NON-NLS-1$
 					}
-				} catch (JavaModelException e) {
-					ILog.get().error("error while trying to read buffer for completion purposes", e); //$NON-NLS-1$
+				}
+			} else if (this.toComplete instanceof NormalAnnotation) {
+				// handle potentially unrecovered/unparented identifier characters
+				if (this.cuBuffer != null) {
+					int cursor = this.offset;
+					while (cursor > 0 && Character.isJavaIdentifierPart(this.cuBuffer.getChar(cursor - 1)) ) {
+						cursor--;
+					}
+					completeAfter = this.cuBuffer.getText(cursor, this.offset - cursor);
 				}
 			}
 			this.prefix = completeAfter;
@@ -406,20 +411,19 @@ public class DOMCompletionEngine implements Runnable {
 				}
 			}
 			if (context instanceof AbstractTypeDeclaration typeDecl) {
-				try {
-					IBuffer buffer = this.modelUnit.getBuffer();
+				if (this.cuBuffer != null) {
 					int nameEndOffset = typeDecl.getName().getStartPosition() + typeDecl.getName().getLength();
 					int bodyStart = nameEndOffset;
-					while (bodyStart < buffer.getLength() && buffer.getChar(bodyStart) != '{') {
+					while (bodyStart < this.cuBuffer.getLength() && this.cuBuffer.getChar(bodyStart) != '{') {
 						bodyStart++;
 					}
 					int prefixCursor = this.offset;
-					while (prefixCursor > 0 && !Character.isWhitespace(buffer.getChar(prefixCursor - 1))) {
+					while (prefixCursor > 0 && !Character.isWhitespace(this.cuBuffer.getChar(prefixCursor - 1))) {
 						prefixCursor--;
 					}
-					this.prefix = buffer.getText(prefixCursor, this.offset - prefixCursor);
+					this.prefix = this.cuBuffer.getText(prefixCursor, this.offset - prefixCursor);
 					if (nameEndOffset < this.offset && this.offset <= bodyStart) {
-						String extendsOrImplementsContent = buffer.getText(nameEndOffset, this.offset - nameEndOffset);
+						String extendsOrImplementsContent = this.cuBuffer.getText(nameEndOffset, this.offset - nameEndOffset);
 						if (extendsOrImplementsContent.indexOf("implements") < 0 && extendsOrImplementsContent.indexOf("extends") < 0) { //$NON-NLS-1$ //$NON-NLS-2$
 							// public class Foo | {
 							//
@@ -431,7 +435,8 @@ public class DOMCompletionEngine implements Runnable {
 							if (!isInterface && CharOperation.prefixEquals(this.prefix.toCharArray(), Keywords.IMPLEMENTS)) {
 								this.requestor.accept(createKeywordProposal(Keywords.IMPLEMENTS, this.offset, this.offset));
 							}
-						} else if (extendsOrImplementsContent.indexOf("implements") < 0 && (Character.isWhitespace(buffer.getChar(this.offset - 1)) || buffer.getChar(this.offset - 1) == ',')) { //$NON-NLS-1$
+						} else if (extendsOrImplementsContent.indexOf("implements") < 0 //$NON-NLS-1$
+									&& (Character.isWhitespace(this.cuBuffer.getChar(this.offset - 1)) || this.cuBuffer.getChar(this.offset - 1) == ',')) {
 							// public class Foo extends Bar, Baz, | {
 							//
 							// }
@@ -445,8 +450,6 @@ public class DOMCompletionEngine implements Runnable {
 						findOverridableMethods(typeDeclBinding, this.modelUnit.getJavaProject(), null);
 					}
 					suggestDefaultCompletions = false;
-				} catch (JavaModelException e) {
-					ILog.get().error("unable to use buffer contents to tell if completion was in the extends/implements list", e); //$NON-NLS-1$
 				}
 			}
 			if (context instanceof QualifiedName qualifiedName) {
@@ -530,8 +533,20 @@ public class DOMCompletionEngine implements Runnable {
 				completeMarkerAnnotation(completeAfter);
 				suggestDefaultCompletions = false;
 			}
+			if (context instanceof SingleMemberAnnotation singleMemberAnnotation) {
+				if (singleMemberAnnotation.getTypeName().getStartPosition() + singleMemberAnnotation.getTypeName().getLength() > this.offset) {
+					completeMarkerAnnotation(completeAfter);
+				} else if (!this.requestor.isIgnored(CompletionProposal.ANNOTATION_ATTRIBUTE_REF)) {
+					completeAnnotationParams(singleMemberAnnotation, Collections.emptySet(), specificCompletionBindings);
+				}
+				suggestDefaultCompletions = false;
+			}
 			if (context instanceof NormalAnnotation normalAnnotation) {
-				completeNormalAnnotationParams(normalAnnotation, specificCompletionBindings);
+				if (normalAnnotation.getTypeName().getStartPosition() + normalAnnotation.getTypeName().getLength() > this.offset) {
+					completeMarkerAnnotation(completeAfter);
+				} else if (!this.requestor.isIgnored(CompletionProposal.ANNOTATION_ATTRIBUTE_REF)) {
+					completeNormalAnnotationParams(normalAnnotation, specificCompletionBindings);
+				}
 				suggestDefaultCompletions = false;
 			}
 			if (context instanceof MethodDeclaration methodDeclaration) {
@@ -617,12 +632,6 @@ public class DOMCompletionEngine implements Runnable {
 		while (current != null) {
 			Collection<? extends IBinding> gottenVisibleBindings = visibleBindings(current);
 			scope.addAll(gottenVisibleBindings);
-			// break if following conditions match, otherwise we get all visible symbols which is unwanted in this
-			// completion context.
-			if (current instanceof NormalAnnotation normalAnnotation) {
-				completeNormalAnnotationParams(normalAnnotation, scope);
-				break;
-			}
 			if (current instanceof AbstractTypeDeclaration typeDecl) {
 				processMembers(this.toComplete, typeDecl.resolveBinding(), scope, false);
 			}
@@ -874,13 +883,20 @@ public class DOMCompletionEngine implements Runnable {
 		Set<String> definedKeys = ((List<MemberValuePair>)normalAnnotation.values()).stream() //
 				.map(mvp -> mvp.getName().toString()) //
 				.collect(Collectors.toSet());
-		Arrays.stream(normalAnnotation.resolveTypeBinding().getDeclaredMethods()) //
+		completeAnnotationParams(normalAnnotation, definedKeys, scope);
+	}
+
+	private void completeAnnotationParams(Annotation annotation, Set<String> definedKeys, Bindings scope) {
+		Arrays.stream(annotation.resolveTypeBinding().getDeclaredMethods()) //
 			.filter(declaredMethod -> {
 				return (declaredMethod.getModifiers() & Flags.AccStatic) == 0
 						&& !definedKeys.contains(declaredMethod.getName().toString());
 			}) //
 			.forEach(scope::add);
-		publishFromScope(scope);
+		scope.methods.stream() //
+				.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray())) //
+				.map(binding -> toAnnotationAttributeRefProposal(binding))
+				.forEach(this.requestor::accept);
 	}
 
 	private void publishFromScope(Bindings scope) {
@@ -1564,6 +1580,37 @@ public class DOMCompletionEngine implements Runnable {
 		return res;
 	}
 
+	private CompletionProposal toAnnotationAttributeRefProposal(IMethodBinding method) {
+		CompletionProposal proposal = createProposal(CompletionProposal.ANNOTATION_ATTRIBUTE_REF);
+		proposal.setDeclarationSignature(DOMCompletionEngineBuilder.getSignature(method.getDeclaringClass()));
+		proposal.setSignature(DOMCompletionEngineBuilder.getSignature(method.getReturnType()));
+		proposal.setName(method.getName().toCharArray());
+		// add "=" to completion since it will always be needed
+		char[] completion= method.getName().toCharArray();
+		if (JavaCore.INSERT.equals(this.modelUnit.getJavaProject().getOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATOR, true))) {
+			completion= CharOperation.concat(completion, new char[] {' '});
+		}
+		completion= CharOperation.concat(completion, new char[] {'='});
+		if (JavaCore.INSERT.equals(this.modelUnit.getJavaProject().getOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATOR, true))) {
+			completion= CharOperation.concat(completion, new char[] {' '});
+		}
+		proposal.setCompletion(completion);
+		proposal.setFlags(method.getModifiers());
+		setRange(proposal);
+		if (this.toComplete instanceof SimpleName simpleName) {
+			proposal.setReplaceRange(simpleName.getStartPosition(), simpleName.getStartPosition() + simpleName.getLength());
+			proposal.setTokenRange(simpleName.getStartPosition(), simpleName.getStartPosition() + simpleName.getLength());
+		}
+		int relevance = RelevanceConstants.R_DEFAULT
+				+ RelevanceConstants.R_RESOLVED
+				+ RelevanceConstants.R_INTERESTING
+				+ computeRelevanceForCaseMatching(this.prefix.toCharArray(), method.getName().toCharArray(), this.assistOptions)
+				+ RelevanceConstants.R_UNQUALIFIED
+				+ RelevanceConstants.R_NON_RESTRICTED;
+		proposal.setRelevance(relevance);
+		return proposal;
+	}
+
 	private void configureProposal(InternalCompletionProposal proposal, ASTNode completing) {
 		proposal.setReplaceRange(completing.getStartPosition(), this.offset);
 		proposal.completionEngine = this.nestedEngine;
@@ -1813,16 +1860,22 @@ public class DOMCompletionEngine implements Runnable {
 		return keywordProposal;
 	}
 
-	private static boolean isNodeInStaticContext(ASTNode node) {
-		boolean isStatic = false;
-		ASTNode cursor = node;
-		while (cursor != null && !(cursor instanceof MethodDeclaration)) {
-			cursor = cursor.getParent();
+	/**
+	 * Sets the replace and token ranges of the completion based on the contents of the buffer.
+	 *
+	 * Useful as a last case resort if there is no SimpleName node to base the range on.
+	 *
+	 * @param completionProposal the proposal whose range to set
+	 */
+	private void setRange(CompletionProposal completionProposal) {
+		int startPos = this.offset - this.prefix.length();
+		int cursor = this.offset;
+		while (cursor < this.cuBuffer.getLength()
+				&& Character.isJavaIdentifierPart(this.cuBuffer.getChar(cursor))) {
+			cursor++;
 		}
-		if (cursor instanceof MethodDeclaration methodDecl) {
-			isStatic = (methodDecl.resolveBinding().getModifiers() & Flags.AccStatic) != 0;
-		}
-		return isStatic;
+		completionProposal.setReplaceRange(startPos, cursor);
+		completionProposal.setTokenRange(startPos, cursor);
 	}
 
 }
