@@ -135,11 +135,13 @@ public class DOMCompletionEngine implements Runnable {
 
 		if (node instanceof MethodDeclaration m) {
 			visibleBindings.addAll(((List<VariableDeclaration>) m.parameters()).stream()
+					.filter(decl -> !FAKE_IDENTIFIER.equals(decl.getName().toString()))
 					.map(VariableDeclaration::resolveBinding).toList());
 		}
 
 		if (node instanceof LambdaExpression le) {
 			visibleBindings.addAll(((List<VariableDeclaration>) le.parameters()).stream()
+					.filter(decl -> !FAKE_IDENTIFIER.equals(decl.getName().toString()))
 					.map(VariableDeclaration::resolveBinding).toList());
 		}
 
@@ -147,9 +149,11 @@ public class DOMCompletionEngine implements Runnable {
 			visibleBindings.addAll(typeDecl.bodyDeclarations().stream()
 					.flatMap(bodyDecl -> {
 						if (bodyDecl instanceof FieldDeclaration fieldDecl) {
-							return ((List<VariableDeclarationFragment>)fieldDecl.fragments()).stream().map(fragment -> fragment.resolveBinding());
+							return ((List<VariableDeclarationFragment>)fieldDecl.fragments()).stream()
+									.filter(frag -> !FAKE_IDENTIFIER.equals(frag.getName().toString()))
+									.map(fragment -> fragment.resolveBinding());
 						}
-						if (bodyDecl instanceof MethodDeclaration methodDecl) {
+						if (bodyDecl instanceof MethodDeclaration methodDecl && !FAKE_IDENTIFIER.equals(methodDecl.getName().toString())) {
 							return Stream.of(methodDecl.resolveBinding());
 						}
 						return Stream.of();
@@ -160,10 +164,12 @@ public class DOMCompletionEngine implements Runnable {
 		if (node instanceof Block block) {
 			var bindings = ((List<Statement>) block.statements()).stream()
 					.filter(statement -> statement.getStartPosition() < this.offset)
-				.filter(VariableDeclarationStatement.class::isInstance)
-				.map(VariableDeclarationStatement.class::cast)
-				.flatMap(decl -> ((List<VariableDeclarationFragment>)decl.fragments()).stream())
-					.map(VariableDeclarationFragment::resolveBinding).toList();
+					.filter(VariableDeclarationStatement.class::isInstance)
+					.map(VariableDeclarationStatement.class::cast)
+					.flatMap(decl -> ((List<VariableDeclarationFragment>)decl.fragments()).stream())
+					.filter(frag -> !FAKE_IDENTIFIER.equals(frag.getName().toString()))
+					.map(VariableDeclarationFragment::resolveBinding)
+					.toList();
 			visibleBindings.addAll(bindings);
 		}
 		return visibleBindings;
@@ -214,8 +220,8 @@ public class DOMCompletionEngine implements Runnable {
 					adjustedOffset = this.cuBuffer.getLength() - 1;
 				}
 				if (adjustedOffset + 1 >= this.cuBuffer.getLength()
-						|| Character.isWhitespace(this.cuBuffer.getChar(adjustedOffset + 1))) {
-					while (adjustedOffset > 0 && Character.isWhitespace(this.cuBuffer.getChar(adjustedOffset)) ) {
+						|| !Character.isJavaIdentifierStart(this.cuBuffer.getChar(adjustedOffset))) {
+					while (adjustedOffset > 0 && Character.isWhitespace(this.cuBuffer.getChar(adjustedOffset - 1)) ) {
 						adjustedOffset--;
 					}
 				}
@@ -256,9 +262,18 @@ public class DOMCompletionEngine implements Runnable {
 				context = this.toComplete.getParent();
 			} else if (this.toComplete instanceof FieldAccess fieldAccess) {
 				completeAfter = fieldAccess.getName().toString();
+				if (FAKE_IDENTIFIER.equals(completeAfter)) {
+					completeAfter = ""; //$NON-NLS-1$
+				} else if (this.cuBuffer != null) {
+					if (this.cuBuffer.getChar(this.offset - 1) == '.') {
+						completeAfter = ""; //$NON-NLS-1$
+					}
+				}
 			} else if (this.toComplete instanceof MethodInvocation methodInvocation) {
 				completeAfter = methodInvocation.getName().toString();
-				if (this.cuBuffer != null) {
+				if (FAKE_IDENTIFIER.equals(completeAfter)) {
+					completeAfter = ""; //$NON-NLS-1$
+				} else if (this.cuBuffer != null) {
 					if (this.cuBuffer.getChar(this.offset - 1) == '.') {
 						completeAfter = ""; //$NON-NLS-1$
 					}
@@ -297,27 +312,23 @@ public class DOMCompletionEngine implements Runnable {
 				return;
 			}
 			if (context instanceof FieldAccess fieldAccess) {
-				statementLikeKeywords();
-
-				ITypeBinding fieldAccessType = fieldAccess.getExpression().resolveTypeBinding();
+				Expression fieldAccessExpr = fieldAccess.getExpression();
+				ITypeBinding fieldAccessType = fieldAccessExpr.resolveTypeBinding();
 				if (fieldAccessType != null) {
-					processMembers(fieldAccess, fieldAccess.getExpression().resolveTypeBinding(), specificCompletionBindings, false);
-				}
-				if (specificCompletionBindings.stream().findAny().isPresent()) {
+					processMembers(fieldAccess, fieldAccessExpr.resolveTypeBinding(), specificCompletionBindings, false);
 					publishFromScope(specificCompletionBindings);
-					this.requestor.endReporting();
-					return;
+				} else if (findParent(fieldAccessExpr, new int[]{ ASTNode.METHOD_INVOCATION }) == null) {
+					String packageName = ""; //$NON-NLS-1$
+					if (fieldAccess.getExpression() instanceof FieldAccess parentFieldAccess
+							&& parentFieldAccess.getName().resolveBinding() instanceof IPackageBinding packageBinding) {
+						packageName = packageBinding.getName();
+					} else if (fieldAccess.getExpression() instanceof SimpleName name
+							&& name.resolveBinding() instanceof IPackageBinding packageBinding) {
+						packageName = packageBinding.getName();
+					}
+					suggestPackages();
+					suggestTypesInPackage(packageName);
 				}
-				String packageName = ""; //$NON-NLS-1$
-				if (fieldAccess.getExpression() instanceof FieldAccess parentFieldAccess
-					&& parentFieldAccess.getName().resolveBinding() instanceof IPackageBinding packageBinding) {
-					packageName = packageBinding.getName();
-				} else if (fieldAccess.getExpression() instanceof SimpleName name
-						&& name.resolveBinding() instanceof IPackageBinding packageBinding) {
-					packageName = packageBinding.getName();
-				}
-				suggestPackages();
-				suggestTypesInPackage(packageName);
 				suggestDefaultCompletions = false;
 			}
 			if (context instanceof MethodInvocation invocation) {
