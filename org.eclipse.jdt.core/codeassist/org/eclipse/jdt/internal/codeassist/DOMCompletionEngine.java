@@ -237,7 +237,8 @@ public class DOMCompletionEngine implements Runnable {
 				}
 				if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation
 						|| simpleName.getParent() instanceof VariableDeclaration || simpleName.getParent() instanceof QualifiedName
-						|| simpleName.getParent() instanceof SuperFieldAccess || simpleName.getParent() instanceof SingleMemberAnnotation) {
+						|| simpleName.getParent() instanceof SuperFieldAccess || simpleName.getParent() instanceof SingleMemberAnnotation
+						|| simpleName.getParent() instanceof ExpressionMethodReference) {
 					if (!this.toComplete.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId())) {
 						context = this.toComplete.getParent();
 					}
@@ -262,7 +263,7 @@ public class DOMCompletionEngine implements Runnable {
 						completeAfter = ""; //$NON-NLS-1$
 					}
 				}
-			} else if (this.toComplete instanceof NormalAnnotation) {
+			} else if (this.toComplete instanceof NormalAnnotation || this.toComplete instanceof ExpressionMethodReference) {
 				// handle potentially unrecovered/unparented identifier characters
 				if (this.cuBuffer != null) {
 					int cursor = this.offset;
@@ -596,6 +597,17 @@ public class DOMCompletionEngine implements Runnable {
 				suggestDefaultCompletions = false;
 			}
 			if (context instanceof Javadoc) {
+				suggestDefaultCompletions = false;
+			}
+			if (context instanceof ExpressionMethodReference emr) {
+				ITypeBinding typeBinding = emr.getExpression().resolveTypeBinding();
+				if (typeBinding != null && !this.requestor.isIgnored(CompletionProposal.METHOD_NAME_REFERENCE)) {
+					processMembers(emr, typeBinding, specificCompletionBindings, false);
+					specificCompletionBindings.methods.stream() //
+							.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
+							.map(this::toProposal) //
+							.forEach(this.requestor::accept);
+				}
 				suggestDefaultCompletions = false;
 			}
 
@@ -1182,7 +1194,9 @@ public class DOMCompletionEngine implements Runnable {
 		if (binding instanceof ITypeBinding) {
 			kind = CompletionProposal.TYPE_REF;
 		} else if (binding instanceof IMethodBinding m) {
-			if (m.getDeclaringClass() != null && m.getDeclaringClass().isAnnotation()) {
+			if (findParent(this.toComplete, new int[] { ASTNode.EXPRESSION_METHOD_REFERENCE }) != null) {
+				kind = CompletionProposal.METHOD_NAME_REFERENCE;
+			} else if (m.getDeclaringClass() != null && m.getDeclaringClass().isAnnotation()) {
 				kind = CompletionProposal.ANNOTATION_ATTRIBUTE_REF;
 			} else {
 				kind = CompletionProposal.METHOD_REF;
@@ -1203,7 +1217,7 @@ public class DOMCompletionEngine implements Runnable {
 		res.setCompletion(completion.toCharArray());
 		res.setFlags(binding.getModifiers());
 
-		if (kind == CompletionProposal.METHOD_REF) {
+		if (kind == CompletionProposal.METHOD_REF || kind == CompletionProposal.METHOD_NAME_REFERENCE) {
 			var methodBinding = (IMethodBinding) binding;
 			var paramNames = DOMCompletionEngineMethodDeclHandler.findVariableNames(methodBinding);
 			if (paramNames.isEmpty()) {
@@ -1265,8 +1279,12 @@ public class DOMCompletionEngine implements Runnable {
 			res.setReceiverSignature(new char[] {});
 			res.setDeclarationSignature(new char[] {});
 		}
-		res.setReplaceRange(this.toComplete instanceof SimpleName && !this.toComplete.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId()) && !this.prefix.isEmpty() ? this.toComplete.getStartPosition() : this.offset,
-				DOMCompletionEngine.this.offset);
+
+		if (this.toComplete instanceof SimpleName && !this.toComplete.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId()) && !this.prefix.isEmpty()) {
+			res.setReplaceRange(this.toComplete.getStartPosition(), this.offset);
+		} else {
+			setRange(res);
+		}
 		var element = binding.getJavaElement();
 		if (element != null) {
 			res.setDeclarationTypeName(((IType)element.getAncestor(IJavaElement.TYPE)).getFullyQualifiedName().toCharArray());

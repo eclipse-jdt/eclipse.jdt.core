@@ -343,7 +343,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			while (ownerSymbol != null && !(ownerSymbol instanceof TypeSymbol)) {
 				ownerSymbol = ownerSymbol.owner;
 			}
-			if (ownerSymbol instanceof TypeSymbol ownerTypeSymbol) {
+			if (ownerSymbol instanceof TypeSymbol ownerTypeSymbol && ownerTypeSymbol.type != Type.noType) {
 				JavacTypeBinding.getKey(builder, resolver.getTypes().erasure(ownerTypeSymbol.type), false, resolver);
 			} else {
 				throw new BindingKeyException(new IllegalArgumentException("Method has no owning class"));

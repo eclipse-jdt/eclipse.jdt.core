@@ -357,7 +357,7 @@ public class JavacBindingResolver extends BindingResolver {
 			if (recoveredSymbol != null) {
 				return getBinding(recoveredSymbol, recoveredSymbol.type);
 			}
-			if (type instanceof ErrorType) {
+			if (type instanceof ErrorType || owner.owner == null || owner.owner.type == com.sun.tools.javac.code.Type.noType) {
 				if (type.getOriginalType() instanceof MethodType missingMethodType) {
 					return getErrorMethodBinding(missingMethodType, owner);
 				}
@@ -903,7 +903,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(methodReference);
 		if (javacElement instanceof JCMemberReference memberRef && memberRef.sym instanceof MethodSymbol methodSymbol) {
-			return this.bindings.getMethodBinding(memberRef.referentType.asMethodType(), methodSymbol, null, false);
+			return this.bindings.getMethodBinding(memberRef.referentType == null ? methodSymbol.type.asMethodType() : memberRef.referentType.asMethodType(), methodSymbol, null, false);
 		}
 		return null;
 	}
