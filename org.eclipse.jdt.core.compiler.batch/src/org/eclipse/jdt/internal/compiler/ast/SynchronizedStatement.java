@@ -20,14 +20,14 @@ import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.flow.InsideSubRoutineFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.InsideStatementWithFinallyBlockFlowContext;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
-public class SynchronizedStatement extends SubRoutineStatement {
+public class SynchronizedStatement extends StatementWithFinallyBlock { // comes with a hidden finally block that contains the monitorexit sequence
 
 	public Expression expression;
 	public Block block;
@@ -72,7 +72,7 @@ public FlowInfo analyseCode(
 	flowInfo =
 		this.block.analyseCode(
 			this.scope,
-			new InsideSubRoutineFlowContext(flowContext, this),
+			new InsideStatementWithFinallyBlockFlowContext(flowContext, this),
 			expressionFlowInfo);
 
 	this.mergedSynchronizedInitStateIndex =
@@ -87,7 +87,7 @@ public FlowInfo analyseCode(
 }
 
 @Override
-public boolean isSubRoutineEscaping() {
+public boolean isFinallyBlockEscaping() {
 	return false;
 }
 
@@ -174,10 +174,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 }
 
 /**
- * @see SubRoutineStatement#generateSubRoutineInvocation(BlockScope, CodeStream, Object, int, LocalVariableBinding)
+ * @see StatementWithFinallyBlock#generateFinallyBlock(BlockScope, CodeStream, Object, int)
  */
 @Override
-public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream codeStream, Object targetLocation, int stateIndex, LocalVariableBinding secretLocal) {
+public boolean generateFinallyBlock(BlockScope currentScope, CodeStream codeStream, Object targetLocation, int stateIndex) {
 	codeStream.load(this.synchroVariable);
 	codeStream.monitorexit();
 	exitAnyExceptionHandler();

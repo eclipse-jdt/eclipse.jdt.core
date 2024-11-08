@@ -312,7 +312,7 @@ private void yieldQualifiedCheck(BlockScope currentScope) {
 		return;
 	if (!CharOperation.equals(this.selector, TypeConstants.YIELD))
 		return;
-	currentScope.problemReporter().switchExpressionsYieldUnqualifiedMethodError(this);
+	currentScope.problemReporter().unqualifiedYieldMethod(this);
 }
 private void recordCallingClose(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, Expression closeTarget) {
 	if (closeTarget.isThis() || closeTarget.isSuper()) {

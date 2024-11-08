@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -72,6 +72,7 @@ class ForwardingStandardJavaFileManager<T extends StandardJavaFileManager> exten
 	}
 
 	@Override
+	@Deprecated // method from StandardJavaFileManager is deprecated
 	public Iterable<? extends JavaFileObject> getJavaFileObjectsFromPaths(Iterable<? extends Path> arg0) {
 		return this.fileManager.getJavaFileObjectsFromPaths(arg0);
 	}

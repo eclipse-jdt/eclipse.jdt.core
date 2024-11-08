@@ -1,4 +1,4 @@
-package javadoc.test011;
+package markdown.test011;
 public class Test {
 	/// @deprecated
 	public Test(int myParam) { }

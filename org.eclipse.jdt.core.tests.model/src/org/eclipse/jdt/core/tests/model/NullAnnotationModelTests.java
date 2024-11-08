@@ -33,15 +33,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.core.IAnnotation;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModelMarker;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMemberValuePair;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractNullAnnotationTest;
@@ -83,6 +75,23 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	protected String testJarPath(String jarName) throws IOException {
 		URL libEntry = Platform.getBundle("org.eclipse.jdt.core.tests.model").getEntry("/workspace/NullAnnotations/lib/"+jarName);
 		return FileLocator.toFileURL(libEntry).getPath();
+	}
+
+	private void patchModule(IJavaProject project, String module, String source) throws JavaModelException {
+		IClasspathEntry[] rawClasspath = project.getRawClasspath();
+		for (int i = 0; i < rawClasspath.length; i++) {
+			IClasspathEntry entry = rawClasspath[i];
+			if (entry.getPath().toString().startsWith("JCL")) {
+				IClasspathEntry newEntry = JavaCore.newVariableEntry(entry.getPath(), entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), null, new IClasspathAttribute[] {
+							JavaCore.newClasspathAttribute(IClasspathAttribute.PATCH_MODULE, module+"="+source)
+						},
+						false);
+				rawClasspath[i] = newEntry;
+				project.setRawClasspath(rawClasspath, null);
+				return;
+			}
+		}
+		fail("No JCL library found to patch");
 	}
 
 	public void testConvertedSourceType1() throws CoreException, InterruptedException {
@@ -1108,9 +1117,10 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			deleteProject(project);
 		}
 	}
-	public void _2551_testBug565246() throws CoreException {
-		IJavaProject project = createJavaProject("Bug565246", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB_V1}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
+	public void testBug565246() throws CoreException {
+		IJavaProject project = createJavaProject("Bug565246", new String[] {"src"}, new String[] {"JCL_17_LIB", this.ANNOTATION_LIB_V1}, "bin", "17");
 		try {
+			patchModule(project, "java.base", "Bug565246/src");
 			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 			createFolder("Bug565246/src/java/util");
 			createFile("Bug565246/src/java/util/Iterator.java",
@@ -1126,7 +1136,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 
 			String testSourcePath = "Bug565246/src/Test.java";
-			createFile(testSourcePath,
+			String testSourceContent =
 					"import org.eclipse.jdt.annotation.NonNull;\n" +
 					"import java.util.Collection;\n" +
 					"public class Test {\n" +
@@ -1135,7 +1145,9 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"			bar(s);\n" +
 					"	}\n" +
 					"	void bar(@NonNull String s) {}\n" +
-					"}\n");
+					"}\n";
+			createFile(testSourcePath, testSourceContent);
+			this.problemRequestor.initialize(testSourceContent.toCharArray());
 
 			getCompilationUnit(testSourcePath).getWorkingCopy(this.wcOwner, null);
 			assertProblems("", "----------\n----------\n");
@@ -1147,6 +1159,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			deleteProject(project);
 		}
 	}
+
 	public void testGH875() throws CoreException, InterruptedException {
 		// first fixed by commit da0a6d8d5088b92dbc3602cdccff8d667b6d5e8b
 		IJavaProject project = createJavaProject("GH875", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB_V1}, "bin", CompilerOptions.getFirstSupportedJavaVersion());

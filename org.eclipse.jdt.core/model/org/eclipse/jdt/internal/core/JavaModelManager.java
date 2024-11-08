@@ -376,7 +376,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					try {
 						iProject.touch(subMonitor.split(1));
 					} catch (CoreException e) {
-						Util.log(e, "Could not touch project " + iProject.getName()); //$NON-NLS-1$
+						if (e.getStatus().getCode() != IResourceStatus.RESOURCE_NOT_FOUND) {
+							Util.log(e, "Could not touch project " + iProject.getName()); //$NON-NLS-1$
+						}
 					}
 				}
 				return true;

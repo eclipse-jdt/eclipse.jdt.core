@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.util.IPermittedSubclassesAttributeEntry;
 public class PermittedSubclassesAttribute extends ClassFileAttribute implements IPermittedSubclassesAttribute {
 	private static final IPermittedSubclassesAttributeEntry[] NO_ENTRIES = new IPermittedSubclassesAttributeEntry[0];
 
-	private final int permittedSubclasses;
+	private final int permittedSubclassesCount;
 	private IPermittedSubclassesAttributeEntry[] entries;
 
 	/**
@@ -36,8 +36,8 @@ public class PermittedSubclassesAttribute extends ClassFileAttribute implements 
 		int offset)
 		throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
-		this.permittedSubclasses = u2At(classFileBytes, 6, offset);
-		final int length = this.permittedSubclasses;
+		this.permittedSubclassesCount = u2At(classFileBytes, 6, offset);
+		final int length = this.permittedSubclassesCount;
 		if (length != 0) {
 			int readOffset = 8;
 			this.entries = new IPermittedSubclassesAttributeEntry[length];
@@ -52,7 +52,7 @@ public class PermittedSubclassesAttribute extends ClassFileAttribute implements 
 
 	@Override
 	public int getNumberOfPermittedSubclasses() {
-		return this.permittedSubclasses;
+		return this.permittedSubclassesCount;
 	}
 
 	@Override

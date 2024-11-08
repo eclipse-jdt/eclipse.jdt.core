@@ -4759,4 +4759,28 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"Contents");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3173
+	// [21][Enhanced Switch] False error about allegedly non-exhaustive switch
+	public void testIssue3173_2() {
+		runConformTest(new String[] {
+				"RecordPatternDemo.java",
+				"""
+				public class RecordPatternDemo {
+				    public static void main(String[] args) {
+				        record Box<T>(T contents) { }
+
+				        Box<Box<String>> doubleBoxed = new Box<>(new Box<>("Contents"));
+				        String unboxed = switch (doubleBoxed) {
+				            case Box(Box(String s)) -> s;
+				            default -> "default";
+				        };
+
+				        System.out.println(unboxed);
+				    }
+				}
+				"""
+				},
+				"Contents");
+	}
 }

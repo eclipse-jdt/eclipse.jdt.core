@@ -2317,41 +2317,63 @@ void setSourceStart(int sourceStart);
 	/* Java14 errors - begin */
 	/** @since 3.21  */
 	int SwitchExpressionsYieldIncompatibleResultExpressionTypes = TypeRelated + 1700;
-	/** @since 3.21  */
+	/** @since 3.21
+	 * @deprecated no longer issued - will be removed
+	 */
 	int SwitchExpressionsYieldEmptySwitchBlock = Syntax + 1701;
 	/** @since 3.21  */
 	int SwitchExpressionsYieldNoResultExpression = Internal + 1702;
 	/** @since 3.21  */
 	int SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally = Internal + 1703;
-	/** @since 3.21  */
+	/** @since 3.21
+	 * @deprecated no longer issued - will be removed
+	 */
 	int SwitchExpressionsYieldLastStatementCompletesNormally = Internal + 1704;
-	/** @since 3.21  */
+	/** @since 3.21
+	 * @deprecated no longer issued - will be removed
+	 */
 	int SwitchExpressionsYieldTrailingSwitchLabels = Internal + 1705;
 	/** @since 3.21  */
 	int SwitchPreviewMixedCase = Syntax + 1706;
 	/** @since 3.21  */
 	int SwitchExpressionsYieldMissingDefaultCase = Syntax + 1707;
-	/** @since 3.21  */
+	/** @since 3.21
+	 * @deprecated no longer issued - will be removed
+	 */
 	int SwitchExpressionsYieldMissingValue = Syntax + 1708;
 	/** @since 3.21  */
 	int SwitchExpressionsYieldMissingEnumConstantCase = Syntax + 1709;
-	/** @since 3.21  */
+	/** @since 3.21
+	 * @deprecated no longer issued - will be removed
+	 */
 	int SwitchExpressionsYieldIllegalLastStatement = Internal + 1710;
-	/** @since 3.21  */
+	/** @since 3.21
+	 * @deprecated no longer issued - will be removed
+	 */
 	int SwitchExpressionsYieldBreakNotAllowed = Syntax + 1711;
-	/** @since 3.21  */
+	/** @since 3.21
+	 * @deprecated no longer issued - will be removed
+	 */
 	int SwitchExpressionsYieldUnqualifiedMethodWarning = Syntax + 1712;
 	/** @since 3.21  */
 	int SwitchExpressionsYieldUnqualifiedMethodError = Syntax + 1713;
 	/** @since 3.21  */
 	int SwitchExpressionsYieldOutsideSwitchExpression = Syntax + 1714;
-	/** @since 3.21  */
+	/** @since 3.21
+	 * @deprecated no longer issued - will be removed
+	 */
 	int SwitchExpressionsYieldRestrictedGeneralWarning = Internal + 1715;
-	/** @since 3.21  */
+	/** @since 3.21
+	 * @deprecated no longer issued - will be removed
+	 */
 	int SwitchExpressionsYieldIllegalStatement = Internal + 1716;
-	/** @since 3.21  */
+	/** @since 3.21
+	 * @deprecated no longer issued - will be removed
+	 */
 	int SwitchExpressionsYieldTypeDeclarationWarning = Internal + 1717;
-	/** @since 3.21  */
+	/** @since 3.21
+	 * @deprecated no longer issued - will be removed
+	 */
 	int SwitchExpressionsYieldTypeDeclarationError = Internal + 1718;
 	/** @since 3.22 */
 	int MultiConstantCaseLabelsNotSupported = Syntax + 1719;

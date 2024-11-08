@@ -38,7 +38,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -102,6 +101,8 @@ abstract public class TypeBinding extends Binding {
 
 	public final static VoidTypeBinding VOID = new VoidTypeBinding();
 
+	public final static TypeBinding [] NUMERIC_TYPES = // // Order sensitive to determine the type in numeric promotion
+			new TypeBinding [] {TypeBinding.DOUBLE, TypeBinding.FLOAT, TypeBinding.LONG, TypeBinding.INT, TypeBinding.SHORT, TypeBinding.BYTE, TypeBinding.CHAR };
 
 public TypeBinding() {
 	super();
@@ -679,6 +680,20 @@ public boolean isBoxedPrimitiveType() {
 		default:
 			return false;
 	}
+}
+
+public TypeBinding unboxedType() {
+	return switch (this.id) {
+		case TypeIds.T_JavaLangBoolean -> TypeBinding.BOOLEAN;
+		case TypeIds.T_JavaLangByte -> TypeBinding.BYTE;
+		case TypeIds.T_JavaLangCharacter -> TypeBinding.CHAR;
+		case TypeIds.T_JavaLangShort -> TypeBinding.SHORT;
+		case TypeIds.T_JavaLangDouble -> TypeBinding.DOUBLE;
+		case TypeIds.T_JavaLangFloat -> TypeBinding.FLOAT;
+		case TypeIds.T_JavaLangInteger -> TypeBinding.INT;
+		case TypeIds.T_JavaLangLong -> TypeBinding.LONG;
+		default -> this;
+	};
 }
 
 /**
@@ -1814,9 +1829,4 @@ public boolean isNonDenotable() {
 public boolean isSealed() {
 	return false;
 }
-
-public List<ReferenceBinding> getAllEnumerableReferenceTypes() {
-	return Collections.emptyList();
-}
-
 }

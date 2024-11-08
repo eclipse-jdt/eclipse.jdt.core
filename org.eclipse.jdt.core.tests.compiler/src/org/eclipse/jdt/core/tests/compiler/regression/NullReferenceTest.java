@@ -18287,11 +18287,10 @@ public void testBug536408() {
 	runner.runNegativeTest();
 }
 public void testBug542707_1() {
-	if (!checkPreviewAllowed()) return; // switch expression
+	if (this.complianceLevel < ClassFileConstants.JDK14) // switch expression
+		return;
 	Runner runner = new Runner();
 	runner.customOptions = new HashMap<>();
-	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-	runner.customOptions.put(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 	runner.testFiles = new String[] {
 		"X.java",
 		"public class X {\n" +

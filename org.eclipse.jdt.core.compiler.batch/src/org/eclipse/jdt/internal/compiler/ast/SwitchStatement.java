@@ -105,6 +105,7 @@ public class SwitchStatement extends Expression {
 	public final static int TotalPattern = ASTNode.Bit3;
 	public final static int Exhaustive = ASTNode.Bit4;
 	public final static int QualifiedEnum = ASTNode.Bit5;
+	public final static int LabeledBlockStatementGroup = ASTNode.Bit6;
 
 	// for switch on strings
 	private static final char[] SecretStringVariableName = " switchDispatchString".toCharArray(); //$NON-NLS-1$
@@ -402,9 +403,6 @@ public class SwitchStatement extends Expression {
 		}
 		return FALLTHROUGH;
 	}
-	protected void completeNormallyCheck(BlockScope blockScope) {
-		// do nothing
-	}
 	protected boolean needToCheckFlowInAbsenceOfDefaultBranch() {
 		return !this.isExhaustive();
 	}
@@ -417,7 +415,6 @@ public class SwitchStatement extends Expression {
 			}
 			SwitchFlowContext switchContext =
 				new SwitchFlowContext(flowContext, this, (this.breakLabel = new BranchLabel()), true, true);
-			switchContext.isExpression = this instanceof SwitchExpression;
 
 			CompilerOptions compilerOptions = currentScope.compilerOptions();
 
@@ -478,19 +475,6 @@ public class SwitchStatement extends Expression {
 						complaintLevel = initialComplaintLevel; // reset complaint
 						fallThroughState = this.containsPatterns ? FALLTHROUGH : CASE;
 					} else {
-						if (!isTrulyExpression() &&
-							compilerOptions.complianceLevel >= ClassFileConstants.JDK14 &&
-							statement instanceof YieldStatement &&
-							((YieldStatement) statement).isImplicit) {
-							YieldStatement y = (YieldStatement) statement;
-							Expression e = ((YieldStatement) statement).expression;
-							/* JLS 13 14.11.2
-									Switch labeled rules in switch statements differ from those in switch expressions (15.28).
-									In switch statements they must be switch labeled statement expressions, ... */
-							if (!y.expression.statementExpression()) {
-								this.scope.problemReporter().invalidExpressionAsStatement(e);
-							}
-						}
 						fallThroughState = getFallThroughState(statement, currentScope); // reset below if needed
 					}
 					if ((complaintLevel = statement.complainIfUnreachable(caseInits, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
@@ -506,7 +490,6 @@ public class SwitchStatement extends Expression {
 						}
 					}
 				}
-				completeNormallyCheck(currentScope);
 			}
 
 			final TypeBinding resolvedTypeBinding = this.expression.resolvedType;
@@ -1279,7 +1262,6 @@ public class SwitchStatement extends Expression {
 			if (this.dispatchPatternCopy == null) {
 				addSecretPatternSwitchVariables(upperScope);
 			}
-			reportMixingCaseTypes();
 
 			complainIfNotExhaustiveSwitch(upperScope, expressionType, compilerOptions);
 
@@ -1443,7 +1425,7 @@ public class SwitchStatement extends Expression {
 	}
 
 	private boolean caseElementsCoverSealedType(ReferenceBinding sealedType,  List<TypeBinding> listedTypes) {
-		List<ReferenceBinding> allAllowedTypes = sealedType.getAllEnumerableReferenceTypes();
+		List<ReferenceBinding> allAllowedTypes = sealedType.getAllEnumerableAvatars();
 		Iterator<ReferenceBinding> iterator = allAllowedTypes.iterator();
 		while (iterator.hasNext()) {
 			ReferenceBinding next = iterator.next();
@@ -1514,26 +1496,7 @@ public class SwitchStatement extends Expression {
 	public boolean isTrulyExpression() {
 		return false;
 	}
-	private void reportMixingCaseTypes() {
-		if (this.caseCount == 0) {
-			if (this.defaultCase != null && this.defaultCase.isExpr)
-				this.switchBits |= LabeledRules;
-			return;
-		}
-		if (this.cases[0] == null)
-			return;
-		boolean isExpr = this.cases[0].isExpr;
-		if (isExpr) this.switchBits |= LabeledRules;
-		for (int i = 1, l = this.caseCount; i < l; ++i) {
-			if (this.cases[i].isExpr != isExpr) {
-				this.scope.problemReporter().switchExpressionMixedCase(this.cases[i]);
-				return;
-			}
-		}
-		if (this.defaultCase != null && this.defaultCase.isExpr != isExpr) {
-			this.scope.problemReporter().switchExpressionMixedCase(this.defaultCase);
-		}
-	}
+
 	private void reportDuplicateCase(final Statement duplicate,
 			final Statement original,
 			int length) {

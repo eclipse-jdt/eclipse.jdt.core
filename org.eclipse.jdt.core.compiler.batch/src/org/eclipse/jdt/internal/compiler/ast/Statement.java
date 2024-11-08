@@ -192,12 +192,11 @@ void analyseOneArgument18(BlockScope currentScope, FlowContext flowContext, Flow
 		ce.internalAnalyseOneArgument18(currentScope, flowContext, expectedType, ce.valueIfTrue, flowInfo, ce.ifTrueNullStatus, expectedNonNullness, originalExpected);
 		ce.internalAnalyseOneArgument18(currentScope, flowContext, expectedType, ce.valueIfFalse, flowInfo, ce.ifFalseNullStatus, expectedNonNullness, originalExpected);
 		return;
-	} else 	if (argument instanceof SwitchExpression && argument.isPolyExpression()) {
-		SwitchExpression se = (SwitchExpression) argument;
-		for (int i = 0; i < se.resultExpressions.size(); i++) {
+	} else 	if (argument instanceof SwitchExpression se && se.isPolyExpression()) {
+		for (Expression rExpression : se.resultExpressions()) {
 			se.internalAnalyseOneArgument18(currentScope, flowContext, expectedType,
-					se.resultExpressions.get(i), flowInfo,
-					se.resultExpressionNullStatus.get(i), expectedNonNullness, originalExpected);
+					rExpression, flowInfo,
+					rExpression.nullStatus(flowInfo, flowContext), expectedNonNullness, originalExpected);
 		}
 		return;
 	}
@@ -259,12 +258,11 @@ protected void checkAgainstNullTypeAnnotation(BlockScope scope, TypeBinding requ
 		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfTrue, ce.ifTrueNullStatus, flowContext, flowInfo);
 		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfFalse, ce.ifFalseNullStatus, flowContext, flowInfo);
 		return;
-	} else 	if (expression instanceof SwitchExpression && expression.isPolyExpression()) {
-		SwitchExpression se = (SwitchExpression) expression;
-		for (int i = 0; i < se.resultExpressions.size(); i++) {
+	} else 	if (expression instanceof SwitchExpression se && se.isPolyExpression()) {
+		for (Expression rExpression : se.resultExpressions()) {
 			internalCheckAgainstNullTypeAnnotation(scope, requiredType,
-					se.resultExpressions.get(i),
-					se.resultExpressionNullStatus.get(i), flowContext, flowInfo);
+					rExpression,
+					rExpression.nullStatus(flowInfo, flowContext), flowContext, flowInfo);
 		}
 		return;
 	}
