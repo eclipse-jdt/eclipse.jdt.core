@@ -292,6 +292,9 @@ public class DOMCompletionEngine implements Runnable {
 
 			checkCancelled();
 
+			if (context instanceof StringLiteral || context instanceof TextBlock || context instanceof Comment || context instanceof Javadoc) {
+				return;
+			}
 			if (context instanceof FieldAccess fieldAccess) {
 				statementLikeKeywords();
 
@@ -590,6 +593,9 @@ public class DOMCompletionEngine implements Runnable {
 					}
 					publishFromScope(specificCompletionBindings);
 				}
+				suggestDefaultCompletions = false;
+			}
+			if (context instanceof Javadoc) {
 				suggestDefaultCompletions = false;
 			}
 
