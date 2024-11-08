@@ -1,10 +1,8 @@
-package javadoc.test010;
+package markdown.test010;
 public class Test {
 int val;
-/// 
-/// java.util.Vector#Vector()}
-/// tag}
-/// comment
-///
+/// [java.lang.String#String()] 
+/// @param name {@link java.lang.String inline tag}
+/// @see Object {@link java.lang.String inline tag} leading comment
 public void gee(String name) {}
 }

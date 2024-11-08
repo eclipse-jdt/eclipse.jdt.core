@@ -1,15 +1,9 @@
-package javadoc.test008;
+package markdown.test008;
 public class Test {
-/// 
-/// #foo(Object[],String[][][])
-///
+/// @see #foo(Object[],String[][][])
 public void foo(Object[] o1,String[][][] s3) {}
-/// 
-/// #foo(java.util.Vector[],java.util.Vector[][][])
-///
-public void foo(java.util.Vector[] v1,java.util.Vector[][][] v3) {}
-/// 
-/// #foo(int[],char[][][])
-///
+/// @see #foo(java.util.Collection[],java.util.Collection[][][])
+public void foo(java.util.Collection[] v1,java.util.Collection[][][] v3) {}
+/// @see #foo(int[],char[][][])
 public void foo(int[] a1,char[][][] a3) {}
 }

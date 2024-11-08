@@ -1,14 +1,12 @@
-package javadoc.test015;
+package markdown.test015;
 
 public class Test {
-	///
-	/// is
-	/// calling
-	/// <tt>IWorkspace</tt>.
+	/// Makes the given resource committable. Committable means that it is
+	/// writeable and that its content hasn't changed by calling
+	/// <code>validateEdit</code> for the given resource on <tt>IWorkspace</tt>.
 	/// 
-	/// things
-	/// #foo(java.util.
+	/// @param str A String param
+	/// @see #foo(java.util.
 	/// Vector)
-	///
-	public void foo(java.util.Vector list) {}
+	public void foo(java.lang.String str) {}
 }

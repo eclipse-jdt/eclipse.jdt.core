@@ -1,8 +1,6 @@
-package javadoc.test003;
+package markdown.test003;
 public class Test {
-/// 
-/// {@link Exception}
+/// [Exception]
 /// @see Exception
-///
 public void foo() {}
 }
