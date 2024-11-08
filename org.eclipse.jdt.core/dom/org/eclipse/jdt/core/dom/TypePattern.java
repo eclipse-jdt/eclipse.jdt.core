@@ -224,6 +224,7 @@ public class TypePattern extends Pattern {
 	 * @return the pattern variable
 	 * @exception UnsupportedOperationException if this operation is used other than JLS19
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
+	 * @deprecated In the JLS22 API, this method is replaced by  <code>getPatternVariable2()</code>
 	 * @since 3.38
 	 */
 	public SingleVariableDeclaration getPatternVariable() {
@@ -247,12 +248,12 @@ public class TypePattern extends Pattern {
 	 * Returns the pattern variable of Types Pattern.
 	 *
 	 * @return the pattern variable
-	 * @exception UnsupportedOperationException if this operation is used other than JLS19
+	 * @exception UnsupportedOperationException if this operation is used other than JLS22
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 * @since 3.39
 	 */
 	public VariableDeclaration getPatternVariable2() {
-		supportedOnlyIn20();
+		supportedOnlyIn22();
 		if (this.patternVariable  == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
@@ -276,7 +277,11 @@ public class TypePattern extends Pattern {
 	ASTNode clone0(AST target) {
 		TypePattern result = new TypePattern(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setPatternVariable((VariableDeclaration) getPatternVariable().clone(target));
+		if (this.ast.apiLevel < AST.JLS22_INTERNAL) {
+			result.setPatternVariable((VariableDeclaration) getPatternVariable().clone(target));
+		} else {
+			result.setPatternVariable((VariableDeclaration) getPatternVariable2().clone(target));
+		}
 		return result;
 	}
 
