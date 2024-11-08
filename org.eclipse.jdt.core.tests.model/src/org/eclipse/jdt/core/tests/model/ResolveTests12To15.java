@@ -295,7 +295,7 @@ public void test009() throws JavaModelException {
  * which is referencing a local variable defined in the case block
  */
 public void test010() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
+	this.wc = getWorkingCopy("/Resolve15/src/X.java","public class X {\n" +
 	"  public static void foo(Num num_) {\n" +
 	" 	 switch (num_) {\n" +
 	"	   case ONE, TWO, THREE -> {\n" +
@@ -314,7 +314,7 @@ public void test010() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"i_j [in foo(Num) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		"i_j [in foo(Num) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]",
 		elements
 	);
 }
@@ -480,8 +480,10 @@ public void test017() throws JavaModelException {
 	);
 }
 public void test018() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java",
-			"import java.util.function.*;\n" +
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+			 "interface Supplier<T> {\n" +
+			"    T get();\n" +
+			"}\n" +
 			"interface IN0 {} \n" +
 			"interface IN1 extends IN0 {} \n" +
 			"interface IN2 extends IN0 {}\n" +
@@ -502,7 +504,7 @@ public void test018() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"n_1() [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]",
+		"n_1() [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]",
 		elements
 	);
 }

@@ -2437,8 +2437,8 @@ protected void consumeBinaryExpressionWithName(int op) {
 	}
 }
 @Override
-protected void consumeCaseLabel() {
-	super.consumeCaseLabel();
+protected void consumeSwitchLabels(boolean shouldConcat, boolean isSwitchRule) {
+	super.consumeSwitchLabels(shouldConcat, isSwitchRule);
 	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) != K_SWITCH_LABEL) {
 		pushOnElementStack(K_SWITCH_LABEL);
 	}
@@ -3920,12 +3920,15 @@ protected void consumeStatementLabel() {
 	popElement(K_LABEL);
 	super.consumeStatementLabel();
 }
+
 @Override
-protected void consumeStatementSwitch() {
-	super.consumeStatementSwitch();
-	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SWITCH_LABEL) {
-		popElement(K_SWITCH_LABEL);
-		popElement(K_BLOCK_DELIMITER);
+protected void consumeSwitchStatementOrExpression(boolean isStmt) {
+	super.consumeSwitchStatementOrExpression(isStmt);
+	if (isStmt) {
+		if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SWITCH_LABEL) {
+			popElement(K_SWITCH_LABEL);
+			popElement(K_BLOCK_DELIMITER);
+		}
 	}
 }
 @Override
@@ -4028,10 +4031,12 @@ protected void consumePushPosition() {
 	}
 }
 @Override
-protected void consumeSwitchLabeledBlock() {
-	popUntilElement(K_SWITCH_LABEL);
-	popElement(K_SWITCH_LABEL);
-	concatNodeLists();
+protected void consumeSwitchRule(SwitchRuleKind kind) {
+	super.consumeSwitchRule(kind);
+	if (kind == SwitchRuleKind.BLOCK) {
+		popUntilElement(K_SWITCH_LABEL);
+		popElement(K_SWITCH_LABEL);
+	}
 }
 @Override
 protected int fetchNextToken() throws InvalidInputException {
