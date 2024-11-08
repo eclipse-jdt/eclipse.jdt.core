@@ -429,7 +429,11 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	@Override
 	public String getName() {
 		if (isConstructor()) {
-			return getDeclaringClass().getName();
+			ITypeBinding tb = getDeclaringClass();
+			if( tb instanceof JavacTypeBinding tb2) {
+				return tb2.getName(false);
+			}
+			return tb.getName();
 		}
 		return this.methodSymbol.getSimpleName().toString();
 	}

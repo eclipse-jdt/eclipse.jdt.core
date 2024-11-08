@@ -174,16 +174,19 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	public IJavaElement getJavaElement() {
 		if (isTypeVariable() && this.typeSymbol != null) {
 			if (this.typeSymbol.owner instanceof ClassSymbol ownerSymbol
-					&& ownerSymbol.type != null
-					&& this.resolver.bindings.getTypeBinding(ownerSymbol.type).getJavaElement() instanceof IType ownerType
-					&& ownerType.getTypeParameter(this.getName()) != null) {
-				return ownerType.getTypeParameter(this.getName());
+					&& ownerSymbol.type != null) {
+				if(this.resolver.bindings.getTypeBinding(ownerSymbol.type).getJavaElement() instanceof IType ownerType
+						&& ownerType.getTypeParameter(this.getName()) != null) {
+					return ownerType.getTypeParameter(this.getName());
+				}
 			} else if (this.typeSymbol.owner instanceof MethodSymbol ownerSymbol
-					&& ownerSymbol.type != null
-					&& this.resolver.bindings.getMethodBinding(ownerSymbol.type.asMethodType(), ownerSymbol, null, isGeneric).getJavaElement() instanceof IMethod ownerMethod
-					&& ownerMethod.getTypeParameter(this.getName()) != null) {
-				return ownerMethod.getTypeParameter(this.getName());
-			}
+					&& ownerSymbol.type != null ) {
+				JavacMethodBinding mb = this.resolver.bindings.getMethodBinding(ownerSymbol.type.asMethodType(), ownerSymbol, null, isGeneric); 
+				if( mb.getJavaElement() instanceof IMethod ownerMethod
+						&& ownerMethod.getTypeParameter(this.getName()) != null) {
+					return ownerMethod.getTypeParameter(this.getName());
+				}
+			}	
 		}
 		if (this.resolver.javaProject == null) {
 			return null;
@@ -735,6 +738,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public String getName() {
+		return getName(true);
+	}
+	
+	public String getName(boolean checkParameterized) {
 		if (this.isArray()) {
 			StringBuilder builder = new StringBuilder(this.getElementType().getName());
 			for (int i = 0; i < this.getDimensions(); i++) {
@@ -756,7 +763,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return builder.toString();
 		}
 		StringBuilder builder = new StringBuilder(this.typeSymbol.getSimpleName().toString());
-		if(isParameterizedType()) {
+		if(checkParameterized && isParameterizedType()) {
 			ITypeBinding[] types = this.getUncheckedTypeArguments(this.type, this.typeSymbol);
 			if (types != null && types.length > 0) {
 				builder.append("<");
