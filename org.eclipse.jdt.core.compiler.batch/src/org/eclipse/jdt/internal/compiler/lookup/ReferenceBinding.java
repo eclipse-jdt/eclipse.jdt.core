@@ -54,7 +54,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -2544,10 +2543,9 @@ public boolean hasEnclosingInstanceContext() {
 	return false;
 }
 
-@Override
-public List<ReferenceBinding> getAllEnumerableReferenceTypes() {
+public List<ReferenceBinding> getAllEnumerableAvatars() {
 	if (!isSealed())
-		return Collections.emptyList();
+		throw new UnsupportedOperationException("Operation valid only on sealed types!"); //$NON-NLS-1$
 
 	Set<ReferenceBinding> permSet = new HashSet<>(Arrays.asList(permittedTypes()));
 	if (isClass() && canBeInstantiated())
@@ -2555,7 +2553,8 @@ public List<ReferenceBinding> getAllEnumerableReferenceTypes() {
 	Set<ReferenceBinding> oldSet = new HashSet<>(permSet);
 	do {
 		for (ReferenceBinding type : permSet) {
-			oldSet.addAll(Arrays.asList(type.permittedTypes()));
+			if (type.isSealed())
+				oldSet.addAll(Arrays.asList(type.permittedTypes()));
 		}
 		Set<ReferenceBinding> tmp = oldSet;
 		oldSet = permSet;

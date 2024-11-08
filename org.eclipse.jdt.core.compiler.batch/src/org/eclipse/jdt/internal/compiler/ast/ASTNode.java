@@ -82,7 +82,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit12 = 0x800;				// depth (name ref, msg) | operator (operator) | has abstract methods (type decl)
 	public final static int Bit13 = 0x1000;			// depth (name ref, msg) | operator (operator) | is secondary type (type decl)
 	public final static int Bit14 = 0x2000;			// strictly assigned (reference lhs) | discard enclosing instance (explicit constr call) | hasBeenGenerated (type decl)
-	public final static int Bit15 = 0x4000;			// is unnecessary cast (expression) | is varargs (type ref) | isSubRoutineEscaping (try statement) | superAccess (javadoc allocation expression/javadoc message send/javadoc return statement)
+	public final static int Bit15 = 0x4000;			// is unnecessary cast (expression) | is varargs (type ref) | IsFinallyBlockEscaping (try statement) | superAccess (javadoc allocation expression/javadoc message send/javadoc return statement)
 	public final static int Bit16 = 0x8000;			// in javadoc comment (name ref, type ref, msg)
 	public final static int Bit17 = 0x10000;			// compound assigned (reference lhs) | unchecked (msg, alloc, explicit constr call)
 	public final static int Bit18 = 0x20000;			// non null (expression) | onDemand (import reference)
@@ -97,7 +97,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit27 = 0x4000000;		// parenthesis count (expression)
 	public final static int Bit28 = 0x8000000;		// parenthesis count (expression)
 	public final static int Bit29 = 0x10000000;		// parenthesis count (expression)
-	public final static int Bit30 = 0x20000000;		// elseif (if statement) | try block exit (try statement) | fall-through (case statement) | ignore no effect assign (expression ref) | needScope (for statement) | isAnySubRoutineEscaping (return statement) | blockExit (synchronized statement)
+	public final static int Bit30 = 0x20000000;		// elseif (if statement) | try block exit (try statement) | fall-through (case statement) | ignore no effect assign (expression ref) | needScope (for statement) | IsAnyFinallyBlockEscaping (return|yield statement) | blockExit (synchronized statement)
 	public final static int Bit31 = 0x40000000;		// local declaration reachable (local decl) | ignore raw type check (type ref) | discard entire assignment (assignment) | isSynchronized (return statement) | thenExit (if statement)
 	public final static int Bit32 = 0x80000000;		// reachable (statement)
 
@@ -186,7 +186,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 
 	// try statements
-	public static final int IsSubRoutineEscaping = Bit15;
+	public static final int IsFinallyBlockEscaping = Bit15;
 	public static final int IsTryBlockExiting = Bit30;
 
 	// for type declaration
@@ -279,8 +279,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for parameterized qualified/single type ref
 	public static final int DidResolve = Bit19;
 
-	// for return statement
-	public static final int IsAnySubRoutineEscaping = Bit30;
+	// for return & yield statements
+	public static final int IsAnyFinallyBlockEscaping = Bit30;
 	public static final int IsSynchronized = Bit31;
 
 	// for synchronized statement
@@ -1075,7 +1075,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return annotations;
 	}
 
-	/**	Resolve JSR308 annotations on a type reference, array creation expression or a wildcard. Type parameters go directly to the subroutine,
+	/**	Resolve JSR308 annotations on a type reference, array creation expression or a wildcard. Type parameters go directly to the method/ctor,
 	    By construction the bindings associated with QTR, PQTR etc get resolved first and then annotations for different levels get resolved
 	    and applied at one go. Likewise for multidimensional arrays.
 

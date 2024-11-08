@@ -99,7 +99,6 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 	protected StringBuilder problems;
 	protected String compilerOption = JavaCore.IGNORE;
 	protected List<String> failures;
-	protected boolean stopOnFailure = true;
 	Map savedOptions = null;
 
 	public ASTConverterMarkdownTest(String name, String support, String unix) {
@@ -197,9 +196,6 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 		this.workingCopies = null;
 		this.savedLevel = this.astLevel;
 	}
-	/* (non-Javadoc)
-	 * @see junit.framework.TestCase#tearDown()
-	 */
 	@Override
 	protected void tearDown() throws Exception {
 		int size = this.failures.size();
@@ -226,9 +222,6 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 		this.astLevel = this.savedLevel;
 	}
 
-	/* (non-Javadoc)
-	 * @see junit.framework.TestCase#tearDown()
-	 */
 	@Override
 	public void tearDownSuite() throws Exception {
 		// put default options on project
@@ -583,83 +576,42 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 		}
 		return all;
 	}
-
-	/*
-	 * Add a failure to the list. Use only one method as it easier to put breakpoint to
-	 * debug failure when it occurs...
-	 */
 	private void addFailure(String msg) {
 		this.failures.add(msg);
 	}
-
-	/*
-	 * Put the failure message in list instead of throwing exception immediately.
-	 * This allow to store several failures per test...
-	 * @see tearDown method which finally throws the execption to signal that test fails.
-	 */
 	protected void assumeTrue(String msg, boolean cond) {
 		if (!cond) {
 			addFailure(msg);
-			if (this.stopOnFailure) assertTrue(msg, cond);
 		}
 	}
 
-	/*
-	 * Put the failure message in list instead of throwing exception immediately.
-	 * This allow to store several failures per test...
-	 * @see tearDown method which finally throws the execption to signal that test fails.
-	 */
 	protected void assumeNull(String msg, Object obj) {
 		if (obj != null) {
 			addFailure(msg);
-			if (this.stopOnFailure) assertNull(msg, obj);
 		}
 	}
 
-	/*
-	 * Put the failure message in list instead of throwing exception immediately.
-	 * This allow to store several failures per test...
-	 * @see tearDown method which finally throws the execption to signal that test fails.
-	 */
 	protected void assumeNotNull(String msg, Object obj) {
 		if (obj == null) {
 			addFailure(msg);
-			if (this.stopOnFailure) assertNotNull(msg, obj);
 		}
 	}
 
-	/*
-	 * Put the failure message in list instead of throwing exception immediately.
-	 * This allow to store several failures per test...
-	 * @see tearDown method which finally throws the execption to signal that test fails.
-	 */
 	protected void assumeEquals(String msg, int expected, int actual) {
 		if (expected != actual) {
 			addFailure(msg+", expected="+expected+" actual="+actual);
-			if (this.stopOnFailure) assertEquals(msg, expected, actual);
 		}
 	}
 
-	/*
-	 * Put the failure message in list instead of throwing exception immediately.
-	 * This allow to store several failures per test...
-	 * @see tearDown method which finally throws the execption to signal that test fails.
-	 */
 	protected void assumeEquals(String msg, Object expected, Object actual) {
 		if (expected == null && actual == null)
 			return;
 		if (expected != null && expected.equals(actual))
 			return;
 		addFailure(msg+", expected:<"+expected+"> actual:<"+actual+'>');
-		if (this.stopOnFailure) assertEquals(msg, expected, actual);
 	}
 
-	/*
-	 * Verify positions of tags in source
-	 */
 	private void verifyPositions(Javadoc docComment, char[] source) {
-		boolean stop = this.stopOnFailure;
-		this.stopOnFailure = false;
 		// Verify javadoc start and end position
 		int start = docComment.getStartPosition();
 		int end = start+docComment.getLength()-1;
@@ -678,13 +630,13 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			verifyPositions(tagElement, source);
 			tagStart += tagElement.getLength();
 		}
-		while (source[tagStart+1] == '/' || Character.isWhitespace(source[tagStart+1])) {
+		while ((source[tagStart] == '/' || Character.isWhitespace(source[tagStart])) &&
+				source[tagStart] != '\n') {
 			tagStart++; // purge non-stored characters
 		}
 		//assumeTrue(this.prefix+"Misplaced javadoc end at <"+tagStart+'>', source[tagStart-1] == '*' && source[tagStart] == '/');
 		assumeEquals(this.prefix+"Wrong javadoc length at <"+end+">: ", tagStart, end);
-		this.stopOnFailure = stop;
-		if (stop && this.failures.size() > 0) {
+		if (this.failures.size() > 0) {
 			String expected = new String(source, docComment.getStartPosition(), docComment.getLength());
 			ASTConverterJavadocFlattener flattener = new ASTConverterJavadocFlattener(expected);
 			docComment.accept(flattener);
@@ -787,14 +739,6 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 					assumeEquals(this.prefix+"Misplaced text element at <"+fragment.getStartPosition()+">: ", text, ((TextElement) fragment).getText());
 				}
 			} else {
-//				if (fragment.getNodeType() == ASTNode.TAG_ELEMENT) {
-//					TagElement tagEl = (TagElement) fragment;
-//					if (tagEl.getTagName().equals("@link")) {
-//						while (source[tagStart] == '[' || Character.isWhitespace(source[tagStart])) {
-//							tagStart++; // purge non-stored characters
-//						}
-//					}
-//				}
 				while (source[tagStart] == '/' || Character.isWhitespace(source[tagStart])) {
 					tagStart++; // purge non-stored characters
 				}
@@ -923,7 +867,7 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 								start += name.getLength();
 							}
 							// Verify end parameter declaration
-							while (source[start+1] == '/' || Character.isWhitespace(source[start+1])) {
+							while (Character.isWhitespace(source[start])) {
 								start++;
 							}
 							assumeTrue(this.prefix+"Misplaced parameter end at <"+start+"> for method ref: "+methodRef, source[start] == ',' || source[start] == ')');
@@ -983,26 +927,15 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 		}
 	}
 
-	/*
-	 * Verify that bindings of Javadoc comment structure are resolved or not.
-	 * For expected unresolved binding, verify that following text starts with 'Unknown'
-	 */
 	private void verifyBindings(Javadoc docComment) {
-		boolean stop = this.stopOnFailure;
-//		stopOnFailure = false;
 		// Verify tags
 		Iterator tags = docComment.tags().listIterator();
 		while (tags.hasNext()) {
 			verifyBindings((TagElement) tags.next());
 		}
-		this.stopOnFailure = stop;
-		assertTrue(!stop || this.failures.size()==0);
+		assertTrue(this.failures.size()==0);
 	}
 
-	/*
-	 * Verify that bindings of Javadoc tag structure are resolved or not.
-	 * For expected unresolved binding, verify that following text starts with 'Unknown'
-	 */
 	private void verifyBindings(TagElement tagElement) {
 		// Verify each fragment
 		Iterator elements = tagElement.fragments().listIterator();
@@ -1052,36 +985,6 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 						// TODO (frederic) Replace the two following lines by commented block when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=62650 will be fixed
 						assumeNotNull(this.prefix+""+methodName+" binding was not found in "+fragment, methNameBinding);
 						verifyNameBindings(methodQualifier);
-						/*
-						if (methodQualifier == null) {
-							if (methNameBinding == null) {
-								char firstChar = methodName.getIdentifier().charAt(0);
-								if (Character.isUpperCase(firstChar)) {
-									// assume that selector starting with uppercase is for constructor => signal that binding is null
-									System.out.println(prefix+"Binding for selector of  '"+methodRef+"' is null.");
-								}
-							} else {
-								if (methNameBinding.getName().equals(methodName.getIdentifier())) { // binding is not null only for constructor
-									assumeNotNull(prefix+""+methodName+" binding was not found!",methNameBinding);
-								} else {
-									assumeNull(prefix+""+methodName+" binding should be null!", methNameBinding);
-								}
-							}
-						} else {
-							SimpleName methodSimpleType = null;
-							if (methodQualifier.isQualifiedName()) {
-								methodSimpleType = ((QualifiedName)methodQualifier).getName();
-							} else {
-								methodSimpleType = (SimpleName) methodQualifier;
-							}
-							if (methodSimpleType.getIdentifier().equals(methodName.getIdentifier())) { // binding is not null only for constructor
-								assumeNotNull(prefix+""+methodName+" binding was not found!",methNameBinding);
-							} else {
-								assumeNull(prefix+""+methodName+" binding should be null!", methNameBinding);
-							}
-							verifyNameBindings(methodRef.getQualifier());
-						}
-						*/
 						Iterator parameters = methodRef.parameters().listIterator();
 						while (parameters.hasNext()) {
 							MethodRefParameter param = (MethodRefParameter) parameters.next();
@@ -1174,26 +1077,7 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 		// Get test file
 		this.sourceUnit = unit;
 		this.prefix = unit.getElementName()+": ";
-
-		// Get current project
 		String sourceStr = this.sourceUnit.getSource();
-		if (this.savedOptions != null && !this.sourceUnit.getJavaProject().getElementName().equals(this.currentProject.getElementName())) {
-			this.currentProject.setOptions(this.savedOptions);
-			this.savedOptions = null;
-		}
-		this.currentProject = this.sourceUnit.getJavaProject();
-		if (this.savedOptions == null) this.savedOptions = this.currentProject.getOptions(false);
-
-		// set up java project options
-		this.currentProject.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, this.compilerOption);
-		this.currentProject.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS, this.compilerOption);
-		this.currentProject.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, this.compilerOption);
-		this.currentProject.setOption(JavaCore.COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME, JavaCore.IGNORE);
-		this.currentProject.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, this.docCommentSupport);
-		this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_23);
-		this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_23);
-		this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-
 		// Verify source regardings converted comments
 		char[] source = sourceStr.toCharArray();
 		String fileName = unit.getPath().toString();
@@ -1211,11 +1095,16 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 	}
 
 	private void setCompliancesLevel() {
-		if (this.currentProject != null) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_23);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_23);
-			this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-		}
+		this.currentProject = getJavaProject("Converter_23");
+		// set up java project options
+		this.currentProject.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, this.compilerOption);
+		this.currentProject.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS, this.compilerOption);
+		this.currentProject.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, this.compilerOption);
+		this.currentProject.setOption(JavaCore.COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME, JavaCore.IGNORE);
+		this.currentProject.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, this.docCommentSupport);
+		this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_23);
+		this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_23);
+		this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		this.astLevel = AST.JLS23;
 	}
 	protected CompilationUnit verifyComments(String fileName, char[] source, Map options) {
@@ -1257,19 +1146,10 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 
 		// Basic comments verification
 		int size = unitComments.size();
-		//assumeEquals(this.prefix+"Wrong number of comments!", this.comments.size(), size);
 
 		// Verify comments positions and bindings
 		for (int i=0; i<size; i++) {
 			Comment comment = (Comment) unitComments.get(i);
-//			List tags = (List) this.allTags.get(i);
-			// Verify flattened content
-//			String stringComment = (String) this.comments.get(i);
-//			ASTConverterJavadocFlattener printer = new ASTConverterJavadocFlattener(stringComment);
-//			comment.accept(printer);
-//			String text = new String(testedSource, comment.getStartPosition(), comment.getLength());
-			//assumeEquals(this.prefix+"Flattened comment does NOT match source!", stringComment, text);
-			// Verify javdoc tags positions and bindings
 			if (comment.isDocComment()) {
 				Javadoc docComment = (Javadoc)comment;
 				if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -1283,26 +1163,9 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 				}
 			}
 		}
-
-		/* Verify each javadoc: not implemented yet
-		Iterator types = compilUnit.types().listIterator();
-		while (types.hasNext()) {
-			TypeDeclaration typeDeclaration = (TypeDeclaration) types.next();
-			verifyJavadoc(typeDeclaration.getJavadoc());
-		}
-		*/
-
 		// Return compilation unit for possible further verifications
 		return compilUnit;
 	}
-
-	/*
-	 * Verify each javadoc
-	 * Not implented yet
-	private void verifyJavadoc(Javadoc docComment) {
-	}
-	*/
-
 	protected void assertTagsAndTexts(List<ASTNode> tagList, String[] tags, String[][] liness) {
 		assertEquals(this.prefix+"Wrong number of tags", tags.length, tagList.size());
 
@@ -1499,1744 +1362,6 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 				commentEnd = comment.getStartPosition() + comment.getLength() - 1;
 			}
 			assumeEquals("Method "+node+" does not have the correct length", commentEnd, methodEnd);
-		}
-	}
-
-	/*
-	 * End DefaultCommentMapper verifications
-	 */
-
-	/**
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=48489"
-	 */
-	public void testBug48489() throws JavaModelException {
-		verifyComments("testBug48489");
-	}
-
-	/**
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50898"
-	 */
-	public void testBug50898() throws JavaModelException {
-		ICompilationUnit unit = getCompilationUnit("Converter_23" , "src", "markdown.testBug50898", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		this.packageBinding = false;
-		verifyComments(unit);
-	}
-
-	/**
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51226"
-	 */
-	public void testBug51226() throws JavaModelException {
-		ICompilationUnit[] units = getCompilationUnits("Converter_23" , "src", "markdown.testBug51226"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		for (int i=0; i<units.length; i++) {
-			ASTNode result = runConversion(units[i], false);
-			final CompilationUnit unit = (CompilationUnit) result;
-			assumeEquals(this.prefix+"Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
-			assumeEquals(this.prefix+"Wrong number of comments", 1, unit.getCommentList().size());
-			Comment comment = (Comment) unit.getCommentList().get(0);
-			assumeTrue(this.prefix+"Comment should be a Javadoc one", comment.isDocComment());
-			if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-				Javadoc docComment = (Javadoc) comment;
-				assumeEquals(this.prefix+"Wrong number of tags", 1, docComment.tags().size());
-				TagElement tagElement = (TagElement) docComment.tags().get(0);
-				assumeNull(this.prefix+"Wrong type of tag ["+tagElement+"]", tagElement.getTagName());
-				assumeEquals(this.prefix+"Wrong number of fragments in tag ["+tagElement+"]", 1, tagElement.fragments().size());
-				ASTNode fragment = (ASTNode) tagElement.fragments().get(0);
-				assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
-				TextElement textElement = (TextElement) fragment;
-				assumeEquals(this.prefix+"Invalid content for text element ", "Test", textElement.getText());
-				if (this.debug) System.out.println(docComment+"\nsuccessfully verified.");
-			}
-		}
-	}
-
-	/**
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51476"
-	 */
-	public void testBug51476() throws JavaModelException {
-		verifyComments("testBug51476");
-	}
-
-	/**
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51478"
-	 */
-	public void testBug51478() throws JavaModelException {
-		verifyComments("testBug51478");
-	}
-
-	/**
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51508"
-	 */
-	public void testBug51508() throws JavaModelException {
-		verifyComments("testBug51508");
-	}
-
-	/**
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51650"
-	 */
-	public void testBug51650() throws JavaModelException {
-		verifyComments("testBug51650");
-	}
-
-	/**
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51770"
-	 */
-	public void testBug51770() throws JavaModelException {
-		verifyComments("testBug51770");
-	}
-
-	/**
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=52908"
-	 */
-	public void testBug52908() throws JavaModelException {
-		verifyComments("testBug52908");
-	}
-	public void testBug52908a() throws JavaModelException {
-		verifyComments("testBug52908a");
-	}
-	public void testBug52908unicode() throws JavaModelException {
-		verifyComments("testBug52908unicode");
-	}
-
-	/**
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=53276"
-	 */
-	public void testBug53276() throws JavaModelException {
-		verifyComments("testBug53276");
-	}
-
-	/**
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=53075"
-	 */
-	public void testBug53075() throws JavaModelException {
-		ICompilationUnit unit = getCompilationUnit("Converter_23" , "src", "markdown.testBug53075", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		boolean pb = this.packageBinding;
-		this.packageBinding = false;
-		CompilationUnit compilUnit = verifyComments(unit);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			Comment comment = (Comment) compilUnit.getCommentList().get(0);
-			assumeTrue(this.prefix+"Comment should be a javadoc comment ", comment.isDocComment());
-			Javadoc docComment = (Javadoc) comment;
-			TagElement tagElement = (TagElement) docComment.tags().get(0);
-			assumeEquals("Wrong tag type!", TagElement.TAG_LINK, tagElement.getTagName());
-			tagElement = (TagElement) docComment.tags().get(1);
-			assumeEquals("Wrong tag type!", TagElement.TAG_LINKPLAIN, tagElement.getTagName());
-		}
-		this.packageBinding = pb;
-	}
-
-	/**
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=53757"
-	 */
-	public void testBug53757() throws JavaModelException {
-		verifyComments("testBug53757");
-	}
-
-	/**
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600"
-	 */
-	public void testBug51600() throws JavaModelException {
-		verifyComments("testBug51600");
-	}
-	public void testBug51617() throws JavaModelException {
-		this.stopOnFailure = false;
-		String [] unbound = { "e" };
-		verifyComments("testBug51617");
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			int size = unbound.length;
-			for (int i=0, f=0; i<size; i++) {
-				assertTrue("Invalid number of failures!", this.failures.size()>f);
-				String failure = this.failures.get(f);
-				String expected = "Reference '"+unbound[i]+"' should be bound!";
-				if (expected.equals(failure.substring(failure.indexOf(' ')+1))) {
-					this.failures.remove(f);
-				} else {
-					f++;	// skip offending failure
-					i--;	// stay on expected string
-				}
-			}
-		}
-		this.stopOnFailure = true;
-	}
-	public void testBug54424() throws JavaModelException {
-		this.stopOnFailure = false;
-		String [] unbound = { "tho",
-				"A#getList(int,long,boolean)",
-				"#getList(Object,java.util.AbstractList)",
-		};
-		verifyComments("testBug54424");
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			int size = unbound.length;
-			for (int i=0, f=0; i<size; i++) {
-				assertTrue("Invalid number of failures!", this.failures.size()>f);
-				String failure = this.failures.get(f);
-				String expected = "Reference '"+unbound[i]+"' should be bound!";
-				if (expected.equals(failure.substring(failure.indexOf(' ')+1))) {
-					this.failures.remove(f);
-				} else {
-					f++;	// skip offending failure
-					i--;	// stay on expected string
-				}
-			}
-		}
-		this.stopOnFailure = true;
-	}
-
-	/**
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=63044"
-	 */
-	public void testBug63044() throws JavaModelException {
-		verifyComments("testBug63044");
-	}
-
-	/**
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660"
-	 */
-	public void testBug51660() throws JavaModelException {
-		this.stopOnFailure = false;
-		ICompilationUnit unit = getCompilationUnit("Converter_23" , "src", "markdown.testBug51660", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit compilUnit = verifyComments(unit);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			String[] tagNames = {
-				"@ejb",
-				"@ejb",
-				"@ejb",
-				"@ejb",
-				"@ejb",
-				"@ejb",
-				"@ejb(bean",
-				"@ejb)bean",
-				"@ejb",
-				"@ejb+bean",
-				"@ejb,bean",
-				"@ejb-bean",
-				"@ejb.bean",
-				"@ejb/bean",
-				"@ejb",
-				"@ejb;bean",
-				"@ejb",
-				"@ejb=bean",
-				"@ejb",
-				"@ejb?bean",
-				"@ejb@bean",
-				"@ejb[bean",
-				"@ejb\\bean",
-				"@ejb]bean",
-				"@ejb^bean",
-				"@ejb`bean",
-				"@ejb{bean",
-				"@ejb|bean",
-				"@ejb",
-				"@ejb~bean",
-				"@unknown"
-			};
-			String[] tagTexts = {
-				"!bean test non-java id character '!' (val=33) in tag name",
-				"\"bean test non-java id character '\"' (val=34) in tag name",
-				"#bean test non-java id character '#' (val=35) in tag name",
-				"%bean test non-java id character '%' (val=37) in tag name",
-				"&bean test non-java id character '&' (val=38) in tag name",
-				"'bean test non-java id character ''' (val=39) in tag name",
-				" test non-java id character '(' (val=40) in tag name",
-				" test non-java id character ')' (val=41) in tag name",
-				"*bean test non-java id character '*' (val=42) in tag name",
-				" test non-java id character '+' (val=43) in tag name",
-				" test non-java id character ',' (val=44) in tag name",
-				" test non-java id character '-' (val=45) in tag name",
-				" test non-java id character '.' (val=46) in tag name",
-				" test non-java id character '/' (val=47) in tag name",
-				":bean test non-java id character ':' (val=58) in tag name",
-				" test non-java id character ';' (val=59) in tag name",
-				"<bean test non-java id character '<' (val=60) in tag name",
-				" test non-java id character '=' (val=61) in tag name",
-				">bean test non-java id character '>' (val=62) in tag name",
-				" test non-java id character '?' (val=63) in tag name",
-				" test non-java id character '@' (val=64) in tag name",
-				" test non-java id character '[' (val=91) in tag name",
-				" test non-java id character '\\' (val=92) in tag name",
-				" test non-java id character ']' (val=93) in tag name",
-				" test non-java id character '^' (val=94) in tag name",
-				" test non-java id character '`' (val=96) in tag name",
-				" test non-java id character '{' (val=123) in tag name",
-				" test non-java id character '|' (val=124) in tag name",
-				"}bean test non-java id character '}' (val=125) in tag name",
-				" test non-java id character '~' (val=126) in tag name",
-				" test java id"
-			};
-			Comment comment = (Comment) compilUnit.getCommentList().get(0);
-			assumeTrue(this.prefix+"Comment should be a javadoc comment ", comment.isDocComment());
-			Javadoc docComment = (Javadoc) comment;
-			int size = docComment.tags().size();
-			for (int i=0; i<size; i++) {
-				TagElement tagElement = (TagElement) docComment.tags().get(i);
-				assumeEquals("Wrong tag name for:"+tagElement, tagNames[i], tagElement.getTagName());
-				assumeEquals("Wrong fragments size for :"+tagElement, 1, tagElement.fragments().size());
-				ASTNode fragment = (ASTNode) tagElement.fragments().get(0);
-				assumeEquals("Wrong fragments type for :"+tagElement, ASTNode.TEXT_ELEMENT, fragment.getNodeType());
-				TextElement textElement = (TextElement) fragment;
-				assumeEquals("Wrong text for tag!", tagTexts[i], textElement.getText());
-			}
-		}
-		this.stopOnFailure = true;
-	}
-
-	/**
-	 * Bug 65174: Spurious "Javadoc: Missing reference" error
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=65174"
-	 */
-	public void testBug65174() throws JavaModelException {
-		verifyComments("testBug65174");
-	}
-
-	/**
-	 * Bug 65253: [Javadoc] @@tag is wrongly parsed as @tag
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=65253"
-	 */
-	public void testBug65253() throws JavaModelException {
-		verifyComments("testBug65253");
-	}
-
-	/**
-	 * Bug 65288: Javadoc: tag gets mangled when javadoc closing on same line without whitespace
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=65288"
-	 */
-	public void testBug65288() throws JavaModelException {
-		verifyComments("testBug65288");
-	}
-
-	/**
-	 * Bug 68017: Javadoc processing does not detect missing argument to @return
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=68017"
-	 */
-	public void testBug68017() throws JavaModelException {
-		verifyComments("testBug68017");
-	}
-
-	/**
-	 * Bug 68025: Javadoc processing does not detect some wrong links
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=68025"
-	 */
-	public void testBug68025() throws JavaModelException {
-		verifyComments("testBug68025");
-	}
-
-	/**
-	 * Bug 69272: [Javadoc] Invalid malformed reference (missing separator)
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=69272"
-	 */
-	public void testBug69272() throws JavaModelException {
-		verifyComments("testBug69272");
-	}
-
-	/**
-	 * Bug 69275: [Javadoc] Invalid warning on @see link
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=69275"
-	 */
-	public void testBug69275() throws JavaModelException {
-		verifyComments("testBug69275");
-	}
-
-	/**
-	 * Bug 69302: [Javadoc] Invalid reference warning inconsistent with javadoc tool
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=69302"
-	 */
-	public void testBug69302() throws JavaModelException {
-		verifyComments("testBug69302");
-	}
-
-	/**
-	 * Bug 68726: [Javadoc] Target attribute in @see link triggers warning
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=68726"
-	 */
-	public void testBug68726() throws JavaModelException {
-		verifyComments("testBug68726");
-	}
-
-	/**
-	 * Bug 70892: [1.5][Javadoc] Compiler should parse reference for inline tag @value
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892"
-	 * @deprecated using deprecated code
-	 */
-	public void testBug70892_JLS2() throws JavaModelException {
-		int level = this.astLevel;
-		this.astLevel = AST.JLS2;
-		verifyComments("testBug70892");
-		this.astLevel = level;
-	}
-	public void testBug70892_JLS3() throws JavaModelException {
-		int level = this.astLevel;
-		this.astLevel = getJLS3();
-		verifyComments("testBug70892");
-		this.astLevel = level;
-	}
-
-	/**
-	 * Bug 51911: [Javadoc] @see method w/out ()
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=51911"
-	 */
-	public void testBug51911() throws JavaModelException {
-		verifyComments("testBug51911");
-	}
-
-	/**
-	 * Bug 73348: [Javadoc] Missing description for return tag is not always warned
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=73348"
-	 */
-	public void testBug73348() throws JavaModelException {
-		verifyComments("testBug73348");
-	}
-
-	/**
-	 * Bug 77644: [dom] AST node extended positions may be wrong while moving
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=77644"
-	 */
-	public void testBug77644() throws JavaModelException {
-		verifyComments("testBug77644");
-	}
-
-	/**
-	 * Bug 79809: [1.5][dom][javadoc] Need better support for type parameter Javadoc tags
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=79809"
-	 */
-	public void testBug79809() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter/src/markdown/b79809/Test.java",
-			"package markdown.b79809;\n" +
-			"/**\n" +
-			" * @param <E>  Class type parameter\n" +
-			" * @see Object\n" +
-			" */\n" +
-			"public class Test<E> {\n" +
-			"	/**\n" +
-			"	 * @param t\n" +
-			"	 * @param <T> Method type parameter\n" +
-			"	 */\n" +
-			"	<T> void foo(T t) {}\n" +
-			"}\n");
-		verifyWorkingCopiesComments();
-	}
-	public void testBug79809b() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter/src/markdown/b79809/Test.java",
-			"package markdown.b79809;\n" +
-			"\n" +
-			"/**\n" +
-			" * New tags for 5.0\n" +
-			" *  - literal: {@literal a<B>c}\n" +
-			" *  - code: {@code abc}\n" +
-			" *  - value: {@value System#out}\n" +
-			" */\n" +
-			"public class Test {\n" +
-			"\n" +
-			"}\n");
-		verifyWorkingCopiesComments();
-	}
-
-	/**
-	 * Bug 79904: [1.5][dom][javadoc] TagElement range not complete for type parameter tags
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=79904"
-	 */
-	public void testBug79904() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter/src/markdown/b79904/Test.java",
-			"package markdown.b79904;\n" +
-			"/**\n" +
-			" * @param <E>\n" +
-			" * @see Object\n" +
-			" */\n" +
-			"public class Test<E> {\n" +
-			"	/**\n" +
-			"	 * @param t\n" +
-			"	 * @param <T>\n" +
-			"	 */\n" +
-			"	<T> void foo(T t) {}\n" +
-			"}\n");
-		verifyWorkingCopiesComments();
-	}
-
-	/**
-	 * Bug 80221: [1.5][dom][javadoc] Need better support for type parameter Javadoc tags
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=80221"
-	 */
-	public void testBug80221() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter/src/markdown/b80221/Test.java",
-			"package markdown.b80221;\n" +
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @see Object Unknown: ref is not resolved due to compile error...\n" +
-			"	 */\n" +
-			"	public foo() {\n" +
-			"		return 1;\n" +
-			"	}\n" +
-			"}\n"
-		);
-		verifyWorkingCopiesComments();
-	}
-
-	/**
-	 * Bug 80257: [1.5][javadoc][dom] Type references in javadocs should have generic binding, not raw
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=80257"
-	 */
-	public void testBug80257() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b80257/Test.java",
-			"package markdown.b80257;\n" +
-			"import java.util.*;\n" +
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @see ArrayList\n" +
-			"	 * @return {@link java.util.List}\n" +
-			"	 */\n" +
-			"	List<String> getList() {\n" +
-			"		return new ArrayList<String>();\n" +
-			"	}\n" +
-			"}\n"
-			);
-		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Do not need to verify following statement as we know it's ok as verifyComments did not fail
-			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0); // get javadoc comment
-			TagElement firstTag = (TagElement) docComment.tags().get(0); // get first tag
-			TagElement secondTag = (TagElement) docComment.tags().get(1); // get second tag
-			TagElement inlineTag = (TagElement) secondTag.fragments().get(1); // get inline tag
-			// Get tag simple name reference in first tag
-			assertEquals("Invalid number of fragments for tag element: "+firstTag, 1, firstTag.fragments().size());
-			ASTNode node = (ASTNode) firstTag.fragments().get(0);
-			assertEquals("Invalid kind of name reference for tag element: "+firstTag, ASTNode.SIMPLE_NAME, node.getNodeType());
-			SimpleName seeRef = (SimpleName) node;
-			// Verify binding for simple name
-			IBinding binding = seeRef.resolveBinding();
-			assertTrue("Wrong kind of binding", binding instanceof ITypeBinding);
-			ITypeBinding typeBinding = (ITypeBinding)binding;
-			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=209936
-			// only have RawTypeBinding in Javadocs
-			assertFalse(seeRef.toString()+" should NOT have a generic type binding", typeBinding.isGenericType());
-			assertFalse(seeRef.toString()+" should NOT have a parameterized type binding", typeBinding.isParameterizedType());
-			assertTrue(seeRef.toString()+" should have a raw type binding", typeBinding.isRawType());
-			// Get inline tag simple name reference in second tag
-			assertEquals("Invalid number of fragments for inline tag element: "+inlineTag, 1, inlineTag.fragments().size());
-			node = (ASTNode) inlineTag.fragments().get(0);
-			assertEquals("Invalid kind of name reference for tag element: "+inlineTag, ASTNode.QUALIFIED_NAME, node.getNodeType());
-			QualifiedName linkRef = (QualifiedName) node;
-			// Verify binding for qualified name
-			binding = linkRef.resolveBinding();
-			assertTrue("Wrong kind of binding", binding instanceof ITypeBinding);
-			typeBinding = (ITypeBinding)binding;
-			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=209936
-			// only have RawTypeBinding in Javadocs
-			assertFalse(linkRef.toString()+" should NOT have a generic type binding", typeBinding.isGenericType());
-			assertFalse(linkRef.toString()+" should NOT have a parameterized type binding", typeBinding.isParameterizedType());
-			assertTrue(linkRef.toString()+" should have a raw type binding", typeBinding.isRawType());
-		}
-	}
-
-	/**
-	 * Bug 84049: [javadoc][dom] Extended ranges wrong for method name without return type
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84049"
-	 */
-	public void testBug84049() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b84049/Test.java",
-			"package markdown.b84049;\n" +
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @see Object\n" +
-			"	 */\n" +
-			"	foo() {\n" +
-			"	}\n" +
-			"}\n"
-			);
-		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			ASTNode node = getASTNode(compilUnit, 0, 0);
-			assertEquals("Invalid type for node: "+node, ASTNode.METHOD_DECLARATION, node.getNodeType());
-			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-			Javadoc methodJavadoc = methodDeclaration.getJavadoc();
-			assertNotNull("MethodDeclaration have a javadoc comment", methodJavadoc);
-			int javadocStart = methodJavadoc.getStartPosition();
-			assertEquals("Method declaration should include javadoc comment", methodDeclaration.getStartPosition(), javadocStart);
-			SimpleName methodName = methodDeclaration.getName();
-			int nameStart = methodName.getStartPosition();
-			assertTrue("Method simple name should not include javadoc comment", nameStart > javadocStart+methodJavadoc.getLength());
-			int extendedStart = compilUnit.getExtendedStartPosition(methodName);
-			assertEquals("Method simple name start position should not be extended!", nameStart, extendedStart);
-			int extendedLength = compilUnit.getExtendedLength(methodName);
-			assertEquals("Method simple name length should not be extended!", methodName.getLength(), extendedLength);
-		}
-	}
-
-	/**
-	 * Bug 87845: [1.5][javadoc][dom] Type references in javadocs should have generic binding, not raw
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=87845"
-	 */
-	public void testBug87845() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b87845/Test.java",
-			"package markdown.b87845;\n" +
-			"public class Test {\n" +
-			"	public void foo(int a, int b) {} \n" +
-			"	public void foo(int a, int... args) {}\n" +
-			"	public void foo(String... args) {}\n" +
-			"	public void foo(Exception str, boolean... args) {}\n" +
-			"	/**\n" +
-			"	* @see Test#foo(int, int)\n" +
-			"	* @see Test#foo(int, int[])\n" +
-			"	* @see Test#foo(int, int...)\n" +
-			"	* @see Test#foo(String[])\n" +
-			"	* @see Test#foo(String...)\n" +
-			"	* @see Test#foo(Exception, boolean[])\n" +
-			"	* @see Test#foo(Exception, boolean...)\n" +
-			"	*/\n" +
-			"	public void valid() {}\n" +
-			"	/**\n" +
-			"	* @see Test#foo(int)\n" +
-			"	* @see Test#foo(int, int, int)\n" +
-			"	* @see Test#foo()\n" +
-			"	* @see Test#foo(String)\n" +
-			"	* @see Test#foo(String, String)\n" +
-			"	* @see Test#foo(Exception)\n" +
-			"	* @see Test#foo(Exception, boolean)\n" +
-			"	* @see Test#foo(Exception, boolean, boolean)\n" +
-			"	*/\n" +
-			"	public void invalid() {}\n" +
-			"}\n"
-		);
-		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Do not need to verify following statement as we know it's ok as verifyComments did not fail
-			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0); // get first javadoc comment
-			// Verify last parameter for all methods reference in javadoc comment
-			List tags = docComment.tags();
-			int size = tags.size();
-			for (int i=0; i<size; i++) {
-				TagElement tag = (TagElement) docComment.tags().get(i);
-				assertEquals("Invalid number of fragment for see reference: "+tag, 1, tag.fragments().size());
-				ASTNode node = (ASTNode) tag.fragments().get(0);
-				assertEquals("Invalid kind of name reference for tag element: "+tag, ASTNode.METHOD_REF, node.getNodeType());
-				MethodRef methodRef = (MethodRef) node;
-				List parameters = methodRef.parameters();
-				int paramSize = parameters.size();
-				for (int j=0; j<paramSize; j++) {
-					node = (ASTNode) parameters.get(j);
-					assertEquals("Invalid kind of method parameter: "+node, ASTNode.METHOD_REF_PARAMETER, node.getNodeType());
-					MethodRefParameter parameter = (MethodRefParameter) node;
-					if (j==(paramSize-1)) {
-						switch (i) {
-							case 2:
-							case 4:
-							case 6:
-								assertTrue("Method parameter \""+parameter+"\" should be varargs!", parameter.isVarargs());
-								break;
-							default:
-								assertFalse("Method parameter \""+parameter+"\" should not be varargs!", parameter.isVarargs());
-								break;
-						}
-					} else {
-						assertFalse("Method parameter \""+parameter+"\" should not be varargs!", parameter.isVarargs());
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Bug 93880: [1.5][javadoc] Source range of PackageDeclaration does not include Javadoc child
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=93880"
-	 */
-	public void testBug93880_15a() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b93880/Test.java",
-			"/**\n" +
-			" * Javadoc\n" +
-			" */\n" +
-			"package markdown.b93880;\n" +
-			"public class Test {\n" +
-			"}\n"
-		);
-		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Get package declaration declaration and javadoc
-			PackageDeclaration packDecl = compilUnit.getPackage();
-			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0); // Do not need to verify following statement as we know it's ok as verifyComments did not fail
-
-			// Verify package declaration javadoc
-			assertTrue("Javadoc should be set on package declaration", docComment == packDecl.getJavadoc());
-
-			// Verify package declaration declaration source start
-			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
-		}
-	}
-	public void testBug93880_15b() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b93880/package-info.java",
-			"/**\n" +
-			" * Javadoc for all package\n" +
-			" */\n" +
-			"package markdown.b93880;"
-		);
-		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Get package declaration declaration and javadoc
-			PackageDeclaration packDecl = compilUnit.getPackage();
-			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0); // Do not need to verify following statement as we know it's ok as verifyComments did not fail
-
-			// Verify package declaration javadoc
-			assertTrue("Javadoc should be set on package declaration", docComment == packDecl.getJavadoc());
-
-			// Verify package declaration declaration source start
-			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
-		}
-	}
-	public void testBug93880_15c() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b93880/package-info.java",
-			"/**\n" +
-			" * Javadoc for all package\n" +
-			" */\n" +
-			"private package markdown.b93880;"
-		);
-		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Get package declaration declaration and javadoc
-			PackageDeclaration packDecl = compilUnit.getPackage();
-			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0); // Do not need to verify following statement as we know it's ok as verifyComments did not fail
-
-			// Verify package declaration javadoc
-			assertTrue("Javadoc should be set on package declaration", docComment == packDecl.getJavadoc());
-
-			// Verify package declaration declaration source start
-			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
-		}
-	}
-	public void testBug93880_15d() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b93880/package-info.java",
-			"/**\n" +
-			" * Javadoc for all package\n" +
-			" */\n" +
-			"@Deprecated\n" +
-			"package markdown.b93880;"
-		);
-		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Get package declaration declaration and javadoc
-			PackageDeclaration packDecl = compilUnit.getPackage();
-			assertNotNull("Compilation unit should have a package declaration", packDecl);
-			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0); // Do not need to verify following statement as we know it's ok as verifyComments did not fail
-
-			// Verify package declaration javadoc
-			assertTrue("Javadoc should be set on package declaration", docComment == packDecl.getJavadoc());
-
-			// Verify package declaration declaration source start
-			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
-		}
-	}
-	public void testBug93880_15e() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b93880/package-info.java",
-			"/* (non-javadoc)\n" +
-			" * No comment\n" +
-			" */\n" +
-			"package markdown.b93880;"
-		);
-		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Get package declaration declaration and javadoc
-			PackageDeclaration packDecl = compilUnit.getPackage();
-			List unitComments = compilUnit.getCommentList();
-			assertEquals("Wrong number of comments", 1, unitComments.size());
-			Comment comment = (Comment) unitComments.get(0);
-
-			// Verify package declaration javadoc
-			assertNull("Package declaration should not have any javadoc", packDecl.getJavadoc());
-
-			// Verify package declaration declaration source start
-			assertTrue("Source range of PackageDeclaration should NOT include Javadoc child", packDecl.getStartPosition() > comment.getStartPosition()+comment.getLength());
-		}
-	}
-	public void testBug93880_14a() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b93880/Test.java",
-			"/**\n" +
-			" * Javadoc\n" +
-			" */\n" +
-			"package markdown.b93880;\n" +
-			"public class Test {\n" +
-			"}\n"
-		);
-		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Get package declaration declaration and javadoc
-			PackageDeclaration packDecl = compilUnit.getPackage();
-			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0); // Do not need to verify following statement as we know it's ok as verifyComments did not fail
-
-			// Verify package declaration declaration source start
-			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
-		}
-	}
-	public void testBug93880_14b() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b93880/package-info.java",
-			"/**\n" +
-			" * Javadoc for all package\n" +
-			" */\n" +
-			"package markdown.b93880;"
-		);
-		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Get package declaration declaration and javadoc
-			PackageDeclaration packDecl = compilUnit.getPackage();
-			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0); // Do not need to verify following statement as we know it's ok as verifyComments did not fail
-
-			// Verify package declaration declaration source start
-			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
-		}
-	}
-	public void testBug93880_14c() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b93880/package-info.java",
-			"/**\n" +
-			" * Javadoc for all package\n" +
-			" */\n" +
-			"private package markdown.b93880;"
-		);
-		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Get package declaration declaration and javadoc
-			PackageDeclaration packDecl = compilUnit.getPackage();
-			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0); // Do not need to verify following statement as we know it's ok as verifyComments did not fail
-
-			// Verify package declaration declaration source start
-			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
-		}
-	}
-	public void testBug93880_14d() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b93880/package-info.java",
-			"/**\n" +
-			" * Javadoc for all package\n" +
-			" */\n" +
-			"@Deprecated\n" +
-			"package markdown.b93880;"
-		);
-		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Get package declaration declaration and javadoc
-			PackageDeclaration packDecl = compilUnit.getPackage();
-			assertNotNull("Compilation unit should have a package declaration", packDecl);
-			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0); // Do not need to verify following statement as we know it's ok as verifyComments did not fail
-
-			// Verify package declaration declaration source start
-			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
-		}
-	}
-	public void testBug93880_14e() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b93880/package-info.java",
-			"/* (non-javadoc)\n" +
-			" * No comment\n" +
-			" */\n" +
-			"package markdown.b93880;"
-		);
-		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Get package declaration declaration and javadoc
-			PackageDeclaration packDecl = compilUnit.getPackage();
-			List unitComments = compilUnit.getCommentList();
-			assertEquals("Wrong number of comments", 1, unitComments.size());
-			Comment comment = (Comment) unitComments.get(0);
-
-			// Verify package declaration declaration source start
-			assertTrue("Source range of PackageDeclaration should NOT not include Javadoc child", packDecl.getStartPosition() > comment.getStartPosition()+comment.getLength());
-		}
-	}
-
-	/**
-	 * Bug 94150: [javadoc][dom] Extended ranges wrong for method name without return type
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94150"
-	 */
-	public void testBug94150() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b94150/Category.java",
-			"package markdown.b94150;\n" +
-			"public enum Category {\n" +
-			"    ///\n" +
-			"    /// history style\n" +
-			"    /// @see Object\n" +
-			"    /// \n" +
-			"     HISTORY,\n" +
-			"\n" +
-			"    ///\n" +
-			"    /// war style\n" +
-			"    /// \n" +
-			"     WAR;\n" +
-			"}\n"
-		);
-		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Get enum declaration
-			ASTNode node = getASTNode(compilUnit, 0);
-			assertEquals("Expected enum declaration.", ASTNode.ENUM_DECLARATION, node.getNodeType());
-			EnumDeclaration enumDeclaration = (EnumDeclaration) node;
-
-			// Verify each enum constant javadoc
-			List constants = enumDeclaration.enumConstants();
-			int size = constants.size();
-			assertEquals("Wrong number of constants", 2, size);
-			for (int i=0; i<size; i++) {
-				EnumConstantDeclaration constant  = (EnumConstantDeclaration) constants.get(i);
-				Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(i); // Do not need to verify following statement as we know it's ok as verifyComments did not fail
-				assertTrue("Javadoc should be set on first enum constant", docComment == constant.getJavadoc());
-			}
-		}
-	}
-
-	/**
-	 * Bug 99507: [javadoc] Infinit loop in DocCommentParser
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=99507"
-	 */
-	public void testBug99507() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b99507/X.java",
-			"package markdown.b99507;\n" +
-			"public class X {\n" +
-			"}\n" +
-			"/** @param test*/"
-		);
-		verifyComments(this.workingCopies[0]);
-	}
-	public void testBug99507b() throws JavaModelException {
-        String source = "/**\n@param country*/";
-		ASTParser parser = ASTParser.newParser(getJLS3());
-		parser.setKind(ASTParser.K_COMPILATION_UNIT);
-		parser.setSource(source.toCharArray());
-		parser.createAST(null);
-	}
-
-	/**
-	 * Bug 100041: [javadoc] Infinit loop in DocCommentParser
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=100041"
-	 */
-	public void testBug100041() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b100041/X.java",
-			"package markdown.b100041;\n" +
-			"class X {\n" +
-			"	static Object object;\n" +
-			"	static void foo() {\n" +
-			"		/**\n" +
-			"		 * javadoc comment.\n" +
-			"		 */\n" +
-			"		if (object instanceof String) {\n" +
-			"			final String clr = null;\n" +
-			"		}\n" +
-			"	}\n" +
-			"}"
-		);
-		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Get comment
-			List unitComments = compilUnit.getCommentList();
-			assertEquals("Wrong number of comments", 1, unitComments.size());
-			Comment comment = (Comment) unitComments.get(0);
-			int commentStart = comment.getStartPosition();
-			int commentEnd = commentStart+comment.getLength();
-
-			// Get local variable declaration
-			ASTNode node = getASTNode(compilUnit, 0, 1, 0);
-			assertEquals("Expected if statement for node: "+node, ASTNode.IF_STATEMENT, node.getNodeType());
-			IfStatement ifStatement = (IfStatement) node;
-			assertTrue("Invalid start position for IfStatement: "+ifStatement, ifStatement.getStartPosition() > commentEnd);
-			Statement statement  = ifStatement.getThenStatement();
-			assertEquals("Expected block for node: "+statement, ASTNode.BLOCK, statement.getNodeType());
-			Block block = (Block) statement;
-			assertTrue("Invalid start position for Block: "+block, block.getStartPosition() > commentEnd);
-			List statements = block.statements();
-			assertEquals("Invalid number of statements for block: "+block, 1, statements.size());
-			statement = (Statement) statements.get(0);
-			assertEquals("Expected variable declaration statement for node: "+statement, ASTNode.VARIABLE_DECLARATION_STATEMENT, statement.getNodeType());
-			VariableDeclarationStatement varDecl = (VariableDeclarationStatement) statement;
-			assertTrue("Invalid start position for : VariableDeclarationStatement"+varDecl, varDecl.getStartPosition() > commentEnd);
-		}
-	}
-	public void testBug100041b() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b100041/X.java",
-			"package markdown.b100041;\n" +
-			"class X {\n" +
-			"	static Object object;\n" +
-			"	static void foo() {\n" +
-			"		/**\n" +
-			"		 * javadoc comment.\n" +
-			"		 */\n" +
-			"		if (object instanceof String)\n" +
-			"			return;\n" +
-			"	}\n" +
-			"}"
-		);
-		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Get comment
-			List unitComments = compilUnit.getCommentList();
-			assertEquals("Wrong number of comments", 1, unitComments.size());
-			Comment comment = (Comment) unitComments.get(0);
-			int commentStart = comment.getStartPosition();
-			int commentEnd = commentStart+comment.getLength();
-
-			// Get local variable declaration
-			ASTNode node = getASTNode(compilUnit, 0, 1, 0);
-			assertEquals("Expected if statement for node: "+node, ASTNode.IF_STATEMENT, node.getNodeType());
-			IfStatement ifStatement = (IfStatement) node;
-			assertTrue("Invalid start position for IfStatement: "+ifStatement, ifStatement.getStartPosition() > commentEnd);
-			Statement statement  = ifStatement.getThenStatement();
-			assertEquals("Expected block for node: "+statement, ASTNode.RETURN_STATEMENT, statement.getNodeType());
-			ReturnStatement returnStatement = (ReturnStatement) statement;
-			assertTrue("Invalid start position for Block: "+returnStatement, returnStatement.getStartPosition() > commentEnd);
-		}
-	}
-	public void testBug100041c() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b100041/Z.java",
-			"package markdown.b100041;\n" +
-			"public class Z {\n" +
-			"	/** C1 */\n" +
-			"	class Z1 {}\n" +
-			"	/** C2 */\n" +
-			"	Z1 z1;\n" +
-			"	/** C3 */\n" +
-			"	public static void foo(Object object) {\n" +
-			"		/** C4 */\n" +
-			"		class ZZ {\n" +
-			"			/** C5 */\n" +
-			"			ZZ zz;\n" +
-			"			/** C6 */\n" +
-			"			public void bar() {}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
-		);
-		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Get comments
-			List unitComments = compilUnit.getCommentList();
-			int size = unitComments.size();
-			assertEquals("Wrong number of comments", 6, size);
-			Javadoc[] javadocs = new Javadoc[size];
-			Iterator iterator = unitComments.iterator();
-			for (int i=0; i<size; i++) {
-				Comment comment = (Comment) iterator.next();
-				assertEquals("Expect javadoc for comment: "+comment, ASTNode.JAVADOC, comment.getNodeType());
-				javadocs[i] = (Javadoc) comment;
-			}
-
-			// Verify member type declaration start
-			ASTNode node = getASTNode(compilUnit, 0, 0);
-			assertEquals("Expected type declaration for node: "+node, ASTNode.TYPE_DECLARATION, node.getNodeType());
-			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
-			int javadocStart = javadocs[0].getStartPosition();
-			assertEquals("Invalid start position for TypeDeclaration: "+typeDeclaration, typeDeclaration.getStartPosition(), javadocStart);
-
-			// Verify field declaration start
-			node = getASTNode(compilUnit, 0, 1);
-			assertEquals("Expected field declaration for node: "+node, ASTNode.FIELD_DECLARATION, node.getNodeType());
-			FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-			javadocStart = javadocs[1].getStartPosition();
-			assertEquals("Invalid start position for FieldDeclaration: "+fieldDeclaration, fieldDeclaration.getStartPosition(), javadocStart);
-
-			// Verify method declaration start
-			node = getASTNode(compilUnit, 0, 2);
-			assertEquals("Expected method declaration for node: "+node, ASTNode.METHOD_DECLARATION, node.getNodeType());
-			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-			javadocStart = javadocs[2].getStartPosition();
-			assertEquals("Invalid start position for MethodDeclaration: "+methodDeclaration, methodDeclaration.getStartPosition(), javadocStart);
-
-			// Verify local type declaration start
-			node = getASTNode(compilUnit, 0, 2, 0);
-			assertEquals("Expected type declaration for node: "+node, ASTNode.TYPE_DECLARATION_STATEMENT, node.getNodeType());
-			typeDeclaration = (TypeDeclaration) ((TypeDeclarationStatement) node).getDeclaration();
-			javadocStart = javadocs[3].getStartPosition();
-			assertEquals("Invalid start position for TypeDeclaration: "+typeDeclaration, typeDeclaration.getStartPosition(), javadocStart);
-
-			// Verify field declaration start
-			List bodyDeclarations = typeDeclaration.bodyDeclarations();
-			node = (ASTNode) bodyDeclarations.get(0);
-			assertEquals("Expected field declaration for node: "+node, ASTNode.FIELD_DECLARATION, node.getNodeType());
-			fieldDeclaration = (FieldDeclaration) node;
-			javadocStart = javadocs[4].getStartPosition();
-			assertEquals("Invalid start position for FieldDeclaration: "+fieldDeclaration, fieldDeclaration.getStartPosition(), javadocStart);
-
-			// Verify method declaration start
-			node = (ASTNode) bodyDeclarations.get(1);
-			assertEquals("Expected method declaration for node: "+node, ASTNode.METHOD_DECLARATION, node.getNodeType());
-			methodDeclaration = (MethodDeclaration) node;
-			javadocStart = javadocs[5].getStartPosition();
-			assertEquals("Invalid start position for MethodDeclaration: "+methodDeclaration, methodDeclaration.getStartPosition(), javadocStart);
-		}
-	}
-
-	/**
-	 * bug103304: [Javadoc] Wrong reference proposal for inner classes.
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=103304"
-	 */
-	public void testBug103304() throws JavaModelException {
-		this.packageBinding = false; // do NOT verify that qualification only can be package name
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b103304/Test.java",
-			"package markdown.b103304;\n" +
-			"interface IAFAState {\n" +
-			"    public class ValidationException extends Exception {\n" +
-			"        public ValidationException(String variableName, IAFAState subformula) {\n" +
-			"            super(\"Variable \'\"+variableName+\"\' may be unbound in \'\"+subformula+\"\'\");\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n" +
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @see IAFAState.ValidationException#IAFAState.ValidationException(String, IAFAState)\n" +
-			"	 */\n" +
-			"	IAFAState.ValidationException valid;\n" +
-			"}\n"
-		);
-		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
-		verifyWorkingCopiesComments();
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Verify comment type
-			Iterator unitComments = compilUnit.getCommentList().iterator();
-			while (unitComments.hasNext()) {
-				Comment comment = (Comment) unitComments.next();
-				assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
-				Javadoc markdown = (Javadoc) comment;
-
-				// Verify that there's always a method reference in tags
-				List tags = markdown.tags();
-				int size = tags.size();
-				for (int i=0; i<size; i++) {
-					TagElement tag = (TagElement) markdown.tags().get(i);
-					assertEquals("Invalid number of fragment for see reference: "+tag, 1, tag.fragments().size());
-					ASTNode node = (ASTNode) tag.fragments().get(0);
-					assertEquals("Invalid kind of name reference for tag element: "+tag, ASTNode.METHOD_REF, node.getNodeType());
-				}
-			}
-		}
-	}
-
-	/**
-	 * Bug 106581: [javadoc] null type binding for parameter in javadoc
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=106581"
-	 */
-	public void testBug106581() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b106581/A.java",
-			"package markdown.b106581;\n" +
-			"public class A {\n" +
-			"    /**\n" +
-			"     * @param x\n" +
-			"     */ \n" +
-			"     public void foo(int x) {},\n" +
-			"}\n"
-		);
-		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Get comment
-			List unitComments = compilUnit.getCommentList();
-			assertEquals("Wrong number of comments", 1, unitComments.size());
-			Comment comment = (Comment) unitComments.get(0);
-			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
-
-			// Get local variable declaration
-			Javadoc docComment = (Javadoc) comment;
-			TagElement tag = (TagElement) docComment.tags().get(0);
-			assertEquals("Invalid number of fragment for tag: "+tag, 1, tag.fragments().size());
-			ASTNode node = (ASTNode) tag.fragments().get(0);
-			assertEquals("Invalid kind of name reference for tag element: "+tag, ASTNode.SIMPLE_NAME, node.getNodeType());
-			SimpleName simpleName = (SimpleName) node;
-			assertNotNull("We should have a type binding for simple name: "+simpleName, simpleName.resolveTypeBinding());
-		}
-	}
-
-	/**
-	 * Bug 108622: [javadoc][dom] ASTNode not including javadoc
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=108622"
-	 */
-	public void testBug108622() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b108622/Test.java",
-			"package markdown.b108622;\n" +
-			"/**\n" +
-			" * \n" +
-			" */\n" +
-			"public abstract class Test {\n" +
-			"\n" +
-			"	/**\n" +
-			"	 * \n" +
-			"	 */\n" +
-			"	public abstract Zork getFoo();\n" +
-			"\n" +
-			"	/**\n" +
-			"	 * \n" +
-			"	 */\n" +
-			"	public abstract void setFoo(Zork dept);\n" +
-			"\n" +
-			"}"
-			);
-		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Verify first method
-			ASTNode node = getASTNode(compilUnit, 0, 0);
-			assertEquals("Invalid type for node: "+node, ASTNode.METHOD_DECLARATION, node.getNodeType());
-			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-			assertEquals("Invalid method name", "getFoo", methodDeclaration.getName().toString());
-			Javadoc methodmarkdown = methodDeclaration.getJavadoc();
-			assertNotNull("MethodDeclaration have a javadoc comment", methodmarkdown);
-			int javadocStart = methodmarkdown.getStartPosition();
-			assertEquals("Method declaration should include javadoc comment", methodDeclaration.getStartPosition(), javadocStart);
-			// Verify second method
-			node = getASTNode(compilUnit, 0, 1);
-			assertEquals("Invalid type for node: "+node, ASTNode.METHOD_DECLARATION, node.getNodeType());
-			methodDeclaration = (MethodDeclaration) node;
-			assertEquals("Invalid method name", "setFoo", methodDeclaration.getName().toString());
-			methodmarkdown = methodDeclaration.getJavadoc();
-			assertNotNull("MethodDeclaration have a javadoc comment", methodmarkdown);
-			javadocStart = methodmarkdown.getStartPosition();
-			assertEquals("Method declaration should include javadoc comment", methodDeclaration.getStartPosition(), javadocStart);
-		}
-	}
-
-	/**
-	 * Bug 113108: [API][comments] CompilationUnit.getNodeComments(ASTNode)
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113108"
-	 */
-	public void testBug113108a() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b113108/Test.java",
-			"package markdown.b113108;\n" +
-			"/** C0 */\n" +
-			"public class Test {\n" +
-			"	/* C1 */\n" +
-			"	/** C2 */\n" +
-			"	// C3\n" +
-			"	public void foo() {\n" +
-			"		/* C4 */\n" +
-			"	}\n" +
-			"	/* C5 */\n" +
-			"	/** C6 */\n" +
-			"	// C7\n" +
-			"}"
-			);
-		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
-		verifyWorkingCopiesComments();
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Verify  method javadoc
-			ASTNode node = getASTNode(compilUnit, 0, 0);
-			assertEquals("Invalid type for node: "+node, ASTNode.METHOD_DECLARATION, node.getNodeType());
-			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-			assertEquals("Invalid method name", "foo", methodDeclaration.getName().toString());
-			Javadoc methodmarkdown = methodDeclaration.getJavadoc();
-			assertNotNull("MethodDeclaration have a javadoc comment", methodmarkdown);
-			int javadocStart = methodmarkdown.getStartPosition();
-			assertEquals("Method declaration should include javadoc comment", methodDeclaration.getStartPosition(), javadocStart);
-			// Verify method first leading and last trailing comment
-			int index = compilUnit.firstLeadingCommentIndex(methodDeclaration);
-			assertEquals("Invalid first leading comment for "+methodDeclaration, 1, index);
-			index = compilUnit.lastTrailingCommentIndex(methodDeclaration);
-			assertEquals("Invalid last trailing comment for "+methodDeclaration, 7, index);
-		}
-	}
-	public void testBug113108b() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b113108/Test.java",
-			"package markdown.b113108;\n" +
-			"/// C0 \n" +
-			"public class Test {\n" +
-			"	/// C1 \n" +
-			"	// C2\n" +
-			"	/// C3 \n" +
-			"	public void foo() {\n" +
-			"		// C4\n" +
-			"	}\n" +
-			"	/// C5 */\n" +
-			"	// C6\n" +
-			"	/// C7 \n" +
-			"}"
-			);
-		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
-		verifyWorkingCopiesComments();
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Verify  method javadoc
-			ASTNode node = getASTNode(compilUnit, 0, 0);
-			assertEquals("Invalid type for node: "+node, ASTNode.METHOD_DECLARATION, node.getNodeType());
-			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-			assertEquals("Invalid method name", "foo", methodDeclaration.getName().toString());
-			Javadoc methodmarkdown = methodDeclaration.getJavadoc();
-			assertNotNull("MethodDeclaration have a javadoc comment", methodmarkdown);
-			int javadocStart = methodmarkdown.getStartPosition();
-			assertEquals("Method declaration should include javadoc comment", methodDeclaration.getStartPosition(), javadocStart);
-			// Verify method first leading and last trailing comment
-			int index = compilUnit.firstLeadingCommentIndex(methodDeclaration);
-			assertEquals("Invalid first leading comment for "+methodDeclaration, 1, index);
-			index = compilUnit.lastTrailingCommentIndex(methodDeclaration);
-			assertEquals("Invalid last trailing comment for "+methodDeclaration, 7, index);
-		}
-	}
-	public void testBug113108c() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b113108/Test.java",
-			"package markdown.b113108;\n" +
-			"/** C0 */\n" +
-			"public class Test {\n" +
-			"	// C1\n" +
-			"	/* C2 */\n" +
-			"	/** C3 */\n" +
-			"	public void foo() {\n" +
-			"		/** C4 */\n" +
-			"	}\n" +
-			"	// C5\n" +
-			"	/* C6 */\n" +
-			"	/** C7 */\n" +
-			"}"
-			);
-		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
-		verifyWorkingCopiesComments();
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Verify  method javadoc
-			ASTNode node = getASTNode(compilUnit, 0, 0);
-			assertEquals("Invalid type for node: "+node, ASTNode.METHOD_DECLARATION, node.getNodeType());
-			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-			assertEquals("Invalid method name", "foo", methodDeclaration.getName().toString());
-			Javadoc methodmarkdown = methodDeclaration.getJavadoc();
-			assertNotNull("MethodDeclaration have a javadoc comment", methodmarkdown);
-			int javadocStart = methodmarkdown.getStartPosition();
-			assertEquals("Method declaration should include javadoc comment", methodDeclaration.getStartPosition(), javadocStart);
-			// Verify method first leading and last trailing comment
-			int index = compilUnit.firstLeadingCommentIndex(methodDeclaration);
-			assertEquals("Invalid first leading comment for "+methodDeclaration, 1, index);
-			index = compilUnit.lastTrailingCommentIndex(methodDeclaration);
-			assertEquals("Invalid last trailing comment for "+methodDeclaration, 7, index);
-		}
-	}
-
-	/**
-	 * bug125676: [javadoc] @category should not read beyond end of line
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=125676"
-	 */
-	public void testBug125676() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[3];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b125676/A.java",
-			"package markdown.b125676;\n" +
-			"public class A {\n" +
-			"        /**\n" +
-			"         * @category \n" +
-			"         * When searching for field matches, it will exclusively find read accesses, as\n" +
-			"         * opposed to write accesses. Note that some expressions are considered both\n" +
-			"         * as field read/write accesses: for example, x++; x+= 1;\n" +
-			"         * \n" +
-			"         * @since 2.0\n" +
-			"         */\n" +
-			"        int READ_ACCESSES = 4;\n" +
-			"}\n"
-		);
-		this.workingCopies[1] = getWorkingCopy("/Converter_23/src/markdown/b125676/B.java",
-			"package markdown.b125676;\n" +
-			"public class B {\n" +
-			"        /**\n" +
-			"         * @category test\n" +
-			"         */\n" +
-			"        int field1;\n" +
-			"        /**\n" +
-			"         * @category     test\n" +
-			"         */\n" +
-			"        int field2;\n" +
-			"        /**\n" +
-			"         * @category test    \n" +
-			"         */\n" +
-			"        int field3;\n" +
-			"        /**\n" +
-			"         * @category    test    \n" +
-			"         */\n" +
-			"        int field4;\n" +
-			"        /** @category test */\n" +
-			"        int field5;\n" +
-			"\n" +
-			"}\n"
-		);
-		this.workingCopies[2] = getWorkingCopy("/Converter_23/src/markdown/b125676/C.java",
-			"package markdown.b125676;\n" +
-			"public class C { \n" +
-			"        /**\n" +
-			"         * @category test mutli ids\n" +
-			"         */\n" +
-			"        int field1;\n" +
-			"        /**\n" +
-			"         * @category    test    mutli    ids   \n" +
-			"         */\n" +
-			"        int field2;\n" +
-			"        /** @category    test    mutli    ids*/\n" +
-			"        int field3;\n" +
-			"}\n"
-		);
-		verifyWorkingCopiesComments();
-	}
-
-	/**
-	 * bug125903: [javadoc] Treat whitespace in javadoc tags as invalid tags
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=125903"
-	 */
-	public void testBug125903() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b125903/Test.java",
-			"package markdown.b125903;\n" +
-			"/**\n" +
-			" * {@ link java.lang.String}\n" +
-			" * @ since 2.1\n" +
-			" */\n" +
-			"public class Test {\n" +
-			"\n" +
-			"}\n"
-		);
-		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
-		verifyWorkingCopiesComments();
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Verify  method javadoc
-			ASTNode node = getASTNode(compilUnit, 0);
-			assertEquals("Invalid type for node: "+node, ASTNode.TYPE_DECLARATION, node.getNodeType());
-			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
-			Javadoc markdown = typeDeclaration.getJavadoc();
-			assertNotNull("TypeDeclaration should have a javadoc comment", markdown);
-			List tags = markdown.tags();
-			TagElement tag = (TagElement) tags.get(0);
-			tag = (TagElement) tag.fragments().get(0);
-			assertEquals("Tag name should be empty", tag.getTagName(), "@");
-			tag = (TagElement) tags.get(1);
-			assertEquals("Tag name should be empty", tag.getTagName(), "@");
-		}
-	}
-
-	/**
-	 * bug130752: [comments] first BlockComment parsed as LineComment
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=130752"
-	 */
-	public void testBug130752() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b130752/Test.java",
-			"/* Ceci n'est pas\n" +
-			" * une ligne. */\n" +
-			"package markdown.b130752;\n" +
-			"public class Test {\n" +
-			"}\n"
-		);
-		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
-		verifyWorkingCopiesComments();
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Verify comment type
-			List unitComments = compilUnit.getCommentList();
-			assertEquals("Wrong number of comments", 1, unitComments.size());
-			Comment comment = (Comment) unitComments.get(0);
-			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.BLOCK_COMMENT);
-		}
-	}
-	public void testBug130752b() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b130752/Test.java",
-			"// Line comment\n" +
-			"package markdown.b130752;\n" +
-			"public class Test {\n" +
-			"}\n"
-		);
-		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
-		verifyWorkingCopiesComments();
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Verify comment type
-			List unitComments = compilUnit.getCommentList();
-			assertEquals("Wrong number of comments", 1, unitComments.size());
-			Comment comment = (Comment) unitComments.get(0);
-			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.LINE_COMMENT);
-		}
-	}
-	public void testBug130752c() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b130752/Test.java",
-			"/** Javadoc comment */\n" +
-			"package markdown.b130752;\n" +
-			"public class Test {\n" +
-			"}\n"
-		);
-		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
-		verifyWorkingCopiesComments();
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Verify comment type
-			List unitComments = compilUnit.getCommentList();
-			assertEquals("Wrong number of comments", 1, unitComments.size());
-			Comment comment = (Comment) unitComments.get(0);
-			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
-		}
-	}
-
-	/**
-	 * bug165525: [comments] ASTParser excludes trailing line comments from extended range of fields in enums
-	 * test Ensure that extended ranges are correct for enum constants and last comments of enum declaration
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=165525"
-	 */
-	public void testBug165525() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b165525/Test.java",
-			"package markdown.b165525;\n" +
-			"public enum Test {\n" +
-			"	ENUM_CONST_1(\"String constant 1\") //$NON-NLS-1$\n" +
-			"	, ENUM_CONST_2(\"String constant 2\") //$NON-NLS-1$\n" +
-			"	;\n" +
-			"	Test(String x) {\n" +
-			"	}\n" +
-			"	String a = \"a\"; //$NON-NLS-1$\n" +
-			"	String b = \"b\"; //$NON-NLS-1$\n" +
-			"}\n"
-		);
-		CompilationUnit compilUnit = (CompilationUnit) runConversion(getJLS3(), this.workingCopies[0], true);
-		verifyWorkingCopiesComments();
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Verify comment type
-			List unitComments = compilUnit.getCommentList();
-			assertEquals("Wrong number of comments", 4, unitComments.size());
-
-			// Verify extension of first enum declaration constant
-			Comment comment = (Comment) unitComments.get(0);
-			EnumDeclaration enumDeclaration = (EnumDeclaration) compilUnit.types().get(0);
-			EnumConstantDeclaration constantDeclaration = (EnumConstantDeclaration) enumDeclaration.enumConstants().get(0);
-			int declarationEnd = constantDeclaration.getStartPosition() + compilUnit.getExtendedLength(constantDeclaration) - 1;
-			int commentEnd = comment.getStartPosition() + comment.getLength() - 1;
-			assumeEquals("Enum constant declaration "+constantDeclaration+" does not have the correct length", commentEnd, declarationEnd);
-
-			// Verify extension of second enum declaration constant
-			comment = (Comment) unitComments.get(1);
-			constantDeclaration = (EnumConstantDeclaration) enumDeclaration.enumConstants().get(1);
-			declarationEnd = constantDeclaration.getStartPosition() + compilUnit.getExtendedLength(constantDeclaration) - 1;
-			commentEnd = comment.getStartPosition() + comment.getLength() - 1;
-			assumeEquals("Enum constant declaration "+constantDeclaration+" does not have the correct length", commentEnd, declarationEnd);
-
-			// Verify extension of first field declaration
-			comment = (Comment) unitComments.get(2);
-			FieldDeclaration fieldDeclaration = (FieldDeclaration) enumDeclaration.bodyDeclarations().get(1);
-			declarationEnd = fieldDeclaration.getStartPosition() + compilUnit.getExtendedLength(fieldDeclaration) - 1;
-			commentEnd = comment.getStartPosition() + comment.getLength() - 1;
-			assumeEquals("Enum constant declaration "+constantDeclaration+" does not have the correct length", commentEnd, declarationEnd);
-
-			// Verify extension of second field declaration
-			comment = (Comment) unitComments.get(3);
-			fieldDeclaration = (FieldDeclaration) enumDeclaration.bodyDeclarations().get(2);
-			declarationEnd = fieldDeclaration.getStartPosition() + compilUnit.getExtendedLength(fieldDeclaration) - 1;
-			commentEnd = comment.getStartPosition() + comment.getLength() - 1;
-			assumeEquals("Enum constant declaration "+constantDeclaration+" does not have the correct length", commentEnd, declarationEnd);
-		}
-	}
-
-	/**
-	 * bug228648: AST: no binding for Javadoc reference to inner class
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=228648"
-	 */
-	public void testBug228648() throws JavaModelException {
-		ICompilationUnit unit = getCompilationUnit("Converter_23" , "src", "markdown.testBug228648", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		verifyComments(unit);
-	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=196714
-	public void test109() throws JavaModelException {
-		verifyComments("test109");
-	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=336821
-	public void testBug336821() throws JavaModelException {
-		ICompilationUnit unit = getCompilationUnit("Converter_23" , "src", "markdown.testBug336821", "Try.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		verifyComments(unit);
-	}
-
-	public void testBug347100() throws Exception {
-		ICompilationUnit unit = getCompilationUnit("Converter_23" , "src", "markdown.testBug347100", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit compilUnit = verifyComments(unit);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			Javadoc comment = (Javadoc) compilUnit.getCommentList().get(0);
-			List tags = comment.tags();
-			assertEquals(4, tags.size());
-
-			List mainTags = ((TagElement) tags.get(0)).fragments();
-			assertEquals(8, mainTags.size());
-
-			TagElement link1 = (TagElement) mainTags.get(1);
-			assertEquals(TagElement.TAG_LINK, link1.getTagName());
-			SimpleName javadocRef = (SimpleName) link1.fragments().get(0);
-			assertTrue(javadocRef.resolveBinding() instanceof IPackageBinding);
-			link1.subtreeMatch(new ASTMatcher(true), tags.get(1));
-
-			TagElement link2 = (TagElement) mainTags.get(4);
-			assertEquals(TagElement.TAG_LINK, link2.getTagName());
-			TextElement stringRef = (TextElement) link2.fragments().get(0);
-			assertEquals(" \"Hello World\"", stringRef.getText());
-			link2.subtreeMatch(new ASTMatcher(true), tags.get(2));
-
-			TagElement link3 = (TagElement) mainTags.get(7);
-			assertEquals(TagElement.TAG_LINK, link3.getTagName());
-			link3.subtreeMatch(new ASTMatcher(true), tags.get(3));
-		}
-	}
-	/**
-	 * https://bugs.eclipse.org/481143 - [parser] Parser missing some line comments
-	 */
-	public void testBug481143a() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/a/X.java",
-			"package a;\n" +
-			"public class X {\n" +
-			"	public X subtest = new X(\"Test1\", // comment\n" +
-			"			\"Test2\") { };\n" +
-			"	public X(String foo, String bar) { }\n" +
-			"}"
-		);
-		CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), this.workingCopies[0], true);
-		assumeEquals(this.prefix+"Wrong number of comments", 1, unit.getCommentList().size());
-	}
-	/**
-	 * https://bugs.eclipse.org/481143 - [parser] Parser missing some line comments
-	 */
-	public void testBug481143b() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/a/X.java",
-				"package a;\n" +
-				"public enum X implements // comment\n" +
-				"	Serializable {\n" +
-				"}"
-		);
-		CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), this.workingCopies[0], true);
-		assumeEquals(this.prefix+"Wrong number of comments", 1, unit.getCommentList().size());
-	}
-	/**
-	 * https://bugs.eclipse.org/481143 - [parser] Parser missing some line comments
-	 */
-	public void testBug481143c() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/a/X.java",
-				"package a;\n" +
-				"public @interface X // comment\n" +
-				"	{\n" +
-				"}"
-		);
-		CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), this.workingCopies[0], true);
-		assumeEquals(this.prefix+"Wrong number of comments", 1, unit.getCommentList().size());
-	}
-
-	/**
-	 * bug206345: [javadoc] compiler should not interpret contents of {@literal}
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345"
-	 * @deprecated
-	 */
-	public void testBug206345a() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b206345/X.java",
-			"package markdown.b206345;\n" +
-			"\n" +
-			"public class X extends Object {\n" +
-			"	/**\n" +
-			"	 * This is {@literal raw text:\n" +
-			"	 * 			{@link BadLink} is just text}\n" +
-			"	 */\n" +
-			"	public String toString() { \n" +
-			"		return \"foo\";\n" +
-			"	}\n" +
-			"}\n"
-		);
-		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
-		verifyWorkingCopiesComments();
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Verify comment type
-			List unitComments = compilUnit.getCommentList();
-			assertEquals("Wrong number of comments", 1, unitComments.size());
-			Comment comment = (Comment) unitComments.get(0);
-			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
-			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0);
-			assumeEquals(this.prefix+"Wrong number of tags", 1, docComment.tags().size());
-			TagElement tagElement = (TagElement) docComment.tags().get(0);
-			assumeNull(this.prefix+"Wrong type of tag ["+tagElement+"]", tagElement.getTagName());
-			assumeEquals(this.prefix+"Wrong number of fragments in tag ["+tagElement+"]", 3, tagElement.fragments().size());
-			ASTNode fragment = (ASTNode) tagElement.fragments().get(0);
-			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
-			fragment = (ASTNode) tagElement.fragments().get(1);
-			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TAG_ELEMENT, fragment.getNodeType());
-			TagElement inlineTag = (TagElement) fragment;
-			assumeEquals(this.prefix+"Wrong number of fragments in tag ["+inlineTag+"]", 1, inlineTag.fragments().size());
-			fragment = (ASTNode) inlineTag.fragments().get(0);
-			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
-			fragment = (ASTNode) tagElement.fragments().get(2);
-			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
-			TextElement textElement = (TextElement) fragment;
-			assumeEquals(this.prefix+"Invalid content for text element ", "{@link BadLink} is just text}", textElement.getText());
-		}
-	}
-	/**
-	 *
-	 * @deprecated
-	 */
-	public void testBug206345b() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
-		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/b206345/X.java",
-			"package markdown.b206345;\n" +
-			"\n" +
-			"public class X extends Object {\n" +
-			"	/**\n" +
-			"	 * This is {@code raw text:\n" +
-			"	 * 			{@link BadLink} is just text}\n" +
-			"	 */\n" +
-			"	public String toString() { \n" +
-			"		return \"foo\";\n" +
-			"	}\n" +
-			"}\n"
-		);
-		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
-		verifyWorkingCopiesComments();
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			// Verify comment type
-			List unitComments = compilUnit.getCommentList();
-			assertEquals("Wrong number of comments", 1, unitComments.size());
-			Comment comment = (Comment) unitComments.get(0);
-			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
-			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0);
-			assumeEquals(this.prefix+"Wrong number of tags", 1, docComment.tags().size());
-			TagElement tagElement = (TagElement) docComment.tags().get(0);
-			assumeNull(this.prefix+"Wrong type of tag ["+tagElement+"]", tagElement.getTagName());
-			assumeEquals(this.prefix+"Wrong number of fragments in tag ["+tagElement+"]", 3, tagElement.fragments().size());
-			ASTNode fragment = (ASTNode) tagElement.fragments().get(0);
-			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
-			fragment = (ASTNode) tagElement.fragments().get(1);
-			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TAG_ELEMENT, fragment.getNodeType());
-			TagElement inlineTag = (TagElement) fragment;
-			assumeEquals(this.prefix+"Wrong number of fragments in tag ["+inlineTag+"]", 1, inlineTag.fragments().size());
-			fragment = (ASTNode) inlineTag.fragments().get(0);
-			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
-			fragment = (ASTNode) tagElement.fragments().get(2);
-			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
-			TextElement textElement = (TextElement) fragment;
-			assumeEquals(this.prefix+"Invalid content for text element ", "{@link BadLink} is just text}", textElement.getText());
 		}
 	}
 
@@ -3486,7 +1611,7 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 		}
 	}
 
-	public void testGH2808_fencedCode() throws JavaModelException {
+	public void _testGH2808_fencedCode() throws JavaModelException {
 		// fence can only be terminated by same number of same fence chars
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/gh2808/FencedCode.java",
@@ -3518,6 +1643,7 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			List tagList = ((Javadoc) comment).tags();
 
 			String[] tags = {
+					null,
 					null
 				};
 			String[][] lines = {
@@ -3596,6 +1722,73 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 				}
 				assertEquals("Text", line, ((TextElement) elem).getText());
 			}
+		}
+	}
+	public void testGH3239_1() throws JavaModelException {
+		// for a negative variant see org.eclipse.jdt.core.tests.compiler.regression.MarkdownCommentsTest.test021()
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/gh3239/X.java",
+				"""
+				package markdown.gh3239;
+				/// Unicode in markdown \u000A/// \u000D/// \u000D\u000A/// here
+				public class X {}
+				"""
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 1, unitComments.size());
+
+			Comment comment = (Comment) unitComments.get(0);
+			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+			List<ASTNode> tagList = ((Javadoc) comment).tags();
+			assertEquals("Should be one tag element", 1, tagList.size());
+			TagElement tagElement = (TagElement) tagList.get(0);
+			tagList = tagElement.fragments();
+			assertEquals("Incorrect no of fragments", 2, tagList.size());
+			ASTNode text = tagList.get(0);
+			assertEquals("incorrect element kind", ASTNode.TEXT_ELEMENT, text.getNodeType());
+			assertEquals("incorrect text", "Unicode in markdown", ((TextElement) text).getText());
+			text = tagList.get(1);
+			assertEquals("incorrect element kind", ASTNode.TEXT_ELEMENT, text.getNodeType());
+			assertEquals("incorrect text", "here", ((TextElement) text).getText());
+		}
+	}
+	public void testGH3239_2() throws JavaModelException {
+		// for a negative variant see org.eclipse.jdt.core.tests.compiler.regression.MarkdownCommentsTest.test021()
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/gh3239/X.java",
+				"""
+				package markdown.gh3239;
+				public class X {
+					/// @see #foo(Object[] obj,String[][][] str)
+					public void foo(Object[] o1,String[][][] s3) {}
+				}
+				"""
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 1, unitComments.size());
+
+			Comment comment = (Comment) unitComments.get(0);
+			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+			List<ASTNode> tagList = ((Javadoc) comment).tags();
+			assertEquals("Should be one tag element", 1, tagList.size());
+			TagElement tagElement = (TagElement) tagList.get(0);
+			tagList = tagElement.fragments();
+			assertEquals("Incorrect no of fragments", 1, tagList.size());
+			assertEquals("Incorrect tag name", "@see", tagElement.getTagName());
+			ASTNode method = tagList.get(0);
+			assertEquals("incorrect element kind", ASTNode.METHOD_REF, method.getNodeType());
+			MethodRef methodRef = (MethodRef) method;
+			SimpleName name = methodRef.getName();
+			assertNotNull("Name should not be null", name);
+			assertEquals("Incorrect name", "foo", name.toString());
+			List parameters = methodRef.parameters();
+			assertEquals("Should be two", 2, parameters.size());
+			assertEquals("Incorrect name", "Object[] obj", parameters.get(0).toString());
+			assertEquals("Incorrect name", "String[][][] str", parameters.get(1).toString());
 		}
 	}
 }

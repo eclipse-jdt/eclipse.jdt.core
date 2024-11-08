@@ -1,12 +1,9 @@
-package javadoc.test004;
-import java.util.*;
+package markdown.test004;
 public class Test {
-/// 
-/// @see #foo(List)
-/// @see Test#foo(List)
-/// @see javadoc.test004.Test#foo(List)
-///
-public void foo(List v) {
-	List vs;
+/// @see #foo(String)
+/// @see Test#foo(String)
+/// @see markdown.test004.Test#foo(String)
+public void foo(String v) {
+	String vs;
 }
 }

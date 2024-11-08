@@ -9470,7 +9470,7 @@ protected void consumeCaseLabelExpr() {
 	if (!this.parsingJava14Plus) {
 		problemReporter().arrowInCaseStatementsNotSupported(caseStatement);
 	}
-	caseStatement.isExpr = true;
+	caseStatement.isSwitchRule = true;
 }
 protected void consumeDefaultLabelExpr() {
 //	SwitchLabelDefaultExpr ::= 'default' '->'
@@ -9479,88 +9479,7 @@ protected void consumeDefaultLabelExpr() {
 	if (!this.parsingJava14Plus) {
 		problemReporter().arrowInCaseStatementsNotSupported(defaultStatement);
 	}
-	defaultStatement.isExpr = true;
-}
-protected void collectResultExpressionsYield(SwitchExpression s) {
-	if (s.resultExpressions != null)
-		return; // already calculated.
-
-	class ResultExpressionsCollector extends ASTVisitor {
-		Stack<SwitchExpression> targetSwitchExpressions;
-		Stack<TryStatement> tryStatements;
-		public ResultExpressionsCollector(SwitchExpression se) {
-			if (this.targetSwitchExpressions == null)
-				this.targetSwitchExpressions = new Stack<>();
-			this.targetSwitchExpressions.push(se);
-		}
-		@Override
-		public boolean visit(SwitchExpression switchExpression, BlockScope blockScope) {
-			if (switchExpression.resultExpressions == null)
-				switchExpression.resultExpressions = new ArrayList<>(0);
-			this.targetSwitchExpressions.push(switchExpression);
-			return false;
-		}
-		@Override
-		public void endVisit(SwitchExpression switchExpression,	BlockScope blockScope) {
-			this.targetSwitchExpressions.pop();
-		}
-		@Override
-		public boolean visit(YieldStatement yieldStatement, BlockScope blockScope) {
-			SwitchExpression targetSwitchExpression = this.targetSwitchExpressions.peek();
-			if (yieldStatement.expression != null) {
-				targetSwitchExpression.resultExpressions.add(yieldStatement.expression);
-				yieldStatement.switchExpression = this.targetSwitchExpressions.peek();
-			} else {
-				// flag an error while resolving
-				yieldStatement.switchExpression = targetSwitchExpression;
-			}
-			return true;
-		}
-		@Override
-		public boolean visit(SwitchStatement stmt, BlockScope blockScope) {
-			return true;
-		}
-		@Override
-		public boolean visit(TypeDeclaration stmt, BlockScope blockScope) {
-			return false;
-		}
-		@Override
-		public boolean visit(LambdaExpression stmt, BlockScope blockScope) {
-			return false;
-		}
-		@Override
-		public boolean visit(TryStatement stmt, BlockScope blockScope) {
-			if (this.tryStatements == null)
-				this.tryStatements = new Stack<>();
-			this.tryStatements.push(stmt);
-			SwitchExpression targetSwitchExpression = this.targetSwitchExpressions.peek();
-			targetSwitchExpression.containsTry = true;
-			return true;
-		}
-		@Override
-		public void endVisit(TryStatement stmt, BlockScope blockScope) {
-			this.tryStatements.pop();
-		}
-	}
-	s.resultExpressions = new ArrayList<>(0); // indicates processed
-	int l = s.statements == null ? 0 : s.statements.length;
-	for (int i = 0; i < l; ++i) {
-		Statement stmt = s.statements[i];
-		if (stmt instanceof CaseStatement caseStatement) {
-			if (!caseStatement.isExpr) continue;
-			stmt = s.statements[++i];
-			if (stmt instanceof Expression expression && expression.isTrulyExpression()) {
-				s.resultExpressions.add(expression);
-				continue;
-			} else if (stmt instanceof ThrowStatement) {
-				// TODO: Throw Expression Processing. Anything to be done here for resolve?
-				continue;
-			}
-		}
-		// break statement and block statement of SwitchLabelRule or block statement of ':'
-		ResultExpressionsCollector reCollector = new ResultExpressionsCollector(s);
-		stmt.traverse(reCollector, null);
-	}
+	defaultStatement.isSwitchRule = true;
 }
 protected void consumeSwitchExpression() {
 // SwitchExpression ::= 'switch' '(' Expression ')' OpenBlock SwitchExpressionBlock
@@ -9571,7 +9490,6 @@ protected void consumeSwitchExpression() {
 		if (!this.parsingJava14Plus) {
 			problemReporter().switchExpressionsNotSupported(s);
 		}
-		collectResultExpressionsYield(s);
 		pushOnExpressionStack(s);
 	}
 }

@@ -1459,10 +1459,10 @@ class ASTConverter {
 			}
 		}
 		if (this.ast.apiLevel >= AST.JLS14_INTERNAL) {
-			switchCase.setSwitchLabeledRule(statement.isExpr);
+			switchCase.setSwitchLabeledRule(statement.isSwitchRule);
 		}
 		switchCase.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
-		if (statement.isExpr) {
+		if (statement.isSwitchRule) {
 			retrieveArrowPosition(switchCase);
 		} else {
 			retrieveColonPosition(switchCase);
@@ -1542,8 +1542,6 @@ class ASTConverter {
 			org.eclipse.jdt.internal.compiler.ast.ImportReference[] imports = unit.imports;
 			if (imports != null) {
 				for (ImportReference importReference : imports) {
-					if (importReference.isImplicit())
-						continue;
 					compilationUnit.imports().add(convertImport(importReference));
 				}
 			}

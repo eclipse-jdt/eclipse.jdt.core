@@ -244,6 +244,10 @@ protected void updateFlowOnBooleanResult(FlowInfo flowInfo, boolean result) {
 	// nop
 }
 
+public boolean hasSideEffects() {
+	return (this.constant == Constant.NotAConstant || (this.implicitConversion & TypeIds.BOXING) != 0) && !(this instanceof NullLiteral);
+}
+
 /**
  * Returns false if cast is not legal.
  */
@@ -1100,6 +1104,10 @@ public StringBuilder print(int indent, StringBuilder output) {
 
 public abstract StringBuilder printExpression(int indent, StringBuilder output);
 
+public StringBuilder printExpression(int tab, StringBuilder output, boolean makeShort) {
+	return printExpression(tab, output);
+}
+
 @Override
 public StringBuilder printStatement(int indent, StringBuilder output) {
 	return print(indent, output).append(";"); //$NON-NLS-1$
@@ -1236,7 +1244,7 @@ public boolean forcedToBeRaw(ReferenceContext referenceContext) {
 		}
 	} else if (this instanceof SwitchExpression) {
 		SwitchExpression se = (SwitchExpression) this;
-		for (Expression e : se.resultExpressions) {
+		for (Expression e : se.resultExpressions()) {
 			if (e.forcedToBeRaw(referenceContext))
 				return true;
 		}
@@ -1246,7 +1254,7 @@ public boolean forcedToBeRaw(ReferenceContext referenceContext) {
 
 /**
  * Returns an object which can be used to identify identical JSR sequence targets
- * (see TryStatement subroutine codegen)
+ * (see TryStatement finally block codegen)
  * or <code>null</code> if not reusable
  */
 public Object reusableJSRTarget() {

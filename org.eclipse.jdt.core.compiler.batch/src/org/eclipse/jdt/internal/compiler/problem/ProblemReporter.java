@@ -1669,9 +1669,6 @@ public int computeSeverity(int problemID){
 
 	switch (problemID) {
 		case IProblem.VarargsConflict :
- 		case IProblem.SwitchExpressionsYieldUnqualifiedMethodWarning:
- 		case IProblem.SwitchExpressionsYieldRestrictedGeneralWarning:
- 		case IProblem.SwitchExpressionsYieldTypeDeclarationWarning:
  		case IProblem.StrictfpNotRequired:
  			return ProblemSeverities.Warning;
  		case IProblem.TypeCollidesWithPackage :
@@ -11671,24 +11668,15 @@ public void moduleDoesNotReadOther(ImportReference importReference, ModuleBindin
 		importReference.sourceStart,
 		importReference.sourceEnd);
 }
-public void switchExpressionIncompatibleResultExpressions(SwitchExpression expression) {
-	TypeBinding type = expression.resultExpressions.get(0).resolvedType;
+public void incompatibleSwitchExpressionResults(SwitchExpression expression) {
 	this.handle(
 		IProblem.SwitchExpressionsYieldIncompatibleResultExpressionTypes,
-		new String[] {new String(type.readableName())},
-		new String[] {new String(type.shortReadableName())},
-		expression.sourceStart,
-		expression.sourceEnd);
-}
-public void switchExpressionEmptySwitchBlock(SwitchExpression expression) {
-	this.handle(
-		IProblem.SwitchExpressionsYieldEmptySwitchBlock,
 		NoArgument,
 		NoArgument,
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void switchExpressionNoResultExpressions(SwitchExpression expression) {
+public void unyieldingSwitchExpression(SwitchExpression expression) {
 	this.handle(
 		IProblem.SwitchExpressionsYieldNoResultExpression,
 		NoArgument,
@@ -11696,15 +11684,7 @@ public void switchExpressionNoResultExpressions(SwitchExpression expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void switchExpressionSwitchLabeledBlockCompletesNormally(Block block) {
-	this.handle(
-		IProblem.SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally,
-		NoArgument,
-		NoArgument,
-		block.sourceEnd - 1,
-		block.sourceEnd);
-}
-public void switchExpressionLastStatementCompletesNormally(Statement stmt) {
+public void switchExpressionBlockCompletesNormally(Statement stmt) {
 	this.handle(
 		IProblem.SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally,
 		NoArgument,
@@ -11712,23 +11692,7 @@ public void switchExpressionLastStatementCompletesNormally(Statement stmt) {
 		stmt.sourceEnd - 1,
 		stmt.sourceEnd);
 }
-public void switchExpressionIllegalLastStatement(Statement stmt) {
-	this.handle(
-		IProblem.SwitchExpressionsYieldIllegalLastStatement,
-		NoArgument,
-		NoArgument,
-		stmt.sourceStart,
-		stmt.sourceEnd);
-}
-public void switchExpressionTrailingSwitchLabels(Statement stmt) {
-	this.handle(
-		IProblem.SwitchExpressionsYieldTrailingSwitchLabels,
-		NoArgument,
-		NoArgument,
-		stmt.sourceStart,
-		stmt.sourceEnd);
-}
-public void switchExpressionMixedCase(ASTNode statement) {
+public void arrowColonMixup(ASTNode statement) {
 	this.handle(
 		IProblem.SwitchPreviewMixedCase,
 		NoArgument,
@@ -11736,24 +11700,7 @@ public void switchExpressionMixedCase(ASTNode statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 }
-// Is this redundant ?? See switchExpressionsBreakOutOfSwitchExpression
-public void switchExpressionBreakNotAllowed(ASTNode statement) {
-	this.handle(
-		IProblem.SwitchExpressionsYieldBreakNotAllowed,
-		NoArgument,
-		NoArgument,
-		statement.sourceStart,
-		statement.sourceEnd);
-}
-public void switchExpressionsYieldUnqualifiedMethodWarning(ASTNode statement) {
-	this.handle(
-		IProblem.SwitchExpressionsYieldUnqualifiedMethodWarning,
-		NoArgument,
-		NoArgument,
-		statement.sourceStart,
-		statement.sourceEnd);
-}
-public void switchExpressionsYieldUnqualifiedMethodError(ASTNode statement) {
+public void unqualifiedYieldMethod(ASTNode statement) {
 	this.handle(
 		IProblem.SwitchExpressionsYieldUnqualifiedMethodError,
 		NoArgument,
@@ -11761,41 +11708,9 @@ public void switchExpressionsYieldUnqualifiedMethodError(ASTNode statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 }
-public void switchExpressionsYieldOutsideSwitchExpression(ASTNode statement) {
+public void yieldOutsideSwitchExpression(ASTNode statement) {
 	this.handle(
 		IProblem.SwitchExpressionsYieldOutsideSwitchExpression,
-		NoArgument,
-		NoArgument,
-		statement.sourceStart,
-		statement.sourceEnd);
-}
-public void switchExpressionsYieldRestrictedGeneralWarning(ASTNode statement) {
-	this.handle(
-		IProblem.SwitchExpressionsYieldRestrictedGeneralWarning,
-		NoArgument,
-		NoArgument,
-		statement.sourceStart,
-		statement.sourceEnd);
-}
-public void switchExpressionsYieldIllegalStatement(ASTNode statement) {
-	this.handle(
-		IProblem.SwitchExpressionsYieldIllegalStatement,
-		NoArgument,
-		NoArgument,
-		statement.sourceStart,
-		statement.sourceEnd);
-}
-public void switchExpressionsYieldTypeDeclarationWarning(ASTNode statement) {
-	this.handle(
-		IProblem.SwitchExpressionsYieldTypeDeclarationWarning,
-		NoArgument,
-		NoArgument,
-		statement.sourceStart,
-		statement.sourceEnd);
-}
-public void switchExpressionsYieldTypeDeclarationError(ASTNode statement) {
-	this.handle(
-		IProblem.SwitchExpressionsYieldTypeDeclarationError,
 		NoArgument,
 		NoArgument,
 		statement.sourceStart,
@@ -11825,7 +11740,7 @@ public void switchExpressionsNotSupported(ASTNode statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 }
-public void switchExpressionsBreakOutOfSwitchExpression(ASTNode statement) {
+public void breakOutOfSwitchExpression(ASTNode statement) {
 	this.handle(
 		IProblem.SwitchExpressionsBreakOutOfSwitchExpression,
 		NoArgument,
@@ -11833,7 +11748,7 @@ public void switchExpressionsBreakOutOfSwitchExpression(ASTNode statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 }
-public void switchExpressionsContinueOutOfSwitchExpression(ASTNode statement) {
+public void continueOutOfSwitchExpression(ASTNode statement) {
 	this.handle(
 		IProblem.SwitchExpressionsContinueOutOfSwitchExpression,
 		NoArgument,
@@ -11841,7 +11756,7 @@ public void switchExpressionsContinueOutOfSwitchExpression(ASTNode statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 }
-public void switchExpressionsReturnWithinSwitchExpression(ASTNode statement) {
+public void returnOutOfSwitchExpression(ASTNode statement) {
 	this.handle(
 		IProblem.SwitchExpressionsReturnWithinSwitchExpression,
 		NoArgument,

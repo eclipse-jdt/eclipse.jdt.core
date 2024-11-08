@@ -1,8 +1,6 @@
-package javadoc.test012;
+package markdown.test012;
 public class Test {
 int val;
-	/// 
-	/// comment.
-	///
+	/// Leading comment [java.lang.String#String()] trailing comment.
 	public void foo() {}
 }

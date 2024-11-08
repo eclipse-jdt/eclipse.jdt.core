@@ -1,4 +1,4 @@
-package javadoc.test000;
+package markdown.test000a;
 import java.io.IOException;
 import java.util.*;
 public class Test {
@@ -6,7 +6,7 @@ int field;
 class X {
 	int x;
 }
-/// 
+interface CharOperation{}
 /// Method outside javaDoc Comment
 /// 1) [String] tag description not empty
 /// 2) [Unknown class][CharOperation] tag description not empty
@@ -31,6 +31,5 @@ class X {
 /// @see #field
 /// @see X#x valid field
 /// @see Object#unknown Unknown field
-///
 int foo(String str, int var, List list, char[] array) throws NoSuchMethodException { return 0; }
 }

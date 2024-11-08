@@ -218,8 +218,6 @@ private void buildMoreCompletionContext(Expression expression) {
 						switchStatement.expression = this.expressionStack[this.expressionPtr--];
 						switchStatement.statements = statements;
 						parentNode = orphan = switchStatement;
-						if (exprSwitch)
-							collectResultExpressionsYield((SwitchExpression) switchStatement);
 						break;
 				}
 				break;

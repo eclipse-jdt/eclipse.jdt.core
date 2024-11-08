@@ -5744,30 +5744,6 @@ public void ixor() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_ixor;
 }
 
-final public void jsr(BranchLabel lbl) {
-	if (this.wideMode) {
-		jsr_w(lbl);
-		return;
-	}
-	this.countLabels = 0;
-	if (this.classFileOffset >= this.bCodeStream.length) {
-		resizeByteArray();
-	}
-	this.position++;
-	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_jsr;
-	lbl.branch();
-}
-
-final public void jsr_w(BranchLabel lbl) {
-	this.countLabels = 0;
-	if (this.classFileOffset >= this.bCodeStream.length) {
-		resizeByteArray();
-	}
-	this.position++;
-	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_jsr_w;
-	lbl.branchWide();
-}
-
 public void l2d() {
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -7231,26 +7207,6 @@ private final void resizeByteArray() {
 		requiredSize = this.classFileOffset + length;
 	}
 	System.arraycopy(this.bCodeStream, 0, this.bCodeStream = new byte[requiredSize], 0, length);
-}
-
-final public void ret(int index) {
-	this.countLabels = 0;
-	if (index > 255) { // Widen
-		if (this.classFileOffset + 3 >= this.bCodeStream.length) {
-			resizeByteArray();
-		}
-		this.position += 2;
-		this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_wide;
-		this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_ret;
-		writeUnsignedShort(index);
-	} else { // Don't Widen
-		if (this.classFileOffset + 1 >= this.bCodeStream.length) {
-			resizeByteArray();
-		}
-		this.position += 2;
-		this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_ret;
-		this.bCodeStream[this.classFileOffset++] = (byte) index;
-	}
 }
 
 public void return_() {

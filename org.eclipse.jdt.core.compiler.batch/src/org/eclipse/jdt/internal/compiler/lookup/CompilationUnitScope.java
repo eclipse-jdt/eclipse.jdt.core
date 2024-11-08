@@ -241,14 +241,20 @@ void checkAndSetImports() {
 	int numberOfImports = numberOfStatements + defaultImports.length;
 	for (int i = 0; i < numberOfStatements; i++) {
 		ImportReference importReference = this.referenceContext.imports[i];
-		if ((importReference.bits & ASTNode.OnDemand) != 0 && !importReference.isStatic()) {
-			if (CharOperation.equals(TypeConstants.JAVA_LANG, importReference.tokens)) {
-				numberOfImports--;
-			} else if ((importReference.modifiers & ClassFileConstants.AccModule) != 0 &&
-					this.referenceContext.isSimpleCompilationUnit() &&
-					CharOperation.equals(TypeConstants.JAVA_BASE, importReference.tokens)) {
-				numberOfImports--;
-			}
+		if ((importReference.bits & ASTNode.OnDemand) != 0) {
+			 if (importReference.isStatic()) {
+				 if (CharOperation.equals(TypeConstants.JAVA_IO_IO, importReference.tokens)) {
+					 numberOfImports--;
+				 }
+			 } else {
+					if (CharOperation.equals(TypeConstants.JAVA_LANG, importReference.tokens)) {
+						numberOfImports--;
+					} else if ((importReference.modifiers & ClassFileConstants.AccModule) != 0 &&
+							this.referenceContext.isSimpleCompilationUnit() &&
+							CharOperation.equals(TypeConstants.JAVA_BASE, importReference.tokens)) {
+						numberOfImports--;
+					}
+			 }
 		}
 	}
 	ImportBinding[] resolvedImports = new ImportBinding[numberOfImports];
@@ -262,6 +268,7 @@ void checkAndSetImports() {
 				return false;
 			}
 			return (CharOperation.equals(TypeConstants.JAVA_LANG, imp.tokens) ||
+					(CharOperation.equals(TypeConstants.JAVA_IO_IO, imp.tokens) && imp.isStatic()) ||
 					((imp.modifiers & ClassFileConstants.AccModule) != 0
 						&& CharOperation.equals(TypeConstants.JAVA_BASE, imp.tokens)));
 	};
@@ -764,13 +771,24 @@ private MethodBinding findStaticMethod(ReferenceBinding currentType, char[] sele
 	return null;
 }
 ImportBinding[] getDefaultImports() {
+	ImportBinding javaIOImport = null;
 	if (JavaFeature.IMPLICIT_CLASSES_AND_INSTANCE_MAIN_METHODS.isSupported(this.environment.globalOptions) &&
 			this.referenceContext.isSimpleCompilationUnit()) {
 		ModuleBinding module = this.environment.getModule(CharOperation.concatWith(TypeConstants.JAVA_BASE, '.'));
+		Binding javaioIO = findSingleImport(TypeConstants.JAVA_IO_IO, Binding.TYPE, false);
+		if (javaioIO != null) {
+			javaIOImport = new ImportBinding(TypeConstants.JAVA_IO_IO, true, javaioIO, null) {
+				@Override
+				public boolean isStatic() {
+					return true;
+				}
+			};
+		}
 		if (module != null) {
 			ImportBinding javaBase = new ImportBinding(TypeConstants.JAVA_BASE, true, module, null);
 			// No need for the java.lang.* as module java.base covers it
-			return new ImportBinding[] {javaBase};
+			return javaIOImport != null ? new ImportBinding[] {javaBase, javaIOImport}:
+												new ImportBinding[] {javaBase};
 			// this module import is not cached, there shouldn't be many files needing it.
 		}
 	}
@@ -780,7 +798,10 @@ ImportBinding[] getDefaultImports() {
 	Binding importBinding = this.environment.getTopLevelPackage(TypeConstants.JAVA);
 	if (importBinding != null)
 		importBinding = ((PackageBinding) importBinding).getTypeOrPackage(TypeConstants.JAVA_LANG[1], module(), false);
-
+	ImportBinding[] implicitImports = javaIOImport != null ? new ImportBinding[2] : new ImportBinding[1];
+	if (javaIOImport != null) {
+		implicitImports[1] = javaIOImport;
+	}
 	if (importBinding == null || !importBinding.isValidBinding()) {
 		// create a proxy for the missing BinaryType
 		problemReporter().isClassPathCorrect(
@@ -789,9 +810,11 @@ ImportBinding[] getDefaultImports() {
 			this.environment.missingClassFileLocation, false, null/*resolving j.l.O is not specific to any referencing type*/);
 		BinaryTypeBinding missingObject = this.environment.createMissingType(null, TypeConstants.JAVA_LANG_OBJECT);
 		importBinding = missingObject.fPackage;
-		return new ImportBinding[] {new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null)};
+		implicitImports[0] = new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null);
+		return implicitImports;
 	}
-	return this.environment.root.defaultImports = new ImportBinding[] {new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null)};
+	implicitImports[0] = new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null);
+	return this.environment.root.defaultImports = implicitImports;
 }
 // NOT Public API
 public final Binding getImport(char[][] compoundName, boolean onDemand, int modifiers) {

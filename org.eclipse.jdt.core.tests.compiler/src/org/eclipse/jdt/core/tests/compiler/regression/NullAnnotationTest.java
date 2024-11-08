@@ -10460,13 +10460,13 @@ public void testBug530970_on_field_bin() {
 	);
 }
 public void testBug542707_001() {
-	if (this.complianceLevel < ClassFileConstants.JDK12)
+	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	runNegativeTestWithLibs(
@@ -10506,7 +10506,7 @@ public void testBug542707_001() {
 		"1. ERROR in X.java (at line 0)\n" +
 		"	import java.io.IOException;\n" +
 		"	^\n" +
-		"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" +
+		"Preview features enabled at an invalid source release level 14, preview can be enabled only at source level " + AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" +
 		"----------\n"
 	);
 }
@@ -10514,13 +10514,13 @@ public void testBug542707_001() {
  * should not throw IOOBE while building - a safety check test case.
  */
 public void testBug542707_002() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+	if (this.complianceLevel != ClassFileConstants.JDK14)
 		return;
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	runNegativeTestWithLibs(
@@ -10547,17 +10547,15 @@ public void testBug542707_002() {
 		"1. ERROR in X.java (at line 0)\n" +
 		"	import org.eclipse.jdt.annotation.*;\n" +
 		"	^\n" +
-		"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" +
+		"Preview features enabled at an invalid source release level 14, preview can be enabled only at source level " + AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" +
 		"----------\n"
 	);
 }
 public void testBug542707_003() {
-	if (this.complianceLevel < ClassFileConstants.JDK12 || useDeclarationAnnotations()) return; // switch expression
+	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
 	// outer expected type (from assignment) is propagated deeply into a switch expression
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
-	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-	runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	runner.classLibraries = this.LIBS;
 	runner.testFiles = new String[] {
 		"X.java",
@@ -10573,29 +10571,220 @@ public void testBug542707_003() {
 		"	}\n" +
 		"}\n"
 	};
-	runner.expectedCompilerLog = checkPreviewAllowed() ?
+	runner.expectedCompilerLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
 			"	default -> i == 3 ? maybe() : \"\";\n" +
 			"	                    ^^^^^^^\n" +
 			"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" +
-			"----------\n" :
-			"----------\n" +
-			"1. ERROR in X.java (at line 0)\n" +
-			"	import org.eclipse.jdt.annotation.*;\n" +
-			"	^\n" +
-			"Preview features enabled at an invalid source release level "+CompilerOptions.versionFromJdkLevel(this.complianceLevel)+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" +
 			"----------\n";
 	runner.runNegativeTest();
 }
+
+public void testBug542707_003_1() {
+	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
+	// outer expected type (from assignment) is propagated deeply into a switch expression
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.classLibraries = this.LIBS;
+	runner.testFiles = new String[] {
+		"X.java",
+		"import org.eclipse.jdt.annotation.*;\n" +
+		"public class X {\n" +
+		"	@Nullable String maybe() { return null; }\n" +
+		"	void test(int i) {\n" +
+		"		@NonNull String s = switch (i) {\n" +
+		"			case 1 -> \"\";\n" +
+		"			default -> maybe();\n" +
+		"		};\n" +
+		"		System.out.println(s.toLowerCase());\n" +
+		"	}\n" +
+		"}\n"
+	};
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	default -> maybe();\n" +
+			"	           ^^^^^^^\n" +
+			"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" +
+			"----------\n";
+	runner.runNegativeTest();
+}
+
+public void testBug542707_003_2() {
+	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
+	// no expected type due to LVTI
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.classLibraries = this.LIBS;
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		import org.eclipse.jdt.annotation.NonNull;
+		import org.eclipse.jdt.annotation.Nullable;
+
+		public class X {
+
+			static void foo(@NonNull String s) {}
+
+			@Nullable static String maybe() {
+				return null;
+			}
+
+			public static void main(String[] args) {
+				int x = 42;
+				var s = switch (x) {
+				case 42 -> "Hello";
+				default -> maybe();
+				};
+				foo(s);
+			}
+
+		}
+		"""
+	};
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in X.java (at line 18)\n" +
+			"	foo(s);\n" +
+			"	    ^\n" +
+			"Null type mismatch (type annotations): required '@NonNull String' but this expression has type '@Nullable String'\n" +
+			"----------\n";
+	runner.runNegativeTest();
+}
+
+public void testBug542707_003_3() {
+	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
+	// no expected type due to LVTI
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.classLibraries = this.LIBS;
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		import org.eclipse.jdt.annotation.NonNull;
+		import org.eclipse.jdt.annotation.Nullable;
+
+		public class X {
+
+			static void foo(@NonNull String s) {}
+
+			@Nullable static String maybe() {
+				return null;
+			}
+
+			public static void main(String[] args) {
+				int x = 42;
+				var s = switch (x) {
+				case 42 -> maybe();
+				default -> "Hello";
+				};
+				foo(s);
+			}
+
+		}
+		"""
+	};
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in X.java (at line 18)\n" +
+			"	foo(s);\n" +
+			"	    ^\n" +
+			"Null type mismatch (type annotations): required '@NonNull String' but this expression has type '@Nullable String'\n" +
+			"----------\n";
+	runner.runNegativeTest();
+}
+
+public void testBug542707_003_4() {
+	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
+	// no expected type due to LVTI
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.classLibraries = this.LIBS;
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		import org.eclipse.jdt.annotation.NonNull;
+		import org.eclipse.jdt.annotation.Nullable;
+
+		public class X {
+
+			static void foo(@Nullable String s) {}
+
+			@NonNull static String maybe() {
+				return null;
+			}
+
+			public static void main(String[] args) {
+				int x = 42;
+				var s = switch (x) {
+				case 42 -> "Hello";
+				default -> maybe();
+				};
+				foo(s);
+			}
+
+		}
+		"""
+	};
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	return null;\n" +
+			"	       ^^^^\n" +
+			"Null type mismatch: required '@NonNull String' but the provided value is null\n" +
+			"----------\n";
+	runner.runNegativeTest();
+}
+
+public void testBug542707_003_5() {
+	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
+	// no expected type due to LVTI
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.classLibraries = this.LIBS;
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		import org.eclipse.jdt.annotation.NonNull;
+		import org.eclipse.jdt.annotation.Nullable;
+
+		public class X {
+
+			static void foo(@NonNull Object o) {}
+
+			@Nullable static String maybe() {
+				return null;
+			}
+
+			public static void main(String[] args) {
+				int x = 42;
+				var s = switch (x) {
+				case 42 -> new X();
+				default -> maybe();
+				};
+				foo(s);
+			}
+
+		}
+		"""
+	};
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in X.java (at line 18)\n" +
+			"	foo(s);\n" +
+			"	    ^\n" +
+			"Null type mismatch: required '@NonNull Object' but the provided value is inferred as @Nullable\n" +
+			"----------\n";
+	runner.runNegativeTest();
+}
+
 // failing, see https://bugs.eclipse.org/543860
 public void _testBug542707_004() {
-	if (this.complianceLevel < ClassFileConstants.JDK12) return; // switch expression
+	if (this.complianceLevel < ClassFileConstants.JDK14) return; // switch expression
 	// outer expected type (from method parameter) is propagated deeply into a switch expression
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
-	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-	runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	runner.classLibraries = this.LIBS;
 	runner.testFiles = new String[] {
 		"X.java",
@@ -10623,12 +10812,10 @@ public void _testBug542707_004() {
 	runner.runNegativeTest();
 }
 public void testBug542707_005() {
-	if (this.complianceLevel < ClassFileConstants.JDK12 || useDeclarationAnnotations()) return; // switch expression
+	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
 	// switch value must not be null (@Nullable)
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
-	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-	runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	runner.classLibraries = this.LIBS;
 	runner.testFiles = new String[] {
 		"X.java",
@@ -10644,28 +10831,20 @@ public void testBug542707_005() {
 		"	}\n" +
 		"}\n"
 	};
-	runner.expectedCompilerLog = checkPreviewAllowed() ?
+	runner.expectedCompilerLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
 			"	return switch(day) {\n" +
 			"	              ^^^\n" +
 			"Potential null pointer access: this expression has a \'@Nullable\' type\n" +
-			"----------\n" :
-			"----------\n" +
-			"1. ERROR in X.java (at line 0)\n" +
-			"	import org.eclipse.jdt.annotation.*;\n" +
-			"	^\n" +
-			"Preview features enabled at an invalid source release level "+CompilerOptions.versionFromJdkLevel(this.complianceLevel)+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" +
 			"----------\n";
 	runner.runNegativeTest();
 }
 public void testBug542707_006() {
-	if (this.complianceLevel < ClassFileConstants.JDK12) return; // switch expression
+	if (this.complianceLevel < ClassFileConstants.JDK14) return; // switch expression
 	// switch value must not be null (pot-null by flow analysis)
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
-	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-	runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	runner.classLibraries = this.LIBS;
 	runner.testFiles = new String[] {
 		"X.java",
@@ -10681,26 +10860,16 @@ public void testBug542707_006() {
 		"	}\n" +
 		"}\n"
 	};
-	runner.expectedCompilerLog = checkPreviewAllowed() ?
+	runner.expectedCompilerLog =
 			"----------\n" +
 			"2. ERROR in X.java (at line 5)\n" +
 			"	return switch(day) {\n" +
 			"	              ^^^\n" +
 			"Potential null pointer access: The variable day may be null at this location\n" +
-			"----------\n" :
-			"----------\n" +
-			"1. ERROR in X.java (at line 0)\n" +
-			"	enum SomeDays { Mon, Wed, Fri }\n" +
-			"	^\n" +
-			"Preview features enabled at an invalid source release level "+CompilerOptions.versionFromJdkLevel(this.complianceLevel)+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" +
 			"----------\n";
 	runner.runNegativeTest();
 }
 public void testBug545715() {
-	if (!checkPreviewAllowed()) return; // switch expression
-	Map<String, String>  customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-	customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	runConformTest(
 		new String[] {
 			"X.java",
@@ -10715,9 +10884,7 @@ public void testBug545715() {
 			"    }\n"+
 			"}\n"
 		},
-	    "",
-	    customOptions,
-	    new String[] {"--enable-preview"});
+	    "");
 }
 public void testBug548418_001a() {
 	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return;
