@@ -45,6 +45,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaProject;
 
+import com.sun.tools.javac.comp.CompileStates.CompileState;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.main.Option;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
@@ -99,6 +100,7 @@ public class JavacUtils {
 	private static void configureOptions(IJavaProject javaProject, Context context, Map<String, String> compilerOptions, String addExports) {
 		boolean nineOrLater = false;
 		Options options = Options.instance(context);
+		options.put("should-stop.ifError", CompileState.GENERATE.toString());
 		options.put(Option.IMPLICIT, "none");
 		options.put("allowStringFolding", Boolean.FALSE.toString());
 		final Version complianceVersion;

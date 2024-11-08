@@ -48,7 +48,6 @@ import com.sun.source.util.TaskEvent;
 import com.sun.source.util.TaskListener;
 import com.sun.tools.javac.api.MultiTaskListener;
 import com.sun.tools.javac.comp.AttrContext;
-import com.sun.tools.javac.comp.CompileStates.CompileState;
 import com.sun.tools.javac.comp.Env;
 import com.sun.tools.javac.file.CacheFSInfo;
 import com.sun.tools.javac.file.JavacFileManager;
@@ -108,6 +107,8 @@ public class JavacCompiler extends Compiler {
 		for (Entry<IContainer, List<ICompilationUnit>> outputSourceSet : outputSourceMapping.entrySet()) {
 			Context javacContext = new Context();
 			CacheFSInfo.preRegister(javacContext);
+			ProceedOnErrorTransTypes.preRegister(javacContext);
+			ProceedOnErrorGen.preRegister(javacContext);
 			JavacProblemConverter problemConverter = new JavacProblemConverter(this.compilerConfig.compilerOptions(), javacContext);
 			javacContext.put(DiagnosticListener.class, diagnostic -> {
 				if (diagnostic.getSource() instanceof JavaFileObject fileObject) {
@@ -149,12 +150,6 @@ public class JavacCompiler extends Compiler {
 				boolean isInGeneration = false;
 
 				@Override
-				protected boolean shouldStop(CompileState cs) {
-					// Never stop
-					return false;
-				}
-
-				@Override
 				public void generate(Queue<Pair<Env<AttrContext>, JCClassDecl>> queue, Queue<JavaFileObject> results) {
 					try {
 						this.isInGeneration = true;
@@ -184,7 +179,6 @@ public class JavacCompiler extends Compiler {
 					return this.isInGeneration ? 0 : super.errorCount();
 				}
 			};
-			javac.shouldStopPolicyIfError = CompileState.GENERATE;
 			JavacFileManager fileManager = (JavacFileManager)javacContext.get(JavaFileManager.class);
 			try {
 				javac.compile(com.sun.tools.javac.util.List.from(outputSourceSet.getValue().stream()
