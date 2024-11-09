@@ -205,7 +205,7 @@ public interface TerminalTokens {
 							TokenNameRestrictedIdentifierrecord = 76,
 							TokenNameRestrictedIdentifiersealed = 43,
 							TokenNameRestrictedIdentifierpermits = 130,
-							TokenNameBeginCaseElement = 131,
+							TokenNameBeginCasePattern = 131,
 							TokenNameRestrictedIdentifierWhen = 132,
 							TokenNameUNDERSCORE = 34,
 							TokenNameEOF = 39,
