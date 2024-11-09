@@ -72,7 +72,7 @@ public class PublicScannerTest extends AbstractRegressionTest {
 		SYNTHETIC_REPLACE_TOKENS = Collections.unmodifiableMap(map);
 
 		List<Integer> list = new ArrayList<>();
-		list.add(TerminalTokens.TokenNameBeginCaseElement);
+		list.add(TerminalTokens.TokenNameBeginCasePattern);
 		list.add(TerminalTokens.TokenNameBeginIntersectionCast);
 		list.add(TerminalTokens.TokenNameBeginLambda);
 		list.add(TerminalTokens.TokenNameBeginTypeArguments);

@@ -330,7 +330,6 @@ SwitchBlockStatement=SwitchBlockStatement
 SwitchBlockStatements=SwitchBlockStatements
 SwitchExpression=SwitchExpression
 SwitchLabel=SwitchLabel
-SwitchLabelCaseLhs=SwitchLabelCaseLhs
 SwitchLabels=SwitchLabel
 SwitchRule=SwitchRule
 SwitchStatement=SwitchStatement

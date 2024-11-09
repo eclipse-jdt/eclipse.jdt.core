@@ -1457,7 +1457,7 @@ protected void consumeToken(int token) {
 				pushOnElementStack(K_BETWEEN_CASE_AND_COLONORARROW, this.expressionPtr);
 				break;
 			case TokenNameCOMMA :
-				if (this.scanner.multiCaseLabelComma) {
+				if (this.scanner.atMultiCaseComma()) {
 					switch (topKnownElementKind(SELECTION_OR_ASSIST_PARSER)) {
 						// for multi constant case stmt
 						// case MONDAY, FRIDAY

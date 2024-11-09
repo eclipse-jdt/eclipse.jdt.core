@@ -119,7 +119,7 @@ $Terminals
 	RestrictedIdentifierrecord
 	RestrictedIdentifiersealed
 	RestrictedIdentifierpermits
-	BeginCaseElement
+	BeginCasePattern
 	RestrictedIdentifierWhen
 	UNDERSCORE
 
@@ -230,7 +230,7 @@ Goal ::= '@' TypeAnnotations
 Goal ::= RestrictedIdentifiersealed Modifiersopt
 Goal ::= RestrictedIdentifierpermits PermittedTypes
 -- jsr 427 --
-Goal ::= BeginCaseElement Pattern
+Goal ::= BeginCasePattern Pattern
 Goal ::= RestrictedIdentifierWhen Expression
 /:$readableName Goal:/
 
@@ -1519,7 +1519,7 @@ SwitchLabels ::= SwitchLabels SwitchLabel ':'
 PostCaseArrow ::= $empty
 /.$putCase consumeSwitchLabels(false, true) ; $break ./
 
-SwitchLabel -> SwitchLabelCaseLhs
+SwitchLabel -> 'case' CaseLabelElements
 /:$readableName SwitchLabel:/
 
 SwitchLabel ::= 'default'
@@ -1546,10 +1546,6 @@ SwitchRule ::= SwitchLabel CaseArrow PostCaseArrow Block
 SwitchRule ::= SwitchLabel CaseArrow PostCaseArrow ThrowStatement
 /. $putCase consumeSwitchRule(SwitchRuleKind.THROW); $break ./
 /:$readableName SwitchRule:/
-
-SwitchLabelCaseLhs ::= 'case' CaseLabelElements
-/. $putCase consumeSwitchLabelCaseLhs(); $break ./
-/:$readableName SwitchLabelCaseLhs:/
 
 -- END SwitchExpression (JEP 325) --
 
@@ -1578,7 +1574,7 @@ CaseLabelElement ::=  CaseLabelElementPattern Guard
 /.$putCase consumeCaseLabelElement(CaseLabelKind.CASE_PATTERN); $break ./
 /:$readableName CaseLabelElement:/
 
-CaseLabelElementPattern -> BeginCaseElement Pattern
+CaseLabelElementPattern -> BeginCasePattern Pattern
 /:$readableName CaseLabelElementPattern:/
 
 Guard ::= RestrictedIdentifierWhen Expression
