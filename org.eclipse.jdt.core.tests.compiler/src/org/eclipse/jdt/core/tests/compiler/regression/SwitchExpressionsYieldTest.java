@@ -8301,4 +8301,24 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"3");
 	}
+
+	public void testConditionalSwitchLabel() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String[] args) {
+				        var foo = switch (10) {
+				            case (10 > 20 ? 10 :  10) : yield "special" ;
+				            default : yield "default value";
+				        };
+				        System.out.println(foo);
+				    }
+
+				}
+				"""
+				},
+				"special");
+	}
 }

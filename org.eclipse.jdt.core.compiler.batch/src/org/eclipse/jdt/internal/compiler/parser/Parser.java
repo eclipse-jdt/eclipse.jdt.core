@@ -8932,6 +8932,7 @@ protected void consumeStatementYield() {
 			Expression expr = this.expressionStack[this.expressionPtr--];
 			YieldStatement yieldStatement = new YieldStatement(
 					expr,
+					false,
 					this.intStack[this.intPtr--],
 					this.endStatementPosition);
 			pushOnAstStack(yieldStatement);
@@ -9434,13 +9435,11 @@ protected void consumeSwitchLabels(boolean shouldConcat, boolean isSwitchRule) {
 
 protected void consumeSwitchRule(SwitchRuleKind kind) {
 	// SwitchRule ::= SwitchLabel CaseArrow { Expression | Block | ThrowStatement }
-	YieldStatement yieldStatement = null;
 	if (kind == SwitchRuleKind.EXPRESSION) {
 		consumeExpressionStatement();
 		Expression expr = (Expression) this.astStack[this.astPtr];
 		expr.bits &= ~ASTNode.InsideExpressionStatement;
-		yieldStatement = new YieldStatement(expr, expr.sourceStart, this.endStatementPosition);
-		yieldStatement.isImplicit = true;
+		YieldStatement yieldStatement = new YieldStatement(expr, true, expr.sourceStart, this.endStatementPosition);
 		this.astStack[this.astPtr] = yieldStatement;
 	}
 	concatNodeLists();

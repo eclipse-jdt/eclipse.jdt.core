@@ -377,25 +377,21 @@ public class SwitchStatement extends Expression {
 	}
 	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
 		if ((this.switchBits & LabeledRules) != 0) {
-			if ((stmt instanceof Expression && ((Expression) stmt).isTrulyExpression()) || stmt instanceof ThrowStatement)
+			if (stmt.isTrulyExpression() || stmt instanceof ThrowStatement)
 				return BREAKING;
 			if (!stmt.canCompleteNormally())
 				return BREAKING;
-
-			if (stmt instanceof Block) {
-				Block block = (Block) stmt;
-				// Note implicit break anyway - Let the flow analysis do the dead code analysis
+			if (stmt instanceof Block block) {
 				BreakStatement breakStatement = new BreakStatement(null, block.sourceEnd -1, block.sourceEnd);
 				breakStatement.isSynthetic = true; // suppress dead code flagging - codegen will not generate dead code anyway
-
-				int l = block.statements == null ? 0 : block.statements.length;
-				if (l == 0) {
+				int length = block.statements == null ? 0 : block.statements.length;
+				if (length == 0) {
 					block.statements = new Statement[] {breakStatement};
 					block.scope = this.scope; // (upper scope) see Block.resolve() for similar
 				} else {
-					Statement[] newArray = new Statement[l + 1];
-					System.arraycopy(block.statements, 0, newArray, 0, l);
-					newArray[l] = breakStatement;
+					Statement[] newArray = new Statement[length + 1];
+					System.arraycopy(block.statements, 0, newArray, 0, length);
+					newArray[length] = breakStatement;
 					block.statements = newArray;
 				}
 				return BREAKING;
@@ -1286,16 +1282,16 @@ public class SwitchStatement extends Expression {
 						if (isEnhanced)
 							upperScope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
 						else {
-							for (FieldBinding enumConstant : unenumeratedConstants) {
+							for (FieldBinding enumConstant : unenumeratedConstants)
 								reportMissingEnumConstantCase(upperScope, enumConstant);
-							}
 						}
 					}
 				}
 			}
 
 			if (this.defaultCase == null) {
-				if (ignoreMissingDefaultCase(compilerOptions)) {
+			    if (this instanceof SwitchExpression // complained about elsewhere, don't also bark here
+			    				|| compilerOptions.getSeverity(CompilerOptions.MissingDefaultCase) == ProblemSeverities.Ignore) {
 					upperScope.methodScope().hasMissingSwitchDefault = true;
 				} else {
 					upperScope.problemReporter().missingDefaultCase(this, true, selectorType);
@@ -1498,12 +1494,8 @@ public class SwitchStatement extends Expression {
 			this.restartIndexLocal.useFlag = LocalVariableBinding.USED;
 		}
 	}
-
 	protected void reportMissingEnumConstantCase(BlockScope upperScope, FieldBinding enumConstant) {
 		upperScope.problemReporter().missingEnumConstantCase(this, enumConstant);
-	}
-	protected boolean ignoreMissingDefaultCase(CompilerOptions compilerOptions) {
-		return compilerOptions.getSeverity(CompilerOptions.MissingDefaultCase) == ProblemSeverities.Ignore;
 	}
 	@Override
 	public boolean isTrulyExpression() {
