@@ -1242,8 +1242,7 @@ public boolean forcedToBeRaw(ReferenceContext referenceContext) {
 		if (ternary.valueIfTrue.forcedToBeRaw(referenceContext) || ternary.valueIfFalse.forcedToBeRaw(referenceContext)) {
 			return true;
 		}
-	} else if (this instanceof SwitchExpression) {
-		SwitchExpression se = (SwitchExpression) this;
+	} else if (this instanceof SwitchExpression se) {
 		for (Expression e : se.resultExpressions()) {
 			if (e.forcedToBeRaw(referenceContext))
 				return true;
@@ -1350,7 +1349,8 @@ public void traverse(ASTVisitor visitor, ClassScope scope) {
 public boolean statementExpression() {
 	return false;
 }
-// for switch statement
+
+@Override
 public boolean isTrulyExpression() {
 	return true;
 }

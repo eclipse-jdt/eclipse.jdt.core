@@ -11677,7 +11677,7 @@ public void moduleDoesNotReadOther(ImportReference importReference, ModuleBindin
 		importReference.sourceStart,
 		importReference.sourceEnd);
 }
-public void incompatibleSwitchExpressionResults(SwitchExpression expression) {
+public void incompatibleSwitchExpressionResults(ASTNode expression) {
 	this.handle(
 		IProblem.SwitchExpressionsYieldIncompatibleResultExpressionTypes,
 		NoArgument,
@@ -11685,7 +11685,7 @@ public void incompatibleSwitchExpressionResults(SwitchExpression expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void unyieldingSwitchExpression(SwitchExpression expression) {
+public void unyieldingSwitchExpression(ASTNode expression) {
 	this.handle(
 		IProblem.SwitchExpressionsYieldNoResultExpression,
 		NoArgument,

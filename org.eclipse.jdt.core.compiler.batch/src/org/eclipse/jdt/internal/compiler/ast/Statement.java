@@ -484,6 +484,11 @@ public boolean isEmptyBlock() {
 	return false;
 }
 
+// for switch statement
+public boolean isTrulyExpression() {
+	return false;
+}
+
 public boolean isValidJavaStatement() {
 	//the use of this method should be avoid in most cases
 	//and is here mostly for documentation purpose.....
