@@ -686,7 +686,7 @@ public class SwitchStatement extends Expression {
 							}
 						}
 					}
-					statementGenerateCode(currentScope, codeStream, statement);
+				    statement.generateCode(this.scope, codeStream);
 				}
 			}
 
@@ -842,7 +842,7 @@ public class SwitchStatement extends Expression {
 							}
 						}
 					}
-					statementGenerateCode(currentScope, codeStream, statement);
+					statement.generateCode(this.scope, codeStream);
 				}
 			}
 			boolean needsThrowingDefault = false;
@@ -1016,14 +1016,7 @@ public class SwitchStatement extends Expression {
 				callingParams.toCharArray(),
 				TypeBinding.INT);
 	}
-	protected void statementGenerateCode(BlockScope currentScope, CodeStream codeStream, Statement statement) {
-		statement.generateCode(this.scope, codeStream);
-	}
 
-	@Override
-	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-		generateCode(currentScope, codeStream); // redirecting to statement part
-	}
 	@Override
 	public StringBuilder printStatement(int indent, StringBuilder output) {
 
@@ -1115,12 +1108,12 @@ public class SwitchStatement extends Expression {
 				}
 			}
 
+			this.scope = new BlockScope(upperScope);
 			if (expressionType != null)
-				reserveSecretVariablesSlots(upperScope);
+				reserveSecretVariablesSlots();
 
 			if (this.statements != null) {
-				if (this.scope == null)
-					this.scope = new BlockScope(upperScope);
+
 				int length;
 				// collection of cases is too big but we will only iterate until caseCount
 				this.cases = new CaseStatement[length = this.statements.length];
@@ -1253,7 +1246,7 @@ public class SwitchStatement extends Expression {
 					} else
 						this.expression.computeConversion(upperScope, TypeBinding.INT, expressionType);
 				}
-				releaseUnusedSecretVariables(upperScope);
+				releaseUnusedSecretVariables();
 				complainIfNotExhaustiveSwitch(upperScope, expressionType, compilerOptions);
 			}
 
@@ -1466,15 +1459,13 @@ public class SwitchStatement extends Expression {
 		return !(eType.isPrimitiveOrBoxedPrimitiveType() || eType.isEnum() || eType.id == TypeIds.T_JavaLangString); // classic selectors
 	}
 
-	private void reserveSecretVariablesSlots(BlockScope upperScope) { // may be released later if unused.
+	private void reserveSecretVariablesSlots() { // may be released later if unused.
 
 		if (this.expression.resolvedType.id == T_JavaLangString) {
-			this.dispatchStringCopy  = new LocalVariableBinding(SecretStringVariableName, upperScope.getJavaLangString(), ClassFileConstants.AccDefault, false);
-			upperScope.addLocalVariable(this.dispatchStringCopy);
+			this.dispatchStringCopy  = new LocalVariableBinding(SecretStringVariableName, this.scope.getJavaLangString(), ClassFileConstants.AccDefault, false);
+			this.scope.addLocalVariable(this.dispatchStringCopy);
 			this.dispatchStringCopy.setConstant(Constant.NotAConstant);
 		}
-
-		this.scope = new BlockScope(upperScope);
 
 		this.dispatchPatternCopy  = new LocalVariableBinding(SecretPatternVariableName, this.expression.resolvedType, ClassFileConstants.AccDefault, false);
 		this.scope.addLocalVariable(this.dispatchPatternCopy);
@@ -1485,11 +1476,12 @@ public class SwitchStatement extends Expression {
 		this.restartIndexLocal.setConstant(Constant.NotAConstant);
 	}
 
-	private void releaseUnusedSecretVariables(BlockScope upperScope) {
-		if (this.expression.resolvedType.id == T_JavaLangString && !this.isNonTraditional)
+	private void releaseUnusedSecretVariables() {
+
+		if (this.dispatchStringCopy != null && this.expression.resolvedType.id == T_JavaLangString && !this.isNonTraditional)
 			this.dispatchStringCopy.useFlag = LocalVariableBinding.USED;
 
-		if (needPatternDispatchCopy()) {
+		if (this.dispatchPatternCopy != null && needPatternDispatchCopy()) {
 			this.dispatchPatternCopy.useFlag = LocalVariableBinding.USED;
 			this.restartIndexLocal.useFlag = LocalVariableBinding.USED;
 		}
