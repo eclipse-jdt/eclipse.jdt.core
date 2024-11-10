@@ -3536,6 +3536,39 @@ public void testIssue3274() throws Exception {
 	"Invalid expression as statement\n" +
 	"----------\n");
 }
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3276
+// [Switch Expression] Verify error since at least 4.18 on switch expression with instance creation in switch block
+public void testIssue3276() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+
+	this.runConformTest(new String[] {
+		"X.java",
+		"""
+		public class X {
+
+			static int foo() {
+				return 42;
+			}
+		       static public void main (String[] args) {
+		               int a = 0x3a;
+		               int b = 0xff;
+		               System.out.println(
+		               switch (a) {
+		               case 0x21 : foo();
+		                           yield 10;
+		               case 0x3b : b++ ;
+		               default :  new X();
+		               			  yield 42;
+		               });
+		       }
+		}
+		""",
+	},
+	"42");
+}
+
 public static Class testClass() {
 	return SwitchTest.class;
 }

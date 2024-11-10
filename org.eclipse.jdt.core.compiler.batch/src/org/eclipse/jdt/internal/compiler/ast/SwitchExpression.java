@@ -240,19 +240,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			return FlowInfo.NON_NULL;
 		return this.nullStatus;
 	}
-	@Override
-	protected void statementGenerateCode(BlockScope currentScope, CodeStream codeStream, Statement statement) {
-		if (!(statement instanceof Expression && ((Expression) statement).isTrulyExpression())
-				|| statement instanceof Assignment
-				|| statement instanceof MessageSend
-				|| (statement instanceof SwitchStatement && !(statement instanceof SwitchExpression))) {
-			super.statementGenerateCode(currentScope, codeStream, statement);
-			return;
-		}
-		Expression expression1 = (Expression) statement;
-		expression1.generateCode(currentScope, codeStream, true /* valueRequired */);
-	}
-
 	private LocalVariableBinding createStackSpillSlot(CodeStream codeStream, TypeBinding type, int typeId, int index, int resolvedPosition) {
 		char[] name = CharOperation.concat(SECRET_YIELD_VALUE_NAME, String.valueOf(index).toCharArray());
 		if (type == null) {
