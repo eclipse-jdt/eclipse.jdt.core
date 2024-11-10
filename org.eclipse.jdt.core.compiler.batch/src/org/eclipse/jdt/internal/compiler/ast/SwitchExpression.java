@@ -181,12 +181,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		upperScope.problemReporter().missingEnumConstantCase(this, enumConstant);
 	}
 	@Override
-	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
-		if (stmt.isTrulyExpression() || stmt instanceof ThrowStatement)
-			return BREAKING;
-		return stmt.canCompleteNormally() ? FALLTHROUGH : BREAKING;
-	}
-	@Override
 	public boolean checkNPE(BlockScope skope, FlowContext flowContext, FlowInfo flowInfo, int ttlForFieldCheck) {
 		if ((this.nullStatus & FlowInfo.NULL) != 0)
 			skope.problemReporter().expressionNullReference(this);

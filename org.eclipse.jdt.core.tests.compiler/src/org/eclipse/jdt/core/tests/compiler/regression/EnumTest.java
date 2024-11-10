@@ -435,14 +435,9 @@ public void test010() {
 			"}"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 12)\n" +
+		"1. ERROR in X.java (at line 14)\n" +
 		"	case BLEU :\n" +
-		"	^^^^^^^^^\n" +
-		"Duplicate case\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 14)\n" +
-		"	case BLEU :\n" +
-		"	^^^^^^^^^\n" +
+		"	     ^^^^\n" +
 		"Duplicate case\n" +
 		"----------\n");
 }

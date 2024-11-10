@@ -996,4 +996,93 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 				},
 			"");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3318
+	// [Enhanced Switch] ECJ tolerates fall through to default from a case with pattern label while javac rejects it.
+	public void testIssue3318() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							static /* @NonNull */ Object foo(/*@NonNull */ Object o) {
+							    switch (o) {
+							        case String s:
+							        default:
+							        	System.out.println();
+							    }
+							    return o;
+							}
+						}
+						class X2 {
+							static /* @NonNull */ Object foo(/*@NonNull */ Object o) {
+							    switch (o) {
+							        case String s:
+							        default:
+							        	System.out.println(s);
+							    }
+							    return o;
+							}
+						}
+						class X3 {
+							static  Object foo( Object o) {
+							    switch (o) {
+							        case String _ :
+							        default :
+							        	System.out.println();
+							    }
+							    return o;
+							}
+						}
+						class X4 {
+							static /* @NonNull */ Object foo(/*@NonNull */ Object o) {
+							    switch (o) {
+							        case String s:
+							        	System.out.println();  // first println
+							        default:
+							        	System.out.println();
+							    }
+							    return o;
+							}
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case String s:\n" +
+				"	^^^^^^^^^^^^^\n" +
+				"Illegal fall-through from a case label pattern\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 16)\n" +
+				"	System.out.println(s);\n" +
+				"	                   ^\n" +
+				"s cannot be resolved to a variable\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3320
+	// [Enhanced Switch][Patterns] ECJ generated code hangs
+	public void testIssue3320() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							static boolean guard(String prefix) {
+								System.out.println(prefix + " guard");
+								return false;
+							}
+							public static void main(String [] args) {
+						        Object o = new Object();
+							    switch (o) {
+							        case String _, Object _ when guard("First") -> System.out.println("First case");  // first println
+							        case String _, Object _ when guard("Second") -> System.out.println("Second case");  // first println
+							        default -> System.out.println("Default");
+							    }
+							}
+						}
+						"""
+				},
+			"First guard\nSecond guard\nDefault");
+	}
 }

@@ -48,7 +48,7 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.ast.CaseStatement.ResolvedCase;
+import org.eclipse.jdt.internal.compiler.ast.CaseStatement.LabelExpression;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement.SingletonBootstrap;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
@@ -3613,8 +3613,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				}
 			} else if (o instanceof String) {
 				localContentsOffset = addBootStrapStringConcatEntry(localContentsOffset, (String) o, fPtr);
-			} else if (o instanceof ResolvedCase) {
-				localContentsOffset = addBootStrapTypeCaseConstantEntry(localContentsOffset, (ResolvedCase) o, fPtr);
+			} else if (o instanceof LabelExpression) {
+				localContentsOffset = addBootStrapTypeCaseConstantEntry(localContentsOffset, (LabelExpression) o, fPtr);
 			} else if (o instanceof TypeBinding) {
 				localContentsOffset = addClassDescBootstrap(localContentsOffset, (TypeBinding) o, fPtr);
 			} else if (o instanceof SingletonBootstrap sb) {
@@ -3807,7 +3807,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		return localContentsOffset;
 	}
-	private int addBootStrapTypeCaseConstantEntry(int localContentsOffset, ResolvedCase caseConstant, Map<String, Integer> fPtr) {
+	private int addBootStrapTypeCaseConstantEntry(int localContentsOffset, LabelExpression caseConstant, Map<String, Integer> fPtr) {
 		final int contentsEntries = 10;
 		if (contentsEntries + localContentsOffset >= this.contents.length) {
 			resizeContents(contentsEntries);
@@ -3852,7 +3852,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) (idx >> 8);
 		this.contents[localContentsOffset++] = (byte) idx;
 
-		idx = this.constantPool.literalIndex(caseConstant.c.stringValue());
+		String enumerator = caseConstant.expression instanceof QualifiedNameReference qnr ? new String(qnr.tokens[qnr.tokens.length - 1]) : caseConstant.expression.toString();
+		idx = this.constantPool.literalIndex(enumerator);
 		this.contents[localContentsOffset++] = (byte) (idx >> 8);
 		this.contents[localContentsOffset++] = (byte) idx;
 
@@ -3930,7 +3931,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	}
 
 	private int addBootStrapTypeSwitchEntry(int localContentsOffset, SwitchStatement switchStatement, Map<String, Integer> fPtr) {
-		CaseStatement.ResolvedCase[] constants = switchStatement.otherConstants;
+		CaseStatement.LabelExpression[] constants = switchStatement.labelExpressions;
 		int numArgs = constants.length;
 		final int contentsEntries = 10 + (numArgs * 2);
 		int indexFortypeSwitch = fPtr.get(ClassFile.TYPESWITCH_STRING);
@@ -3952,16 +3953,16 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[numArgsLocation++] = (byte) (numArgs >> 8);
 		this.contents[numArgsLocation] = (byte) numArgs;
 		localContentsOffset += 2;
-		for (CaseStatement.ResolvedCase c : constants) {
+		for (CaseStatement.LabelExpression c : constants) {
 			if (c.isPattern()) {
 				int typeOrDynIndex;
-				if (c.e.resolvedType.isPrimitiveType()) {
+				if (c.expression.resolvedType.isPrimitiveType()) {
 					// Dynamic for Class.getPrimitiveClass(Z) or such
 					typeOrDynIndex = this.constantPool.literalIndexForDynamic(c.primitivesBootstrapIdx,
-							c.t.signature(),
+							c.type.signature(),
 							ConstantPool.JavaLangClassSignature);
 				} else {
-					char[] typeName = c.t.constantPoolName();
+					char[] typeName = c.type.constantPoolName();
 					typeOrDynIndex = this.constantPool.literalIndexForType(typeName);
 				}
 				this.contents[localContentsOffset++] = (byte) (typeOrDynIndex >> 8);
@@ -3972,26 +3973,26 @@ public class ClassFile implements TypeConstants, TypeIds {
 						ConstantPool.JAVA_LANG_ENUM_ENUMDESC);
 				this.contents[localContentsOffset++] = (byte) (typeIndex >> 8);
 				this.contents[localContentsOffset++] = (byte) typeIndex;
-			} else if ((c.e instanceof StringLiteral)||(c.c instanceof StringConstant)) {
+			} else if ((c.expression instanceof StringLiteral)||(c.constant instanceof StringConstant)) {
 				int intValIdx =
-						this.constantPool.literalIndex(c.c.stringValue());
+						this.constantPool.literalIndex(c.constant.stringValue());
 				this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
 				this.contents[localContentsOffset++] = (byte) intValIdx;
 			} else {
-				if (c.e instanceof NullLiteral) continue;
-				int valIdx = switch (c.t.id) {
+				if (c.expression instanceof NullLiteral) continue;
+				int valIdx = switch (c.type.id) {
 					case TypeIds.T_boolean -> // Dynamic for Boolean.getStaticFinal(TRUE|FALSE) :
 						this.constantPool.literalIndexForDynamic(c.primitivesBootstrapIdx,
-								c.c.booleanValue() ? BooleanConstant.TRUE_STRING : BooleanConstant.FALSE_STRING,
+								c.constant.booleanValue() ? BooleanConstant.TRUE_STRING : BooleanConstant.FALSE_STRING,
 								ConstantPool.JavaLangBooleanSignature);
 					case TypeIds.T_byte, TypeIds.T_char, TypeIds.T_short, TypeIds.T_int ->
 						this.constantPool.literalIndex(c.intValue());
 					case TypeIds.T_long ->
-						this.constantPool.literalIndex(c.c.longValue());
+						this.constantPool.literalIndex(c.constant.longValue());
 					case TypeIds.T_float ->
-						this.constantPool.literalIndex(c.c.floatValue());
+						this.constantPool.literalIndex(c.constant.floatValue());
 					case TypeIds.T_double ->
-						this.constantPool.literalIndex(c.c.doubleValue());
+						this.constantPool.literalIndex(c.constant.doubleValue());
 					default ->
 						throw new IllegalArgumentException("Switch has unexpected type: "+switchStatement); //$NON-NLS-1$
 				};
@@ -4019,25 +4020,23 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		// u2 num_bootstrap_arguments
 		int numArgsLocation = localContentsOffset;
-		CaseStatement.ResolvedCase[] constants = switchStatement.otherConstants;
+		CaseStatement.LabelExpression[] constants = switchStatement.labelExpressions;
 		int numArgs = constants.length;
 		if (switchStatement.containsNull) --numArgs;
 		this.contents[numArgsLocation++] = (byte) (numArgs >> 8);
 		this.contents[numArgsLocation] = (byte) numArgs;
 		localContentsOffset += 2;
 
-		for (CaseStatement.ResolvedCase c : constants) {
+		for (CaseStatement.LabelExpression c : constants) {
 			if (c.isPattern()) {
 				char[] typeName = switchStatement.expression.resolvedType.constantPoolName();
 				int typeIndex = this.constantPool.literalIndexForType(typeName);
 				this.contents[localContentsOffset++] = (byte) (typeIndex >> 8);
 				this.contents[localContentsOffset++] = (byte) typeIndex;
 			} else {
-				if (c.e instanceof NullLiteral) continue;
-				String s = c.e instanceof QualifiedNameReference qnr ? // handle superfluously qualified enumerator.
-								new String(qnr.tokens[qnr.tokens.length-1]) : c.e.toString();
-				int intValIdx =
-						this.constantPool.literalIndex(s);
+				if (c.expression instanceof NullLiteral) continue;
+				String enumerator = c.expression instanceof QualifiedNameReference qnr ? new String(qnr.tokens[qnr.tokens.length - 1]) : c.expression.toString();
+				int intValIdx = this.constantPool.literalIndex(enumerator);
 				this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
 				this.contents[localContentsOffset++] = (byte) intValIdx;
 			}
@@ -6370,7 +6369,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.bootstrapMethods.add(switchStatement);
 		return this.bootstrapMethods.size() - 1;
 	}
-	public int recordBootstrapMethod(ResolvedCase resolvedCase) {
+	public int recordBootstrapMethod(LabelExpression resolvedCase) {
 		if (this.bootstrapMethods == null) {
 			this.bootstrapMethods = new ArrayList<>();
 		}

@@ -7091,8 +7091,8 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"2");
    }
    // test from spec
-	public void _testSpec001() {
-		runConformTest(new String[] {
+	public void testSpec001() {
+		runNegativeTest(new String[] {
 			"X.java",
 				"""
 					public class X {
@@ -7112,10 +7112,15 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-			"100");
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\r\n" +
+			"	default -> -1;\r\n" +
+			"	^^^^^^^\n" +
+			"Switch case cannot have both unconditional pattern and default label\n" +
+			"----------\n");
 	}
-	public void _testSpec002() {
-		runConformTest(new String[] {
+	public void testSpec002() {
+		runNegativeTest(new String[] {
 			"X.java",
 				"""
 					public class X {
@@ -7136,9 +7141,14 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-			"100");
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	default -> -1;\n" +
+			"	^^^^^^^\n" +
+			"Switch case cannot have both unconditional pattern and default label\n" +
+			"----------\n");
 	}
-	public void _testSpec003() {
+	public void testSpec003() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -7166,7 +7176,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"JsonNumber[d=30.0]");
 	}
-	public void _testSpec004() {
+	public void testSpec004() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -7201,7 +7211,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"30");
 	}
-	public void _testSpec005() {
+	public void testSpec005() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -7235,7 +7245,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"double:30.0");
 	}
-	public void _testSpec006() {
+	public void testSpec006() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -7283,6 +7293,30 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3336
+	// [Enhanced Switch][Primitive Patterns] Bogus error: Case constants in a switch on 'Long' must have type 'long'
+	public void testIssue3336() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public interface X {
+
+				public static void main(String[] args) {
+					Long lng = Long.valueOf(42);
+
+					switch (lng) {
+					case -1l -> System.out.println("-1L");
+					case null -> System.out.println("Null");
+					default -> System.out.println("Default");
+					}
+				}
+
+			}
+			"""
+			},
+			"Default");
 	}
 
 }
