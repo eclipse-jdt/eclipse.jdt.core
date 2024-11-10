@@ -147,7 +147,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 public void resolve(BlockScope scope) {
 
 	if (this.switchExpression == null) {
-		this.switchExpression = scope.enclosingSwitchExpression();
+		this.switchExpression = enclosingSwitchExpression(scope);
 		if (this.switchExpression != null && this.switchExpression.isPolyExpression()) {
 			this.expression.setExpressionContext(this.switchExpression.expressionContext); // result expressions feature in same context ...
 			this.expression.setExpectedType(this.switchExpression.expectedType);           // ... with the same target type
