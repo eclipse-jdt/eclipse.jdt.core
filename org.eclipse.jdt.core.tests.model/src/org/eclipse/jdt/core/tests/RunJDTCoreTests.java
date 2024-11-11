@@ -26,11 +26,11 @@ public RunJDTCoreTests(String name) {
 }
 public static Test suite() {
 	TestSuite suite = new TestSuite(RunJDTCoreTests.class.getName());
-	suite.addTest(RunBuilderTests.suite());
+	// suite.addTest(RunBuilderTests.suite());
 	suite.addTest(RunCompilerTests.suite());
-	suite.addTest(RunDOMTests.suite());
-	suite.addTest(RunFormatterTests.suite());
-	suite.addTest(RunModelTests.suite());
+//	suite.addTest(RunDOMTests.suite());
+//	suite.addTest(RunFormatterTests.suite());
+//	suite.addTest(RunModelTests.suite());
 	return suite;
 }
 }

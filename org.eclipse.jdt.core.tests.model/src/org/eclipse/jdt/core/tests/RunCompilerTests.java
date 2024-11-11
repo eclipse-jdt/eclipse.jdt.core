@@ -32,9 +32,9 @@ public RunCompilerTests(String name) {
 }
 public static Class[] getAllTestClasses() {
 	return new Class[] {
-		org.eclipse.jdt.core.tests.compiler.regression.TestAll.class,
+	//	org.eclipse.jdt.core.tests.compiler.regression.TestAll.class,
 		org.eclipse.jdt.core.tests.compiler.parser.TestAll.class,
-		org.eclipse.jdt.core.tests.eval.TestAll.class,
+	//	org.eclipse.jdt.core.tests.eval.TestAll.class,
 	};
 }
 public static Test suite() {

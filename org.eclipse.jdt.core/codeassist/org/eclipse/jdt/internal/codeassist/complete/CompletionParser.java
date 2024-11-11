@@ -4040,6 +4040,8 @@ protected void consumeSwitchRule(SwitchRuleKind kind) {
 }
 @Override
 protected int fetchNextToken() throws InvalidInputException {
+try {
+	System.err.println("Fetching token"); //$NON-NLS-1$
 	int token = this.scanner.getNextToken();
 	if (token != TerminalTokens.TokenNameEOF && this.scanner.currentPosition > this.cursorLocation) {
 		if (!this.diet || this.dietInt != 0) { // do this also when parsing field initializers:
@@ -4077,6 +4079,9 @@ protected int fetchNextToken() throws InvalidInputException {
 		}
 	}
 	return token;
+} finally {
+	System.err.println("Done fetch"); //$NON-NLS-1$
+}
 }
 /*
  * Variant of parse() without side effects that stops when another token would need to be fetched.

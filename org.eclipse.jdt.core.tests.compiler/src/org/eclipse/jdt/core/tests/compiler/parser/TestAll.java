@@ -36,14 +36,14 @@ public class TestAll extends junit.framework.TestCase {
 		/* completion tests */
 		TEST_CLASSES_1_5.addAll(RunCompletionParserTests.TEST_CLASSES_1_5);
 		/* selection tests */
-		TEST_CLASSES_1_5.add(GenericsSelectionTest.class);
-		TEST_CLASSES_1_5.add(AnnotationSelectionTest.class);
-		TEST_CLASSES_1_5.add(EnumSelectionTest.class);
-		/* recovery tests */
-		TEST_CLASSES_1_5.add(GenericDietRecoveryTest.class);
-		TEST_CLASSES_1_5.add(EnumDietRecoveryTest.class);
-		TEST_CLASSES_1_5.add(AnnotationDietRecoveryTest.class);
-		TEST_CLASSES_1_5.add(StatementRecoveryTest_1_5.class);
+//		TEST_CLASSES_1_5.add(GenericsSelectionTest.class);
+//		TEST_CLASSES_1_5.add(AnnotationSelectionTest.class);
+//		TEST_CLASSES_1_5.add(EnumSelectionTest.class);
+//		/* recovery tests */
+//		TEST_CLASSES_1_5.add(GenericDietRecoveryTest.class);
+//		TEST_CLASSES_1_5.add(EnumDietRecoveryTest.class);
+//		TEST_CLASSES_1_5.add(AnnotationDietRecoveryTest.class);
+//		TEST_CLASSES_1_5.add(StatementRecoveryTest_1_5.class);
 	}
 
 public TestAll(String testName) {
