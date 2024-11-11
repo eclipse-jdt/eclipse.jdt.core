@@ -3306,11 +3306,14 @@ final void addTokenToLookBack(int newToken) {
 		case TokenNameCOLON:
 			if (this.lookBack[1] == TokenNamedefault)
 				this.atClassicSwitchLabel = true;
-			if (this.scanningSwitchLabel)
+			if (this.scanningSwitchLabel) {
+				System.out.println("Checking if at end of classic switch label"); //$NON-NLS-1$
 				if (this.activeParser == null || this.activeParser.automatonWillShift(TokenNameCaseArrow)) {
 					this.scanningSwitchLabel = false;
 					this.atClassicSwitchLabel = true;
 				}
+				System.out.println("Done Checking if at end of classic switch label"); //$NON-NLS-1$
+			}
 			break;
 	}
 	this.lookBack[0] = this.lookBack[1];

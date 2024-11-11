@@ -1514,6 +1514,8 @@ SwitchLabels ::= SwitchLabel ':'
 /.$putCase consumeSwitchLabels(false, false) ; $break ./
 SwitchLabels ::= SwitchLabels SwitchLabel ':'
 /.$putCase consumeSwitchLabels(true, false) ; $break ./
+SwitchLabels ::= SwitchLabels SwitchLabel CaseArrow  -- to ease yield disambiguation, will be rejected.
+/.$putCase consumeSwitchLabels(true, true) ; $break ./
 /:$readableName SwitchLabel:/
 
 PostCaseArrow ::= $empty
