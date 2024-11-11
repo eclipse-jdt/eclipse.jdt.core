@@ -115,7 +115,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	// inline finally blocks in sequence
 	for (int i = 0, max = this.statementsWithFinallyBlock.length; i < max; i++) {
 		StatementWithFinallyBlock stmt = this.statementsWithFinallyBlock[i];
-		boolean didEscape = stmt.generateFinallyBlock(currentScope, codeStream,  this.expression.reusableJSRTarget(), this.initStateIndex);
+		boolean didEscape = stmt.generateFinallyBlock(currentScope, codeStream, this.initStateIndex);
 		if (didEscape) {
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			StatementWithFinallyBlock.reenterAllExceptionHandlers(this.statementsWithFinallyBlock, i, codeStream);
