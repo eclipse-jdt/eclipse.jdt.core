@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Javac
+Bundle-Name: Javac backend for JDT Core
+Bundle-Vendor: Eclipse JDT-LS 
 Bundle-SymbolicName: org.eclipse.jdt.core.javac;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Fragment-Host: org.eclipse.jdt.core
