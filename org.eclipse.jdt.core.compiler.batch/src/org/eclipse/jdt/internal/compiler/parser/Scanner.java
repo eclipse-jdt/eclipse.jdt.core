@@ -113,7 +113,6 @@ public class Scanner implements TerminalTokens {
 
 	public boolean fakeInModule = false;
 	boolean inCondition = false;
-	private boolean atClassicSwitchLabel = false;
 	boolean breakPreviewAllowed = false;
 	/**
 	 * The current context of the scanner w.r.t restricted keywords
@@ -3290,28 +3289,20 @@ final void resetLookBack() {
  * @see #lookBack
  */
 final void addTokenToLookBack(int newToken) {
-	this.atClassicSwitchLabel = false;
 	switch (newToken) {
 		case TokenNameWHITESPACE:
 		case TokenNameCOMMENT_LINE:
 		case TokenNameCOMMENT_BLOCK:
 		case TokenNameCOMMENT_JAVADOC:
 			return;
-		case TokenNamecase:
-			this.scanningSwitchLabel = true;
-			break;
-		case TokenNameCaseArrow:
+	}
+	if (newToken == TokenNamecase)
+		this.scanningSwitchLabel = true;
+	else if (newToken == TokenNameCaseArrow)
+		this.scanningSwitchLabel = false;
+	else if (this.scanningSwitchLabel && this.lookBack[1] == TokenNameCOLON) {
+		if (this.activeParser == null || this.activeParser.automatonWillShift(TokenNamecase))
 			this.scanningSwitchLabel = false;
-			break;
-		case TokenNameCOLON:
-			if (this.lookBack[1] == TokenNamedefault)
-				this.atClassicSwitchLabel = true;
-			if (this.scanningSwitchLabel)
-				if (this.activeParser == null || this.activeParser.automatonWillShift(TokenNameCaseArrow)) {
-					this.scanningSwitchLabel = false;
-					this.atClassicSwitchLabel = true;
-				}
-			break;
 	}
 	this.lookBack[0] = this.lookBack[1];
 	this.lookBack[1] = newToken;
@@ -5433,10 +5424,6 @@ public static boolean isRestrictedKeyword(int token) {
 private boolean mayBeAtAnYieldStatement() {
 	if (isInModuleDeclaration())
 		return false;
-
-	if (this.atClassicSwitchLabel)
-		return true;
-
 	// preceded by ;, {, }, ), or -> [Ref: http://mail.openjdk.java.net/pipermail/amber-spec-experts/2019-May/001401.html]
 	// above comment is super-seded by http://mail.openjdk.java.net/pipermail/amber-spec-experts/2019-May/001414.html
 	switch (this.lookBack[1]) {
@@ -5448,6 +5435,7 @@ private boolean mayBeAtAnYieldStatement() {
 		case TokenNamedo:
 			return true;
 		case TokenNameCOLON:
+			return this.lookBack[0] == TokenNamedefault || (this.scanningSwitchLabel &&  (this.activeParser == null || this.activeParser.automatonWillShift(TokenNamecase)));
 		case TokenNameDOT:
 		case TokenNameARROW:
 		default:
