@@ -248,15 +248,19 @@ public class RecordPattern extends Pattern {
 					componentType.erasure()))
 				codeStream.checkcast(componentType); // lastComponent ? [C] : [R, C]
 			if (p instanceof RecordPattern || !p.isTotalTypeNode) {
-				if (!p.isUnnamed())
+				BranchLabel innerFailLabel = matchFailLabel;
+				if (!p.isUnnamed()) {
 					codeStream.dup(componentType); // lastComponent ? named ? ([C, C] : [R, C, C]) : ([C] : [R, C])
+					innerFailLabel = new BranchLabel(codeStream);
+				}
 				if (p instanceof TypePattern) {
-					((TypePattern) p).generateTypeCheck(currentScope, codeStream, matchFailLabel);
+					((TypePattern) p).generateTypeCheck(currentScope, codeStream, innerFailLabel);
 				} else {
 					codeStream.instance_of(p.resolvedType); // lastComponent ? named ? ([C, boolean] : [R, C, boolean]) : ([boolean] : [R, boolean])
 				}
 				BranchLabel innerTruthLabel = new BranchLabel(codeStream);
 				codeStream.ifne(innerTruthLabel); // lastComponent ? named ? ([C] : [R, C]) : ([] : [R])
+				innerFailLabel.place();
 				int pops = p.isUnnamed() ? 0 : TypeIds.getCategory(componentType.id); // Not going to store into the component pattern binding, so need to pop, the duped value.
 				Pattern current = p;
 				RecordPattern outer = this;
