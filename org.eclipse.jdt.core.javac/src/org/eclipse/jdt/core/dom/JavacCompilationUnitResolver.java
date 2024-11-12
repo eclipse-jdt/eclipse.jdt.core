@@ -418,7 +418,9 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					apiLevel, compilerOptions, resolveBindings, flags, compilationUnits[0].getJavaProject(), workingCopyOwner, -1, monitor)
 				.entrySet().stream().collect(Collectors.toMap(entry -> (ICompilationUnit)entry.getKey(), entry -> entry.getValue()));
 			for (ICompilationUnit in : compilationUnits) {
-				res.get(in).setTypeRoot(in);
+				CompilationUnit c = res.get(in);
+				if( c != null )
+					c.setTypeRoot(in);
 			}
 			return res;
 		}

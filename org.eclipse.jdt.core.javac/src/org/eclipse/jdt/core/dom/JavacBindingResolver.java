@@ -468,7 +468,7 @@ public class JavacBindingResolver extends BindingResolver {
 //						ILog.get().info("analyze elements=" + count + ", took: " + (System.currentTimeMillis() - start)
 //								+ ", first=" + name);
 					}
-				} catch (IOException | IllegalStateException | Error e) {
+				} catch (IOException | Error | RuntimeException e) {
 					ILog.get().error(e.getMessage(), e);
 				}
 			}
