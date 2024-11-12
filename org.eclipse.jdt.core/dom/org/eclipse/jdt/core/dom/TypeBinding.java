@@ -588,16 +588,13 @@ class TypeBinding implements ITypeBinding {
 	public int getModifiers() {
 		if (isClass()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
-			int k = referenceBinding.getAccessFlags();
-			final int accessFlags = k & VALID_MODIFIERS;
+			if (referenceBinding.isSealed() || referenceBinding.isNonSealed()) {
+				return referenceBinding.getAccessFlagsForSealedAndNonSealed();
+			}
+			final int accessFlags = referenceBinding.getAccessFlags() & VALID_MODIFIERS;
 			if (referenceBinding.isAnonymousType()) {
 				return accessFlags & ~Modifier.FINAL;
-			} else if (referenceBinding.isSealed()) {
-				return Modifier.SEALED;
-			} else if (referenceBinding.isNonSealed()) {
-				return Modifier.NON_SEALED;
 			}
-
 			return accessFlags;
 		} else if (isAnnotation()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;

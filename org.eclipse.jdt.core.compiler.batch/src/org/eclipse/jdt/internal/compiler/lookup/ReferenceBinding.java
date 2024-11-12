@@ -1080,6 +1080,10 @@ public final int getAccessFlags() {
 	return this.modifiers & ExtraCompilerModifiers.AccJustFlag;
 }
 
+public final int getAccessFlagsForSealedAndNonSealed() {
+	return ((this.modifiers >>> 16) & 0xFFFF) & ExtraCompilerModifiers.AccJustFlag;
+}
+
 /**
  * @return the JSR 175 annotations for this type.
  */

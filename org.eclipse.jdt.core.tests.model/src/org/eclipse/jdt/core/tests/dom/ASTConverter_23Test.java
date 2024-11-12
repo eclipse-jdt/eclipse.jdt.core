@@ -187,4 +187,35 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 	    ITypeBinding aBinding = a.resolveBinding();
 	    assertEquals("'non-sealed' modifier is not set in binding", Modifier.isNonSealed(aBinding.getModifiers()), true);
 	}
+
+	public void test003_c() throws CoreException {
+		ASTParser astParser = ASTParser.newParser(getAST23());
+	    Map<String, String> options = new HashMap<>();
+	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
+	    options.put(JavaCore.COMPILER_SOURCE, "23");
+
+	    astParser.setCompilerOptions(options);
+	    astParser.setEnvironment(new String[] {}, new String[] {}, new String[] {}, true);
+	    astParser.setUnitName("Example.java");
+	    astParser.setResolveBindings(true);
+	    astParser.setBindingsRecovery(true);
+
+	    String source ="""
+		    		public sealed class A permits B, C {}
+		    		final class B extends A {}
+		    		non-sealed class C extends A {}
+	    		""";
+
+	    astParser.setSource(source.toCharArray());
+
+	    CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(null);
+	    TypeDeclaration a = (TypeDeclaration) compilationUnit.types().get(0);
+
+	    assertEquals("Modifier is not present in AST", Modifier.isSealed(a.getModifiers()), true);
+
+	    assertEquals("permitted types are not present in AST", a.permittedTypes().size(), 2);
+
+	    ITypeBinding aBinding = a.resolveBinding();
+	    assertEquals("'sealed' modifier is not set in binding", Modifier.isSealed(aBinding.getModifiers()), true);
+	}
 }
