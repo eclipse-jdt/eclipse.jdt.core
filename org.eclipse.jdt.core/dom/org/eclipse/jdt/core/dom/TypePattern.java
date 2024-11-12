@@ -224,7 +224,7 @@ public class TypePattern extends Pattern {
 	 * @return the pattern variable
 	 * @exception UnsupportedOperationException if this operation is used other than JLS19
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * @deprecated In the JLS22 API, this method is replaced by  <code>getPatternVariable2()</code>
+	 * @Deprecated(forRemoval = true, since="2024-07")  In the JLS22 API, this method is replaced by  <code>getPatternVariable2()</code>
 	 * @since 3.38
 	 */
 	public SingleVariableDeclaration getPatternVariable() {
