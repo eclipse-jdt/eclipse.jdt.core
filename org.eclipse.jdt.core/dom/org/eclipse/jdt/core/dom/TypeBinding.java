@@ -588,12 +588,12 @@ class TypeBinding implements ITypeBinding {
 	public int getModifiers() {
 		if (isClass()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
-			if (referenceBinding.isSealed() || referenceBinding.isNonSealed()) {
-				return referenceBinding.getAccessFlagsForSealedAndNonSealed();
-			}
 			final int accessFlags = referenceBinding.getAccessFlags() & VALID_MODIFIERS;
 			if (referenceBinding.isAnonymousType()) {
 				return accessFlags & ~Modifier.FINAL;
+			}
+			if((referenceBinding.modifiers < -32768 || referenceBinding.modifiers > 32767) && (referenceBinding.isSealed() || referenceBinding.isNonSealed())) {//checks the modifiers has upper 16 bits
+				return referenceBinding.modifiers;
 			}
 			return accessFlags;
 		} else if (isAnnotation()) {
