@@ -939,7 +939,11 @@ public class JavacBindingResolver extends BindingResolver {
 			javacElement = javacMethodInvocation.getMethodSelect();
 		}
 		if (javacElement instanceof JCIdent ident && ident.sym instanceof MethodSymbol methodSymbol) {
-			return this.bindings.getMethodBinding(ident.type != null ? ident.type.asMethodType() : methodSymbol.asType().asMethodType(), methodSymbol, null, false);
+			if (ident.type != null && (ident.type instanceof MethodType || ident.type instanceof ForAll)) {
+				return this.bindings.getMethodBinding(ident.type.asMethodType(), methodSymbol, null, false);
+			} else if (methodSymbol.asType() instanceof MethodType || methodSymbol.asType() instanceof ForAll) {
+				return this.bindings.getMethodBinding(methodSymbol.asType().asMethodType(), methodSymbol, null, false);
+			}
 		}
 		if (javacElement instanceof JCFieldAccess fieldAccess && fieldAccess.sym instanceof MethodSymbol methodSymbol) {
 			return this.bindings.getMethodBinding(fieldAccess.type.asMethodType(), methodSymbol, null, false);
