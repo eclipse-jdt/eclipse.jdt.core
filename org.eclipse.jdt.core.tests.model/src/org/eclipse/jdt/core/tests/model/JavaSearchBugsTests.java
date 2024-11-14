@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15497,6 +15497,100 @@ public void testModuleConflictGh723() throws Exception {
 		deleteProject(projectName);
 		deleteProject(modularProjectName);
 	}
+}
+
+/**
+ * issue 3308: SearchEngine.searchDeclarationsOfSentMessages() does not support local or anonymous classes
+ * @see "https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3308"
+ */
+public void testIssue3308() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	String src= """
+			package issue3308;
+			public class Test {
+				public class BaseTargetClass {
+				}
+
+				public class OriginalClass {
+					public int data = 60;
+
+					public void memberMethod() {
+					}
+
+					public class NestedOriginalClass extends BaseTargetClass {
+						void setup() {
+							new BaseTargetClass() {
+								int j = 1;
+
+								void methodToBePulledUp() {
+									j = 2;
+									methodHelper();
+								}
+
+								void methodHelper() {
+									System.out.println("Helper Method in Anonymous Class: " + data);
+								}
+							};
+						}
+					}
+				}
+			}
+			""";
+
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/issue3308/Test.java", src);
+	IType type = (IType) this.workingCopies[0].getElementAt(src.indexOf("new BaseTargetClass"));
+	IMethod method = type.getMethod("methodToBePulledUp", new String[] {});
+	new SearchEngine(this.workingCopies).searchDeclarationsOfSentMessages(method, this.resultCollector, null);
+	assertSearchResults(
+		"src/issue3308/Test.java void void issue3308.Test$OriginalClass$NestedOriginalClass.setup():<anonymous>#1.methodHelper() [methodHelper()] EXACT_MATCH"
+	);
+}
+
+/**
+ * issue 3308: SearchEngine.searchDeclarationsOfSentMessages() does not support local or anonymous classes
+ * @see "https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3308"
+ */
+public void testIssue3308b() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	String src= """
+			package issue3308;
+			public class Test {
+				public class BaseTargetClass {
+				}
+
+				public class OriginalClass {
+					public int data = 60;
+
+					public void memberMethod() {
+					}
+
+					public class NestedOriginalClass extends BaseTargetClass {
+						void setup() {
+							new BaseTargetClass() {
+								int j = 1;
+
+								void methodToBePulledUp() {
+									j = 2;
+									methodHelper();
+								}
+
+								void methodHelper() {
+									System.out.println("Helper Method in Anonymous Class: " + data);
+								}
+							};
+						}
+					}
+				}
+			}
+			""";
+
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/issue3308b/Test.java", src);
+	IType type = (IType) this.workingCopies[0].getElementAt(src.indexOf("new BaseTargetClass"));
+	IMethod method = type.getMethod("methodToBePulledUp", new String[] {});
+	new SearchEngine(this.workingCopies).searchDeclarationsOfAccessedFields(method, this.resultCollector, null);
+	assertSearchResults(
+		"src/issue3308b/Test.java void issue3308b.Test$OriginalClass$NestedOriginalClass.setup():<anonymous>#1.j [j] EXACT_MATCH"
+	);
 }
 
 private static String toString(char[][] modules) {
