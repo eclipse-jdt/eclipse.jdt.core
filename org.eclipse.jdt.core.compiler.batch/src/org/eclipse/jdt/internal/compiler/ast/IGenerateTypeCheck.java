@@ -14,7 +14,6 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ast.Pattern.PrimitiveConversionRoute;
-import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -25,7 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  */
 interface IGenerateTypeCheck {
 
-	default void generateTypeCheck(TypeBinding providedType, TypeReference expectedTypeRef, BlockScope scope, CodeStream codeStream, BranchLabel falseLabel, PrimitiveConversionRoute route) {
+	default void generateTypeCheck(TypeBinding providedType, TypeReference expectedTypeRef, BlockScope scope, CodeStream codeStream, PrimitiveConversionRoute route) {
 		switch (route) {
 			case IDENTITY_CONVERSION -> {
 				consumeProvidedValue(providedType, codeStream);
@@ -46,8 +45,7 @@ interface IGenerateTypeCheck {
 			}
 			case WIDENING_REFERENCE_AND_UNBOXING_COVERSION,
 			WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION -> {
-				codeStream.ifnull(falseLabel);
-				codeStream.iconst_1();
+				codeStream.instance_of(scope.getJavaLangObject());
 				setPatternIsTotalType();
 			}
 			case NARROWING_AND_UNBOXING_CONVERSION -> {
@@ -56,8 +54,7 @@ interface IGenerateTypeCheck {
 			}
 			case UNBOXING_CONVERSION,
 			UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION -> {
-				codeStream.ifnull(falseLabel);
-				codeStream.iconst_1();
+				codeStream.instance_of(scope.getJavaLangObject());
 				setPatternIsTotalType();
 			}
 			case NO_CONVERSION_ROUTE -> {
