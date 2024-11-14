@@ -129,7 +129,7 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 	}
 
 	public void test003_a() throws CoreException {
-		ASTParser astParser = ASTParser.newParser(getAST23());
+	    ASTParser astParser = ASTParser.newParser(getAST23());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -160,7 +160,7 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 	}
 
 	public void test003_b() throws CoreException {
-		ASTParser astParser = ASTParser.newParser(getAST23());
+	    ASTParser astParser = ASTParser.newParser(getAST23());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -190,7 +190,7 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 
 	//public sealed
 	public void test003_c() throws CoreException {
-		ASTParser astParser = ASTParser.newParser(getAST23());
+	    ASTParser astParser = ASTParser.newParser(getAST23());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -224,7 +224,7 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 
 	//abstract final
 	public void test003_d() throws CoreException {
-		ASTParser astParser = ASTParser.newParser(getAST23());
+	    ASTParser astParser = ASTParser.newParser(getAST23());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -254,7 +254,7 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 
 	//abstract non-sealed
 	public void test003_e() throws CoreException {
-		ASTParser astParser = ASTParser.newParser(getAST23());
+	    ASTParser astParser = ASTParser.newParser(getAST23());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -284,7 +284,7 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 
 	//public final
 	public void test003_f() throws CoreException {
-		ASTParser astParser = ASTParser.newParser(getAST23());
+	    ASTParser astParser = ASTParser.newParser(getAST23());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -314,7 +314,7 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 
 	//public non-sealed
 	public void test003_g() throws CoreException {
-		ASTParser astParser = ASTParser.newParser(getAST23());
+	    ASTParser astParser = ASTParser.newParser(getAST23());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -344,7 +344,7 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 
 	//protected non-sealed
 	public void test003_h() throws CoreException {
-		ASTParser astParser = ASTParser.newParser(getAST23());
+	    ASTParser astParser = ASTParser.newParser(getAST23());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -374,7 +374,7 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 
 	//private non-sealed
 	public void test003_i() throws CoreException {
-		ASTParser astParser = ASTParser.newParser(getAST23());
+	    ASTParser astParser = ASTParser.newParser(getAST23());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -404,7 +404,7 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 
 	//protected abstract
 	public void test003_j() throws CoreException {
-		ASTParser astParser = ASTParser.newParser(getAST23());
+	    ASTParser astParser = ASTParser.newParser(getAST23());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");

@@ -336,14 +336,14 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * Applicable only to types.
 	 * @since 3.24
 	 */
-	public static final int SEALED = 0x1000;
+	public static final int SEALED = 0x0200;
 
 	/**
 	 * "non-sealed" modifier constant (bit mask).
 	 * Applicable only to types.
 	 * @since 3.24
 	 */
-	public static final int NON_SEALED = 0x400;
+	public static final int NON_SEALED = 0x1000;
 
 	/**
 	 * "module" modifier constant (bit mask).
@@ -537,9 +537,6 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * @since 3.24
 	 */
 	public static boolean isSealed(int flags) {
-		if(flags < -32768 || flags > 32767) {
-			return((flags >>> 16 ) & SEALED ) != 0;
-		}
 		return (flags & SEALED) != 0;
 	}
 
@@ -553,9 +550,6 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * @since 3.24
 	 */
 	public static boolean isNonSealed(int flags) {
-		if(flags < -32768 || flags > 32767) {
-			return ((flags >>> 16 ) & NON_SEALED ) != 0;
-		}
 		return (flags & NON_SEALED) != 0;
 	}
 
