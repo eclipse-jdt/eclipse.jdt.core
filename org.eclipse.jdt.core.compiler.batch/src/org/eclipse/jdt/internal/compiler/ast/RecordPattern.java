@@ -251,7 +251,7 @@ public class RecordPattern extends Pattern {
 				if (!p.isUnnamed())
 					codeStream.dup(componentType); // lastComponent ? named ? ([C, C] : [R, C, C]) : ([C] : [R, C])
 				if (p instanceof TypePattern) {
-					((TypePattern) p).generateTypeCheck(currentScope, codeStream, matchFailLabel);
+					((TypePattern) p).generateTypeCheck(currentScope, codeStream);
 				} else {
 					codeStream.instance_of(p.resolvedType); // lastComponent ? named ? ([C, boolean] : [R, C, boolean]) : ([boolean] : [R, boolean])
 				}

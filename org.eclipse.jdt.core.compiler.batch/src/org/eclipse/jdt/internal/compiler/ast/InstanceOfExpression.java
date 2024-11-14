@@ -179,7 +179,7 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 		route = this.testContextRecord.route();
 		providedType = this.testContextRecord.right();
 	}
-	generateTypeCheck(providedType, this.type, currentScope, codeStream, internalFalseLabel, route);
+	generateTypeCheck(providedType, this.type, currentScope, codeStream, route);
 
 	if (this.pattern != null) {
 		codeStream.ifeq(internalFalseLabel);
