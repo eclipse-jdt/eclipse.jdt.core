@@ -252,7 +252,17 @@ public class DOMCompletionEngine implements Runnable {
 				if (simpleName.getParent() instanceof SimpleType simpleType && (simpleType.getParent() instanceof ClassInstanceCreation)) {
 					context = simpleName.getParent().getParent();
 				}
-			} else if (this.toComplete instanceof SimpleType simpleType) {
+			} else if (this.toComplete instanceof TextElement textElement) {
+				int charCount = this.offset - textElement.getStartPosition();
+				completeAfter = textElement.getText().substring(0, textElement.getText().length() <= charCount ? textElement.getText().length() : charCount);
+				context = textElement.getParent();
+			} else if (this.toComplete instanceof TagElement tagElement) {
+				completeAfter = tagElement.getTagName();
+				int atIndex = completeAfter.indexOf('@');
+				if (atIndex >= 0) {
+					completeAfter = completeAfter.substring(atIndex + 1);
+				}
+			} if (this.toComplete instanceof SimpleType simpleType) {
 				if (FAKE_IDENTIFIER.equals(simpleType.getName().toString())) {
 					context = this.toComplete.getParent();
 				} else if (simpleType.getName() instanceof QualifiedName qualifiedName) {
@@ -621,6 +631,12 @@ public class DOMCompletionEngine implements Runnable {
 				}
 				suggestDefaultCompletions = false;
 			}
+			if (context instanceof TagElement tagElement) {
+				completionContext.setInJavadoc(true);
+				completeJavadocBlockTags(tagElement);
+				completeJavadocInlineTags(tagElement);
+				suggestDefaultCompletions = false;
+			}
 
 			// check for accessible bindings to potentially turn into completions.
 			// currently, this is always run, even when not using the default completion,
@@ -735,6 +751,28 @@ public class DOMCompletionEngine implements Runnable {
 		for (char[] keyword : keywords) {
 			if (!isFailedMatch(this.toComplete.toString().toCharArray(), keyword)) {
 				this.requestor.accept(createKeywordProposal(keyword, this.toComplete.getStartPosition(), this.offset));
+			}
+		}
+	}
+
+	private void completeJavadocBlockTags(TagElement tagNode) {
+		if (this.requestor.isIgnored(CompletionProposal.JAVADOC_BLOCK_TAG)) {
+			return;
+		}
+		for (char[] blockTag : DOMCompletionEngineJavadocUtil.getJavadocBlockTags(this.modelUnit.getJavaProject(), tagNode)) {
+			if (!isFailedMatch(this.prefix.toCharArray(), blockTag)) {
+				this.requestor.accept(toJavadocBlockTagProposal(blockTag));
+			}
+		}
+	}
+
+	private void completeJavadocInlineTags(TagElement tagNode) {
+		if (this.requestor.isIgnored(CompletionProposal.JAVADOC_INLINE_TAG)) {
+			return;
+		}
+		for (char[] blockTag : DOMCompletionEngineJavadocUtil.getJavadocInlineTags(this.modelUnit.getJavaProject(), tagNode)) {
+			if (!isFailedMatch(this.prefix.toCharArray(), blockTag)) {
+				this.requestor.accept(toJavadocInlineTagProposal(blockTag));
 			}
 		}
 	}
@@ -1644,6 +1682,42 @@ public class DOMCompletionEngine implements Runnable {
 				+ RelevanceConstants.R_NON_RESTRICTED;
 		proposal.setRelevance(relevance);
 		return proposal;
+	}
+
+	private CompletionProposal toJavadocBlockTagProposal(char[] blockTag) {
+		InternalCompletionProposal res = createProposal(CompletionProposal.JAVADOC_BLOCK_TAG);
+		res.setName(blockTag);
+		StringBuilder completion = new StringBuilder();
+		completion.append('@');
+		completion.append(blockTag);
+		res.setCompletion(completion.toString().toCharArray());
+		setRange(res);
+		ASTNode replaceNode = this.toComplete;
+		if (replaceNode instanceof TextElement) {
+			replaceNode = replaceNode.getParent();
+		}
+		res.setReplaceRange(replaceNode.getStartPosition(), replaceNode.getStartPosition() + replaceNode.getLength());
+		res.setRelevance(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_INTERESTING + RelevanceConstants.R_NON_RESTRICTED);
+		return res;
+	}
+
+	private CompletionProposal toJavadocInlineTagProposal(char[] inlineTag) {
+		InternalCompletionProposal res = createProposal(CompletionProposal.JAVADOC_INLINE_TAG);
+		res.setName(inlineTag);
+		StringBuilder completion = new StringBuilder();
+		completion.append('{');
+		completion.append('@');
+		completion.append(inlineTag);
+		completion.append('}');
+		res.setCompletion(completion.toString().toCharArray());
+		setRange(res);
+		ASTNode replaceNode = this.toComplete;
+		if (replaceNode instanceof TextElement) {
+			replaceNode = replaceNode.getParent();
+		}
+		res.setReplaceRange(replaceNode.getStartPosition(), replaceNode.getStartPosition() + replaceNode.getLength());
+		res.setRelevance(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_INTERESTING + RelevanceConstants.R_NON_RESTRICTED);
+		return res;
 	}
 
 	private void configureProposal(InternalCompletionProposal proposal, ASTNode completing) {

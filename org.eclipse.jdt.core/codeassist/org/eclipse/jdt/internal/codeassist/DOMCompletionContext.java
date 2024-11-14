@@ -32,6 +32,7 @@ class DOMCompletionContext extends CompletionContext {
 	private final Supplier<Stream<IBinding>> bindingsAcquirer;
 	private final ExpectedTypes expectedTypes;
 
+	private boolean inJavadoc = false;
 
 	DOMCompletionContext(int offset, char[] token, IJavaElement enclosingElement,
 			Supplier<Stream<IBinding>> bindingHaver, ExpectedTypes expectedTypes) {
@@ -50,6 +51,15 @@ class DOMCompletionContext extends CompletionContext {
 	@Override
 	public char[] getToken() {
 		return this.token;
+	}
+
+	@Override
+	public boolean isInJavadoc() {
+		return this.inJavadoc;
+	}
+
+	public void setInJavadoc(boolean inJavadoc) {
+		this.inJavadoc = inJavadoc;
 	}
 
 	@Override
