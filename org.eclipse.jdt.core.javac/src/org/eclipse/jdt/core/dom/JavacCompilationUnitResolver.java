@@ -699,6 +699,18 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		List<JCCompilationUnit> javacCompilationUnits = new ArrayList<>();
 		try {
 			var elements = task.parse().iterator();
+			// after parsing, we already have the comments and we don't care about reading other comments
+			// during resolution
+			{
+				// The tree we have are complete and good enough for further processing.
+				// Disable extra features that can affect how other trees (source path elements)
+				// are parsed during resolution so we stick to the mininal useful data generated
+				// and stored during analysis
+				var javac = com.sun.tools.javac.main.JavaCompiler.instance(context);
+				javac.keepComments = false;
+				javac.genEndPos = false;
+				javac.lineDebugInfo = false;
+			}
 			var aptPath = fileManager.getLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH);
 			if ((flags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0
 				|| (aptPath != null && aptPath.iterator().hasNext())) {
