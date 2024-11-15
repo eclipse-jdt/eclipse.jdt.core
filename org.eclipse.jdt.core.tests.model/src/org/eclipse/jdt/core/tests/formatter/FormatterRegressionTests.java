@@ -16302,6 +16302,7 @@ public void testGH59() {
  * https://github.com/eclipse-jdt/eclipse.jdt/pull/1817 - [formatter] Align arrows on column in switch statements/expressions
  */
 public void testGH1817a() {
+	setComplianceLevel(CompilerOptions.VERSION_14);
 	this.formatterPrefs.align_arrows_in_switch_on_columns = true;
 	String source =
 		"""
