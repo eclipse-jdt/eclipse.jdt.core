@@ -19,6 +19,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import javax.annotation.processing.Processor;
+import javax.tools.ForwardingJavaFileManager;
 import javax.tools.JavaFileManager;
 
 import com.sun.source.util.Plugin;
@@ -92,7 +93,12 @@ public class CachingJDKPlatformArguments extends Arguments {
 		return new PlatformDescription() {
 			@Override
 			public JavaFileManager getFileManager() {
-				return platformFMCache.computeIfAbsent(getSourceVersion(), _ -> delegate.getFileManager());
+				return platformFMCache.computeIfAbsent(getSourceVersion(), _ -> new ForwardingJavaFileManager<JavaFileManager>(delegate.getFileManager()) {
+					@Override
+					public void close() {
+						// do nothing, keep instance usable
+					}
+				});
 			}
 
 			@Override
