@@ -50,6 +50,7 @@ import com.sun.tools.javac.api.MultiTaskListener;
 import com.sun.tools.javac.comp.AttrContext;
 import com.sun.tools.javac.comp.CompileStates.CompileState;
 import com.sun.tools.javac.comp.Env;
+import com.sun.tools.javac.file.CacheFSInfo;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.main.JavaCompiler;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
@@ -105,6 +106,7 @@ public class JavacCompiler extends Compiler {
 		for (Entry<IContainer, List<ICompilationUnit>> outputSourceSet : outputSourceMapping.entrySet()) {
 
 			Context javacContext = new Context();
+			CacheFSInfo.preRegister(javacContext);
 			JavacProblemConverter problemConverter = new JavacProblemConverter(this.compilerConfig.compilerOptions(), javacContext);
 			javacContext.put(DiagnosticListener.class, diagnostic -> {
 				if (diagnostic.getSource() instanceof JavaFileObject fileObject) {
@@ -153,7 +155,7 @@ public class JavacCompiler extends Compiler {
 						this.isInGeneration = true;
 						super.generate(queue, results);
 					} catch (Throwable ex) {
-						// TODO error handling
+						ILog.get().error(ex.getMessage(), ex);
 					} finally {
 						this.isInGeneration = false;
 					}
@@ -164,7 +166,7 @@ public class JavacCompiler extends Compiler {
 					try {
 						super.desugar(env, results);
 					} catch (Throwable ex) {
-						// TODO error handling
+						ILog.get().error(ex.getMessage(), ex);
 					}
 				}
 

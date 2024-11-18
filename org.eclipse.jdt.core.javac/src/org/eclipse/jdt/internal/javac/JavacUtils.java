@@ -99,6 +99,7 @@ public class JavacUtils {
 	private static void configureOptions(IJavaProject javaProject, Context context, Map<String, String> compilerOptions, String addExports) {
 		boolean nineOrLater = false;
 		Options options = Options.instance(context);
+		options.put(Option.IMPLICIT, "none");
 		options.put("allowStringFolding", Boolean.FALSE.toString());
 		final Version complianceVersion;
 		String compliance = compilerOptions.get(CompilerOptions.OPTION_Compliance);
@@ -110,7 +111,6 @@ public class JavacUtils {
 			&& compliance != null && !compliance.isEmpty()) {
 			complianceVersion = Version.parse(compliance);
 			options.put(Option.RELEASE, compliance);
-			CachingJDKPlatformArguments.preRegister(context);
 			nineOrLater = complianceVersion.compareTo(Version.parse("9")) >= 0;
 		} else {
 			String source = compilerOptions.get(CompilerOptions.OPTION_Source);
@@ -158,13 +158,12 @@ public class JavacUtils {
 		}
 		options.put(Option.XLINT, Boolean.toString(true));
 		options.put(Option.XLINT_CUSTOM, "all");
-		options.put(Option.XDOCLINT, Boolean.toString(true));
-		options.put(Option.XDOCLINT_CUSTOM, "all");
-		if (addExports != null && !addExports.isBlank()) {
-			options.put(Option.ADD_EXPORTS, addExports);
-		}
 		if (JavaCore.ENABLED.equals(compilerOptions.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT))) {
 			options.put(Option.XDOCLINT, Boolean.toString(true));
+			options.put(Option.XDOCLINT_CUSTOM, "all");
+		}
+		if (addExports != null && !addExports.isBlank()) {
+			options.put(Option.ADD_EXPORTS, addExports);
 		}
 		if (nineOrLater && !options.isSet(Option.RELEASE) && javaProject instanceof JavaProject javaProjectImpl) {
 			try {
