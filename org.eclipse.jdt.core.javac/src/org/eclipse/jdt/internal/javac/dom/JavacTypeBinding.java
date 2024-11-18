@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
@@ -195,6 +196,8 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				if (getDeclaringMethod() != null && getDeclaringMethod().getJavaElement() instanceof IMethod method) {
 					// TODO find proper occurenceCount (eg checking the source range)
 					return method.getType("", 1);
+				} else if( getDeclaringMember() instanceof IBinding gdm && gdm != null && gdm.getJavaElement() instanceof IField field) {
+					return field.getType("", 1);
 				} else if (getDeclaringClass() != null && getDeclaringClass().getJavaElement() instanceof IType type) {
 					return type.getType("", 1);
 				}
