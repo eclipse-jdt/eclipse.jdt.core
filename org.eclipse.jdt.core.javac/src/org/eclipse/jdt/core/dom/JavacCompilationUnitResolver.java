@@ -641,14 +641,23 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		context.put(DiagnosticListener.class, diagnosticListener);
 		boolean docEnabled = JavaCore.ENABLED.equals(compilerOptions.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT));
 		JavacUtils.configureJavacContext(context, compilerOptions, javaProject, JavacUtils.isTest(javaProject, sourceUnits));
-		Options.instance(context).put(Option.PROC, "only");
+		Options javacOptions = Options.instance(context);
+		if (!resolveBindings && (flags & ICompilationUnit.FORCE_PROBLEM_DETECTION) == 0) {
+			// most likely no need for linting
+			// resolveBindings still seems requested for tests
+			javacOptions.remove(Option.XLINT.primaryName);
+			javacOptions.remove(Option.XLINT_CUSTOM.primaryName);
+			javacOptions.remove(Option.XDOCLINT.primaryName);
+			javacOptions.remove(Option.XDOCLINT_CUSTOM.primaryName);
+		}
+		javacOptions.put(Option.PROC, "only");
 		Optional.ofNullable(Platform.getProduct())
 				.map(IProduct::getApplication)
 				// if application is not a test runner (so we don't have regressions with JDT test suite because of too many problems
 				.or(() -> Optional.ofNullable(System.getProperty("eclipse.application")))
 				.filter(name -> !name.contains("test") && !name.contains("junit"))
 				 // continue as far as possible to get extra warnings about unused
-				.ifPresent(id -> Options.instance(context).put("should-stop.ifError", CompileState.GENERATE.toString()));
+				.ifPresent(id ->javacOptions.put("should-stop.ifError", CompileState.GENERATE.toString()));
 		var fileManager = (JavacFileManager)context.get(JavaFileManager.class);
 		List<JavaFileObject> fileObjects = new ArrayList<>(); // we need an ordered list of them
 		for (var sourceUnit : sourceUnits) {
