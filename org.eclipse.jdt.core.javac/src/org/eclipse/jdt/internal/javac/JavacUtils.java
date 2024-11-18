@@ -301,7 +301,9 @@ public class JavacUtils {
 						})
 						.collect(Collectors.toSet());
 				
-				fileManager.setLocation(StandardLocation.CLASS_PATH, classpathEntriesToFiles(javaProject, entry -> entry.getEntryKind() != IClasspathEntry.CPE_SOURCE && (isTest || !entry.isTest())));
+				Collection<File> classpathFiles = classpathEntriesToFiles(javaProject, entry -> entry.getEntryKind() != IClasspathEntry.CPE_SOURCE && (isTest || !entry.isTest()));
+				fileManager.setLocation(StandardLocation.CLASS_PATH, classpathFiles);
+				classpathFiles.addAll(outDirectories(javaProject, entry -> isTest || !entry.isTest()));
 				
 				if (!moduleProjects.isEmpty()) {
 					fileManager.setLocation(StandardLocation.MODULE_PATH, moduleProjects.stream()
@@ -323,6 +325,28 @@ public class JavacUtils {
 		} catch (Exception ex) {
 			ILog.get().error(ex.getMessage(), ex);
 		}
+	}
+
+	private static Collection<? extends File> outDirectories(JavaProject javaProject, Predicate<IClasspathEntry> select) {
+		LinkedHashSet<File> res = new LinkedHashSet<>();
+		try {
+			addPath(javaProject, javaProject.getOutputLocation(), res);
+		} catch (JavaModelException ex) {
+			ILog.get().error(ex.getMessage(), ex);
+		}
+		try {
+			for (IClasspathEntry entry : javaProject.resolveClasspath(javaProject.getExpandedClasspath())) {
+				if (select == null || select.test(entry)) {
+					var output = entry.getOutputLocation();
+					if (output != null) {
+						addPath(javaProject, output, res);
+					}
+				}
+			}
+		} catch (JavaModelException ex) {
+			ILog.get().error(ex.getMessage(), ex);
+		}
+		return res;
 	}
 
 	public static <T> boolean isEmpty(List<T> list) {
@@ -368,6 +392,7 @@ public class JavacUtils {
 					addPath(project, path, res);
 				}
 			}
+			
 			return res;
 		} catch (JavaModelException ex) {
 			ILog.get().error(ex.getMessage(), ex);
@@ -375,7 +400,7 @@ public class JavacUtils {
 		}
 	}
 
-		private static void addPath(JavaProject project, IPath path, LinkedHashSet<File> res) {
+	private static void addPath(JavaProject project, IPath path, LinkedHashSet<File> res) {
 		File asFile = path.toFile();
 		if (asFile.exists()) {
 			res.add(asFile);
