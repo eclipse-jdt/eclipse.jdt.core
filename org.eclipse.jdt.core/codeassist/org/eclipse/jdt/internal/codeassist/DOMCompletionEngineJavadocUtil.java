@@ -135,14 +135,14 @@ class DOMCompletionEngineJavadocUtil {
 	}
 
 	private static List<char[]> tagsForNode(List<char[]> tagsForVersion, TagElement tagNode) {
-		boolean isField = findParent(tagNode, new int[]{ ASTNode.FIELD_DECLARATION }) != null;
+		boolean isField = DOMCompletionUtil.findParent(tagNode, new int[]{ ASTNode.FIELD_DECLARATION }) != null;
 		if (isField) {
 			return Stream.of(JavadocTagConstants.FIELD_TAGS) //
 					.filter(tag -> tagsForVersion.contains(tag)) //
 					.toList();
 		}
 
-		ASTNode astNode = findParent(tagNode, new int[] {
+		ASTNode astNode = DOMCompletionUtil.findParent(tagNode, new int[] {
 				ASTNode.METHOD_DECLARATION,
 				ASTNode.TYPE_DECLARATION,
 				ASTNode.ENUM_DECLARATION,
@@ -164,7 +164,7 @@ class DOMCompletionEngineJavadocUtil {
 					.toList();
 		}
 
-		boolean isPackage = findParent(tagNode, new int[] {ASTNode.PACKAGE_DECLARATION}) != null;
+		boolean isPackage = DOMCompletionUtil.findParent(tagNode, new int[] {ASTNode.PACKAGE_DECLARATION}) != null;
 		if (isPackage) {
 			return Stream.of(JavadocTagConstants.PACKAGE_TAGS) //
 					.filter(tag -> tagsForVersion.contains(tag)) //
@@ -172,19 +172,6 @@ class DOMCompletionEngineJavadocUtil {
 		}
 
 		throw new IllegalStateException("I was expecting one of the above nodes to be documented"); //$NON-NLS-1$
-	}
-
-	private static ASTNode findParent(ASTNode nodeToSearch, int[] kindsToFind) {
-		ASTNode cursor = nodeToSearch;
-		while (cursor != null) {
-			for (int kindToFind : kindsToFind) {
-				if (cursor.getNodeType() == kindToFind) {
-					return cursor;
-				}
-			}
-			cursor = cursor.getParent();
-		}
-		return null;
 	}
 
 }

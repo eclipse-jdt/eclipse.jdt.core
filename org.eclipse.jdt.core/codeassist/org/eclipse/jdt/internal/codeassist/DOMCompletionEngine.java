@@ -310,7 +310,7 @@ public class DOMCompletionEngine implements Runnable {
 			Bindings defaultCompletionBindings = new Bindings();
 			Bindings specificCompletionBindings = new Bindings();
 			var completionContext = new DOMCompletionContext(this.offset, completeAfter.toCharArray(),
-					computeEnclosingElement(), defaultCompletionBindings::stream, expectedTypes);
+					computeEnclosingElement(), defaultCompletionBindings::stream, expectedTypes, this.toComplete);
 			this.requestor.acceptContext(completionContext);
 
 			// some flags to controls different applicable completion search strategies
@@ -327,7 +327,7 @@ public class DOMCompletionEngine implements Runnable {
 				if (fieldAccessType != null) {
 					processMembers(fieldAccess, fieldAccessExpr.resolveTypeBinding(), specificCompletionBindings, false);
 					publishFromScope(specificCompletionBindings);
-				} else if (findParent(fieldAccessExpr, new int[]{ ASTNode.METHOD_INVOCATION }) == null) {
+				} else if (DOMCompletionUtil.findParent(fieldAccessExpr, new int[]{ ASTNode.METHOD_INVOCATION }) == null) {
 					String packageName = ""; //$NON-NLS-1$
 					if (fieldAccess.getExpression() instanceof FieldAccess parentFieldAccess
 							&& parentFieldAccess.getName().resolveBinding() instanceof IPackageBinding packageBinding) {
@@ -729,12 +729,12 @@ public class DOMCompletionEngine implements Runnable {
 		keywords.add(Keywords.ASSERT);
 		keywords.add(Keywords.RETURN);
 		keywords.add(Keywords.SUPER);
-		if (findParent(this.toComplete,
+		if (DOMCompletionUtil.findParent(this.toComplete,
 				new int[] { ASTNode.WHILE_STATEMENT, ASTNode.DO_STATEMENT, ASTNode.FOR_STATEMENT }) != null) {
 			keywords.add(Keywords.BREAK);
 			keywords.add(Keywords.CONTINUE);
 		}
-		ExpressionStatement exprStatement = (ExpressionStatement) findParent(this.toComplete, new int[] {ASTNode.EXPRESSION_STATEMENT});
+		ExpressionStatement exprStatement = (ExpressionStatement) DOMCompletionUtil.findParent(this.toComplete, new int[] {ASTNode.EXPRESSION_STATEMENT});
 		if (exprStatement != null) {
 
 			ASTNode statementParent = exprStatement.getParent();
@@ -926,19 +926,6 @@ public class DOMCompletionEngine implements Runnable {
 		return false;
 	}
 
-	private static ASTNode findParent(ASTNode nodeToSearch, int[] kindsToFind) {
-		ASTNode cursor = nodeToSearch;
-		while (cursor != null) {
-			for (int kindToFind : kindsToFind) {
-				if (cursor.getNodeType() == kindToFind) {
-					return cursor;
-				}
-			}
-			cursor = cursor.getParent();
-		}
-		return null;
-	}
-
 	private void completeMarkerAnnotation(String completeAfter) {
 		findTypes(completeAfter, IJavaSearchConstants.ANNOTATION_TYPE, null)
 			.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
@@ -979,7 +966,7 @@ public class DOMCompletionEngine implements Runnable {
 		IType typeHandle = ((IType)typeBinding.getJavaElement());
 		if (typeHandle != null) {
 			try {
-				AbstractTypeDeclaration enclosingType = (AbstractTypeDeclaration) findParent(referencedFrom, new int[] { ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION, ASTNode.ANNOTATION_TYPE_DECLARATION });
+				AbstractTypeDeclaration enclosingType = (AbstractTypeDeclaration) DOMCompletionUtil.findParent(referencedFrom, new int[] { ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION, ASTNode.ANNOTATION_TYPE_DECLARATION });
 				ITypeBinding enclosingTypeBinding = enclosingType.resolveBinding();
 				IType enclosingTypeElement = (IType) enclosingTypeBinding.getJavaElement();
 				ITypeHierarchy newTypeHierarchy = typeHandle.newTypeHierarchy(javaProject, null);
@@ -1122,13 +1109,13 @@ public class DOMCompletionEngine implements Runnable {
 	}
 
 	private void processMembers(ASTNode referencedFrom, ITypeBinding typeBinding, Bindings scope, boolean isStaticContext) {
-		AbstractTypeDeclaration parentType = (AbstractTypeDeclaration)findParent(referencedFrom, new int[] {ASTNode.ANNOTATION_TYPE_DECLARATION, ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION});
+		AbstractTypeDeclaration parentType = (AbstractTypeDeclaration)DOMCompletionUtil.findParent(referencedFrom, new int[] {ASTNode.ANNOTATION_TYPE_DECLARATION, ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION});
 		if (parentType == null) {
 			return;
 		}
 		ITypeBinding referencedFromBinding = parentType.resolveBinding();
 		boolean includePrivate = referencedFromBinding.getKey().equals(typeBinding.getKey());
-		MethodDeclaration methodDeclaration = (MethodDeclaration)findParent(referencedFrom, new int[] {ASTNode.METHOD_DECLARATION});
+		MethodDeclaration methodDeclaration = (MethodDeclaration)DOMCompletionUtil.findParent(referencedFrom, new int[] {ASTNode.METHOD_DECLARATION});
 		// you can reference protected fields/methods from a static method,
 		// as long as those protected fields/methods are declared in the current class.
 		// otherwise, the (inherited) fields/methods can only be accessed in non-static methods.
@@ -1243,7 +1230,7 @@ public class DOMCompletionEngine implements Runnable {
 		if (binding instanceof ITypeBinding) {
 			kind = CompletionProposal.TYPE_REF;
 		} else if (binding instanceof IMethodBinding m) {
-			if (findParent(this.toComplete, new int[] { ASTNode.EXPRESSION_METHOD_REFERENCE }) != null) {
+			if (DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.EXPRESSION_METHOD_REFERENCE }) != null) {
 				kind = CompletionProposal.METHOD_NAME_REFERENCE;
 			} else if (m.getDeclaringClass() != null && m.getDeclaringClass().isAnnotation()) {
 				kind = CompletionProposal.ANNOTATION_ATTRIBUTE_REF;
@@ -1392,17 +1379,23 @@ public class DOMCompletionEngine implements Runnable {
 			completion.insert(0, cursor.getElementName());
 			cursor = cursor.getParent();
 		}
-		AbstractTypeDeclaration parentType = (AbstractTypeDeclaration)findParent(this.toComplete,
-				new int[] {ASTNode.TYPE_DECLARATION,
+		AbstractTypeDeclaration parentType = (AbstractTypeDeclaration) DOMCompletionUtil.findParent(this.toComplete,
+				new int[] { ASTNode.TYPE_DECLARATION,
 						ASTNode.ANNOTATION_TYPE_DECLARATION,
 						ASTNode.RECORD_DECLARATION,
-						ASTNode.ENUM_DECLARATION});
-		IPackageBinding currentPackageBinding = parentType == null ? null : parentType.resolveBinding().getPackage();
-		if (packageFrag != null && (currentPackageBinding == null
-				|| (!packageFrag.getElementName().equals(currentPackageBinding.getName())
-				 && !packageFrag.getElementName().equals("java.lang")))) { //$NON-NLS-1$
-			completion.insert(0, '.');
-			completion.insert(0, packageFrag.getElementName());
+						ASTNode.ENUM_DECLARATION });
+		Javadoc javadoc = (Javadoc) DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.JAVADOC });
+		if (parentType != null || javadoc != null) {
+			IPackageBinding currentPackageBinding = parentType == null ? null : parentType.resolveBinding().getPackage();
+			if (packageFrag != null && (currentPackageBinding == null
+					|| (!packageFrag.getElementName().equals(currentPackageBinding.getName())
+							&& !packageFrag.getElementName().equals("java.lang")))) { //$NON-NLS-1$
+				completion.insert(0, '.');
+				completion.insert(0, packageFrag.getElementName());
+			}
+		} else {
+			// in imports list
+			completion.append(';');
 		}
 		res.setCompletion(completion.toString().toCharArray());
 
@@ -1443,8 +1436,12 @@ public class DOMCompletionEngine implements Runnable {
 			// do nothing
 		}
 		res.setRelevance(relevance);
-		// set defaults for now to avoid error downstream
-		res.setRequiredProposals(new CompletionProposal[] { toImportProposal(simpleName, signature) });
+		if (parentType != null) {
+			// propose importing the type
+			res.setRequiredProposals(new CompletionProposal[] { toImportProposal(simpleName, signature) });
+		} else {
+			res.setRequiredProposals(new CompletionProposal[0]);
+		}
 		return res;
 	}
 
@@ -1452,14 +1449,14 @@ public class DOMCompletionEngine implements Runnable {
 
 		List<CompletionProposal> proposals = new ArrayList<>();
 
-		AbstractTypeDeclaration parentType = (AbstractTypeDeclaration)findParent(referencedFrom, new int[] {ASTNode.ANNOTATION_TYPE_DECLARATION, ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION});
+		AbstractTypeDeclaration parentType = (AbstractTypeDeclaration)DOMCompletionUtil.findParent(referencedFrom, new int[] {ASTNode.ANNOTATION_TYPE_DECLARATION, ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION});
 		if (parentType == null) {
 			return proposals;
 		}
 
 		ITypeBinding referencedFromBinding = parentType.resolveBinding();
 		boolean includePrivate = referencedFromBinding.getKey().equals(typeBinding.getKey());
-		MethodDeclaration methodDeclaration = (MethodDeclaration)findParent(referencedFrom, new int[] {ASTNode.METHOD_DECLARATION});
+		MethodDeclaration methodDeclaration = (MethodDeclaration)DOMCompletionUtil.findParent(referencedFrom, new int[] {ASTNode.METHOD_DECLARATION});
 		// you can reference protected fields/methods from a static method,
 		// as long as those protected fields/methods are declared in the current class.
 		// otherwise, the (inherited) fields/methods can only be accessed in non-static methods.
@@ -1638,7 +1635,7 @@ public class DOMCompletionEngine implements Runnable {
 		res.setCompletion(packageName.toCharArray());
 		res.setDeclarationSignature(packageName.toCharArray());
 		res.setSignature(packageName.toCharArray());
-		QualifiedName qualifiedName = (QualifiedName)findParent(completing, new int[] {ASTNode.QUALIFIED_NAME});
+		QualifiedName qualifiedName = (QualifiedName)DOMCompletionUtil.findParent(completing, new int[] {ASTNode.QUALIFIED_NAME});
 		int relevance = RelevanceConstants.R_DEFAULT
 				+ RelevanceConstants.R_RESOLVED
 				+ RelevanceConstants.R_INTERESTING

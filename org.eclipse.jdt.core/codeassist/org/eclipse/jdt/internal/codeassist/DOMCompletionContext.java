@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -31,16 +32,17 @@ class DOMCompletionContext extends CompletionContext {
 	private final IJavaElement enclosingElement;
 	private final Supplier<Stream<IBinding>> bindingsAcquirer;
 	private final ExpectedTypes expectedTypes;
-
 	private boolean inJavadoc = false;
+	private final ASTNode node;
 
 	DOMCompletionContext(int offset, char[] token, IJavaElement enclosingElement,
-			Supplier<Stream<IBinding>> bindingHaver, ExpectedTypes expectedTypes) {
+			Supplier<Stream<IBinding>> bindingHaver, ExpectedTypes expectedTypes, ASTNode node) {
 		this.offset = offset;
 		this.enclosingElement = enclosingElement;
 		this.token = token;
 		this.bindingsAcquirer = bindingHaver;
 		this.expectedTypes = expectedTypes;
+		this.node = node;
 	}
 
 	@Override
@@ -106,6 +108,15 @@ class DOMCompletionContext extends CompletionContext {
 	@Override
 	public boolean isExtended() {
 		return true;
+	}
+
+	@Override
+	public int getTokenLocation() {
+		if (DOMCompletionUtil.findParent(this.node, new int[] { ASTNode.IMPORT_DECLARATION }) != null) {
+			return CompletionContext.TL_IN_IMPORT;
+		}
+		// TODO: probably other cases
+		return super.getTokenLocation();
 	}
 
 	/// adapted from org.eclipse.jdt.internal.codeassist.InternalExtendedCompletionContext
