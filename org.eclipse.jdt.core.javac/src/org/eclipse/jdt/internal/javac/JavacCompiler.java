@@ -53,9 +53,11 @@ import com.sun.tools.javac.comp.Env;
 import com.sun.tools.javac.file.CacheFSInfo;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.main.JavaCompiler;
+import com.sun.tools.javac.main.Option;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.Options;
 import com.sun.tools.javac.util.Pair;
 
 public class JavacCompiler extends Compiler {
@@ -104,7 +106,6 @@ public class JavacCompiler extends Compiler {
 		JavacTaskListener javacListener = new JavacTaskListener(this.compilerConfig, outputSourceMapping, this.problemFactory, this.fileObjectToCUMap);
 
 		for (Entry<IContainer, List<ICompilationUnit>> outputSourceSet : outputSourceMapping.entrySet()) {
-
 			Context javacContext = new Context();
 			CacheFSInfo.preRegister(javacContext);
 			JavacProblemConverter problemConverter = new JavacProblemConverter(this.compilerConfig.compilerOptions(), javacContext);
@@ -140,6 +141,10 @@ public class JavacCompiler extends Compiler {
 			var outputDir = JavacClassFile.getMappedTempOutput(outputSourceSet.getKey()).toFile();
 			javacListener.setOutputDir(outputSourceSet.getKey());
 			JavacUtils.configureJavacContext(javacContext, this.compilerConfig, javaProject, outputDir, true);
+			// Javadoc problem are not reported by builder
+			var javacOptions = Options.instance(javacContext);
+			javacOptions.remove(Option.XDOCLINT.primaryName);
+			javacOptions.remove(Option.XDOCLINT_CUSTOM.primaryName);
 			JavaCompiler javac = new JavaCompiler(javacContext) {
 				boolean isInGeneration = false;
 
