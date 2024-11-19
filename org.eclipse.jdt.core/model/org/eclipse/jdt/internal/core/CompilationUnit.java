@@ -459,7 +459,7 @@ public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyO
 @Override
 public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner workingCopyOwner, IProgressMonitor monitor) throws JavaModelException {
 	if (DOM_BASED_COMPLETION) {
-		new DOMCompletionEngine(offset, getOrBuildAST(workingCopyOwner), this, workingCopyOwner, requestor, monitor).run();
+		new DOMCompletionEngine(offset, getOrBuildAST(workingCopyOwner, offset), this, workingCopyOwner, requestor, monitor).run();
 		return;
 	}
 	codeComplete(
