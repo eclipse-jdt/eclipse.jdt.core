@@ -248,13 +248,6 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 						null);
 			}
 		}
-		else if (JavaCore.getClasspathVariable("CONVERTER_JCL_LIB") == null) {
-			setupExternalJCL("converterJclMin");
-			JavaCore.setClasspathVariables(
-				new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"},
-				new IPath[] {getConverterJCLPath(), getConverterJCLSourcePath(), getConverterJCLRootSourcePath()},
-				null);
-		}
 	}
 
 	/**

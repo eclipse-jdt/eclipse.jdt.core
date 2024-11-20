@@ -1317,7 +1317,7 @@ public void testBug277204e() throws JavaModelException {
 @SuppressWarnings("deprecation")
 public void testBug381503() throws CoreException, IOException {
 	try {
-		IJavaProject javaProject = createJavaProject("P", new String[] { "src" }, new String[] { "CONVERTER_JCL_LIB" }, "bin");
+		IJavaProject javaProject = createJavaProject("P", new String[] { "src" }, new String[] { "CONVERTER_JCL18_LIB" }, "bin");
 		IType type = javaProject.findType("java.lang.IllegalMonitorStateException");
 		IMethod javaElement = type.getMethod("IllegalMonitorStateException", new String[]{});
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
