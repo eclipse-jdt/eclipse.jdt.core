@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.ILog;
 import com.sun.source.doctree.DocTree.Kind;
 import com.sun.source.util.DocTreePath;
 import com.sun.source.util.TreePath;
-import com.sun.tools.javac.parser.UnicodeReader;
 import com.sun.tools.javac.tree.DCTree;
 import com.sun.tools.javac.tree.DCTree.DCAuthor;
 import com.sun.tools.javac.tree.DCTree.DCBlockTag;
@@ -87,50 +86,22 @@ class JavadocConverter {
 
 	private static final Pattern BEGIN_CHOPPER = Pattern.compile("(?:\\s+\\*)(.*)");
 
-	private static Field UNICODE_READER_CLASS_OFFSET_FIELD = null;
-	static {
-		try {
-			Class<UnicodeReader> unicodeReaderClass = (Class<UnicodeReader>) Class.forName("com.sun.tools.javac.parser.UnicodeReader");
-			UNICODE_READER_CLASS_OFFSET_FIELD = unicodeReaderClass.getDeclaredField("offset");
-			UNICODE_READER_CLASS_OFFSET_FIELD.setAccessible(true);
-		} catch (Exception e) {
-			// do nothing, leave null
-		}
-	}
-
-	JavadocConverter(JavacConverter javacConverter, DCDocComment docComment, TreePath contextTreePath, boolean buildJavadoc) {
+	private JavadocConverter(JavacConverter javacConverter, DCDocComment docComment, TreePath contextTreePath, int initialOffset, int endPos, boolean buildJavadoc) {
 		this.javacConverter = javacConverter;
 		this.ast = javacConverter.ast;
 		this.docComment = docComment;
 		this.contextTreePath = contextTreePath;
 		this.buildJavadoc = buildJavadoc;
-
-		int startPos = -1;
-		if (UNICODE_READER_CLASS_OFFSET_FIELD != null) {
-			try {
-				startPos = UNICODE_READER_CLASS_OFFSET_FIELD.getInt(docComment.comment);
-			} catch (Exception e) {
-				ILog.get().warn("could not reflexivly access doc comment offset");
-			}
-		} else {
-			startPos = docComment.getSourcePosition(0) >= 0 ? docComment.getSourcePosition(0) : docComment.comment.getSourcePos(0);
-		}
-
-		if (startPos < 0) {
-			throw new IllegalArgumentException("Doc comment has no start position");
-		}
-		this.initialOffset = startPos;
-		this.endOffset = startPos + this.javacConverter.rawText.substring(startPos).indexOf("*/") + "*/".length();
+		this.initialOffset = initialOffset;
+		this.endOffset = endPos;
 	}
 
 	JavadocConverter(JavacConverter javacConverter, DCDocComment docComment, int initialOffset, int endPos, boolean buildJavadoc) {
-		this.javacConverter = javacConverter;
-		this.ast = javacConverter.ast;
-		this.docComment = docComment;
-		this.contextTreePath = null;
-		this.buildJavadoc = buildJavadoc;
-		this.initialOffset = initialOffset;
-		this.endOffset = endPos;
+		this(javacConverter, docComment, null, initialOffset, endPos, buildJavadoc);
+	}
+
+	JavadocConverter(JavacConverter javacConverter, DCDocComment docComment, TreePath contextTreePath, boolean buildJavadoc) {
+		this(javacConverter, docComment, contextTreePath, docComment.comment.getPos().getStartPosition(), docComment.comment.getPos().getEndPosition(javacConverter.javacCompilationUnit.endPositions), buildJavadoc);
 	}
 
 	private void commonSettings(ASTNode res, DCTree javac) {

@@ -142,7 +142,7 @@ class JavacConverter {
 	private static final String ERROR = "<error>";
 	private static final String FAKE_IDENTIFIER = new String(RecoveryScanner.FAKE_IDENTIFIER);
 	public final AST ast;
-	private final JCCompilationUnit javacCompilationUnit;
+	final JCCompilationUnit javacCompilationUnit;
 	private final Context context;
 	final Map<ASTNode, JCTree> domToJavac = new HashMap<>();
 	final String rawText;
