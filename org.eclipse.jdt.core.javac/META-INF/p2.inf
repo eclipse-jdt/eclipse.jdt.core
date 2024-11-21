@@ -34,10 +34,11 @@ jdk.compiler/com.sun.tools.javac.resources=ALL-UNNAMED\n\
 -DAbstractImageBuilder.compilerFactory=org.eclipse.jdt.internal.javac.JavacCompilerFactory\n\
 -DCompilationUnit.DOM_BASED_OPERATIONS=true\n\
 -DCompilationUnit.codeComplete.DOM_BASED_OPERATIONS=true_\n\
--DSourceIndexer.DOM_BASED_INDEXER=true);\
+-DSourceIndexer.DOM_BASED_INDEXER=true);
 
 instructions.unconfigure=\
-org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:--add-opens\n\
+org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:\n\
+--add-opens\n\
 jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED\n\
 --add-opens\n\
 jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED\n\
@@ -71,4 +72,4 @@ jdk.compiler/com.sun.tools.javac.resources=ALL-UNNAMED\n\
 -DAbstractImageBuilder.compilerFactory=org.eclipse.jdt.internal.javac.JavacCompilerFactory\n\
 -DCompilationUnit.DOM_BASED_OPERATIONS=true\n\
 -DCompilationUnit.codeComplete.DOM_BASED_OPERATIONS=true_\n\
--DSourceIndexer.DOM_BASED_INDEXER=true);\
+-DSourceIndexer.DOM_BASED_INDEXER=true);
