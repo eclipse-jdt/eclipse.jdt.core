@@ -1606,8 +1606,7 @@ public class DOMCompletionEngine implements Runnable {
 		typeProposal.setTypeName(typeBinding.getName().toCharArray());
 		typeProposal.setCompletion(typeBinding.getName().toCharArray());
 		typeProposal.setFlags(typeBinding.getModifiers());
-		typeProposal.setReplaceRange(this.offset, this.offset);
-		typeProposal.setTokenRange(this.offset, this.offset);
+		setRange(typeProposal);
 		typeProposal.setRelevance(relevance);
 		res.setRequiredProposals( new CompletionProposal[]{typeProposal});
 
