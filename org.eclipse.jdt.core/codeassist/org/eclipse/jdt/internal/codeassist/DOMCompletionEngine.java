@@ -1395,7 +1395,9 @@ public class DOMCompletionEngine implements Runnable {
 			}
 		} else {
 			// in imports list
-			completion.append(';');
+			if (this.cuBuffer.getChar(this.toComplete.getStartPosition() + this.toComplete.getLength()) != ';') {
+				completion.append(';');
+			}
 		}
 		res.setCompletion(completion.toString().toCharArray());
 
@@ -1405,6 +1407,8 @@ public class DOMCompletionEngine implements Runnable {
 			res.setReplaceRange(this.toComplete.getStartPosition() + 1, this.toComplete.getStartPosition() + this.toComplete.getLength());
 		} else if (this.toComplete instanceof SimpleName currentName && FAKE_IDENTIFIER.equals(currentName.toString())) {
 			res.setReplaceRange(this.offset, this.offset);
+		} else if (this.toComplete instanceof SimpleName) {
+			res.setReplaceRange(this.toComplete.getStartPosition(), this.toComplete.getStartPosition() + this.toComplete.getLength());
 		} else {
 			res.setReplaceRange(this.toComplete.getStartPosition(), this.offset);
 		}
