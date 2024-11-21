@@ -885,7 +885,7 @@ class JavacConverter {
 		boolean isConstructor = methodDeclNameMatchesInit || javacNameMatchesInitAndMethodNameMatchesTypeName;
 		res.setConstructor(isConstructor);
 		if (isConstructor && javac.getParameters().isEmpty()
-			&& javac.getBody().endpos == Position.NOPOS) { // probably generated
+			&& javac.getBody() != null && javac.getBody().endpos == Position.NOPOS) { // probably generated
 			return null;
 		}
 		boolean isCompactConstructor = false;
