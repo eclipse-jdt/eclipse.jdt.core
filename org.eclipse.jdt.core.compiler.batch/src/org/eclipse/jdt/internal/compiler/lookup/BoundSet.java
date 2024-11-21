@@ -615,12 +615,29 @@ class BoundSet {
 							}
 						}
 					}
+
 					if (deriveTypeArgumentConstraints) {
-						for (ConstraintTypeFormula typeArgumentConstraint : deriveTypeArgumentConstraints(bound1, bound2, context)) {
-							if (!reduceOneConstraint(context, typeArgumentConstraint))
-								return false;
+						List<ConstraintTypeFormula> constraints = deriveTypeArgumentConstraintsSimple(bound1, bound2);
+						boolean found = constraints.size() > 0;
+
+						// Try with a simpler (cheaper) strategy first
+						for (ConstraintFormula cf : constraints) {
+							found = reduceOneConstraint(context, cf);
+							if (!found) {
+								// The simple strategy failed
+								break;
+							}
+						}
+
+						// If the simple strategy failed, try with a more complex (and expensive) one
+						if (!found) {
+							for (ConstraintTypeFormula cf : deriveTypeArgumentConstraints(bound1, bound2, context)) {
+								if (!reduceOneConstraint(context, cf))
+									return false;
+							}
 						}
 					}
+
 					if (iteration == 2) {
 						TypeBound boundX = bound1;
 						bound1 = bound2;
@@ -937,6 +954,43 @@ class BoundSet {
 			right = right.substituteInferenceVariable(alpha, u);
 		}
 		return ConstraintTypeFormula.create(left, right, boundRight.relation, isAnyLeftSoft||boundRight.isSoft);
+	}
+
+	private List<ConstraintTypeFormula> deriveTypeArgumentConstraintsSimple(TypeBound boundS, TypeBound boundT) {
+		/* From 18.4:
+		 *  If two bounds have the form α <: S and α <: T, and if for some generic class or interface, G,
+		 *  there exists a supertype (4.10) of S of the form G<S1, ..., Sn> and a supertype of T of the form G<T1, ..., Tn>,
+		 *  then for all i, 1 ≤ i ≤ n, if Si and Ti are types (not wildcards), the constraint ⟨Si = Ti⟩ is implied.
+		 */
+		// callers must ensure both relations are <: and both lefts are equal
+		TypeBinding[] supers = superTypesWithCommonGenericType(boundS.right, boundT.right);
+		if (supers != null)
+			return typeArgumentEqualityConstraints(supers[0], supers[1], boundS.isSoft || boundT.isSoft);
+		return Collections.emptyList();
+	}
+
+	private TypeBinding[] superTypesWithCommonGenericType(TypeBinding s, TypeBinding t) {
+		if (s == null || s.id == TypeIds.T_JavaLangObject || t == null || t.id == TypeIds.T_JavaLangObject)
+			return null;
+		if (TypeBinding.equalsEquals(s.original(), t.original())) {
+			return new TypeBinding[] { s, t };
+		}
+		TypeBinding tSuper = t.findSuperTypeOriginatingFrom(s);
+		if (tSuper != null) {
+			return new TypeBinding[] {s, tSuper};
+		}
+		TypeBinding[] result = superTypesWithCommonGenericType(s.superclass(), t);
+		if (result != null)
+			return result;
+		ReferenceBinding[] superInterfaces = s.superInterfaces();
+		if (superInterfaces != null) {
+			for (ReferenceBinding superInterface : superInterfaces) {
+				result = superTypesWithCommonGenericType(superInterface, t);
+				if (result != null)
+					return result;
+			}
+		}
+		return null;
 	}
 
 	private List<ConstraintTypeFormula> deriveTypeArgumentConstraints(TypeBound boundS, TypeBound boundT, InferenceContext18 context) {
@@ -1263,7 +1317,7 @@ class BoundSet {
 		return false;
 	}
 
-	protected List<Pair<TypeBinding>> allSuperPairsWithCommonGenericType(TypeBinding s, TypeBinding t) {
+	private List<Pair<TypeBinding>> allSuperPairsWithCommonGenericType(TypeBinding s, TypeBinding t) {
 		if (s == null || s.id == TypeIds.T_JavaLangObject || t == null || t.id == TypeIds.T_JavaLangObject)
 			return Collections.emptyList();
 		List<Pair<TypeBinding>> result = new ArrayList<>();
