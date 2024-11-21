@@ -489,13 +489,13 @@ public class DOMCompletionEngine implements Runnable {
 						endPos = startPos + qualifiedName.getName().getLength();
 					}
 
-					if (!isFailedMatch(this.toComplete.toString().toCharArray(), Keywords.THIS)) {
+					if (!isFailedMatch(this.prefix.toCharArray(), Keywords.THIS)) {
 						this.requestor.accept(createKeywordProposal(Keywords.THIS, startPos, endPos));
 					}
-					if (!isFailedMatch(this.toComplete.toString().toCharArray(), Keywords.SUPER)) {
+					if (!isFailedMatch(this.prefix.toCharArray(), Keywords.SUPER)) {
 						this.requestor.accept(createKeywordProposal(Keywords.SUPER, startPos, endPos));
 					}
-					if (!isFailedMatch(this.toComplete.toString().toCharArray(), Keywords.CLASS)) {
+					if (!isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
 						this.requestor.accept(createClassKeywordProposal(qualifierTypeBinding, startPos, endPos));
 					}
 
@@ -545,6 +545,30 @@ public class DOMCompletionEngine implements Runnable {
 					ITypeBinding typeBinding = variableBinding.getType();
 					processMembers(qualifiedName, typeBinding, specificCompletionBindings, false);
 					publishFromScope(specificCompletionBindings);
+					suggestDefaultCompletions = false;
+				} else {
+					// UnimportedType.|
+					List<IType> foundTypes = findTypes(qualifiedName.getQualifier().toString(), null).toList();
+					if (!foundTypes.isEmpty()) {
+						IType firstType = foundTypes.get(0);
+						ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+						parser.setProject(this.modelUnit.getJavaProject());
+						IBinding[] descendantBindings = parser.createBindings(new IType[] { firstType }, new NullProgressMonitor());
+						if (descendantBindings.length == 1) {
+							ITypeBinding qualifierTypeBinding = (ITypeBinding)descendantBindings[0];
+							processMembers(qualifiedName, qualifierTypeBinding, specificCompletionBindings, true);
+							publishFromScope(specificCompletionBindings);
+							int startPos = this.offset;
+							int endPos = this.offset;
+							if ((qualifiedName.getName().getFlags() & ASTNode.MALFORMED) != 0) {
+								startPos = qualifiedName.getName().getStartPosition();
+								endPos = startPos + qualifiedName.getName().getLength();
+							}
+							if (!isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
+								this.requestor.accept(createClassKeywordProposal(qualifierTypeBinding, startPos, endPos));
+							}
+						}
+					}
 					suggestDefaultCompletions = false;
 				}
 			}
