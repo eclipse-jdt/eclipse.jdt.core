@@ -288,7 +288,7 @@ public class DOMCompletionEngine implements Runnable {
 						completeAfter = ""; //$NON-NLS-1$
 					}
 				}
-			} else if (this.toComplete instanceof NormalAnnotation || this.toComplete instanceof ExpressionMethodReference) {
+			} else if (this.toComplete instanceof NormalAnnotation || this.toComplete instanceof ExpressionMethodReference || (this.toComplete instanceof MethodDeclaration md && md.getName().getStartPosition() + md.getName().getLength() + 1 < this.offset)) {
 				// handle potentially unrecovered/unparented identifier characters
 				if (this.cuBuffer != null) {
 					int cursor = this.offset;
@@ -405,6 +405,23 @@ public class DOMCompletionEngine implements Runnable {
 					suggestDefaultCompletions = false;
 				}
 				if (context.getParent() instanceof MethodDeclaration) {
+					suggestDefaultCompletions = false;
+				}
+				if (context.getParent() instanceof SimpleType simpleType && simpleType.getParent() instanceof MethodDeclaration
+						&& simpleType.getLocationInParent().getId().equals(MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY.getId())) {
+					findTypes(completeAfter, null)
+							.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
+									type.getElementName().toCharArray()))
+							// ideally we should filter out all classes that don't descend from Throwable
+							// however JDT doesn't do this yet from what I can tell
+							.filter(type -> {
+								try {
+									return !type.isAnnotation() && !type.isInterface();
+								} catch (JavaModelException e) {
+									return true;
+								}
+							})
+							.map(this::toProposal).forEach(this.requestor::accept);
 					suggestDefaultCompletions = false;
 				}
 				if (context.getParent() instanceof AnnotationTypeMemberDeclaration) {
@@ -611,7 +628,7 @@ public class DOMCompletionEngine implements Runnable {
 						publishFromScope(specificCompletionBindings);
 					}
 					suggestDefaultCompletions = false;
-				} else if (methodDeclaration.getBody() != null && this.offset <= methodDeclaration.getBody().getStartPosition()) {
+				} else if (methodDeclaration.getBody() == null || (methodDeclaration.getBody() != null && this.offset <= methodDeclaration.getBody().getStartPosition())) {
 					completeThrowsClause(methodDeclaration, specificCompletionBindings);
 					suggestDefaultCompletions = false;
 				}
@@ -803,17 +820,26 @@ public class DOMCompletionEngine implements Runnable {
 
 	private void completeThrowsClause(MethodDeclaration methodDeclaration, Bindings scope) {
 		if (methodDeclaration.thrownExceptionTypes().size() == 0) {
-			if (!isFailedMatch(this.prefix.toCharArray(), Keywords.THROWS)) {
-				this.requestor.accept(createKeywordProposal(Keywords.THROWS, this.offset, this.offset));
+			int startScanIndex = methodDeclaration.getName().getStartPosition() + methodDeclaration.getName().getLength();
+			if (!methodDeclaration.parameters().isEmpty()) {
+				SingleVariableDeclaration lastParam = (SingleVariableDeclaration)methodDeclaration.parameters().get(methodDeclaration.parameters().size() - 1);
+				startScanIndex = lastParam.getName().getStartPosition() + lastParam.getName().getLength();
+			}
+			if (this.cuBuffer != null) {
+				String text = this.cuBuffer.getText(startScanIndex, this.offset - startScanIndex);
+				// JDT checks for "throw" instead of "throws", probably assuming that it's a common misspelling
+				int firstThrow = text.indexOf("throw"); //$NON-NLS-1$
+				if (firstThrow == -1 || firstThrow >= this.offset - this.prefix.length()) {
+					if (!isFailedMatch(this.prefix.toCharArray(), Keywords.THROWS)) {
+						this.requestor.accept(createKeywordProposal(Keywords.THROWS, -1, -1));
+					}
+				}
+			} else {
+				if (!isFailedMatch(this.prefix.toCharArray(), Keywords.THROWS)) {
+					this.requestor.accept(createKeywordProposal(Keywords.THROWS, -1, -1));
+				}
 			}
 		}
-		// TODO: JDT doesn't filter out non-throwable types, should we?
-		ASTNode current = this.toComplete;
-		while (current != null) {
-			scope.addAll(visibleTypeBindings(current));
-			current = current.getParent();
-		}
-		publishFromScope(scope);
 	}
 
 	private void suggestPackages() {
@@ -1960,7 +1986,11 @@ public class DOMCompletionEngine implements Runnable {
 		CompletionProposal keywordProposal = createProposal(CompletionProposal.KEYWORD);
 		keywordProposal.setCompletion(keyword);
 		keywordProposal.setName(keyword);
-		keywordProposal.setReplaceRange(startPos, endPos);
+		if (startPos == -1 && endPos == -1) {
+			setRange(keywordProposal);
+		} else {
+			keywordProposal.setReplaceRange(startPos, endPos);
+		}
 		keywordProposal.setRelevance(relevance);
 		return keywordProposal;
 	}
