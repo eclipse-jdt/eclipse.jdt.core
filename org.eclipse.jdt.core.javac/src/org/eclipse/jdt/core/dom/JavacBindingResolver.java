@@ -1173,14 +1173,26 @@ public class JavacBindingResolver extends BindingResolver {
 				}
 				IBinding bRet = this.bindings.getBinding(jcfa2.sym, typeToUse);
 				if( jcfa2 != fieldAccess && bRet instanceof ITypeBinding itb ) {
+					String fieldAccessIdentifier = fieldAccess.getIdentifier().toString();
 					// If we changed the field access, we need to go one generation lower
-					ITypeBinding[] children = itb.getDeclaredTypes();
-					for( int i = 0; i < children.length; i++ ) {
-						String childName = children[i].getName();
-						if( childName.equals(fieldAccess.getIdentifier().toString())) {
-							return children[i];
+					Function<IBinding[], IBinding> func = bindings -> {
+						for( int i = 0; i < bindings.length; i++ ) {
+							String childName = bindings[i].getName();
+							if( childName.equals(fieldAccessIdentifier)) {
+								return bindings[i];
+							}
 						}
-					}
+						return null;
+					};
+					IBinding ret = func.apply(itb.getDeclaredTypes());
+					if( ret != null )
+						return ret;
+					ret = func.apply(itb.getDeclaredFields());
+					if( ret != null )
+						return ret;
+					ret = func.apply(itb.getDeclaredMethods());
+					if( ret != null )
+						return ret;
 				}
 				return bRet;
 			}
