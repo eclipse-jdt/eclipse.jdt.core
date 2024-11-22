@@ -271,6 +271,8 @@ public class JavacBindingResolver extends BindingResolver {
 		public JavacTypeBinding getTypeBinding(JCTree tree, com.sun.tools.javac.code.Type type) {
 			return getTypeBinding(type, tree instanceof JCClassDecl);
 		}
+		
+		
 		public JavacTypeBinding getTypeBinding(com.sun.tools.javac.code.Type type) {
 			if (type == null) {
 				return null;
@@ -565,7 +567,8 @@ public class JavacBindingResolver extends BindingResolver {
 			return this.bindings.getTypeBinding(ident.type);
 		}
 		if (jcTree instanceof JCFieldAccess access) {
-			return this.bindings.getTypeBinding(access.type);
+			IBinding b = this.getFieldAccessBinding(access);
+			return b instanceof ITypeBinding tb ? tb : null;
 		}
 		if (jcTree instanceof JCPrimitiveTypeTree primitive && primitive.type != null) {
 			return this.bindings.getTypeBinding(primitive.type);
@@ -1165,37 +1168,7 @@ public class JavacBindingResolver extends BindingResolver {
 			return this.bindings.getTypeBinding(variableDecl.type);
 		}
 		if (tree instanceof JCFieldAccess fieldAccess) {
-			JCFieldAccess jcfa2 = (fieldAccess.sym == null && fieldAccess.selected instanceof JCFieldAccess jcfa3) ? jcfa3 : fieldAccess; 
-			if( jcfa2.sym != null ) {
-				com.sun.tools.javac.code.Type typeToUse = jcfa2.type;
-				if(jcfa2.selected instanceof JCTypeApply) {
-					typeToUse = jcfa2.sym.type;
-				}
-				IBinding bRet = this.bindings.getBinding(jcfa2.sym, typeToUse);
-				if( jcfa2 != fieldAccess && bRet instanceof ITypeBinding itb ) {
-					String fieldAccessIdentifier = fieldAccess.getIdentifier().toString();
-					// If we changed the field access, we need to go one generation lower
-					Function<IBinding[], IBinding> func = bindings -> {
-						for( int i = 0; i < bindings.length; i++ ) {
-							String childName = bindings[i].getName();
-							if( childName.equals(fieldAccessIdentifier)) {
-								return bindings[i];
-							}
-						}
-						return null;
-					};
-					IBinding ret = func.apply(itb.getDeclaredTypes());
-					if( ret != null )
-						return ret;
-					ret = func.apply(itb.getDeclaredFields());
-					if( ret != null )
-						return ret;
-					ret = func.apply(itb.getDeclaredMethods());
-					if( ret != null )
-						return ret;
-				}
-				return bRet;
-			}
+			return this.getFieldAccessBinding(fieldAccess);
 		}
 		if (tree instanceof JCMethodInvocation methodInvocation && methodInvocation.meth.type != null) {
 			return this.bindings.getBinding(((JCFieldAccess)methodInvocation.meth).sym, methodInvocation.meth.type);
@@ -1687,6 +1660,40 @@ public class JavacBindingResolver extends BindingResolver {
 		return null;
 	}
 
+	private IBinding getFieldAccessBinding(JCFieldAccess fieldAccess) {
+		JCFieldAccess jcfa2 = (fieldAccess.sym == null && fieldAccess.selected instanceof JCFieldAccess jcfa3) ? jcfa3 : fieldAccess; 
+		if( jcfa2.sym != null ) {
+			com.sun.tools.javac.code.Type typeToUse = jcfa2.type;
+			if(jcfa2.selected instanceof JCTypeApply) {
+				typeToUse = jcfa2.sym.type;
+			}
+			IBinding bRet = this.bindings.getBinding(jcfa2.sym, typeToUse);
+			if( jcfa2 != fieldAccess && bRet instanceof ITypeBinding itb ) {
+				String fieldAccessIdentifier = fieldAccess.getIdentifier().toString();
+				// If we changed the field access, we need to go one generation lower
+				Function<IBinding[], IBinding> func = bindings -> {
+					for( int i = 0; i < bindings.length; i++ ) {
+						String childName = bindings[i].getName();
+						if( childName.equals(fieldAccessIdentifier)) {
+							return bindings[i];
+						}
+					}
+					return null;
+				};
+				IBinding ret = func.apply(itb.getDeclaredTypes());
+				if( ret != null )
+					return ret;
+				ret = func.apply(itb.getDeclaredFields());
+				if( ret != null )
+					return ret;
+				ret = func.apply(itb.getDeclaredMethods());
+				if( ret != null )
+					return ret;
+			}
+			return bRet;
+		}
+		return null;
+	}
 	@Override
 	IBinding resolveReference(MemberRef ref) {
 		return resolveCached(ref, (n) -> resolveReferenceImpl((MemberRef)n));
