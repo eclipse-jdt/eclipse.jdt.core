@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.javac;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -85,6 +86,16 @@ public class RegressionTests {
 		var dom = unit.reconcile(AST.getJLSLatest(), true, unit.getOwner(), null);
 		assertArrayEquals(new IProblem[0], dom.getProblems());
 	}
+
+	@Test
+	public void testBuildMultipleOutputDirectories() throws Exception {
+		IProject p = importProject("projects/multiOut");
+		p.build(IncrementalProjectBuilder.CLEAN_BUILD, null);
+		p.build(IncrementalProjectBuilder.FULL_BUILD, null);
+		assertTrue(p.getFolder("bin").getFile("B.class").exists());
+		assertTrue(p.getFolder("bin2").getFile("A.class").exists());
+	}
+
 
 
 	static IProject importProject(String locationInBundle) throws URISyntaxException, IOException, CoreException {

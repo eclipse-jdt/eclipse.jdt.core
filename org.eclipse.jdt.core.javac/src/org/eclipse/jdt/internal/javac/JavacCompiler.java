@@ -104,7 +104,7 @@ public class JavacCompiler extends Compiler {
 
 		// Register listener to intercept intermediate results from Javac task.
 		JavacTaskListener javacListener = new JavacTaskListener(this.compilerConfig, outputSourceMapping, this.problemFactory, this.fileObjectToCUMap);
-
+		int unitIndex = 0;
 		for (Entry<IContainer, List<ICompilationUnit>> outputSourceSet : outputSourceMapping.entrySet()) {
 			Context javacContext = new Context();
 			CacheFSInfo.preRegister(javacContext);
@@ -207,14 +207,13 @@ public class JavacCompiler extends Compiler {
 				ILog.get().error("compilation failed", e);
 			}
 
-			for (int i = 0; i < sourceUnits.length; i++) {
-				ICompilationUnit in = sourceUnits[i];
-				CompilationResult result = new CompilationResult(in, i, sourceUnits.length, Integer.MAX_VALUE);
+			for (ICompilationUnit in : outputSourceSet.getValue()) {
+				CompilationResult result = new CompilationResult(in, unitIndex, sourceUnits.length, Integer.MAX_VALUE);
 				List<IProblem> problems = new ArrayList<>();
 				if (javacListener.getResults().containsKey(in)) {
 					result = javacListener.getResults().get(in);
 					((JavacCompilationResult) result).migrateReferenceInfo();
-					result.unitIndex = i;
+					result.unitIndex = unitIndex;
 					result.totalUnitsKnown = sourceUnits.length;
 					List<CategorizedProblem> additionalProblems = ((JavacCompilationResult) result).getAdditionalProblems();
 					if (additionalProblems != null && !additionalProblems.isEmpty()) {
@@ -249,6 +248,7 @@ public class JavacCompiler extends Compiler {
 						}
 					}
 				}
+				unitIndex++;
 			}
 		}
 	}
