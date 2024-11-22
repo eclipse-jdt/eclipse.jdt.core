@@ -297,6 +297,8 @@ public class DOMCompletionEngine implements Runnable {
 					}
 					completeAfter = this.cuBuffer.getText(cursor, this.offset - cursor);
 				}
+			} else if (this.toComplete instanceof StringLiteral stringLiteral && (this.offset <= stringLiteral.getStartPosition() || stringLiteral.getStartPosition() + stringLiteral.getLength() <= this.offset)) {
+				context = stringLiteral.getParent();
 			}
 			this.prefix = completeAfter;
 			this.qualifiedPrefix = this.prefix;
