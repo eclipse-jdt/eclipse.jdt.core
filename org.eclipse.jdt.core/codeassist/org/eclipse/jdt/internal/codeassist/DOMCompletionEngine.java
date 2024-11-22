@@ -430,27 +430,29 @@ public class DOMCompletionEngine implements Runnable {
 					suggestDefaultCompletions = false;
 				}
 				if (context.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId()) && context.getParent() instanceof QualifiedName) {
-					// eg.
-					// void myMethod() {
-					//   String myVariable = "hello, mom";
-					//   myVariable.|
-					//   Object myObj = null;
-					// }
-					// It thinks that our variable is a package or some other type. We know that it's a variable.
-					// Search the scope for the right binding
 					IBinding incorrectBinding = ((SimpleName) context).resolveBinding();
-					Bindings localBindings = new Bindings();
-					scrapeAccessibleBindings(localBindings);
-					Optional<IVariableBinding> realBinding = localBindings.stream() //
-							.filter(IVariableBinding.class::isInstance)
-							.map(IVariableBinding.class::cast)
-							.filter(varBind -> varBind.getName().equals(incorrectBinding.getName()))
-							.findFirst();
-					if (realBinding.isPresent()) {
-						processMembers(context, realBinding.get().getType(), specificCompletionBindings, false);
-						this.prefix = ""; //$NON-NLS-1$
-						publishFromScope(specificCompletionBindings);
-						suggestDefaultCompletions = false;
+					if (incorrectBinding != null) {
+						// eg.
+						// void myMethod() {
+						//   String myVariable = "hello, mom";
+						//   myVariable.|
+						//   Object myObj = null;
+						// }
+						// It thinks that our variable is a package or some other type. We know that it's a variable.
+						// Search the scope for the right binding
+						Bindings localBindings = new Bindings();
+						scrapeAccessibleBindings(localBindings);
+						Optional<IVariableBinding> realBinding = localBindings.stream() //
+								.filter(IVariableBinding.class::isInstance)
+								.map(IVariableBinding.class::cast)
+								.filter(varBind -> varBind.getName().equals(incorrectBinding.getName()))
+								.findFirst();
+						if (realBinding.isPresent()) {
+							processMembers(context, realBinding.get().getType(), specificCompletionBindings, false);
+							this.prefix = ""; //$NON-NLS-1$
+							publishFromScope(specificCompletionBindings);
+							suggestDefaultCompletions = false;
+						}
 					}
 				}
 			}
@@ -694,13 +696,15 @@ public class DOMCompletionEngine implements Runnable {
 							? IJavaSearchConstants.ANNOTATION_TYPE
 							: IJavaSearchConstants.TYPE;
 					ExtendsOrImplementsInfo extendsOrImplementsInfo = isInExtendsOrImplements(this.toComplete);
-					findTypes(completeAfter, typeMatchRule, null)
+					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+						findTypes(completeAfter, typeMatchRule, null)
 							.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
 									type.getElementName().toCharArray()))
 							.filter(type -> {
 								return filterBasedOnExtendsOrImplementsInfo(type, extendsOrImplementsInfo);
 							})
 							.map(this::toProposal).forEach(this.requestor::accept);
+					}
 				}
 				checkCancelled();
 				suggestPackages();
