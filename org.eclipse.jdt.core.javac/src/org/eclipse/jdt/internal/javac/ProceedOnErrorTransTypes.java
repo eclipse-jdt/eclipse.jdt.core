@@ -13,8 +13,8 @@ package org.eclipse.jdt.internal.javac;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.comp.TransTypes;
-import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.TreeInfo;
+import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Context.Factory;
 
@@ -30,12 +30,16 @@ public class ProceedOnErrorTransTypes extends TransTypes {
 
 	@Override
 	public void visitApply(JCMethodInvocation tree) {
+		if (tree.type.isErroneous()) {
+			return;
+		}
 		tree.meth = translate(tree.meth, null);
 		Symbol meth = TreeInfo.symbol(tree.meth);
-		if (meth.baseSymbol() instanceof MethodSymbol) {
+		if (!(meth.baseSymbol() instanceof MethodSymbol)) {
 			//workaround: guard against ClassCastException when referencing non existing member
-			super.visitApply(tree);
+			return;
 		}
+		super.visitApply(tree);
 	}
 
 }
