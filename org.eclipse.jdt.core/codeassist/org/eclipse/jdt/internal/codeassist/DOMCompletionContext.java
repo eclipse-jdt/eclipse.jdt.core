@@ -20,11 +20,7 @@ import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.*;
 
 class DOMCompletionContext extends CompletionContext {
 	private final int offset;
@@ -112,11 +108,43 @@ class DOMCompletionContext extends CompletionContext {
 
 	@Override
 	public int getTokenLocation() {
-		if (DOMCompletionUtil.findParent(this.node, new int[] { ASTNode.IMPORT_DECLARATION }) != null) {
-			return CompletionContext.TL_IN_IMPORT;
+		ASTNode parent = this.node;
+		while (parent != null) {
+			if (parent instanceof ImportDeclaration) {
+				return TL_IN_IMPORT;
+			}
+			if (parent instanceof ClassInstanceCreation) {
+				return TL_CONSTRUCTOR_START;
+			}
+			if (parent instanceof Block) {
+				return TL_STATEMENT_START;
+			}
+			if (parent instanceof AbstractTypeDeclaration) {
+				return TL_MEMBER_START;
+			}
+			parent = parent.getParent();
 		}
-		// TODO: probably other cases
 		return super.getTokenLocation();
+	}
+
+	@Override
+	public int getTokenStart() {
+		return node.getStartPosition();
+	}
+	@Override
+	public int getTokenEnd() {
+		return node.getStartPosition() + node.getLength() - 1;
+	}
+
+	@Override
+	public int getTokenKind() {
+		if (node instanceof Name) {
+			return TOKEN_KIND_NAME;
+		}
+		if (node instanceof StringLiteral) {
+			return TOKEN_KIND_STRING_LITERAL;
+		}
+		return super.getTokenKind();
 	}
 
 	/// adapted from org.eclipse.jdt.internal.codeassist.InternalExtendedCompletionContext
