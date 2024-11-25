@@ -757,9 +757,13 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			ITypeBinding[] types = this.getUncheckedTypeArguments(this.type, this.typeSymbol);
 			if (types != null && types.length > 0) {
 				builder.append("<");
-				for (var typeArgument : types) {
-					if (typeArgument != null) {
-						builder.append(typeArgument.getName());
+				for (int z = 0; z < types.length; z++ ) {
+					ITypeBinding zBinding = types[z];
+					if (zBinding != null) {
+						builder.append(zBinding.getName());
+						if( z != types.length - 1) {
+							builder.append(",");
+						}
 					}
 				}
 				builder.append(">");
