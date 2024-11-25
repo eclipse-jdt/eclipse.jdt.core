@@ -9507,4 +9507,84 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"Default");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3344
+	// [Enhanced Switch] Problem with switch and enums - incorrect duplicate case error
+	public void testIssue3344() {
+		runConformTest(
+				new String[] {
+						"Main.java",
+						"""
+						import static p.A.A1;
+						import static p.A.A2;
+						import static p.B.B1;
+						import static p.B.B2;
+
+						import java.util.Arrays;
+						import java.util.stream.Stream;
+
+						import p.X;
+						import p.A;
+						import p.B;
+
+						public class Main {
+
+							public static void main(String[] args) {
+								Stream.concat(Arrays.stream(A.values()), Arrays.stream(B.values())).forEach(
+									x -> { System.out.printf("%s -> %s, %s\\n", x, bad_switch(x), good_switch(x)); }
+								);
+							}
+
+						    static String bad_switch(X x) {
+						        return switch (x) {
+						            case A1 -> "A1";
+						            case A2 -> "A2";
+						            case B1 -> "B1";
+						            case B2 -> "B2";
+						            default -> "unknown";
+						        };
+						    }
+
+						    static String good_switch(X x) {
+						        return switch (x) {
+						            case A.A1 -> "A1";
+						            case A.A2 -> "A2";
+						            case B.B1 -> "B1";
+						            case B.B2 -> "B2";
+						            default -> "unknown";
+						        };
+						    }
+						}
+						""",
+						"p/A.java",
+						"""
+						package p;
+
+						public enum A implements X {
+							A1,
+							A2,
+						}
+						""",
+						"p/B.java",
+						"""
+						package p;
+
+						public enum B implements X {
+							B1,
+							B2
+						}
+						""",
+						"p/X.java",
+						"""
+						package p;
+
+						public interface X {
+						}
+						"""
+				},
+				"A1 -> A1, A1\n" +
+				"A2 -> A2, A2\n" +
+				"B1 -> B1, B1\n" +
+				"B2 -> B2, B2");
+	}
 }

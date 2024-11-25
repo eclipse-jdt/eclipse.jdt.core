@@ -99,7 +99,7 @@ public Expression [] peeledLabelExpressions() {
 }
 
 private boolean essentiallyQualifiedEnumerator(Expression e, TypeBinding selectorType) { // "Essentially" as in not "superfluously" qualified.
-	return e instanceof QualifiedNameReference qnr && qnr.binding instanceof FieldBinding field
+	return e instanceof NameReference reference && reference.binding instanceof FieldBinding field
 				&& (field.modifiers & ClassFileConstants.AccEnum) != 0 && !TypeBinding.equalsEquals(e.resolvedType, selectorType); // <<-- essential qualification
 }
 
@@ -135,13 +135,12 @@ private Constant resolveConstantLabel(BlockScope scope, TypeBinding caseType, Ty
 		if (expression instanceof NameReference reference && reference.binding instanceof FieldBinding field) {
 			if ((field.modifiers & ClassFileConstants.AccEnum) == 0)
 				 scope.problemReporter().enumSwitchCannotTargetField(reference, field);
-			else if (reference instanceof QualifiedNameReference) {
-				if (options.complianceLevel < ClassFileConstants.JDK21)
-					scope.problemReporter().cannotUseQualifiedEnumConstantInCaseLabel(reference, field);
-				else if (!TypeBinding.equalsEquals(caseType, selectorType)) {
-					this.swich.switchBits |= SwitchStatement.QualifiedEnum;
-					return StringConstant.fromValue(CharOperation.toString(reference.getName()));
-				}
+			else if (reference instanceof QualifiedNameReference && options.complianceLevel < ClassFileConstants.JDK21)
+				scope.problemReporter().cannotUseQualifiedEnumConstantInCaseLabel(reference, field);
+
+			if (!TypeBinding.equalsEquals(caseType, selectorType)) {
+				this.swich.switchBits |= SwitchStatement.QualifiedEnum;
+				return StringConstant.fromValue(CharOperation.toString(reference.getName()));
 			}
 			return IntConstant.fromValue(field.original().id + 1); // (ordinal value + 1) zero should not be returned see bug 141810
 		}
