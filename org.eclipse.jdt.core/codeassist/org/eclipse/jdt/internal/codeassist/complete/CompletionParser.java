@@ -2082,7 +2082,7 @@ private boolean checkParemeterizedMethodName() {
 						this.identifierLengthPtr--;
 						int end = (int) position;
 						int start = (int) (position >>> 32);
-						m = new CompletionOnMessageSendName(selector, start, end, false);
+						m = new CompletionOnMessageSendName(selector, start, end);
 
 						// handle type arguments
 						int length = this.genericsLengthStack[this.genericsLengthPtr--];
@@ -2101,7 +2101,7 @@ private boolean checkParemeterizedMethodName() {
 						this.identifierLengthPtr--;
 						int end = (int) position;
 						int start = (int) (position >>> 32);
-						m = new CompletionOnMessageSendName(selector, start, end, false);
+						m = new CompletionOnMessageSendName(selector, start, end);
 
 						// handle type arguments
 						int length = this.genericsLengthStack[this.genericsLengthPtr--];
@@ -2118,7 +2118,7 @@ private boolean checkParemeterizedMethodName() {
 					this.identifierLengthPtr--;
 					int end = (int) position;
 					int start = (int) (position >>> 32);
-					m = new CompletionOnMessageSendName(selector, start, end, false);
+					m = new CompletionOnMessageSendName(selector, start, end);
 
 					// handle type arguments
 					int length = this.genericsLengthStack[this.genericsLengthPtr--];
@@ -5784,8 +5784,12 @@ private MessageSend internalNewMessageSend() {
 	MessageSend m = null;
 	long nameStart = this.identifierPositionStack[this.identifierPtr] >>> 32;
 	if (this.assistNode == null && this.lParenPos > this.cursorLocation && nameStart <= this.cursorLocation + 1) {
-		boolean nextIsCast = this.expressionPtr > -1 && this.expressionStack[this.expressionPtr] instanceof CastExpression;
-		m = new CompletionOnMessageSendName(null, 0, 0, nextIsCast); // positions will be set in consumeMethodInvocationName(), if that's who called us
+		final boolean nextIsCast = this.expressionPtr > -1 && this.expressionStack[this.expressionPtr] instanceof CastExpression;
+		// positions will be set in consumeMethodInvocationName(), if that's who called us
+		m = new CompletionOnMessageSendName(null, 0, 0, setup -> {
+			setup.cursorIsToTheLeftOfTheLParen = true;
+			setup.nextIsCast = nextIsCast;
+		});
 	} else if (this.assistNode != null && this.lParenPos == this.assistNode.sourceEnd) {
 		// this branch corresponds to work done in checkParemeterizedMethodName(), just the latter isn't called in absence of a syntax error
 		if (this.expressionPtr != -1 && this.expressionStack[this.expressionPtr] == this.assistNode) {
