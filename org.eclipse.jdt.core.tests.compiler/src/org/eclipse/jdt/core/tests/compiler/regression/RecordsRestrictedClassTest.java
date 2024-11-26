@@ -7938,7 +7938,7 @@ public void testBug567731_002() {
 		true);
 }
 public void testBug566846_1() {
-	if (this.complianceLevel < ClassFileConstants.JDK23)
+	if (this.complianceLevel < ClassFileConstants.JDK24)
 		return;
 	runNegativeTest(
 			new String[] {
@@ -7965,7 +7965,7 @@ public void testBug566846_1() {
 			true);
 }
 public void testBug566846_2() {
-	if (this.complianceLevel < ClassFileConstants.JDK23)
+	if (this.complianceLevel < ClassFileConstants.JDK24)
 		return;
 	runNegativeTest(
 			new String[] {

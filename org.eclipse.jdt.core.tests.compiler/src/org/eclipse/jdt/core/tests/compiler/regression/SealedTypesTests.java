@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.Jav
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class SealedTypesTests extends AbstractRegressionTest9 {
@@ -31,7 +32,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug564498_6"};
+		TESTS_NAMES = new String[] { "testBug566846_001"};
 	}
 
 	public static Class<?> testClass() {
@@ -4969,6 +4970,10 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	@SuppressWarnings({ "rawtypes" })
 	public void testBug566846_001() {
 		Map options = getCompilerOptions();
+		String error = 	this.complianceLevel < ClassFileConstants.JDK24 ?
+				"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 24 and above\n"
+				: "Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n";
+
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4978,7 +4983,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	record X;\n" +
 			"	^\n" +
-			"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 24 and above\n" +
+			error +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	record X;\n" +
