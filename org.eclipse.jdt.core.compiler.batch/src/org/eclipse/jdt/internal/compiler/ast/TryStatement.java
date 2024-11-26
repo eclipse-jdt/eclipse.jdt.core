@@ -961,7 +961,7 @@ public boolean generateFinallyBlock(BlockScope currentScope, CodeStream codeStre
 			((StackMapFrameCodeStream) codeStream).popStateIndex();
 			return false;
 		default:
-			throw EclipseCompiler.REACHED_DEAD_CODE;
+			throw EclipseCompiler.UNEXPECTED_CONTROL_FLOW;
 	}
 }
 @Override

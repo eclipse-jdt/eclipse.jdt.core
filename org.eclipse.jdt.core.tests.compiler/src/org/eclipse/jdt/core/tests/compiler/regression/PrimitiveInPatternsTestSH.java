@@ -1949,12 +1949,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			},
 			"""
 			----------
-			1. ERROR in XBoolean.java (at line 4)
-				case true -> 1;
-				     ^^^^
-			Duplicate case
-			----------
-			2. ERROR in XBoolean.java (at line 5)
+			1. ERROR in XBoolean.java (at line 5)
 				case true -> 2;
 				     ^^^^
 			Duplicate case
@@ -2427,204 +2422,9 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			"2.0");
 	}
 
-	// test from spec
-	public void _testSpec001() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-					public class X {
-						public int getStatus() {
-							return 100;
-						}
-						public static int foo(X x) {
-							return switch (x.getStatus()) {
-						    case int i -> i;
-							default -> -1;
-						};
-						}
-						public static void main(String[] args) {
-							X x = new X();
-							System.out.println(X.foo(x));
-						}
-					}
-				"""
-			},
-			"100");
-	}
-	public void _testSpec002() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-					public class X {
-						public int getStatus() {
-							return 100;
-						}
-						public static int foo(X x) {
-							return switch (x.getStatus()) {
-						    case int i when i > 10 -> i * i;
-						    case int i -> i;
-							default -> -1;
-						};
-						}
-						public static void main(String[] args) {
-							X x = new X();
-							System.out.println(X.foo(x));
-						}
-					}
-				"""
-			},
-			"100");
-	}
-	public void _testSpec003() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-					import java.util.Map;
-
-					sealed interface JsonValue {}
-					record JsonString(String s) implements JsonValue { }
-					record JsonNumber(double d) implements JsonValue { }
-					record JsonObject(Map<String, JsonValue> map) implements JsonValue { }
-
-
-					public class X {
-
-						public static void foo() {
-							var json = new JsonObject(Map.of("name", new JsonString("John"),
-					                "age",  new JsonNumber(30)));
-					        JsonValue v = json.map().get("age");
-							System.out.println(v);
-						}
-						public static void main(String[] args) {
-							X.foo();
-						}
-					}
-				"""
-			},
-			"JsonNumber[d=30.0]");
-	}
-	public void _testSpec004() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-					import java.util.Map;
-
-					sealed interface JsonValue {}
-					record JsonString(String s) implements JsonValue { }
-					record JsonNumber(double d) implements JsonValue { }
-					record JsonObject(Map<String, JsonValue> map) implements JsonValue { }
-
-
-					public class X {
-
-						public static JsonObject foo() {
-							var json = new JsonObject(Map.of("name", new JsonString("John"),
-					                "age",  new JsonNumber(30)));
-							return json;
-						}
-						public static void bar(Object json) {
-							if (json instanceof JsonObject(var map)
-								    && map.get("name") instanceof JsonString(String n)
-								    && map.get("age")  instanceof JsonNumber(double a)) {
-								    int age = (int)a;  // unavoidable (and potentially lossy!) cast
-								    System.out.println(age);
-								}
-						}
-						public static void main(String[] args) {
-							X.bar(X.foo());
-						}
-					}
-				"""
-			},
-			"30");
-	}
-	public void _testSpec005() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-					import java.util.HashMap;
-					import java.util.Map;
-
-					sealed interface I {}
-					record ZNumber(double d) implements I { }
-					record ZObject(Map<String, I> map) implements I { }
-
-
-					public class X {
-
-						public static ZObject foo() {
-							Map<String, I> myMap = new HashMap<>();
-							myMap.put("age",  new ZNumber(30));
-							return new ZObject(myMap);
-						}
-						public static void bar(Object json) {
-							if (json instanceof ZObject(var map)) {
-								if (map.get("age")  instanceof ZNumber(double d)) {
-									System.out.println("double:"+d);
-								}
-							}
-						}
-						public static void main(String[] args) {
-							X.bar(X.foo());
-						}
-					}
-				"""
-			},
-			"double:30.0");
-	}
-	public void _testSpec006() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-					import java.util.HashMap;
-					import java.util.Map;
-
-					sealed interface I {}
-					record ZNumber(double d) implements I { }
-					record ZObject(Map<String, I> map) implements I { }
-
-
-					public class X {
-
-						public static ZObject foo() {
-							Map<String, I> myMap = new HashMap<>();
-							myMap.put("age",  new ZNumber(30));
-							return new ZObject(myMap);
-						}
-						public static void bar(Object json) {
-							if (json instanceof ZObject(var map)) {
-								if (map.get("age")  instanceof ZNumber(int i)) {
-									System.out.println("int:"+i);
-								} else if (map.get("age")  instanceof ZNumber(double d)) {
-									System.out.println("double:"+d);
-								}
-							}
-						}
-						public static void main(String[] args) {
-							X.bar(X.foo());
-						}
-					}
-				"""
-			},
-			"int:30");
-	}
-	public void _testSpec00X() {
-		runNegativeTest(new String[] {
-			"X.java",
-				"""
-      			"""
-			},
-			"----------\n" +
-			"2. ERROR in X.java (at line 16)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
-	}
-
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3265
 	// [Primitive Patterns] Wrong duplicate case error
-	public void _testIssue3265() {
+	public void testIssue3265() {
 		runConformTest(new String[] {
 				"X.java",
 				"""
@@ -2649,4 +2449,69 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				"""},
 				"1.0|1.5|1.6|");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3265
+	// [Primitive Patterns] Wrong duplicate case error
+	public void testIssue3265_2() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static String switchfloatMoreCases(float f) {
+						return switch (f) {
+						case 1.0f -> "1.0";
+						case 0.5f + 0.5f -> "1.0";
+						default -> String.valueOf(f);
+						};
+					}
+
+					public static void main(String... args) {
+						System.out.print(switchfloatMoreCases(1.0f));
+						System.out.print("|");
+						System.out.print(switchfloatMoreCases(1.5f));
+						System.out.print("|");
+						System.out.print(switchfloatMoreCases(1.6f));
+						System.out.print("|");
+					}
+				}
+				"""},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	case 0.5f + 0.5f -> \"1.0\";\n" +
+				"	     ^^^^^^^^^^^\n" +
+				"Duplicate case\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3337
+	// [Enhanced Switch][Primitive Patterns] ECJ tolerates default case in boolean switch with both true and false cases.
+	public void testIssue3337() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+
+				public static void main(String[] args) {
+					Boolean b = true;
+					switch (b) {
+						case true -> System.out.println(1);
+						case false -> System.out.println(0);
+						case null, default -> System.out.println("Error");
+					}
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\r\n" +
+			"	switch (b) {\n" +
+			"			case true -> System.out.println(1);\n" +
+			"			case false -> System.out.println(0);\n" +
+			"			case null, default -> System.out.println(\"Error\");\n" +
+			"		}\r\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Switch cannot have both boolean values and a default label\n" +
+			"----------\n");
+	}
+
 }

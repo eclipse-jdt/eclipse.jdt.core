@@ -187,14 +187,9 @@ public void test007() {
 			"}",
 		},
 		"----------\n" +
-		"1. ERROR in p\\X.java (at line 5)\n" +
-		"	case (int) (1.0 / 0.0) :\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Duplicate case\n" +
-		"----------\n" +
-		"2. ERROR in p\\X.java (at line 7)\n" +
+		"1. ERROR in p\\X.java (at line 7)\n" +
 		"	case (int) (2.0 / 0.0) :\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"	     ^^^^^^^^^^^^^^^^^\n" +
 		"Duplicate case\n" +
 		"----------\n"
 	);
@@ -1095,28 +1090,10 @@ public void testCaseTypeMismatch3() {
 public void testDuplicateCase() {
 		String newMessage =
 			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
+			"1. ERROR in X.java (at line 5)\n" +
 			"	case \"123\": break;\n" +
-			"	^^^^^^^^^^\n" +
+			"	     ^^^^^\n" +
 			"Duplicate case\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	case \"123\": break;\n" +
-			"	^^^^^^^^^^\n" +
-			"Duplicate case\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	default: return args;\n" +
-			"	         ^^^^^^^^^^^^\n" +
-			"Void methods cannot return a value\n" +
-			"----------\n";
-
-		String oldMessage =
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	switch(args[0]) {\n" +
-			"	       ^^^^^^^\n" +
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 6)\n" +
 			"	default: return args;\n" +
@@ -1136,72 +1113,54 @@ public void testDuplicateCase() {
 			"	}\n" +
 			"}\n",
 		},
-		this.complianceLevel >= JDKLevelSupportingStringSwitch ? newMessage : oldMessage);
+		newMessage);
 }
 
 // JDK7: Strings in Switch.
 public void testDuplicateCase2() {
 		String newMessage =
 			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
+			"1. ERROR in X.java (at line 10)\n" +
 			"	case \"123\": break;\n" +
-			"	^^^^^^^^^^\n" +
+			"	     ^^^^^\n" +
 			"Duplicate case\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
-			"	case \"123\": break;\n" +
-			"	^^^^^^^^^^\n" +
-			"Duplicate case\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 11)\n" +
+			"2. ERROR in X.java (at line 11)\n" +
 			"	case \"1\" + \"2\" + \"3\": break;\n" +
-			"	^^^^^^^^^^^^^^^^^^^^\n" +
+			"	     ^^^^^^^^^^^^^^^\n" +
 			"Duplicate case\n" +
 			"----------\n" +
-			"4. ERROR in X.java (at line 13)\n" +
+			"3. ERROR in X.java (at line 13)\n" +
 			"	case local: break;\n" +
-			"	^^^^^^^^^^\n" +
+			"	     ^^^^^\n" +
 			"Duplicate case\n" +
 			"----------\n" +
-			"5. ERROR in X.java (at line 14)\n" +
+			"4. ERROR in X.java (at line 14)\n" +
 			"	case field: break;\n" +
-			"	^^^^^^^^^^\n" +
+			"	     ^^^^^\n" +
 			"Duplicate case\n" +
 			"----------\n" +
-			"6. ERROR in X.java (at line 15)\n" +
+			"5. ERROR in X.java (at line 15)\n" +
 			"	case ifield: break;\n" +
 			"	     ^^^^^^\n" +
 			"Cannot make a static reference to the non-static field ifield\n" +
 			"----------\n" +
-			"7. ERROR in X.java (at line 16)\n" +
+			"6. ERROR in X.java (at line 16)\n" +
 			"	case inffield: break;\n" +
 			"	     ^^^^^^^^\n" +
 			"Cannot make a static reference to the non-static field inffield\n" +
 			"----------\n" +
-			"8. ERROR in X.java (at line 19)\n" +
-			"	default: break;\n" +
-			"	^^^^^^^\n" +
-			"The default case is already defined\n" +
-			"----------\n";
-
-		String oldMessage =
+			"7. ERROR in X.java (at line 17)\n" +
+			"	case nffield: break;\n" +
+			"	     ^^^^^^^\n" +
+			"case expressions must be constant expressions\n" +
 			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	switch(args[0]) {\n" +
-			"	       ^^^^^^^\n" +
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 15)\n" +
-			"	case ifield: break;\n" +
-			"	     ^^^^^^\n" +
-			"Cannot make a static reference to the non-static field ifield\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 16)\n" +
-			"	case inffield: break;\n" +
+			"8. ERROR in X.java (at line 18)\n" +
+			"	case argument: break;\n" +
 			"	     ^^^^^^^^\n" +
-			"Cannot make a static reference to the non-static field inffield\n" +
+			"case expressions must be constant expressions\n" +
 			"----------\n" +
-			"4. ERROR in X.java (at line 19)\n" +
+			"9. ERROR in X.java (at line 19)\n" +
 			"	default: break;\n" +
 			"	^^^^^^^\n" +
 			"The default case is already defined\n" +
@@ -1232,7 +1191,7 @@ public void testDuplicateCase2() {
 			"    }\n" +
 			"}\n"
 		},
-		this.complianceLevel >= JDKLevelSupportingStringSwitch ? newMessage : oldMessage);
+		newMessage);
 }
 // JDK7: Strings in Switch.
 public void testVariableCase() {
@@ -1366,19 +1325,6 @@ public void testNullCase() {
 			"	case true ? (String) null : (String) null : break;\n" +
 			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"case expressions must be constant expressions\n" +
-			"----------\n" +
-			"7. WARNING in X.java (at line 12)\n" +
-			"	case true ? (String) null : (String) null : break;\n" +
-			"	                            ^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n";
-
-		String oldMessage =
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	switch(args[0]) {\n" +
-			"	       ^^^^^^^\n" +
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 			"----------\n";
 
 		this.runNegativeTest(new String[] {
@@ -1399,51 +1345,48 @@ public void testNullCase() {
 			"    }\n" +
 			"}\n"
 		},
-		this.complianceLevel >= JDKLevelSupportingStringSwitch ? newMessage : oldMessage);
+		newMessage);
 }
 // JDK7: Strings in Switch.
 public void testDuplicateCase3() {
 		String newMessage =
 			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	case \"123\": break;\n" +
-			"	^^^^^^^^^^\n" +
-			"Duplicate case\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
+			"1. ERROR in X.java (at line 10)\n" +
 			"	case \"1\" + \"2\" + \"3\": break;\n" +
-			"	^^^^^^^^^^^^^^^^^^^^\n" +
+			"	     ^^^^^^^^^^^^^^^\n" +
 			"Duplicate case\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 12)\n" +
+			"2. ERROR in X.java (at line 12)\n" +
 			"	case local: break;\n" +
-			"	^^^^^^^^^^\n" +
+			"	     ^^^^^\n" +
 			"Duplicate case\n" +
 			"----------\n" +
-			"4. ERROR in X.java (at line 13)\n" +
+			"3. ERROR in X.java (at line 13)\n" +
 			"	case field: break;\n" +
-			"	^^^^^^^^^^\n" +
+			"	     ^^^^^\n" +
 			"Duplicate case\n" +
 			"----------\n" +
-			"5. ERROR in X.java (at line 14)\n" +
+			"4. ERROR in X.java (at line 14)\n" +
 			"	case ifield: break;\n" +
-			"	^^^^^^^^^^^\n" +
+			"	     ^^^^^^\n" +
 			"Duplicate case\n" +
 			"----------\n" +
-			"6. ERROR in X.java (at line 18)\n" +
-			"	default: break;\n" +
-			"	^^^^^^^\n" +
-			"The default case is already defined\n" +
-			"----------\n";
-
-		String oldMessage =
+			"5. ERROR in X.java (at line 15)\n" +
+			"	case inffield: break;\n" +
+			"	     ^^^^^^^^\n" +
+			"case expressions must be constant expressions\n" +
 			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	switch(args[0]) {\n" +
-			"	       ^^^^^^^\n" +
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
+			"6. ERROR in X.java (at line 16)\n" +
+			"	case nffield: break;\n" +
+			"	     ^^^^^^^\n" +
+			"case expressions must be constant expressions\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 18)\n" +
+			"7. ERROR in X.java (at line 17)\n" +
+			"	case argument: break;\n" +
+			"	     ^^^^^^^^\n" +
+			"case expressions must be constant expressions\n" +
+			"----------\n" +
+			"8. ERROR in X.java (at line 18)\n" +
 			"	default: break;\n" +
 			"	^^^^^^^\n" +
 			"The default case is already defined\n" +
@@ -1473,7 +1416,7 @@ public void testDuplicateCase3() {
 			"    }\n" +
 			"}\n"
 		},
-		this.complianceLevel >= JDKLevelSupportingStringSwitch ? newMessage : oldMessage);
+		newMessage);
 }
 
 public void testDuplicateHashCode() {
@@ -3567,6 +3510,33 @@ public void testIssue3276() throws Exception {
 		""",
 	},
 	"42");
+}
+
+public void testNonConstantCase() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+	this.runNegativeTest(new String[] {
+		"X.java",
+		"""
+		public class X {
+			public static void main(String[] args) {
+				Integer i = Integer.valueOf(-1);
+				int b = 10;
+				switch (i) {
+					case b -> System.out.println("Null");
+					case -1 -> System.out.println(-1);
+					default -> System.out.println("default");
+				}
+			}
+		}
+		""",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	case b -> System.out.println(\"Null\");\n" +
+		"	     ^\n" +
+		"case expressions must be constant expressions\n" +
+		"----------\n");
 }
 
 public static Class testClass() {

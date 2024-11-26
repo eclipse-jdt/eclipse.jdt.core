@@ -23,7 +23,6 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 public class BreakStatement extends BranchStatement {
 
-	public boolean isSynthetic;
 public BreakStatement(char[] label, int sourceStart, int e) {
 	super(label, sourceStart, e);
 }
@@ -114,11 +113,5 @@ public boolean doesNotCompleteNormally() {
 @Override
 public boolean canCompleteNormally() {
 	return false;
-}
-
-
-@Override
-protected boolean doNotReportUnreachable() {
-	return this.isSynthetic;
 }
 }

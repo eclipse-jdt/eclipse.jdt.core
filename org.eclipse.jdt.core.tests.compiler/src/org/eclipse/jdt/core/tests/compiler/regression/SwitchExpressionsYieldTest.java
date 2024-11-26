@@ -631,16 +631,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 		String expectedProblemLog =
 				"----------\n" +
-						"1. ERROR in X.java (at line 4)\n" +
-						"	case SATURDAY, SUNDAY: \n" +
-						"	^^^^^^^^^^^^^^^^^^^^^\n" +
-						"Duplicate case\n" +
-						"----------\n" +
-						"2. ERROR in X.java (at line 7)\n" +
-						"	case SUNDAY : System.out.println(Day.SUNDAY);\n" +
-						"	^^^^^^^^^^^\n" +
-						"Duplicate case\n" +
-						"----------\n";
+				"1. ERROR in X.java (at line 7)\n" +
+				"	case SUNDAY : System.out.println(Day.SUNDAY);\n" +
+				"	     ^^^^^^\n" +
+				"Duplicate case\n" +
+				"----------\n";
 		this.runNegativeTest(
 				testFiles,
 				expectedProblemLog);
@@ -673,19 +668,14 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"	        ^^^\n" +
 						"The enum constant MONDAY needs a corresponding case label in this enum switch on Day\n" +
 						"----------\n" +
-						"2. ERROR in X.java (at line 4)\n" +
-						"	case SATURDAY, SUNDAY: \n" +
-						"	^^^^^^^^^^^^^^^^^^^^^\n" +
+						"2. ERROR in X.java (at line 7)\n" +
+						"	case SUNDAY, SATURDAY : \n" +
+						"	     ^^^^^^\n" +
 						"Duplicate case\n" +
 						"----------\n" +
 						"3. ERROR in X.java (at line 7)\n" +
 						"	case SUNDAY, SATURDAY : \n" +
-						"	^^^^^^^^^^^^^^^^^^^^^\n" +
-						"Duplicate case\n" +
-						"----------\n" +
-						"4. ERROR in X.java (at line 7)\n" +
-						"	case SUNDAY, SATURDAY : \n" +
-						"	^^^^^^^^^^^^^^^^^^^^^\n" +
+						"	             ^^^^^^^^\n" +
 						"Duplicate case\n" +
 						"----------\n";
 		this.runNegativeTest(
@@ -1025,14 +1015,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 		String expectedProblemLog =
 				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case 1, 3: \n" +
-				"	^^^^^^^^^\n" +
-				"Duplicate case\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 8)\n" +
+				"1. ERROR in X.java (at line 8)\n" +
 				"	case 3, 4: \n" +
-				"	^^^^^^^^^\n" +
+				"	     ^\n" +
 				"Duplicate case\n" +
 				"----------\n";
 		this.runNegativeTest(
@@ -1060,14 +1045,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 		String expectedProblemLog =
 				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case \"a\", \"b\": \n" +
-				"	^^^^^^^^^^^^^\n" +
-				"Duplicate case\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 8)\n" +
+				"1. ERROR in X.java (at line 8)\n" +
 				"	case \"b\", \"c\": \n" +
-				"	^^^^^^^^^^^^^\n" +
+				"	     ^^^\n" +
 				"Duplicate case\n" +
 				"----------\n";
 		this.runNegativeTest(
@@ -2204,7 +2184,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case SATURDAY, SUNDAY, SUNDAY:\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"	                       ^^^^^^\n" +
 			"Duplicate case\n" +
 			"----------\n");
 	}
@@ -2229,19 +2209,14 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case SATURDAY, SUNDAY, MONDAY:\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	case MONDAY, SUNDAY:\n" +
+			"	     ^^^^^^\n" +
 			"Duplicate case\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 6)\n" +
 			"	case MONDAY, SUNDAY:\n" +
-			"	^^^^^^^^^^^^^^^^^^^\n" +
-			"Duplicate case\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	case MONDAY, SUNDAY:\n" +
-			"	^^^^^^^^^^^^^^^^^^^\n" +
+			"	             ^^^^^^\n" +
 			"Duplicate case\n" +
 			"----------\n");
 	}

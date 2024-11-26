@@ -8,24 +8,4 @@
             </message_arguments>
         </filter>
     </resource>
-    <resource path="src/org/eclipse/jdt/core/compiler/IProblem.java" type="org.eclipse.jdt.core.compiler.IProblem">
-        <filter comment="renamed constant for JEP 482" id="405864542">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="DisallowedStatementInPrologue"/>
-            </message_arguments>
-        </filter>
-        <filter comment="this preview constant (marked @noreference) is unnecesary" id="405864542">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="DuplicateTotalPattern"/>
-            </message_arguments>
-        </filter>
-        <filter comment="renamed constant for JEP 482" id="405864542">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="ExpressionInPreConstructorContext"/>
-            </message_arguments>
-        </filter>
-    </resource>
 </component>

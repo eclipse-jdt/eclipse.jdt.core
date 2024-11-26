@@ -47,9 +47,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_21);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_21);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_21);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		defaultOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
@@ -259,25 +256,15 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"2. ERROR in X.java (at line 4)\n" +
 			"	case Integer t, String s, X x : System.out.println(\"Integer, String or X\");\n" +
-			"	                ^^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s, X x : System.out.println(\"Integer, String or X\");\n" +
 			"	                       ^\n" +
 			"Named pattern variables are not allowed here\n" +
 			"----------\n" +
-			"4. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s, X x : System.out.println(\"Integer, String or X\");\n" +
-			"	                          ^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 4)\n" +
+			"3. ERROR in X.java (at line 4)\n" +
 			"	case Integer t, String s, X x : System.out.println(\"Integer, String or X\");\n" +
 			"	                            ^\n" +
 			"Named pattern variables are not allowed here\n" +
 			"----------\n" +
-			"6. ERROR in X.java (at line 10)\n" +
+			"4. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -309,35 +296,25 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"2. ERROR in X.java (at line 4)\n" +
 			"	case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
-			"	                ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
 			"	                       ^\n" +
 			"Named pattern variables are not allowed here\n" +
 			"----------\n" +
-			"4. ERROR in X.java (at line 4)\n" +
+			"3. ERROR in X.java (at line 4)\n" +
 			"	case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
 			"	                         ^^^^^^^^^^^^^^^^^\n" +
 			"Syntax error on token(s), misplaced construct(s)\n" +
 			"----------\n" +
-			"5. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
-			"	                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 4)\n" +
+			"4. ERROR in X.java (at line 4)\n" +
 			"	case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
 			"	                                              ^\n" +
 			"Named pattern variables are not allowed here\n" +
 			"----------\n" +
-			"7. ERROR in X.java (at line 4)\n" +
+			"5. ERROR in X.java (at line 4)\n" +
 			"	case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
 			"	                                                     ^\n" +
 			"x cannot be resolved\n" +
 			"----------\n" +
-			"8. ERROR in X.java (at line 10)\n" +
+			"6. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -997,10 +974,10 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 11)\n" +
+				"1. ERROR in X.java (at line 13)\n" +
 				"	case null, default:\n" +
 				"	     ^^^^\n" +
-				"Duplicate case\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 13)\n" +
 				"	case null, default:\n" +
@@ -1919,30 +1896,20 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"3. ERROR in X.java (at line 7)\n" +
 			"	case var i, var j, var k  -> System.out.println(0);\n" +
-			"	            ^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 7)\n" +
-			"	case var i, var j, var k  -> System.out.println(0);\n" +
 			"	            ^^^\n" +
 			"'var' is not allowed here\n" +
 			"----------\n" +
-			"5. ERROR in X.java (at line 7)\n" +
+			"4. ERROR in X.java (at line 7)\n" +
 			"	case var i, var j, var k  -> System.out.println(0);\n" +
 			"	                ^\n" +
 			"Named pattern variables are not allowed here\n" +
 			"----------\n" +
-			"6. ERROR in X.java (at line 7)\n" +
-			"	case var i, var j, var k  -> System.out.println(0);\n" +
-			"	                   ^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 7)\n" +
+			"5. ERROR in X.java (at line 7)\n" +
 			"	case var i, var j, var k  -> System.out.println(0);\n" +
 			"	                   ^^^\n" +
 			"'var' is not allowed here\n" +
 			"----------\n" +
-			"8. ERROR in X.java (at line 7)\n" +
+			"6. ERROR in X.java (at line 7)\n" +
 			"	case var i, var j, var k  -> System.out.println(0);\n" +
 			"	                       ^\n" +
 			"Named pattern variables are not allowed here\n" +
@@ -2198,8 +2165,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	case String s, default, Integer i  -> System.out.println(0);\n" +
 			"	                        ^^^^^^^^^\n" +
 			"Cannot mix pattern with other case labels\n" +
-			"----------\n"
-);
+			"----------\n" +
+			"4. ERROR in X.java (at line 4)\n" +
+			"	case String s, default, Integer i  -> System.out.println(0);\n" +
+			"	                        ^^^^^^^^^\n" +
+			"This case label is dominated by one of the preceding case labels\n" +
+			"----------\n");
 	}
 	public void testBug574564_010() {
 		Map<String, String> options = getCompilerOptions();
@@ -2230,6 +2201,11 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	case String s, default, Integer i  -> System.out.println(0);\n" +
 			"	                        ^^^^^^^^^\n" +
 			"Cannot mix pattern with other case labels\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 4)\n" +
+			"	case String s, default, Integer i  -> System.out.println(0);\n" +
+			"	                        ^^^^^^^^^\n" +
+			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n",
 			null,
 			true,
@@ -2280,11 +2256,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
-			"	case null, null  -> System.out.println(o);\n" +
-			"	     ^^^^\n" +
-			"Duplicate case\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
 			"	case null, null  -> System.out.println(o);\n" +
 			"	           ^^^^\n" +
 			"Duplicate case\n" +
@@ -3249,6 +3220,11 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	case default, null -> System.out.println(\"hello\");\n" +
 				"	              ^^^^\n" +
 				"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 4)\n" +
+				"	case default, null -> System.out.println(\"hello\");\n" +
+				"	              ^^^^\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testBug575356_04() {
@@ -4030,38 +4006,38 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n" +
 				"2. ERROR in X.java (at line 4)\n" +
 				"	case Integer i1, String s1 ->\n" +
-				"	                 ^^^^^^^^^\n" +
-				"Cannot mix pattern with other case labels\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 4)\n" +
-				"	case Integer i1, String s1 ->\n" +
 				"	                        ^^\n" +
 				"Named pattern variables are not allowed here\n" +
 				"----------\n" +
-				"4. ERROR in X.java (at line 5)\n" +
+				"3. ERROR in X.java (at line 5)\n" +
 				"	System.out.print(s1);\n" +
 				"	                 ^^\n" +
 				"s1 cannot be resolved to a variable\n" +
 				"----------\n" +
-				"5. ERROR in X.java (at line 7)\n" +
+				"4. ERROR in X.java (at line 7)\n" +
 				"	case Number n, null ->\n" +
 				"	     ^^^^^^^^\n" +
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n" +
-				"6. ERROR in X.java (at line 7)\n" +
+				"5. ERROR in X.java (at line 7)\n" +
 				"	case Number n, null ->\n" +
 				"	               ^^^^\n" +
 				"Cannot mix pattern with other case labels\n" +
 				"----------\n" +
-				"7. ERROR in X.java (at line 7)\n" +
+				"6. ERROR in X.java (at line 7)\n" +
 				"	case Number n, null ->\n" +
 				"	               ^^^^\n" +
 				"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
 				"----------\n" +
-				"8. ERROR in X.java (at line 7)\n" +
+				"7. ERROR in X.java (at line 7)\n" +
 				"	case Number n, null ->\n" +
 				"	               ^^^^\n" +
-				"Duplicate case\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
+				"----------\n" +
+				"8. ERROR in X.java (at line 9)\n" +
+				"	case null, Class c ->\n" +
+				"	     ^^^^\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n" +
 				"9. ERROR in X.java (at line 9)\n" +
 				"	case null, Class c ->\n" +
@@ -7415,28 +7391,26 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 		String expectedOutput =
 				"  // Method descriptor #22 (Ljava/lang/Object;)V\n" +
-				"  // Stack: 2, Locals: 3\n" +
+				"  // Stack: 2, Locals: 2\n" +
 				"  public static void foo(java.lang.Object o);\n" +
 				"     0  aload_0 [o]\n" +
 				"     1  dup\n" +
 				"     2  invokestatic java.util.Objects.requireNonNull(java.lang.Object) : java.lang.Object [30]\n" +
 				"     5  pop\n" +
 				"     6  astore_1\n" +
-				"     7  iconst_0\n" +
-				"     8  istore_2\n" +
-				"     9  aload_1\n" +
-				"    10  iload_2\n" +
-				"    11  invokedynamic 0 typeSwitch(java.lang.Object, int) : int [36]\n" +
-				"    16  tableswitch default: 56\n" +
-				"          case 0: 40\n" +
-				"          case 1: 48\n" +
-				"    40  getstatic java.lang.System.out : java.io.PrintStream [40]\n" +
-				"    43  ldc <String \"R Only\"> [46]\n" +
-				"    45  invokevirtual java.io.PrintStream.println(java.lang.String) : void [48]\n" +
-				"    48  getstatic java.lang.System.out : java.io.PrintStream [40]\n" +
-				"    51  ldc <String \"Either S or an R\"> [54]\n" +
-				"    53  invokevirtual java.io.PrintStream.println(java.lang.String) : void [48]\n" +
-				"    56  return\n";
+				"     7  aload_1\n" +
+				"     8  iconst_0\n" +
+				"     9  invokedynamic 0 typeSwitch(java.lang.Object, int) : int [36]\n" +
+				"    14  tableswitch default: 52\n" +
+				"          case 0: 36\n" +
+				"          case 1: 44\n" +
+				"    36  getstatic java.lang.System.out : java.io.PrintStream [40]\n" +
+				"    39  ldc <String \"R Only\"> [46]\n" +
+				"    41  invokevirtual java.io.PrintStream.println(java.lang.String) : void [48]\n" +
+				"    44  getstatic java.lang.System.out : java.io.PrintStream [40]\n" +
+				"    47  ldc <String \"Either S or an R\"> [54]\n" +
+				"    49  invokevirtual java.io.PrintStream.println(java.lang.String) : void [48]\n" +
+				"    52  return\n";
 
 		SwitchPatternTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
@@ -9293,5 +9267,324 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	                                 ^^\n" +
 				"Syntax error on token \"I2\", permits expected after this token\n" +
 				"----------\n");
+	}
+
+	public void testNoFallThrough() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							public static void main(String[] args) {
+								switch ("Hello") {
+									case "Hello" -> {
+										System.out.println("Hello Block!");
+									}
+									case "World" -> {
+										System.out.println("World Block!");
+									}
+									default -> {
+										System.out.println("Default Block");
+									}
+								}
+							}
+						}
+						"""
+				},
+				"Hello Block!");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3169
+	// [21][Enhanced Switch] Bogus error: "Cannot mix pattern with other case labels
+	public void testIssue3169() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							static void foo(Object o) {
+							    switch (o) {
+							        case Character c, Integer i:                 // Compile-time error
+							            break;
+							        default:
+							        	break;
+							    }
+							}
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case Character c, Integer i:                 // Compile-time error\n" +
+				"	               ^\n" +
+				"Named pattern variables are not allowed here\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	case Character c, Integer i:                 // Compile-time error\n" +
+				"	                          ^\n" +
+				"Named pattern variables are not allowed here\n" +
+				"----------\n");
+	}
+
+	public void testEnumLocalCase() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" +
+				"	A, B, C;\n" +
+				"}\n" +
+				"\n" +
+				"class A {\n" +
+				"	private void foo(X x) {\n" +
+				"	    final X v = null;\n" +
+				"		switch (x) {\n" +
+				"			case v:\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	case v:\n" +
+			"	     ^\n" +
+			"v cannot be resolved or is not a field\n" +
+			"----------\n");
+	}
+
+	public void testEnumLocalCase_2() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public sealed interface X {
+					enum E implements X {
+						E1, E2;
+					}
+					public static void main(String[] args) {
+						E e = null;
+						switch ((X) null) {
+							case e -> System.out.println();
+							case E.E2 -> System.out.println();
+							default -> System.out.println();
+						}
+					}
+				}
+				""",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	case e -> System.out.println();\n" +
+			"	     ^\n" +
+			"case expressions must be constant expressions\n" +
+			"----------\n");
+	}
+
+	public void testEnumLocalCase_3() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public sealed interface X {
+					enum E implements X {
+						E1, E2;
+					}
+				    public static final E e = E.E1;
+					public static void main(String[] args) {
+						switch ((X) null) {
+							case e -> System.out.println();
+							case E.E2 -> System.out.println();
+							default -> System.out.println();
+						}
+					}
+				}
+				""",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	case e -> System.out.println();\n" +
+			"	     ^\n" +
+			"The field X.e cannot be referenced from an enum case label; only enum constants can be used in enum switch\n" +
+			"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3334
+	// [Enhanced Switch] Bogus duplicate case error from ECJ
+	public void testIssue3334() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public sealed interface X {
+							public static void main(String[] args) {
+						        bar(E1.ONE);
+						        bar(E1.TWO);
+						        bar(E2.ONE);
+						        bar(E2.TWO);
+							}
+							public static void bar(X x) {
+								switch (x) {
+								case E1.ONE:
+									System.out.println("E1.ONE");
+								case E1.TWO:
+									System.out.println("E1.TWO");
+								case E2.ONE:
+									System.out.println("E2.ONE");
+								case E2.TWO:
+									System.out.println("E2.TWO");
+								}
+							}
+						}
+						enum E1 implements X { ONE, TWO}
+						enum E2 implements X { ONE, TWO}
+						"""
+				},
+				"E1.ONE\n" +
+				"E1.TWO\n" +
+				"E2.ONE\n" +
+				"E2.TWO\n" +
+				"E1.TWO\n" +
+				"E2.ONE\n" +
+				"E2.TWO\n" +
+				"E2.ONE\n" +
+				"E2.TWO\n" +
+				"E2.TWO");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3335
+	// [Enhanced Switch][Record Patterns] ECJ compiles non-exhaustive switch resulting in MatchException being thrown at runtime
+	public void testIssue3335() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public sealed interface X {
+
+							record R(X x) {}
+
+							final  class C1 implements X {}
+							final class C2 implements X {}
+
+							public static void main(String[] args) {
+						        bar(new R(new C1()));
+							}
+							public static void bar(R r) {
+								switch (r) {
+								case R(C1 c1) when c1 == null  -> System.out.println();
+								case R(C2 c1) -> System.out.println();
+								}
+							}
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 12)\n" +
+				"	switch (r) {\n" +
+				"	        ^\n" +
+				"An enhanced switch statement should be exhaustive; a default label expected\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3339
+	// [Enhanced Switch][Regression] Incorrect duplicate case error since https://github.com/eclipse-jdt/eclipse.jdt.core/pull/3264
+	public void testIssue3339() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							public static void main(String[] args) {
+								Integer i = 42;
+								switch (i) {
+									case 2 -> System.out.println(2);
+									case Integer ii when ii == 13 -> System.out.println("13");
+									case 13 -> System.out.println(13);
+									case 14 -> System.out.println(14);
+									default -> System.out.println("Default");
+								}
+							}
+						}
+						"""
+				},
+				"Default");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3344
+	// [Enhanced Switch] Problem with switch and enums - incorrect duplicate case error
+	public void testIssue3344() {
+		runConformTest(
+				new String[] {
+						"Main.java",
+						"""
+						import static p.A.A1;
+						import static p.A.A2;
+						import static p.B.B1;
+						import static p.B.B2;
+
+						import java.util.Arrays;
+						import java.util.stream.Stream;
+
+						import p.X;
+						import p.A;
+						import p.B;
+
+						public class Main {
+
+							public static void main(String[] args) {
+								Stream.concat(Arrays.stream(A.values()), Arrays.stream(B.values())).forEach(
+									x -> { System.out.printf("%s -> %s, %s\\n", x, bad_switch(x), good_switch(x)); }
+								);
+							}
+
+						    static String bad_switch(X x) {
+						        return switch (x) {
+						            case A1 -> "A1";
+						            case A2 -> "A2";
+						            case B1 -> "B1";
+						            case B2 -> "B2";
+						            default -> "unknown";
+						        };
+						    }
+
+						    static String good_switch(X x) {
+						        return switch (x) {
+						            case A.A1 -> "A1";
+						            case A.A2 -> "A2";
+						            case B.B1 -> "B1";
+						            case B.B2 -> "B2";
+						            default -> "unknown";
+						        };
+						    }
+						}
+						""",
+						"p/A.java",
+						"""
+						package p;
+
+						public enum A implements X {
+							A1,
+							A2,
+						}
+						""",
+						"p/B.java",
+						"""
+						package p;
+
+						public enum B implements X {
+							B1,
+							B2
+						}
+						""",
+						"p/X.java",
+						"""
+						package p;
+
+						public interface X {
+						}
+						"""
+				},
+				"A1 -> A1, A1\n" +
+				"A2 -> A2, A2\n" +
+				"B1 -> B1, B1\n" +
+				"B2 -> B2, B2");
 	}
 }
