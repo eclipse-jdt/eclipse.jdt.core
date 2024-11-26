@@ -7428,4 +7428,40 @@ public void testGHIssue1368() {
 			"Cannot make a static reference to the non-static field h\n" +
 			"----------\n");
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1590
+// Unreported "illegal reference to static field from initializer" in relation to javac
+public void testGHIssue1590() {
+	this.runNegativeTest(new String[] {
+			"X.java",
+			"""
+			import java.util.function.Supplier;
+
+			enum MyEnum {
+			;
+
+			    private static MyEnum selected;
+
+			    private MyEnum() {
+			        Supplier<MyEnum> s = () -> selected = this;
+			    }
+			}
+
+			enum S {
+				G(), B(), U();
+				S s=G;
+			}
+			"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	Supplier<MyEnum> s = () -> selected = this;\n" +
+			"	                           ^^^^^^^^\n" +
+			"Cannot refer to the static enum field MyEnum.selected within an initializer\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 15)\n" +
+			"	S s=G;\n" +
+			"	    ^\n" +
+			"Cannot refer to the static enum field S.G within an initializer\n" +
+			"----------\n");
+}
 }
