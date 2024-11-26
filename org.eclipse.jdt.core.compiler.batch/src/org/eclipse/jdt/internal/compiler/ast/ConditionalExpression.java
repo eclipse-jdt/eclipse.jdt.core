@@ -518,9 +518,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				return null;
 		} else {
 			if (this.originalValueIfTrueType.kind() == Binding.POLY_TYPE)
-				this.originalValueIfTrueType = this.valueIfTrue.resolveType(scope);
+				this.originalValueIfTrueType = this.valueIfTrue.resolveTypeWithBindings(this.condition.bindingsWhenTrue(), scope);
 			if (this.originalValueIfFalseType.kind() == Binding.POLY_TYPE)
-				this.originalValueIfFalseType = this.valueIfFalse.resolveType(scope);
+				this.originalValueIfFalseType = this.valueIfFalse.resolveTypeWithBindings(this.condition.bindingsWhenFalse(), scope);
 
 			if (this.originalValueIfTrueType == null || !this.originalValueIfTrueType.isValidBinding())
 				return this.resolvedType = null;
@@ -814,8 +814,27 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 
 	@Override
 	public boolean isCompatibleWith(TypeBinding left, Scope scope) {
-		return isPolyExpression() ? this.valueIfTrue.isCompatibleWith(left, scope) && this.valueIfFalse.isCompatibleWith(left, scope) :
+		if (!isPolyExpression())
 			super.isCompatibleWith(left, scope);
+
+		scope.include(this.condition.bindingsWhenTrue());
+		try {
+			if (!this.valueIfTrue.isCompatibleWith(left, scope))
+				return false;
+		} finally {
+			scope.exclude(this.condition.bindingsWhenTrue());
+		}
+
+		scope.include(this.condition.bindingsWhenFalse());
+		try {
+			if (!this.valueIfFalse.isCompatibleWith(left, scope))
+				return false;
+		} finally {
+			scope.exclude(this.condition.bindingsWhenFalse());
+		}
+
+		return true;
+
 	}
 
 	@Override

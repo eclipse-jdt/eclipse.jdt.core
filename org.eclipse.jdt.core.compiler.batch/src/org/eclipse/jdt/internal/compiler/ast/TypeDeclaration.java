@@ -1372,9 +1372,9 @@ public void resolve() {
 			}
 		}
 
-		if ((this.bits & ASTNode.UndocumentedEmptyBlock) != 0 && this.nRecordComponents == 0) {
-			this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd);
-		}
+		if (!sourceType.isRecord() && (this.bits & ASTNode.UndocumentedEmptyBlock) != 0)
+			this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart - 1, this.bodyEnd);
+
 		boolean needSerialVersion =
 						this.scope.compilerOptions().getSeverity(CompilerOptions.MissingSerialVersion) != ProblemSeverities.Ignore
 						&& sourceType.isClass()

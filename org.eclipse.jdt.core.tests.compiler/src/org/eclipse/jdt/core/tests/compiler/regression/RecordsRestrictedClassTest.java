@@ -44,22 +44,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
-		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		defaultOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
-		return defaultOptions;
-	}
-	// Enables the tests to run individually
-	protected Map<String, String> getCompilerOptionsWithPreviewIfApplicable() {
-		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
-		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
-		defaultOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
-		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		return defaultOptions;
 	}
 
@@ -2158,6 +2143,8 @@ public void testBug560496_001() throws Exception {
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug560496_002() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK17)
+		return; // strictfp = nop
 	runConformTest(
 		new String[] {
 			"X.java",
@@ -2170,10 +2157,12 @@ public void testBug560496_002() throws Exception {
 		},
 	 "0");
 	String expectedOutput =
-			"public final strictfp int hashCode();\n";
+			"public final int hashCode();\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug560797_001() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK17)
+		return; // strictfp = nop
 	runConformTest(
 		new String[] {
 			"X.java",
@@ -2186,10 +2175,12 @@ public void testBug560797_001() throws Exception {
 		},
 	 "true");
 	String expectedOutput =
-			"public strictfp int x();\n";
+			"public int x();\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug560797_002() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK17)
+		return; // strictfp = nop
 	runConformTest(
 		new String[] {
 			"X.java",
@@ -2204,7 +2195,7 @@ public void testBug560797_002() throws Exception {
 		},
 	 "true");
 	String expectedOutput =
-			"public strictfp int x();\n";
+			"public int x();\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug560798_001() throws Exception {
@@ -2669,7 +2660,6 @@ public void testBug562219_001() {
 				"       public static void main(String[] args) {\n"+
 				"               @SuppressWarnings(\"unused\")\n"+
 				"               class Y {\n"+
-				"                       @SuppressWarnings(\"preview\")\n"+
 				"                       class Z {\n"+
 				"                               record R() {\n"+
 				"                                       \n"+
@@ -4686,13 +4676,12 @@ public void testBug562637_001() {
 				"X.java",
 				"public record X() {\n"+
 				" public X() {\n"+
-				"   System.out.println(10);\n"+
 				"   this(10);\n"+
 				" }\n"+
 				"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
+			"1. ERROR in X.java (at line 3)\n" +
 			"	this(10);\n" +
 			"	^^^^^^^^^\n" +
 			"The body of a canonical constructor must not contain an explicit constructor call\n" +
@@ -5961,7 +5950,6 @@ public void testBug564672b_001() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -5976,10 +5964,7 @@ public void testBug564672b_001() {
 		options
 	);
 }
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_002() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -5996,9 +5981,7 @@ public void testBug564672b_002() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n",
 		null,
-		true,
-		options
-	);
+		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_003() {
@@ -6006,7 +5989,6 @@ public void testBug564672b_003() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6021,10 +6003,7 @@ public void testBug564672b_003() {
 		options
 	);
 }
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_004() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -6041,9 +6020,7 @@ public void testBug564672b_004() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n",
 		null,
-		true,
-		options
-	);
+		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_005() {
@@ -6051,7 +6028,6 @@ public void testBug564672b_005() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6068,10 +6044,7 @@ public void testBug564672b_005() {
 		options
 	);
 }
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_006() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -6090,9 +6063,7 @@ public void testBug564672b_006() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n",
 		null,
-		true,
-		options
-	);
+		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_007() {
@@ -6100,7 +6071,6 @@ public void testBug564672b_007() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6117,10 +6087,7 @@ public void testBug564672b_007() {
 		options
 	);
 }
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_008() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -6139,9 +6106,7 @@ public void testBug564672b_008() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n",
 		null,
-		true,
-		options
-	);
+		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_009() {
@@ -6149,7 +6114,6 @@ public void testBug564672b_009() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6166,10 +6130,7 @@ public void testBug564672b_009() {
 		options
 	);
 }
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_010() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -6188,9 +6149,7 @@ public void testBug564672b_010() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n",
 		null,
-		true,
-		options
-	);
+		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_011() {
@@ -6198,7 +6157,6 @@ public void testBug564672b_011() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6215,10 +6173,7 @@ public void testBug564672b_011() {
 		options
 	);
 }
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_012() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -6237,9 +6192,7 @@ public void testBug564672b_012() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n",
 		null,
-		true,
-		options
-	);
+		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_013() {
@@ -6247,7 +6200,6 @@ public void testBug564672b_013() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6266,10 +6218,7 @@ public void testBug564672b_013() {
 		options
 	);
 }
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_014() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -6285,9 +6234,7 @@ public void testBug564672b_014() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n",
 		null,
-		true,
-		options
-	);
+		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_015() {
@@ -6295,7 +6242,6 @@ public void testBug564672b_015() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6314,10 +6260,7 @@ public void testBug564672b_015() {
 		options
 	);
 }
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_016() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -6333,9 +6276,7 @@ public void testBug564672b_016() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n",
 		null,
-		true,
-		options
-	);
+		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_017() {
@@ -6343,7 +6284,6 @@ public void testBug564672b_017() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6362,10 +6302,7 @@ public void testBug564672b_017() {
 		options
 	);
 }
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_018() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -6381,14 +6318,9 @@ public void testBug564672b_018() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n",
 		null,
-		true,
-		options
-	);
+		true);
 }
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_019() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -6419,9 +6351,7 @@ public void testBug564672b_019() {
 		"Syntax error on token \"return\", byte expected\n" +
 		"----------\n",
 		null,
-		true,
-		options
-	);
+		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_020() {
@@ -6429,7 +6359,6 @@ public void testBug564672b_020() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6456,7 +6385,6 @@ public void testBug564672b_021() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6481,7 +6409,6 @@ public void testBug564672b_022() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6509,7 +6436,6 @@ public void testBug564672b_023() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6533,7 +6459,6 @@ public void testBug564672b_024() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6563,7 +6488,6 @@ public void testBug564672b_025() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6586,7 +6510,6 @@ public void testBug564672b_026() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6609,7 +6532,6 @@ public void testBug564672b_027() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6631,7 +6553,6 @@ public void testBug564672b_028() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6660,7 +6581,6 @@ public void testBug564672b_029() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6685,7 +6605,6 @@ public void testBug564672b_030() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6708,7 +6627,6 @@ public void testBug564672b_031() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6726,10 +6644,7 @@ public void testBug564672b_031() {
 		options
 	);
 }
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_032() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6745,9 +6660,7 @@ public void testBug564672b_032() {
 				"  }\n" +
 				"}\n",
 			},
-			"Hello, World!",
-			options
-		);
+			"Hello, World!");
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_033() {
@@ -6755,7 +6668,6 @@ public void testBug564672b_033() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6775,10 +6687,7 @@ public void testBug564672b_033() {
 		options
 	);
 }
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_034() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6790,9 +6699,7 @@ public void testBug564672b_034() {
 			"}\n" +
 			"class Rec {}\n"
 		},
-		"0",
-		options
-	);
+		"0");
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_035() {
@@ -6800,7 +6707,6 @@ public void testBug564672b_035() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6843,7 +6749,6 @@ public void testBug564672b_036() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6885,7 +6790,6 @@ public void testBug564672b_037() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6917,7 +6821,6 @@ public void testBug564672b_038() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6939,10 +6842,7 @@ public void testBug564672b_038() {
 		options
 	);
 }
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_039() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -6966,9 +6866,7 @@ public void testBug564672b_039() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n",
 		null,
-		true,
-		options
-	);
+		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_040() {
@@ -6976,7 +6874,6 @@ public void testBug564672b_040() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -7004,7 +6901,6 @@ public void testBug564672b_041() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -7034,7 +6930,6 @@ public void testBug564672b_042() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -7061,7 +6956,6 @@ public void testBug564672b_043() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -7088,7 +6982,6 @@ public void testBug564672b_044() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -7122,7 +7015,6 @@ public void testBug564672b_045() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -7152,7 +7044,6 @@ public void testBug564672b_046() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -7174,7 +7065,6 @@ public void testBug564672b_047() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -7207,7 +7097,6 @@ public void testBug564672b_048() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -7239,7 +7128,6 @@ public void testBug564672b_049() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -7267,7 +7155,6 @@ public void testBug564672b_049() {
 }
 public void testBug565388_001() {
 	if (this.complianceLevel < ClassFileConstants.JDK17) return;
-	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -7280,14 +7167,10 @@ public void testBug565388_001() {
 		"Illegal modifier for the record X; only public, final and strictfp are permitted\n" +
 		"----------\n",
 		null,
-		true,
-		options
-	);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		true);
 }
 public void testBug565388_002() {
 	if (this.complianceLevel < ClassFileConstants.JDK17) return;
-	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -7300,10 +7183,7 @@ public void testBug565388_002() {
 		"Illegal modifier for the record X; only public, final and strictfp are permitted\n" +
 		"----------\n",
 		null,
-		true,
-		options
-	);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		true);
 }
 public void testBug565786_001() throws IOException, ClassFormatException {
 	runConformTest(
@@ -7573,9 +7453,7 @@ public void testBug563182_07() {
 				"The method myInt(int) of type X.Point must override or implement a supertype method\n" +
 				"----------\n",
 				null,
-				true,
-				new String[] {"--enable-preview"},
-				getCompilerOptions());
+				true);
 	}
 	public void testBug563186_04() {
 		runConformTest(
@@ -7608,9 +7486,7 @@ public void testBug563182_07() {
 				"Syntax error, insert \"RecordHeader\" to complete RecordHeaderPart\n" +
 				"----------\n",
 				null,
-				true,
-				new String[] {"--enable-preview"},
-				getCompilerOptions());
+				true);
 	}
 	public void testBug565732_02() {
 		runNegativeTest(
@@ -7626,9 +7502,7 @@ public void testBug563182_07() {
 				"Syntax error, insert \"RecordHeader\" to complete RecordHeaderPart\n" +
 				"----------\n",
 				null,
-				true,
-				new String[] {"--enable-preview"},
-				getCompilerOptions());
+				true);
 	}
 	// Test that a record without any record components was indeed compiled
 	// to be a record at runtime
@@ -7709,9 +7583,7 @@ public void testBug563182_07() {
 				"Syntax error, insert \"RecordHeader\" to complete RecordHeaderPart\n" +
 				"----------\n",
 				null,
-				true,
-				new String[] {"--enable-preview"},
-				getCompilerOptions());
+				true);
 	}
 	public void testBug565732_08() {
 		runConformTest(
@@ -7751,8 +7623,6 @@ public void testBug563182_07() {
 		"private final int X$1Bar.x");
 	}
 public void testBug566063_001() {
-	if (this.complianceLevel < ClassFileConstants.JDK17) return;
-	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
 	runConformTest(
 			new String[] {
 				"X.java",
@@ -7772,14 +7642,9 @@ public void testBug566063_001() {
 				"    }\n"+
 				"}"
 			},
-			"ONE",
-			options
-		);
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+			"ONE");
 }
 public void testBug566063_002() {
-	if (this.complianceLevel < ClassFileConstants.JDK17) return;
-	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
 	runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7806,14 +7671,9 @@ public void testBug566063_002() {
 			"Illegal modifier for local enum E; no explicit modifier is permitted\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+			true);
 }
 public void testBug566063_003() {
-	if (this.complianceLevel < ClassFileConstants.JDK17) return;
-	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
 	runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7850,14 +7710,9 @@ public void testBug566063_003() {
 			"A local class or interface Bar is implicitly static; cannot have explicit static declaration\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+			true);
 }
 public void testBug566063_004() {
-	Map<String, String> options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	this.runConformTest(
 			new String[] {
 					"X.java",
@@ -7878,7 +7733,6 @@ public void testBug566063_004() {
 					"}"
 				},
 				"ONE");
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 }
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public void testBug566418_001() {
@@ -7938,7 +7792,6 @@ public void testBug566554_01() {
 	runConformTest(
 		new String[] {
 			"Main.java",
-			"@SuppressWarnings(\"preview\")\n" +
 			"public class Main {\n" +
 			"	public static void main(String[] args) {\n" +
 			"		final Margin margins = new Margin(0);\n" +
@@ -7960,7 +7813,6 @@ public void testBug566554_02() {
 	runConformTest(
 		new String[] {
 			"Main.java",
-			"@SuppressWarnings(\"preview\")\n" +
 			"public class Main {\n" +
 			"	public static void main(String[] args) {\n" +
 			"		final Margin margins = new Margin(0);\n" +
@@ -7985,7 +7837,6 @@ public void testBug566554_03() {
 	runConformTest(
 		new String[] {
 			"Main.java",
-			"@SuppressWarnings(\"preview\")\n" +
 			"public class Main {\n" +
 			"	public static void main(String[] args) {\n" +
 			"		final Margin margins = new Margin(0);\n" +
@@ -8010,7 +7861,6 @@ public void testBug566554_04() {
 	runNegativeTest(
 		new String[] {
 			"Main.java",
-			"@SuppressWarnings(\"preview\")\n" +
 			"public class Main {\n" +
 			"	public static void main(String[] args) {\n" +
 			"		final Margin margins = new Margin(0);\n" +
@@ -8027,15 +7877,15 @@ public void testBug566554_04() {
 			"}",
 		},
 		"----------\n" +
-		"1. ERROR in Main.java (at line 5)\n" +
+		"1. ERROR in Main.java (at line 4)\n" +
 		"	int l = margins.left(0); \n" +
 		"	        ^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from Margin to int\n" +
 		"----------\n");
 }
 public void testBug567731_001() {
-	if (this.complianceLevel < ClassFileConstants.JDK17) return;
-	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
+	if (this.complianceLevel < ClassFileConstants.JDK17)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -8058,14 +7908,11 @@ public void testBug567731_001() {
 		"Illegal modifier for the local record B; only final and strictfp are permitted\n" +
 		"----------\n",
 		null,
-		true,
-		options
-	);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		true);
 }
 public void testBug567731_002() {
-	if (this.complianceLevel < ClassFileConstants.JDK17) return;
-	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
+	if (this.complianceLevel < ClassFileConstants.JDK17)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -8088,12 +7935,11 @@ public void testBug567731_002() {
 		"Illegal modifier for the local record R2; only final and strictfp are permitted\n" +
 		"----------\n",
 		null,
-		true,
-		options
-	);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		true);
 }
 public void testBug566846_1() {
+	if (this.complianceLevel < ClassFileConstants.JDK23)
+		return;
 	runNegativeTest(
 			new String[] {
 				"X.java",
@@ -8103,7 +7949,7 @@ public void testBug566846_1() {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	public record X;\n" +
 			"	^\n" +
-			"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above\n" +
+			"Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	public record X;\n" +
@@ -8116,11 +7962,11 @@ public void testBug566846_1() {
 			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 			"----------\n",
 			null,
-			true,
-			new String[] {"--enable-preview"},
-			getCompilerOptions());
+			true);
 }
 public void testBug566846_2() {
+	if (this.complianceLevel < ClassFileConstants.JDK23)
+		return;
 	runNegativeTest(
 			new String[] {
 				"X.java",
@@ -8132,7 +7978,7 @@ public void testBug566846_2() {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	public class X {\n" +
 			"	^\n" +
-			"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above\n" +
+			"Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	public class X {\n" +
@@ -8145,9 +7991,7 @@ public void testBug566846_2() {
 			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 			"----------\n",
 			null,
-			true,
-			new String[] {"--enable-preview"},
-			getCompilerOptions());
+			true);
 }
 public void testBug561199_001() {
 	Map<String, String> options = getCompilerOptions();
@@ -8176,7 +8020,6 @@ public void testBug568922_001() {
 				"X.java",
 				"public class X {\n"+
 				" public static void main(String[] args) {\n"+
-				"   @SuppressWarnings(\"preview\")\n"+
 				"   record R() {\n"+
 				"     R  {\n"+
 				"       super();\n"+
@@ -8188,15 +8031,13 @@ public void testBug568922_001() {
 				"}"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
+			"1. ERROR in X.java (at line 5)\n" +
 			"	super();\n" +
 			"	^^^^^^^^\n" +
 			"The body of a compact constructor must not contain an explicit constructor call\n" +
 			"----------\n",
 			null,
-			true,
-			new String[] {"--enable-preview"},
-			getCompilerOptions());
+			true);
 }
 public void testBug568922_002() {
 	runConformTest(
@@ -8204,7 +8045,6 @@ public void testBug568922_002() {
 			"X.java",
 			"public class X {\n"+
 			" public static void main(String[] args) {\n"+
-			"   @SuppressWarnings(\"preview\")\n"+
 			"   record R() {\n"+
 			"     R  {\n"+
 			"       System.out.println(\"helo\");\n"+
@@ -8634,7 +8474,8 @@ public void testBugLazyCanon_006() throws IOException, ClassFormatException {
 	},
 	"100");
 }
-public void testBug571765_001() {
+// Disabled waiting for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3347
+public void _testBug571765_001() {
 	this.runNegativeTest(
 			new String[] {
 					"module-info.java",
@@ -8644,7 +8485,7 @@ public void testBug571765_001() {
 			"1. ERROR in module-info.java (at line 1)\n" +
 			"	public record R() {}\n" +
 			"	^\n" +
-			"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above\n" +
+			"Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n" +
 			"----------\n" +
 			"2. ERROR in module-info.java (at line 1)\n" +
 			"	public record R() {}\n" +
@@ -9158,7 +8999,8 @@ public void testBug577251_001() {
 		"Erasure incompatibility in argument X.Entry of canonical constructor in record\n" +
 		"----------\n");
 }
-public void testBug576806_001() {
+
+public void testBug576806_001() { // behavior amended for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3316
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
 	this.runNegativeTest(
@@ -9168,7 +9010,6 @@ public void testBug576806_001() {
 				"X.java",
 				"public class X {\n"+
 				"  public static void main(String[] args){\n"+
-				"     System.out.println(0);\n" +
 				"  }\n"+
 				"}\n"+
 				"record Empty(){\n"+
@@ -9180,10 +9021,10 @@ public void testBug576806_001() {
 				"}"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	record Empty(){\n" +
-		"}\n" +
-		"	             ^^^^\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	public static void main(String[] args){\n" +
+		"  }\n" +
+		"	                                      ^^^^^\n" +
 		"Empty block should be documented\n" +
 		"----------\n",
 		null,

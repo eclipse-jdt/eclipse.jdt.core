@@ -1460,23 +1460,4 @@ public void reportClashingDeclarations(LocalVariableBinding [] left, LocalVariab
 public boolean resolvingGuardExpression() {
 	return this.resolvingGuardExpression;
 }
-
-public void include(LocalVariableBinding[] bindings) {
-	// `this` is assumed to be populated with bindings.
-	if (bindings != null) {
-		for (LocalVariableBinding binding : bindings) {
-			binding.modifiers &= ~ExtraCompilerModifiers.AccOutOfFlowScope;
-		}
-	}
-}
-
-public void exclude(LocalVariableBinding[] bindings) {
-	// `this` is assumed to be populated with bindings.
-	if (bindings != null) {
-		for (LocalVariableBinding binding : bindings) {
-			binding.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope;
-		}
-	}
-}
-
 }

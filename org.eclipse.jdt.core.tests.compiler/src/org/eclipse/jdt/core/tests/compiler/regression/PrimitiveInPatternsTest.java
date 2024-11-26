@@ -7281,6 +7281,56 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"int:30");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3181
+	// VerifyError during conversion between T extends Long and double
+	public void testGH3181() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			record Record<T extends Long>(T t) {
+			}
+
+			public class X {
+				public static <T extends Long> double foo(Record<T> s) {
+					return switch (s) {
+					case Record(double s1) -> s1 + 1.0;
+					default -> 0;
+					};
+				}
+
+				public static void main(String[] args) {
+					System.out.println(foo(new Record<>(42L)));
+				}
+			}
+			"""
+		},
+		"43.0");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3129
+	// VerifyError with instanceof record patterns with conversion from double to Long
+	public void testGH3129() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			record Record(Long i) {
+			}
+
+			public class X {
+				public static double convert(Record r) {
+					return r instanceof Record(double d) ? d + 1.0 : 0;
+				}
+
+				public static void main(String[] args) {
+					System.out.println(convert(new Record(42L)));
+				}
+			}
+			"""
+		},
+		"43.0");
+	}
+
 	public void _testSpec00X() {
 		runNegativeTest(new String[] {
 			"X.java",
