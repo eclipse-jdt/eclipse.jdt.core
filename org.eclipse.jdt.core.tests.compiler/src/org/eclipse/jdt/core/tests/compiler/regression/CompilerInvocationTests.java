@@ -522,6 +522,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("FieldTypeInternalNameProvided", DEPRECATED);
 		expectedProblemAttributes.put("FieldTypeNotFound", DEPRECATED);
 		expectedProblemAttributes.put("FieldTypeNotVisible", DEPRECATED);
+		expectedProblemAttributes.put("FieldWithUnresolvedOwningAnnotation", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("FinalBoundForTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("FinalFieldAssignment", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("FinalMethodCannotBeOverridden", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -811,6 +812,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("MaskedCatch", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("MandatoryCloseNotShown", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("MandatoryCloseNotShownAtExit", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("MessageSendWithUnresolvedOwningAnnotation", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("MethodButWithConstructorName", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("MethodCanBePotentiallyStatic", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("MethodCanBeStatic", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
@@ -951,6 +953,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ParameterMismatch", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("ParameterizedConstructorArgumentTypeMismatch", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ParameterizedMethodArgumentTypeMismatch", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("ParameterWithUnresolvedOwningAnnotation", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ParsingError", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ParsingErrorDeleteToken", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ParsingErrorDeleteTokens", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
@@ -1656,6 +1659,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("FieldTypeInternalNameProvided", SKIP);
 		expectedProblemAttributes.put("FieldTypeNotFound", SKIP);
 		expectedProblemAttributes.put("FieldTypeNotVisible", SKIP);
+		expectedProblemAttributes.put("FieldWithUnresolvedOwningAnnotation", SKIP);
 		expectedProblemAttributes.put("FinalBoundForTypeVariable", new ProblemAttributes(JavaCore.COMPILER_PB_FINAL_PARAMETER_BOUND));
 		expectedProblemAttributes.put("FinalFieldAssignment", SKIP);
 		expectedProblemAttributes.put("FinalMethodCannotBeOverridden", SKIP);
@@ -1947,6 +1951,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("MaskedCatch", new ProblemAttributes(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK));
 		expectedProblemAttributes.put("MandatoryCloseNotShown", new ProblemAttributes(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE));
 		expectedProblemAttributes.put("MandatoryCloseNotShownAtExit", new ProblemAttributes(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE));
+		expectedProblemAttributes.put("MessageSendWithUnresolvedOwningAnnotation", SKIP);
 		expectedProblemAttributes.put("MethodButWithConstructorName", new ProblemAttributes(JavaCore.COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME));
 		expectedProblemAttributes.put("MethodCanBePotentiallyStatic", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIALLY_MISSING_STATIC_ON_METHOD));
 		expectedProblemAttributes.put("MethodCanBeStatic", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_STATIC_ON_METHOD));
@@ -2087,6 +2092,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ParameterMismatch", SKIP);
 		expectedProblemAttributes.put("ParameterizedConstructorArgumentTypeMismatch", SKIP);
 		expectedProblemAttributes.put("ParameterizedMethodArgumentTypeMismatch", SKIP);
+		expectedProblemAttributes.put("ParameterWithUnresolvedOwningAnnotation", SKIP);
 		expectedProblemAttributes.put("ParsingError", SKIP);
 		expectedProblemAttributes.put("ParsingErrorDeleteToken", SKIP);
 		expectedProblemAttributes.put("ParsingErrorDeleteTokens", SKIP);

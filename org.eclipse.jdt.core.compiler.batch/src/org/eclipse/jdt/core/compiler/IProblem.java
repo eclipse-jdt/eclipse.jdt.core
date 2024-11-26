@@ -1995,6 +1995,12 @@ void setSourceStart(int sourceStart);
 	 * @since 3.36
 	 */
 	int NullityUncheckedTypeAnnotation = Internal + 986;
+	/** @since 3.41 */
+	int MessageSendWithUnresolvedOwningAnnotation = Internal + 987;
+	/** @since 3.41 */
+	int ParameterWithUnresolvedOwningAnnotation = Internal + 988;
+	/** @since 3.41 */
+	int FieldWithUnresolvedOwningAnnotation = Internal + 989;
 
 
 	// Java 8 work

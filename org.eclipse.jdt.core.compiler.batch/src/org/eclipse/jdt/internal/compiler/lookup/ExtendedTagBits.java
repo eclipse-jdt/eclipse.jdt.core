@@ -31,4 +31,6 @@ public interface ExtendedTagBits {
 
 	// @Owning / closing
 	int IsClosingMethod = ASTNode.Bit1; // method
+
+	int HasMissingOwningAnnotation = ASTNode.Bit2; // method/ctor or field
 }

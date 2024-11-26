@@ -289,6 +289,8 @@ public interface TypeIds {
 	/** Mark the type as notowning-annotation for resource analysis. */
 	final int BitNotOwningAnnotation = 4096;
 
+	final int BitAnyOwningAnnotation = BitOwningAnnotation | BitNotOwningAnnotation;
+
 	/**
 	 * Set of type bits that should be inherited by any sub types.
 	 */
