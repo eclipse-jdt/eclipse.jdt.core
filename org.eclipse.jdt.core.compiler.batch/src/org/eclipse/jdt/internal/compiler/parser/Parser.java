@@ -9470,9 +9470,8 @@ protected void consumeCaseLabelElements() {
 	concatExpressionLists();
 	boolean thisLabelIsPattern = this.expressionStack[this.expressionPtr] instanceof Pattern;
 	boolean lastLabelIsPattern = this.expressionStack[this.expressionPtr - 1] instanceof Pattern;
-	if (thisLabelIsPattern != lastLabelIsPattern || (thisLabelIsPattern && !JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(this.options.sourceLevel, this.previewEnabled))) {
+	if (thisLabelIsPattern != lastLabelIsPattern)
 		problemReporter().illegalCaseConstantCombination(this.expressionStack[this.expressionPtr]);
-	}
 	if (thisLabelIsPattern && lastLabelIsPattern) {
 		Pattern lastPattern = (Pattern) this.expressionStack[this.expressionPtr - 1];
 		Pattern thisPattern = (Pattern) this.expressionStack[this.expressionPtr];

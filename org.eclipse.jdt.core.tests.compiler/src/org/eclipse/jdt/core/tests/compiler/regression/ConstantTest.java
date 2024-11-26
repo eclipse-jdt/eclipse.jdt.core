@@ -1578,12 +1578,7 @@ public void testBug566332_04() {
 				+ "} ",
 			},
 			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	String caseStr =  true ? \"abc\" : \"def\";\n" +
-			"	                                 ^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
+			"1. ERROR in X.java (at line 6)\n" +
 			"	case caseStr: System.out.println(\"Pass\");\n" +
 			"	     ^^^^^^^\n" +
 			"case expressions must be constant expressions\n" +

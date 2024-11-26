@@ -59,7 +59,7 @@ public class EclipseCompiler implements JavaCompiler {
 	WeakHashMap<Thread, EclipseCompilerImpl> threadCache;
 	public DiagnosticListener<? super JavaFileObject> diagnosticListener;
 
-	public static final RuntimeException REACHED_DEAD_CODE = new RuntimeException() { private static final long serialVersionUID = 1L; };
+	public static final RuntimeException UNEXPECTED_CONTROL_FLOW = new RuntimeException() { private static final long serialVersionUID = 1L; };
 
 	public EclipseCompiler() {
 		this.threadCache = new WeakHashMap<>();

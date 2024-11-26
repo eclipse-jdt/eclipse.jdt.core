@@ -385,8 +385,7 @@ public int complainIfUnreachable(FlowInfo flowInfo, BlockScope scope, int previo
 			this.bits &= ~ASTNode.IsReachable;
 		if (flowInfo == FlowInfo.DEAD_END) {
 			if (previousComplaintLevel < COMPLAINED_UNREACHABLE) {
-				if (!this.doNotReportUnreachable())
-					scope.problemReporter().unreachableCode(this);
+				scope.problemReporter().unreachableCode(this);
 				if (endOfBlock)
 					scope.checkUnclosedCloseables(flowInfo, null, null, null);
 			}
@@ -403,9 +402,6 @@ public int complainIfUnreachable(FlowInfo flowInfo, BlockScope scope, int previo
 	return previousComplaintLevel;
 }
 
-protected boolean doNotReportUnreachable() {
-	return false;
-}
 /**
  * Generate invocation arguments, considering varargs methods
  */

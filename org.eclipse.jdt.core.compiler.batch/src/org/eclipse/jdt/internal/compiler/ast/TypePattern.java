@@ -110,8 +110,8 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 		}
 	}
 
-	public void generateTypeCheck(BlockScope scope, CodeStream codeStream, BranchLabel internalFalseLabel) {
-		generateTypeCheck(this.outerExpressionType, getType(), scope, codeStream, internalFalseLabel,
+	public void generateTypeCheck(BlockScope scope, CodeStream codeStream) {
+		generateTypeCheck(this.outerExpressionType, getType(), scope, codeStream,
 				Pattern.findPrimitiveConversionRoute(this.resolvedType, this.accessorMethod.returnType, scope));
 	}
 

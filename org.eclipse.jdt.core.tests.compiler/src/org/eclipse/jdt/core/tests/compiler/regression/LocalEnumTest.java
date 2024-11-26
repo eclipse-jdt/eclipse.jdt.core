@@ -581,14 +581,9 @@ public void test010() {
 		"	                                 ^^^^\n" +
 		"The parameter args is hiding another local variable defined in an enclosing scope\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 14)\n" +
+		"2. ERROR in X.java (at line 16)\n" +
 		"	case BLEU :\n" +
-		"	^^^^^^^^^\n" +
-		"Duplicate case\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 16)\n" +
-		"	case BLEU :\n" +
-		"	^^^^^^^^^\n" +
+		"	     ^^^^\n" +
 		"Duplicate case\n" +
 		"----------\n");
 }
