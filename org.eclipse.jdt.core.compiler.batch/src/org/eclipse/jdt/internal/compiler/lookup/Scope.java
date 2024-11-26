@@ -3238,9 +3238,12 @@ public abstract class Scope {
 			if (notAccessibleType != null && notAccessibleType.isValidBinding())
 				return new ProblemReferenceBinding(compoundName, notAccessibleType, ProblemReasons.NotAccessible);
 		}
-		return previousProblem != null
-			? previousProblem
-			: new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), null, ProblemReasons.NotFound);
+		if (previousProblem != null)
+			return previousProblem;
+		Binding wellKnownAnnotationProblem = environment.getWellKnownAnnotationProblemBinding(compoundName);
+		if (wellKnownAnnotationProblem != null)
+			return wellKnownAnnotationProblem;
+		return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), null, ProblemReasons.NotFound);
 	}
 
 	/* Answer the package from the compoundName or null if it begins with a type.

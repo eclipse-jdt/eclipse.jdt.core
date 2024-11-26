@@ -968,6 +968,9 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				// leave state as UNKNOWN, the bit OWNED_BY_OUTSIDE will prevent spurious warnings
 				return tracker;
 			}
+		} else if (expression instanceof LambdaExpression) {
+			// treat fresh lambda like a fresh resource
+			return new FakedTrackingVariable(local, location, flowInfo, flowContext, FlowInfo.NULL, useAnnotations);
 		}
 
 		if (local.closeTracker != null)

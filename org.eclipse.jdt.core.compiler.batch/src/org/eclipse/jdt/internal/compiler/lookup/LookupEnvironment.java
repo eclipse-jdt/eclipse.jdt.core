@@ -1762,6 +1762,28 @@ private void initializeUsesOwningAnnotations() {
 	this.globalOptions.useOwningAnnotations = Boolean.TRUE;
 }
 
+/** If compoundName is the name of an analysis annotation, ensure that we can still detect this annotation. */
+public Binding getWellKnownAnnotationProblemBinding(char[][] compoundName) {
+	if (!this.globalOptions.isAnnotationBasedResourceAnalysisEnabled && !this.globalOptions.isAnnotationBasedNullAnalysisEnabled)
+		return null;
+	int analysisAnnotationBit = getAnalysisAnnotationBit(compoundName);
+	if (analysisAnnotationBit == 0)
+		return null;
+	char[][] packName = CharOperation.subarray(compoundName, 0, compoundName.length-1);
+	PackageBinding annotPack = createPackage(packName);
+	if (annotPack == null)
+		return null;
+	MissingTypeBinding annotationBinding = new MissingTypeBinding(annotPack, compoundName, this);
+	annotationBinding.typeBits = analysisAnnotationBit;
+	annotPack.addType(annotationBinding);
+	return new ProblemReferenceBinding(compoundName, annotationBinding, ProblemReasons.NotFound);
+}
+public boolean isWellKnownAnnotationProblemBinding(Binding binding) {
+	if (binding instanceof ProblemReferenceBinding problem && problem.closestMatch != null)
+		return (problem.closestMatch.typeBits & TypeIds.BitAnyAnalysisAnnotationMASK) != 0;
+	return false;
+}
+
 /* Answer the top level package named name if it exists in the cache.
 * Answer theNotFoundPackage if it could not be resolved the first time
 * it was looked up, otherwise answer null.

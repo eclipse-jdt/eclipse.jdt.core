@@ -984,6 +984,9 @@ Binding resolveSingleImport(ImportBinding importBinding, int mask) {
 						newImports[n++] = this.imports[i];
 				this.imports = newImports;
 			}
+			// for resilience of annotation based analysis let's surface this special problem binding:
+			if (this.environment.isWellKnownAnnotationProblemBinding(resolvedBinding))
+				return resolvedBinding;
 			return null;
 		}
 		return resolvedBinding;
