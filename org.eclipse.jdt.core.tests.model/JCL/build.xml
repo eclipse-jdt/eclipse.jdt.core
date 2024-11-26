@@ -20,18 +20,6 @@
 	
 	<target name="allConverterJcls">
 		<!--antcall target="converterJclMin">
-			<param name="compliance" value="1.4"/>
-			<param name="suffix" value=""/>
-		</antcall>
-		<antcall target="converterJclMin">
-			<param name="compliance" value="1.5"/>
-			<param name="suffix" value="1.5"/>
-		</antcall>
-		<antcall target="converterJclMin">
-			<param name="compliance" value="1.7"/>
-			<param name="suffix" value="1.7"/>
-		</antcall>
-		<antcall target="converterJclMin">
 			<param name="compliance" value="1.8"/>
 			<param name="suffix" value="1.8"/>
 		</antcall-->

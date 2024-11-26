@@ -5249,7 +5249,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 */
 	public void test0571() throws CoreException, IOException {
 		try {
-			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"CONVERTER_JCL_LIB"}, "");
+			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"CONVERTER_JCL18_LIB"}, "");
 			String source =
 				"public class X {\n" +
 				"  public class Y {\n" +

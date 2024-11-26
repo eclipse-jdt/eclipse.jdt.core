@@ -1073,7 +1073,7 @@ public void testBug527351() throws JavaModelException {
 }
 public void testGH1376() throws CoreException, IOException {
 	try {
-		IJavaProject project = createJavaProject("P", new String[] { "" }, new String[] { "CONVERTER_JCL_LIB" }, "", "1.8", true);
+		IJavaProject project = createJavaProject("P", new String[] { "" }, new String[] { "CONVERTER_JCL18_LIB" }, "", "1.8", true);
 		createFolder("P/p");
 		createFile("P/p/A.java",
 			"package p;\n" +
@@ -1112,7 +1112,7 @@ public void testGH1376() throws CoreException, IOException {
 }
 public void testGH2275() throws CoreException {
 	try {
-		createJavaProject("P", new String[] { "" }, new String[] { "CONVERTER_JCL_LIB" }, "", "1.8", true);
+		createJavaProject("P", new String[] { "" }, new String[] { "CONVERTER_JCL18_LIB" }, "", "1.8", true);
 		createFolder("P/p");
 		createFile("P/p/A.java",
 			"""
