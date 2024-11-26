@@ -32,7 +32,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-		TESTS_NAMES = new String[] { "testBug566846_001"};
+//		TESTS_NAMES = new String[] { "testBug566846_001"};
 	}
 
 	public static Class<?> testClass() {
