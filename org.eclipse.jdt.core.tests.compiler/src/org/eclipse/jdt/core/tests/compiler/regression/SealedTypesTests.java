@@ -60,10 +60,6 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
-		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		defaultOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
 		return defaultOptions;
 	}
@@ -1716,10 +1712,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on token \"permits\", delete this token\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_001() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1741,9 +1734,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type permits\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_002() {
 		runNegativeTest(
@@ -1767,10 +1758,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type permits\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_003() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1803,9 +1791,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_004() {
 		runNegativeTest(
@@ -1839,10 +1825,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_005() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1864,9 +1847,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X<permits>\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_006() {
 		runNegativeTest(
@@ -1919,10 +1900,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_008() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1951,9 +1929,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_009() {
 		runNegativeTest(
@@ -1984,10 +1960,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_010() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2016,9 +1989,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_011() {
 		runNegativeTest(
@@ -2049,10 +2020,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_012() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2081,9 +2049,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_013() {
 		runNegativeTest(
@@ -2113,10 +2079,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_014() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2139,9 +2102,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_015() {
 		runNegativeTest(
@@ -2165,10 +2126,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_016() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2190,9 +2148,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_017() {
 		runNegativeTest(
@@ -2231,10 +2187,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on token \"}\", delete this token\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_018() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2271,9 +2224,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on token \"}\", delete this token\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_019() {
 		runNegativeTest(
@@ -2299,10 +2250,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_020() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2326,9 +2274,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_021() {
 		runNegativeTest(
@@ -2356,10 +2302,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_022() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2390,9 +2333,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_023() {
 		runNegativeTest(
@@ -2409,10 +2350,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_024() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2427,9 +2365,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_025() {
 		runNegativeTest(
@@ -2446,10 +2382,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_026() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2464,9 +2397,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_027() {
 		runNegativeTest(
@@ -2490,10 +2421,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_028() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2515,9 +2443,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_029() {
 		runNegativeTest(
@@ -2542,10 +2468,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_030() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2568,9 +2491,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_031() {
 		runNegativeTest(
@@ -2597,10 +2518,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_032() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2625,9 +2543,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_033() {
 		runNegativeTest(
@@ -2651,10 +2567,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_034() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2676,9 +2589,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_035() {
 		runNegativeTest(
@@ -2707,10 +2618,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_036() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2737,9 +2645,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_037() {
 		runNegativeTest(
@@ -2768,10 +2674,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_038() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2798,9 +2701,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_039() {
 		runNegativeTest(
@@ -2821,10 +2722,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_040() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2843,9 +2741,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_041() {
 		runNegativeTest(
@@ -2871,10 +2767,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The constructor X(permits) refers to the missing type permits\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_042() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2898,9 +2791,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The constructor X(permits) refers to the missing type permits\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_043() {
 		runNegativeTest(
@@ -2927,10 +2818,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_044() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2955,9 +2843,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_045() {
 		runNegativeTest(
@@ -2984,10 +2870,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method foo(permits) from the type X refers to the missing type permits\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_046() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3012,9 +2895,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method foo(permits) from the type X refers to the missing type permits\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_047() {
 		runNegativeTest(
@@ -3035,10 +2916,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_048() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3057,9 +2935,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_049() {
 		runNegativeTest(
@@ -3089,10 +2965,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_050() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3127,9 +3000,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_051() {
 		runNegativeTest(
@@ -3148,10 +3019,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_052() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3168,9 +3036,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_053() {
 		runNegativeTest(
@@ -3200,10 +3066,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_054() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3231,9 +3094,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_055() {
 		runNegativeTest(
@@ -3252,10 +3113,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_056() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3272,9 +3130,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638_057() {
 		runNegativeTest(
@@ -3304,10 +3160,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638_058() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3335,14 +3188,9 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_001() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3364,9 +3212,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type sealed\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638b_002() {
 		runNegativeTest(
@@ -3390,10 +3236,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type sealed\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_003() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3426,9 +3270,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638b_004() {
 		runNegativeTest(
@@ -3462,10 +3304,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_005() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3487,9 +3327,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X<sealed>\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638b_006() {
 		runNegativeTest(
@@ -3542,10 +3380,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_008() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3574,9 +3409,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638b_009() {
 		runNegativeTest(
@@ -3607,10 +3440,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testBug564638b_010() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3639,9 +3469,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638b_011() {
 		runNegativeTest(
@@ -3672,10 +3500,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_012() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3704,9 +3530,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638b_013() {
 		runNegativeTest(
@@ -3736,10 +3560,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_014() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3762,9 +3584,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638b_015() {
 		runNegativeTest(
@@ -3788,10 +3608,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_016() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3813,9 +3631,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638b_017() {
 		runNegativeTest(
@@ -3854,10 +3670,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on token \"}\", delete this token\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_018() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3894,9 +3708,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on token \"}\", delete this token\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638b_019() {
 		runNegativeTest(
@@ -3922,10 +3734,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_020() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3949,9 +3759,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638b_021() {
 		runNegativeTest(
@@ -3979,10 +3787,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_022() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4013,9 +3819,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
+			true);
 	}
 	public void testBug564638b_023() {
 		runNegativeTest(
@@ -4032,10 +3836,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_024() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4050,8 +3852,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug564638b_025() {
@@ -4069,10 +3870,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_026() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4087,8 +3886,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug564638b_027() {
@@ -4113,10 +3911,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_028() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4138,8 +3934,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug564638b_029() {
@@ -4165,10 +3960,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_030() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4191,8 +3984,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug564638b_031() {
@@ -4220,10 +4012,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_032() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4248,8 +4038,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug564638b_033() {
@@ -4274,10 +4063,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_034() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4299,8 +4086,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug564638b_035() {
@@ -4330,10 +4116,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_036() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4360,8 +4144,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug564638b_037() {
@@ -4391,10 +4174,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_038() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4421,8 +4202,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug564638b_039() {
@@ -4444,10 +4224,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_040() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4466,8 +4244,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug564638b_041() {
@@ -4494,10 +4271,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The constructor X(sealed) refers to the missing type sealed\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_042() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4521,8 +4296,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The constructor X(sealed) refers to the missing type sealed\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug564638b_043() {
@@ -4550,10 +4324,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_044() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4578,8 +4350,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug564638b_045() {
@@ -4607,10 +4378,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method foo(sealed) from the type X refers to the missing type sealed\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_046() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4635,8 +4404,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method foo(sealed) from the type X refers to the missing type sealed\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug564638b_047() {
@@ -4658,10 +4426,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_048() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4680,8 +4446,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug564638b_049() {
@@ -4712,10 +4477,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_050() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4750,8 +4513,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug564638b_051() {
@@ -4771,10 +4533,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_052() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4791,8 +4551,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug564638b_053() {
@@ -4823,10 +4582,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_054() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4854,8 +4611,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug564638b_055() {
@@ -4875,10 +4631,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_056() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4895,8 +4649,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug564638b_057() {
@@ -4927,10 +4680,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug564638b_058() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4958,8 +4709,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug565561_001() throws IOException, ClassFormatException {
@@ -5114,9 +4864,6 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug565847_001() {
-		Map<String, String> options =getCompilerOptions();
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
-
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5139,13 +4886,10 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"This method requires a body instead of a semicolon\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
-	@SuppressWarnings({ "rawtypes" })
 	public void testBug566979_001() {
-		Map options = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5160,14 +4904,11 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on token \"sealed\", static expected\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug566979_002() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5182,13 +4923,10 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on token \"sealed\", static expected\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
-	@SuppressWarnings({ "rawtypes" })
 	public void testBug566980_001() {
-		Map options = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5203,14 +4941,11 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on token \"void\", delete this token\n" +
 			"----------\n",
 			null,
-			true,
-			options
+			true
 		);
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testBug566980_002() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5225,37 +4960,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on token \"void\", delete this token\n" +
 			"----------\n",
 			null,
-			true,
-			options
-		);
-	}
-	@SuppressWarnings({ "rawtypes" })
-	public void testBug566846_001() {
-		Map options = getCompilerOptions();
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"record X;\n",
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	record X;\n" +
-			"	^\n" +
-			"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	record X;\n" +
-			"	^^^^^^\n" +
-			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 1)\n" +
-			"	record X;\n" +
-			"	^\n" +
-			"Implicitly declared class must have a candidate main method\n" +
-			"----------\n",
-			null,
-			true,
-			options
+			true
 		);
 	}
 	public void testBug568428_001() {
