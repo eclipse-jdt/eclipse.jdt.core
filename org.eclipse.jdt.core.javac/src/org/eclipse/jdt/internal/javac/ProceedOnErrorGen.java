@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.javac;
 import static com.sun.tools.javac.jvm.ByteCodes.athrow;
 
 import com.sun.tools.javac.code.Kinds.Kind;
+import com.sun.tools.javac.code.Type.ErrorType;
 import com.sun.tools.javac.comp.Attr;
 import com.sun.tools.javac.jvm.Gen;
 import com.sun.tools.javac.tree.TreeMaker;
@@ -22,6 +23,7 @@ import com.sun.tools.javac.tree.JCTree.JCErroneous;
 import com.sun.tools.javac.tree.JCTree.JCExpressionStatement;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
+import com.sun.tools.javac.tree.JCTree.JCInstanceOf;
 import com.sun.tools.javac.tree.JCTree.JCLiteral;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCNewClass;
@@ -131,6 +133,15 @@ public class ProceedOnErrorGen extends Gen {
 			visitErroneous(null);
 		} else {
 			super.visitIndexed(tree);
+		}
+	}
+
+	@Override
+	public void visitTypeTest(JCInstanceOf tree) {
+		if (tree.getExpression() == null || tree.getExpression().type instanceof ErrorType) {
+			visitErroneous(null);
+		} else {
+			super.visitTypeTest(tree);
 		}
 	}
 }
