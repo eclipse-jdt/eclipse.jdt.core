@@ -128,10 +128,9 @@ private Constant resolveConstantLabel(BlockScope scope, TypeBinding caseType, Ty
 
 	CompilerOptions options = scope.compilerOptions();
 	if (caseType.isEnum() && caseType.isCompatibleWith(selectorType)) {
-		if (((expression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
+		if (((expression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0)
 			scope.problemReporter().enumConstantsCannotBeSurroundedByParenthesis(expression);
-			return Constant.NotAConstant;
-		}
+
 		if (expression instanceof NameReference reference && reference.binding instanceof FieldBinding field) {
 			if ((field.modifiers & ClassFileConstants.AccEnum) == 0)
 				 scope.problemReporter().enumSwitchCannotTargetField(reference, field);

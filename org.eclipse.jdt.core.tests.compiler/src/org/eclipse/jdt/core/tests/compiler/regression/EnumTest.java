@@ -7428,4 +7428,51 @@ public void testGHIssue1368() {
 			"Cannot make a static reference to the non-static field h\n" +
 			"----------\n");
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3356
+// Test failures in I-Builds due to less diagnostics being emitted
+public void testIssue3356() {
+	this.runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+			    public enum color {black, white}
+			    public void foo(color c) {
+					switch (c) {
+			            case (color.black):
+			                System.out.println("Black");
+			                break;
+			        }
+			    }
+			}
+			"""
+			},
+			this.complianceLevel < ClassFileConstants.JDK21 ?
+			"----------\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	switch (c) {\n" +
+			"	        ^\n" +
+			"The enum constant white needs a corresponding case label in this enum switch on X.color\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	case (color.black):\n" +
+			"	     ^^^^^^^^^^^^^\n" +
+			"Enum constants cannot be surrounded by parenthesis\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	case (color.black):\n" +
+			"	     ^^^^^^^^^^^^^\n" +
+			"The qualified case label X.color.black must be replaced with the unqualified enum constant black\n" +
+			"----------\n"
+				: "----------\n" +
+				"1. WARNING in X.java (at line 4)\n" +
+				"	switch (c) {\n" +
+				"	        ^\n" +
+				"The enum constant white needs a corresponding case label in this enum switch on X.color\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 5)\n" +
+				"	case (color.black):\n" +
+				"	     ^^^^^^^^^^^^^\n" +
+				"Enum constants cannot be surrounded by parenthesis\n" +
+				"----------\n");
+}
 }
