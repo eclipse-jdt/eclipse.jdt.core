@@ -3721,7 +3721,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n" +
 			"3. WARNING in Y.java (at line 2)\n" +
 			"	void foo(){ super.foo(); }\n" +
-			"	                  ^^^^^\n" +
+			"	                  ^^^\n" +
 			"The method foo() from the type X is deprecated\n" +
 			"----------\n" +
 			"4. ERROR in Y.java (at line 3)\n" +
@@ -3758,7 +3758,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n" +
 			"3. WARNING in Y.java (at line 2)\n" +
 			"	void foo(){ super.foo(); }\n" +
-			"	                  ^^^^^\n" +
+			"	                  ^^^\n" +
 			"The method foo() from the type X is deprecated\n" +
 			"----------\n" +
 			"4. ERROR in Y.java (at line 3)\n" +
@@ -4122,7 +4122,7 @@ public class AnnotationTest extends AbstractComparableTest {
             "----------\n" +
     		"1. WARNING in X.java (at line 7)\n" +
     		"	W.deprecated();\n" +
-    		"	  ^^^^^^^^^^^^\n" +
+    		"	  ^^^^^^^^^^\n" +
     		"The method deprecated() from the type W is deprecated\n" +
     		"----------\n" +
     		"2. WARNING in X.java (at line 8)\n" +
@@ -4362,7 +4362,7 @@ public class AnnotationTest extends AbstractComparableTest {
     		"----------\n" +
     		"3. WARNING in X.java (at line 8)\n" +
     		"	W.deprecated();\n" +
-    		"	  ^^^^^^^^^^^^\n" +
+    		"	  ^^^^^^^^^^\n" +
     		"The method deprecated() from the type W is deprecated\n" +
     		"----------\n" +
     		"4. WARNING in X.java (at line 9)\n" +
@@ -4635,7 +4635,7 @@ public void test142c() {
 		"----------\n" +
 		"3. ERROR in X.java (at line 8)\n" +
 		"	super.foo();\n" +
-		"	      ^^^^^\n" +
+		"	      ^^^\n" +
 		"The method foo() from the type OldStuff is deprecated\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);

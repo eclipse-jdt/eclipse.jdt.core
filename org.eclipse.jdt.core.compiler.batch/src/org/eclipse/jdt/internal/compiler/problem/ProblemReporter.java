@@ -1858,22 +1858,25 @@ public void deprecatedMethod(final MethodBinding method, ASTNode location) {
 
 	boolean isConstructor = method.isConstructor();
 	int start = -1;
+	int end = -1;
 	if (isConstructor) {
 		if(location instanceof AllocationExpression) {
 			// omit the new keyword from the warning marker
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=300031
 			AllocationExpression allocationExpression = (AllocationExpression) location;
 			start = allocationExpression.nameSourceStart();
+			end = allocationExpression.nameSourceEnd();
 		}
 	} else {
 		if (location instanceof MessageSend) {
 			// start the warning marker from the location where the name of the method starts
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=300031
 			start = (int) (((MessageSend)location).nameSourcePosition >>> 32);
+			end = (int) ((MessageSend)location).nameSourcePosition;
 		}
 	}
 	int sourceStart = (start == -1) ? location.sourceStart : start;
-	int sourceEnd = location.sourceEnd;
+	final int sourceEnd = (end == -1) ? location.sourceEnd : end;
 
 	// discriminate:
 	boolean terminally = (method.tagBits & TagBits.AnnotationTerminallyDeprecated) != 0;
