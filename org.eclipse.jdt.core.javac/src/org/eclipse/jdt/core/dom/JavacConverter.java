@@ -1298,6 +1298,7 @@ class JavacConverter {
 			}
 			if (fieldAccess.getExpression() instanceof JCIdent qualifier) {
 				Name qualifierName = convertName(qualifier.getName());
+				commonSettings(qualifierName, qualifier);
 				SimpleName qualifiedName = (SimpleName)convertName(fieldAccess.getIdentifier());
 				if (qualifiedName == null) {
 					// when there are syntax errors where the statement is not completed.
@@ -2877,6 +2878,7 @@ class JavacConverter {
 			name.setSourceRange(ident.getStartPosition(), ident.name.length());
 			SimpleType res = this.ast.newSimpleType(name);
 			commonSettings(res, ident);
+			commonSettings(name, ident);
 			return res;
 		}
 		if (javac instanceof JCFieldAccess qualified) {
@@ -3574,14 +3576,19 @@ class JavacConverter {
 				}
 				if( enumConstant.init instanceof JCNewClass jcnc ) {
 					if( jcnc.def instanceof JCClassDecl jccd) {
+						int blockStarts = jcnc.getStartPosition() + (enumName == null ? 0 : enumName.length());
+						if( jcnc.getArguments() != null && jcnc.getArguments().get(jcnc.getArguments().length()-1) instanceof JCTree lastArg) {
+							blockStarts = lastArg.getEndPosition(this.javacCompilationUnit.endPositions);
+						}
+						int endPos = jcnc.getEndPosition(this.javacCompilationUnit.endPositions);
 						AnonymousClassDeclaration e = createAnonymousClassDeclaration(jccd, enumConstantDeclaration);
 						if( e != null ) {
-							if( enumName != null ) {
-								String preTrim = this.rawText.substring(e.getStartPosition() + enumName.length());
-								String trimmed = preTrim.stripLeading();
-								int toSkip = preTrim.length() - trimmed.length();
-								e.setSourceRange(e.getStartPosition() + enumName.length() + toSkip, e.getLength() - enumName.length() - toSkip);
+							String tmp = this.rawText.substring(blockStarts);
+							int bracket = tmp.indexOf("{");
+							if( bracket != -1 ) {
+								blockStarts += bracket;
 							}
+							e.setSourceRange(blockStarts, endPos - blockStarts);
 							enumConstantDeclaration.setAnonymousClassDeclaration(e);
 						}
 					}

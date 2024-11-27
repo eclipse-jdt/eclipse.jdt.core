@@ -690,6 +690,9 @@ public class JavacBindingResolver extends BindingResolver {
 		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
 			return this.bindings.getTypeBinding(jcClassDecl.type, true);
 		}
+		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.sym != null && jcClassDecl.sym.type != null) {
+			return this.bindings.getTypeBinding(jcClassDecl.sym.type, true);
+		}
 		return null;
 	}
 
