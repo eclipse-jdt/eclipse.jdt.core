@@ -157,7 +157,7 @@ public void test002() {
 		"----------\n" +
 		"3. ERROR in p\\M1.java (at line 5)\n" +
 		"	m.foo();\n" +
-		"	  ^^^^^\n" +
+		"	  ^^^\n" +
 		"The method foo() from the type N1.N2.N3 is deprecated\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
@@ -269,7 +269,7 @@ public void test005() {
 		"----------\n" +
 		"3. ERROR in p2\\C.java (at line 4)\n" +
 		"	a.foo();\n" +
-		"	  ^^^^^\n" +
+		"	  ^^^\n" +
 		"The method foo() from the type X.Inner is deprecated\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
