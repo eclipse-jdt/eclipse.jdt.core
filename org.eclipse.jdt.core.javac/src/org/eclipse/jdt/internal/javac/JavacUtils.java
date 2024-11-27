@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.javac;
 
 import java.io.File;
 import java.lang.Runtime.Version;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -354,6 +355,7 @@ public class JavacUtils {
 	private static Collection<File> classpathEntriesToFiles(JavaProject project, Predicate<IClasspathEntry> select) {
 		try {
 			LinkedHashSet<File> res = new LinkedHashSet<>();
+			ArrayList<IClasspathEntry> seen = new ArrayList<>();
 			Queue<IClasspathEntry> toProcess = new LinkedList<>();
 			toProcess.addAll(Arrays.asList(project.resolveClasspath(project.getExpandedClasspath())));
 			while (!toProcess.isEmpty()) {
@@ -372,14 +374,16 @@ public class JavacUtils {
 							if (moduleDescription == null) {
 								IPath path = referencedJavaProject.getOutputLocation();
 								addPath(referencedJavaProject, path, res);
-								for (IClasspathEntry transitiveEntry : referencedJavaProject.resolveClasspath(referencedJavaProject.getExpandedClasspath()) ) {
+								IClasspathEntry[] resolved = referencedJavaProject.resolveClasspath(referencedJavaProject.getExpandedClasspath());
+								for (IClasspathEntry transitiveEntry : resolved ) {
 									if (transitiveEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
 										IPath outputLocation = transitiveEntry.getOutputLocation();
 										if (outputLocation != null && select.test(transitiveEntry)) {
 											addPath(referencedJavaProject, outputLocation, res);
 										}
-									} else if (transitiveEntry.isExported()) {
+									} else if (transitiveEntry.isExported() && !seen.contains(transitiveEntry)) {
 										toProcess.add(transitiveEntry);
+										seen.add(transitiveEntry);
 									}
 								}
 							}
