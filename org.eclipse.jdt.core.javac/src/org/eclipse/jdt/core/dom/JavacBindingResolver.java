@@ -837,6 +837,9 @@ public class JavacBindingResolver extends BindingResolver {
 				return res;
 			}
 		}
+		if (sym instanceof MethodSymbol && sym.type instanceof MethodType) {
+			return (IMethodBinding)this.bindings.getBinding(sym, sym.type);
+		}
 		return null;
 	}
 

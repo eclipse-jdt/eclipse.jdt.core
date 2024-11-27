@@ -90,26 +90,39 @@ public class ExpectedTypes {
 				this.expectedTypes.add(binding);
 				this.expectedTypesFilters = Set.of(TypeFilter.SUBTYPE, TypeFilter.SUPERTYPE);
 			}
-		} else if (parent instanceof MethodInvocation messageSend && messageSend.getExpression() != null) {
-			final ITypeBinding initialBinding = messageSend.getExpression().resolveTypeBinding();
-			ITypeBinding currentBinding = initialBinding; // messageSend.actualReceiverType
-			boolean isStatic = messageSend.getExpression() instanceof Name name && name.resolveBinding() instanceof ITypeBinding;
-			while(currentBinding != null) {
-				computeExpectedTypesForMessageSend(
-					currentBinding,
-					messageSend.getName().toString(),
-					messageSend.arguments(),
-					initialBinding,
-					messageSend,
-					isStatic);
-				computeExpectedTypesForMessageSendForInterface(
-					currentBinding,
-					messageSend.getName().toString(),
-					messageSend.arguments(),
-					initialBinding,
-					messageSend,
-					isStatic);
-				currentBinding = currentBinding.getSuperclass();
+		} else if (parent instanceof MethodInvocation messageSend) {
+			if (messageSend.getExpression() != null) {
+				final ITypeBinding initialBinding = messageSend.getExpression().resolveTypeBinding();
+				ITypeBinding currentBinding = initialBinding; // messageSend.actualReceiverType
+				boolean isStatic = messageSend.getExpression() instanceof Name name && name.resolveBinding() instanceof ITypeBinding;
+				while(currentBinding != null) {
+					computeExpectedTypesForMessageSend(
+							currentBinding,
+							messageSend.getName().toString(),
+							messageSend.arguments(),
+							initialBinding,
+							messageSend,
+							isStatic);
+					computeExpectedTypesForMessageSendForInterface(
+							currentBinding,
+							messageSend.getName().toString(),
+							messageSend.arguments(),
+							initialBinding,
+							messageSend,
+							isStatic);
+					currentBinding = currentBinding.getSuperclass();
+				}
+			} else {
+				// find the param
+				IMethodBinding methodBinding = messageSend.resolveMethodBinding();
+				if (this.node != parent && methodBinding != null) {
+					int i = messageSend.arguments().indexOf(this.node);
+					if (0 <= i && i < methodBinding.getParameterTypes().length) {
+						this.expectedTypes.add(methodBinding.getParameterTypes()[i]);
+					} else if (0 <= i && methodBinding.isVarargs()) {
+						this.expectedTypes.add(methodBinding.getParameterTypes()[methodBinding.getParameterTypes().length - 1]);
+					}
+				}
 			}
 		} else if(parent instanceof ClassInstanceCreation allocationExpression) {
 			ITypeBinding binding = allocationExpression.resolveTypeBinding();

@@ -225,6 +225,13 @@ public class DOMCompletionEngine implements Runnable {
 						adjustedOffset--;
 					}
 				}
+				if (this.cuBuffer.getChar(adjustedOffset - 1) == ',' && Character.isWhitespace(this.cuBuffer.getChar(adjustedOffset))) {
+					// probably an empty parameter
+					adjustedOffset = this.offset;
+					while (adjustedOffset < this.cuBuffer.getLength() && Character.isWhitespace(this.cuBuffer.getChar(adjustedOffset))) {
+						adjustedOffset++;
+					}
+				}
 			}
 
 			this.toComplete = NodeFinder.perform(this.unit, adjustedOffset, 0);
@@ -280,7 +287,9 @@ public class DOMCompletionEngine implements Runnable {
 					}
 				}
 			} else if (this.toComplete instanceof MethodInvocation methodInvocation) {
-				completeAfter = methodInvocation.getName().toString();
+				if (this.offset < methodInvocation.getName().getStartPosition() + methodInvocation.getName().getLength()) {
+					completeAfter = methodInvocation.getName().toString();
+				}
 				if (FAKE_IDENTIFIER.equals(completeAfter)) {
 					completeAfter = ""; //$NON-NLS-1$
 				} else if (this.cuBuffer != null) {
@@ -360,7 +369,7 @@ public class DOMCompletionEngine implements Runnable {
 							.forEach(this.requestor::accept);
 					}
 					suggestDefaultCompletions = false;
-				} else if (invocation.getName().getStartPosition() + invocation.getName().getLength() + 3 /* the three chars: `().` */ <= this.offset && this.prefix.isEmpty()) {
+				} else if (invocation.getStartPosition() + invocation.getLength() <= this.offset && this.prefix.isEmpty()) {
 					// handle `myMethod().|`
 					IMethodBinding methodBinding = invocation.resolveMethodBinding();
 					if (methodBinding != null) {
@@ -371,6 +380,20 @@ public class DOMCompletionEngine implements Runnable {
 							.forEach(this.requestor::accept);
 					}
 					suggestDefaultCompletions = false;
+				} else {
+					// args
+					IMethodBinding methodBinding = invocation.resolveMethodBinding();
+					if (methodBinding == null && this.toComplete == invocation) {
+						// myMethod(|), where myMethod does not exist
+						suggestDefaultCompletions = false;
+					} else {
+						for (ITypeBinding param : this.expectedTypes.getExpectedTypes()) {
+							IMethodBinding potentialLambda = param.getFunctionalInterfaceMethod();
+							if (potentialLambda != null) {
+								this.requestor.accept(createLambdaExpressionProposal(potentialLambda));
+							}
+						}
+					}
 				}
 			}
 			if (context instanceof VariableDeclaration declaration) {
@@ -2027,6 +2050,53 @@ public class DOMCompletionEngine implements Runnable {
 		keywordProposal.setSignature(builder.toString().toCharArray());
 
 		return keywordProposal;
+	}
+
+	private static final char[] LAMBDA = new char[] {'-', '>'};
+	private CompletionProposal createLambdaExpressionProposal(IMethodBinding method) {
+		InternalCompletionProposal res = createProposal(CompletionProposal.LAMBDA_EXPRESSION);
+
+		int relevance = RelevanceConstants.R_DEFAULT;
+		relevance += RelevanceConstants.R_EXACT_EXPECTED_TYPE;
+		relevance += RelevanceConstants.R_ABSTRACT_METHOD;
+		relevance += RelevanceConstants.R_RESOLVED;
+		relevance += RelevanceConstants.R_INTERESTING;
+		relevance += RelevanceConstants.R_NON_RESTRICTED;
+
+		int length = method.getParameterTypes().length;
+		char[][] parameterTypeNames = new char[length][];
+
+		for (int j = 0; j < length; j++) {
+			ITypeBinding p = method.getParameterTypes()[j];
+			parameterTypeNames[j] = p.getQualifiedName().toCharArray();
+		}
+		char[][] parameterNames = Stream.of(method.getParameterNames())//
+				.map(s -> s.toCharArray()) //
+				.toArray(char[][]::new);
+
+		res.setDeclarationSignature(DOMCompletionEngineBuilder.getSignature(method.getDeclaringClass()));
+		res.setSignature(DOMCompletionEngineBuilder.getSignature(method));
+
+		IMethodBinding original = method.getMethodDeclaration();
+		if (original != method) {
+			res.setOriginalSignature(DOMCompletionEngineBuilder.getSignature(original));
+		}
+
+		setRange(res);
+
+		res.setRelevance(relevance);
+		res.setCompletion(LAMBDA);
+		res.setParameterTypeNames(parameterTypeNames);
+		res.setFlags(method.getModifiers());
+		res.setDeclarationPackageName(method.getDeclaringClass().getPackage().getName().toCharArray());
+		res.setDeclarationTypeName(method.getDeclaringClass().getQualifiedName().toCharArray());
+		res.setName(method.getName().toCharArray());
+		res.setTypeName(method.getReturnType().getQualifiedName().toCharArray());
+		if (parameterNames != null) {
+			res.setParameterNames(parameterNames);
+		}
+
+		return res;
 	}
 
 	/**
