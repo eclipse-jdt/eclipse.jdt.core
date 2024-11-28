@@ -3,11 +3,13 @@ package java.lang;
 public
 class NoSuchFieldError extends IncompatibleClassChangeError {
 
-    public NoSuchFieldError() {
-        super();
-    }
+	static final long serialVersionUID = 1L;
 
-    public NoSuchFieldError(String s) {
-        super(s);
-    }
+	public NoSuchFieldError() {
+		super();
+	}
+
+	public NoSuchFieldError(String s) {
+		super(s);
+	}
 }
