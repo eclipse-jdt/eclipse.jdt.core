@@ -146,18 +146,8 @@ public class DOMCompletionEngine implements Runnable {
 		}
 
 		if (node instanceof AbstractTypeDeclaration typeDecl) {
-			visibleBindings.addAll(typeDecl.bodyDeclarations().stream()
-					.flatMap(bodyDecl -> {
-						if (bodyDecl instanceof FieldDeclaration fieldDecl) {
-							return ((List<VariableDeclarationFragment>)fieldDecl.fragments()).stream()
-									.filter(frag -> !FAKE_IDENTIFIER.equals(frag.getName().toString()))
-									.map(fragment -> fragment.resolveBinding());
-						}
-						if (bodyDecl instanceof MethodDeclaration methodDecl && !FAKE_IDENTIFIER.equals(methodDecl.getName().toString())) {
-							return Stream.of(methodDecl.resolveBinding());
-						}
-						return Stream.of();
-					}).toList());
+			// a different mechanism is used to collect class members, which takes into account accessibility & such
+			// so only the type declaration itself is needed here
 			visibleBindings.add(typeDecl.resolveBinding());
 		}
 
@@ -248,6 +238,8 @@ public class DOMCompletionEngine implements Runnable {
 				context = this.toComplete.getParent();
 			} else if (this.toComplete instanceof StringLiteral stringLiteral && (this.offset <= stringLiteral.getStartPosition() || stringLiteral.getStartPosition() + stringLiteral.getLength() <= this.offset)) {
 				context = stringLiteral.getParent();
+			} else if (this.toComplete instanceof VariableDeclaration vd) {
+				context = vd.getInitializer();
 			}
 			this.prefix = new String(completionContext.getToken());
 			this.qualifiedPrefix = this.prefix;
@@ -263,7 +255,7 @@ public class DOMCompletionEngine implements Runnable {
 
 			checkCancelled();
 
-			if (context instanceof StringLiteral || context instanceof TextBlock || context instanceof Comment || context instanceof Javadoc) {
+			if (context instanceof StringLiteral || context instanceof TextBlock || context instanceof Comment || context instanceof Javadoc || context instanceof NumberLiteral) {
 				return;
 			}
 			if (context instanceof FieldAccess fieldAccess) {
@@ -331,13 +323,9 @@ public class DOMCompletionEngine implements Runnable {
 				}
 			}
 			if (context instanceof VariableDeclaration declaration) {
-				var binding = declaration.resolveBinding();
-				if (binding != null) {
-					this.variableDeclHandler.findVariableNames(binding, completeAfter, specificCompletionBindings).stream()
-							.map(name -> toProposal(binding, name)).forEach(this.requestor::accept);
+				if (declaration.getName() == this.toComplete) {
+					suggestDefaultCompletions = false;
 				}
-				// seems we are completing a variable name, no need for further completion search.
-				suggestDefaultCompletions = false;
 			}
 			if (context instanceof ModuleDeclaration mod) {
 				findModules(this.prefix.toCharArray(), this.modelUnit.getJavaProject(), this.assistOptions, Set.of(mod.getName().toString()));
@@ -1158,6 +1146,7 @@ public class DOMCompletionEngine implements Runnable {
 		if (typeBinding == null) {
 			return;
 		}
+
 		Predicate<IBinding> accessFilter = binding -> {
 			boolean field = binding instanceof IVariableBinding;
 			if (field) {
@@ -1190,9 +1179,43 @@ public class DOMCompletionEngine implements Runnable {
 			}
 			return true;
 		};
-		Arrays.stream(typeBinding.getDeclaredFields()) //
-			.filter(accessFilter) //
-			.forEach(scope::add);
+
+		ASTNode foundDecl = DOMCompletionUtil.findParent(this.toComplete, new int[] {ASTNode.FIELD_DECLARATION, ASTNode.METHOD_DECLARATION, ASTNode.LAMBDA_EXPRESSION, ASTNode.BLOCK});
+		// includePrivate means we are in the declaring class
+		if (includePrivate && foundDecl instanceof FieldDeclaration fieldDeclaration) {
+			// we need to take into account the order of field declarations and their fragments,
+			// because any declared after this node are not viable.
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment)DOMCompletionUtil.findParent(this.toComplete, new int[] {ASTNode.VARIABLE_DECLARATION_FRAGMENT});
+			AbstractTypeDeclaration typeDecl = (AbstractTypeDeclaration)((CompilationUnit)this.toComplete.getRoot()).findDeclaringNode(typeBinding);
+			int indexOfField = typeDecl.bodyDeclarations().indexOf(fieldDeclaration);
+			if (indexOfField < 0) {
+				// oops we messed up, probably this fieldDecl is in a nested class
+				// proceed as normal
+				Arrays.stream(typeBinding.getDeclaredFields()) //
+					.filter(accessFilter) //
+					.forEach(scope::add);
+			} else {
+				for (int i = 0; i < indexOfField + 1; i++) {
+					if (typeDecl.bodyDeclarations().get(i) instanceof FieldDeclaration fieldDecl) {
+						List<VariableDeclarationFragment> frags = fieldDecl.fragments();
+						int fragIterEndpoint = frags.indexOf(fragment);
+						if (fragIterEndpoint == -1) {
+							fragIterEndpoint = frags.size();
+						}
+						for (int j = 0; j < fragIterEndpoint; j++) {
+							IVariableBinding varBinding = frags.get(j).resolveBinding();
+							if (accessFilter.test(varBinding)) {
+								scope.add(varBinding);
+							}
+						}
+					}
+				}
+			}
+		} else {
+			Arrays.stream(typeBinding.getDeclaredFields()) //
+				.filter(accessFilter) //
+				.forEach(scope::add);
+		}
 		Arrays.stream(typeBinding.getDeclaredMethods()) //
 			.filter(accessFilter) //
 			.forEach(scope::add);
