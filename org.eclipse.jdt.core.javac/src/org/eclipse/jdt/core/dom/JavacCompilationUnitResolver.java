@@ -642,6 +642,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		boolean docEnabled = JavaCore.ENABLED.equals(compilerOptions.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT));
 		JavacUtils.configureJavacContext(context, compilerOptions, javaProject, JavacUtils.isTest(javaProject, sourceUnits));
 		Options javacOptions = Options.instance(context);
+		javacOptions.put("allowStringFolding", Boolean.FALSE.toString()); // we need to keep strings as authored
 		if ((focalPoint >= 0 || !resolveBindings) && (flags & ICompilationUnit.FORCE_PROBLEM_DETECTION) == 0) {
 			// most likely no need for linting
 			// resolveBindings still seems requested for tests

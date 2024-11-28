@@ -102,7 +102,6 @@ public class JavacUtils {
 		Options options = Options.instance(context);
 		options.put("should-stop.ifError", CompileState.GENERATE.toString());
 		options.put(Option.IMPLICIT, "none");
-		options.put("allowStringFolding", Boolean.FALSE.toString());
 		final Version complianceVersion;
 		String compliance = compilerOptions.get(CompilerOptions.OPTION_Compliance);
 		if (CompilerOptions.VERSION_1_8.equals(compliance)) {
