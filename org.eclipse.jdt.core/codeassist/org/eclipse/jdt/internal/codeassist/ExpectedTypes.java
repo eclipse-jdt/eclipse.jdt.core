@@ -389,6 +389,15 @@ public class ExpectedTypes {
 				.map(Arrays::stream)
 				.orElseGet(Stream::of)
 				.forEach(this.expectedTypes::add);
+		} else if (parent instanceof ConditionalExpression conditionalExpr) {
+			if (conditionalExpr.getExpression() == this.node) {
+				this.expectedTypes.add(this.node.getAST().resolveWellKnownType(PrimitiveType.BOOLEAN.toString()));
+			} else {
+				ITypeBinding typeBinding = conditionalExpr.resolveTypeBinding();
+				if (typeBinding != null && !typeBinding.isRecovered()) {
+					this.expectedTypes.add(typeBinding);
+				}
+			}
 		}
 
 		// Guard it, otherwise we end up with a empty array which cause issues down the line
