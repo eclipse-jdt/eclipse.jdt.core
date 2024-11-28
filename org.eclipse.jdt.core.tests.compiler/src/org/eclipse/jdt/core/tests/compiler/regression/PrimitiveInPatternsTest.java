@@ -25,7 +25,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testIssue2936" };
+//		TESTS_NAMES = new String[] { "testIssuePrimitivesWithNull" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -7331,6 +7331,24 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		"43.0");
 	}
 
+	public void testIssuePrimitivesWithNull() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X  {
+				    record R(Integer i) {}
+				    public static int foo(R r) {
+				        if (r instanceof R(int i)) { return i; }
+				        return -1;
+				    }
+				    public static void main(String argv[]) {
+				        System.out.println(foo(new R(null)));
+				    }
+				}
+				"""
+				},
+				"-1");
+	}
 	public void _testSpec00X() {
 		runNegativeTest(new String[] {
 			"X.java",
