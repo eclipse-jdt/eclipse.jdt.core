@@ -69,6 +69,7 @@ public class JavacTaskListener implements TaskListener {
 	private JavacConfig config;
 	private IContainer outputDir;
 	private final Map<JavaFileObject, ICompilationUnit> fileObjectToCUMap;
+	private final JavacCompiler javacCompiler;
 	private static final Set<String> PRIMITIVE_TYPES = new HashSet<String>(Arrays.asList(
 		"byte",
 		"short",
@@ -82,8 +83,9 @@ public class JavacTaskListener implements TaskListener {
 
 	private static final char[] MODULE_INFO_NAME = "module-info".toCharArray();
 
-	public JavacTaskListener(JavacConfig config, Map<IContainer, List<ICompilationUnit>> outputSourceMapping,
+	public JavacTaskListener(JavacCompiler javacCompiler, JavacConfig config, Map<IContainer, List<ICompilationUnit>> outputSourceMapping,
 			IProblemFactory problemFactory, Map<JavaFileObject, ICompilationUnit> fileObjectToCUMap) {
+		this.javacCompiler = javacCompiler;
 		this.config = config;
 		this.problemFactory = new UnusedProblemFactory(problemFactory, config.compilerOptions());
 		this.fileObjectToCUMap = fileObjectToCUMap;
@@ -337,6 +339,12 @@ public class JavacTaskListener implements TaskListener {
 			folder.create(IResource.FORCE | IResource.DERIVED, true, null);
 		}
 		return folder;
+	}
+
+	@Override
+	public void started(TaskEvent e) {
+		this.javacCompiler.reportProgress(e.toString());
+		TaskListener.super.started(e);
 	}
 
 	public void setOutputDir(IContainer outputDir) {

@@ -41,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.builder.SourceFile;
 
@@ -70,6 +71,8 @@ public class JavacCompiler extends Compiler {
 		super(environment, policy, compilerConfig.compilerOptions(), requestor, problemFactory);
 		this.compilerConfig = JavacConfig.createFrom(compilerConfig);
 		this.problemFactory = problemFactory;
+		// next is ugly workaround for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3370
+		this.progress = new BuildNotifierCompilationProgress(requestor);
 	}
 
 	@Override
@@ -102,7 +105,7 @@ public class JavacCompiler extends Compiler {
 			.collect(Collectors.groupingBy(this::computeOutputDirectory));
 
 		// Register listener to intercept intermediate results from Javac task.
-		JavacTaskListener javacListener = new JavacTaskListener(this.compilerConfig, outputSourceMapping, this.problemFactory, this.fileObjectToCUMap);
+		JavacTaskListener javacListener = new JavacTaskListener(this, this.compilerConfig, outputSourceMapping, this.problemFactory, this.fileObjectToCUMap);
 		int unitIndex = 0;
 		for (Entry<IContainer, List<ICompilationUnit>> outputSourceSet : outputSourceMapping.entrySet()) {
 			Context javacContext = new Context();
@@ -149,11 +152,14 @@ public class JavacCompiler extends Compiler {
 			JavaCompiler javac = new JavaCompiler(javacContext) {
 				boolean isInGeneration = false;
 
+
 				@Override
 				public void generate(Queue<Pair<Env<AttrContext>, JCClassDecl>> queue, Queue<JavaFileObject> results) {
 					try {
 						this.isInGeneration = true;
 						super.generate(queue, results);
+					} catch (AbortCompilation abort) {
+						throw abort;
 					} catch (Throwable ex) {
 						ILog.get().error(ex.getMessage(), ex);
 					} finally {
@@ -165,6 +171,8 @@ public class JavacCompiler extends Compiler {
 				protected void desugar(Env<AttrContext> env, Queue<Pair<Env<AttrContext>, JCClassDecl>> results) {
 					try {
 						super.desugar(env, results);
+					} catch (AbortCompilation abort) {
+						throw abort;
 					} catch (Throwable ex) {
 						ILog.get().error(ex.getMessage(), ex);
 					}
@@ -259,5 +267,10 @@ public class JavacCompiler extends Compiler {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public void reportProgress(String taskDecription) {
+		super.reportProgress(taskDecription);
 	}
 }
