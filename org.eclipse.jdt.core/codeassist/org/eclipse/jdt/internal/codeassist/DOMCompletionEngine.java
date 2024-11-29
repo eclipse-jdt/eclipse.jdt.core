@@ -516,6 +516,8 @@ public class DOMCompletionEngine implements Runnable {
 				} else {
 					// UnimportedType.|
 					List<IType> foundTypes = findTypes(qualifiedName.getQualifier().toString(), null).toList();
+					// HACK: We requested exact matches from the search engine but some results aren't exact
+					foundTypes = foundTypes.stream().filter(type -> type.getElementName().equals(qualifiedName.getQualifier().toString())).toList();
 					if (!foundTypes.isEmpty()) {
 						IType firstType = foundTypes.get(0);
 						ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
@@ -678,6 +680,71 @@ public class DOMCompletionEngine implements Runnable {
 			}
 			current = current.getParent();
 		}
+
+		// handle favourite members
+		if (this.requestor.getFavoriteReferences() == null) {
+			return;
+		}
+
+		Set<String> scopedMethods = scope.methods.stream().map(IBinding::getName).collect(Collectors.toSet());
+		Set<String> scopedVariables = scope.others.stream().filter(IVariableBinding.class::isInstance).map(IBinding::getName).collect(Collectors.toSet());
+		Set<String> scopedTypes = scope.others.stream().filter(ITypeBinding.class::isInstance).map(IBinding::getName).collect(Collectors.toSet());
+
+		Set<IJavaElement> keysToResolve = new HashSet<>();
+		IJavaProject project = this.modelUnit.getJavaProject();
+		for (String favouriteReference: this.requestor.getFavoriteReferences()) {
+			if (favouriteReference.endsWith(".*")) { //$NON-NLS-1$
+				favouriteReference = favouriteReference.substring(0, favouriteReference.length() - 2);
+				String packageName = favouriteReference.indexOf('.') < 0 ? "" : favouriteReference.substring(0, favouriteReference.lastIndexOf('.')); //$NON-NLS-1$
+				String typeName = favouriteReference.indexOf('.') < 0 ? favouriteReference : favouriteReference.substring(favouriteReference.lastIndexOf('.') + 1);
+				findTypes(typeName, SearchPattern.R_EXACT_MATCH, packageName).filter(type -> type.getElementName().equals(typeName)).forEach(keysToResolve::add);
+			} else if (favouriteReference.lastIndexOf('.') >= 0) {
+				String memberName = favouriteReference.substring(favouriteReference.lastIndexOf('.') + 1);
+				String typeFqn = favouriteReference.substring(0, favouriteReference.lastIndexOf('.'));
+				String packageName = typeFqn.indexOf('.') < 0 ? "" : typeFqn.substring(0, typeFqn.lastIndexOf('.')); //$NON-NLS-1$
+				String typeName = typeFqn.indexOf('.') < 0 ? typeFqn : typeFqn.substring(typeFqn.lastIndexOf('.') + 1);
+				findTypes(typeName, SearchPattern.R_EXACT_MATCH, packageName).filter(type -> type.getElementName().equals(typeName)).findFirst().ifPresent(type -> {
+					try {
+						for (IMethod method : type.getMethods()) {
+							if (method.exists() && (method.getFlags() & Flags.AccStatic) != 0 && memberName.equals(method.getElementName())) {
+								keysToResolve.add(method);
+							}
+						}
+						IField field = type.getField(memberName);
+						if (field.exists() && (field.getFlags() & Flags.AccStatic) != 0) {
+							keysToResolve.add(type.getField(memberName));
+						}
+					} catch (JavaModelException e) {
+						// do nothing
+					}
+				});
+			}
+		}
+		Bindings favoriteBindings = new Bindings();
+		ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+		parser.setProject(project);
+		if (!keysToResolve.isEmpty()) {
+			IBinding[] bindings = parser.createBindings(keysToResolve.toArray(IJavaElement[]::new), this.monitor);
+			for (IBinding binding : bindings) {
+				if (binding instanceof ITypeBinding typeBinding) {
+					processMembers(this.toComplete, typeBinding, favoriteBindings, true);
+				} else if (binding instanceof IMethodBinding methodBinding) {
+					favoriteBindings.add(methodBinding);
+				} else {
+					favoriteBindings.add(binding);
+				}
+			}
+		}
+		favoriteBindings.stream()
+			.filter(binding -> {
+				if (binding instanceof IMethodBinding) {
+					return !scopedMethods.contains(binding.getName());
+				} else if (binding instanceof IVariableBinding) {
+					return !scopedVariables.contains(binding.getName());
+				}
+				return !scopedTypes.contains(binding.getName());
+			})
+			.forEach(scope::add);
 	}
 
 	private void completeMethodModifiers(MethodDeclaration methodDeclaration) {
@@ -1311,6 +1378,38 @@ public class DOMCompletionEngine implements Runnable {
 			res.setDeclarationSignature(Signature
 					.createTypeSignature(methodBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
 					.toCharArray());
+
+			if ((methodBinding.getModifiers() & Flags.AccStatic) != 0) {
+				ITypeBinding topLevelClass = methodBinding.getDeclaringClass();
+				while (topLevelClass.getDeclaringClass() != null) {
+					topLevelClass = topLevelClass.getDeclaringClass();
+				}
+				boolean inheritedValue = false;
+				ITypeBinding methodTypeBinding = methodBinding.getDeclaringClass();
+				AbstractTypeDeclaration parentTypeDecl = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete);
+				if (parentTypeDecl != null) {
+					ITypeBinding completionContextTypeBinding = parentTypeDecl.resolveBinding();
+					while (completionContextTypeBinding != null) {
+						if (completionContextTypeBinding.getErasure().getKey().equals(methodTypeBinding.getErasure().getKey())) {
+							inheritedValue = true;
+							break;
+						}
+						completionContextTypeBinding = completionContextTypeBinding.getSuperclass();
+					}
+				}
+				if (!inheritedValue && !this.modelUnit.getType(topLevelClass.getName()).exists()) {
+					if (this.qualifiedPrefix.equals(this.prefix) && !this.modelUnit.getJavaProject().getOption(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, true).equals(JavaCore.DISABLED)) {
+						res.setRequiredProposals(new CompletionProposal[] { toStaticImportProposal(methodBinding) });
+					} else {
+						ITypeBinding directParentClass = methodBinding.getDeclaringClass();
+						res.setRequiredProposals(new CompletionProposal[] { toStaticImportProposal(directParentClass) });
+						StringBuilder builder = new StringBuilder(new String(res.getCompletion()));
+						builder.insert(0, '.');
+						builder.insert(0, directParentClass.getName());
+						res.setCompletion(builder.toString().toCharArray());
+					}
+				}
+			}
 		} else if (kind == CompletionProposal.LOCAL_VARIABLE_REF) {
 			var variableBinding = (IVariableBinding) binding;
 			res.setSignature(
@@ -1330,6 +1429,38 @@ public class DOMCompletionEngine implements Runnable {
 				res.setDeclarationSignature(declSignature);
 			} else {
 				res.setDeclarationSignature(new char[0]);
+			}
+
+			if ((variableBinding.getModifiers() & Flags.AccStatic) != 0) {
+				ITypeBinding topLevelClass = variableBinding.getDeclaringClass();
+				while (topLevelClass.getDeclaringClass() != null) {
+					topLevelClass = topLevelClass.getDeclaringClass();
+				}
+				boolean inheritedValue = false;
+				ITypeBinding variableTypeBinding = variableBinding.getDeclaringClass();
+				AbstractTypeDeclaration parentTypeDecl = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete);
+				if (parentTypeDecl != null) {
+					ITypeBinding completionContextTypeBinding = parentTypeDecl.resolveBinding();
+					while (completionContextTypeBinding != null) {
+						if (completionContextTypeBinding.getErasure().getKey().equals(variableTypeBinding.getErasure().getKey())) {
+							inheritedValue = true;
+							break;
+						}
+						completionContextTypeBinding = completionContextTypeBinding.getSuperclass();
+					}
+				}
+				if (!inheritedValue && !this.modelUnit.getType(topLevelClass.getName()).exists()) {
+					if (this.qualifiedPrefix.equals(this.prefix) && !this.modelUnit.getJavaProject().getOption(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, true).equals(JavaCore.DISABLED)) {
+						res.setRequiredProposals(new CompletionProposal[] { toStaticImportProposal(variableBinding) });
+					} else {
+						ITypeBinding directParentClass = variableBinding.getDeclaringClass();
+						res.setRequiredProposals(new CompletionProposal[] { toStaticImportProposal(directParentClass) });
+						StringBuilder builder = new StringBuilder(new String(res.getCompletion()));
+						builder.insert(0, '.');
+						builder.insert(0, directParentClass.getName());
+						res.setCompletion(builder.toString().toCharArray());
+					}
+				}
 			}
 		} else if (kind == CompletionProposal.TYPE_REF) {
 			var typeBinding = (ITypeBinding) binding;
@@ -1382,10 +1513,15 @@ public class DOMCompletionEngine implements Runnable {
 					binding instanceof IMethodBinding methodBinding ? methodBinding.getReturnType() :
 					binding instanceof IVariableBinding variableBinding ? variableBinding.getType() :
 					this.toComplete.getAST().resolveWellKnownType(Object.class.getName())) +
-				computeRelevanceForQualification(false) + // TODO: is this always false?
+				(res.getRequiredProposals() != null ? 0 : computeRelevanceForQualification(false)) +
 				CompletionEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE) //no access restriction for class field
 				//RelevanceConstants.R_NON_INHERITED // TODO: when is this active?
 				);
+		if (res.getRequiredProposals() != null) {
+			for (CompletionProposal req : res.getRequiredProposals()) {
+				req.setRelevance(res.getRelevance());
+			}
+		}
 		return res;
 	}
 
@@ -1417,18 +1553,19 @@ public class DOMCompletionEngine implements Runnable {
 		// set completion, considering nested types
 		cursor = type;
 		StringBuilder completion = new StringBuilder();
-		while (cursor instanceof IType) {
-			if (!completion.isEmpty()) {
-				completion.insert(0, '.');
-			}
+		AbstractTypeDeclaration parentTypeDeclaration = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete);
+		if (parentTypeDeclaration != null && type.getFullyQualifiedName().equals(((IType)parentTypeDeclaration.resolveBinding().getJavaElement()).getFullyQualifiedName())) {
 			completion.insert(0, cursor.getElementName());
-			cursor = cursor.getParent();
+		} else {
+			while (cursor instanceof IType) {
+				if (!completion.isEmpty()) {
+					completion.insert(0, '.');
+				}
+				completion.insert(0, cursor.getElementName());
+				cursor = cursor.getParent();
+			}
 		}
-		AbstractTypeDeclaration parentType = (AbstractTypeDeclaration) DOMCompletionUtil.findParent(this.toComplete,
-				new int[] { ASTNode.TYPE_DECLARATION,
-						ASTNode.ANNOTATION_TYPE_DECLARATION,
-						ASTNode.RECORD_DECLARATION,
-						ASTNode.ENUM_DECLARATION });
+		AbstractTypeDeclaration parentType = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete);
 		Javadoc javadoc = (Javadoc) DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.JAVADOC });
 		if (parentType != null || javadoc != null) {
 			IPackageBinding currentPackageBinding = parentType == null ? null : parentType.resolveBinding().getPackage();
@@ -1693,6 +1830,104 @@ public class DOMCompletionEngine implements Runnable {
 		res.completionEngine = this.nestedEngine;
 		res.nameLookup = this.nameEnvironment.nameLookup;
 		return res;
+	}
+
+	private CompletionProposal toStaticImportProposal(IBinding binding) {
+		InternalCompletionProposal res = null;
+		if (binding instanceof IMethodBinding methodBinding) {
+			res = createProposal(CompletionProposal.METHOD_IMPORT);
+			res.setName(methodBinding.getName().toCharArray());
+			res.setSignature(DOMCompletionEngineBuilder.getSignature(methodBinding));
+
+			res.setDeclarationSignature(DOMCompletionEngineBuilder.getSignature(methodBinding.getDeclaringClass()));
+			res.setSignature(DOMCompletionEngineBuilder.getSignature(methodBinding));
+			if(methodBinding != methodBinding.getMethodDeclaration()) {
+				res.setOriginalSignature(DOMCompletionEngineBuilder.getSignature(methodBinding.getMethodDeclaration()));
+			}
+			res.setDeclarationPackageName(methodBinding.getDeclaringClass().getPackage().getName().toCharArray());
+			res.setDeclarationTypeName(methodBinding.getDeclaringClass().getQualifiedName().toCharArray());
+			res.setParameterPackageNames(Stream.of(methodBinding.getParameterTypes())//
+					.map(typeBinding -> {
+						if (typeBinding.getPackage() != null) {
+							return typeBinding.getPackage().getName().toCharArray();
+						}
+						return CharOperation.NO_CHAR;
+					}) //
+					.toArray(char[][]::new));
+			res.setParameterTypeNames(Stream.of(methodBinding.getParameterTypes())//
+					.map(typeBinding -> {
+						return typeBinding.getName().toCharArray();
+					}) //
+					.toArray(char[][]::new));
+			if (methodBinding.getReturnType().getPackage() != null) {
+				res.setPackageName(methodBinding.getReturnType().getPackage().getName().toCharArray());
+			}
+			res.setTypeName(methodBinding.getReturnType().getQualifiedName().toCharArray());
+			res.setName(methodBinding.getName().toCharArray());
+			res.setCompletion(("import static " + methodBinding.getDeclaringClass().getQualifiedName() + "." + methodBinding.getName() + ";\n").toCharArray()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			res.setFlags(methodBinding.getModifiers());
+			res.setAdditionalFlags(CompletionFlags.StaticImport);
+			res.setParameterNames(Stream.of(methodBinding.getParameterNames()) //
+					.map(String::toCharArray) //
+					.toArray(char[][]::new));
+		} else if (binding instanceof IVariableBinding variableBinding) {
+			res = createProposal(CompletionProposal.FIELD_IMPORT);
+
+			res.setDeclarationSignature(DOMCompletionEngineBuilder.getSignature(variableBinding.getDeclaringClass()));
+			res.setSignature(Signature.createTypeSignature(variableBinding.getType().getQualifiedName().toCharArray(), true)
+					.toCharArray());
+			res.setDeclarationPackageName(variableBinding.getDeclaringClass().getPackage().getName().toCharArray());
+			res.setDeclarationTypeName(variableBinding.getDeclaringClass().getQualifiedName().toCharArray());
+			if (variableBinding.getType().getPackage() != null) {
+				res.setPackageName(variableBinding.getType().getPackage().getName().toCharArray());
+			}
+			res.setTypeName(variableBinding.getType().getQualifiedName().toCharArray());
+			res.setName(variableBinding.getName().toCharArray());
+			res.setCompletion(("import static " + variableBinding.getDeclaringClass().getQualifiedName() + "." + variableBinding.getName() + ";\n").toCharArray()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			res.setFlags(variableBinding.getModifiers());
+			res.setAdditionalFlags(CompletionFlags.StaticImport);
+		} else if (binding instanceof ITypeBinding typeBinding) {
+			// NOTE: slightly different fields are filled out when a type import + qualification is being used in place of a static import
+			// That's why we do something different here
+
+			res = createProposal(CompletionProposal.TYPE_IMPORT);
+			res.setDeclarationSignature(typeBinding.getPackage().getName().toCharArray());
+			res.setSignature(DOMCompletionEngineBuilder.getSignature(typeBinding));
+			res.setPackageName(typeBinding.getPackage().getName().toCharArray());
+			res.setTypeName(typeBinding.getQualifiedName().toCharArray());
+			res.setAdditionalFlags(CompletionFlags.Default);
+
+			StringBuilder importCompletionBuilder = new StringBuilder("import "); //$NON-NLS-1$
+			importCompletionBuilder.append(typeBinding.getQualifiedName().replace('$', '.'));
+			importCompletionBuilder.append(';');
+			importCompletionBuilder.append('\n');
+			res.setCompletion(importCompletionBuilder.toString().toCharArray());
+		}
+		if (res != null) {
+			CompilationUnit cu = ((CompilationUnit)this.toComplete.getRoot());
+			List<ASTNode> imports = cu.imports();
+			int place;
+			if (!imports.isEmpty()) {
+				int lastIndex = imports.size() - 1;
+				place = imports.get(lastIndex).getStartPosition() + imports.get(lastIndex).getLength();
+			} else if (cu.getPackage() != null) {
+				place = cu.getPackage().getStartPosition() + cu.getPackage().getLength();
+			} else {
+				place = 0;
+			}
+			if (this.cuBuffer != null && place != 0) {
+				if (this.cuBuffer.getChar(place) == '\n') {
+					place++;
+				} else if (this.cuBuffer.getChar(place) == '\r' && this.cuBuffer.getChar(place + 1) == '\n') {
+					place += 2;
+				}
+			}
+			res.setReplaceRange(place, place);
+			res.setTokenRange(place, place);
+			// relevance is set in invokee, since it's expected to be the same as that of the parent completion proposal
+			return res;
+		}
+		throw new IllegalArgumentException("unexpected binding type: " + binding.getClass()); //$NON-NLS-1$
 	}
 
 	private CompletionProposal toPackageProposal(String packageName, ASTNode completing) {
