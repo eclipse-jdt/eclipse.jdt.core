@@ -7813,4 +7813,18 @@ public void testIssue2127b() {
 		""",
 		CodeFormatter.K_MODULE_INFO | CodeFormatter.F_INCLUDE_COMMENTS);
 }
+
+public void testBugGh3340() throws JavaModelException {
+	String source = "/**<pre><code>a\n b</code></pre>*/";
+	formatSource(source,
+		"/**\n" +
+		" * <pre>\n" +
+		" * <code>a\n" +
+		" b</code>\n" +
+		" * </pre>\n" +
+		" */",
+		CodeFormatter.K_JAVA_DOC
+	);
+}
+
 }
