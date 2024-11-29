@@ -3577,7 +3577,7 @@ class JavacConverter {
 				if( enumConstant.init instanceof JCNewClass jcnc ) {
 					if( jcnc.def instanceof JCClassDecl jccd) {
 						int blockStarts = jcnc.getStartPosition() + (enumName == null ? 0 : enumName.length());
-						if( jcnc.getArguments() != null && jcnc.getArguments().get(jcnc.getArguments().length()-1) instanceof JCTree lastArg) {
+						if(jcnc.getArguments() != null && !jcnc.getArguments().isEmpty() && jcnc.getArguments().get(jcnc.getArguments().length()-1) instanceof JCTree lastArg) {
 							blockStarts = lastArg.getEndPosition(this.javacCompilationUnit.endPositions);
 						}
 						int endPos = jcnc.getEndPosition(this.javacCompilationUnit.endPositions);
