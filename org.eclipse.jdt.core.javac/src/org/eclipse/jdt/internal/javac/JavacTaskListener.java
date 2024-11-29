@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
@@ -31,16 +30,13 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.builder.SourceFile;
 
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
@@ -63,13 +59,13 @@ import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCModuleDecl;
 
 public class JavacTaskListener implements TaskListener {
-	private Map<ICompilationUnit, IContainer> sourceOutputMapping = new HashMap<>();
 	private Map<ICompilationUnit, JavacCompilationResult> results = new HashMap<>();
 	private UnusedProblemFactory problemFactory;
 	private JavacConfig config;
 	private IContainer outputDir;
 	private final Map<JavaFileObject, ICompilationUnit> fileObjectToCUMap;
 	private final JavacCompiler javacCompiler;
+	public final Path tempDir;
 	private static final Set<String> PRIMITIVE_TYPES = new HashSet<String>(Arrays.asList(
 		"byte",
 		"short",
@@ -83,16 +79,18 @@ public class JavacTaskListener implements TaskListener {
 
 	private static final char[] MODULE_INFO_NAME = "module-info".toCharArray();
 
-	public JavacTaskListener(JavacCompiler javacCompiler, JavacConfig config, Map<IContainer, List<ICompilationUnit>> outputSourceMapping,
-			IProblemFactory problemFactory, Map<JavaFileObject, ICompilationUnit> fileObjectToCUMap) {
+	public JavacTaskListener(JavacCompiler javacCompiler, JavacConfig config, IProblemFactory problemFactory, Map<JavaFileObject, ICompilationUnit> fileObjectToCUMap) {
 		this.javacCompiler = javacCompiler;
 		this.config = config;
 		this.problemFactory = new UnusedProblemFactory(problemFactory, config.compilerOptions());
 		this.fileObjectToCUMap = fileObjectToCUMap;
-		for (Entry<IContainer, List<ICompilationUnit>> entry : outputSourceMapping.entrySet()) {
-			IContainer currentOutput = entry.getKey();
-			entry.getValue().forEach(cu -> sourceOutputMapping.put(cu, currentOutput));
+		Path dir = null;
+		try {
+			dir = Files.createTempDirectory("javac-build");
+		} catch (IOException e) {
+			ILog.get().error(e.getMessage(), e);
 		}
+		tempDir = dir;
 	}
 
 	@Override
@@ -124,8 +122,8 @@ public class JavacTaskListener implements TaskListener {
 				@Override
 				public Void visitModule(com.sun.source.tree.ModuleTree node, Void p) {
 					if (node instanceof JCModuleDecl moduleDecl) {
-						IContainer expectedOutputDir = sourceOutputMapping.get(cu);
-						ClassFile currentClass = new JavacClassFile(moduleDecl, expectedOutputDir);
+						IContainer expectedOutputDir = computeOutputDirectory(cu);
+						ClassFile currentClass = new JavacClassFile(moduleDecl, expectedOutputDir, tempDir);
 						result.record(MODULE_INFO_NAME, currentClass);
 					}
 					return super.visitModule(node, p);
@@ -148,8 +146,8 @@ public class JavacTaskListener implements TaskListener {
 							String compoundName = fullName.replace('.', '/');
 							Symbol enclosingClassSymbol = this.getEnclosingClass(classDecl.sym);
 							ClassFile enclosingClassFile = enclosingClassSymbol == null ? null : visitedClasses.get(enclosingClassSymbol);
-							IContainer expectedOutputDir = sourceOutputMapping.get(cu);
-							ClassFile currentClass = new JavacClassFile(fullName, enclosingClassFile, expectedOutputDir);
+							IContainer expectedOutputDir = computeOutputDirectory(cu);
+							ClassFile currentClass = new JavacClassFile(fullName, enclosingClassFile, expectedOutputDir, tempDir);
 							visitedClasses.put(classDecl.sym, currentClass);
 							result.record(compoundName.toCharArray(), currentClass);
 							recordTypeHierarchy(classDecl.sym);
@@ -306,39 +304,8 @@ public class JavacTaskListener implements TaskListener {
 		}
 
 		String qualifiedName = clazz.flatName().toString().replace('.', '/');
-		IPath filePath = new org.eclipse.core.runtime.Path(qualifiedName);
-		IContainer fileFolder = this.outputDir;
-		if (filePath.segmentCount() > 1) {
-			fileFolder = createFolder(filePath.removeLastSegments(1), this.outputDir);
-			filePath = new org.eclipse.core.runtime.Path(filePath.lastSegment());
-		}
-
-		IFile classFile = fileFolder.getFile(filePath.addFileExtension(SuffixConstants.EXTENSION_class));
-		File tmpJavacClassFile = JavacClassFile.computeMappedTempClassFile(this.outputDir, qualifiedName);
-		if (tmpJavacClassFile == null || !tmpJavacClassFile.exists()) {
-			return;
-		}
-
-		try {
-			byte[] bytes = Files.readAllBytes(tmpJavacClassFile.toPath());
-			classFile.write(bytes, true, true, false, null);
-			tmpJavacClassFile.delete();
-		} catch (IOException e) {
-			// ignore
-		}
-	}
-
-	private IContainer createFolder(IPath packagePath, IContainer outputFolder) throws CoreException {
-		if (packagePath.isEmpty()) {
-			return outputFolder;
-		}
-
-		IFolder folder = outputFolder.getFolder(packagePath);
-		if (!folder.exists()) {
-			createFolder(packagePath.removeLastSegments(1), outputFolder);
-			folder.create(IResource.FORCE | IResource.DERIVED, true, null);
-		}
-		return folder;
+		var javaClassFile = new JavacClassFile(qualifiedName, null, this.outputDir, tempDir);
+		javaClassFile.flushTempToOutput();
 	}
 
 	@Override
@@ -353,5 +320,19 @@ public class JavacTaskListener implements TaskListener {
 
 	public Map<ICompilationUnit, JavacCompilationResult> getResults() {
 		return this.results;
+	}
+
+	private IContainer computeOutputDirectory(ICompilationUnit unit) {
+		if (unit instanceof SourceFile sf) {
+			IContainer sourceDirectory = sf.resource.getParent();
+			while (sourceDirectory != null) {
+				IContainer mappedOutput = this.config.sourceOutputMapping().get(sourceDirectory);
+				if (mappedOutput != null) {
+					return mappedOutput;
+				}
+				sourceDirectory = sourceDirectory.getParent();
+			}
+		}
+		return null;
 	}
 }

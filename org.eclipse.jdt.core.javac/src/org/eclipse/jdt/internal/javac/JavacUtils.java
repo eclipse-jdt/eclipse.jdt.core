@@ -238,9 +238,6 @@ public class JavacUtils {
 
 			if (output != null) {
 				fileManager.setLocation(StandardLocation.CLASS_OUTPUT, List.of(ensureDirExists(output)));
-			} else if (compilerConfig != null && !compilerConfig.sourceOutputMapping().isEmpty()) {
-				fileManager.setLocation(StandardLocation.CLASS_OUTPUT, compilerConfig.sourceOutputMapping().values().stream().distinct()
-						.map(container -> ensureDirExists(JavacClassFile.getMappedTempOutput(container).toFile())).toList());
 			} else if (javaProject.getProject() != null) {
 				IResource member = javaProject.getProject().getParent().findMember(javaProject.getOutputLocation());
 				if( member != null ) {

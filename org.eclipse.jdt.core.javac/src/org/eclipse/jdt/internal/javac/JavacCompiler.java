@@ -17,16 +17,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Queue;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IJavaProject;
@@ -83,7 +80,7 @@ public class JavacCompiler extends Compiler {
 		        SourceFile.class::cast).map(source -> source.resource).map(IResource::getProject).filter(
 		                JavaProject::hasJavaNature).map(JavaCore::create).findFirst().orElse(null);
 
-		Map<IContainer, List<ICompilationUnit>> outputSourceMapping = Arrays.stream(sourceUnits)
+		var toCompile = Arrays.stream(sourceUnits)
 			.filter(unit -> {
 				/**
 				 * Exclude the generated sources from the original source path to
@@ -101,172 +98,149 @@ public class JavacCompiler extends Compiler {
 					}
 				}
 				return true;
-			})
-			.collect(Collectors.groupingBy(this::computeOutputDirectory));
+			}).toList();
 
-		// Register listener to intercept intermediate results from Javac task.
-		JavacTaskListener javacListener = new JavacTaskListener(this, this.compilerConfig, outputSourceMapping, this.problemFactory, this.fileObjectToCUMap);
+		JavacTaskListener javacListener = new JavacTaskListener(this, this.compilerConfig, this.problemFactory, this.fileObjectToCUMap);
 		int unitIndex = 0;
-		for (Entry<IContainer, List<ICompilationUnit>> outputSourceSet : outputSourceMapping.entrySet()) {
-			Context javacContext = new Context();
-			CacheFSInfo.preRegister(javacContext);
-			ProceedOnErrorTransTypes.preRegister(javacContext);
-			ProceedOnErrorGen.preRegister(javacContext);
-			JavacProblemConverter problemConverter = new JavacProblemConverter(this.compilerConfig.compilerOptions(), javacContext);
-			javacContext.put(DiagnosticListener.class, diagnostic -> {
-				if (diagnostic.getSource() instanceof JavaFileObject fileObject) {
-					JavacProblem javacProblem = problemConverter.createJavacProblem(diagnostic);
-					if (javacProblem != null) {
-						ICompilationUnit originalUnit = this.fileObjectToCUMap.get(fileObject);
-						if (originalUnit == null) {
-							return;
-						}
-						List<IProblem> previous = javacProblems.get(originalUnit);
-						if (previous == null) {
-							previous = new ArrayList<>();
-							javacProblems.put(originalUnit, previous);
-						}
-						previous.add(javacProblem);
+		Context javacContext = new Context();
+		CacheFSInfo.preRegister(javacContext);
+		ProceedOnErrorTransTypes.preRegister(javacContext);
+		ProceedOnErrorGen.preRegister(javacContext);
+		JavacProblemConverter problemConverter = new JavacProblemConverter(this.compilerConfig.compilerOptions(), javacContext);
+		javacContext.put(DiagnosticListener.class, diagnostic -> {
+			if (diagnostic.getSource() instanceof JavaFileObject fileObject) {
+				JavacProblem javacProblem = problemConverter.createJavacProblem(diagnostic);
+				if (javacProblem != null) {
+					ICompilationUnit originalUnit = this.fileObjectToCUMap.get(fileObject);
+					if (originalUnit == null) {
+						return;
 					}
-				}
-			});
-			MultiTaskListener mtl = MultiTaskListener.instance(javacContext);
-			mtl.add(javacListener);
-			mtl.add(new TaskListener() {
-				@Override
-				public void finished(TaskEvent e) {
-					if (e.getSourceFile() != null && fileObjectToCUMap.get(e.getSourceFile()) instanceof JCCompilationUnit u) {
-						problemConverter.registerUnit(e.getSourceFile(), u);
+					List<IProblem> previous = javacProblems.get(originalUnit);
+					if (previous == null) {
+						previous = new ArrayList<>();
+						javacProblems.put(originalUnit, previous);
 					}
+					previous.add(javacProblem);
 				}
-			});
-
-			// Configure Javac to generate the class files in a mapped temporary location
-			var outputDir = JavacClassFile.getMappedTempOutput(outputSourceSet.getKey()).toFile();
-			javacListener.setOutputDir(outputSourceSet.getKey());
-			JavacUtils.configureJavacContext(javacContext, this.compilerConfig, javaProject, outputDir, true);
-			// Javadoc problem are not reported by builder
-			var javacOptions = Options.instance(javacContext);
-			javacOptions.remove(Option.XDOCLINT.primaryName);
-			javacOptions.remove(Option.XDOCLINT_CUSTOM.primaryName);
-			JavaCompiler javac = new JavaCompiler(javacContext) {
-				boolean isInGeneration = false;
-
-
-				@Override
-				public void generate(Queue<Pair<Env<AttrContext>, JCClassDecl>> queue, Queue<JavaFileObject> results) {
-					try {
-						this.isInGeneration = true;
-						super.generate(queue, results);
-					} catch (AbortCompilation abort) {
-						throw abort;
-					} catch (Throwable ex) {
-						ILog.get().error(ex.getMessage(), ex);
-					} finally {
-						this.isInGeneration = false;
-					}
+			}
+		});
+		MultiTaskListener mtl = MultiTaskListener.instance(javacContext);
+		mtl.add(javacListener);
+		mtl.add(new TaskListener() {
+			@Override
+			public void finished(TaskEvent e) {
+				if (e.getSourceFile() != null && fileObjectToCUMap.get(e.getSourceFile()) instanceof JCCompilationUnit u) {
+					problemConverter.registerUnit(e.getSourceFile(), u);
 				}
+			}
+		});
 
-				@Override
-				protected void desugar(Env<AttrContext> env, Queue<Pair<Env<AttrContext>, JCClassDecl>> results) {
-					try {
-						super.desugar(env, results);
-					} catch (AbortCompilation abort) {
-						throw abort;
-					} catch (Throwable ex) {
-						ILog.get().error(ex.getMessage(), ex);
-					}
-				}
+		// Configure Javac to generate the class files in a mapped temporary location
+		JavacUtils.configureJavacContext(javacContext, this.compilerConfig, javaProject, javacListener.tempDir.toFile(), true);
+		// Javadoc problem are not reported by builder
+		var javacOptions = Options.instance(javacContext);
+		javacOptions.remove(Option.XDOCLINT.primaryName);
+		javacOptions.remove(Option.XDOCLINT_CUSTOM.primaryName);
+		JavaCompiler javac = new JavaCompiler(javacContext) {
+			boolean isInGeneration = false;
 
-				@Override
-				public int errorCount() {
-					// See JavaCompiler.genCode(Env<AttrContext> env, JCClassDecl cdef),
-					// it stops writeClass if errorCount is not zero.
-					// Force it to return 0 if we are in generation phase, and keeping
-					// generating class files for those files without errors.
-					return this.isInGeneration ? 0 : super.errorCount();
+			@Override
+			public void generate(Queue<Pair<Env<AttrContext>, JCClassDecl>> queue, Queue<JavaFileObject> results) {
+				try {
+					this.isInGeneration = true;
+					super.generate(queue, results);
+				} catch (AbortCompilation abort) {
+					throw abort;
+				} catch (Throwable ex) {
+					ILog.get().error(ex.getMessage(), ex);
+				} finally {
+					this.isInGeneration = false;
 				}
-			};
-			JavacFileManager fileManager = (JavacFileManager)javacContext.get(JavaFileManager.class);
-			try {
-				javac.compile(com.sun.tools.javac.util.List.from(outputSourceSet.getValue().stream()
-						.filter(SourceFile.class::isInstance).map(SourceFile.class::cast).map(source -> {
-							File unitFile;
-							// path is relative to the workspace, make it absolute
-							IResource asResource = javaProject.getProject().getParent()
-									.findMember(new String(source.getFileName()));
-							if (asResource != null) {
-								unitFile = asResource.getLocation().toFile();
-							} else {
-								unitFile = new File(new String(source.getFileName()));
-							}
-							JavaFileObject jfo = fileManager.getJavaFileObject(unitFile.getAbsolutePath());
-							fileObjectToCUMap.put(jfo, source);
-							return jfo;
-						}).toList()));
-			} catch (Throwable e) {
-				// TODO fail
-				ILog.get().error("compilation failed", e);
 			}
 
-			for (ICompilationUnit in : outputSourceSet.getValue()) {
-				CompilationResult result = new CompilationResult(in, unitIndex, sourceUnits.length, Integer.MAX_VALUE);
-				List<IProblem> problems = new ArrayList<>();
-				if (javacListener.getResults().containsKey(in)) {
-					result = javacListener.getResults().get(in);
-					((JavacCompilationResult) result).migrateReferenceInfo();
-					result.unitIndex = unitIndex;
-					result.totalUnitsKnown = sourceUnits.length;
-					List<CategorizedProblem> additionalProblems = ((JavacCompilationResult) result).getAdditionalProblems();
-					if (additionalProblems != null && !additionalProblems.isEmpty()) {
-						problems.addAll(additionalProblems);
-					}
+			@Override
+			protected void desugar(Env<AttrContext> env, Queue<Pair<Env<AttrContext>, JCClassDecl>> results) {
+				try {
+					super.desugar(env, results);
+				} catch (AbortCompilation abort) {
+					throw abort;
+				} catch (Throwable ex) {
+					ILog.get().error(ex.getMessage(), ex);
 				}
-
-				if (javacProblems.containsKey(in)) {
-					problems.addAll(javacProblems.get(in));
-				}
-				// JavaBuilder is responsible for converting the problems to IMarkers
-				result.problems = problems.toArray(new CategorizedProblem[0]);
-				result.problemCount = problems.size();
-				this.requestor.acceptResult(result);
-				if (result.compiledTypes != null) {
-					for (Object type : result.compiledTypes.values()) {
-						if (type instanceof JavacClassFile classFile) {
-							// Delete the temporary class file generated by Javac
-							classFile.deleteTempClassFile();
-							/**
-							 * Javac does not generate class files for files with errors.
-							 * However, we return 0 bytes to the CompilationResult to
-							 * prevent NPE when the ImageBuilder writes failed class files.
-							 * These 0-byte class files are empty and meaningless, which
-							 * can confuse subsequent compilations since they are included
-							 * in the classpath. Therefore, they should be deleted after
-							 * compilation.
-							 */
-							if (classFile.getBytes().length == 0) {
-								classFile.deleteExpectedClassFile();
-							}
-						}
-					}
-				}
-				unitIndex++;
 			}
+
+			@Override
+			public int errorCount() {
+				// See JavaCompiler.genCode(Env<AttrContext> env, JCClassDecl cdef),
+				// it stops writeClass if errorCount is not zero.
+				// Force it to return 0 if we are in generation phase, and keeping
+				// generating class files for those files without errors.
+				return this.isInGeneration ? 0 : super.errorCount();
+			}
+		};
+		JavacFileManager fileManager = (JavacFileManager)javacContext.get(JavaFileManager.class);
+		try {
+			javac.compile(com.sun.tools.javac.util.List.from(toCompile.stream()
+					.filter(SourceFile.class::isInstance).map(SourceFile.class::cast).map(source -> {
+						File unitFile;
+						// path is relative to the workspace, make it absolute
+						IResource asResource = javaProject.getProject().getParent()
+								.findMember(new String(source.getFileName()));
+						if (asResource != null) {
+							unitFile = asResource.getLocation().toFile();
+						} else {
+							unitFile = new File(new String(source.getFileName()));
+						}
+						JavaFileObject jfo = fileManager.getJavaFileObject(unitFile.getAbsolutePath());
+						fileObjectToCUMap.put(jfo, source);
+						return jfo;
+					}).toList()));
+		} catch (Throwable e) {
+			// TODO fail
+			ILog.get().error("compilation failed", e);
 		}
-	}
 
-	private IContainer computeOutputDirectory(ICompilationUnit unit) {
-		if (unit instanceof SourceFile sf) {
-			IContainer sourceDirectory = sf.resource.getParent();
-			while (sourceDirectory != null) {
-				IContainer mappedOutput = this.compilerConfig.sourceOutputMapping().get(sourceDirectory);
-				if (mappedOutput != null) {
-					return mappedOutput;
+		for (ICompilationUnit in : toCompile) {
+			CompilationResult result = new CompilationResult(in, unitIndex, sourceUnits.length, Integer.MAX_VALUE);
+			List<IProblem> problems = new ArrayList<>();
+			if (javacListener.getResults().containsKey(in)) {
+				result = javacListener.getResults().get(in);
+				((JavacCompilationResult) result).migrateReferenceInfo();
+				result.unitIndex = unitIndex;
+				result.totalUnitsKnown = sourceUnits.length;
+				List<CategorizedProblem> additionalProblems = ((JavacCompilationResult) result).getAdditionalProblems();
+				if (additionalProblems != null && !additionalProblems.isEmpty()) {
+					problems.addAll(additionalProblems);
 				}
-				sourceDirectory = sourceDirectory.getParent();
 			}
+
+			if (javacProblems.containsKey(in)) {
+				problems.addAll(javacProblems.get(in));
+			}
+			// JavaBuilder is responsible for converting the problems to IMarkers
+			result.problems = problems.toArray(new CategorizedProblem[0]);
+			result.problemCount = problems.size();
+			this.requestor.acceptResult(result);
+			if (result.compiledTypes != null) {
+				for (Object type : result.compiledTypes.values()) {
+					if (type instanceof JavacClassFile classFile) {
+						/**
+						 * Javac does not generate class files for files with errors.
+						 * However, we return 0 bytes to the CompilationResult to
+						 * prevent NPE when the ImageBuilder writes failed class files.
+						 * These 0-byte class files are empty and meaningless, which
+						 * can confuse subsequent compilations since they are included
+						 * in the classpath. Therefore, they should be deleted after
+						 * compilation.
+						 */
+						if (classFile.getBytes().length == 0) {
+							classFile.deleteExpectedClassFile();
+						}
+					}
+				}
+			}
+			unitIndex++;
 		}
-		return null;
 	}
 
 	@Override
