@@ -157,9 +157,6 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 
 		public JavacMethodBinding getMethodBinding(MethodType methodType, MethodSymbol methodSymbol, com.sun.tools.javac.code.Type parentType, boolean isDeclaration) {
-			if (methodSymbol.owner == null || methodSymbol.owner.type == com.sun.tools.javac.code.Type.noType) {
-				return null;
-			}
 			JavacMethodBinding newInstance = new JavacMethodBinding(methodType, methodSymbol, parentType, JavacBindingResolver.this, false, isDeclaration) { };
 			return insertAndReturn(newInstance);
 		}
@@ -332,7 +329,7 @@ public class JavacBindingResolver extends BindingResolver {
 		//
 		private Map<String, JavacVariableBinding> variableBindings = new HashMap<>();
 		public JavacVariableBinding getVariableBinding(VarSymbol varSymbol) {
-			if (varSymbol == null || varSymbol.owner == null || varSymbol.owner.type == com.sun.tools.javac.code.Type.noType) {
+			if (varSymbol == null) {
 				return null;
 			}
 			JavacVariableBinding newInstance = new JavacVariableBinding(varSymbol, JavacBindingResolver.this) { };
@@ -360,8 +357,8 @@ public class JavacBindingResolver extends BindingResolver {
 			if (recoveredSymbol != null) {
 				return getBinding(recoveredSymbol, recoveredSymbol.type);
 			}
-			if (type instanceof ErrorType) {
-				if (type != null && type.getOriginalType() instanceof MethodType missingMethodType) {
+			if (type instanceof ErrorType || owner.owner == null || owner.owner.type == com.sun.tools.javac.code.Type.noType) {
+				if (type.getOriginalType() instanceof MethodType missingMethodType) {
 					return getErrorMethodBinding(missingMethodType, owner);
 				}
 			}

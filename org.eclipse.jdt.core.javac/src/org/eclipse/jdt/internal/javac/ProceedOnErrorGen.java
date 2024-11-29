@@ -13,10 +13,10 @@ package org.eclipse.jdt.internal.javac;
 import static com.sun.tools.javac.jvm.ByteCodes.athrow;
 
 import com.sun.tools.javac.code.Kinds.Kind;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ErrorType;
 import com.sun.tools.javac.comp.Attr;
 import com.sun.tools.javac.jvm.Gen;
+import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.tree.JCTree.JCArrayAccess;
 import com.sun.tools.javac.tree.JCTree.JCAssign;
 import com.sun.tools.javac.tree.JCTree.JCErroneous;
@@ -27,7 +27,6 @@ import com.sun.tools.javac.tree.JCTree.JCInstanceOf;
 import com.sun.tools.javac.tree.JCTree.JCLiteral;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCNewClass;
-import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Names;
@@ -94,7 +93,7 @@ public class ProceedOnErrorGen extends Gen {
 
 	@Override
 	public void visitApply(JCMethodInvocation tree) {
-		if (tree.type.isErroneous() || !(tree.meth.type instanceof Type.MethodType)) {
+		if (tree.type.isErroneous()) {
 			visitErroneous(null);
 		} else {
 			super.visitApply(tree);
@@ -112,7 +111,7 @@ public class ProceedOnErrorGen extends Gen {
 
 	@Override
 	public void visitExec(JCExpressionStatement tree) {
-		if (tree.expr == null || tree.expr instanceof JCErroneous || tree.expr.type.isErroneous() || tree.expr.type instanceof Type.UnknownType) {
+		if (tree.expr == null || tree.expr instanceof JCErroneous || tree.expr.type.isErroneous()) {
 			visitErroneous(null);
 		} else {
 			super.visitExec(tree);
