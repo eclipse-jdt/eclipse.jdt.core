@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -335,6 +335,14 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 */
 	@Override
 	public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestriction) {
+		if (this.lookupEnvironment.unitBeingCompleted != null) {
+			// resilience for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3273
+			// NEVER accept a sourceUnit that is already being completed
+			char[] fileName1 = this.lookupEnvironment.unitBeingCompleted.compilationResult.fileName;
+			char[] fileName2 = sourceUnit.getFileName();
+			if (CharOperation.equals(fileName1, fileName2) && !CharOperation.equals(fileName1, TypeConstants.MODULE_INFO_FILE_NAME))
+				return;
+		}
 		// Switch the current policy and compilation result for this unit to the requested one.
 		CompilationResult unitResult =
 			new CompilationResult(sourceUnit, this.totalUnits, this.totalUnits, this.options.maxProblemsPerUnit);

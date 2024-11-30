@@ -1573,8 +1573,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 					"""
 					package common.test;
 					import static common.pack1.C1.*; // this import pulls in classes from the other project
+					import common.pack1.C1;
 					public class Client {
 						String s = CONST1;
+						C1<?> c1;
 					}
 					""");
 
@@ -1582,8 +1584,12 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			ASTParser astParser = ASTParser.newParser(AST.getJLSLatest());
 			astParser.setProject(project2);
 			IBinding[] bindings = astParser.createBindings(types, null);
-			System.out.println(bindings);
-			// TODO add useful assertions once we reach here
+			assertEquals(1, bindings.length);
+			ITypeBinding type = (ITypeBinding) bindings[0];
+			IVariableBinding c1 = type.getDeclaredFields()[0];
+			IModuleBinding module = c1.getType().getModule();
+			assertNotNull(module);
+			assertEquals("first", module.getName());
 		} finally {
 			deleteProject("P0");
 			deleteProject("P1");

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -904,7 +904,7 @@ public class NameLookup implements SuffixConstants {
 		IModuleDescription module = cache.get(root);
 		if (module != null)
 			return module != NO_MODULE ? module : null;
-		if (!Objects.equals(project, root.getJavaProject())) {
+		if (!Objects.equals(project, root.getJavaProject()) && project.isModular()) {
 			IClasspathEntry classpathEntry2 = rootToEntry.apply(root);
 			if (classpathEntry2 instanceof ClasspathEntry) {
 				if (!((ClasspathEntry) classpathEntry2).isModular()) {
