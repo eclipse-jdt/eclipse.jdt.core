@@ -1589,7 +1589,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			IVariableBinding c1 = type.getDeclaredFields()[0];
 			IModuleBinding module = c1.getType().getModule();
 			assertNotNull(module);
-			assertEquals("first", module.getName());
+			assertEquals("", module.getName());
 		} finally {
 			deleteProject("P0");
 			deleteProject("P1");
