@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -299,6 +300,22 @@ public class SearchableEnvironment
 	 */
 	public void findModules(char[] prefix, ISearchRequestor requestor, IJavaProject javaProject) {
 		this.nameLookup.seekModule(prefix, true, new SearchableEnvironmentRequestor(requestor));
+	}
+
+	@Override
+	public boolean isOnModulePath(ICompilationUnit unit) {
+		if (unit instanceof CompilationUnit cUnit) {
+			IPackageFragmentRoot root = cUnit.originalFromClone().getPackageFragmentRoot();
+			if (Objects.equals(root.getJavaProject(), this.project))
+				return true; // current project: modular if it contains module-info :)
+			IClasspathEntry entry = this.nameLookup.rootToResolvedEntries.get(root);
+			if (entry instanceof ClasspathEntry cpEntry)
+				return cpEntry.isModular();
+			return true; // out-of-band resolution / transitive dependency?
+		} else if (unit instanceof BasicCompilationUnit bUnit) {
+			return bUnit.moduleName != null;
+		}
+		return false;
 	}
 
 	/**
