@@ -19,10 +19,10 @@
 	<target name="build" depends="allConverterJcls,allJclMins"/>
 	
 	<target name="allConverterJcls">
-		<!--antcall target="converterJclMin">
+		<antcall target="converterJclMin">
 			<param name="compliance" value="1.8"/>
 			<param name="suffix" value="1.8"/>
-		</antcall-->
+		</antcall>
 		<antcall target="converterJclMin">
 			<param name="compliance" value="9"/>
 			<param name="suffix" value="9"/>
