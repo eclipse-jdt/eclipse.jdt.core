@@ -39,6 +39,8 @@ import org.eclipse.core.runtime.ILog;
 import com.sun.tools.javac.file.CacheFSInfo;
 import com.sun.tools.javac.file.JavacFileManager;
 
+import sun.nio.ch.FileChannelImpl;
+
 /// A filesystem provider for Zip/Jar files that is capable of caching content so it
 /// can be reused by multiple contexts (as long as the cached objects don't get close
 /// while still in use).
@@ -109,6 +111,19 @@ public class ZipFileSystemProviderWithCache extends FileSystemProvider {
 			var res = delegate.newFileSystem(path, env);
 			this.cachedFilesystems.put(path, res);
 			this.lastModificationOfCache.put(res, lastMod);
+			try {
+				// workaround to make the underlying work of the ZipFileSystem
+				// resistant to thread abortion. Without it, the zips become
+				// useless when a consumer thread aborts
+				var zipFileSystemClass = res.getClass();
+				var chField = zipFileSystemClass.getDeclaredField("ch");
+				chField.setAccessible(true);
+				if (chField.get(res) instanceof FileChannelImpl fileChannel) {
+					fileChannel.setUninterruptible();
+				}
+			} catch (Exception ex) {
+				ILog.get().error(ex.getMessage(), ex);
+			}
 			return res;
 		}
 	}

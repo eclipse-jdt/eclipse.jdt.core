@@ -54,6 +54,8 @@
 						<arg>jdk.javadoc/jdk.javadoc.internal.doclets.formats.html.taglets.snippet=ALL-UNNAMED</arg>
 						<arg>--add-exports</arg>
 						<arg>jdk.javadoc/jdk.javadoc.internal.doclets.formats.html.taglets=ALL-UNNAMED</arg>
+						<arg>--add-exports</arg>
+						<arg>java.base/sun.nio.ch=ALL-UNNAMED</arg>
 					</compilerArgs>
 				</configuration>
 			</plugin>
