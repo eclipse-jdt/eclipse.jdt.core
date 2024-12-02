@@ -357,6 +357,12 @@ public class JavacUtils {
 		try {
 			LinkedHashSet<File> res = new LinkedHashSet<>();
 			ArrayList<IClasspathEntry> seen = new ArrayList<>();
+			if (project.getModuleDescription() == null) {
+				IPath outputLocation = project.getOutputLocation();
+				if (outputLocation != null) {
+					addPath(project, outputLocation, res);
+				}
+			}
 			Queue<IClasspathEntry> toProcess = new LinkedList<>();
 			toProcess.addAll(Arrays.asList(project.resolveClasspath(project.getExpandedClasspath())));
 			while (!toProcess.isEmpty()) {
