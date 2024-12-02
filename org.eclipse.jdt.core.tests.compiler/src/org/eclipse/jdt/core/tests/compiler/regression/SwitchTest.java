@@ -3539,6 +3539,91 @@ public void testNonConstantCase() throws Exception {
 		"----------\n");
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3376
+// Incorrect control flow analysis causes statement subsequent to a switch statement to be flagged unreachable under some circumstances
+public void testIssue3376() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+
+	this.runConformTest(new String[] {
+		"SwitchTest.java",
+		"""
+		public class SwitchTest {
+		    String unreachableCode(String arg) {
+		        String result;
+		        switch (arg) {
+		            case "a" -> {
+		                result = "A";
+		            }
+		            default -> throw new RuntimeException(arg);
+		        }
+		        return result;      // <- ecj reports "Unreachable code"
+		    }
+
+		    String unreachableCode2(String arg) {
+		        String result;
+		        switch (arg) {
+		            case "a" -> result = "A";
+		            default -> throw new RuntimeException(arg);
+		        }
+		        return result;
+		    }
+
+		     String unreachableCode3(String arg) {
+		        String result;
+		        switch (arg) {
+		            case "a" -> {
+		                result = "A";
+		                break;       // <- this makes ecj happy
+		            }
+		            default -> throw new RuntimeException(arg);
+		        }
+		        return result;
+		    }
+
+		    public static void main(String[] args) {
+				System.out.println(new SwitchTest().unreachableCode("a"));
+				System.out.println(new SwitchTest().unreachableCode2("a"));
+				System.out.println(new SwitchTest().unreachableCode3("a"));
+			}
+
+		}
+		""",
+	},
+	"A\nA\nA");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3376
+// Incorrect control flow analysis causes statement subsequent to a switch statement to be flagged unreachable under some circumstances
+public void testIssue3376_2() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+
+	this.runNegativeTest(new String[] {
+		"SwitchTest.java",
+		"""
+		public class SwitchTest {
+		    String unreachableCode(String arg) {
+		        String result;
+		        switch (arg) {
+		            case "a" : {
+		                result = "A";
+		            }
+		            default : throw new RuntimeException(arg);
+		        }
+		        return result;
+		    }
+		}
+		""",
+	},
+	"----------\n" +
+	"1. ERROR in SwitchTest.java (at line 10)\n" +
+	"	return result;\n" +
+	"	^^^^^^^^^^^^^^\n" +
+	"Unreachable code\n" +
+	"----------\n");
+}
+
 public static Class testClass() {
 	return SwitchTest.class;
 }

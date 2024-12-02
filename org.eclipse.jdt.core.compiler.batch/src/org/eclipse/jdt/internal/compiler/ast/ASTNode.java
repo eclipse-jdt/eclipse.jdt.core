@@ -224,6 +224,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IsUsefulEmptyStatement = Bit1;
 
 	// for block and method declaration
+	public static final int SwitchRuleBlock = Bit1;
 	public static final int UndocumentedEmptyBlock = Bit4;
 	public static final int OverridingMethodWithSupercall = Bit5;
 	public static final int CanBeStatic = Bit9;   // used to flag a method that can be declared static
