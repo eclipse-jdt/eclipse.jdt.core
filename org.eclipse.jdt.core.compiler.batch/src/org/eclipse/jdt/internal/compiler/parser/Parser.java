@@ -9441,6 +9441,9 @@ protected void consumeSwitchRule(SwitchRuleKind kind) {
 		expr.bits &= ~ASTNode.InsideExpressionStatement;
 		YieldStatement yieldStatement = new YieldStatement(expr, true, expr.sourceStart, this.endStatementPosition);
 		this.astStack[this.astPtr] = yieldStatement;
+	} else if (kind == SwitchRuleKind.BLOCK) {
+		Block block = (Block) this.astStack[this.astPtr];
+		block.bits |= ASTNode.SwitchRuleBlock;
 	}
 	concatNodeLists();
 }

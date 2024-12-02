@@ -97,8 +97,7 @@ public class SwitchStatement extends Expression {
 	// fallthrough
 	public final static int CASE = 0;
 	public final static int FALLTHROUGH = 1;
-	public final static int ESCAPING = 2;
-	public final static int BREAKING  = 3;
+	public final static int BREAKING  = 2;
 
 	// Other bits
 	public final static int LabeledRules = ASTNode.Bit1;
@@ -432,8 +431,6 @@ public class SwitchStatement extends Expression {
 					}
 					if ((complaintLevel = statement.complainIfUnreachable(caseInits, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 						caseInits = statement.analyseCode(this.scope, switchContext, caseInits);
-						if (caseInits == FlowInfo.DEAD_END)
-							fallThroughState = ESCAPING;
 						if (compilerOptions.enableSyntacticNullAnalysisForFields)
 							switchContext.expireNullCheckedFieldInfo();
 						if (compilerOptions.analyseResourceLeaks)
