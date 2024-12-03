@@ -347,6 +347,9 @@ public class MissingTypesGuesser extends ASTVisitor {
 				this.substituedTypes.put(convertedType, typeNames);
 				this.originalTypes.put(convertedType, typeName);
 				this.combinationsCount *= typeNames.length;
+				if (length > 0 && typeArguments[length - 1] == TypeReference.NO_TYPE_ARGUMENTS) {
+					convertedType.bits |= ASTNode.IsDiamond;
+				}
 				return convertedType;
 			}
 		}
@@ -392,6 +395,9 @@ public class MissingTypesGuesser extends ASTVisitor {
 				this.substituedTypes.put(convertedType, typeNames);
 				this.originalTypes.put(convertedType, typeName);
 				this.combinationsCount *= typeNames.length;
+				if (typeArguments == TypeReference.NO_TYPE_ARGUMENTS) {
+					convertedType.bits |= ASTNode.IsDiamond;
+				}
 				return convertedType;
 			}
 		}
