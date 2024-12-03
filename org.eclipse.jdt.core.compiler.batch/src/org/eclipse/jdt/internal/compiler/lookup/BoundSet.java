@@ -1267,11 +1267,14 @@ class BoundSet {
 		if (s == null || s.id == TypeIds.T_JavaLangObject || t == null || t.id == TypeIds.T_JavaLangObject)
 			return Collections.emptyList();
 		List<Pair<TypeBinding>> result = new ArrayList<>();
-		if (TypeBinding.equalsEquals(s.original(), t.original())) {
+		if ((s.isParameterizedType() || t.isParameterizedType()) // optimization #1: clients of this method only want to inspect type arguments
+				&& TypeBinding.equalsEquals(s.original(), t.original())) {
 			result.add(new Pair<>(s, t));
 		}
+		if (TypeBinding.equalsEquals(s,  t))
+			return result; // optimization #2: nothing interesting above equal types
 		TypeBinding tSuper = t.findSuperTypeOriginatingFrom(s);
-		if (tSuper != null) {
+		if (tSuper != null && s.isParameterizedType() && tSuper.isParameterizedType()) { // optimization #1 again
 			result.add(new Pair<>(s, tSuper));
 		}
 		result.addAll(allSuperPairsWithCommonGenericType(s.superclass(), t));
