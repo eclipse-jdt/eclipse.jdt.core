@@ -1267,7 +1267,7 @@ class BoundSet {
 		if (s == null || s.id == TypeIds.T_JavaLangObject || t == null || t.id == TypeIds.T_JavaLangObject)
 			return Collections.emptyList();
 		List<Pair<TypeBinding>> result = new ArrayList<>();
-		if ((s.isParameterizedType() || t.isParameterizedType()) // optimization #1: clients of this method only want to inspect type arguments
+		if (s.isParameterizedType() && t.isParameterizedType() // optimization #1: clients of this method only want to compare type arguments
 				&& TypeBinding.equalsEquals(s.original(), t.original())) {
 			result.add(new Pair<>(s, t));
 		}
