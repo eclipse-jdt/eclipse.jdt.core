@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -12425,6 +12429,15 @@ public void allocationInEarlyConstructionContext(Expression expr, TypeBinding al
 		expr.sourceStart,
 		expr.sourceEnd);
 }
+public void allocationInStaticContext(ASTNode location, LocalTypeBinding allocatedType) {
+	this.handle(
+			IProblem.AllocatingLocalInStaticContext,
+			new String[] { String.valueOf(allocatedType.readableName()) },
+			new String[] { String.valueOf(allocatedType.shortReadableName()) },
+			location.sourceStart,
+			location.sourceEnd);
+}
+
 public void fieldReadInEarlyConstructionContext(char[] token, int sourceStart, int sourceEnd) {
 	String[] arguments = new String[] {String.valueOf(token)};
 	this.handle(

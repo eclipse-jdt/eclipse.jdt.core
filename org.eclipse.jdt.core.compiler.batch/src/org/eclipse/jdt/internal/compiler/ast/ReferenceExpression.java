@@ -12,6 +12,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
@@ -718,6 +722,12 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         if (isMethodReference) {
         	someMethod = scope.getMethod(this.receiverType, this.selector, descriptorParameters, this);
         } else {
+        	if (this.receiverType instanceof LocalTypeBinding local) {
+        		MethodScope enclosingMethodScope = local.scope.enclosingMethodScope();
+        		if (enclosingMethodScope != null && !enclosingMethodScope.isStatic && scope.isInStaticContext()) {
+        			scope.problemReporter().allocationInStaticContext(this, local);
+        		}
+        	}
         	if (argumentsTypeElided() && this.receiverType.isRawType()) {
         		boolean[] inferredReturnType = new boolean[1];
 	        	someMethod = AllocationExpression.inferDiamondConstructor(scope, this, this.receiverType, this.descriptor.parameters, inferredReturnType);

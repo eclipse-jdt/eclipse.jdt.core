@@ -126,25 +126,12 @@ public SyntheticArgumentBinding addSyntheticArgumentAndField(ReferenceBinding ta
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.scope.isInsideEarlyConstructionContext(targetEnclosingType, false))
 		return null;
-	return doAddSyntheticArgumentAndField(targetEnclosingType);
-}
-
-private SyntheticArgumentBinding doAddSyntheticArgumentAndField(ReferenceBinding targetEnclosingType) {
 	SyntheticArgumentBinding synthLocal = addSyntheticArgument(targetEnclosingType);
-	if (synthLocal == null)
-		return null;
+	if (synthLocal == null) return null;
+
 	if (synthLocal.matchingField == null)
 		synthLocal.matchingField = addSyntheticFieldForInnerclass(targetEnclosingType);
 	return synthLocal;
-}
-
-public void requestEnclosingInstancePathTo(ReferenceBinding targetEnclosingClass) {
-	if (isCompatibleWith(targetEnclosingClass))
-		return;
-	if (getSyntheticField(targetEnclosingClass, false) == null)
-		doAddSyntheticArgumentAndField(targetEnclosingClass);
-	if (this.enclosingType instanceof NestedTypeBinding nestedType)
-		nestedType.requestEnclosingInstancePathTo(targetEnclosingClass);
 }
 
 /* Answer the receiver's enclosing type... null if the receiver is a top level type.
