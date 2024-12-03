@@ -6410,6 +6410,59 @@ public void nullAnnotationUnsupportedLocation(TypeReference type) {
 	handle(IProblem.NullAnnotationUnsupportedLocationAtType,
 		NoArgument, NoArgument, type.sourceStart, sourceEnd);
 }
+private char[][] missingAnalysisAnnotationName(AnnotationBinding[] annotations, LookupEnvironment environment) {
+	for (AnnotationBinding annotationBinding : annotations) {
+		if (annotationBinding.getAnnotationType() instanceof ReferenceBinding type
+				&& environment.checkForMissingAnalysisAnnotation(type) != 0)
+			return type.compoundName;
+	}
+	return null;
+}
+public void messageWithUnresolvedOwningAnnotation(MessageSend send, LookupEnvironment environment) {
+	char[][] compoundName = missingAnalysisAnnotationName(send.binding.original().getAnnotations(), environment);
+	if (compoundName == null)
+		return;
+	String selector = String.valueOf(send.selector);
+	handle(IProblem.MessageSendWithUnresolvedOwningAnnotation,
+		new String[] {selector, CharOperation.toString(compoundName)},
+		new String[] {selector, String.valueOf(compoundName[compoundName.length-1])},
+		ProblemSeverities.Warning,
+		send.sourceStart,
+		send.nameSourceEnd());
+}
+public void parameterWithUnresolvedOwningAnnotation(ASTNode location, MethodBinding method, int rank, LookupEnvironment environment) {
+	// locate the missing annotation on parameter #rank:
+	AnnotationBinding[][] parameterAnnotations = method.original().getParameterAnnotations();
+	char[][] compoundName = missingAnalysisAnnotationName(parameterAnnotations[rank], environment);
+	if (compoundName == null)
+		return;
+	String parameterName = method.parameterNames != Binding.NO_PARAMETER_NAMES
+			? String.valueOf(method.parameterNames[rank])
+			: "arg"+rank;  //$NON-NLS-1$
+	String[] args = {
+		String.valueOf(parameterName),
+		String.valueOf(method.selector),
+		CharOperation.toString(compoundName)
+	};
+	handle(IProblem.ParameterWithUnresolvedOwningAnnotation,
+			args,
+			args,
+			ProblemSeverities.Warning,
+			location.sourceStart,
+			location.sourceEnd);
+}
+public void fieldWithUnresolvedOwningAnnotation(ASTNode location, FieldBinding fieldBinding, LookupEnvironment environment) {
+	char[][] compoundName = missingAnalysisAnnotationName(fieldBinding.getAnnotations(), environment);
+	if (compoundName == null)
+		return;
+	String selector = String.valueOf(fieldBinding.name);
+	handle(IProblem.FieldWithUnresolvedOwningAnnotation,
+		new String[] {selector, CharOperation.toString(compoundName)},
+		new String[] {selector, String.valueOf(compoundName[compoundName.length-1])},
+		ProblemSeverities.Warning,
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void localVariableNullInstanceof(LocalVariableBinding local, ASTNode location) {
 	int severity = computeSeverity(IProblem.NullLocalVariableInstanceofYieldsFalse);
 	if (severity == ProblemSeverities.Ignore) return;
