@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.javac;
 
-public class RunCompletionTestsJavac extends org.eclipse.jdt.core.tests.model.RunCompletionModelTests {
+public class RunConverterJavacTests extends org.eclipse.jdt.core.tests.dom.RunConverterTests {
 
-	public RunCompletionTestsJavac(String name) {
+	public RunConverterJavacTests(String name) {
 		super(name);
 	}
 

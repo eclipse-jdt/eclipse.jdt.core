@@ -41,7 +41,7 @@ public class CompilerTests extends AbstractJavaModelTests {
 			""");
 		javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		javaProject.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
-		IFile classFile = javaProject.getProject().getFolder("out").getFile("A.class");
+		IFile classFile = javaProject.getProject().getFolder("bin").getFile("A.class");
 		assertTrue(classFile.exists());
 	}
 }
