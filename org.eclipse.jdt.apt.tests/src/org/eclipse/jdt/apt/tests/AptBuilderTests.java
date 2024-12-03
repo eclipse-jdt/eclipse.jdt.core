@@ -502,7 +502,7 @@ public class AptBuilderTests extends APTTestBase
 		TestUtil.deleteFile(p1a1Path);
 
 		// sleep to let the resource-change event fire
-		sleep( 1000 );
+		Util.waitAtLeast(1000);
 
 		incrementalBuild( project.getFullPath() );
 
@@ -513,7 +513,7 @@ public class AptBuilderTests extends APTTestBase
 
 		// sleep to let the resource-change event fire
 		// TODO: Is there a more reliable, consistent, and efficient way to wait?
-		sleep( 1000 );
+		Util.waitAtLeast(1000);
 
 		incrementalBuild( project.getFullPath() );
 		expectingOnlyProblemsFor( p1bPath );

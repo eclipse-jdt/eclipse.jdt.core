@@ -142,9 +142,9 @@ public class PerfTests extends BuilderTests
 		assertNoUnexpectedProblems();
 
 		System.out.println("Performing full build without apt...");
-		long start = System.currentTimeMillis();
+		long startNanos = System.nanoTime();
 		proj.build(IncrementalProjectBuilder.FULL_BUILD, null);
-		long totalWithoutAPT = System.currentTimeMillis() - start;
+		long totalWithoutAPT = (System.nanoTime() - startNanos) / 1_000_000L;
 		System.out.println("Completed full build without APT in " + totalWithoutAPT + "ms.");
 
 		assertNoUnexpectedProblems();
@@ -156,9 +156,9 @@ public class PerfTests extends BuilderTests
 		assertNoUnexpectedProblems();
 
 		System.out.println("Performing full build with apt...");
-		start = System.currentTimeMillis();
+		startNanos = System.nanoTime();
 		proj.build(IncrementalProjectBuilder.FULL_BUILD, null);
-		long totalWithAPT = System.currentTimeMillis() - start;
+		long totalWithAPT = (System.nanoTime() - startNanos) / 1_000_000L;
 		System.out.println("Completed full build with APT in " + totalWithAPT + "ms.");
 
 		assertNoUnexpectedProblems();
