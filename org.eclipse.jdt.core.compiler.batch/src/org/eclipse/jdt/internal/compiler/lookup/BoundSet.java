@@ -1264,7 +1264,13 @@ class BoundSet {
 	}
 
 	protected List<Pair<TypeBinding>> allSuperPairsWithCommonGenericType(TypeBinding s, TypeBinding t) {
+		return allSuperPairsWithCommonGenericTypeRecursive(s, t, new HashSet<>());
+	}
+
+	private List<Pair<TypeBinding>> allSuperPairsWithCommonGenericTypeRecursive(TypeBinding s, TypeBinding t, HashSet<TypeBinding> visited) {
 		if (s == null || s.id == TypeIds.T_JavaLangObject || t == null || t.id == TypeIds.T_JavaLangObject)
+			return Collections.emptyList();
+		if (!visited.add(s.prototype()))
 			return Collections.emptyList();
 		List<Pair<TypeBinding>> result = new ArrayList<>();
 		if (s.isParameterizedType() && t.isParameterizedType() // optimization #1: clients of this method only want to compare type arguments
@@ -1277,11 +1283,11 @@ class BoundSet {
 		if (tSuper != null && s.isParameterizedType() && tSuper.isParameterizedType()) { // optimization #1 again
 			result.add(new Pair<>(s, tSuper));
 		}
-		result.addAll(allSuperPairsWithCommonGenericType(s.superclass(), t));
+		result.addAll(allSuperPairsWithCommonGenericTypeRecursive(s.superclass(), t, visited));
 		ReferenceBinding[] superInterfaces = s.superInterfaces();
 		if (superInterfaces != null) {
 			for (ReferenceBinding superInterface : superInterfaces) {
-				result.addAll(allSuperPairsWithCommonGenericType(superInterface, t));
+				result.addAll(allSuperPairsWithCommonGenericTypeRecursive(superInterface, t, visited));
 			}
 		}
 		return result;
