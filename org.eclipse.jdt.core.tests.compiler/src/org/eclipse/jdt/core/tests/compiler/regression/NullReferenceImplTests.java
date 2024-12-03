@@ -643,9 +643,9 @@ public void test2062_mergedWith() {
 
 public void test2400_state_consistency() {
 	int failures = 0;
-	long start;
+	long startNanos;
 	if (MEASURE_PERFORMANCES) {
-		start = System.currentTimeMillis();
+		startNanos = System.nanoTime();
 	}
 	String header = "state consistency failures: ";
 	for (int l = 0; l < COMBINATION_TESTS_LOOP_NB ; l++) {
@@ -721,7 +721,7 @@ public void test2400_state_consistency() {
 	}
 	if (MEASURE_PERFORMANCES) {
 		System.out.println("mergedWith\t\t\t" + COMBINATION_TESTS_LOOP_NB + "\t" +
-				(System.currentTimeMillis() - start));
+				(System.nanoTime() - startNanos) / 1_000_000L);
 	}
 	for (int i = 0; i < State.states.length; i++) {
 		if (State.states[i].symbolic) {

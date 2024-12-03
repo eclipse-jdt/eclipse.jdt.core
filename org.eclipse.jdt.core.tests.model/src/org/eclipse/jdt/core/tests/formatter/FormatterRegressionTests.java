@@ -60,7 +60,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public static final String OUT = "_out";
 	public static final boolean DEBUG = false;
 	static final String LINE_SEPARATOR = System.getProperty("line.separator");
-	private long time;
+	private long startNanos;
 
 	DefaultCodeFormatterOptions formatterPrefs;
 	Map formatterOptions;
@@ -232,7 +232,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		}
 
 		if (DEBUG) {
-			this.time = System.currentTimeMillis();
+			this.startNanos = System.nanoTime();
 		}
 	}
 
@@ -244,7 +244,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		deleteProject(JAVA_PROJECT); //$NON-NLS-1$
 		JAVA_PROJECT = null;
 		if (DEBUG) {
-			System.out.println("Time spent = " + (System.currentTimeMillis() - this.time));//$NON-NLS-1$
+			System.out.println("Time spent = " + (System.nanoTime() - this.startNanos) / 1_000_000L);//$NON-NLS-1$
 		}
 		super.tearDownSuite();
 	}
