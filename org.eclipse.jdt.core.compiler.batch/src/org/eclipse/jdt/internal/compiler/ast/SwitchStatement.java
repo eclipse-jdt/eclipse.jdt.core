@@ -373,9 +373,9 @@ public class SwitchStatement extends Expression {
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		try {
 			flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
-			if (isNullHostile()) {
+			if (!this.containsNull && this.expression.resolvedType instanceof ReferenceBinding)
 				this.expression.checkNPE(currentScope, flowContext, flowInfo, 1);
-			}
+
 			SwitchFlowContext switchContext =
 				new SwitchFlowContext(flowContext, this, (this.breakLabel = new BranchLabel()), true, true);
 
@@ -461,16 +461,6 @@ public class SwitchStatement extends Expression {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 		}
 	}
-	private boolean isNullHostile() {
-		if (this.containsNull)
-			return false;
-		if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0)
-			return true;
-		if (this.expression.resolvedType != null && (this.expression.resolvedType.id == T_JavaLangString || this.expression.resolvedType.isEnum()))
-			return true;
-		return this.totalPattern == null;
-	}
-
 	/**
 	 * Switch on String code generation
 	 * This assumes that hashCode() specification for java.lang.String is API
