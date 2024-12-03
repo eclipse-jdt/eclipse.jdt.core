@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -1072,14 +1076,9 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 			outerScope = outerScope.enclosingInstanceScope();
 			earlySeen = methodScope.isInsideEarlyConstructionContext(nestedType.enclosingType(), false);
 		}
-		if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(currentScope.compilerOptions())
-				&& nestedType.enclosingInstances != null) // only if access to enclosing instance has already been requested
-		{
+		if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(currentScope.compilerOptions())) {
 			// JEP 482: this is the central location for organizing synthetic arguments and fields
 			// to serve far outer instances even in inner early construction context.
-			// Only SingleNameReference.manageSyntheticAccessIfNecessary() may add more synth outers later on
-			// (using NestedTypeBinding.requestEnclosingInstancePathTo()).
-			//
 			// Locations MethodBinding.computeSignature() and BlockScope.getEmulationPath() will faithfully
 			// use the information generated here, to decide about signature and call sequence.
 			while (outerScope != null) {
