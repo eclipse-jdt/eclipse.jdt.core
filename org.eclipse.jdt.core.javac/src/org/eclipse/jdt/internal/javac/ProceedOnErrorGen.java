@@ -20,6 +20,7 @@ import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.tree.JCTree.JCArrayAccess;
 import com.sun.tools.javac.tree.JCTree.JCAssign;
 import com.sun.tools.javac.tree.JCTree.JCErroneous;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCExpressionStatement;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
@@ -27,15 +28,12 @@ import com.sun.tools.javac.tree.JCTree.JCInstanceOf;
 import com.sun.tools.javac.tree.JCTree.JCLiteral;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCNewClass;
+import com.sun.tools.javac.tree.JCTree.JCThrow;
+import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Names;
 
-// Handled case so far:
-// * Syntax error as direct statement
-// What's missing so far
-// * Syntax error not as direct child of statement
-// * resolution errors
 public class ProceedOnErrorGen extends Gen {
 
 	public static void preRegister(Context context) {
@@ -142,6 +140,29 @@ public class ProceedOnErrorGen extends Gen {
 			visitErroneous(null);
 		} else {
 			super.visitTypeTest(tree);
+		}
+	}
+
+	private boolean isValid(JCExpression exp) {
+		return exp != null && !(exp instanceof JCErroneous)
+				&& exp.type != null && !exp.type.isErroneous();
+	}
+
+	@Override
+	public void visitThrow(JCThrow th) {
+		if (!isValid(th.expr)) {
+			visitErroneous(null);
+		} else {
+			super.visitThrow(th);
+		}
+	}
+
+	@Override
+	public void visitVarDef(JCVariableDecl varDef) {
+		if (varDef.type == null || varDef.type.isErroneous()) {
+			visitErroneous(null);
+		} else {
+			super.visitVarDef(varDef);
 		}
 	}
 }
