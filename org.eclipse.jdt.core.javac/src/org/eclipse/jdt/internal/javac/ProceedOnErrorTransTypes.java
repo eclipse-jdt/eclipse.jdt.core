@@ -13,8 +13,9 @@ package org.eclipse.jdt.internal.javac;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.comp.TransTypes;
-import com.sun.tools.javac.tree.TreeInfo;
+import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Context.Factory;
 
@@ -24,20 +25,46 @@ public class ProceedOnErrorTransTypes extends TransTypes {
 		context.put(transTypesKey, (Factory<TransTypes>) c -> new ProceedOnErrorTransTypes(c));
 	}
 
+	private boolean needsProceedOnError;
+	private Context context;
+
 	protected ProceedOnErrorTransTypes(Context context) {
 		super(context);
+		this.context = context;
+	}
+
+	@Override
+	public void visitClassDef(JCClassDecl def) {
+		this.needsProceedOnError = hasErrors(def);
+		super.visitClassDef(def);
+		this.needsProceedOnError = false;
+	}
+
+	private boolean hasErrors(JCClassDecl def) {
+		return this.context.get(JavacCompiler.FILES_WITH_ERRORS_KEY).contains(def.sym.sourcefile);
 	}
 
 	@Override
 	public void visitApply(JCMethodInvocation tree) {
-		if (tree.type.isErroneous()) {
-			return;
-		}
-		tree.meth = translate(tree.meth, null);
-		Symbol meth = TreeInfo.symbol(tree.meth);
-		if (!(meth.baseSymbol() instanceof MethodSymbol)) {
-			//workaround: guard against ClassCastException when referencing non existing member
-			return;
+		if (this.needsProceedOnError) {
+			// The next lines of code should allow to generate
+			// classes with errors, but they are sometimes
+			// causing infinite processing for files that 
+			// have no errors (eg with XLargeTests).
+			// So at the moment we guard them by `needProceedOnError`
+			// but those lines must be considered fragile and made
+			// more bullet proof; concretely then need to work with
+			// XLargeTest.
+			// Cf https://github.com/eclipse-jdtls/eclipse-jdt-core-incubator/issues/1008
+			if (tree.type.isErroneous()) {
+				return;
+			}
+			tree.meth = translate(tree.meth, null);
+			Symbol meth = TreeInfo.symbol(tree.meth);
+			if (!(meth.baseSymbol() instanceof MethodSymbol)) {
+				//workaround: guard against ClassCastException when referencing non existing member
+				return;
+			}
 		}
 		super.visitApply(tree);
 	}

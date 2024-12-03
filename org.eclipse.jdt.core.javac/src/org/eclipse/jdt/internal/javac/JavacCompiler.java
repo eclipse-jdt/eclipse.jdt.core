@@ -15,11 +15,14 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.stream.Stream;
 
+import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
@@ -54,10 +57,12 @@ import com.sun.tools.javac.main.Option;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.Context.Key;
 import com.sun.tools.javac.util.Options;
 import com.sun.tools.javac.util.Pair;
 
 public class JavacCompiler extends Compiler {
+	public static final Key<Set<JavaFileObject>> FILES_WITH_ERRORS_KEY = new Key<>();
 	JavacConfig compilerConfig;
 	IProblemFactory problemFactory;
 
@@ -107,8 +112,13 @@ public class JavacCompiler extends Compiler {
 		ProceedOnErrorTransTypes.preRegister(javacContext);
 		ProceedOnErrorGen.preRegister(javacContext);
 		JavacProblemConverter problemConverter = new JavacProblemConverter(this.compilerConfig.compilerOptions(), javacContext);
+		Set<JavaFileObject> sourceWithErrors = new HashSet<>();
+		javacContext.put(FILES_WITH_ERRORS_KEY, sourceWithErrors);
 		javacContext.put(DiagnosticListener.class, diagnostic -> {
 			if (diagnostic.getSource() instanceof JavaFileObject fileObject) {
+				if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
+					sourceWithErrors.add(fileObject);
+				}
 				JavacProblem javacProblem = problemConverter.createJavacProblem(diagnostic);
 				if (javacProblem != null) {
 					ICompilationUnit originalUnit = this.fileObjectToCUMap.get(fileObject);
