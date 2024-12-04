@@ -1280,4 +1280,87 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 				""";
 		runner.runNegativeTest();
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3319
+	// [Enhanced Switch][Null] Inconsistent nullness propagation
+	public void testIssue3319() {
+		Runner runner = getDefaultRunner();
+		runner.testFiles = new String[] {
+			"X.java",
+			"""
+			import org.eclipse.jdt.annotation.NonNull;
+
+			public class X {
+				static @NonNull Object foo(Object o) {
+					switch (o) {
+						case String s -> {
+							if (o == null) {
+								System.out.println("o cannot be null at all!");
+							}
+							System.out.println();
+						}
+						default -> {
+							if (o == null) {
+								System.out.println("o cannot be null at all!");
+							}
+							System.out.println();
+						}
+					}
+					return new Object();
+				}
+
+				static @NonNull Object foo(X o) {
+					switch (o) {
+						case X s  -> {
+							if (o == null) {
+								System.out.println("o cannot be null at all!");
+							}
+							System.out.println(s);
+						}
+					}
+					return new Object();
+				}
+			}
+			"""
+		};
+		runner.expectedCompilerLog =
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	if (o == null) {\n" +
+				"	    ^\n" +
+				"Null comparison always yields false: The variable o cannot be null at this location\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 7)\n" +
+				"	if (o == null) {\n" +
+				"					System.out.println(\"o cannot be null at all!\");\n" +
+				"				}\n" +
+				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 13)\n" +
+				"	if (o == null) {\n" +
+				"	    ^\n" +
+				"Null comparison always yields false: The variable o cannot be null at this location\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 13)\n" +
+				"	if (o == null) {\n" +
+				"					System.out.println(\"o cannot be null at all!\");\n" +
+				"				}\n" +
+				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 25)\n" +
+				"	if (o == null) {\n" +
+				"	    ^\n" +
+				"Null comparison always yields false: The variable o cannot be null at this location\n" +
+				"----------\n" +
+				"6. WARNING in X.java (at line 25)\n" +
+				"	if (o == null) {\n" +
+				"					System.out.println(\"o cannot be null at all!\");\n" +
+				"				}\n" +
+				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n";
+		runner.runNegativeTest();
+	}
 }
