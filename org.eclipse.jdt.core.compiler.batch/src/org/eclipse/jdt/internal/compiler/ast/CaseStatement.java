@@ -358,8 +358,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		}
 		patternMatchLabel.place();
 	} else {
-		if (this.swich.containsNull)
-			this.swich.nullProcessed |= true;
+		if (this.swich.nullCase == this)
+			this.swich.nullProcessed = true;
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
