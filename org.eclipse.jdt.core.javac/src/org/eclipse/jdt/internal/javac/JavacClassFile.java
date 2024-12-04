@@ -30,7 +30,7 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import com.sun.tools.javac.tree.JCTree.JCModuleDecl;
 
 public class JavacClassFile extends ClassFile {
-	private String fullName;
+	final String fullName;
 	private byte[] bytes = null;
 	private final File proxyFile;
 	private final IFile outputFile;

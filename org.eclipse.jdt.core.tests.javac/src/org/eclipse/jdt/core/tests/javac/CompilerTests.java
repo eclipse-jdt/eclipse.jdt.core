@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.javac;
 
+import java.io.File;
+import java.nio.file.Files;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -43,5 +46,38 @@ public class CompilerTests extends AbstractJavaModelTests {
 		javaProject.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 		IFile classFile = javaProject.getProject().getFolder("bin").getFile("A.class");
 		assertTrue(classFile.exists());
+	}
+
+	@Test
+	public void testSwitchExpression() throws Exception {
+		IJavaProject javaProject = createJava21Project("A");
+		createFile("A/src/SwitchExpr.java", """
+			import java.time.Month;
+			public class SwitchExpr {
+				public static void main(String[] args) {
+					Month opt = Month.JANUARY;
+					int n = switch (opt) {
+						case JANUARY -> 1;
+						case FEBRUARY -> 2;
+						default -> 3;
+					};
+					System.err.println(n);
+				}
+			}
+			""");
+		javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		javaProject.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+		IFile classFile = javaProject.getProject().getParent().getFolder(javaProject.getOutputLocation()).getFile("SwitchExpr.class");
+		assertTrue(classFile.exists());
+		//
+		File tmpOutput = File.createTempFile("output", "txt");
+		new ProcessBuilder().directory(classFile.getParent().getLocation().toFile())
+			.command(ProcessHandle.current().info().command().orElse(""), "SwitchExpr")
+			.redirectError(tmpOutput)
+			.start()
+			.waitFor();
+		var lines = Files.readAllLines(tmpOutput.toPath());
+		tmpOutput.delete();
+		assertEquals("1", lines.get(0));
 	}
 }

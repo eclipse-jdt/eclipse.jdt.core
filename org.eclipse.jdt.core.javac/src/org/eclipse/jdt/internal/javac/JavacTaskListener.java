@@ -62,7 +62,6 @@ public class JavacTaskListener implements TaskListener {
 	private Map<ICompilationUnit, JavacCompilationResult> results = new HashMap<>();
 	private UnusedProblemFactory problemFactory;
 	private JavacConfig config;
-	private IContainer outputDir;
 	private final Map<JavaFileObject, ICompilationUnit> fileObjectToCUMap;
 	private final JavacCompiler javacCompiler;
 	public final Path tempDir;
@@ -105,6 +104,12 @@ public class JavacTaskListener implements TaskListener {
 				} catch (CoreException e1) {
 					// TODO
 				}
+			} else if (cu != null && e.getTypeElement() instanceof ClassSymbol clazz) {
+				var classFile = getJavacClassFile(clazz);
+				var resultForCU = this.results.computeIfAbsent(cu, JavacCompilationResult::new);
+				if (!resultForCU.compiledTypes.values().contains(classFile)) {
+					resultForCU.record(clazz.flatName().toString().replace('.', '/').toCharArray(), classFile);
+				}
 			}
 		} else if (e.getKind() == TaskEvent.Kind.ANALYZE) {
 			final JavaFileObject file = e.getSourceFile();
@@ -112,8 +117,7 @@ public class JavacTaskListener implements TaskListener {
 			if (cu == null) {
 				return;
 			}
-			final JavacCompilationResult result = this.results.computeIfAbsent(cu, (cu1) ->
-					new JavacCompilationResult(cu1));
+			final JavacCompilationResult result = this.results.computeIfAbsent(cu, JavacCompilationResult::new);
 			final Map<Symbol, ClassFile> visitedClasses = new HashMap<Symbol, ClassFile>();
 			final Set<ClassSymbol> hierarchyRecorded = new HashSet<>();
 			final TypeElement currentTopLevelType = e.getTypeElement();
@@ -276,6 +280,31 @@ public class JavacTaskListener implements TaskListener {
 		}
 	}
 
+	private JavacClassFile getJavacClassFile(ClassSymbol clazz) {
+		if (clazz.sourcefile == null) {
+			return null;
+		}
+		final ICompilationUnit cu = this.fileObjectToCUMap.get(clazz.sourcefile);
+		if (cu != null) {
+			var result = this.results.get(cu);
+			if (result != null) {
+				var existing = Arrays.stream(result.getClassFiles())
+					.filter(JavacClassFile.class::isInstance)
+					.map(JavacClassFile.class::cast)
+					.filter(other -> Objects.equals(other.fullName, clazz.flatName().toString()))
+					.findAny()
+					.orElse(null);
+				if (existing != null) {
+					return existing;
+				}
+			}
+		}
+		return new JavacClassFile(clazz.flatName().toString(),
+				clazz.getEnclosingElement() instanceof ClassSymbol enclosing ? getJavacClassFile(enclosing) : null,
+				computeOutputDirectory(cu),
+				tempDir);
+	}
+
 	private boolean isGeneratedSource(JavaFileObject file) {
 		List<IContainer> generatedSourcePaths = this.config.originalConfig().generatedSourcePaths();
 		if (generatedSourcePaths == null || generatedSourcePaths.isEmpty()) {
@@ -299,12 +328,9 @@ public class JavacTaskListener implements TaskListener {
 	}
 
 	private void writeClassFile(ClassSymbol clazz) throws CoreException {
-		if (this.outputDir == null) {
-			return;
-		}
-
+		final ICompilationUnit cu = this.fileObjectToCUMap.get(clazz.sourcefile);
 		String qualifiedName = clazz.flatName().toString().replace('.', '/');
-		var javaClassFile = new JavacClassFile(qualifiedName, null, this.outputDir, tempDir);
+		var javaClassFile = new JavacClassFile(qualifiedName, null, computeOutputDirectory(cu), tempDir);
 		javaClassFile.flushTempToOutput();
 	}
 
@@ -312,10 +338,6 @@ public class JavacTaskListener implements TaskListener {
 	public void started(TaskEvent e) {
 		this.javacCompiler.reportProgress(e.toString());
 		TaskListener.super.started(e);
-	}
-
-	public void setOutputDir(IContainer outputDir) {
-		this.outputDir = outputDir;
 	}
 
 	public Map<ICompilationUnit, JavacCompilationResult> getResults() {
