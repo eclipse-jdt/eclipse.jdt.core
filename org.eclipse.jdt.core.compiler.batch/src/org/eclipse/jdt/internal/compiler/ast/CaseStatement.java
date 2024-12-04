@@ -40,7 +40,6 @@ public class CaseStatement extends Statement {
 
 	public BranchLabel targetLabel;
 	public Expression[] constantExpressions; // case with multiple expressions - if you want a under-the-hood view, use peeledLabelExpressions()
-	public BranchLabel[] targetLabels; // for multiple expressions
 	public boolean isSwitchRule = false;
 
 	public SwitchStatement swich; // owning switch
@@ -324,13 +323,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if ((this.bits & ASTNode.IsReachable) == 0)
 		return;
+
 	int pc = codeStream.position;
-	if (this.targetLabels != null) {
-		for (BranchLabel label : this.targetLabels)
-			label.place();
-	}
-	if (this.targetLabel != null)
-		this.targetLabel.place();
+	this.targetLabel.place();
 
 	if (containsPatternVariable(true)) {
 
