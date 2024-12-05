@@ -1739,7 +1739,7 @@ public void testGH3278_OK() {
 
 			    @Override
 			    public void close() throws IOException {
-			        for (Closeable closeable : toClose.reversed()) {
+			        for (Closeable closeable : toClose) {
 			            closeable.close(); // Ignore error handling for this demonstration
 			        }
 			    }
@@ -1789,7 +1789,7 @@ public void testGH3278_missingAnnotations() {
 
 				@Override
 				public void close() throws IOException {
-					for (Closeable closeable : toClose.reversed()) {
+					for (Closeable closeable : toClose) {
 						closeable.close(); // Ignore error handling for this demonstration
 					}
 				}
