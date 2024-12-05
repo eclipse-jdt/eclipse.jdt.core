@@ -28,6 +28,8 @@ import com.sun.source.doctree.DocTree.Kind;
 import com.sun.source.util.DocTreePath;
 import com.sun.source.util.TreePath;
 import com.sun.tools.javac.tree.DCTree;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.tree.DCTree.DCAuthor;
 import com.sun.tools.javac.tree.DCTree.DCBlockTag;
 import com.sun.tools.javac.tree.DCTree.DCComment;
@@ -55,9 +57,7 @@ import com.sun.tools.javac.tree.DCTree.DCUnknownInlineTag;
 import com.sun.tools.javac.tree.DCTree.DCUses;
 import com.sun.tools.javac.tree.DCTree.DCValue;
 import com.sun.tools.javac.tree.DCTree.DCVersion;
-import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
-import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.util.Convert;
 import com.sun.tools.javac.util.JCDiagnostic;
 
@@ -312,13 +312,7 @@ class JavadocConverter {
 				case LITERAL -> TagElement.TAG_LITERAL;
 				default -> TagElement.TAG_LITERAL;
 			});
-			List<? extends IDocElement> fragments = convertElement(literal.body).toList();
-			ArrayList<IDocElement> tmp = new ArrayList<>(fragments);
-			if( fragments.size() > 0 ) {
-				res.fragments().add(fragments.get(0));
-				tmp.remove(0);
-			}
-			collector.addAll(tmp);
+			res.fragments().addAll(convertElement(literal.body).toList());
 		} else if (javac instanceof DCLink link) {
 			res.setTagName(switch (link.getKind()) {
 				case LINK -> TagElement.TAG_LINK;
