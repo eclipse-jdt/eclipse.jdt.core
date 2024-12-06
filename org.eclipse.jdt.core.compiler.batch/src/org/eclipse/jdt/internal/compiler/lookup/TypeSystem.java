@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /* TypeSystem: An abstraction responsible for keeping track of types that undergo "derivation" of some sort and the derived types produced thus.
@@ -128,31 +127,6 @@ public class TypeSystem {
 					}
 				}
 			}
-			@Override
-			public boolean equals(Object other) {
-				PTBKey that = (PTBKey) other;  // homogeneous container.
-				return this.type == that.type && this.enclosingType == that.enclosingType && Util.effectivelyEqual(this.arguments, that.arguments); //$IDENTITY-COMPARISON$
-			}
-			final int hash(TypeBinding b) {
-				if(b instanceof WildcardBinding || b instanceof TypeVariableBinding || b.getClass() == ParameterizedTypeBinding.class) {
-					return System.identityHashCode(b);
-				}
-				return b.hashCode();
-			}
-			@Override
-			public int hashCode() {
-				final int prime=31;
-				int hashCode = 1 + hash(this.type);
-				if (this.enclosingType != null && this.enclosingType.getClass() == ParameterizedTypeBinding.class) {
-					// Note: this works as in swapUnresolved, a null enclosingType is never replaced by a
-					// ParameterizedTypeBinding (just by a non-generic or RawTypeBinding)
-					hashCode = hashCode * prime + System.identityHashCode(this.enclosingType);
-				}
-				for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
-					hashCode = hashCode * prime + hash(this.arguments[i]);
-				}
-				return hashCode;
-			}
 		}
 
 		HashMap<PTBKey, ParameterizedTypeBinding []> hashedParameterizedTypes = new HashMap<>(256);
@@ -219,12 +193,12 @@ public class TypeSystem {
 	private int typeid = TypeIds.T_LastWellKnownTypeId;
 	private TypeBinding [][] types;
 	protected HashedParameterizedTypes parameterizedTypes;  // auxiliary fast lookup table for parameterized types.
-	private SimpleLookupTable annotationTypes; // cannot store in types, since AnnotationBinding is not a TypeBinding and we don't want types to operate at Binding level.
+	private HashMap<ReferenceBinding, AnnotationBinding> annotationTypes; // cannot store in types, since AnnotationBinding is not a TypeBinding and we don't want types to operate at Binding level.
 	LookupEnvironment environment;
 
 	public TypeSystem(LookupEnvironment environment) {
 		this.environment = environment;
-		this.annotationTypes = new SimpleLookupTable(16);
+		this.annotationTypes = new HashMap<>();
 		this.typeid = TypeIds.T_LastWellKnownTypeId;
 		this.types = new TypeBinding[TypeIds.T_LastWellKnownTypeId * 2][];
 		this.parameterizedTypes = new HashedParameterizedTypes();
@@ -560,7 +534,7 @@ public class TypeSystem {
 	   We may return a resolved annotation when requested for unresolved one, but not vice versa.
 	*/
 	public final AnnotationBinding getAnnotationType(ReferenceBinding annotationType, boolean requiredResolved) {
-		AnnotationBinding annotation = (AnnotationBinding) this.annotationTypes.get(annotationType);
+		AnnotationBinding annotation = this.annotationTypes.get(annotationType);
 		if (annotation == null) {
 			if (requiredResolved)
 				annotation = new AnnotationBinding(annotationType, Binding.NO_ELEMENT_VALUE_PAIRS);
@@ -589,7 +563,7 @@ public class TypeSystem {
 	}
 
 	public void reset() {
-		this.annotationTypes = new SimpleLookupTable(16);
+		this.annotationTypes = new HashMap<>();
 		this.typeid = TypeIds.T_LastWellKnownTypeId;
 		this.types = new TypeBinding[TypeIds.T_LastWellKnownTypeId * 2][];
 		this.parameterizedTypes = new HashedParameterizedTypes();
@@ -613,14 +587,10 @@ public class TypeSystem {
 				}
 			}
 		}
-		if (this.annotationTypes.get(unresolvedType) != null) { // update the key
-			Object[] keys = this.annotationTypes.keyTable;
-			for (int i = 0, l = keys.length; i < l; i++) {
-				if (keys[i] == unresolvedType) {
-					keys[i] = resolvedType; // hashCode is based on compoundName so this works.
-					break;
-				}
-			}
+		AnnotationBinding removed = this.annotationTypes.remove(unresolvedType);
+		if (removed != null) {
+			 // update the key
+			this.annotationTypes.put(resolvedType, removed);
 		}
 	}
 

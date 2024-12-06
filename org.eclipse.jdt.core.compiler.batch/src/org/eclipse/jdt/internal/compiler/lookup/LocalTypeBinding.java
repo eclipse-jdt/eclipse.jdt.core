@@ -165,10 +165,6 @@ public TypeBinding clone(TypeBinding outerType) {
 	return copy;
 }
 
-@Override
-public int hashCode() {
-	return this.enclosingType.hashCode();
-}
 /*
  * Overriden for code assist. In this case, the constantPoolName() has not been computed yet.
  * Slam the source name so that the signature is syntactically correct.
