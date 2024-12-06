@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -362,6 +366,11 @@ public TypeBinding resolveType(BlockScope scope) {
 			this.resolvedType = scope.enclosingReceiverType();
 		} else {
 			this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);
+		}
+		if (this.resolvedType instanceof LocalTypeBinding local && this.enumConstant == null) {
+			MethodScope enclosingMethodScope = local.scope.enclosingMethodScope();
+			if (enclosingMethodScope != null && !enclosingMethodScope.isStatic && scope.isInStaticContext())
+				scope.problemReporter().allocationInStaticContext(this, local);
 		}
 		if (this.type != null) {
 			checkIllegalNullAnnotation(scope, this.resolvedType);
