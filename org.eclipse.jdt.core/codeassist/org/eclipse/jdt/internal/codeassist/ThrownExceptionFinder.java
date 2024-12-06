@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
@@ -30,15 +32,13 @@ import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class ThrownExceptionFinder extends ASTVisitor {
 
-	private SimpleSet thrownExceptions;
-	private Stack exceptionsStack;
-	private SimpleSet caughtExceptions;
-	private SimpleSet discouragedExceptions;
+	private Set<ReferenceBinding> thrownExceptions;
+	private Stack<Set<ReferenceBinding>> exceptionsStack;
+	private Set<ReferenceBinding> caughtExceptions;
+	private Set<ReferenceBinding> discouragedExceptions;
 
 	/**
 	 * Finds the thrown exceptions minus the ones that are already caught in previous catch blocks.
@@ -47,10 +47,10 @@ public class ThrownExceptionFinder extends ASTVisitor {
 	 * by the method and whose super type has been caught already.
 	 */
 	public void processThrownExceptions(TryStatement tryStatement, BlockScope scope) {
-		this.thrownExceptions = new SimpleSet();
-		this.exceptionsStack = new Stack();
-		this.caughtExceptions = new SimpleSet();
-		this.discouragedExceptions = new SimpleSet();
+		this.thrownExceptions = new HashSet<>();
+		this.exceptionsStack = new Stack<>();
+		this.caughtExceptions = new HashSet<>();
+		this.discouragedExceptions = new HashSet<>();
 		tryStatement.traverse(this, scope);
 		removeCaughtExceptions(tryStatement, true /*remove unchecked exceptions this time*/);
 	}
@@ -101,9 +101,7 @@ public class ThrownExceptionFinder extends ASTVisitor {
 	 * {@link ThrownExceptionFinder#getDiscouragedExceptions()}.
 	 */
 	public ReferenceBinding[] getAlreadyCaughtExceptions() {
-		ReferenceBinding[] allCaughtExceptions = new ReferenceBinding[this.caughtExceptions.elementSize];
-		this.caughtExceptions.asArray(allCaughtExceptions);
-		return allCaughtExceptions;
+		return this.caughtExceptions.toArray(ReferenceBinding[]::new);
 	}
 
 	/**
@@ -113,9 +111,7 @@ public class ThrownExceptionFinder extends ASTVisitor {
 	 * @return Returns an array of thrown exceptions that are still not caught in any catch block.
 	 */
 	public ReferenceBinding[] getThrownUncaughtExceptions() {
-		ReferenceBinding[] result = new ReferenceBinding[this.thrownExceptions.elementSize];
-		this.thrownExceptions.asArray(result);
-		return result;
+		return this.thrownExceptions.toArray(ReferenceBinding[]::new);
 	}
 
 	/**
@@ -124,9 +120,7 @@ public class ThrownExceptionFinder extends ASTVisitor {
 	 * @return all discouraged exceptions
 	 */
 	public ReferenceBinding[] getDiscouragedExceptions() {
-		ReferenceBinding[] allDiscouragedExceptions = new ReferenceBinding[this.discouragedExceptions.elementSize];
-		this.discouragedExceptions.asArray(allDiscouragedExceptions);
-		return allDiscouragedExceptions;
+		return this.discouragedExceptions.toArray(ReferenceBinding[]::new);
 	}
 	@Override
 	public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope scope) {
@@ -150,20 +144,15 @@ public class ThrownExceptionFinder extends ASTVisitor {
 	@Override
 	public boolean visit(TryStatement tryStatement, BlockScope scope) {
 		this.exceptionsStack.push(this.thrownExceptions);
-		SimpleSet exceptionSet = new SimpleSet();
+		Set<ReferenceBinding> exceptionSet = new HashSet<>();
 		this.thrownExceptions = exceptionSet;
 		tryStatement.tryBlock.traverse(this, scope);
 
 		removeCaughtExceptions(tryStatement, false);
 
-		this.thrownExceptions = (SimpleSet)this.exceptionsStack.pop();
+		this.thrownExceptions = this.exceptionsStack.pop();
 
-		Object[] values = exceptionSet.values;
-		for (Object value : values) {
-			if (value != null) {
-				this.thrownExceptions.add(value);
-			}
-		}
+		this.thrownExceptions.addAll(exceptionSet);
 
 		Block[] catchBlocks = tryStatement.catchBlocks;
 		int length = catchBlocks == null ? 0 : catchBlocks.length;
@@ -182,32 +171,32 @@ public class ThrownExceptionFinder extends ASTVisitor {
 				TypeBinding caughtException;
 				for (TypeReference ref : unionTypeReference.typeReferences) {
 					caughtException = ref.resolvedType;
-					if ((caughtException instanceof ReferenceBinding) && caughtException.isValidBinding()) {	// might be null when its the completion node
+					if ((caughtException instanceof ReferenceBinding rb) && caughtException.isValidBinding()) {	// might be null when its the completion node
 						if (recordUncheckedCaughtExceptions) {
 							// is in outermost try-catch. Remove all caught exceptions, unchecked or checked
-							removeCaughtException((ReferenceBinding)caughtException);
-							this.caughtExceptions.add(caughtException);
+							removeCaughtException(rb);
+							this.caughtExceptions.add(rb);
 						} else {
 							// is in some inner try-catch. Discourage already caught checked exceptions
 							// from being proposed in an outer catch.
 							if (!caughtException.isUncheckedException(true)) {
-								this.discouragedExceptions.add(caughtException);
+								this.discouragedExceptions.add(rb);
 							}
 						}
 					}
 				}
 			} else {
 				TypeBinding exception = catchArguments[i].type.resolvedType;
-				if ((exception instanceof ReferenceBinding) && exception.isValidBinding()) {
+				if ((exception instanceof ReferenceBinding rb) && exception.isValidBinding()) {
 					if (recordUncheckedCaughtExceptions) {
 						// is in outermost try-catch. Remove all caught exceptions, unchecked or checked
-						removeCaughtException((ReferenceBinding)exception);
-						this.caughtExceptions.add(exception);
+						removeCaughtException(rb);
+						this.caughtExceptions.add(rb);
 					} else {
 						// is in some inner try-catch. Discourage already caught checked exceptions
 						// from being proposed in an outer catch
 						if (!exception.isUncheckedException(true)) {
-							this.discouragedExceptions.add(exception);
+							this.discouragedExceptions.add(rb);
 						}
 					}
 				}
@@ -216,20 +205,17 @@ public class ThrownExceptionFinder extends ASTVisitor {
 	}
 
 	private void removeCaughtException(ReferenceBinding caughtException) {
-		Object[] exceptions = this.thrownExceptions.values;
-		for (Object e : exceptions) {
-			ReferenceBinding exception = (ReferenceBinding)e;
-			if (exception != null) {
+		this.thrownExceptions.removeIf(exception -> {
 				if (TypeBinding.equalsEquals(exception, caughtException)) {
-					this.thrownExceptions.remove(exception);
+					return true;
 				} else if (caughtException.isSuperclassOf(exception)) {
 					// catching the sub-exception when super has been caught already will give an error
 					// so remove it from thrown list and lower the relevance for cases when it is found
 					// from searchAllTypes(..)
-					this.thrownExceptions.remove(exception);
 					this.discouragedExceptions.add(exception);
+					return true;
 				}
-			}
-		}
+				return false;
+			});
 	}
 }

@@ -23,16 +23,8 @@ import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.eclipse.core.resources.IContainer;
@@ -594,14 +586,14 @@ void write(DataOutputStream output) throws IOException {
  * String[]	Interned type locators
  */
 	out.writeInt(length = this.references.size());
-	SimpleLookupTable internedTypeLocators = new SimpleLookupTable(length);
+	Map<String, Integer> internedTypeLocators = new HashMap<>(length);
 	if (length > 0) {
 		Set<String> keys = this.references.keySet();
 		for (String key : keys) {
 			if (key != null) {
 				length--;
 				out.writeStringUsingLast(key);
-				internedTypeLocators.put(key, Integer.valueOf(internedTypeLocators.elementSize));
+				internedTypeLocators.put(key, Integer.valueOf(internedTypeLocators.size()));
 			}
 		}
 		if (JavaBuilder.DEBUG && length != 0) {
@@ -623,8 +615,8 @@ void write(DataOutputStream output) throws IOException {
 			if (key != null) {
 				length--;
 				out.writeStringUsingLast(key);
-				Integer index = (Integer) internedTypeLocators.get(value);
-				out.writeIntInRange(index.intValue(), internedTypeLocators.elementSize);
+				Integer index = internedTypeLocators.get(value);
+				out.writeIntInRange(index.intValue(), internedTypeLocators.size());
 			}
 		}
 		if (JavaBuilder.DEBUG && length != 0) {
@@ -714,7 +706,7 @@ void write(DataOutputStream output) throws IOException {
 		for (Entry<String, ReferenceCollection> entry : this.references.entrySet()) {
 			String key = entry.getKey();
 			length--;
-			Integer index = (Integer) internedTypeLocators.get(key);
+			Integer index = internedTypeLocators.get(key);
 			out.writeInt(index.intValue());
 			ReferenceCollection collection = entry.getValue();
 			if (collection instanceof AdditionalTypeCollection) {
