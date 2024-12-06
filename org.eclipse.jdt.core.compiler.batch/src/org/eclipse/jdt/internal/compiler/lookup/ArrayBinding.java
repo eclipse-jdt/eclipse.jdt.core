@@ -258,11 +258,6 @@ public PackageBinding getPackage() {
 	return this.leafComponentType.getPackage();
 }
 
-@Override
-public int hashCode() {
-	return this.leafComponentType == null ? super.hashCode() : this.leafComponentType.hashCode();
-}
-
 /* Answer true if the receiver type can be assigned to the argument type (right)
 */
 @Override

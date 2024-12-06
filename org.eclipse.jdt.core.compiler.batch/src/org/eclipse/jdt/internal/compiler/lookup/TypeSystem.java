@@ -19,7 +19,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -133,25 +135,9 @@ public class TypeSystem {
 				PTBKey that = (PTBKey) other;  // homogeneous container.
 				return this.type == that.type && this.enclosingType == that.enclosingType && Util.effectivelyEqual(this.arguments, that.arguments); //$IDENTITY-COMPARISON$
 			}
-			final int hash(TypeBinding b) {
-				if(b instanceof WildcardBinding || b instanceof TypeVariableBinding || b.getClass() == ParameterizedTypeBinding.class) {
-					return System.identityHashCode(b);
-				}
-				return b.hashCode();
-			}
 			@Override
 			public int hashCode() {
-				final int prime=31;
-				int hashCode = 1 + hash(this.type);
-				if (this.enclosingType != null && this.enclosingType.getClass() == ParameterizedTypeBinding.class) {
-					// Note: this works as in swapUnresolved, a null enclosingType is never replaced by a
-					// ParameterizedTypeBinding (just by a non-generic or RawTypeBinding)
-					hashCode = hashCode * prime + System.identityHashCode(this.enclosingType);
-				}
-				for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
-					hashCode = hashCode * prime + hash(this.arguments[i]);
-				}
-				return hashCode;
+				return Objects.hash(this.type, this.enclosingType, Arrays.hashCode(this.arguments));
 			}
 		}
 
