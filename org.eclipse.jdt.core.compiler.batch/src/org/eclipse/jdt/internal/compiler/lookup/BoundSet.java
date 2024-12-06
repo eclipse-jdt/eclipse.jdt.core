@@ -1279,8 +1279,9 @@ class BoundSet {
 		}
 		if (TypeBinding.equalsEquals(s,  t))
 			return result; // optimization #2: nothing interesting above equal types
-		TypeBinding tSuper = t.findSuperTypeOriginatingFrom(s);
-		if (tSuper != null && s.isParameterizedType() && tSuper.isParameterizedType()) { // optimization #1 again
+
+		TypeBinding tSuper = s.isParameterizedType() ? t.findSuperTypeOriginatingFrom(s) : null;
+		if (tSuper != null && tSuper.isParameterizedType()) { // optimization #1 again
 			result.add(new Pair<>(s, tSuper));
 		}
 		result.addAll(allSuperPairsWithCommonGenericTypeRecursive(s.superclass(), t, visited));
