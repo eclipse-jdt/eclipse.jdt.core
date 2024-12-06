@@ -288,7 +288,6 @@ public class ForStatement extends Statement {
 
 		// label management
 		BranchLabel actionLabel = new BranchLabel(codeStream);
-		actionLabel.tagBits |= BranchLabel.USED;
 		BranchLabel conditionLabel = new BranchLabel(codeStream);
 		this.breakLabel.initialize(codeStream);
 		if (this.continueLabel == null || conditionInjectsBindings) {
@@ -305,7 +304,6 @@ public class ForStatement extends Statement {
 			if ((this.condition != null)
 				&& (this.condition.constant == Constant.NotAConstant)
 				&& !((this.action == null || this.action.isEmptyBlock()) && (this.increments == null))) {
-				conditionLabel.tagBits |= BranchLabel.USED;
 				int jumpPC = codeStream.position;
 				codeStream.goto_(conditionLabel);
 				codeStream.recordPositionsFrom(jumpPC, this.condition.sourceStart);

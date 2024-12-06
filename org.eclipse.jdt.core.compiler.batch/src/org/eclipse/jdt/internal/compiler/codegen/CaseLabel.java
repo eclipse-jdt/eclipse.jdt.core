@@ -66,11 +66,7 @@ public boolean isStandardLabel(){
 */
 @Override
 public void place() {
-	if ((this.tagBits & USED) != 0) {
-		this.position = this.codeStream.getPosition();
-	} else {
-		this.position = this.codeStream.position;
-	}
+	this.position = this.codeStream.position;
 	if (this.instructionPosition != POS_NOT_SET) {
 		int offset = this.position - this.instructionPosition;
 		int[] forwardRefs = forwardReferences();

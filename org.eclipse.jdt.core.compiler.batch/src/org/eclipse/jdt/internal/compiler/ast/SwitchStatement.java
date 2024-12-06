@@ -540,7 +540,6 @@ public class SwitchStatement extends Expression {
 				String literal = this.labelExpressions[i].constant.stringValue();
 				stringCases[i] = new StringSwitchCase(literal.hashCode(), literal, sourceCaseLabels[i]);
 				hashCodeCaseLabels[i] = new CaseLabel(codeStream);
-				hashCodeCaseLabels[i].tagBits |= BranchLabel.USED;
 			}
 			Arrays.sort(stringCases);
 
@@ -563,13 +562,11 @@ public class SwitchStatement extends Expression {
 			}
 
 			CaseLabel defaultCaseLabel = new CaseLabel(codeStream);
-			defaultCaseLabel.tagBits |= BranchLabel.USED;
 
 			// prepare the labels and constants
 			this.breakLabel.initialize(codeStream);
 
 			BranchLabel defaultBranchLabel = new BranchLabel(codeStream);
-			if (hasCases) defaultBranchLabel.tagBits |= BranchLabel.USED;
 			if (this.defaultCase != null) {
 				this.defaultCase.targetLabel = defaultBranchLabel;
 			}
@@ -649,10 +646,9 @@ public class SwitchStatement extends Expression {
 			for (int k = 0; k < length; ++k) {
 				Expression e = peeledLabelExpressions[k];
 				if (e instanceof FakeDefaultLiteral) continue;
-				targetLabels[count++] = (caseLabels[j] = newLabel.apply(codeStream));
+				targetLabels[count++] = (caseLabels[j++] = newLabel.apply(codeStream));
 				if (e == this.totalPattern)
 					this.defaultCase = stmt;
-				caseLabels[j++].tagBits |= BranchLabel.USED;
 			}
 			System.arraycopy(targetLabels, 0, stmt.targetLabels = new BranchLabel[count], 0, count);
 		}
@@ -682,7 +678,6 @@ public class SwitchStatement extends Expression {
 
 			CaseLabel defaultLabel = new CaseLabel(codeStream);
 			final boolean hasCases = this.caseCount > 1 || (this.caseCount == 1 && this.defaultCase == null);
-			if (hasCases) defaultLabel.tagBits |= BranchLabel.USED;
 			if (this.defaultCase != null) {
 				this.defaultCase.targetLabel = defaultLabel;
 			}

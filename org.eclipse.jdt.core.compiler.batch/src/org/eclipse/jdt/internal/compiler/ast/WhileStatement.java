@@ -242,7 +242,6 @@ public class WhileStatement extends Statement {
 		// generate the action
 		BranchLabel actionLabel = new BranchLabel(codeStream);
 		if (this.action != null) {
-			actionLabel.tagBits |= BranchLabel.USED;
 			// Required to fix 1PR0XVS: LFRE:WINNT - Compiler: variable table for method appears incorrect
 			if (this.condIfTrueInitStateIndex != -1) {
 				// insert all locals initialized inside the condition into the action generated prior to the condition
