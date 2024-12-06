@@ -172,7 +172,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
 	// labels management
 	BranchLabel actionLabel = new BranchLabel(codeStream);
-	if (this.action != null) actionLabel.tagBits |= BranchLabel.USED;
 	actionLabel.place();
 	this.breakLabel.initialize(codeStream);
 	boolean hasContinueLabel = this.continueLabel != null;

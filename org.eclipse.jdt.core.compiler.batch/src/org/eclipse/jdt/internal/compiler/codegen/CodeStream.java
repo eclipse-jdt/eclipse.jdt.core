@@ -3690,9 +3690,6 @@ public static TypeBinding getConstantPoolDeclaringClass(Scope currentScope, Meth
 	}
 	return constantPoolDeclaringClass;
 }
-protected int getPosition() {
-	return this.position;
-}
 
 public void getClass(TypeBinding baseType) {
 	this.countLabels = 0;

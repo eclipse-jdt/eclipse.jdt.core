@@ -290,7 +290,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 
 		// Generate code for the condition
 		falseLabel = new BranchLabel(codeStream);
-		falseLabel.tagBits |= BranchLabel.USED;
 		this.condition.generateOptimizedBoolean(
 			currentScope,
 			codeStream,
