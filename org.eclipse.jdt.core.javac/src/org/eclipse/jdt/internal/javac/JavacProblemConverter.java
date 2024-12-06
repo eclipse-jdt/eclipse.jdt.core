@@ -1011,6 +1011,7 @@ public class JavacProblemConverter {
 			case "compiler.err.service.implementation.doesnt.have.a.no.args.constructor" -> IProblem.ProviderMethodOrConstructorRequiredForServiceImpl;
 			case "compiler.err.not.exhaustive" -> IProblem.SwitchExpressionsYieldMissingDefaultCase;
 			case "compiler.err.switch.expression.empty" -> IProblem.SwitchExpressionsYieldMissingDefaultCase;
+			case "compiler.err.switch.mixing.case.types" -> IProblem.SwitchPreviewMixedCase;
 			case "compiler.err.return.outside.switch.expression" -> IProblem.SwitchExpressionsReturnWithinSwitchExpression;
 			case "compiler.err.cant.apply.diamond.1" -> IProblem.NonGenericType;
 			case "compiler.err.class.in.unnamed.module.cant.extend.sealed.in.diff.package" -> IProblem.SealedPermittedTypeOutsideOfPackage;
