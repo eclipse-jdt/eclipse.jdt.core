@@ -244,6 +244,7 @@ public class RecordPattern extends Pattern {
 			labels.add(exceptionLabel);
 
 			TypeBinding componentType = p.accessorMethod.returnType;
+			checkForPrimitiveType(currentScope, p, componentType);
 			if (TypeBinding.notEquals(p.accessorMethod.original().returnType.erasure(),
 					componentType.erasure()))
 				codeStream.checkcast(componentType); // lastComponent ? [C] : [R, C]
@@ -288,6 +289,18 @@ public class RecordPattern extends Pattern {
 				eLabels.addAll(labels);
 			}
 			codeStream.patternAccessorMap.put(trapScope, eLabels);
+		}
+	}
+
+	private void checkForPrimitiveType(BlockScope currentScope, Pattern p, TypeBinding componentType) {
+		if (p.isTotalTypeNode && !componentType.isPrimitiveType() &&  p instanceof TypePattern tp) {
+			TypeBinding providedType = tp.resolvedType;
+			if (providedType != null && providedType.isPrimitiveType()) {
+				PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(componentType, providedType, currentScope);
+				if (route != PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
+					p.isTotalTypeNode = false;
+				}
+			}
 		}
 	}
 

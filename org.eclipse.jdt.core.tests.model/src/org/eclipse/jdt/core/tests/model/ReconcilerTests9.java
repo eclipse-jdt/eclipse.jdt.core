@@ -316,7 +316,7 @@ public void testTerminalDeprecation1() throws CoreException {
 			"----------\n" +
 			"2. WARNING in /P1/src/Y.java (at line 3)\n" +
 			"	x2.m();\n" +
-			"	   ^^^\n" +
+			"	   ^\n" +
 			"The method m() from the type X2 has been deprecated and marked for removal\n" +
 			"----------\n" +
 			"3. WARNING in /P1/src/Y.java (at line 4)\n" +
@@ -385,12 +385,12 @@ public void testTerminalDeprecation2() throws CoreException, IOException {
 			"----------\n" +
 			"2. WARNING in /P1/src/Y.java (at line 3)\n" +
 			"	x2.m();\n" +
-			"	   ^^^\n" +
+			"	   ^\n" +
 			deprecatedForRemoval("The method m() from the type X2") +
 			"----------\n" +
 			"3. WARNING in /P1/src/Y.java (at line 4)\n" +
 			"	x2.m2();\n" +
-			"	   ^^^^\n" +
+			"	   ^^\n" +
 			"The method m2() from the type X2 is deprecated\n" +
 			"----------\n" +
 			"4. WARNING in /P1/src/Y.java (at line 5)\n" +
@@ -454,7 +454,7 @@ public void testSinceDeprecation() throws CoreException, IOException {
 				"----------\n" +
 				"1. WARNING in /P1/src/Y.java (at line 3)\n" +
 				"	x2.m();\n" +
-				"	   ^^^\n" +
+				"	   ^\n" +
 				"The method m() from the type X2 is deprecated since version 9\n" +
 				"----------\n");
 	} finally {

@@ -1257,14 +1257,15 @@ public static void unzip(String zipPath, String destDirPath) throws IOException 
 	}
 }
 
-public static void waitAtLeast(int time) {
-	long start = System.currentTimeMillis();
-	do {
+public static void waitAtLeast(int timeMs) {
+	long timeoutNanos = System.nanoTime() + timeMs * 1_000_000L;
+	long remainingNanos;
+	while ((remainingNanos = timeoutNanos - System.nanoTime()) > 0) {
 		try {
-			Thread.sleep(time);
-		} catch (InterruptedException e) {
+			Thread.sleep(remainingNanos / 1_000_000L);
+		} catch (InterruptedException ignored) {
 		}
-	} while ((System.currentTimeMillis() - start) < time);
+	}
 }
 
 /**

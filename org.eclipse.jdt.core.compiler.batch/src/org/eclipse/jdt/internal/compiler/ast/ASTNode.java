@@ -224,6 +224,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IsUsefulEmptyStatement = Bit1;
 
 	// for block and method declaration
+	public static final int SwitchRuleBlock = Bit1;
 	public static final int UndocumentedEmptyBlock = Bit4;
 	public static final int OverridingMethodWithSupercall = Bit5;
 	public static final int CanBeStatic = Bit9;   // used to flag a method that can be declared static
@@ -1000,6 +1001,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				if (annotations != null) {
 					annotations[i] = annotation.getCompilerAnnotation();
 				}
+				tagMissingAnalysisAnnotation(scope, recipient, annotation);
 			}
 		}
 
@@ -1073,6 +1075,32 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		if (copySE8AnnotationsToType)
 			copySE8AnnotationsToType(scope, recipient, sourceAnnotations, false);
 		return annotations;
+	}
+
+	private static void tagMissingAnalysisAnnotation(Scope scope, Binding recipient, Annotation annotation) {
+		long extendedTagBits = scope.environment().checkForMissingAnalysisAnnotation(annotation.resolvedType);
+		if (extendedTagBits != 0) {
+			if (recipient instanceof MethodBinding method) {
+				method.extendedTagBits |= extendedTagBits;
+			} else if (recipient instanceof VariableBinding variable) {
+				if (extendedTagBits == ExtendedTagBits.HasMissingOwningAnnotation
+						&& scope instanceof MethodScope methodScope
+						&& variable.isParameter()
+						&& variable instanceof LocalVariableBinding local
+						&& local.declaration instanceof Argument arg)
+				{
+					Argument[] arguments = methodScope.referenceMethod().arguments;
+					for (int j=0;j < arguments.length;j++){
+						if (arguments[j] == arg) {
+							methodScope.referenceMethodBinding().original().markMissingOwningAnnotationOnParameter(j);
+							break;
+						}
+					}
+				} else if (variable instanceof FieldBinding field) {
+					field.extendedTagBits |= extendedTagBits;
+				}
+			}
+		}
 	}
 
 	/**	Resolve JSR308 annotations on a type reference, array creation expression or a wildcard. Type parameters go directly to the method/ctor,

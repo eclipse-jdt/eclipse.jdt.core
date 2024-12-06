@@ -214,7 +214,7 @@ public void test004() {
 		"----------\n" +
 		"2. WARNING in p\\Warning.java (at line 7)\n" +
 		"	dateObj.UTC(1,2,3,4,5,6);\n" +
-		"	        ^^^^^^^^^^^^^^^^\n" +
+		"	        ^^^\n" +
 		"The method UTC(int, int, int, int, int, int) from the type Date is deprecated\n" +
 		"----------\n");
 }
@@ -696,7 +696,7 @@ public void test015() {
 		"----------\n" +
 		"3. ERROR in p\\M1.java (at line 5)\n" +
 		"	m.foo();\n" +
-		"	  ^^^^^\n" +
+		"	  ^^^\n" +
 		"The method foo() from the type N1.N2.N3 is deprecated\n" +
 		"----------\n",
 		// javac options
@@ -748,7 +748,7 @@ public void test016() {
 		"----------\n" +
 		"3. ERROR in p\\M1.java (at line 5)\n" +
 		"	m.foo();\n" +
-		"	  ^^^^^\n" +
+		"	  ^^^\n" +
 		"The method foo() from the type N1.N2.N3 is deprecated\n" +
 		"----------\n",
 		// javac options
@@ -844,7 +844,7 @@ public void test018() {
 		"----------\n" +
 		"3. ERROR in p\\M1.java (at line 5)\n" +
 		"	m.foo();\n" +
-		"	  ^^^^^\n" +
+		"	  ^^^\n" +
 		"The method foo() from the type N1.N2.N3 is deprecated\n" +
 		"----------\n",
 		// javac options
@@ -950,17 +950,17 @@ public void test020() {
 		"----------\n" +
 		"4. ERROR in a.b.c.d.e\\T.java (at line 8)\n" +
 		"	f.foo().goo();\n" +
-		"	  ^^^^^\n" +
+		"	  ^^^\n" +
 		"The method foo() from the type Deprecated is deprecated\n" +
 		"----------\n" +
 		"5. ERROR in a.b.c.d.e\\T.java (at line 8)\n" +
 		"	f.foo().goo();\n" +
-		"	        ^^^^^\n" +
+		"	        ^^^\n" +
 		"The method goo() from the type Deprecated is deprecated\n" +
 		"----------\n" +
 		"6. ERROR in a.b.c.d.e\\T.java (at line 9)\n" +
 		"	a.b.c.d.Deprecated.bar();\n" +
-		"	                   ^^^^^\n" +
+		"	                   ^^^\n" +
 		"The method bar() from the type Deprecated is deprecated\n" +
 		"----------\n",
 		// javac options

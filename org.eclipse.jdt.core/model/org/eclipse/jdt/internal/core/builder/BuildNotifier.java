@@ -117,7 +117,7 @@ public void checkCancel() {
 }
 
 private long getBuildDurationInMs() {
-	return ((System.nanoTime() - this.startTimeNanos) / 1_000_000);
+	return ((System.nanoTime() - this.startTimeNanos) / 1_000_000L);
 }
 
 /**

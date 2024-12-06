@@ -396,10 +396,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		// Measures
 		long parsedLines = 0;
 		long parsedCharacters = 0;
-		long start = 0;
-		if (DEBUG) {
-			start = System.currentTimeMillis();
-		}
+		long startNanos = System.nanoTime();
 		startMeasuring();
 		for (int i = 0; i < iterations; i++) {
 			ICompilationUnit unit = new CompilationUnit(content, file.getName(), null);
@@ -413,8 +410,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 		// Warn if measure time is not enough while debugging
 		if (DEBUG) {
-			long time = System.currentTimeMillis() - start;
-			if (time < TIME_THRESHOLD) {
+			long timeMs = (System.nanoTime() - startNanos) / 1_000_000L;
+			if (timeMs < TIME_THRESHOLD) {
 	            System.err.println(parsedLines + " lines/"+ parsedCharacters + " characters parsed");
 			} else {
 	            System.out.println(parsedLines + " lines/"+ parsedCharacters + " characters parsed");

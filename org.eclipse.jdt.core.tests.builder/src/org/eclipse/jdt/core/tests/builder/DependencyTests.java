@@ -1245,7 +1245,7 @@ public void test0100() throws JavaModelException {
 			M1Path, 198, 200, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
 	expectingSpecificProblemFor(M1Path,
 		new Problem("",	"The method foo() from the type N1.N2.N3 is deprecated",
-			M1Path, 217, 222, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
+			M1Path, 217, 220, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
 	M1Path = env.addClass(rootPath, "p", "M1", M1Contents);
 	incrementalBuild(projectPath);
 	expectingOnlyProblemsFor(new IPath[] {M1Path});
@@ -1254,6 +1254,6 @@ public void test0100() throws JavaModelException {
 			M1Path, 198, 200, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
 	expectingSpecificProblemFor(M1Path,
 		new Problem("",	"The method foo() from the type N1.N2.N3 is deprecated",
-			M1Path, 217, 222, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
+			M1Path, 217, 220, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
 }
 }

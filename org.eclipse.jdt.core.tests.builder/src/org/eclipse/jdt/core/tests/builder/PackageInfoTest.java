@@ -139,7 +139,7 @@ public void test002() throws JavaModelException {
 	String javaVersion = System.getProperty("java.version");
 	if (javaVersion != null && JavaCore.compareJavaVersions(javaVersion, "9") >= 0) {
 		expectingProblemsFor(new Path("/Project/src/testcase/Main.java"),
-				"Problem : The method getPackage(String) from the type Package is deprecated [ resource : </Project/src/testcase/Main.java> range : <125,147> category : <110> severity : <1>]");
+				"Problem : The method getPackage(String) from the type Package is deprecated [ resource : </Project/src/testcase/Main.java> range : <125,135> category : <110> severity : <1>]");
 	} else {
 		expectingNoProblems();
 	}
