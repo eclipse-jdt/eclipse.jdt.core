@@ -244,7 +244,7 @@ public class DOMCompletionEngine implements Runnable {
 					completeAfter = simpleName.getIdentifier().substring(0, simpleName.getIdentifier().length() <= charCount ? simpleName.getIdentifier().length() : charCount);
 				}
 				if (this.cuBuffer != null) {
-					if (this.cuBuffer.getChar(this.offset - 1) == '.') {
+					if (this.cuBuffer.getChar(this.offset - 1) == '.' || this.cuBuffer.getChar(this.offset - 1) == '/') {
 						completeAfter = ""; //$NON-NLS-1$
 					}
 				}
@@ -260,9 +260,20 @@ public class DOMCompletionEngine implements Runnable {
 					context = simpleName.getParent().getParent();
 				}
 			} else if (this.toComplete instanceof TextElement textElement) {
-				int charCount = this.offset - textElement.getStartPosition();
-				completeAfter = textElement.getText().substring(0, textElement.getText().length() <= charCount ? textElement.getText().length() : charCount);
-				context = textElement.getParent();
+				if (offset >= textElement.getStartPosition() + textElement.getLength()) {
+					completeAfter = "";
+					ASTNode parent = textElement.getParent();
+					while (parent != null && !(parent instanceof Javadoc)) {
+						parent = parent.getParent();
+					}
+					if (parent instanceof Javadoc javadoc) {
+						context = javadoc.getParent();
+					}
+				} else {
+					int charCount = this.offset - textElement.getStartPosition();
+					completeAfter = textElement.getText().substring(0, textElement.getText().length() <= charCount ? textElement.getText().length() : charCount);
+					context = textElement.getParent();
+				}
 			} else if (this.toComplete instanceof TagElement tagElement) {
 				completeAfter = tagElement.getTagName();
 				int atIndex = completeAfter.indexOf('@');

@@ -113,38 +113,65 @@ class DOMCompletionContext extends CompletionContext {
 			if (parent instanceof ImportDeclaration) {
 				return TL_IN_IMPORT;
 			}
+			parent = parent.getParent();
+		}
+		if (this.node.getParent() instanceof FieldAccess
+			|| this.node.getParent() instanceof QualifiedName) {
+			return 0;
+		}
+		if (this.node.getParent() instanceof VariableDeclaration) {
+			return 0;
+		}
+		if (this.node instanceof AbstractTypeDeclaration) {
+			return TL_MEMBER_START;
+		}
+		var locationInParent = node.getLocationInParent();
+		parent = node;
+		while (parent != null) {
 			if (parent instanceof ClassInstanceCreation) {
 				return TL_CONSTRUCTOR_START;
 			}
 			if (parent instanceof Block) {
 				return TL_STATEMENT_START;
 			}
-			if (parent instanceof AbstractTypeDeclaration) {
+			if (locationInParent == AnnotationTypeDeclaration.BODY_DECLARATIONS_PROPERTY ||
+				locationInParent == EnumDeclaration.BODY_DECLARATIONS_PROPERTY ||
+				locationInParent == ImplicitTypeDeclaration.BODY_DECLARATIONS_PROPERTY ||
+				locationInParent == RecordDeclaration.BODY_DECLARATIONS_PROPERTY ||
+				locationInParent == TypeDeclaration.BODY_DECLARATIONS_PROPERTY ||
+				locationInParent == AnonymousClassDeclaration.BODY_DECLARATIONS_PROPERTY) {
 				return TL_MEMBER_START;
 			}
+			if (parent instanceof FieldAccess) {
+				return 0;
+			}
+			if (parent instanceof VariableDeclaration) {
+				return 0;
+			}
+			locationInParent = parent.getLocationInParent();
 			parent = parent.getParent();
 		}
-		return super.getTokenLocation();
+		return 0;
 	}
 
 	@Override
 	public int getTokenStart() {
-		return node.getStartPosition();
+		if (node instanceof SimpleName) {
+			return node.getStartPosition();
+		}
+		return this.offset;
 	}
 	@Override
 	public int getTokenEnd() {
-		return node.getStartPosition() + node.getLength() - 1;
+		if (node instanceof SimpleName) {
+			return node.getStartPosition() + node.getLength() - 1;
+		}
+		return getTokenStart() + token.length - 1;
 	}
 
 	@Override
 	public int getTokenKind() {
-		if (node instanceof Name) {
-			return TOKEN_KIND_NAME;
-		}
-		if (node instanceof StringLiteral) {
-			return TOKEN_KIND_STRING_LITERAL;
-		}
-		return super.getTokenKind();
+		return node instanceof StringLiteral ? TOKEN_KIND_STRING_LITERAL : TOKEN_KIND_NAME;
 	}
 
 	/// adapted from org.eclipse.jdt.internal.codeassist.InternalExtendedCompletionContext
