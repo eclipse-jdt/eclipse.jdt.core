@@ -952,7 +952,8 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				ecjScanner.getNextToken();
 			} while (!ecjScanner.atEnd());
 		} catch (InvalidInputException ex) {
-			JavaCore.getPlugin().getLog().log(org.eclipse.core.runtime.Status.error(ex.getMessage(), ex));
+			// Lexical errors are highly probably while editing
+			// don't log and just ignore them.
 		}
 
 		// need to scan with ecjScanner first to populate some line indexes used by the CommentMapper
