@@ -1456,10 +1456,10 @@ public class DOMCompletionEngine implements Runnable {
 		}
 		res.setRelevance(relevance);
 		if (parentType != null) {
-			// propose importing the type
-			res.setRequiredProposals(new CompletionProposal[] { toImportProposal(simpleName, signature, type.getPackageFragment()) });
-		} else {
-			res.setRequiredProposals(new CompletionProposal[0]);
+			if (!this.modelUnit.equals(type.getCompilationUnit())) {
+				// propose importing the type
+				res.setRequiredProposals(new CompletionProposal[] { toImportProposal(simpleName, signature, type.getPackageFragment().getElementName().toCharArray()) });
+			}
 		}
 		return res;
 	}
@@ -1637,11 +1637,11 @@ public class DOMCompletionEngine implements Runnable {
 		return res;
 	}
 
-	private CompletionProposal toImportProposal(char[] simpleName, char[] signature, IPackageFragment packageFragment) {
+	private CompletionProposal toImportProposal(char[] simpleName, char[] signature, char[] packageName) {
 		InternalCompletionProposal res = new InternalCompletionProposal(CompletionProposal.TYPE_IMPORT, this.offset);
 		res.setName(simpleName);
 		res.setSignature(signature);
-		res.setPackageName(packageFragment.getElementName().toCharArray());
+		res.setPackageName(packageName);
 		res.completionEngine = this.nestedEngine;
 		res.nameLookup = this.nameEnvironment.nameLookup;
 		return res;
