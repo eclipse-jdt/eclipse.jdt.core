@@ -5156,9 +5156,6 @@ private void noCycleDetection(final int numberOfParticipants, final boolean useF
 	final String[] projectNames  = new String[numberOfParticipants];
 	final int[] allProjectsInCycle = new int[numberOfParticipants];
 
-	final long[] start = new long[1];
-	final long[] time = new long[1];
-
 	try {
 		if (createProjectsFirst) {
 			JavaCore.run(new IWorkspaceRunnable() {
@@ -5195,16 +5192,11 @@ private void noCycleDetection(final int numberOfParticipants, final boolean useF
 					System.arraycopy(oldClasspath, 0 , newClasspath, 0, oldClasspath.length);
 					System.arraycopy(extraEntries, 0, newClasspath, oldClasspath.length, extraEntries.length);
 					// set classpath
-					long innerStart = System.currentTimeMillis(); // time spent in individual CP setting
 					projects[i].setRawClasspath(newClasspath, null);
-					time[0] += System.currentTimeMillis() - innerStart;
 				}
-				start[0] = System.currentTimeMillis(); // time spent in delta refresh
 			}
 		},
 		null);
-		time[0] += System.currentTimeMillis()-start[0];
-		//System.out.println("No cycle check ("+numberOfParticipants+" participants) : "+ time[0]+" ms, "+ (useForwardReferences ? "forward references" : "backward references") + ", " + (createProjectsFirst ? "two steps (projects created first, then classpaths are set)" : "one step (projects created and classpaths set in one batch)"));
 
 		for (int i = 0; i < numberOfParticipants; i++){
 			// check cycle markers

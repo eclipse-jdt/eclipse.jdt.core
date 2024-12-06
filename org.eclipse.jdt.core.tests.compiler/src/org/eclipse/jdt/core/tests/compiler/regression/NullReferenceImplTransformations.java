@@ -2765,9 +2765,9 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 	Map.Entry transition, transitionsSet;
 	this.failuresNb = 0; // reset
 	this.failuresNb = 0; // reset
-	long start = 0;
+	long startNanos = 0;
 	if (combinationTestsLoopsNb > 1) {
-		start = System.currentTimeMillis();
+		startNanos = System.nanoTime();
 	}
 	for (int l = 0; l < combinationTestsLoopsNb ; l++) {
 		transitionsSetsIterator = this.initializedTransitions.entrySet().iterator();
@@ -2795,8 +2795,8 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 		}
 	}
 	if (combinationTestsLoopsNb > 1) {
-		System.out.println(this.name + "...\t\t" + combinationTestsLoopsNb + "\t" +
-				(System.currentTimeMillis() - start));
+		System.out.println(
+				this.name + "...\t\t" + combinationTestsLoopsNb + "\t" + (System.nanoTime() - startNanos) / 1_000_000L);
 	}
 	// PREMATURE optimize test (extraneous allocations and copies)
 	// PREMATURE optimize test (extraneous iterations - undup)
@@ -3117,9 +3117,9 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 	Map.Entry transition, transitionsSet;
 	this.failuresNb = 0; // reset
 	this.failuresNb = 0; // reset
-	long start = 0;
+	long startNanos = 0;
 	if (combinationTestsLoopsNb > 1) {
-		start = System.currentTimeMillis();
+		startNanos = System.nanoTime();
 	}
 	for (int l = 0; l < combinationTestsLoopsNb ; l++) {
 		transitionsSetsIterator = this.initializedTransitions.entrySet().iterator();
@@ -3159,7 +3159,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 	}
 	if (combinationTestsLoopsNb > 1) {
 		System.out.println(this.name + "...\t\t" + combinationTestsLoopsNb + "\t" +
-				(System.currentTimeMillis() - start));
+				(System.nanoTime() - startNanos) / 1_000_000L);
 	}
 	// PREMATURE optimize test (extraneous allocations and copies)
 	// PREMATURE optimize test (extraneous iterations - undup)

@@ -487,13 +487,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 
 		public void waitForResourceDelta() {
-			long start = System.currentTimeMillis();
+			long startNanos = System.nanoTime();
 			while (!this.gotResourceDelta) {
 				try {
-					Thread.sleep(50);
+					Thread.sleep(1);
 				} catch (InterruptedException e) {
 				}
-				if ((System.currentTimeMillis() - start) > 10000/*wait 10 s max*/) {
+				if ((System.nanoTime() - startNanos) / 1_0000_000 > 10000/* wait 10 s max */) {
 					throw new RuntimeException("Didn't get resource delta after 10 seconds");
 				}
 			}

@@ -8563,6 +8563,50 @@ public void testGHIssue2302() {
                 """});
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2096
+// Textual problem indicator goes wild with lamda
+public void testGHIssue2096() {
+	if (this.complianceLevel < ClassFileConstants.JDK17)
+		return; // just to standardize messages, we skip below 17.
+    this.runNegativeTest(
+            new String[] {
+                "X.java",
+                """
+				import java.security.AccessController;
+				import java.security.PrivilegedActionException;
+				import java.security.PrivilegedExceptionAction;
+
+				public class X {
+					public static void main(String[] args) throws PrivilegedActionException {
+						AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>)() ->
+							{
+								System.out.println();
+								System.out.println();System.out.println();System.out.println();System.out.println();
+								System.out.println();System.out.println();System.out.println();System.out.println();
+								System.out.println();System.out.println();System.out.println();System.out.println();
+								System.out.println();System.out.println();System.out.println();System.out.println();
+								System.out.println();System.out.println();System.out.println();System.out.println();
+							});
+					}
+				}
+                """},
+            "----------\n" +
+    		"1. WARNING in X.java (at line 7)\n" +
+    		"	AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>)() ->\n" +
+    		"	^^^^^^^^^^^^^^^^\n" +
+    		"The type AccessController has been deprecated since version 17 and marked for removal\n" +
+    		"----------\n" +
+    		"2. WARNING in X.java (at line 7)\n" +
+    		"	AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>)() ->\n" +
+    		"	                 ^^^^^^^^^^^^\n" +
+    		"The method doPrivileged(PrivilegedExceptionAction<Boolean>) from the type AccessController has been deprecated and marked for removal\n" +
+    		"----------\n" +
+    		"3. ERROR in X.java (at line 7)\n" +
+    		"	AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>)() ->\n" +
+    		"	                                                                  ^^^^^\n" +
+    		"This method must return a result of type Boolean\n" +
+    		"----------\n");
+}
 
 public static Class testClass() {
 	return LambdaExpressionsTest.class;

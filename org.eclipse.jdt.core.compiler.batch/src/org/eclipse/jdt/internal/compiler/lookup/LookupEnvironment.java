@@ -1656,6 +1656,27 @@ int getAnalysisAnnotationBit(char[][] qualifiedTypeName) {
 	Integer typeBit = this.allAnalysisAnnotations.get(qualifiedTypeString);
 	return typeBit == null ? 0 : typeBit;
 }
+/**
+ * Check if the given type is a missing type that could be relevant for static analysis.
+ * @return A bit from {@link ExtendedTagBits} encoding the check result, or {@code 0}.
+ */
+public long checkForMissingAnalysisAnnotation(TypeBinding resolvedType) {
+	if (resolvedType instanceof MissingTypeBinding missing) {
+		if (this.globalOptions.isAnnotationBasedResourceAnalysisEnabled) {
+			if ((getAnalysisAnnotationBit(missing.compoundName) & TypeIds.BitAnyOwningAnnotation) != 0)
+				return ExtendedTagBits.HasMissingOwningAnnotation;
+			char[] simpleName = missing.compoundName[missing.compoundName.length-1];
+			if (matchesSimpleName(simpleName, this.globalOptions.owningAnnotationName)
+					|| matchesSimpleName(simpleName, this.globalOptions.notOwningAnnotationName))
+				return ExtendedTagBits.HasMissingOwningAnnotation;
+		}
+	}
+	return 0;
+}
+private boolean matchesSimpleName(char[] simpleName, char[][] qualifiedName) {
+	return CharOperation.equals(simpleName, qualifiedName[qualifiedName.length-1]);
+}
+
 public boolean isNullnessAnnotationPackage(PackageBinding pkg) {
 	return this.nonnullAnnotationPackage == pkg || this.nullableAnnotationPackage == pkg || this.nonnullByDefaultAnnotationPackage == pkg;
 }

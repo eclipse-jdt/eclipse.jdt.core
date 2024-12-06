@@ -13,9 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
 import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -1707,5 +1709,132 @@ public void testGH2635() {
 		},
 		"",
 		options);
+}
+public void testGH3278_OK() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runLeakTestWithAnnotations(new String[] {
+			"annotated/TestNotOwning.java",
+			"""
+			package annotated;
+
+			import java.io.Closeable;
+			import java.io.IOException;
+			import java.util.ArrayList;
+			import java.util.List;
+
+			import org.eclipse.jdt.annotation.NotOwning;
+			import org.eclipse.jdt.annotation.Owning;
+
+			public class TestNotOwning implements Closeable {
+			    private final List<Closeable> toClose = new ArrayList<>();
+
+			    @NotOwning
+			    public <T extends Closeable> T register(@Owning
+			    T closeable) throws IOException {
+			        closeable.close();
+			        return closeable;
+			    }
+
+			    @Override
+			    public void close() throws IOException {
+			        for (Closeable closeable : toClose) {
+			            closeable.close(); // Ignore error handling for this demonstration
+			        }
+			    }
+
+				public static void client() throws IOException {
+					try (TestNotOwning t = new TestNotOwning()) {
+						Closeable a = () -> {} ; // produces warning
+						Closeable b = t.register(() -> {} ); // produces no warning
+						assert a != null;
+						assert b != null;
+					}
+				}
+			}
+			"""
+		},
+		"----------\n" +
+		"1. ERROR in annotated\\TestNotOwning.java (at line 30)\n" +
+		"	Closeable a = () -> {} ; // produces warning\n" +
+		"	          ^\n" +
+		"Resource leak: \'a\' is never closed\n" +
+		"----------\n",
+		options);
+}
+public void testGH3278_missingAnnotations() {
+	runLeakTestWithAnnotations(new String[] {
+			"annotated/TestNotOwning.java",
+			"""
+			package annotated;
+
+			import java.io.Closeable;
+			import java.io.IOException;
+			import java.util.ArrayList;
+			import java.util.List;
+
+			import org.eclipse.jdt.annotation.NotOwning;
+			import org.eclipse.jdt.annotation.Owning;
+
+			public class TestNotOwning implements Closeable {
+				private final List<Closeable> toClose = new ArrayList<>();
+
+				@NotOwning
+				public <T extends Closeable> T register(@Owning
+				T closeable) throws IOException {
+					closeable.close();
+					return closeable;
+				}
+
+				@Override
+				public void close() throws IOException {
+					for (Closeable closeable : toClose) {
+						closeable.close(); // Ignore error handling for this demonstration
+					}
+				}
+			}
+			"""
+		},
+		"",
+		getCompilerOptions());
+	Util.delete(new File(OUTPUT_DIR, "org/eclipse/jdt/annotation/Owning.class".replaceAll("/", File.separator)));
+	Util.delete(new File(OUTPUT_DIR, "org/eclipse/jdt/annotation/NotOwning.class".replaceAll("/", File.separator)));
+
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
+	runLeakTest(new String[] {
+			"client/TestingAnnotated.java",
+			"""
+			package client;
+
+			import java.io.Closeable;
+			import java.io.IOException;
+
+			import annotated.TestNotOwning;
+
+			public class TestingAnnotated {
+
+				public static void client() throws IOException {
+					try (TestNotOwning t = new TestNotOwning()) {
+						Closeable a = () -> {} ; // produces warning
+						Closeable b = t.register(() -> {} ); // produces no warning
+						assert a != null;
+						assert b != null;
+					}
+				}
+			}
+			"""
+		},
+		"----------\n" +
+		"1. ERROR in client\\TestingAnnotated.java (at line 12)\n" +
+		"	Closeable a = () -> {} ; // produces warning\n" +
+		"	          ^\n" +
+		"Resource leak: \'a\' is never closed\n" +
+		"----------\n",
+		options,
+		false);
 }
 }

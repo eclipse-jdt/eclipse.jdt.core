@@ -107,7 +107,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 				  "				case Number n0 -> consumeNumber(n0);\n" +
 				  "			}\n" +
 				  "		} catch (NullPointerException npe) {\n" +
-				  "			// ignoring the unchecked warning, and expecting the NPE:\n" +
+				  "			// Expecting an NPE because selector is null\n" +
 				  "			System.out.print(npe.getMessage());\n" +
 				  "		}\n" +
 				  "	}\n" +
@@ -115,6 +115,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 				  "		System.out.print(i);\n" +
 				  "	}\n" +
 				  "	void consumeNumber(@NonNull Number n) {\n" +
+				  "     System.out.println(\"consumeNumber \");\n" +
 				  "		System.out.print(n.toString());\n" +
 				  "	}\n" +
 				  "	public static void main(String... args) {\n" +
@@ -122,14 +123,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 				  "	}\n" +
 				  "}\n"
 			};
-		runner.expectedCompilerLog =
-				"----------\n" +
-				"1. WARNING in X.java (at line 7)\n" +
-				"	case Number n0 -> consumeNumber(n0);\n" +
-				"	                                ^^\n" +
-				"Null type safety (type annotations): The expression of type \'Number\' needs unchecked conversion to conform to \'@NonNull Number\'\n" +
-				"----------\n";
-//		runner.expectedOutputString = "Cannot invoke \"Object.toString()\" because \"n\" is null";
+		runner.expectedCompilerLog = "";
 		runner.expectedOutputString = "null";
 		runner.runConformTest();
 	}
@@ -234,10 +228,10 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 			};
 		runner.expectedCompilerLog =
 				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case Number n0 -> consumeNumber(n0);\n" +
-				"	                                ^^\n" +
-				"Null type mismatch: required \'@NonNull Number\' but the provided value is inferred as @Nullable\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	switch (n) {\n" +
+				"	        ^\n" +
+				"Potential null pointer access: this expression has a '@Nullable' type\n" +
 				"----------\n";
 		runner.runNegativeTest();
 	}
@@ -1242,6 +1236,131 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 				Null type mismatch: required 'PatternMatching.@NonNull Stuff' but the provided value is null
 				----------
 				""";
+		runner.runNegativeTest();
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3381
+	// [Enhanced Switch][Null] Missing Null pointer access warning with total/unconditional patterns
+	public void testIssue3381() {
+		Runner runner = getDefaultRunner();
+		runner.testFiles = new String[] {
+			"X.java",
+			"""
+			import org.eclipse.jdt.annotation.Nullable;
+
+			public class X {
+				void foo() {
+					@Nullable Integer i = null;
+					switch (i) {
+						case Integer ii -> System.out.println();
+					}
+				}
+				void goo() {
+					@Nullable Integer i = null;
+					switch (i) {
+						default -> System.out.println();
+					}
+				}
+			}
+			"""
+		};
+		runner.expectedCompilerLog =
+				"""
+				----------
+				1. ERROR in X.java (at line 6)
+					switch (i) {
+					        ^
+				Null pointer access: The variable i can only be null at this location
+				----------
+				2. ERROR in X.java (at line 12)
+					switch (i) {
+					        ^
+				Null pointer access: This expression of type Integer is null but requires auto-unboxing
+				----------
+				""";
+		runner.runNegativeTest();
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3319
+	// [Enhanced Switch][Null] Inconsistent nullness propagation
+	public void testIssue3319() {
+		Runner runner = getDefaultRunner();
+		runner.testFiles = new String[] {
+			"X.java",
+			"""
+			import org.eclipse.jdt.annotation.NonNull;
+
+			public class X {
+				static @NonNull Object foo(Object o) {
+					switch (o) {
+						case String s -> {
+							if (o == null) {
+								System.out.println("o cannot be null at all!");
+							}
+							System.out.println();
+						}
+						default -> {
+							if (o == null) {
+								System.out.println("o cannot be null at all!");
+							}
+							System.out.println();
+						}
+					}
+					return new Object();
+				}
+
+				static @NonNull Object foo(X o) {
+					switch (o) {
+						case X s  -> {
+							if (o == null) {
+								System.out.println("o cannot be null at all!");
+							}
+							System.out.println(s);
+						}
+					}
+					return new Object();
+				}
+			}
+			"""
+		};
+		runner.expectedCompilerLog =
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	if (o == null) {\n" +
+				"	    ^\n" +
+				"Null comparison always yields false: The variable o cannot be null at this location\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 7)\n" +
+				"	if (o == null) {\n" +
+				"					System.out.println(\"o cannot be null at all!\");\n" +
+				"				}\n" +
+				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 13)\n" +
+				"	if (o == null) {\n" +
+				"	    ^\n" +
+				"Null comparison always yields false: The variable o cannot be null at this location\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 13)\n" +
+				"	if (o == null) {\n" +
+				"					System.out.println(\"o cannot be null at all!\");\n" +
+				"				}\n" +
+				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 25)\n" +
+				"	if (o == null) {\n" +
+				"	    ^\n" +
+				"Null comparison always yields false: The variable o cannot be null at this location\n" +
+				"----------\n" +
+				"6. WARNING in X.java (at line 25)\n" +
+				"	if (o == null) {\n" +
+				"					System.out.println(\"o cannot be null at all!\");\n" +
+				"				}\n" +
+				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n";
 		runner.runNegativeTest();
 	}
 }

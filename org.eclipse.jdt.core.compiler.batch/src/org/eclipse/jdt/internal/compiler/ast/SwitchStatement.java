@@ -97,8 +97,7 @@ public class SwitchStatement extends Expression {
 	// fallthrough
 	public final static int CASE = 0;
 	public final static int FALLTHROUGH = 1;
-	public final static int ESCAPING = 2;
-	public final static int BREAKING  = 3;
+	public final static int BREAKING  = 2;
 
 	// Other bits
 	public final static int LabeledRules = ASTNode.Bit1;
@@ -374,9 +373,9 @@ public class SwitchStatement extends Expression {
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		try {
 			flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
-			if (isNullHostile()) {
+			if (!this.containsNull && this.expression.resolvedType instanceof ReferenceBinding)
 				this.expression.checkNPE(currentScope, flowContext, flowInfo, 1);
-			}
+
 			SwitchFlowContext switchContext =
 				new SwitchFlowContext(flowContext, this, (this.breakLabel = new BranchLabel()), true, true);
 
@@ -432,8 +431,6 @@ public class SwitchStatement extends Expression {
 					}
 					if ((complaintLevel = statement.complainIfUnreachable(caseInits, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 						caseInits = statement.analyseCode(this.scope, switchContext, caseInits);
-						if (caseInits == FlowInfo.DEAD_END)
-							fallThroughState = ESCAPING;
 						if (compilerOptions.enableSyntacticNullAnalysisForFields)
 							switchContext.expireNullCheckedFieldInfo();
 						if (compilerOptions.analyseResourceLeaks)
@@ -464,16 +461,6 @@ public class SwitchStatement extends Expression {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 		}
 	}
-	private boolean isNullHostile() {
-		if (this.containsNull)
-			return false;
-		if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0)
-			return true;
-		if (this.expression.resolvedType != null && (this.expression.resolvedType.id == T_JavaLangString || this.expression.resolvedType.isEnum()))
-			return true;
-		return this.totalPattern == null;
-	}
-
 	/**
 	 * Switch on String code generation
 	 * This assumes that hashCode() specification for java.lang.String is API
@@ -1032,16 +1019,12 @@ public class SwitchStatement extends Expression {
 	public void resolve(BlockScope upperScope) {
 		try {
 			TypeBinding expressionType = this.expression.resolveType(upperScope);
+			if (expressionType != null && !expressionType.isValidBinding())
+				expressionType = null; // fault-tolerance: ignore further type mismatch from label expressions
 			CompilerOptions compilerOptions = upperScope.compilerOptions();
 			if (expressionType != null) {
 				this.expression.computeConversion(upperScope, expressionType, expressionType);
 				checkType: {
-
-					if (!expressionType.isValidBinding()) {
-						expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
-						break checkType;
-					}
-
 					if (expressionType.isBaseType()) {
 						if (JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(compilerOptions))
 							this.isPrimitiveSwitch = true;
@@ -1050,27 +1033,24 @@ public class SwitchStatement extends Expression {
 						if (expressionType.isCompatibleWith(TypeBinding.INT))
 							break checkType;
 					}
-
 					if (expressionType.id == TypeIds.T_JavaLangString || expressionType.isEnum() || upperScope.isBoxingCompatibleWith(expressionType, TypeBinding.INT))
 						break checkType;
-
-					if (!JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions) || (expressionType.isBaseType() && expressionType.id != T_null && expressionType.id != T_void)) {
+					if (JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions) && (!expressionType.isBaseType() || expressionType.id == T_null || expressionType.id == T_void)) {
+						this.isNonTraditional = true;
+					} else {
 						if (!this.isPrimitiveSwitch) { // when isPrimitiveSwitch is set it is approved above
 							upperScope.problemReporter().incorrectSwitchType(this.expression, expressionType);
 							expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
 						}
-					} else {
-						this.isNonTraditional = true;
 					}
 				}
 			}
 
 			this.scope = new BlockScope(upperScope);
 			if (expressionType != null)
-				reserveSecretVariablesSlots();
+				reserveSecretVariablesSlot();
 			else
 				this.switchBits |= InvalidSelector;
-
 
 			if (this.statements != null) {
 				preprocess(); // make a pass over the switch block and allocate vectors.
@@ -1099,18 +1079,10 @@ public class SwitchStatement extends Expression {
 
 			if (expressionType != null) {
 				if (!expressionType.isBaseType() && upperScope.isBoxingCompatibleWith(expressionType, TypeBinding.INT)) {
-					if (this.containsPatterns || this.containsNull) {
-						if (!JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions) || (expressionType.isBaseType() && expressionType.id != T_null && expressionType.id != T_void)) {
-							if (!this.isPrimitiveSwitch) { // when isPrimitiveSwitch is set it is approved above
-								upperScope.problemReporter().incorrectSwitchType(this.expression, expressionType);
-								this.switchBits |= InvalidSelector;
-								expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
-							}
-						}
-					} else
+					if (!this.containsPatterns && !this.containsNull)
 						this.expression.computeConversion(upperScope, TypeBinding.INT, expressionType);
 				}
-				releaseUnusedSecretVariables();
+				releaseUnusedSecretVariable();
 				complainIfNotExhaustiveSwitch(upperScope, expressionType, compilerOptions);
 			}
 
@@ -1151,12 +1123,10 @@ public class SwitchStatement extends Expression {
 			}
 
 			if (this.defaultCase == null) {
-			    if (this instanceof SwitchExpression // complained about elsewhere, don't also bark here
-			    				|| compilerOptions.getSeverity(CompilerOptions.MissingDefaultCase) == ProblemSeverities.Ignore) {
+			    if (this instanceof SwitchExpression || compilerOptions.getSeverity(CompilerOptions.MissingDefaultCase) == ProblemSeverities.Ignore) // complained about elsewhere, don't also bark here
 					upperScope.methodScope().hasMissingSwitchDefault = true;
-				} else {
+				else
 					upperScope.problemReporter().missingDefaultCase(this, true, selectorType);
-				}
 			}
 			return;
 		}
@@ -1314,13 +1284,13 @@ public class SwitchStatement extends Expression {
 		return !(eType.isPrimitiveOrBoxedPrimitiveType() || eType.isEnum() || eType.id == TypeIds.T_JavaLangString); // classic selectors
 	}
 
-	private void reserveSecretVariablesSlots() { // may be released later if unused.
+	private void reserveSecretVariablesSlot() { // may be released later if unused.
 		this.selector  = new LocalVariableBinding(SecretSelectorVariableName, this.scope.getJavaLangObject(), ClassFileConstants.AccDefault, false);
 		this.scope.addLocalVariable(this.selector);
 		this.selector.setConstant(Constant.NotAConstant);
 	}
 
-	private void releaseUnusedSecretVariables() {
+	private void releaseUnusedSecretVariable() {
 		if (this.selector != null) {
 			if (this.expression.resolvedType.id == T_JavaLangString && !this.isNonTraditional) {
 				this.selector.useFlag = LocalVariableBinding.USED;
@@ -1328,7 +1298,7 @@ public class SwitchStatement extends Expression {
 			} else if (needPatternDispatchCopy()) {
 				this.selector.useFlag = LocalVariableBinding.USED;
 			    this.selector.type = this.expression.resolvedType;
-			}
+			} // else gets released by virtue of not being tagged USED.
 		}
 	}
 	protected void reportMissingEnumConstantCase(BlockScope upperScope, FieldBinding enumConstant) {

@@ -3539,6 +3539,196 @@ public void testNonConstantCase() throws Exception {
 		"----------\n");
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3376
+// Incorrect control flow analysis causes statement subsequent to a switch statement to be flagged unreachable under some circumstances
+public void testIssue3376() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+
+	this.runConformTest(new String[] {
+		"SwitchTest.java",
+		"""
+		public class SwitchTest {
+		    String unreachableCode(String arg) {
+		        String result;
+		        switch (arg) {
+		            case "a" -> {
+		                result = "A";
+		            }
+		            default -> throw new RuntimeException(arg);
+		        }
+		        return result;      // <- ecj reports "Unreachable code"
+		    }
+
+		    String unreachableCode2(String arg) {
+		        String result;
+		        switch (arg) {
+		            case "a" -> result = "A";
+		            default -> throw new RuntimeException(arg);
+		        }
+		        return result;
+		    }
+
+		     String unreachableCode3(String arg) {
+		        String result;
+		        switch (arg) {
+		            case "a" -> {
+		                result = "A";
+		                break;       // <- this makes ecj happy
+		            }
+		            default -> throw new RuntimeException(arg);
+		        }
+		        return result;
+		    }
+
+		    public static void main(String[] args) {
+				System.out.println(new SwitchTest().unreachableCode("a"));
+				System.out.println(new SwitchTest().unreachableCode2("a"));
+				System.out.println(new SwitchTest().unreachableCode3("a"));
+			}
+
+		}
+		""",
+	},
+	"A\nA\nA");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3376
+// Incorrect control flow analysis causes statement subsequent to a switch statement to be flagged unreachable under some circumstances
+public void testIssue3376_2() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+
+	this.runNegativeTest(new String[] {
+		"SwitchTest.java",
+		"""
+		public class SwitchTest {
+		    String unreachableCode(String arg) {
+		        String result;
+		        switch (arg) {
+		            case "a" : {
+		                result = "A";
+		            }
+		            default : throw new RuntimeException(arg);
+		        }
+		        return result;
+		    }
+		}
+		""",
+	},
+	"----------\n" +
+	"1. ERROR in SwitchTest.java (at line 10)\n" +
+	"	return result;\n" +
+	"	^^^^^^^^^^^^^^\n" +
+	"Unreachable code\n" +
+	"----------\n");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3379
+// [Enhanced Switch] Wrong error message: Cannot switch on a value of type Integer... at levels that don't support enhanced switch
+public void testIssue3379() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return; // uses switch rules.
+	String [] sources = new String[] {
+			"X.java",
+			"""
+			public class X {
+				public static void main(String[] args) {
+					Integer i = 42;
+					switch (i) {
+						case null -> System.out.println("Null");
+						default -> System.out.println("Default: " + i);
+					}
+				}
+			}
+			""",
+		};
+
+	if (this.complianceLevel < ClassFileConstants.JDK21) {
+		this.runNegativeTest(sources,
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	case null -> System.out.println(\"Null\");\n" +
+		"	     ^^^^\n" +
+		"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+		"----------\n");
+	} else {
+		this.runConformTest(sources, "Default: 42");
+	}
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3379
+// [Enhanced Switch] Wrong error message: Cannot switch on a value of type Integer... at levels that don't support enhanced switch
+public void testIssue3379_2() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return; // uses switch rules.
+	String [] sources = new String[] {
+			"X.java",
+			"""
+			public class X {
+				public static void main(String[] args) {
+					Long i = 42l;
+					switch (i) {
+						case null -> System.out.println("Null");
+						default -> System.out.println("Default: " + i);
+					}
+				}
+			}
+			""",
+		};
+
+	if (this.complianceLevel < ClassFileConstants.JDK21) {
+		this.runNegativeTest(sources,
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	switch (i) {\n" +
+		"	        ^\n" +
+		"Cannot switch on a value of type Long. Only convertible int values, strings or enum variables are permitted\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	case null -> System.out.println(\"Null\");\n" +
+		"	     ^^^^\n" +
+		"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+		"----------\n");
+	} else {
+		this.runConformTest(sources, "Default: 42");
+	}
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3379
+// [Enhanced Switch] Wrong error message: Cannot switch on a value of type Integer... at levels that don't support enhanced switch
+public void testIssue3379_3() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return; // uses switch rules.
+
+	String [] sources = new String[] {
+			"X.java",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						Short i = 42;
+						switch (i) {
+							case null -> System.out.println("Null");
+							default -> System.out.println("Default: " + i);
+						}
+					}
+				}
+			""",
+		};
+
+	if (this.complianceLevel < ClassFileConstants.JDK21) {
+		this.runNegativeTest(sources,
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	case null -> System.out.println(\"Null\");\n" +
+			"	     ^^^^\n" +
+			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+			"----------\n");
+	} else {
+		this.runConformTest(sources, "Default: 42");
+	}
+}
+
 public static Class testClass() {
 	return SwitchTest.class;
 }

@@ -9587,4 +9587,45 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"B1 -> B1, B1\n" +
 				"B2 -> B2, B2");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3395
+	// [Enhanced Switch] ECG generated code hangs
+	public void testIssue3395() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							public static void main(String[] args) {
+	                            for (String s : new String [] { "World", "Check", "Hello", "Null", "Default" }) {
+                                    String sel = s.equals("Null") ? null : s;
+									switch (sel) {
+										case "World" -> System.out.print("World");
+										case String str when s.equals("Check") -> System.out.print("Check");
+										case "Hello" -> System.out.print("Hello");
+										case null -> System.out.print("Null");
+										default -> System.out.print("Default");
+									}
+									System.out.print("--");
+								}
+								System.out.println("");
+                                for (String s : new String [] { "Default", "Null", "Hello", "Check", "World" }) {
+                                    String sel = s.equals("Null") ? null : s;
+									switch (sel) {
+										case "World" -> System.out.print("World");
+										case String str when s.equals("Check") -> System.out.print("Check");
+										case "Hello" -> System.out.print("Hello");
+										case null -> System.out.print("Null");
+										default -> System.out.print("Default");
+									}
+									System.out.print("--");
+								}
+								System.out.println("");
+							}
+						}
+						""",
+				},
+				"World--Check--Hello--Null--Default--\n" +
+				"Default--Null--Hello--Check--World--");
+	}
 }

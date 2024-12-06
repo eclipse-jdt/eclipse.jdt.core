@@ -49,7 +49,7 @@ public void test412555() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 4)\n" +
 		"	Y.callMe();\n" +
-		"	  ^^^^^^^^\n" +
+		"	  ^^^^^^\n" +
 		"The method callMe() from the type Y is deprecated\n" +
 		"----------\n",
 		null,
@@ -94,7 +94,7 @@ public void testGH1370() {
 		----------
 		1. ERROR in Y.java (at line 10)
 			X.deprecatedMethod(null);
-			  ^^^^^^^^^^^^^^^^^^^^^^
+			  ^^^^^^^^^^^^^^^^
 		The method deprecatedMethod(Object) from the type X is deprecated
 		----------
 		2. ERROR in Y.java (at line 11)
@@ -104,7 +104,7 @@ public void testGH1370() {
 		----------
 		3. ERROR in Y.java (at line 12)
 			List.of().forEach(o -> X.deprecatedMethod(o));
-			                         ^^^^^^^^^^^^^^^^^^^
+			                         ^^^^^^^^^^^^^^^^
 		The method deprecatedMethod(Object) from the type X is deprecated
 		----------
 		""",

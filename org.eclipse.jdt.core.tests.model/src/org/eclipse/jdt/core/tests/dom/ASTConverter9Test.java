@@ -1512,5 +1512,90 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			deleteProject("ASTParserModelTests");
 		}
 	}
+	public void testStackOverflow_type_schizophrenia() throws JavaModelException, CoreException {
+		try {
+			// empty project, used only as a dependency:
+			IJavaProject project0 = createJavaProject("P0", new String[] { "src" },
+					new String[] { "CONVERTER_JCL9_LIB" }, "bin", "9");
+
+			// modular shared project
+			IJavaProject project1 = createJavaProject("P1", new String[] { "src" },
+					new String[] { "CONVERTER_JCL9_LIB" }, "bin", "9");
+
+			// HACK#1
+			// the following dependency triggers a code path in ModuleUpdater.determineModulesOfProjectsWithNonEmptyClasspath()
+			// - guarded by containsNonModularDependency()
+			// - if effective it adds ALL-UNNAMED to P1's module requirements:
+			addClasspathEntry(project1, JavaCore.newProjectEntry(project0.getPath())); // not modular!
+
+			project1.open(null);
+			createFolder("/P1/src/common/pack1");
+			createFile("/P1/src/common/pack1/C1.java",
+					"""
+					package common.pack1;
+					import common.pack1.Shared;
+					// the type parameter bound forces resolving 'Shared' from within its module:
+					public interface C1<T extends Shared> {
+						static final String CONST1 = "const1";
+					}
+					""");
+			createFile("/P1/src/common/pack1/Shared.java",
+					"""
+					package common.pack1;
+					// the following import triggers recursive lookup of the class being inserted into compilation:
+					import static common.pack1.Shared.Kind.*;
+					public interface Shared {
+						enum Kind { Good, Bad }
+						static Kind DEFAULT = Good;
+					}
+					""");
+			createFile("/P1/src/module-info.java",
+					"""
+					module first {
+						exports common.pack1;
+					}
+					""");
+
+			// non-modular client project where the SOE occurs:
+			IJavaProject project2 = createJavaProject("P2", new String[] { "src" },
+					new String[] { "CONVERTER_JCL9_LIB" }, "bin", "9");
+			addClasspathEntry(project2, JavaCore.newProjectEntry(project1.getPath())); // not modular!
+
+			// the following dependency enables a code path in the constructor of SearchableEnvironment:
+			// - guarded by Arrays.stream(expandedClasspath).anyMatch(IClasspathEntry::isTest)
+			// - if effective tries to add ALL-UNNAMED to module requirements.
+			// - additionally needs HACK#1 to be effective
+			addClasspathEntry(project2, JavaCore.newSourceEntry(new Path("/P2/testsrc"), null, null, new Path("/P2/testbin"),
+					new IClasspathAttribute[] {JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, "true")}));
+			project2.open(null);
+			createFolder("/P2/src/common/test");
+			createFile("/P2/src/common/test/Client.java",
+					"""
+					package common.test;
+					import static common.pack1.C1.*; // this import pulls in classes from the other project
+					import common.pack1.C1;
+					public class Client {
+						String s = CONST1;
+						C1<?> c1;
+					}
+					""");
+
+			IJavaElement[] types = { project2.findType("common.test.Client") };
+			ASTParser astParser = ASTParser.newParser(AST.getJLSLatest());
+			astParser.setProject(project2);
+			IBinding[] bindings = astParser.createBindings(types, null);
+			assertEquals(1, bindings.length);
+			ITypeBinding type = (ITypeBinding) bindings[0];
+			IVariableBinding c1 = type.getDeclaredFields()[0];
+			IModuleBinding module = c1.getType().getModule();
+			assertNotNull(module);
+			assertEquals("", module.getName());
+		} finally {
+			deleteProject("P0");
+			deleteProject("P1");
+			deleteProject("P2");
+		}
+	}
+
 // Add new tests here
 }

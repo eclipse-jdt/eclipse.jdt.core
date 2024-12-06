@@ -78,6 +78,7 @@ public class MethodBinding extends Binding {
 	public static byte PARAM_NULLITY = (byte) (PARAM_NONNULL | PARAM_NULLABLE);
 	public static byte PARAM_OWNING = 4;
 	public static byte PARAM_NOTOWNING = 8;
+	public static byte PARAM_MISSING_OWNING_ANN = 16;
 
 	public static byte flowBitFromAnnotationTagBit(long tagBit) {
 		if (tagBit == TagBits.AnnotationNonNull)
@@ -1509,6 +1510,17 @@ public boolean notownsParameter(int i) {
 		return (this.parameterFlowBits[i] & PARAM_NOTOWNING) != 0;
 	return false;
 }
+public boolean parameterHasMissingOwningAnnotation(int rank) {
+	if (this.parameterFlowBits != null)
+		return (this.parameterFlowBits[rank] & PARAM_MISSING_OWNING_ANN) != 0;
+	return false;
+}
+public void markMissingOwningAnnotationOnParameter(int rank) {
+	if (this.parameterFlowBits == null)
+		this.parameterFlowBits = new byte[this.parameters.length];
+	this.parameterFlowBits[rank] |= PARAM_MISSING_OWNING_ANN;
+}
+
 /** @return TRUE means @NonNull declared, FALSE means @Nullable declared, null means nothing declared */
 public Boolean getParameterNullness(int idx) {
 	if (this.parameterFlowBits != null) {

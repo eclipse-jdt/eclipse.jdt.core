@@ -153,43 +153,32 @@ public class PerformanceTests extends TestBase
 
 		Runtime run = Runtime.getRuntime();
 
-		long start;
+		long startNanos;
 
 		if (INCLUDE_APT_DISABLED) {
 			AptConfig.setEnabled(jproj, false);
-			start = System.currentTimeMillis();
+			startNanos = System.nanoTime();
 			run.exec(CMD_START_CPU_PROFILING).waitFor();
 			fullBuild( project.getFullPath() );
-			if (VERBOSE)
-				System.out.println("APT disabled: full build took " + ((System.currentTimeMillis() - start)/1000L) + " sec");
+			if (VERBOSE) {
+				System.out
+						.println("APT disabled: full build took " + ((System.nanoTime() - startNanos) / 1_000_000L) + " ms");
+			}
 			run.exec(CMD_PERF_SNAPSHOT).waitFor();
 			run.exec(CMD_STOP_CPU_PROFILING).waitFor();
 			expectingNoProblems();
-
-//			System.gc();
-//			Thread.sleep(1000);
-//
-//			AptConfig.setEnabled(jproj, false);
-//			start = System.currentTimeMillis();
-//			fullBuild( project.getFullPath() );
-//			if (VERBOSE) {
-//				System.out.println("full build took " + ((System.currentTimeMillis() - start)/1000L) + " sec");
-//				System.out.println("Taking heap snapshot");
-//			}
-//			run.exec(CMD_HEAP_SNAPSHOT).waitFor();
-//			expectingNoProblems();
 		}
 
 		System.gc();
 		Thread.sleep(1000);
 
 		AptConfig.setEnabled(jproj, true);
-		start = System.currentTimeMillis();
+		startNanos = System.nanoTime();
 		if (VERBOSE)
 			System.out.println("APT enabled: starting full build");
 		fullBuild( project.getFullPath() );
 		if (VERBOSE) {
-			System.out.println("full build took " + ((System.currentTimeMillis() - start)/1000L) + " sec");
+			System.out.println("full build took " + ((System.nanoTime() - startNanos) / 1_000_000L) + " ms");
 			System.out.println("Taking heap snapshot");
 		}
 		run.exec(CMD_HEAP_SNAPSHOT).waitFor();
@@ -199,13 +188,14 @@ public class PerformanceTests extends TestBase
 		Thread.sleep(1000);
 
 		AptConfig.setEnabled(jproj, true);
-		start = System.currentTimeMillis();
+		startNanos = System.nanoTime();
 		if (VERBOSE)
 			System.out.println("APT enabled: starting full build");
 		run.exec(CMD_START_CPU_PROFILING).waitFor();
 		fullBuild( project.getFullPath() );
-		if (VERBOSE)
-			System.out.println("full build took " + ((System.currentTimeMillis() - start)/1000L) + " sec");
+		if (VERBOSE) {
+			System.out.println("full build took " + ((System.nanoTime() - startNanos) / 1_000_000L) + " ms");
+		}
 		run.exec(CMD_PERF_SNAPSHOT).waitFor();
 		run.exec(CMD_STOP_CPU_PROFILING).waitFor();
 		expectingNoProblems();
@@ -214,13 +204,14 @@ public class PerformanceTests extends TestBase
 		Thread.sleep(1000);
 
 		AptConfig.setEnabled(jproj, true);
-		start = System.currentTimeMillis();
+		startNanos = System.nanoTime();
 		if (VERBOSE)
 			System.out.println("APT enabled: starting full build");
 		run.exec(CMD_START_CPU_PROFILING).waitFor();
 		fullBuild( project.getFullPath() );
-		if (VERBOSE)
-			System.out.println("full build took " + ((System.currentTimeMillis() - start)/1000L) + " sec");
+		if (VERBOSE) {
+			System.out.println("full build took " + ((System.nanoTime() - startNanos) / 1_000_000L) + " ms");
+		}
 		run.exec(CMD_PERF_SNAPSHOT).waitFor();
 		run.exec(CMD_STOP_CPU_PROFILING).waitFor();
 		expectingNoProblems();
@@ -247,62 +238,33 @@ public class PerformanceTests extends TestBase
 
 		Runtime run = Runtime.getRuntime();
 
-		long start;
-
 		if (INCLUDE_APT_DISABLED) {
 			AptConfig.setEnabled(jproj, false);
-			start = System.currentTimeMillis();
+			long startNanos = System.nanoTime();
 			run.exec(CMD_START_CPU_PROFILING).waitFor();
 			fullBuild( project.getFullPath() );
 			if (VERBOSE)
-				System.out.println("APT disabled: full build took " + ((System.currentTimeMillis() - start)/1000L) + " sec");
+				System.out.println(
+						"APT disabled: full build took " + ((System.nanoTime() - startNanos) / 1_000_000L) + " ms");
 			run.exec(CMD_PERF_SNAPSHOT).waitFor();
 			run.exec(CMD_STOP_CPU_PROFILING).waitFor();
 			expectingNoProblems();
-
-//			System.gc();
-//			Thread.sleep(1000);
-//
-//			AptConfig.setEnabled(jproj, false);
-//			start = System.currentTimeMillis();
-//			run.exec(CMD_START_CPU_PROFILING).waitFor();
-//			fullBuild( project.getFullPath() );
-//			if (VERBOSE)
-//				System.out.println("APT disabled: full build took " + ((System.currentTimeMillis() - start)/1000L) + " sec");
-//			run.exec(CMD_PERF_SNAPSHOT).waitFor();
-//			run.exec(CMD_STOP_CPU_PROFILING).waitFor();
-//			expectingNoProblems();
 		}
 
 		System.gc();
 		Thread.sleep(1000);
 
 		AptConfig.setEnabled(jproj, true);
-		start = System.currentTimeMillis();
+		long startNanos = System.nanoTime();
 		if (VERBOSE)
 			System.out.println("APT enabled: starting full build");
 		run.exec(CMD_START_CPU_PROFILING).waitFor();
 		fullBuild( project.getFullPath() );
 		if (VERBOSE)
-			System.out.println("full build took " + ((System.currentTimeMillis() - start)/1000L) + " sec");
+			System.out.println("full build took " + ((System.nanoTime() - startNanos) / 1_000_000L) + " ms");
 		run.exec(CMD_PERF_SNAPSHOT).waitFor();
 		run.exec(CMD_STOP_CPU_PROFILING).waitFor();
 		expectingNoProblems();
-
-//		System.gc();
-//		Thread.sleep(1000);
-//
-//		AptConfig.setEnabled(jproj, true);
-//		start = System.currentTimeMillis();
-//		if (VERBOSE)
-//			System.out.println("APT enabled: starting full build");
-//		run.exec(CMD_START_CPU_PROFILING).waitFor();
-//		fullBuild( project.getFullPath() );
-//		if (VERBOSE)
-//			System.out.println("full build took " + ((System.currentTimeMillis() - start)/1000L) + " sec");
-//		run.exec(CMD_PERF_SNAPSHOT).waitFor();
-//		run.exec(CMD_STOP_CPU_PROFILING).waitFor();
-//		expectingNoProblems();
 
 		// Now delete the project!
 		if (VERBOSE)
@@ -329,10 +291,10 @@ public class PerformanceTests extends TestBase
 		// Set some per-project preferences
 		AptConfig.setEnabled(jproj, true);
 
-		long start = System.currentTimeMillis();
-		fullBuild( project.getFullPath() );
+		long startNanos = System.nanoTime();
+		fullBuild(project.getFullPath());
 		if (VERBOSE)
-			System.out.println("Done with build after " + ((System.currentTimeMillis() - start)/1000L) + " sec");
+			System.out.println("Done with build after " + ((System.nanoTime() - startNanos) / 1_000_000L) + " ms");
 
 		expectingNoProblems();
 

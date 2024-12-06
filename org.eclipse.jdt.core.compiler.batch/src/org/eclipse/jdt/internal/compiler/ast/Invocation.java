@@ -60,9 +60,11 @@ public interface Invocation extends InvocationSite {
 		if (currentScope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled) {
 			FakedTrackingVariable trackVar = FakedTrackingVariable.getCloseTrackingVariable(argument, flowInfo, flowContext, true);
 			if (trackVar != null) {
-				if (methodBinding.ownsParameter(rank)) {
+				int safeRank = Math.min(rank, methodBinding.parameters.length-1); // account for varargs
+				FakedTrackingVariable.checkParameterForMissingAnnotation(argument, methodBinding, safeRank, currentScope);
+				if (methodBinding.ownsParameter(safeRank)) {
 					trackVar.markOwnedByOutside(flowInfo, flowContext);
-				} else if (methodBinding.notownsParameter(rank)) {
+				} else if (methodBinding.notownsParameter(safeRank)) {
 					// ignore, no relevant change
 				} else {
 					trackVar.markAsShared();

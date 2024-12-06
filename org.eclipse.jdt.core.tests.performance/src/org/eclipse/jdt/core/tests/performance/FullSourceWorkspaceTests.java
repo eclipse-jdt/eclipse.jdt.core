@@ -192,7 +192,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 	// Time measuring
 	int nbMeasures;
-	long startMeasuring, testDuration;
+	private long startNanos, testDurationNanos;
 
 	// Error threshold. Statistic should not be take into account when it's reached
 	protected final static double ERROR_THRESHOLD = 0.005; // default is 0.5%
@@ -610,7 +610,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		System.out.println("Running "+this.scenarioReadableName+"...");
 
 		// Time measuring
-		this.testDuration = 0;
+		this.testDurationNanos = 0;
 		this.nbMeasures = 0;
 
 		// Wait 2 seconds
@@ -637,7 +637,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		File wkspDir = new File(targetWorkspacePath);
 		FullSourceProjectsFilter filter = new FullSourceProjectsFilter();
 		File[] directories = wkspDir.listFiles(filter);
-		long start = System.currentTimeMillis();
+		long startNano = System.nanoTime();
 		int dirLength = directories.length;
 		if (dirLength < 62) {
 			File file = fetchFromBinariesProject("full-source-R3_0.zip", 34_494_852);
@@ -645,14 +645,14 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			System.out.println("Unzipping "+fullSourceZipPath);
 			System.out.print("	in "+targetWorkspacePath+"...");
 			Util.unzip(fullSourceZipPath, targetWorkspacePath);
-			System.out.println(" done in "+(System.currentTimeMillis()-start)+"ms.");
+			System.out.println(" done in " + (System.nanoTime() - startNano) / 1_000_000L + "ms.");
 			directories = wkspDir.listFiles(filter);
 			dirLength = directories.length;
 		}
 
 		// Init environment with existing porjects
 		System.out.print("Create and open projects in environment...");
-		start = System.currentTimeMillis();
+		startNano = System.nanoTime();
 		for (int i = 0; i < dirLength; i++) {
 			String dirName = directories[i].getName();
 			IProject project = workspaceRoot.getProject(dirName);
@@ -662,12 +662,12 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 				ENV.addProject(dirName);
 			}
 		}
-		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
+		System.out.println("(" + (System.nanoTime() - startNano) / 1_000_000L + "ms)");
 
 		// Create lib entries for the JDKs
 		String jreLibPath = JavaCore.getClasspathVariable("JRE_LIB").toOSString();
 		System.out.print("Create lib entries for the JDKs...");
-		start = System.currentTimeMillis();
+		startNano = System.nanoTime();
 		String[] jdkLibs = Util.getJavaClassLibs();
 		int jdkLibsLength = jdkLibs.length;
 		IClasspathEntry[] jdkEntries = new IClasspathEntry[jdkLibsLength];
@@ -677,11 +677,11 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 				jdkEntries[jdkEntriesCount++] = JavaCore.newLibraryEntry(new Path(jdkLibs[i]), null, null);
 			}
 		}
-		System.out.println(jdkLibsLength+" found ("+(System.currentTimeMillis()-start)+"ms)");
+		System.out.println(jdkLibsLength + " found (" + (System.nanoTime() - startNano) / 1_000_000L + "ms)");
 
 		// Set classpaths (workaround bug 73253 Project references not set on project open)
 		System.out.print("Set projects classpaths...");
-		start = System.currentTimeMillis();
+		startNano = System.nanoTime();
 		ALL_PROJECTS = JavaCore.create(workspaceRoot).getJavaProjects();
 		int projectsLength = ALL_PROJECTS.length;
 		for (int i = 0; i < projectsLength; i++) {
@@ -714,47 +714,13 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 //			System.arraycopy(bigProjectEntries, 0, bigProjectEntries = new IClasspathEntry[bpeLength+1], 0, bpeLength);
 //			bigProjectEntries[bpeLength] = JavaCore.newProjectEntry(JDT_CORE_PROJECT.getPath());
 		}
-		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
+		System.out.println("(" + (System.nanoTime() - startNano) / 1_000_000L + "ms)");
 
 		// Initialize Parser wokring copy
 		IJavaElement element = JDT_CORE_PROJECT.findType("org.eclipse.jdt.internal.compiler.parser.Parser");
 		assertTrue("Parser should exist in org.eclipse.jdt.core project!", element != null && element.exists());
 		PARSER_WORKING_COPY = (ICompilationUnit) element.getParent();
 	}
-
-	/*
-	 * Create JUnit project and add it to the workspace
-	 *
-	private void setUpJunitProject() throws CoreException, IOException {
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		final String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
-
-		// Print for log in case of project creation troubles...
-		System.out.println("Create '"+JUNIT_PROJECT_NAME+"' project in "+workspaceRoot.getLocation()+":");
-		long start = System.currentTimeMillis();
-
-		// Print for log in case of project creation troubles...
-		String genericsZipPath = getPluginDirectoryPath() + File.separator + JUNIT_PROJECT_NAME + "src.zip";
-		start = System.currentTimeMillis();
-		System.out.println("Unzipping "+genericsZipPath);
-		System.out.print("	in "+targetWorkspacePath+"...");
-
-		// Unzip file
-		Util.unzip(genericsZipPath, targetWorkspacePath);
-		System.out.println(" "+(System.currentTimeMillis()-start)+"ms.");
-
-		// Add project to workspace
-		System.out.print("	- add project to full source workspace...");
-		start = System.currentTimeMillis();
-		ENV.addProject(JUNIT_PROJECT_NAME);
-		JUNIT_PROJECT = createJavaProject(JUNIT_PROJECT_NAME, new String[]{ "src" }, "bin", "1.5");
-		JUNIT_PROJECT.setRawClasspath(JUNIT_PROJECT.getResolvedClasspath(true), null);
-
-		// Print for log in case of project creation troubles...
-		System.out.println(" "+(System.currentTimeMillis()-start)+"ms.");
-	}
-	*/
 
 	/**
 	 * @deprecated Use {@link #tagAsGlobalSummary(String,Dimension,boolean)} instead
@@ -800,20 +766,22 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	}
 	public void startMeasuring() {
 		if (PRINT && this.nbMeasures==0) System.out.println("	Measures (~Elapsed Process time):");
-		this.startMeasuring = System.currentTimeMillis();
+		this.startNanos = System.nanoTime();
 		super.startMeasuring();
 	}
 	public void stopMeasuring() {
 		super.stopMeasuring();
 		this.nbMeasures++;
-		long duration = System.currentTimeMillis() - this.startMeasuring;
-		if (PRINT) System.out.println("		- n° "+this.nbMeasures+": "+duration+"ms");
-		this.testDuration += duration;
+		long durationNanos = System.nanoTime() - this.startNanos;
+		if (PRINT) {
+			System.out.println("		- n° " + this.nbMeasures + ": " + durationNanos / 1_000_000L + "ms");
+		}
+		this.testDurationNanos += durationNanos;
 	}
 	public void commitMeasurements() {
 		if (PRINT) {
-			System.out.println("	Test duration = "+this.testDuration+"ms");
-			System.out.println("	Time average = "+(((this.testDuration*1000)/this.nbMeasures)/1000));
+			System.out.println("	Test duration = " + this.testDurationNanos / 1_000_000L + "ms");
+			System.out.println("	Time average = " + ((this.testDurationNanos / this.nbMeasures) / 1_000_000L));
 		}
 		super.commitMeasurements();
 	}

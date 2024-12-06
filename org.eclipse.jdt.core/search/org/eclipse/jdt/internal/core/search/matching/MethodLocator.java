@@ -24,6 +24,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
@@ -664,7 +665,26 @@ protected int referenceType() {
 protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locator, SimpleSet knownMethods) throws CoreException {
 	ReferenceBinding declaringClass = methodBinding.declaringClass;
 	IType type = locator.lookupType(declaringClass);
-	if (type == null) return; // case of a secondary type
+	if (type == null) {
+		if (declaringClass instanceof LocalTypeBinding) {
+			ReferenceBinding refBinding= declaringClass;
+			while (refBinding instanceof LocalTypeBinding localBinding) {
+				MethodBinding enclosingBinding= localBinding.enclosingMethod;
+				refBinding= enclosingBinding.declaringClass;
+			}
+			type= locator.lookupType(refBinding);
+			if (type != null) {
+				if (type.getTypeRoot() instanceof ICompilationUnit cu) {
+					IJavaElement element= cu.getElementAt(methodBinding.sourceStart());
+					if (element instanceof IMethod) {
+						type= ((IMethod) element).getDeclaringType();
+					}
+				}
+			}
+		}
+	}
+	if (type == null)
+		return; // case of a secondary type
 
 	// Report match for binary
 	if (type.isBinary()) {

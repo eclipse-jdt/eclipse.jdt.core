@@ -235,6 +235,9 @@ private static Class[] getAllTestClasses() {
 		ExternalAnnotations18Test.class,
 		ExternalAnnotations9Test.class,
 
+		// Tests regarding resource-annotations (@Owning/@NotOwning):
+		OwningAnnotationModelTests.class,
+
 		// Java model changes related to Java 8
 		JavaElement8Tests.class,
 

@@ -505,7 +505,7 @@ public abstract class JobManager {
 					}
 					if (job == null) {
 						// don't call notifyIdle() within synchronized block or it may deadlock:
-						notifyIdle((System.nanoTime() - idlingStart) / 1_000_000);
+						notifyIdle((System.nanoTime() - idlingStart) / 1_000_000L);
 						if (currentJob() != null) {
 							// notifyIdle() may have requested new job
 							continue;
