@@ -18,11 +18,17 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -40,16 +46,25 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.internal.core.CompilationUnit;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class RegressionTests {
 
 	private static IProject project;
 
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
+	@Before
+	public void setUp() throws Exception {
 		project = importProject("projects/dummy");
+	}
+
+	@After
+	public void cleanUp() throws Exception {
+		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		for (IProject p: projects) {
+			p.delete(false, true, null);
+		}
 	}
 
 	@Test
@@ -96,7 +111,22 @@ public class RegressionTests {
 		assertTrue(p.getFolder("bin2").getFile("A.class").exists());
 	}
 
-
+	// https://github.com/eclipse-jdtls/eclipse-jdt-core-incubator/issues/1016
+	@Test
+	public void testBuildMultipleOutputDirectories2() throws Exception {
+		IProject proj1 = importProject("projects/multipleOutputDirectories/proj1");
+		IProject proj2 = importProject("projects/multipleOutputDirectories/proj2");
+		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.CLEAN_BUILD, null);
+		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		List<IMarker> errors = findMarkers(proj1, IMarker.SEVERITY_ERROR);
+		assertTrue(errors.isEmpty());
+		errors = findMarkers(proj2, IMarker.SEVERITY_ERROR);
+		assertTrue(errors.isEmpty());
+		CompilationUnit unit = (CompilationUnit)JavaCore.create(proj2).findElement(Path.fromOSString("proj2/Main.java"));
+		unit.becomeWorkingCopy(null);
+		var dom = unit.reconcile(AST.getJLSLatest(), true, unit.getOwner(), null);
+		assertArrayEquals(new IProblem[0], dom.getProblems());
+	}
 
 	static IProject importProject(String locationInBundle) throws URISyntaxException, IOException, CoreException {
 		File file = new File(FileLocator.toFileURL(RegressionTests.class.getResource("/" + locationInBundle + "/.project")).toURI());
@@ -108,5 +138,20 @@ public class RegressionTests {
 		project.create(projectDescription, null);
 		project.open(null);
 		return project;
+	}
+
+	// copied from org.eclipse.jdt.ls.core.internal.ResourceUtils.findMarkers(IResource, Integer...)
+	static List<IMarker> findMarkers(IResource resource, Integer... severities) throws CoreException {
+		if (resource == null) {
+			return null;
+		}
+		Set<Integer> targetSeverities = severities == null ? Collections.emptySet()
+				: new HashSet<>(Arrays.asList(severities));
+		IMarker[] allmarkers = resource.findMarkers(null /* all markers */, true /* subtypes */,
+				IResource.DEPTH_INFINITE);
+		List<IMarker> markers = Stream.of(allmarkers).filter(
+				m -> targetSeverities.isEmpty() || targetSeverities.contains(m.getAttribute(IMarker.SEVERITY, 0)))
+				.collect(Collectors.toList());
+		return markers;
 	}
 }

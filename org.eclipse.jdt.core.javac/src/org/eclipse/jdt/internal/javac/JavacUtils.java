@@ -300,7 +300,7 @@ public class JavacUtils {
 						})
 						.collect(Collectors.toSet());
 				
-				Collection<File> classpathFiles = classpathEntriesToFiles(javaProject, entry -> entry.getEntryKind() != IClasspathEntry.CPE_SOURCE && (isTest || !entry.isTest()));
+				Collection<File> classpathFiles = classpathEntriesToFiles(javaProject, entry -> isTest || !entry.isTest());
 				Collection<File> filteredFiles = classpathFiles.stream().filter(x -> x.length() != 0).toList();
 				fileManager.setLocation(StandardLocation.CLASS_PATH, filteredFiles);
 				classpathFiles.addAll(outDirectories(javaProject, entry -> isTest || !entry.isTest()));
