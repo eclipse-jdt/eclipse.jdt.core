@@ -18,7 +18,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 import junit.framework.Test;
-import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -1598,7 +1597,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 					}
 				}
 				""");
-		runConformTest(new String[] {"X.java", clazz.toString()}, expectedOuts, getCompilerOptions(true), VMARGS, JavacHasABug.JavacBug8341408);
+		runConformTest(new String[] {"X.java", clazz.toString()}, expectedOuts);
 	}
 	public void testInstanceof_widenUnbox_Byte() {
 		testInstanceof_widenUnbox("Byte", 1, "49+49|49+49|49+49|49.0+49.0|49.0+49.0|");

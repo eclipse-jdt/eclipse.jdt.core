@@ -1151,9 +1151,7 @@ protected static class JavacTestOptions {
 			JavacBug8337980 = // https://bugs.openjdk.org/browse/JDK-8337980
 					new JavacHasABug(MismatchType.EclipseErrorsJavacNone /* add pivot JDK24 */),
 			JavacBug8343306 = // https://bugs.openjdk.org/browse/JDK-8343306
-					new JavacHasABug(MismatchType.EclipseErrorsJavacNone /* add pivot JDK24 */),
-			JavacBug8341408 = // https://bugs.openjdk.org/browse/JDK-8341408
-					new JavacBug8341408();
+					new JavacHasABug(MismatchType.EclipseErrorsJavacNone /* add pivot JDK24 */);
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
@@ -1247,7 +1245,7 @@ protected static class JavacTestOptions {
 	}
 	public static class JavacBug8341408 extends JavacBugExtraJavacOptionsPlusMismatch {
 		public JavacBug8341408() {
-			super("--enable-preview -source 23 -Xlint:-preview", MismatchType.StandardOutputMismatch);
+			super("--enable-preview -source 24 -Xlint:-preview", MismatchType.StandardOutputMismatch);
 // FIXME	this.pivotCompliance = ClassFileConstants.JDK24;
 		}
 	}
