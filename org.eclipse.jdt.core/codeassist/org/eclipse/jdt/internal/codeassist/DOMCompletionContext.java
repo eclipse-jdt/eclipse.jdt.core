@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -21,6 +22,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 
 class DOMCompletionContext extends CompletionContext {
 	private final int offset;
@@ -39,7 +41,20 @@ class DOMCompletionContext extends CompletionContext {
 		this.bindingsAcquirer = bindingHaver;
 		this.expectedTypes = expectedTypes;
 		this.node = node;
+//		populateExpectedTypes();
 	}
+
+//	private void populateExpectedTypes() {
+//		if (node instanceof ClassInstanceCreation classNew && this.offset > classNew.getStartPosition() + classNew.getLength()) {
+//			// trying to find if it's an argument, its position and then will resolve to
+//			// possible types according to method binding
+//			Set<ASTNode> nodes = new HashSet<>();
+//			nodes.add(classNew.getType());
+//			nodes.addAll(classNew.typeArguments());
+//			int lastOffsetBeforeArgs = Math.max(classNew.getType().getStartPosition(),
+//				classNew.typeArguments()
+//		}
+//	}
 
 	@Override
 	public int getOffset() {
@@ -113,42 +128,18 @@ class DOMCompletionContext extends CompletionContext {
 			if (parent instanceof ImportDeclaration) {
 				return TL_IN_IMPORT;
 			}
-			parent = parent.getParent();
-		}
-		if (this.node.getParent() instanceof FieldAccess
-			|| this.node.getParent() instanceof QualifiedName) {
-			return 0;
-		}
-		if (this.node.getParent() instanceof VariableDeclaration) {
-			return 0;
-		}
-		if (this.node instanceof AbstractTypeDeclaration) {
-			return TL_MEMBER_START;
-		}
-		var locationInParent = node.getLocationInParent();
-		parent = node;
-		while (parent != null) {
-			if (parent instanceof ClassInstanceCreation) {
-				return TL_CONSTRUCTOR_START;
+			if (parent instanceof ClassInstanceCreation newObj) {
+				return getTokenStart() == newObj.getStartPosition() ? TL_CONSTRUCTOR_START : 0;
 			}
-			if (parent instanceof Block) {
-				return TL_STATEMENT_START;
+			if (parent instanceof Statement stmt && getTokenStart() == stmt.getStartPosition()) {
+				return getTokenStart() == stmt.getStartPosition() ? TL_STATEMENT_START : 0;
 			}
-			if (locationInParent == AnnotationTypeDeclaration.BODY_DECLARATIONS_PROPERTY ||
-				locationInParent == EnumDeclaration.BODY_DECLARATIONS_PROPERTY ||
-				locationInParent == ImplicitTypeDeclaration.BODY_DECLARATIONS_PROPERTY ||
-				locationInParent == RecordDeclaration.BODY_DECLARATIONS_PROPERTY ||
-				locationInParent == TypeDeclaration.BODY_DECLARATIONS_PROPERTY ||
-				locationInParent == AnonymousClassDeclaration.BODY_DECLARATIONS_PROPERTY) {
-				return TL_MEMBER_START;
+			if (parent instanceof BodyDeclaration member) {
+				return getTokenStart() == member.getStartPosition() ? TL_MEMBER_START : 0;
 			}
-			if (parent instanceof FieldAccess) {
-				return 0;
+			if (parent instanceof Block block) {
+				return block.statements().isEmpty() ? TL_STATEMENT_START : 0;
 			}
-			if (parent instanceof VariableDeclaration) {
-				return 0;
-			}
-			locationInParent = parent.getLocationInParent();
 			parent = parent.getParent();
 		}
 		return 0;
@@ -156,7 +147,7 @@ class DOMCompletionContext extends CompletionContext {
 
 	@Override
 	public int getTokenStart() {
-		if (node instanceof SimpleName) {
+		if (node instanceof SimpleName name && !Arrays.equals(name.getIdentifier().toCharArray(), RecoveryScanner.FAKE_IDENTIFIER)) {
 			return node.getStartPosition();
 		}
 		return this.offset;

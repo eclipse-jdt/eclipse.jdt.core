@@ -839,7 +839,9 @@ public class DOMCompletionEngine implements Runnable {
 
 	private void completeThrowsClause(MethodDeclaration methodDeclaration, Bindings scope) {
 		if (methodDeclaration.thrownExceptionTypes().size() == 0) {
-			int startScanIndex = methodDeclaration.getName().getStartPosition() + methodDeclaration.getName().getLength();
+			int startScanIndex = Math.max(
+					methodDeclaration.getName().getStartPosition() + methodDeclaration.getName().getLength(),
+					methodDeclaration.getReturnType2().getStartPosition() + methodDeclaration.getReturnType2().getLength());
 			if (!methodDeclaration.parameters().isEmpty()) {
 				SingleVariableDeclaration lastParam = (SingleVariableDeclaration)methodDeclaration.parameters().get(methodDeclaration.parameters().size() - 1);
 				startScanIndex = lastParam.getName().getStartPosition() + lastParam.getName().getLength();
