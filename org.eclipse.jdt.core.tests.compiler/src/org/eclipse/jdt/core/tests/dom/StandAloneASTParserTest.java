@@ -1943,7 +1943,73 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
         assertNotNull(ctorBinding);
         IAnnotationBinding[] annotations = ctorBinding.getAnnotations();
         assertNotNull(annotations);
-}
+	}
+
+	public void testBindingKey() throws IOException {
+		File rootDir = new File(System.getProperty("java.io.tmpdir"));
+		ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
+		parser.setEnvironment(null, null, null, true);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(true);
+		parser.setBindingsRecovery(true);
+		parser.setCompilerOptions(getCompilerOptions());
+
+		final IBinding[] bindings = new IBinding[1];
+
+		String contents =
+			"package p;\n" +
+			"public class X {\n" +
+			"}";
+
+		File packageDir = new File(rootDir, "p");
+		packageDir.mkdir();
+		File file = new File(packageDir, "X.java");
+		Writer writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(file));
+			writer.write(contents);
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch(IOException e) {
+					// ignore
+				}
+			}
+		}
+
+		try {
+			final String canonicalPath = file.getCanonicalPath();
+
+			FileASTRequestor requestor = new FileASTRequestor() {
+				public void acceptAST(String sourceFilePath, CompilationUnit ast) {
+					if (canonicalPath.equals(sourceFilePath)) {
+						ast.accept(new ASTVisitor() {
+
+							@Override
+							public boolean visit(TypeDeclaration node) {
+								bindings[0] = node.resolveBinding();
+								return false;
+							}
+
+						});
+					}
+				}
+			};
+
+			parser.setEnvironment(null, new String[] { rootDir.getCanonicalPath() }, null, true);
+
+			parser.createASTs(new String[] {canonicalPath}, null, new String[0], requestor, null);
+
+			assertNotNull("No binding", bindings[0]);
+			assertEquals("Wrong type of binding", IBinding.TYPE, bindings[0].getKind());
+			ITypeBinding typeBinding = (ITypeBinding) bindings[0];
+			assertEquals("Wrong binding", "p.X", typeBinding.getQualifiedName());
+			assertEquals("Wrong binding key", "Lp/X;", typeBinding.getKey());
+		} finally {
+			file.delete();
+		}
+	}
 
 
 }
