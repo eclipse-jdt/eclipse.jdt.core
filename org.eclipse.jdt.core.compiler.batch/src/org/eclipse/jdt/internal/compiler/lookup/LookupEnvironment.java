@@ -109,11 +109,11 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private CompleteTypeBindingsSteps stepCompleted = CompleteTypeBindingsSteps.NONE; // ROOT_ONLY
 	public ITypeRequestor typeRequestor;		// SHARED
 
-	private SimpleLookupTable uniqueParameterizedGenericMethodBindings;
+	private Map<MethodBinding, ParameterizedGenericMethodBinding[]> uniqueParameterizedGenericMethodBindings;
 
 	// key is a string with the method selector value is an array of method bindings
 	private SimpleLookupTable uniquePolymorphicMethodBindings;
-	private SimpleLookupTable uniqueGetClassMethodBinding; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=300734
+	private Map<TypeBinding, ParameterizedMethodBinding> uniqueGetClassMethodBinding; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=300734
 
 	boolean useModuleSystem;					// true when compliance >= 9 and nameEnvironment is module aware
 	// key is a string with the module name value is a module binding
@@ -215,7 +215,7 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.defaultImports = null;
 	this.nameEnvironment = nameEnvironment;
 	this.knownPackages = new HashtableOfPackage();
-	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
+	this.uniqueParameterizedGenericMethodBindings = new HashMap<>();
 	this.uniquePolymorphicMethodBindings = new SimpleLookupTable(3);
 	this.missingTypes = null;
 	this.accessRestrictions = new HashMap(3);
@@ -240,7 +240,7 @@ LookupEnvironment(LookupEnvironment rootEnv, ModuleBinding module) {
 	this.defaultImports = null;
 	this.nameEnvironment = rootEnv.nameEnvironment;
 	this.knownPackages = new HashtableOfPackage();
-	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
+	this.uniqueParameterizedGenericMethodBindings = new HashMap<>();
 	this.uniquePolymorphicMethodBindings = new SimpleLookupTable(3);
 	this.missingTypes = null;
 	this.accessRestrictions = new HashMap(3);
@@ -1194,7 +1194,7 @@ public PlainPackageBinding createPlainPackage(char[][] compoundName) {
 
 public ParameterizedGenericMethodBinding createParameterizedGenericMethod(MethodBinding genericMethod, RawTypeBinding rawType) {
 	// cached info is array of already created parameterized types for this type
-	ParameterizedGenericMethodBinding[] cachedInfo = (ParameterizedGenericMethodBinding[])this.uniqueParameterizedGenericMethodBindings.get(genericMethod);
+	ParameterizedGenericMethodBinding[] cachedInfo = this.uniqueParameterizedGenericMethodBindings.get(genericMethod);
 	boolean needToGrow = false;
 	int index = 0;
 	if (cachedInfo != null){
@@ -1234,7 +1234,7 @@ public ParameterizedGenericMethodBinding createParameterizedGenericMethod(Method
 																			boolean inferredWithUncheckedConversion, boolean hasReturnProblem, TypeBinding targetType)
 {
 	// cached info is array of already created parameterized types for this type
-	ParameterizedGenericMethodBinding[] cachedInfo = (ParameterizedGenericMethodBinding[])this.uniqueParameterizedGenericMethodBindings.get(genericMethod);
+	ParameterizedGenericMethodBinding[] cachedInfo = this.uniqueParameterizedGenericMethodBindings.get(genericMethod);
 	int argLength = typeArguments == null ? 0: typeArguments.length;
 	boolean needToGrow = false;
 	int index = 0;
@@ -1382,9 +1382,9 @@ public ParameterizedMethodBinding createGetClassMethod(TypeBinding receiverType,
 	// see if we have already cached this method for the given receiver type.
 	ParameterizedMethodBinding retVal = null;
 	if (this.uniqueGetClassMethodBinding == null) {
-		this.uniqueGetClassMethodBinding = new SimpleLookupTable(3);
+		this.uniqueGetClassMethodBinding = new HashMap<>();
 	} else {
-		retVal = (ParameterizedMethodBinding)this.uniqueGetClassMethodBinding.get(receiverType);
+		retVal = this.uniqueGetClassMethodBinding.get(receiverType);
 	}
 	if (retVal == null) {
 		retVal = ParameterizedMethodBinding.instantiateGetClass(receiverType, originalMethod, scope);
@@ -2322,7 +2322,7 @@ public void reset() {
 	this.verifier = null;
 
 	// NOTE: remember to fix #updateCaches(...) when adding unique binding caches
-	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
+	this.uniqueParameterizedGenericMethodBindings = new HashMap<>();
 	this.uniquePolymorphicMethodBindings = new SimpleLookupTable(3);
 	this.uniqueGetClassMethodBinding = null;
 	this.missingTypes = null;

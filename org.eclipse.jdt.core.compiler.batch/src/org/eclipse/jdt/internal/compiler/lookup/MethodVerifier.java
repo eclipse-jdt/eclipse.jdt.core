@@ -36,7 +36,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
-import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.Sorting;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -295,16 +294,16 @@ void checkForMissingHashCodeMethod() {
 void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
 	if (superInterfaces == Binding.NO_SUPERINTERFACES) return;
 
-	SimpleSet interfacesToCheck = new SimpleSet(superInterfaces.length);
-	SimpleSet redundantInterfaces = null;  // bark but once.
+	Set<ReferenceBinding> interfacesToCheck = new HashSet<>(superInterfaces.length);
+	Set<ReferenceBinding>  redundantInterfaces = null;  // bark but once.
 	for (int i = 0, l = superInterfaces.length; i < l; i++) {
 		ReferenceBinding toCheck = superInterfaces[i];
 		for (int j = 0; j < l; j++) {
 			ReferenceBinding implementedInterface = superInterfaces[j];
 			if (i != j && toCheck.implementsInterface(implementedInterface, true)) {
 				if (redundantInterfaces == null) {
-					redundantInterfaces = new SimpleSet(3);
-				} else if (redundantInterfaces.includes(implementedInterface)) {
+					redundantInterfaces = new HashSet<>();
+				} else if (redundantInterfaces.contains(implementedInterface)) {
 					continue;
 				}
 				redundantInterfaces.add(implementedInterface);
@@ -321,16 +320,16 @@ void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBind
 	}
 
 	ReferenceBinding[] itsInterfaces = null;
-	SimpleSet inheritedInterfaces = new SimpleSet(5);
+	Set<ReferenceBinding> inheritedInterfaces = new HashSet<>();
 	ReferenceBinding superType = superclass;
 	while (superType != null && superType.isValidBinding()) {
 		if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
 			for (ReferenceBinding inheritedInterface : itsInterfaces) {
-				if (!inheritedInterfaces.includes(inheritedInterface) && inheritedInterface.isValidBinding()) {
-					if (interfacesToCheck.includes(inheritedInterface)) {
+				if (!inheritedInterfaces.contains(inheritedInterface) && inheritedInterface.isValidBinding()) {
+					if (interfacesToCheck.contains(inheritedInterface)) {
 						if (redundantInterfaces == null) {
-							redundantInterfaces = new SimpleSet(3);
-						} else if (redundantInterfaces.includes(inheritedInterface)) {
+							redundantInterfaces = new HashSet<>();
+						} else if (redundantInterfaces.contains(inheritedInterface)) {
 							continue;
 						}
 						redundantInterfaces.add(inheritedInterface);
@@ -350,10 +349,9 @@ void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBind
 		superType = superType.superclass();
 	}
 
-	int nextPosition = inheritedInterfaces.elementSize;
+	int nextPosition = inheritedInterfaces.size();
 	if (nextPosition == 0) return;
-	ReferenceBinding[] interfacesToVisit = new ReferenceBinding[nextPosition];
-	inheritedInterfaces.asArray(interfacesToVisit);
+	ReferenceBinding[] interfacesToVisit = inheritedInterfaces.toArray(ReferenceBinding[]::new);
 	for (int i = 0; i < nextPosition; i++) {
 		superType = interfacesToVisit[i];
 		if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
@@ -362,11 +360,11 @@ void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBind
 				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
 			for (int a = 0; a < itsLength; a++) {
 				ReferenceBinding inheritedInterface = itsInterfaces[a];
-				if (!inheritedInterfaces.includes(inheritedInterface) && inheritedInterface.isValidBinding()) {
-					if (interfacesToCheck.includes(inheritedInterface)) {
+				if (!inheritedInterfaces.contains(inheritedInterface) && inheritedInterface.isValidBinding()) {
+					if (interfacesToCheck.contains(inheritedInterface)) {
 						if (redundantInterfaces == null) {
-							redundantInterfaces = new SimpleSet(3);
-						} else if (redundantInterfaces.includes(inheritedInterface)) {
+							redundantInterfaces = new HashSet<>();
+						} else if (redundantInterfaces.contains(inheritedInterface)) {
 							continue;
 						}
 						redundantInterfaces.add(inheritedInterface);
@@ -632,12 +630,12 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 		superInterfaces = Sorting.sortTypes(superInterfaces);
 	}
 
-	SimpleSet skip = findSuperinterfaceCollisions(superclass, superInterfaces);
+	Set<ReferenceBinding> skip = findSuperinterfaceCollisions(superclass, superInterfaces);
 	int len = superInterfaces.length;
 	for (int i = len-1; i >= 0; i--) {
 		superType = superInterfaces[i];
 		if (superType.isValidBinding()) {
-			if (skip != null && skip.includes(superType)) continue;
+			if (skip != null && skip.contains(superType)) continue;
 
 			MethodBinding[] methods = superType.unResolvedMethods();
 			nextMethod : for (int m = methods.length; --m >= 0;) { // Interface methods are all abstract public
@@ -792,7 +790,7 @@ public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedM
 public static boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod, LookupEnvironment environment) {
 	return couldMethodOverride(method, inheritedMethod) && areMethodsCompatible(method, inheritedMethod, environment);
 }
-SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
+Set<ReferenceBinding> findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
 	return null; // noop in 1.4
 }
 
