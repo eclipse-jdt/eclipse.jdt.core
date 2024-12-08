@@ -17,11 +17,17 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.CompletionContext;
+import org.eclipse.jdt.core.IBuffer;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.internal.codeassist.DOMCompletionEngine.Bindings;
+import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 
 class DOMCompletionContext extends CompletionContext {
@@ -29,9 +35,148 @@ class DOMCompletionContext extends CompletionContext {
 	private final char[] token;
 	private final IJavaElement enclosingElement;
 	private final Supplier<Stream<IBinding>> bindingsAcquirer;
-	private final ExpectedTypes expectedTypes;
+	final ExpectedTypes expectedTypes;
 	private boolean inJavadoc = false;
-	private final ASTNode node;
+	final ASTNode node;
+	private IBuffer cuBuffer;
+
+	DOMCompletionContext(CompilationUnit domUnit, ICompilationUnit modelUnit, IBuffer cuBuffer, int offset, AssistOptions assistOptions, Bindings bindings) {
+		this.cuBuffer = cuBuffer;
+		this.offset = offset;
+		// Use the raw text to walk back the offset to the first non-whitespace spot
+		int adjustedOffset = this.offset;
+		if (cuBuffer != null) {
+			if (adjustedOffset >= cuBuffer.getLength()) {
+				adjustedOffset = cuBuffer.getLength() - 1;
+			}
+			if (adjustedOffset + 1 >= cuBuffer.getLength()
+					|| !Character.isJavaIdentifierStart(cuBuffer.getChar(adjustedOffset))) {
+				while (adjustedOffset > 0 && Character.isWhitespace(cuBuffer.getChar(adjustedOffset - 1)) ) {
+					adjustedOffset--;
+				}
+			}
+			if (cuBuffer.getChar(adjustedOffset - 1) == ',' && Character.isWhitespace(cuBuffer.getChar(adjustedOffset))) {
+				// probably an empty parameter
+				adjustedOffset = this.offset;
+				while (adjustedOffset < cuBuffer.getLength() && Character.isWhitespace(cuBuffer.getChar(adjustedOffset))) {
+					adjustedOffset++;
+				}
+			}
+		}
+		ASTNode previousNodeBeforeWhitespaces = NodeFinder.perform(domUnit, adjustedOffset, 0);
+		this.node = previousNodeBeforeWhitespaces instanceof SimpleName || previousNodeBeforeWhitespaces instanceof StringLiteral || previousNodeBeforeWhitespaces instanceof CharacterLiteral || previousNodeBeforeWhitespaces instanceof NumberLiteral
+			?  NodeFinder.perform(domUnit, this.offset, 0) // keep default node from initial offset
+			: previousNodeBeforeWhitespaces; // use previous node
+		this.expectedTypes = new ExpectedTypes(assistOptions, this.node);
+		this.token = tokenBefore(cuBuffer).toCharArray();
+		this.enclosingElement = computeEnclosingElement(modelUnit);
+//		if (this.toComplete instanceof SimpleName simpleName) {
+//			int charCount = this.offset - simpleName.getStartPosition();
+//			if (!FAKE_IDENTIFIER.equals(simpleName.getIdentifier())) {
+//				completeAfter = simpleName.getIdentifier().substring(0, simpleName.getIdentifier().length() <= charCount ? simpleName.getIdentifier().length() : charCount);
+//			}
+//			if (this.cuBuffer != null) {
+//				if (this.cuBuffer.getChar(this.offset - 1) == '.' || this.cuBuffer.getChar(this.offset - 1) == '/') {
+//					completeAfter = ""; //$NON-NLS-1$
+//				}
+//			}
+//			if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation
+//					|| simpleName.getParent() instanceof VariableDeclaration || simpleName.getParent() instanceof QualifiedName
+//					|| simpleName.getParent() instanceof SuperFieldAccess || simpleName.getParent() instanceof SingleMemberAnnotation
+//					|| simpleName.getParent() instanceof ExpressionMethodReference) {
+//				if (!this.toComplete.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId())) {
+//					context = this.toComplete.getParent();
+//				}
+//			}
+//			if (simpleName.getParent() instanceof SimpleType simpleType && (simpleType.getParent() instanceof ClassInstanceCreation)) {
+//				context = simpleName.getParent().getParent();
+//			}
+//		} else if (this.toComplete instanceof TextElement textElement) {
+//			if (offset >= textElement.getStartPosition() + textElement.getLength()) {
+//				completeAfter = "";
+//				ASTNode parent = textElement.getParent();
+//				while (parent != null && !(parent instanceof Javadoc)) {
+//					parent = parent.getParent();
+//				}
+//				if (parent instanceof Javadoc javadoc) {
+//					context = javadoc.getParent();
+//				}
+//			} else {
+//				int charCount = this.offset - textElement.getStartPosition();
+//				completeAfter = textElement.getText().substring(0, textElement.getText().length() <= charCount ? textElement.getText().length() : charCount);
+//				context = textElement.getParent();
+//			}
+//		} else if (this.toComplete instanceof TagElement tagElement) {
+//			completeAfter = tagElement.getTagName();
+//			int atIndex = completeAfter.indexOf('@');
+//			if (atIndex >= 0) {
+//				completeAfter = completeAfter.substring(atIndex + 1);
+//			}
+//		} if (this.toComplete instanceof SimpleType simpleType) {
+//			if (FAKE_IDENTIFIER.equals(simpleType.getName().toString())) {
+//				context = this.toComplete.getParent();
+//			} else if (simpleType.getName() instanceof QualifiedName qualifiedName) {
+//				context = qualifiedName;
+//			}
+//		} else if (this.toComplete instanceof Block block && this.offset == block.getStartPosition()) {
+//			context = this.toComplete.getParent();
+//		} else if (this.toComplete instanceof FieldAccess fieldAccess) {
+//			completeAfter = fieldAccess.getName().toString();
+//			if (FAKE_IDENTIFIER.equals(completeAfter)) {
+//				completeAfter = ""; //$NON-NLS-1$
+//			} else if (this.cuBuffer != null) {
+//				if (this.cuBuffer.getChar(this.offset - 1) == '.') {
+//					completeAfter = ""; //$NON-NLS-1$
+//				}
+//			}
+//		} else if (this.toComplete instanceof MethodInvocation methodInvocation) {
+//			if (this.offset < methodInvocation.getName().getStartPosition() + methodInvocation.getName().getLength()) {
+//				completeAfter = methodInvocation.getName().toString();
+//			}
+//			if (FAKE_IDENTIFIER.equals(completeAfter)) {
+//				completeAfter = ""; //$NON-NLS-1$
+//			} else if (this.cuBuffer != null) {
+//				if (this.cuBuffer.getChar(this.offset - 1) == '.') {
+//					completeAfter = ""; //$NON-NLS-1$
+//				}
+//			}
+//		} else if (this.toComplete instanceof NormalAnnotation || this.toComplete instanceof ExpressionMethodReference || (this.toComplete instanceof MethodDeclaration md && md.getName().getStartPosition() + md.getName().getLength() + 1 < this.offset)) {
+//			// handle potentially unrecovered/unparented identifier characters
+//			if (this.cuBuffer != null) {
+//				int cursor = this.offset;
+//				while (cursor > 0 && Character.isJavaIdentifierPart(this.cuBuffer.getChar(cursor - 1)) ) {
+//					cursor--;
+//				}
+//				completeAfter = this.cuBuffer.getText(cursor, this.offset - cursor);
+//			}
+//		} else if (this.toComplete instanceof StringLiteral stringLiteral && (this.offset <= stringLiteral.getStartPosition() || stringLiteral.getStartPosition() + stringLiteral.getLength() <= this.offset)) {
+//			context = stringLiteral.getParent();
+//		}
+		this.bindingsAcquirer = bindings::stream;
+	}
+
+	private String tokenBefore(IBuffer cuBuffer) {
+		int position = this.offset - 1;
+		StringBuilder builder = new StringBuilder();
+		while (position >= 0 && Character.isJavaIdentifierPart(cuBuffer.getChar(position))) {
+			builder.append(cuBuffer.getChar(position));
+			position--;
+		}
+		builder.reverse();
+		return builder.toString();
+	}
+
+	private IJavaElement computeEnclosingElement(ICompilationUnit modelUnit) {
+		try {
+			if (modelUnit == null)
+				return null;
+			IJavaElement enclosingElement = modelUnit.getElementAt(this.offset);
+			return enclosingElement == null ? modelUnit : enclosingElement;
+		} catch (JavaModelException e) {
+			ILog.get().error(e.getMessage(), e);
+			return null;
+		}
+	}
 
 	DOMCompletionContext(int offset, char[] token, IJavaElement enclosingElement,
 			Supplier<Stream<IBinding>> bindingHaver, ExpectedTypes expectedTypes, ASTNode node) {
@@ -44,15 +189,40 @@ class DOMCompletionContext extends CompletionContext {
 //		populateExpectedTypes();
 	}
 
+//	private int argIndex(List<ASTNode> nodes) {
+//		for (int i = 0; i < nodes.size(); i++) {
+//			ASTNode current = nodes.get(i);
+//			if (current.getStartPosition() <= this.offset && this.offset <= current.getStartPosition() + current.getLength()) {
+//				return i;
+//			}
+//		}
+//		return -1;
+//	}
+
 //	private void populateExpectedTypes() {
+//		ASTNode parent = node;
+//		while (parent != null) {
+//			if (parent instanceof MethodInvocation method) {
+//				int argIndex = argIndex(method.arguments());
+//				var types = method.resolveMethodBinding().getParameterTypes();
+//				if (types.length <= argIndex) {
+//					expectedTypes.
+//				}
+//			}
+//			if (parent instanceof ClassInstanceCreation newObj) {
+//
+//			}
+//			if (parent instanceof Assignment assign) {
+//
+//			}
+//		}
 //		if (node instanceof ClassInstanceCreation classNew && this.offset > classNew.getStartPosition() + classNew.getLength()) {
 //			// trying to find if it's an argument, its position and then will resolve to
 //			// possible types according to method binding
 //			Set<ASTNode> nodes = new HashSet<>();
 //			nodes.add(classNew.getType());
 //			nodes.addAll(classNew.typeArguments());
-//			int lastOffsetBeforeArgs = Math.max(classNew.getType().getStartPosition(),
-//				classNew.typeArguments()
+//			int lastOffsetBeforeArgs = nodes.stream().mapToInt(node -> node.getStartPosition() + node.getLength()).max().orElse(0);
 //		}
 //	}
 
@@ -150,14 +320,18 @@ class DOMCompletionContext extends CompletionContext {
 		if (node instanceof SimpleName name && !Arrays.equals(name.getIdentifier().toCharArray(), RecoveryScanner.FAKE_IDENTIFIER)) {
 			return node.getStartPosition();
 		}
-		return this.offset;
+		return this.offset - getToken().length;
 	}
 	@Override
 	public int getTokenEnd() {
 		if (node instanceof SimpleName) {
 			return node.getStartPosition() + node.getLength() - 1;
 		}
-		return getTokenStart() + token.length - 1;
+		int position = this.offset;
+		while (position <= this.cuBuffer.getLength() && Character.isJavaIdentifierPart(this.cuBuffer.getChar(position))) {
+			position++;
+		}
+		return position - 1;
 	}
 
 	@Override

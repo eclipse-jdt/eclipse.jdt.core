@@ -194,18 +194,6 @@ public class DOMCompletionEngine implements Runnable {
 		return visibleBindings;
 	}
 
-	private IJavaElement computeEnclosingElement() {
-		try {
-			if (this.modelUnit == null)
-				return null;
-			IJavaElement enclosingElement = this.modelUnit.getElementAt(this.offset);
-			return enclosingElement == null ? this.modelUnit : enclosingElement;
-		} catch (JavaModelException e) {
-			ILog.get().error(e.getMessage(), e);
-			return null;
-		}
-	}
-
 	@Override
 	public void run() {
 		if (this.monitor != null) {
@@ -213,43 +201,19 @@ public class DOMCompletionEngine implements Runnable {
 		}
 		this.requestor.beginReporting();
 		try {
-			// Use the raw text to walk back the offset to the first non-whitespace spot
-			int adjustedOffset = this.offset;
-			if (this.cuBuffer != null) {
-				if (adjustedOffset >= this.cuBuffer.getLength()) {
-					adjustedOffset = this.cuBuffer.getLength() - 1;
-				}
-				if (adjustedOffset + 1 >= this.cuBuffer.getLength()
-						|| !Character.isJavaIdentifierStart(this.cuBuffer.getChar(adjustedOffset))) {
-					while (adjustedOffset > 0 && Character.isWhitespace(this.cuBuffer.getChar(adjustedOffset - 1)) ) {
-						adjustedOffset--;
-					}
-				}
-				if (this.cuBuffer.getChar(adjustedOffset - 1) == ',' && Character.isWhitespace(this.cuBuffer.getChar(adjustedOffset))) {
-					// probably an empty parameter
-					adjustedOffset = this.offset;
-					while (adjustedOffset < this.cuBuffer.getLength() && Character.isWhitespace(this.cuBuffer.getChar(adjustedOffset))) {
-						adjustedOffset++;
-					}
-				}
-			}
-			ASTNode previousNodeBeforeWhitespaces = NodeFinder.perform(this.unit, adjustedOffset, 0);
-			this.toComplete = previousNodeBeforeWhitespaces instanceof SimpleName || previousNodeBeforeWhitespaces instanceof StringLiteral || previousNodeBeforeWhitespaces instanceof CharacterLiteral || previousNodeBeforeWhitespaces instanceof NumberLiteral
-				?  NodeFinder.perform(this.unit, this.offset, 0) // keep default node from initial offset
-				: previousNodeBeforeWhitespaces; // use previous node
-			this.expectedTypes = new ExpectedTypes(this.assistOptions, this.toComplete);
-			ASTNode context = this.toComplete;
-			String completeAfter = ""; //$NON-NLS-1$
-			if (this.toComplete instanceof SimpleName simpleName) {
+			Bindings defaultCompletionBindings = new Bindings();
+			Bindings specificCompletionBindings = new Bindings();
+//			var completionContext = new DOMCompletionContext(this.offset, completeAfter.toCharArray(),
+//					computeEnclosingElement(), defaultCompletionBindings::stream, expectedTypes, this.toComplete);
+			var completionContext = new DOMCompletionContext(this.unit, this.modelUnit, this.cuBuffer, this.offset, this.assistOptions, defaultCompletionBindings);
+			this.requestor.acceptContext(completionContext);
+
+			this.expectedTypes = completionContext.expectedTypes;
+			String completeAfter= new String(completionContext.getToken());
+			ASTNode context = completionContext.node;
+			this.toComplete = completionContext.node;
+			if (completionContext.node instanceof SimpleName simpleName) {
 				int charCount = this.offset - simpleName.getStartPosition();
-				if (!FAKE_IDENTIFIER.equals(simpleName.getIdentifier())) {
-					completeAfter = simpleName.getIdentifier().substring(0, simpleName.getIdentifier().length() <= charCount ? simpleName.getIdentifier().length() : charCount);
-				}
-				if (this.cuBuffer != null) {
-					if (this.cuBuffer.getChar(this.offset - 1) == '.' || this.cuBuffer.getChar(this.offset - 1) == '/') {
-						completeAfter = ""; //$NON-NLS-1$
-					}
-				}
 				if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation
 						|| simpleName.getParent() instanceof VariableDeclaration || simpleName.getParent() instanceof QualifiedName
 						|| simpleName.getParent() instanceof SuperFieldAccess || simpleName.getParent() instanceof SingleMemberAnnotation
@@ -263,7 +227,6 @@ public class DOMCompletionEngine implements Runnable {
 				}
 			} else if (this.toComplete instanceof TextElement textElement) {
 				if (offset >= textElement.getStartPosition() + textElement.getLength()) {
-					completeAfter = "";
 					ASTNode parent = textElement.getParent();
 					while (parent != null && !(parent instanceof Javadoc)) {
 						parent = parent.getParent();
@@ -273,16 +236,9 @@ public class DOMCompletionEngine implements Runnable {
 					}
 				} else {
 					int charCount = this.offset - textElement.getStartPosition();
-					completeAfter = textElement.getText().substring(0, textElement.getText().length() <= charCount ? textElement.getText().length() : charCount);
 					context = textElement.getParent();
 				}
-			} else if (this.toComplete instanceof TagElement tagElement) {
-				completeAfter = tagElement.getTagName();
-				int atIndex = completeAfter.indexOf('@');
-				if (atIndex >= 0) {
-					completeAfter = completeAfter.substring(atIndex + 1);
-				}
-			} if (this.toComplete instanceof SimpleType simpleType) {
+			} else if (this.toComplete instanceof SimpleType simpleType) {
 				if (FAKE_IDENTIFIER.equals(simpleType.getName().toString())) {
 					context = this.toComplete.getParent();
 				} else if (simpleType.getName() instanceof QualifiedName qualifiedName) {
@@ -290,39 +246,10 @@ public class DOMCompletionEngine implements Runnable {
 				}
 			} else if (this.toComplete instanceof Block block && this.offset == block.getStartPosition()) {
 				context = this.toComplete.getParent();
-			} else if (this.toComplete instanceof FieldAccess fieldAccess) {
-				completeAfter = fieldAccess.getName().toString();
-				if (FAKE_IDENTIFIER.equals(completeAfter)) {
-					completeAfter = ""; //$NON-NLS-1$
-				} else if (this.cuBuffer != null) {
-					if (this.cuBuffer.getChar(this.offset - 1) == '.') {
-						completeAfter = ""; //$NON-NLS-1$
-					}
-				}
-			} else if (this.toComplete instanceof MethodInvocation methodInvocation) {
-				if (this.offset < methodInvocation.getName().getStartPosition() + methodInvocation.getName().getLength()) {
-					completeAfter = methodInvocation.getName().toString();
-				}
-				if (FAKE_IDENTIFIER.equals(completeAfter)) {
-					completeAfter = ""; //$NON-NLS-1$
-				} else if (this.cuBuffer != null) {
-					if (this.cuBuffer.getChar(this.offset - 1) == '.') {
-						completeAfter = ""; //$NON-NLS-1$
-					}
-				}
-			} else if (this.toComplete instanceof NormalAnnotation || this.toComplete instanceof ExpressionMethodReference || (this.toComplete instanceof MethodDeclaration md && md.getName().getStartPosition() + md.getName().getLength() + 1 < this.offset)) {
-				// handle potentially unrecovered/unparented identifier characters
-				if (this.cuBuffer != null) {
-					int cursor = this.offset;
-					while (cursor > 0 && Character.isJavaIdentifierPart(this.cuBuffer.getChar(cursor - 1)) ) {
-						cursor--;
-					}
-					completeAfter = this.cuBuffer.getText(cursor, this.offset - cursor);
-				}
 			} else if (this.toComplete instanceof StringLiteral stringLiteral && (this.offset <= stringLiteral.getStartPosition() || stringLiteral.getStartPosition() + stringLiteral.getLength() <= this.offset)) {
 				context = stringLiteral.getParent();
 			}
-			this.prefix = completeAfter;
+			this.prefix = new String(completionContext.getToken());
 			this.qualifiedPrefix = this.prefix;
 			if (this.toComplete instanceof QualifiedName qualifiedName) {
 				this.qualifiedPrefix = qualifiedName.getQualifier().toString();
@@ -331,12 +258,6 @@ public class DOMCompletionEngine implements Runnable {
 			} else if (this.toComplete instanceof SimpleType simpleType && simpleType.getName() instanceof QualifiedName qualifiedName) {
 				this.qualifiedPrefix = qualifiedName.getQualifier().toString();
 			}
-			Bindings defaultCompletionBindings = new Bindings();
-			Bindings specificCompletionBindings = new Bindings();
-			var completionContext = new DOMCompletionContext(this.offset, completeAfter.toCharArray(),
-					computeEnclosingElement(), defaultCompletionBindings::stream, expectedTypes, this.toComplete);
-			this.requestor.acceptContext(completionContext);
-
 			// some flags to controls different applicable completion search strategies
 			boolean suggestDefaultCompletions = true;
 
