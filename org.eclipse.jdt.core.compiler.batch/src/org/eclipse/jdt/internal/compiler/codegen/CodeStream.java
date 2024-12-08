@@ -3753,7 +3753,7 @@ public void goto_(BranchLabel label) {
 	}
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_goto;
-	label.branch();
+	label.branchNarrow();
 	this.lastAbruptCompletion = this.position;
 }
 

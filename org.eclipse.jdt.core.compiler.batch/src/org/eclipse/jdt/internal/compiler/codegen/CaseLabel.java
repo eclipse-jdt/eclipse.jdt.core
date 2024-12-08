@@ -16,15 +16,17 @@ package org.eclipse.jdt.internal.compiler.codegen;
 public class CaseLabel extends BranchLabel {
 
 	public int instructionPosition = POS_NOT_SET;
+	private BranchLabel branchLabel; // doppelganger
 
-/**
- * CaseLabel constructor comment.
- * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
- */
 public CaseLabel(CodeStream codeStream) {
 	super(codeStream);
 }
 
+public CaseLabel(CodeStream codeStream, boolean allowNarrowBranch) {
+	super(codeStream);
+	if (allowNarrowBranch)
+		this.branchLabel = new BranchLabel(codeStream);
+}
 /*
 * Put down  a reference to the array at the location in the codestream.
 * #placeInstruction() must be performed prior to any #branch()
@@ -45,9 +47,11 @@ void branch() {
 	trackStackDepth(true);
 }
 
-/*
-* No support for wide branches yet
-*/
+@Override
+void branchNarrow() {
+	this.branchLabel.branchNarrow();
+}
+
 @Override
 void branchWide() {
 	branch(); // case label branch is already wide
@@ -77,6 +81,8 @@ public void place() {
 		this.codeStream.addLabel(this);
 	}
 	trackStackDepth(false);
+	if (this.branchLabel != null)
+		this.branchLabel.place();
 }
 
 /*
