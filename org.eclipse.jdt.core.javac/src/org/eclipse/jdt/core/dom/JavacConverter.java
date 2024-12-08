@@ -49,8 +49,9 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.parser.ParserFactory;
 import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
-import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeInfo;
+import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCAnyPattern;
@@ -124,7 +125,6 @@ import com.sun.tools.javac.tree.JCTree.JCWhileLoop;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
 import com.sun.tools.javac.tree.JCTree.JCYield;
 import com.sun.tools.javac.tree.JCTree.Tag;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JCDiagnostic;
 import com.sun.tools.javac.util.Log;
@@ -434,7 +434,9 @@ class JavacConverter {
 
 	void commonSettings(ASTNode res, JCTree javac, int length, boolean removeWhitespace) {
 		if( javac != null && length >= 0) {
-			res.setSourceRange(javac.getStartPosition(), Math.max(0, length));
+			if (!(res instanceof SimpleName name && FAKE_IDENTIFIER.equals(name.getIdentifier()))) {
+				res.setSourceRange(javac.getStartPosition(), Math.max(0, length));
+			}
 			if( removeWhitespace ) {
 				removeSurroundingWhitespaceFromRange(res);
 			}
@@ -3479,7 +3481,7 @@ class JavacConverter {
 
 		@Override
 		public boolean visit(SimpleName name) {
-			if (name.getStartPosition() < 0) {
+			if (name.getStartPosition() < 0 && ! FAKE_IDENTIFIER.equals(name.getIdentifier())) {
 				int foundOffset = findPositionOfText(name.getIdentifier(), name.getParent(), siblingsOf(name));
 				if (foundOffset >= 0) {
 					name.setSourceRange(foundOffset, name.getIdentifier().length());
