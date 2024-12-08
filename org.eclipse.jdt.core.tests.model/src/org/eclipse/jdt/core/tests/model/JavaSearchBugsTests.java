@@ -10737,11 +10737,14 @@ public void testBug261722() throws Exception {
 		    }
 		};
 		Thread thread = new Thread(search);
+		long start = System.nanoTime();
+		long maxEnd = start + 10_000_000_000L;
+
 		thread.start();
 
 		// Delete project in current thread after being sure that the search
 		// request was started
-		while (requestor.count < (MAX/3)) {
+		while (requestor.count < (MAX/3) && System.nanoTime() < maxEnd) {
 			Thread.sleep(10);
 		}
 		deleteProject(javaProject);
