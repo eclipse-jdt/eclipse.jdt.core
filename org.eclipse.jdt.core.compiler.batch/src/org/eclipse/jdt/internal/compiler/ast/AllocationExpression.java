@@ -351,6 +351,8 @@ public StringBuilder printExpression(int indent, StringBuilder output) {
 
 @Override
 public TypeBinding resolveType(BlockScope scope) {
+	if (++this.resolves > 2)
+		throw new IllegalStateException("Seen one two many resolves!"); //$NON-NLS-1$
 	// Propagate the type checking to the arguments, and check if the constructor is defined.
 	final boolean isDiamond = this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0;
 	final CompilerOptions compilerOptions = scope.compilerOptions();
