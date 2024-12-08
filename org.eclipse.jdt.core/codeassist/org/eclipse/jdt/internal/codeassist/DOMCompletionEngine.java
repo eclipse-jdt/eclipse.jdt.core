@@ -213,7 +213,30 @@ public class DOMCompletionEngine implements Runnable {
 		}
 		this.requestor.beginReporting();
 		try {
-			this.toComplete = NodeFinder.perform(this.unit, this.offset, 0);
+			// Use the raw text to walk back the offset to the first non-whitespace spot
+			int adjustedOffset = this.offset;
+			if (this.cuBuffer != null) {
+				if (adjustedOffset >= this.cuBuffer.getLength()) {
+					adjustedOffset = this.cuBuffer.getLength() - 1;
+				}
+				if (adjustedOffset + 1 >= this.cuBuffer.getLength()
+						|| !Character.isJavaIdentifierStart(this.cuBuffer.getChar(adjustedOffset))) {
+					while (adjustedOffset > 0 && Character.isWhitespace(this.cuBuffer.getChar(adjustedOffset - 1)) ) {
+						adjustedOffset--;
+					}
+				}
+				if (this.cuBuffer.getChar(adjustedOffset - 1) == ',' && Character.isWhitespace(this.cuBuffer.getChar(adjustedOffset))) {
+					// probably an empty parameter
+					adjustedOffset = this.offset;
+					while (adjustedOffset < this.cuBuffer.getLength() && Character.isWhitespace(this.cuBuffer.getChar(adjustedOffset))) {
+						adjustedOffset++;
+					}
+				}
+			}
+			ASTNode previousNodeBeforeWhitespaces = NodeFinder.perform(this.unit, adjustedOffset, 0);
+			this.toComplete = previousNodeBeforeWhitespaces instanceof SimpleName || previousNodeBeforeWhitespaces instanceof StringLiteral || previousNodeBeforeWhitespaces instanceof CharacterLiteral || previousNodeBeforeWhitespaces instanceof NumberLiteral
+				?  NodeFinder.perform(this.unit, this.offset, 0) // keep default node from initial offset
+				: previousNodeBeforeWhitespaces; // use previous node
 			this.expectedTypes = new ExpectedTypes(this.assistOptions, this.toComplete);
 			ASTNode context = this.toComplete;
 			String completeAfter = ""; //$NON-NLS-1$
