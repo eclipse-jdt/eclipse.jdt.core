@@ -45,113 +45,29 @@ class DOMCompletionContext extends CompletionContext {
 		this.offset = offset;
 		// Use the raw text to walk back the offset to the first non-whitespace spot
 		int adjustedOffset = this.offset;
-		if (cuBuffer != null) {
-			if (adjustedOffset >= cuBuffer.getLength()) {
-				adjustedOffset = cuBuffer.getLength() - 1;
-			}
-			if (adjustedOffset + 1 >= cuBuffer.getLength()
-					|| !Character.isJavaIdentifierStart(cuBuffer.getChar(adjustedOffset))) {
-				while (adjustedOffset > 0 && Character.isWhitespace(cuBuffer.getChar(adjustedOffset - 1)) ) {
-					adjustedOffset--;
-				}
-			}
-			if (cuBuffer.getChar(adjustedOffset - 1) == ',' && Character.isWhitespace(cuBuffer.getChar(adjustedOffset))) {
-				// probably an empty parameter
-				adjustedOffset = this.offset;
-				while (adjustedOffset < cuBuffer.getLength() && Character.isWhitespace(cuBuffer.getChar(adjustedOffset))) {
-					adjustedOffset++;
-				}
+		if (adjustedOffset >= cuBuffer.getLength()) {
+			adjustedOffset = cuBuffer.getLength() - 1;
+		}
+		if (adjustedOffset + 1 >= cuBuffer.getLength()
+				|| !Character.isJavaIdentifierStart(cuBuffer.getChar(adjustedOffset))) {
+			while (adjustedOffset > 0 && Character.isWhitespace(cuBuffer.getChar(adjustedOffset - 1)) ) {
+				adjustedOffset--;
 			}
 		}
 		ASTNode previousNodeBeforeWhitespaces = NodeFinder.perform(domUnit, adjustedOffset, 0);
+//		if (cuBuffer.getChar(adjustedOffset - 1) == ',' && Character.isWhitespace(cuBuffer.getChar(adjustedOffset))) {
+//			// probably an empty parameter
+//			adjustedOffset = this.offset;
+//			while (adjustedOffset < cuBuffer.getLength() && Character.isWhitespace(cuBuffer.getChar(adjustedOffset))) {
+//				adjustedOffset++;
+//			}
+//		}
 		this.node = previousNodeBeforeWhitespaces instanceof SimpleName || previousNodeBeforeWhitespaces instanceof StringLiteral || previousNodeBeforeWhitespaces instanceof CharacterLiteral || previousNodeBeforeWhitespaces instanceof NumberLiteral
 			?  NodeFinder.perform(domUnit, this.offset, 0) // keep default node from initial offset
 			: previousNodeBeforeWhitespaces; // use previous node
-		this.expectedTypes = new ExpectedTypes(assistOptions, this.node);
+		this.expectedTypes = new ExpectedTypes(assistOptions, this.node, offset);
 		this.token = tokenBefore(cuBuffer).toCharArray();
 		this.enclosingElement = computeEnclosingElement(modelUnit);
-//		if (this.toComplete instanceof SimpleName simpleName) {
-//			int charCount = this.offset - simpleName.getStartPosition();
-//			if (!FAKE_IDENTIFIER.equals(simpleName.getIdentifier())) {
-//				completeAfter = simpleName.getIdentifier().substring(0, simpleName.getIdentifier().length() <= charCount ? simpleName.getIdentifier().length() : charCount);
-//			}
-//			if (this.cuBuffer != null) {
-//				if (this.cuBuffer.getChar(this.offset - 1) == '.' || this.cuBuffer.getChar(this.offset - 1) == '/') {
-//					completeAfter = ""; //$NON-NLS-1$
-//				}
-//			}
-//			if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation
-//					|| simpleName.getParent() instanceof VariableDeclaration || simpleName.getParent() instanceof QualifiedName
-//					|| simpleName.getParent() instanceof SuperFieldAccess || simpleName.getParent() instanceof SingleMemberAnnotation
-//					|| simpleName.getParent() instanceof ExpressionMethodReference) {
-//				if (!this.toComplete.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId())) {
-//					context = this.toComplete.getParent();
-//				}
-//			}
-//			if (simpleName.getParent() instanceof SimpleType simpleType && (simpleType.getParent() instanceof ClassInstanceCreation)) {
-//				context = simpleName.getParent().getParent();
-//			}
-//		} else if (this.toComplete instanceof TextElement textElement) {
-//			if (offset >= textElement.getStartPosition() + textElement.getLength()) {
-//				completeAfter = "";
-//				ASTNode parent = textElement.getParent();
-//				while (parent != null && !(parent instanceof Javadoc)) {
-//					parent = parent.getParent();
-//				}
-//				if (parent instanceof Javadoc javadoc) {
-//					context = javadoc.getParent();
-//				}
-//			} else {
-//				int charCount = this.offset - textElement.getStartPosition();
-//				completeAfter = textElement.getText().substring(0, textElement.getText().length() <= charCount ? textElement.getText().length() : charCount);
-//				context = textElement.getParent();
-//			}
-//		} else if (this.toComplete instanceof TagElement tagElement) {
-//			completeAfter = tagElement.getTagName();
-//			int atIndex = completeAfter.indexOf('@');
-//			if (atIndex >= 0) {
-//				completeAfter = completeAfter.substring(atIndex + 1);
-//			}
-//		} if (this.toComplete instanceof SimpleType simpleType) {
-//			if (FAKE_IDENTIFIER.equals(simpleType.getName().toString())) {
-//				context = this.toComplete.getParent();
-//			} else if (simpleType.getName() instanceof QualifiedName qualifiedName) {
-//				context = qualifiedName;
-//			}
-//		} else if (this.toComplete instanceof Block block && this.offset == block.getStartPosition()) {
-//			context = this.toComplete.getParent();
-//		} else if (this.toComplete instanceof FieldAccess fieldAccess) {
-//			completeAfter = fieldAccess.getName().toString();
-//			if (FAKE_IDENTIFIER.equals(completeAfter)) {
-//				completeAfter = ""; //$NON-NLS-1$
-//			} else if (this.cuBuffer != null) {
-//				if (this.cuBuffer.getChar(this.offset - 1) == '.') {
-//					completeAfter = ""; //$NON-NLS-1$
-//				}
-//			}
-//		} else if (this.toComplete instanceof MethodInvocation methodInvocation) {
-//			if (this.offset < methodInvocation.getName().getStartPosition() + methodInvocation.getName().getLength()) {
-//				completeAfter = methodInvocation.getName().toString();
-//			}
-//			if (FAKE_IDENTIFIER.equals(completeAfter)) {
-//				completeAfter = ""; //$NON-NLS-1$
-//			} else if (this.cuBuffer != null) {
-//				if (this.cuBuffer.getChar(this.offset - 1) == '.') {
-//					completeAfter = ""; //$NON-NLS-1$
-//				}
-//			}
-//		} else if (this.toComplete instanceof NormalAnnotation || this.toComplete instanceof ExpressionMethodReference || (this.toComplete instanceof MethodDeclaration md && md.getName().getStartPosition() + md.getName().getLength() + 1 < this.offset)) {
-//			// handle potentially unrecovered/unparented identifier characters
-//			if (this.cuBuffer != null) {
-//				int cursor = this.offset;
-//				while (cursor > 0 && Character.isJavaIdentifierPart(this.cuBuffer.getChar(cursor - 1)) ) {
-//					cursor--;
-//				}
-//				completeAfter = this.cuBuffer.getText(cursor, this.offset - cursor);
-//			}
-//		} else if (this.toComplete instanceof StringLiteral stringLiteral && (this.offset <= stringLiteral.getStartPosition() || stringLiteral.getStartPosition() + stringLiteral.getLength() <= this.offset)) {
-//			context = stringLiteral.getParent();
-//		}
 		this.bindingsAcquirer = bindings::stream;
 	}
 
@@ -177,54 +93,6 @@ class DOMCompletionContext extends CompletionContext {
 			return null;
 		}
 	}
-
-	DOMCompletionContext(int offset, char[] token, IJavaElement enclosingElement,
-			Supplier<Stream<IBinding>> bindingHaver, ExpectedTypes expectedTypes, ASTNode node) {
-		this.offset = offset;
-		this.enclosingElement = enclosingElement;
-		this.token = token;
-		this.bindingsAcquirer = bindingHaver;
-		this.expectedTypes = expectedTypes;
-		this.node = node;
-//		populateExpectedTypes();
-	}
-
-//	private int argIndex(List<ASTNode> nodes) {
-//		for (int i = 0; i < nodes.size(); i++) {
-//			ASTNode current = nodes.get(i);
-//			if (current.getStartPosition() <= this.offset && this.offset <= current.getStartPosition() + current.getLength()) {
-//				return i;
-//			}
-//		}
-//		return -1;
-//	}
-
-//	private void populateExpectedTypes() {
-//		ASTNode parent = node;
-//		while (parent != null) {
-//			if (parent instanceof MethodInvocation method) {
-//				int argIndex = argIndex(method.arguments());
-//				var types = method.resolveMethodBinding().getParameterTypes();
-//				if (types.length <= argIndex) {
-//					expectedTypes.
-//				}
-//			}
-//			if (parent instanceof ClassInstanceCreation newObj) {
-//
-//			}
-//			if (parent instanceof Assignment assign) {
-//
-//			}
-//		}
-//		if (node instanceof ClassInstanceCreation classNew && this.offset > classNew.getStartPosition() + classNew.getLength()) {
-//			// trying to find if it's an argument, its position and then will resolve to
-//			// possible types according to method binding
-//			Set<ASTNode> nodes = new HashSet<>();
-//			nodes.add(classNew.getType());
-//			nodes.addAll(classNew.typeArguments());
-//			int lastOffsetBeforeArgs = nodes.stream().mapToInt(node -> node.getStartPosition() + node.getLength()).max().orElse(0);
-//		}
-//	}
 
 	@Override
 	public int getOffset() {
@@ -280,10 +148,20 @@ class DOMCompletionContext extends CompletionContext {
 
 	@Override
 	public char[][] getExpectedTypesKeys() {
-		return this.expectedTypes.getExpectedTypes().stream() //
+		var res = this.expectedTypes.getExpectedTypes().stream() //
 				.map(ITypeBinding::getKey) //
 				.map(String::toCharArray) //
 				.toArray(char[][]::new);
+		return res.length == 0 ? null : res;
+	}
+	@Override
+	public char[][] getExpectedTypesSignatures() {
+		var res = this.expectedTypes.getExpectedTypes().stream() //
+				.map(type -> type.getKey()) //
+				.map(name -> name.replace('/', '.'))
+				.map(String::toCharArray) //
+				.toArray(char[][]::new);
+		return res.length == 0 ? null : res;
 	}
 
 	@Override
@@ -299,7 +177,7 @@ class DOMCompletionContext extends CompletionContext {
 				return TL_IN_IMPORT;
 			}
 			if (parent instanceof ClassInstanceCreation newObj) {
-				return getTokenStart() == newObj.getStartPosition() ? TL_CONSTRUCTOR_START : 0;
+				return getTokenStart() <= newObj.getType().getStartPosition() ? TL_CONSTRUCTOR_START : 0;
 			}
 			if (parent instanceof Statement stmt && getTokenStart() == stmt.getStartPosition()) {
 				return getTokenStart() == stmt.getStartPosition() ? TL_STATEMENT_START : 0;

@@ -34,6 +34,7 @@ public class ExpectedTypes {
 		SUPERTYPE, SUBTYPE;
 	}
 
+	private final int offset;
 	private Collection<TypeFilter> expectedTypesFilters = Set.of(TypeFilter.SUPERTYPE, TypeFilter.SUBTYPE);
 	private final Collection<ITypeBinding> expectedTypes = new LinkedHashSet<>();
 	private final Collection<ITypeBinding> uninterestingBindings = new LinkedHashSet<>();
@@ -42,23 +43,50 @@ public class ExpectedTypes {
 	private final ASTNode node;
 	private boolean isReady;
 
-	public ExpectedTypes(AssistOptions options, ASTNode toComplete) {
+	public ExpectedTypes(AssistOptions options, ASTNode toComplete, int offset) {
+		this.offset = offset;
 		this.options = options;
 		this.node = toComplete;
 	}
 
 	private void computeExpectedTypes(){
-
-		ASTNode parent =
-				this.node instanceof VariableDeclarationFragment
-				|| this.node instanceof MethodInvocation
-				|| this.node instanceof InfixExpression ?
-				this.node : this.node.getParent();
+		ASTNode parent2 = this.node;
+		// find the parent that contains type information
+		while (parent2 != null) {
+			if (parent2 instanceof VariableDeclarationFragment fragment && this.offset > fragment.getName().getStartPosition() + fragment.getName().getLength()) {
+				this.expectedTypes.add(fragment.resolveBinding().getType());
+			}
+			if (parent2 instanceof MethodInvocation method && this.offset > method.getName().getStartPosition() + method.getName().getLength()) {
+				// consider params, implemented out of this loop
+				break;
+			}
+			if (parent2 instanceof InfixExpression) {
+				break;
+			}
+			if (parent2 instanceof Assignment assign && this.offset > assign.getLeftHandSide().getStartPosition() + assign.getLeftHandSide().getLength()) {
+				this.expectedTypes.add(assign.resolveTypeBinding());
+				return;
+			}
+			if (parent2 instanceof ClassInstanceCreation newObj && this.offset > newObj.getType().getStartPosition() + newObj.getType().getLength()) {
+				// TODO find params
+				break;
+			}
+			if (parent2 instanceof CastExpression cast && this.offset > cast.getType().getStartPosition() + cast.getType().getLength()) {
+				this.expectedTypes.add(cast.getType().resolveBinding());
+				return;
+			}
+ 			parent2 = parent2.getParent();
+		}
+		ASTNode parent = parent2;
+		if (parent == null) {
+			return; // no construct to infer possible types
+		}
 		// default filter
 		this.expectedTypesFilters = Set.of(TypeFilter.SUBTYPE);
 
 		// find types from parent
-		if(parent instanceof VariableDeclaration variable && !(parent instanceof TypeParameter)) {
+		if(parent instanceof VariableDeclaration variable && !(parent instanceof TypeParameter)
+			&& this.offset > variable.getName().getStartPosition() + variable.getName().getLength()) {
 			ITypeBinding binding = variable.resolveBinding().getType();
 			if(binding != null) {
 				if(!(variable.getInitializer() instanceof ArrayInitializer)) {
@@ -436,9 +464,11 @@ public class ExpectedTypes {
 					continue nextMethod;
 			}
 
-			ITypeBinding expectedType = method.getParameterTypes()[arguments.size() - 1];
-			if(expectedType != null) {
-				this.expectedTypes.add(expectedType);
+			if (arguments.size() > 0) {
+				ITypeBinding expectedType = method.getParameterTypes()[arguments.size() - 1];
+				if(expectedType != null) {
+					this.expectedTypes.add(expectedType);
+				}
 			}
 		}
 	}
