@@ -771,11 +771,20 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 						@Override
 						public void postVisit(ASTNode node) { // fix some positions
 							if( node.getParent() != null ) {
-								if( node.getStartPosition() < node.getParent().getStartPosition()) {
-									int parentEnd = node.getParent().getStartPosition() + node.getParent().getLength();
-									if( node.getStartPosition() >= 0 ) {
-										node.getParent().setSourceRange(node.getStartPosition(), parentEnd - node.getStartPosition());
-									}
+								int myStart = node.getStartPosition();
+								int myEnd = myStart + node.getLength();
+								int parentStart = node.getParent().getStartPosition();
+								int parentEnd = parentStart + node.getParent().getLength();
+								int newParentStart = parentStart;
+								int newParentEnd = parentEnd;
+								if( myStart >= 0 && myStart < parentStart) {
+									newParentStart = myStart;
+								}
+								if( myStart >= 0 && myEnd > parentEnd) {
+									newParentEnd = myEnd;
+								}
+								if( parentStart != newParentStart || parentEnd != newParentEnd) {
+									node.getParent().setSourceRange(newParentStart, newParentEnd - newParentStart);
 								}
 							}
 						}
