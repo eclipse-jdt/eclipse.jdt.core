@@ -1798,8 +1798,8 @@ public void testGH3278_missingAnnotations() {
 		},
 		"",
 		getCompilerOptions());
-	Util.delete(new File(OUTPUT_DIR, "org/eclipse/jdt/annotation/Owning.class".replaceAll("/", File.separator)));
-	Util.delete(new File(OUTPUT_DIR, "org/eclipse/jdt/annotation/NotOwning.class".replaceAll("/", File.separator)));
+	Util.delete(new File(OUTPUT_DIR, "org/eclipse/jdt/annotation/Owning.class".replace('/', File.separatorChar)));
+	Util.delete(new File(OUTPUT_DIR, "org/eclipse/jdt/annotation/NotOwning.class".replace('/', File.separatorChar)));
 
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
