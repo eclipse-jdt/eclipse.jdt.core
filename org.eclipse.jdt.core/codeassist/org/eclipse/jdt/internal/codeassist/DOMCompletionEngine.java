@@ -1375,7 +1375,7 @@ public class DOMCompletionEngine implements Runnable {
 					binding instanceof IMethodBinding methodBinding ? methodBinding.getReturnType() :
 					binding instanceof IVariableBinding variableBinding ? variableBinding.getType() :
 					this.toComplete.getAST().resolveWellKnownType(Object.class.getName())) +
-				RelevanceConstants.R_UNQUALIFIED + // TODO: add logic
+				computeRelevanceForQualification(false) + // TODO: is this always false?
 				CompletionEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE) //no access restriction for class field
 				//RelevanceConstants.R_NON_INHERITED // TODO: when is this active?
 				);
@@ -1460,12 +1460,30 @@ public class DOMCompletionEngine implements Runnable {
 		} else if (this.toComplete instanceof MarkerAnnotation) {
 			res.setTokenRange(this.offset, this.offset);
 		}
+		boolean nodeInImports = DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.IMPORT_DECLARATION }) != null;
+		boolean fromCurrentCU = this.modelUnit.equals(type.getCompilationUnit());
+		boolean typeIsImported = false;
+		boolean inSamePackage = false;
+		try {
+			typeIsImported = Stream.of(this.modelUnit.getImports()).anyMatch(id -> {
+				return id.getElementName().equals(type.getFullyQualifiedName());
+			});
+			IPackageDeclaration[] packageDecls = this.modelUnit.getPackageDeclarations();
+			if (packageDecls != null && packageDecls.length > 0) {
+				inSamePackage = this.modelUnit.getPackageDeclarations()[0].getElementName().equals(type.getPackageFragment().getElementName());
+			} else {
+				inSamePackage = type.getPackageFragment().getElementName().isEmpty();
+			}
+		} catch (JavaModelException e) {
+			// there are sensible default set if accessing the model fails
+		}
 		res.completionEngine = this.nestedEngine;
 		res.nameLookup = this.nameEnvironment.nameLookup;
 		int relevance = RelevanceConstants.R_DEFAULT
 				+ RelevanceConstants.R_RESOLVED
 				+ RelevanceConstants.R_INTERESTING
-				+ RelevanceConstants.R_NON_RESTRICTED;
+				+ RelevanceConstants.R_NON_RESTRICTED
+				+ computeRelevanceForQualification(!nodeInImports && !fromCurrentCU && !inSamePackage && !typeIsImported);
 		relevance += computeRelevanceForCaseMatching(this.prefix.toCharArray(), simpleName, this.assistOptions);
 		try {
 			if (type.isAnnotation()) {
@@ -2057,6 +2075,17 @@ public class DOMCompletionEngine implements Runnable {
 		}
 
 		return res;
+	}
+
+	private int computeRelevanceForQualification(boolean prefixRequired) {
+		boolean insideQualifiedReference = !this.prefix.equals(this.qualifiedPrefix);
+		if (!prefixRequired && !insideQualifiedReference) {
+			return RelevanceConstants.R_UNQUALIFIED;
+		}
+		if (prefixRequired && insideQualifiedReference) {
+			return RelevanceConstants.R_QUALIFIED;
+		}
+		return 0;
 	}
 
 	/**
