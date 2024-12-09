@@ -111,6 +111,16 @@ public PackageBinding getPackage() {
 	return leafComponentType.getPackage();
 }
 public int hashCode() {
+	if (!StackWalker.
+		      getInstance().
+			walk(stream -> stream.anyMatch(s -> "java.util.HashMap".equals(s.getClassName()) //$NON-NLS-1$
+					|| "java.util.concurrent.ConcurrentHashMap".equals(s.getClassName())))) //$NON-NLS-1$
+
+			 {
+		RuntimeException e=new RuntimeException("called outside HashMap"); //$NON-NLS-1$
+		e.printStackTrace();
+		throw e;
+	}
 	return this.leafComponentType == null ? super.hashCode() : this.leafComponentType.hashCode();
 }
 /* Answer true if the receiver type can be assigned to the argument type (right)

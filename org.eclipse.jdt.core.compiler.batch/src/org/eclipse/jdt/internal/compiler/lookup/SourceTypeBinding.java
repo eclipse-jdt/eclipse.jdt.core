@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -77,7 +78,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -106,7 +106,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	Map[] synthetics;
 	char[] genericReferenceTypeSignature;
 
-	private SimpleLookupTable storedAnnotations = null; // keys are this ReferenceBinding & its fields and methods, value is an AnnotationHolder
+	private Map<Binding, AnnotationHolder> storedAnnotations = null; // keys are this ReferenceBinding & its fields and methods, value is an AnnotationHolder
 
 	public int defaultNullness;
 	boolean memberTypesSorted = false;
@@ -3150,7 +3150,7 @@ public final int sourceStart() {
 	return this.scope.referenceContext.sourceStart;
 }
 @Override
-SimpleLookupTable storedAnnotations(boolean forceInitialize, boolean forceStore) {
+Map<Binding, AnnotationHolder> storedAnnotations(boolean forceInitialize, boolean forceStore) {
 	if (!isPrototype())
 		return this.prototype.storedAnnotations(forceInitialize, forceStore);
 
@@ -3159,7 +3159,7 @@ SimpleLookupTable storedAnnotations(boolean forceInitialize, boolean forceStore)
 		final CompilerOptions globalOptions = this.scope.environment().globalOptions;
 		if (!globalOptions.storeAnnotations && !forceStore)
 			return null; // not supported during this compile
-		this.storedAnnotations = new SimpleLookupTable(3);
+		this.storedAnnotations = new HashMap<>();
 	}
 	return this.storedAnnotations;
 }

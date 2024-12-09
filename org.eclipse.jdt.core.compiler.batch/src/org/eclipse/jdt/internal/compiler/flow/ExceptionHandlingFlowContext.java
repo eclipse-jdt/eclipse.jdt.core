@@ -20,7 +20,9 @@ package org.eclipse.jdt.internal.compiler.flow;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
@@ -28,7 +30,6 @@ import org.eclipse.jdt.internal.compiler.ast.StatementWithFinallyBlock;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
-import org.eclipse.jdt.internal.compiler.codegen.ObjectCache;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CatchParameterBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
@@ -52,7 +53,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 	int[] isNeeded;
 	// WARNING: This is an array that maps to catch blocks, not caught exceptions (which could be more than catch blocks in a multi-catch block)
 	UnconditionalFlowInfo[] initsOnExceptions;
-	ObjectCache indexes = new ObjectCache();
+	Map<ReferenceBinding, Integer> indexes = new HashMap<>();
 	boolean isMethodContext;
 
 	public UnconditionalFlowInfo initsOnReturn;
