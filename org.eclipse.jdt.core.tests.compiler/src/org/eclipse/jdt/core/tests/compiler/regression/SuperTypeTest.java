@@ -583,7 +583,7 @@ public void test017() {
 		"1. ERROR in X.java (at line 11)\n" +
 		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
 		"	                                          ^^^^^^^^^^^^^^^^^^^^\n" +
-		"Redundant superinterface IVerticalRulerColumn for the type X, already defined by IRevisionRulerColumn\n" +
+		"Redundant superinterface IVerticalRulerColumn for the type X, already defined by IChangeRulerColumn\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 11)\n" +
 		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
@@ -593,7 +593,7 @@ public void test017() {
 		"3. ERROR in X.java (at line 11)\n" +
 		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
 		"	                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Redundant superinterface IVerticalRulerInfoExtension for the type X, already defined by IRevisionRulerColumn\n" +
+		"Redundant superinterface IVerticalRulerInfoExtension for the type X, already defined by IChangeRulerColumn\n" +
 		"----------\n",
 		JavacTestOptions.SKIP);
 }

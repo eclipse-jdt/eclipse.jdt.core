@@ -27,6 +27,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
@@ -321,12 +322,12 @@ void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBind
 	}
 
 	ReferenceBinding[] itsInterfaces = null;
-	SimpleSet inheritedInterfaces = new SimpleSet(5);
+	Set<ReferenceBinding> inheritedInterfaces = new LinkedHashSet<>();
 	ReferenceBinding superType = superclass;
 	while (superType != null && superType.isValidBinding()) {
 		if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
 			for (ReferenceBinding inheritedInterface : itsInterfaces) {
-				if (!inheritedInterfaces.includes(inheritedInterface) && inheritedInterface.isValidBinding()) {
+				if (!inheritedInterfaces.contains(inheritedInterface) && inheritedInterface.isValidBinding()) {
 					if (interfacesToCheck.includes(inheritedInterface)) {
 						if (redundantInterfaces == null) {
 							redundantInterfaces = new SimpleSet(3);
@@ -350,10 +351,9 @@ void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBind
 		superType = superType.superclass();
 	}
 
-	int nextPosition = inheritedInterfaces.elementSize;
+	int nextPosition = inheritedInterfaces.size();
 	if (nextPosition == 0) return;
-	ReferenceBinding[] interfacesToVisit = new ReferenceBinding[nextPosition];
-	inheritedInterfaces.asArray(interfacesToVisit);
+	ReferenceBinding[] interfacesToVisit = inheritedInterfaces.toArray(ReferenceBinding[]::new);
 	for (int i = 0; i < nextPosition; i++) {
 		superType = interfacesToVisit[i];
 		if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
@@ -362,7 +362,7 @@ void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBind
 				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
 			for (int a = 0; a < itsLength; a++) {
 				ReferenceBinding inheritedInterface = itsInterfaces[a];
-				if (!inheritedInterfaces.includes(inheritedInterface) && inheritedInterface.isValidBinding()) {
+				if (!inheritedInterfaces.contains(inheritedInterface) && inheritedInterface.isValidBinding()) {
 					if (interfacesToCheck.includes(inheritedInterface)) {
 						if (redundantInterfaces == null) {
 							redundantInterfaces = new SimpleSet(3);
