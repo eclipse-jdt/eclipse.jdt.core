@@ -183,7 +183,7 @@ class DOMCompletionContext extends CompletionContext {
 				return getTokenStart() == stmt.getStartPosition() ? TL_STATEMENT_START : 0;
 			}
 			if (parent instanceof BodyDeclaration member) {
-				return getTokenStart() == member.getStartPosition() ? TL_MEMBER_START : 0;
+				return (member.getParent() instanceof AbstractTypeDeclaration || member.getParent() instanceof AnonymousClassDeclaration) && getTokenStart() == member.getStartPosition() ? TL_MEMBER_START : 0;
 			}
 			if (parent instanceof Block block) {
 				return block.statements().isEmpty() ? TL_STATEMENT_START : 0;
@@ -195,15 +195,18 @@ class DOMCompletionContext extends CompletionContext {
 
 	@Override
 	public int getTokenStart() {
-		if (node instanceof SimpleName name && !Arrays.equals(name.getIdentifier().toCharArray(), RecoveryScanner.FAKE_IDENTIFIER)) {
-			return node.getStartPosition();
+		if (this.node instanceof StringLiteral) {
+			return this.node.getStartPosition();
+		}
+		if (this.node instanceof SimpleName name && !Arrays.equals(name.getIdentifier().toCharArray(), RecoveryScanner.FAKE_IDENTIFIER)) {
+			return this.node.getStartPosition();
 		}
 		return this.offset - getToken().length;
 	}
 	@Override
 	public int getTokenEnd() {
-		if (node instanceof SimpleName) {
-			return node.getStartPosition() + node.getLength() - 1;
+		if (this.node instanceof SimpleName || this.node instanceof StringLiteral) {
+			return this.node.getStartPosition() + this.node.getLength() - 1;
 		}
 		int position = this.offset;
 		while (position <= this.cuBuffer.getLength() && Character.isJavaIdentifierPart(this.cuBuffer.getChar(position))) {
@@ -212,9 +215,13 @@ class DOMCompletionContext extends CompletionContext {
 		return position - 1;
 	}
 
+	private boolean isOpen(StringLiteral literal) {
+		return this.cuBuffer.getChar(literal.getStartPosition() + literal.getLength() - 1) == '"';
+	}
+
 	@Override
 	public int getTokenKind() {
-		return node instanceof StringLiteral ? TOKEN_KIND_STRING_LITERAL : TOKEN_KIND_NAME;
+		return this.node instanceof StringLiteral ? TOKEN_KIND_STRING_LITERAL : TOKEN_KIND_NAME;
 	}
 
 	/// adapted from org.eclipse.jdt.internal.codeassist.InternalExtendedCompletionContext
