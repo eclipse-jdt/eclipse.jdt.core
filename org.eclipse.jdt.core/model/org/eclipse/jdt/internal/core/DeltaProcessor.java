@@ -226,7 +226,7 @@ public class DeltaProcessor {
 	 * Used for detecting external JAR changes
 	 */
 	public static long getTimeStamp(File file) {
-		return file.lastModified() + file.length();
+		return file.lastModified() + Long.hashCode(file.length()) * 31;
 	}
 
 	/*
