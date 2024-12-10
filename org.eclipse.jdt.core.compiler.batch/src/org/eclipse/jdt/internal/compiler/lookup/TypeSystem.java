@@ -19,7 +19,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -70,42 +72,14 @@ public class TypeSystem {
 	public final class HashedParameterizedTypes {
 
 		private final class PTBKey extends ReferenceBinding { // extends ReferenceBinding so it can be used as wrapper
-			protected ReferenceBinding type; // must ensure the type is resolved
-			public TypeBinding[] arguments;
+			private ReferenceBinding type; // must ensure the type is resolved
+			private TypeBinding[] arguments;
 			private ReferenceBinding enclosingType;
-			public PTBKey(ReferenceBinding type, TypeBinding[] arguments, ReferenceBinding enclosingType, LookupEnvironment environment) {
+
+			public PTBKey(ReferenceBinding type, TypeBinding[] arguments, ReferenceBinding enclosingType) {
 				this.type = type;
 				this.arguments = arguments;
 				this.enclosingType = enclosingType;
-
-				if(environment != null) {
-					// only add as wrapper when used in put()
-					if (type instanceof UnresolvedReferenceBinding)
-						((UnresolvedReferenceBinding) type).addWrapper(this, environment);
-					if (arguments != null) {
-						for (int i = 0; i < arguments.length; i++) {
-							TypeBinding argument = arguments[i];
-							if (argument instanceof UnresolvedReferenceBinding)
-								((UnresolvedReferenceBinding) argument).addWrapper(this, environment);
-							if (argument.hasNullTypeAnnotations())
-								this.tagBits |= TagBits.HasNullTypeAnnotation;
-							if (argument.getClass() == TypeVariableBinding.class) {
-								final int idx = i;
-								TypeVariableBinding typeVariableBinding = (TypeVariableBinding) argument;
-								Consumer<TypeVariableBinding> previousConsumer = typeVariableBinding.updateWhenSettingTypeAnnotations;
-								typeVariableBinding.updateWhenSettingTypeAnnotations = (newTvb) -> {
-									// update the TVB argument and simulate a re-hash:
-									ParameterizedTypeBinding[] value = HashedParameterizedTypes.this.hashedParameterizedTypes.get(this);
-									arguments[idx] = newTvb;
-									HashedParameterizedTypes.this.hashedParameterizedTypes.put(this, value);
-									// for the unlikely case of multiple PTBKeys referring to this TVB chain to the next consumer:
-									if (previousConsumer != null)
-										previousConsumer.accept(newTvb);
-								};
-							}
-						}
-					}
-				}
 			}
 			@Override
 			public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment env) {
@@ -167,7 +141,7 @@ public class TypeSystem {
 			}
 			ReferenceBinding unannotatedEnclosingType = enclosingType == null ? null : (ReferenceBinding) getUnannotatedType(enclosingType);
 
-			PTBKey key = new PTBKey(unannotatedGenericType, unannotatedTypeArguments, unannotatedEnclosingType, null);
+			PTBKey key = new PTBKey(unannotatedGenericType, unannotatedTypeArguments, unannotatedEnclosingType);
 			ReferenceBinding genericTypeToMatch = unannotatedGenericType, enclosingTypeToMatch = unannotatedEnclosingType;
 			TypeBinding [] typeArgumentsToMatch = unannotatedTypeArguments;
 			if (TypeSystem.this instanceof AnnotatableTypeSystem) {
@@ -199,19 +173,41 @@ public class TypeSystem {
 				unannotatedTypeArguments[i] = getUnannotatedType(typeArguments[i]);
 			}
 			ReferenceBinding unannotatedEnclosingType = enclosingType == null ? null : (ReferenceBinding) getUnannotatedType(enclosingType);
-
-			PTBKey key = new PTBKey(unannotatedGenericType, unannotatedTypeArguments, unannotatedEnclosingType, TypeSystem.this.environment);
+			PTBKey key = new PTBKey(unannotatedGenericType, unannotatedTypeArguments, unannotatedEnclosingType);
+			// only add as wrapper
+			if (unannotatedGenericType instanceof UnresolvedReferenceBinding unresolved)
+				unresolved.addWrapper(key, TypeSystem.this.environment);
+			if (unannotatedTypeArguments != null) {
+				for (int i = 0; i < unannotatedTypeArguments.length; i++) {
+					TypeBinding argument = unannotatedTypeArguments[i];
+					if (argument instanceof UnresolvedReferenceBinding unresolvedArgument)
+						unresolvedArgument.addWrapper(key, TypeSystem.this.environment);
+					if (argument.hasNullTypeAnnotations())
+						key.tagBits |= TagBits.HasNullTypeAnnotation;
+					if (argument.getClass() == TypeVariableBinding.class) {
+						final int idx = i;
+						TypeVariableBinding typeVariableBinding = (TypeVariableBinding) argument;
+						Consumer<TypeVariableBinding> previousConsumer = typeVariableBinding.updateWhenSettingTypeAnnotations;
+						typeVariableBinding.updateWhenSettingTypeAnnotations = (newTvb) -> {
+							// update the TVB argument and simulate a re-hash:
+							ParameterizedTypeBinding[] value = HashedParameterizedTypes.this.hashedParameterizedTypes.get(key);
+							unannotatedTypeArguments[idx] = newTvb;
+							HashedParameterizedTypes.this.hashedParameterizedTypes.put(key, value);
+							// for the unlikely case of multiple PTBKeys referring to this TVB chain to the next consumer:
+							if (previousConsumer != null)
+								previousConsumer.accept(newTvb);
+						};
+					}
+				}
+			}
 
 			ParameterizedTypeBinding [] parameterizedTypeBindings = this.hashedParameterizedTypes.get(key);
-			int slot;
 			if (parameterizedTypeBindings == null) {
-				slot = 0;
 				parameterizedTypeBindings = new ParameterizedTypeBinding[1];
 			} else {
-				slot = parameterizedTypeBindings.length;
-				System.arraycopy(parameterizedTypeBindings, 0, parameterizedTypeBindings = new ParameterizedTypeBinding[slot + 1], 0, slot);
+				parameterizedTypeBindings = Arrays.copyOf(parameterizedTypeBindings, parameterizedTypeBindings.length + 1);
 			}
-			parameterizedTypeBindings[slot] = parameterizedType;
+			parameterizedTypeBindings[parameterizedTypeBindings.length-1] = parameterizedType;
 			this.hashedParameterizedTypes.put(key, parameterizedTypeBindings);
 		}
 	}
@@ -223,7 +219,7 @@ public class TypeSystem {
 	LookupEnvironment environment;
 
 	public TypeSystem(LookupEnvironment environment) {
-		this.environment = environment;
+		this.environment = Objects.requireNonNull(environment);
 		this.annotationTypes = new SimpleLookupTable(16);
 		this.typeid = TypeIds.T_LastWellKnownTypeId;
 		this.types = new TypeBinding[TypeIds.T_LastWellKnownTypeId * 2][];
