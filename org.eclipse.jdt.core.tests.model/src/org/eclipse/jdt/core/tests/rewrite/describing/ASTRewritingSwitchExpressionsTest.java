@@ -375,10 +375,9 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		buf.append(" 				int z = 100;\n");
 		buf.append(" 				break;\n");
 		buf.append("			}\n");
-		buf.append("			case 100:\n");
-		buf.append("                {\n");
-		buf.append("                    break;\n");
-		buf.append("                }\n");
+		buf.append("			case 100: {\n");
+		buf.append("                break;\n");
+		buf.append("            }\n");
 		buf.append("            default : {\n");
 		buf.append("				break;\n");
 		buf.append("			}\n");
@@ -852,8 +851,7 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		builder.append("    public String foo(int i) {\n" +
 				"		String ret = switch(i%2) {\n" +
 				"		case 0 : \"even\";\n" +
-				"            case 1:\n" +
-				"                \"odd\";\n" +
+				"            case 1: \"odd\";\n" +
 				"		default : \"\";\n" +
 				"		};\n" +
 				"		return ret;");
@@ -986,6 +984,104 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 				"    }\n" +
 				"}\n");
 		assertEqualString(preview, builder.toString());
+	}
+
+	public void testSwitchStatementCase_01() throws Exception {
+	    IPackageFragment pack1 = this.sourceFolder.createPackageFragment("test1", false, null);
+	    String code = """
+				public class X {
+				    static int foo(int i) {
+				        int tw = 0;
+				        switch (i) {
+				            case 1: {
+				                int z = 100;
+				                break;
+				            }
+				            default: {
+				                break;
+				            }
+				        }
+				        return tw;
+				    }
+
+				    public static void main(String[] args) {
+				        System.out.print(foo(1));
+				    }
+				}
+	    		""";
+	    ICompilationUnit cu = pack1.createCompilationUnit("X.java", code, false, null);
+
+	    CompilationUnit astRoot = createAST(cu);
+	    ASTRewrite rewrite = ASTRewrite.create(astRoot.getAST());
+	    AST ast = astRoot.getAST();
+
+	    assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+	    TypeDeclaration type = findTypeDeclaration(astRoot, "X");
+	    MethodDeclaration methodDecl = findMethodDeclaration(type, "foo");
+	    Block block = methodDecl.getBody();
+	    List<Statement> blockStatements = block.statements();
+	    {
+	    	SwitchStatement switchStmt = (SwitchStatement) blockStatements.get(1);
+
+		    SwitchCase newCase = ast.newSwitchCase();
+		    newCase.setSwitchLabeledRule(false);
+		    newCase.expressions().add(ast.newNumberLiteral("100"));
+
+		    SwitchCase newCase1 = ast.newSwitchCase();
+		    newCase1.setSwitchLabeledRule(true);
+		    newCase1.expressions().add(ast.newNumberLiteral("1000"));
+
+		    MethodInvocation mi = ast.newMethodInvocation();
+		    QualifiedName qn = ast.newQualifiedName(ast.newName("System"), ast.newSimpleName("out"));
+		    mi.setExpression(qn);
+		    mi.setName(ast.newSimpleName("println"));
+		    mi.arguments().add(ast.newNumberLiteral("10"));
+		    YieldStatement yieldStatement = ast.newYieldStatement();
+		    yieldStatement.setExpression(mi);
+
+		    BreakStatement breakStatement = ast.newBreakStatement();
+		    Block newBlock = ast.newBlock();
+		    newBlock.statements().add(breakStatement);
+
+		    SwitchCase defaultCase = (SwitchCase) switchStmt.statements().get(2);
+		    ListRewrite listRewrite = rewrite.getListRewrite(switchStmt, SwitchStatement.STATEMENTS_PROPERTY);
+
+		    listRewrite.insertBefore(newCase, defaultCase, null);
+		    listRewrite.insertBefore(newBlock, defaultCase, null);
+
+		    listRewrite.insertBefore(newCase1, defaultCase, null);
+		    listRewrite.insertBefore(yieldStatement, defaultCase, null);
+	    }
+
+	    String preview = evaluateRewrite(cu, rewrite);
+
+	    String expectedCode = """
+				public class X {
+				    static int foo(int i) {
+				        int tw = 0;
+				        switch (i) {
+				            case 1: {
+				                int z = 100;
+				                break;
+				            }
+				            case 100: {
+				                break;
+				            }
+				            case 1000 -> yield System.out.println(10);
+				            default: {
+				                break;
+				            }
+				        }
+				        return tw;
+				    }
+
+				    public static void main(String[] args) {
+				        System.out.print(foo(1));
+				    }
+				}
+	    		""";
+
+	    assertEqualString(preview, expectedCode);
 	}
 
 }

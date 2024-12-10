@@ -3779,9 +3779,15 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		    boolean isSwitchLabelRule = isSwitchLabeledRule(nodeIndex, nextNodeIndex);
 		    String spaceDelim = JavaCore.INSERT.equals(ASTRewriteAnalyzer.this.options.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ARROW_IN_SWITCH_CASE))? " ":""; //$NON-NLS-1$ //$NON-NLS-2$
 		    String lineDelim = isSwitchLabelRule ? spaceDelim : getLineDelimiter();
-
-			StringBuilder buf= new StringBuilder(lineDelim);
-			buf.append(createIndentString(getNodeIndent(nextNodeIndex)));
+		    StringBuilder buf = new StringBuilder();
+		    Object object = ((NodeRewriteEvent) this.list[nodeIndex]).getNewValue();
+		    if (object instanceof SwitchCase) {
+		    	buf.append(spaceDelim);
+		    } else if (object instanceof Block || object instanceof YieldStatement || object instanceof ExpressionStatement || object instanceof ReturnStatement) {
+		    	buf.append(lineDelim).append(createIndentString(getNodeIndent(nextNodeIndex)));
+		    } else {
+		    	buf.append(createIndentString(getNodeIndent(nextNodeIndex)));
+		    }
 			return buf.toString();
 		}
 
@@ -3801,8 +3807,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					ASTNode prevNode = getNode(nodeIndex -1);
 					if (prevNode.getNodeType() == ASTNode.SWITCH_CASE && ((SwitchCase)prevNode).isSwitchLabeledRule()) {
 						return 0;
-					} else {
-						indent++;
 					}
 				}
 			}
