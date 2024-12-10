@@ -643,6 +643,9 @@ public class DOMCompletionEngine implements Runnable {
 					ExtendsOrImplementsInfo extendsOrImplementsInfo = isInExtendsOrImplements(this.toComplete);
 					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 						findTypes(completeAfter, typeMatchRule, null)
+							.filter(type -> {
+								return defaultCompletionBindings.stream().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> type.equals(elt));
+							})
 							.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
 									type.getElementName().toCharArray()))
 							.filter(type -> {
