@@ -47,11 +47,8 @@ import com.sun.source.util.TreePath;
 import com.sun.tools.javac.api.JavacTaskImpl;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Attribute;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symtab;
-import com.sun.tools.javac.code.TypeTag;
-import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Attribute.Compound;
+import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.ModuleSymbol;
@@ -60,6 +57,7 @@ import com.sun.tools.javac.code.Symbol.RootPackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ErrorType;
@@ -71,8 +69,9 @@ import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.ModuleType;
 import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Type.TypeVar;
+import com.sun.tools.javac.code.TypeTag;
+import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
@@ -96,6 +95,7 @@ import com.sun.tools.javac.tree.JCTree.JCTypeCast;
 import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 
 /**
@@ -104,7 +104,7 @@ import com.sun.tools.javac.util.Context;
  */
 public class JavacBindingResolver extends BindingResolver {
 
-	private JavacTask javac; // TODO evaluate memory cost of storing the instance
+	private JavacTask javacTask; // TODO evaluate memory cost of storing the instance
 	// it will probably be better to run the `Enter` and then only extract interesting
 	// date from it.
 	public final Context context;
@@ -427,7 +427,7 @@ public class JavacBindingResolver extends BindingResolver {
 	private List<JCCompilationUnit> javacCompilationUnits;
 
 	public JavacBindingResolver(IJavaProject javaProject, JavacTask javacTask, Context context, JavacConverter converter, WorkingCopyOwner owner, List<JCCompilationUnit> javacCompilationUnits) {
-		this.javac = javacTask;
+		this.javacTask = javacTask;
 		this.context = context;
 		this.javaProject = javaProject;
 		this.converter = converter;
@@ -440,14 +440,21 @@ public class JavacBindingResolver extends BindingResolver {
 			// already done and ready
 			return;
 		}
-		synchronized (this.javac) { // prevents from multiple `analyze` for the same task
+		final JavacTask tmpTask = this.javacTask;
+		if( tmpTask == null ) {
+			return;
+		}
+		synchronized (tmpTask) { // prevents from multiple `analyze` for the same task
+			if( this.javacTask == null ) {
+				return;
+			}
 			boolean alreadyAnalyzed = this.converter.domToJavac.values().stream().map(TreeInfo::symbolFor).anyMatch(Objects::nonNull);
 			if (!alreadyAnalyzed) {
 				// symbols not already present: analyze
 				try {
 					Iterable<? extends Element> elements;
 					// long start = System.currentTimeMillis();
-					if (this.javac instanceof JavacTaskImpl javacTaskImpl) {
+					if (this.javacTask instanceof JavacTaskImpl javacTaskImpl) {
 						if (javacCompilationUnits != null && !javacCompilationUnits.isEmpty()) {
 							Iterable<? extends CompilationUnitTree> trees = javacCompilationUnits;
 							elements = javacTaskImpl.enter(trees);
@@ -462,7 +469,7 @@ public class JavacBindingResolver extends BindingResolver {
 //						ILog.get().info("enter/analyze elements=" + count + ", took: "
 //								+ (System.currentTimeMillis() - start) + ", first=" + name);
 					} else {
-						elements = this.javac.analyze();
+						elements = this.javacTask.analyze();
 //						long count = StreamSupport.stream(elements.spliterator(), false).count();
 //						String name = elements.iterator().hasNext()
 //								? elements.iterator().next().getSimpleName().toString()
@@ -477,7 +484,7 @@ public class JavacBindingResolver extends BindingResolver {
 			// some cleanups to encourage garbage collection
 			JavacCompilationUnitResolver.cleanup(context);
 		}
-		this.javac = null;
+		this.javacTask = null;
 		synchronized (this) {
 			if (this.symbolToDeclaration == null) {
 				Map<Symbol, ASTNode> wipSymbolToDeclaration = new HashMap<>();
