@@ -778,13 +778,14 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 								int parentEnd = parentStart + node.getParent().getLength();
 								int newParentStart = parentStart;
 								int newParentEnd = parentEnd;
-								if( myStart >= 0 && myStart < parentStart) {
+								if( parentStart != -1 && myStart >= 0 && myStart < parentStart) {
 									newParentStart = myStart;
 								}
-								if( myStart >= 0 && myEnd > parentEnd) {
+								if( parentEnd != -1 && myStart >= 0 && myEnd > parentEnd) {
 									newParentEnd = myEnd;
 								}
-								if( parentStart != newParentStart || parentEnd != newParentEnd) {
+								if( newParentStart != -1 && newParentEnd != -1 &&
+										parentStart != newParentStart || parentEnd != newParentEnd) {
 									node.getParent().setSourceRange(newParentStart, newParentEnd - newParentStart);
 								}
 							}
