@@ -216,7 +216,7 @@ static class JavacCompiler {
 	JavacCompiler(String rootDirectoryPath, String rawVersion) throws IOException, InterruptedException {
 		this.rootDirectoryPath = rootDirectoryPath;
 		this.javacPathName = new File(rootDirectoryPath + File.separator
-				+ "bin" + File.separator + JAVAC_NAME).getCanonicalPath();
+				+ "bin" + File.separator + JAVAC_NAME).toPath().normalize().toAbsolutePath().toString();
 		// WORK don't need JAVAC_NAME any more; suppress this as we work towards code cleanup
 		if (rawVersion == null) {
 			rawVersion = getVersion(this.javacPathName);
@@ -655,7 +655,7 @@ static class JavaRuntime {
 	private JavaRuntime(String rootDirectoryPath, String version, String rawVersion, int minor) throws IOException, InterruptedException {
 		this.rootDirectoryPath = rootDirectoryPath;
 		this.javaPathName = new File(this.rootDirectoryPath + File.separator
-				+ "bin" + File.separator + JAVA_NAME).getCanonicalPath();
+				+ "bin" + File.separator + JAVA_NAME).toPath().normalize().toAbsolutePath().toString();
 		this.version = version;
 		this.rawVersion = rawVersion;
 		this.minor = minor;

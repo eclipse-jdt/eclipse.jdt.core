@@ -845,7 +845,7 @@ public class BasicBuildTests extends BuilderTests {
 			try {
 				Files.copy(from.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			} catch (IOException e) {
-				ILog.get().error("Failed to copy the file - " + from.getCanonicalPath(), e); //$NON-NLS-1$
+				ILog.get().error("Failed to copy the file - " + from.toPath().normalize().toAbsolutePath().toString(), e); //$NON-NLS-1$
 				throw e;
 			}
 		}
