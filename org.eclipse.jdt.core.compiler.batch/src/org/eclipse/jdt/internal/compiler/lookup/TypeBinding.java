@@ -1829,4 +1829,14 @@ public boolean isNonDenotable() {
 public boolean isSealed() {
 	return false;
 }
+@Override
+public final int hashCode() {
+	// just make sure it is not overridden
+	return super.hashCode();
+}
+@Override
+public final boolean equals(Object obj) {
+	// just make sure it is not overridden
+	return super.equals(obj);
+}
 }
