@@ -242,6 +242,9 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	@Override
 	public TypeBinding resolveType(BlockScope blockScope, boolean skipKosherCheck) {
 
+		if (++this.resolves > 2)
+			throw new IllegalStateException("Seen one two many resolves!"); //$NON-NLS-1$
+
 		boolean argumentsTypeElided = argumentsTypeElided();
 		int argumentsLength = this.arguments == null ? 0 : this.arguments.length;
 
