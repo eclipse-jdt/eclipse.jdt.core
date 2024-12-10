@@ -1157,7 +1157,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 
 
 	public void testCompilerUnusedVariable() throws Exception {
-		String tmpFolder = new File(System.getProperty("java.io.tmpdir")).getCanonicalPath();
+		String tmpFolder = new File(System.getProperty("java.io.tmpdir")).toPath().normalize().toAbsolutePath().toString();
 		File inputFile = new File(tmpFolder, "NoWarn.java");
 		BufferedWriter writer = null;
 		try {
@@ -1208,7 +1208,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		assertEquals("Expected no warnings to be generated.", "", stringWriter.toString());
 	}
 	public void testCompilerUnusedVariable2() throws Exception {
-		String tmpFolder = new File(System.getProperty("java.io.tmpdir")).getCanonicalPath();
+		String tmpFolder = new File(System.getProperty("java.io.tmpdir")).toPath().normalize().toAbsolutePath().toString();
 		File inputFile = new File(tmpFolder, "NoWarn.java");
 		BufferedWriter writer = null;
 		try {
@@ -1264,7 +1264,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 	}
 
 	private void suppressTest(String fileName, String source, String expectedDiagnostics, String expectedOutput) throws Exception {
-		String tmpFolder = new File(System.getProperty("java.io.tmpdir")).getCanonicalPath();
+		String tmpFolder = new File(System.getProperty("java.io.tmpdir")).toPath().normalize().toAbsolutePath().toString();
 		File inputFile = new File(tmpFolder, fileName);
 		BufferedWriter writer = null;
 		try {

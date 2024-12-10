@@ -212,7 +212,7 @@ void traverse (File f) throws IOException {
 		}
 	} else {
 		if (f.getName().endsWith(".java")) {
-			System.out.println(f.getCanonicalPath());
+			System.out.println(f.toPath().normalize().toAbsolutePath().toString());
 			char [] contents = new char[(int) f.length()];
 			FileInputStream fs = new FileInputStream(f);
 			InputStreamReader isr = null;
@@ -222,7 +222,7 @@ void traverse (File f) throws IOException {
 				if (isr != null) isr.close();
 			}
 			isr.read(contents);
-			checkParse(contents, null, f.getCanonicalPath(), null);
+			checkParse(contents, null, f.toPath().normalize().toAbsolutePath().toString(), null);
 		}
 	}
 }

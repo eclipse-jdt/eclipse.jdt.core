@@ -216,7 +216,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		}
 
 		try {
-			final String canonicalPath = file.getCanonicalPath();
+			final String filePath = file.toPath().normalize().toAbsolutePath().toString();
 			final CompilationUnit[] units = new CompilationUnit[1];
 
 			FileASTRequestor requestor = new FileASTRequestor() {
@@ -226,15 +226,15 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 					}
 				}
 				public void acceptAST(String sourceFilePath, CompilationUnit ast) {
-					if (canonicalPath.equals(sourceFilePath)) {
+					if (filePath.equals(sourceFilePath)) {
 						units[0] = ast;
 					}
 				}
 			};
 
-			parser.setEnvironment(null, new String[] { rootDir.getCanonicalPath() }, null, true);
+			parser.setEnvironment(null, new String[] { rootDir.toPath().normalize().toAbsolutePath().toString() }, null, true);
 
-			parser.createASTs(new String[] {canonicalPath}, null, new String[] {key}, requestor, null);
+			parser.createASTs(new String[] {filePath}, null, new String[] {key}, requestor, null);
 
 			assertNotNull("No binding", bindings[0]);
 			assertEquals("Wrong type of binding", IBinding.TYPE, bindings[0].getKind());
@@ -327,7 +327,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		}
 
 		try {
-			final String canonicalPath = file.getCanonicalPath();
+			final String filePath = file.toPath().normalize().toAbsolutePath().toString();
 			final CompilationUnit[] units = new CompilationUnit[1];
 
 			FileASTRequestor requestor = new FileASTRequestor() {
@@ -341,15 +341,15 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 					}
 				}
 				public void acceptAST(String sourceFilePath, CompilationUnit ast) {
-					if (canonicalPath.equals(sourceFilePath)) {
+					if (filePath.equals(sourceFilePath)) {
 						units[0] = ast;
 					}
 				}
 			};
 
-			parser.setEnvironment(null, new String[] { rootDir.getCanonicalPath() }, null, true);
+			parser.setEnvironment(null, new String[] { rootDir.toPath().normalize().toAbsolutePath().toString() }, null, true);
 
-			parser.createASTs(new String[] {canonicalPath}, null, new String[] {key}, requestor, null);
+			parser.createASTs(new String[] {filePath}, null, new String[] {key}, requestor, null);
 
 			assertNotNull("No binding", bindings[0]);
 			assertEquals("Wrong type of binding", IBinding.TYPE, bindings[0].getKind());
@@ -426,7 +426,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		}
 
 		try {
-			final String canonicalPath = fileY.getCanonicalPath();
+			final String fileYPath = fileY.toPath().normalize().toAbsolutePath().toString();
 			final CompilationUnit[] units = new CompilationUnit[1];
 
 			FileASTRequestor requestor = new FileASTRequestor() {
@@ -440,15 +440,15 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 					}
 				}
 				public void acceptAST(String sourceFilePath, CompilationUnit ast) {
-					if (canonicalPath.equals(sourceFilePath)) {
+					if (fileYPath.equals(sourceFilePath)) {
 						units[0] = ast;
 					}
 				}
 			};
 
-			parser.setEnvironment(null, new String[] { rootDir.getCanonicalPath() }, null, true);
+			parser.setEnvironment(null, new String[] { rootDir.toPath().normalize().toAbsolutePath().toString() }, null, true);
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = 0;
-			parser.createASTs(new String[] {canonicalPath}, null, new String[] {key}, requestor, null);
+			parser.createASTs(new String[] {fileYPath}, null, new String[] {key}, requestor, null);
 			assertNotNull("No ast", units[0]);
 			assertEquals("No problem", 0, units[0].getProblems().length);
 		} finally {
@@ -515,7 +515,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		}
 
 		try {
-			final String canonicalPath = fileY.getCanonicalPath();
+			final String fileYPath = fileY.toPath().normalize().toAbsolutePath().toString();
 			final CompilationUnit[] units = new CompilationUnit[1];
 
 			FileASTRequestor requestor = new FileASTRequestor() {
@@ -529,14 +529,14 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 					}
 				}
 				public void acceptAST(String sourceFilePath, CompilationUnit ast) {
-					if (canonicalPath.equals(sourceFilePath)) {
+					if (fileYPath.equals(sourceFilePath)) {
 						units[0] = ast;
 					}
 				}
 			};
 
-			parser.setEnvironment(null, new String[] { rootDir.getCanonicalPath() }, null, true);
-			parser.createASTs(new String[] {canonicalPath}, null, new String[] {key}, requestor, null);
+			parser.setEnvironment(null, new String[] { rootDir.toPath().normalize().toAbsolutePath().toString() }, null, true);
+			parser.createASTs(new String[] {fileYPath}, null, new String[] {key}, requestor, null);
 			assertNotNull("No ast", units[0]);
 			IProblem[] problems = units[0].getProblems();
 			assertEquals("No problem", 1, problems.length);
@@ -596,7 +596,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			parser.setKind(ASTParser.K_COMPILATION_UNIT);
 			parser.setCompilerOptions(JavaCore.getOptions());
 			parser.createASTs(
-					new String[] { file.getCanonicalPath(), fileY.getCanonicalPath() },
+					new String[] { file.toPath().normalize().toAbsolutePath().toString(), fileY.toPath().normalize().toAbsolutePath().toString() },
 					null,
 					new String[] {},
 					new FileASTRequestor() {},
@@ -770,18 +770,9 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			parser.setBindingsRecovery(true);
 			parser.setKind(ASTParser.K_COMPILATION_UNIT);
 			parser.setEnvironment(new String[0], new String[] { rootDir.getAbsolutePath() }, null, true);
-		    String[] files = null;
-			try {
-				files = new String[] {file.getCanonicalPath(), fileY.getCanonicalPath()};
-				parser.createASTs(files,
-						null,
-						new String[0],
-						astRequestor,
-						null);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			String[] files = new String[] { file.toPath().normalize().toAbsolutePath().toString(),
+					fileY.toPath().normalize().toAbsolutePath().toString() };
+			parser.createASTs(files, null, new String[0], astRequestor, null);
 		} finally {
 			file.delete();
 			fileY.delete();
@@ -1576,18 +1567,9 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			parser.setBindingsRecovery(true);
 			parser.setKind(ASTParser.K_COMPILATION_UNIT);
 			parser.setEnvironment(new String[0], new String[] { rootDir.getAbsolutePath() }, null, true);
-		    String[] files = null;
-			try {
-				files = new String[] {file.getCanonicalPath(), fileY.getCanonicalPath()};
-				parser.createASTs(files,
-						null,
-						new String[0],
-						astRequestor,
-						null);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			String[] files = new String[] { file.toPath().normalize().toAbsolutePath().toString(),
+					fileY.toPath().normalize().toAbsolutePath().toString() };
+			parser.createASTs(files, null, new String[0], astRequestor, null);
 		} finally {
 			file.delete();
 			fileY.delete();
@@ -1652,12 +1634,12 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		File packageDir = new File(rootDir, "p");
 		packageDir.mkdir();
 		File fileY = new File(packageDir, "Y.java");
-		String canonicalPath = fileY.getCanonicalPath();
+		String fileYPath = fileY.toPath().normalize().toAbsolutePath().toString();
 
 		packageDir = new File(rootDir, "p");
 		packageDir.mkdir();
 		fileY = new File(packageDir, "Z.java");
-		String canonicalPath2 = fileY.getCanonicalPath();
+		String fileZPath = fileY.toPath().normalize().toAbsolutePath().toString();
 
 		contents =
 				"enum X {\n" +
@@ -1687,7 +1669,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			parser.setResolveBindings(true);
 			parser.setCompilerOptions(JavaCore.getOptions());
 			parser.createASTs(
-					new String[] { file.getCanonicalPath(), canonicalPath, canonicalPath2, file2.getCanonicalPath() },
+					new String[] { file.toPath().normalize().toAbsolutePath().toString(), fileYPath, fileZPath, file2.toPath().normalize().toAbsolutePath().toString() },
 					null,
 					new String[] {},
 					new FileASTRequestor() {},

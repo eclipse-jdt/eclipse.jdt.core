@@ -251,9 +251,9 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	void compile(String pluginID, String options, String compliance, boolean log, String[] srcPaths) throws IOException, CoreException {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		final String targetWorkspacePath = workspaceRoot.getProject(pluginID).getLocation().toFile().getCanonicalPath();
+		final String targetWorkspacePath = workspaceRoot.getProject(pluginID).getLocation().toFile().toPath().normalize().toAbsolutePath().toString();
 		String logFileName = targetWorkspacePath + File.separator + getName()+".log";
-		String workspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath()+File.separator;
+		String workspacePath = workspaceRoot.getLocation().toFile().toPath().normalize().toAbsolutePath().toString()+File.separator;
 		String binPath = File.separator+"bin"+File.pathSeparator;
 		String classpath = " -cp " +
 			workspacePath+"org.eclipse.osgi" + binPath +
@@ -277,7 +277,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	// compile the file from org.eclipse.jdt.core.tests.binaries bundle using batch compiler
 	void compile (String srcPath, long fileSize, String options, String compliance, boolean log) throws IOException {
-		final String targetWorkspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile().getCanonicalPath();
+		final String targetWorkspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile().toPath().normalize().toAbsolutePath().toString();
 		String logFileName = targetWorkspacePath + File.separator + getName()+".log";
 
 		File file = fetchFromBinariesProject(srcPath, fileSize);
@@ -432,7 +432,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		// Get workspace path
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		final String workspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
+		final String workspacePath = workspaceRoot.getLocation().toFile().toPath().normalize().toAbsolutePath().toString();
 
 		// Run test
 		for (int i=0; i<MEASURES_COUNT; i++) {
@@ -581,7 +581,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		// Get workspace path
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		final String workspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
+		final String workspacePath = workspaceRoot.getLocation().toFile().toPath().normalize().toAbsolutePath().toString();
 
 		// Run test
 		IWorkspaceRunnable compilation = new IWorkspaceRunnable() {

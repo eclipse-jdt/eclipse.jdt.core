@@ -690,7 +690,7 @@ public class BatchTestUtils {
 		File destinationDir = new File(tmpDir);
 		File destinationFile = new File(destinationDir, processorJar);
 		copyResource(libFile, destinationFile);
-		return destinationFile.getCanonicalPath();
+		return destinationFile.toPath().normalize().toAbsolutePath().toString();
 	}
 
 	/**
