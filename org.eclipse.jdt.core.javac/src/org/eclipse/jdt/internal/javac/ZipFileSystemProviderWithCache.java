@@ -111,20 +111,24 @@ public class ZipFileSystemProviderWithCache extends FileSystemProvider {
 			var res = delegate.newFileSystem(path, env);
 			this.cachedFilesystems.put(path, res);
 			this.lastModificationOfCache.put(res, lastMod);
-			try {
-				// workaround to make the underlying work of the ZipFileSystem
-				// resistant to thread abortion. Without it, the zips become
-				// useless when a consumer thread aborts
-				var zipFileSystemClass = res.getClass();
-				var chField = zipFileSystemClass.getDeclaredField("ch");
-				chField.setAccessible(true);
-				if (chField.get(res) instanceof FileChannelImpl fileChannel) {
-					fileChannel.setUninterruptible();
-				}
-			} catch (Exception ex) {
-				ILog.get().error(ex.getMessage(), ex);
-			}
+			makeFileSystemUninterruptible(res);
 			return res;
+		}
+	}
+
+	static void makeFileSystemUninterruptible(FileSystem res) {
+		try {
+			// workaround to make the underlying work of the ZipFileSystem
+			// resistant to thread abortion. Without it, the zips become
+			// useless when a consumer thread aborts
+			var zipFileSystemClass = res.getClass();
+			var chField = zipFileSystemClass.getDeclaredField("ch");
+			chField.setAccessible(true);
+			if (chField.get(res) instanceof FileChannelImpl fileChannel) {
+				fileChannel.setUninterruptible();
+			}
+		} catch (Exception ex) {
+			ILog.get().error(ex.getMessage(), ex);
 		}
 	}
 	

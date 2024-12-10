@@ -19,10 +19,12 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import javax.annotation.processing.Processor;
+import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
 import javax.tools.JavaFileManager;
 
 import com.sun.source.util.Plugin;
+import com.sun.tools.javac.file.PathFileObject;
 import com.sun.tools.javac.main.Arguments;
 import com.sun.tools.javac.main.DelegatingJavaFileManager;
 import com.sun.tools.javac.main.Option;
@@ -96,7 +98,14 @@ public class CachingJDKPlatformArguments extends Arguments {
 				return platformFMCache.computeIfAbsent(getSourceVersion(), _ -> new ForwardingJavaFileManager<JavaFileManager>(delegate.getFileManager()) {
 					@Override
 					public void close() {
-						// do nothing, keep instance usable
+						// do nothing, to keep instance usable in the future
+					}
+					public FileObject getFileForInput(Location location, String packageName, String relativeName) throws IOException {
+						var res = super.getFileForInput(location, packageName, relativeName);
+						if (res instanceof PathFileObject pathFileObject) {
+							ZipFileSystemProviderWithCache.makeFileSystemUninterruptible(pathFileObject.getPath().getFileSystem());
+						}
+						return res;
 					}
 				});
 			}
