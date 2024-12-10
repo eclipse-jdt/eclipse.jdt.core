@@ -1177,7 +1177,7 @@ public class ASTParser {
 	static IBinding[] resolve(
 		final IJavaElement[] elements,
 		int apiLevel,
-		Map compilerOptions,
+		Map<String,String> compilerOptions,
 		IJavaProject javaProject,
 		WorkingCopyOwner owner,
 		int flags,
@@ -1185,7 +1185,7 @@ public class ASTParser {
 		IProgressMonitor monitor) {
 
 		final int length = elements.length;
-		final HashMap sourceElementPositions = new HashMap(); // a map from ICompilationUnit to int[] (positions in elements)
+		final HashMap<ICompilationUnit, IntArrayList> sourceElementPositions = new HashMap<>(); // a map from ICompilationUnit to int[] (positions in elements)
 		int cuNumber = 0;
 		final HashtableOfObjectToInt binaryElementPositions = new HashtableOfObjectToInt(); // a map from String (binding key) to int (position in elements)
 		for (int i = 0; i < length; i++) {
@@ -1193,11 +1193,11 @@ public class ASTParser {
 			if (!(element instanceof SourceRefElement))
 				throw new IllegalStateException(element + " is not part of a compilation unit or class file"); //$NON-NLS-1$
 			Object cu = element.getAncestor(IJavaElement.COMPILATION_UNIT);
-			if (cu != null) {
+			if (cu != null && cu instanceof ICompilationUnit cu2) {
 				// source member
-				IntArrayList intList = (IntArrayList) sourceElementPositions.get(cu);
+				IntArrayList intList = sourceElementPositions.get(cu2);
 				if (intList == null) {
-					sourceElementPositions.put(cu, intList = new IntArrayList());
+					sourceElementPositions.put(cu2, intList = new IntArrayList());
 					cuNumber++;
 				}
 				intList.add(i);
@@ -1233,7 +1233,7 @@ public class ASTParser {
 			@Override
 			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
 				// TODO (jerome) optimize to visit the AST only once
-				IntArrayList intList = (IntArrayList) sourceElementPositions.get(source);
+				IntArrayList intList = sourceElementPositions.get(source);
 				for (int i = 0; i < intList.length; i++) {
 					final int index = intList.list[i];
 					SourceRefElement element = (SourceRefElement) elements[index];
