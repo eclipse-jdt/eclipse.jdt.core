@@ -84,8 +84,6 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
-import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class Scope {
@@ -958,11 +956,11 @@ public abstract class Scope {
 							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335751
 							if (compilerOptions().complianceLevel > ClassFileConstants.JDK1_6) {
 								if (typeVariable.rank >= varSuperType.rank && varSuperType.declaringElement == typeVariable.declaringElement) {
-									SimpleSet set = new SimpleSet(typeParameters.length);
+									Set<ReferenceBinding> set = new HashSet<>(typeParameters.length);
 									set.add(typeVariable);
 									ReferenceBinding superBinding = varSuperType;
 									while (superBinding instanceof TypeVariableBinding) {
-										if (set.includes(superBinding)) {
+										if (set.contains(superBinding)) {
 											problemReporter().hierarchyCircularity(typeVariable, varSuperType, typeRef);
 											typeVariable.tagBits |= TagBits.HierarchyHasProblems;
 											break firstBound; // do not keep first bound
@@ -4993,7 +4991,7 @@ public abstract class Scope {
 										int mostSpecificLength = mostSpecificExceptions.length;
 										ReferenceBinding[] nextExceptions = getFilteredExceptions(next);
 										int nextLength = nextExceptions.length;
-										SimpleSet temp = new SimpleSet(mostSpecificLength);
+										Set<ReferenceBinding> temp = new HashSet<>(mostSpecificLength);
 										boolean changed = false;
 										nextException : for (int t = 0; t < mostSpecificLength; t++) {
 											ReferenceBinding exception = mostSpecificExceptions[t];
@@ -5012,8 +5010,7 @@ public abstract class Scope {
 											}
 										}
 										if (changed) {
-											mostSpecificExceptions = temp.elementSize == 0 ? Binding.NO_EXCEPTIONS : new ReferenceBinding[temp.elementSize];
-											temp.asArray(mostSpecificExceptions);
+											mostSpecificExceptions = temp.toArray(ReferenceBinding[]::new);
 										}
 									}
 								}
@@ -5395,7 +5392,7 @@ public abstract class Scope {
 			MethodBinding targetMethod = isInterface ? new MethodBinding(method.original(), genericType) : method.original();
 			MethodBinding staticFactory = new SyntheticFactoryMethodBinding(targetMethod, environment, originalEnclosingType);
 			staticFactory.typeVariables = new TypeVariableBinding[factoryArity];
-			final SimpleLookupTable map = new SimpleLookupTable(factoryArity);
+			Map<TypeBinding, TypeVariableBinding> map = new HashMap<>(factoryArity);
 
 			// Rename each type variable T of the type to T' or T'' or T''' based on the enclosing level to avoid a clash.
 			String prime = ""; //$NON-NLS-1$
@@ -5430,7 +5427,7 @@ public abstract class Scope {
 					}
 					@Override
 					public TypeBinding substitute(TypeVariableBinding typeVariable) {
-						TypeBinding retVal = (TypeBinding) map.get(typeVariable.unannotated());
+						TypeBinding retVal = map.get(typeVariable.unannotated());
 						return retVal == null ? typeVariable : typeVariable.hasTypeAnnotations() ? environment().createAnnotatedType(retVal, typeVariable.getTypeAnnotations()) : retVal;
 					}
 				};
@@ -5438,7 +5435,7 @@ public abstract class Scope {
 			// initialize new variable bounds
 			for (int j = 0; j < factoryArity; j++) {
 				TypeVariableBinding originalVariable = j < classTypeVariablesArity ? classTypeVariables[j] : methodTypeVariables[j - classTypeVariablesArity];
-				TypeVariableBinding substitutedVariable = (TypeVariableBinding) map.get(originalVariable.unannotated());
+				TypeVariableBinding substitutedVariable = map.get(originalVariable.unannotated());
 
 				TypeBinding substitutedSuperclass = Scope.substitute(substitution, originalVariable.superclass);
 				ReferenceBinding[] substitutedInterfaces = Scope.substitute(substitution, originalVariable.superInterfaces);

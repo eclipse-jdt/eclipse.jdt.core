@@ -37,6 +37,8 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
@@ -47,7 +49,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
-import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.Sorting;
 
 class MethodVerifier15 extends MethodVerifier {
@@ -864,7 +865,7 @@ boolean doTypeVariablesClash(MethodBinding one, MethodBinding substituteTwo) {
 	return one.typeVariables != Binding.NO_TYPE_VARIABLES && !(substituteTwo instanceof ParameterizedGenericMethodBinding);
 }
 @Override
-SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
+Set<ReferenceBinding> findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
 	ReferenceBinding[] interfacesToVisit = null;
 	int nextPosition = 0;
 	ReferenceBinding[] itsInterfaces = superInterfaces;
@@ -915,7 +916,7 @@ SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBin
 	}
 
 	if (!isInconsistent) return null; // hierarchy is consistent so no collisions are possible
-	SimpleSet copy = null;
+	Set<ReferenceBinding> copy = null;
 	for (int i = 0; i < nextPosition; i++) {
 		ReferenceBinding current = interfacesToVisit[i];
 		if (current.isValidBinding()) {
@@ -924,7 +925,7 @@ SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBin
 				ReferenceBinding next = interfacesToVisit[j];
 				if (next.isValidBinding() && TypeBinding.equalsEquals(next.erasure(), erasure)) {
 					if (copy == null)
-						copy = new SimpleSet(nextPosition);
+						copy = new HashSet<>(nextPosition);
 					copy.add(interfacesToVisit[i]);
 					copy.add(interfacesToVisit[j]);
 				}
