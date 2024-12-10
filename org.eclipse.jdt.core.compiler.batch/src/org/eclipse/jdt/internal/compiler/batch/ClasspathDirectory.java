@@ -359,6 +359,7 @@ public char[][] listPackages() {
 public void reset() {
 	super.reset();
 	this.directoryCache.clear();
+	this.packageSecondaryTypes.clear();
 }
 @Override
 public String toString() {
