@@ -6348,11 +6348,11 @@ public void lookupswitch(CaseLabel defaultLabel, int[] keys, int[] sortedIndexes
 		this.position++;
 		this.bCodeStream[this.classFileOffset++] = 0;
 	}
-	defaultLabel.branch();
+	defaultLabel.branchWide();
 	writeSignedWord(length);
 	for (int i = 0; i < length; i++) {
 		writeSignedWord(keys[sortedIndexes[i]]);
-		casesLabel[sortedIndexes[i]].branch();
+		casesLabel[sortedIndexes[i]].branchWide();
 	}
 	this.lastAbruptCompletion = this.position; // multiway goto, with no fall through
 }
@@ -7519,7 +7519,7 @@ public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] keys, i
 		this.position++;
 		this.bCodeStream[this.classFileOffset++] = 0;
 	}
-	defaultLabel.branch();
+	defaultLabel.branchWide();
 	writeSignedWord(low);
 	writeSignedWord(high);
 	int i = low, j = 0;
@@ -7530,11 +7530,11 @@ public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] keys, i
 		int index = sortedIndexes[j];
 		int key = keys[index];
 		if (key == i) {
-			casesLabel[index].branch();
+			casesLabel[index].branchWide();
 			j++;
 			if (i == high) break; // if high is maxint, then avoids wrapping to minint.
 		} else {
-			defaultLabel.branch();
+			defaultLabel.branchWide();
 		}
 		i++;
 	}
