@@ -91,8 +91,7 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 			LambdaExpression lambda = ((LambdaExpression) this.left).resolveExpressionExpecting(this.right, inferenceContext.scope, inferenceContext);
 			if (lambda == null)
 				return TRUE; // cannot make use of this buggy constraint
-			Set<TypeBinding> ePrimeSet = lambda.getThrownExceptions();
-			ePrime = ePrimeSet.toArray(new TypeBinding[ePrimeSet.size()]);
+			ePrime = lambda.getThrownExceptions().toArray(TypeBinding[]::new);
 		} else {
 			ReferenceExpression referenceExpression = ((ReferenceExpression) this.left).resolveExpressionExpecting(this.right, scope, inferenceContext);
 			MethodBinding method = referenceExpression != null ? referenceExpression.binding : null;

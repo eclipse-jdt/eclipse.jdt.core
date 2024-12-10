@@ -47,9 +47,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION_CONTEXT;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +78,6 @@ import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class LambdaExpression extends FunctionalExpression implements IPolyExpression, ReferenceContext, ProblemSeverities {
 	public Argument [] arguments;
 	private TypeBinding [] argumentTypes;
@@ -101,7 +98,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	private int outerLocalVariablesSlotSize = 0;
 	private boolean assistNode = false;
 	private ReferenceBinding classType;
-	private Set thrownExceptions;
+	private Set<TypeBinding> thrownExceptions;
 	private static final SyntheticArgumentBinding [] NO_SYNTHETIC_ARGUMENTS = new SyntheticArgumentBinding[0];
 	private static final Block NO_BODY = new Block(0);
 	private HashMap<TypeBinding, LambdaExpression> copiesPerTargetType;
@@ -545,7 +542,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			this.body.analyseCode(this.scope,
 									 ehfc = new ExceptionInferenceFlowContext(null, this, Binding.NO_EXCEPTIONS, null, this.scope, FlowInfo.DEAD_END),
 									 UnconditionalFlowInfo.fakeInitializedFlowInfo(this.firstLocalLocal, this.scope.referenceType().maxFieldCount));
-			this.thrownExceptions = ehfc.extendedExceptions == null ? Collections.emptySet() : new HashSet<TypeBinding>(ehfc.extendedExceptions);
+			this.thrownExceptions = ehfc.extendedExceptions == null ? Set.of() : Set.copyOf(ehfc.extendedExceptions);
 		} catch (Exception e) {
 			// drop silently.
 		} finally {
@@ -1199,7 +1196,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 	public Set<TypeBinding> getThrownExceptions() {
 		if (this.thrownExceptions == null)
-			return Collections.emptySet();
+			return Set.of();
 		return this.thrownExceptions;
 	}
 
@@ -1402,7 +1399,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 	public TypeBinding[] getMarkerInterfaces() {
 		if (this.expectedType instanceof IntersectionTypeBinding18) {
-			Set markerBindings = new LinkedHashSet();
+			Set<TypeBinding> markerBindings = new LinkedHashSet<>();
 			IntersectionTypeBinding18 intersectionType = (IntersectionTypeBinding18)this.expectedType;
 			TypeBinding[] intersectionTypes = intersectionType.intersectingTypes;
 			TypeBinding samType = intersectionType.getSAMType(this.enclosingScope);
@@ -1416,7 +1413,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				markerBindings.add(typeBinding);
 			}
 			if (markerBindings.size() > 0) {
-				return (TypeBinding[])markerBindings.toArray(new TypeBinding[markerBindings.size()]);
+				return markerBindings.toArray(TypeBinding[]::new);
 			}
 		}
 		return null;
