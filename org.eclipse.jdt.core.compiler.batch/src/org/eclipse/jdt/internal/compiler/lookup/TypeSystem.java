@@ -196,6 +196,7 @@ public class TypeSystem {
 							// for the unlikely case of multiple PTBKeys referring to this TVB chain to the next consumer:
 							if (previousConsumer != null)
 								previousConsumer.accept(newTvb);
+							throw new RuntimeException("updateWhenSettingTypeAnnotations"); //$NON-NLS-1$
 						};
 					}
 				}
