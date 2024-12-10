@@ -2993,6 +2993,14 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	}
 
 	private void checkCancelled() {
+		if (this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+			// FIXME:
+			// JDT expects completion to never throw in this case since its normally very fast.
+			// To fix this we need to:
+			// - making completion faster by skipping most steps when not really completing anything
+			// - consider catching the OperationCanceledException() in the cases where it's expected to be thrown upstream (jdt.ui)
+			return;
+		}
 		if (this.monitor != null && this.monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
