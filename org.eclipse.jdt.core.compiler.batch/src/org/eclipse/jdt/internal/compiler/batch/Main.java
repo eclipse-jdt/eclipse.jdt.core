@@ -475,13 +475,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					}
 				}
 				File f = new File(fileName);
-				try {
-					HashMap<String, Object> parameters = new HashMap<>();
-					parameters.put(Logger.PATH, f.getCanonicalPath());
-					printTag(Logger.CLASS_FILE, parameters, true, true);
-				} catch (IOException e) {
-					logNoClassFileCreated(outputPath, relativeFileName, e);
-				}
+				HashMap<String, Object> parameters = new HashMap<>();
+				parameters.put(Logger.PATH, f.toPath().normalize().toAbsolutePath().toString());
+				printTag(Logger.CLASS_FILE, parameters, true, true);
 			}
 		}
 		public void logClasspath(FileSystem.Classpath[] classpaths) {
