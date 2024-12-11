@@ -546,6 +546,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				acquisition.closeTracker = tracker;
 			}
 			tracker.acquisition = acquisition;
+			tracker.globalClosingState |= SHARED_WITH_OUTSIDE;
 			FlowInfo outsideInfo = flowInfo.copy();
 			outsideInfo.markAsDefinitelyNonNull(tracker.binding);
 			tracker.markNullStatus(flowInfo, flowContext, FlowInfo.NULL);

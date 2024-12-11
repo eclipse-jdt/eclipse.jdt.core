@@ -7295,4 +7295,52 @@ public void testGH2642() {
 		""",
 		options);
 }
+public void testBug561334() {
+	Map<String, String> compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.INFO);
+	runLeakWarningTest(
+		new String[] {
+			"Foo.java",
+			"""
+			public class Foo implements AutoCloseable {
+				private final String thing;
+				public Foo(String thing) {
+					this.thing = thing;
+				}
+
+				@Override
+				public void close() {
+					//
+				}
+
+				private static Foo foo;
+				private static Foo getFoo() {
+					return foo;
+				}
+
+				public static void main(String[] args) {
+					foo = new Foo("Hello, world!");
+					try {
+						System.out.println(foo.thing);
+						System.out.println(getFoo().thing);
+					} finally {
+						getFoo().close();
+					}
+				}
+			}
+			"""
+		},
+		getBug561334_log(),
+		compilerOptions);
+}
+String getBug561334_log() {
+	return """
+	----------
+	1. INFO in Foo.java (at line 21)
+		System.out.println(getFoo().thing);
+		                   ^^^^^^^^
+	Mandatory close of resource '<unassigned Closeable value>' has not been shown
+	----------
+	""";
+}
 }
