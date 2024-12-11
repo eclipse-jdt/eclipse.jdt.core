@@ -199,7 +199,8 @@ public class DOMCompletionEngine implements Runnable {
 			this.requestor.acceptContext(completionContext);
 
 			this.expectedTypes = completionContext.expectedTypes;
-			String completeAfter= new String(completionContext.getToken());
+			char[] token = completionContext.getToken();
+			String completeAfter = token == null ? new String() : new String(token);
 			ASTNode context = completionContext.node;
 			this.toComplete = completionContext.node;
 			if (completionContext.node instanceof SimpleName simpleName) {
@@ -241,7 +242,7 @@ public class DOMCompletionEngine implements Runnable {
 			} else if (this.toComplete instanceof VariableDeclaration vd) {
 				context = vd.getInitializer();
 			}
-			this.prefix = new String(completionContext.getToken());
+			this.prefix = token == null ? new String() : new String(token);
 			this.qualifiedPrefix = this.prefix;
 			if (this.toComplete instanceof QualifiedName qualifiedName) {
 				this.qualifiedPrefix = qualifiedName.getQualifier().toString();

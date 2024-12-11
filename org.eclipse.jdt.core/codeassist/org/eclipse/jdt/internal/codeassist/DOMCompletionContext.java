@@ -39,6 +39,7 @@ class DOMCompletionContext extends CompletionContext {
 	private boolean inJavadoc = false;
 	final ASTNode node;
 	private IBuffer cuBuffer;
+	private boolean isJustAfterStringLiteral;
 
 	DOMCompletionContext(CompilationUnit domUnit, ICompilationUnit modelUnit, IBuffer cuBuffer, int offset, AssistOptions assistOptions, Bindings bindings) {
 		this.cuBuffer = cuBuffer;
@@ -69,6 +70,7 @@ class DOMCompletionContext extends CompletionContext {
 		this.token = tokenBefore(cuBuffer).toCharArray();
 		this.enclosingElement = computeEnclosingElement(modelUnit);
 		this.bindingsAcquirer = bindings::stream;
+		this.isJustAfterStringLiteral = this.node instanceof StringLiteral && this.node.getLength() > 1 && this.offset >= node.getStartPosition() + node.getLength() && cuBuffer.getChar(this.offset - 1) == '"';
 	}
 
 	private String tokenBefore(IBuffer cuBuffer) {
@@ -101,7 +103,7 @@ class DOMCompletionContext extends CompletionContext {
 
 	@Override
 	public char[] getToken() {
-		return this.token;
+		return isJustAfterStringLiteral ? null : this.token;
 	}
 
 	@Override
@@ -148,6 +150,9 @@ class DOMCompletionContext extends CompletionContext {
 
 	@Override
 	public char[][] getExpectedTypesKeys() {
+		if (isJustAfterStringLiteral) {
+			return null;
+		}
 		var res = this.expectedTypes.getExpectedTypes().stream() //
 				.map(ITypeBinding::getKey) //
 				.map(String::toCharArray) //
@@ -156,6 +161,9 @@ class DOMCompletionContext extends CompletionContext {
 	}
 	@Override
 	public char[][] getExpectedTypesSignatures() {
+		if (isJustAfterStringLiteral) {
+			return null;
+		}
 		var res = this.expectedTypes.getExpectedTypes().stream() //
 				.map(type -> type.getKey()) //
 				.map(name -> name.replace('/', '.'))
@@ -195,6 +203,9 @@ class DOMCompletionContext extends CompletionContext {
 
 	@Override
 	public int getTokenStart() {
+		if (isJustAfterStringLiteral) {
+			return -1;
+		}
 		if (this.node instanceof StringLiteral) {
 			return this.node.getStartPosition();
 		}
@@ -205,6 +216,9 @@ class DOMCompletionContext extends CompletionContext {
 	}
 	@Override
 	public int getTokenEnd() {
+		if (isJustAfterStringLiteral) {
+			return -1;
+		}
 		if (this.node instanceof SimpleName || this.node instanceof StringLiteral) {
 			return this.node.getStartPosition() + this.node.getLength() - 1;
 		}
@@ -215,12 +229,11 @@ class DOMCompletionContext extends CompletionContext {
 		return position - 1;
 	}
 
-	private boolean isOpen(StringLiteral literal) {
-		return this.cuBuffer.getChar(literal.getStartPosition() + literal.getLength() - 1) == '"';
-	}
-
 	@Override
 	public int getTokenKind() {
+		if (isJustAfterStringLiteral) {
+			return TOKEN_KIND_UNKNOWN;
+		}
 		return this.node instanceof StringLiteral ? TOKEN_KIND_STRING_LITERAL : TOKEN_KIND_NAME;
 	}
 
