@@ -541,22 +541,12 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			pathToUnit.put(pathOfClassUnderAnalysis, sourceUnit);
 		}
 		
-		// TODO currently only parse
+		//CompilationUnit res2  = CompilationUnitResolver.getInstance().toCompilationUnit(sourceUnit, resolveBindings, project, classpaths, focalPoint, apiLevel, compilerOptions, typeRootWorkingCopyOwner, typeRootWorkingCopyOwner, flags, monitor);
 		CompilationUnit res = parse(pathToUnit.values().toArray(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[]::new),
 				apiLevel, compilerOptions, resolveBindings, flags, project, workingCopyOwner, focalPoint, monitor).get(sourceUnit);
 		if (resolveBindings) {
 			resolveBindings(res, apiLevel);
 		}
-		// For comparison
-//		CompilationUnit res2  = CompilationUnitResolver.FACADE.toCompilationUnit(sourceUnit, initialNeedsToResolveBinding, project, classpaths, nodeSearcher, apiLevel, compilerOptions, typeRootWorkingCopyOwner, typeRootWorkingCopyOwner, flags, monitor);
-//		//res.typeAndFlags=res2.typeAndFlags;
-//		String res1a = res.toString();
-//		String res2a = res2.toString();
-//
-//		AnnotationTypeDeclaration l1 = (AnnotationTypeDeclaration)res.types().get(0);
-//		AnnotationTypeDeclaration l2 = (AnnotationTypeDeclaration)res2.types().get(0);
-//		Object o1 = l1.bodyDeclarations().get(0);
-//		Object o2 = l2.bodyDeclarations().get(0);
 		return res;
 	}
 

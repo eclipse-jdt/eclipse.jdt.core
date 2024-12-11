@@ -2002,7 +2002,6 @@ class JavacConverter {
 		commonSettings(initializer, jcNewArray);
 		if (!jcNewArray.getInitializers().isEmpty()) {
 			jcNewArray.getInitializers().stream().map(this::convertExpression).filter(Objects::nonNull).forEach(initializer.expressions()::add);
-			this.rawText.charAt(0);
 			int start = ((Expression)initializer.expressions().getFirst()).getStartPosition() - 1;
 			while (start >= 0 && this.rawText.charAt(start) != '{') {
 				start--;
@@ -2012,7 +2011,7 @@ class JavacConverter {
 			while (end < this.rawText.length() && this.rawText.charAt(end) != '}') {
 				end++;
 			}
-			initializer.setSourceRange(start, end - start);
+			initializer.setSourceRange(start, end - start + 1);
 		}
 		return initializer;
 	}
