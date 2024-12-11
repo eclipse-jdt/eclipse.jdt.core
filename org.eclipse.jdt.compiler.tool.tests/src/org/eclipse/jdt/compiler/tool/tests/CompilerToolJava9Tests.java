@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -953,6 +956,67 @@ public class CompilerToolJava9Tests extends TestCase {
 
 		//-- We must now also have a diagnostic
 		assertTrue("The diagnostic listener did not receive an error for the illegal option", b.listener().hasDiagnostic("option -source is not supported when --release is used"));
+	}
+	
+	/**
+	 * Proxy that transparently delegates to a JavaFileManager impl, but hides the physical
+	 * implementation of the delegated file manager to prevent ECJ performing analysis based
+	 * on the superclasses of the file manager object.
+	 */
+	static class DemotingFileManagerProxy implements InvocationHandler {
+		private final JavaFileManager fileManager;
+		
+		private DemotingFileManagerProxy(JavaFileManager fileManager) {
+			this.fileManager = fileManager;
+		}
+		
+		@Override
+		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+			System.err.printf("Calling %s(%s)%n", method.getName(), Arrays.toString(args));
+			try {
+				var result = method.invoke(fileManager, args);
+				System.err.printf("Call to %s(%s) returned %s%n", method.getName(), Arrays.toString(args), result);
+				return result;
+			} catch (Throwable ex) {
+				ex.printStackTrace();
+				throw ex;
+			}
+		}
+		
+		public static JavaFileManager demote(JavaFileManager fileManager) {
+			return (JavaFileManager) Proxy.newProxyInstance(
+					fileManager.getClass().getClassLoader(),
+					new Class<?>[]{ JavaFileManager.class },
+					new DemotingFileManagerProxy(fileManager)
+					);
+		}
+	}
+	public void testGH954() throws Exception {
+		File classOutput = new File(_tmpFolder);
+		JavaCompiler compiler = new EclipseCompiler();
+		StandardJavaFileManager standardFileManager = compiler.getStandardFileManager(null, null, null);
+
+		List<File> classPath = List.of(new File("resources/module_locations/automod_GH954.jar"));
+		List<File> sourcePath = List.of(new File("resources/module_locations/GH954"));
+		standardFileManager.setLocation(StandardLocation.CLASS_PATH, classPath);
+		standardFileManager.setLocation(StandardLocation.MODULE_PATH, classPath);
+		standardFileManager.setLocation(StandardLocation.SOURCE_PATH, sourcePath);
+		standardFileManager.setLocation(StandardLocation.CLASS_OUTPUT, List.of(classOutput));
+
+		// Make ECJ think we don't inherit StandardJavaFileManager by wrapping it.
+		JavaFileManager demotedFileManager = DemotingFileManagerProxy.demote(standardFileManager);
+		Iterable<JavaFileObject> compilationUnits = demotedFileManager.list(StandardLocation.SOURCE_PATH, "", Set.of(JavaFileObject.Kind.SOURCE), true);
+
+		CompilationTask task = compiler.getTask(
+				null,
+				demotedFileManager,
+				null,
+				List.of("--release", "11", "-verbose"),
+				List.of(),
+				compilationUnits
+		);
+
+		assertTrue(task.call());
 	}
 
 	/**

@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.function.Function;
 import javax.lang.model.SourceVersion;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
@@ -151,13 +152,14 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			Archive archive = this.getArchive(file);
 			if (archive != Archive.UNKNOWN_ARCHIVE) {
 				String key = normalizedPackageName;
+				boolean findAll = key.length() == 0;
 				if (!normalizedPackageName.endsWith("/")) {//$NON-NLS-1$
 					key += '/';
 				}
 				// we have an archive file
 				if (recurse) {
 					for (String packageName : archive.allPackages()) {
-						if (packageName.startsWith(key)) {
+						if (findAll || packageName.startsWith(key)) {
 							List<String[]> types = archive.getTypes(packageName);
 							if (types != null) {
 								for (String[] entry : types) {
@@ -1021,6 +1023,10 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	 */
 	@Override
 	public void setLocation(Location location, Iterable<? extends File> files) throws IOException {
+		internalSetLocation(location, files);
+		initModules(location, files, Function.identity());
+	}
+	private void internalSetLocation(Location location, Iterable<? extends File> files) {
 		if (location.isOutputLocation() && files != null) {
 			// output location
 			int count = 0;
@@ -1406,7 +1412,10 @@ public class EclipseFileManager implements StandardJavaFileManager {
 
 	@Override
 	public void setLocationFromPaths(Location location, Collection<? extends Path> paths) throws IOException {
-		setLocation(location, getFiles(paths));
+		internalSetLocation(location, getFiles(paths));
+		initModules(location, paths, Path::toFile);
+	}
+	private <P> void initModules(Location location, Iterable<? extends P> paths, Function<P,File> toFile) throws IOException {
 		if (location == StandardLocation.MODULE_PATH || location == StandardLocation.MODULE_SOURCE_PATH) {
 			// FIXME: same for module source path?
 			Map<String, String> options = new HashMap<>();
@@ -1421,15 +1430,19 @@ public class EclipseFileManager implements StandardJavaFileManager {
 						DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 						compilerOptions,
 						new DefaultProblemFactory());
-			for (Path path : paths) {
-				List<Classpath> mp = ModuleFinder.findModules(path.toFile(), null,
-						new Parser(problemReporter, true), null, true, this.releaseVersion);
-				for (Classpath cp : mp) {
-					Collection<String> moduleNames = cp.getModuleNames(null);
-					for (String string : moduleNames) {
-						Path p = Paths.get(cp.getPath());
-						setLocationForModule(location, string,  Collections.singletonList(p));
+			for (P path : paths) {
+				try {
+					List<Classpath> mp = ModuleFinder.findModules(toFile.apply(path), null,
+							new Parser(problemReporter, true), null, true, this.releaseVersion);
+					for (Classpath cp : mp) {
+						Collection<String> moduleNames = cp.getModuleNames(null);
+						for (String string : moduleNames) {
+							Path p = Paths.get(cp.getPath());
+							setLocationForModule(location, string,  Collections.singletonList(p));
+						}
 					}
+				} catch (IllegalArgumentException iae) { // e.g., from ModuleFinder.scanForModule(Classpath, File, Parser, boolean, String)
+					// FIXME ignore for now
 				}
 			}
 		}
