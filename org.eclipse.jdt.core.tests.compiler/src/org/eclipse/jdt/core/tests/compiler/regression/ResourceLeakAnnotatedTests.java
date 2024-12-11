@@ -138,7 +138,7 @@ protected String getTest056e_log() {
 protected String getTest056y_log() {
 	return """
 			----------
-			1. ERROR in X.java (at line 4)
+			1. WARNING in X.java (at line 4)
 				final FileReader reader31 = new FileReader("file");
 				                 ^^^^^^^^
 			Mandatory close of resource 'reader31' has not been shown
@@ -197,6 +197,25 @@ protected String getTestBug440282_log() {
 		"	       ^^^^^^^^^^^^^^^\n" +
 		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
 		"----------\n";
+}
+
+@Override
+String getBug561334_log() {
+	// 1. info is only reported when annotations are enabled
+	// 2. warning is more severe since we set OWNED_BY_DEFAULT on the resource from getFoo()
+	return	"""
+			----------
+			1. INFO in Foo.java (at line 18)
+				foo = new Foo("Hello, world!");
+				      ^^^^^^^^^^^^^^^^^^^^^^^^
+			Mandatory close of resource '<unassigned Closeable value>' has not been shown
+			----------
+			2. WARNING in Foo.java (at line 21)
+				System.out.println(getFoo().thing);
+				                   ^^^^^^^^
+			Resource leak: '<unassigned Closeable value>' is never closed
+			----------
+			""";
 }
 
 public void testBug411098_comment19_annotated() {
