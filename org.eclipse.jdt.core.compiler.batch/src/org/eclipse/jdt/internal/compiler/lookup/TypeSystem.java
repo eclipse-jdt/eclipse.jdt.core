@@ -94,9 +94,10 @@ public class TypeSystem {
 								TypeVariableBinding typeVariableBinding = (TypeVariableBinding) argument;
 								Consumer<TypeVariableBinding> previousConsumer = typeVariableBinding.updateWhenSettingTypeAnnotations;
 								typeVariableBinding.updateWhenSettingTypeAnnotations = (newTvb) -> {
-									// update the TVB argument and simulate a re-hash:
-									ParameterizedTypeBinding[] value = HashedParameterizedTypes.this.hashedParameterizedTypes.get(this);
-									arguments[idx] = newTvb;
+									// Changing arguments[idx] changes PTBKey.equals() and PTBKey.hashCode().
+									// So the old PTBKey has to be removed and a new has to be inserted:
+									ParameterizedTypeBinding[] value = HashedParameterizedTypes.this.hashedParameterizedTypes.remove(this);
+									this.arguments[idx] = newTvb;
 									HashedParameterizedTypes.this.hashedParameterizedTypes.put(this, value);
 									// for the unlikely case of multiple PTBKeys referring to this TVB chain to the next consumer:
 									if (previousConsumer != null)
