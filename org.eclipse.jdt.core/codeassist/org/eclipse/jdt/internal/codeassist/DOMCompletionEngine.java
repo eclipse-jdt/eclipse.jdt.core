@@ -1234,25 +1234,28 @@ public class DOMCompletionEngine implements Runnable {
 	}
 
 	private static boolean findInSupers(ITypeBinding root, ITypeBinding toFind) {
-		String keyToFind = toFind.getErasure().getKey();
-		Queue<ITypeBinding> toCheck = new LinkedList<>();
-		Set<String> alreadyChecked = new HashSet<>();
-		toCheck.add(root.getErasure());
-		while (!toCheck.isEmpty()) {
-			ITypeBinding current = toCheck.poll();
-			String currentKey = current.getErasure().getKey();
-			if (alreadyChecked.contains(currentKey)) {
-				continue;
-			}
-			alreadyChecked.add(currentKey);
-			if (currentKey.equals(keyToFind)) {
-				return true;
-			}
-			for (ITypeBinding superInterface : current.getInterfaces()) {
-				toCheck.add(superInterface);
-			}
-			if (current.getSuperclass() != null) {
-				toCheck.add(current.getSuperclass());
+		ITypeBinding superFind = toFind.getErasure();
+		if( superFind != null ) {
+			String keyToFind = superFind.getKey();
+			Queue<ITypeBinding> toCheck = new LinkedList<>();
+			Set<String> alreadyChecked = new HashSet<>();
+			toCheck.add(root.getErasure());
+			while (!toCheck.isEmpty()) {
+				ITypeBinding current = toCheck.poll();
+				String currentKey = current.getErasure().getKey();
+				if (alreadyChecked.contains(currentKey)) {
+					continue;
+				}
+				alreadyChecked.add(currentKey);
+				if (currentKey.equals(keyToFind)) {
+					return true;
+				}
+				for (ITypeBinding superInterface : current.getInterfaces()) {
+					toCheck.add(superInterface);
+				}
+				if (current.getSuperclass() != null) {
+					toCheck.add(current.getSuperclass());
+				}
 			}
 		}
 		return false;
