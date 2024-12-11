@@ -49,8 +49,9 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.parser.ParserFactory;
 import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
-import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeInfo;
+import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCAnyPattern;
@@ -124,7 +125,6 @@ import com.sun.tools.javac.tree.JCTree.JCWhileLoop;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
 import com.sun.tools.javac.tree.JCTree.JCYield;
 import com.sun.tools.javac.tree.JCTree.Tag;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JCDiagnostic;
 import com.sun.tools.javac.util.Log;
@@ -2008,7 +2008,7 @@ class JavacConverter {
 				start--;
 			}
 			Expression lastExpr = (Expression)initializer.expressions().getLast();
-			int end = lastExpr.getStartPosition() + lastExpr.getLength() + 1;
+			int end = lastExpr.getStartPosition() + lastExpr.getLength();
 			while (end < this.rawText.length() && this.rawText.charAt(end) != '}') {
 				end++;
 			}
