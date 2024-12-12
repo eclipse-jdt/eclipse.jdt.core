@@ -341,6 +341,30 @@ public class DOMCompletionEngine implements Runnable {
 					// }
 					ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
 					findOverridableMethods(typeDeclBinding, this.modelUnit.getJavaProject(), context);
+					// TODO: POTENTIAL_METHOD_DECLARATION
+
+					final int typeMatchRule = IJavaSearchConstants.TYPE;
+					ExtendsOrImplementsInfo extendsOrImplementsInfo = isInExtendsOrImplements(this.toComplete);
+					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+						findTypes(completeAfter, typeMatchRule, null)
+							// don't care about annotations
+							.filter(type -> {
+								try {
+									return !type.isAnnotation();
+								} catch (JavaModelException e) {
+									return true;
+								}
+							})
+							.filter(type -> {
+								return defaultCompletionBindings.stream().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> type.equals(elt));
+							})
+							.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
+									type.getElementName().toCharArray()))
+							.filter(type -> {
+								return filterBasedOnExtendsOrImplementsInfo(type, extendsOrImplementsInfo);
+							})
+							.map(this::toProposal).forEach(this.requestor::accept);
+					}
 					suggestDefaultCompletions = false;
 				}
 				if (context.getParent() instanceof MarkerAnnotation) {
@@ -1173,7 +1197,8 @@ public class DOMCompletionEngine implements Runnable {
 					namePrefix.toCharArray(),
 					SearchPattern.R_PREFIX_MATCH
 							| (this.assistOptions.substringMatch ? SearchPattern.R_SUBSTRING_MATCH : 0)
-							| (this.assistOptions.subwordMatch ? SearchPattern.R_SUBWORD_MATCH : 0),
+							| (this.assistOptions.subwordMatch ? SearchPattern.R_SUBWORD_MATCH : 0)
+							| (this.assistOptions.camelCaseMatch ? SearchPattern.R_CAMELCASE_MATCH : 0),
 					typeMatchRule, searchScope, typeRequestor, IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
 			// TODO also resolve potential sub-packages
 		} catch (JavaModelException ex) {
