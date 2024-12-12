@@ -608,6 +608,13 @@ class TypeBinding implements ITypeBinding {
 		} else if (isInterface()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			final int accessFlags = referenceBinding.getAccessFlags() & VALID_MODIFIERS;
+
+			if (referenceBinding.isSealed()) {
+				return accessFlags | Modifier.SEALED;
+			}
+			if (referenceBinding.isNonSealed()) {
+				return accessFlags | Modifier.NON_SEALED;
+			}
 			// clear the AccAbstract and the AccInterface bits
 			return accessFlags & ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface);
 		} else if (isEnum()) {
