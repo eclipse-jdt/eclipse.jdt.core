@@ -245,7 +245,7 @@ public class BatchTestUtils {
 		options.add(_tmpGenFolderName);
 		addProcessorPaths(options, useJLS8Processors, true);
 		options.add("-XprintRounds");
-		CompilationTask task = compiler.getTask(printWriter, manager, listener, options, null, units);
+		CompilationTask task = compiler.getTask(null, manager, listener, options, null, units);
 		Boolean result = task.call();
 
 		if (!result.booleanValue()) {

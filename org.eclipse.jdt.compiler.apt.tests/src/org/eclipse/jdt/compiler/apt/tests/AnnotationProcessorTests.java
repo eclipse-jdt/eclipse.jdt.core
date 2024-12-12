@@ -228,6 +228,7 @@ public class AnnotationProcessorTests extends TestCase {
 		options.add("-processor");
 		options.add(PROC);
 		options.add("-proc:full");
+		options.add("-verbose");
 		BatchTestUtils.compileTree(compiler, options, folder, null);
 		folder = TestUtils.concatPath(BatchTestUtils.getBinFolderName(), "targets", "AnnotationProcessorTests", "bug540090");
 		List<File> files = new ArrayList<>();
