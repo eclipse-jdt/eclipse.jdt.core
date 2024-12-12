@@ -151,12 +151,12 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 	    CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(null);
 	    TypeDeclaration a = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    assertEquals("Modifier is not present in AST", Modifier.isSealed(a.getModifiers()), true);
+	    assertTrue(Modifier.isSealed(a.getModifiers()));
 
 	    assertEquals("permitted types are not present in AST", a.permittedTypes().size(), 2);
 
 	    ITypeBinding aBinding = a.resolveBinding();
-	    assertEquals("'sealed' modifier is not set in binding", Modifier.isSealed(aBinding.getModifiers()), true);
+	    assertTrue(Modifier.isSealed(aBinding.getModifiers()));
 	}
 
 	public void test003_b() throws CoreException {
@@ -182,10 +182,10 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 	    CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(null);
 	    TypeDeclaration a = (TypeDeclaration) compilationUnit.types().get(2);
 
-	    assertEquals("Modifier is not present in AST", Modifier.isNonSealed(a.getModifiers()), true);
+	    assertTrue(Modifier.isNonSealed(a.getModifiers()));
 
 	    ITypeBinding aBinding = a.resolveBinding();
-	    assertEquals("'non-sealed' modifier is not set in binding", Modifier.isNonSealed(aBinding.getModifiers()), true);
+	    assertTrue(Modifier.isNonSealed(aBinding.getModifiers()));
 	}
 
 	//public sealed
@@ -212,14 +212,14 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 	    CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(null);
 	    TypeDeclaration a = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    assertEquals("Modifier is not present in AST", Modifier.isSealed(a.getModifiers()), true);
-	    assertEquals("Modifier is not present in AST", Modifier.isPublic(a.getModifiers()), true);
+	    assertTrue(Modifier.isSealed(a.getModifiers()));
+	    assertTrue(Modifier.isPublic(a.getModifiers()));
 
 	    assertEquals("permitted types are not present in AST", a.permittedTypes().size(), 2);
 
 	    ITypeBinding aBinding = a.resolveBinding();
-	    assertEquals("'sealed' modifier is not set in binding", Modifier.isSealed(aBinding.getModifiers()), true);
-	    assertEquals("'public' modifier is not set in binding", Modifier.isPublic(aBinding.getModifiers()), true);
+	    assertTrue(Modifier.isSealed(aBinding.getModifiers()));
+	    assertTrue(Modifier.isPublic(aBinding.getModifiers()));
 	}
 
 	//abstract final
@@ -243,13 +243,13 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 	    CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(null);
 	    TypeDeclaration a = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    assertEquals("Modifier is not present in AST", Modifier.isAbstract(a.getModifiers()), true);
-	    assertEquals("Modifier is not present in AST", Modifier.isFinal(a.getModifiers()), true);
+	    assertTrue(Modifier.isAbstract(a.getModifiers()));
+	    assertTrue(Modifier.isFinal(a.getModifiers()));
 
 	    ITypeBinding aBinding = a.resolveBinding();
 
-	    assertEquals("'abstract' modifier is not set in binding", Modifier.isAbstract(aBinding.getModifiers()), true);
-	    assertEquals("'final' modifier is not set in binding", Modifier.isFinal(aBinding.getModifiers()), true);
+	    assertTrue(Modifier.isAbstract(aBinding.getModifiers()));
+	    assertTrue(Modifier.isFinal(aBinding.getModifiers()));
 	}
 
 	//abstract non-sealed
@@ -273,13 +273,13 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 	    CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(null);
 	    TypeDeclaration a = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    assertEquals("Modifier is not present in AST", Modifier.isAbstract(a.getModifiers()), true);
-	    assertEquals("Modifier is not present in AST", Modifier.isNonSealed(a.getModifiers()), true);
+	    assertTrue(Modifier.isAbstract(a.getModifiers()));
+	    assertTrue(Modifier.isNonSealed(a.getModifiers()));
 
 	    ITypeBinding aBinding = a.resolveBinding();
 
-	    assertEquals("'abstract' modifier is not set in binding", Modifier.isAbstract(aBinding.getModifiers()), true);
-	    assertEquals("'non-sealed' modifier is not set in binding", Modifier.isNonSealed(aBinding.getModifiers()), true);
+	    assertTrue(Modifier.isAbstract(aBinding.getModifiers()));
+	    assertTrue(Modifier.isNonSealed(aBinding.getModifiers()));
 	}
 
 	//public final
@@ -303,13 +303,13 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 	    CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(null);
 	    TypeDeclaration a = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    assertEquals("Modifier is not present in AST", Modifier.isPublic(a.getModifiers()), true);
-	    assertEquals("Modifier is not present in AST", Modifier.isFinal(a.getModifiers()), true);
+	    assertTrue(Modifier.isPublic(a.getModifiers()));
+	    assertTrue(Modifier.isFinal(a.getModifiers()));
 
 	    ITypeBinding aBinding = a.resolveBinding();
 
-	    assertEquals("'public' modifier is not set in binding", Modifier.isPublic(aBinding.getModifiers()), true);
-	    assertEquals("'final' modifier is not set in binding", Modifier.isFinal(aBinding.getModifiers()), true);
+	    assertTrue(Modifier.isPublic(aBinding.getModifiers()));
+	    assertTrue(Modifier.isFinal(aBinding.getModifiers()));
 	}
 
 	//public non-sealed
@@ -333,13 +333,13 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 	    CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(null);
 	    TypeDeclaration a = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    assertEquals("Modifier is not present in AST", Modifier.isPublic(a.getModifiers()), true);
-	    assertEquals("Modifier is not present in AST", Modifier.isNonSealed(a.getModifiers()), true);
+	    assertTrue(Modifier.isPublic(a.getModifiers()));
+	    assertTrue(Modifier.isNonSealed(a.getModifiers()));
 
 	    ITypeBinding aBinding = a.resolveBinding();
 
-	    assertEquals("'public' modifier is not set in binding", Modifier.isPublic(aBinding.getModifiers()), true);
-	    assertEquals("'final' modifier is not set in binding", Modifier.isNonSealed(aBinding.getModifiers()), true);
+	    assertTrue(Modifier.isPublic(aBinding.getModifiers()));
+	    assertTrue(Modifier.isNonSealed(aBinding.getModifiers()));
 	}
 
 	//protected non-sealed
@@ -363,13 +363,13 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 	    CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(null);
 	    TypeDeclaration a = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    assertEquals("Modifier is not present in AST", Modifier.isProtected(a.getModifiers()), true);
-	    assertEquals("Modifier is not present in AST", Modifier.isNonSealed(a.getModifiers()), true);
+	    assertTrue(Modifier.isProtected(a.getModifiers()));
+	    assertTrue(Modifier.isNonSealed(a.getModifiers()));
 
 	    ITypeBinding aBinding = a.resolveBinding();
 
-	    assertEquals("'public' modifier is not set in binding", Modifier.isProtected(aBinding.getModifiers()), true);
-	    assertEquals("'final' modifier is not set in binding", Modifier.isNonSealed(aBinding.getModifiers()), true);
+	    assertTrue(Modifier.isProtected(aBinding.getModifiers()));
+	    assertTrue(Modifier.isNonSealed(aBinding.getModifiers()));
 	}
 
 	//private non-sealed
@@ -393,13 +393,13 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 	    CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(null);
 	    TypeDeclaration a = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    assertEquals("Modifier is not present in AST", Modifier.isPrivate(a.getModifiers()), true);
-	    assertEquals("Modifier is not present in AST", Modifier.isNonSealed(a.getModifiers()), true);
+	    assertTrue(Modifier.isPrivate(a.getModifiers()));
+	    assertTrue(Modifier.isNonSealed(a.getModifiers()));
 
 	    ITypeBinding aBinding = a.resolveBinding();
 
-	    assertEquals("'public' modifier is not set in binding", Modifier.isPrivate(aBinding.getModifiers()), true);
-	    assertEquals("'final' modifier is not set in binding", Modifier.isNonSealed(aBinding.getModifiers()), true);
+	    assertTrue(Modifier.isPrivate(aBinding.getModifiers()));
+	    assertTrue(Modifier.isNonSealed(aBinding.getModifiers()));
 	}
 
 	//protected abstract
@@ -423,12 +423,108 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 	    CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(null);
 	    TypeDeclaration a = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    assertEquals("Modifier is not present in AST", Modifier.isProtected(a.getModifiers()), true);
-	    assertEquals("Modifier is not present in AST", Modifier.isAbstract(a.getModifiers()), true);
+	    assertTrue(Modifier.isProtected(a.getModifiers()));
+	    assertTrue(Modifier.isAbstract(a.getModifiers()));
 
 	    ITypeBinding aBinding = a.resolveBinding();
 
-	    assertEquals("'public' modifier is not set in binding", Modifier.isProtected(aBinding.getModifiers()), true);
-	    assertEquals("'final' modifier is not set in binding", Modifier.isAbstract(aBinding.getModifiers()), true);
+	    assertTrue(Modifier.isProtected(aBinding.getModifiers()));
+	    assertTrue(Modifier.isAbstract(aBinding.getModifiers()));
+	}
+
+	//public sealed interface
+	public void test003_k() throws CoreException {
+		ASTParser astParser = ASTParser.newParser(getAST23());
+	    Map<String, String> options = new HashMap<>();
+	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
+	    options.put(JavaCore.COMPILER_SOURCE, "23");
+
+	    astParser.setCompilerOptions(options);
+	    astParser.setEnvironment(new String[] {}, new String[] {}, new String[] {}, true);
+	    astParser.setUnitName("Example.java");
+	    astParser.setResolveBindings(true);
+	    astParser.setBindingsRecovery(true);
+
+	    String source ="""
+		    		public sealed interface A permits X {}
+	    			public final  class X implements A {}
+	    		""";
+
+	    astParser.setSource(source.toCharArray());
+
+	    CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(null);
+	    TypeDeclaration a = (TypeDeclaration) compilationUnit.types().get(0);
+
+	    assertTrue(Modifier.isSealed(a.getModifiers()));
+	    assertTrue(Modifier.isPublic(a.getModifiers()));
+	    assertEquals("permitted types are not present in AST", a.permittedTypes().size(), 1);
+
+	    ITypeBinding aBinding = a.resolveBinding();
+	    assertTrue(Modifier.isSealed(aBinding.getModifiers()));
+	    assertTrue(Modifier.isPublic(aBinding.getModifiers()));
+	}
+
+	//public non-sealed interface
+	public void test003_l() throws CoreException {
+		ASTParser astParser = ASTParser.newParser(getAST23());
+	    Map<String, String> options = new HashMap<>();
+	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
+	    options.put(JavaCore.COMPILER_SOURCE, "23");
+
+	    astParser.setCompilerOptions(options);
+	    astParser.setEnvironment(new String[] {}, new String[] {}, new String[] {}, true);
+	    astParser.setUnitName("Example.java");
+	    astParser.setResolveBindings(true);
+	    astParser.setBindingsRecovery(true);
+
+	    String source ="""
+		    		public non-sealed interface A permits X {}
+	    			public final  class X implements A {}
+	    		""";
+
+	    astParser.setSource(source.toCharArray());
+
+	    CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(null);
+	    TypeDeclaration a = (TypeDeclaration) compilationUnit.types().get(0);
+
+	    assertTrue(Modifier.isNonSealed(a.getModifiers()));
+	    assertTrue(Modifier.isPublic(a.getModifiers()));
+	    assertEquals("permitted types are not present in AST", a.permittedTypes().size(), 1);
+
+	    ITypeBinding aBinding = a.resolveBinding();
+	    assertTrue(Modifier.isNonSealed(aBinding.getModifiers()));
+	    assertTrue(Modifier.isPublic(aBinding.getModifiers()));
+	}
+
+	//public strictfp interface
+	public void test003_m() throws CoreException {
+		ASTParser astParser = ASTParser.newParser(getAST23());
+	    Map<String, String> options = new HashMap<>();
+	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
+	    options.put(JavaCore.COMPILER_SOURCE, "23");
+
+	    astParser.setCompilerOptions(options);
+	    astParser.setEnvironment(new String[] {}, new String[] {}, new String[] {}, true);
+	    astParser.setUnitName("Example.java");
+	    astParser.setResolveBindings(true);
+	    astParser.setBindingsRecovery(true);
+
+	    String source ="""
+		    		public strictfp interface A permits X {}
+	    			public final  class X implements A {}
+	    		""";
+
+	    astParser.setSource(source.toCharArray());
+
+	    CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(null);
+	    TypeDeclaration a = (TypeDeclaration) compilationUnit.types().get(0);
+
+	    assertTrue(Modifier.isStrictfp(a.getModifiers()));
+	    assertTrue(Modifier.isPublic(a.getModifiers()));
+	    assertEquals("permitted types are not present in AST", a.permittedTypes().size(), 1);
+
+	    ITypeBinding aBinding = a.resolveBinding();
+	    assertTrue(Modifier.isStrictfp(aBinding.getModifiers()));
+	    assertTrue(Modifier.isPublic(aBinding.getModifiers()));
 	}
 }
