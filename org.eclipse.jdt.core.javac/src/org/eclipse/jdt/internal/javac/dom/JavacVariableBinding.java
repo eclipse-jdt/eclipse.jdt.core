@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import org.eclipse.core.runtime.ILog;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
@@ -27,7 +28,6 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
-import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -35,20 +35,23 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.internal.core.DOMToModelPopulator;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.LambdaMethod;
 import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.ResolvedSourceField;
+import org.eclipse.jdt.internal.core.SourceField;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Type;
 
 public abstract class JavacVariableBinding implements IVariableBinding {
 
@@ -115,7 +118,7 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 		if (this.variableSymbol.owner instanceof TypeSymbol parentType // field
 				&& parentType.type != null
 				&& this.resolver.bindings.getTypeBinding(parentType.type).getJavaElement() instanceof IType type) {
-			return type.getField(this.variableSymbol.name.toString());
+			return resolved(type.getField(this.variableSymbol.name.toString()));
 		}
 		IMethodBinding methodBinding = getDeclaringMethod();
 		if (methodBinding != null && methodBinding.getJavaElement() instanceof IMethod method) {
@@ -151,6 +154,13 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 			}
 		}
 		return null;
+	}
+
+	private IField resolved(IField field) {
+		if (field instanceof SourceField sourceField && !(sourceField instanceof ResolvedSourceField)) {
+			return new ResolvedSourceField(sourceField.getParent(), sourceField.getElementName(), getKey(), sourceField.getOccurrenceCount());
+		}
+		return field;
 	}
 
 	@Override

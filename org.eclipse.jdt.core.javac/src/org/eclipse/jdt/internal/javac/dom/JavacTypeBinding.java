@@ -52,20 +52,25 @@ import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
-import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.ResolvedSourceType;
 import org.eclipse.jdt.internal.core.SourceType;
 
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.code.TypeTag;
+import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Kinds.Kind;
 import com.sun.tools.javac.code.Kinds.KindSelector;
-import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.CompletionFailure;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
@@ -74,7 +79,6 @@ import com.sun.tools.javac.code.Symbol.RootPackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ErrorType;
@@ -84,8 +88,6 @@ import com.sun.tools.javac.code.Type.JCVoidType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.code.Type.WildcardType;
-import com.sun.tools.javac.code.TypeTag;
-import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Types.FunctionDescriptorLookupError;
 import com.sun.tools.javac.util.Name;
 
@@ -198,17 +200,17 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			if (isAnonymous()) {
 				if (getDeclaringMethod() != null && getDeclaringMethod().getJavaElement() instanceof IMethod method) {
 					// TODO find proper occurenceCount (eg checking the source range)
-					return method.getType("", 1);
+					return resolved(method.getType("", 1));
 				} else if( getDeclaringMember() instanceof IBinding gdm && gdm != null && gdm.getJavaElement() instanceof IField field) {
-					return field.getType("", 1);
+					return resolved(field.getType("", 1));
 				} else if (getDeclaringClass() != null && getDeclaringClass().getJavaElement() instanceof IType type) {
-					return type.getType("", 1);
+					return resolved(type.getType("", 1));
 				}
 			}
 			if( this.typeSymbol.owner instanceof MethodSymbol) {
 				if (getDeclaringMethod() != null && getDeclaringMethod().getJavaElement() instanceof IMethod method) {
 					// TODO find proper occurenceCount (eg checking the source range)
-					return method.getType(this.typeSymbol.name.toString(), 1);
+					return resolved(method.getType(this.typeSymbol.name.toString(), 1));
 				}				
 			}
 			
@@ -247,20 +249,27 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					done |= (candidate == null);
 				}
 				if(candidate != null && candidate.exists()) {
-					return candidate;
+					return resolved(candidate);
 				}
 			}
 			try {
 				IType ret = this.resolver.javaProject.findType(cleanedUpName(this.type), this.resolver.getWorkingCopyOwner(), new NullProgressMonitor());
 				if (ret != null) {
-					return ret;
+					return resolved(ret);
 				}
 			} catch (JavaModelException ex) {
 				ILog.get().error(ex.getMessage(), ex);
 			}
-			return candidate;
+			return resolved(candidate);
 		}
 		return null;
+	}
+
+	private IType resolved(IType type) {
+		if (type instanceof SourceType && !(type instanceof ResolvedSourceType)) {
+			return new ResolvedSourceType((JavaElement)type.getParent(), type.getElementName(), getKey(), type.getOccurrenceCount());
+		}
+		return type;
 	}
 
 	private static String cleanedUpName(Type type) {

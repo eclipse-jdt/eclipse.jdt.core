@@ -35,22 +35,24 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
-import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.internal.core.Member;
+import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
+import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ForAll;
 import com.sun.tools.javac.code.Type.JCNoType;
 import com.sun.tools.javac.code.Type.MethodType;
@@ -276,7 +278,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 				}).toArray(String[]::new);
 		IMethod result = currentType.getMethod(getName(), params);
 		if (currentType.isBinary() || result.exists()) {
-			return result;
+			return resolved(result);
 		}
 		IMethod[] methods = null;
 		try {
@@ -288,9 +290,16 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		IMethod[] candidates = Member.findMethods(result, methods);
 		if (candidates == null || candidates.length == 0)
 			return null;
-		return candidates[0];
+		return resolved(candidates[0]);
 	}
-	
+
+	private IMethod resolved(IMethod from) {
+		if (from instanceof SourceMethod sourceMethod && !(from instanceof ResolvedSourceMethod)) {
+			return new ResolvedSourceMethod(sourceMethod.getParent(), sourceMethod.getElementName(), sourceMethod.getParameterTypes(), getKey(), sourceMethod.getOccurrenceCount());
+		}
+		return from;
+	}
+
 	private IJavaElement getJavaElementForAnnotationTypeMemberDeclaration(IType currentType, AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
 		IMethod result = currentType.getMethod(getName(), new String[0]);
 		if (currentType.isBinary() || result.exists()) {
