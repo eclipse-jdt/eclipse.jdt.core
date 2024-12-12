@@ -2259,7 +2259,9 @@ class JavacConverter {
 	}
 
 	private Statement convertStatement(JCStatement javac, ASTNode parent) {
-		if (TreeInfo.getEndPos(javac, this.javacCompilationUnit.endPositions) <= javac.getPreferredPosition()) {
+		int endPos = TreeInfo.getEndPos(javac, this.javacCompilationUnit.endPositions);
+		int preferredPos = javac.getPreferredPosition();
+		if (endPos < preferredPos) {
 			return null;
 		}
 		if (javac instanceof JCReturn returnStatement) {
