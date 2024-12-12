@@ -227,10 +227,15 @@ public class AnnotationProcessorTests extends TestCase {
 		options.add(" ");
 		options.add("-processor");
 		options.add(PROC);
-		options.add("-proc:only");
 		options.add("-proc:full");
 		BatchTestUtils.compileTree(compiler, options, folder, null);
 		folder = TestUtils.concatPath(BatchTestUtils.getBinFolderName(), "targets", "AnnotationProcessorTests", "bug540090");
+		List<File> files = new ArrayList<>();
+		BatchTestUtils.findFilesUnder(folder, files);
+		System.out.println("testGHIssue2347_1(): Files found under binary folder: <" + folder  + ">");
+		for (File file : files) {
+			System.out.println(file);
+		}
 		File classfile = new File(folder, "B.class");
 		assertTrue(classfile.exists());
 	}
@@ -244,14 +249,43 @@ public class AnnotationProcessorTests extends TestCase {
 		options.add(" ");
 		options.add("-processor");
 		options.add(PROC);
-		options.add("-proc:none");
+		options.add("-proc:only");
 		options.add("-proc:full");
 		BatchTestUtils.compileTree(compiler, options, folder, null);
 		folder = TestUtils.concatPath(BatchTestUtils.getBinFolderName(), "targets", "AnnotationProcessorTests", "bug540090");
+		List<File> files = new ArrayList<>();
+		BatchTestUtils.findFilesUnder(folder, files);
+		System.out.println("testGHIssue2347_2(): Files found under binary folder: <" + folder  + ">");
+		for (File file : files) {
+			System.out.println(file);
+		}
 		File classfile = new File(folder, "B.class");
 		assertTrue(classfile.exists());
 	}
 	public void testGHIssue2347_3() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		File folder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug540090");
+		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug540090", folder);
+		List<String> options = new ArrayList<>();
+		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug540090Proc";
+		options.add("-processorpath");
+		options.add(" ");
+		options.add("-processor");
+		options.add(PROC);
+		options.add("-proc:none");
+		options.add("-proc:full");
+		BatchTestUtils.compileTree(compiler, options, folder, null);
+		folder = TestUtils.concatPath(BatchTestUtils.getBinFolderName(), "targets", "AnnotationProcessorTests", "bug540090");
+		List<File> files = new ArrayList<>();
+		BatchTestUtils.findFilesUnder(folder, files);
+		System.out.println("testGHIssue2347_3(): Files found under binary folder: <" + folder  + ">");
+		for (File file : files) {
+			System.out.println(file);
+		}
+		File classfile = new File(folder, "B.class");
+		assertTrue(classfile.exists());
+	}
+	public void testGHIssue2347_4() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		File folder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug540090");
 		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug540090", folder);
