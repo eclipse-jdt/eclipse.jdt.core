@@ -217,4 +217,58 @@ public class AnnotationProcessorTests extends TestCase {
 		assertTrue(!preexistsFile.exists()); // deleted
 		assertTrue(nonexistsFile.exists()); // rewritten
 	}
+	public void testGHIssue2347_1() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		File folder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug540090");
+		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug540090", folder);
+		List<String> options = new ArrayList<>();
+		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug540090Proc";
+		options.add("-processorpath");
+		options.add(" ");
+		options.add("-processor");
+		options.add(PROC);
+		options.add("-proc:only");
+		options.add("-proc:full");
+		BatchTestUtils.compileTree(compiler, options, folder, null);
+		folder = TestUtils.concatPath(BatchTestUtils.getBinFolderName(), "targets", "AnnotationProcessorTests", "bug540090");
+		File classfile = new File(folder, "B.class");
+		assertTrue(classfile.exists());
+	}
+	public void testGHIssue2347_2() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		File folder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug540090");
+		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug540090", folder);
+		List<String> options = new ArrayList<>();
+		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug540090Proc";
+		options.add("-processorpath");
+		options.add(" ");
+		options.add("-processor");
+		options.add(PROC);
+		options.add("-proc:none");
+		options.add("-proc:full");
+		BatchTestUtils.compileTree(compiler, options, folder, null);
+		folder = TestUtils.concatPath(BatchTestUtils.getBinFolderName(), "targets", "AnnotationProcessorTests", "bug540090");
+		File classfile = new File(folder, "B.class");
+		assertTrue(classfile.exists());
+	}
+	public void testGHIssue2347_3() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		File folder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug540090");
+		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug540090", folder);
+		List<String> options = new ArrayList<>();
+		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug540090Proc";
+		options.add("-processorpath");
+		options.add(" ");
+		options.add("-processor");
+		options.add(PROC);
+		options.add("-proc:none");
+		options.add("-proc:only");
+		BatchTestUtils.compileTree(compiler, options, folder, null);
+		folder = TestUtils.concatPath(BatchTestUtils.getBinFolderName(), "targets", "AnnotationProcessorTests", "bug540090");
+		File classfile = new File(folder, "B.class");
+		assertFalse(classfile.exists());
+		folder = TestUtils.concatPath(BatchTestUtils.getGenFolderName(), "gen");
+		classfile = new File(folder, "GenClass.java");
+		assertTrue(classfile.exists());
+	}
 }
