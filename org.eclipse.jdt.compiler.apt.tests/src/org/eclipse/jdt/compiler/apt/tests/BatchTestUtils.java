@@ -137,6 +137,11 @@ public class BatchTestUtils {
 		compileTree(compiler, options, targetFolder, false);
 	}
 
+	public static void compileTree(StringWriter stringWriter, JavaCompiler compiler, List<String> options, File targetFolder,
+			DiagnosticListener<? super JavaFileObject> listener) {
+		compileTree(stringWriter, compiler, options, targetFolder, false, listener);
+	}
+
 	public static void compileTree(JavaCompiler compiler, List<String> options, File targetFolder,
 			DiagnosticListener<? super JavaFileObject> listener) {
 		compileTree(compiler, options, targetFolder, false, listener);
@@ -230,13 +235,18 @@ public class BatchTestUtils {
 	public static void compileTree(JavaCompiler compiler, List<String> options,
 			File targetFolder, boolean useJLS8Processors,
 			DiagnosticListener<? super JavaFileObject> listener) {
+		StringWriter stringWriter = new StringWriter();
+		compileTree(stringWriter, compiler, options, targetFolder, useJLS8Processors, listener);
+	}
+	public static void compileTree(StringWriter stringWriter, JavaCompiler compiler, List<String> options,
+			File targetFolder, boolean useJLS8Processors,
+			DiagnosticListener<? super JavaFileObject> listener) {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
 		// create new list containing inputfile
 		List<File> files = new ArrayList<>();
 		findFilesUnder(targetFolder, files);
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
-		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);
 
 		options.add("-d");
