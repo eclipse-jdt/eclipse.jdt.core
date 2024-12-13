@@ -706,6 +706,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public IMethodBinding getFunctionalInterfaceMethod() {
+		if (typeSymbol == null) {
+			return null;
+		}
 		try {
 			Symbol symbol = types.findDescriptorSymbol(this.typeSymbol);
 			if (symbol instanceof MethodSymbol methodSymbol) {

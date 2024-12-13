@@ -68,7 +68,7 @@ class DOMCompletionContext extends CompletionContext {
 			: previousNodeBeforeWhitespaces; // use previous node
 		this.expectedTypes = new ExpectedTypes(assistOptions, this.node, offset);
 		this.token = tokenBefore(cuBuffer).toCharArray();
-		this.enclosingElement = computeEnclosingElement(modelUnit);
+		this.enclosingElement = computeEnclosingElement(domUnit, modelUnit);
 		this.bindingsAcquirer = bindings::stream;
 		this.isJustAfterStringLiteral = this.node instanceof StringLiteral && this.node.getLength() > 1 && this.offset >= node.getStartPosition() + node.getLength() && cuBuffer.getChar(this.offset - 1) == '"';
 	}
@@ -84,16 +84,51 @@ class DOMCompletionContext extends CompletionContext {
 		return builder.toString();
 	}
 
-	private IJavaElement computeEnclosingElement(ICompilationUnit modelUnit) {
+	private IJavaElement computeEnclosingElement(CompilationUnit domUnit, ICompilationUnit modelUnit) {
+		IJavaElement enclosingElement = modelUnit;
 		try {
-			if (modelUnit == null)
-				return null;
-			IJavaElement enclosingElement = modelUnit.getElementAt(this.offset);
-			return enclosingElement == null ? modelUnit : enclosingElement;
+			enclosingElement = modelUnit.getElementAt(this.offset);
 		} catch (JavaModelException e) {
 			ILog.get().error(e.getMessage(), e);
-			return null;
 		}
+		if (enclosingElement == null) {
+			return modelUnit;
+		}
+		// then refine to get "resolved" element from the matching binding
+		// pitfall: currently resolve O(depth(node)) bindings while we can
+		// most likely find a O(1) solution
+		ASTNode node = NodeFinder.perform(domUnit, this.offset, 0);
+		while (node != null) {
+			IBinding binding = resolveBindingForContext(node);
+			if (binding != null) {
+				IJavaElement bindingBasedJavaElement = binding.getJavaElement();
+				if (enclosingElement.equals(bindingBasedJavaElement)) {
+					return bindingBasedJavaElement;
+				}
+			}
+			node = node.getParent();
+		}
+		return enclosingElement;
+	}
+
+	private IBinding resolveBindingForContext(ASTNode node) {
+		var res = DOMCodeSelector.resolveBinding(node);
+		if (res != null) {
+			return res;
+		}
+		// Some declaration types are intentionally skipped by
+		// DOMCodeSelector.resolveBinding() as they're not
+		// expected by `codeSelect` add them here
+		if (node instanceof TypeDeclaration typeDecl) {
+			return typeDecl.resolveBinding();
+		}
+		if (node instanceof MethodDeclaration methodDecl) {
+			return methodDecl.resolveBinding();
+		}
+		if (node instanceof VariableDeclaration varDecl) {
+			return varDecl.resolveBinding();
+		}
+		return null;
 	}
 
 	@Override
