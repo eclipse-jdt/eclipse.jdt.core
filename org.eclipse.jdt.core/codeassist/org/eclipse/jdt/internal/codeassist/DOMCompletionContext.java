@@ -214,26 +214,59 @@ class DOMCompletionContext extends CompletionContext {
 
 	@Override
 	public int getTokenLocation() {
-		ASTNode parent = this.node;
-		while (parent != null) {
-			if (parent instanceof ImportDeclaration) {
+		ASTNode wrappingNode = this.node;
+		while (wrappingNode != null) {
+			if (wrappingNode instanceof ImportDeclaration) {
 				return TL_IN_IMPORT;
 			}
-			if (parent instanceof ClassInstanceCreation newObj) {
+			if (wrappingNode instanceof ClassInstanceCreation newObj) {
 				return getTokenStart() <= newObj.getType().getStartPosition() ? TL_CONSTRUCTOR_START : 0;
 			}
-			if (parent instanceof Statement stmt && getTokenStart() == stmt.getStartPosition()) {
+			if (wrappingNode instanceof Statement stmt && getTokenStart() == stmt.getStartPosition()) {
 				return getTokenStart() == stmt.getStartPosition() ? TL_STATEMENT_START : 0;
 			}
-			if (parent instanceof BodyDeclaration member) {
-				return (member.getParent() instanceof AbstractTypeDeclaration || member.getParent() instanceof AnonymousClassDeclaration) && getTokenStart() == member.getStartPosition() ? TL_MEMBER_START : 0;
+			if (wrappingNode instanceof BodyDeclaration member) {
+				boolean wrapperParentIsTypeDecl = (member.getParent() instanceof AbstractTypeDeclaration || member.getParent() instanceof AnonymousClassDeclaration);
+				if( wrapperParentIsTypeDecl && getTokenStart() == member.getStartPosition() ) {
+					return TL_MEMBER_START;
+				}
+				boolean wrapperNodeIsTypeDecl = (wrappingNode instanceof AbstractTypeDeclaration || wrappingNode instanceof AnonymousClassDeclaration);
+				if(wrapperNodeIsTypeDecl && isWithinTypeDeclarationBody(wrappingNode, this.cuBuffer, this.offset)) {
+					return TL_MEMBER_START;
+				}
+				return 0;
 			}
-			if (parent instanceof Block block) {
+			if (wrappingNode instanceof Block block) {
 				return block.statements().isEmpty() ? TL_STATEMENT_START : 0;
 			}
-			parent = parent.getParent();
+			wrappingNode = wrappingNode.getParent();
 		}
 		return 0;
+	}
+
+	private boolean isWithinTypeDeclarationBody(ASTNode n, IBuffer buffer, int offset2) {
+		if( buffer != null ) {
+			if( n instanceof AbstractTypeDeclaration atd) {
+				int nameEndOffset = atd.getName().getStartPosition() + atd.getName().getLength();
+				int bodyStart = findFirstOpenBracketFromIndex(buffer, nameEndOffset);
+				int bodyEnd = atd.getStartPosition() + atd.getLength() - 1;
+				return bodyEnd > bodyStart && offset2 > bodyStart && offset2 < bodyEnd;
+			}
+			if( n instanceof AnonymousClassDeclaration acd ) {
+				int bodyStart = findFirstOpenBracketFromIndex(buffer, acd.getStartPosition());
+				int bodyEnd = acd.getStartPosition() + acd.getLength() - 1;
+				return bodyEnd > bodyStart && offset2 > bodyStart && offset2 < bodyEnd;
+			}
+		}
+		return false;
+	}
+
+	private int findFirstOpenBracketFromIndex(IBuffer buffer, int start) {
+		int bodyStart = start;
+		while (bodyStart < buffer.getLength() && buffer.getChar(bodyStart) != '{') {
+			bodyStart++;
+		}
+		return bodyStart;
 	}
 
 	@Override
