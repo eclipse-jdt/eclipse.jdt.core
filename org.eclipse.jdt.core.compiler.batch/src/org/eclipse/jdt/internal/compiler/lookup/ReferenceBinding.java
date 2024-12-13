@@ -1210,10 +1210,6 @@ public int hashCode() {
 		: CharOperation.hashCode(this.compoundName[this.compoundName.length - 1]);
 }
 
-final int identityHashCode() {
-	return super.hashCode();
-}
-
 /**
  * Returns true if the two types have an incompatible common supertype,
  * e.g. {@code List<String>} and {@code List<Integer>}
