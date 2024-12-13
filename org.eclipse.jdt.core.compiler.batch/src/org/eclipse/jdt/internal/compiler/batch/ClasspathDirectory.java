@@ -78,6 +78,25 @@ ClasspathDirectory(File directory, String encoding, int mode,
 }
 
 private String[] directoryList(String qualifiedPackageName) {
+	String qualifiedPackagePath = qualifiedPackageName.replace('/', File.separatorChar);
+	// must protect against a case insensitive File call
+	// walk the qualifiedPackageName backwards looking for an uppercase character before the '/'
+	int index = qualifiedPackagePath.length();
+	int last = qualifiedPackagePath.lastIndexOf(File.separatorChar);
+	while (--index > last && !ScannerHelper.isUpperCase(qualifiedPackagePath.charAt(index))) {
+		/* empty */}
+	if (index > last) {
+		if (last == -1) {
+			if (!doesFileExist(qualifiedPackagePath, Util.EMPTY_STRING))
+				return null;
+		} else {
+			String packageName = qualifiedPackagePath.substring(last + 1);
+			String parentPackage = qualifiedPackagePath.substring(0, last);
+			if (!doesFileExist(packageName, parentPackage))
+				return null;
+		}
+	}
+
 	String[] cached = this.directoryCache.computeIfAbsent(qualifiedPackageName, this::computeDirectoryList);
 	if (cached == this.missingPackageHolder) {
 		return null; // package exists in another classpath directory or jar
@@ -89,24 +108,7 @@ private String[] computeDirectoryList(String qualifiedPackageName) {
 	String qualifiedPackagePath = qualifiedPackageName.replace('/', File.separatorChar);
 	File dir = new File(this.path + qualifiedPackagePath);
 	String[] dirList = dir.list();
-	notFound: if (dirList != null) { // if isDirectory
-		// must protect against a case insensitive File call
-		// walk the qualifiedPackageName backwards looking for an uppercase character before the '/'
-		int index = qualifiedPackagePath.length();
-		int last = qualifiedPackagePath.lastIndexOf(File.separatorChar);
-		while (--index > last && !ScannerHelper.isUpperCase(qualifiedPackagePath.charAt(index))) {
-			/* empty */}
-		if (index > last) {
-			if (last == -1) {
-				if (!doesFileExist(qualifiedPackagePath, Util.EMPTY_STRING))
-					break notFound;
-			} else {
-				String packageName = qualifiedPackagePath.substring(last + 1);
-				String parentPackage = qualifiedPackagePath.substring(0, last);
-				if (!doesFileExist(packageName, parentPackage))
-					break notFound;
-			}
-		}
+	if (dirList != null) { // if isDirectory
 		if (dirList.length == 0) {
 			dirList = CharOperation.NO_STRINGS;
 		}
