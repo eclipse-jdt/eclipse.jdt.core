@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
+import java.util.List;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 
 public class DOMCompletionUtil {
 
@@ -43,6 +45,33 @@ public class DOMCompletionUtil {
 	 */
 	public static AbstractTypeDeclaration findParentTypeDeclaration(ASTNode nodeToSearch) {
 		return (AbstractTypeDeclaration) DOMCompletionUtil.findParent(nodeToSearch, new int[] { ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION, ASTNode.ANNOTATION_TYPE_DECLARATION });
+	}
+
+	private static final List<String> JAVA_MODIFIERS = List.of(
+				ModifierKeyword.PUBLIC_KEYWORD.toString(),
+				ModifierKeyword.PRIVATE_KEYWORD.toString(),
+				ModifierKeyword.STATIC_KEYWORD.toString(),
+				ModifierKeyword.PROTECTED_KEYWORD.toString(),
+				ModifierKeyword.SYNCHRONIZED_KEYWORD.toString(),
+				ModifierKeyword.ABSTRACT_KEYWORD.toString(),
+				ModifierKeyword.FINAL_KEYWORD.toString(),
+				ModifierKeyword.DEFAULT_KEYWORD.toString(),
+				ModifierKeyword.NATIVE_KEYWORD.toString(),
+				ModifierKeyword.STRICTFP_KEYWORD.toString(),
+				ModifierKeyword.TRANSIENT_KEYWORD.toString(),
+				ModifierKeyword.VOLATILE_KEYWORD.toString()
+			);
+
+	/**
+	 * Returns true if the given String is a java modifier for fields and methods and false otherwise.
+	 *
+	 * In this case, modifiers are that you can include before methods or fields.
+	 *
+	 * @param potentialModifer the String to check if it's a modifier
+	 * @return true if the given String is a java modifier for fields and methods and false otherwise
+	 */
+	public static boolean isJavaFieldOrMethodModifier(String potentialModifer) {
+		return JAVA_MODIFIERS.contains(potentialModifer);
 	}
 
 }

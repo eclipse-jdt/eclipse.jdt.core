@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
 public class DOMCompletionEngine implements Runnable {
 
 	private static final String FAKE_IDENTIFIER = new String(RecoveryScanner.FAKE_IDENTIFIER);
+	private static final char[] VOID = PrimitiveType.VOID.toString().toCharArray();
 
 	private final int offset;
 	private final CompilationUnit unit;
@@ -340,12 +341,9 @@ public class DOMCompletionEngine implements Runnable {
 					// }
 					ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
 					findOverridableMethods(typeDeclBinding, this.modelUnit.getJavaProject(), context);
-					// TODO: POTENTIAL_METHOD_DECLARATION
-
-					final int typeMatchRule = IJavaSearchConstants.TYPE;
 					ExtendsOrImplementsInfo extendsOrImplementsInfo = isInExtendsOrImplements(this.toComplete);
 					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-						findTypes(completeAfter, typeMatchRule, null)
+						findTypes(this.prefix, IJavaSearchConstants.TYPE, null)
 							// don't care about annotations
 							.filter(type -> {
 								try {
@@ -363,6 +361,26 @@ public class DOMCompletionEngine implements Runnable {
 								return filterBasedOnExtendsOrImplementsInfo(type, extendsOrImplementsInfo);
 							})
 							.map(this::toProposal).forEach(this.requestor::accept);
+					}
+					if (!this.requestor.isIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION)) {
+						int cursorStart = this.offset - this.prefix.length() - 1;
+						while (cursorStart > 0 && Character.isWhitespace(this.cuBuffer.getChar(cursorStart))) {
+							cursorStart--;
+						}
+						int cursorEnd = cursorStart;
+						while (cursorEnd > 0 && Character.isJavaIdentifierPart(this.cuBuffer.getChar(cursorEnd - 1))) {
+							cursorEnd--;
+						}
+						boolean suggest = true;
+						if (cursorStart != cursorEnd) {
+							String potentialModifier = this.cuBuffer.getText(cursorEnd, cursorStart - cursorEnd + 1);
+							if (DOMCompletionUtil.isJavaFieldOrMethodModifier(potentialModifier)) {
+								suggest = false;
+							}
+						}
+						if (suggest) {
+							this.requestor.accept(toNewMethodProposal(typeDeclBinding, this.prefix));
+						}
 					}
 					suggestDefaultCompletions = false;
 				}
@@ -1677,6 +1695,25 @@ public class DOMCompletionEngine implements Runnable {
 				res.setRequiredProposals(new CompletionProposal[] { toImportProposal(simpleName, signature, type.getPackageFragment().getElementName().toCharArray()) });
 			}
 		}
+		return res;
+	}
+
+	private CompletionProposal toNewMethodProposal(ITypeBinding parentType, String newMethodName) {
+		InternalCompletionProposal res =  createProposal(CompletionProposal.POTENTIAL_METHOD_DECLARATION);
+		res.setDeclarationSignature(DOMCompletionEngineBuilder.getSignature(parentType));
+		res.setSignature(Signature.createMethodSignature(CharOperation.NO_CHAR_CHAR, Signature.createCharArrayTypeSignature(VOID, true)));
+		res.setDeclarationPackageName(parentType.getPackage().getName().toCharArray());
+		res.setDeclarationTypeName(parentType.getQualifiedName().toCharArray());
+		res.setTypeName(VOID);
+		res.setName(newMethodName.toCharArray());
+		res.setCompletion(newMethodName.toCharArray());
+		res.setFlags(Flags.AccPublic);
+		setRange(res);
+		int relevance = RelevanceConstants.R_DEFAULT;
+		relevance += RelevanceConstants.R_RESOLVED;
+		relevance += RelevanceConstants.R_INTERESTING;
+		relevance += RelevanceConstants.R_NON_RESTRICTED;
+		res.setRelevance(relevance);
 		return res;
 	}
 
