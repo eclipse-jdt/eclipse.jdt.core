@@ -440,7 +440,7 @@ public class SwitchStatement extends Expression {
 			}
 
 			final TypeBinding resolvedTypeBinding = this.expression.resolvedType;
-			if (resolvedTypeBinding.isEnum()) {
+			if (resolvedTypeBinding.isEnum() && !needPatternDispatchCopy()) {
 				final SourceTypeBinding sourceTypeBinding = currentScope.classScope().referenceContext.binding;
 				this.synthetic = sourceTypeBinding.addSyntheticMethodForSwitchEnum(resolvedTypeBinding, this);
 			}

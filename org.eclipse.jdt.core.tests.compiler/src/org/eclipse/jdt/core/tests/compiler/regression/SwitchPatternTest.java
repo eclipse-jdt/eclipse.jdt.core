@@ -104,7 +104,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runner.runWarningTest();
 	}
 
-	private static void verifyClassFile(String expectedOutput, String classFileName, int mode)
+	private static void verifyClassFile(String expectedOutput, String unexpectedOutput, String classFileName, int mode)
 			throws IOException, ClassFormatException {
 		File f = new File(OUTPUT_DIR + File.separator + classFileName);
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -118,6 +118,15 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		if (index == -1) {
 			assertEquals("Wrong contents", expectedOutput, result);
 		}
+		if (unexpectedOutput != null) {
+			index = result.indexOf(unexpectedOutput);
+			assertTrue("Unexpected output found", index == -1);
+		}
+	}
+
+	private static void verifyClassFile(String expectedOutput, String classFileName, int mode)
+			throws IOException, ClassFormatException {
+		verifyClassFile(expectedOutput, null, classFileName, mode);
 	}
 	public void testIssue57_001() {
 		runConformTest(
@@ -9627,5 +9636,38 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"World--Check--Hello--Null--Default--\n" +
 				"Default--Null--Hello--Check--World--");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3447
+	// [Enhanced Switch] Wasteful generation of switch ordinal mapping table for enum switches that are dispatched via enumSwitch indy
+	public void testIssue3447() throws Exception {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				enum E {
+					A,
+					B,
+				}
+
+				public class X {
+					public static void main(String[] args) {
+						E e = E.A;
+						switch (e) {
+							case A :    System.out.println("A");
+									    break;
+							case B:     System.out.println("B");
+							            break;
+							case null : System.out.println("null");
+										break;
+						}
+					}
+				}
+				"""
+			},
+		 "A");
+		String expectedOutput = "8  invokedynamic 0 enumSwitch(E, int) : int [22]\n";
+		String unexpectedOutput = "static synthetic int[] $SWITCH_TABLE$E();\n";
+		SwitchPatternTest.verifyClassFile(expectedOutput, unexpectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 }
