@@ -9443,7 +9443,7 @@ protected void consumeSwitchRule(SwitchRuleKind kind) {
 		this.astStack[this.astPtr] = yieldStatement;
 	} else if (kind == SwitchRuleKind.BLOCK) {
 		Block block = (Block) this.astStack[this.astPtr];
-		block.bits |= ASTNode.SwitchRuleBlock;
+		block.bits |= ASTNode.BlockShouldEndDead;
 	}
 	concatNodeLists();
 }

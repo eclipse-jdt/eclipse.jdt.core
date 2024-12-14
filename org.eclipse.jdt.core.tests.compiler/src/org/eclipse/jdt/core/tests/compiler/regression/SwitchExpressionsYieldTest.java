@@ -486,7 +486,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"1. ERROR in X.java (at line 8)\n" +
 					"	default :v = 2;\n" +
 					"	            ^^\n" +
-					"A switch labeled block in a switch expression should not complete normally\n" +
+					"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
 					"----------\n";
 			this.runNegativeTest(
 					testFiles,
@@ -2127,6 +2127,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"	continue;\n" +
 			"	^^^^^^^^^\n" +
 			"Continue out of switch expressions not permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 11)\n" +
+			"	continue;\n" +
+			"	       ^^\n" +
+			"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
 			"----------\n");
 	}
 	public void testBug544073_077() {
@@ -4989,7 +4994,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"1. ERROR in X.java (at line 9)\n" +
 		"	default :v = 2;\n" +
 		"	            ^^\n" +
-		"A switch labeled block in a switch expression should not complete normally\n" +
+		"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
 		"----------\n");
 	}
 	public void testBug562728_006() {
@@ -5021,12 +5026,12 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"1. ERROR in X.java (at line 8)\n" +
 		"	case 2 ->{v = 2;}\n" +
 		"	               ^^\n" +
-		"A switch labeled block in a switch expression should not complete normally\n" +
+		"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 9)\n" +
 		"	default ->{v = 2;}\n" +
 		"	                ^^\n" +
-		"A switch labeled block in a switch expression should not complete normally\n" +
+		"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
 		"----------\n");
 	}
     public void testBug562728_007() {
@@ -5113,7 +5118,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"1. ERROR in X.java (at line 13)\n" +
 		"	}\n" +
 		"	^^\n" +
-		"A switch labeled block in a switch expression should not complete normally\n" +
+		"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
         "----------\n");
 }
     public void testBug563023_003() {
@@ -5142,7 +5147,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"1. ERROR in X.java (at line 10)\n" +
 		"	}\n" +
 		"	^^\n" +
-		"A switch labeled block in a switch expression should not complete normally\n" +
+		"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
         "----------\n");
 }
     public void testBug563023_004() {
@@ -5202,7 +5207,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"1. ERROR in X.java (at line 11)\n" +
 		"	}\n" +
 		"	^^\n" +
-		"A switch labeled block in a switch expression should not complete normally\n" +
+		"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
         "----------\n");
 }
 	public void testBug563023_006() {
@@ -5269,7 +5274,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"2. ERROR in X.java (at line 10)\n" +
 		"	}\n" +
 		"	^^\n" +
-		"A switch labeled block in a switch expression should not complete normally\n" +
+		"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
         "----------\n");
 }
 	public void testBug563147_001() {

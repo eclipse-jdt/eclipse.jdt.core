@@ -376,16 +376,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		flowInfo = super.analyseCode(currentScope, flowContext, flowInfo);
-		if ((this.switchBits & LabeledRules) != 0) { // 15.28.1
-			for (Statement stmt : this.statements) {
-				if (stmt instanceof Block && stmt.canCompleteNormally())
-					currentScope.problemReporter().switchExpressionBlockCompletesNormally(stmt);
-			}
-		} else {
-			Statement ultimateStmt = this.statements[this.statements.length - 1]; // length guaranteed > 0
-			if (ultimateStmt.canCompleteNormally())
-				currentScope.problemReporter().switchExpressionBlockCompletesNormally(ultimateStmt);
-		}
 
 		if (currentScope.compilerOptions().enableSyntacticNullAnalysisForFields)
 			flowContext.expireNullCheckedFieldInfo(); // wipe information that was meant only for this result expression:

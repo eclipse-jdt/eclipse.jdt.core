@@ -104,23 +104,6 @@ public boolean completesByContinue() {
 	return false;
 }
 
-/**
- * Switch Expression analysis: *Assuming* this is reachable, analyze if this completes normally
- *  i.e control flow can reach the textually next statement, as per JLS 14 Sec 14.22
- *  For blocks, we don't perform intra-reachability analysis.
- *  Note: delinking this from a similar (opposite) {@link #doesNotCompleteNormally()} since that was
- *  coded for a specific purpose of Lambda Shape Analysis.
- */
-public boolean canCompleteNormally() {
-	return true;
-}
-/**
- * The equivalent function of completesByContinue - implements both the rules concerning continue with
- * and without a label.
- */
-public boolean continueCompletes() {
-	return false;
-}
 	public static final int NOT_COMPLAINED = 0;
 	public static final int COMPLAINED_FAKE_REACHABLE = 1;
 	public static final int COMPLAINED_UNREACHABLE = 2;

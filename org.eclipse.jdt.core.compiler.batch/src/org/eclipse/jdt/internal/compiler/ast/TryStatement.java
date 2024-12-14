@@ -1270,34 +1270,4 @@ public boolean completesByContinue() {
 	}
 	return this.finallyBlock != null && this.finallyBlock.completesByContinue();
 }
-@Override
-public boolean canCompleteNormally() {
-	if (this.tryBlock.canCompleteNormally()) {
-		return (this.finallyBlock != null) ? this.finallyBlock.canCompleteNormally() : true;
-	}
-	if (this.catchBlocks != null) {
-		for (Block catchBlock : this.catchBlocks) {
-			if (catchBlock.canCompleteNormally()) {
-				return (this.finallyBlock != null) ? this.finallyBlock.canCompleteNormally() : true;
-			}
-		}
-	}
-	return false;
-}
-@Override
-public boolean continueCompletes() {
-	if (this.tryBlock.continueCompletes()) {
-		return (this.finallyBlock == null) ? true :
-			this.finallyBlock.canCompleteNormally() || this.finallyBlock.continueCompletes();
-	}
-	if (this.catchBlocks != null) {
-		for (Block catchBlock : this.catchBlocks) {
-			if (catchBlock.continueCompletes()) {
-				return (this.finallyBlock == null) ? true :
-					this.finallyBlock.canCompleteNormally() || this.finallyBlock.continueCompletes();
-			}
-		}
-	}
-	return this.finallyBlock != null && this.finallyBlock.continueCompletes();
-}
 }
