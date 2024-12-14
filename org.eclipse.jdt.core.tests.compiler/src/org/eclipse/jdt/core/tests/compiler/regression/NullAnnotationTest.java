@@ -10931,7 +10931,12 @@ public void testBug548418_001a() {
 			"	^^^^^^^^\n" +
 			"Breaking out of switch expressions not permitted\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 15)\n" +
+			"3. ERROR in X.java (at line 14)\n" +
+			"	}\n" +
+			"	^^\n" +
+			"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 15)\n" +
 			"	default -> null;\n" +
 			"	           ^^^^\n" +
 			"Null type mismatch: required '@NonNull X' but the provided value is null\n" +
