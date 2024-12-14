@@ -217,13 +217,8 @@ public boolean doesNotCompleteNormally() {
 	return true;
 }
 
-@Override
-public boolean canCompleteNormally() {
-	return false;
-}
-
 /**
- * Retrun statement code generation
+ * Return statement code generation
  *
  *   generate the finallyInvocationSequence.
  *

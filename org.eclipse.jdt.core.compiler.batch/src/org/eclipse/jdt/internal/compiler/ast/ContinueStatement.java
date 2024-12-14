@@ -118,14 +118,4 @@ public boolean doesNotCompleteNormally() {
 public boolean completesByContinue() {
 	return true;
 }
-
-@Override
-public boolean canCompleteNormally() {
-	return false;
-}
-
-@Override
-public boolean continueCompletes() {
-	return true;
-}
 }

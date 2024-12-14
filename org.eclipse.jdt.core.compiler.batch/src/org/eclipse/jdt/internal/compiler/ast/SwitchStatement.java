@@ -105,6 +105,7 @@ public class SwitchStatement extends Expression {
 	public final static int Exhaustive = ASTNode.Bit3;
 	public final static int QualifiedEnum = ASTNode.Bit4;
 	public final static int LabeledBlockStatementGroup = ASTNode.Bit5;
+	public final static int BarricadeInjectedDefault = ASTNode.Bit6;
 
 	// for switch on strings
 	private static final char[] SecretSelectorVariableName = " selector".toCharArray(); //$NON-NLS-1$
@@ -438,6 +439,12 @@ public class SwitchStatement extends Expression {
 					}
 				}
 			}
+			if (caseInits != FlowInfo.DEAD_END) {
+				if (isTrulyExpression())
+					currentScope.problemReporter().switchExpressionBlockCompletesNormally(this.statements[this.statements.length - 1]);
+				if (this.defaultCase == null)
+					this.switchBits |= BarricadeInjectedDefault;
+			}
 
 			final TypeBinding resolvedTypeBinding = this.expression.resolvedType;
 			if (resolvedTypeBinding.isEnum() && !needPatternDispatchCopy()) {
@@ -607,7 +614,7 @@ public class SwitchStatement extends Expression {
 							defaultCaseLabel.place(); // branch label gets placed by generateCode below.
 					}
 				    statement.generateCode(this.scope, codeStream);
-				    if ((this.switchBits & LabeledRules) != 0 && statement instanceof Block && statement.canCompleteNormally())
+				    if (statement instanceof Block block && (block.bits & BlockShouldEndDead) != 0)
 						codeStream.goto_(this.breakLabel);
 				}
 			}
@@ -759,7 +766,7 @@ public class SwitchStatement extends Expression {
 							codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preSwitchInitStateIndex);
 					}
 					statement.generateCode(this.scope, codeStream);
-					if ((this.switchBits & LabeledRules) != 0 && statement instanceof Block && statement.canCompleteNormally())
+					if (statement instanceof Block block && (block.bits & BlockShouldEndDead) != 0)
 						codeStream.goto_(this.breakLabel);
 				}
 			}
@@ -782,7 +789,7 @@ public class SwitchStatement extends Expression {
 				 */
 				if (this.scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK19) {
 					// since 19 we have MatchException for this
-					if (this.statements.length > 0 && this.statements[this.statements.length - 1].canCompleteNormally())
+					if ((this.switchBits & BarricadeInjectedDefault) != 0)
 						codeStream.goto_(this.breakLabel); // hop, skip and jump over match exception throw.
 					defaultLabel.place();
 					codeStream.newJavaLangMatchException();
@@ -1350,55 +1357,6 @@ public class SwitchStatement extends Expression {
 			return false;
 		for (Statement statement : this.statements) {
 			if (statement.completesByContinue())
-				return true;
-		}
-		return false;
-	}
-
-	@Override
-	public boolean canCompleteNormally() {
-		if (this.statements == null || this.statements.length == 0)
-			return true;
-		if ((this.switchBits & LabeledRules) == 0) { // switch labeled statement group
-			if (this.statements[this.statements.length - 1].canCompleteNormally())
-				return true; // last statement as well as last switch label after blocks if exists.
-			if (this.totalPattern == null && this.defaultCase == null)
-				return true;
-			for (Statement statement : this.statements) {
-				if (statement.breaksOut(null))
-					return true;
-			}
-		} else {
-			// switch block consists of switch rules
-			for (Statement stmt : this.statements) {
-				if (stmt instanceof CaseStatement)
-					continue; // skip case
-				if (this.totalPattern == null && this.defaultCase == null)
-					return true;
-				if (stmt instanceof Expression)
-					return true;
-				if (stmt.canCompleteNormally())
-					return true;
-				if (stmt instanceof YieldStatement && ((YieldStatement) stmt).isImplicit) // note: artificially introduced
-					return true;
-				if (stmt instanceof Block) {
-					Block block = (Block) stmt;
-					if (block.canCompleteNormally())
-						return true;
-					if (block.breaksOut(null))
-						return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	@Override
-	public boolean continueCompletes() {
-		if (this.statements == null || this.statements.length == 0)
-			return false;
-		for (Statement statement : this.statements) {
-			if (statement.continueCompletes())
 				return true;
 		}
 		return false;

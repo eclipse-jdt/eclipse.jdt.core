@@ -1850,7 +1850,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 6)\n" +
 				"	}\n" +
 				"	^^\n" +
-				"A switch labeled block in a switch expression should not complete normally\n" +
+				"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
 				"----------\n");
 	}
 	public void testBug574564_001() {
@@ -4911,7 +4911,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 11)\n" +
 				"	}\n" +
 				"	^^\n" +
-				"A switch labeled block in a switch expression should not complete normally\n" +
+				"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
 				"----------\n");
 	}
 	public void testBug578416() {
