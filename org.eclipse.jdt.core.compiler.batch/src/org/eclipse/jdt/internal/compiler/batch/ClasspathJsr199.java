@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.tools.JavaFileManager;
-import javax.tools.JavaFileManager.Location;
 import javax.tools.JavaFileObject;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
@@ -160,20 +159,12 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	public void initialize() throws IOException {
 		if (this.jrt != null) {
 			this.jrt.initialize();
-		} else if (this.location.isModuleOrientedLocation()) {
-			Iterable<Set<Location>> locationsForModules = this.fileManager.listLocationsForModules(this.location);
-			for (Set<Location> locs: locationsForModules) {
-				for (Location loc : locs) {
-					if (loc instanceof LocationWrapper wrapper) {
-						for (Path locPath : wrapper.getPaths()) {
-							File file = locPath.toFile();
-							IModule mod = ModuleFinder.scanForModule(this, file, null, true, null);
-							if (mod != null) {
-								return;
-							}
-						}
-					}
-				}
+		} else if (this.location instanceof LocationWrapper wrapper) {
+			for (Path locPath : wrapper.getPaths()) {
+				File file = locPath.toFile();
+				IModule mod = ModuleFinder.scanForModule(this, file, null, true, null);
+				if (mod != null)
+					return;
 			}
 		}
 	}
@@ -294,21 +285,8 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	public Collection<String> getModuleNames(Collection<String> limitModules) {
 		if (this.jrt != null)
 			return this.jrt.getModuleNames(limitModules);
-		if (this.location.isModuleOrientedLocation()) {
-			Set<String> moduleNames = new HashSet<>();
-			try {
-				for (Set<Location> locs : this.fileManager.listLocationsForModules(this.location)) {
-					for (Location loc : locs) {
-						String moduleName = this.fileManager.inferModuleName(loc);
-						if (moduleName != null)
-							moduleNames.add(moduleName);
-					}
-				}
-				return moduleNames;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		if (this.module != null) {
+			return Collections.singletonList(String.valueOf(this.module.name()));
 		}
 		return Collections.emptyList();
 	}

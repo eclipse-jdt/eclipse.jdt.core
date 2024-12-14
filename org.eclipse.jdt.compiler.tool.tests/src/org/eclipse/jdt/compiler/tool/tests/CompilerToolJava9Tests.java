@@ -991,15 +991,41 @@ public class CompilerToolJava9Tests extends TestCase {
 					);
 		}
 	}
-	public void testGH954() throws Exception {
+	public void testGH958() throws Exception {
 		File classOutput = new File(_tmpFolder);
 		JavaCompiler compiler = new EclipseCompiler();
 		StandardJavaFileManager standardFileManager = compiler.getStandardFileManager(null, null, null);
 
-		List<File> classPath = List.of(new File("resources/module_locations/automod_GH954.jar"));
-		List<File> sourcePath = List.of(new File("resources/module_locations/GH954"));
-		standardFileManager.setLocation(StandardLocation.CLASS_PATH, classPath);
-		standardFileManager.setLocation(StandardLocation.MODULE_PATH, classPath);
+		List<File> modulePath = List.of(new File("resources/module_locations/GH958_automod.jar"));
+		List<File> sourcePath = List.of(new File("resources/module_locations/GH958"));
+		standardFileManager.setLocation(StandardLocation.MODULE_PATH, modulePath);
+		standardFileManager.setLocation(StandardLocation.SOURCE_PATH, sourcePath);
+		standardFileManager.setLocation(StandardLocation.CLASS_OUTPUT, List.of(classOutput));
+
+		// Make ECJ think we don't inherit StandardJavaFileManager by wrapping it.
+		JavaFileManager demotedFileManager = DemotingFileManagerProxy.demote(standardFileManager);
+		Iterable<JavaFileObject> compilationUnits = demotedFileManager.list(StandardLocation.SOURCE_PATH, "", Set.of(JavaFileObject.Kind.SOURCE), true);
+
+		CompilationTask task = compiler.getTask(
+				null,
+				demotedFileManager,
+				null,
+				List.of("--release", "11", "-verbose"),
+				List.of(),
+				compilationUnits
+		);
+
+		assertTrue(task.call());
+	}
+	public void testGH958_2modules() throws Exception {
+		File classOutput = new File(_tmpFolder);
+		JavaCompiler compiler = new EclipseCompiler();
+		StandardJavaFileManager standardFileManager = compiler.getStandardFileManager(null, null, null);
+
+		List<File> modulesPath = List.of(new File("resources/module_locations/GH958_automod.jar"),
+											new File("resources/module_locations/GH958_mod.jar"));
+		List<File> sourcePath = List.of(new File("resources/module_locations/GH958_2"));
+		standardFileManager.setLocation(StandardLocation.MODULE_PATH, modulesPath);
 		standardFileManager.setLocation(StandardLocation.SOURCE_PATH, sourcePath);
 		standardFileManager.setLocation(StandardLocation.CLASS_OUTPUT, List.of(classOutput));
 
