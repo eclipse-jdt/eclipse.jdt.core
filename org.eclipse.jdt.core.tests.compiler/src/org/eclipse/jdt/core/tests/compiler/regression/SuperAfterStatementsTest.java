@@ -2509,4 +2509,30 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"""},
 			"");
 	}
+
+	public void testGH3194_reopen() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			sealed interface A permits X {}
+			public final  class X implements A {
+				int a = 1;
+				class One {
+					int b = 2;
+					class Two {
+						int c = 3;
+						class Three {
+							int r = a + b + c;
+						}
+					}
+				}
+				public static void main(String argv[]) {
+					X x = new X();
+					One.Two.Three ci = x.new One().new Two().new Three(); // No enclosing instance of type X is accessible. Must qualify the allocation...
+					System.out.println(ci.r);
+				}
+			}
+			"""
+		});
+	}
 }
