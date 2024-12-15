@@ -185,6 +185,9 @@ public class JavacUtils {
 		for (Entry<String, String> processorOption : processorOptions.entrySet()) {
 			options.put("-A" + processorOption.getKey() + "=" + processorOption.getValue(), Boolean.toString(true));
 		}
+		if (!options.isSet(Option.A) && ProcessorConfig.isAnnotationProcessingEnabled(javaProject)) {
+			options.put(Option.A, "");
+		}
 
 		addDebugInfos(compilerOptions, options);
 	}

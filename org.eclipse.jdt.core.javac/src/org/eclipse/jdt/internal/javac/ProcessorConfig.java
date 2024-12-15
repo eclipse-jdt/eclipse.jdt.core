@@ -40,6 +40,8 @@ public class ProcessorConfig {
 	private static final String APT_STRING_BASE = "org.eclipse.jdt.apt"; //$NON-NLS-1$ 1$
 	private static final String APT_PROCESSOROPTIONS = APT_STRING_BASE + ".processorOptions"; //$NON-NLS-1$
 	private static final String APT_NULLVALUE = APT_STRING_BASE + ".NULLVALUE"; //$NON-NLS-1$
+	private static final String APT_ENABLED = APT_STRING_BASE + ".aptEnabled"; //$NON-NLS-1$
+	private static final String APT_PROCESSANNOTATIONS = "org.eclipse.jdt.core.compiler.processAnnotations"; //$NON-NLS-1$
 
 	/** regex to identify substituted token in path variables */
 	private static final String PATHVAR_TOKEN = "^%[^%/\\\\ ]+%.*"; //$NON-NLS-1$
@@ -61,6 +63,26 @@ public class ProcessorConfig {
 		}
 
 		return options;
+	}
+
+	public static boolean isAnnotationProcessingEnabled(IJavaProject jproj) {
+		IScopeContext[] contexts;
+		if (jproj != null && jproj.getProject() != null) {
+			contexts = new IScopeContext[] { new ProjectScope(jproj.getProject()), InstanceScope.INSTANCE };
+		} else {
+			contexts = new IScopeContext[] { InstanceScope.INSTANCE };
+		}
+		for (IScopeContext context : contexts) {
+			IEclipsePreferences prefs = context.getNode(JavaCore.PLUGIN_ID);
+			if ("enabled".equals(prefs.get(APT_PROCESSANNOTATIONS, "disabled"))) {
+				return true;
+			}
+			prefs = context.getNode(APT_PLUGIN_ID);
+			if (prefs.getBoolean(APT_ENABLED, false)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static Map<String, String> getRawProcessorOptions(IJavaProject jproj) {

@@ -35,6 +35,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
@@ -47,12 +48,22 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class RegressionTests {
 
 	private static IProject project;
+
+	@BeforeClass
+	public static void beforeClass() throws Exception {
+		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		for (IProject p: projects) {
+			p.delete(false, true, null);
+		}
+	}
 
 	@Before
 	public void setUp() throws Exception {
@@ -118,11 +129,28 @@ public class RegressionTests {
 		IProject proj2 = importProject("projects/multipleOutputDirectories/proj2");
 		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.CLEAN_BUILD, null);
 		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForBackgroundJobs();
 		List<IMarker> errors = findMarkers(proj1, IMarker.SEVERITY_ERROR);
 		assertTrue(errors.isEmpty());
 		errors = findMarkers(proj2, IMarker.SEVERITY_ERROR);
 		assertTrue(errors.isEmpty());
 		CompilationUnit unit = (CompilationUnit)JavaCore.create(proj2).findElement(Path.fromOSString("proj2/Main.java"));
+		unit.becomeWorkingCopy(null);
+		var dom = unit.reconcile(AST.getJLSLatest(), true, unit.getOwner(), null);
+		assertArrayEquals(new IProblem[0], dom.getProblems());
+	}
+
+	// https://github.com/eclipse-jdtls/eclipse-jdt-core-incubator/issues/955
+	@Test
+	public void testlombok() throws Exception {
+		Assume.assumeTrue("javac is not set, skip it", CompilationUnit.DOM_BASED_OPERATIONS);
+		IProject proj = importProject("projects/lomboktest");
+		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.CLEAN_BUILD, null);
+		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForBackgroundJobs();
+		List<IMarker> errors = findMarkers(proj, IMarker.SEVERITY_ERROR);
+		assertTrue(errors.isEmpty());
+		CompilationUnit unit = (CompilationUnit)JavaCore.create(proj).findElement(Path.fromOSString("org/sample/Main.java"));
 		unit.becomeWorkingCopy(null);
 		var dom = unit.reconcile(AST.getJLSLatest(), true, unit.getOwner(), null);
 		assertArrayEquals(new IProblem[0], dom.getProblems());
@@ -134,10 +162,11 @@ public class RegressionTests {
 		IProjectDescription projectDescription = ResourcesPlugin.getWorkspace()
 				.loadProjectDescription(dotProjectPath);
 		projectDescription.setLocation(dotProjectPath.removeLastSegments(1));
-		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectDescription.getName());
-		project.create(projectDescription, null);
-		project.open(null);
-		return project;
+		IProject proj = ResourcesPlugin.getWorkspace().getRoot().getProject(projectDescription.getName());
+		proj.create(projectDescription, null);
+		proj.open(null);
+		proj.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+		return proj;
 	}
 
 	// copied from org.eclipse.jdt.ls.core.internal.ResourceUtils.findMarkers(IResource, Integer...)
@@ -154,4 +183,10 @@ public class RegressionTests {
 				.collect(Collectors.toList());
 		return markers;
 	}
+
+	protected void waitForBackgroundJobs() throws Exception {
+		JobHelpers.waitForJobsToComplete(new NullProgressMonitor());
+		JobHelpers.waitUntilIndexesReady();
+	}
+
 }
