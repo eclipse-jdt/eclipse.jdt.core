@@ -211,9 +211,6 @@ void branch() {
 	trackStackDepth(true);
 }
 
-/*
-* No support for wide branches yet
-*/
 void branchWide() {
 	if (this.delegate != null) {
 		this.delegate.branchWide();
