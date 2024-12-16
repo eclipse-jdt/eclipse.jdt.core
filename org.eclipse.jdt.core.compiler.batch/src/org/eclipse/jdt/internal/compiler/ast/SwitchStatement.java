@@ -374,12 +374,9 @@ public class SwitchStatement extends Expression {
 			if (this.defaultCase != null && this.defaultCase.constantExpressions == NO_EXPRESSIONS)
 				casesCount--; // discount the default
 
-			int constantCount = this.labelExpressions == null ? 0 : this.labelExpressions.length;
-			if (!(this.unconditionalPatternCase != null) &&
-					((this.containsPatterns || this.containsNull) ||
-					(constantCount >= casesCount &&
-					constantCount != ((ReferenceBinding)selectorType).enumConstantCount()))) {
-				Set<FieldBinding> unenumeratedConstants = unenumeratedConstants((ReferenceBinding) selectorType, constantCount);
+			int constantCount = this.labelExpressions.length;
+			if (this.unconditionalPatternCase == null && (this.containsPatterns || this.containsNull || (constantCount >= casesCount && constantCount != selectorType.enumConstantCount()))) {
+				Set<FieldBinding> unenumeratedConstants = unenumeratedConstants(selectorType, constantCount);
 				if (unenumeratedConstants.size() != 0) {
 					this.switchBits &= ~SwitchStatement.Exhaustive;
 					if (!(this.defaultCase != null && (this.defaultCase.bits & DocumentedCasesOmitted) != 0)) {
@@ -408,15 +405,10 @@ public class SwitchStatement extends Expression {
 			return;
 		}
 
-		if (JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions) && selectorType.isSealed() && caseElementsCoverSealedType((ReferenceBinding) selectorType, this.caseLabelElementTypes)) {
+		if (JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions) && selectorType.isSealed() && caseElementsCoverSealedType((ReferenceBinding) selectorType, this.caseLabelElementTypes))
 			this.switchBits |= SwitchStatement.Exhaustive;
-			return;
-		}
-
-		if (selectorType.isRecordWithComponents() && this.containsRecordPatterns && caseElementsCoverRecordType(upperScope, compilerOptions, (ReferenceBinding) selectorType)) {
+		else if (selectorType.isRecordWithComponents() && this.containsRecordPatterns && caseElementsCoverRecordType(upperScope, compilerOptions, (ReferenceBinding) selectorType))
 			this.switchBits |= SwitchStatement.Exhaustive;
-			return;
-		}
 
 		if (!isExhaustive()) {
 			if (isEnhanced)
@@ -427,8 +419,8 @@ public class SwitchStatement extends Expression {
 	}
 
 	// Return the set of enumerations belonging to the selector enum type that are NOT listed in case statements.
-	private Set<FieldBinding> unenumeratedConstants(ReferenceBinding enumType, int constantCount) {
-		FieldBinding[] enumFields = ((ReferenceBinding) enumType.erasure()).fields();
+	private Set<FieldBinding> unenumeratedConstants(TypeBinding enumType, int constantCount) {
+		FieldBinding[] enumFields = enumType.erasure().fields();
 		Set<FieldBinding> unenumerated = new HashSet<>(Arrays.asList(enumFields));
 		for (int i = 0, max = enumFields.length; i < max; i++) {
 			FieldBinding enumConstant = enumFields[i];
@@ -439,9 +431,7 @@ public class SwitchStatement extends Expression {
 			for (int j = 0; j < constantCount; j++) {
 				if (TypeBinding.equalsEquals(this.labelExpressions[j].expression.resolvedType, enumType)) {
 					if (this.labelExpressions[j].expression instanceof NameReference reference) {
-						FieldBinding field = reference.fieldBinding();
-						int intValue = field.original().id + 1;
-						if ((enumConstant.id + 1) == intValue) { // zero should not be returned see bug 141810
+						if (enumConstant.id == reference.fieldBinding().original().id) {
 							unenumerated.remove(enumConstant);
 							break;
 						}
@@ -451,6 +441,7 @@ public class SwitchStatement extends Expression {
 		}
 		return unenumerated;
 	}
+
 	private boolean isExhaustive() {
 		return (this.switchBits & SwitchStatement.Exhaustive) != 0;
 	}
@@ -521,7 +512,7 @@ public class SwitchStatement extends Expression {
 				continue;
 			}
 			if (next.isEnum()) {
-				int constantCount = this.labelExpressions == null ? 0 : this.labelExpressions.length;
+				int constantCount = this.labelExpressions.length;
 				Set<FieldBinding> unenumeratedConstants = unenumeratedConstants(next, constantCount);
 				if (unenumeratedConstants.size() == 0) {
 					iterator.remove();
@@ -550,7 +541,7 @@ public class SwitchStatement extends Expression {
 			if (this.expression.resolvedType.id == T_JavaLangString && !this.isNonTraditional) {
 				this.selector.useFlag = LocalVariableBinding.USED;
 				this.selector.type = this.scope.getJavaLangString();
-			} else if (needPatternDispatchCopy()) {
+			} else if (indySwitch()) {
 				this.selector.useFlag = LocalVariableBinding.USED;
 			    this.selector.type = this.expression.resolvedType;
 			} else {
@@ -559,7 +550,7 @@ public class SwitchStatement extends Expression {
 		}
 	}
 
-	private boolean needPatternDispatchCopy() {
+	private boolean indySwitch() {
 		if (this.containsPatterns || this.containsNull || (this.switchBits & QualifiedEnum) != 0)
 			return true;
 		TypeBinding eType = this.expression.resolvedType;
@@ -753,7 +744,7 @@ public class SwitchStatement extends Expression {
 			}
 
 			final TypeBinding resolvedTypeBinding = this.expression.resolvedType;
-			if (resolvedTypeBinding.isEnum() && !needPatternDispatchCopy()) {
+			if (resolvedTypeBinding.isEnum() && !indySwitch()) {
 				final SourceTypeBinding sourceTypeBinding = currentScope.classScope().referenceContext.binding;
 				this.synthetic = sourceTypeBinding.addSyntheticMethodForSwitchEnum(resolvedTypeBinding, this);
 			}
@@ -806,7 +797,7 @@ public class SwitchStatement extends Expression {
 											this.swich.unconditionalPatternCase != null ? (CaseLabel) this.swich.unconditionalPatternCase.targetLabel : new CaseLabel(codeStream);
 		}
 
-		protected void gatherCaseConstantsOrProxies() {
+		protected void gatherCaseConstantsOrProxies(CodeStream codeStream) {
 			this.constantCount = this.swich.labelExpressions.length;
 			this.constants = new int [this.constantCount];
 			for (int i = 0, length = this.swich.labelExpressions.length; i < length; ++i)
@@ -861,8 +852,7 @@ public class SwitchStatement extends Expression {
 
 		protected final void generateDefaultCase(BlockScope currentScope, CodeStream codeStream) {
 			if (this.swich.defaultCase == null && this.swich.unconditionalPatternCase == null) {
-				boolean needsThrowingDefault = false;
-				needsThrowingDefault = this.swich.expression.resolvedType.isEnum() && (this.swich instanceof SwitchExpression || this.swich.containsNull);
+				boolean needsThrowingDefault = this.swich.expression.resolvedType.isEnum() && (this.swich instanceof SwitchExpression || this.swich.containsNull);
 				needsThrowingDefault |= this.swich.isExhaustive(); // pattern switches:
 				if (needsThrowingDefault) {
 					if (this.swich.preSwitchInitStateIndex != -1)
@@ -914,7 +904,7 @@ public class SwitchStatement extends Expression {
 				// Prepare labels & case constants or their proxies.
 				int pc = codeStream.position;
 				initializeLabels(codeStream); // assemble case labels, break label and default label
-				gatherCaseConstantsOrProxies();
+				gatherCaseConstantsOrProxies(codeStream);
 				finalizeLabels(codeStream); // actual cases may differ from what is seen in source code - e.g., String switch.
 				generateSelectorExpression(currentScope, codeStream);
 				generateSwitchByteCode(currentScope, codeStream);
@@ -951,11 +941,10 @@ public class SwitchStatement extends Expression {
 				this.swich.defaultLabel = new CaseLabel(codeStream, true /* allow narrow branch to */);
 				if (this.swich.defaultCase != null)
 					this.swich.defaultCase.targetLabel = this.swich.defaultLabel; // Replace the vanilla branch label with a case label that doubles as a branch label.
-
 			}
 
 			@Override
-			protected void gatherCaseConstantsOrProxies() { // proxies in this case - unique hash code values.
+			protected void gatherCaseConstantsOrProxies(CodeStream codeStream) { // proxies in this case - unique hash code values.
 				this.stringCaseConstants = new StringCaseConstant[this.swich.nConstants];
 
 				int [] hashCodes = new int[this.swich.nConstants];
@@ -978,7 +967,7 @@ public class SwitchStatement extends Expression {
 			}
 
 			@Override
-			protected void finalizeLabels(CodeStream codeStream) {
+			protected void finalizeLabels(CodeStream codeStream) { // case labels in String switch don't correspond to source code cases ...
 				this.caseLabels = new CaseLabel[this.constantCount];
 				for (int i = 0; i < this.constantCount; i++)
 					this.caseLabels[i] = new CaseLabel(codeStream);
@@ -1016,7 +1005,7 @@ public class SwitchStatement extends Expression {
 			}
 		}
 
-		final static class EnumSwitchTranslator extends SwitchTranslator {
+		final static class ClassicEnumSwitchTranslator extends SwitchTranslator { // 1.5 enum switch, PatternSwitchTranslator covers enums with patterns
 
 			@Override
 			protected void generateSelectorExpression(BlockScope currentScope, CodeStream codeStream) {
@@ -1031,13 +1020,22 @@ public class SwitchStatement extends Expression {
 		final static class PatternSwitchTranslator extends SwitchTranslator {
 
 			@Override
-			protected void gatherCaseConstantsOrProxies() {
+			protected void gatherCaseConstantsOrProxies(CodeStream codeStream) {
 				this.constantCount = this.swich.labelExpressions.length;
 				this.constants = new int [this.constantCount];
 				for (int i = 0, j = 0, length = this.swich.labelExpressions.length; i < length; ++i) {
-					this.constants[i] = this.swich.labelExpressions[i].index - j;
-					if (this.swich.labelExpressions[i].expression instanceof NullLiteral)
+					final LabelExpression labelExpression = this.swich.labelExpressions[i];
+					this.constants[i] = labelExpression.index - j;
+					if (labelExpression.type.isPrimitiveType()) {
+						SingletonBootstrap descriptor = labelExpression.isPattern() ? PRIMITIVE_CLASS__BOOTSTRAP : labelExpression.type.id == TypeIds.T_boolean ? GET_STATIC_FINAL__BOOTSTRAP : null;
+						if (descriptor != null)
+							labelExpression.primitivesBootstrapIdx = codeStream.classFile.recordSingletonBootstrapMethod(descriptor);
+					} else if (labelExpression.isQualifiedEnum()) {
+						labelExpression.enumDescIdx = codeStream.classFile.recordBootstrapMethod(labelExpression);
+						labelExpression.classDescIdx = codeStream.classFile.recordBootstrapMethod(labelExpression.type);
+					} else if (labelExpression.expression instanceof NullLiteral) {
 						j = 1;  // since we yank null out to -1, shift down everything beyond.
+					}
 				}
 			}
 
@@ -1052,7 +1050,7 @@ public class SwitchStatement extends Expression {
 						if (exprType.id > TypeIds.T_LastWellKnownTypeId && exprType.erasure().isBoxedPrimitiveType())
 							yield exprType.erasure().signature(); // <T extends Integer> / <? extends Short> ...
 						else
-							yield exprType.isPrimitiveType()
+							yield exprType.isPrimitiveType() || exprType.isEnum()
 								? exprType.signature()
 								: "Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 					}
@@ -1079,47 +1077,20 @@ public class SwitchStatement extends Expression {
 				this.swich.switchPatternRestartTarget = new BranchLabel(codeStream);
 				this.swich.switchPatternRestartTarget.place();
 
-				if (this.swich.expression.resolvedType.isEnum()) {
-					String genericTypeSignature = new String(this.swich.expression.resolvedType.genericTypeSignature());
-					String callingParams = "(" + genericTypeSignature + "I)I"; //$NON-NLS-1$ //$NON-NLS-2$
-					codeStream.invokeDynamic(invokeDynamicNumber,
-							2, // Object, restartIndex
-							1, // int
-							"enumSwitch".toCharArray(), //$NON-NLS-1$
-							callingParams.toCharArray(),
-							TypeBinding.INT);
-				} else {
-					TypeBinding exprType = this.swich.expression.resolvedType;
-					char[] signature = typeSwitchSignature(exprType);
-					int argsSize = TypeIds.getCategory(exprType.id) + 1; // Object | PRIM, restartIndex (PRIM = Z|S|I..)
-					codeStream.invokeDynamic(invokeDynamicNumber,
-							argsSize,
-							1, // int
-							ConstantPool.TYPESWITCH,
-							signature,
-							TypeBinding.INT);
-				}
-
-				for (int i = 0; i < this.swich.labelExpressions.length; i++) {
-					LabelExpression c = this.swich.labelExpressions[i];
-					if (c.type.isPrimitiveType()) {
-						SingletonBootstrap descriptor = c.isPattern() ? PRIMITIVE_CLASS__BOOTSTRAP : c.type.id == TypeIds.T_boolean ? GET_STATIC_FINAL__BOOTSTRAP : null;
-						if (descriptor != null)
-							c.primitivesBootstrapIdx = codeStream.classFile.recordSingletonBootstrapMethod(descriptor);
-					} else if (c.isQualifiedEnum()) {
-						c.enumDescIdx = codeStream.classFile.recordBootstrapMethod(c);
-						c.classDescIdx = codeStream.classFile.recordBootstrapMethod(c.type);
-					}
-				}
+				TypeBinding selectorType = this.swich.expression.resolvedType;
+				char[] signature = typeSwitchSignature(selectorType);
+				int argsSize = TypeIds.getCategory(selectorType.id) + 1; // ReferenceType | PRIM, restartIndex (PRIM = Z|S|I..)
+				char [] bootstrap = selectorType.isEnum() ? ConstantPool.ENUMSWITCH : ConstantPool.TYPESWITCH;
+				codeStream.invokeDynamic(invokeDynamicNumber, argsSize, 1 /* int case constant/proxy */, bootstrap, signature, TypeBinding.INT);
 			}
 		}
 	}
 
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-		SwitchTranslator translator = needPatternDispatchCopy() ? new SwitchTranslator.PatternSwitchTranslator() :
+		SwitchTranslator translator = indySwitch() ? new SwitchTranslator.PatternSwitchTranslator() :
 			this.expression.resolvedType.id == TypeIds.T_JavaLangString && !this.isNonTraditional ? new SwitchTranslator.StringSwitchTranslator() :
-					this.expression.resolvedType.isEnum() ? new SwitchTranslator.EnumSwitchTranslator() : new SwitchTranslator.ClassicSwitchTranslator();
+					this.expression.resolvedType.isEnum() ? new SwitchTranslator.ClassicEnumSwitchTranslator() : new SwitchTranslator.ClassicSwitchTranslator();
 		translator.setSwitch(this);
 		translator.generateCode(currentScope, codeStream);
 	}
@@ -1177,11 +1148,9 @@ public class SwitchStatement extends Expression {
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 		if (visitor.visit(this, blockScope)) {
 			this.expression.traverse(visitor, blockScope);
-			if (this.statements != null) {
-				int statementsLength = this.statements.length;
-				for (int i = 0; i < statementsLength; i++)
-					this.statements[i].traverse(visitor, this.scope);
-			}
+			if (this.statements != null)
+				for (Statement statement : this.statements)
+					statement.traverse(visitor, this.scope);
 		}
 		visitor.endVisit(this, blockScope);
 	}

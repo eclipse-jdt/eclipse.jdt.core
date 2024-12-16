@@ -8326,4 +8326,38 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"Yield = 42");
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=566124
+	// Widening conversions combined with method invocation and switch expressions doesn't work
+	public void testBug566124() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X  {
+				    @SuppressWarnings("deprecation")
+				    public void bar(int i) {
+					boolean isNumeric = foo( switch(i+1) {
+					   case 0 -> new Short((short)0);
+					   case 2 -> new Double(2.0d);
+					   default -> new Integer((short)6);
+				    	});
+				    	System.out.println(isNumeric);
+				    }
+				    boolean foo(short data){ return false; }
+				    boolean foo(byte data){ return false; }
+				    boolean foo(int data){ return false; }
+				    boolean foo(float data){ return false; }
+				    boolean foo(long data){ return false; }
+				    boolean foo(double data){ return true; }
+
+				    public static void main(String[] args) {
+						X x = new X();
+						x.bar(-1);
+					}
+				}
+				"""
+				},
+				"true");
+	}
 }
