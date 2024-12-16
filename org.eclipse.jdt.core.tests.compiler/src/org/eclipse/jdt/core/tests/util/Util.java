@@ -172,13 +172,7 @@ public class Util {
 
         // Computed test run directory name based on current time
         File dateDir = new File(dir, "run."+System.currentTimeMillis());
-        String pathDir = null;
-        try {
-        	pathDir = dateDir.getCanonicalPath();
-		} catch (IOException e) {
-			pathDir = dateDir.getAbsolutePath();
-		}
-		OUTPUT_DIRECTORY = pathDir;
+		OUTPUT_DIRECTORY = dateDir.toPath().normalize().toAbsolutePath().toString();
    }
 
 public static void appendProblem(StringBuilder problems, IProblem problem, char[] source, int problemCount) {

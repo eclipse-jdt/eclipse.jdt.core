@@ -133,19 +133,11 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			IWorkspaceRoot workspaceRoot = workspace.getRoot();
 			File pluginDir = workspaceRoot.getProject(JavaCore.PLUGIN_ID).getLocation().toFile();
-			try {
-				outputDir = pluginDir.getCanonicalPath() + File.separator + "bin";
-			} catch (IOException e) {
-				// skip
-			}
+			outputDir = pluginDir.toPath().normalize().toAbsolutePath().toString() + File.separator + "bin";
 		} else {
 			outputDir = Util.toNativePath(container) + File.separator + "bin";
 		}
-		if (outputDir == null) {
-			COMPILER_OUTPUT_DIR = "none";
-		} else {
-			COMPILER_OUTPUT_DIR = "\""+outputDir+"\"";
-		}
+		COMPILER_OUTPUT_DIR = "\""+outputDir+"\"";
 	}
 
 
@@ -625,7 +617,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		// Get wksp info
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
+		String targetWorkspacePath = workspaceRoot.getLocation().toFile().toPath().normalize().toAbsolutePath().toString();
 
 		// Modify resources workspace preferences to avoid disturbing tests while running them
 		IEclipsePreferences resourcesPreferences = InstanceScope.INSTANCE.getNode(ResourcesPlugin.PI_RESOURCES);
@@ -1217,14 +1209,10 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	}
 
 	protected String getExternalPath() {
-		String path = "";
-		try {
-			path = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile().getParentFile().getCanonicalPath();
-			if (path.charAt(path.length()-1) != File.separatorChar)
-				path += File.separatorChar;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		String path = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile().getParentFile().toPath()
+				.normalize().toAbsolutePath().toString();
+		if (path.charAt(path.length() - 1) != File.separatorChar)
+			path += File.separatorChar;
 		return path;
 	}
 

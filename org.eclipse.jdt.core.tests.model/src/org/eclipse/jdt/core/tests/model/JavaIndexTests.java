@@ -880,7 +880,7 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 	// Test shared index location functionality
 	public void testSharedIndexLocation() throws CoreException, IOException {
 		// Create temporary testing folder
-		String sharedIndexDir = Files.createTempDirectory("shared_index").toFile().getCanonicalPath();
+		String sharedIndexDir = Files.createTempDirectory("shared_index").toFile().toPath().normalize().toAbsolutePath().toString();
 		// enable shared index
 		ClasspathEntry.setSharedIndexLocation(sharedIndexDir, getClass());
 		// path of library must be platform neutral
