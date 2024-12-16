@@ -179,8 +179,13 @@ class DOMCompletionEngineBuilder {
 
 	static char[] getSignature(IMethodBinding methodBinding) {
 		String fullKey = methodBinding.getKey().replace('/', '.');
-		String justReturn = fullKey.substring(fullKey.indexOf('('));
-		return justReturn.toCharArray();
+		String removeName = fullKey.substring(fullKey.indexOf('('));
+		int firstException = removeName.indexOf('|');
+		if (firstException > 0) {
+			return removeName.substring(0, firstException).toCharArray();
+		} else {
+			return removeName.toCharArray();
+		}
 	}
 
 	static char[] getSignature(ITypeBinding typeBinding) {
