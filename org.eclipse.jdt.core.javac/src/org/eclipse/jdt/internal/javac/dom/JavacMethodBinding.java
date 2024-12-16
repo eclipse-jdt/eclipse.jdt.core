@@ -40,7 +40,10 @@ import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
+import org.eclipse.jdt.internal.core.BinaryMethod;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.Member;
+import org.eclipse.jdt.internal.core.ResolvedBinaryMethod;
 import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
 import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -230,7 +233,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 							.toArray(String[]::new);
 					IMethod[] methods = currentType.findMethods(currentType.getMethod(getName(), parametersResolved));
 					if (methods != null && methods.length > 0) {
-						return methods[0];
+						return resolved(methods[0]);
 					}
 					var parametersNotResolved = this.methodSymbol.params().stream()
 							.map(varSymbol -> varSymbol.type)
@@ -240,7 +243,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 							.toArray(String[]::new);
 					methods = currentType.findMethods(currentType.getMethod(getName(), parametersNotResolved));
 					if (methods != null && methods.length > 0) {
-						return methods[0];
+						return resolved(methods[0]);
 					}
 				}
 				// nothing found: move up in hierarchy
@@ -294,8 +297,11 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	}
 
 	private IMethod resolved(IMethod from) {
-		if (from instanceof SourceMethod sourceMethod && !(from instanceof ResolvedSourceMethod)) {
-			return new ResolvedSourceMethod(sourceMethod.getParent(), sourceMethod.getElementName(), sourceMethod.getParameterTypes(), getKey(), sourceMethod.getOccurrenceCount());
+		if (from instanceof SourceMethod && !(from instanceof ResolvedSourceMethod)) {
+			return new ResolvedSourceMethod((JavaElement)from.getParent(), from.getElementName(), from.getParameterTypes(), getKey(), from.getOccurrenceCount());
+		}
+		if (from instanceof BinaryMethod && !(from instanceof ResolvedBinaryMethod)) {
+			return new ResolvedBinaryMethod((JavaElement)from.getParent(), from.getElementName(), from.getParameterTypes(), getKey(), from.getOccurrenceCount());
 		}
 		return from;
 	}
@@ -338,7 +344,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		try {
 			StringBuilder builder = new StringBuilder();
 			getKey(builder, this.methodSymbol, this.methodType, this.parentType, this.resolver);
-			return builder.toString();
+			return builder.toString() + Arrays.stream(getExceptionTypes()).map(ITypeBinding::getKey).map(key -> '|' + key).collect(Collectors.joining());
 		} catch(BindingKeyException bke) {
 			return null;
 		}

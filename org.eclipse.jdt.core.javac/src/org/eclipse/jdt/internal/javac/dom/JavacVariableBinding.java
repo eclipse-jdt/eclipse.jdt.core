@@ -36,10 +36,12 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
+import org.eclipse.jdt.internal.core.BinaryMember;
 import org.eclipse.jdt.internal.core.DOMToModelPopulator;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.LambdaMethod;
 import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.ResolvedBinaryField;
 import org.eclipse.jdt.internal.core.ResolvedSourceField;
 import org.eclipse.jdt.internal.core.SourceField;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -157,8 +159,11 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 	}
 
 	private IField resolved(IField field) {
-		if (field instanceof SourceField sourceField && !(sourceField instanceof ResolvedSourceField)) {
-			return new ResolvedSourceField(sourceField.getParent(), sourceField.getElementName(), getKey(), sourceField.getOccurrenceCount());
+		if (field instanceof SourceField && !(field instanceof ResolvedSourceField)) {
+			return new ResolvedSourceField((JavaElement)field.getParent(), field.getElementName(), getKey(), field.getOccurrenceCount());
+		}
+		if (field instanceof BinaryMember && !(field instanceof ResolvedBinaryField)) {
+			return new ResolvedBinaryField((JavaElement)field.getParent(), field.getElementName(), getKey(), field.getOccurrenceCount());
 		}
 		return field;
 	}

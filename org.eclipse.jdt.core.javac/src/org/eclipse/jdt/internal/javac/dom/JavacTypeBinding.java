@@ -58,7 +58,9 @@ import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
+import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.ResolvedBinaryType;
 import org.eclipse.jdt.internal.core.ResolvedSourceType;
 import org.eclipse.jdt.internal.core.SourceType;
 
@@ -268,6 +270,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	private IType resolved(IType type) {
 		if (type instanceof SourceType && !(type instanceof ResolvedSourceType)) {
 			return new ResolvedSourceType((JavaElement)type.getParent(), type.getElementName(), getKey(), type.getOccurrenceCount());
+		}
+		if (type instanceof BinaryType && !(type instanceof ResolvedBinaryType)) {
+			return new ResolvedBinaryType((JavaElement)type.getParent(), type.getElementName(), getKey(), type.getOccurrenceCount());
 		}
 		return type;
 	}
