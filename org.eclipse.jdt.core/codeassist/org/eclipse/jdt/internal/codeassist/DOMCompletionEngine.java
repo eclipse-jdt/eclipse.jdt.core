@@ -65,31 +65,30 @@ public class DOMCompletionEngine implements Runnable {
 	private final IProgressMonitor monitor;
 
 	static class Bindings {
-		private HashSet<IMethodBinding> methods = new HashSet<>();
-		private HashSet<IBinding> others = new HashSet<>();
+		// those need to be list since the order matters
+		// fields must be before methods
+		private List<IBinding> others = new ArrayList<>();
 
-		public void add(IMethodBinding binding) {
-			if (binding.isConstructor()) {
-				return;
-			}
-			if (this.methods.stream().anyMatch(method -> method.overrides(binding))) {
-				return;
-			}
-			this.methods.removeIf(method -> binding.overrides(method));
-			this.methods.add(binding);
-		}
 		public void add(IBinding binding) {
 			if (binding instanceof IMethodBinding methodBinding) {
-				this.add(methodBinding);
-			} else {
-				this.others.add(binding);
+				if (methodBinding.isConstructor()) {
+					return;
+				}
+				if (this.methods().anyMatch(method -> method.overrides(methodBinding))) {
+					return;
+				}
+				this.others.removeIf(existing -> existing instanceof IMethodBinding existingMethod && methodBinding.overrides(existingMethod));
 			}
+			this.others.add(binding);
 		}
 		public void addAll(Collection<? extends IBinding> bindings) {
 			bindings.forEach(this::add);
 		}
-		public Stream<IBinding> stream() {
-			return Stream.of(this.methods, this.others).flatMap(Collection::stream);
+		public Stream<IBinding> all() {
+			return this.others.stream();
+		}
+		public Stream<IMethodBinding> methods() {
+			return all().filter(IMethodBinding.class::isInstance).map(IMethodBinding.class::cast);
 		}
 	}
 
@@ -289,7 +288,7 @@ public class DOMCompletionEngine implements Runnable {
 					ITypeBinding type = expression.resolveTypeBinding();
 					if (type != null) {
 						processMembers(expression, type, specificCompletionBindings, false);
-						specificCompletionBindings.stream()
+						specificCompletionBindings.all()
 							.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
 							.filter(IMethodBinding.class::isInstance)
 							.map(binding -> toProposal(binding))
@@ -302,7 +301,7 @@ public class DOMCompletionEngine implements Runnable {
 					if (methodBinding != null) {
 						ITypeBinding returnType = methodBinding.getReturnType();
 						processMembers(invocation, returnType, specificCompletionBindings, false);
-						specificCompletionBindings.stream()
+						specificCompletionBindings.all()
 							.map(binding -> toProposal(binding))
 							.forEach(this.requestor::accept);
 					}
@@ -356,7 +355,7 @@ public class DOMCompletionEngine implements Runnable {
 								}
 							})
 							.filter(type -> {
-								return defaultCompletionBindings.stream().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> type.equals(elt));
+								return defaultCompletionBindings.all().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> type.equals(elt));
 							})
 							.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
 									type.getElementName().toCharArray()))
@@ -412,7 +411,7 @@ public class DOMCompletionEngine implements Runnable {
 						// Search the scope for the right binding
 						Bindings localBindings = new Bindings();
 						scrapeAccessibleBindings(localBindings);
-						Optional<IVariableBinding> realBinding = localBindings.stream() //
+						Optional<IVariableBinding> realBinding = localBindings.all() //
 								.filter(IVariableBinding.class::isInstance)
 								.map(IVariableBinding.class::cast)
 								.filter(varBind -> varBind.getName().equals(incorrectBinding.getName()))
@@ -502,7 +501,7 @@ public class DOMCompletionEngine implements Runnable {
 						// likely the start of an incomplete field/method access
 						Bindings tempScope = new Bindings();
 						scrapeAccessibleBindings(tempScope);
-						Optional<ITypeBinding> potentialBinding = tempScope.stream() //
+						Optional<ITypeBinding> potentialBinding = tempScope.all() //
 								.filter(binding -> {
 									IJavaElement elt = binding.getJavaElement();
 									if (elt == null) {
@@ -641,7 +640,7 @@ public class DOMCompletionEngine implements Runnable {
 				ITypeBinding typeBinding = emr.getExpression().resolveTypeBinding();
 				if (typeBinding != null && !this.requestor.isIgnored(CompletionProposal.METHOD_NAME_REFERENCE)) {
 					processMembers(emr, typeBinding, specificCompletionBindings, false);
-					specificCompletionBindings.methods.stream() //
+					specificCompletionBindings.methods() //
 							.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
 							.map(this::toProposal) //
 							.forEach(this.requestor::accept);
@@ -671,7 +670,7 @@ public class DOMCompletionEngine implements Runnable {
 					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 						findTypes(completeAfter, typeMatchRule, null)
 							.filter(type -> {
-								return defaultCompletionBindings.stream().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> type.equals(elt));
+								return defaultCompletionBindings.all().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> type.equals(elt));
 							})
 							.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
 									type.getElementName().toCharArray()))
@@ -710,9 +709,9 @@ public class DOMCompletionEngine implements Runnable {
 			return;
 		}
 
-		Set<String> scopedMethods = scope.methods.stream().map(IBinding::getName).collect(Collectors.toSet());
-		Set<String> scopedVariables = scope.others.stream().filter(IVariableBinding.class::isInstance).map(IBinding::getName).collect(Collectors.toSet());
-		Set<String> scopedTypes = scope.others.stream().filter(ITypeBinding.class::isInstance).map(IBinding::getName).collect(Collectors.toSet());
+		Set<String> scopedMethods = scope.methods().map(IBinding::getName).collect(Collectors.toSet());
+		Set<String> scopedVariables = scope.all().filter(IVariableBinding.class::isInstance).map(IBinding::getName).collect(Collectors.toSet());
+		Set<String> scopedTypes = scope.all().filter(ITypeBinding.class::isInstance).map(IBinding::getName).collect(Collectors.toSet());
 
 		Set<IJavaElement> keysToResolve = new HashSet<>();
 		IJavaProject project = this.modelUnit.getJavaProject();
@@ -759,7 +758,7 @@ public class DOMCompletionEngine implements Runnable {
 				}
 			}
 		}
-		favoriteBindings.stream()
+		favoriteBindings.all()
 			.filter(binding -> {
 				if (binding instanceof IMethodBinding) {
 					return !scopedMethods.contains(binding.getName());
@@ -1045,14 +1044,14 @@ public class DOMCompletionEngine implements Runnable {
 						&& !definedKeys.contains(declaredMethod.getName().toString());
 			}) //
 			.forEach(scope::add);
-		scope.methods.stream() //
-				.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray())) //
-				.map(binding -> toAnnotationAttributeRefProposal(binding))
-				.forEach(this.requestor::accept);
+		scope.methods() //
+			.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray())) //
+			.map(binding -> toAnnotationAttributeRefProposal(binding))
+			.forEach(this.requestor::accept);
 	}
 
 	private void publishFromScope(Bindings scope) {
-		scope.stream() //
+		scope.all() //
 			.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray())) //
 			.map(binding -> toProposal(binding))
 			.forEach(this.requestor::accept);
@@ -1314,6 +1313,7 @@ public class DOMCompletionEngine implements Runnable {
 		}
 		Arrays.stream(typeBinding.getDeclaredMethods()) //
 			.filter(accessFilter) //
+			.sorted(Comparator.comparing(this::getSignature).reversed()) // as expected by tests
 			.forEach(scope::add);
 		if (typeBinding.getInterfaces() != null) {
 			for (ITypeBinding superinterfaceBinding : typeBinding.getInterfaces()) {
@@ -1324,6 +1324,12 @@ public class DOMCompletionEngine implements Runnable {
 		if (superclassBinding != null) {
 			processMembers(superclassBinding, scope, false, includeProtected, originalPackageKey, isStaticContext, true, impossibleMethods, impossibleFields);
 		}
+	}
+
+	private String getSignature(IMethodBinding method) {
+		return method.getName() + '(' +
+				Arrays.stream(method.getParameterTypes()).map(ITypeBinding::getName).collect(Collectors.joining(","))
+				+ ')';
 	}
 
 	private static boolean findInSupers(ITypeBinding root, ITypeBinding toFind) {

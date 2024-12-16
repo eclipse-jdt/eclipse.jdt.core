@@ -102,7 +102,7 @@ final class DOMCompletionEngineRecoveredNodeScanner {
                 return false;
             } else {
                 var possibleVarName = binding.getName();
-                var result = this.scope.stream().filter(IVariableBinding.class::isInstance)
+                var result = this.scope.all().filter(IVariableBinding.class::isInstance)
                         .filter(b -> possibleVarName.equals(b.getName())).map(IVariableBinding.class::cast)
                         .map(v -> v.getType()).findFirst();
                 if (result.isPresent()) {
@@ -132,7 +132,7 @@ final class DOMCompletionEngineRecoveredNodeScanner {
                     if (charAt == '.' && (node.getStartPosition() + node.getLength()) == this.offset - 1) {
                         var name = node.getIdentifier();
                         // search for variables for bindings
-                        var result = this.scope.stream().filter(IVariableBinding.class::isInstance)
+                        var result = this.scope.all().filter(IVariableBinding.class::isInstance)
                                 .filter(b -> name.equals(b.getName())).map(IVariableBinding.class::cast)
                                 .map(v -> v.getType()).findFirst();
                         if (result.isPresent()) {

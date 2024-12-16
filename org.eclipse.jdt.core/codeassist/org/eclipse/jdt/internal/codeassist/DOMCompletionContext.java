@@ -69,7 +69,7 @@ class DOMCompletionContext extends CompletionContext {
 		this.expectedTypes = new ExpectedTypes(assistOptions, this.node, offset);
 		this.token = tokenBefore(cuBuffer).toCharArray();
 		this.enclosingElement = computeEnclosingElement(domUnit, modelUnit);
-		this.bindingsAcquirer = bindings::stream;
+		this.bindingsAcquirer = bindings::all;
 		this.isJustAfterStringLiteral = this.node instanceof StringLiteral && this.node.getLength() > 1 && this.offset >= node.getStartPosition() + node.getLength() && cuBuffer.getChar(this.offset - 1) == '"';
 	}
 
