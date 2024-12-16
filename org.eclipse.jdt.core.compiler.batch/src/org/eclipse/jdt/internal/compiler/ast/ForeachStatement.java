@@ -265,9 +265,7 @@ public class ForeachStatement extends Statement {
 		}
 		// label management
 		BranchLabel actionLabel = new BranchLabel(codeStream);
-		actionLabel.tagBits |= BranchLabel.USED;
 		BranchLabel conditionLabel = new BranchLabel(codeStream);
-		conditionLabel.tagBits |= BranchLabel.USED;
 		this.breakLabel.initialize(codeStream);
 		if (this.continueLabel == null) {
 			// generate the condition (swapped for optimizing)
@@ -290,7 +288,6 @@ public class ForeachStatement extends Statement {
 			codeStream.recordPositionsFrom(conditionPC, this.elementVariable.sourceStart);
 		} else {
 			this.continueLabel.initialize(codeStream);
-			this.continueLabel.tagBits |= BranchLabel.USED;
 			// jump over the actionBlock
 			codeStream.goto_(conditionLabel);
 		}
@@ -691,10 +688,4 @@ public class ForeachStatement extends Statement {
 	public boolean doesNotCompleteNormally() {
 		return false; // may not be entered at all.
 	}
-
-	@Override
-	public boolean canCompleteNormally() {
-		return true;
-	}
-
 }

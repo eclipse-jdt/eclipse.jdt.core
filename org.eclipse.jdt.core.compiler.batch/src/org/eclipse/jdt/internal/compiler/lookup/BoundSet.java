@@ -1264,33 +1264,38 @@ class BoundSet {
 	}
 
 	protected List<Pair<TypeBinding>> allSuperPairsWithCommonGenericType(TypeBinding s, TypeBinding t) {
-		return allSuperPairsWithCommonGenericTypeRecursive(s, t, new HashSet<>());
+		ArrayList<Pair<TypeBinding>> result = new ArrayList<>();
+		allSuperPairsWithCommonGenericTypeRecursive(s, t, result, new HashSet<>());
+		return result;
 	}
 
-	private List<Pair<TypeBinding>> allSuperPairsWithCommonGenericTypeRecursive(TypeBinding s, TypeBinding t, HashSet<TypeBinding> visited) {
+	private void allSuperPairsWithCommonGenericTypeRecursive(TypeBinding s, TypeBinding t, List<Pair<TypeBinding>> result, HashSet<Integer> visited) {
 		if (s == null || s.id == TypeIds.T_JavaLangObject || t == null || t.id == TypeIds.T_JavaLangObject)
-			return Collections.emptyList();
-		if (!visited.add(s.prototype()))
-			return Collections.emptyList();
-		List<Pair<TypeBinding>> result = new ArrayList<>();
-		if (s.isParameterizedType() && t.isParameterizedType() // optimization #1: clients of this method only want to compare type arguments
-				&& TypeBinding.equalsEquals(s.original(), t.original())) {
-			result.add(new Pair<>(s, t));
-		}
+			return;
+		if (!visited.add(s.id))
+			return;
+
+		// optimization: nothing interesting above equal types
 		if (TypeBinding.equalsEquals(s,  t))
-			return result; // optimization #2: nothing interesting above equal types
-		TypeBinding tSuper = t.findSuperTypeOriginatingFrom(s);
-		if (tSuper != null && s.isParameterizedType() && tSuper.isParameterizedType()) { // optimization #1 again
-			result.add(new Pair<>(s, tSuper));
+			return;
+
+		if (s.isParameterizedType()) { // optimization here and below: clients of this method only want to compare type arguments
+			if (TypeBinding.equalsEquals(s.original(), t.original())) {
+				if (t.isParameterizedType())
+					result.add(new Pair<>(s, t));
+			} else {
+				TypeBinding tSuper = t.findSuperTypeOriginatingFrom(s);
+				if (tSuper != null && tSuper.isParameterizedType())
+					result.add(new Pair<>(s, tSuper));
+			}
 		}
-		result.addAll(allSuperPairsWithCommonGenericTypeRecursive(s.superclass(), t, visited));
+		allSuperPairsWithCommonGenericTypeRecursive(s.superclass(), t, result, visited);
 		ReferenceBinding[] superInterfaces = s.superInterfaces();
 		if (superInterfaces != null) {
 			for (ReferenceBinding superInterface : superInterfaces) {
-				result.addAll(allSuperPairsWithCommonGenericTypeRecursive(superInterface, t, visited));
+				allSuperPairsWithCommonGenericTypeRecursive(superInterface, t, result, visited);
 			}
 		}
-		return result;
 	}
 
 	public TypeBinding getEquivalentOuterVariable(InferenceVariable variable, InferenceVariable[] outerVariables) {

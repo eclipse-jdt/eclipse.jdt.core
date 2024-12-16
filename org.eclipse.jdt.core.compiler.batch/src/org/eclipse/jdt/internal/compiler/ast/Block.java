@@ -74,10 +74,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			}
 		}
 	}
-	if ((this.bits & ASTNode.SwitchRuleBlock) != 0) { // switch rule blocks don't fall through
+	if ((this.bits & ASTNode.BlockShouldEndDead) != 0) { // switch rule blocks don't fall through
 		if (flowInfo != FlowInfo.DEAD_END) {
-			flowContext.recordBreakFrom(flowInfo);
-			return FlowInfo.DEAD_END;
+			if (flowContext.associatedNode instanceof SwitchExpression) { // ... demand that for expression switch ...
+				currentScope.problemReporter().switchExpressionBlockCompletesNormally(this);
+			} else { // ... enforce that for statement switch, by having the code generator inject an automagic break ...
+				flowContext.recordBreakFrom(flowInfo);
+				return FlowInfo.DEAD_END;
+			}
+		} else {
+			this.bits &= ~ASTNode.BlockShouldEndDead; // Already dead-ends; nothing special needed from code generator
 		}
 	}
 	return flowInfo;
@@ -182,17 +188,4 @@ public boolean completesByContinue() {
 	int length = this.statements == null ? 0 : this.statements.length;
 	return length > 0 && this.statements[length - 1].completesByContinue();
 }
-
-@Override
-public boolean canCompleteNormally() {
-	int length = this.statements == null ? 0 : this.statements.length;
-	return length == 0 || this.statements[length - 1].canCompleteNormally();
-}
-
-@Override
-public boolean continueCompletes() {
-	int length = this.statements == null ? 0 : this.statements.length;
-	return length > 0 && this.statements[length - 1].continueCompletes();
-}
-
 }
