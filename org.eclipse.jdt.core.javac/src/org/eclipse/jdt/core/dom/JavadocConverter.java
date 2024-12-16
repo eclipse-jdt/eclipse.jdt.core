@@ -28,8 +28,6 @@ import com.sun.source.doctree.DocTree.Kind;
 import com.sun.source.util.DocTreePath;
 import com.sun.source.util.TreePath;
 import com.sun.tools.javac.tree.DCTree;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.tree.DCTree.DCAuthor;
 import com.sun.tools.javac.tree.DCTree.DCBlockTag;
 import com.sun.tools.javac.tree.DCTree.DCComment;
@@ -57,7 +55,9 @@ import com.sun.tools.javac.tree.DCTree.DCUnknownInlineTag;
 import com.sun.tools.javac.tree.DCTree.DCUses;
 import com.sun.tools.javac.tree.DCTree.DCValue;
 import com.sun.tools.javac.tree.DCTree.DCVersion;
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
+import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.util.Convert;
 import com.sun.tools.javac.util.JCDiagnostic;
 
@@ -79,6 +79,7 @@ class JavadocConverter {
 	private final int endOffset;
 	private boolean buildJavadoc;
 	private final TreePath contextTreePath;
+	private String rawContent;
 
 	public final Map<ASTNode, DocTreePath> converted = new HashMap<>();
 
@@ -120,13 +121,19 @@ class JavadocConverter {
 			}
 		}
 	}
+	
+	public String getRawContent() {
+		if( this.rawContent == null ) 
+			this.rawContent = this.javacConverter.rawText.substring(this.initialOffset, this.endOffset);
+		return rawContent;
+	}
 
 	Javadoc convertJavadoc() {
 		Javadoc res = this.ast.newJavadoc();
 		res.setSourceRange(this.initialOffset, this.endOffset - this.initialOffset);
 		try {
 			if( this.javacConverter.ast.apiLevel == AST.JLS2_INTERNAL) {
-				String rawContent = this.javacConverter.rawText.substring(this.initialOffset, this.endOffset);
+				String rawContent = getRawContent();
 				try {
 					res.setComment(rawContent);
 				} catch( IllegalArgumentException iae) {

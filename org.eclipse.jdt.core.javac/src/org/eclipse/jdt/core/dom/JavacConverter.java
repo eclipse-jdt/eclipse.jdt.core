@@ -49,9 +49,8 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.parser.ParserFactory;
 import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.DCTree.DCDocComment;
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCAnyPattern;
@@ -125,6 +124,7 @@ import com.sun.tools.javac.tree.JCTree.JCWhileLoop;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
 import com.sun.tools.javac.tree.JCTree.JCYield;
 import com.sun.tools.javac.tree.JCTree.Tag;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JCDiagnostic;
 import com.sun.tools.javac.util.Log;
@@ -1231,7 +1231,11 @@ class JavacConverter {
 	private void setJavadocForNode(JCTree javac, ASTNode node) {
 		Comment c = this.javacCompilationUnit.docComments.getComment(javac);
 		if(c != null && (c.getStyle() == Comment.CommentStyle.JAVADOC_BLOCK || c.getStyle() == CommentStyle.JAVADOC_LINE)) {
-			Javadoc javadoc = (Javadoc)convert(c, javac);
+			org.eclipse.jdt.core.dom.Comment comment = convert(c, javac);
+			if( !(comment instanceof Javadoc)) {
+				return;
+			}
+			Javadoc javadoc = (Javadoc)comment;
 			if (node instanceof BodyDeclaration bodyDeclaration) {
 				bodyDeclaration.setJavadoc(javadoc);
 				bodyDeclaration.setSourceRange(javadoc.getStartPosition(), bodyDeclaration.getStartPosition() + bodyDeclaration.getLength() - javadoc.getStartPosition());
@@ -3401,27 +3405,35 @@ class JavacConverter {
 
 
 	public org.eclipse.jdt.core.dom.Comment convert(Comment javac, JCTree context) {
-		if ((javac.getStyle() == CommentStyle.JAVADOC_BLOCK || javac.getStyle() == CommentStyle.JAVADOC_LINE) && context != null) {
+		CommentStyle style = javac.getStyle();
+		if ((style == CommentStyle.JAVADOC_BLOCK || style == CommentStyle.JAVADOC_LINE) && context != null) {
 			var docCommentTree = this.javacCompilationUnit.docComments.getCommentTree(context);
 			if (docCommentTree instanceof DCDocComment dcDocComment) {
 				JavadocConverter javadocConverter = new JavadocConverter(this, dcDocComment, TreePath.getPath(this.javacCompilationUnit, context), this.buildJavadoc);
-				this.javadocConverters.add(javadocConverter);
-				Javadoc javadoc = javadocConverter.convertJavadoc();
-				if (this.ast.apiLevel() >= AST.JLS23) {
-					javadoc.setMarkdown(javac.getStyle() == CommentStyle.JAVADOC_LINE);
+				String raw = javadocConverter.getRawContent();
+				if( !"/**/".equals(raw)) {
+					this.javadocConverters.add(javadocConverter);
+					Javadoc javadoc = javadocConverter.convertJavadoc();
+					if (this.ast.apiLevel() >= AST.JLS23) {
+						javadoc.setMarkdown(javac.getStyle() == CommentStyle.JAVADOC_LINE);
+					}
+					this.javadocDiagnostics.addAll(javadocConverter.getDiagnostics());
+					return javadoc;
+				} else {
+					style = CommentStyle.BLOCK;
 				}
-				this.javadocDiagnostics.addAll(javadocConverter.getDiagnostics());
-				return javadoc;
 			}
 		}
-		org.eclipse.jdt.core.dom.Comment jdt = switch (javac.getStyle()) {
+		org.eclipse.jdt.core.dom.Comment jdt = switch (style) {
 			case LINE -> this.ast.newLineComment();
 			case BLOCK -> this.ast.newBlockComment();
 			case JAVADOC_BLOCK -> this.ast.newJavadoc();
 			case JAVADOC_LINE -> this.ast.newJavadoc();
 		};
 		javac.isDeprecated(); javac.getText(); // initialize docComment
-		jdt.setSourceRange(javac.getSourcePos(0), javac.getText().length());
+		int startPos = javac.getPos().getStartPosition();
+		int endPos = javac.getPos().getEndPosition(this.javacCompilationUnit.endPositions);
+		jdt.setSourceRange(startPos, endPos-startPos);
 		return jdt;
 	}
 
