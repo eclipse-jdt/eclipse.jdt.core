@@ -66,12 +66,7 @@ ClasspathDirectory(File directory, String encoding, int mode,
 	super(accessRuleSet, destinationPath);
 	this.mode = mode;
 	this.options = options;
-	try {
-		this.path = directory.getCanonicalPath();
-	} catch (IOException e) {
-		// should not happen as we know that the file exists
-		this.path = directory.getAbsolutePath();
-	}
+	this.path = directory.toPath().normalize().toAbsolutePath().toString();
 	if (!this.path.endsWith(File.separator))
 		this.path += File.separator;
 	this.encoding = encoding;
