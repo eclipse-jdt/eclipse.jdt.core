@@ -46,6 +46,15 @@ public class DOMCompletionEngine implements Runnable {
 
 	private static final String FAKE_IDENTIFIER = new String(RecoveryScanner.FAKE_IDENTIFIER);
 	private static final char[] VOID = PrimitiveType.VOID.toString().toCharArray();
+	private static final List<char[]> TYPE_KEYWORDS_EXCEPT_VOID = List.of(
+			PrimitiveType.BOOLEAN.toString().toCharArray(),
+			PrimitiveType.BYTE.toString().toCharArray(),
+			PrimitiveType.SHORT.toString().toCharArray(),
+			PrimitiveType.INT.toString().toCharArray(),
+			PrimitiveType.LONG.toString().toCharArray(),
+			PrimitiveType.DOUBLE.toString().toCharArray(),
+			PrimitiveType.FLOAT.toString().toCharArray(),
+			PrimitiveType.CHAR.toString().toCharArray());
 
 	private final int offset;
 	private final CompilationUnit unit;
@@ -342,6 +351,7 @@ public class DOMCompletionEngine implements Runnable {
 					ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
 					findOverridableMethods(typeDeclBinding, this.modelUnit.getJavaProject(), context);
 					ExtendsOrImplementsInfo extendsOrImplementsInfo = isInExtendsOrImplements(this.toComplete);
+					suggestTypeKeywords(true);
 					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 						findTypes(this.prefix, IJavaSearchConstants.TYPE, null)
 							// don't care about annotations
@@ -688,13 +698,16 @@ public class DOMCompletionEngine implements Runnable {
 			scrapeAccessibleBindings(defaultCompletionBindings);
 
 			if (suggestDefaultCompletions) {
+				ExtendsOrImplementsInfo extendsOrImplementsInfo = isInExtendsOrImplements(this.toComplete);
 				statementLikeKeywords();
+				if (!this.prefix.isEmpty() && extendsOrImplementsInfo == null) {
+					suggestTypeKeywords(DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.BLOCK }) == null);
+				}
 				publishFromScope(defaultCompletionBindings);
 				if (!completeAfter.isBlank()) {
 					final int typeMatchRule = this.toComplete.getParent() instanceof Annotation
 							? IJavaSearchConstants.ANNOTATION_TYPE
 							: IJavaSearchConstants.TYPE;
-					ExtendsOrImplementsInfo extendsOrImplementsInfo = isInExtendsOrImplements(this.toComplete);
 					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 						findTypes(completeAfter, typeMatchRule, null)
 							.filter(type -> {
@@ -718,6 +731,17 @@ public class DOMCompletionEngine implements Runnable {
 			if (this.monitor != null) {
 				this.monitor.done();
 			}
+		}
+	}
+
+	private void suggestTypeKeywords(boolean includeVoid) {
+		for (char[] keyword : TYPE_KEYWORDS_EXCEPT_VOID) {
+			if (!this.isFailedMatch(this.prefix.toCharArray(), keyword)) {
+				this.requestor.accept(createKeywordProposal(keyword, -1, -1));
+			}
+		}
+		if (includeVoid && !this.isFailedMatch(this.prefix.toCharArray(), VOID)) {
+			this.requestor.accept(createKeywordProposal(VOID, -1, -1));
 		}
 	}
 
@@ -1142,6 +1166,9 @@ public class DOMCompletionEngine implements Runnable {
 				ILog.get().error("Unable to compute type hierarchy while performing completion", e); //$NON-NLS-1$
 			}
 		} else if (enclosingTypeElement != null) {
+			if (isArray) {
+				suggestTypeKeywords(false);
+			}
 			// for some reason the enclosing type is almost always suggested
 			if (!this.isFailedMatch(this.prefix.toCharArray(), enclosingTypeElement.getElementName().toCharArray())) {
 				List<CompletionProposal> proposals = toConstructorProposals(enclosingTypeElement, referencedFrom, true);
@@ -1710,15 +1737,20 @@ public class DOMCompletionEngine implements Runnable {
 				+ RelevanceConstants.R_NON_RESTRICTED
 				+ computeRelevanceForQualification(!nodeInImports && !fromCurrentCU && !inSamePackage && !typeIsImported);
 		relevance += computeRelevanceForCaseMatching(this.prefix.toCharArray(), simpleName, this.assistOptions);
-		try {
-			if (type.isAnnotation()) {
-				relevance += RelevanceConstants.R_ANNOTATION;
+		if (isInExtendsOrImplements(this.toComplete) != null) {
+			try {
+				if (type.isAnnotation()) {
+					relevance += RelevanceConstants.R_ANNOTATION;
+				}
+				if (type.isInterface()) {
+					relevance += RelevanceConstants.R_INTERFACE;
+				}
+				if (type.isClass()) {
+					relevance += RelevanceConstants.R_CLASS;
+				}
+			} catch (JavaModelException e) {
+				// do nothing
 			}
-			if (type.isInterface()) {
-				relevance += RelevanceConstants.R_INTERFACE;
-			}
-		} catch (JavaModelException e) {
-			// do nothing
 		}
 		res.setRelevance(relevance);
 		if (parentType != null) {
