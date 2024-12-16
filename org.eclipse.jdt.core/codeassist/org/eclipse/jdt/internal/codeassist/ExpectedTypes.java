@@ -158,12 +158,18 @@ public class ExpectedTypes {
 			} else {
 				// find the param
 				IMethodBinding methodBinding = messageSend.resolveMethodBinding();
-				if (this.node != parent && methodBinding != null) {
-					int i = messageSend.arguments().indexOf(this.node);
-					if (0 <= i && i < methodBinding.getParameterTypes().length) {
-						this.expectedTypes.add(methodBinding.getParameterTypes()[i]);
-					} else if (0 <= i && methodBinding.isVarargs()) {
-						this.expectedTypes.add(methodBinding.getParameterTypes()[methodBinding.getParameterTypes().length - 1]);
+				if (this.node != parent) {
+					ASTNode cursor = this.node;
+					while (cursor != null && cursor.getParent() != messageSend) {
+						cursor = cursor.getParent();
+					}
+					if (cursor != null && methodBinding != null) {
+						int i = messageSend.arguments().indexOf(cursor);
+						if (0 <= i && i < methodBinding.getParameterTypes().length) {
+							this.expectedTypes.add(methodBinding.getParameterTypes()[i]);
+						} else if (0 <= i && methodBinding.isVarargs()) {
+							this.expectedTypes.add(methodBinding.getParameterTypes()[methodBinding.getParameterTypes().length - 1]);
+						}
 					}
 				}
 			}

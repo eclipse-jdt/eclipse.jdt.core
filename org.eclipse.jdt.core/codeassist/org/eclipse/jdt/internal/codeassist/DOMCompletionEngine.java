@@ -626,28 +626,38 @@ public class DOMCompletionEngine implements Runnable {
 					suggestDefaultCompletions = false;
 				}
 			}
-			if (context instanceof ClassInstanceCreation cic) {
-				ITypeBinding expectedType = null;
-				if (cic.getParent() instanceof VariableDeclarationFragment vdf) {
-					// relevant types
-					if (vdf.getParent() instanceof VariableDeclarationStatement vds) {
-						expectedType = vds.getType().resolveBinding();
-					} else if (vdf.getParent() instanceof FieldDeclaration fieldDeclaration) {
-						expectedType = fieldDeclaration.getType().resolveBinding();
-					}
-				} else if (cic.getParent() instanceof Assignment assignment) {
-					expectedType = assignment.getLeftHandSide().resolveTypeBinding();
-				}
-				if (expectedType != null) {
-
-					completeConstructor(expectedType, context, this.modelUnit.getJavaProject());
+			if (context instanceof ClassInstanceCreation) {
+				if (this.expectedTypes.getExpectedTypes() != null && !this.expectedTypes.getExpectedTypes().isEmpty() && !this.expectedTypes.getExpectedTypes().get(0).isRecovered()) {
+					completeConstructor(this.expectedTypes.getExpectedTypes().get(0), context, this.modelUnit.getJavaProject());
 				} else {
-					ASTNode current = this.toComplete;
-					while (current != null) {
-						specificCompletionBindings.addAll(visibleTypeBindings(current));
-						current = current.getParent();
+					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF) && !this.requestor.isIgnored(CompletionProposal.CONSTRUCTOR_INVOCATION)) {
+						String packageName = "";//$NON-NLS-1$
+						try {
+							IPackageDeclaration[] packageDecls = this.modelUnit.getPackageDeclarations();
+							if (packageDecls != null && packageDecls.length > 0) {
+								packageName = packageDecls[0].getElementName();
+							}
+						} catch (JavaModelException e) {
+							// do nothing
+						}
+
+						this.findTypes(this.prefix, IJavaSearchConstants.TYPE, packageName)
+								.filter(type -> {
+									try {
+										return !type.isAnnotation();
+									} catch (JavaModelException e) {
+										return true;
+									}
+								}) //
+								.flatMap(type -> {
+									if (this.prefix.isEmpty()) {
+										return Stream.of(toProposal(type));
+									} else {
+										return toConstructorProposals(type, this.toComplete, false).stream();
+									}
+								}) //
+								.forEach(this.requestor::accept);
 					}
-					publishFromScope(specificCompletionBindings);
 				}
 				suggestDefaultCompletions = false;
 			}
@@ -1079,11 +1089,11 @@ public class DOMCompletionEngine implements Runnable {
 		// compute type hierarchy
 		boolean isArray = typeBinding.isArray();
 		IType typeHandle = ((IType)typeBinding.getJavaElement());
+		AbstractTypeDeclaration enclosingType = (AbstractTypeDeclaration) DOMCompletionUtil.findParent(referencedFrom, new int[] { ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION, ASTNode.ANNOTATION_TYPE_DECLARATION });
+		ITypeBinding enclosingTypeBinding = enclosingType.resolveBinding();
+		IType enclosingTypeElement = (IType) enclosingTypeBinding.getJavaElement();
 		if (typeHandle != null) {
 			try {
-				AbstractTypeDeclaration enclosingType = (AbstractTypeDeclaration) DOMCompletionUtil.findParent(referencedFrom, new int[] { ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION, ASTNode.ANNOTATION_TYPE_DECLARATION });
-				ITypeBinding enclosingTypeBinding = enclosingType.resolveBinding();
-				IType enclosingTypeElement = (IType) enclosingTypeBinding.getJavaElement();
 				ITypeHierarchy newTypeHierarchy = typeHandle.newTypeHierarchy(javaProject, null);
 				ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
 				parser.setProject(javaProject);
@@ -1107,21 +1117,37 @@ public class DOMCompletionEngine implements Runnable {
 						subtypes.add(enclosingTypeElement);
 					}
 				}
-				IBinding[] descendantBindings = parser.createBindings(subtypes.toArray(IType[]::new), new NullProgressMonitor());
-				for (IBinding descendantBinding : descendantBindings) {
-					if (descendantBinding instanceof ITypeBinding descendantBindingType && CharOperation.prefixEquals(this.prefix.toCharArray(), descendantBindingType.getName().toCharArray())) {
-						if (isArray) {
-							this.requestor.accept(toProposal(descendantBinding));
-						} else {
-							List<CompletionProposal> proposals = toConstructorProposals(descendantBindingType, referencedFrom);
+
+				if (isArray) {
+					for (IType subtype : subtypes) {
+						if (!this.isFailedMatch(this.prefix.toCharArray(), subtype.getElementName().toCharArray())) {
+							InternalCompletionProposal typeProposal = (InternalCompletionProposal) toProposal(subtype);
+							typeProposal.setArrayDimensions(typeBinding.getDimensions());
+							typeProposal.setRelevance(typeProposal.getRelevance() + RelevanceConstants.R_EXACT_EXPECTED_TYPE);
+							this.requestor.accept(typeProposal);
+						}
+					}
+				} else {
+					for (IType subtype : subtypes) {
+						if (!this.isFailedMatch(this.prefix.toCharArray(), subtype.getElementName().toCharArray())) {
+							List<CompletionProposal> proposals = toConstructorProposals(subtype, referencedFrom, true);
 							for (CompletionProposal proposal : proposals) {
 								this.requestor.accept(proposal);
 							}
 						}
 					}
 				}
+
 			} catch (JavaModelException e) {
 				ILog.get().error("Unable to compute type hierarchy while performing completion", e); //$NON-NLS-1$
+			}
+		} else if (enclosingTypeElement != null) {
+			// for some reason the enclosing type is almost always suggested
+			if (!this.isFailedMatch(this.prefix.toCharArray(), enclosingTypeElement.getElementName().toCharArray())) {
+				List<CompletionProposal> proposals = toConstructorProposals(enclosingTypeElement, referencedFrom, true);
+				for (CompletionProposal proposal : proposals) {
+					this.requestor.accept(proposal);
+				}
 			}
 		}
 	}
@@ -1354,25 +1380,31 @@ public class DOMCompletionEngine implements Runnable {
 		ITypeBinding superFind = toFind.getErasure();
 		if( superFind != null ) {
 			String keyToFind = superFind.getKey();
-			Queue<ITypeBinding> toCheck = new LinkedList<>();
-			Set<String> alreadyChecked = new HashSet<>();
-			toCheck.add(root.getErasure());
-			while (!toCheck.isEmpty()) {
-				ITypeBinding current = toCheck.poll();
-				String currentKey = current.getErasure().getKey();
-				if (alreadyChecked.contains(currentKey)) {
-					continue;
-				}
-				alreadyChecked.add(currentKey);
-				if (currentKey.equals(keyToFind)) {
-					return true;
-				}
-				for (ITypeBinding superInterface : current.getInterfaces()) {
-					toCheck.add(superInterface);
-				}
-				if (current.getSuperclass() != null) {
-					toCheck.add(current.getSuperclass());
-				}
+			return findInSupers(root, keyToFind);
+		}
+		return false;
+	}
+
+	private static boolean findInSupers(ITypeBinding root, String keyOfTypeToFind) {
+		String keyToFind = keyOfTypeToFind;
+		Queue<ITypeBinding> toCheck = new LinkedList<>();
+		Set<String> alreadyChecked = new HashSet<>();
+		toCheck.add(root.getErasure());
+		while (!toCheck.isEmpty()) {
+			ITypeBinding current = toCheck.poll();
+			String currentKey = current.getErasure().getKey();
+			if (alreadyChecked.contains(currentKey)) {
+				continue;
+			}
+			alreadyChecked.add(currentKey);
+			if (currentKey.equals(keyToFind)) {
+				return true;
+			}
+			for (ITypeBinding superInterface : current.getInterfaces()) {
+				toCheck.add(superInterface);
+			}
+			if (current.getSuperclass() != null) {
+				toCheck.add(current.getSuperclass());
 			}
 		}
 		return false;
@@ -1690,7 +1722,15 @@ public class DOMCompletionEngine implements Runnable {
 		}
 		res.setRelevance(relevance);
 		if (parentType != null) {
-			if (!this.modelUnit.equals(type.getCompilationUnit())) {
+			String packageName = ""; //$NON-NLS-1$
+			try {
+				if (this.modelUnit.getPackageDeclarations() != null && this.modelUnit.getPackageDeclarations().length > 0) {
+					packageName = this.modelUnit.getPackageDeclarations()[0].getElementName();
+				}
+			} catch (JavaModelException e) {
+				// do nothing
+			}
+			if (!packageName.equals(type.getPackageFragment().getElementName())) {
 				// propose importing the type
 				res.setRequiredProposals(new CompletionProposal[] { toImportProposal(simpleName, signature, type.getPackageFragment().getElementName().toCharArray()) });
 			}
@@ -1717,7 +1757,7 @@ public class DOMCompletionEngine implements Runnable {
 		return res;
 	}
 
-	private List<CompletionProposal> toConstructorProposals(ITypeBinding typeBinding, ASTNode referencedFrom) {
+	private List<CompletionProposal> toConstructorProposals(IType type, ASTNode referencedFrom, boolean exactType) {
 
 		List<CompletionProposal> proposals = new ArrayList<>();
 
@@ -1727,99 +1767,122 @@ public class DOMCompletionEngine implements Runnable {
 		}
 
 		ITypeBinding referencedFromBinding = parentType.resolveBinding();
-		boolean includePrivate = referencedFromBinding.getKey().equals(typeBinding.getKey());
+		boolean includePrivate = referencedFromBinding.getKey().equals(type.getKey());
 		MethodDeclaration methodDeclaration = (MethodDeclaration)DOMCompletionUtil.findParent(referencedFrom, new int[] {ASTNode.METHOD_DECLARATION});
 		// you can reference protected fields/methods from a static method,
 		// as long as those protected fields/methods are declared in the current class.
 		// otherwise, the (inherited) fields/methods can only be accessed in non-static methods.
 		boolean includeProtected;
-		if (referencedFromBinding.getKey().equals(typeBinding.getKey())) {
+		if (referencedFromBinding.getKey().equals(type.getKey())) {
 			includeProtected = true;
 		} else if (methodDeclaration != null
 				&& (methodDeclaration.getModifiers() & Flags.AccStatic) != 0) {
 			includeProtected = false;
 		} else {
-			includeProtected = findInSupers(referencedFromBinding, typeBinding);
+			includeProtected = findInSupers(referencedFromBinding, type.getKey());
 		}
 
-		if (!this.requestor.isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION) && typeBinding.isInterface()) {
+		IPackageFragment packageFragment = (IPackageFragment)type.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+		String packageKey = packageFragment == null ? "" : packageFragment.getElementName().replace('.', '/'); //$NON-NLS-1$
+
+		boolean isInterface = false;
+		try {
+			isInterface = type.isInterface();
+		} catch (JavaModelException e) {
+			// do nothing
+		}
+
+
+		if (!this.requestor.isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION) && isInterface) {
 			// create an anonymous declaration: `new MyInterface() { }`;
-			proposals.add(toAnonymousConstructorProposal(typeBinding));
+			proposals.add(toAnonymousConstructorProposal(type));
 			// TODO: JDT allows completing the constructors declared on an abstract class,
 			// without adding a body to these instance creations.
 			// This doesn't make sense, since the abstract methods need to be implemented.
 			// We should consider making those completion items here instead
 		} else {
-			for (IMethodBinding typesMethod: typeBinding.getDeclaredMethods()) {
-				if (typesMethod.isConstructor()
-						// public
-						&& ((typesMethod.getModifiers() & Flags.AccPublic) != 0
-						// protected
-						|| (includeProtected && (typesMethod.getModifiers() & Flags.AccProtected) != 0)
-						// private
-						|| (includePrivate && (typesMethod.getModifiers() & Flags.AccPrivate) != 0)
-						// package private
-						||((typesMethod.getModifiers() & (Flags.AccPrivate | Flags.AccProtected | Flags.AccPublic)) == 0 && typeBinding.getPackage().getKey().equals(referencedFromBinding.getPackage().getKey())))) {
-					proposals.add(toConstructorProposal(typesMethod));
+			try {
+				List<IMethod> constructors = Stream.of(type.getMethods()).filter(method -> {
+						try {
+							return method.isConstructor();
+						} catch (JavaModelException e) {
+							return false;
+						}
+					}).toList();
+				if (!constructors.isEmpty()) {
+					for (IMethod constructor: constructors) {
+						if (
+								// public
+								(constructor.getFlags() & Flags.AccPublic) != 0
+								// protected
+								|| (includeProtected && (constructor.getFlags() & Flags.AccProtected) != 0)
+								// private
+								|| (includePrivate && (constructor.getFlags() & Flags.AccPrivate) != 0)
+								// package private
+								||((constructor.getFlags() & (Flags.AccPrivate | Flags.AccProtected | Flags.AccPublic)) == 0 && packageKey.equals(referencedFromBinding.getPackage().getKey()))) {
+							proposals.add(toConstructorProposal(constructor, exactType));
+						}
+					}
+				} else {
+					proposals.add(toDefaultConstructorProposal(type, exactType));
 				}
+			} catch (JavaModelException e) {
+				ILog.get().error("Model exception while trying to collect constructors for completion", e); //$NON-NLS-1$
 			}
 		}
 
 		return proposals;
 	}
 
-	private CompletionProposal toConstructorProposal(IMethodBinding methodBinding) {
+	private CompletionProposal toConstructorProposal(IMethod method, boolean isExactType) throws JavaModelException {
 		InternalCompletionProposal res = createProposal(CompletionProposal.CONSTRUCTOR_INVOCATION);
-		ITypeBinding declaringClass = methodBinding.getDeclaringClass();
-		char[] simpleName = methodBinding.getName().toCharArray();
-		char[] signature = methodBinding.getKey().replace('/', '.').toCharArray();
+		IType declaringClass = method.getDeclaringType();
+		char[] simpleName = method.getElementName().toCharArray();
 		res.setCompletion(new char[] {'(', ')'});
 		res.setName(simpleName);
+
+		char[] signature = method.getKey().substring(method.getKey().indexOf('.') + 1).toCharArray();
 		res.setSignature(signature);
 		res.setOriginalSignature(signature);
 
-		res.setDeclarationSignature(Signature.createTypeSignature(declaringClass.getQualifiedName(), true).toCharArray());
+		IPackageFragment packageFragment = (IPackageFragment)declaringClass.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+
+		res.setDeclarationSignature(Signature.createTypeSignature(declaringClass.getFullyQualifiedName(), true).toCharArray());
 		res.setDeclarationTypeName(simpleName);
-		res.setDeclarationPackageName(declaringClass.getPackage().getName().toCharArray());
+		res.setDeclarationPackageName(packageFragment.getElementName().toCharArray());
 		res.setParameterPackageNames(CharOperation.NO_CHAR_CHAR);
 		res.setParameterTypeNames(CharOperation.NO_CHAR_CHAR);
 
-		if (methodBinding.getParameterNames().length == 0) {
+		if (method.getParameterNames().length == 0) {
 			res.setParameterNames(CharOperation.NO_CHAR_CHAR);
 		} else {
-			char[][] paramNamesCharChar = Stream.of(methodBinding.getParameterNames()) //
+			char[][] paramNamesCharChar = Stream.of(method.getParameterNames()) //
 					.map(String::toCharArray)
 					.toArray(char[][]::new);
 			res.setParameterNames(paramNamesCharChar);
 		}
 
 		res.setIsContructor(true);
-		if (declaringClass.isGenericType()) {
-			res.setDeclarationTypeVariables(Stream.of(declaringClass.getTypeParameters()).map(a -> a.getName().toCharArray()).toArray(char[][]::new));
+		if (declaringClass.getTypeParameters() != null && declaringClass.getTypeParameters().length > 0) {
+			res.setDeclarationTypeVariables(Stream.of(declaringClass.getTypeParameters()).map(a -> a.getElementName().toCharArray()).toArray(char[][]::new));
 		}
 		res.setCompatibleProposal(true);
 
 		res.setReplaceRange(this.offset, this.offset);
 		res.setTokenRange(this.toComplete.getStartPosition(), this.offset);
-		res.setFlags(methodBinding.getModifiers());
+		res.setFlags(method.getFlags());
 
 		int relevance = RelevanceConstants.R_DEFAULT
 				+ RelevanceConstants.R_RESOLVED
 				+ RelevanceConstants.R_INTERESTING
-				+ RelevanceConstants.R_EXACT_EXPECTED_TYPE
+				+ (isExactType ? RelevanceConstants.R_EXACT_EXPECTED_TYPE : 0)
 				+ RelevanceConstants.R_UNQUALIFIED
 				+ RelevanceConstants.R_NON_RESTRICTED
-				+ RelevanceConstants.R_CONSTRUCTOR;
-		if (declaringClass.isAnnotation()) {
-			relevance += RelevanceConstants.R_ANNOTATION;
-		} else if (declaringClass.isInterface()) {
-			relevance += RelevanceConstants.R_INTERFACE;
-		} else if (declaringClass.isClass()) {
-			relevance += RelevanceConstants.R_CLASS;
-		}
+				+ RelevanceConstants.R_CONSTRUCTOR
+				+ computeRelevanceForCaseMatching(this.prefix.toCharArray(), simpleName, this.assistOptions);
 		res.setRelevance(relevance);
 
-		CompletionProposal typeProposal = toProposal(methodBinding.getDeclaringClass());
+		CompletionProposal typeProposal = toProposal(declaringClass);
 		if (this.toComplete instanceof SimpleName) {
 			typeProposal.setReplaceRange(this.toComplete.getStartPosition(), this.offset);
 			typeProposal.setTokenRange(this.toComplete.getStartPosition(), this.offset);
@@ -1827,57 +1890,119 @@ public class DOMCompletionEngine implements Runnable {
 			typeProposal.setReplaceRange(this.offset, this.offset);
 			typeProposal.setTokenRange(this.offset, this.offset);
 		}
-		StringBuilder typeCompletion = new StringBuilder(Signature.createTypeSignature(methodBinding.getDeclaringClass().getQualifiedName(), true));
-		typeCompletion.append('.');
-		typeCompletion.append(methodBinding.getName());
-		typeProposal.setCompletion(typeCompletion.toString().toCharArray());
 		typeProposal.setRequiredProposals(null);
+		typeProposal.setRelevance(relevance);
 
 		res.setRequiredProposals(new CompletionProposal[] { typeProposal });
 		return res;
 	}
 
-	private CompletionProposal toAnonymousConstructorProposal(ITypeBinding typeBinding) {
+	private CompletionProposal toDefaultConstructorProposal(IType type, boolean isExactType) throws JavaModelException {
+		InternalCompletionProposal res = createProposal(CompletionProposal.CONSTRUCTOR_INVOCATION);
+		char[] simpleName = type.getElementName().toCharArray();
+		res.setCompletion(new char[] {'(', ')'});
+		res.setName(simpleName);
+
+		char[] signature = Signature.createMethodSignature(CharOperation.NO_CHAR_CHAR, new char[]{ 'V' });
+		res.setSignature(signature);
+		res.setOriginalSignature(signature);
+
+		IPackageFragment packageFragment = (IPackageFragment)type.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+
+		res.setDeclarationSignature(Signature.createTypeSignature(type.getFullyQualifiedName(), true).toCharArray());
+		res.setDeclarationTypeName(simpleName);
+		res.setDeclarationPackageName(packageFragment.getElementName().toCharArray());
+		res.setParameterPackageNames(CharOperation.NO_CHAR_CHAR);
+		res.setParameterTypeNames(CharOperation.NO_CHAR_CHAR);
+
+		res.setParameterNames(CharOperation.NO_CHAR_CHAR);
+
+		res.setIsContructor(true);
+		if (type.getTypeParameters() != null && type.getTypeParameters().length > 0) {
+			res.setDeclarationTypeVariables(Stream.of(type.getTypeParameters()).map(a -> a.getElementName().toCharArray()).toArray(char[][]::new));
+		}
+		res.setCompatibleProposal(true);
+
+		res.setReplaceRange(this.offset, this.offset);
+		res.setTokenRange(this.toComplete.getStartPosition(), this.offset);
+		res.setFlags(type.getFlags() & (Flags.AccPublic | Flags.AccPrivate | Flags.AccProtected));
+
+		int relevance = RelevanceConstants.R_DEFAULT
+				+ RelevanceConstants.R_RESOLVED
+				+ RelevanceConstants.R_INTERESTING
+				+ (isExactType ? RelevanceConstants.R_EXACT_EXPECTED_TYPE : 0)
+				+ RelevanceConstants.R_UNQUALIFIED
+				+ RelevanceConstants.R_NON_RESTRICTED
+				+ RelevanceConstants.R_CONSTRUCTOR;
+		res.setRelevance(relevance);
+
+		CompletionProposal typeProposal = toProposal(type);
+		if (this.toComplete instanceof SimpleName) {
+			typeProposal.setReplaceRange(this.toComplete.getStartPosition(), this.offset);
+			typeProposal.setTokenRange(this.toComplete.getStartPosition(), this.offset);
+		} else {
+			typeProposal.setReplaceRange(this.offset, this.offset);
+			typeProposal.setTokenRange(this.offset, this.offset);
+		}
+		typeProposal.setRequiredProposals(null);
+		typeProposal.setRelevance(relevance);
+
+		res.setRequiredProposals(new CompletionProposal[] { typeProposal });
+		return res;
+	}
+
+	private CompletionProposal toAnonymousConstructorProposal(IType type) {
 		InternalCompletionProposal res = createProposal(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION);
-		res.setDeclarationSignature(Signature.createTypeSignature(typeBinding.getQualifiedName(), true).toCharArray());
-		res.setDeclarationKey(typeBinding.getKey().toCharArray());
+		res.setDeclarationSignature(Signature.createTypeSignature(type.getFullyQualifiedName(), true).toCharArray());
+		res.setDeclarationKey(type.getKey().toCharArray());
 		res.setSignature(
 				CompletionEngine.createMethodSignature(
 						CharOperation.NO_CHAR_CHAR,
 						CharOperation.NO_CHAR_CHAR,
 						CharOperation.NO_CHAR,
 						CharOperation.NO_CHAR));
-		res.setDeclarationPackageName(typeBinding.getPackage().getName().toCharArray());
-		res.setDeclarationTypeName(typeBinding.getName().toCharArray());
-		res.setName(typeBinding.getName().toCharArray());
+
+		IPackageFragment packageFragment = (IPackageFragment)type.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+
+		res.setDeclarationPackageName(packageFragment.getElementName().toCharArray());
+		res.setDeclarationTypeName(type.getElementName().toCharArray());
+		res.setName(type.getElementName().toCharArray());
 
 		int relevance = RelevanceConstants.R_DEFAULT;
 		relevance += RelevanceConstants.R_RESOLVED;
 		relevance += RelevanceConstants.R_INTERESTING;
-		relevance += computeRelevanceForCaseMatching(this.prefix.toCharArray(), typeBinding.getName().toCharArray(), this.assistOptions);
+		relevance += computeRelevanceForCaseMatching(this.prefix.toCharArray(), type.getElementName().toCharArray(), this.assistOptions);
 		relevance += RelevanceConstants.R_EXACT_EXPECTED_TYPE;
 		relevance += RelevanceConstants.R_UNQUALIFIED;
 		relevance += RelevanceConstants.R_NON_RESTRICTED;
-		if (typeBinding.getPackage().getName().startsWith("java.")) { //$NON-NLS-1$
+		if (packageFragment.getElementName().startsWith("java.")) { //$NON-NLS-1$
 			relevance += RelevanceConstants.R_JAVA_LIBRARY;
 		}
 
-		if(typeBinding.isClass()) {
-			relevance += RelevanceConstants.R_CLASS;
-//			relevance += computeRelevanceForException(typeName); // TODO:
-		} else if(typeBinding.isEnum()) {
-			relevance += RelevanceConstants.R_ENUM;
-		} else if(typeBinding.isInterface()) {
-			relevance += RelevanceConstants.R_INTERFACE;
+		try {
+			if(type.isClass()) {
+				relevance += RelevanceConstants.R_CLASS;
+//				relevance += computeRelevanceForException(typeName); // TODO:
+			} else if(type.isEnum()) {
+				relevance += RelevanceConstants.R_ENUM;
+			} else if(type.isInterface()) {
+				relevance += RelevanceConstants.R_INTERFACE;
+			}
+		} catch (JavaModelException e) {
+			// do nothing
 		}
 
 		InternalCompletionProposal typeProposal = createProposal(CompletionProposal.TYPE_REF);
-		typeProposal.setDeclarationSignature(typeBinding.getPackage().getName().toCharArray());
-		typeProposal.setSignature(Signature.createTypeSignature(typeBinding.getQualifiedName(), true).toCharArray());
-		typeProposal.setPackageName(typeBinding.getPackage().getName().toCharArray());
-		typeProposal.setTypeName(typeBinding.getName().toCharArray());
-		typeProposal.setCompletion(typeBinding.getName().toCharArray());
-		typeProposal.setFlags(typeBinding.getModifiers());
+		typeProposal.setDeclarationSignature(packageFragment.getElementName().toCharArray());
+		typeProposal.setSignature(Signature.createTypeSignature(type.getFullyQualifiedName(), true).toCharArray());
+		typeProposal.setPackageName(packageFragment.getElementName().toCharArray());
+		typeProposal.setTypeName(type.getElementName().toCharArray());
+		typeProposal.setCompletion(type.getElementName().toCharArray());
+		try {
+			typeProposal.setFlags(type.getFlags());
+		} catch (JavaModelException e) {
+			// do nothing
+		}
 		setRange(typeProposal);
 		typeProposal.setRelevance(relevance);
 		res.setRequiredProposals( new CompletionProposal[]{typeProposal});
