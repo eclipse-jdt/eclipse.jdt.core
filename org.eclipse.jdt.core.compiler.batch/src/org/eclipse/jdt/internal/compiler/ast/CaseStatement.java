@@ -40,7 +40,6 @@ public class CaseStatement extends Statement {
 
 	public BranchLabel targetLabel;
 	public Expression[] constantExpressions; // case with multiple expressions - if you want a under-the-hood view, use peeledLabelExpressions()
-	public BranchLabel[] targetLabels; // for multiple expressions
 	public boolean isSwitchRule = false;
 
 	public SwitchStatement swich; // owning switch
@@ -106,7 +105,7 @@ private boolean essentiallyQualifiedEnumerator(Expression e, TypeBinding selecto
 private void checkDuplicateDefault(BlockScope scope, ASTNode node) {
 	if (this.swich.defaultCase != null)
 		scope.problemReporter().duplicateDefaultCase(node);
-	else if (this.swich.totalPattern != null)
+	else if (this.swich.unconditionalPatternCase != null)
 		scope.problemReporter().illegalTotalPatternWithDefault(this);
 	this.swich.defaultCase = this;
 }
@@ -200,7 +199,7 @@ private Constant resolvePatternLabel(BlockScope scope, TypeBinding caseType, Typ
 		this.swich.switchBits |= SwitchStatement.Exhaustive;
 		pattern.isTotalTypeNode = true;
 		if (pattern.isUnconditional(selectorType, scope)) // unguarded is implied from 'coversType()' above
-			this.swich.totalPattern = pattern;
+			this.swich.unconditionalPatternCase = this;
 	}
  	return constant;
 }
@@ -215,11 +214,7 @@ public void resolve(BlockScope scope) {
 	this.labelExpressionOrdinal = this.swich.labelExpressionIndex;
 	this.swich.cases[this.swich.caseCount++] = this;
 
-	if (this.isSwitchRule)
-		this.swich.switchBits |= SwitchStatement.LabeledRules;
-	else
-		this.swich.switchBits |= SwitchStatement.LabeledBlockStatementGroup;
-
+	this.swich.switchBits |= this.isSwitchRule ? SwitchStatement.LabeledRules : SwitchStatement.LabeledBlockStatementGroup;
 	if ((this.swich.switchBits & (SwitchStatement.LabeledRules | SwitchStatement.LabeledBlockStatementGroup)) == (SwitchStatement.LabeledRules | SwitchStatement.LabeledBlockStatementGroup))
 		scope.problemReporter().arrowColonMixup(this);
 
@@ -229,6 +224,7 @@ public void resolve(BlockScope scope) {
 		return;
 	}
 
+	this.swich.switchBits |= SwitchStatement.HasNondefaultCase;
 	int count = 0;
 	int nullCaseCount = 0;
 	for (Expression e : this.constantExpressions) {
@@ -290,12 +286,8 @@ public void resolve(BlockScope scope) {
 				}
 				Constant constant = resolveConstantLabel(scope, caseType, selectorType, e);
 				if (constant != Constant.NotAConstant) {
-					int index = -1;
-					boolean isQualifiedEnum = false;
-					if (essentiallyQualifiedEnumerator(e, selectorType))
-						isQualifiedEnum = true;
-					else if (!(e instanceof NullLiteral))
-						index = this.swich.labelExpressionIndex;
+					int index = e instanceof NullLiteral ? -1 : this.swich.labelExpressionIndex;
+					boolean isQualifiedEnum = essentiallyQualifiedEnumerator(e, selectorType);
 					this.swich.gatherLabelExpression(new LabelExpression(constant, e, caseType, index, isQualifiedEnum));
 				}
 			}
@@ -324,13 +316,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if ((this.bits & ASTNode.IsReachable) == 0)
 		return;
+
 	int pc = codeStream.position;
-	if (this.targetLabels != null) {
-		for (BranchLabel label : this.targetLabels)
-			label.place();
-	}
-	if (this.targetLabel != null)
-		this.targetLabel.place();
+	this.targetLabel.place();
 
 	if (containsPatternVariable(true)) {
 

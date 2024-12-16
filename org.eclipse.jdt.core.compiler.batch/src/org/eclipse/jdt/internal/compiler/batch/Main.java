@@ -1787,7 +1787,7 @@ public void configure(String[] argv) {
 
 	boolean didSpecifyDeprecation = false;
 	boolean didSpecifyCompliance = false;
-	boolean didSpecifyDisabledAnnotationProcessing = false;
+	boolean disableAnnotationProcessing = false;
 
 	String customEncoding = null;
 	String customDestinationPath = null;
@@ -2475,6 +2475,7 @@ public void configure(String[] argv) {
 					continue;
 				}
 				if (currentArg.equals("-proc:only")) { //$NON-NLS-1$
+					disableAnnotationProcessing = false;
 					this.options.put(
 						CompilerOptions.OPTION_GenerateClassFiles,
 						CompilerOptions.DISABLED);
@@ -2482,10 +2483,19 @@ public void configure(String[] argv) {
 					continue;
 				}
 				if (currentArg.equals("-proc:none")) { //$NON-NLS-1$
-					didSpecifyDisabledAnnotationProcessing = true;
+					disableAnnotationProcessing = true;
 					this.options.put(
 						CompilerOptions.OPTION_Process_Annotations,
 						CompilerOptions.DISABLED);
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-proc:full")) { //$NON-NLS-1$
+					// Enable, just in case we had a -proc:only before this that disabled this
+					this.options.put(
+							CompilerOptions.OPTION_GenerateClassFiles,
+							CompilerOptions.ENABLED);
+					disableAnnotationProcessing = false;
 					mode = DEFAULT;
 					continue;
 				}
@@ -2946,8 +2956,7 @@ public void configure(String[] argv) {
 
 	// Enable annotation processing by default in batch mode when compliance is at least 1.6
 	// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=185768
-	if (!didSpecifyDisabledAnnotationProcessing
-			&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) >= ClassFileConstants.JDK1_6) {
+	if (!disableAnnotationProcessing) {
 		this.options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
 	}
 

@@ -288,7 +288,6 @@ public class ForStatement extends Statement {
 
 		// label management
 		BranchLabel actionLabel = new BranchLabel(codeStream);
-		actionLabel.tagBits |= BranchLabel.USED;
 		BranchLabel conditionLabel = new BranchLabel(codeStream);
 		this.breakLabel.initialize(codeStream);
 		if (this.continueLabel == null || conditionInjectsBindings) {
@@ -305,7 +304,6 @@ public class ForStatement extends Statement {
 			if ((this.condition != null)
 				&& (this.condition.constant == Constant.NotAConstant)
 				&& !((this.action == null || this.action.isEmptyBlock()) && (this.increments == null))) {
-				conditionLabel.tagBits |= BranchLabel.USED;
 				int jumpPC = codeStream.position;
 				codeStream.goto_(conditionLabel);
 				codeStream.recordPositionsFrom(jumpPC, this.condition.sourceStart);
@@ -491,23 +489,4 @@ public class ForStatement extends Statement {
 	public boolean completesByContinue() {
 		return this.action.continuesAtOuterLabel();
 	}
-	@Override
-	public boolean canCompleteNormally() {
-		Constant cst = this.condition == null ? null : this.condition.constant;
-		boolean isConditionTrue = cst == null || cst != Constant.NotAConstant && cst.booleanValue() == true;
-		cst = this.condition == null ? null : this.condition.optimizedBooleanConstant();
-		boolean isConditionOptimizedTrue = cst == null ? true : cst != Constant.NotAConstant && cst.booleanValue() == true;
-
-		if (!(isConditionTrue || isConditionOptimizedTrue))
-			return true;
-		if (this.action != null && this.action.breaksOut(null))
-			return true;
-		return false;
-	}
-
-	@Override
-	public boolean continueCompletes() {
-		return this.action.continuesAtOuterLabel();
-	}
-
 }

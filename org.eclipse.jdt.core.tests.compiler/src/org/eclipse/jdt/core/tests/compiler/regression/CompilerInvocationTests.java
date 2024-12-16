@@ -1949,8 +1949,8 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("LocalVariableIsNeverUsed", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_LOCAL));
 		expectedProblemAttributes.put("LocalVariableMayBeNull", SKIP);
 		expectedProblemAttributes.put("MaskedCatch", new ProblemAttributes(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK));
-		expectedProblemAttributes.put("MandatoryCloseNotShown", new ProblemAttributes(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE));
-		expectedProblemAttributes.put("MandatoryCloseNotShownAtExit", new ProblemAttributes(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE));
+		expectedProblemAttributes.put("MandatoryCloseNotShown", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE));
+		expectedProblemAttributes.put("MandatoryCloseNotShownAtExit", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE));
 		expectedProblemAttributes.put("MessageSendWithUnresolvedOwningAnnotation", SKIP);
 		expectedProblemAttributes.put("MethodButWithConstructorName", new ProblemAttributes(JavaCore.COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME));
 		expectedProblemAttributes.put("MethodCanBePotentiallyStatic", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIALLY_MISSING_STATIC_ON_METHOD));

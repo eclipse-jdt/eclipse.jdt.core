@@ -68,7 +68,7 @@ import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 public class BatchCompilerTest extends AbstractBatchCompilerTest {
 
 	static {
-//		TESTS_NAMES = new String[] { "test440477" };
+//		TESTS_NAMES = new String[] { "test3445" };
 //		TESTS_NUMBERS = new int[] { 306 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -13161,4 +13161,47 @@ public void testGH2434(){
         "",
         true);
 }
+public void test3445() {
+	final String testScratchArea = "fileSystemTestScratchArea";
+
+	File testScratchAreaFile = new File(Util.getOutputDirectory(), testScratchArea);
+	File packsFile = null;
+	try {
+		if(!testScratchAreaFile.exists()) {
+			testScratchAreaFile.mkdirs();
+		}
+
+
+		assertTrue(testScratchAreaFile.exists());
+
+		String packComponent = "AAAA";
+		final String packs = packComponent + File.separator + packComponent + File.separator + packComponent;
+		 packsFile = new File(testScratchAreaFile,  packs);
+
+		try {
+			if(!packsFile.exists()) {
+				packsFile.mkdirs();
+			}
+		} finally {
+			// do nothing
+		}
+
+		Classpath classpath = FileSystem.getClasspath(testScratchAreaFile.getPath(), null, null);
+		assertNotNull(classpath);
+		assertTrue(classpath instanceof ClasspathDirectory);
+
+		ClasspathDirectory classpathDirectory = (ClasspathDirectory)classpath;
+		classpathDirectory.getModulesDeclaringPackage(packs, ""); // //Just testing the concurrenthashmap implementation.
+
+	} finally {
+		if(packsFile.exists()) {
+			Util.delete(packsFile);
+		}
+
+		if(testScratchAreaFile.exists()) {
+			Util.delete(testScratchAreaFile);
+		}
+	}
+}
+
 }

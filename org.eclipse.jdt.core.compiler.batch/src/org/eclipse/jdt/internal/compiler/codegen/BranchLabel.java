@@ -30,8 +30,7 @@ public class BranchLabel extends Label {
 	public int tagBits;
 	protected int targetStackDepth = -1;
 	public final static int WIDE = 1;
-	public final static int USED = 2;
-	public final static int VALIDATE = 4;
+	public final static int VALIDATE = 2;
 	private OperandStack operandStack;
 
 
@@ -194,7 +193,6 @@ protected void trackStackDepth(boolean branch) {
 * Put down  a reference to the array at the location in the codestream.
 */
 void branch() {
-	this.tagBits |= BranchLabel.USED;
 	if (this.delegate != null) {
 		this.delegate.branch();
 		return;
@@ -213,11 +211,7 @@ void branch() {
 	trackStackDepth(true);
 }
 
-/*
-* No support for wide branches yet
-*/
 void branchWide() {
-	this.tagBits |= BranchLabel.USED;
 	if (this.delegate != null) {
 		this.delegate.branchWide();
 		return;

@@ -589,9 +589,9 @@ public static int getIrritant(int problemID) {
 
 		case IProblem.UnclosedCloseable:
 		case IProblem.UnclosedCloseableAtExit:
+			return CompilerOptions.UnclosedCloseable;
 		case IProblem.MandatoryCloseNotShown:
 		case IProblem.MandatoryCloseNotShownAtExit:
-			return CompilerOptions.UnclosedCloseable;
 		case IProblem.PotentiallyUnclosedCloseable:
 		case IProblem.PotentiallyUnclosedCloseableAtExit:
 			return CompilerOptions.PotentiallyUnclosedCloseable;

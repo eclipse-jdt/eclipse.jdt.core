@@ -160,6 +160,7 @@ public class OwningAnnotationModelTests extends ReconcilerTests {
 
 			IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_23_LIB"}, "bin", "23");
 			p2.setOption(JavaCore.COMPILER_ANNOTATION_RESOURCE_ANALYSIS, JavaCore.ENABLED);
+			p2.setOption(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, JavaCore.WARNING);
 			addClasspathEntry(p2, JavaCore.newProjectEntry(p1.getPath())); // no access to the annotation lib, since not re-exported
 
 			createFolder("/P2/client");
@@ -469,6 +470,7 @@ public class OwningAnnotationModelTests extends ReconcilerTests {
 
 			IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_23_LIB"}, "bin", "23");
 			p2.setOption(JavaCore.COMPILER_ANNOTATION_RESOURCE_ANALYSIS, JavaCore.ENABLED);
+			p2.setOption(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, JavaCore.WARNING);
 			addClasspathEntry(p2, JavaCore.newProjectEntry(p1.getPath())); // no access to the annotation lib, since not re-exported
 
 			createFolder("/P2/client");

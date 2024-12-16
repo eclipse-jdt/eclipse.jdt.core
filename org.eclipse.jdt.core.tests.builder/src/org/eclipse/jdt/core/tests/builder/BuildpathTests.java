@@ -369,7 +369,7 @@ public void testChangeZIPArchive1() throws Exception {
 
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.addExternalJars(projectPath, new String[] {externalLib});
-
+		long lastModified = new File(externalLib).lastModified();
 		IPath root = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "");
 
@@ -394,7 +394,7 @@ public void testChangeZIPArchive1() throws Exception {
 			},
 			externalLib,
 			CompilerOptions.getFirstSupportedJavaVersion());
-
+		new File(externalLib).setLastModified(lastModified + 1000); // make sure lastModified has changed
 		IJavaProject p = env.getJavaProject(projectPath);
 		p.getJavaModel().refreshExternalArchives(new IJavaElement[] {p}, null);
 

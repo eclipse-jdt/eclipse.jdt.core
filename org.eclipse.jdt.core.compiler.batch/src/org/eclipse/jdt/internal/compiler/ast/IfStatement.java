@@ -340,14 +340,4 @@ public boolean doesNotCompleteNormally() {
 public boolean completesByContinue() {
 	return this.thenStatement != null && this.thenStatement.completesByContinue() || this.elseStatement != null && this.elseStatement.completesByContinue();
 }
-@Override
-public boolean canCompleteNormally() {
-	return ((this.thenStatement == null || this.thenStatement.canCompleteNormally()) ||
-		(this.elseStatement == null || this.elseStatement.canCompleteNormally()));
-}
-@Override
-public boolean continueCompletes() {
-	return this.thenStatement != null && this.thenStatement.continueCompletes() ||
-			this.elseStatement != null && this.elseStatement.continueCompletes();
-}
 }

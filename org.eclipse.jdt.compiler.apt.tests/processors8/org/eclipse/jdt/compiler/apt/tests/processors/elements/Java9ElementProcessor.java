@@ -538,7 +538,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		TypeMirror asType = base.asType();
 		assertNotNull("module type should not be null", asType);
 		assertEquals("incorrect type kind", TypeKind.MODULE, asType.getKind());
-		assertEquals("must be a NoType", (asType instanceof NoType));
+		assertTrue("must be a NoType", (asType instanceof NoType));
 	}
 	public void testModuleTypeMirror2() {
 		ModuleElement base = _elementUtils.getModuleElement("mod.a");
@@ -1306,11 +1306,6 @@ public class Java9ElementProcessor extends BaseProcessor {
 			buf.append(msg);
 			buf.append(", expected " + expected + " but was " + actual);
 			reportError(buf.toString());
-		}
-	}
-	public void assertEquals(Object expected, Object actual) {
-		if (expected != actual) {
-
 		}
 	}
 	private void verifyAnnotations(AnnotatedConstruct construct, String[] annots) {
