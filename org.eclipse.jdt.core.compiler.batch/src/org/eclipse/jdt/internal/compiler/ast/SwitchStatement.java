@@ -276,7 +276,7 @@ public class SwitchStatement extends Expression {
 		}
 	}
 
-	private void preprocess() {
+	private void preprocess() { // make a pass over the switch block and allocate vectors.
 		int n = 0;
 		for (final Statement statement : this.statements) {
 			if (statement instanceof CaseStatement caseStatement) {
@@ -294,22 +294,12 @@ public class SwitchStatement extends Expression {
 		this.cases = new CaseStatement[n];
 	}
 
-	boolean isAllowedType(TypeBinding type) {
-		if (type == null)
-			return false;
-		switch (type.id) {
-			case TypeIds.T_char:
-			case TypeIds.T_byte:
-			case TypeIds.T_short:
-			case TypeIds.T_int:
-			case TypeIds.T_JavaLangCharacter :
-			case TypeIds.T_JavaLangByte :
-			case TypeIds.T_JavaLangShort :
-			case TypeIds.T_JavaLangInteger :
-				return true;
-			default: break;
-		}
-		return false;
+	boolean integralType(TypeBinding type) {
+		return switch (type.id) {
+			case TypeIds.T_char, TypeIds.T_byte, TypeIds.T_short, TypeIds.T_int,
+			     TypeIds.T_JavaLangCharacter, TypeIds.T_JavaLangByte, TypeIds.T_JavaLangShort, TypeIds.T_JavaLangInteger -> true;
+			     default -> false;
+		};
 	}
 
 	private boolean duplicateConstant(LabelExpression current, LabelExpression prior) {
@@ -447,42 +437,26 @@ public class SwitchStatement extends Expression {
 	}
 
 	private boolean isEnhancedSwitch(BlockScope upperScope, TypeBinding expressionType) {
-		if (JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(upperScope.compilerOptions())
-				&& expressionType != null && !(this instanceof SwitchExpression)) {
-
-			boolean acceptableType = !expressionType.isEnum();
+		if (expressionType == null || this instanceof SwitchExpression)
+			return false;
+		if (JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(upperScope.compilerOptions())) {
+			boolean nonTraditionalSelector = !expressionType.isEnum();
 			switch (expressionType.id) {
-				case TypeIds.T_char:
-				case TypeIds.T_byte:
-				case TypeIds.T_short:
-				case TypeIds.T_int:
-				case TypeIds.T_long:
-				case TypeIds.T_double:
-				case TypeIds.T_boolean:
-				case TypeIds.T_float:
-				case TypeIds.T_void:
-				case TypeIds.T_JavaLangCharacter:
-				case TypeIds.T_JavaLangByte:
-				case TypeIds.T_JavaLangShort:
-				case TypeIds.T_JavaLangInteger:
-				case TypeIds.T_JavaLangString:
-					acceptableType = false;
+				case TypeIds.T_char, TypeIds.T_byte, TypeIds.T_short, TypeIds.T_int,
+				     TypeIds.T_long, TypeIds.T_double, TypeIds.T_boolean, TypeIds.T_float,
+					 TypeIds.T_void, TypeIds.T_JavaLangCharacter, TypeIds.T_JavaLangByte,
+					 TypeIds.T_JavaLangShort, TypeIds.T_JavaLangInteger, TypeIds.T_JavaLangString:
+						 nonTraditionalSelector = false;
 			}
-			if (acceptableType || this.containsPatterns || this.containsNull) {
+			if (nonTraditionalSelector || this.containsPatterns || this.containsNull) {
 				return true;
 			}
 		}
-		if (expressionType != null && !(this instanceof SwitchExpression) && JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(upperScope.compilerOptions())) {
+		if (JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(upperScope.compilerOptions())) {
 			switch (expressionType.id) {
-				case TypeIds.T_float:
-				case TypeIds.T_double:
-				case TypeIds.T_long:
-				case TypeIds.T_boolean:
-				case TypeIds.T_JavaLangFloat:
-				case TypeIds.T_JavaLangDouble:
-				case TypeIds.T_JavaLangLong:
-				case TypeIds.T_JavaLangBoolean:
-					return true;
+				case TypeIds.T_float, TypeIds.T_double, TypeIds.T_long, TypeIds.T_boolean, TypeIds.T_JavaLangFloat,
+				     TypeIds.T_JavaLangDouble, TypeIds.T_JavaLangLong, TypeIds.T_JavaLangBoolean:
+				    	 return true;
 			}
 		}
 		return false;
@@ -674,13 +648,11 @@ public class SwitchStatement extends Expression {
 			if (!this.containsNull && this.expression.resolvedType instanceof ReferenceBinding)
 				this.expression.checkNPE(currentScope, flowContext, flowInfo, 1);
 
-			SwitchFlowContext switchContext =
-				new SwitchFlowContext(flowContext, this, (this.breakLabel = new BranchLabel()), true, true);
+			SwitchFlowContext switchContext = new SwitchFlowContext(flowContext, this, (this.breakLabel = new BranchLabel()), true, true);
 
 			CompilerOptions compilerOptions = currentScope.compilerOptions();
 
-			// analyse the block by considering specially the case/default statements (need to bind them
-			// to the entry point)
+			// analyse the block by considering specially the case/default statements (need to bind them to the entry point)
 			FlowInfo caseInits = FlowInfo.DEAD_END;
 			// in case of statements before the first case
 			this.preSwitchInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
@@ -693,10 +665,8 @@ public class SwitchStatement extends Expression {
 					Statement statement = this.statements[i];
 					if (statement instanceof CaseStatement caseStatement) {
 						this.scope.enclosingCase = caseStatement; // record entering in a switch case block
-						if (prevCaseStmtIndex == i - 1) {
-							if (this.statements[prevCaseStmtIndex].containsPatternVariable())
-								this.scope.problemReporter().illegalFallthroughFromAPattern(this.statements[prevCaseStmtIndex]);
-						}
+						if (prevCaseStmtIndex == i - 1 && this.statements[prevCaseStmtIndex].containsPatternVariable())
+							this.scope.problemReporter().illegalFallthroughFromAPattern(this.statements[prevCaseStmtIndex]);
 						prevCaseStmtIndex = i;
 						if (fallThroughState == FALLTHROUGH && complaintLevel <= NOT_COMPLAINED) {
 							if (statement.containsPatternVariable())
@@ -756,10 +726,8 @@ public class SwitchStatement extends Expression {
 				return flowInfo;
 			}
 
-			// merge all branches inits
-			FlowInfo mergedInfo = caseInits.mergedWith(switchContext.initsOnBreak);
-			this.mergedInitStateIndex =
-				currentScope.methodScope().recordInitializationStates(mergedInfo);
+			FlowInfo mergedInfo = caseInits.mergedWith(switchContext.initsOnBreak); // merge all branches inits
+			this.mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 			return mergedInfo;
 		} finally {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
