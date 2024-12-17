@@ -209,25 +209,6 @@ public class InferenceVariable extends TypeVariableBinding {
 	}
 
 	@Override
-	public int hashCode() {
-		int code = this.typeParameter.hashCode() + 17 * this.rank;
-		if (this.site != null) {
-			code = 31 * code + this.site.sourceStart();
-			code = 31 * code + this.site.sourceEnd();
-		}
-		return code;
-	}
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof InferenceVariable))
-			return false;
-		InferenceVariable other = (InferenceVariable) obj;
-		return this.rank == other.rank
-				&& InferenceContext18.isSameSite(this.site, other.site)
-				&& TypeBinding.equalsEquals(this.typeParameter, other.typeParameter);
-	}
-
-	@Override
 	public TypeBinding erasure() {
 		// lazily initialize field that may be required in super.erasure():
 		if (this.superclass == null)
