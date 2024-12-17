@@ -60,6 +60,7 @@ public class EclipseCompiler implements JavaCompiler {
 	public DiagnosticListener<? super JavaFileObject> diagnosticListener;
 
 	public static final RuntimeException UNEXPECTED_CONTROL_FLOW = new RuntimeException() { private static final long serialVersionUID = 1L; };
+	public static final RuntimeException UNSUPPORTED_OPERATION = new RuntimeException() { private static final long serialVersionUID = 1L; };
 
 	public EclipseCompiler() {
 		this.threadCache = new WeakHashMap<>();

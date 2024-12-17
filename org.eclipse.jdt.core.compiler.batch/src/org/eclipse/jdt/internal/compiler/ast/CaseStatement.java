@@ -157,7 +157,7 @@ private Constant resolveConstantLabel(BlockScope scope, TypeBinding caseType, Ty
 		return expression.constant;
 	}
 
-	boolean boxing = !JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(options) || this.swich.isAllowedType(selectorType);
+	boolean boxing = !JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(options) || this.swich.integralType(selectorType);
 	if (boxing && isBoxingCompatible(caseType, selectorType, expression, scope)) {
 		if (expression.constant == Constant.NotAConstant)
 			scope.problemReporter().caseExpressionMustBeConstant(expression);
