@@ -19,7 +19,11 @@ Some background...
 
 ## 📥 Install on top of existing JDT in your Eclipse IDE
 
-Using the _Install New Software_ dialog and pointing to https://ci.eclipse.org/ls/job/jdt-core-incubator/job/dom-with-javac/lastSuccessfulBuild/artifact/repository/target/repository/ p2 repository,
+Assuming you have Eclipse IDE well configured, just click the following link 👇 https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/redirectToMarketplace.html?entryId=6444683
+
+**OR**
+
+Using the _Help > Install New Software_ dialog and pointing to https://ci.eclipse.org/ls/job/jdt-core-incubator/job/dom-with-javac/lastSuccessfulBuild/artifact/repository/target/repository/ p2 repository,
 install the _Javac backend for JDT_ artifact. Installing it will also tweak your `eclipse.ini` file to add the relevant options.
 
 Note that some required feature switches are not yet available in upstream JDT (see above) and thus will still default to ECJ.
