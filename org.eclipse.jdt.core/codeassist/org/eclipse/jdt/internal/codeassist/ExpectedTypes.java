@@ -34,6 +34,14 @@ public class ExpectedTypes {
 		SUPERTYPE, SUBTYPE;
 	}
 
+	private static final Set<StructuralPropertyDescriptor> CONDITION_LOCATIONS = Set.of(
+			IfStatement.EXPRESSION_PROPERTY,
+			WhileStatement.EXPRESSION_PROPERTY,
+			DoStatement.EXPRESSION_PROPERTY,
+			ForStatement.EXPRESSION_PROPERTY,
+			ConditionalExpression.EXPRESSION_PROPERTY
+		);
+
 	private final int offset;
 	private Collection<TypeFilter> expectedTypesFilters = Set.of(TypeFilter.SUPERTYPE, TypeFilter.SUBTYPE);
 	private final Collection<ITypeBinding> expectedTypes = new LinkedHashSet<>();
@@ -73,6 +81,10 @@ public class ExpectedTypes {
 			}
 			if (parent2 instanceof CastExpression cast && this.offset > cast.getType().getStartPosition() + cast.getType().getLength()) {
 				this.expectedTypes.add(cast.getType().resolveBinding());
+				return;
+			}
+			if (parent2.getLocationInParent() != null && CONDITION_LOCATIONS.contains(parent2.getLocationInParent())) {
+				this.expectedTypes.add(parent2.getAST().resolveWellKnownType(PrimitiveType.BOOLEAN.toString()));
 				return;
 			}
  			parent2 = parent2.getParent();
