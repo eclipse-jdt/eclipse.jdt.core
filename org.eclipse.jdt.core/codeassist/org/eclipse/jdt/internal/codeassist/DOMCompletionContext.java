@@ -74,7 +74,7 @@ class DOMCompletionContext extends CompletionContext {
 	}
 
 	private String tokenBefore(IBuffer cuBuffer) {
-		int position = this.offset - 1;
+		int position = Math.min(this.offset, cuBuffer.getLength()) - 1;
 		StringBuilder builder = new StringBuilder();
 		while (position >= 0 && Character.isJavaIdentifierPart(cuBuffer.getChar(position))) {
 			builder.append(cuBuffer.getChar(position));

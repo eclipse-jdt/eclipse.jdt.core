@@ -1473,6 +1473,7 @@ public class DOMCompletionEngine implements Runnable {
 		res.setCompletion(completion.toCharArray());
 		res.setFlags(binding.getModifiers());
 
+		boolean inheritedValue = false;
 		if (kind == CompletionProposal.METHOD_REF || kind == CompletionProposal.METHOD_NAME_REFERENCE) {
 			var methodBinding = (IMethodBinding) binding;
 			var paramNames = DOMCompletionEngineMethodDeclHandler.findVariableNames(methodBinding);
@@ -1483,16 +1484,17 @@ public class DOMCompletionEngine implements Runnable {
 			}
 			res.setParameterTypeNames(Stream.of(methodBinding.getParameterNames()).map(String::toCharArray).toArray(char[][]::new));
 			res.setSignature(DOMCompletionEngineBuilder.getSignature(methodBinding));
-			res.setDeclarationSignature(Signature
-					.createTypeSignature(methodBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
-					.toCharArray());
+			if (!methodBinding.getDeclaringClass().getQualifiedName().isEmpty()) {
+				res.setDeclarationSignature(Signature
+						.createTypeSignature(methodBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
+						.toCharArray());
+			}
 
 			if ((methodBinding.getModifiers() & Flags.AccStatic) != 0) {
 				ITypeBinding topLevelClass = methodBinding.getDeclaringClass();
 				while (topLevelClass.getDeclaringClass() != null) {
 					topLevelClass = topLevelClass.getDeclaringClass();
 				}
-				boolean inheritedValue = false;
 				ITypeBinding methodTypeBinding = methodBinding.getDeclaringClass();
 				AbstractTypeDeclaration parentTypeDecl = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete);
 				if (parentTypeDecl != null) {
@@ -1529,10 +1531,10 @@ public class DOMCompletionEngine implements Runnable {
 			res.setSignature(
 					Signature.createTypeSignature(variableBinding.getType().getQualifiedName().toCharArray(), true)
 							.toCharArray());
-			if (declaringClass != null) {
+			if (declaringClass != null && !declaringClass.getQualifiedName().isEmpty()) {
 				char[] declSignature = Signature
 						.createTypeSignature(
-								variableBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
+								declaringClass.getQualifiedName().toCharArray(), true)
 						.toCharArray();
 				res.setDeclarationSignature(declSignature);
 			} else {
@@ -1544,7 +1546,6 @@ public class DOMCompletionEngine implements Runnable {
 				while (topLevelClass.getDeclaringClass() != null) {
 					topLevelClass = topLevelClass.getDeclaringClass();
 				}
-				boolean inheritedValue = false;
 				ITypeBinding variableTypeBinding = variableBinding.getDeclaringClass();
 				AbstractTypeDeclaration parentTypeDecl = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete);
 				if (parentTypeDecl != null) {
@@ -1563,10 +1564,14 @@ public class DOMCompletionEngine implements Runnable {
 					} else {
 						ITypeBinding directParentClass = variableBinding.getDeclaringClass();
 						res.setRequiredProposals(new CompletionProposal[] { toStaticImportProposal(directParentClass) });
-						StringBuilder builder = new StringBuilder(new String(res.getCompletion()));
-						builder.insert(0, '.');
-						builder.insert(0, directParentClass.getName());
-						res.setCompletion(builder.toString().toCharArray());
+						if (this.toComplete.getLocationInParent() != QualifiedName.NAME_PROPERTY &&
+							this.toComplete.getLocationInParent() != FieldAccess.NAME_PROPERTY &&
+							this.toComplete.getLocationInParent() != NameQualifiedType.NAME_PROPERTY) {
+							StringBuilder builder = new StringBuilder(new String(res.getCompletion()));
+							builder.insert(0, '.');
+							builder.insert(0, directParentClass.getName());
+							res.setCompletion(builder.toString().toCharArray());
+						}
 					}
 				}
 			}
@@ -1622,8 +1627,8 @@ public class DOMCompletionEngine implements Runnable {
 					binding instanceof IVariableBinding variableBinding ? variableBinding.getType() :
 					this.toComplete.getAST().resolveWellKnownType(Object.class.getName())) +
 				(res.getRequiredProposals() != null ? 0 : computeRelevanceForQualification(false)) +
-				CompletionEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE) //no access restriction for class field
-				//RelevanceConstants.R_NON_INHERITED // TODO: when is this active?
+				CompletionEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE) + //no access restriction for class field
+				(!staticOnly() || inheritedValue ? 0 : RelevanceConstants.R_NON_INHERITED) // TODO: when is this active?
 				);
 		if (res.getRequiredProposals() != null) {
 			for (CompletionProposal req : res.getRequiredProposals()) {
@@ -1631,6 +1636,13 @@ public class DOMCompletionEngine implements Runnable {
 			}
 		}
 		return res;
+	}
+
+	private boolean staticOnly() {
+		if (this.toComplete.getLocationInParent() == QualifiedName.NAME_PROPERTY) {
+			return DOMCodeSelector.resolveBinding(((QualifiedName)this.toComplete.getParent()).getQualifier()) instanceof ITypeBinding;
+		}
+		return false;
 	}
 
 	private String qualifiedTypeName(ITypeBinding typeBinding) {
@@ -1685,7 +1697,8 @@ public class DOMCompletionEngine implements Runnable {
 			}
 		} else {
 			// in imports list
-			if (this.cuBuffer.getChar(this.toComplete.getStartPosition() + this.toComplete.getLength()) != ';') {
+			int lastOffset = this.toComplete.getStartPosition() + this.toComplete.getLength();
+			if (lastOffset >= this.cuBuffer.getLength() || this.cuBuffer.getChar(lastOffset) != ';') {
 				completion.append(';');
 			}
 		}
