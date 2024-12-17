@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.jdt.core.javac.feature"
+      label="Javac backend for JDT (feature)"
+      version="1.0.0.qualifier">
+
+   <plugin
+         id="org.eclipse.jdt.core.javac"
+         version="0.0.0"/>
+
+</feature>

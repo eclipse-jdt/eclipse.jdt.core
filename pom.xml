@@ -61,6 +61,7 @@
     <module>org.eclipse.jdt.core.compiler.batch</module>
     <module>org.eclipse.jdt.core</module>
     <module>org.eclipse.jdt.core.javac</module>
+    <module>org.eclipse.jdt.core.javac.feature</module>
     <module>org.eclipse.jdt.core.formatterapp</module>
     <module>org.eclipse.jdt.compiler.tool.tests</module>
     <module>org.eclipse.jdt.core.tests.builder.mockcompiler</module>
