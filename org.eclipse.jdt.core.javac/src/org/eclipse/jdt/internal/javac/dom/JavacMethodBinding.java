@@ -298,12 +298,30 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	private IMethod resolved(IMethod from) {
 		if (from instanceof SourceMethod && !(from instanceof ResolvedSourceMethod)) {
-			return new ResolvedSourceMethod((JavaElement)from.getParent(), from.getElementName(), from.getParameterTypes(), getKey(), from.getOccurrenceCount());
+			return new ResolvedSourceMethod((JavaElement)from.getParent(), from.getElementName(), from.getParameterTypes(), computeKeyWithThrowsFromJavadoc(from), from.getOccurrenceCount());
 		}
 		if (from instanceof BinaryMethod && !(from instanceof ResolvedBinaryMethod)) {
-			return new ResolvedBinaryMethod((JavaElement)from.getParent(), from.getElementName(), from.getParameterTypes(), getKey(), from.getOccurrenceCount());
+			return new ResolvedBinaryMethod((JavaElement)from.getParent(), from.getElementName(), from.getParameterTypes(), computeKeyWithThrowsFromJavadoc(from), from.getOccurrenceCount());
 		}
 		return from;
+	}
+
+	/**
+	 * Computes the key including throws from Javadoc (which are available
+	 * from the {@link IMethod} but not from the binding).
+	 * @param method the {@link IMethod} matching current binding
+	 * @return the key including the exception suffix
+	 */
+	private String computeKeyWithThrowsFromJavadoc(IMethod method) {
+		String[] exceptions = Arrays.stream(getExceptionTypes()).map(ITypeBinding::getKey).toArray(String[]::new);
+		if (method != null) {
+			try {
+				exceptions = method.getExceptionTypes();
+			} catch (JavaModelException ex) {
+				// ignore
+			}
+		}
+		return getKey() + Arrays.stream(exceptions).map(t -> '|' + t.replace('.', '/')).collect(Collectors.joining());
 	}
 
 	private IJavaElement getJavaElementForAnnotationTypeMemberDeclaration(IType currentType, AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
@@ -344,7 +362,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		try {
 			StringBuilder builder = new StringBuilder();
 			getKey(builder, this.methodSymbol, this.methodType, this.parentType, this.resolver);
-			return builder.toString() + Arrays.stream(getExceptionTypes()).map(ITypeBinding::getKey).map(key -> '|' + key).collect(Collectors.joining());
+			return builder.toString();
 		} catch(BindingKeyException bke) {
 			return null;
 		}
@@ -399,7 +417,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			}
 			builder.append(')');
 			if (methodType != null && !(methodType.getReturnType() instanceof JCNoType)) {
-				JavacTypeBinding.getKey(builder, methodType.getReturnType(), false, resolver);
+				JavacTypeBinding.getKey(builder, methodType.getReturnType(), false, true, resolver);
 			} else if (!(methodSymbol.getReturnType() instanceof JCNoType)) {
 				JavacTypeBinding.getKey(builder, methodSymbol.getReturnType(), false, resolver);
 			}

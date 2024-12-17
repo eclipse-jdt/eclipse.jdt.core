@@ -363,7 +363,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		}
 		if (typeToBuild instanceof Type.WildcardType wildcardType) {
 			if (wildcardType.isUnbound()) {
-				builder.append('*');
+				builder.append("+Ljava/lang/Object;");
 			} else if (wildcardType.isExtendsBound()) {
 				builder.append('+');
 				getKey(builder, wildcardType.getExtendsBound(), isLeaf, includeParameters, resolver);
