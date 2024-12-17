@@ -342,6 +342,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("AbstractMethodMustBeImplementedOverConcreteMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("AbstractMethodsInConcreteClass", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("AbstractServiceImplementation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("AllocatingLocalInStaticContext", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("AmbiguousConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("AmbiguousConstructorInDefaultConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("AmbiguousConstructorInImplicitConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -1480,6 +1481,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("AbstractMethodMustBeImplementedOverConcreteMethod", SKIP);
 		expectedProblemAttributes.put("AbstractMethodsInConcreteClass", SKIP);
 		expectedProblemAttributes.put("AbstractServiceImplementation", SKIP);
+		expectedProblemAttributes.put("AllocatingLocalInStaticContext", SKIP);
 		expectedProblemAttributes.put("AmbiguousConstructor", SKIP);
 		expectedProblemAttributes.put("AmbiguousConstructorInDefaultConstructor", SKIP);
 		expectedProblemAttributes.put("AmbiguousConstructorInImplicitConstructorCall", SKIP);

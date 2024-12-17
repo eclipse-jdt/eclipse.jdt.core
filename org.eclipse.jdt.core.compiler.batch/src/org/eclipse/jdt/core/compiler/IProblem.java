@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added the following constants
@@ -2758,6 +2762,11 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature
 	 */
 	int ConstructorCallNotAllowedHere = PreviewRelated + 2031;
+
+	/**
+	 * @since 3.40
+	 */
+	int AllocatingLocalInStaticContext = TypeRelated + 2032;
 
 	/**
 	 * @since 3.40
