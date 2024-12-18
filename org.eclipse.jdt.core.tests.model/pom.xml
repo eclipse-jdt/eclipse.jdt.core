@@ -90,49 +90,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,14,17</tycho.surefire.argLine>
-		</properties>
-	</profile>
-	<profile>
-		<id>test-on-javase-18</id>
-		<build>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-toolchains-plugin</artifactId>
-					<configuration>
-						<toolchains>
-							<jdk>
-								<id>JavaSE-18</id>
-							</jdk>
-						</toolchains>
-					</configuration>
-				</plugin>
-			</plugins>
-		</build>
-		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,15,18</tycho.surefire.argLine>
-		</properties>
-	</profile>
-	<profile>
-		<id>test-on-javase-19</id>
-		<build>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-toolchains-plugin</artifactId>
-					<configuration>
-						<toolchains>
-							<jdk>
-								<id>JavaSE-19</id>
-							</jdk>
-						</toolchains>
-					</configuration>
-				</plugin>
-			</plugins>
-		</build>
-		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,19</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>
@@ -153,7 +111,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,19,21</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17,21</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>
@@ -174,7 +132,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,21,23</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17,21,23</tycho.surefire.argLine>
 		</properties>
 	</profile>
   </profiles>
