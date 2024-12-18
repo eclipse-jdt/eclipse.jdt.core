@@ -18,6 +18,7 @@ package org.eclipse.jdt.internal.compiler.batch;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.tool.ModuleLocationHandler.LocationWrapper;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class ClasspathJsr199 extends ClasspathLocation {
@@ -100,7 +102,8 @@ public class ClasspathJsr199 extends ClasspathLocation {
 			try (InputStream inputStream = jfo.openInputStream()) {
 				ClassFileReader reader = ClassFileReader.read(inputStream.readAllBytes(), qualifiedBinaryFileName);
 				if (reader != null) {
-					return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName));
+					char[] answerModule = this.module != null ? this.module.name() : null;
+					return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName), answerModule);
 				}
 			}
 		} catch (ClassFormatException e) {
@@ -156,12 +159,21 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	public void initialize() throws IOException {
 		if (this.jrt != null) {
 			this.jrt.initialize();
+		} else if (this.location instanceof LocationWrapper wrapper) {
+			for (Path locPath : wrapper.getPaths()) {
+				File file = locPath.toFile();
+				IModule mod = ModuleFinder.scanForModule(this, file, null, true, null);
+				if (mod != null)
+					return;
+			}
 		}
 	}
 
 	@Override
 	public void acceptModule(IModule mod) {
-		// do nothing
+		if (this.jrt != null)
+			return; // do nothing
+		this.module = mod;
 	}
 
 	@Override
@@ -193,6 +205,29 @@ public class ClasspathJsr199 extends ClasspathLocation {
 			// treat as if missing
 		}
 		return singletonModuleNameIf(result);
+	}
+
+	@Override
+	public char[][] listPackages() {
+		Set<String> packageNames = new HashSet<>();
+		try {
+			for (JavaFileObject fileObject : this.fileManager.list(this.location, "", fileTypes, true)) { //$NON-NLS-1$
+				String name = fileObject.getName();
+				int lastSlash = name.lastIndexOf('/');
+				if (lastSlash != -1) {
+					packageNames.add(name.substring(0, lastSlash).replace('/', '.'));
+				}
+			}
+			char[][] result = new char[packageNames.size()][];
+			int i = 0;
+			for (String s : packageNames) {
+				result[i++] = s.toCharArray();
+			}
+			return result;
+		} catch (IOException e) {
+			// ??
+		}
+		return CharOperation.NO_CHAR_CHAR;
 	}
 
 	@Override
@@ -250,6 +285,9 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	public Collection<String> getModuleNames(Collection<String> limitModules) {
 		if (this.jrt != null)
 			return this.jrt.getModuleNames(limitModules);
+		if (this.module != null) {
+			return Collections.singletonList(String.valueOf(this.module.name()));
+		}
 		return Collections.emptyList();
 	}
 
@@ -267,6 +305,11 @@ public class ClasspathJsr199 extends ClasspathLocation {
 			return this.jrt.getModule(name);
 		}
 		return super.getModule(name);
+	}
+
+	@Override
+	public IModule getModule() {
+		return this.module;
 	}
 
 	@Override
