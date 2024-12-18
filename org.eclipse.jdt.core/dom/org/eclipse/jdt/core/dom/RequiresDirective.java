@@ -199,17 +199,6 @@ public class RequiresDirective extends ModuleDirective {
 	 * @return the module referenced
 	 */
 	public Name getName()  {
-		if (this.name == null) {
-			// lazy init must be thread-safe for readers
-			synchronized (this) {
-				if (this.name == null) {
-					preLazyInit();
-					this.name = postLazyInit(
-							this.ast.newQualifiedName(new SimpleName(this.ast), new SimpleName(this.ast)),
-							NAME_PROPERTY);
-				}
-			}
-		}
 		return this.name;
 	}
 
@@ -224,9 +213,6 @@ public class RequiresDirective extends ModuleDirective {
 	 * </ul>
 	 */
 	public void setName(Name name) {
-		if (name == null) {
-			throw new IllegalArgumentException();
-		}
 		ASTNode oldChild = this.name;
 		preReplaceChild(oldChild, name, NAME_PROPERTY);
 		this.name = name;
