@@ -145,6 +145,9 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		super.tearDownSuite();
 	}
 
+	protected String getExternalJCLPathString(String compliance) {
+		return null;
+	}
 	@Override
 	public void setUpJCLClasspathVariables(String compliance, boolean useFullJCL) throws JavaModelException, IOException {
 		if (useFullJCL) {

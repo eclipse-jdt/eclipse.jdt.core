@@ -2535,7 +2535,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected String[] getJCLLibrary(String compliance) throws JavaModelException, IOException {
 		// ensure that the requested JCL lib is setup (i.e. that the jclMinXY.jar is copied)
 		setUpJCLClasspathVariables(compliance);
-		return new String[] {getExternalJCLPathString(compliance)};
+		String externalJCLPathString = getExternalJCLPathString(compliance);
+		if (externalJCLPathString == null) {
+			return new String[] {};
+		}
+		return new String[] {externalJCLPathString};
 	}
 	/**
 	 * Returns the specified compilation unit in the given project, root, and
